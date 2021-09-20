@@ -1112,6 +1112,7 @@ function save_your_work()
                 box_six_info = ""
                 box_seven_info = ""
                 box_eight_info = ""
+                box_nine_info = ""
                 If ALL_MEMBERS_ARRAY(include_cash_checkbox, the_members) = checked Then box_one_info = "CHECKED"
                 If ALL_MEMBERS_ARRAY(include_snap_checkbox, the_members) = checked Then box_two_info = "CHECKED"
                 If ALL_MEMBERS_ARRAY(include_emer_checkbox, the_members) = checked Then box_three_info = "CHECKED"
@@ -1120,6 +1121,7 @@ function save_your_work()
                 If ALL_MEMBERS_ARRAY(count_emer_checkbox, the_members) = checked Then box_six_info = "CHECKED"
                 If ALL_MEMBERS_ARRAY(pwe_checkbox, the_members) = checked Then box_seven_info = "CHECKED"
                 If ALL_MEMBERS_ARRAY(shel_verif_checkbox, the_members) = checked Then box_eight_info = "CHECKED"
+                If ALL_MEMBERS_ARRAY(id_required, the_members) = checked Then box_nine_info = "CHECKED"
 
                 objTextStream.WriteLine "ALL_MEMBERS_ARRAY" & "^~^~^~^~^~^~^" &ALL_MEMBERS_ARRAY(memb_numb, the_members)&"~**^"&ALL_MEMBERS_ARRAY(clt_name, the_members)&"~**^"&ALL_MEMBERS_ARRAY(clt_age, the_members)&"~**^"&_
                 ALL_MEMBERS_ARRAY(full_clt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(clt_id_verif, the_members)&"~**^"&box_one_info&"~**^"&box_two_info&"~**^"&box_three_info&"~**^"&box_four_info&"~**^"&box_five_info&"~**^"&box_six_info&"~**^"&_
@@ -1137,7 +1139,7 @@ function save_your_work()
                 ALL_MEMBERS_ARRAY(shel_retro_garage_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_garage_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, the_members)&"~**^"&_
                 ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt,the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, the_members)&"~**^"&_
                 ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(wreg_exists, the_members)&"~**^"&box_eight_info&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_verif_added, the_members)&"~**^"&ALL_MEMBERS_ARRAY(gather_detail, the_members)&"~**^"&ALL_MEMBERS_ARRAY(id_detail, the_members)&"~**^"&ALL_MEMBERS_ARRAY(id_required, the_members)&"~**^"&_
+                ALL_MEMBERS_ARRAY(shel_verif_added, the_members)&"~**^"&ALL_MEMBERS_ARRAY(gather_detail, the_members)&"~**^"&ALL_MEMBERS_ARRAY(id_detail, the_members)&"~**^"&box_nine_info&"~**^"&_
                 ALL_MEMBERS_ARRAY(clt_notes, the_members)
             Next
             objTextStream.WriteLine "total_shelter_amount" & "^~^~^~^~^~^~^" & total_shelter_amount
@@ -1299,7 +1301,7 @@ function save_your_work()
             objTextStream.WriteLine "snap_inelig_faci_yn" & "^~^~^~^~^~^~^" & snap_inelig_faci_yn
             objTextStream.WriteLine "faci_entry_date" & "^~^~^~^~^~^~^" & faci_entry_date
             objTextStream.WriteLine "faci_release_date" & "^~^~^~^~^~^~^" & faci_release_date
-            objTextStream.WriteLine "release_date_unknown_checkbox" & "^~^~^~^~^~^~^" & release_date_unknown_checkbox
+            If release_date_unknown_checkbox = checked Then objTextStream.WriteLine "release_date_unknown_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             objTextStream.WriteLine "release_within_30_days_yn" & "^~^~^~^~^~^~^" & release_within_30_days_yn
 
             objTextStream.WriteLine "next_er_month" & "^~^~^~^~^~^~^" & next_er_month
@@ -1430,16 +1432,22 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "relationship_detail" Then relationship_detail = line_info(1)
                         If line_info(0) = "determined_income" Then determined_income = line_info(1)
                         If line_info(0) = "income_review_completed" Then income_review_completed = line_info(1)
+                        If UCase(income_review_completed) = "TRUE" Then income_review_completed = True
+                        If UCase(income_review_completed) = "FALSE" Then income_review_completed = False
                         If line_info(0) = "jobs_income_yn" Then jobs_income_yn = line_info(1)
                         If line_info(0) = "busi_income_yn" Then busi_income_yn = line_info(1)
                         If line_info(0) = "unea_income_yn" Then unea_income_yn = line_info(1)
                         ' If line_info(0) = "determined_assets" Then determined_assets = line_info(1)
                         If line_info(0) = "assets_review_completed" Then assets_review_completed = line_info(1)
+                        If UCase(assets_review_completed) = "TRUE" Then assets_review_completed = True
+                        If UCase(assets_review_completed) = "FALSE" Then assets_review_completed = False
                         If line_info(0) = "cash_amount_yn" Then cash_amount_yn = line_info(1)
                         If line_info(0) = "bank_account_yn" Then bank_account_yn = line_info(1)
                         If line_info(0) = "cash_amount" Then cash_amount = line_info(1)
                         ' If line_info(0) = "determined_shel" Then determined_shel = line_info(1)
                         If line_info(0) = "shel_review_completed" Then shel_review_completed = line_info(1)
+                        If UCase(shel_review_completed) = "TRUE" Then shel_review_completed = True
+                        If UCase(shel_review_completed) = "FALSE" Then shel_review_completed = False
                         If line_info(0) = "rent_amount" Then rent_amount = line_info(1)
                         If line_info(0) = "lot_rent_amount" Then lot_rent_amount = line_info(1)
                         If line_info(0) = "mortgage_amount" Then mortgage_amount = line_info(1)
@@ -1450,15 +1458,29 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "subsidy_amount" Then subsidy_amount = line_info(1)
                         ' If line_info(0) = "determined_utilities" Then determined_utilities = line_info(1)
                         If line_info(0) = "heat_expense" Then heat_expense = line_info(1)
+                        If UCase(heat_expense) = "TRUE" Then heat_expense = True
+                        If UCase(heat_expense) = "FALSE" Then heat_expense = False
                         If line_info(0) = "ac_expense" Then ac_expense = line_info(1)
+                        If UCase(ac_expense) = "TRUE" Then ac_expense = True
+                        If UCase(ac_expense) = "FALSE" Then ac_expense = False
                         If line_info(0) = "electric_expense" Then electric_expense = line_info(1)
+                        If UCase(electric_expense) = "TRUE" Then electric_expense = True
+                        If UCase(electric_expense) = "FALSE" Then electric_expense = False
                         If line_info(0) = "phone_expense" Then phone_expense = line_info(1)
+                        If UCase(phone_expense) = "TRUE" Then phone_expense = True
+                        If UCase(phone_expense) = "FALSE" Then phone_expense = False
                         If line_info(0) = "none_expense" Then none_expense = line_info(1)
+                        If UCase(none_expense) = "TRUE" Then none_expense = True
+                        If UCase(none_expense) = "FALSE" Then none_expense = False
                         If line_info(0) = "all_utilities" Then all_utilities = line_info(1)
                         If line_info(0) = "do_we_have_applicant_id" Then do_we_have_applicant_id = line_info(1)
 
                         If line_info(0) = "adult_cash" Then adult_cash = line_info(1)
+                        If UCase(adult_cash) = "TRUE" Then adult_cash = True
+                        If UCase(adult_cash) = "FALSE" Then adult_cash = False
                         If line_info(0) = "family_cash" Then family_cash = line_info(1)
+                        If UCase(family_cash) = "TRUE" Then family_cash = True
+                        If UCase(family_cash) = "FALSE" Then family_cash = False
                         If line_info(0) = "the_process_for_cash" Then the_process_for_cash = line_info(1)
                         If line_info(0) = "type_of_cash" Then type_of_cash = line_info(1)
                         If line_info(0) = "cash_recert_mo" Then cash_recert_mo = line_info(1)
@@ -1473,10 +1495,20 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "CAF_datestamp" Then CAF_datestamp = line_info(1)
                         If line_info(0) = "interview_date" Then interview_date = line_info(1)
                         If line_info(0) = "SNAP_recert_is_likely_24_months" Then SNAP_recert_is_likely_24_months = line_info(1)
+                        If UCase(SNAP_recert_is_likely_24_months) = "TRUE" Then SNAP_recert_is_likely_24_months = True
+                        If UCase(SNAP_recert_is_likely_24_months) = "FALSE" Then SNAP_recert_is_likely_24_months = False
                         If line_info(0) = "check_for_waived_interview" Then check_for_waived_interview = line_info(1)
+                        If UCase(check_for_waived_interview) = "TRUE" Then check_for_waived_interview = True
+                        If UCase(check_for_waived_interview) = "FALSE" Then check_for_waived_interview = False
                         If line_info(0) = "exp_screening_note_found" Then exp_screening_note_found = line_info(1)
+                        If UCase(exp_screening_note_found) = "TRUE" Then exp_screening_note_found = True
+                        If UCase(exp_screening_note_found) = "FALSE" Then exp_screening_note_found = False
                         If line_info(0) = "interview_required" Then interview_required = line_info(1)
+                        If UCase(interview_required) = "TRUE" Then interview_required = True
+                        If UCase(interview_required) = "FALSE" Then interview_required = False
                         If line_info(0) = "interview_waived" Then interview_waived = line_info(1)
+                        If UCase(interview_waived) = "TRUE" Then interview_waived = True
+                        If UCase(interview_waived) = "FALSE" Then interview_waived = False
                         If line_info(0) = "xfs_screening" Then xfs_screening = line_info(1)
                         If line_info(0) = "xfs_screening_display" Then xfs_screening_display = line_info(1)
                         If line_info(0) = "caf_one_income" Then caf_one_income = line_info(1)
@@ -1486,14 +1518,20 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "caf_one_utilities" Then caf_one_utilities = line_info(1)
                         If line_info(0) = "caf_one_expenses" Then caf_one_expenses = line_info(1)
                         If line_info(0) = "exp_det_case_note_found" Then exp_det_case_note_found = line_info(1)
+                        If UCase(exp_det_case_note_found) = "TRUE" Then exp_det_case_note_found = True
+                        If UCase(exp_det_case_note_found) = "FALSE" Then exp_det_case_note_found = False
                         If line_info(0) = "snap_exp_yn" Then snap_exp_yn = line_info(1)
                         If line_info(0) = "snap_denial_date" Then snap_denial_date = line_info(1)
                         If line_info(0) = "interview_completed_case_note_found" Then interview_completed_case_note_found = line_info(1)
+                        If UCase(interview_completed_case_note_found) = "TRUE" Then interview_completed_case_note_found = True
+                        If UCase(interview_completed_case_note_found) = "FALSE" Then interview_completed_case_note_found = False
                         If line_info(0) = "interview_with" Then interview_with = line_info(1)
                         If line_info(0) = "interview_type" Then interview_type = line_info(1)
                         If line_info(0) = "verifications_requested_case_note_found" Then verifications_requested_case_note_found = line_info(1)
                         If line_info(0) = "verifs_needed" Then verifs_needed = line_info(1)
                         If line_info(0) = "caf_qualifying_questions_case_note_found" Then caf_qualifying_questions_case_note_found = line_info(1)
+                        If UCase(caf_qualifying_questions_case_note_found) = "TRUE" Then caf_qualifying_questions_case_note_found = True
+                        If UCase(caf_qualifying_questions_case_note_found) = "FALSE" Then caf_qualifying_questions_case_note_found = False
                         If line_info(0) = "qual_question_one" Then qual_question_one = line_info(1)
                         If line_info(0) = "qual_memb_one" Then qual_memb_one = line_info(1)
                         If line_info(0) = "qual_question_two" Then qual_question_two = line_info(1)
@@ -1557,6 +1595,8 @@ function restore_your_work(vars_filled)
                             ALL_MEMBERS_ARRAY(numb_banked_mo, known_membs)              = array_info(19)
                             ALL_MEMBERS_ARRAY(clt_abawd_notes, known_membs)             = array_info(20)
                             ALL_MEMBERS_ARRAY(shel_exists, known_membs)                 = array_info(21)
+                            If UCase(ALL_MEMBERS_ARRAY(shel_exists, known_membs)) = "TRUE" Then ALL_MEMBERS_ARRAY(shel_exists, known_membs) = True
+                            If UCase(ALL_MEMBERS_ARRAY(shel_exists, known_membs)) = "FALSE" Then ALL_MEMBERS_ARRAY(shel_exists, known_membs) = False
                             ALL_MEMBERS_ARRAY(shel_subsudized, known_membs)             = array_info(22)
                             ALL_MEMBERS_ARRAY(shel_shared, known_membs)                 = array_info(23)
                             ALL_MEMBERS_ARRAY(shel_retro_rent_amt, known_membs)         = array_info(24)
@@ -1592,11 +1632,17 @@ function restore_your_work(vars_filled)
                             ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, known_membs)      = array_info(54)
                             ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, known_membs)    = array_info(55)
                             ALL_MEMBERS_ARRAY(wreg_exists, known_membs)                 = array_info(56)
+                            If UCase(ALL_MEMBERS_ARRAY(wreg_exists, known_membs)) = "TRUE" Then ALL_MEMBERS_ARRAY(wreg_exists, known_membs) = True
+                            If UCase(ALL_MEMBERS_ARRAY(wreg_exists, known_membs)) = "FALSE" Then ALL_MEMBERS_ARRAY(wreg_exists, known_membs) = False
                             If array_info(57) = "CHECKED" Then ALL_MEMBERS_ARRAY(include_cash_checkbox, known_membs) = checked
                             ALL_MEMBERS_ARRAY(shel_verif_added, known_membs)            = array_info(58)
+                            If UCase(ALL_MEMBERS_ARRAY(shel_verif_added, known_membs)) = "TRUE" Then ALL_MEMBERS_ARRAY(shel_verif_added, known_membs) = True
+                            If UCase(ALL_MEMBERS_ARRAY(shel_verif_added, known_membs)) = "FALSE" Then ALL_MEMBERS_ARRAY(shel_verif_added, known_membs) = False
                             ALL_MEMBERS_ARRAY(gather_detail, known_membs)               = array_info(59)
+                            If UCase(ALL_MEMBERS_ARRAY(gather_detail, known_membs)) = "TRUE" Then ALL_MEMBERS_ARRAY(gather_detail, known_membs) = True
+                            If UCase(ALL_MEMBERS_ARRAY(gather_detail, known_membs)) = "FALSE" Then ALL_MEMBERS_ARRAY(gather_detail, known_membs) = False
                             ALL_MEMBERS_ARRAY(id_detail, known_membs)                   = array_info(60)
-                            ALL_MEMBERS_ARRAY(id_required, known_membs)                 = array_info(61)
+                            If array_info(61) = "CHECKED" Then ALL_MEMBERS_ARRAY(id_required, known_membs) = checked
                             ALL_MEMBERS_ARRAY(clt_notes, known_membs)                   = array_info(62)
                             known_membs = known_membs + 1
                         End If
@@ -1657,6 +1703,8 @@ function restore_your_work(vars_filled)
                             ALL_JOBS_PANELS_ARRAY(end_date, known_jobs)             = array_info(26)
                             If array_info(33) = "CHECKED" Then ALL_JOBS_PANELS_ARRAY(verif_checkbox, known_jobs) = checked
                             ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs)          = array_info(34)
+                            If UCase(ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs)) = "TRUE" Then ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs) = True
+                            If UCase(ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs)) = "FALSE" Then ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs) = False
                             ALL_JOBS_PANELS_ARRAY(budget_explain, known_jobs)       = array_info(35)
 
                             known_jobs = known_jobs + 1
@@ -1709,6 +1757,8 @@ function restore_your_work(vars_filled)
                             ALL_BUSI_PANELS_ARRAY(exp_not_allwd, known_busi)         = array_info(32)
                             If array_info(33) = "CHECKED" Then ALL_BUSI_PANELS_ARRAY(verif_checkbox, known_busi) = checked
                             ALL_BUSI_PANELS_ARRAY(verif_added, known_busi)           = array_info(34)
+                            If UCase(ALL_BUSI_PANELS_ARRAY(verif_added, known_busi)) = "TRUE" Then ALL_BUSI_PANELS_ARRAY(verif_added, known_busi) = True
+                            If UCase(ALL_BUSI_PANELS_ARRAY(verif_added, known_busi)) = "FALSE" Then ALL_BUSI_PANELS_ARRAY(verif_added, known_busi) = False
                             ALL_BUSI_PANELS_ARRAY(budget_explain, known_busi)        = array_info(35)
 
                             known_busi = known_busi + 1
@@ -1776,8 +1826,14 @@ function restore_your_work(vars_filled)
                             UNEA_INCOME_ARRAY(UNEA_SSI_amt, known_unea)              = array_info(33)
                             UNEA_INCOME_ARRAY(UNEA_SSI_notes, known_unea)            = array_info(34)
                             UNEA_INCOME_ARRAY(UC_exists, known_unea)                 = array_info(35)
+                            If UCase(UNEA_INCOME_ARRAY(UC_exists, known_unea)) = "TRUE" Then UNEA_INCOME_ARRAY(UC_exists, known_unea) = True
+                            If UCase(UNEA_INCOME_ARRAY(UC_exists, known_unea)) = "FALSE" Then UNEA_INCOME_ARRAY(UC_exists, known_unea) = False
                             UNEA_INCOME_ARRAY(CS_exists, known_unea)                 = array_info(36)
+                            If UCase(UNEA_INCOME_ARRAY(CS_exists, known_unea)) = "TRUE" Then UNEA_INCOME_ARRAY(CS_exists, known_unea) = True
+                            If UCase(UNEA_INCOME_ARRAY(CS_exists, known_unea)) = "FALSE" Then UNEA_INCOME_ARRAY(CS_exists, known_unea) = False
                             UNEA_INCOME_ARRAY(SSA_exists, known_unea)                = array_info(37)
+                            If UCase(UNEA_INCOME_ARRAY(SSA_exists, known_unea)) = "TRUE" Then UNEA_INCOME_ARRAY(SSA_exists, known_unea) = True
+                            If UCase(UNEA_INCOME_ARRAY(SSA_exists, known_unea)) = "FALSE" Then UNEA_INCOME_ARRAY(SSA_exists, known_unea) = False
                             UNEA_INCOME_ARRAY(calc_button, known_unea)               = array_info(38)
                             UNEA_INCOME_ARRAY(budget_notes, known_unea)              = array_info(39)
 
@@ -1875,6 +1931,8 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "MFIP_DVD_checkbox" and line_info(1) = "CHECKED" Then MFIP_DVD_checkbox = checked
                         'EXP DET'
                         If line_info(0) = "full_determination_done" Then full_determination_done = line_info(1)
+                        If UCase(full_determination_done) = "TRUE" Then full_determination_done = True
+                        If UCase(full_determination_done) = "FALSE" Then full_determination_done = False
                         ' Call run_expedited_determination_script_functionality(
                         ' If line_info(0) = "xfs_screening" Then xfs_screening = line_info(1)
                         ' If line_info(0) = "caf_one_income" Then caf_one_income = line_info(1)
@@ -1888,8 +1946,14 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "calculated_resources" Then calculated_resources = line_info(1)
                         If line_info(0) = "calculated_expenses" Then calculated_expenses = line_info(1)
                         If line_info(0) = "calculated_low_income_asset_test" Then calculated_low_income_asset_test = line_info(1)
+                        If UCase(calculated_low_income_asset_test) = "TRUE" Then calculated_low_income_asset_test = True
+                        If UCase(calculated_low_income_asset_test) = "FALSE" Then calculated_low_income_asset_test = False
                         If line_info(0) = "calculated_resources_less_than_expenses_test" Then calculated_resources_less_than_expenses_test = line_info(1)
+                        If UCase(calculated_resources_less_than_expenses_test) = "TRUE" Then calculated_resources_less_than_expenses_test = True
+                        If UCase(calculated_resources_less_than_expenses_test) = "FALSE" Then calculated_resources_less_than_expenses_test = False
                         If line_info(0) = "is_elig_XFS" Then is_elig_XFS = line_info(1)
+                        If UCase(is_elig_XFS) = "TRUE" Then is_elig_XFS = True
+                        If UCase(is_elig_XFS) = "FALSE" Then is_elig_XFS = False
                         If line_info(0) = "approval_date" Then approval_date = line_info(1)
                         If line_info(0) = "applicant_id_on_file_yn" Then applicant_id_on_file_yn = line_info(1)
                         If line_info(0) = "applicant_id_through_SOLQ" Then applicant_id_through_SOLQ = line_info(1)
@@ -1907,12 +1971,18 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "other_snap_state" Then other_snap_state = line_info(1)
                         If line_info(0) = "other_state_reported_benefit_end_date" Then other_state_reported_benefit_end_date = line_info(1)
                         If line_info(0) = "other_state_benefits_openended" Then other_state_benefits_openended = line_info(1)
+                        If UCase(other_state_benefits_openended) = "TRUE" Then other_state_benefits_openended = True
+                        If UCase(other_state_benefits_openended) = "FALSE" Then other_state_benefits_openended = False
                         If line_info(0) = "other_state_contact_yn" Then other_state_contact_yn = line_info(1)
                         If line_info(0) = "other_state_verified_benefit_end_date" Then other_state_verified_benefit_end_date = line_info(1)
                         If line_info(0) = "mn_elig_begin_date" Then mn_elig_begin_date = line_info(1)
                         If line_info(0) = "action_due_to_out_of_state_benefits" Then action_due_to_out_of_state_benefits = line_info(1)
                         If line_info(0) = "case_has_previously_postponed_verifs_that_prevent_exp_snap" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = line_info(1)
+                        If UCase(case_has_previously_postponed_verifs_that_prevent_exp_snap) = "TRUE" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = True
+                        If UCase(case_has_previously_postponed_verifs_that_prevent_exp_snap) = "FALSE" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = False
                         If line_info(0) = "prev_post_verif_assessment_done" Then prev_post_verif_assessment_done = line_info(1)
+                        If UCase(prev_post_verif_assessment_done) = "TRUE" Then prev_post_verif_assessment_done = True
+                        If UCase(prev_post_verif_assessment_done) = "FALSE" Then prev_post_verif_assessment_done = False
                         If line_info(0) = "previous_date_of_application" Then previous_date_of_application = line_info(1)
                         If line_info(0) = "previous_expedited_package" Then previous_expedited_package = line_info(1)
                         If line_info(0) = "prev_verifs_mandatory_yn" Then prev_verifs_mandatory_yn = line_info(1)
@@ -1921,13 +1991,19 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "ongoing_snap_approved_yn" Then ongoing_snap_approved_yn = line_info(1)
                         If line_info(0) = "prev_post_verifs_recvd_yn" Then prev_post_verifs_recvd_yn = line_info(1)
                         If line_info(0) = "delay_action_due_to_faci" Then delay_action_due_to_faci = line_info(1)
+                        If UCase(delay_action_due_to_faci) = "TRUE" Then delay_action_due_to_faci = True
+                        If UCase(delay_action_due_to_faci) = "FALSE" Then delay_action_due_to_faci = False
                         If line_info(0) = "deny_snap_due_to_faci" Then deny_snap_due_to_faci = line_info(1)
+                        If UCase(deny_snap_due_to_faci) = "TRUE" Then deny_snap_due_to_faci = True
+                        If UCase(deny_snap_due_to_faci) = "FALSE" Then deny_snap_due_to_faci = False
                         If line_info(0) = "faci_review_completed" Then faci_review_completed = line_info(1)
+                        If UCase(faci_review_completed) = "TRUE" Then faci_review_completed = True
+                        If UCase(faci_review_completed) = "FALSE" Then faci_review_completed = False
                         If line_info(0) = "facility_name" Then facility_name = line_info(1)
                         If line_info(0) = "snap_inelig_faci_yn" Then snap_inelig_faci_yn = line_info(1)
                         If line_info(0) = "faci_entry_date" Then faci_entry_date = line_info(1)
                         If line_info(0) = "faci_release_date" Then faci_release_date = line_info(1)
-                        If line_info(0) = "release_date_unknown_checkbox" Then release_date_unknown_checkbox = line_info(1)
+                        If line_info(0) = "release_date_unknown_checkbox" AND line_info(1) = "CHECKED" Then release_date_unknown_checkbox = checked
                         If line_info(0) = "release_within_30_days_yn" Then release_within_30_days_yn = line_info(1)
 
                         If line_info(0) = "next_er_month" Then next_er_month = line_info(1)
@@ -6075,7 +6151,6 @@ End If
 
 ' call verification_dialog
 prev_err_msg = ""
-notes_on_busi = ""
 
 Do
     Do
