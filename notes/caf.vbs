@@ -5269,7 +5269,7 @@ BeginDialog Dialog1, 0, 0, 281, 235, "CAF Script Case number dialog"
   CheckBox 10, 85, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 50, 85, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 90, 85, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 135, 85, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 135, 85, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MN Benefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   EditBox 40, 130, 220, 15, cash_other_req_detail
   EditBox 40, 150, 220, 15, snap_other_req_detail
   EditBox 40, 170, 220, 15, emer_other_req_detail
