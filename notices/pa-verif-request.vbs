@@ -4034,3 +4034,44 @@ Call write_variable_in_CASE_NOTE(worker_signature)
 end_msg = "Notice sent for PA Verif Request"
 If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox = checked Then end_msg = end_msg & vbCr & vbCr & "WORD DOCUMENT(S) created of the notices that were generated/resent."
 script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------09/21/2021
+'--Tab orders reviewed & confirmed----------------------------------------------09/21/2021
+'--Mandatory fields all present & Reviewed--------------------------------------09/21/2021
+'--All variables in dialog match mandatory fields-------------------------------09/21/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------09/21/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------09/21/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/21/2021
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/21/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------09/21/2021
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------09/21/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------09/21/2021 					INCREMENTED time
+'--Incrementors reviewed (if necessary)-----------------------------------------09/21/2021
+'--Denomination reviewed -------------------------------------------------------09/21/2021
+'--Script name reviewed---------------------------------------------------------09/21/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------09/21/2021
+'--comment Code-----------------------------------------------------------------09/21/2021
+'--Update Changelog for release/update------------------------------------------09/21/2021
+'--Remove testing message boxes-------------------------------------------------09/21/2021
+'--Remove testing code/unnecessary code-----------------------------------------09/21/2021
+'--Review/update SharePoint instructions----------------------------------------09/21/2021
+'--Review Best Practices using BZS page ----------------------------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/21/2021 					Requested J Arco to update HSR Manual Page
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
