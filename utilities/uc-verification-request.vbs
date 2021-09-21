@@ -109,8 +109,9 @@ DO
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
 LOOP UNTIL uBound(HH_member_array) <> -1
 
-EMReadScreen county_code, 4, 21, 21  'Out of county cases from STAT/MEMB will not work on back to self
-If county_code <> "X127" then script_end_procedure("Out of County case, cannot access/update. The script will now end.")
+worker_county_code = "X127"
+EMReadscreen current_county, 4, 21, 21
+If Ucase(current_county) <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
 back_to_SELF
 '--------------------------------------------------------------------------------Gathering the MEMB/ALIA information
