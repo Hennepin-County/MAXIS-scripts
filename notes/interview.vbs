@@ -12595,28 +12595,48 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 				objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
 				objTextStream.WriteLine "WORKER NAME ^*^*^" & worker_name
 				objTextStream.WriteLine "CASE X NUMBER  ^*^*^" & case_pw
-				objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & CAF_datestamp
-				objTextStream.WriteLine "APPT NOTC SENT DATE ^*^*^" & appt_notc_sent_on
-				objTextStream.WriteLine "APPT DATE ^*^*^" & appt_date_in_note
-				objTextStream.WriteLine "DATE OF INTERVIEW ^*^*^" & interview_date
+                CAF_datestamp_new_one = CAF_datestamp
+                If IsDate(CAF_datestamp) = True Then CAF_datestamp_new_one = DateAdd("d", 0, CAF_datestamp)
+				objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & CAF_datestamp_new_one
+                appt_notc_sent_on_new_one = appt_notc_sent_on
+                If IsDate(appt_notc_sent_on) = True Then appt_notc_sent_on_new_one = DateAdd("d", 0, appt_notc_sent_on)
+				objTextStream.WriteLine "APPT NOTC SENT DATE ^*^*^" & appt_notc_sent_on_new_one
+                appt_date_in_note_new_one = appt_date_in_note
+                If IsDate(appt_date_in_note) = True Then appt_date_in_note_new_one = DateAdd("d", 0, appt_date_in_note)
+				objTextStream.WriteLine "APPT DATE ^*^*^" & appt_date_in_note_new_one
+                interview_date_new_one = interview_date
+                If IsDate(interview_date) = True Then interview_date_new_one = DateAdd("d", 0, interview_date)
+				objTextStream.WriteLine "DATE OF INTERVIEW ^*^*^" & interview_date_new_one
 				objTextStream.WriteLine "EXPEDITED SCREENING STATUS ^*^*^" & expedited_screening
 				objTextStream.WriteLine "EXPEDITED DETERMINATION STATUS ^*^*^" & is_elig_XFS
 				objTextStream.WriteLine "DET INCOME ^*^*^" & determined_income
 				objTextStream.WriteLine "DET ASSETS ^*^*^" & determined_assets
 				objTextStream.WriteLine "DET SHEL ^*^*^" & determined_shel
 				objTextStream.WriteLine "DET HEST ^*^*^" & determined_utilities
-				objTextStream.WriteLine "DATE OF APPROVAL ^*^*^" & approval_date
-				objTextStream.WriteLine "SNAP DENIAL DATE ^*^*^" & snap_denial_date
+                approval_date_new_one = approval_date
+                If IsDate(approval_date) = True Then approval_date_new_one = DateAdd("d", 0, approval_date)
+				objTextStream.WriteLine "DATE OF APPROVAL ^*^*^" & approval_date_new_one
+                snap_denial_date_new_one = snap_denial_date
+                If IsDate(snap_denial_date) = True Then snap_denial_date_new_one = DateAdd("d", 0, snap_denial_date)
+				objTextStream.WriteLine "SNAP DENIAL DATE ^*^*^" & snap_denial_date_new_one
 				objTextStream.WriteLine "SNAP DENIAL REASON ^*^*^" & snap_denial_explain
 				objTextStream.WriteLine "ID ON FILE ^*^*^" & do_we_have_applicant_id
 				objTextStream.WriteLine "OUTSTATE ACTION ^*^*^" & action_due_to_out_of_state_benefits
 				objTextStream.WriteLine "OUTSTATE STATE ^*^*^" & other_snap_state
-				objTextStream.WriteLine "OUTSTATE REPORTED END DATE ^*^*^" & other_state_reported_benefit_end_date
+                other_state_reported_benefit_end_date_new_one = other_state_reported_benefit_end_date
+                If IsDate(other_state_reported_benefit_end_date) = True Then other_state_reported_benefit_end_date_new_one = DateAdd("d", 0, other_state_reported_benefit_end_date)
+				objTextStream.WriteLine "OUTSTATE REPORTED END DATE ^*^*^" & other_state_reported_benefit_end_date_new_one
 				objTextStream.WriteLine "OUTSTATE OPENENDED ^*^*^" & other_state_benefits_openended
-				objTextStream.WriteLine "OUTSTATE VERIFIED END DATE ^*^*^" & other_state_verified_benefit_end_date
-				objTextStream.WriteLine "MN ELIG BEGIN DATE ^*^*^" & mn_elig_begin_date
+                other_state_verified_benefit_end_date_new_one = other_state_verified_benefit_end_date
+                If IsDate(other_state_verified_benefit_end_date) = True Then other_state_verified_benefit_end_date_new_one = DateAdd("d", 0, other_state_verified_benefit_end_date)
+				objTextStream.WriteLine "OUTSTATE VERIFIED END DATE ^*^*^" & other_state_verified_benefit_end_date_new_one
+                mn_elig_begin_date_new_one = mn_elig_begin_date
+                If IsDate(mn_elig_begin_date) = True Then mn_elig_begin_date_new_one = DateAdd("d", 0, mn_elig_begin_date)
+				objTextStream.WriteLine "MN ELIG BEGIN DATE ^*^*^" & mn_elig_begin_date_new_one
 				objTextStream.WriteLine "PREV POST DELAY APP ^*^*^" & case_has_previously_postponed_verifs_that_prevent_exp_snap				'(Boolean)
-				objTextStream.WriteLine "PREV POST PREV DATE OF APP ^*^*^" & previous_CAF_datestamp
+                previous_CAF_datestamp_new_one = previous_CAF_datestamp
+                If IsDate(previous_CAF_datestamp) = True Then previous_CAF_datestamp_new_one = DateAdd("d", 0, previous_CAF_datestamp)
+				objTextStream.WriteLine "PREV POST PREV DATE OF APP ^*^*^" & previous_CAF_datestamp_new_one
 				objTextStream.WriteLine "PREV POST LIST ^*^*^" & prev_verif_list
 				objTextStream.WriteLine "PREV POST CURR VERIF POST ^*^*^" & curr_verifs_postponed_yn
 				objTextStream.WriteLine "PREV POST ONGOING SNAP APP ^*^*^" & ongoing_snap_approved_yn
@@ -12628,8 +12648,12 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 				objTextStream.WriteLine "FACI DENY ^*^*^" & deny_snap_due_to_faci
 				objTextStream.WriteLine "FACI NAME ^*^*^" & facility_name
 				objTextStream.WriteLine "FACI INELIG SNAP ^*^*^" & snap_inelig_faci_yn
-				objTextStream.WriteLine "FACI ENTRY DATE ^*^*^" & faci_entry_date
-				objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date
+                faci_entry_date_new_one = faci_entry_date
+                If IsDate(faci_entry_date) = True Then faci_entry_date_new_one = DateAdd("d", 0, faci_entry_date)
+				objTextStream.WriteLine "FACI ENTRY DATE ^*^*^" & faci_entry_date_new_one
+                faci_release_date_new_one = faci_release_date
+                If IsDate(faci_release_date) = True Then faci_release_date_new_one = DateAdd("d", 0, faci_release_date)
+				objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date_new_one
 				objTextStream.WriteLine "FACI RELEASE IN 30 DAYS ^*^*^" & release_within_30_days_yn
 				objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
 
