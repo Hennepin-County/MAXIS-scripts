@@ -44,9 +44,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-Call select_testing_file("ALL", "", "notes/caf.vbs", "539-add-save-your-work-to-CAF", False, False)
-' function select_testing_file(selection_type, the_selection, file_path, file_branch, force_error_reporting, allow_option)
-
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
