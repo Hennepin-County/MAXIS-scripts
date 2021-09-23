@@ -787,7 +787,7 @@ function define_main_dialog()
 			PushButton 205, 240, 35, 10, "CLEAR", clear_phone_one_btn
 			PushButton 205, 260, 35, 10, "CLEAR", clear_phone_two_btn
 			PushButton 205, 280, 35, 10, "CLEAR", clear_phone_three_btn
-			Text 10, 10, 360, 10, "Review the Address informaiton known with the resident. If it needs updating, press this button to make changes:"
+			Text 10, 10, 450, 10, "Review the Address informaiton known with the resident. If it needs updating, press the 'Update Information' button to make changes:"
 			GroupBox 10, 35, 375, 95, "Residence Address"
 			Text 20, 55, 45, 10, "House/Street"
 			Text 45, 75, 20, 10, "City"
