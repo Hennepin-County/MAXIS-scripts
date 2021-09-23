@@ -44,6 +44,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+Call select_testing_file("ALL", "", "notes/caf-testing.vbs", "master", False, False)
+' function select_testing_file(selection_type, the_selection, file_path, file_branch, force_error_reporting, allow_option)
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
@@ -901,1158 +904,6 @@ function determine_calculations(determined_income, determined_assets, determined
 	determined_utilities = determined_utilities & ""
 end function
 
-function save_your_work()
-'This function records the variables into a txt file so that it can be retrieved by the script if run later.
-
-	'Now determines name of file
-	If MAXIS_case_number <> "" Then
-		local_changelog_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
-	End If
-
-	With objFSO
-
-		'Creating an object for the stream of text which we'll use frequently
-		Dim objTextStream
-
-		If .FileExists(local_changelog_path) = True then
-			.DeleteFile(local_changelog_path)
-		End If
-
-		'If the file doesn't exist, it needs to create it here and initialize it here! After this, it can just exit as the file will now be initialized
-
-		If .FileExists(local_changelog_path) = False then
-			'Setting the object to open the text file for appending the new data
-			Set objTextStream = .OpenTextFile(local_changelog_path, ForWriting, true)
-
-			'Write the contents of the text file
-            objTextStream.WriteLine "MAXIS_footer_month" & "^~^~^~^~^~^~^" & MAXIS_footer_month
-            objTextStream.WriteLine "MAXIS_footer_year" & "^~^~^~^~^~^~^" & MAXIS_footer_year
-            If CASH_on_CAF_checkbox = checked Then objTextStream.WriteLine "CASH_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If SNAP_on_CAF_checkbox = checked Then objTextStream.WriteLine "SNAP_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If EMER_on_CAF_checkbox = checked Then objTextStream.WriteLine "EMER_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If cash_checkbox = checked Then objTextStream.WriteLine "cash_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If SNAP_checkbox = checked Then objTextStream.WriteLine "SNAP_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If EMER_checkbox = checked Then objTextStream.WriteLine "EMER_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If HC_checkbox = checked Then objTextStream.WriteLine "HC_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            objTextStream.WriteLine "CAF_form" & "^~^~^~^~^~^~^" & CAF_form
-            objTextStream.WriteLine "cash_other_req_detail" & "^~^~^~^~^~^~^" & cash_other_req_detail
-            objTextStream.WriteLine "snap_other_req_detail" & "^~^~^~^~^~^~^" & snap_other_req_detail
-            objTextStream.WriteLine "emer_other_req_detail" & "^~^~^~^~^~^~^" & emer_other_req_detail
-            If number_verifs_checkbox = checked Then objTextStream.WriteLine "number_verifs_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If verifs_postponed_checkbox = checked Then objTextStream.WriteLine "verifs_postponed_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-
-            objTextStream.WriteLine "adult_cash_count" & "^~^~^~^~^~^~^" & adult_cash_count
-            objTextStream.WriteLine "child_cash_count" & "^~^~^~^~^~^~^" & child_cash_count
-            If pregnant_caregiver_checkbox = checked then objTextStream.WriteLine "pregnant_caregiver_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            objTextStream.WriteLine "adult_snap_count" & "^~^~^~^~^~^~^" & adult_snap_count
-            objTextStream.WriteLine "child_snap_count" & "^~^~^~^~^~^~^" & child_snap_count
-            objTextStream.WriteLine "adult_emer_count" & "^~^~^~^~^~^~^" & adult_emer_count
-            objTextStream.WriteLine "child_emer_count" & "^~^~^~^~^~^~^" & child_emer_count
-            objTextStream.WriteLine "EATS" & "^~^~^~^~^~^~^" & EATS
-            objTextStream.WriteLine "relationship_detail" & "^~^~^~^~^~^~^" & relationship_detail
-
-            ' determined_income
-            ' income_review_completed
-            ' jobs_income_yn
-            ' busi_income_yn
-            ' unea_income_yn
-            objTextStream.WriteLine "determined_income" & "^~^~^~^~^~^~^" & determined_income
-            objTextStream.WriteLine "income_review_completed" & "^~^~^~^~^~^~^" & income_review_completed
-            objTextStream.WriteLine "jobs_income_yn" & "^~^~^~^~^~^~^" & jobs_income_yn
-            objTextStream.WriteLine "busi_income_yn" & "^~^~^~^~^~^~^" & busi_income_yn
-            objTextStream.WriteLine "unea_income_yn" & "^~^~^~^~^~^~^" & unea_income_yn
-            ' JOBS_ARRAY
-            ' BUSI_ARRAY
-            ' UNEA_ARRAY
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-
-            ' determined_assets
-            ' assets_review_completed
-            ' cash_amount_yn
-            ' bank_account_yn
-            ' cash_amount
-            objTextStream.WriteLine "determined_assets" & "^~^~^~^~^~^~^" & determined_assets
-            objTextStream.WriteLine "assets_review_completed" & "^~^~^~^~^~^~^" & assets_review_completed
-            objTextStream.WriteLine "cash_amount_yn" & "^~^~^~^~^~^~^" & cash_amount_yn
-            objTextStream.WriteLine "bank_account_yn" & "^~^~^~^~^~^~^" & bank_account_yn
-            objTextStream.WriteLine "cash_amount" & "^~^~^~^~^~^~^" & cash_amount
-            ' ACCOUNTS_ARRAY
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-
-            ' determined_shel
-            ' shel_review_completed
-            ' rent_amount
-            ' lot_rent_amount
-            ' mortgage_amount
-            ' insurance_amount
-            ' tax_amount
-            ' room_amount
-            ' garage_amount
-            ' subsidy_amount
-            objTextStream.WriteLine "determined_shel" & "^~^~^~^~^~^~^" & determined_shel
-            objTextStream.WriteLine "shel_review_completed" & "^~^~^~^~^~^~^" & shel_review_completed
-            objTextStream.WriteLine "rent_amount" & "^~^~^~^~^~^~^" & rent_amount
-            objTextStream.WriteLine "lot_rent_amount" & "^~^~^~^~^~^~^" & lot_rent_amount
-            objTextStream.WriteLine "mortgage_amount" & "^~^~^~^~^~^~^" & mortgage_amount
-            objTextStream.WriteLine "insurance_amount" & "^~^~^~^~^~^~^" & insurance_amount
-            objTextStream.WriteLine "tax_amount" & "^~^~^~^~^~^~^" & tax_amount
-            objTextStream.WriteLine "room_amount" & "^~^~^~^~^~^~^" & room_amount
-            objTextStream.WriteLine "garage_amount" & "^~^~^~^~^~^~^" & garage_amount
-            objTextStream.WriteLine "subsidy_amount" & "^~^~^~^~^~^~^" & subsidy_amount
-
-            ' determined_utilities
-            ' heat_expense
-            ' ac_expense
-            ' electric_expense
-            ' phone_expense
-            ' none_expense
-            ' all_utilities
-            objTextStream.WriteLine "determined_utilities" & "^~^~^~^~^~^~^" & determined_utilities
-            objTextStream.WriteLine "heat_expense" & "^~^~^~^~^~^~^" & heat_expense
-            objTextStream.WriteLine "ac_expense" & "^~^~^~^~^~^~^" & ac_expense
-            objTextStream.WriteLine "electric_expense" & "^~^~^~^~^~^~^" & electric_expense
-            objTextStream.WriteLine "phone_expense" & "^~^~^~^~^~^~^" & phone_expense
-            objTextStream.WriteLine "none_expense" & "^~^~^~^~^~^~^" & none_expense
-            objTextStream.WriteLine "all_utilities" & "^~^~^~^~^~^~^" & all_utilities
-
-            ' do_we_have_applicant_id
-            objTextStream.WriteLine "do_we_have_applicant_id" & "^~^~^~^~^~^~^" & do_we_have_applicant_id
-
-
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-            ' objTextStream.WriteLine "var" & "^~^~^~^~^~^~^" & var
-
-            objTextStream.WriteLine "adult_cash" & "^~^~^~^~^~^~^" & adult_cash
-            objTextStream.WriteLine "family_cash" & "^~^~^~^~^~^~^" & family_cash
-            objTextStream.WriteLine "the_process_for_cash" & "^~^~^~^~^~^~^" & the_process_for_cash
-            objTextStream.WriteLine "type_of_cash" & "^~^~^~^~^~^~^" & type_of_cash
-            objTextStream.WriteLine "cash_recert_mo" & "^~^~^~^~^~^~^" & cash_recert_mo
-            objTextStream.WriteLine "cash_recert_yr" & "^~^~^~^~^~^~^" & cash_recert_yr
-            objTextStream.WriteLine "the_process_for_snap" & "^~^~^~^~^~^~^" & the_process_for_snap
-            objTextStream.WriteLine "snap_recert_mo" & "^~^~^~^~^~^~^" & snap_recert_mo
-            objTextStream.WriteLine "snap_recert_yr" & "^~^~^~^~^~^~^" & snap_recert_yr
-            objTextStream.WriteLine "the_process_for_hc" & "^~^~^~^~^~^~^" & the_process_for_hc
-            objTextStream.WriteLine "hc_recert_mo" & "^~^~^~^~^~^~^" & hc_recert_mo
-            objTextStream.WriteLine "hc_recert_yr" & "^~^~^~^~^~^~^" & hc_recert_yr
-            objTextStream.WriteLine "CAF_type" & "^~^~^~^~^~^~^" & CAF_type
-            objTextStream.WriteLine "CAF_datestamp" & "^~^~^~^~^~^~^" & CAF_datestamp
-            objTextStream.WriteLine "interview_date" & "^~^~^~^~^~^~^" & interview_date
-            objTextStream.WriteLine "SNAP_recert_is_likely_24_months" & "^~^~^~^~^~^~^" & SNAP_recert_is_likely_24_months
-            objTextStream.WriteLine "check_for_waived_interview" & "^~^~^~^~^~^~^" & check_for_waived_interview
-            objTextStream.WriteLine "exp_screening_note_found" & "^~^~^~^~^~^~^" & exp_screening_note_found
-            objTextStream.WriteLine "interview_required" & "^~^~^~^~^~^~^" & interview_required
-            objTextStream.WriteLine "interview_waived" & "^~^~^~^~^~^~^" & interview_waived
-            objTextStream.WriteLine "xfs_screening" & "^~^~^~^~^~^~^" & xfs_screening
-            objTextStream.WriteLine "xfs_screening_display" & "^~^~^~^~^~^~^" & xfs_screening_display
-            objTextStream.WriteLine "caf_one_income" & "^~^~^~^~^~^~^" & caf_one_income
-            objTextStream.WriteLine "caf_one_assets" & "^~^~^~^~^~^~^" & caf_one_assets
-            objTextStream.WriteLine "caf_one_resources" & "^~^~^~^~^~^~^" & caf_one_resources
-            objTextStream.WriteLine "caf_one_rent" & "^~^~^~^~^~^~^" & caf_one_rent
-            objTextStream.WriteLine "caf_one_utilities" & "^~^~^~^~^~^~^" & caf_one_utilities
-            objTextStream.WriteLine "caf_one_expenses" & "^~^~^~^~^~^~^" & caf_one_expenses
-            objTextStream.WriteLine "exp_det_case_note_found" & "^~^~^~^~^~^~^" & exp_det_case_note_found
-            objTextStream.WriteLine "snap_exp_yn" & "^~^~^~^~^~^~^" & snap_exp_yn
-            objTextStream.WriteLine "snap_denial_date" & "^~^~^~^~^~^~^" & snap_denial_date
-            objTextStream.WriteLine "interview_completed_case_note_found" & "^~^~^~^~^~^~^" & interview_completed_case_note_found
-            objTextStream.WriteLine "interview_with" & "^~^~^~^~^~^~^" & interview_with
-            objTextStream.WriteLine "interview_type" & "^~^~^~^~^~^~^" & interview_type
-            objTextStream.WriteLine "verifications_requested_case_note_found" & "^~^~^~^~^~^~^" & verifications_requested_case_note_found
-            objTextStream.WriteLine "verifs_needed" & "^~^~^~^~^~^~^" & verifs_needed
-            objTextStream.WriteLine "caf_qualifying_questions_case_note_found" & "^~^~^~^~^~^~^" & caf_qualifying_questions_case_note_found
-            objTextStream.WriteLine "qual_question_one" & "^~^~^~^~^~^~^" & qual_question_one
-            objTextStream.WriteLine "qual_memb_one" & "^~^~^~^~^~^~^" & qual_memb_one
-            objTextStream.WriteLine "qual_question_two" & "^~^~^~^~^~^~^" & qual_question_two
-            objTextStream.WriteLine "qual_memb_two" & "^~^~^~^~^~^~^" & qual_memb_two
-            objTextStream.WriteLine "qual_question_three" & "^~^~^~^~^~^~^" & qual_question_three
-            objTextStream.WriteLine "qual_memb_three" & "^~^~^~^~^~^~^" & qual_memb_three
-            objTextStream.WriteLine "qual_question_four" & "^~^~^~^~^~^~^" & qual_question_four
-            objTextStream.WriteLine "qual_memb_four" & "^~^~^~^~^~^~^" & qual_memb_four
-            objTextStream.WriteLine "qual_question_five" & "^~^~^~^~^~^~^" & qual_question_five
-            objTextStream.WriteLine "qual_memb_five" & "^~^~^~^~^~^~^" & qual_memb_five
-            objTextStream.WriteLine "appt_notc_sent_on" & "^~^~^~^~^~^~^" & appt_notc_sent_on
-            objTextStream.WriteLine "appt_date_in_note" & "^~^~^~^~^~^~^" & appt_date_in_note
-            For each HH_MEMB in HH_member_array
-                objTextStream.WriteLine "HH_member_array" & "^~^~^~^~^~^~^" & HH_MEMB
-            Next
-            objTextStream.WriteLine "addr_line_one" & "^~^~^~^~^~^~^" & addr_line_one
-            objTextStream.WriteLine "addr_line_two" & "^~^~^~^~^~^~^" & addr_line_two
-            objTextStream.WriteLine "city" & "^~^~^~^~^~^~^" & city
-            objTextStream.WriteLine "state" & "^~^~^~^~^~^~^" & state
-            objTextStream.WriteLine "zip" & "^~^~^~^~^~^~^" & zip
-            objTextStream.WriteLine "addr_county" & "^~^~^~^~^~^~^" & addr_county
-            objTextStream.WriteLine "homeless_yn" & "^~^~^~^~^~^~^" & homeless_yn
-            objTextStream.WriteLine "reservation_yn" & "^~^~^~^~^~^~^" & reservation_yn
-            objTextStream.WriteLine "addr_verif" & "^~^~^~^~^~^~^" & addr_verif
-            objTextStream.WriteLine "living_situation" & "^~^~^~^~^~^~^" & living_situation
-            objTextStream.WriteLine "addr_eff_date" & "^~^~^~^~^~^~^" & addr_eff_date
-            objTextStream.WriteLine "addr_future_date" & "^~^~^~^~^~^~^" & addr_future_date
-            objTextStream.WriteLine "mail_line_one" & "^~^~^~^~^~^~^" & mail_line_one
-            objTextStream.WriteLine "mail_line_two" & "^~^~^~^~^~^~^" & mail_line_two
-            objTextStream.WriteLine "mail_city_line" & "^~^~^~^~^~^~^" & mail_city_line
-            objTextStream.WriteLine "mail_state_line" & "^~^~^~^~^~^~^" & mail_state_line
-            objTextStream.WriteLine "mail_zip_line" & "^~^~^~^~^~^~^" & mail_zip_line
-            objTextStream.WriteLine "notes_on_address" & "^~^~^~^~^~^~^" & notes_on_address
-            For the_members = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
-                box_one_info = ""
-                box_two_info = ""
-                box_three_info = ""
-                box_four_info = ""
-                box_five_info = ""
-                box_six_info = ""
-                box_seven_info = ""
-                box_eight_info = ""
-                box_nine_info = ""
-                If ALL_MEMBERS_ARRAY(include_cash_checkbox, the_members) = checked Then box_one_info = "CHECKED"
-                If ALL_MEMBERS_ARRAY(include_snap_checkbox, the_members) = checked Then box_two_info = "CHECKED"
-                If ALL_MEMBERS_ARRAY(include_emer_checkbox, the_members) = checked Then box_three_info = "CHECKED"
-                If ALL_MEMBERS_ARRAY(count_cash_checkbox, the_members) = checked Then box_four_info = "CHECKED"
-                If ALL_MEMBERS_ARRAY(count_snap_checkbox, the_members) = checked Then box_five_info = "CHECKED"
-                If ALL_MEMBERS_ARRAY(count_emer_checkbox, the_members) = checked Then box_six_info = "CHECKED"
-                If ALL_MEMBERS_ARRAY(pwe_checkbox, the_members) = checked Then box_seven_info = "CHECKED"
-                If ALL_MEMBERS_ARRAY(shel_verif_checkbox, the_members) = checked Then box_eight_info = "CHECKED"
-                If ALL_MEMBERS_ARRAY(id_required, the_members) = checked Then box_nine_info = "CHECKED"
-
-                objTextStream.WriteLine "ALL_MEMBERS_ARRAY" & "^~^~^~^~^~^~^" &ALL_MEMBERS_ARRAY(memb_numb, the_members)&"~**^"&ALL_MEMBERS_ARRAY(clt_name, the_members)&"~**^"&ALL_MEMBERS_ARRAY(clt_age, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(full_clt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(clt_id_verif, the_members)&"~**^"&box_one_info&"~**^"&box_two_info&"~**^"&box_three_info&"~**^"&box_four_info&"~**^"&box_five_info&"~**^"&box_six_info&"~**^"&_
-                ALL_MEMBERS_ARRAY(clt_wreg_status, the_members)&"~**^"&ALL_MEMBERS_ARRAY(clt_abawd_status, the_members)&"~**^"&box_seven_info&"~**^"&ALL_MEMBERS_ARRAY(numb_abawd_used, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(list_abawd_mo, the_members)&"~**^"&ALL_MEMBERS_ARRAY(first_second_set, the_members)&"~**^"&ALL_MEMBERS_ARRAY(list_second_set, the_members)&"~**^"&ALL_MEMBERS_ARRAY(explain_no_second, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(numb_banked_mo, the_members)&"~**^"&ALL_MEMBERS_ARRAY(clt_abawd_notes, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_exists, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_subsudized, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_shared, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_rent_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_rent_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_lot_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_lot_verif, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_retro_ins_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_ins_verif,the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_tax_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_tax_verif, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_room_amt, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_retro_room_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_room_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_room_verif, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_retro_garage_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_garage_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt,the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, the_members)&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, the_members)&"~**^"&ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, the_members)&"~**^"&ALL_MEMBERS_ARRAY(wreg_exists, the_members)&"~**^"&box_eight_info&"~**^"&_
-                ALL_MEMBERS_ARRAY(shel_verif_added, the_members)&"~**^"&ALL_MEMBERS_ARRAY(gather_detail, the_members)&"~**^"&ALL_MEMBERS_ARRAY(id_detail, the_members)&"~**^"&box_nine_info&"~**^"&_
-                ALL_MEMBERS_ARRAY(clt_notes, the_members)
-            Next
-            objTextStream.WriteLine "total_shelter_amount" & "^~^~^~^~^~^~^" & total_shelter_amount
-            objTextStream.WriteLine "full_shelter_details" & "^~^~^~^~^~^~^" & full_shelter_details
-            objTextStream.WriteLine "shelter_details" & "^~^~^~^~^~^~^" & shelter_details
-            objTextStream.WriteLine "shelter_details_two" & "^~^~^~^~^~^~^" & shelter_details_two
-            objTextStream.WriteLine "shelter_details_three" & "^~^~^~^~^~^~^" & shelter_details_three
-            objTextStream.WriteLine "prosp_heat_air" & "^~^~^~^~^~^~^" & prosp_heat_air
-            objTextStream.WriteLine "prosp_electric" & "^~^~^~^~^~^~^" & prosp_electric
-            objTextStream.WriteLine "prosp_phone" & "^~^~^~^~^~^~^" & prosp_phone
-            objTextStream.WriteLine "hest_information" & "^~^~^~^~^~^~^" & hest_information
-            objTextStream.WriteLine "ABPS" & "^~^~^~^~^~^~^" & ABPS
-            objTextStream.WriteLine "ACCI" & "^~^~^~^~^~^~^" & ACCI
-            objTextStream.WriteLine "notes_on_acct" & "^~^~^~^~^~^~^" & notes_on_acct
-            objTextStream.WriteLine "notes_on_acut" & "^~^~^~^~^~^~^" & notes_on_acut
-            objTextStream.WriteLine "AREP" & "^~^~^~^~^~^~^" & AREP
-            objTextStream.WriteLine "BILS" & "^~^~^~^~^~^~^" & BILS
-            objTextStream.WriteLine "notes_on_cash" & "^~^~^~^~^~^~^" & notes_on_cash
-            objTextStream.WriteLine "notes_on_cars" & "^~^~^~^~^~^~^" & notes_on_cars
-            objTextStream.WriteLine "notes_on_coex" & "^~^~^~^~^~^~^" & notes_on_coex
-            objTextStream.WriteLine "notes_on_dcex" & "^~^~^~^~^~^~^" & notes_on_dcex
-            objTextStream.WriteLine "DIET" & "^~^~^~^~^~^~^" & DIET
-            objTextStream.WriteLine "DISA" & "^~^~^~^~^~^~^" & DISA
-            objTextStream.WriteLine "EMPS" & "^~^~^~^~^~^~^" & EMPS
-            objTextStream.WriteLine "FACI" & "^~^~^~^~^~^~^" & FACI
-            objTextStream.WriteLine "FMED" & "^~^~^~^~^~^~^" & FMED
-            objTextStream.WriteLine "IMIG" & "^~^~^~^~^~^~^" & IMIG
-            objTextStream.WriteLine "INSA" & "^~^~^~^~^~^~^" & INSA
-            For the_jobs = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                box_one_info = ""
-                box_two_info = ""
-                If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = checked Then box_one_info = "CHECKED"
-                If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
-                objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
-            Next
-            For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-                box_one_info = ""
-                box_two_info = ""
-                box_three_info = ""
-                If ALL_BUSI_PANELS_ARRAY(estimate_only, the_busi) = checked Then box_one_info = "CHECKED"
-                If ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, the_busi) = checked Then box_two_info = "CHECKED"
-                If ALL_BUSI_PANELS_ARRAY(verif_checkbox, the_busi) = checked Then box_three_info = "CHECKED"
-
-                objTextStream.WriteLine "ALL_BUSI_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_BUSI_PANELS_ARRAY(memb_numb, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(panel_instance, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(busi_type, the_busi)&"~**^"&box_one_info&"~**^"&ALL_BUSI_PANELS_ARRAY(verif_explain, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(calc_method, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(info_month, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(mthd_date, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(income_ret_cash, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(income_pro_cash, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(cash_income_verif, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(expense_ret_cash, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(expense_pro_cash, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(cash_expense_verif, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(income_ret_snap, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(income_pro_snap, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(snap_income_verif, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(expense_ret_snap, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(expense_pro_snap, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(snap_expense_verif, the_busi)&"~**^"&box_two_info&"~**^"&ALL_BUSI_PANELS_ARRAY(start_date, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(end_date, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(busi_desc, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(busi_structure, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(share_num, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(share_denom, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(partners_in_HH, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(exp_not_allwd, the_busi)&"~**^"&box_three_info&"~**^"&ALL_BUSI_PANELS_ARRAY(verif_added, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(budget_explain, the_busi)
-            Next
-            objTextStream.WriteLine "cit_id" & "^~^~^~^~^~^~^" & cit_id
-            objTextStream.WriteLine "other_assets" & "^~^~^~^~^~^~^" & other_assets
-            objTextStream.WriteLine "case_changes" & "^~^~^~^~^~^~^" & case_changes
-            objTextStream.WriteLine "PREG" & "^~^~^~^~^~^~^" & PREG
-            objTextStream.WriteLine "earned_income" & "^~^~^~^~^~^~^" & earned_income
-            objTextStream.WriteLine "notes_on_rest" & "^~^~^~^~^~^~^" & notes_on_rest
-            objTextStream.WriteLine "SCHL" & "^~^~^~^~^~^~^" & SCHL
-            objTextStream.WriteLine "notes_on_jobs" & "^~^~^~^~^~^~^" & notes_on_jobs
-            objTextStream.WriteLine "notes_on_cses" & "^~^~^~^~^~^~^" & notes_on_cses
-            objTextStream.WriteLine "notes_on_time" & "^~^~^~^~^~^~^" & notes_on_time
-            objTextStream.WriteLine "notes_on_sanction" & "^~^~^~^~^~^~^" & notes_on_sanction
-            For the_unea = 0 to UBound(UNEA_INCOME_ARRAY, 2)
-                objTextStream.WriteLine "UNEA_INCOME_ARRAY" & "^~^~^~^~^~^~^" &UNEA_INCOME_ARRAY(memb_numb, the_unea)&"~**^"&UNEA_INCOME_ARRAY(panel_instance, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_type, the_unea)&"~**^"&_
-                UNEA_INCOME_ARRAY(UNEA_month, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_verif, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_prosp_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_retro_amt, the_unea)&"~**^"&_
-                UNEA_INCOME_ARRAY(UNEA_SNAP_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_pay_freq, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_pic_date_calc, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_start_date, the_unea)&"~**^"&_
-                UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, the_unea)&"~**^"&_
-                UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_notes, the_unea)&"~**^"&_
-                UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_account_balance, the_unea)&"~**^"&UNEA_INCOME_ARRAY(direct_CS_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_amt, the_unea)&"~**^"&_
-                UNEA_INCOME_ARRAY(disb_CS_arrears_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(direct_CS_notes, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_notes, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_arrears_notes, the_unea)&"~**^"&_
-                UNEA_INCOME_ARRAY(disb_CS_months, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_prosp_budg, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_arrears_months, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_arrears_budg, the_unea)&"~**^"&_
-                UNEA_INCOME_ARRAY(UNEA_RSDI_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_RSDI_notes, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_SSI_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_SSI_notes, the_unea)&"~**^"&_
-                UNEA_INCOME_ARRAY(UC_exists, the_unea)&"~**^"&UNEA_INCOME_ARRAY(CS_exists, the_unea)&"~**^"&UNEA_INCOME_ARRAY(SSA_exists, the_unea)&"~**^"&UNEA_INCOME_ARRAY(calc_button, the_unea)&"~**^"&UNEA_INCOME_ARRAY(budget_notes, the_unea)
-            Next
-            objTextStream.WriteLine "notes_on_wreg" & "^~^~^~^~^~^~^" & notes_on_wreg
-            objTextStream.WriteLine "full_abawd_info" & "^~^~^~^~^~^~^" & full_abawd_info
-            objTextStream.WriteLine "notes_on_abawd" & "^~^~^~^~^~^~^" & notes_on_abawd
-            objTextStream.WriteLine "notes_on_abawd_two" & "^~^~^~^~^~^~^" & notes_on_abawd_two
-            objTextStream.WriteLine "notes_on_abawd_three" & "^~^~^~^~^~^~^" & notes_on_abawd_three
-            objTextStream.WriteLine "programs_applied_for" & "^~^~^~^~^~^~^" & programs_applied_for
-            If TIKL_checkbox = checked Then objTextStream.WriteLine "TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            objTextStream.WriteLine "interview_memb_list" & "^~^~^~^~^~^~^" & interview_memb_list
-            objTextStream.WriteLine "shel_memb_list" & "^~^~^~^~^~^~^" & shel_memb_list
-            objTextStream.WriteLine "verification_memb_list" & "^~^~^~^~^~^~^" & verification_memb_list
-            objTextStream.WriteLine "notes_on_busi" & "^~^~^~^~^~^~^" & notes_on_busi
-            'DLG 1
-            If Used_Interpreter_checkbox = checked Then objTextStream.WriteLine "Used_Interpreter_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            ' objTextStream.WriteLine "how_app_rcvd" & "^~^~^~^~^~^~^" & how_app_rcvd
-            objTextStream.WriteLine "arep_id_info" & "^~^~^~^~^~^~^" & arep_id_info
-            objTextStream.WriteLine "CS_forms_sent_date" & "^~^~^~^~^~^~^" & CS_forms_sent_date
-            objTextStream.WriteLine "case_changes" & "^~^~^~^~^~^~^" & case_changes
-            'DLG 5'
-            objTextStream.WriteLine "notes_on_ssa_income" & "^~^~^~^~^~^~^" & notes_on_ssa_income
-            objTextStream.WriteLine "notes_on_VA_income" & "^~^~^~^~^~^~^" & notes_on_VA_income
-            objTextStream.WriteLine "notes_on_WC_income" & "^~^~^~^~^~^~^" & notes_on_WC_income
-            objTextStream.WriteLine "other_uc_income_notes" & "^~^~^~^~^~^~^" & other_uc_income_notes
-            objTextStream.WriteLine "notes_on_other_UNEA" & "^~^~^~^~^~^~^" & notes_on_other_UNEA
-
-            objTextStream.WriteLine "hest_information" & "^~^~^~^~^~^~^" & hest_information
-            objTextStream.WriteLine "notes_on_acut" & "^~^~^~^~^~^~^" & notes_on_acut
-            objTextStream.WriteLine "notes_on_coex" & "^~^~^~^~^~^~^" & notes_on_coex
-            objTextStream.WriteLine "notes_on_dcex" & "^~^~^~^~^~^~^" & notes_on_dcex
-            objTextStream.WriteLine "notes_on_other_deduction" & "^~^~^~^~^~^~^" & notes_on_other_deduction
-            objTextStream.WriteLine "expense_notes" & "^~^~^~^~^~^~^" & expense_notes
-            If address_confirmation_checkbox = checked Then objTextStream.WriteLine "address_confirmation_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            objTextStream.WriteLine "manual_total_shelter" & "^~^~^~^~^~^~^" & manual_total_shelter
-            objTextStream.WriteLine "manual_amount_used" & "^~^~^~^~^~^~^" & manual_amount_used
-            objTextStream.WriteLine "app_month_assets" & "^~^~^~^~^~^~^" & app_month_assets
-            If confirm_no_account_panel_checkbox = checked Then objTextStream.WriteLine "confirm_no_account_panel_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            objTextStream.WriteLine "notes_on_other_assets" & "^~^~^~^~^~^~^" & notes_on_other_assets
-            objTextStream.WriteLine "MEDI" & "^~^~^~^~^~^~^" & MEDI
-            objTextStream.WriteLine "DISQ" & "^~^~^~^~^~^~^" & DISQ
-            If MFIP_DVD_checkbox = checked Then objTextStream.WriteLine "MFIP_DVD_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            'EXP DET'
-            objTextStream.WriteLine "full_determination_done" & "^~^~^~^~^~^~^" & full_determination_done
-            ' Call run_expedited_determination_script_functionality(
-            objTextStream.WriteLine "xfs_screening" & "^~^~^~^~^~^~^" & xfs_screening
-            objTextStream.WriteLine "caf_one_income" & "^~^~^~^~^~^~^" & caf_one_income
-            objTextStream.WriteLine "caf_one_assets" & "^~^~^~^~^~^~^" & caf_one_assets
-            objTextStream.WriteLine "caf_one_rent" & "^~^~^~^~^~^~^" & caf_one_rent
-            objTextStream.WriteLine "caf_one_utilities" & "^~^~^~^~^~^~^" & caf_one_utilities
-            objTextStream.WriteLine "determined_income" & "^~^~^~^~^~^~^" & determined_income
-            objTextStream.WriteLine "determined_assets" & "^~^~^~^~^~^~^" & determined_assets
-            objTextStream.WriteLine "determined_shel" & "^~^~^~^~^~^~^" & determined_shel
-            objTextStream.WriteLine "determined_utilities" & "^~^~^~^~^~^~^" & determined_utilities
-            objTextStream.WriteLine "calculated_resources" & "^~^~^~^~^~^~^" & calculated_resources
-            objTextStream.WriteLine "calculated_expenses" & "^~^~^~^~^~^~^" & calculated_expenses
-            objTextStream.WriteLine "calculated_low_income_asset_test" & "^~^~^~^~^~^~^" & calculated_low_income_asset_test
-            objTextStream.WriteLine "calculated_resources_less_than_expenses_test" & "^~^~^~^~^~^~^" & calculated_resources_less_than_expenses_test
-            objTextStream.WriteLine "is_elig_XFS" & "^~^~^~^~^~^~^" & is_elig_XFS
-            objTextStream.WriteLine "approval_date" & "^~^~^~^~^~^~^" & approval_date
-            objTextStream.WriteLine "applicant_id_on_file_yn" & "^~^~^~^~^~^~^" & applicant_id_on_file_yn
-            objTextStream.WriteLine "applicant_id_through_SOLQ" & "^~^~^~^~^~^~^" & applicant_id_through_SOLQ
-            objTextStream.WriteLine "delay_explanation" & "^~^~^~^~^~^~^" & delay_explanation
-            objTextStream.WriteLine "snap_denial_date" & "^~^~^~^~^~^~^" & snap_denial_date
-            objTextStream.WriteLine "snap_denial_explain" & "^~^~^~^~^~^~^" & snap_denial_explain
-            objTextStream.WriteLine "case_assesment_text" & "^~^~^~^~^~^~^" & case_assesment_text
-            objTextStream.WriteLine "next_steps_one" & "^~^~^~^~^~^~^" & next_steps_one
-            objTextStream.WriteLine "next_steps_two" & "^~^~^~^~^~^~^" & next_steps_two
-            objTextStream.WriteLine "next_steps_three" & "^~^~^~^~^~^~^" & next_steps_three
-            objTextStream.WriteLine "next_steps_four" & "^~^~^~^~^~^~^" & next_steps_four
-            objTextStream.WriteLine "postponed_verifs_yn" & "^~^~^~^~^~^~^" & postponed_verifs_yn
-            objTextStream.WriteLine "list_postponed_verifs" & "^~^~^~^~^~^~^" & list_postponed_verifs
-            objTextStream.WriteLine "day_30_from_application" & "^~^~^~^~^~^~^" & day_30_from_application
-            objTextStream.WriteLine "other_snap_state" & "^~^~^~^~^~^~^" & other_snap_state
-            objTextStream.WriteLine "other_state_reported_benefit_end_date" & "^~^~^~^~^~^~^" & other_state_reported_benefit_end_date
-            objTextStream.WriteLine "other_state_benefits_openended" & "^~^~^~^~^~^~^" & other_state_benefits_openended
-            objTextStream.WriteLine "other_state_contact_yn" & "^~^~^~^~^~^~^" & other_state_contact_yn
-            objTextStream.WriteLine "other_state_verified_benefit_end_date" & "^~^~^~^~^~^~^" & other_state_verified_benefit_end_date
-            objTextStream.WriteLine "mn_elig_begin_date" & "^~^~^~^~^~^~^" & mn_elig_begin_date
-            objTextStream.WriteLine "action_due_to_out_of_state_benefits" & "^~^~^~^~^~^~^" & action_due_to_out_of_state_benefits
-            objTextStream.WriteLine "case_has_previously_postponed_verifs_that_prevent_exp_snap" & "^~^~^~^~^~^~^" & case_has_previously_postponed_verifs_that_prevent_exp_snap
-            objTextStream.WriteLine "prev_post_verif_assessment_done" & "^~^~^~^~^~^~^" & prev_post_verif_assessment_done
-            objTextStream.WriteLine "previous_date_of_application" & "^~^~^~^~^~^~^" & previous_date_of_application
-            objTextStream.WriteLine "previous_expedited_package" & "^~^~^~^~^~^~^" & previous_expedited_package
-            objTextStream.WriteLine "prev_verifs_mandatory_yn" & "^~^~^~^~^~^~^" & prev_verifs_mandatory_yn
-            objTextStream.WriteLine "prev_verif_list" & "^~^~^~^~^~^~^" & prev_verif_list
-            objTextStream.WriteLine "curr_verifs_postponed_yn" & "^~^~^~^~^~^~^" & curr_verifs_postponed_yn
-            objTextStream.WriteLine "ongoing_snap_approved_yn" & "^~^~^~^~^~^~^" & ongoing_snap_approved_yn
-            objTextStream.WriteLine "prev_post_verifs_recvd_yn" & "^~^~^~^~^~^~^" & prev_post_verifs_recvd_yn
-            objTextStream.WriteLine "delay_action_due_to_faci" & "^~^~^~^~^~^~^" & delay_action_due_to_faci
-            objTextStream.WriteLine "deny_snap_due_to_faci" & "^~^~^~^~^~^~^" & deny_snap_due_to_faci
-            objTextStream.WriteLine "faci_review_completed" & "^~^~^~^~^~^~^" & faci_review_completed
-            objTextStream.WriteLine "facility_name" & "^~^~^~^~^~^~^" & facility_name
-            objTextStream.WriteLine "snap_inelig_faci_yn" & "^~^~^~^~^~^~^" & snap_inelig_faci_yn
-            objTextStream.WriteLine "faci_entry_date" & "^~^~^~^~^~^~^" & faci_entry_date
-            objTextStream.WriteLine "faci_release_date" & "^~^~^~^~^~^~^" & faci_release_date
-            If release_date_unknown_checkbox = checked Then objTextStream.WriteLine "release_date_unknown_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            objTextStream.WriteLine "release_within_30_days_yn" & "^~^~^~^~^~^~^" & release_within_30_days_yn
-
-            objTextStream.WriteLine "next_er_month" & "^~^~^~^~^~^~^" & next_er_month
-            objTextStream.WriteLine "next_er_year" & "^~^~^~^~^~^~^" & next_er_year
-            objTextStream.WriteLine "CAF_status" & "^~^~^~^~^~^~^" & CAF_status
-            objTextStream.WriteLine "actions_taken" & "^~^~^~^~^~^~^" & actions_taken
-            If application_signed_checkbox = checked Then objTextStream.WriteLine "application_signed_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If eDRS_sent_checkbox = checked Then objTextStream.WriteLine "eDRS_sent_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If updated_MMIS_checkbox = checked Then objTextStream.WriteLine "updated_MMIS_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If WF1_checkbox = checked Then objTextStream.WriteLine "WF1_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If Sent_arep_checkbox = checked Then objTextStream.WriteLine "Sent_arep_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If intake_packet_checkbox = checked Then objTextStream.WriteLine "intake_packet_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If IAA_checkbox = checked Then objTextStream.WriteLine "IAA_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If recert_period_checkbox = checked Then objTextStream.WriteLine "recert_period_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If R_R_checkbox = checked Then objTextStream.WriteLine "R_R_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If E_and_T_checkbox = checked Then objTextStream.WriteLine "E_and_T_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If elig_req_explained_checkbox = checked Then objTextStream.WriteLine "elig_req_explained_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If benefit_payment_explained_checkbox = checked Then objTextStream.WriteLine "benefit_payment_explained_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            objTextStream.WriteLine "other_notes" & "^~^~^~^~^~^~^" & other_notes
-            If client_delay_checkbox = checked Then objTextStream.WriteLine "client_delay_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If TIKL_checkbox = checked Then objTextStream.WriteLine "TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If client_delay_TIKL_checkbox = checked Then objTextStream.WriteLine "client_delay_TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            objTextStream.WriteLine "verif_req_form_sent_date" & "^~^~^~^~^~^~^" & verif_req_form_sent_date
-            objTextStream.WriteLine "worker_signature" & "^~^~^~^~^~^~^" & worker_signature
-            ' objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
-
-			' If IsNumeric(add_to_time) = True Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time + add_to_time
-			' If IsNumeric(add_to_time) = False Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time
-            '
-			' objTextStream.WriteLine "CAF - DATE - " & CAF_datestamp
-
-
-
-            'Close the object so it can be opened again shortly
-			objTextStream.Close
-
-
-            script_run_lowdown = ""
-
-            If exp_det_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Expedited Case Note"
-            If interview_completed_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Interview Completed Note"
-            If verifications_requested_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Verifs Requested Note"
-            If caf_qualifying_questions_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found CAF Qual Questions Note"
-
-
-
-            script_run_lowdown = script_run_lowdown & vbCr & "TIME SPENT - "	& timer - start_time & vbCr & vbCr
-
-            script_run_lowdown = script_run_lowdown & vbCr & "PROG - CASH - " & cash_other_req_detail
-            script_run_lowdown = script_run_lowdown & vbCr & "PROG - SNAP - " & snap_other_req_detail
-            script_run_lowdown = script_run_lowdown & vbCr & "PROG - EMER - " & emer_other_req_detail & vbCr & vbCr
-        End If
-    End With
-end function
-
-function restore_your_work(vars_filled)
-'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
-
-	'Now determines name of file
-	local_changelog_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
-
-	With objFSO
-
-		'Creating an object for the stream of text which we'll use frequently
-		Dim objTextStream
-
-		If .FileExists(local_changelog_path) = True then
-
-			pull_variables = MsgBox("It appears there is information saved for this case from a previous run of this script." & vbCr & vbCr & "Would you like to restore the details from this previous run?", vbQuestion + vbYesNo, "Restore Detail from Previous Run")
-
-			If pull_variables = vbYes Then
-                vars_filled = True
-				'Setting the object to open the text file for reading the data already in the file
-				Set objTextStream = .OpenTextFile(local_changelog_path, ForReading)
-
-				'Reading the entire text file into a string
-				every_line_in_text_file = objTextStream.ReadAll
-
-				'Splitting the text file contents into an array which will be sorted
-				saved_caf_details = split(every_line_in_text_file, vbNewLine)
-
-                known_ref = 0
-                known_membs = 0
-                known_jobs = 0
-                known_busi = 0
-                known_unea = 0
-
-
-                For Each text_line in saved_caf_details										'read each line in the file
-                    If Instr(text_line, "^~^~^~^~^~^~^") <> 0 Then
-                        line_info = split(text_line, "^~^~^~^~^~^~^")								'creating a small array for each line. 0 has the header and 1 has the information
-                        line_info(0) = trim(line_info(0))
-            			'here we add the information from TXT to Excel
-                        If line_info(0) = "" Then variable = line_info(1)
-
-                        If line_info(0) = "MAXIS_footer_month" Then MAXIS_footer_month = line_info(1)
-                        If line_info(0) = "MAXIS_footer_year" Then MAXIS_footer_year = line_info(1)
-                        ' If CASH_on_CAF_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "CASH_on_CAF_checkbox" and line_info(1) = "CHECKED" Then CASH_on_CAF_checkbox = checked
-                        ' If SNAP_on_CAF_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "SNAP_on_CAF_checkbox" and line_info(1) = "CHECKED" Then SNAP_on_CAF_checkbox = checked
-                        ' If EMER_on_CAF_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "EMER_on_CAF_checkbox" and line_info(1) = "CHECKED" Then EMER_on_CAF_checkbox = checked
-                        ' If cash_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "cash_checkbox" and line_info(1) = "CHECKED" Then cash_checkbox = checked
-                        ' If SNAP_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "SNAP_checkbox" and line_info(1) = "CHECKED" Then SNAP_checkbox = checked
-                        ' If EMER_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "EMER_checkbox" and line_info(1) = "CHECKED" Then EMER_checkbox = checked
-                        ' If HC_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "HC_checkbox" and line_info(1) = "CHECKED" Then HC_checkbox = checked
-                        If line_info(0) = "CAF_form" Then CAF_form = line_info(1)
-                        If line_info(0) = "cash_other_req_detail" Then cash_other_req_detail = line_info(1)
-                        If line_info(0) = "snap_other_req_detail" Then snap_other_req_detail = line_info(1)
-                        If line_info(0) = "emer_other_req_detail" Then emer_other_req_detail = line_info(1)
-
-                        If line_info(0) = "number_verifs_checkbox" and line_info(1) = "CHECKED" Then number_verifs_checkbox = checked
-                        If line_info(0) = "verifs_postponed_checkbox" and line_info(1) = "CHECKED" Then verifs_postponed_checkbox = checked
-
-                        If line_info(0) = "adult_cash_count" Then adult_cash_count = line_info(1)
-                        If line_info(0) = "child_cash_count" Then child_cash_count = line_info(1)
-                        If line_info(0) = "pregnant_caregiver_checkbox" and line_info(1) = "CHECKED" Then pregnant_caregiver_checkbox = checked
-                        If line_info(0) = "adult_snap_count" Then adult_snap_count = line_info(1)
-                        If line_info(0) = "child_snap_count" Then child_snap_count = line_info(1)
-                        If line_info(0) = "adult_emer_count" Then adult_emer_count = line_info(1)
-                        If line_info(0) = "child_emer_count" Then child_emer_count = line_info(1)
-                        If line_info(0) = "EATS" Then EATS = line_info(1)
-                        If line_info(0) = "relationship_detail" Then relationship_detail = line_info(1)
-                        If line_info(0) = "determined_income" Then determined_income = line_info(1)
-                        If line_info(0) = "income_review_completed" Then income_review_completed = line_info(1)
-                        If UCase(income_review_completed) = "TRUE" Then income_review_completed = True
-                        If UCase(income_review_completed) = "FALSE" Then income_review_completed = False
-                        If line_info(0) = "jobs_income_yn" Then jobs_income_yn = line_info(1)
-                        If line_info(0) = "busi_income_yn" Then busi_income_yn = line_info(1)
-                        If line_info(0) = "unea_income_yn" Then unea_income_yn = line_info(1)
-                        ' If line_info(0) = "determined_assets" Then determined_assets = line_info(1)
-                        If line_info(0) = "assets_review_completed" Then assets_review_completed = line_info(1)
-                        If UCase(assets_review_completed) = "TRUE" Then assets_review_completed = True
-                        If UCase(assets_review_completed) = "FALSE" Then assets_review_completed = False
-                        If line_info(0) = "cash_amount_yn" Then cash_amount_yn = line_info(1)
-                        If line_info(0) = "bank_account_yn" Then bank_account_yn = line_info(1)
-                        If line_info(0) = "cash_amount" Then cash_amount = line_info(1)
-                        ' If line_info(0) = "determined_shel" Then determined_shel = line_info(1)
-                        If line_info(0) = "shel_review_completed" Then shel_review_completed = line_info(1)
-                        If UCase(shel_review_completed) = "TRUE" Then shel_review_completed = True
-                        If UCase(shel_review_completed) = "FALSE" Then shel_review_completed = False
-                        If line_info(0) = "rent_amount" Then rent_amount = line_info(1)
-                        If line_info(0) = "lot_rent_amount" Then lot_rent_amount = line_info(1)
-                        If line_info(0) = "mortgage_amount" Then mortgage_amount = line_info(1)
-                        If line_info(0) = "insurance_amount" Then insurance_amount = line_info(1)
-                        If line_info(0) = "tax_amount" Then tax_amount = line_info(1)
-                        If line_info(0) = "room_amount" Then room_amount = line_info(1)
-                        If line_info(0) = "garage_amount" Then garage_amount = line_info(1)
-                        If line_info(0) = "subsidy_amount" Then subsidy_amount = line_info(1)
-                        ' If line_info(0) = "determined_utilities" Then determined_utilities = line_info(1)
-                        If line_info(0) = "heat_expense" Then heat_expense = line_info(1)
-                        If UCase(heat_expense) = "TRUE" Then heat_expense = True
-                        If UCase(heat_expense) = "FALSE" Then heat_expense = False
-                        If line_info(0) = "ac_expense" Then ac_expense = line_info(1)
-                        If UCase(ac_expense) = "TRUE" Then ac_expense = True
-                        If UCase(ac_expense) = "FALSE" Then ac_expense = False
-                        If line_info(0) = "electric_expense" Then electric_expense = line_info(1)
-                        If UCase(electric_expense) = "TRUE" Then electric_expense = True
-                        If UCase(electric_expense) = "FALSE" Then electric_expense = False
-                        If line_info(0) = "phone_expense" Then phone_expense = line_info(1)
-                        If UCase(phone_expense) = "TRUE" Then phone_expense = True
-                        If UCase(phone_expense) = "FALSE" Then phone_expense = False
-                        If line_info(0) = "none_expense" Then none_expense = line_info(1)
-                        If UCase(none_expense) = "TRUE" Then none_expense = True
-                        If UCase(none_expense) = "FALSE" Then none_expense = False
-                        If line_info(0) = "all_utilities" Then all_utilities = line_info(1)
-                        If line_info(0) = "do_we_have_applicant_id" Then do_we_have_applicant_id = line_info(1)
-
-                        If line_info(0) = "adult_cash" Then adult_cash = line_info(1)
-                        If UCase(adult_cash) = "TRUE" Then adult_cash = True
-                        If UCase(adult_cash) = "FALSE" Then adult_cash = False
-                        If line_info(0) = "family_cash" Then family_cash = line_info(1)
-                        If UCase(family_cash) = "TRUE" Then family_cash = True
-                        If UCase(family_cash) = "FALSE" Then family_cash = False
-                        If line_info(0) = "the_process_for_cash" Then the_process_for_cash = line_info(1)
-                        If line_info(0) = "type_of_cash" Then type_of_cash = line_info(1)
-                        If line_info(0) = "cash_recert_mo" Then cash_recert_mo = line_info(1)
-                        If line_info(0) = "cash_recert_yr" Then cash_recert_yr = line_info(1)
-                        If line_info(0) = "the_process_for_snap" Then the_process_for_snap = line_info(1)
-                        If line_info(0) = "snap_recert_mo" Then snap_recert_mo = line_info(1)
-                        If line_info(0) = "snap_recert_yr" Then snap_recert_yr = line_info(1)
-                        If line_info(0) = "the_process_for_hc" Then the_process_for_hc = line_info(1)
-                        If line_info(0) = "hc_recert_mo" Then hc_recert_mo = line_info(1)
-                        If line_info(0) = "hc_recert_yr" Then hc_recert_yr = line_info(1)
-                        If line_info(0) = "CAF_type" Then CAF_type = line_info(1)
-                        If line_info(0) = "CAF_datestamp" Then CAF_datestamp = line_info(1)
-                        If line_info(0) = "interview_date" Then interview_date = line_info(1)
-                        If line_info(0) = "SNAP_recert_is_likely_24_months" Then SNAP_recert_is_likely_24_months = line_info(1)
-                        If UCase(SNAP_recert_is_likely_24_months) = "TRUE" Then SNAP_recert_is_likely_24_months = True
-                        If UCase(SNAP_recert_is_likely_24_months) = "FALSE" Then SNAP_recert_is_likely_24_months = False
-                        If line_info(0) = "check_for_waived_interview" Then check_for_waived_interview = line_info(1)
-                        If UCase(check_for_waived_interview) = "TRUE" Then check_for_waived_interview = True
-                        If UCase(check_for_waived_interview) = "FALSE" Then check_for_waived_interview = False
-                        If line_info(0) = "exp_screening_note_found" Then exp_screening_note_found = line_info(1)
-                        If UCase(exp_screening_note_found) = "TRUE" Then exp_screening_note_found = True
-                        If UCase(exp_screening_note_found) = "FALSE" Then exp_screening_note_found = False
-                        If line_info(0) = "interview_required" Then interview_required = line_info(1)
-                        If UCase(interview_required) = "TRUE" Then interview_required = True
-                        If UCase(interview_required) = "FALSE" Then interview_required = False
-                        If line_info(0) = "interview_waived" Then interview_waived = line_info(1)
-                        If UCase(interview_waived) = "TRUE" Then interview_waived = True
-                        If UCase(interview_waived) = "FALSE" Then interview_waived = False
-                        If line_info(0) = "xfs_screening" Then xfs_screening = line_info(1)
-                        If line_info(0) = "xfs_screening_display" Then xfs_screening_display = line_info(1)
-                        If line_info(0) = "caf_one_income" Then caf_one_income = line_info(1)
-                        If line_info(0) = "caf_one_assets" Then caf_one_assets = line_info(1)
-                        If line_info(0) = "caf_one_resources" Then caf_one_resources = line_info(1)
-                        If line_info(0) = "caf_one_rent" Then caf_one_rent = line_info(1)
-                        If line_info(0) = "caf_one_utilities" Then caf_one_utilities = line_info(1)
-                        If line_info(0) = "caf_one_expenses" Then caf_one_expenses = line_info(1)
-                        If line_info(0) = "exp_det_case_note_found" Then exp_det_case_note_found = line_info(1)
-                        If UCase(exp_det_case_note_found) = "TRUE" Then exp_det_case_note_found = True
-                        If UCase(exp_det_case_note_found) = "FALSE" Then exp_det_case_note_found = False
-                        If line_info(0) = "snap_exp_yn" Then snap_exp_yn = line_info(1)
-                        If line_info(0) = "snap_denial_date" Then snap_denial_date = line_info(1)
-                        If line_info(0) = "interview_completed_case_note_found" Then interview_completed_case_note_found = line_info(1)
-                        If UCase(interview_completed_case_note_found) = "TRUE" Then interview_completed_case_note_found = True
-                        If UCase(interview_completed_case_note_found) = "FALSE" Then interview_completed_case_note_found = False
-                        If line_info(0) = "interview_with" Then interview_with = line_info(1)
-                        If line_info(0) = "interview_type" Then interview_type = line_info(1)
-                        If line_info(0) = "verifications_requested_case_note_found" Then verifications_requested_case_note_found = line_info(1)
-                        If line_info(0) = "verifs_needed" Then verifs_needed = line_info(1)
-                        If line_info(0) = "caf_qualifying_questions_case_note_found" Then caf_qualifying_questions_case_note_found = line_info(1)
-                        If UCase(caf_qualifying_questions_case_note_found) = "TRUE" Then caf_qualifying_questions_case_note_found = True
-                        If UCase(caf_qualifying_questions_case_note_found) = "FALSE" Then caf_qualifying_questions_case_note_found = False
-                        If line_info(0) = "qual_question_one" Then qual_question_one = line_info(1)
-                        If line_info(0) = "qual_memb_one" Then qual_memb_one = line_info(1)
-                        If line_info(0) = "qual_question_two" Then qual_question_two = line_info(1)
-                        If line_info(0) = "qual_memb_two" Then qual_memb_two = line_info(1)
-                        If line_info(0) = "qual_question_three" Then qual_question_three = line_info(1)
-                        If line_info(0) = "qual_memb_three" Then qual_memb_three = line_info(1)
-                        If line_info(0) = "qual_question_four" Then qual_question_four = line_info(1)
-                        If line_info(0) = "qual_memb_four" Then qual_memb_four = line_info(1)
-                        If line_info(0) = "qual_question_five" Then qual_question_five = line_info(1)
-                        If line_info(0) = "qual_memb_five" Then qual_memb_five = line_info(1)
-                        If line_info(0) = "appt_notc_sent_on" Then appt_notc_sent_on = line_info(1)
-                        If line_info(0) = "appt_date_in_note" Then appt_date_in_note = line_info(1)
-                        If line_info(0) = "HH_member_array" Then
-                            ReDim Preserve HH_member_array(known_ref)
-                            HH_member_array(known_ref) = line_info(1)
-                            known_ref = known_ref + 1
-                        End If
-                        If line_info(0) = "addr_line_one" Then addr_line_one = line_info(1)
-                        If line_info(0) = "addr_line_two" Then addr_line_two = line_info(1)
-                        If line_info(0) = "city" Then city = line_info(1)
-                        If line_info(0) = "state" Then state = line_info(1)
-                        If line_info(0) = "zip" Then zip = line_info(1)
-                        If line_info(0) = "addr_county" Then addr_county = line_info(1)
-                        If line_info(0) = "homeless_yn" Then homeless_yn = line_info(1)
-                        If line_info(0) = "reservation_yn" Then reservation_yn = line_info(1)
-                        If line_info(0) = "addr_verif" Then addr_verif = line_info(1)
-                        If line_info(0) = "living_situation" Then living_situation = line_info(1)
-                        If line_info(0) = "addr_eff_date" Then addr_eff_date = line_info(1)
-                        If line_info(0) = "addr_future_date" Then addr_future_date = line_info(1)
-                        If line_info(0) = "mail_line_one" Then mail_line_one = line_info(1)
-                        If line_info(0) = "mail_line_two" Then mail_line_two = line_info(1)
-                        If line_info(0) = "mail_city_line" Then mail_city_line = line_info(1)
-                        If line_info(0) = "mail_state_line" Then mail_state_line = line_info(1)
-                        If line_info(0) = "mail_zip_line" Then mail_zip_line = line_info(1)
-                        If line_info(0) = "notes_on_address" Then notes_on_address = line_info(1)
-
-                        If line_info(0) = "ALL_MEMBERS_ARRAY" Then
-                            array_info = line_info(1)
-                            array_info = split(array_info, "~**^")
-                            ReDim Preserve ALL_MEMBERS_ARRAY(clt_notes, known_membs)
-
-                            ALL_MEMBERS_ARRAY(memb_numb, known_membs)                   = array_info(0)
-                            ALL_MEMBERS_ARRAY(clt_name, known_membs)                    = array_info(1)
-                            ALL_MEMBERS_ARRAY(clt_age, known_membs)                     = array_info(2)
-                            ALL_MEMBERS_ARRAY(full_clt, known_membs)                    = array_info(3)
-                            ALL_MEMBERS_ARRAY(clt_id_verif, known_membs)                = array_info(4)
-                            If array_info(5) = "CHECKED" Then ALL_MEMBERS_ARRAY(include_cash_checkbox, known_membs) = checked
-                            If array_info(6) = "CHECKED" Then ALL_MEMBERS_ARRAY(include_snap_checkbox, known_membs) = checked
-                            If array_info(7) = "CHECKED" Then ALL_MEMBERS_ARRAY(include_emer_checkbox, known_membs) = checked
-                            If array_info(8) = "CHECKED" Then ALL_MEMBERS_ARRAY(count_cash_checkbox, known_membs) = checked
-                            If array_info(9) = "CHECKED" Then ALL_MEMBERS_ARRAY(count_snap_checkbox, known_membs) = checked
-                            If array_info(10) = "CHECKED" Then ALL_MEMBERS_ARRAY(count_emer_checkbox, known_membs) = checked
-                            ALL_MEMBERS_ARRAY(clt_wreg_status, known_membs)             = array_info(11)
-                            ALL_MEMBERS_ARRAY(clt_abawd_status, known_membs)            = array_info(12)
-                            If array_info(13) = "CHECKED" Then ALL_MEMBERS_ARRAY(include_cash_checkbox, known_membs) = checked
-                            ALL_MEMBERS_ARRAY(numb_abawd_used, known_membs)             = array_info(14)
-                            ALL_MEMBERS_ARRAY(list_abawd_mo, known_membs)               = array_info(15)
-                            ALL_MEMBERS_ARRAY(first_second_set, known_membs)            = array_info(16)
-                            ALL_MEMBERS_ARRAY(list_second_set, known_membs)             = array_info(17)
-                            ALL_MEMBERS_ARRAY(explain_no_second, known_membs)           = array_info(18)
-                            ALL_MEMBERS_ARRAY(numb_banked_mo, known_membs)              = array_info(19)
-                            ALL_MEMBERS_ARRAY(clt_abawd_notes, known_membs)             = array_info(20)
-                            ALL_MEMBERS_ARRAY(shel_exists, known_membs)                 = array_info(21)
-                            If UCase(ALL_MEMBERS_ARRAY(shel_exists, known_membs)) = "TRUE" Then ALL_MEMBERS_ARRAY(shel_exists, known_membs) = True
-                            If UCase(ALL_MEMBERS_ARRAY(shel_exists, known_membs)) = "FALSE" Then ALL_MEMBERS_ARRAY(shel_exists, known_membs) = False
-                            ALL_MEMBERS_ARRAY(shel_subsudized, known_membs)             = array_info(22)
-                            ALL_MEMBERS_ARRAY(shel_shared, known_membs)                 = array_info(23)
-                            ALL_MEMBERS_ARRAY(shel_retro_rent_amt, known_membs)         = array_info(24)
-                            ALL_MEMBERS_ARRAY(shel_retro_rent_verif, known_membs)       = array_info(25)
-                            ALL_MEMBERS_ARRAY(shel_prosp_rent_amt, known_membs)         = array_info(26)
-                            ALL_MEMBERS_ARRAY(shel_prosp_rent_verif, known_membs)       = array_info(27)
-                            ALL_MEMBERS_ARRAY(shel_retro_lot_amt, known_membs)          = array_info(28)
-                            ALL_MEMBERS_ARRAY(shel_retro_lot_verif, known_membs)        = array_info(29)
-                            ALL_MEMBERS_ARRAY(shel_prosp_lot_amt, known_membs)          = array_info(30)
-                            ALL_MEMBERS_ARRAY(shel_prosp_lot_verif, known_membs)        = array_info(31)
-                            ALL_MEMBERS_ARRAY(shel_retro_mortgage_amt, known_membs)     = array_info(32)
-                            ALL_MEMBERS_ARRAY(shel_retro_mortgage_verif, known_membs)   = array_info(33)
-                            ALL_MEMBERS_ARRAY(shel_prosp_mortgage_amt, known_membs)     = array_info(34)
-                            ALL_MEMBERS_ARRAY(shel_prosp_mortgage_verif, known_membs)   = array_info(35)
-                            ALL_MEMBERS_ARRAY(shel_retro_ins_amt, known_membs)          = array_info(36)
-                            ALL_MEMBERS_ARRAY(shel_retro_ins_verif,known_membs)         = array_info(37)
-                            ALL_MEMBERS_ARRAY(shel_prosp_ins_amt, known_membs)          = array_info(38)
-                            ALL_MEMBERS_ARRAY(shel_prosp_ins_verif, known_membs)        = array_info(39)
-                            ALL_MEMBERS_ARRAY(shel_retro_tax_amt, known_membs)          = array_info(40)
-                            ALL_MEMBERS_ARRAY(shel_retro_tax_verif, known_membs)        = array_info(41)
-                            ALL_MEMBERS_ARRAY(shel_prosp_tax_amt, known_membs)          = array_info(42)
-                            ALL_MEMBERS_ARRAY(shel_prosp_tax_verif, known_membs)        = array_info(43)
-                            ALL_MEMBERS_ARRAY(shel_retro_room_amt, known_membs)         = array_info(44)
-                            ALL_MEMBERS_ARRAY(shel_retro_room_verif, known_membs)       = array_info(45)
-                            ALL_MEMBERS_ARRAY(shel_prosp_room_amt, known_membs)         = array_info(46)
-                            ALL_MEMBERS_ARRAY(shel_prosp_room_verif, known_membs)       = array_info(47)
-                            ALL_MEMBERS_ARRAY(shel_retro_garage_amt, known_membs)       = array_info(48)
-                            ALL_MEMBERS_ARRAY(shel_retro_garage_verif, known_membs)     = array_info(49)
-                            ALL_MEMBERS_ARRAY(shel_prosp_garage_amt, known_membs)       = array_info(50)
-                            ALL_MEMBERS_ARRAY(shel_prosp_garage_verif, known_membs)     = array_info(51)
-                            ALL_MEMBERS_ARRAY(shel_retro_subsidy_amt,known_membs)       = array_info(52)
-                            ALL_MEMBERS_ARRAY(shel_retro_subsidy_verif, known_membs)    = array_info(53)
-                            ALL_MEMBERS_ARRAY(shel_prosp_subsidy_amt, known_membs)      = array_info(54)
-                            ALL_MEMBERS_ARRAY(shel_prosp_subsidy_verif, known_membs)    = array_info(55)
-                            ALL_MEMBERS_ARRAY(wreg_exists, known_membs)                 = array_info(56)
-                            If UCase(ALL_MEMBERS_ARRAY(wreg_exists, known_membs)) = "TRUE" Then ALL_MEMBERS_ARRAY(wreg_exists, known_membs) = True
-                            If UCase(ALL_MEMBERS_ARRAY(wreg_exists, known_membs)) = "FALSE" Then ALL_MEMBERS_ARRAY(wreg_exists, known_membs) = False
-                            If array_info(57) = "CHECKED" Then ALL_MEMBERS_ARRAY(include_cash_checkbox, known_membs) = checked
-                            ALL_MEMBERS_ARRAY(shel_verif_added, known_membs)            = array_info(58)
-                            If UCase(ALL_MEMBERS_ARRAY(shel_verif_added, known_membs)) = "TRUE" Then ALL_MEMBERS_ARRAY(shel_verif_added, known_membs) = True
-                            If UCase(ALL_MEMBERS_ARRAY(shel_verif_added, known_membs)) = "FALSE" Then ALL_MEMBERS_ARRAY(shel_verif_added, known_membs) = False
-                            ALL_MEMBERS_ARRAY(gather_detail, known_membs)               = array_info(59)
-                            If UCase(ALL_MEMBERS_ARRAY(gather_detail, known_membs)) = "TRUE" Then ALL_MEMBERS_ARRAY(gather_detail, known_membs) = True
-                            If UCase(ALL_MEMBERS_ARRAY(gather_detail, known_membs)) = "FALSE" Then ALL_MEMBERS_ARRAY(gather_detail, known_membs) = False
-                            ALL_MEMBERS_ARRAY(id_detail, known_membs)                   = array_info(60)
-                            If array_info(61) = "CHECKED" Then ALL_MEMBERS_ARRAY(id_required, known_membs) = checked
-                            ALL_MEMBERS_ARRAY(clt_notes, known_membs)                   = array_info(62)
-                            known_membs = known_membs + 1
-                        End If
-                        If line_info(0) = "total_shelter_amount" Then total_shelter_amount = line_info(1)
-                        If line_info(0) = "full_shelter_details" Then full_shelter_details = line_info(1)
-                        If line_info(0) = "shelter_details" Then shelter_details = line_info(1)
-                        If line_info(0) = "shelter_details_two" Then shelter_details_two = line_info(1)
-                        If line_info(0) = "shelter_details_three" Then shelter_details_three = line_info(1)
-                        If line_info(0) = "prosp_heat_air" Then prosp_heat_air = line_info(1)
-                        If line_info(0) = "prosp_electric" Then prosp_electric = line_info(1)
-                        If line_info(0) = "prosp_phone" Then prosp_phone = line_info(1)
-                        If line_info(0) = "hest_information" Then hest_information = line_info(1)
-                        If line_info(0) = "ABPS" Then ABPS = line_info(1)
-                        If line_info(0) = "ACCI" Then ACCI = line_info(1)
-                        If line_info(0) = "notes_on_acct" Then notes_on_acct = line_info(1)
-                        If line_info(0) = "notes_on_acut" Then notes_on_acut = line_info(1)
-                        If line_info(0) = "AREP" Then AREP = line_info(1)
-                        If line_info(0) = "BILS" Then BILS = line_info(1)
-                        If line_info(0) = "notes_on_cash" Then notes_on_cash = line_info(1)
-                        If line_info(0) = "notes_on_cars" Then notes_on_cars = line_info(1)
-                        If line_info(0) = "notes_on_coex" Then notes_on_coex = line_info(1)
-                        If line_info(0) = "notes_on_dcex" Then notes_on_dcex = line_info(1)
-                        If line_info(0) = "DIET" Then DIET = line_info(1)
-                        If line_info(0) = "DISA" Then DISA = line_info(1)
-                        If line_info(0) = "EMPS" Then EMPS = line_info(1)
-                        If line_info(0) = "FACI" Then FACI = line_info(1)
-                        If line_info(0) = "FMED" Then FMED = line_info(1)
-                        If line_info(0) = "IMIG" Then IMIG = line_info(1)
-                        If line_info(0) = "INSA" Then INSA = line_info(1)
-                        If line_info(0) = "ALL_JOBS_PANELS_ARRAY" Then
-                            array_info = line_info(1)
-                            array_info = split(array_info, "~**^")
-                            ReDim Preserve ALL_JOBS_PANELS_ARRAY(budget_explain, known_jobs)
-
-                            ALL_JOBS_PANELS_ARRAY(memb_numb, known_jobs)            = array_info(0)
-                            ALL_JOBS_PANELS_ARRAY(panel_instance, known_jobs)       = array_info(1)
-                            ALL_JOBS_PANELS_ARRAY(employer_name, known_jobs)        = array_info(2)
-                            If array_info(3) = "CHECKED" Then ALL_JOBS_PANELS_ARRAY(estimate_only, known_jobs) = checked
-                            ALL_JOBS_PANELS_ARRAY(verif_explain, known_jobs)        = array_info(4)
-                            ALL_JOBS_PANELS_ARRAY(verif_code, known_jobs)           = array_info(5)
-                            ALL_JOBS_PANELS_ARRAY(info_month, known_jobs)           = array_info(6)
-                            ALL_JOBS_PANELS_ARRAY(hrly_wage, known_jobs)            = array_info(7)
-                            ALL_JOBS_PANELS_ARRAY(main_pay_freq, known_jobs)        = array_info(8)
-                            ALL_JOBS_PANELS_ARRAY(job_retro_income, known_jobs)     = array_info(9)
-                            ALL_JOBS_PANELS_ARRAY(job_prosp_income, known_jobs)     = array_info(10)
-                            ALL_JOBS_PANELS_ARRAY(retro_hours, known_jobs)          = array_info(11)
-                            ALL_JOBS_PANELS_ARRAY(prosp_hours, known_jobs)          = array_info(12)
-                            ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, known_jobs)  = array_info(13)
-                            ALL_JOBS_PANELS_ARRAY(pic_pay_freq, known_jobs)         = array_info(14)
-                            ALL_JOBS_PANELS_ARRAY(pic_prosp_income, known_jobs)     = array_info(15)
-                            ALL_JOBS_PANELS_ARRAY(pic_calc_date, known_jobs)        = array_info(16)
-                            ALL_JOBS_PANELS_ARRAY(EI_case_note, known_jobs)         = array_info(17)
-                            ALL_JOBS_PANELS_ARRAY(grh_calc_date, known_jobs)        = array_info(18)
-                            ALL_JOBS_PANELS_ARRAY(grh_pay_freq, known_jobs)         = array_info(19)
-                            ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, known_jobs)   = array_info(20)
-                            ALL_JOBS_PANELS_ARRAY(grh_prosp_income, known_jobs)     = array_info(21)
-                            ALL_JOBS_PANELS_ARRAY(start_date, known_jobs)           = array_info(25)
-                            ALL_JOBS_PANELS_ARRAY(end_date, known_jobs)             = array_info(26)
-                            If array_info(33) = "CHECKED" Then ALL_JOBS_PANELS_ARRAY(verif_checkbox, known_jobs) = checked
-                            ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs)          = array_info(34)
-                            If UCase(ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs)) = "TRUE" Then ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs) = True
-                            If UCase(ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs)) = "FALSE" Then ALL_JOBS_PANELS_ARRAY(verif_added, known_jobs) = False
-                            ALL_JOBS_PANELS_ARRAY(budget_explain, known_jobs)       = array_info(35)
-
-                            known_jobs = known_jobs + 1
-                        End If
-                        ' For the_jobs = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-                        '     known_jobs = 0
-                        '     box_one_info = ""
-                        '     box_two_info = ""
-                        '     If ALL_JOBS_PANELS_ARRAY(estimate_only, the_jobs) = checked Then box_one_info = "CHECKED"
-                        '     If ALL_JOBS_PANELS_ARRAY(verif_checkbox, the_jobs) = checked Then box_two_info = "CHECKED"
-                        '     objTextStream.WriteLine "ALL_JOBS_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_JOBS_PANELS_ARRAY(memb_numb, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(panel_instance, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(employer_name, the_jobs)&"~**^"&box_one_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_explain, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_code, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(info_month, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(hrly_wage, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(main_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_retro_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(job_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(retro_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(prosp_hours, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_prosp_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(pic_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(EI_case_note, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_calc_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_freq, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_pay_day_income, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(grh_prosp_income, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&ALL_JOBS_PANELS_ARRAY(start_date, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(end_date, the_jobs)&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&""&"~**^"&box_two_info&"~**^"&ALL_JOBS_PANELS_ARRAY(verif_added, the_jobs)&"~**^"&ALL_JOBS_PANELS_ARRAY(budget_explain, the_jobs)
-                        ' Next
-                        If line_info(0) = "ALL_BUSI_PANELS_ARRAY" Then
-                            array_info = line_info(1)
-                            array_info = split(array_info, "~**^")
-                            ReDim Preserve ALL_BUSI_PANELS_ARRAY(budget_explain, known_busi)
-
-                            ALL_BUSI_PANELS_ARRAY(memb_numb, known_busi)             = array_info(0)
-                            ALL_BUSI_PANELS_ARRAY(panel_instance, known_busi)        = array_info(1)
-                            ALL_BUSI_PANELS_ARRAY(busi_type, known_busi)             = array_info(2)
-                            If array_info(3) = "CHECKED" Then ALL_BUSI_PANELS_ARRAY(estimate_only, known_busi) = checked
-                            ALL_BUSI_PANELS_ARRAY(verif_explain, known_busi)         = array_info(4)
-                            ALL_BUSI_PANELS_ARRAY(calc_method, known_busi)           = array_info(5)
-                            ALL_BUSI_PANELS_ARRAY(info_month, known_busi)            = array_info(6)
-                            ALL_BUSI_PANELS_ARRAY(mthd_date, known_busi)             = array_info(7)
-                            ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, known_busi)        = array_info(8)
-                            ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, known_busi)        = array_info(9)
-                            ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, known_busi)      = array_info(10)
-                            ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, known_busi)      = array_info(11)
-                            ALL_BUSI_PANELS_ARRAY(income_ret_cash, known_busi)       = array_info(12)
-                            ALL_BUSI_PANELS_ARRAY(income_pro_cash, known_busi)       = array_info(13)
-                            ALL_BUSI_PANELS_ARRAY(cash_income_verif, known_busi)     = array_info(14)
-                            ALL_BUSI_PANELS_ARRAY(expense_ret_cash, known_busi)      = array_info(15)
-                            ALL_BUSI_PANELS_ARRAY(expense_pro_cash, known_busi)      = array_info(16)
-                            ALL_BUSI_PANELS_ARRAY(cash_expense_verif, known_busi)    = array_info(17)
-                            ALL_BUSI_PANELS_ARRAY(income_ret_snap, known_busi)       = array_info(18)
-                            ALL_BUSI_PANELS_ARRAY(income_pro_snap, known_busi)       = array_info(19)
-                            ALL_BUSI_PANELS_ARRAY(snap_income_verif, known_busi)     = array_info(20)
-                            ALL_BUSI_PANELS_ARRAY(expense_ret_snap, known_busi)      = array_info(21)
-                            ALL_BUSI_PANELS_ARRAY(expense_pro_snap, known_busi)      = array_info(22)
-                            ALL_BUSI_PANELS_ARRAY(snap_expense_verif, known_busi)    = array_info(23)
-                            If array_info(24) = "CHECKED" Then ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, known_busi) = checked
-                            ALL_BUSI_PANELS_ARRAY(start_date, known_busi)            = array_info(25)
-                            ALL_BUSI_PANELS_ARRAY(end_date, known_busi)              = array_info(26)
-                            ALL_BUSI_PANELS_ARRAY(busi_desc, known_busi)             = array_info(27)
-                            ALL_BUSI_PANELS_ARRAY(busi_structure, known_busi)        = array_info(28)
-                            ALL_BUSI_PANELS_ARRAY(share_num, known_busi)             = array_info(29)
-                            ALL_BUSI_PANELS_ARRAY(share_denom, known_busi)           = array_info(30)
-                            ALL_BUSI_PANELS_ARRAY(partners_in_HH, known_busi)        = array_info(31)
-                            ALL_BUSI_PANELS_ARRAY(exp_not_allwd, known_busi)         = array_info(32)
-                            If array_info(33) = "CHECKED" Then ALL_BUSI_PANELS_ARRAY(verif_checkbox, known_busi) = checked
-                            ALL_BUSI_PANELS_ARRAY(verif_added, known_busi)           = array_info(34)
-                            If UCase(ALL_BUSI_PANELS_ARRAY(verif_added, known_busi)) = "TRUE" Then ALL_BUSI_PANELS_ARRAY(verif_added, known_busi) = True
-                            If UCase(ALL_BUSI_PANELS_ARRAY(verif_added, known_busi)) = "FALSE" Then ALL_BUSI_PANELS_ARRAY(verif_added, known_busi) = False
-                            ALL_BUSI_PANELS_ARRAY(budget_explain, known_busi)        = array_info(35)
-
-                            known_busi = known_busi + 1
-                        End If
-                        ' For the_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-                        '     known_busi = 0
-                        '     box_one_info = ""
-                        '     box_two_info = ""
-                        '     box_three_info = ""
-                        '     If ALL_BUSI_PANELS_ARRAY(estimate_only, the_busi) = checked Then box_one_info = "CHECKED"
-                        '     If ALL_BUSI_PANELS_ARRAY(method_convo_checkbox, the_busi) = checked Then box_two_info = "CHECKED"
-                        '     If ALL_BUSI_PANELS_ARRAY(verif_checkbox, the_busi) = checked Then box_three_info = "CHECKED"
-                        '
-                        '     objTextStream.WriteLine "ALL_BUSI_PANELS_ARRAY" & "^~^~^~^~^~^~^" &ALL_BUSI_PANELS_ARRAY(memb_numb, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(panel_instance, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(busi_type, the_busi)&"~**^"&box_one_info&"~**^"&ALL_BUSI_PANELS_ARRAY(verif_explain, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(calc_method, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(info_month, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(mthd_date, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(rept_retro_hrs, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(rept_prosp_hrs, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(min_wg_retro_hrs, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(min_wg_prosp_hrs, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(income_ret_cash, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(income_pro_cash, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(cash_income_verif, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(expense_ret_cash, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(expense_pro_cash, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(cash_expense_verif, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(income_ret_snap, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(income_pro_snap, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(snap_income_verif, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(expense_ret_snap, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(expense_pro_snap, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(snap_expense_verif, the_busi)&"~**^"&box_two_info&"~**^"&ALL_BUSI_PANELS_ARRAY(start_date, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(end_date, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(busi_desc, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(busi_structure, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(share_num, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(share_denom, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(partners_in_HH, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(exp_not_allwd, the_busi)&"~**^"&box_three_info&"~**^"&ALL_BUSI_PANELS_ARRAY(verif_added, the_busi)&"~**^"&ALL_BUSI_PANELS_ARRAY(budget_explain, the_busi)
-                        ' Next
-                        If line_info(0) = "cit_id" Then cit_id = line_info(1)
-                        If line_info(0) = "other_assets" Then other_assets = line_info(1)
-                        If line_info(0) = "case_changes" Then case_changes = line_info(1)
-                        If line_info(0) = "PREG" Then PREG = line_info(1)
-                        If line_info(0) = "earned_income" Then earned_income = line_info(1)
-                        If line_info(0) = "notes_on_rest" Then notes_on_rest = line_info(1)
-                        If line_info(0) = "SCHL" Then SCHL = line_info(1)
-                        If line_info(0) = "notes_on_jobs" Then notes_on_jobs = line_info(1)
-                        If line_info(0) = "notes_on_cses" Then notes_on_cses = line_info(1)
-                        If line_info(0) = "notes_on_time" Then notes_on_time = line_info(1)
-                        If line_info(0) = "notes_on_sanction" Then notes_on_sanction = line_info(1)
-                        If line_info(0) = "UNEA_INCOME_ARRAY" Then
-                            array_info = line_info(1)
-                            array_info = split(array_info, "~**^")
-                            ReDim Preserve UNEA_INCOME_ARRAY(budget_notes, known_unea)
-
-                            UNEA_INCOME_ARRAY(memb_numb, known_unea)                 = array_info(0)
-                            UNEA_INCOME_ARRAY(panel_instance, known_unea)            = array_info(1)
-                            UNEA_INCOME_ARRAY(UNEA_type, known_unea)                 = array_info(2)
-                            UNEA_INCOME_ARRAY(UNEA_month, known_unea)                = array_info(3)
-                            UNEA_INCOME_ARRAY(UNEA_verif, known_unea)                = array_info(4)
-                            UNEA_INCOME_ARRAY(UNEA_prosp_amt, known_unea)            = array_info(5)
-                            UNEA_INCOME_ARRAY(UNEA_retro_amt, known_unea)            = array_info(6)
-                            UNEA_INCOME_ARRAY(UNEA_SNAP_amt, known_unea)             = array_info(7)
-                            UNEA_INCOME_ARRAY(UNEA_pay_freq, known_unea)             = array_info(8)
-                            UNEA_INCOME_ARRAY(UNEA_pic_date_calc, known_unea)        = array_info(9)
-                            UNEA_INCOME_ARRAY(UNEA_UC_start_date, known_unea)        = array_info(10)
-                            UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, known_unea)      = array_info(11)
-                            UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, known_unea)       = array_info(12)
-                            UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, known_unea)       = array_info(13)
-                            UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, known_unea)        = array_info(14)
-                            UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, known_unea)      = array_info(15)
-                            UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, known_unea)         = array_info(16)
-                            UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, known_unea)         = array_info(17)
-                            UNEA_INCOME_ARRAY(UNEA_UC_notes, known_unea)             = array_info(18)
-                            UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, known_unea)         = array_info(19)
-                            UNEA_INCOME_ARRAY(UNEA_UC_account_balance, known_unea)   = array_info(20)
-                            UNEA_INCOME_ARRAY(direct_CS_amt, known_unea)             = array_info(21)
-                            UNEA_INCOME_ARRAY(disb_CS_amt, known_unea)               = array_info(22)
-                            UNEA_INCOME_ARRAY(disb_CS_arrears_amt, known_unea)       = array_info(23)
-                            UNEA_INCOME_ARRAY(direct_CS_notes, known_unea)           = array_info(24)
-                            UNEA_INCOME_ARRAY(disb_CS_notes, known_unea)             = array_info(25)
-                            UNEA_INCOME_ARRAY(disb_CS_arrears_notes, known_unea)     = array_info(26)
-                            UNEA_INCOME_ARRAY(disb_CS_months, known_unea)            = array_info(27)
-                            UNEA_INCOME_ARRAY(disb_CS_prosp_budg, known_unea)        = array_info(28)
-                            UNEA_INCOME_ARRAY(disb_CS_arrears_months, known_unea)    = array_info(29)
-                            UNEA_INCOME_ARRAY(disb_CS_arrears_budg, known_unea)      = array_info(30)
-                            UNEA_INCOME_ARRAY(UNEA_RSDI_amt, known_unea)             = array_info(31)
-                            UNEA_INCOME_ARRAY(UNEA_RSDI_notes, known_unea)           = array_info(32)
-                            UNEA_INCOME_ARRAY(UNEA_SSI_amt, known_unea)              = array_info(33)
-                            UNEA_INCOME_ARRAY(UNEA_SSI_notes, known_unea)            = array_info(34)
-                            UNEA_INCOME_ARRAY(UC_exists, known_unea)                 = array_info(35)
-                            If UCase(UNEA_INCOME_ARRAY(UC_exists, known_unea)) = "TRUE" Then UNEA_INCOME_ARRAY(UC_exists, known_unea) = True
-                            If UCase(UNEA_INCOME_ARRAY(UC_exists, known_unea)) = "FALSE" Then UNEA_INCOME_ARRAY(UC_exists, known_unea) = False
-                            UNEA_INCOME_ARRAY(CS_exists, known_unea)                 = array_info(36)
-                            If UCase(UNEA_INCOME_ARRAY(CS_exists, known_unea)) = "TRUE" Then UNEA_INCOME_ARRAY(CS_exists, known_unea) = True
-                            If UCase(UNEA_INCOME_ARRAY(CS_exists, known_unea)) = "FALSE" Then UNEA_INCOME_ARRAY(CS_exists, known_unea) = False
-                            UNEA_INCOME_ARRAY(SSA_exists, known_unea)                = array_info(37)
-                            If UCase(UNEA_INCOME_ARRAY(SSA_exists, known_unea)) = "TRUE" Then UNEA_INCOME_ARRAY(SSA_exists, known_unea) = True
-                            If UCase(UNEA_INCOME_ARRAY(SSA_exists, known_unea)) = "FALSE" Then UNEA_INCOME_ARRAY(SSA_exists, known_unea) = False
-                            UNEA_INCOME_ARRAY(calc_button, known_unea)               = array_info(38)
-                            UNEA_INCOME_ARRAY(budget_notes, known_unea)              = array_info(39)
-
-                            known_unea = known_unea + 1
-                        End If
-
-                        ' UNEA_INCOME_ARRAY(memb_numb, the_unea)0
-                        ' UNEA_INCOME_ARRAY(panel_instance, the_unea)1
-                        ' UNEA_INCOME_ARRAY(UNEA_type, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_month, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_verif, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_prosp_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_retro_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_SNAP_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_pay_freq, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_pic_date_calc, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_start_date, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_notes, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_UC_account_balance, the_unea)
-                        ' UNEA_INCOME_ARRAY(direct_CS_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(disb_CS_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(disb_CS_arrears_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(direct_CS_notes, the_unea)
-                        ' UNEA_INCOME_ARRAY(disb_CS_notes, the_unea)
-                        ' UNEA_INCOME_ARRAY(disb_CS_arrears_notes, the_unea)
-                        ' UNEA_INCOME_ARRAY(disb_CS_months, the_unea)
-                        ' UNEA_INCOME_ARRAY(disb_CS_prosp_budg, the_unea)
-                        ' UNEA_INCOME_ARRAY(disb_CS_arrears_months, the_unea)
-                        ' UNEA_INCOME_ARRAY(disb_CS_arrears_budg, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_RSDI_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_RSDI_notes, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_SSI_amt, the_unea)
-                        ' UNEA_INCOME_ARRAY(UNEA_SSI_notes, the_unea)
-                        ' UNEA_INCOME_ARRAY(UC_exists, the_unea)
-                        ' UNEA_INCOME_ARRAY(CS_exists, the_unea)
-                        ' UNEA_INCOME_ARRAY(SSA_exists, the_unea)
-                        ' UNEA_INCOME_ARRAY(calc_button, the_unea)
-                        ' UNEA_INCOME_ARRAY(budget_notes, the_unea)
-
-                        ' For the_unea = 0 to UBound(UNEA_INCOME_ARRAY, 2)
-                        '     known_unea = 0
-                        '     objTextStream.WriteLine "UNEA_INCOME_ARRAY" & "^~^~^~^~^~^~^" &UNEA_INCOME_ARRAY(memb_numb, the_unea)&"~**^"&UNEA_INCOME_ARRAY(panel_instance, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_type, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_month, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_verif, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_prosp_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_retro_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_SNAP_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_pay_freq, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_pic_date_calc, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_start_date, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_weekly_gross, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_counted_ded, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_exclude_ded, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_weekly_net, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_retro_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_prosp_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_notes, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_UC_account_balance, the_unea)&"~**^"&UNEA_INCOME_ARRAY(direct_CS_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_arrears_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(direct_CS_notes, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_notes, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_arrears_notes, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_months, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_prosp_budg, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_arrears_months, the_unea)&"~**^"&UNEA_INCOME_ARRAY(disb_CS_arrears_budg, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_RSDI_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_RSDI_notes, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_SSI_amt, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UNEA_SSI_notes, the_unea)&"~**^"&UNEA_INCOME_ARRAY(UC_exists, the_unea)&"~**^"&UNEA_INCOME_ARRAY(CS_exists, the_unea)&"~**^"&UNEA_INCOME_ARRAY(SSA_exists, the_unea)&"~**^"&UNEA_INCOME_ARRAY(calc_button, the_unea)&"~**^"&UNEA_INCOME_ARRAY(budget_notes, the_unea)
-                        ' Next
-                        If line_info(0) = "notes_on_wreg" Then notes_on_wreg = line_info(1)
-                        If line_info(0) = "full_abawd_info" Then full_abawd_info = line_info(1)
-                        If line_info(0) = "notes_on_abawd" Then notes_on_abawd = line_info(1)
-                        If line_info(0) = "notes_on_abawd_two" Then notes_on_abawd_two = line_info(1)
-                        If line_info(0) = "notes_on_abawd_three" Then notes_on_abawd_three = line_info(1)
-                        If line_info(0) = "programs_applied_for" Then programs_applied_for = line_info(1)
-                        ' If TIKL_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "TIKL_checkbox" and line_info(1) = "CHECKED" Then TIKL_checkbox = checked
-                        If line_info(0) = "interview_memb_list" Then interview_memb_list = line_info(1)
-                        If line_info(0) = "shel_memb_list" Then shel_memb_list = line_info(1)
-                        If line_info(0) = "verification_memb_list" Then verification_memb_list = line_info(1)
-                        If line_info(0) = "notes_on_busi" Then notes_on_busi = line_info(1)
-                        'DLG 1
-                        ' If Used_Interpreter_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "Used_Interpreter_checkbox" and line_info(1) = "CHECKED" Then Used_Interpreter_checkbox = checked
-                        ' If line_info(0) = "how_app_rcvd" Then how_app_rcvd = line_info(1)
-                        If line_info(0) = "arep_id_info" Then arep_id_info = line_info(1)
-                        If line_info(0) = "CS_forms_sent_date" Then CS_forms_sent_date = line_info(1)
-                        ' If line_info(0) = "case_changes" Then case_changes = line_info(1)
-                        'DLG 5'
-                        If line_info(0) = "notes_on_ssa_income" Then notes_on_ssa_income = line_info(1)
-                        If line_info(0) = "notes_on_VA_income" Then notes_on_VA_income = line_info(1)
-                        If line_info(0) = "notes_on_WC_income" Then notes_on_WC_income = line_info(1)
-                        If line_info(0) = "other_uc_income_notes" Then other_uc_income_notes = line_info(1)
-                        If line_info(0) = "notes_on_other_UNEA" Then notes_on_other_UNEA = line_info(1)
-
-                        If line_info(0) = "hest_information" Then hest_information = line_info(1)
-                        ' If line_info(0) = "notes_on_acut" Then notes_on_acut = line_info(1)
-                        ' If line_info(0) = "notes_on_coex" Then notes_on_coex = line_info(1)
-                        ' If line_info(0) = "notes_on_dcex" Then notes_on_dcex = line_info(1)
-                        If line_info(0) = "notes_on_other_deduction" Then notes_on_other_deduction = line_info(1)
-                        If line_info(0) = "expense_notes" Then expense_notes = line_info(1)
-                        ' If address_confirmation_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "address_confirmation_checkbox" and line_info(1) = "CHECKED" Then address_confirmation_checkbox = checked
-                        If line_info(0) = "manual_total_shelter" Then manual_total_shelter = line_info(1)
-                        If line_info(0) = "manual_amount_used" Then manual_amount_used = line_info(1)
-                        If line_info(0) = "app_month_assets" Then app_month_assets = line_info(1)
-                        ' If confirm_no_account_panel_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "confirm_no_account_panel_checkbox" and line_info(1) = "CHECKED" Then confirm_no_account_panel_checkbox = checked
-                        If line_info(0) = "notes_on_other_assets" Then notes_on_other_assets = line_info(1)
-                        If line_info(0) = "MEDI" Then MEDI = line_info(1)
-                        If line_info(0) = "DISQ" Then DISQ = line_info(1)
-                        ' If MFIP_DVD_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "MFIP_DVD_checkbox" and line_info(1) = "CHECKED" Then MFIP_DVD_checkbox = checked
-                        'EXP DET'
-                        If line_info(0) = "full_determination_done" Then full_determination_done = line_info(1)
-                        If UCase(full_determination_done) = "TRUE" Then full_determination_done = True
-                        If UCase(full_determination_done) = "FALSE" Then full_determination_done = False
-                        ' Call run_expedited_determination_script_functionality(
-                        ' If line_info(0) = "xfs_screening" Then xfs_screening = line_info(1)
-                        ' If line_info(0) = "caf_one_income" Then caf_one_income = line_info(1)
-                        ' If line_info(0) = "caf_one_assets" Then caf_one_assets = line_info(1)
-                        ' If line_info(0) = "caf_one_rent" Then caf_one_rent = line_info(1)
-                        ' If line_info(0) = "caf_one_utilities" Then caf_one_utilities = line_info(1)
-                        If line_info(0) = "determined_income" Then determined_income = line_info(1)
-                        If line_info(0) = "determined_assets" Then determined_assets = line_info(1)
-                        If line_info(0) = "determined_shel" Then determined_shel = line_info(1)
-                        If line_info(0) = "determined_utilities" Then determined_utilities = line_info(1)
-                        If line_info(0) = "calculated_resources" Then calculated_resources = line_info(1)
-                        If line_info(0) = "calculated_expenses" Then calculated_expenses = line_info(1)
-                        If line_info(0) = "calculated_low_income_asset_test" Then calculated_low_income_asset_test = line_info(1)
-                        If UCase(calculated_low_income_asset_test) = "TRUE" Then calculated_low_income_asset_test = True
-                        If UCase(calculated_low_income_asset_test) = "FALSE" Then calculated_low_income_asset_test = False
-                        If line_info(0) = "calculated_resources_less_than_expenses_test" Then calculated_resources_less_than_expenses_test = line_info(1)
-                        If UCase(calculated_resources_less_than_expenses_test) = "TRUE" Then calculated_resources_less_than_expenses_test = True
-                        If UCase(calculated_resources_less_than_expenses_test) = "FALSE" Then calculated_resources_less_than_expenses_test = False
-                        If line_info(0) = "is_elig_XFS" Then is_elig_XFS = line_info(1)
-                        If UCase(is_elig_XFS) = "TRUE" Then is_elig_XFS = True
-                        If UCase(is_elig_XFS) = "FALSE" Then is_elig_XFS = False
-                        If line_info(0) = "approval_date" Then approval_date = line_info(1)
-                        If line_info(0) = "applicant_id_on_file_yn" Then applicant_id_on_file_yn = line_info(1)
-                        If line_info(0) = "applicant_id_through_SOLQ" Then applicant_id_through_SOLQ = line_info(1)
-                        If line_info(0) = "delay_explanation" Then delay_explanation = line_info(1)
-                        ' If line_info(0) = "snap_denial_date" Then snap_denial_date = line_info(1)
-                        If line_info(0) = "snap_denial_explain" Then snap_denial_explain = line_info(1)
-                        If line_info(0) = "case_assesment_text" Then case_assesment_text = line_info(1)
-                        If line_info(0) = "next_steps_one" Then next_steps_one = line_info(1)
-                        If line_info(0) = "next_steps_two" Then next_steps_two = line_info(1)
-                        If line_info(0) = "next_steps_three" Then next_steps_three = line_info(1)
-                        If line_info(0) = "next_steps_four" Then next_steps_four = line_info(1)
-                        If line_info(0) = "postponed_verifs_yn" Then postponed_verifs_yn = line_info(1)
-                        If line_info(0) = "list_postponed_verifs" Then list_postponed_verifs = line_info(1)
-                        If line_info(0) = "day_30_from_application" Then day_30_from_application = line_info(1)
-                        If line_info(0) = "other_snap_state" Then other_snap_state = line_info(1)
-                        If line_info(0) = "other_state_reported_benefit_end_date" Then other_state_reported_benefit_end_date = line_info(1)
-                        If line_info(0) = "other_state_benefits_openended" Then other_state_benefits_openended = line_info(1)
-                        If UCase(other_state_benefits_openended) = "TRUE" Then other_state_benefits_openended = True
-                        If UCase(other_state_benefits_openended) = "FALSE" Then other_state_benefits_openended = False
-                        If line_info(0) = "other_state_contact_yn" Then other_state_contact_yn = line_info(1)
-                        If line_info(0) = "other_state_verified_benefit_end_date" Then other_state_verified_benefit_end_date = line_info(1)
-                        If line_info(0) = "mn_elig_begin_date" Then mn_elig_begin_date = line_info(1)
-                        If line_info(0) = "action_due_to_out_of_state_benefits" Then action_due_to_out_of_state_benefits = line_info(1)
-                        If line_info(0) = "case_has_previously_postponed_verifs_that_prevent_exp_snap" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = line_info(1)
-                        If UCase(case_has_previously_postponed_verifs_that_prevent_exp_snap) = "TRUE" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = True
-                        If UCase(case_has_previously_postponed_verifs_that_prevent_exp_snap) = "FALSE" Then case_has_previously_postponed_verifs_that_prevent_exp_snap = False
-                        If line_info(0) = "prev_post_verif_assessment_done" Then prev_post_verif_assessment_done = line_info(1)
-                        If UCase(prev_post_verif_assessment_done) = "TRUE" Then prev_post_verif_assessment_done = True
-                        If UCase(prev_post_verif_assessment_done) = "FALSE" Then prev_post_verif_assessment_done = False
-                        If line_info(0) = "previous_date_of_application" Then previous_date_of_application = line_info(1)
-                        If line_info(0) = "previous_expedited_package" Then previous_expedited_package = line_info(1)
-                        If line_info(0) = "prev_verifs_mandatory_yn" Then prev_verifs_mandatory_yn = line_info(1)
-                        If line_info(0) = "prev_verif_list" Then prev_verif_list = line_info(1)
-                        If line_info(0) = "curr_verifs_postponed_yn" Then curr_verifs_postponed_yn = line_info(1)
-                        If line_info(0) = "ongoing_snap_approved_yn" Then ongoing_snap_approved_yn = line_info(1)
-                        If line_info(0) = "prev_post_verifs_recvd_yn" Then prev_post_verifs_recvd_yn = line_info(1)
-                        If line_info(0) = "delay_action_due_to_faci" Then delay_action_due_to_faci = line_info(1)
-                        If UCase(delay_action_due_to_faci) = "TRUE" Then delay_action_due_to_faci = True
-                        If UCase(delay_action_due_to_faci) = "FALSE" Then delay_action_due_to_faci = False
-                        If line_info(0) = "deny_snap_due_to_faci" Then deny_snap_due_to_faci = line_info(1)
-                        If UCase(deny_snap_due_to_faci) = "TRUE" Then deny_snap_due_to_faci = True
-                        If UCase(deny_snap_due_to_faci) = "FALSE" Then deny_snap_due_to_faci = False
-                        If line_info(0) = "faci_review_completed" Then faci_review_completed = line_info(1)
-                        If UCase(faci_review_completed) = "TRUE" Then faci_review_completed = True
-                        If UCase(faci_review_completed) = "FALSE" Then faci_review_completed = False
-                        If line_info(0) = "facility_name" Then facility_name = line_info(1)
-                        If line_info(0) = "snap_inelig_faci_yn" Then snap_inelig_faci_yn = line_info(1)
-                        If line_info(0) = "faci_entry_date" Then faci_entry_date = line_info(1)
-                        If line_info(0) = "faci_release_date" Then faci_release_date = line_info(1)
-                        If line_info(0) = "release_date_unknown_checkbox" AND line_info(1) = "CHECKED" Then release_date_unknown_checkbox = checked
-                        If line_info(0) = "release_within_30_days_yn" Then release_within_30_days_yn = line_info(1)
-
-                        If line_info(0) = "next_er_month" Then next_er_month = line_info(1)
-                        If line_info(0) = "next_er_year" Then next_er_year = line_info(1)
-                        If line_info(0) = "CAF_status" Then CAF_status = line_info(1)
-                        If line_info(0) = "actions_taken" Then actions_taken = line_info(1)
-                        ' If application_signed_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "application_signed_checkbox" and line_info(1) = "CHECKED" Then application_signed_checkbox = checked
-                        ' If eDRS_sent_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "eDRS_sent_checkbox" and line_info(1) = "CHECKED" Then eDRS_sent_checkbox = checked
-                        ' If updated_MMIS_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "updated_MMIS_checkbox" and line_info(1) = "CHECKED" Then updated_MMIS_checkbox = checked
-                        ' If WF1_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "WF1_checkbox" and line_info(1) = "CHECKED" Then WF1_checkbox = checked
-                        ' If Sent_arep_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "Sent_arep_checkbox" and line_info(1) = "CHECKED" Then Sent_arep_checkbox = checked
-                        ' If intake_packet_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "intake_packet_checkbox" and line_info(1) = "CHECKED" Then intake_packet_checkbox = checked
-                        ' If IAA_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "IAA_checkbox" and line_info(1) = "CHECKED" Then IAA_checkbox = checked
-                        ' If recert_period_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "recert_period_checkbox" and line_info(1) = "CHECKED" Then recert_period_checkbox = checked
-                        ' If R_R_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "R_R_checkbox" and line_info(1) = "CHECKED" Then R_R_checkbox = checked
-                        ' If E_and_T_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "E_and_T_checkbox" and line_info(1) = "CHECKED" Then E_and_T_checkbox = checked
-                        ' If elig_req_explained_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "elig_req_explained_checkbox" and line_info(1) = "CHECKED" Then elig_req_explained_checkbox = checked
-                        ' If benefit_payment_explained_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "benefit_payment_explained_checkbox" and line_info(1) = "CHECKED" Then benefit_payment_explained_checkbox = checked
-                        If line_info(0) = "other_notes" Then other_notes = line_info(1)
-                        ' If client_delay_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "client_delay_checkbox" and line_info(1) = "CHECKED" Then client_delay_checkbox = checked
-                        ' If TIKL_checkbox = checked Then objTextStream.WriteLine
-                        ' If line_info(0) = "TIKL_checkbox" and line_info(1) = "CHECKED" Then TIKL_checkbox = checked
-                        ' If client_delay_TIKL_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "client_delay_TIKL_checkbox" and line_info(1) = "CHECKED" Then client_delay_TIKL_checkbox = checked
-                        If line_info(0) = "verif_req_form_sent_date" Then verif_req_form_sent_date = line_info(1)
-                        If line_info(0) = "worker_signature" Then worker_signature = line_info(1)
-
-
-
-                    End If
-                Next
-            End If
-        End If
-    End With
-end function
-
 function snap_in_another_state_detail(date_of_application, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn, other_state_verified_benefit_end_date, mn_elig_begin_date, snap_denial_date, snap_denial_explain, action_due_to_out_of_state_benefits)
 	original_snap_denial_date = snap_denial_date
 	original_snap_denial_reason = snap_denial_explain
@@ -2885,46 +1736,34 @@ function HH_comp_dialog(HH_member_array)
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
 
-    HH_member_count = 0
+    HH_member_array = ""
 
     For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
         ALL_MEMBERS_ARRAY(gather_detail, each_member) = FALSE
         If ALL_MEMBERS_ARRAY(include_cash_checkbox, each_member) = checked Then
-            ReDim Preserve HH_member_array(HH_member_count)
-            HH_member_array(HH_member_count) = ALL_MEMBERS_ARRAY(memb_numb, each_member)
-            HH_member_count = HH_member_count + 1
+            HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
             ALL_MEMBERS_ARRAY(gather_detail, each_member) = TRUE
         ElseIf ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member) = checked Then
-            ReDim Preserve HH_member_array(HH_member_count)
-            HH_member_array(HH_member_count) = ALL_MEMBERS_ARRAY(memb_numb, each_member)
-            HH_member_count = HH_member_count + 1
+            HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
             ALL_MEMBERS_ARRAY(gather_detail, each_member) = TRUE
         ElseIf ALL_MEMBERS_ARRAY(include_emer_checkbox, each_member) = checked Then
-            ReDim Preserve HH_member_array(HH_member_count)
-            HH_member_array(HH_member_count) = ALL_MEMBERS_ARRAY(memb_numb, each_member)
-            HH_member_count = HH_member_count + 1
+            HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
             ALL_MEMBERS_ARRAY(gather_detail, each_member) = TRUE
         ElseIf ALL_MEMBERS_ARRAY(count_cash_checkbox, each_member) = checked Then
-            ReDim Preserve HH_member_array(HH_member_count)
-            HH_member_array(HH_member_count) = ALL_MEMBERS_ARRAY(memb_numb, each_member)
-            HH_member_count = HH_member_count + 1
+            HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
             ALL_MEMBERS_ARRAY(gather_detail, each_member) = TRUE
         ElseIf ALL_MEMBERS_ARRAY(count_snap_checkbox, each_member) = checked Then
-            ReDim Preserve HH_member_array(HH_member_count)
-            HH_member_array(HH_member_count) = ALL_MEMBERS_ARRAY(memb_numb, each_member)
-            HH_member_count = HH_member_count + 1
+            HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
             ALL_MEMBERS_ARRAY(gather_detail, each_member) = TRUE
         ElseIf ALL_MEMBERS_ARRAY(count_emer_checkbox, each_member) = checked Then
-            ReDim Preserve HH_member_array(HH_member_count)
-            HH_member_array(HH_member_count) = ALL_MEMBERS_ARRAY(memb_numb, each_member)
-            HH_member_count = HH_member_count + 1
+            HH_member_array = HH_member_array & ALL_MEMBERS_ARRAY(memb_numb, each_member) & " "
             ALL_MEMBERS_ARRAY(gather_detail, each_member) = TRUE
         End If
     Next
 
-	' HH_member_list = TRIM(HH_member_list)							'Cleaning up array for ease of use.
-    ' HH_member_list = REPLACE(HH_member_list, "  ", " ")
-	' HH_member_array = SPLIT(HH_member_list, " ")
+	HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
+    HH_member_array = REPLACE(HH_member_array, "  ", " ")
+	HH_member_array = SPLIT(HH_member_array, " ")
     ' MsgBox "All members ubound - " & UBound(ALL_MEMBERS_ARRAY, 2)
 end function
 
@@ -3364,14 +2203,12 @@ function read_JOBS_panel()
     '  Reads the information on the retro side of JOBS
     EMReadScreen retro_JOBS_amt, 8, 17, 38
     EMReadScreen retro_JOBS_hrs, 3, 18, 43
-    retro_JOBS_hrs = replace(retro_JOBS_hrs, "_", "")
     ALL_JOBS_PANELS_ARRAY(job_retro_income, job_count) = trim(retro_JOBS_amt)
     ALL_JOBS_PANELS_ARRAY(retro_hours, job_count) = trim(retro_JOBS_hrs)
 
     '  Reads the information on the prospective side of JOBS
     EMReadScreen prospective_JOBS_amt, 8, 17, 67
     EMReadScreen prosp_JOBS_hrs, 3, 18, 72
-    prosp_JOBS_hrs = replace(prosp_JOBS_hrs, "_", "")
     ALL_JOBS_PANELS_ARRAY(job_prosp_income, job_count) = trim(prospective_JOBS_amt)
     ALL_JOBS_PANELS_ARRAY(prosp_hours, job_count) = trim(prosp_JOBS_hrs)
 
@@ -3397,11 +2234,7 @@ function read_JOBS_panel()
     End If
     EMReadScreen JOBS_income_end_date, 8, 9, 49
     'This now cleans up the variables converting codes read from the panel into words for the final variable to be used in the output.
-    If JOBS_income_end_date <> "__ __ __" then
-        JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
-        ALL_JOBS_PANELS_ARRAY(job_prosp_income, job_count) = "0.00"
-        ALL_JOBS_PANELS_ARRAY(prosp_hours, job_count) = "0"
-    End If
+    If JOBS_income_end_date <> "__ __ __" then JOBS_income_end_date = replace(JOBS_income_end_date, " ", "/")
     If IsDate(JOBS_income_end_date) = True then ALL_JOBS_PANELS_ARRAY(budget_explain, job_count) = "Income ended " & JOBS_income_end_date & ".; "
 
     If ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "4" Then ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = "Weekly"
@@ -5019,7 +3852,7 @@ const memb_numb             = 0
 const panel_instance        = 1
 const employer_name         = 2
 const busi_type             = 2         'for BUSI Array
-const estimate_only         = 3
+Const estimate_only         = 3
 const verif_explain         = 4
 const verif_code            = 5
 const calc_method           = 5         'for BUSI Array
@@ -5179,11 +4012,9 @@ const calc_button               = 38
 const budget_notes              = 39
 
 'Arrays
-Dim HH_member_array()
-ReDim HH_member_array(0)
-
 Dim ALL_JOBS_PANELS_ARRAY()
 ReDim ALL_JOBS_PANELS_ARRAY(budget_explain, 0)
+
 
 Dim ALL_BUSI_PANELS_ARRAY()
 ReDim ALL_BUSI_PANELS_ARRAY(budget_explain, 0)
@@ -5196,36 +4027,10 @@ ReDim UNEA_INCOME_ARRAY(budget_notes, 0)
 manual_amount_used = FALSE
 
 'variables
-' Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one, relationship_detail
-' Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox, verifs_postponed_checkbox
-' Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
-' Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list, notes_on_time, notes_on_sanction, applicant_id_on_file_yn
-
-Dim row, col, number_verifs_checkbox, verifs_postponed_checkbox, notes_on_cses
-Dim MAXIS_footer_month, MAXIS_footer_year, CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox, cash_checkbox, SNAP_checkbox, EMER_checkbox, HC_checkbox, CAF_form, cash_other_req_detail
-Dim snap_other_req_detail, emer_other_req_detail, adult_cash, family_cash, the_process_for_cash, type_of_cash, cash_recert_mo, cash_recert_yr, the_process_for_snap, snap_recert_mo, snap_recert_yr
-Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, CAF_type, CAF_datestamp, interview_date, SNAP_recert_is_likely_24_months, check_for_waived_interview, exp_screening_note_found, interview_required
-Dim interview_waived, xfs_screening, xfs_screening_display, caf_one_income, caf_one_assets, caf_one_resources, caf_one_rent, caf_one_utilities, caf_one_expenses, exp_det_case_note_found
-Dim snap_exp_yn, snap_denial_date, interview_completed_case_note_found, interview_with, interview_type, verifications_requested_case_note_found, verifs_needed, caf_qualifying_questions_case_note_found
-Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five, appt_notc_sent_on
-Dim appt_date_in_note, addr_line_one, addr_line_two, city, state, zip, addr_county, homeless_yn, reservation_yn, addr_verif, living_situation, addr_eff_date, addr_future_date, mail_line_one
-Dim mail_line_two, mail_city_line, mail_state_line, mail_zip_line, notes_on_address, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three
-Dim prosp_heat_air, prosp_electric, prosp_phone, ABPS, ACCI, notes_on_acct, notes_on_acut, AREP, BILS, notes_on_cash, notes_on_cars, notes_on_coex, notes_on_dcex, DIET, DISA, EMPS
-Dim FACI, FMED, IMIG, INSA, cit_id, other_assets, case_changes, PREG, earned_income, notes_on_rest, SCHL, notes_on_jobs, notes_on_time, notes_on_sanction, notes_on_wreg, full_abawd_info, notes_on_abawd
-Dim notes_on_abawd_two, notes_on_abawd_three, programs_applied_for, TIKL_checkbox, interview_memb_list, shel_memb_list, verification_memb_list, notes_on_busi, Used_Interpreter_checkbox
-Dim arep_id_info, CS_forms_sent_date, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, other_uc_income_notes, notes_on_other_UNEA, hest_information, notes_on_other_deduction, expense_notes
-Dim address_confirmation_checkbox, manual_total_shelter, app_month_assets, confirm_no_account_panel_checkbox, notes_on_other_assets, MEDI, DISQ, MFIP_DVD_checkbox, full_determination_done
-Dim determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test
-Dim is_elig_XFS, approval_date, applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, snap_denial_explain, case_assesment_text, next_steps_one, next_steps_two, next_steps_three
-Dim next_steps_four, postponed_verifs_yn, list_postponed_verifs, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn
-Dim other_state_verified_benefit_end_date, mn_elig_begin_date, action_due_to_out_of_state_benefits, case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done
-Dim previous_date_of_application, previous_expedited_package, prev_verifs_mandatory_yn, prev_verif_list, curr_verifs_postponed_yn, ongoing_snap_approved_yn, prev_post_verifs_recvd_yn, delay_action_due_to_faci
-Dim deny_snap_due_to_faci, faci_review_completed, facility_name, snap_inelig_faci_yn, faci_entry_date, faci_release_date, release_date_unknown_checkbox, release_within_30_days_yn, next_er_month
-Dim next_er_year, CAF_status, actions_taken, application_signed_checkbox, eDRS_sent_checkbox, updated_MMIS_checkbox, WF1_checkbox, Sent_arep_checkbox, intake_packet_checkbox, IAA_checkbox, recert_period_checkbox
-Dim R_R_checkbox, E_and_T_checkbox, elig_req_explained_checkbox, benefit_payment_explained_checkbox, other_notes, client_delay_checkbox, client_delay_TIKL_checkbox, verif_req_form_sent_date
-Dim adult_cash_count, child_cash_count, pregnant_caregiver_checkbox, adult_snap_count, child_snap_count, adult_emer_count, child_emer_count, EATS, relationship_detail, income_review_completed
-Dim jobs_income_yn, busi_income_yn, unea_income_yn, assets_review_completed, cash_amount_yn, bank_account_yn, cash_amount, shel_review_completed, rent_amount, lot_rent_amount, mortgage_amount, insurance_amount
-Dim tax_amount, room_amount, garage_amount, subsidy_amount, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities, do_we_have_applicant_id
+Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one, relationship_detail
+Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox, verifs_postponed_checkbox
+Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
+Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list, notes_on_time, notes_on_sanction, applicant_id_on_file_yn
 
 full_determination_done = False
 first_time_to_exp_det = True
@@ -5269,7 +4074,7 @@ BeginDialog Dialog1, 0, 0, 281, 235, "CAF Script Case number dialog"
   CheckBox 10, 85, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 50, 85, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 90, 85, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 135, 85, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MN Benefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 135, 85, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   EditBox 40, 130, 220, 15, cash_other_req_detail
   EditBox 40, 150, 220, 15, snap_other_req_detail
   EditBox 40, 170, 220, 15, emer_other_req_detail
@@ -5347,815 +4152,819 @@ If CAF_form = "CAF Addendum (DHS-5223C)" Then
     Call run_from_GitHub(script_repository & "notes/caf-addendum.vbs")
 End If
 
-vars_filled = False
-Call restore_your_work(vars_filled)			'looking for a 'restart' run
+If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then cash_checkbox = checked
+If SNAP_on_CAF_checkbox = checked or trim(snap_other_req_detail) <> "" Then SNAP_checkbox = checked
+If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then EMER_checkbox = checked
+'grh_checkbox = checked
+developer_mode = False
 
-If vars_filled = False Then
-    If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then cash_checkbox = checked
-    If SNAP_on_CAF_checkbox = checked or trim(snap_other_req_detail) <> "" Then SNAP_checkbox = checked
-    If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then EMER_checkbox = checked
-    'grh_checkbox = checked
-    developer_mode = False
+Call back_to_SELF
+continue_in_inquiry = ""
+EMReadScreen MX_region, 12, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+    continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
+    If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
+End If
+If MX_region = "TRAINING" Then developer_mode = True
+Do
+	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
+	If is_this_priv = True Then Call script_end_procedure("This case is PRIVILEGED and cannot be accessed. Request access to the case first and retry the script once you have access to the case.")
+	EMReadScreen panel_prog_check, 4, 2, 50
+Loop until panel_prog_check = "PROG"
+EMReadScreen case_pw, 7, 21, 21
+Call back_to_SELF
 
+exp_det_case_note_found = False                         'defaulting these boolean variables to know if these notes are needed by this script run
+interview_completed_case_note_found = False
+verifications_requested_case_note_found = False
+caf_qualifying_questions_case_note_found = False
+
+MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
+MAXIS_footer_year = right("00" & MAXIS_footer_year, 2)
+call check_for_MAXIS(False)	'checking for an active MAXIS session
+MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
+
+script_run_lowdown = script_run_lowdown & vbCr & "CAF Type: " & CAF_type
+script_run_lowdown = script_run_lowdown & vbCr & "Footer month: " & MAXIS_footer_month & "/" & MAXIS_footer_year
+
+If CASH_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH Checked"
+If trim(cash_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "CASH: " & cash_other_req_detail
+If SNAP_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP Checked"
+If trim(snap_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP: " & snap_other_req_detail
+If EMER_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER Checked"
+If trim(emer_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "EMER: " & emer_other_req_detail
+
+'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+loop_start = timer
+Do
+    call navigate_to_MAXIS_screen("STAT", "SUMM")
+    EMReadScreen SUMM_check, 4, 2, 46
     Call back_to_SELF
-    continue_in_inquiry = ""
-    EMReadScreen MX_region, 12, 22, 48
-    MX_region = trim(MX_region)
-    If MX_region = "INQUIRY DB" Then
-        continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
-        If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
-    End If
-    If MX_region = "TRAINING" Then developer_mode = True
-    Do
-    	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
-    	If is_this_priv = True Then Call script_end_procedure("This case is PRIVILEGED and cannot be accessed. Request access to the case first and retry the script once you have access to the case.")
-    	EMReadScreen panel_prog_check, 4, 2, 50
-    Loop until panel_prog_check = "PROG"
-    EMReadScreen case_pw, 7, 21, 21
-    Call back_to_SELF
+    If timer - loop_start > 300 Then script_end_procedure("Can't get in to STAT. The script has attempted for 5 mintutes to get into STAT and iit appears to be stuck. The script timed out.")
+Loop until SUMM_check = "SUMM"
 
-    exp_det_case_note_found = False                         'defaulting these boolean variables to know if these notes are needed by this script run
-    interview_completed_case_note_found = False
-    verifications_requested_case_note_found = False
-    caf_qualifying_questions_case_note_found = False
+'Creating a custom dialog for determining who the HH members are
+call HH_comp_dialog(HH_member_array)
 
-    MAXIS_footer_month = right("00" & MAXIS_footer_month, 2)
-    MAXIS_footer_year = right("00" & MAXIS_footer_year, 2)
-    call check_for_MAXIS(False)	'checking for an active MAXIS session
-    MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
-
-    script_run_lowdown = script_run_lowdown & vbCr & "CAF Type: " & CAF_type
-    script_run_lowdown = script_run_lowdown & vbCr & "Footer month: " & MAXIS_footer_month & "/" & MAXIS_footer_year
-
-    If CASH_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH Checked"
-    If trim(cash_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "CASH: " & cash_other_req_detail
-    If SNAP_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP Checked"
-    If trim(snap_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP: " & snap_other_req_detail
-    If EMER_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER Checked"
-    If trim(emer_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "EMER: " & emer_other_req_detail
-
-    'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    loop_start = timer
-    Do
-        call navigate_to_MAXIS_screen("STAT", "SUMM")
-        EMReadScreen SUMM_check, 4, 2, 46
-        Call back_to_SELF
-        If timer - loop_start > 300 Then script_end_procedure("Can't get in to STAT. The script has attempted for 5 mintutes to get into STAT and iit appears to be stuck. The script timed out.")
-    Loop until SUMM_check = "SUMM"
-
-    'Creating a custom dialog for determining who the HH members are
-    call HH_comp_dialog(HH_member_array)
-
-    'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    If cash_checkbox = checked Then
-        If trim(child_cash_count) = "" OR child_cash_count = 0 Then
-            adult_cash = TRUE
-            family_cash = FALSE
-        Else
-            adult_cash = FALSE
-            family_cash = TRUE
-        End If
-        If child_cash_count = 1 AND adult_cash_count = 0 Then
-            adult_cash = TRUE
-            family_cash = FALSE
-        End If
-        If pregnant_caregiver_checkbox = checked Then
-            adult_cash = FALSE
-            family_cash = TRUE
-        End If
+'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+If cash_checkbox = checked Then
+    If trim(child_cash_count) = "" OR child_cash_count = 0 Then
+        adult_cash = TRUE
+        family_cash = FALSE
     Else
         adult_cash = FALSE
+        family_cash = TRUE
+    End If
+    If child_cash_count = 1 AND adult_cash_count = 0 Then
+        adult_cash = TRUE
         family_cash = FALSE
     End If
+    If pregnant_caregiver_checkbox = checked Then
+        adult_cash = FALSE
+        family_cash = TRUE
+    End If
+Else
+    adult_cash = FALSE
+    family_cash = FALSE
+End If
 
-    If cash_checkbox = checked OR snap_checkbox = checked OR hc_checkbox = checked Then
-        Call navigate_to_MAXIS_screen("STAT", "REVW")
-        EMReadScreen cash_revw_code, 1, 7, 40
-        EMReadScreen snap_revw_code, 1, 7, 60
-        EMReadScreen hc_revw_code, 1, 7, 73
-        If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" Then
-            the_process_for_cash = "Recertification"
-            cash_recert_mo = MAXIS_footer_month
-            cash_recert_yr = MAXIS_footer_year
-        End If
-        If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
+If cash_checkbox = checked OR snap_checkbox = checked OR hc_checkbox = checked Then
+    Call navigate_to_MAXIS_screen("STAT", "REVW")
+    EMReadScreen cash_revw_code, 1, 7, 40
+    EMReadScreen snap_revw_code, 1, 7, 60
+    EMReadScreen hc_revw_code, 1, 7, 73
+    If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" Then
+        the_process_for_cash = "Recertification"
+        cash_recert_mo = MAXIS_footer_month
+        cash_recert_yr = MAXIS_footer_year
+    End If
+    If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
+        the_process_for_snap = "Recertification"
+        snap_recert_mo = MAXIS_footer_month
+        snap_recert_yr = MAXIS_footer_year
+    End If
+    If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" Then
+        the_process_for_hc = "Recertification"
+        hc_recert_mo = MAXIS_footer_month
+        hc_recert_yr = MAXIS_footer_year
+    End If
+
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+    EMReadScreen cash_prog_code_one, 4, 6, 74
+    EMReadScreen cash_prog_code_two, 4, 6, 74
+    EMReadScreen snap_prog_code, 4, 10, 74
+    EMReadScreen hc_prog_code, 4, 12, 74
+    If cash_prog_code_one = "PEND" OR cash_prog_code_two = "PEND" Then the_process_for_cash = "Application"
+    If snap_prog_code = "PEND" Then the_process_for_snap = "Application"
+    If hc_prog_code = "PEND" Then the_process_for_hc = "Application"
+    If the_process_for_cash = "Recertification" AND the_process_for_snap = "" AND cash_checkbox = checked AND snap_checkbox = checked Then
+        EMReadScreen cash_prog_one, 2, 6, 67
+        EMReadScreen cash_prog_two, 2, 7, 67
+        If cash_prog_one = "MF" OR cash_prog_two = "MF" Then
             the_process_for_snap = "Recertification"
             snap_recert_mo = MAXIS_footer_month
             snap_recert_yr = MAXIS_footer_year
         End If
-        If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" Then
-            the_process_for_hc = "Recertification"
-            hc_recert_mo = MAXIS_footer_month
-            hc_recert_yr = MAXIS_footer_year
-        End If
-
-        Call navigate_to_MAXIS_screen("STAT", "PROG")
-        EMReadScreen cash_prog_code_one, 4, 6, 74
-        EMReadScreen cash_prog_code_two, 4, 6, 74
-        EMReadScreen snap_prog_code, 4, 10, 74
-        EMReadScreen hc_prog_code, 4, 12, 74
-        If cash_prog_code_one = "PEND" OR cash_prog_code_two = "PEND" Then the_process_for_cash = "Application"
-        If snap_prog_code = "PEND" Then the_process_for_snap = "Application"
-        If hc_prog_code = "PEND" Then the_process_for_hc = "Application"
-        If the_process_for_cash = "Recertification" AND the_process_for_snap = "" AND cash_checkbox = checked AND snap_checkbox = checked Then
-            EMReadScreen cash_prog_one, 2, 6, 67
-            EMReadScreen cash_prog_two, 2, 7, 67
-            If cash_prog_one = "MF" OR cash_prog_two = "MF" Then
-                the_process_for_snap = "Recertification"
-                snap_recert_mo = MAXIS_footer_month
-                snap_recert_yr = MAXIS_footer_year
-            End If
-        End If
-
-        If adult_cash = TRUE Then type_of_cash = "Adult"
-        If family_cash = TRUE Then type_of_cash = "Family"
-        dlg_len = 50
-        y_pos = 25
-        If cash_checkbox = checked Then dlg_len = dlg_len + 20
-        If snap_checkbox = checked Then dlg_len = dlg_len + 20
-        If HC_checkbox = checked Then dlg_len = dlg_len + 20
-
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
-          Text 10, 10, 35, 10, "Program"
-          Text 80, 10, 50, 10, "CAF Process"
-          Text 155, 10, 50, 10, "Recert MM/YY"
-          If cash_checkbox = checked Then
-              Text 10, y_pos + 5, 20, 10, "Cash"
-              DropListBox 35, y_pos, 35, 45, "Family"+chr(9)+"Adult", type_of_cash
-              DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_cash
-              EditBox 155, y_pos, 20, 15, cash_recert_mo
-              EditBox 180, y_pos, 20, 15, cash_recert_yr
-              y_pos = y_pos + 20
-          End If
-          If snap_checkbox = checked Then
-              Text 10, y_pos + 5, 20, 10, "SNAP"
-              DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
-              EditBox 155, y_pos, 20, 15, snap_recert_mo
-              EditBox 180, y_pos, 20, 15, snap_recert_yr
-              y_pos = y_pos + 20
-          End If
-          If HC_checkbox = checked Then
-              Text 10, y_pos + 5, 40, 10, "Health Care"
-              DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_hc
-              EditBox 155, y_pos, 20, 15, hc_recert_mo
-              EditBox 180, y_pos, 20, 15, hc_recert_yr
-              y_pos = y_pos + 20
-          End If
-          y_pos = y_pos + 5
-          ButtonGroup ButtonPressed
-            OkButton 150, y_pos, 50, 15
-        EndDialog
-
-        Do
-        	DO
-        		err_msg = ""
-        		Dialog Dialog1
-        		cancel_confirmation
-
-                If len(cash_recert_yr) = 4 AND left(cash_recert_yr, 2) = "20" Then cash_recert_yr = right(cash_recert_yr, 2)
-                If len(snap_recert_yr) = 4 AND left(snap_recert_yr, 2) = "20" Then snap_recert_yr = right(snap_recert_yr, 2)
-                If len(hc_recert_yr) = 4 AND left(hc_recert_yr, 2) = "20" Then hc_recert_yr = right(hc_recert_yr, 2)
-                If cash_checkbox = checked Then
-                    If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
-                    If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
-                    If CAF_form = "HUF (DHS-8107)" AND the_process_for_cash = "Application" then err_msg = err_msg & vbNewLine & "* An application for Cash cannot be processed using the HUF (Household Update Form). If you have a CAF type document, restart the script and select that form type. Otherwise you should select 'Recertification' for Cash."
-                End If
-                If snap_checkbox = checked Then
-                    If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or recertification."
-                    If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
-                    If CAF_form = "HUF (DHS-8107)" AND the_process_for_snap = "Application" then err_msg = err_msg & vbNewLine & "* An application for SNAP cannot be processed using the HUF (Household Update Form). If you have a CAF type document, restart the script and select that form type. Otherwise you should select 'Recertification' for SNAP."
-                End If
-                If HC_checkbox = checked Then
-                    If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Health Care program is at application or recertification."
-                    If the_process_for_hc = "Recertification" AND (len(hc_recert_mo) <> 2 or len(hc_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For HC at recertification, enter the footer month and year the of the recertification."
-                End If
-
-
-                IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-        	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-        Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-        If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then CAF_type = "Recertification"
-        If the_process_for_cash = "Application" OR the_process_for_snap = "Application" Then CAF_type = "Application"
-        If type_of_cash = "Family" Then
-            adult_cash = FALSE
-            family_cash = TRUE
-        End If
-        If type_of_cash = "Adult" Then
-            adult_cash = TRUE
-            family_cash = FALSE
-        End If
-    End If
-    If EMER_checkbox = checked Then CAF_type = "Application"
-
-    ' If interview_required = TRUE Then
-    '     Interview_notice = MsgBox("Has an interview been completed?" &vbNewLine & vbNewLine & "                *~* WITHOUT AN INTERVIEW *~* " & vbNewLine & "             *~* A CAF CANNOT BE PROCESSED *~*" & vbNewLine & vbNewLine & "If you have not completed an interview, do not use this script as you cannot process a CAF without an interview.  There are a couple scripts that may be useful for noting review of a case with a CAF received before the interview has been completed:" & vbNewLine & "          NOTES - Application Check" & vbNewLine & "          NOTES - Client Contact" & vbNewLine & vbNewLine & "Press OK if you completed an interview (or are processing one of the two exceptions)." & vbNewLine & "Press Cancel if you have not interviewed yet.", vbExclamation + vbOkCancel, "Have you done an interview?")
-    '     If Interview_notice = vbCancel Then script_end_procedure_with_error_report("The script has been cancelled as no interview has been completed.")
-    ' End If
-
-    If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
-    	' call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
-        Call navigate_to_MAXIS_screen("STAT", "REVW")
-        EMReadScreen CAF_datestamp, 8, 13, 37                       'reading the prog date
-        CAF_datestamp = replace(CAF_datestamp, " ", "/")
-        If isdate(CAF_datestamp) = True then
-          CAF_datestamp = cdate(CAF_datestamp) & ""
-        Else
-          CAF_datestamp = ""
-        End if
-
-        EMReadScreen interview_date, 8, 15, 37                       'reading the prog date
-        interview_date = replace(interview_date, " ", "/")
-        If isdate(interview_date) = True then
-          interview_date = cdate(interview_date) & ""
-        Else
-          interview_date = ""
-        End if
-
-    	IF SNAP_checkbox = checked THEN																															'checking for SNAP 24 month renewals.'
-    		EMWriteScreen "X", 05, 58																																	'opening the FS revw screen.
-    		transmit
-    		EMReadScreen SNAP_recert_date, 8, 9, 64
-    		PF3
-    		SNAP_recert_date = replace(SNAP_recert_date, " ", "/")
-            If SNAP_recert_date <> "__/01/__" Then 																	'replacing the read blank spaces with / to make it a date
-        		SNAP_recert_compare_date = dateadd("m", "12", MAXIS_footer_month & "/01/" & MAXIS_footer_year)		'making a dummy variable to compare with, by adding 12 months to the requested footer month/year.
-        		IF datediff("d", SNAP_recert_compare_date, SNAP_recert_date) > 0 THEN											'If the read recert date is more than 0 days away from 12 months plus the MAXIS footer month/year then it is likely a 24 month period.'
-        			SNAP_recert_is_likely_24_months = TRUE
-        		ELSE
-        			SNAP_recert_is_likely_24_months = FALSE																									'otherwise if we don't we set it as false
-        		END IF
-            Else
-                SNAP_recert_is_likely_24_months = FALSE
-            End If
-    	END IF
-    Else
-    	' call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
-        Call navigate_to_MAXIS_screen("STAT", "PROG")
-
-        row = 6
-        Do
-            EMReadScreen appl_prog_date, 8, row, 33
-            If appl_prog_date <> "__ __ __" then appl_prog_date_array = appl_prog_date_array & replace(appl_prog_date, " ", "/") & " "
-
-            EMReadScreen appl_intv_date, 8, row, 55
-            If appl_intv_date <> "__ __ __" AND appl_intv_date <> "        " then appl_intv_date_array = appl_intv_date_array & replace(appl_intv_date, " ", "/") & " "
-
-            row = row + 1
-        Loop until row = 13
-        appl_prog_date_array = split(appl_prog_date_array)
-        CAF_datestamp = CDate(appl_prog_date_array(0))
-        for i = 0 to ubound(appl_prog_date_array) - 1
-            if CDate(appl_prog_date_array(i)) > CAF_datestamp then
-                CAF_datestamp = CDate(appl_prog_date_array(i))
-            End if
-        next
-        If isdate(CAF_datestamp) = True then
-            CAF_datestamp = cdate(CAF_datestamp) & ""
-        Else
-            CAF_datestamp = ""
-        End if
-
-        If trim(appl_intv_date_array) <> "" Then
-            appl_intv_date_array = split(appl_intv_date_array)
-            If IsArray(appl_intv_date_array) = TRUE AND IsDate(appl_intv_date_array(0)) = TRUE Then
-                interview_date = CDate(appl_intv_date_array(0))
-                for i = 0 to ubound(appl_intv_date_array) - 1
-                    if CDate(appl_intv_date_array(i)) > interview_date then
-                        interview_date = CDate(appl_intv_date_array(i))
-                    End if
-                next
-                If isdate(interview_date) = True then
-                    interview_date = cdate(interview_date) & ""
-                Else
-                    interview_date = ""
-                End if
-            End If
-        End If
-    End if
-    If IsDate(CAF_datestamp) = False Then
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 125, 45, "CAF Datestamp"
-          EditBox 75, 5, 45, 15, CAF_datestamp
-          ButtonGroup ButtonPressed
-            OkButton 5, 25, 50, 15
-            CancelButton 60, 25, 50, 15
-          Text 10, 10, 60, 10, "CAF Datestamp:"
-        EndDialog
-
-        'Runs the first dialog - which confirms the case number
-        Do
-        	Do
-        		err_msg = ""
-        		dialog Dialog1
-        		cancel_confirmation
-                If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the date the CAF was received."
-        		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-        	Loop until err_msg = ""
-        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-        LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
     End If
 
-    'THIS IS HANDLING SPECIFICALLY AROUND THE ALLOWANCE TO WAIVE INTERVIEWS FOR RENEWALS IN EFFECT STARTING FOR 04/21 REVW
-    check_for_waived_interview = FALSE
-    exp_screening_note_found = False
-    interview_waived = FALSE
-    interview_required = FALSE
+    If adult_cash = TRUE Then type_of_cash = "Adult"
+    If family_cash = TRUE Then type_of_cash = "Family"
+    dlg_len = 50
+    y_pos = 25
+    If cash_checkbox = checked Then dlg_len = dlg_len + 20
+    If snap_checkbox = checked Then dlg_len = dlg_len + 20
+    If HC_checkbox = checked Then dlg_len = dlg_len + 20
 
-    If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
-    If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
+      Text 10, 10, 35, 10, "Program"
+      Text 80, 10, 50, 10, "CAF Process"
+      Text 155, 10, 50, 10, "Recert MM/YY"
+      If cash_checkbox = checked Then
+          Text 10, y_pos + 5, 20, 10, "Cash"
+          DropListBox 35, y_pos, 35, 45, "Family"+chr(9)+"Adult", type_of_cash
+          DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_cash
+          EditBox 155, y_pos, 20, 15, cash_recert_mo
+          EditBox 180, y_pos, 20, 15, cash_recert_yr
+          y_pos = y_pos + 20
+      End If
+      If snap_checkbox = checked Then
+          Text 10, y_pos + 5, 20, 10, "SNAP"
+          DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
+          EditBox 155, y_pos, 20, 15, snap_recert_mo
+          EditBox 180, y_pos, 20, 15, snap_recert_yr
+          y_pos = y_pos + 20
+      End If
+      If HC_checkbox = checked Then
+          Text 10, y_pos + 5, 40, 10, "Health Care"
+          DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_hc
+          EditBox 155, y_pos, 20, 15, hc_recert_mo
+          EditBox 180, y_pos, 20, 15, hc_recert_yr
+          y_pos = y_pos + 20
+      End If
+      y_pos = y_pos + 5
+      ButtonGroup ButtonPressed
+        OkButton 150, y_pos, 50, 15
+    EndDialog
 
-    If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
-
-    If check_for_waived_interview = TRUE AND interview_required = TRUE Then
-        interview_is_being_waived = MsgBox("Renewals can be processed without an interview per DHS." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
-        If interview_is_being_waived = vbYes Then
-            interview_required = FALSE
-            interview_waived = TRUE
-        End If
-    End If
-
-    MAXIS_case_number = trim(MAXIS_case_number)
-
-    'HERE WE SEARCH CASE:NOTES
-    'We are looking for notes that multiple scripts complete to keep from making duplicate notes
-    look_for_expedited_determination_case_note = False
-    If CAF_type = "Application" Then
-        If SNAP_checkbox = checked Then look_for_expedited_determination_case_note = True
-    End If
-
-    Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
-    too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
-
-    note_row = 5
     Do
-        EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
 
-        EMReadScreen note_title, 55, note_row, 25               'reading the note header
-        note_title = trim(note_title)
-
-        'EXPEDITED DETERMINATION notes'
-        If look_for_expedited_determination_case_note = True Then
-            If left(note_title, 31) = "~ Received Application for SNAP" Then
-                exp_screening_note_found = True
-                EMWriteScreen "x", note_row, 3
-                transmit
-
-                EMReadScreen xfs_screening, 40, 4, 36
-                xfs_screening = replace(xfs_screening, "~", "")
-                xfs_screening = trim(xfs_screening)
-            	xfs_screening = UCase(xfs_screening)
-            	xfs_screening_display = xfs_screening & ""
-
-                row = 1
-                col = 1
-                EMSearch "CAF 1 income", row, col
-                EMReadScreen caf_one_income, 8, row, 42
-                IF IsNumeric(caf_one_income) = True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
-                    caf_one_income = abs(caf_one_income)
-                Else
-                    caf_one_income = 0
-                End If
-
-                row = 1
-                col = 1
-                EMSearch "CAF 1 liquid assets", row, col
-                EMReadScreen caf_one_assets, 8, row, 42
-                If IsNumeric(caf_one_assets)= True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
-                    caf_one_assets = caf_one_assets * 1
-                Else
-                    caf_one_assets = 0
-                End If
-
-                caf_one_resources = caf_one_income + caf_one_assets	'Totaling the amounts for the case note
-
-                row = 1
-                col = 1
-                EMSearch "CAF 1 rent", row, col
-                EMReadScreen caf_one_rent, 8, row, 42
-                IF IsNumeric(caf_one_rent) = True Then 		'If a worker alters this note, we need to default to a number so that the script does not break
-                    caf_one_rent = abs(caf_one_rent)
-                Else
-                    caf_one_rent = 0
-                End If
-
-                row = 1
-                col = 1
-                EMSearch "Utilities (AMT", row, col
-                EMReadScreen caf_one_utilities, 8, row, 42
-                If IsNumeric(caf_one_utilities) = True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
-                    caf_one_utilities = abs(caf_one_utilities)
-                Else
-                    caf_one_utilities = 0
-                End If
-
-                caf_one_expenses = caf_one_rent + caf_one_utilities		'Totaling the amounts for a case note
-
-                'The script not adjusts the format so it looks nice
-                caf_one_income = FormatNumber(caf_one_income, 2, -1, 0, -1)
-                caf_one_assets = FormatNumber(caf_one_assets, 2, -1, 0, -1)
-                caf_one_rent = FormatNumber(caf_one_rent, 2, -1, 0, -1)
-                caf_one_utilities = FormatNumber(caf_one_utilities, 2, -1, 0, -1)
-                caf_one_resources = FormatNumber(caf_one_resources, 2, -1, 0, -1)
-                caf_one_expenses = FormatNumber(caf_one_expenses, 2, -1, 0, -1)
-                PF3
+            If len(cash_recert_yr) = 4 AND left(cash_recert_yr, 2) = "20" Then cash_recert_yr = right(cash_recert_yr, 2)
+            If len(snap_recert_yr) = 4 AND left(snap_recert_yr, 2) = "20" Then snap_recert_yr = right(snap_recert_yr, 2)
+            If len(hc_recert_yr) = 4 AND left(hc_recert_yr, 2) = "20" Then hc_recert_yr = right(hc_recert_yr, 2)
+            If cash_checkbox = checked Then
+                If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
+                If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
+                If CAF_form = "HUF (DHS-8107)" AND the_process_for_cash = "Application" then err_msg = err_msg & vbNewLine & "* An application for Cash cannot be processed using the HUF (Household Update Form). If you have a CAF type document, restart the script and select that form type. Otherwise you should select 'Recertification' for Cash."
             End If
-            If left(note_title, 47) = "Expedited Determination: SNAP appears expedited" Then                'reading a EXP CNote
-                exp_det_case_note_found = TRUE
-                snap_exp_yn = "Yes"
+            If snap_checkbox = checked Then
+                If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or recertification."
+                If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
+                If CAF_form = "HUF (DHS-8107)" AND the_process_for_snap = "Application" then err_msg = err_msg & vbNewLine & "* An application for SNAP cannot be processed using the HUF (Household Update Form). If you have a CAF type document, restart the script and select that form type. Otherwise you should select 'Recertification' for SNAP."
             End If
-            If left(note_title, 55) = "Expedited Determination: SNAP does not appear expedited" Then        'Reading NOT EXP CNote
-                exp_det_case_note_found = TRUE
-                snap_exp_yn = "No"
+            If HC_checkbox = checked Then
+                If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Health Care program is at application or recertification."
+                If the_process_for_hc = "Recertification" AND (len(hc_recert_mo) <> 2 or len(hc_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For HC at recertification, enter the footer month and year the of the recertification."
             End If
-            If left(note_title, 42) = "Expedited Determination: SNAP to be denied" Then                     'Reading DENY SNAP at EXP CNote
-                exp_det_case_note_found = TRUE
 
-                EMWriteScreen "X", note_row, 3  'Opens the note to read the denial date'
-                transmit
 
-                read_row = ""
-                EMReadScreen find_denial_date_line, 22, 5, 3
-                If find_denial_date_line = "* SNAP to be denied on" Then
-                    read_row = 5
-                Else
-                    EMReadScreen find_denial_date_line, 22, 6, 3
-                    If find_denial_date_line = "* SNAP to be denied on" Then read_row = 6
-                End If
-                If read_row <> "" Then
-                    EMReadScreen note_denial_date, 10, row, 25
-                    note_denial_date = replace(note_denial_date, "", ".")
-                    note_denial_date = replace(note_denial_date, "", "S")
-                    note_denial_date = replace(note_denial_date, "", "i")
-                    note_denial_date = replace(note_denial_date, "", "n")
-                    note_denial_date = replace(note_denial_date, "", "c")
-                    note_denial_date = replace(note_denial_date, "", "e")
-                    note_denial_date = trim(note_denial_date)
-                    If IsDate(note_denial_date) = True Then snap_denial_date = note_denial_date
-                End If
+            IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-                PF3                             'closing the note
-            End IF
-        End If
-
-        'INTERVIEW CNOTE
-        If left(note_title, 24) = "~ Interview Completed on" Then
-            interview_completed_case_note_found = True
-
-            EMWriteScreen "X", note_row, 3                          'Opening the Interview Note to read some interview details
-            transmit
-
-            EMReadScreen in_correct_note, 24, 4, 3                  'making sure we are in the right note
-            EMReadScreen note_list_header, 23, 4, 25
-
-            If in_correct_note = "~ Interview Completed on" Then
-                in_note_row = 5
-                interview_date = ""
-                Do
-                    EMReadScreen first_part_of_line, 12, in_note_row, 3                         'Reading the header portion
-                    EMReadScreen whole_note_line, 77, in_note_row, 3                            'Reading all the line information
-                    whole_note_line = trim(whole_note_line)
-                    If first_part_of_line = "Completed wi" Then                                 'COMPLETED WITH header has person and type information
-                        whole_note_line = replace(whole_note_line, "Completed with ", "")       'removes the header
-                        position = Instr(whole_note_line, " via")                               'finds the dividing point in the content which is always the word 'via'
-                        with_len = position + 4
-
-                        interview_with = left(whole_note_line, position)                        'reading the person that did the interview - which is to the left of the dividing point
-                        interview_type = right(whole_note_line, len(whole_note_line) - with_len)'the type is anything that is NOT the with
-                        interview_with = trim(interview_with)
-                        interview_type = trim(interview_type)
-                    End If
-                    If first_part_of_line = "Completed on" Then                                 'COMPLETED ON header has interview date
-                        whole_note_line = replace(whole_note_line, "Completed on ", "")         'removes the header
-                        position = Instr(whole_note_line, " at")                                'finds the dividing point
-
-                        interview_date = left(whole_note_line, position)                        'interview date is to the left of the dividing point'
-                        interview_date = trim(interview_date)
-                    End If
-                    in_note_row = in_note_row + 1
-                    If interview_with <> "" AND interview_type <> "" AND interview_date <> "" Then Exit Do      'if we found all of it, we can be done
-                Loop until trim(first_part_of_line) = ""
-                PF3         'leaving the note.
-
-            Else
-                If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
-            End If
-        End If
-
-        'VERIFICATIONS NOTES
-        If left(note_title, 23) = "VERIFICATIONS REQUESTED" Then
-            verifications_requested_case_note_found = True
-            verifs_needed = "PREVIOUS NOTE EXISTS"
-
-            EMWriteScreen "X", note_row, 3                          'Opening the VERIF note to read the verifications
-            transmit
-
-            EMReadScreen in_correct_note, 23, 4, 3                  'making sure we are in the right note
-            EMReadScreen note_list_header, 23, 4, 25
-
-            'Here we find the right row to start reading
-            If in_correct_note = "VERIFICATIONS REQUESTED" Then                     'making sure we're in the right note
-                in_note_row = 5
-                Do
-                    EMReadScreen whole_note_line, 77, in_note_row, 3                'reading the whole line of the note'
-                    whole_note_line = trim(whole_note_line)
-
-                    in_note_row = in_note_row + 1
-                    If whole_note_line = "" then Exit Do
-                Loop until whole_note_line = "List of all verifications requested:" 'This is the header within the note - the NEXT line starts the list of verifs
-
-                If whole_note_line = "List of all verifications requested:" Then    'If we actually found the header.
-                    verif_note_lines = ""                                           'defaulting a variable to save all the lines of the note
-                    Do
-                        EMReadScreen verif_line, 77, in_note_row, 3                 'reading the line of the note
-                        verif_line = trim(verif_line)
-                        If verif_line = "" then Exit Do                             'If they are blank - we stop'
-                        verif_note_lines = verif_note_lines & "~|~" & verif_line    'Adding it to a string of all the lines
-
-                        in_note_row = in_note_row + 1                               'next line'
-
-                        EMReadScreen next_line, 77, in_note_row, 3                  'Looking to see if the next line is the divider line
-                        next_line = trim(next_line)
-                    Loop until next_line = "---"                                    'stop at the dividing line
-                    'if there were lines saved
-                    If verif_note_lines <> "" Then
-                        verif_counter = 1                                           'setting a counter to find verifs that have been numbered
-                        If left(verif_note_lines, 3) = "~|~" Then verif_note_lines = right(verif_note_lines, len(verif_note_lines) - 3)             'making an array of all of the lines
-                        If InStr(verif_note_lines, "~|~") = 0 Then
-                            verif_lines_array = Array(verif_note_lines)
-                        Else
-                            verif_lines_array = split(verif_note_lines, "~|~")
-                        End If
-
-                        verifs_to_add = ""                                          'blanking a string for adding all the lines together
-                        For each line in verif_lines_array
-                            counter_string = verif_counter & ". "                   'using the counter - which is a number to make a string that looks like what is in the note
-                            If left(line, 2) = "- " OR left(line, 3) = counter_string Then                          'If the string starts with a dash or the counter
-                                If left(line, 2) = "- " Then line = "; " & right(line, len(line) - 2)               'Removes the list delimiter and adds the editbox delimiter
-                                If left(line, 3) = counter_string Then line = "; " & right(line, len(line) - 3)
-                                verif_counter = verif_counter + 1                                                   'incrembting the counter
-                            Else
-                                line = " " & line                                                                   'adding a space to the sting so there is a space between words if we are at a 'same line'
-                            End If
-
-                            verifs_to_add = verifs_to_add & line                    'adding the verif information all together
-                        Next
-                        If left(verifs_to_add, 2) = "; " Then verifs_to_add = right(verifs_to_add, len(verifs_to_add) - 2)  'triming the string
-                        If verifs_to_add <> "" Then verifs_needed = verifs_needed & " - Detail from NOTE: " & verifs_to_add 'adding the information to the variable used in this script
-                    End If
-                End If
-                PF3         'leaving the note
-            Else
-                If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
-            End If
-        End If
-
-        'CAF QUALIFYING QUESTIONS NOTES
-        If left(note_title, 47) = "CAF Qualifying Questions had an answer of 'YES'" Then
-            caf_qualifying_questions_case_note_found = True
-
-            EMWriteScreen "X", note_row, 3                          'Opening the CAF Qual Questions Note
-            transmit
-
-            EMReadScreen in_correct_note, 47, 4, 3                  'making sure we are in the right note
-            EMReadScreen note_list_header, 23, 4, 25
-
-            If in_correct_note = "CAF Qualifying Questions had an answer of 'YES'" Then
-                in_note_row = 5
-                Do
-                    EMReadScreen whole_note_line, 77, in_note_row, 3                'Reading each line of the note
-                    whole_note_line = trim(whole_note_line)
-
-                    'Looks for the specific header for each of the qualifying questions
-                    'If found it will default the droplist to Yes and pull the person information from the rest of the note line and saves it to the variable for the person
-                    If left(whole_note_line, 42) = "* Fraud/DISQ for IPV (program violation): " Then
-                        qual_question_one = "Yes"
-                        qual_memb_one = replace(whole_note_line, "* Fraud/DISQ for IPV (program violation): ", "")
-                    End If
-                    If left(whole_note_line, 31) = "* SNAP in more than One State: " Then
-                        qual_question_two = "Yes"
-                        qual_memb_two = replace(whole_note_line, "* SNAP in more than One State: ", "")
-                    End If
-                    If left(whole_note_line, 17) = "* Fleeing Felon: " Then
-                        qual_question_three = "Yes"
-                        qual_memb_three = replace(whole_note_line, "* Fleeing Felon: ", "")
-                    End If
-                    If left(whole_note_line, 15) = "* Drug Felony: " Then
-                        qual_question_four = "Yes"
-                        qual_memb_four = replace(whole_note_line, "* Drug Felony: ", "")
-                    End If
-                    If left(whole_note_line, 30) = "* Parole/Probation Violation: " Then
-                        qual_question_five = "Yes"
-                        qual_memb_five = replace(whole_note_line, "* Parole/Probation Violation: ", "")
-                    End If
-
-                    in_note_row = in_note_row + 1
-                    If whole_note_line = "" then Exit Do
-                Loop until whole_note_line = "---"
-                PF3
-            Else
-                If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
-            End If
-        End If
-
-    	IF left(note_title, 35) = "~ Appointment letter sent in MEMO ~" then
-    		appt_notc_sent_on = note_date
-    	ElseIF left(note_title, 42) = "~ Appointment letter sent in MEMO for SNAP" then
-    		appt_notc_sent_on = note_date
-    	ElseIF left(note_title, 37) = "~ Appointment letter sent in MEMO for" then
-    		EMReadScreen appt_date, 10, note_row, 63
-    		appt_date = replace(appt_date, "~", "")
-    		appt_date = trim(appt_date)
-    		appt_notc_sent_on = note_date
-    		appt_date_in_note = appt_date
-    	END IF
-
-        if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
-
-        note_row = note_row + 1
-        if note_row = 19 then
-            note_row = 5
-            PF8
-            EMReadScreen check_for_last_page, 9, 24, 14
-            If check_for_last_page = "LAST PAGE" Then Exit Do
-        End If
-        EMReadScreen next_note_date, 8, note_row, 6
-        if next_note_date = "        " then Exit Do
-    Loop until DateDiff("d", too_old_date, next_note_date) <= 0
-
-    ' call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
-    call read_ADDR_panel
-    call read_SHEL_panel
-    call update_shel_notes
-    call read_HEST_panel
-    ' call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
-
-    'Now it grabs the rest of the info, not dependent on which programs are selected.
-    call autofill_editbox_from_MAXIS(HH_member_array, "ABPS", ABPS)
-    call autofill_editbox_from_MAXIS(HH_member_array, "ACCI", ACCI)
-    call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", notes_on_acct)
-    call autofill_editbox_from_MAXIS(HH_member_array, "ACUT", notes_on_acut)
-    call autofill_editbox_from_MAXIS(HH_member_array, "AREP", AREP)
-    call autofill_editbox_from_MAXIS(HH_member_array, "BILS", BILS)
-    call autofill_editbox_from_MAXIS(HH_member_array, "CASH", notes_on_cash)
-    call autofill_editbox_from_MAXIS(HH_member_array, "CARS", notes_on_cars)
-    call autofill_editbox_from_MAXIS(HH_member_array, "COEX", notes_on_coex)
-    call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", notes_on_dcex)
-    If cash_checkbox = checked Then call autofill_editbox_from_MAXIS(HH_member_array, "DIET", DIET)
-    call autofill_editbox_from_MAXIS(HH_member_array, "DISA", DISA)
-    call autofill_editbox_from_MAXIS(HH_member_array, "EMPS", EMPS)
-    call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
-    call autofill_editbox_from_MAXIS(HH_member_array, "FMED", FMED)
-    call autofill_editbox_from_MAXIS(HH_member_array, "IMIG", IMIG)
-    call autofill_editbox_from_MAXIS(HH_member_array, "INSA", INSA)
-    'call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
-
-    job_count = 0
-    call navigate_to_MAXIS_screen("STAT", "JOBS")
-    EMReadScreen panel_total_check, 6, 2, 73
-    IF panel_total_check <> "0 Of 0" Then
-        For each HH_member in HH_member_array
-            EMWriteScreen HH_member, 20, 76
-            EMWriteScreen "01", 20, 79
-            transmit
-            EMReadScreen JOBS_total, 1, 2, 78
-            If JOBS_total <> 0 then
-                Do
-                    ReDim Preserve ALL_JOBS_PANELS_ARRAY(budget_explain, job_count)
-                    ALL_JOBS_PANELS_ARRAY(memb_numb, job_count) = HH_member
-                    ALL_JOBS_PANELS_ARRAY(info_month, job_count) = MAXIS_footer_month & "/" & MAXIS_footer_year
-                    call read_JOBS_panel
-
-                    EMReadScreen JOBS_panel_current, 1, 2, 73
-                    ALL_JOBS_PANELS_ARRAY(panel_instance, job_count) = "0" & JOBS_panel_current
-
-                    If cint(JOBS_panel_current) < cint(JOBS_total) then transmit
-                    job_count = job_count + 1
-                Loop until cint(JOBS_panel_current) = cint(JOBS_total)
-            End if
-        Next
+    If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then CAF_type = "Recertification"
+    If the_process_for_cash = "Application" OR the_process_for_snap = "Application" Then CAF_type = "Application"
+    If type_of_cash = "Family" Then
+        adult_cash = FALSE
+        family_cash = TRUE
     End If
-
-    If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
-        For each_memb = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-            Call Navigate_to_MAXIS_screen("CASE", "NOTE")
-
-            too_old_date = DateAdd("D", -7, CAF_datestamp)
-            ALL_JOBS_PANELS_ARRAY(EI_case_note, each_memb) = FALSE
-
-            note_row = 5
-            Do
-                EMReadScreen note_date, 8, note_row, 6
-
-                EMReadScreen note_title, 55, note_row, 25
-                note_title = trim(note_title)
-
-                If left(note_title, 14) = "INCOME DETAIL:" Then
-                    member_reference = mid(note_title, 17, 2)
-                    len_emp_name = len(ALL_JOBS_PANELS_ARRAY(employer_name, each_memb))
-                    jobs_employer_name = mid(note_title, 29, len_emp_name)
-                    jobs_employer_name = UCase(jobs_employer_name)
-
-                    If member_reference = ALL_JOBS_PANELS_ARRAY(memb_numb, each_memb) AND jobs_employer_name = UCase(ALL_JOBS_PANELS_ARRAY(employer_name, each_memb)) Then
-                        ALL_JOBS_PANELS_ARRAY(EI_case_note, each_memb) = TRUE
-                    End If
-                End If
-
-                if note_date = "        " then Exit Do
-                if ALL_JOBS_PANELS_ARRAY(EI_case_note, each_memb) = TRUE = TRUE then Exit Do
-
-                note_row = note_row + 1
-                if note_row = 19 then
-                    'MsgBox "Next Page" & vbNewLine & "Note Date:" & note_date
-                    note_row = 5
-                    PF8
-                    EMReadScreen check_for_last_page, 9, 24, 14
-                    If check_for_last_page = "LAST PAGE" Then Exit Do
-                End If
-                EMReadScreen next_note_date, 8, note_row, 6
-                if next_note_date = "        " then Exit Do
-            Loop until DateDiff("d", too_old_date, next_note_date) <= 0
-        Next
+    If type_of_cash = "Adult" Then
+        adult_cash = TRUE
+        family_cash = FALSE
     End If
+End If
+If EMER_checkbox = checked Then CAF_type = "Application"
 
-    busi_count = 0
-    call navigate_to_MAXIS_screen("STAT", "BUSI")
-    EMReadScreen panel_total_check, 6, 2, 73
-    IF panel_total_check <> "0 Of 0" Then
-        For each HH_member in HH_member_array
-            EMWriteScreen HH_member, 20, 76
-            EMWriteScreen "01", 20, 79
-            transmit
-            EMReadScreen BUSI_total, 1, 2, 78
-            If BUSI_total <> 0 then
+' If interview_required = TRUE Then
+'     Interview_notice = MsgBox("Has an interview been completed?" &vbNewLine & vbNewLine & "                *~* WITHOUT AN INTERVIEW *~* " & vbNewLine & "             *~* A CAF CANNOT BE PROCESSED *~*" & vbNewLine & vbNewLine & "If you have not completed an interview, do not use this script as you cannot process a CAF without an interview.  There are a couple scripts that may be useful for noting review of a case with a CAF received before the interview has been completed:" & vbNewLine & "          NOTES - Application Check" & vbNewLine & "          NOTES - Client Contact" & vbNewLine & vbNewLine & "Press OK if you completed an interview (or are processing one of the two exceptions)." & vbNewLine & "Press Cancel if you have not interviewed yet.", vbExclamation + vbOkCancel, "Have you done an interview?")
+'     If Interview_notice = vbCancel Then script_end_procedure_with_error_report("The script has been cancelled as no interview has been completed.")
+' End If
 
-                Do
-                    ReDim Preserve ALL_BUSI_PANELS_ARRAY(budget_explain, busi_count)
-                    ALL_BUSI_PANELS_ARRAY(memb_numb, busi_count) = HH_member
-                    ALL_BUSI_PANELS_ARRAY(info_month, busi_count) = MAXIS_footer_month & "/" & MAXIS_footer_year
-                    call read_BUSI_panel
-
-                    EMReadScreen BUSI_panel_current, 1, 2, 73
-                    ALL_BUSI_PANELS_ARRAY(panel_instance, busi_count) = "0" & BUSI_panel_current
-
-                    If cint(BUSI_panel_current) < cint(BUSI_total) then transmit
-                    busi_count = busi_count + 1
-                Loop until cint(BUSI_panel_current) = cint(BUSI_total)
-
-            End if
-        Next
+If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
+	' call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
+    Call navigate_to_MAXIS_screen("STAT", "REVW")
+    EMReadScreen CAF_datestamp, 8, 13, 37                       'reading the prog date
+    CAF_datestamp = replace(CAF_datestamp, " ", "/")
+    If isdate(CAF_datestamp) = True then
+      CAF_datestamp = cdate(CAF_datestamp) & ""
     Else
+      CAF_datestamp = ""
+    End if
 
+    EMReadScreen interview_date, 8, 15, 37                       'reading the prog date
+    interview_date = replace(interview_date, " ", "/")
+    If isdate(interview_date) = True then
+      interview_date = cdate(interview_date) & ""
+    Else
+      interview_date = ""
+    End if
+
+	IF SNAP_checkbox = checked THEN																															'checking for SNAP 24 month renewals.'
+		EMWriteScreen "X", 05, 58																																	'opening the FS revw screen.
+		transmit
+		EMReadScreen SNAP_recert_date, 8, 9, 64
+		PF3
+		SNAP_recert_date = replace(SNAP_recert_date, " ", "/")
+        If SNAP_recert_date <> "__/01/__" Then 																	'replacing the read blank spaces with / to make it a date
+    		SNAP_recert_compare_date = dateadd("m", "12", MAXIS_footer_month & "/01/" & MAXIS_footer_year)		'making a dummy variable to compare with, by adding 12 months to the requested footer month/year.
+    		IF datediff("d", SNAP_recert_compare_date, SNAP_recert_date) > 0 THEN											'If the read recert date is more than 0 days away from 12 months plus the MAXIS footer month/year then it is likely a 24 month period.'
+    			SNAP_recert_is_likely_24_months = TRUE
+    		ELSE
+    			SNAP_recert_is_likely_24_months = FALSE																									'otherwise if we don't we set it as false
+    		END IF
+        Else
+            SNAP_recert_is_likely_24_months = FALSE
+        End If
+	END IF
+Else
+	' call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+
+    row = 6
+    Do
+        EMReadScreen appl_prog_date, 8, row, 33
+        If appl_prog_date <> "__ __ __" then appl_prog_date_array = appl_prog_date_array & replace(appl_prog_date, " ", "/") & " "
+
+        EMReadScreen appl_intv_date, 8, row, 55
+        If appl_intv_date <> "__ __ __" AND appl_intv_date <> "        " then appl_intv_date_array = appl_intv_date_array & replace(appl_intv_date, " ", "/") & " "
+
+        row = row + 1
+    Loop until row = 13
+    appl_prog_date_array = split(appl_prog_date_array)
+    CAF_datestamp = CDate(appl_prog_date_array(0))
+    for i = 0 to ubound(appl_prog_date_array) - 1
+        if CDate(appl_prog_date_array(i)) > CAF_datestamp then
+            CAF_datestamp = CDate(appl_prog_date_array(i))
+        End if
+    next
+    If isdate(CAF_datestamp) = True then
+        CAF_datestamp = cdate(CAF_datestamp) & ""
+    Else
+        CAF_datestamp = ""
+    End if
+
+    If trim(appl_intv_date_array) <> "" Then
+        appl_intv_date_array = split(appl_intv_date_array)
+        If IsArray(appl_intv_date_array) = TRUE AND IsDate(appl_intv_date_array(0)) = TRUE Then
+            interview_date = CDate(appl_intv_date_array(0))
+            for i = 0 to ubound(appl_intv_date_array) - 1
+                if CDate(appl_intv_date_array(i)) > interview_date then
+                    interview_date = CDate(appl_intv_date_array(i))
+                End if
+            next
+            If isdate(interview_date) = True then
+                interview_date = cdate(interview_date) & ""
+            Else
+                interview_date = ""
+            End if
+        End If
     End If
+End if
+If IsDate(CAF_datestamp) = False Then
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 125, 45, "CAF Datestamp"
+      EditBox 75, 5, 45, 15, CAF_datestamp
+      ButtonGroup ButtonPressed
+        OkButton 5, 25, 50, 15
+        CancelButton 60, 25, 50, 15
+      Text 10, 10, 60, 10, "CAF Datestamp:"
+    EndDialog
 
-    'FOR EACH JOB PANEL GO LOOK FOR A RECENT EI CASE NOTE'
-    call autofill_editbox_from_MAXIS(HH_member_array, "MEDI", INSA)
-    call autofill_editbox_from_MAXIS(HH_member_array, "MEMI", cit_id)
-    call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", other_assets)
-    call autofill_editbox_from_MAXIS(HH_member_array, "PBEN", case_changes)
-    call autofill_editbox_from_MAXIS(HH_member_array, "PREG", PREG)
-    call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
-    call autofill_editbox_from_MAXIS(HH_member_array, "REST", notes_on_rest)
-    call autofill_editbox_from_MAXIS(HH_member_array, "SCHL", SCHL)
-    call autofill_editbox_from_MAXIS(HH_member_array, "SECU", other_assets)
-    call autofill_editbox_from_MAXIS(HH_member_array, "STWK", notes_on_jobs)
-    call read_TIME_panel
-    call read_SANC_panel
-    ' call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
+    'Runs the first dialog - which confirms the case number
+    Do
+    	Do
+    		err_msg = ""
+    		dialog Dialog1
+    		cancel_confirmation
+            If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the date the CAF was received."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    	Loop until err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+End If
 
-    Call read_UNEA_panel
+'THIS IS HANDLING SPECIFICALLY AROUND THE ALLOWANCE TO WAIVE INTERVIEWS FOR RENEWALS IN EFFECT STARTING FOR 04/21 REVW
+check_for_waived_interview = FALSE
+exp_screening_note_found = False
+interview_waived = FALSE
+interview_required = FALSE
 
-    call read_WREG_panel
-    call update_wreg_and_abawd_notes
-    'call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
+If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
+If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
 
-    'MAKING THE GATHERED INFORMATION LOOK BETTER FOR THE CASE NOTE
-    If cash_checkbox = checked then programs_applied_for = programs_applied_for & "CASH, "
-    If SNAP_checkbox = checked then programs_applied_for = programs_applied_for & "SNAP, "
-    If EMER_checkbox = checked then programs_applied_for = programs_applied_for & "emergency, "
-    programs_applied_for = trim(programs_applied_for)
-    if right(programs_applied_for, 1) = "," then programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
+If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
 
-    'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
-    If CAF_type = "Application" then TIKL_checkbox = checked
-
-    Call generate_client_list(interview_memb_list, "Select or Type")
-    Call generate_client_list(shel_memb_list, "Select")
-    Call generate_client_list(verification_memb_list, "Select or Type Member")
-    verification_memb_list = " "+chr(9)+verification_memb_list
-
-    Call navigate_to_MAXIS_screen("STAT", "AREP")
-    EMReadScreen version_numb, 1, 2, 73
-    If version_numb = "1" Then
-        EMReadScreen arep_name, 37, 4, 32
-        arep_name = replace(arep_name, "_", "")
-        interview_memb_list = interview_memb_list+chr(9)+"AREP - " & arep_name
+If check_for_waived_interview = TRUE AND interview_required = TRUE Then
+    interview_is_being_waived = MsgBox("Renewals can be processed without an interview per DHS." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
+    If interview_is_being_waived = vbYes Then
+        interview_required = FALSE
+        interview_waived = TRUE
     End If
 End If
 
+MAXIS_case_number = trim(MAXIS_case_number)
+
+'HERE WE SEARCH CASE:NOTES
+'We are looking for notes that multiple scripts complete to keep from making duplicate notes
+look_for_expedited_determination_case_note = False
+If CAF_type = "Application" Then
+    If SNAP_checkbox = checked Then look_for_expedited_determination_case_note = True
+End If
+
+Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
+too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
+
+note_row = 5
+Do
+    EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+
+    EMReadScreen note_title, 55, note_row, 25               'reading the note header
+    note_title = trim(note_title)
+
+    'EXPEDITED DETERMINATION notes'
+    If look_for_expedited_determination_case_note = True Then
+        If left(note_title, 31) = "~ Received Application for SNAP" Then
+            exp_screening_note_found = True
+            EMWriteScreen "x", note_row, 3
+            transmit
+
+            EMReadScreen xfs_screening, 40, 4, 36
+            xfs_screening = replace(xfs_screening, "~", "")
+            xfs_screening = trim(xfs_screening)
+        	xfs_screening = UCase(xfs_screening)
+        	xfs_screening_display = xfs_screening & ""
+
+            row = 1
+            col = 1
+            EMSearch "CAF 1 income", row, col
+            EMReadScreen caf_one_income, 8, row, 42
+            IF IsNumeric(caf_one_income) = True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
+                caf_one_income = abs(caf_one_income)
+            Else
+                caf_one_income = 0
+            End If
+
+            row = 1
+            col = 1
+            EMSearch "CAF 1 liquid assets", row, col
+            EMReadScreen caf_one_assets, 8, row, 42
+            If IsNumeric(caf_one_assets)= True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
+                caf_one_assets = caf_one_assets * 1
+            Else
+                caf_one_assets = 0
+            End If
+
+            caf_one_resources = caf_one_income + caf_one_assets	'Totaling the amounts for the case note
+
+            row = 1
+            col = 1
+            EMSearch "CAF 1 rent", row, col
+            EMReadScreen caf_one_rent, 8, row, 42
+            IF IsNumeric(caf_one_rent) = True Then 		'If a worker alters this note, we need to default to a number so that the script does not break
+                caf_one_rent = abs(caf_one_rent)
+            Else
+                caf_one_rent = 0
+            End If
+
+            row = 1
+            col = 1
+            EMSearch "Utilities (AMT", row, col
+            EMReadScreen caf_one_utilities, 8, row, 42
+            If IsNumeric(caf_one_utilities) = True Then 	'If a worker alters this note, we need to default to a number so that the script does not break
+                caf_one_utilities = abs(caf_one_utilities)
+            Else
+                caf_one_utilities = 0
+            End If
+
+            caf_one_expenses = caf_one_rent + caf_one_utilities		'Totaling the amounts for a case note
+
+            'The script not adjusts the format so it looks nice
+            caf_one_income = FormatNumber(caf_one_income, 2, -1, 0, -1)
+            caf_one_assets = FormatNumber(caf_one_assets, 2, -1, 0, -1)
+            caf_one_rent = FormatNumber(caf_one_rent, 2, -1, 0, -1)
+            caf_one_utilities = FormatNumber(caf_one_utilities, 2, -1, 0, -1)
+            caf_one_resources = FormatNumber(caf_one_resources, 2, -1, 0, -1)
+            caf_one_expenses = FormatNumber(caf_one_expenses, 2, -1, 0, -1)
+            PF3
+        End If
+        If left(note_title, 47) = "Expedited Determination: SNAP appears expedited" Then                'reading a EXP CNote
+            exp_det_case_note_found = TRUE
+            snap_exp_yn = "Yes"
+        End If
+        If left(note_title, 55) = "Expedited Determination: SNAP does not appear expedited" Then        'Reading NOT EXP CNote
+            exp_det_case_note_found = TRUE
+            snap_exp_yn = "No"
+        End If
+        If left(note_title, 42) = "Expedited Determination: SNAP to be denied" Then                     'Reading DENY SNAP at EXP CNote
+            exp_det_case_note_found = TRUE
+
+            EMWriteScreen "X", note_row, 3  'Opens the note to read the denial date'
+            transmit
+
+            read_row = ""
+            EMReadScreen find_denial_date_line, 22, 5, 3
+            If find_denial_date_line = "* SNAP to be denied on" Then
+                read_row = 5
+            Else
+                EMReadScreen find_denial_date_line, 22, 6, 3
+                If find_denial_date_line = "* SNAP to be denied on" Then read_row = 6
+            End If
+            If read_row <> "" Then
+                EMReadScreen note_denial_date, 10, row, 25
+                note_denial_date = replace(note_denial_date, "", ".")
+                note_denial_date = replace(note_denial_date, "", "S")
+                note_denial_date = replace(note_denial_date, "", "i")
+                note_denial_date = replace(note_denial_date, "", "n")
+                note_denial_date = replace(note_denial_date, "", "c")
+                note_denial_date = replace(note_denial_date, "", "e")
+                note_denial_date = trim(note_denial_date)
+                If IsDate(note_denial_date) = True Then snap_denial_date = note_denial_date
+            End If
+
+            PF3                             'closing the note
+        End IF
+    End If
+
+    'INTERVIEW CNOTE
+    If left(note_title, 24) = "~ Interview Completed on" Then
+        interview_completed_case_note_found = True
+
+        EMWriteScreen "X", note_row, 3                          'Opening the Interview Note to read some interview details
+        transmit
+
+        EMReadScreen in_correct_note, 24, 4, 3                  'making sure we are in the right note
+        EMReadScreen note_list_header, 23, 4, 25
+
+        If in_correct_note = "~ Interview Completed on" Then
+            in_note_row = 5
+            interview_date = ""
+            Do
+                EMReadScreen first_part_of_line, 12, in_note_row, 3                         'Reading the header portion
+                EMReadScreen whole_note_line, 77, in_note_row, 3                            'Reading all the line information
+                whole_note_line = trim(whole_note_line)
+                If first_part_of_line = "Completed wi" Then                                 'COMPLETED WITH header has person and type information
+                    whole_note_line = replace(whole_note_line, "Completed with ", "")       'removes the header
+                    position = Instr(whole_note_line, " via")                               'finds the dividing point in the content which is always the word 'via'
+                    with_len = position + 4
+
+                    interview_with = left(whole_note_line, position)                        'reading the person that did the interview - which is to the left of the dividing point
+                    interview_type = right(whole_note_line, len(whole_note_line) - with_len)'the type is anything that is NOT the with
+                    interview_with = trim(interview_with)
+                    interview_type = trim(interview_type)
+                End If
+                If first_part_of_line = "Completed on" Then                                 'COMPLETED ON header has interview date
+                    whole_note_line = replace(whole_note_line, "Completed on ", "")         'removes the header
+                    position = Instr(whole_note_line, " at")                                'finds the dividing point
+
+                    interview_date = left(whole_note_line, position)                        'interview date is to the left of the dividing point'
+                    interview_date = trim(interview_date)
+                End If
+                in_note_row = in_note_row + 1
+                If interview_with <> "" AND interview_type <> "" AND interview_date <> "" Then Exit Do      'if we found all of it, we can be done
+            Loop until trim(first_part_of_line) = ""
+            PF3         'leaving the note.
+
+        Else
+            If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
+        End If
+    End If
+
+    'VERIFICATIONS NOTES
+    If left(note_title, 23) = "VERIFICATIONS REQUESTED" Then
+        verifications_requested_case_note_found = True
+        verifs_needed = "PREVIOUS NOTE EXISTS"
+
+        EMWriteScreen "X", note_row, 3                          'Opening the VERIF note to read the verifications
+        transmit
+
+        EMReadScreen in_correct_note, 23, 4, 3                  'making sure we are in the right note
+        EMReadScreen note_list_header, 23, 4, 25
+
+        'Here we find the right row to start reading
+        If in_correct_note = "VERIFICATIONS REQUESTED" Then                     'making sure we're in the right note
+            in_note_row = 5
+            Do
+                EMReadScreen whole_note_line, 77, in_note_row, 3                'reading the whole line of the note'
+                whole_note_line = trim(whole_note_line)
+
+                in_note_row = in_note_row + 1
+                If whole_note_line = "" then Exit Do
+            Loop until whole_note_line = "List of all verifications requested:" 'This is the header within the note - the NEXT line starts the list of verifs
+
+            If whole_note_line = "List of all verifications requested:" Then    'If we actually found the header.
+                verif_note_lines = ""                                           'defaulting a variable to save all the lines of the note
+                Do
+                    EMReadScreen verif_line, 77, in_note_row, 3                 'reading the line of the note
+                    verif_line = trim(verif_line)
+                    If verif_line = "" then Exit Do                             'If they are blank - we stop'
+                    verif_note_lines = verif_note_lines & "~|~" & verif_line    'Adding it to a string of all the lines
+
+                    in_note_row = in_note_row + 1                               'next line'
+
+                    EMReadScreen next_line, 77, in_note_row, 3                  'Looking to see if the next line is the divider line
+                    next_line = trim(next_line)
+                Loop until next_line = "---"                                    'stop at the dividing line
+                'if there were lines saved
+                If verif_note_lines <> "" Then
+                    verif_counter = 1                                           'setting a counter to find verifs that have been numbered
+                    If left(verif_note_lines, 3) = "~|~" Then verif_note_lines = right(verif_note_lines, len(verif_note_lines) - 3)             'making an array of all of the lines
+                    If InStr(verif_note_lines, "~|~") = 0 Then
+                        verif_lines_array = Array(verif_note_lines)
+                    Else
+                        verif_lines_array = split(verif_note_lines, "~|~")
+                    End If
+
+                    verifs_to_add = ""                                          'blanking a string for adding all the lines together
+                    For each line in verif_lines_array
+                        counter_string = verif_counter & ". "                   'using the counter - which is a number to make a string that looks like what is in the note
+                        If left(line, 2) = "- " OR left(line, 3) = counter_string Then                          'If the string starts with a dash or the counter
+                            If left(line, 2) = "- " Then line = "; " & right(line, len(line) - 2)               'Removes the list delimiter and adds the editbox delimiter
+                            If left(line, 3) = counter_string Then line = "; " & right(line, len(line) - 3)
+                            verif_counter = verif_counter + 1                                                   'incrembting the counter
+                        Else
+                            line = " " & line                                                                   'adding a space to the sting so there is a space between words if we are at a 'same line'
+                        End If
+
+                        verifs_to_add = verifs_to_add & line                    'adding the verif information all together
+                    Next
+                    If left(verifs_to_add, 2) = "; " Then verifs_to_add = right(verifs_to_add, len(verifs_to_add) - 2)  'triming the string
+                    If verifs_to_add <> "" Then verifs_needed = verifs_needed & " - Detail from NOTE: " & verifs_to_add 'adding the information to the variable used in this script
+                End If
+            End If
+            PF3         'leaving the note
+        Else
+            If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
+        End If
+    End If
+
+    'CAF QUALIFYING QUESTIONS NOTES
+    If left(note_title, 47) = "CAF Qualifying Questions had an answer of 'YES'" Then
+        caf_qualifying_questions_case_note_found = True
+
+        EMWriteScreen "X", note_row, 3                          'Opening the CAF Qual Questions Note
+        transmit
+
+        EMReadScreen in_correct_note, 47, 4, 3                  'making sure we are in the right note
+        EMReadScreen note_list_header, 23, 4, 25
+
+        If in_correct_note = "CAF Qualifying Questions had an answer of 'YES'" Then
+            in_note_row = 5
+            Do
+                EMReadScreen whole_note_line, 77, in_note_row, 3                'Reading each line of the note
+                whole_note_line = trim(whole_note_line)
+
+                'Looks for the specific header for each of the qualifying questions
+                'If found it will default the droplist to Yes and pull the person information from the rest of the note line and saves it to the variable for the person
+                If left(whole_note_line, 42) = "* Fraud/DISQ for IPV (program violation): " Then
+                    qual_question_one = "Yes"
+                    qual_memb_one = replace(whole_note_line, "* Fraud/DISQ for IPV (program violation): ", "")
+                End If
+                If left(whole_note_line, 31) = "* SNAP in more than One State: " Then
+                    qual_question_two = "Yes"
+                    qual_memb_two = replace(whole_note_line, "* SNAP in more than One State: ", "")
+                End If
+                If left(whole_note_line, 17) = "* Fleeing Felon: " Then
+                    qual_question_three = "Yes"
+                    qual_memb_three = replace(whole_note_line, "* Fleeing Felon: ", "")
+                End If
+                If left(whole_note_line, 15) = "* Drug Felony: " Then
+                    qual_question_four = "Yes"
+                    qual_memb_four = replace(whole_note_line, "* Drug Felony: ", "")
+                End If
+                If left(whole_note_line, 30) = "* Parole/Probation Violation: " Then
+                    qual_question_five = "Yes"
+                    qual_memb_five = replace(whole_note_line, "* Parole/Probation Violation: ", "")
+                End If
+
+                in_note_row = in_note_row + 1
+                If whole_note_line = "" then Exit Do
+            Loop until whole_note_line = "---"
+            PF3
+        Else
+            If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
+        End If
+    End If
+
+	IF left(note_title, 35) = "~ Appointment letter sent in MEMO ~" then
+		appt_notc_sent_on = note_date
+	ElseIF left(note_title, 42) = "~ Appointment letter sent in MEMO for SNAP" then
+		appt_notc_sent_on = note_date
+	ElseIF left(note_title, 37) = "~ Appointment letter sent in MEMO for" then
+		EMReadScreen appt_date, 10, note_row, 63
+		appt_date = replace(appt_date, "~", "")
+		appt_date = trim(appt_date)
+		appt_notc_sent_on = note_date
+		appt_date_in_note = appt_date
+	END IF
+
+    if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
+
+    note_row = note_row + 1
+    if note_row = 19 then
+        note_row = 5
+        PF8
+        EMReadScreen check_for_last_page, 9, 24, 14
+        If check_for_last_page = "LAST PAGE" Then Exit Do
+    End If
+    EMReadScreen next_note_date, 8, note_row, 6
+    if next_note_date = "        " then Exit Do
+Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+
+If exp_det_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Expedited Case Note"
+If interview_completed_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Interview Completed Note"
+If verifications_requested_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found Verifs Requested Note"
+If caf_qualifying_questions_case_note_found = TRUE Then script_run_lowdown = script_run_lowdown & vbCr & "Found CAF Qual Questions Note"
+
+' call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
+call read_ADDR_panel
+call read_SHEL_panel
+call update_shel_notes
+call read_HEST_panel
+' call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
+
+'Now it grabs the rest of the info, not dependent on which programs are selected.
+call autofill_editbox_from_MAXIS(HH_member_array, "ABPS", ABPS)
+call autofill_editbox_from_MAXIS(HH_member_array, "ACCI", ACCI)
+call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", notes_on_acct)
+call autofill_editbox_from_MAXIS(HH_member_array, "ACUT", notes_on_acut)
+call autofill_editbox_from_MAXIS(HH_member_array, "AREP", AREP)
+call autofill_editbox_from_MAXIS(HH_member_array, "BILS", BILS)
+call autofill_editbox_from_MAXIS(HH_member_array, "CASH", notes_on_cash)
+call autofill_editbox_from_MAXIS(HH_member_array, "CARS", notes_on_cars)
+call autofill_editbox_from_MAXIS(HH_member_array, "COEX", notes_on_coex)
+call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", notes_on_dcex)
+If cash_checkbox = checked Then call autofill_editbox_from_MAXIS(HH_member_array, "DIET", DIET)
+call autofill_editbox_from_MAXIS(HH_member_array, "DISA", DISA)
+call autofill_editbox_from_MAXIS(HH_member_array, "EMPS", EMPS)
+call autofill_editbox_from_MAXIS(HH_member_array, "FACI", FACI)
+call autofill_editbox_from_MAXIS(HH_member_array, "FMED", FMED)
+call autofill_editbox_from_MAXIS(HH_member_array, "IMIG", IMIG)
+call autofill_editbox_from_MAXIS(HH_member_array, "INSA", INSA)
+'call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", earned_income)
+
+job_count = 0
+call navigate_to_MAXIS_screen("STAT", "JOBS")
+EMReadScreen panel_total_check, 6, 2, 73
+IF panel_total_check <> "0 Of 0" Then
+    For each HH_member in HH_member_array
+        EMWriteScreen HH_member, 20, 76
+        EMWriteScreen "01", 20, 79
+        transmit
+        EMReadScreen JOBS_total, 1, 2, 78
+        If JOBS_total <> 0 then
+            Do
+                ReDim Preserve ALL_JOBS_PANELS_ARRAY(budget_explain, job_count)
+                ALL_JOBS_PANELS_ARRAY(memb_numb, job_count) = HH_member
+                ALL_JOBS_PANELS_ARRAY(info_month, job_count) = MAXIS_footer_month & "/" & MAXIS_footer_year
+                call read_JOBS_panel
+
+                EMReadScreen JOBS_panel_current, 1, 2, 73
+                ALL_JOBS_PANELS_ARRAY(panel_instance, job_count) = "0" & JOBS_panel_current
+
+                If cint(JOBS_panel_current) < cint(JOBS_total) then transmit
+                job_count = job_count + 1
+            Loop until cint(JOBS_panel_current) = cint(JOBS_total)
+        End if
+    Next
+End If
+
+If ALL_JOBS_PANELS_ARRAY(memb_numb, 0) <> "" Then
+    For each_memb = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
+        Call Navigate_to_MAXIS_screen("CASE", "NOTE")
+
+        too_old_date = DateAdd("D", -7, CAF_datestamp)
+        ALL_JOBS_PANELS_ARRAY(EI_case_note, each_memb) = FALSE
+
+        note_row = 5
+        Do
+            EMReadScreen note_date, 8, note_row, 6
+
+            EMReadScreen note_title, 55, note_row, 25
+            note_title = trim(note_title)
+
+            If left(note_title, 14) = "INCOME DETAIL:" Then
+                member_reference = mid(note_title, 17, 2)
+                len_emp_name = len(ALL_JOBS_PANELS_ARRAY(employer_name, each_memb))
+                jobs_employer_name = mid(note_title, 29, len_emp_name)
+                jobs_employer_name = UCase(jobs_employer_name)
+
+                If member_reference = ALL_JOBS_PANELS_ARRAY(memb_numb, each_memb) AND jobs_employer_name = UCase(ALL_JOBS_PANELS_ARRAY(employer_name, each_memb)) Then
+                    ALL_JOBS_PANELS_ARRAY(EI_case_note, each_memb) = TRUE
+                End If
+            End If
+
+            if note_date = "        " then Exit Do
+            if ALL_JOBS_PANELS_ARRAY(EI_case_note, each_memb) = TRUE = TRUE then Exit Do
+
+            note_row = note_row + 1
+            if note_row = 19 then
+                'MsgBox "Next Page" & vbNewLine & "Note Date:" & note_date
+                note_row = 5
+                PF8
+                EMReadScreen check_for_last_page, 9, 24, 14
+                If check_for_last_page = "LAST PAGE" Then Exit Do
+            End If
+            EMReadScreen next_note_date, 8, note_row, 6
+            if next_note_date = "        " then Exit Do
+        Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+    Next
+End If
+
+busi_count = 0
+call navigate_to_MAXIS_screen("STAT", "BUSI")
+EMReadScreen panel_total_check, 6, 2, 73
+IF panel_total_check <> "0 Of 0" Then
+    For each HH_member in HH_member_array
+        EMWriteScreen HH_member, 20, 76
+        EMWriteScreen "01", 20, 79
+        transmit
+        EMReadScreen BUSI_total, 1, 2, 78
+        If BUSI_total <> 0 then
+
+            Do
+                ReDim Preserve ALL_BUSI_PANELS_ARRAY(budget_explain, busi_count)
+                ALL_BUSI_PANELS_ARRAY(memb_numb, busi_count) = HH_member
+                ALL_BUSI_PANELS_ARRAY(info_month, busi_count) = MAXIS_footer_month & "/" & MAXIS_footer_year
+                call read_BUSI_panel
+
+                EMReadScreen BUSI_panel_current, 1, 2, 73
+                ALL_BUSI_PANELS_ARRAY(panel_instance, busi_count) = "0" & BUSI_panel_current
+
+                If cint(BUSI_panel_current) < cint(BUSI_total) then transmit
+                busi_count = busi_count + 1
+            Loop until cint(BUSI_panel_current) = cint(BUSI_total)
+
+        End if
+    Next
+Else
+
+End If
+
+'FOR EACH JOB PANEL GO LOOK FOR A RECENT EI CASE NOTE'
+call autofill_editbox_from_MAXIS(HH_member_array, "MEDI", INSA)
+call autofill_editbox_from_MAXIS(HH_member_array, "MEMI", cit_id)
+call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", other_assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "PBEN", case_changes)
+call autofill_editbox_from_MAXIS(HH_member_array, "PREG", PREG)
+call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", earned_income)
+call autofill_editbox_from_MAXIS(HH_member_array, "REST", notes_on_rest)
+call autofill_editbox_from_MAXIS(HH_member_array, "SCHL", SCHL)
+call autofill_editbox_from_MAXIS(HH_member_array, "SECU", other_assets)
+call autofill_editbox_from_MAXIS(HH_member_array, "STWK", notes_on_jobs)
+call read_TIME_panel
+call read_SANC_panel
+' call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
+
+Call read_UNEA_panel
+
+call read_WREG_panel
+call update_wreg_and_abawd_notes
+'call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
+
+'MAKING THE GATHERED INFORMATION LOOK BETTER FOR THE CASE NOTE
+If cash_checkbox = checked then programs_applied_for = programs_applied_for & "CASH, "
+If SNAP_checkbox = checked then programs_applied_for = programs_applied_for & "SNAP, "
+If EMER_checkbox = checked then programs_applied_for = programs_applied_for & "emergency, "
+programs_applied_for = trim(programs_applied_for)
+if right(programs_applied_for, 1) = "," then programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
+
+'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
+If CAF_type = "Application" then TIKL_checkbox = checked
+
+Call generate_client_list(interview_memb_list, "Select or Type")
+Call generate_client_list(shel_memb_list, "Select")
+Call generate_client_list(verification_memb_list, "Select or Type Member")
+verification_memb_list = " "+chr(9)+verification_memb_list
+
+Call navigate_to_MAXIS_screen("STAT", "AREP")
+EMReadScreen version_numb, 1, 2, 73
+If version_numb = "1" Then
+    EMReadScreen arep_name, 37, 4, 32
+    arep_name = replace(arep_name, "_", "")
+    interview_memb_list = interview_memb_list+chr(9)+"AREP - " & arep_name
+End If
+
+
+' call verification_dialog
 prev_err_msg = ""
+notes_on_busi = ""
+
 Do
     Do
         Do
@@ -6182,8 +4991,8 @@ Do
                                             BeginDialog Dialog1, 0, 0, 465, dlg_len, "CAF Dialog 1 - Personal Information"
                                               If interview_required = TRUE Then Text 5, 10, 300, 10,  "* CAF datestamp:                             * Interview type:"
                                               If interview_required = FALSE Then Text 5, 10, 300, 10, "* CAF datestamp:                             Interview type:"
-                                              If interview_required = TRUE Then Text 5, 30, 300, 10,  "* Interview date:"
-                                              If interview_required = FALSE Then Text 5, 30, 300, 10, "  Interview date:"
+                                              If interview_required = TRUE Then Text 5, 30, 300, 10,  "* Interview date:                               * How was application received?:"
+                                              If interview_required = FALSE Then Text 5, 30, 300, 10, "  Interview date:                               * How was application received?:"
                                               If interview_required = TRUE Then Text 5, 50, 400, 10, "* Interview completed with:                                                                                     If AREP Intvw, ID Info:"
                                               If interview_required = FALSE Then Text 5, 50, 85, 10, "Interview completed with: "
 
@@ -6191,6 +5000,7 @@ Do
                                               ComboBox 175, 5, 70, 15, "Select or Type"+chr(9)+"phone"+chr(9)+"office"+chr(9)+interview_type, interview_type
                                               CheckBox 255, 10, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
                                               EditBox 60, 25, 50, 15, interview_date
+                                              ComboBox 230, 25, 95, 15, "Select or Type"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Office"+chr(9)+"Online"+chr(9)+how_app_rcvd, how_app_rcvd
                                               ComboBox 90, 45, 150, 45, interview_memb_list+chr(9)+interview_with, interview_with
                                               ButtonGroup ButtonPressed
                                                 PushButton 240, 45, 15, 15, "!", tips_and_tricks_interview_button
@@ -6289,7 +5099,6 @@ Do
                                             EndDialog
 
                                             Dialog Dialog1
-                                            save_your_work
                                             cancel_confirmation
                                             MAXIS_dialog_navigation
 
@@ -6586,7 +5395,6 @@ Do
                                             EndDialog
 
                                             dialog Dialog1
-                                            save_your_work
                                             cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
                                             MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 
@@ -6919,7 +5727,6 @@ Do
 
 
                                         dialog Dialog1
-                                        save_your_work
                                         cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
                                         MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
 
@@ -7146,7 +5953,6 @@ Do
                                     EndDialog
 
                                     Dialog Dialog1
-                                    save_your_work
                                     cancel_confirmation
                                     verification_dialog
                                     'MsgBox ButtonPressed
@@ -7304,7 +6110,6 @@ Do
                             EndDialog
 
                             Dialog Dialog1
-                            save_your_work
                             cancel_confirmation
                             MAXIS_dialog_navigation
                             verification_dialog
@@ -7409,7 +6214,6 @@ Do
                         EndDialog
 
                         Dialog Dialog1			'Displays the second dialog
-                        save_your_work
                         cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
                         MAXIS_dialog_navigation			'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
                         verification_dialog
@@ -7469,7 +6273,6 @@ Do
                                 EndDialog
 
                                 Dialog Dialog1
-                                save_your_work
 
                                 If ButtonPressed = -1 Then ButtonPressed = return_button
                                 If ButtonPressed = 0 Then ButtonPressed = return_button
@@ -7598,7 +6401,6 @@ Do
                                 EndDialog
 
                                 dialog Dialog1
-                                save_your_work
 
                                 If IsNumeric(manual_total_shelter) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Total Shelter costs must be a number."
                                 If ALL_MEMBERS_ARRAY(shel_retro_rent_amt, shel_client) <> "" AND IsNumeric(ALL_MEMBERS_ARRAY(shel_retro_rent_amt, shel_client)) = FALSE Then shel_err_msg = shel_err_msg & vbNewLine & "* Enter a valid amount for Retro Rent Expense."
@@ -7736,7 +6538,6 @@ Do
                     EndDialog
 
                     Dialog Dialog1
-                    save_your_work
                     cancel_confirmation
                     MAXIS_dialog_navigation
                     verification_dialog
@@ -7919,7 +6720,6 @@ Do
                 EndDialog
 
                 Dialog Dialog1
-                save_your_work
                 cancel_confirmation
                 MAXIS_dialog_navigation
                 verification_dialog
@@ -8596,7 +7396,6 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
         TIKL_msg_one = TIKL_msg_one & " has been pending for 30 days. Evaluate for possible denial."
 		'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
         Call create_TIKL(TIKL_msg_one, 30, CAF_datestamp, False, TIKL_note_text)
-        Call back_to_SELF
 	End If
 ElseIf TIKL_checkbox = checked and CAF_type = "Recertification" then
     TIKL_checkbox = unchecked
@@ -8604,7 +7403,6 @@ End if
 If client_delay_TIKL_checkbox = checked then
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     Call create_TIKL(">>>UPDATE PND2 FOR CLIENT DELAY IF APPROPRIATE<<<", 10, date, False, TIKL_note_text)
-    Call back_to_SELF
 End if
 
 For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
@@ -8613,7 +7411,6 @@ For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
             'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
             tikl_msg = "Review UC Income for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " as it may have ended or be near ending."
             Call create_TIKL(TIKL_msg, 10, UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb), False, TIKL_note_text)
-            Call back_to_SELF
         End If
     End If
 Next
@@ -8700,7 +7497,6 @@ If HC_checkbox = checked Then
         Else
             'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
             Call create_TIKL("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and reTIKL out.", 45, HC_datestamp, False, TIKL_note_text)
-            Call back_to_SELF
         End If
     End If
 End If
@@ -9165,13 +7961,13 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
         		objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
         		objTextStream.WriteLine "WORKER NAME ^*^*^" & worker_name
         		objTextStream.WriteLine "CASE X NUMBER  ^*^*^" & case_pw
-                If IsDate(CAF_datestamp) = True Then CAF_datestamp = DateAdd("d", 0, CAF_datestamp)
+                If IsDate(CAF_datestamp) = True Then CAF_datestamp = DateAdd("d", 1, CAF_datestamp)
         		objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & CAF_datestamp
-                If IsDate(appt_notc_sent_on) = True Then appt_notc_sent_on = DateAdd("d", 0, appt_notc_sent_on)
+                If IsDate(appt_notc_sent_on) = True Then appt_notc_sent_on = DateAdd("d", 1, appt_notc_sent_on)
         		objTextStream.WriteLine "APPT NOTC SENT DATE ^*^*^" & appt_notc_sent_on
-                If IsDate(appt_date_in_note) = True Then appt_date_in_note = DateAdd("d", 0, appt_date_in_note)
+                If IsDate(appt_date_in_note) = True Then appt_date_in_note = DateAdd("d", 1, appt_date_in_note)
         		objTextStream.WriteLine "APPT DATE ^*^*^" & appt_date_in_note
-                If IsDate(interview_date) = True Then interview_date = DateAdd("d", 0, interview_date)
+                If IsDate(interview_date) = True Then interview_date = DateAdd("d", 1, interview_date)
         		objTextStream.WriteLine "DATE OF INTERVIEW ^*^*^" & interview_date
         		objTextStream.WriteLine "EXPEDITED SCREENING STATUS ^*^*^" & xfs_screening
         		objTextStream.WriteLine "EXPEDITED DETERMINATION STATUS ^*^*^" & is_elig_XFS
@@ -9179,23 +7975,23 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
         		objTextStream.WriteLine "DET ASSETS ^*^*^" & determined_assets
         		objTextStream.WriteLine "DET SHEL ^*^*^" & determined_shel
         		objTextStream.WriteLine "DET HEST ^*^*^" & determined_utilities
-                If IsDate(approval_date) = True Then approval_date = DateAdd("d", 0, approval_date)
+                If IsDate(approval_date) = True Then approval_date = DateAdd("d", 1, approval_date)
         		objTextStream.WriteLine "DATE OF APPROVAL ^*^*^" & approval_date
-                If IsDate(snap_denial_date) = True Then snap_denial_date = DateAdd("d", 0, snap_denial_date)
+                If IsDate(snap_denial_date) = True Then snap_denial_date = DateAdd("d", 1, snap_denial_date)
         		objTextStream.WriteLine "SNAP DENIAL DATE ^*^*^" & snap_denial_date
         		objTextStream.WriteLine "SNAP DENIAL REASON ^*^*^" & snap_denial_explain
         		objTextStream.WriteLine "ID ON FILE ^*^*^" & do_we_have_applicant_id
         		objTextStream.WriteLine "OUTSTATE ACTION ^*^*^" & action_due_to_out_of_state_benefits
         		objTextStream.WriteLine "OUTSTATE STATE ^*^*^" & other_snap_state
-                If IsDate(other_state_reported_benefit_end_date) = True Then other_state_reported_benefit_end_date = DateAdd("d", 0, other_state_reported_benefit_end_date)
+                If IsDate(other_state_reported_benefit_end_date) = True Then other_state_reported_benefit_end_date = DateAdd("d", 1, other_state_reported_benefit_end_date)
         		objTextStream.WriteLine "OUTSTATE REPORTED END DATE ^*^*^" & other_state_reported_benefit_end_date
         		objTextStream.WriteLine "OUTSTATE OPENENDED ^*^*^" & other_state_benefits_openended
-                If IsDate(other_state_verified_benefit_end_date) = True Then other_state_verified_benefit_end_date = DateAdd("d", 0, other_state_verified_benefit_end_date)
+                If IsDate(other_state_verified_benefit_end_date) = True Then other_state_verified_benefit_end_date = DateAdd("d", 1, other_state_verified_benefit_end_date)
         		objTextStream.WriteLine "OUTSTATE VERIFIED END DATE ^*^*^" & other_state_verified_benefit_end_date
-                If IsDate(mn_elig_begin_date) = True Then mn_elig_begin_date = DateAdd("d", 0, mn_elig_begin_date)
+                If IsDate(mn_elig_begin_date) = True Then mn_elig_begin_date = DateAdd("d", 1, mn_elig_begin_date)
         		objTextStream.WriteLine "MN ELIG BEGIN DATE ^*^*^" & mn_elig_begin_date
         		objTextStream.WriteLine "PREV POST DELAY APP ^*^*^" & case_has_previously_postponed_verifs_that_prevent_exp_snap				'(Boolean)
-                If IsDate(previous_date_of_application) = True Then previous_date_of_application = DateAdd("d", 0, previous_date_of_application)
+                If IsDate(previous_date_of_application) = True Then previous_date_of_application = DateAdd("d", 1, previous_date_of_application)
         		objTextStream.WriteLine "PREV POST PREV DATE OF APP ^*^*^" & previous_date_of_application
         		objTextStream.WriteLine "PREV POST LIST ^*^*^" & prev_verif_list
         		objTextStream.WriteLine "PREV POST CURR VERIF POST ^*^*^" & curr_verifs_postponed_yn
@@ -9208,9 +8004,9 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
         		objTextStream.WriteLine "FACI DENY ^*^*^" & deny_snap_due_to_faci
         		objTextStream.WriteLine "FACI NAME ^*^*^" & facility_name
         		objTextStream.WriteLine "FACI INELIG SNAP ^*^*^" & snap_inelig_faci_yn
-                If IsDate(faci_entry_date) = True Then faci_entry_date = DateAdd("d", 0, faci_entry_date)
+                If IsDate(faci_entry_date) = True Then faci_entry_date = DateAdd("d", 1, faci_entry_date)
         		objTextStream.WriteLine "FACI ENTRY DATE ^*^*^" & faci_entry_date
-                If IsDate(faci_release_date) = True Then faci_release_date = DateAdd("d", 0, faci_release_date)
+                If IsDate(faci_release_date) = True Then faci_release_date = DateAdd("d", 1, faci_release_date)
         		objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date
         		objTextStream.WriteLine "FACI RELEASE IN 30 DAYS ^*^*^" & release_within_30_days_yn
         		objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
@@ -9997,7 +8793,6 @@ IF SNAP_recert_is_likely_24_months = TRUE THEN					'if we determined on stat/rev
 	IF TIKL_for_24_month = vbYes THEN 												'if the select YES then we TIKL using our custom functions.
 		'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
         Call create_TIKL("If SNAP is open, review to see if 12 month contact letter is needed. DAIL scrubber can send 12 Month Contact Letter if used on this TIKL.", 0, dateadd("m", "-1", SNAP_recert_compare_date), False, TIKL_note_text)
-        Call back_to_SELF
 	END IF
 END IF
 
