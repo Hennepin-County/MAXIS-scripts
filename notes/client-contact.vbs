@@ -5,7 +5,7 @@ STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 195          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
-run_locally = True
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
     IF on_the_desert_island = TRUE Then
