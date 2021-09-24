@@ -109,7 +109,7 @@ DO
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
 LOOP UNTIL uBound(HH_member_array) <> -1
 
-worker_county_code = "X127"
+CALL get_county_code
 EMReadscreen current_county, 4, 21, 21
 If Ucase(current_county) <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
