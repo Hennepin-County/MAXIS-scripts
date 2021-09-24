@@ -1203,7 +1203,7 @@ function display_HOUSING_CHANGE_information(housing_questions_step, household_mo
 	If housing_questions_step = 2 Then
 		Text addr_up_x_pos + 5, 10, 60, 10, "ADDR UPDATE"
 
-		Text 15, 25, 450, 10, "STEP 2 - ADDR UPDATES"
+		Text 15, 25, 450, 10, "STEP 2 - ADDR UPDATES  -  Enter new address information here:"
 
 		Call display_ADDR_information(True, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
 
@@ -1213,6 +1213,69 @@ function display_HOUSING_CHANGE_information(housing_questions_step, household_mo
 		Text shel_up_x_pos + 5, 10, 60, 10, "SHEL UPDATE"
 
 		Text 15, 25, 450, 10, "STEP 3 - SHEL UPDATES"
+
+
+
+		Text 20, 45, 95, 10, "What is the living situation?"
+	    DropListBox 115, 40, 125, 45, "Select One..."+chr(9)+"Apartment or Townhouse"+chr(9)+"House"+chr(9)+"Trailer Home/Mobile Home"+chr(9)+"Room Only"+chr(9)+"Shelter"+chr(9)+"Hotel"+chr(9)+"Vehicle"+chr(9)+"Other", what_is_the_living_arrangement
+	    Text 250, 45, 120, 10, "Does the household own the home?"
+	    DropListBox 370, 40, 90, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", unit_owned
+	    PushButton 410, 55, 50, 10, "Enter", enter_shel_one_btn
+
+		If (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") AND unit_owned = "No" Then
+		    Text 20, 80, 105, 10, "What is the total rent amount?"
+		    EditBox 130, 75, 50, 15, total_rent_amount
+		    Text 200, 80, 195, 10, "Does the household receive a subsidy for the rent amount?"
+		    DropListBox 400, 75, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", rent_subsidy_yn
+		    Text 20, 100, 150, 10, "What is the amount of any renters insurance?"
+		    EditBox 175, 95, 50, 15, renter_insurance_amount
+		    Text 260, 100, 135, 10, "Is this insurance required per the lease?"
+		    DropListBox 400, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", renters_insurance_required_yn
+		    Text 20, 120, 130, 10, "What is the amount of the garage rent?"
+		    EditBox 150, 115, 50, 15, total_garage_rent_amount
+		    Text 250, 120, 145, 10, "Is this garage rental required per the lease?"
+		    DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", garage_rent_required_yn
+		    Text 20, 140, 80, 10, "Who is the rent paid to?"
+		    EditBox 100, 135, 135, 15, rent_paid_to_name
+		    Text 20, 155, 225, 10, "Check the box for each person responsible for the housing payment:"
+		    CheckBox 30, 170, 80, 10, "Check1", Check1
+		    CheckBox 30, 185, 80, 10, "Check2", Check2
+		    CheckBox 155, 170, 80, 10, "Check3", Check3
+		    CheckBox 155, 185, 80, 10, "Check4", Check4
+		    CheckBox 290, 170, 145, 10, "Someone outside the household. Name:", Check6
+		    EditBox 300, 180, 160, 15, Edit3
+		    Text 20, 205, 205, 10, "Is the payment split evenly among all the responsible parties?"
+		    DropListBox 230, 200, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", List6
+		    PushButton 410, 205, 50, 10, "Enter", enter_shel_two_btn
+		End If
+
+
+	    Text 20, 220, 105, 10, "How is the payment split?"
+	    Text 25, 240, 60, 10, "Person ONE pays: "
+	    EditBox 90, 235, 50, 15, Edit6
+	    DropListBox 145, 240, 55, 45, "dollars"+chr(9)+"percent", List7
+	    Text 220, 240, 70, 10, "Person THREE pays: "
+	    EditBox 295, 235, 50, 15, Edit7
+	    DropListBox 350, 240, 55, 45, "dollars"+chr(9)+"percent", List8
+	    Text 25, 260, 65, 10, "Person TWO pays: "
+	    EditBox 90, 255, 50, 15, Edit8
+	    DropListBox 145, 260, 55, 45, "dollars"+chr(9)+"percent", List9
+	    Text 225, 260, 65, 10, "Person FOUR pays: "
+	    EditBox 295, 255, 50, 15, Edit9
+	    DropListBox 350, 260, 55, 45, "dollars"+chr(9)+"percent", List10
+	    PushButton 410, 260, 50, 10, "Enter", enter_shel_three_btn
+
+
+	    Text 20, 280, 120, 10, "Is the housing expense verified?"
+	    Text 30, 300, 110, 10, "Total Rent of $XXXX verification:"
+	    DropListBox 145, 295, 60, 45, "", List11
+	    Text 235, 300, 110, 10, "Total Rent of $XXXX verification:"
+	    DropListBox 350, 295, 60, 45, "", List12
+	    Text 30, 315, 110, 10, "Total Rent of $XXXX verification:"
+	    DropListBox 145, 310, 60, 45, "", List13
+	    Text 235, 315, 110, 10, "Total Rent of $XXXX verification:"
+	    DropListBox 350, 310, 60, 45, "", List14
+
 
 		' Text 20, 145, 160, 10, "Have we received verification of this expense?"
 		' DropListBox 180, 140, 45, 45, yes_no_list, shel_verif_received_yn
@@ -2429,8 +2492,10 @@ const subsidy_retro_verif_const 	= 35
 const subsidy_prosp_amt_const 		= 36
 const subsidy_prosp_verif_const 	= 37
 const attempted_update_const 		= 38
-const original_panel_info_const		= 39
-const shel_entered_notes_const		= 40
+const person_shel_checkbox 			= 39
+const person_shel_button			= 40
+const original_panel_info_const		= 41
+const shel_entered_notes_const		= 42
 
 Dim ALL_SHEL_PANELS_ARRAY()
 ReDim ALL_SHEL_PANELS_ARRAY(shel_entered_notes_const, 0)
@@ -2544,9 +2609,7 @@ If select_option = "Application/Renewal" Then
 
 	' Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit,                   mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_addr_panel_info, addr_update_attempted)
 	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
-	MsgBox phone_two
-	Call reformat_phone_number(phone_two, "(111) 222-3333")
-	MsgBox phone_two
+	' Call reformat_phone_number(phone_two, "(111) 222-3333")
 
 	Call access_HEST_panel("READ", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
 	For shel_member = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
