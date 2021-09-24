@@ -89,17 +89,16 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 If ABAWD_selection = "Homeless (Unfit for Employment)" then
-    Call navigate_to_MAXIS_screen("STAT", "ADDR")
-    EmReadscreen homeless_code, 1, 10, 43
-    If homeless_code <> "Y" then script_end_procedure("This case does not have the ADDR panel coded as homeless. Please review the case, and run the script again as needed.")
-    EmReadscreen living_situation, 2, 11, 43
-    If  living_situation = "01" or _
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    If addr_homeless <> "Yes" then script_end_procedure("This case does not have the ADDR panel coded as homeless. Please review the case, and run the script again as needed.")
+	living_situation = left(living_situation, 2)
+	If  living_situation = "01" or _
         living_situation = "03" or _
         living_situation = "04" or _
         living_situation = "05" or _
         living_situation = "09" or _
         living_situation = "10" or _
-        living_situation = "__" then
+        living_situation = "Bl" then
         script_end_procedure("This case's living situation code on the ADDR panel does not meet this exemption criteria. Please review the case, and run the script again as needed.")
     Else
         Dialog1 = ""
