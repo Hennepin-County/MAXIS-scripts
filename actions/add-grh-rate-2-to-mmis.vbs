@@ -331,26 +331,20 @@ client_PMI = right("00000000" & client_pmi, 8)
 EMReadScreen client_DOB, 10, 8, 42
 client_DOB = replace(client_DOB, " ", "")
 
-Call navigate_to_MAXIS_screen("STAT", "ADDR")
-EMReadScreen mailing_addr_check, 22, 13, 43
-mailing_addr_check = replace(mailing_addr_check, "_", "")
-If trim(mailing_addr_check) = "" then
-	EMReadScreen addr_line_01, 22, 6, 43
-	EMReadScreen addr_line_02, 22, 7, 43
-	EMReadScreen city_line, 15, 8, 43
-	EMReadScreen state_line, 2, 8, 66
-	EMReadScreen zip_line, 5, 9, 43
+Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+If mail_line_one = "" then
+	addr_line_01 = resi_line_one
+	addr_line_02 = resi_line_two
+	city_line = resi_city
+	state_line = resi_state
+	zip_line = resi_zip
 Else
-	EMReadScreen addr_line_01, 22, 13, 43
-	EMReadScreen addr_line_02, 22, 14, 43
-	EMReadScreen city_line, 15, 15, 43
-	EMReadScreen state_line, 2, 16, 43
-	EMReadScreen zip_line, 5, 16, 52
+	addr_line_01 = mail_line_one
+	addr_line_02 = mail_line_two
+	city_line = mail_city
+	state_line = mail_state
+	zip_line = mail_zip
 End if
-
-addr_line_01 = replace(addr_line_01, "_", "")
-addr_line_02 = replace(addr_line_02, "_", "")
-city_line = replace(city_line, "_", "")
 
 '----------------------------------------------------------------------------------------------------FACI panel
 Call navigate_to_MAXIS_screen("STAT", "FACI")
