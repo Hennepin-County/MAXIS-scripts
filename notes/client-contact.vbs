@@ -5,7 +5,7 @@ STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 195          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
-
+run_locally = True
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
     IF on_the_desert_island = TRUE Then
@@ -74,15 +74,14 @@ when_contact_was_made = date & ", " & time 'updates the "when contact was made" 
 
 If trim(MAXIS_case_number) <> "" then
     'Gathering the phone numbers
-    call navigate_to_MAXIS_screen("STAT", "ADDR")
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number_one, phone_number_two, phone_number_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
     phone_number_list = "Select or Type|"
-    EMReadScreen phone_number_one, 16, 17, 43	' if phone numbers are blank it doesn't add them to EXCEL
-    If phone_number_one <> "( ___ ) ___ ____" then phone_number_list = phone_number_list & phone_number_one & "|"
-    EMReadScreen phone_number_two, 16, 18, 43
-    If phone_number_two <> "( ___ ) ___ ____" then phone_number_list = phone_number_list & phone_number_two & "|"
-    EMReadScreen phone_number_three, 16, 19, 43
-    If phone_number_three <> "( ___ ) ___ ____" then phone_number_list = phone_number_list & phone_number_three
+    If phone_number_one <> "" Then phone_number_list = phone_number_list & phone_number_one & "|"
+    If phone_number_two <> "" Then phone_number_list = phone_number_list & phone_number_two & "|"
+    If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_number_three & "|"
     phone_number_array = split(phone_number_list, "|")
+
     Call convert_array_to_droplist_items(phone_number_array, phone_numbers)
 End if
 
@@ -122,7 +121,7 @@ If basket_number = "X127EP3" then suggested_population = "ADS"
 If basket_number = "X127EP4" then suggested_population = "ADS"
 If basket_number = "X127EP5" then suggested_population = "ADS"
 If basket_number = "X127EP9" then suggested_population = "ADS"
-If basket_number = "X127F3F" then suggested_population = "ADS"  'MA-EPD ADS Basket 
+If basket_number = "X127F3F" then suggested_population = "ADS"  'MA-EPD ADS Basket
 If basket_number = "X127FE5" then suggested_population = "ADS"
 If basket_number = "X127FG3" then suggested_population = "ADS"
 If basket_number = "X127FH4" then suggested_population = "ADS"
