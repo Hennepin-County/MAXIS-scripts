@@ -154,23 +154,12 @@ first_name = replace(first_name, "_","")
 client_name = first_name & " " & last_name
 
 'this reads current mailing address
-Call navigate_to_MAXIS_screen("STAT", "ADDR")
-EMReadScreen mail_address, 1, 13, 64
-If mail_address = "_" then
-     EMReadScreen client_1staddress, 21, 06, 43
-     EMReadScreen client_2ndaddress, 21, 07, 43
-     EMReadScreen client_city, 14, 08, 43
-     EMReadScreen client_state, 2, 08, 66
-     EMReadScreen client_zip, 7, 09, 43
+Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+If mail_line_one = "" then
+     client_address = resi_line_one & " " & resi_line_two & " " & resi_city & ", " & resi_state & " " & resi_zip
 Else
-     EMReadScreen client_1staddress, 21, 13, 43
-     EMReadScreen client_2ndaddress, 21, 14, 43
-     EMReadScreen client_city, 14, 15, 43
-     EMReadScreen client_state, 2, 16, 43
-     EMReadScreen client_zip, 7, 16, 52
+	client_address =  mail_line_one & " " & mail_line_two & " " & mail_city & ", " & mail_state & " " & mail_zip
 End If
-client_address = replace(client_1staddress, "_","") & " " & replace(client_2ndaddress, "_","") & " " & replace(client_city, "_","") & ", " & replace(client_state, "_","") & " " & replace(client_zip, "_","")
-
 
 'reads county info.'
 EMReadScreen worker_county, 4, 21, 21
