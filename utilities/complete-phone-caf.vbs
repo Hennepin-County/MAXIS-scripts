@@ -55,218 +55,6 @@ changelog_display
 
 'FUNCTIONS =================================================================================================================
 
-function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_line_two, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three)
-    access_type = UCase(access_type)
-    If access_type = "READ" Then
-        Call navigate_to_MAXIS_screen("STAT", "ADDR")
-
-        EMReadScreen line_one, 22, 6, 43										'Reading all the information from the panel
-        EMReadScreen line_two, 22, 7, 43
-        EMReadScreen city_line, 15, 8, 43
-        EMReadScreen state_line, 2, 8, 66
-        EMReadScreen zip_line, 7, 9, 43
-        EMReadScreen county_line, 2, 9, 66
-        EMReadScreen verif_line, 2, 9, 74
-        EMReadScreen homeless_line, 1, 10, 43
-        EMReadScreen reservation_line, 1, 10, 74
-        EMReadScreen living_sit_line, 2, 11, 43
-
-        resi_line_one = replace(line_one, "_", "")								'This is all formatting of the information from the panel
-        resi_line_two = replace(line_two, "_", "")
-        resi_city = replace(city_line, "_", "")
-        resi_zip = replace(zip_line, "_", "")
-
-        If county_line = "01" Then addr_county = "01 Aitkin"
-        If county_line = "02" Then addr_county = "02 Anoka"
-        If county_line = "03" Then addr_county = "03 Becker"
-        If county_line = "04" Then addr_county = "04 Beltrami"
-        If county_line = "05" Then addr_county = "05 Benton"
-        If county_line = "06" Then addr_county = "06 Big Stone"
-        If county_line = "07" Then addr_county = "07 Blue Earth"
-        If county_line = "08" Then addr_county = "08 Brown"
-        If county_line = "09" Then addr_county = "09 Carlton"
-        If county_line = "10" Then addr_county = "10 Carver"
-        If county_line = "11" Then addr_county = "11 Cass"
-        If county_line = "12" Then addr_county = "12 Chippewa"
-        If county_line = "13" Then addr_county = "13 Chisago"
-        If county_line = "14" Then addr_county = "14 Clay"
-        If county_line = "15" Then addr_county = "15 Clearwater"
-        If county_line = "16" Then addr_county = "16 Cook"
-        If county_line = "17" Then addr_county = "17 Cottonwood"
-        If county_line = "18" Then addr_county = "18 Crow Wing"
-        If county_line = "19" Then addr_county = "19 Dakota"
-        If county_line = "20" Then addr_county = "20 Dodge"
-        If county_line = "21" Then addr_county = "21 Douglas"
-        If county_line = "22" Then addr_county = "22 Faribault"
-        If county_line = "23" Then addr_county = "23 Fillmore"
-        If county_line = "24" Then addr_county = "24 Freeborn"
-        If county_line = "25" Then addr_county = "25 Goodhue"
-        If county_line = "26" Then addr_county = "26 Grant"
-        If county_line = "27" Then addr_county = "27 Hennepin"
-        If county_line = "28" Then addr_county = "28 Houston"
-        If county_line = "29" Then addr_county = "29 Hubbard"
-        If county_line = "30" Then addr_county = "30 Isanti"
-        If county_line = "31" Then addr_county = "31 Itasca"
-        If county_line = "32" Then addr_county = "32 Jackson"
-        If county_line = "33" Then addr_county = "33 Kanabec"
-        If county_line = "34" Then addr_county = "34 Kandiyohi"
-        If county_line = "35" Then addr_county = "35 Kittson"
-        If county_line = "36" Then addr_county = "36 Koochiching"
-        If county_line = "37" Then addr_county = "37 Lac Qui Parle"
-        If county_line = "38" Then addr_county = "38 Lake"
-        If county_line = "39" Then addr_county = "39 Lake Of Woods"
-        If county_line = "40" Then addr_county = "40 Le Sueur"
-        If county_line = "41" Then addr_county = "41 Lincoln"
-        If county_line = "42" Then addr_county = "42 Lyon"
-        If county_line = "43" Then addr_county = "43 Mcleod"
-        If county_line = "44" Then addr_county = "44 Mahnomen"
-        If county_line = "45" Then addr_county = "45 Marshall"
-        If county_line = "46" Then addr_county = "46 Martin"
-        If county_line = "47" Then addr_county = "47 Meeker"
-        If county_line = "48" Then addr_county = "48 Mille Lacs"
-        If county_line = "49" Then addr_county = "49 Morrison"
-        If county_line = "50" Then addr_county = "50 Mower"
-        If county_line = "51" Then addr_county = "51 Murray"
-        If county_line = "52" Then addr_county = "52 Nicollet"
-        If county_line = "53" Then addr_county = "53 Nobles"
-        If county_line = "54" Then addr_county = "54 Norman"
-        If county_line = "55" Then addr_county = "55 Olmsted"
-        If county_line = "56" Then addr_county = "56 Otter Tail"
-        If county_line = "57" Then addr_county = "57 Pennington"
-        If county_line = "58" Then addr_county = "58 Pine"
-        If county_line = "59" Then addr_county = "59 Pipestone"
-        If county_line = "60" Then addr_county = "60 Polk"
-        If county_line = "61" Then addr_county = "61 Pope"
-        If county_line = "62" Then addr_county = "62 Ramsey"
-        If county_line = "63" Then addr_county = "63 Red Lake"
-        If county_line = "64" Then addr_county = "64 Redwood"
-        If county_line = "65" Then addr_county = "65 Renville"
-        If county_line = "66" Then addr_county = "66 Rice"
-        If county_line = "67" Then addr_county = "67 Rock"
-        If county_line = "68" Then addr_county = "68 Roseau"
-        If county_line = "69" Then addr_county = "69 St. Louis"
-        If county_line = "70" Then addr_county = "70 Scott"
-        If county_line = "71" Then addr_county = "71 Sherburne"
-        If county_line = "72" Then addr_county = "72 Sibley"
-        If county_line = "73" Then addr_county = "73 Stearns"
-        If county_line = "74" Then addr_county = "74 Steele"
-        If county_line = "75" Then addr_county = "75 Stevens"
-        If county_line = "76" Then addr_county = "76 Swift"
-        If county_line = "77" Then addr_county = "77 Todd"
-        If county_line = "78" Then addr_county = "78 Traverse"
-        If county_line = "79" Then addr_county = "79 Wabasha"
-        If county_line = "80" Then addr_county = "80 Wadena"
-        If county_line = "81" Then addr_county = "81 Waseca"
-        If county_line = "82" Then addr_county = "82 Washington"
-        If county_line = "83" Then addr_county = "83 Watonwan"
-        If county_line = "84" Then addr_county = "84 Wilkin"
-        If county_line = "85" Then addr_county = "85 Winona"
-        If county_line = "86" Then addr_county = "86 Wright"
-        If county_line = "87" Then addr_county = "87 Yellow Medicine"
-        If county_line = "89" Then addr_county = "89 Out-of-State"
-        resi_county = addr_county
-
-		Call get_state_name_from_state_code(state_line, resi_state, TRUE)		'This function makes the state code to be the state name written out - including the code
-
-        If homeless_line = "Y" Then addr_homeless = "Yes"
-        If homeless_line = "N" Then addr_homeless = "No"
-        If reservation_line = "Y" Then addr_reservation = "Yes"
-        If reservation_line = "N" Then addr_reservation = "No"
-
-        If verif_line = "SF" Then addr_verif = "SF - Shelter Form"
-        If verif_line = "Co" Then addr_verif = "CO - Coltrl Stmt"
-        If verif_line = "MO" Then addr_verif = "MO - Mortgage Papers"
-        If verif_line = "TX" Then addr_verif = "TX - Prop Tax Stmt"
-        If verif_line = "CD" Then addr_verif = "CD - Contrct for Deed"
-        If verif_line = "UT" Then addr_verif = "UT - Utility Stmt"
-        If verif_line = "DL" Then addr_verif = "DL - Driver Lic/State ID"
-        If verif_line = "OT" Then addr_verif = "OT - Other Document"
-        If verif_line = "NO" Then addr_verif = "NO - No Ver Prvd"
-        If verif_line = "?_" Then addr_verif = "? - Delayed"
-        If verif_line = "__" Then addr_verif = "Blank"
-
-
-        If living_sit_line = "__" Then living_situation = "Blank"
-        If living_sit_line = "01" Then living_situation = "01 - Own home, lease or roomate"
-        If living_sit_line = "02" Then living_situation = "02 - Family/Friends - economic hardship"
-        If living_sit_line = "03" Then living_situation = "03 -  servc prvdr- foster/group home"
-        If living_sit_line = "04" Then living_situation = "04 - Hospital/Treatment/Detox/Nursing Home"
-        If living_sit_line = "05" Then living_situation = "05 - Jail/Prison//Juvenile Det."
-        If living_sit_line = "06" Then living_situation = "06 - Hotel/Motel"
-        If living_sit_line = "07" Then living_situation = "07 - Emergency Shelter"
-        If living_sit_line = "08" Then living_situation = "08 - Place not meant for Housing"
-        If living_sit_line = "09" Then living_situation = "09 - Declined"
-        If living_sit_line = "10" Then living_situation = "10 - Unknown"
-        addr_living_sit = living_situation
-
-        EMReadScreen addr_eff_date, 8, 4, 43									'reading the mail information
-        EMReadScreen addr_future_date, 8, 4, 66
-        EMReadScreen mail_line_one, 22, 13, 43
-        EMReadScreen mail_line_two, 22, 14, 43
-        EMReadScreen mail_city_line, 15, 15, 43
-        EMReadScreen mail_state_line, 2, 16, 43
-        EMReadScreen mail_zip_line, 7, 16, 52
-
-        addr_eff_date = replace(addr_eff_date, " ", "/")						'cormatting the mail information
-        addr_future_date = trim(addr_future_date)
-        addr_future_date = replace(addr_future_date, " ", "/")
-        mail_line_one = replace(mail_line_one, "_", "")
-        mail_line_two = replace(mail_line_two, "_", "")
-        mail_city = replace(mail_city_line, "_", "")
-        mail_state = replace(mail_state_line, "_", "")
-        mail_zip = replace(mail_zip_line, "_", "")
-
-        notes_on_address = "Address effective: " & addr_eff_date & "."
-        ' If mail_line_one <> "" Then
-        '     If mail_line_two = "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
-        '     If mail_line_two <> "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_line_two & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
-        ' End If
-        If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
-
-        EMReadScreen phone_one, 14, 17, 45										'reading the phone information
-        EMReadScreen phone_two, 14, 18, 45
-        EMReadScreen phone_three, 14, 19, 45
-
-        EMReadScreen type_one, 1, 17, 67
-        EMReadScreen type_two, 1, 18, 67
-        EMReadScreen type_three, 1, 19, 67
-
-        phone_one = replace(phone_one, " ) ", "-")								'formatting the phone information
-        phone_one = replace(phone_one, " ", "-")
-        If phone_one = "___-___-____" Then phone_one = ""
-
-        phone_two = replace(phone_two, " ) ", "-")
-        phone_two = replace(phone_two, " ", "-")
-        If phone_two = "___-___-____" Then phone_two = ""
-
-        phone_three = replace(phone_three, " ) ", "-")
-        phone_three = replace(phone_three, " ", "-")
-        If phone_three = "___-___-____" Then phone_three = ""
-
-        If type_one = "H" Then type_one = "Home"
-        If type_one = "W" Then type_one = "Work"
-        If type_one = "C" Then type_one = "Cell"
-        If type_one = "M" Then type_one = "Message"
-        If type_one = "T" Then type_one = "TTY/TDD"
-        If type_one = "_" Then type_one = ""
-
-        If type_two = "H" Then type_two = "Home"
-        If type_two = "W" Then type_two = "Work"
-        If type_two = "C" Then type_two = "Cell"
-        If type_two = "M" Then type_two = "Message"
-        If type_two = "T" Then type_two = "TTY/TDD"
-        If type_two = "_" Then type_two = ""
-
-        If type_three = "H" Then type_three = "Home"
-        If type_three = "W" Then type_three = "Work"
-        If type_three = "C" Then type_three = "Cell"
-        If type_three = "M" Then type_three = "Message"
-        If type_three = "T" Then type_three = "TTY/TDD"
-        If type_three = "_" Then type_three = ""
-    End If
-
-end function
-
 function get_state_name_from_state_code(state_code, state_name, include_state_code)
     If state_code = "NB" Then state_name = "MN Newborn"							'This is the list of all the states connected to the code.
     If state_code = "FC" Then state_name = "Foreign Country"
@@ -428,7 +216,7 @@ function save_your_work()
 			objTextStream.WriteLine "ADR - MAIL - ZIP - " & mail_addr_zip
 
 			objTextStream.WriteLine "ADR - PHON - NON - " & phone_one_number
-			objTextStream.WriteLine "ADR - PHON - TON - " & phone_pne_type
+			objTextStream.WriteLine "ADR - PHON - TON - " & phone_one_type
 			objTextStream.WriteLine "ADR - PHON - NTW - " & phone_two_number
 			objTextStream.WriteLine "ADR - PHON - TTW - " & phone_two_type
 			objTextStream.WriteLine "ADR - PHON - NTH - " & phone_three_number
@@ -997,7 +785,7 @@ function dlg_page_one_address()
 				  Text 205, 175, 110, 45, mail_addr_state
 				  Text 340, 175, 35, 15, mail_addr_zip
 				  Text 20, 225, 90, 15, phone_one_number
-				  Text 125, 225, 65, 45, phone_pne_type
+				  Text 125, 225, 65, 45, phone_one_type
 				  Text 20, 245, 90, 15, phone_two_number
 				  Text 125, 245, 65, 45, phone_two_type
 				  Text 20, 265, 90, 15, phone_three_number
@@ -1052,7 +840,7 @@ function dlg_page_one_address()
 				  DropListBox 205, 170, 110, 45, state_list, mail_addr_state
 				  EditBox 340, 170, 35, 15, mail_addr_zip
 				  EditBox 20, 220, 90, 15, phone_one_number
-				  DropListBox 125, 220, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_pne_type
+				  DropListBox 125, 220, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_one_type
 				  EditBox 20, 240, 90, 15, phone_two_number
 				  DropListBox 125, 240, 65, 45, "Select One..."+chr(9)+"Cell"+chr(9)+"Home"+chr(9)+"Work"+chr(9)+"Message Only"+chr(9)+"TTY/TDD", phone_two_type
 				  EditBox 20, 260, 90, 15, phone_three_number
@@ -1112,7 +900,7 @@ function dlg_page_one_address()
 			End If
 			If ButtonPressed = clear_phone_one_btn Then
 				phone_one_number = ""
-				phone_pne_type = "Select One..."
+				phone_one_type = "Select One..."
 			End If
 			If ButtonPressed = clear_phone_two_btn Then
 				phone_two_number = ""
@@ -2405,7 +2193,7 @@ question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Not Required"
 'Dimming all the variables because they are defined and set within functions
 Dim who_are_we_completing_the_form_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_pay_heat_checkbox, exp_pay_ac_checkbox, exp_pay_electricity_checkbox, exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
-Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_pne_type, phone_two_number
+Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_name, homeless_yn, living_situation, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, phone_one_number, phone_one_type, phone_two_number
 Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, caf_form_date, all_the_clients, err_msg
 
 Dim question_1_yn, question_1_notes, question_1_verif_yn, question_1_verif_details
@@ -2706,11 +2494,7 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	Next
 
 	'Now we gather the address information that exists in MAXIS
-	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, mail_line_one, mail_line_two, mail_addr_city, mail_addr_state, mail_addr_zip, addr_eff_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_pne_type, phone_two_type, phone_four_type)
-	resi_addr_street_full = resi_line_one & " " & resi_line_two
-	resi_addr_street_full = trim(resi_addr_street_full)
-	mail_addr_street_full = mail_line_one & " " & mail_line_two
-	mail_addr_street_full = trim(mail_addr_street_full)
+	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_addr_county, addr_verif, homeless_yn, reservation_yn, living_situation, reservation_name, mail_line_one, mail_line_two, mail_addr_street_full, mail_addr_city, mail_addr_state, mail_addr_zip, addr_eff_date, addr_future_date, phone_one_number, phone_two_number, phone_three_number, phone_one_type, phone_two_type, phone_three_type, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
 	show_known_addr = TRUE
 End If
@@ -3024,10 +2808,10 @@ objPers1Table.Cell(9, 4).Range.Text = "DO YOU LIVE ON A RESERVATION?"
 Call format_phone_number(phone_one_number, "xxx-xxx-xxxx")
 Call format_phone_number(phone_two_number, "xxx-xxx-xxxx")
 Call format_phone_number(phone_three_number, "xxx-xxx-xxxx")
-If phone_pne_type = "" OR phone_pne_type = "Select One..." Then
+If phone_one_type = "" OR phone_one_type = "Select One..." Then
 	phone_one_info = phone_one_number
 Else
-	phone_one_info = phone_one_number & " (" & left(phone_pne_type, 1) & ")"
+	phone_one_info = phone_one_number & " (" & left(phone_one_type, 1) & ")"
 End If
 
 If phone_two_type = "" OR phone_two_type = "Select One..." Then
