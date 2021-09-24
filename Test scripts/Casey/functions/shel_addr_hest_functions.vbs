@@ -2366,6 +2366,27 @@ function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, ph
         phone_variable = "(" & phone_left & ")" & phone_mid & "-" & phone_right
     End If
 end function
+
+function reformat_phone_number(phone_number, format_needed)
+	original_phone_number = phone_number
+	phone_number = replace(phone_number, "-", "")
+	phone_number = replace(phone_number, "(", "")
+	phone_number = replace(phone_number, ")", "")
+	phone_number = replace(phone_number, " ", "")
+
+	If len(phone_number) = 10 Then
+		phone_part_one = left(phone_number, 3)
+		phone_part_two = mid(phone_number, 4, 3)
+		phone_part_three = right(phone_number, 4)
+
+		temp_phone = replace(format_needed, "111", phone_part_one)
+		temp_phone = replace(temp_phone, "222", phone_part_two)
+		temp_phone = replace(temp_phone, "3333", phone_part_three)
+		phone_number = temp_phone
+	Else
+		phone_number = original_phone_number
+	end If
+end function
 '==========================================================================================================================
 
 'DECLARATIONS ============================================================================================================='
@@ -2523,7 +2544,9 @@ If select_option = "Application/Renewal" Then
 
 	' Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit,                   mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_addr_panel_info, addr_update_attempted)
 	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
-
+	MsgBox phone_two
+	Call reformat_phone_number(phone_two, "(111) 222-3333")
+	MsgBox phone_two
 
 	Call access_HEST_panel("READ", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
 	For shel_member = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
