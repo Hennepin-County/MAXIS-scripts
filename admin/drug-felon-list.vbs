@@ -364,32 +364,9 @@ For person = 0 to Ubound(dfln_to_process_array, 2)	'The script now needs to get 
 		End If
 
 		'Gathering address from STAT
-		Call navigate_to_MAXIS_screen ("STAT", "ADDR")
-		EMReadScreen stat_addr_1, 22, 6, 43
-		EMReadScreen stat_addr_2, 22, 7, 43
-		EMReadScreen stat_addr_C, 15, 8, 43
-		EMReadScreen stat_addr_S, 2,  8, 66
-		EMReadScreen stat_addr_Z, 7,  9, 43
-		stat_addr_1 = replace(stat_addr_1, "_", "")
-		stat_addr_2 = replace(stat_addr_2, "_", "")
-		stat_addr_C = replace(stat_addr_C, "_", "")
-		stat_addr_S = replace(stat_addr_S, "_", "")
-		stat_addr_Z = replace(stat_addr_Z, "_", "")
-
+		Call access_ADDR_panel("READ", notes_on_address, stat_addr_1, stat_addr_2, resi_street_full, stat_addr_C, stat_addr_S, stat_addr_Z, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, stat_mail_1, stat_mail_2, mail_street_full, stat_mail_C, stat_mail_S, stat_mail_Z, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 		dfln_to_process_array(stat_addr, person) = stat_addr_1 & "~" & stat_addr_2 & "~" & stat_addr_C & "~" & stat_addr_S & "~" & stat_addr_Z
-
-		'Gathering mailing address if different
-		EMReadScreen stat_mail_1, 22, 13, 43
-		stat_mail_1 = replace(stat_mail_1, "_", "")
 		If stat_mail_1 <> "" Then
-			EMReadScreen stat_mail_2, 22, 14, 43
-			EMReadScreen stat_mail_C, 15, 15, 43
-			EMReadScreen stat_mail_S, 2,  16, 43
-			EMReadScreen stat_mail_Z, 7,  16, 52
-			stat_mail_2 = replace(stat_mail_2, "_", "")
-			stat_mail_C = replace(stat_mail_C, "_", "")
-			stat_mail_S = replace(stat_mail_S, "_", "")
-			stat_mail_Z = replace(stat_mail_Z, "_", "")
 			dfln_to_process_array(stat_mail, person) = stat_mail_1 & "~" & stat_mail_2 & "~" & stat_mail_C & "~" & stat_mail_S & "~" & stat_mail_Z
 		End If
 
