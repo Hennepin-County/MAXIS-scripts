@@ -235,7 +235,7 @@ Do
                 Loop until err_msg = ""
     		Loop until ButtonPressed = next_to_page_03_button or ButtonPressed = previous_to_page_01_button
     		If ButtonPressed = previous_to_page_01_button then exit do
-            
+
             Do
     			Do
     			    err_msg = ""
@@ -308,7 +308,7 @@ Do
     				IF (new_address_check = checked AND new_address_effective_date =  "") THEN err_msg = err_msg & vBcr & "Complete a field next to the new address effective date checkbox that was checked."
                     IF trim(case_action) = "" THEN err_msg = err_msg & vBcr & "Complete case actions section."
     				IF trim(worker_signature) = "" THEN err_msg = err_msg & vBcr & "Sign your case note."
-                    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine 
+                    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     			Loop until err_msg = ""
     		Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
     	Loop until ButtonPressed = -1
@@ -364,31 +364,8 @@ IF update_addr_checkbox = 1 THEN
 		EMWriteScreen MAXIS_footer_year, 20, 46
 		Transmit
 	END IF
-	'Go to STAT/ADDR
-	Call navigate_to_MAXIS_screen("STAT", "ADDR")
-	'Go into edit mode
-	PF9
 
-	'Blanks out the old info
-	EMWriteScreen "______", 4, 43
-	EMWriteScreen "______________________", 6, 43
-	EMWriteScreen "______________________", 7, 43
-	EMWriteScreen "_______________", 8, 43
-	EMWriteScreen "__", 8, 66
-	EMWriteScreen "__", 9, 66
-	EMWriteScreen "_____", 9, 43
-
-	'Writes in the new info
-	Call Create_MAXIS_friendly_date(date_of_admission, 0, 4, 43)
-	EMWriteScreen facility_address_line_01, 6, 43
-	EMWriteScreen facility_address_line_02, 7, 43
-	EMWriteScreen facility_city, 8, 43
-	EMWriteScreen facility_state, 8, 66
-	EMWriteScreen facility_county_code, 9, 66
-	EMWriteScreen facility_zip_code, 9, 43
-	transmit
-	transmit
-	transmit
+	Call access_ADDR_panel("WRITE", notes_on_address, facility_address_line_01, facility_address_line_02, resi_street_full, facility_city, facility_state, facility_zip_code, facility_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, date_of_admission, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
 
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for move to LTCF
@@ -407,31 +384,9 @@ IF LTCF_update_ADDR_checkbox = 1 THEN
 		EMWriteScreen MAXIS_footer_year, 20, 46
 		Transmit
 	END IF
-	'Go to STAT/ADDR
-	Call navigate_to_MAXIS_screen("STAT", "ADDR")
-	'Go into edit mode
-	PF9
 
-	'Blanks out the old info
-	EMWriteScreen "______", 4, 43
-	EMWriteScreen "______________________", 6, 43
-	EMWriteScreen "______________________", 7, 43
-	EMWriteScreen "_______________", 8, 43
-	EMWriteScreen "__", 8, 66
-	EMWriteScreen "__", 9, 66
-	EMWriteScreen "_____", 9, 43
+	Call access_ADDR_panel("WRITE", notes_on_address, LTCF_ADDR_line_01, LTCF_ADDR_line_02, resi_street_full, LTCF_city, LTCF_state, LTCF_zip_code, LTCF_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, client_moved_to_LTCF, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-	'Writes in the new info
-	Call Create_MAXIS_friendly_date(client_moved_to_LTCF, 0, 4, 43)
-	EMWriteScreen LTCF_ADDR_line_01, 6, 43
-	EMWriteScreen LTCF_ADDR_line_02, 7, 43
-	EMWriteScreen LTCF_city, 8, 43
-	EMWriteScreen LTCF_state, 8, 66
-	EMWriteScreen LTCF_county_code, 9, 66
-	EMWriteScreen LTCF_zip_code, 9, 43
-	transmit
-	transmit
-	transmit
 END If
 
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for new address
@@ -450,32 +405,9 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 		EMWriteScreen MAXIS_footer_year, 20, 46
 		Transmit
 	END IF
-	'Go to STAT/ADDR
-	Call navigate_to_MAXIS_screen("STAT", "ADDR")
-	'Go into edit mode
-	PF9
 
-	'Blanks out the old info
-	EMWriteScreen "______", 4, 43
-	EMWriteScreen "______________________", 6, 43
-	EMWriteScreen "______________________", 7, 43
-	EMWriteScreen "_______________", 8, 43
-	EMWriteScreen "__", 8, 66
-	EMWriteScreen "__", 9, 66
-	EMWriteScreen "_____", 9, 43
+	Call access_ADDR_panel("WRITE", notes_on_address, change_ADDR_line_1, change_ADDR_line_2, resi_street_full, change_city, change_state, change_zip_code, change_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, new_address_effective_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
-	'Writes in the new info
-	Call Create_MAXIS_friendly_date(new_address_effective_date, 0, 4, 43)
-	EMWriteScreen change_ADDR_line_1, 6, 43
-	EMWriteScreen change_ADDR_line_2, 7, 43
-	EMWriteScreen change_city, 8, 43
-	EMWriteScreen change_state, 8, 66
-	EMWriteScreen change_county_code, 9, 66
-	EMWriteScreen change_zip_code, 9, 43
-
-	transmit
-	transmit
-	transmit
 END If
 
 'Updates SWKR panel with Name, address and phone number if checked on DIALOG 1
