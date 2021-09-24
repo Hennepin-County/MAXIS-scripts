@@ -1703,6 +1703,9 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	        EMWriteScreen left(resi_state, 2), 8, 66
 	        EMWriteScreen resi_zip, 9, 43
 			If addr_living_sit <> "Blank" AND addr_living_sit <> "Select" AND len(addr_living_sit) >=2 Then EMWriteScreen left(addr_living_sit, 2), 11, 43
+			EMWriteScreen left(addr_homeless, 1), 10, 43
+			EMWriteScreen left(addr_reservation, 1), 10, 74
+			IF addr_reservation = "No" THEN Call clear_line_of_text(11, 74)
 
 	        EMWriteScreen left(addr_verif, 2), 9, 74
 
