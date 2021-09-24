@@ -177,9 +177,8 @@ Do
         member_array = array(all_the_eats_ref)
     End If
 
-    Call navigate_to_MAXIS_screen("STAT", "ADDR")
-    EMReadScreen homeless_indicator, 1, 10, 43
-    If homeless_indicator = "Y" Then homeless_wcom_checkbox = checked
+	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+	If addr_homeless = "Yes" Then homeless_wcom_checkbox = checked
 
     all_members_wreg_info = ""
     waiver_ABAWD_on_case = FALSE
