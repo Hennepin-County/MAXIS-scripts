@@ -89,11 +89,7 @@ LOOP UNTIL are_we_passworded_out = false
 interview_date = date & ""
 
 'Defaults the Client Phone number to the first phone number listed on MAXIS in STAT/ADDR
-Call navigate_to_MAXIS_screen ("STAT", "ADDR")
-EMReadScreen phone_01, 3, 17, 45
-EMReadScreen phone_02, 3, 17, 51
-EMReadScreen phone_03, 4, 17, 55
-phone_number = phone_01 & "-" & phone_02 & "-" & phone_03 & ""
+call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
 'Determines which programs are currently pending in the month of application
 call navigate_to_MAXIS_screen("STAT","PROG")
