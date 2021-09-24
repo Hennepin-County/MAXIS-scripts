@@ -354,6 +354,9 @@ function read_case_details_for_review_report(incrementor_var)
 			'----------------------------------------------------------------------------------------------------language and Contact Information
 			'Gathering the phone numbers
 			Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number_one, phone_number_two, phone_number_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+			Call reformat_phone_number(phone_number_one, "( 111 ) 222 - 3333")
+			Call reformat_phone_number(phone_number_two, "( 111 ) 222 - 3333")
+			Call reformat_phone_number(phone_number_three, "( 111 ) 222 - 3333")
 			review_array(phone_1_const, incrementor_var) = phone_number_one
 			review_array(phone_2_const, incrementor_var) = phone_number_two
 			review_array(phone_3_const, incrementor_var) = phone_number_three
