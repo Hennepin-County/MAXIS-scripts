@@ -257,33 +257,7 @@ IF current_panel_check = "DSPL" THEN
     'Call navigate_to_MAXIS_screen("CASE", "CURR")
 
     IF case_status = "CURRENT" or case_status = "PEND" THEN
-        Call navigate_to_MAXIS_screen("STAT", "ADDR")
-        EMReadscreen current_panel_check, 4, 2, 44
-        IF current_panel_check = "ADDR" THEN 'Reading and cleaning up Residence address
-            EMReadScreen addr_line_1, 22, 6, 43
-            EMReadScreen addr_line_2, 22, 7, 43
-            EMReadScreen city, 15, 8, 43
-            EMReadScreen State, 2, 8, 66
-            EMReadScreen Zip_code, 5, 9, 43
-            addr_line_1 = replace(addr_line_1, "_", "")
-            addr_line_2 = replace(addr_line_2, "_", "")
-            city = replace(city, "_", "")
-            State = replace(State, "_", "")
-            Zip_code = replace(Zip_code, "_", "")
-            'Reading homeless code
-            EMReadScreen homeless_code, 1, 10, 43
-            'Reading and cleaning up mailing address
-            EMReadScreen mailing_addr_line_1, 22, 13, 43
-            EMReadScreen mailing_addr_line_2, 22, 14, 43
-            EMReadScreen mailing_city, 15, 15, 43
-            EMReadScreen mailing_State, 2, 16, 43
-            EMReadScreen mailing_Zip_code, 5, 16, 52
-            mailing_addr_line_1 = replace(mailing_addr_line_1, "_", "")
-            mailing_addr_line_2 = replace(mailing_addr_line_2, "_", "")
-            mailing_city = replace(mailing_city, "_", "")
-            mailing_State = replace(mailing_State, "_", "")
-            mailing_Zip_code = replace(mailing_Zip_code, "_", "")
-        END IF
+		Call access_ADDR_panel(access_type, notes_on_address, addr_line_1, addr_line_2, resi_street_full, city, State, Zip_code, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mailing_addr_line_1, mailing_addr_line_2, mail_street_full, mailing_city, mailing_State, mailing_Zip_code, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 	END IF
 	'IF current_panel_check <> "ADDR" THEN MsgBox(current_panel_check)
 END IF
@@ -367,7 +341,7 @@ IF select_answer = "YES - Update MLAD" or select_answer = "NO - ADD A PROGRAM" T
     Call create_TIKL("~ Client submitted intent to apply for MA/MSP on " & appl_date & " Certain Populations App mailed on " & date & " If client has not responded, HC request should be denied. If client is disabled, give an additional 15 days.", 0, denial_date, False, TIKL_note_text)
 Else
     Call create_TIKL("~ Client submitted intent to apply for MA/MSP. Case is pending or active on HC. Ensure the Date of Application is " & appl_date & " or according to the HC app on file, whichever is oldest.", 0, denial_date, False, TIKL_note_text)
-End if 
+End if
 
 '----------------------------------------------------------------------------------case note
 start_a_blank_case_note
