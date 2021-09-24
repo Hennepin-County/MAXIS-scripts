@@ -7593,6 +7593,27 @@ function read_boolean_from_excel(excel_place, script_variable)
 	'If this is not TRUE or FALSE, then it will just output what was in the cell all uppercase
 end function
 
+function reformat_phone_number(phone_number, format_needed)
+	original_phone_number = phone_number
+	phone_number = replace(phone_number, "-", "")
+	phone_number = replace(phone_number, "(", "")
+	phone_number = replace(phone_number, ")", "")
+	phone_number = replace(phone_number, " ", "")
+
+	If len(phone_number) = 10 Then
+		phone_part_one = left(phone_number, 3)
+		phone_part_two = mid(phone_number, 4, 3)
+		phone_part_three = right(phone_number, 4)
+
+		temp_phone = replace(format_needed, "111", phone_part_one)
+		temp_phone = replace(temp_phone, "222", phone_part_two)
+		temp_phone = replace(temp_phone, "3333", phone_part_three)
+		phone_number = temp_phone
+	Else
+		phone_number = original_phone_number
+	end If
+end function
+
 function run_another_script(script_path)
 '--- This function runs another script from a specific file either stored locally or on the web.
 '~~~~~ script_path: path of script to run
