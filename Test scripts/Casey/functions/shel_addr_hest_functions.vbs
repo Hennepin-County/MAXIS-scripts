@@ -2494,8 +2494,9 @@ const subsidy_prosp_verif_const 	= 37
 const attempted_update_const 		= 38
 const person_shel_checkbox 			= 39
 const person_shel_button			= 40
-const original_panel_info_const		= 41
-const shel_entered_notes_const		= 42
+const person_age_const 				= 41
+const original_panel_info_const		= 42
+const shel_entered_notes_const		= 43
 
 Dim ALL_SHEL_PANELS_ARRAY()
 ReDim ALL_SHEL_PANELS_ARRAY(shel_entered_notes_const, 0)
@@ -2602,8 +2603,17 @@ If select_option = "Application/Renewal" Then
 			' If member_selection = "" Then member_selection = members_counter
 		Else
 			ALL_SHEL_PANELS_ARRAY(shel_exists_const, members_counter) = False
-			ALL_SHEL_PANELS_ARRAY(original_panel_info_const, shel_member) = "||||||||||||||||||||||||||||||||||"
+			ALL_SHEL_PANELS_ARRAY(original_panel_info_const, members_counter) = "||||||||||||||||||||||||||||||||||"
 		End If
+
+		Call navigate_to_MAXIS_screen("STAT", "MEMB")
+		EMWriteScreen memb_ref_number, 20, 76
+		transmit
+		EMReadScreen memb_panel_age, 3, 8, 76
+		memb_panel_age = trim(memb_panel_age)
+		If memb_panel_age = "" Then memb_panel_age = 0
+		ALL_SHEL_PANELS_ARRAY(person_age_const, members_counter) = memb_panel_age
+
 		members_counter = members_counter + 1
 	Next
 
