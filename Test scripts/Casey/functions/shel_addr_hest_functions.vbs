@@ -42,10 +42,17 @@ END IF
 'FUNCTIONS ================================================================================================================
 
 
-function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_information, update_attempted)
+function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 	access_type = UCase(access_type)
     If access_type = "READ" Then
         Call navigate_to_MAXIS_screen("STAT", "ADDR")
+		EMReadScreen curr_addr_footer_month, 2, 20, 55
+		EMReadScreen curr_addr_footer_year, 2, 20, 58
+		the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year
+		the_footer_month_date = DateAdd("d", 0, the_footer_month_date)
+		new_version = True
+		If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False
+		' MsgBox "the footer date - " & the_footer_month_date & vbCr & "oct 1 - " & #10/1/2021# & vbCr & "date diff - " & DateDiff("d", the_footer_month_date, #10/1/2021#) & vbCr & "new version - " & new_version
 
         EMReadScreen line_one, 22, 6, 43
         EMReadScreen line_two, 22, 7, 43
@@ -57,6 +64,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         EMReadScreen homeless_line, 1, 10, 43
         EMReadScreen reservation_line, 1, 10, 74
         EMReadScreen living_sit_line, 2, 11, 43
+		EMReadScreen reservation_name, 1, 10, 74
 
         resi_line_one = replace(line_one, "_", "")
         resi_line_two = replace(line_two, "_", "")
@@ -161,6 +169,8 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If reservation_line = "Y" Then addr_reservation = "Yes"
         If reservation_line = "N" Then addr_reservation = "No"
 
+		If reservation_name = "" Then reservation_name = ""
+
         If verif_line = "SF" Then addr_verif = "SF - Shelter Form"
         If verif_line = "Co" Then addr_verif = "CO - Coltrl Stmt"
         If verif_line = "MO" Then addr_verif = "MO - Mortgage Papers"
@@ -189,11 +199,44 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
         EMReadScreen addr_eff_date, 8, 4, 43
         EMReadScreen addr_future_date, 8, 4, 66
-        EMReadScreen mail_line_one, 22, 13, 43
-        EMReadScreen mail_line_two, 22, 14, 43
-        EMReadScreen mail_city_line, 15, 15, 43
-        EMReadScreen mail_state_line, 2, 16, 43
-        EMReadScreen mail_zip_line, 7, 16, 52
+
+		If new_version = False Then
+	        EMReadScreen mail_line_one, 22, 13, 43
+	        EMReadScreen mail_line_two, 22, 14, 43
+	        EMReadScreen mail_city_line, 15, 15, 43
+	        EMReadScreen mail_state_line, 2, 16, 43
+	        EMReadScreen mail_zip_line, 7, 16, 52
+
+			EMReadScreen phone_one, 14, 17, 45
+			EMReadScreen phone_two, 14, 18, 45
+			EMReadScreen phone_three, 14, 19, 45
+
+			EMReadScreen type_one, 1, 17, 67
+			EMReadScreen type_two, 1, 18, 67
+			EMReadScreen type_three, 1, 19, 67
+		End If
+
+		If new_version = True Then
+			EMReadScreen mail_line_one, 22, 12, 49
+			EMReadScreen mail_line_two, 22, 13, 49
+			EMReadScreen mail_city_line, 15, 14, 49
+			EMReadScreen mail_state_line, 2, 15, 49
+			EMReadScreen mail_zip_line, 7, 15, 58
+
+			EMReadScreen phone_one, 14, 16, 39
+			EMReadScreen phone_two, 14, 17, 39
+			EMReadScreen phone_three, 14, 18, 39
+
+			EMReadScreen type_one, 1, 16, 61
+			EMReadScreen type_two, 1, 17, 61
+			EMReadScreen type_three, 1, 18, 61
+
+			EMReadScreen text_yn_one, 1, 16, 76
+			EMReadScreen text_yn_two, 1, 17, 76
+			EMReadScreen text_yn_three, 1, 18, 76
+
+			EMReadScreen addr_email, 50, 19, 31
+		End If
 
         addr_eff_date = replace(addr_eff_date, " ", "/")
         addr_future_date = trim(addr_future_date)
@@ -211,14 +254,6 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         '     If mail_line_two <> "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_line_two & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
         ' End If
         If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
-
-        EMReadScreen phone_one, 14, 17, 45
-        EMReadScreen phone_two, 14, 18, 45
-        EMReadScreen phone_three, 14, 19, 45
-
-        EMReadScreen type_one, 1, 17, 67
-        EMReadScreen type_two, 1, 18, 67
-        EMReadScreen type_three, 1, 19, 67
 
         phone_one = replace(phone_one, " ) ", "-")
         phone_one = replace(phone_one, " ", "-")
@@ -252,6 +287,10 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If type_three = "M" Then type_three = "M - Message"
         If type_three = "T" Then type_three = "T - TTY/TDD"
         If type_three = "_" Then type_three = ""
+
+		Do
+			If right(addr_email, 1) = "_" Then addr_email = left(addr_email, len(addr_email) - 1)
+		Loop Until right(addr_email, 1) <> "_"
 
 		original_information = resi_line_one&"|"&resi_line_two&"|"&resi_street_full&"|"&resi_city&"|"&resi_state&"|"&resi_zip&"|"&resi_county&"|"&addr_verif&"|"&_
 							   addr_homeless&"|"&addr_reservation&"|"&addr_living_sit&"|"&mail_line_one&"|"&mail_line_two&"|"&mail_street_full&"|"&mail_city&"|"&_
@@ -299,6 +338,12 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			update_attempted = True
 
 	        Call navigate_to_MAXIS_screen("STAT", "ADDR")
+			EMReadScreen curr_addr_footer_month, 2, 20, 55
+			EMReadScreen curr_addr_footer_year, 2, 20, 58
+			the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year
+			the_footer_month_date = DateAdd("d", 0, the_footer_month_date)
+			new_version = True
+			If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False
 
 	        PF9
 
@@ -331,6 +376,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	        EMWriteScreen left(resi_county, 2), 9, 66
 	        EMWriteScreen left(resi_state, 2), 8, 66
 	        EMWriteScreen resi_zip, 9, 43
+			If addr_living_sit <> "Blank" AND addr_living_sit <> "Select" AND len(addr_living_sit) >=2 Then EMWriteScreen left(addr_living_sit, 2), 11, 43
 
 	        EMWriteScreen left(addr_verif, 2), 9, 74
 
@@ -355,65 +401,130 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	        Else
 	            write_mail_line_one = mail_line_one
 	        End If
-	        EMWriteScreen write_mail_line_one, 13, 43
-	        EMWriteScreen write_mail_line_two, 14, 43
-	        EMWriteScreen mail_city, 15, 43
-	        If write_mail_line_one <> "" Then EMWriteScreen left(mail_state, 2), 16, 43
-	        EMWriteScreen mail_zip, 16, 52
 
-			If mail_street_full = "" Then
-				EMSetCursor 13, 43
-				EMSendKey "<eraseEOF>"
+			If new_version = False then
+				If mail_street_full = "" Then
+					EMSetCursor 13, 43
+					EMSendKey "<eraseEOF>"
 
-				EMSetCursor 14, 43
-				EMSendKey "<eraseEOF>"
+					EMSetCursor 14, 43
+					EMSendKey "<eraseEOF>"
 
-				EMSetCursor 16, 43
-				EMSendKey "<eraseEOF>"
+					EMSetCursor 16, 43
+					EMSendKey "<eraseEOF>"
+				End If
+				If write_mail_line_one = "" Then
+					EMSetCursor 13, 43
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 16, 43
+					EMSendKey "<eraseEOF>"
+				End If
+				If write_mail_line_two = "" Then
+					EMSetCursor 14, 43
+					EMSendKey "<eraseEOF>"
+				End If
+				If mail_city = "" Then
+					EMSetCursor 15, 43
+					EMSendKey "<eraseEOF>"
+				End If
+				If mail_zip = "" Then
+					EMSetCursor 16, 52
+					EMSendKey "<eraseEOF>"
+				End If
+				EMWriteScreen write_mail_line_one, 13, 43
+				EMWriteScreen write_mail_line_two, 14, 43
+				EMWriteScreen mail_city, 15, 43
+				If write_mail_line_one <> "" Then EMWriteScreen left(mail_state, 2), 16, 43
+				EMWriteScreen mail_zip, 16, 52
+
+		        call split_phone_number_into_parts(phone_one, phone_one_left, phone_one_mid, phone_one_right)
+		        call split_phone_number_into_parts(phone_two, phone_two_left, phone_two_mid, phone_two_right)
+		        call split_phone_number_into_parts(phone_three, phone_three_left, phone_three_mid, phone_three_right)
+
+		        EMWriteScreen phone_one_left, 17, 45
+		        EMWriteScreen phone_one_mid, 17, 51
+		        EMWriteScreen phone_one_right, 17, 55
+		        If type_one <> "Select One..." Then EMWriteScreen type_one, 17, 67
+
+		        EMWriteScreen phone_two_left, 18, 45
+		        EMWriteScreen phone_two_mid, 18, 51
+		        EMWriteScreen phone_two_right, 18, 55
+		        If type_two <> "Select One..." Then EMWriteScreen type_two, 18, 67
+
+		        EMWriteScreen phone_three_left, 19, 45
+		        EMWriteScreen phone_three_mid, 19, 51
+		        EMWriteScreen phone_three_right, 19, 55
+		        If type_three <> "Select One..." Then EMWriteScreen type_three, 19, 67
 			End If
-			If write_mail_line_one = "" Then
-				EMSetCursor 13, 43
-				EMSendKey "<eraseEOF>"
 
-				EMSetCursor 16, 43
+			If new_version = True then
+				If mail_street_full = "" Then
+					EMSetCursor 12, 49
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 13, 49
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 15, 49
+					EMSendKey "<eraseEOF>"
+				End If
+				If write_mail_line_one = "" Then
+					EMSetCursor 12, 49
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 15, 49
+					EMSendKey "<eraseEOF>"
+				End If
+				If write_mail_line_two = "" Then
+					EMSetCursor 13, 49
+					EMSendKey "<eraseEOF>"
+				End If
+				If mail_city = "" Then
+					EMSetCursor 14, 49
+					EMSendKey "<eraseEOF>"
+				End If
+				If mail_zip = "" Then
+					EMSetCursor 15, 58
+					EMSendKey "<eraseEOF>"
+				End If
+				EMWriteScreen write_mail_line_one, 12, 49
+		        EMWriteScreen write_mail_line_two, 13, 49
+		        EMWriteScreen mail_city, 14, 49
+		        If write_mail_line_one <> "" Then EMWriteScreen left(mail_state, 2), 15, 49
+		        EMWriteScreen mail_zip, 15, 58
+
+		        call split_phone_number_into_parts(phone_one, phone_one_left, phone_one_mid, phone_one_right)
+		        call split_phone_number_into_parts(phone_two, phone_two_left, phone_two_mid, phone_two_right)
+		        call split_phone_number_into_parts(phone_three, phone_three_left, phone_three_mid, phone_three_right)
+
+		        EMWriteScreen phone_one_left, 16, 39
+		        EMWriteScreen phone_one_mid, 16, 45
+		        EMWriteScreen phone_one_right, 16, 49
+		        If type_one <> "Select One..." Then EMWriteScreen type_one, 16, 61
+				EMWriteScreen text_yn_one, 16, 76
+
+		        EMWriteScreen phone_two_left, 17, 39
+		        EMWriteScreen phone_two_mid, 17, 45
+		        EMWriteScreen phone_two_right, 17, 49
+		        If type_two <> "Select One..." Then EMWriteScreen type_two, 17, 61
+				EMWriteScreen text_yn_two, 17, 76
+
+		        EMWriteScreen phone_three_left, 18, 39
+		        EMWriteScreen phone_three_mid, 18, 45
+		        EMWriteScreen phone_three_right, 18, 49
+		        If type_three <> "Select One..." Then EMWriteScreen type_three, 18, 61
+				EMWriteScreen text_yn_three, 18, 76
+
+				EMSetCursor 19, 31
 				EMSendKey "<eraseEOF>"
+				EMWriteScreen addr_email, 19, 31
 			End If
-			If write_mail_line_two = "" Then
-				EMSetCursor 14, 43
-				EMSendKey "<eraseEOF>"
-			End If
-			If mail_city = "" Then
-				EMSetCursor 15, 43
-				EMSendKey "<eraseEOF>"
-			End If
-			If mail_zip = "" Then
-				EMSetCursor 16, 52
-				EMSendKey "<eraseEOF>"
-			End If
-
-	        call split_phone_number_into_parts(phone_one, phone_one_left, phone_one_mid, phone_one_right)
-	        call split_phone_number_into_parts(phone_two, phone_two_left, phone_two_mid, phone_two_right)
-	        call split_phone_number_into_parts(phone_three, phone_three_left, phone_three_mid, phone_three_right)
-
-	        EMWriteScreen phone_one_left, 17, 45
-	        EMWriteScreen phone_one_mid, 17, 51
-	        EMWriteScreen phone_one_right, 17, 55
-	        If type_one <> "Select One..." Then EMWriteScreen type_one, 17, 67
-
-	        EMWriteScreen phone_two_left, 18, 45
-	        EMWriteScreen phone_two_mid, 18, 51
-	        EMWriteScreen phone_two_right, 18, 55
-	        If type_two <> "Select One..." Then EMWriteScreen type_two, 18, 67
-
-	        EMWriteScreen phone_three_left, 19, 45
-	        EMWriteScreen phone_three_mid, 19, 51
-	        EMWriteScreen phone_three_right, 19, 55
-	        If type_three <> "Select One..." Then EMWriteScreen type_three, 19, 67
 
 	        save_attempt = 1
 	        Do
 	            transmit
-				MsgBox "Pause - " & save_attempt
+				' MsgBox "Pause - " & save_attempt
 	            EMReadScreen resi_standard_note, 33, 24, 2
 	            If resi_standard_note = "RESIDENCE ADDRESS IS STANDARDIZED" Then transmit
 	            EMReadScreen mail_standard_note, 31, 24, 2
@@ -2410,7 +2521,10 @@ If select_option = "Application/Renewal" Then
 		members_counter = members_counter + 1
 	Next
 
-	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_addr_panel_info, addr_update_attempted)
+	' Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit,                   mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_addr_panel_info, addr_update_attempted)
+	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
+
+
 	Call access_HEST_panel("READ", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
 	For shel_member = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
 		If ALL_SHEL_PANELS_ARRAY(shel_exists_const, shel_member) = True Then
@@ -2481,7 +2595,8 @@ If select_option = "Application/Renewal" Then
 
 	' If addr_update_attempted = True Then
 	addr_eff_date = MAXIS_footer_month & "/1/" & MAXIS_footer_year
-	Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_addr_panel_info, addr_update_attempted)
+	' Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit,                   mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_addr_panel_info, addr_update_attempted)
+	Call access_ADDR_panel("WRITE", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
 	For shel_member = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
 		' If ALL_SHEL_PANELS_ARRAY(attempted_update_const, shel_member) = True Then
 		Call access_SHEL_panel("WRITE", ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, shel_member), ALL_SHEL_PANELS_ARRAY(hud_sub_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(shared_yn_const, shel_member), ALL_SHEL_PANELS_ARRAY(paid_to_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(lot_rent_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(mortgage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(insurance_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(tax_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(room_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(garage_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_retro_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_amt_const, shel_member), ALL_SHEL_PANELS_ARRAY(subsidy_prosp_verif_const, shel_member), ALL_SHEL_PANELS_ARRAY(original_panel_info_const, shel_member))
@@ -2497,7 +2612,7 @@ End If
 If select_option = "Change" Then
 
 	Call read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, total_shel_original_information)
-	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_addr_panel_info, addr_update_attempted)
+	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
 	Call access_HEST_panel("READ", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
 
 	housing_questions_step = 1
