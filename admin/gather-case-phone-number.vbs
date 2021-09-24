@@ -93,20 +93,13 @@ Excel_row = 2
 Do
 	'Grabs the case number
 	MAXIS_case_number = objExcel.cells(excel_row, 1).value
-	Call navigate_to_MAXIS_screen("STAT", "ADDR")
+	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number_one, phone_number_two, phone_number_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 	'Checking for PRIV cases.
     EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case needs to skip
     IF priv_check <> "PRIVIL" THEN 'Delete priv cases from excel sheet, save to a list for later
-		Do
-			EMReadScreen ADDR_panel_check, 4, 2, 44
-			If ADDR_panel_check <> "ADDR" then PF10
-		Loop until ADDR_panel_check = "ADDR"
-		EMReadScreen phone_number_one, 16, 17, 43	' if phone numbers are blank it doesn't add them to EXCEL
-		If phone_number_one <> "( ___ ) ___ ____" then objExcel.cells(excel_row, 2).Value = phone_number_one
-		EMReadScreen phone_number_two, 16, 18, 43
-		If phone_number_two <> "( ___ ) ___ ____" then objExcel.cells(excel_row, 3).Value = phone_number_two
-		EMReadScreen phone_number_three, 16, 19, 43
-		If phone_number_three <> "( ___ ) ___ ____" then objExcel.cells(excel_row, 4).Value = phone_number_three
+		If phone_number_one <> "" then objExcel.cells(excel_row, 2).Value = phone_number_one
+		If phone_number_two <> "" then objExcel.cells(excel_row, 3).Value = phone_number_two
+		If phone_number_three <> "" then objExcel.cells(excel_row, 4).Value = phone_number_three
 	End if
 	excel_row = excel_row + 1
 	STATS_counter = STATS_counter + 1
