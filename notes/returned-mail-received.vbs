@@ -8,85 +8,6 @@ STATS_denomination = "C"        'C is for each case
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-    IF on_the_desert_island = TRUE Then
-        FuncLib_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\MASTER FUNCTIONS LIBRARY.vbs"
-        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
-        text_from_the_other_script = fso_command.ReadAll
-        fso_command.Close
-        Execute text_from_the_other_script
-    ELSEIF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
-		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		Else											'Everyone else should use the release branch.
-			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		End if
-		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
-		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
-		req.send													'Sends request
-		IF req.Status = 200 THEN									'200 means great success
-			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-			Execute req.responseText								'Executes the script code
-		ELSE														'Error message
-			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
-                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
-                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-            StopScript
-		END IF
-	ELSE
-		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
-		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
-		text_from_the_other_script = fso_command.ReadAll
-		fso_command.Close
-		Execute text_from_the_other_script
-	END IF
-END IF
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
-'CHANGELOG BLOCK ===========================================================================================================
-'Starts by defining a changelog array
-changelog = array()
-
-'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
-'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/12/2021", "GitHub Issue #309 Updated handling for current address confirmation.", "MiKayla Handley")
-call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
-call changelog_update("02/13/2020", "Updated the zip code to only allow for 5 characters.", "MiKayla Handley, Hennepin County")
-call changelog_update("06/06/2019", "Initial version. Rewritten per POLI/TEMP.", "MiKayla Handley, Hennepin County")
-'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
-changelog_display
-'END CHANGELOG BLOCK =======================================================================================================
-
-'THE SCRIPT--------------------------------------------------------------------------------------------------
-'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time]
-
-If trim(MAXIS_case_number) <> "" then
-    'Gathering the phone numbers
-    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number_one, phone_number_two, phone_number_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-
-    phone_number_list = "Select or Type|"
-    If phone_number_one <> "" Then phone_number_list = phone_number_list & phone_number_one & "|"
-    If phone_number_two <> "" Then phone_number_list = phone_number_list & phone_number_two & "|"
-    If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_number_three & "|"
-    phone_number_array = split(phone_number_list, "|")
-
-    Call convert_array_to_droplist_items(phone_number_array, phone_numbers)
-End if
-'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - RETURNED MAIL RECEIVED.vbs"
-start_time = timer
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 360          'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
-'END OF stats block=========================================================================================================
-
-'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
-IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
@@ -132,181 +53,6 @@ call changelog_update("06/06/2019", "Initial version. Re-written per POLI/TEMP."
 changelog_display
 
 'END CHANGELOG BLOCK =======================================================================================================
-FUNCTION read_ADDR_panel(addr_eff_date, addr_future_date, resi_addr_line_one, resi_addr_line_two, resi_addr_city, resi_addr_state, resi_addr_zip, mail_line_one, mail_line_two, mail_city_line, mail_state_line, mail_zip_line, living_situation, living_sit_line, homeless_line, addr_phone_1A)
-
-    Call navigate_to_MAXIS_screen("STAT", "ADDR")
-	EMReadScreen addr_eff_date, 8, 4, 43 'todo build in more handling for future dates '
-	EMReadScreen addr_future_date, 8, 4, 66
-	EMreadscreen resi_addr_line_one, 22, 6, 43
-	EMreadscreen resi_addr_line_two, 22, 7, 43
-	EMreadscreen resi_addr_city, 15, 8, 43
-	EMreadscreen resi_addr_state, 2, 8, 66
-	EMreadscreen resi_addr_zip, 7, 9, 43
-	EMreadscreen resi_addr_county, 2, 9, 66
-	EMreadscreen addr_verif, 2, 9, 74
-	EMreadscreen addr_homeless, 1, 10, 43
-	EMreadscreen addr_reservation, 1, 10, 74
-	EMreadscreen addr_phone_1A, 3, 17, 45	'Has to split phone numbers up into three parts each sometimes they are partially complete
-	EMreadscreen addr_phone_2B, 3, 17, 51
-	EMreadscreen addr_phone_3C, 4, 17, 55
-	EMreadscreen addr_phone_2A, 3, 18, 45
-	EMreadscreen addr_phone_2B, 3, 18, 51
-	EMreadscreen addr_phone_2C, 4, 18, 55
-	EMreadscreen addr_phone_3A, 3, 19, 45
-	EMreadscreen addr_phone_3B, 3, 19, 51
-	EMreadscreen addr_phone_3C, 4, 19, 55
-	EMReadScreen verif_line, 2, 9, 74
-	EMReadScreen homeless_line, 1, 10, 43
-	EMReadScreen reservation_line, 1, 10, 74
-	EMReadScreen living_sit_line, 2, 11, 43
-
-	EMReadScreen mail_line_one, 22, 13, 43
-	EMReadScreen mail_line_two, 22, 14, 43
-	EMReadScreen mail_city_line, 15, 15, 43
-	EMReadScreen mail_state_line, 2, 16, 43
-	EMReadScreen mail_zip_line, 7, 16, 52
-
-	addr_eff_date = replace(addr_eff_date, " ", "/")
-	addr_future_date = trim(addr_future_date)
-	addr_future_date = replace(addr_future_date, " ", "/")
-
-	resi_addr_line_one = replace(resi_addr_line_one, "_", "")
-    resi_addr_line_two = replace(resi_addr_line_two, "_", "")
-    resi_addr_city = replace(resi_addr_city, "_", "")
-    resi_addr_state = replace(resi_addr_state, "_", "")
-    resi_addr_zip = replace(resi_addr_zip, "_", "")
-
-	mail_line_one = replace(mail_line_one, "_", "")
-	mail_line_two = replace(mail_line_two, "_", "")
-	mail_city_line = replace(mail_city_line, "_", "")
-	mail_state_line = replace(mail_state_line, "_", "")
-	mail_zip_line = replace(mail_zip_line, "_", "")
-
-    If county_line = "01" Then addr_county = "01 Aitkin"
-    If county_line = "02" Then addr_county = "02 Anoka"
-    If county_line = "03" Then addr_county = "03 Becker"
-    If county_line = "04" Then addr_county = "04 Beltrami"
-    If county_line = "05" Then addr_county = "05 Benton"
-    If county_line = "06" Then addr_county = "06 Big Stone"
-    If county_line = "07" Then addr_county = "07 Blue Earth"
-    If county_line = "08" Then addr_county = "08 Brown"
-    If county_line = "09" Then addr_county = "09 Carlton"
-    If county_line = "10" Then addr_county = "10 Carver"
-    If county_line = "11" Then addr_county = "11 Cass"
-    If county_line = "12" Then addr_county = "12 Chippewa"
-    If county_line = "13" Then addr_county = "13 Chisago"
-    If county_line = "14" Then addr_county = "14 Clay"
-    If county_line = "15" Then addr_county = "15 Clearwater"
-    If county_line = "16" Then addr_county = "16 Cook"
-    If county_line = "17" Then addr_county = "17 Cottonwood"
-    If county_line = "18" Then addr_county = "18 Crow Wing"
-    If county_line = "19" Then addr_county = "19 Dakota"
-    If county_line = "20" Then addr_county = "20 Dodge"
-    If county_line = "21" Then addr_county = "21 Douglas"
-    If county_line = "22" Then addr_county = "22 Faribault"
-    If county_line = "23" Then addr_county = "23 Fillmore"
-    If county_line = "24" Then addr_county = "24 Freeborn"
-    If county_line = "25" Then addr_county = "25 Goodhue"
-    If county_line = "26" Then addr_county = "26 Grant"
-    If county_line = "27" Then addr_county = "27 Hennepin"
-    If county_line = "28" Then addr_county = "28 Houston"
-    If county_line = "29" Then addr_county = "29 Hubbard"
-    If county_line = "30" Then addr_county = "30 Isanti"
-    If county_line = "31" Then addr_county = "31 Itasca"
-    If county_line = "32" Then addr_county = "32 Jackson"
-    If county_line = "33" Then addr_county = "33 Kanabec"
-    If county_line = "34" Then addr_county = "34 Kandiyohi"
-    If county_line = "35" Then addr_county = "35 Kittson"
-    If county_line = "36" Then addr_county = "36 Koochiching"
-    If county_line = "37" Then addr_county = "37 Lac Qui Parle"
-    If county_line = "38" Then addr_county = "38 Lake"
-    If county_line = "39" Then addr_county = "39 Lake Of Woods"
-    If county_line = "40" Then addr_county = "40 Le Sueur"
-    If county_line = "41" Then addr_county = "41 Lincoln"
-    If county_line = "42" Then addr_county = "42 Lyon"
-    If county_line = "43" Then addr_county = "43 Mcleod"
-    If county_line = "44" Then addr_county = "44 Mahnomen"
-    If county_line = "45" Then addr_county = "45 Marshall"
-    If county_line = "46" Then addr_county = "46 Martin"
-    If county_line = "47" Then addr_county = "47 Meeker"
-    If county_line = "48" Then addr_county = "48 Mille Lacs"
-    If county_line = "49" Then addr_county = "49 Morrison"
-    If county_line = "50" Then addr_county = "50 Mower"
-    If county_line = "51" Then addr_county = "51 Murray"
-    If county_line = "52" Then addr_county = "52 Nicollet"
-    If county_line = "53" Then addr_county = "53 Nobles"
-    If county_line = "54" Then addr_county = "54 Norman"
-    If county_line = "55" Then addr_county = "55 Olmsted"
-    If county_line = "56" Then addr_county = "56 Otter Tail"
-    If county_line = "57" Then addr_county = "57 Pennington"
-    If county_line = "58" Then addr_county = "58 Pine"
-    If county_line = "59" Then addr_county = "59 Pipestone"
-    If county_line = "60" Then addr_county = "60 Polk"
-    If county_line = "61" Then addr_county = "61 Pope"
-    If county_line = "62" Then addr_county = "62 Ramsey"
-    If county_line = "63" Then addr_county = "63 Red Lake"
-    If county_line = "64" Then addr_county = "64 Redwood"
-    If county_line = "65" Then addr_county = "65 Renville"
-    If county_line = "66" Then addr_county = "66 Rice"
-    If county_line = "67" Then addr_county = "67 Rock"
-    If county_line = "68" Then addr_county = "68 Roseau"
-    If county_line = "69" Then addr_county = "69 St. Louis"
-    If county_line = "70" Then addr_county = "70 Scott"
-    If county_line = "71" Then addr_county = "71 Sherburne"
-    If county_line = "72" Then addr_county = "72 Sibley"
-    If county_line = "73" Then addr_county = "73 Stearns"
-    If county_line = "74" Then addr_county = "74 Steele"
-    If county_line = "75" Then addr_county = "75 Stevens"
-    If county_line = "76" Then addr_county = "76 Swift"
-    If county_line = "77" Then addr_county = "77 Todd"
-    If county_line = "78" Then addr_county = "78 Traverse"
-    If county_line = "79" Then addr_county = "79 Wabasha"
-    If county_line = "80" Then addr_county = "80 Wadena"
-    If county_line = "81" Then addr_county = "81 Waseca"
-    If county_line = "82" Then addr_county = "82 Washington"
-    If county_line = "83" Then addr_county = "83 Watonwan"
-    If county_line = "84" Then addr_county = "84 Wilkin"
-    If county_line = "85" Then addr_county = "85 Winona"
-    If county_line = "86" Then addr_county = "86 Wright"
-    If county_line = "87" Then addr_county = "87 Yellow Medicine"
-    If county_line = "89" Then addr_county = "89 Out-of-State"
-
-    If homeless_line = "Y" Then homeless_yn = "Yes"
-    If homeless_line = "N" Then homeless_yn = "No"
-    If reservation_line = "Y" Then reservation_yn = "Yes"
-    If reservation_line = "N" Then reservation_yn = "No"
-
-    If verif_line = "SF" Then addr_verif = "SF - Shelter Form"
-    If verif_line = "CO" Then addr_verif = "CO - Coltrl Stmt"
-    If verif_line = "MO" Then addr_verif = "MO - Mortgage Papers"
-    If verif_line = "TX" Then addr_verif = "TX - Prop Tax Stmt"
-    If verif_line = "CD" Then addr_verif = "CD - Contract for Deed"
-    If verif_line = "UT" Then addr_verif = "UT - Utility Stmt"
-    If verif_line = "DL" Then addr_verif = "DL - Driver Lic/State ID"
-    If verif_line = "OT" Then addr_verif = "OT - Other Document"
-    If verif_line = "NO" Then addr_verif = "NO - No Ver Prvd"
-    If verif_line = "?_" Then addr_verif = "? - Delayed"
-    If verif_line = "__" Then addr_verif = "Blank"
-
-    If living_sit_line = "__" Then living_situation = "Blank"
-    If living_sit_line = "01" Then living_situation = "01 - Own home, lease or roommate"
-    If living_sit_line = "02" Then living_situation = "02 - Family/Friends - economic hardship"
-    If living_sit_line = "03" Then living_situation = "03 - Servc prvdr- foster/group home"
-    If living_sit_line = "04" Then living_situation = "04 - Hospital/Treatment/Detox/Nursing Home"
-    If living_sit_line = "05" Then living_situation = "05 - Jail/Prison//Juvenile Det."
-    If living_sit_line = "06" Then living_situation = "06 - Hotel/Motel"
-    If living_sit_line = "07" Then living_situation = "07 - Emergency Shelter"
-    If living_sit_line = "08" Then living_situation = "08 - Place not meant for Housing"
-    If living_sit_line = "09" Then living_situation = "09 - Declined"
-    If living_sit_line = "10" Then living_situation = "10 - Unknown"
-
-    notes_on_address = "Address effective: " & addr_eff_date & "."
-    If mail_line_one <> "" Then
-        If mail_line_two = "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
-        If mail_line_two <> "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_line_two & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
-    End If
-    If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
-END FUNCTION
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
 'Connects to BLUEZONE
@@ -353,7 +99,8 @@ MAXIS_footer_month_confirmation
 CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
 
-CALL read_ADDR_panel(addr_eff_date, addr_future_date, resi_addr_line_one, resi_addr_line_two, resi_addr_city, resi_addr_state, resi_addr_zip, mail_line_one, mail_line_two, mail_city_line, mail_state_line, mail_zip_line, living_situation, living_sit_line, homeless_line, addr_phone_1A)
+' CALL read_ADDR_panel(addr_eff_date, addr_future_date, resi_addr_line_one, resi_addr_line_two,              resi_addr_city, resi_addr_state, resi_addr_zip,                                                                                              mail_line_one, mail_line_two,                   mail_city_line, mail_state_line, mail_zip_line, living_situation, living_sit_line, homeless_line, addr_phone_1A)
+Call access_ADDR_panel("READ", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_county, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city_line, mail_state_line, mail_zip_line, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
 EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to navigate'
 IF trim(case_invalid_error) <> "" THEN script_end_procedure("*** NOTICE!!! ***" & vbCr & case_invalid_error & vbCr & "Please resolve for the script to continue.")
@@ -370,15 +117,15 @@ BeginDialog Dialog1, 0, 0, 566, 105, "Returned Mail Information"
     OkButton 445, 85, 55, 15
     CancelButton 505, 85, 55, 15
   Text 10, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
-  Text 15, 30, 200, 10, resi_addr_line_one
-  Text 15, 40, 200, 10, resi_addr_line_two
+  ' Text 15, 30, 200, 10, resi_addr_line_one
+  Text 15, 40, 200, 10, resi_addr_street_full
   Text 15, 50, 205, 10, resi_addr_city &  " , "  & resi_addr_state & " , "   & resi_addr_zip
   Text 10, 90, 65, 10, "Notes on Address:"
   GroupBox 285, 5, 275, 75, "Mailing Address"
   Text 290, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
-  Text 295, 30, 200, 10, mail_line_one
-  Text 295, 40, 200, 10, mail_line_two
-  Text 295, 50, 205, 10, mail_city_line & " , "  & mail_state_line &  " , "  & mail_zip_line
+  ' Text 295, 30, 200, 10, mail_line_one
+  Text 295, 40, 200, 10, mail_street_full
+  If mail_city_line <> "" Then Text 295, 50, 205, 10, mail_city_line & " , "  & mail_state_line &  " , "  & mail_zip_line
   GroupBox 5, 5, 275, 75, "Residential Address in Maxis"
   Text 295, 65, 50, 10, "Effective Date:"
   Text 15, 65, 50, 10, "Future Date:"
@@ -450,7 +197,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 	IF ADDR_actions = "forwarding address outside MN" THEN county_code = "89 Out-of-State"
 	IF ADDR_actions = "forwarding address in MN"  THEN
 		new_addr_state = "MN"
-		reservation_addr = "NO"
+		reservation_addr = "No"
 		reservation_name = "N/A"
 	END IF
 
@@ -463,14 +210,14 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
           CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
           CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
           CheckBox 100, 25, 100, 10, "Change Report (DHS-2402)", CRF_checkbox
-          DropListBox 40, 60, 155, 15, "Select:"+chr(9)+"Own Housing: Lease, Mortgage, or Roommate"+chr(9)+"Family/Friends Due to Economic Hardship"+chr(9)+"Service Provider-Foster Care Group Home"+chr(9)+"Hospital/Treatment/Detox/Nursing Home"+chr(9)+"Jail/Prison/Juvenile Detention Center"+chr(9)+"Hotel/Motel"+chr(9)+"Emergency Shelter"+chr(9)+"Place Not Meant for Housing"+chr(9)+"Declined"+chr(9)+"Unknown", living_situation
+          DropListBox 40, 60, 155, 15, "Select:"+chr(9)+"01 - Own home, lease or roomate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown", living_situation
           EditBox 40, 80, 155, 15, new_addr_line_one
           EditBox 40, 100, 155, 15, new_addr_line_two
           EditBox 40, 120, 155, 15, new_addr_city
           EditBox 40, 140, 20, 15, new_addr_state
           EditBox 155, 140, 40, 15, new_addr_zip
-          DropListBox 55, 165, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", homeless_addr_yn
-          DropListBox 55, 185, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", reservation_addr_yn
+          DropListBox 55, 165, 40, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", homeless_addr
+          DropListBox 55, 185, 40, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", reservation_addr
           DropListBox 130, 165, 65, 15, "Select:"+chr(9)+ county_list, county_code
           DropListBox 55, 205, 140, 15, "Select:"+chr(9)+"N/A"+chr(9)+"Bois Forte-Nett Lake"+chr(9)+"Bois Forte-Vermillion Lk"+chr(9)+"Fond du Lac"+chr(9)+"Grand Portage"+chr(9)+"Leach Lake"+chr(9)+"Lower Sioux"+chr(9)+"Mille Lacs"+chr(9)+"Prairie Island Community"+chr(9)+"Red Lake"+chr(9)+"Shakopee Mdewakanton"+chr(9)+"Upper Sioux"+chr(9)+"White Earth", reservation_name
           DropListBox 140, 230, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr_correspondence
@@ -504,10 +251,10 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
     			IF new_addr_city = "" THEN err_msg = err_msg & vbCr & "Please complete the city in which the client in now living."
     			IF new_addr_state = "" THEN err_msg = err_msg & vbCr & "Please complete the state in which the client in now living."
     			IF new_addr_zip = "" OR (new_addr_zip <> "" AND len(new_addr_zip) > 5) THEN err_msg = err_msg & vbNewLine & "Please only enter a 5 digit zip code."     'Makes sure there is a numeric zip
-    			IF homeless_addr_yn = "Select:" THEN err_msg = err_msg & vbCr & "Please advise whether the client has reported homelessness."
+    			IF homeless_addr = "Select:" THEN err_msg = err_msg & vbCr & "Please advise whether the client has reported homelessness."
     			IF living_situation = "Select:" THEN err_msg = err_msg & vbCr & "Please select the client's living situation - Unknown should not if it is avoidable."
     			IF reservation_addr = "Select:" THEN err_msg = err_msg & vbCr & "Please select if client is living on the reservation."
-    			IF reservation_addr = "YES" THEN
+    			IF reservation_addr = "Yes" THEN
     				IF reservation_name = "Select:" THEN err_msg = err_msg & vbCr & "Please select the name of the reservation the client is living on."
     			END IF
     			IF mets_addr_correspondence = "Select:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
@@ -519,30 +266,13 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
     		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to password back into MAXIS
     	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-		county_code_number = left(county_code, 2)
-		county_code = right(county_code, len(county_code)-3)
-
     	new_addr_line_one = trim(new_addr_line_one)
         new_addr_line_two = trim(new_addr_line_two)
         new_addr_city = trim(new_addr_city)
         new_addr_state = trim(new_addr_state)
         new_addr_zip = trim(new_addr_zip)
 
-		IF homeless_addr_yn = "YES" THEN homeless_addr = "Y"
-		IF homeless_addr_yn = "NO" THEN homeless_addr = "N"
-		IF reservation_addr_yn = "YES" THEN reservation_addr = "Y"
-		IF reservation_addr_yn = "NO" THEN reservation_addr = "N"
-
-		IF living_situation = "Own Housing: Lease, Mortgage or Roommate" THEN living_situation_code = "01"
-		IF living_situation = "Family/Friends Due to Economic Hardship" THEN living_situation_code = "02"
-		IF living_situation = "Service Provider-Foster Care Group Home" THEN living_situation_code = "03"
-		IF living_situation = "Hospital/Treatment/Detox/Nursing Home" THEN living_situation_code = "04"
-		IF living_situation = "Jail/Prison/Juvenile Detention Center" THEN living_situation_code = "05"
-		IF living_situation = "Hotel/Motel" THEN living_situation_code = "06"
-		IF living_situation = "Emergency Shelter" THEN living_situation_code = "07"
-		IF living_situation = "Place Not Meant for housing" THEN living_situation_code = "08"
-		IF living_situation = "Declined" THEN living_situation_code = "09"
-		IF living_situation = "Unknown" THEN living_situation_code = "10"
+		living_situation_code = left(living_situation, 2)
 
 		IF reservation_name = "Bois Forte-Deer Creek" THEN reservation_code = "BD"
 		IF reservation_name = "Bois Forte-Nett Lake" THEN reservation_code = "BN"
@@ -559,60 +289,39 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 		IF reservation_name = "White Earth" THEN reservation_code = "WE"
 
        'Go to ADDR to update
-        Call navigate_to_MAXIS_screen("STAT", "ADDR")
-		PF9
-		EMWriteScreen MAXIS_footer_month, 04, 43 'to avoid error_msg = "PANEL EFFECTIVE DATE MUST EQUAL BENEFIT MONTH/YEAR" '
-		EMWriteScreen "01", 04, 46 'using the first to default '
-		EMWriteScreen MAXIS_footer_year, 04, 49
-        ' the reason we are clearing the residence ADDR here is because we get an inhibiting message so we have to clear the residence - residence is required mailing is not but mailing is what is used for ECF
 		IF residential_address_confirmed = "YES" THEN
-    	    Call clear_line_of_text(6, 43)'Residence street'
-    	    Call clear_line_of_text(7, 43)'Residence street line two'
-    	    Call clear_line_of_text(8, 43)'Residence City'
-    	    Call clear_line_of_text(9, 43)'Residence zip'
+			original_resi_addr_line_one = resi_addr_line_one
+			original_resi_addr_line_two = resi_addr_line_two
+			original_resi_addr_city = resi_addr_city
+			original_resi_addr_state = resi_addr_state
+			original_resi_addr_zip = resi_addr_zip
 
-            EMwritescreen new_addr_line_one, 6, 43'New residence street'
-            EMwritescreen new_addr_line_two, 7, 43 ' New residence street line two'
-            EMwritescreen new_addr_city, 8, 43 'new mailing City'
-            EMwritescreen new_addr_state, 8, 66 'new mailing state'
-            EMwritescreen new_addr_zip, 9, 43
-		END IF
+			resi_addr_line_one = new_addr_line_one
+			resi_addr_line_two = new_addr_line_two
+			resi_addr_city = new_addr_city
+			resi_addr_state = new_addr_state
+			resi_addr_zip = new_addr_zip
+		End If
 		IF mailing_address_confirmed = "YES" THEN
-            Call clear_line_of_text(13, 43)'Mailing Street'
-            Call clear_line_of_text(14, 43)'Mailing street line two'
-            Call clear_line_of_text(15, 43)'Mailing City'
-            Call clear_line_of_text(16, 43)'Mailing Zip'
+			original_mail_line_one = mail_line_one
+			original_mail_line_two = mail_line_two
+			original_mail_city_line = mail_city_line
+			original_mail_state_line = mail_state_line
+			original_mail_zip_line = mail_zip_line
 
-    	    EMwritescreen new_addr_line_one, 13, 43
-            EMwritescreen new_addr_line_two, 14, 43
-            EMwritescreen new_addr_city, 15, 43 'new mailing City'
-            EMwritescreen new_addr_state, 16, 43'new mailing state'
-            EMwritescreen new_addr_zip, 16, 52
-		END IF
-        IF ADDR_phone_1A = "___" THEN Call clear_line_of_text(17, 67)'removing phone code if no number is provided'
-        EMwritescreen county_code_number, 9, 66
-        EMwritescreen "OT", 9, 74
-        EMwritescreen homeless_addr, 10, 43
-        EMwritescreen reservation_addr, 10, 74 'yes no'
-        IF reservation_addr = "N" THEN Call clear_line_of_text(11, 74) 'removing the reservation name'
-        EMwritescreen reservation_code, 11, 74 'Name of Reservation'
-        EMwritescreen living_situation_code, 11, 43
-	    TRANSMIT
-		EMReadScreen pop_up_msg, 51, 3, 6 ' this is the message at the top of the screen Warning: Mail to this Residence address will not be
-		IF pop_up_msg = "Warning: Mail to this Residence address will not be" THEN ' MAILING ADDRESS IS STANDARDIZED'
-			MsgBox "*** NOTICE!!! ***" & vbNewLine & "MAILING ADDRESS IS NOT STANDARDIZED" & vbNewLine
-			TRANSMIT ' mail will not be delivered confirm'
-		END IF
-		TRANSMIT' confirm popup
-		TRANSMIT 'confirm address
-	    EMReadScreen error_msg, 75, 24, 2 ' this is the message at the bottom of the screen'
-	    error_msg = TRIM(error_msg)
-	    IF error_msg <> "" THEN
-	    	MsgBox "*** NOTICE!!! ***" & vbNewLine & error_msg & vbNewLine
-	    	IF error_msg = "WARNING: EFFECTIVE DATE HAS CHANGED - REVIEW LIVING SITUATION" THEN 'This is the only one i don't care about'
-				TRANSMIT
-			END IF
-	    END IF
+			mail_line_one = new_addr_line_one
+			mail_line_two = new_addr_line_two
+			mail_city_line = new_addr_city
+			mail_state_line = new_addr_state
+			mail_zip_line = new_addr_zip
+		End If
+
+		IF residential_address_confirmed = "YES" OR mailing_address_confirmed = "YES" THEN
+			begining_of_footer_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+			begining_of_footer_month = DateAdd("d", 0, begining_of_footer_month)
+			If DateDiff("d", begining_of_footer_month, addr_eff_date) > 0 Then begining_of_footer_month = addr_eff_date
+			Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city_line, mail_state_line, mail_zip_line, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+		End If
 	END IF
 
     IF ADDR_actions = "no response received" THEN
@@ -742,15 +451,15 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Received on", date_received)
  'Address Detail
  IF mailing_address_confirmed = "YES" THEN
  	Call write_variable_in_CASE_NOTE("* The address on ADDR was reviewed and is correct.")
-	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & mail_line_one)
-	CALL write_variable_in_CASE_NOTE("                             " & mail_line_two & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
+	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & original_mail_line_one)
+	CALL write_variable_in_CASE_NOTE("                             " & original_mail_line_two & original_mail_city_line & ", " & original_mail_state_line & " " &   original_mail_zip_line)
  ELSE
-	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & resi_addr_line_one)
-	CALL write_variable_in_CASE_NOTE("                               " & resi_addr_line_two & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
+	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & original_resi_addr_line_one)
+	CALL write_variable_in_CASE_NOTE("                               " & original_resi_addr_line_two & original_resi_addr_city & ", " & original_resi_addr_state & " " & original_resi_addr_zip)
 END IF
-IF homeless_addr_yn = "YES" Then Call write_variable_in_CASE_NOTE("* Household is homeless")
+IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household is homeless")
 Call write_variable_in_CASE_NOTE("* Mail received reports living in: " & county_code & " County and CM 0008.06.21 - was reviewed if applicable")
-IF reservation_addr = "YES" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
+IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
 Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
 IF ADDR_actions <> "no response recieved"  THEN
