@@ -1367,6 +1367,515 @@ Function ABAWD_FSET_exemption_finder()
     STATS_counter = STATS_counter - 1		'Removing one instance from the STATS Counter as it started with one at the beginning
 End Function
 
+function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+	access_type = UCase(access_type)
+    If access_type = "READ" Then
+        Call navigate_to_MAXIS_screen("STAT", "ADDR")
+		EMReadScreen curr_addr_footer_month, 2, 20, 55
+		EMReadScreen curr_addr_footer_year, 2, 20, 58
+		the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year
+		the_footer_month_date = DateAdd("d", 0, the_footer_month_date)
+		new_version = True
+		If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False
+		' MsgBox "the footer date - " & the_footer_month_date & vbCr & "oct 1 - " & #10/1/2021# & vbCr & "date diff - " & DateDiff("d", the_footer_month_date, #10/1/2021#) & vbCr & "new version - " & new_version
+
+        EMReadScreen line_one, 22, 6, 43
+        EMReadScreen line_two, 22, 7, 43
+        EMReadScreen city_line, 15, 8, 43
+        EMReadScreen state_line, 2, 8, 66
+        EMReadScreen zip_line, 7, 9, 43
+        EMReadScreen county_line, 2, 9, 66
+        EMReadScreen verif_line, 2, 9, 74
+        EMReadScreen homeless_line, 1, 10, 43
+        EMReadScreen reservation_line, 1, 10, 74
+        EMReadScreen living_sit_line, 2, 11, 43
+		EMReadScreen reservation_name, 1, 10, 74
+
+        resi_line_one = replace(line_one, "_", "")
+        resi_line_two = replace(line_two, "_", "")
+		resi_street_full = trim(resi_line_one & " " & resi_line_two)
+        resi_city = replace(city_line, "_", "")
+        resi_zip = replace(zip_line, "_", "")
+
+        If county_line = "01" Then addr_county = "01 Aitkin"
+        If county_line = "02" Then addr_county = "02 Anoka"
+        If county_line = "03" Then addr_county = "03 Becker"
+        If county_line = "04" Then addr_county = "04 Beltrami"
+        If county_line = "05" Then addr_county = "05 Benton"
+        If county_line = "06" Then addr_county = "06 Big Stone"
+        If county_line = "07" Then addr_county = "07 Blue Earth"
+        If county_line = "08" Then addr_county = "08 Brown"
+        If county_line = "09" Then addr_county = "09 Carlton"
+        If county_line = "10" Then addr_county = "10 Carver"
+        If county_line = "11" Then addr_county = "11 Cass"
+        If county_line = "12" Then addr_county = "12 Chippewa"
+        If county_line = "13" Then addr_county = "13 Chisago"
+        If county_line = "14" Then addr_county = "14 Clay"
+        If county_line = "15" Then addr_county = "15 Clearwater"
+        If county_line = "16" Then addr_county = "16 Cook"
+        If county_line = "17" Then addr_county = "17 Cottonwood"
+        If county_line = "18" Then addr_county = "18 Crow Wing"
+        If county_line = "19" Then addr_county = "19 Dakota"
+        If county_line = "20" Then addr_county = "20 Dodge"
+        If county_line = "21" Then addr_county = "21 Douglas"
+        If county_line = "22" Then addr_county = "22 Faribault"
+        If county_line = "23" Then addr_county = "23 Fillmore"
+        If county_line = "24" Then addr_county = "24 Freeborn"
+        If county_line = "25" Then addr_county = "25 Goodhue"
+        If county_line = "26" Then addr_county = "26 Grant"
+        If county_line = "27" Then addr_county = "27 Hennepin"
+        If county_line = "28" Then addr_county = "28 Houston"
+        If county_line = "29" Then addr_county = "29 Hubbard"
+        If county_line = "30" Then addr_county = "30 Isanti"
+        If county_line = "31" Then addr_county = "31 Itasca"
+        If county_line = "32" Then addr_county = "32 Jackson"
+        If county_line = "33" Then addr_county = "33 Kanabec"
+        If county_line = "34" Then addr_county = "34 Kandiyohi"
+        If county_line = "35" Then addr_county = "35 Kittson"
+        If county_line = "36" Then addr_county = "36 Koochiching"
+        If county_line = "37" Then addr_county = "37 Lac Qui Parle"
+        If county_line = "38" Then addr_county = "38 Lake"
+        If county_line = "39" Then addr_county = "39 Lake Of Woods"
+        If county_line = "40" Then addr_county = "40 Le Sueur"
+        If county_line = "41" Then addr_county = "41 Lincoln"
+        If county_line = "42" Then addr_county = "42 Lyon"
+        If county_line = "43" Then addr_county = "43 Mcleod"
+        If county_line = "44" Then addr_county = "44 Mahnomen"
+        If county_line = "45" Then addr_county = "45 Marshall"
+        If county_line = "46" Then addr_county = "46 Martin"
+        If county_line = "47" Then addr_county = "47 Meeker"
+        If county_line = "48" Then addr_county = "48 Mille Lacs"
+        If county_line = "49" Then addr_county = "49 Morrison"
+        If county_line = "50" Then addr_county = "50 Mower"
+        If county_line = "51" Then addr_county = "51 Murray"
+        If county_line = "52" Then addr_county = "52 Nicollet"
+        If county_line = "53" Then addr_county = "53 Nobles"
+        If county_line = "54" Then addr_county = "54 Norman"
+        If county_line = "55" Then addr_county = "55 Olmsted"
+        If county_line = "56" Then addr_county = "56 Otter Tail"
+        If county_line = "57" Then addr_county = "57 Pennington"
+        If county_line = "58" Then addr_county = "58 Pine"
+        If county_line = "59" Then addr_county = "59 Pipestone"
+        If county_line = "60" Then addr_county = "60 Polk"
+        If county_line = "61" Then addr_county = "61 Pope"
+        If county_line = "62" Then addr_county = "62 Ramsey"
+        If county_line = "63" Then addr_county = "63 Red Lake"
+        If county_line = "64" Then addr_county = "64 Redwood"
+        If county_line = "65" Then addr_county = "65 Renville"
+        If county_line = "66" Then addr_county = "66 Rice"
+        If county_line = "67" Then addr_county = "67 Rock"
+        If county_line = "68" Then addr_county = "68 Roseau"
+        If county_line = "69" Then addr_county = "69 St. Louis"
+        If county_line = "70" Then addr_county = "70 Scott"
+        If county_line = "71" Then addr_county = "71 Sherburne"
+        If county_line = "72" Then addr_county = "72 Sibley"
+        If county_line = "73" Then addr_county = "73 Stearns"
+        If county_line = "74" Then addr_county = "74 Steele"
+        If county_line = "75" Then addr_county = "75 Stevens"
+        If county_line = "76" Then addr_county = "76 Swift"
+        If county_line = "77" Then addr_county = "77 Todd"
+        If county_line = "78" Then addr_county = "78 Traverse"
+        If county_line = "79" Then addr_county = "79 Wabasha"
+        If county_line = "80" Then addr_county = "80 Wadena"
+        If county_line = "81" Then addr_county = "81 Waseca"
+        If county_line = "82" Then addr_county = "82 Washington"
+        If county_line = "83" Then addr_county = "83 Watonwan"
+        If county_line = "84" Then addr_county = "84 Wilkin"
+        If county_line = "85" Then addr_county = "85 Winona"
+        If county_line = "86" Then addr_county = "86 Wright"
+        If county_line = "87" Then addr_county = "87 Yellow Medicine"
+        If county_line = "89" Then addr_county = "89 Out-of-State"
+        resi_county = addr_county
+
+		Call get_state_name_from_state_code(state_line, resi_state, TRUE)		'This function makes the state code to be the state name written out - including the code
+
+        If homeless_line = "Y" Then addr_homeless = "Yes"
+        If homeless_line = "N" Then addr_homeless = "No"
+        If reservation_line = "Y" Then addr_reservation = "Yes"
+        If reservation_line = "N" Then addr_reservation = "No"
+
+		If reservation_name = "" Then reservation_name = ""
+
+        If verif_line = "SF" Then addr_verif = "SF - Shelter Form"
+        If verif_line = "Co" Then addr_verif = "CO - Coltrl Stmt"
+        If verif_line = "MO" Then addr_verif = "MO - Mortgage Papers"
+        If verif_line = "TX" Then addr_verif = "TX - Prop Tax Stmt"
+        If verif_line = "CD" Then addr_verif = "CD - Contrct for Deed"
+        If verif_line = "UT" Then addr_verif = "UT - Utility Stmt"
+        If verif_line = "DL" Then addr_verif = "DL - Driver Lic/State ID"
+        If verif_line = "OT" Then addr_verif = "OT - Other Document"
+        If verif_line = "NO" Then addr_verif = "NO - No Verif"
+        If verif_line = "?_" Then addr_verif = "? - Delayed"
+        If verif_line = "__" Then addr_verif = "Blank"
+
+
+        If living_sit_line = "__" Then living_situation = "Blank"
+        If living_sit_line = "01" Then living_situation = "01 - Own home, lease or roomate"
+        If living_sit_line = "02" Then living_situation = "02 - Family/Friends - economic hardship"
+        If living_sit_line = "03" Then living_situation = "03 -  servc prvdr- foster/group home"
+        If living_sit_line = "04" Then living_situation = "04 - Hospital/Treatment/Detox/Nursing Home"
+        If living_sit_line = "05" Then living_situation = "05 - Jail/Prison//Juvenile Det."
+        If living_sit_line = "06" Then living_situation = "06 - Hotel/Motel"
+        If living_sit_line = "07" Then living_situation = "07 - Emergency Shelter"
+        If living_sit_line = "08" Then living_situation = "08 - Place not meant for Housing"
+        If living_sit_line = "09" Then living_situation = "09 - Declined"
+        If living_sit_line = "10" Then living_situation = "10 - Unknown"
+        addr_living_sit = living_situation
+
+        EMReadScreen addr_eff_date, 8, 4, 43
+        EMReadScreen addr_future_date, 8, 4, 66
+
+		If new_version = False Then
+	        EMReadScreen mail_line_one, 22, 13, 43
+	        EMReadScreen mail_line_two, 22, 14, 43
+	        EMReadScreen mail_city_line, 15, 15, 43
+	        EMReadScreen mail_state_line, 2, 16, 43
+	        EMReadScreen mail_zip_line, 7, 16, 52
+
+			EMReadScreen phone_one, 14, 17, 45
+			EMReadScreen phone_two, 14, 18, 45
+			EMReadScreen phone_three, 14, 19, 45
+
+			EMReadScreen type_one, 1, 17, 67
+			EMReadScreen type_two, 1, 18, 67
+			EMReadScreen type_three, 1, 19, 67
+		End If
+
+		If new_version = True Then
+			EMReadScreen mail_line_one, 22, 12, 49
+			EMReadScreen mail_line_two, 22, 13, 49
+			EMReadScreen mail_city_line, 15, 14, 49
+			EMReadScreen mail_state_line, 2, 15, 49
+			EMReadScreen mail_zip_line, 7, 15, 58
+
+			EMReadScreen phone_one, 14, 16, 39
+			EMReadScreen phone_two, 14, 17, 39
+			EMReadScreen phone_three, 14, 18, 39
+
+			EMReadScreen type_one, 1, 16, 61
+			EMReadScreen type_two, 1, 17, 61
+			EMReadScreen type_three, 1, 18, 61
+
+			EMReadScreen text_yn_one, 1, 16, 76
+			EMReadScreen text_yn_two, 1, 17, 76
+			EMReadScreen text_yn_three, 1, 18, 76
+
+			EMReadScreen addr_email, 50, 19, 31
+		End If
+
+        addr_eff_date = replace(addr_eff_date, " ", "/")
+        addr_future_date = trim(addr_future_date)
+        addr_future_date = replace(addr_future_date, " ", "/")
+        mail_line_one = replace(mail_line_one, "_", "")
+        mail_line_two = replace(mail_line_two, "_", "")
+		mail_street_full = trim(mail_line_one & " " & mail_line_two)
+        mail_city = replace(mail_city_line, "_", "")
+        mail_state = replace(mail_state_line, "_", "")
+        mail_zip = replace(mail_zip_line, "_", "")
+
+        notes_on_address = "Address effective: " & addr_eff_date & "."
+        ' If mail_line_one <> "" Then
+        '     If mail_line_two = "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
+        '     If mail_line_two <> "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_line_two & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
+        ' End If
+        If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
+
+        phone_one = replace(phone_one, " ) ", "-")
+        phone_one = replace(phone_one, " ", "-")
+        If phone_one = "___-___-____" Then phone_one = ""
+
+        phone_two = replace(phone_two, " ) ", "-")
+        phone_two = replace(phone_two, " ", "-")
+        If phone_two = "___-___-____" Then phone_two = ""
+
+        phone_three = replace(phone_three, " ) ", "-")
+        phone_three = replace(phone_three, " ", "-")
+        If phone_three = "___-___-____" Then phone_three = ""
+
+        If type_one = "H" Then type_one = "H - Home"
+        If type_one = "W" Then type_one = "W - Work"
+        If type_one = "C" Then type_one = "C - Cell"
+        If type_one = "M" Then type_one = "M - Message"
+        If type_one = "T" Then type_one = "T - TTY/TDD"
+        If type_one = "_" Then type_one = ""
+
+        If type_two = "H" Then type_two = "H - Home"
+        If type_two = "W" Then type_two = "W - Work"
+        If type_two = "C" Then type_two = "C - Cell"
+        If type_two = "M" Then type_two = "M - Message"
+        If type_two = "T" Then type_two = "T - TTY/TDD"
+        If type_two = "_" Then type_two = ""
+
+        If type_three = "H" Then type_three = "H - Home"
+        If type_three = "W" Then type_three = "W - Work"
+        If type_three = "C" Then type_three = "C - Cell"
+        If type_three = "M" Then type_three = "M - Message"
+        If type_three = "T" Then type_three = "T - TTY/TDD"
+        If type_three = "_" Then type_three = ""
+
+		Do
+			If right(addr_email, 1) = "_" Then addr_email = left(addr_email, len(addr_email) - 1)
+		Loop Until right(addr_email, 1) <> "_"
+
+		original_information = resi_line_one&"|"&resi_line_two&"|"&resi_street_full&"|"&resi_city&"|"&resi_state&"|"&resi_zip&"|"&resi_county&"|"&addr_verif&"|"&_
+							   addr_homeless&"|"&addr_reservation&"|"&addr_living_sit&"|"&mail_line_one&"|"&mail_line_two&"|"&mail_street_full&"|"&mail_city&"|"&_
+							   mail_state&"|"&mail_zip&"|"&addr_eff_date&"|"&addr_future_date&"|"&phone_one&"|"&phone_two&"|"&phone_three&"|"&type_one&"|"&type_two&"|"&type_three&"|"&verif_received
+    End If
+
+    If access_type = "WRITE" Then
+		' verif_received 'add functionality to change how this is updated based on if we have verif or not.
+
+		update_attempted = False
+		resi_line_one = trim(resi_line_one)
+		resi_line_two = trim(resi_line_two)
+		resi_street_full = trim(resi_street_full)
+		resi_city = trim(resi_city)
+		resi_state = trim(resi_state)
+		resi_zip = trim(resi_zip)
+		resi_county = trim(resi_county)
+		addr_verif = trim(addr_verif)
+		addr_homeless = trim(addr_homeless)
+		addr_reservation = trim(addr_reservation)
+		addr_living_sit = trim(addr_living_sit)
+		mail_line_one = trim(mail_line_one)
+		mail_line_two = trim(mail_line_two)
+		mail_street_full = trim(mail_street_full)
+		mail_city = trim(mail_city)
+		mail_state = trim(mail_state)
+		mail_zip = trim(mail_zip)
+		addr_eff_date = trim(addr_eff_date)
+		addr_future_date = trim(addr_future_date)
+		phone_one = trim(phone_one)
+		phone_two = trim(phone_two)
+		phone_three = trim(phone_three)
+		type_one = trim(type_one)
+		type_two = trim(type_two)
+		type_three = trim(type_three)
+		verif_received = trim(verif_received)
+
+		current_information = resi_line_one&"|"&resi_line_two&"|"&resi_street_full&"|"&resi_city&"|"&resi_state&"|"&resi_zip&"|"&resi_county&"|"&addr_verif&"|"&_
+							  addr_homeless&"|"&addr_reservation&"|"&addr_living_sit&"|"&mail_line_one&"|"&mail_line_two&"|"&mail_street_full&"|"&mail_city&"|"&_
+							  mail_state&"|"&mail_zip&"|"&addr_eff_date&"|"&addr_future_date&"|"&phone_one&"|"&phone_two&"|"&phone_three&"|"&type_one&"|"&type_two&"|"&type_three&"|"&verif_received
+
+
+		' MsgBox "THIS" & vbCR & "ORIGINAL" & vbCr & original_information & vbCr & vbCr & "CURRENT" & vbCr & current_information
+		If current_information <> original_information Then
+			update_attempted = True
+
+	        Call navigate_to_MAXIS_screen("STAT", "ADDR")
+			EMReadScreen curr_addr_footer_month, 2, 20, 55
+			EMReadScreen curr_addr_footer_year, 2, 20, 58
+			the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year
+			the_footer_month_date = DateAdd("d", 0, the_footer_month_date)
+			new_version = True
+			If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False
+
+	        PF9
+
+	        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
+
+			If resi_street_full <> "" AND resi_line_one = "" Then resi_line_one = resi_street_full
+	        If len(resi_line_one) > 22 Then
+	            resi_words = split(resi_line_one, " ")
+	            write_resi_line_one = ""
+	            write_resi_line_two = ""
+	            For each word in resi_words
+	                If write_resi_line_one = "" Then
+	                    write_resi_line_one = word
+	                ElseIf len(write_resi_line_one & " " & word) =< 22 Then
+	                    write_resi_line_one = write_resi_line_one & " " & word
+	                Else
+	                    If write_resi_line_two = "" Then
+	                        write_resi_line_two = word
+	                    Else
+	                        write_resi_line_two = write_resi_line_two & " " & word
+	                    End If
+	                End If
+	            Next
+	        Else
+	            write_resi_line_one = resi_line_one
+	        End If
+	        EMWriteScreen write_resi_line_one, 6, 43
+	        EMWriteScreen write_resi_line_two, 7, 43
+	        EMWriteScreen resi_city, 8, 43
+	        EMWriteScreen left(resi_county, 2), 9, 66
+	        EMWriteScreen left(resi_state, 2), 8, 66
+	        EMWriteScreen resi_zip, 9, 43
+			If addr_living_sit <> "Blank" AND addr_living_sit <> "Select" AND len(addr_living_sit) >=2 Then EMWriteScreen left(addr_living_sit, 2), 11, 43
+
+	        EMWriteScreen left(addr_verif, 2), 9, 74
+
+			If mail_street_full <> "" AND mail_line_one = "" Then mail_line_one = mail_street_full
+	        If len(mail_line_one) > 22 Then
+	            mail_words = split(mail_line_one, " ")
+	            write_mail_line_one = ""
+	            write_mail_line_two = ""
+	            For each word in mail_words
+	                If write_mail_line_one = "" Then
+	                    write_mail_line_one = word
+	                ElseIf len(write_mail_line_one & " " & word) =< 22 Then
+	                    write_mail_line_one = write_mail_line_one & " " & word
+	                Else
+	                    If write_mail_line_two = "" Then
+	                        write_mail_line_two = word
+	                    Else
+	                        write_mail_line_two = write_mail_line_two & " " & word
+	                    End If
+	                End If
+	            Next
+	        Else
+	            write_mail_line_one = mail_line_one
+	        End If
+
+			If new_version = False then
+				If mail_street_full = "" Then
+					EMSetCursor 13, 43
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 14, 43
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 16, 43
+					EMSendKey "<eraseEOF>"
+				End If
+				If write_mail_line_one = "" Then
+					EMSetCursor 13, 43
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 16, 43
+					EMSendKey "<eraseEOF>"
+				End If
+				If write_mail_line_two = "" Then
+					EMSetCursor 14, 43
+					EMSendKey "<eraseEOF>"
+				End If
+				If mail_city = "" Then
+					EMSetCursor 15, 43
+					EMSendKey "<eraseEOF>"
+				End If
+				If mail_zip = "" Then
+					EMSetCursor 16, 52
+					EMSendKey "<eraseEOF>"
+				End If
+				EMWriteScreen write_mail_line_one, 13, 43
+				EMWriteScreen write_mail_line_two, 14, 43
+				EMWriteScreen mail_city, 15, 43
+				If write_mail_line_one <> "" Then EMWriteScreen left(mail_state, 2), 16, 43
+				EMWriteScreen mail_zip, 16, 52
+
+		        call split_phone_number_into_parts(phone_one, phone_one_left, phone_one_mid, phone_one_right)
+		        call split_phone_number_into_parts(phone_two, phone_two_left, phone_two_mid, phone_two_right)
+		        call split_phone_number_into_parts(phone_three, phone_three_left, phone_three_mid, phone_three_right)
+
+		        EMWriteScreen phone_one_left, 17, 45
+		        EMWriteScreen phone_one_mid, 17, 51
+		        EMWriteScreen phone_one_right, 17, 55
+		        If type_one <> "Select One..." Then EMWriteScreen type_one, 17, 67
+
+		        EMWriteScreen phone_two_left, 18, 45
+		        EMWriteScreen phone_two_mid, 18, 51
+		        EMWriteScreen phone_two_right, 18, 55
+		        If type_two <> "Select One..." Then EMWriteScreen type_two, 18, 67
+
+		        EMWriteScreen phone_three_left, 19, 45
+		        EMWriteScreen phone_three_mid, 19, 51
+		        EMWriteScreen phone_three_right, 19, 55
+		        If type_three <> "Select One..." Then EMWriteScreen type_three, 19, 67
+			End If
+
+			If new_version = True then
+				If mail_street_full = "" Then
+					EMSetCursor 12, 49
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 13, 49
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 15, 49
+					EMSendKey "<eraseEOF>"
+				End If
+				If write_mail_line_one = "" Then
+					EMSetCursor 12, 49
+					EMSendKey "<eraseEOF>"
+
+					EMSetCursor 15, 49
+					EMSendKey "<eraseEOF>"
+				End If
+				If write_mail_line_two = "" Then
+					EMSetCursor 13, 49
+					EMSendKey "<eraseEOF>"
+				End If
+				If mail_city = "" Then
+					EMSetCursor 14, 49
+					EMSendKey "<eraseEOF>"
+				End If
+				If mail_zip = "" Then
+					EMSetCursor 15, 58
+					EMSendKey "<eraseEOF>"
+				End If
+				EMWriteScreen write_mail_line_one, 12, 49
+		        EMWriteScreen write_mail_line_two, 13, 49
+		        EMWriteScreen mail_city, 14, 49
+		        If write_mail_line_one <> "" Then EMWriteScreen left(mail_state, 2), 15, 49
+		        EMWriteScreen mail_zip, 15, 58
+
+		        call split_phone_number_into_parts(phone_one, phone_one_left, phone_one_mid, phone_one_right)
+		        call split_phone_number_into_parts(phone_two, phone_two_left, phone_two_mid, phone_two_right)
+		        call split_phone_number_into_parts(phone_three, phone_three_left, phone_three_mid, phone_three_right)
+
+		        EMWriteScreen phone_one_left, 16, 39
+		        EMWriteScreen phone_one_mid, 16, 45
+		        EMWriteScreen phone_one_right, 16, 49
+		        If type_one <> "Select One..." Then EMWriteScreen type_one, 16, 61
+				EMWriteScreen text_yn_one, 16, 76
+
+		        EMWriteScreen phone_two_left, 17, 39
+		        EMWriteScreen phone_two_mid, 17, 45
+		        EMWriteScreen phone_two_right, 17, 49
+		        If type_two <> "Select One..." Then EMWriteScreen type_two, 17, 61
+				EMWriteScreen text_yn_two, 17, 76
+
+		        EMWriteScreen phone_three_left, 18, 39
+		        EMWriteScreen phone_three_mid, 18, 45
+		        EMWriteScreen phone_three_right, 18, 49
+		        If type_three <> "Select One..." Then EMWriteScreen type_three, 18, 61
+				EMWriteScreen text_yn_three, 18, 76
+
+				EMSetCursor 19, 31
+				EMSendKey "<eraseEOF>"
+				EMWriteScreen addr_email, 19, 31
+			End If
+
+	        save_attempt = 1
+	        Do
+	            transmit
+				' MsgBox "Pause - " & save_attempt
+	            EMReadScreen resi_standard_note, 33, 24, 2
+	            If resi_standard_note = "RESIDENCE ADDRESS IS STANDARDIZED" Then transmit
+	            EMReadScreen mail_standard_note, 31, 24, 2
+	            If mail_standard_note = "MAILING ADDRESS IS STANDARDIZED" Then transmit
+
+				EMReadScreen warn_msg, 60, 24, 2
+				warn_msg = trim(warn_msg)
+				If warn_msg = "ENTER A VALID COMMAND OR PF-KEY" Then Exit Do
+	            row = 0
+	            col = 0
+	            EMSearch "Warning:", row, col
+
+	            If row <> 0 Then
+	                Do
+	                    EMReadScreen warning_note, 55, row, col
+	                    warning_note = trim(warning_note)
+	                    warning_message = warning_message & "; " & warning_note
+	                Loop until warning_note = ""
+	            End If
+
+	            save_attempt = save_attempt + 1
+	        Loop until save_attempt = 20
+		End IF
+    End If
+end function
+
 
 function add_ACCI_to_variable(ACCI_variable)
 '--- This function adds STAT/ACCI data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
