@@ -5857,6 +5857,67 @@ function get_county_code()
     end if
 end function
 
+function get_state_name_from_state_code(state_code, state_name, include_state_code)
+    If state_code = "NB" Then state_name = "MN Newborn"							'This is the list of all the states connected to the code.
+    If state_code = "FC" Then state_name = "Foreign Country"
+    If state_code = "UN" Then state_name = "Unknown"
+    If state_code = "AL" Then state_name = "Alabama"
+    If state_code = "AK" Then state_name = "Alaska"
+    If state_code = "AZ" Then state_name = "Arizona"
+    If state_code = "AR" Then state_name = "Arkansas"
+    If state_code = "CA" Then state_name = "California"
+    If state_code = "CO" Then state_name = "Colorado"
+    If state_code = "CT" Then state_name = "Connecticut"
+    If state_code = "DE" Then state_name = "Delaware"
+    If state_code = "DC" Then state_name = "District Of Columbia"
+    If state_code = "FL" Then state_name = "Florida"
+    If state_code = "GA" Then state_name = "Georgia"
+    If state_code = "HI" Then state_name = "Hawaii"
+    If state_code = "ID" Then state_name = "Idaho"
+    If state_code = "IL" Then state_name = "Illnois"
+    If state_code = "IN" Then state_name = "Indiana"
+    If state_code = "IA" Then state_name = "Iowa"
+    If state_code = "KS" Then state_name = "Kansas"
+    If state_code = "KY" Then state_name = "Kentucky"
+    If state_code = "LA" Then state_name = "Louisiana"
+    If state_code = "ME" Then state_name = "Maine"
+    If state_code = "MD" Then state_name = "Maryland"
+    If state_code = "MA" Then state_name = "Massachusetts"
+    If state_code = "MI" Then state_name = "Michigan"
+	If state_code = "MN" Then state_name = "Minnesota"
+    If state_code = "MS" Then state_name = "Mississippi"
+    If state_code = "MO" Then state_name = "Missouri"
+    If state_code = "MT" Then state_name = "Montana"
+    If state_code = "NE" Then state_name = "Nebraska"
+    If state_code = "NV" Then state_name = "Nevada"
+    If state_code = "NH" Then state_name = "New Hampshire"
+    If state_code = "NJ" Then state_name = "New Jersey"
+    If state_code = "NM" Then state_name = "New Mexico"
+    If state_code = "NY" Then state_name = "New York"
+    If state_code = "NC" Then state_name = "North Carolina"
+    If state_code = "ND" Then state_name = "North Dakota"
+    If state_code = "OH" Then state_name = "Ohio"
+    If state_code = "OK" Then state_name = "Oklahoma"
+    If state_code = "OR" Then state_name = "Oregon"
+    If state_code = "PA" Then state_name = "Pennsylvania"
+    If state_code = "RI" Then state_name = "Rhode Island"
+    If state_code = "SC" Then state_name = "South Carolina"
+    If state_code = "SD" Then state_name = "South Dakota"
+    If state_code = "TN" Then state_name = "Tennessee"
+    If state_code = "TX" Then state_name = "Texas"
+    If state_code = "UT" Then state_name = "Utah"
+    If state_code = "VT" Then state_name = "Vermont"
+    If state_code = "VA" Then state_name = "Virginia"
+    If state_code = "WA" Then state_name = "Washington"
+    If state_code = "WV" Then state_name = "West Virginia"
+    If state_code = "WI" Then state_name = "Wisconsin"
+    If state_code = "WY" Then state_name = "Wyoming"
+    If state_code = "PR" Then state_name = "Puerto Rico"
+    If state_code = "VI" Then state_name = "Virgin Islands"
+
+    If include_state_code = TRUE Then state_name = state_code & " " & state_name	'This adds the code to the state name if seelected
+end function
+
 function get_this_script_started(script_index, end_script, month_to_use)
 '--- WORK IN PROGRESS - This function has the primary functionality needed at the begining of an individual script run.
 '~~~~~ script_index: this should just be 'script_index' and indicates the number of the script in the COMPLETE LIST OF SCRIPTS.
