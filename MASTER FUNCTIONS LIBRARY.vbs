@@ -8037,6 +8037,22 @@ function sort_dates(dates_array)
     dates_array = ordered_dates						'replacing the original array with the one with dates ordered
 end function
 
+function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
+'This function is to take the information provided as a phone number and split it up into the 3 parts
+    phone_variable = trim(phone_variable)
+    If phone_variable <> "" Then
+        phone_variable = replace(phone_variable, "(", "")						'formatting the phone variable to get rid of symbols and spaces
+        phone_variable = replace(phone_variable, ")", "")
+        phone_variable = replace(phone_variable, "-", "")
+        phone_variable = replace(phone_variable, " ", "")
+        phone_variable = trim(phone_variable)
+        phone_left = left(phone_variable, 3)									'reading the certain sections of the variable for each part.
+        phone_mid = mid(phone_variable, 4, 3)
+        phone_right = right(phone_variable, 4)
+        phone_variable = "(" & phone_left & ")" & phone_mid & "-" & phone_right
+    End If
+end function
+
 function start_a_blank_CASE_NOTE()
 '--- This function navigates user to a blank case note, presses PF9, and checks to make sure you're in edit mode (keeping you from writing all of the case note on an inquiry screen).
 '===== Keywords: MAXIS, case note, navigate, edit
