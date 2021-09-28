@@ -56,7 +56,7 @@ Function HCRE_panel_bypass()
 	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
 	Do
 		EMReadscreen HCRE_panel_check, 4, 2, 50
-		If HCRE_panel_check = "HCRE" then
+		IF HCRE_panel_check = "HCRE" then
 			PF10	'exists edit mode in cases where HCRE isn't complete for a member
 			PF3
 		END IF
@@ -171,6 +171,10 @@ const phone_numb_three_const     	= 30'= 	phone_numb_three
 const phone_type_three_const    	= 31'= 	phone_type_three
 
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+DO
+	EMReadScreen panel_check, 4, 2, 48
+		IF panel_check <> "MEMB" THEN CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+Loop until panel_check <> "MEMB"
 FOR EACH person IN HH_member_array
     CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the avs_members_array yet
     EMReadscreen ref_nbr, 3, 4, 33
@@ -204,6 +208,10 @@ FOR EACH person IN HH_member_array
 NEXT
 
 CALL navigate_to_MAXIS_screen("STAT", "MEMI")
+DO
+	EMReadScreen panel_check, 4, 2, 48
+		IF panel_check <> "MEMI" THEN CALL navigate_to_MAXIS_screen("STAT", "MEMI")
+Loop until panel_check <> "MEMI"
 EMReadScreen marital_status, 1, 7, 40
 EMReadScreen spouse_ref_nbr, 02, 09, 49
 spouse_ref_nbr = replace(spouse_ref_nbr, "_", "")
@@ -265,7 +273,7 @@ team_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us"
 
 FOR avs_membs = 0 to Ubound(avs_members_array, 2) 'start at the zero person and go to each of the selected people '
     member_info = member_info & "A signed AVS form was received for Member # " & avs_members_array(member_number_const, avs_membs) & vbNewLine & avs_members_array(client_first_name_const, avs_membs) & " " & avs_members_array(client_mid_name_const, avs_membs) & " " & avs_members_array(client_last_name_const, avs_membs)  &  vbCr & "DOB: " & avs_members_array(client_DOB_const,  avs_membs) & vbcr & "SSN of Resident: " & avs_members_array(client_ssn_const,  avs_membs) & vbcr & "Gender: " & avs_members_array(client_sex_const, avs_membs)
-	member_info = member_info & vbNewLine & "AVS Form Received Date: " & avs_form_date & vbcr & "MA type: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbNewLine & "Residential Address: " & vbNewLine & line_one & " " & line_two & vbcr & city & ", " & state & " " & zip
+	member_info = member_info & vbNewLine & "Application Date: " & application_date & "AVS Form Received Date: " & avs_form_date & vbcr & "MA type: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbNewLine & "Residential Address: " & vbNewLine & line_one & " " & line_two & vbcr & city & ", " & state & " " & zip
 	If trim(mail_line_one) <> "" THEN member_info = member_info & "Mailing address: " & mail_line_one & vbcr & mail_line_two & vbcr & mail_city & vbcr & mail_state & vbcr & mail_zip & vbcr & phone_one & " Phone: " & type_one & " - " & phone_two & " - " & phone_three
 	IF client_married = TRUE THEN member_info = member_info & vbNewLine & "Spouse: " & spouse_deeming & vbcr & "Spouse Member # " & avs_members_array(member_number_const, avs_membs) & vbcr & "Spouse First Name: " & avs_members_array(client_first_name_const, avs_membs) & vbcr & "Spouse Last Name: " & avs_members_array(client_last_name_const, avs_membs) & vbcr & "Spouse Social Security Number: " & avs_members_array(client_ssn_const,  avs_membs) & vbcr & "Spouse Gender: " & avs_members_array(client_sex_const, avs_membs) & vbcr & "Spouse Date of birth: " & avs_members_array(client_DOB_const, avs_membs) & " " & other_notes
 NEXT
