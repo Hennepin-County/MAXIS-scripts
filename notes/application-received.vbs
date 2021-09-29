@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("09/29/2021", "Added functionality to determine HEST utility allowances based on application date. ", "Ilse Ferris, Hennepin County")
 call changelog_update("09/17/2021", "Removed the field for 'Requested by X#' in the 'Request to APPL' option as this information will no longer be in the CASE/NOTE as this information is not pertinent to case actions/decisions.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/10/2021", "This is a very large update for the script.##~## ##~##We have reordered the functionality and consolidated the dialogs to have fewer interruptions in the process and to support the natural order of completing a pending update.##~##", "Casey Love, Hennepin County")
 call changelog_update("08/03/2021", "GitHub Issue #547, added Mail as an option for how an application can be received.", "MiKayla Handley, Hennepin County")
@@ -465,18 +466,7 @@ app_date_with_banks = replace(application_date, "/", " ")                       
 
 Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)      'We want to be acting in the application month generally
 
-'TODO - move this information/functionality to FuncLib
-If DateDiff("d", application_date, "10/01/2020") <= 0 then      'Determining WHICH month we use for utility standards
-    'October 2020 amounts
-    heat_AC_amt = 496
-    electric_amt = 154
-    phone_amt = 56
-Else
-    'October 2019 amounts
-    heat_AC_amt = 490
-    electric_amt = 143
-    phone_amt = 49
-End if
+Call hest_standards(heat_AC_amt, electric_amt, phone_amt, application_date) 'function to determine the hest standards depending on the application date.
 
 send_appt_ltr = FALSE                                           'Now we need to determine if this case needs an appointment letter based on the program(s) pending
 If unknown_cash_pending = True Then send_appt_ltr = TRUE
