@@ -2870,7 +2870,7 @@ If mof_form_checkbox = checked Then
     CALL write_variable_in_CASE_NOTE("  - Doctor signed form: " & doctor_date)
     CALL write_variable_in_CASE_NOTE("  - Condition will last: " & mof_time_condition_will_last)
     CALL write_variable_in_CASE_NOTE("  - Ability to work: " & ability_to_work)
-    CALL write_variable_in_CASE_NOTE("  - Other notes: " & mof_other_notes)
+    If mof_other_notes <> "" Then  CALL write_variable_in_CASE_NOTE("  - Other notes: " & mof_other_notes)
     If SSA_application_indicated_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * The MOF indicates the client needs to apply for SSA.")
     If TTL_to_update_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * Specialized TTL team will review MOF and update the DISA panel as needed.")
     If TTL_email_checkbox = checked Then Call write_variable_in_CASE_NOTE("  * An email regarding this MOF was sent to the TTL/FSSDataTeam for review on " & TTL_email_date & " by " & worker_signature & ".")
