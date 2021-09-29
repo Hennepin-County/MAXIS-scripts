@@ -121,6 +121,19 @@ IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...
 
 If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not previously defined, allowing scripts the benefit of not having to declare ButtonPressed all the time
 
+'DATE BASED LOGIC FOR UTILITY AMOUNTS: variables need to change every October per CM.18.15.09------------------------------------------------------------------------------------------
+If DateDiff("d",application_date,"10/01/2020") <= 0 then
+    'October 2021 amounts
+    heat_AC_amt = 488
+    electric_amt = 149
+    phone_amt = 56
+Else
+    'October 2020 amounts 
+    heat_AC_amt = 496
+    electric_amt = 154
+    phone_amt = 56
+End if
+
 'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
 IF CM_mo = "01" AND CM_yr = "21" THEN
     ten_day_cutoff_date = #01/21/2021#
