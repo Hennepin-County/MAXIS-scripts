@@ -70,7 +70,7 @@ closing_message = "Request for Account Validation Service (AVS) email has been s
 '----------------------------------------------------------------------------------------------------Initial dialog
 appl_type = "Application"
 applicant_type = "Applicant"
-
+check_for_MAXIS(FALSE)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 211, 160, "AVS Request"
@@ -108,9 +108,18 @@ DO
 		IF spouse_deeming = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select if the spouse is deeming."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
-    CALL check_for_password_without_transmit(are_we_passworded_out)
+    CALL check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
-CALL check_for_MAXIS(False)
+
+Call back_to_SELF
+EMReadScreen MX_region, 10, 22, 48
+MX_region = trim(MX_region)
+'If MX_region = "INQUIRY DB" Then
+'	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
+'	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
+'End If
+If MX_region = "TRAINING" Then developer_mode = TRUE
+
 CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv) 'navigating to stat prog to gather the application information
 IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 
@@ -174,7 +183,6 @@ const phone_numb_two_const     		= 28'= 	phone_numb_two
 const phone_type_two_const  	   	= 29'= 	phone_type_two
 const phone_numb_three_const     	= 30'= 	phone_numb_three
 const phone_type_three_const    	= 31'= 	phone_type_three
-
 
 FOR EACH person IN HH_member_array
     CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the avs_members_array yet
@@ -259,7 +267,7 @@ IF spouse_deeming = "YES" and spouse_ref_nbr = "" THEN
 	        If other_notes = "" then err_msg = err_msg & vbNewLine & "* Please enter the reason this client is not listed in MAXIS."
 	 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	 	LOOP UNTIL err_msg = ""
-	 	CALL check_for_password_without_transmit(are_we_passworded_out)
+	 	CALL check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = FALSE
 
 	ReDim Preserve avs_members_array(phone_type_three_const, avs_membs)  'redimmed to the size of the last constant
@@ -287,9 +295,10 @@ NEXT
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
 
+IF developer_mode = TRUE THEN send_email = FALSE
 'Creating the email
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
-Call create_outlook_email(team_email, "", "AVS initial run requests case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", FALSE)   'will create email, will send.
+IF send_email = TRUE THEN Call create_outlook_email(team_email, "", "AVS initial run requests case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", TRUE)   'will create email, will send.
 
 script_end_procedure_with_error_report(closing_message)
 
