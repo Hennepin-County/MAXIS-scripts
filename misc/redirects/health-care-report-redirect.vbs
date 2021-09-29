@@ -61,7 +61,7 @@ ELSE							'Everyone else (who isn't a scriptwriter) typically uses the release 
 	script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"
 END IF
 
-'----------------------------------------------------------------------------------------------------LOADING SCRIPT - REDIRECT FILE 
+'----------------------------------------------------------------------------------------------------LOADING SCRIPT - REDIRECT FILE
 script_url = script_repository & "misc/faa-health-care-information-report.vbs"
 IF run_locally = False THEN
     SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
@@ -77,30 +77,6 @@ IF run_locally = False THEN
             "The BlueZone Script Team is aware of an issue on GitHub and are monitoring the progress of the fix." & vbCr &_
             vbCr &_
             "There is no support for NAV scripts at this time. Some essential scripts have been saved locally for access during outages. Press any of the 'MAXIS Script Category' buttons and if the outage is still in effect, the special outage menu will appear to access these exxential scripts."
-        Else
-            FuncLib_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\MASTER FUNCTIONS LIBRARY.vbs"
-            Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-    		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
-    		text_from_the_other_script = fso_command.ReadAll
-    		fso_command.Close
-    		Execute text_from_the_other_script
-
-            email_body = "I accessed the Desert Island Scripts and it does not appear that you are aware the respository is unreachable." & vbCr & vbCr & "Today the script redirect sent me to the Desert Island Menu. There appeared to be a problem with GitHub." & vbCR & "https://www.githubstatus.com/" & vbCR & vbCr & "Script URL: " & script_URL & vbCr & vbCr & worker_signature
-            Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "URGENT! - Reporting a Possible GitHub Issue", email_body, "", TRUE)
-
-            MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-            vbCr & _
-            "Before contacting the BlueZone script team at HSPH.EWS.BlueZoneScripts@Hennepin.us, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-            vbCr & _
-            "If you can reach GitHub.com, but this script still does not work, contact the BlueZone script team at HSPH.EWS.BlueZoneScripts@Hennepin.us and provide the following information:" & vbCr &_
-            vbTab & "- The name of the script you are running." & vbCr &_
-            vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-            vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-            vbCr & _
-            "We will work with IT to try and solve this issue, if needed." & vbCr &_
-            vbCr &_
-            "URL: " & script_url
-
         End If
     	StopScript
     END IF
