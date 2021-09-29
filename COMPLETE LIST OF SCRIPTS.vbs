@@ -671,6 +671,7 @@ script_array(script_num).tags                   = array("QI", "SNAP", "MFIP", "A
 script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date        = #09/29/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
