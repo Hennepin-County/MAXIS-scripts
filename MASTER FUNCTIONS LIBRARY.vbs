@@ -749,40 +749,6 @@ IF current_worker_number =	"X127AN1" 	THEN email_address = "hsph.es.shelter.team
 IF current_worker_number =	"X127EHD" 	THEN email_address = "hsph.es.shelter.team@hennepin.us"
 
 '=========================================================================================================================================================================== FUNCTIONS RELATED TO GLOBAL CONSTANTS
-FUNCTION income_test_SNAP_gross(household_size, income_limit) '130% FPG
-	'See Combined Manual 0019.06
-	'Also used for sponsor income
-	'When using this function, you can pass (ubound(hh_array) + 1) for household_size
-	IF ((MAXIS_footer_month * 1) >= "10" AND (MAXIS_footer_year * 1) >= "20") OR (MAXIS_footer_year = "21") THEN  'This will allow the function to be used during the transition period when both income limits can be used.
-		IF household_size = 1 THEN income_limit = 1383								'Going forward you should only have to change the years and this should hold.
-		IF household_size = 2 THEN income_limit = 1868										'Multipled the footer months by 1 to insure they become numeric
-		IF household_size = 3 THEN income_limit = 2353
-		IF household_size = 4 THEN income_limit = 2839
-		IF household_size = 5 THEN income_limit = 3324
-		IF household_size = 6 THEN income_limit = 3809
-		IF household_size = 7 THEN income_limit = 4295
-		IF household_size = 8 THEN income_limit = 4705
-		IF household_size > 8 THEN income_limit = 4705 + (486 * (household_size- 8))
-	ELSE
-        '2019 Amounts
-        IF household_size = 1 THEN income_limit = 1354
-		IF household_size = 2 THEN income_limit = 1832
-		IF household_size = 3 THEN income_limit = 2311
-		IF household_size = 4 THEN income_limit = 2790
-		IF household_size = 5 THEN income_limit = 3269
-		IF household_size = 6 THEN income_limit = 3748
-		IF household_size = 7 THEN income_limit = 4227
-		IF household_size = 8 THEN income_limit = 4705
-		IF household_size > 8 THEN income_limit = 4705 + (479 * (household_size- 8))
-	END IF
-
-	valid_through_date = #10/01/2021#
-	IF DateDiff("D", date, valid_through_date) <= 0 THEN
-		out_of_date_warning = MsgBox ("This script appears to be using out of date income limits. Please contact a scripts administrator to have this updated." & vbNewLine & vbNewLine & "Press OK to continue the script. Press CANCEL to stop the script.", vbOKCancel + vbCritical + vbSystemModal, "NOTICE!!!")
-		IF out_of_date_warning = vbCancel THEN script_end_procedure("")
-	END IF
-END FUNCTION
-
 FUNCTION income_test_SNAP_net(household_size, income_limit)
 	'See Combined Manual 0020.12 - Net income standard 100% FPG
 	'When using this function, you can pass (ubound(hh_array) + 1) for household_size
