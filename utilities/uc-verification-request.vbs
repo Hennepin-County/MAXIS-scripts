@@ -113,7 +113,6 @@ CALL get_county_code
 EMReadscreen current_county, 4, 21, 21
 If lcase(current_county) <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
-back_to_SELF
 '--------------------------------------------------------------------------------Gathering the MEMB/ALIA information
 
 'Establishing array
@@ -134,6 +133,11 @@ const client_alia_name_const	    = 8 '=  ALIA Name
 const client_alia_ssn_const		    = 9 '=  ALIA SSN
 
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+DO
+	EMReadScreen panel_check, 4, 2, 48
+		IF panel_check <> "MEMB" THEN CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+        IF panel_check = " (SE" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on STAT/MEMB to read the correct information.")
+LOOP UNTIL panel_check = "MEMB"
 FOR EACH person IN HH_member_array
     CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the uc_members_array yet
     EMReadscreen ref_nbr, 3, 4, 33
@@ -165,8 +169,17 @@ FOR EACH person IN HH_member_array
 NEXT
 '--------------------------------------------------------------------------------ALIA
 CALL navigate_to_MAXIS_screen("STAT", "ALIA")
+DO
+	EMReadScreen panel_check, 4, 2, 46 'coordinates move from panel to panel'
+		IF panel_check <> "ALIA" THEN
+			CALL navigate_to_MAXIS_screen("STAT", "ALIA")
+		    IF panel_check = "u (" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on STAT/ALIA to read the correct information.")
+		ELSE
+			EXIT DO
+		END IF
+LOOP UNTIL panel_check = "ALIA"
     FOR uc_membs = 0 to uBound(uc_members_array, 2)
-    	CALL write_value_and_transmit(uc_members_array(member_number_const,     uc_membs), 20, 76)
+    	CALL write_value_and_transmit(uc_members_array(member_number_const, uc_membs), 20, 76)
         row = 7
         DO
             EMReadscreen alia_ref_num, 02, 04, 33
