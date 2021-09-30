@@ -2,7 +2,7 @@
 name_of_script = "ACTIONS - PF11 ACTIONS.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 120                	'manual run time in seconds
+STATS_manualtime = 180                	'manual run time in seconds
 STATS_denomination = "C"       		'M is for each MEMBER
 'END OF stats block=========================================================================================================
 
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/29/2021", "Removed MFIP New Spouse Income supports from script. PF11 is no longer needed for NSI cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/04/2021", "Updated to add option for HC REVW Dates need update GitHub Issue #168.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/07/2020", "Updated to review CASE/NOTE for previous PF11 request.", "MiKayla Handley, Hennepin County")
 call changelog_update("07/20/2019", "Per DHS Bulletin #18-69-02C, updated New Spouse Income handling and case note.", "MiKayla Handley, Hennepin County")
@@ -56,59 +57,70 @@ changelog_display
 'THE SCRIPT=================================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
-
+get_county_code
 CALL check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+MAXIS_background_check
 
-If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
-	Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
-End If
+If MAXIS_case_number <> "" Then
+    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+    If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
+Else
+    Call Generate_Client_List(HH_Memb_DropDown, "Select One:")		'If a case number is found the script will get the list of
+End if
+
 'Running the dialog for case number and client
 Do
-	err_msg = ""
-    Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 201, 220, "PF11 Action"
-	  EditBox 55, 5, 45, 15, MAXIS_case_number
-	  DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
-	  DropListBox 80, 45, 115, 15, "Select One:"+chr(9)+"PMI Merge Request"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"MFIP New Spouse Income"+chr(9)+"New Spouse Income Determination"+chr(9)+"Unable to update HC REVW dates"+chr(9)+"Other", PF11_actions
-	  EditBox 80, 65, 115, 15, worker_signature
-	  ButtonGroup ButtonPressed
-	    OkButton 100, 125, 45, 15
-	    CancelButton 150, 125, 45, 15
-	  CheckBox 15, 105, 160, 10, "Please check here if a PF11 is not required,", no_pf11_checkbox
-	  Text 5, 10, 45, 10, "Case number:"
-	  Text 5, 30, 70, 10, "Household member:"
-	  Text 5, 50, 50, 10, "Select action:"
-	  Text 5, 70, 60, 10, "Worker signature:"
-	  Text 5, 85, 185, 20, "The system being down, issuance problems, or any type     of emergency should NOT be reported via a PF11."
-	  Text 40, 115, 90, 10, "but a case note is needed."
-	  ButtonGroup ButtonPressed
-	    PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
-	  Text 10, 160, 185, 50, "On the SELF menu and type TASK. If you have the task number enter it and it will take you directly into the PF11. If you do not have the task number or wish to look at a list of all the PF11s you have created, change the Option in TASK from T-task to a C-creator.  By placing an X next to a PF11 listed you will be able to view it."
-	  GroupBox 5, 150, 190, 65, "How to check a PF11 status:"
-	EndDialog
+    Do
+    	err_msg = ""
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 201, 215, "PF11 Action"
+          Text 10, 10, 45, 10, "Case number:"
+          EditBox 60, 5, 45, 15, MAXIS_case_number
+          ButtonGroup ButtonPressed
+            PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
+          Text 5, 30, 70, 10, "Household member:"
+          DropListBox 75, 25, 120, 15, HH_Memb_DropDown, clt_to_update
+          Text 20, 50, 45, 10, "Select action:"
+          DropListBox 65, 45, 130, 15, "Select One:"+chr(9)+"PMI Merge Request"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"Unable to update HC REVW dates"+chr(9)+"Other", PF11_actions
+          Text 5, 70, 60, 10, "Worker signature:"
+          EditBox 65, 65, 130, 15, worker_signature
+          Text 5, 85, 185, 20, "The system being down, issuance problems, or any type of emergency should NOT be reported via a PF11."
+          CheckBox 5, 110, 190, 10, "Check here if a PF11 is not required, CASE:NOTE only.", no_pf11_checkbox
+          ButtonGroup ButtonPressed
+            OkButton 100, 125, 45, 15
+            CancelButton 150, 125, 45, 15
+          GroupBox 5, 145, 190, 65, "How to check a PF11 status:"
+          Text 10, 155, 185, 50, "On the SELF menu and type TASK. If you have the task number enter it and it will take you directly into the PF11. If you do not have the task number or wish to look at a list of all the PF11s you have created, change the Option in TASK from T-task to a C-creator.  By placing an X next to a PF11 listed you will be able to view it."
+        EndDialog
 
+        Dialog Dialog1
+    	IF ButtonPressed = cancel Then cancel_without_confirmation
+    	IF ButtonPressed = search_button Then
+    		If MAXIS_case_number = "" Then
+    			MsgBox "Cannot search without a case number, please try again."
+    		Else
+    			HH_Memb_DropDown = ""
+                Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+                If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
+    			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+    			err_msg = err_msg & "Start Over"
+    		End If
+    	End If
+    	IF MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
+    	IF PF11_actions <> "Non-Actionable DAIL Removal" THEN
+    	 	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "* Select a client to update."
+    	END IF
+    	IF PF11_actions = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Select the action you wish to take."
+    	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your worker signature."
+    	IF err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+    Loop until err_msg = ""
+LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
-	Dialog Dialog1
-	IF ButtonPressed = cancel Then StopScript
-	IF ButtonPressed = search_button Then
-		If MAXIS_case_number = "" Then
-			MsgBox "Cannot search without a case number, please try again."
-		Else
-			HH_Memb_DropDown = ""
-			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
-			err_msg = err_msg & "Start Over"
-		End If
-	End If
-	IF MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "You must enter a valid case number."
-	IF PF11_actions <> "Non-Actionable DAIL Removal" THEN
-	 	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please select a client to update."
-	END IF
-	IF PF11_actions = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select the action you wish to take."
-	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Enter your worker signature."
-	IF err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-Loop until err_msg = ""
+'Out of county handling.
+EmReadscreen county_code, 4, 21, 21
+If UCASE(worker_county_code) <> county_code then script_end_procedure("Case is out-of-county. The script will now end.")
 
 IF PF11_actions = "Non-Actionable DAIL Removal" THEN
 	Call Navigate_to_MAXIS_screen ("DAIL", "DAIL")
@@ -168,9 +180,9 @@ IF PF11_actions = "Case Note Removal Request" THEN ' this does not leave a case 
     		err_msg = ""
     		Dialog Dialog1
     		cancel_without_confirmation
-    		IF message_date = "" THEN err_msg = err_msg & vbNewLine & "Please enter the case note date."
-			IF message_to_use = "" THEN err_msg = err_msg & vbNewLine & "Please enter the case note header. This can be copy and paste."
-			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a request reason."
+    		IF message_date = "" THEN err_msg = err_msg & vbNewLine & "* Enter the case note date."
+			IF message_to_use = "" THEN err_msg = err_msg & vbNewLine & "* Enter the case note header. This can be copy and paste."
+			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "* Enter enter a request reason."
 			IF worker_number = "" or len(worker_number) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
@@ -200,15 +212,16 @@ IF PF11_actions = "Other" THEN
     		err_msg = ""
     		Dialog Dialog1
     		cancel_without_confirmation
-			IF request_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a request reason."
-    		IF worker_number = "" or len(worker_number) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
+			IF trim(request_reason) = "" THEN err_msg = err_msg & vbNewLine & "* Enter a request reason."
+            If trim(action_taken) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your actions taken on the case."
+    		IF worker_number = "" or len(worker_number) > 3 then err_msg = err_msg & vbNewLine & "* Enter the worker X127 number. Must be last 3 digits."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		Loop until err_msg = ""
      Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END If
 
-If PF11_actions = "PMI Merge Request" or PF11_actions = "MFIP New Spouse Income" or PF11_actions = "New Spouse Income Determination" THEN
+If PF11_actions = "PMI Merge Request" THEN
 	six_months_prior = DateAdd("m", -6, date) 'will set the date 6 months prior to the run date '
 	'handling to prevent duplicate case notes or PF11 requests'
 	Call Navigate_to_MAXIS_screen ("CASE", "NOTE")
@@ -222,25 +235,24 @@ If PF11_actions = "PMI Merge Request" or PF11_actions = "MFIP New Spouse Income"
 		IF left(note_title, 14) = "PF11 Requested" or left(note_title, 25) = "***PMI MERGE REQUESTED***" THEN
 		    DO
 		    	prog_confirmation = MsgBox("*** NOTICE!***" & vbNewLine & "a PF11 was already requested on: " & note_date & vbNewLine & "please do not send a duplicate request." & vbNewLine & "Select YES to continue NO to exit the script.", vbYesNo, "Possible Duplicate Request")
-		    	IF prog_confirmation = vbNo THEN script_end_procedure_with_error_report("The script has ended. The request has not been acted on.")
+		    	IF prog_confirmation = vbNo THEN script_end_procedure_with_error_report("The script has ended. The request has NOT been acted on.")
 		    	IF prog_confirmation = vbYes THEN
 		    		EXIT DO
 		    	END IF
 		    Loop
 		END IF
-		IF note_date = "        " then Exit Do
+		IF trim(note_date) = "" then Exit Do
 		note_row = note_row + 1
 		IF note_row = 19 THEN
 			PF8
 			note_row = 5
 		END IF
 		EMReadScreen next_note_date, 8, note_row, 6
-		IF next_note_date = "        " then Exit Do
+		IF trim(next_note_date) = "" then Exit Do
 	Loop until datevalue(next_note_date) < six_months_prior 'looking ahead at the next case note kicking out the dates before app'
 
 	Call Navigate_to_MAXIS_screen ("STAT", "MEMB")
-	'redefine ref_numb'
-	MEMB_number = left(clt_to_update, 2)	'Settin the reference number
+	MEMB_number = left(clt_to_update, 2)	'Setting the reference number
 	EMWriteScreen MEMB_number, 20, 76
 	TRANSMIT
 	EMReadScreen client_first_name, 12, 6, 63
@@ -256,16 +268,16 @@ END IF
 
 If PF11_actions = "PMI Merge Request" THEN
 	EMReadScreen panel_check, 4, 2, 48
-	IF panel_check <> "MEMB" THEN MsgBox "*** NOTICE!***" & vbNewLine & "Case must be on STAT/MEMB to read the correct information, please re-run the script" & vbNewLine
+	IF panel_check <> "MEMB" THEN script_end_procedure_with_error_report("An error occurred finding STAT/MEMB panel. Case must be on STAT/MEMB to read the correct information. The script will now stop.")
 	PF2 'going to PERS'
 	EMWriteScreen client_last_name, 04, 36
 	client_last_name = trim(client_last_name)
 	client_last_name = replace(client_last_name, "_", "")
-	'msgbox client_last_name
+
 	EMWriteScreen client_first_name, 10, 36
 	client_first_name = trim(client_first_name)
 	client_first_name = replace(client_first_name, "_", "")
-	'MsgBox client_first_name
+
 	EMWriteScreen client_DOB_month, 11, 53
 	EMWriteScreen client_DOB_date, 11, 56
 	EMWriteScreen client_DOB_year, 11, 59
@@ -297,124 +309,17 @@ If PF11_actions = "PMI Merge Request" THEN
 			err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
-			If PMI_number = "" THEN err_msg = err_msg & vbNewLine & "Please enter the PMI on this case."
-			If trim(second_case_number) = "" and reason_request_dropdown <> "PMI number assigned thru SMI or PMIN" THEN err_msg = err_msg & vbNewLine & "Please enter the second case number, if none enter N/A."
-			If reason_request_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter the request reason."
-			If reason_request_dropdown = "Other" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "Please enter the request reason in other notes."
+			If trim(PMI_number) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the PMI on this case."
+            If trim(PMI_number_two) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the Second PMI on this case."
+			If trim(second_case_number) = "" and reason_request_dropdown <> "PMI number assigned thru SMI or PMIN" THEN err_msg = err_msg & vbNewLine & "* Enter the second case number, if none enter N/A."
+			If reason_request_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Enter the request reason."
+			If reason_request_dropdown = "Other" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Enter the request reason in other notes."
+            If trim(action_taken) = "" THEN err_msg = err_msg & vbNewLine & "* Enter your actions taken on the case."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		Loop until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END IF
-
-IF PF11_actions = "MFIP New Spouse Income" then
-    Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 346, 140, "Designated Spouse"
-  	  ButtonGroup ButtonPressed
-        OkButton 235, 120, 50, 15
-        CancelButton 290, 120, 50, 15
-  	  Text 5, 5, 335, 20, "The Designated Spouse is the person whose income will not be counted when the policy is applied. Once determined, the Designated Spouse remains the same for the 12 consecutive months."
-  	  Text 5, 30, 340, 15, "If only one newly-married member is in an existing assistance unit, the spouse joining the assistance unit will be the Designated Spouse."
-  	  Text 5, 55, 340, 20, "If both newly-married members are part of the same OR different existing assistance units, they may choose, but are not required to choose, who the Designated Spouse is."
-  	  Text 5, 80, 335, 35, "If the newly-married members do not choose a Designated Spouse, the eligibility worker must select the spouse with the highest combined counted income at the time. If neither spouse has income, the worker will wait to select a Designated Spouse. The worker will select the first spouse to have counted earned or unearned income during the 12 consecutive months as the Designated Spouse."
-	EndDialog
-	Do
-		Do
-			err_msg = ""
-			Dialog Dialog1
-			cancel_without_confirmation
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-		Loop until err_msg = ""
-		Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-
-    Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 151, 215, "MFIP New Spouse Income"
-	  EditBox 90, 5, 55, 15, new_spouse_income
-	  EditBox 90, 25, 55, 15, marriage_date
-	  EditBox 90, 45, 55, 15, marriage_date_verified
-	  EditBox 70, 65, 75, 15, verif_used
-	  EditBox 85, 85, 60, 15, total_income
-	  EditBox 120, 105, 25, 15, household_size
-	  EditBox 90, 125, 55, 15, worker_phone_number
-	  ButtonGroup ButtonPressed
-	    OkButton 50, 195, 45, 15
-	    CancelButton 100, 195, 45, 15
-	  Text 5, 10, 85, 10, "New Spouse Income Eff:"
-	  Text 5, 30, 55, 10, "Marriage Date:"
-	  Text 5, 50, 50, 10, "Date Verified:"
-	  Text 5, 90, 50, 10, "Total Income:"
-	  Text 5, 110, 35, 10, "HH Size:"
-	  Text 5, 130, 85, 10, "Worker's Direct Contact:"
-	  Text 5, 150, 140, 40, "FYI: After the Production install, MAXIS staff will contact workers to update the appropriate STAT panel(s) and ensure the case is caught by automation on an ongoing basis."
-	  Text 5, 70, 65, 10, "Verification Used:"
-	EndDialog
-
-    Do
-    	Do
-    		err_msg = ""
-    		Dialog Dialog1
-    		cancel_without_confirmation
-			IF new_spouse_income = "" THEN err_msg = err_msg & vbNewLine & "Please enter the the new spouse income."
-			IF marriage_date = "" THEN err_msg = err_msg & vbNewLine & "Please enter the date of marriage."
-			IF marriage_date_verified = "" THEN err_msg = err_msg & vbNewLine & "Please enter the date marriage was verified."
-			IF verif_used = "" THEN err_msg = err_msg & vbNewLine & "Please enter the verificaton of marriage used."
-			IF total_income = "" THEN err_msg = err_msg & vbNewLine & "Please enter the total income."
-			IF household_size = "" THEN err_msg = err_msg & vbNewLine & "Please enter the Household size."
-			IF worker_phone_number = "" then err_msg = err_msg & vbNewLine & "Please enter the worker's phone number."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    	Loop until err_msg = ""
-    	Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
-END If
-
-IF PF11_actions = "New Spouse Income Determination" THEN
-    Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 151, 225, "Determination New Spouse Income"
-      EditBox 90, 5, 55, 15, new_spouse_income
-      EditBox 90, 25, 55, 15, marriage_date
-      EditBox 90, 45, 55, 15, marriage_date_verified
-      EditBox 70, 65, 75, 15, verif_used
-      EditBox 95, 85, 50, 15, total_income
-      EditBox 120, 105, 25, 15, MEMB_number
-      EditBox 120, 125, 25, 15, household_size
-      EditBox 95, 145, 50, 15, income_limit
-      DropListBox 95, 165, 50, 15, "Select One:"+chr(9)+"Over "+chr(9)+"Under", income_test_dropdown
-      EditBox 100, 185, 45, 15, date_income_not_counted
-      ButtonGroup ButtonPressed
-        OkButton 50, 205, 45, 15
-        CancelButton 100, 205, 45, 15
-      Text 5, 10, 85, 10, "New Spouse Income Eff:"
-      Text 5, 30, 55, 10, "Marriage Date:"
-      Text 5, 50, 50, 10, "Date Verified:"
-      Text 5, 70, 65, 10, "Verification Used:"
-      Text 5, 90, 50, 10, "Total Income:"
-      Text 5, 110, 110, 10, "Designated Spouse Ref Number:"
-      Text 5, 130, 35, 10, "HH Size:"
-      Text 5, 150, 65, 10, "275% FPG Amount: "
-      Text 5, 170, 85, 10, "New Spouse Income Test:"
-      Text 5, 190, 90, 10, "DS Income Not Counted Eff:"
-    EndDialog
-    Do
-    	Do
-    		err_msg = ""
-    		Dialog Dialog1
-    		cancel_without_confirmation
-            IF new_spouse_income = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the the new spouse income."
-            IF marriage_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date of marriage."
-            IF marriage_date_verified = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date marriage was verified."
-            IF verif_used = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the verificaton of marriage used."
-            IF total_income = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the total income."
-            IF MEMB_number = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the MEMB number."
-            IF household_size = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the HH size."
-            IF income_test_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please advise if the client is over or under the %275 FPG test."
-            IF income_limit = "" THEN err_msg = err_msg & vbNewLine & "* Please enter if the the amount of the 275% for the HH size."
-            IF date_income_not_counted = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date the income is not counted in maxis."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    	Loop until err_msg = ""
-    	Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
-END If
 
 IF PF11_actions = "Unable to update HC REVW dates" THEN
 	Call Navigate_to_MAXIS_screen ("DAIL", "DAIL")
@@ -441,52 +346,40 @@ IF PF11_actions = "Unable to update HC REVW dates" THEN
     		err_msg = ""
     		Dialog Dialog1
     		cancel_without_confirmation
-    		IF message_date = "" THEN err_msg = err_msg & vbNewLine & "Please enter a dail date."
-			IF date_edit = "" THEN err_msg = err_msg & vbNewLine & "Please enter the edit you recieved when trying to change the REVW date. This can be done via copy and paste."
-			IF worker_number = len(worker_number) > 3 then err_msg = err_msg & vbNewLine & "Please enter the worker X127 number. Must be last 3 digits."
+    		IF message_date = "" THEN err_msg = err_msg & vbNewLine & "* Enter a dail date."
+			IF date_edit = "" THEN err_msg = err_msg & vbNewLine & "* Enter the edit you recieved when trying to change the REVW date. This can be done via copy and paste."
+			IF worker_number = len(worker_number) > 3 then err_msg = err_msg & vbNewLine & "* Enter the worker X127 number. Must be last 3 digits."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
      Call check_for_password(are_we_passworded_out)
     LOOP UNTIL check_for_password(are_we_passworded_out) = False
 END If
 
-IF PF11_actions <> "New Spouse Income Determination" and no_pf11_checkbox = UNCHECKED THEN
+IF no_pf11_checkbox = UNCHECKED THEN
+    'Sending the PF11
  	PF11
 	'Problem.Reporting
 	EMReadScreen nav_check, 4, 1, 27
 	IF nav_check = "Prob" THEN
-    	IF PF11_actions = "Case Note Removal Request" or PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "Other" or PF11_actions = "Unable to update HC REVW dates" THEN
-    	    EMWriteScreen PF11_actions & " for case number: " & MAXIS_case_number, 05, 07
-    	    EMWriteScreen "Date: " & message_date, 06, 07
-    	    IF PF11_actions = "Case Note Removal Request" THEN EMWriteScreen "Case Note: " & message_to_use, 07, 07
-    	    IF PF11_actions = "Non-Actionable DAIL Removal" THEN EMWriteScreen "DAIL: " & message_to_use, 07, 07
-    		IF PF11_actions = "Non-Actionable DAIL Removal" THEN EMWriteScreen "Other error to report:", 08, 07
-			IF PF11_actions = "Unable to update HC REVW dates" THEN
-				EMWriteScreen "Last Review Date Edit: " & date_edit, 08, 07
-				EMWriteScreen "Other notes: " & other_notes, 09, 07
-			END IF
-    	    IF request_reason <> "" THEN EMWriteScreen "Reason for request: " & request_reason, 09, 07
-    		EMWriteScreen "Worker number: X127" & worker_number , 10, 07
-    	END IF
     	IF PF11_actions = "PMI Merge Request" THEN
     		EMWriteScreen "PMI merge request for case number: " & MAXIS_case_number, 05, 07
     		EMWriteScreen "Current case PMI number: " & PMI_number, 06, 07
     		IF PMI_number_two <> "" THEN EMWriteScreen "Duplicate PMI number: " & PMI_number_two, 07, 07
     		EMWriteScreen "Reason for request: " & reason_request_dropdown, 08, 07
     		IF second_case_number <> "" THEN EMWriteScreen "Associated case number: " & second_case_number, 09, 07
-    	END IF
-    	If PF11_actions = "MFIP New Spouse Income" then
-			EMWriteScreen PF11_actions & " for case number: " & MAXIS_case_number, 05, 07
-			EMWriteScreen "Designated Spouse: " & client_first_name & " " & client_last_name, 06, 07
-			EMWriteScreen "Designated Spouse Ref Number: " & MEMB_number, 07, 07
-			EMWriteScreen "New Spouse Income Effective: " & new_spouse_income, 08, 07
-			EMWriteScreen "Marriage Date: " & marriage_date, 09, 07
-			EMWriteScreen "Marriage Date Verified: " & marriage_date_verified, 10, 07
-			EMWriteScreen "Verification Used: " & verif_used, 11, 07
-			EMWriteScreen "Total Income: " & total_income, 12, 07
-			EMWriteScreen "HH Size: " & household_size, 13, 07
-			EMWriteScreen "Worker Number: " & worker_number, 14, 07
-    	END IF
+    	Else
+            EMWriteScreen PF11_actions & " for case number: " & MAXIS_case_number, 05, 07
+            EMWriteScreen "Date: " & message_date, 06, 07
+            IF PF11_actions = "Case Note Removal Request" THEN EMWriteScreen "Case Note: " & message_to_use, 07, 07
+            IF PF11_actions = "Non-Actionable DAIL Removal" THEN EMWriteScreen "DAIL: " & message_to_use, 07, 07
+            IF PF11_actions = "Non-Actionable DAIL Removal" THEN EMWriteScreen "Other error to report:", 08, 07
+            IF PF11_actions = "Unable to update HC REVW dates" THEN
+                EMWriteScreen "Last Review Date Edit: " & date_edit, 08, 07
+                EMWriteScreen "Other notes: " & other_notes, 09, 07
+            END IF
+            IF request_reason <> "" THEN EMWriteScreen "Reason for request: " & request_reason, 09, 07
+            EMWriteScreen "Worker number: X127" & worker_number , 10, 07
+        END IF
     	TRANSMIT
     	EMReadScreen task_number, 7, 3, 27
     	TRANSMIT
@@ -500,8 +393,11 @@ END IF
 reminder_date = dateadd("d", 5, date)
 Call change_date_to_soonest_working_day(reminder_date, "BACK")
 
-IF PF11_actions = "PMI Merge Request" or PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "MFIP New Spouse Income" or PF11_actions = "New Spouse Income Determination" or PF11_actions = "Other" or PF11_actions = "Unable to update HC REVW dates" THEN
-	CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
+IF PF11_actions <> "Case Note Removal Request" then
+    'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
+    Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "PF11 check: " & PF11_actions & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
+
+    CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	IF PF11_actions = "PMI Merge Request"  THEN CALL write_variable_in_case_note("PF11 Requested " & PF11_actions & " for M" & MEMB_number)
 	IF PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "Other" or PF11_actions = "Unable to update HC REVW dates"  THEN CALL write_variable_in_case_note("PF11 Requested " & PF11_actions)
 	IF PF11_actions = "Non-Actionable DAIL Removal" or PF11_actions = "Other" or PF11_actions = "PMI Merge Request" or PF11_actions = "Unable to update HC REVW dates"  THEN
@@ -525,64 +421,48 @@ IF PF11_actions = "PMI Merge Request" or PF11_actions = "Non-Actionable DAIL Rem
 	    call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
 	    CALL write_variable_in_CASE_NOTE ("---")
 	    CALL write_variable_in_CASE_NOTE(worker_signature)
-	    PF3
 	END IF
-	IF  PF11_actions = "MFIP New Spouse Income" and no_pf11_checkbox = UNCHECKED THEN
-		CALL write_variable_in_case_note(PF11_actions & " for M" & MEMB_number)
-		CALL write_bullet_and_variable_in_CASE_NOTE("PF11 Sent - Task number", task_number)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", message_date)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("New Spouse Income Effective", new_spouse_income)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", marriage_date)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("Date Marriage Was Verified", marriage_date_verified)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Used", verif_used)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("Total Income", total_income)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("HH Size", household_size)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG Amount", income_limit)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG New Spouse Income Test", income_test_dropdown)
-	    CALL write_bullet_and_variable_in_CASE_NOTE("DS income not counted eff", date_income_not_counted)
-		call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
-		CALL write_variable_in_CASE_NOTE ("---")
-		CALL write_variable_in_CASE_NOTE(worker_signature)
-		PF3
-	END IF
-
-	IF  PF11_actions = "MFIP New Spouse Income" and no_pf11_checkbox = CHECKED THEN
-		CALL write_variable_in_case_note(PF11_actions & " for M" & MEMB_number)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", message_date)
-		CALL write_bullet_and_variable_in_CASE_NOTE("New Spouse Income Effective", new_spouse_income)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", marriage_date)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Date Marriage Was Verified", marriage_date_verified)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Verification Used", verif_used)
-		CALL write_bullet_and_variable_in_CASE_NOTE("Total Income", total_income)
-		CALL write_bullet_and_variable_in_CASE_NOTE("HH Size", household_size)
-		CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG Amount", income_limit)
-		CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG New Spouse Income Test", income_test_dropdown)
-		CALL write_bullet_and_variable_in_CASE_NOTE("DS income not counted eff", date_income_not_counted)
-		call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
-		CALL write_variable_in_CASE_NOTE ("---")
-		CALL write_variable_in_CASE_NOTE(worker_signature)
-		PF3
-	END IF
-    'Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
-    Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "PF11 check: " & PF11_actions & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 END IF
 
-IF PF11_actions = "New Spouse Income Determination" THEN
-	CALL start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	CALL write_variable_in_case_note(PF11_actions & " for M" & MEMB_number) 	''---Determination MFIP New Spouse Income for M19---
-	CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", marriage_date)
-    CALL write_bullet_and_variable_in_CASE_NOTE("New Spouse Income Effective", new_spouse_income)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Marriage Date", marriage_date)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Date Marriage Was Verified", marriage_date_verified)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Used", verif_used)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Total Income", total_income)
-    CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG HH Size", household_size)
-    CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG Amount", income_limit)
-    CALL write_bullet_and_variable_in_CASE_NOTE("275% FPG New Spouse Income Test", income_test_dropdown)
-    CALL write_bullet_and_variable_in_CASE_NOTE("DS income not counted eff", date_income_not_counted)
-	CALL write_variable_in_CASE_NOTE ("---")
-	CALL write_variable_in_CASE_NOTE(worker_signature)
-	PF3
-END IF
+script_end_procedure_with_error_report("Success! " & PF11_actions & " has been sent and/or case noted.")
 
-script_end_procedure_with_error_report("It worked! " & PF11_actions & " has been sent and/or case noted.")
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------09/29/2021
+'--Tab orders reviewed & confirmed----------------------------------------------09/29/2021
+'--Mandatory fields all present & Reviewed--------------------------------------09/29/2021
+'--All variables in dialog match mandatory fields-------------------------------09/29/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------09/29/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------09/29/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/29/2021
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/29/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------09/29/2021
+'--PRIV Case handling reviewed -------------------------------------------------09/29/2021
+'--Out-of-County handling reviewed----------------------------------------------09/29/2021
+'--script_end_procedures (w/ or w/o error messaging)----------------------------09/29/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------09/29/2021-----------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------09/29/2021 ------------updated to 180 seconds
+'--Incrementors reviewed (if necessary)-----------------------------------------09/29/2021-----------------N/A
+'--Denomination reviewed -------------------------------------------------------09/29/2021-----------------N/A
+'--Script name reviewed---------------------------------------------------------09/29/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------09/29/2021-----------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------09/29/2021
+'--comment Code-----------------------------------------------------------------09/29/2021
+'--Update Changelog for release/update------------------------------------------09/29/2021
+'--Remove testing message boxes-------------------------------------------------09/29/2021
+'--Remove testing code/unnecessary code-----------------------------------------09/29/2021
+'--Review/update SharePoint instructions----------------------------------------09/29/2021 ---------------Updated instructions to remove NSI
+'--Review Best Practices using BZS page ----------------------------------------09/29/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/29/2021----------------May need to update if PMI merges cannot be via PF11 any longer
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/29/2021
+'--Complete misc. documentation (if applicable)---------------------------------09/29/2021-----------------N/A
+'--Update project team/issue contact (if applicable)----------------------------09/29/2021-----------------N/A
