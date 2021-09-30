@@ -56,7 +56,7 @@ Function HCRE_panel_bypass()
 	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
 	Do
 		EMReadscreen HCRE_panel_check, 4, 2, 50
-		If HCRE_panel_check = "HCRE" then
+		IF HCRE_panel_check = "HCRE" then
 			PF10	'exists edit mode in cases where HCRE isn't complete for a member
 			PF3
 		END IF
@@ -70,7 +70,7 @@ closing_message = "Request for Account Validation Service (AVS) email has been s
 '----------------------------------------------------------------------------------------------------Initial dialog
 appl_type = "Application"
 applicant_type = "Applicant"
-
+check_for_MAXIS(FALSE)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 211, 160, "AVS Request"
@@ -101,16 +101,26 @@ DO
         cancel_without_confirmation
         If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		If HH_size = "" or IsNumeric(HH_size) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid household composition size."
-        If trim(avs_form_date) = "" or isdate(avs_form_date) = False then err_msg = err_msg & vbNewLine & "* Enter the date the completed AVS form was received in the agency."
+        If trim(avs_form_date) = "" or isdate(avs_form_date) = False then err_msg = err_msg & vbNewLine & "* Please enter the date the completed AVS form was received in the agency."
 		IF applicant_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the applicant type."
 		IF appl_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the application type."
 		IF MA_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the MA request type."
 		IF spouse_deeming = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select if the spouse is deeming."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
-    CALL check_for_password_without_transmit(are_we_passworded_out)
-Loop until are_we_passworded_out = false
-CALL check_for_MAXIS(False)
+    CALL check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+
+Call back_to_SELF
+EMReadScreen MX_region, 10, 22, 48
+MX_region = trim(MX_region)
+'If MX_region = "INQUIRY DB" Then
+'	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
+'	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
+'End If
+send_email = TRUE
+IF MX_region = "TRAINING" THEN developer_mode = TRUE
+
 CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv) 'navigating to stat prog to gather the application information
 IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 
@@ -120,7 +130,12 @@ IF application_date = "__/__/__"  THEN script_end_procedure("*** No application 
 
 CALL HCRE_panel_bypass			'Function to bypass a janky HCRE panel. If the HCRE panel has fields not completed/'reds up' this gets us out of there.
 
-CALL navigate_to_MAXIS_screen("STAT", "MEMB") 'navigating to stat memb to gather the ref number and name.
+CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+DO
+	EMReadScreen panel_check, 4, 2, 48
+		IF panel_check <> "MEMB" THEN CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+        IF panel_check = " (SE" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on STAT/MEMB to read the correct information.")
+LOOP UNTIL panel_check = "MEMB"
 
 DO
     CALL HH_member_custom_dialog(HH_member_array)
@@ -170,7 +185,6 @@ const phone_type_two_const  	   	= 29'= 	phone_type_two
 const phone_numb_three_const     	= 30'= 	phone_numb_three
 const phone_type_three_const    	= 31'= 	phone_type_three
 
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 FOR EACH person IN HH_member_array
     CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the avs_members_array yet
     EMReadscreen ref_nbr, 3, 4, 33
@@ -204,6 +218,16 @@ FOR EACH person IN HH_member_array
 NEXT
 
 CALL navigate_to_MAXIS_screen("STAT", "MEMI")
+DO
+	EMReadScreen panel_check, 4, 2, 50 'coordinates move from panel to panel'
+		IF panel_check <> "MEMI" THEN
+			CALL navigate_to_MAXIS_screen("STAT", "MEMI")
+		    IF panel_check = "SELF" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on STAT/MEMI to read the correct information.")
+		ELSE
+			EXIT DO
+		END IF
+LOOP UNTIL panel_check = "MEMI"
+
 EMReadScreen marital_status, 1, 7, 40
 EMReadScreen spouse_ref_nbr, 02, 09, 49
 spouse_ref_nbr = replace(spouse_ref_nbr, "_", "")
@@ -236,16 +260,16 @@ IF spouse_deeming = "YES" and spouse_ref_nbr = "" THEN
 	 		err_msg = ""
 	 		Dialog Dialog1
 	 		cancel_without_confirmation
-	 		If spouse_first_name = "" then err_msg = err_msg & vbNewLine & "Please enter the spouse's first name."
-	        If spouse_last_name = "" then err_msg = err_msg & vbNewLine & "Please enter the spouse's last name."
-	        If spouse_SSN_number = "" then err_msg = err_msg & vbNewLine & "Please enter the spouse's social security number."
-	        If spouse_DOB = "" then err_msg = err_msg & vbNewLine & "Please enter the spouse's date of birth."
-	        If spouse_gender_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "Please select the spouse's gender."
-	        If other_notes = "" then err_msg = err_msg & vbNewLine & "Please enter the reason this client is not listed in MAXIS."
+	 		If spouse_first_name = "" then err_msg = err_msg & vbNewLine & "* Please enter the spouse's first name."
+	        If spouse_last_name = "" then err_msg = err_msg & vbNewLine & "* Please enter the spouse's last name."
+	        If spouse_SSN_number = "" then err_msg = err_msg & vbNewLine & "* Please enter the spouse's social security number."
+	        If spouse_DOB = "" then err_msg = err_msg & vbNewLine & "* Please enter the spouse's date of birth."
+	        If spouse_gender_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select the spouse's gender."
+	        If other_notes = "" then err_msg = err_msg & vbNewLine & "* Please enter the reason this client is not listed in MAXIS."
 	 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	 	LOOP UNTIL err_msg = ""
-	 	CALL check_for_password_without_transmit(are_we_passworded_out)
-	Loop until are_we_passworded_out = false
+	 	CALL check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = FALSE
 
 	ReDim Preserve avs_members_array(phone_type_three_const, avs_membs)  'redimmed to the size of the last constant
     avs_members_array(member_number_const,     avs_membs) = spouse_ref_nbr
@@ -265,16 +289,17 @@ team_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us"
 
 FOR avs_membs = 0 to Ubound(avs_members_array, 2) 'start at the zero person and go to each of the selected people '
     member_info = member_info & "A signed AVS form was received for Member # " & avs_members_array(member_number_const, avs_membs) & vbNewLine & avs_members_array(client_first_name_const, avs_membs) & " " & avs_members_array(client_mid_name_const, avs_membs) & " " & avs_members_array(client_last_name_const, avs_membs)  &  vbCr & "DOB: " & avs_members_array(client_DOB_const,  avs_membs) & vbcr & "SSN of Resident: " & avs_members_array(client_ssn_const,  avs_membs) & vbcr & "Gender: " & avs_members_array(client_sex_const, avs_membs)
-	member_info = member_info & vbNewLine & "AVS Form Received Date: " & avs_form_date & vbcr & "MA type: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbNewLine & "Residential Address: " & vbNewLine & line_one & " " & line_two & vbcr & city & ", " & state & " " & zip
+	member_info = member_info & vbNewLine & "Application Date: " & application_date & vbNewLine & "AVS Form Received Date: " & avs_form_date & vbcr & "Basis of Eligibility: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbNewLine & "Residential Address: " & vbNewLine & line_one & " " & line_two & vbcr & city & ", " & state & " " & zip
 	If trim(mail_line_one) <> "" THEN member_info = member_info & "Mailing address: " & mail_line_one & vbcr & mail_line_two & vbcr & mail_city & vbcr & mail_state & vbcr & mail_zip & vbcr & phone_one & " Phone: " & type_one & " - " & phone_two & " - " & phone_three
 	IF client_married = TRUE THEN member_info = member_info & vbNewLine & "Spouse: " & spouse_deeming & vbcr & "Spouse Member # " & avs_members_array(member_number_const, avs_membs) & vbcr & "Spouse First Name: " & avs_members_array(client_first_name_const, avs_membs) & vbcr & "Spouse Last Name: " & avs_members_array(client_last_name_const, avs_membs) & vbcr & "Spouse Social Security Number: " & avs_members_array(client_ssn_const,  avs_membs) & vbcr & "Spouse Gender: " & avs_members_array(client_sex_const, avs_membs) & vbcr & "Spouse Date of birth: " & avs_members_array(client_DOB_const, avs_membs) & " " & other_notes
 NEXT
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
 
+IF developer_mode = TRUE THEN send_email = FALSE
 'Creating the email
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
-Call create_outlook_email(team_email, "", "AVS initial run requests case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", TRUE)   'will create email, will send.
+IF send_email = TRUE THEN Call create_outlook_email(team_email, "", "AVS initial run requests case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", TRUE)   'will create email, will send.
 
 script_end_procedure_with_error_report(closing_message)
 

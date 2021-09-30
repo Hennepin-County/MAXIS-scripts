@@ -102,8 +102,18 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 CALL check_for_MAXIS(False)
 
+Call back_to_SELF
+EMReadScreen MX_region, 10, 22, 48
+MX_region = trim(MX_region)
+'If MX_region = "INQUIRY DB" Then
+'	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
+'	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
+'End If
+send_email = TRUE
+IF MX_region = "TRAINING" THEN developer_mode = TRUE
+
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 'navigating to stat memb to gather the ref number and name.
-If is_this_priv = TRUE then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
+IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 DO
     CALL HH_member_custom_dialog(HH_member_array)
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
@@ -111,9 +121,8 @@ LOOP UNTIL uBound(HH_member_array) <> -1
 
 CALL get_county_code
 EMReadscreen current_county, 4, 21, 21
-If lcase(current_county) <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
+IF lcase(current_county) <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
-back_to_SELF
 '--------------------------------------------------------------------------------Gathering the MEMB/ALIA information
 
 'Establishing array
@@ -134,6 +143,11 @@ const client_alia_name_const	    = 8 '=  ALIA Name
 const client_alia_ssn_const		    = 9 '=  ALIA SSN
 
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+DO
+	EMReadScreen panel_check, 4, 2, 48
+		IF panel_check <> "MEMB" THEN CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+        IF panel_check = " (SE" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on STAT/MEMB to read the correct information.")
+LOOP UNTIL panel_check = "MEMB"
 FOR EACH person IN HH_member_array
     CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the uc_members_array yet
     EMReadscreen ref_nbr, 3, 4, 33
@@ -165,8 +179,17 @@ FOR EACH person IN HH_member_array
 NEXT
 '--------------------------------------------------------------------------------ALIA
 CALL navigate_to_MAXIS_screen("STAT", "ALIA")
+DO
+	EMReadScreen panel_check, 4, 2, 46 'coordinates move from panel to panel'
+		IF panel_check <> "ALIA" THEN
+			CALL navigate_to_MAXIS_screen("STAT", "ALIA")
+		    IF panel_check = "u (" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on STAT/ALIA to read the correct information.")
+		ELSE
+			EXIT DO
+		END IF
+LOOP UNTIL panel_check = "ALIA"
     FOR uc_membs = 0 to uBound(uc_members_array, 2)
-    	CALL write_value_and_transmit(uc_members_array(member_number_const,     uc_membs), 20, 76)
+    	CALL write_value_and_transmit(uc_members_array(member_number_const, uc_membs), 20, 76)
         row = 7
         DO
             EMReadscreen alia_ref_num, 02, 04, 33
@@ -233,9 +256,10 @@ IF other_checkbox = CHECKED and other_check_editbox <> "" THEN member_info = "Ot
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
 
+If developer_mode = TRUE THEN send_email = FALSE
 'Creating the email
 'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
-Call create_outlook_email(team_email, "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", TRUE)   'will create email, will send.
+IF send_email = TRUE THEN Call create_outlook_email(team_email, "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", TRUE)   'will create email, will send.
 
 script_end_procedure_with_error_report(closing_message)
 
