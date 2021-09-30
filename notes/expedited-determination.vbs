@@ -654,10 +654,10 @@ function app_month_utility_detail(determined_utilities, heat_expense, ac_expense
 
 		determined_utilities = 0
 		If heat_checkbox = checked OR ac_checkbox = checked Then
-			determined_utilities = determined_utilities + 496
+			determined_utilities = determined_utilities + heat_AC_amt
 		Else
-			If electric_checkbox = checked Then determined_utilities = determined_utilities + 154
-			If phone_checkbox = checked Then determined_utilities = determined_utilities + 56
+			If electric_checkbox = checked Then determined_utilities = determined_utilities + electric_amt
+			If phone_checkbox = checked Then determined_utilities = determined_utilities + phone_amt
 		End If
 
 	Loop Until ButtonPressed = return_btn And some_vs_none_discrepancy = False
@@ -1571,6 +1571,8 @@ If DatePart("d", date_of_application) > 15 Then
 End If
 original_expedited_package = expedited_package
 
+Call hest_standards(heat_AC_amt, electric_amt, phone_amt, date_of_application)
+
 'Script is going to find information that was writen in an Expedited Screening case note using scripts
 navigate_to_MAXIS_screen "CASE", "NOTE"
 
@@ -1824,10 +1826,10 @@ If maxis_updated_yn = "Yes" Then
 
 			determined_utilities = 0
 			If heat_expense = True OR ac_expense = True Then
-				determined_utilities = determined_utilities + 496
+				determined_utilities = determined_utilities + heat_AC_amt
 			Else
-				If electric_expense = True Then determined_utilities = determined_utilities + 154
-				If phone_expense = True Then determined_utilities = determined_utilities + 56
+				If electric_expense = True Then determined_utilities = determined_utilities + electric_amt
+				If phone_expense = True Then determined_utilities = determined_utilities + phone_amt
 			End If
 			' Call app_month_utility_detail(determined_utilities, heat_expense, ac_expense, electric_expense, phone_expense, none_expense, all_utilities)
 		End If

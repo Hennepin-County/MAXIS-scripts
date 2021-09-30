@@ -5970,6 +5970,26 @@ Function get_to_RKEY()
     END IF
 End Function
 
+Function hest_standards(heat_AC_amt, electric_amt, phone_amt, date_variable)
+'--- This function determines the SUA - Standard Utility Allowance based on the date selected. This changes each October CM.18.15.09 at: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00181509
+'~~~~~ heat_AC_amt: Heat/AC expense variable. Recommended to keep as heat_AC_amt.
+'~~~~~ electric_amt: Electric expense variable. Recommended to keep as electric_amt.
+'~~~~~ phone_amt: Phone expense variable. Recommended to keep as phone_amt.
+'~~~~~ date_variable: This is the date you need to compare to when measuring against the October date. Generally this is the application_date.
+'===== Keywords: MAXIS, member, array, dialog
+    If DateDiff("d",date_variable,#10/01/2021#) <= 0 then
+        'October 2021 -- Amounts for applications on or AFTER 10/01/2021
+        heat_AC_amt = 488
+        electric_amt = 149
+        phone_amt = 56
+    Elseif DateDiff("d",date_variable,#10/01/2021#) > 0 then
+        'October 2020 -- Amounts for applications on or BEFORE 10/01/2021
+        heat_AC_amt = 496
+        electric_amt = 154
+        phone_amt = 56
+    End if
+End Function
+
 function HH_member_custom_dialog(HH_member_array)
 '--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
 '~~~~~ HH_member_array: should be HH_member_array for function to work
