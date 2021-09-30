@@ -55,14 +55,20 @@ changelog_display
 'CONNECTS TO BlueZone
 EMConnect ""
 
-memb_numb_col   = 10
+'column constants
+pmi_col         =  1
+case_number_col = 2
 fset_col        = 11
 abawd_col       = 12
-snap_status_col = 13
-notes_col       = 14
-case_active_col = 15
+memb_numb_col   = 18
+snap_status_col = 19
+notes_col       = 20
+case_active_col = 21
 
-file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\SNAP Work\ABAWD Report 10-2020 thru 06-2021 PT 2.xlsx"
+MAXIS_footer_month = "07"
+MAXIS_footer_year = "21"
+
+'file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\SNAP Work\ABAWD Report 10-2020 thru 06-2021 PT 2.xlsx"
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
@@ -91,7 +97,7 @@ back_to_SELF
 
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
-FOR i = 1 to 15		'formatting the cells'
+FOR i = 1 to 21		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
@@ -101,37 +107,45 @@ NEXT
 '    If objWorkSheet.Name = "10-20" then sheet_list = sheet_list & objWorkSheet.Name & ","
 'Next
 
-For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
-    If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All cases" and objWorkSheet.Name <> "Data" then sheet_list = sheet_list & objWorkSheet.Name & ","
-Next
+'For Each objWorkSheet In objWorkbook.Worksheets 'Creating an array of worksheets that are not the intitial report - "Report 1"
+'    If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "All cases" and objWorkSheet.Name <> "Data" then sheet_list = sheet_list & objWorkSheet.Name & ","
+'Next
+'
+'sheet_list = trim(sheet_list)  'trims excess spaces of sheet_list
+'If right(sheet_list, 1) = "," THEN sheet_list = left(sheet_list, len(sheet_list) - 1) 'trimming off last comma
+'array_of_sheets = split(sheet_list, ",")   'Creating new array
+'
+'For each excel_sheet in array_of_sheets
+''    objExcel.worksheets(excel_sheet).Activate 'Activates the applicable worksheet
 
-sheet_list = trim(sheet_list)  'trims excess spaces of sheet_list
-If right(sheet_list, 1) = "," THEN sheet_list = left(sheet_list, len(sheet_list) - 1) 'trimming off last comma
-array_of_sheets = split(sheet_list, ",")   'Creating new array
-    
-For each excel_sheet in array_of_sheets
-    objExcel.worksheets(excel_sheet).Activate 'Activates the applicable worksheet
-    
-    MAXIS_footer_month = left(excel_sheet, 2)
-    MAXIS_footer_year = right(excel_sheet, 2)
-    Call MAXIS_footer_month_confirmation 
-    
+    'MAXIS_footer_month = left(excel_sheet, 2)
+    'MAXIS_footer_year = right(excel_sheet, 2)
+    Call MAXIS_footer_month_confirmation
+
     excel_row = 2
 
     Do
-    	PMI_number = trim(ObjExcel.Cells(excel_row, 1).Value)
-    
-        MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
+    	PMI_number = trim(ObjExcel.Cells(excel_row, pmi_col).Value)
+
+        MAXIS_case_number = ObjExcel.Cells(excel_row, case_number_col).Value
     	MAXIS_case_number = trim(MAXIS_case_number)
         If MAXIS_case_number = "" then exit do
-    
+
         Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+        EmReadscreen self_screen, 4, 2, 50
+        EmReadscreen self_error, 60, 24, 2
         If is_this_priv = True then
             ObjExcel.Cells(excel_row, notes_col).Value = "Privliged case"
+        Elseif (is_this_priv = False and self_screen = "SELF") then
+            ObjExcel.Cells(excel_row, notes_col).Value = trim(self_error)
         Else
-            EmReadscreen county_code, 4, 21, 21
+            Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+            ObjExcel.Cells(excel_row, snap_status_col).Value = snap_case
+            ObjExcel.Cells(excel_row, case_active_col).Value = case_active
+
+            EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
             If county_code <> UCASE(worker_county_code) then ObjExcel.Cells(excel_row, notes_col).Value = "Out-of-county Case"
-    
+            Call navigate_to_MAXIS_screen("STAT", "MEMB")
             Do
                 EmReadscreen memb_panel_PMI, 8, 4, 46
                 memb_panel_PMI = right ("00000000" & trim(memb_panel_PMI), 8)
@@ -143,32 +157,27 @@ For each excel_sheet in array_of_sheets
                     EmReadscreen end_of_membs_message, 5, 24, 2
                 End if
             Loop until end_of_membs_message = "ENTER"
-    
+
             If trim(member_number) = "" then
                 ObjExcel.Cells(excel_row, notes_col).Value = "Unable to find member on case"
             Else
-    	        call navigate_to_MAXIS_screen("STAT", "WREG")
+    	           call navigate_to_MAXIS_screen("STAT", "WREG")
                 Call write_value_and_transmit(member_number, 20, 76)
-    
-    	        EMReadScreen FSET_code, 2, 8, 50
-    	        EMReadScreen ABAWD_code, 2, 13, 50
-    
+
+    	           EMReadScreen FSET_code, 2, 8, 50
+    	           EMReadScreen ABAWD_code, 2, 13, 50
+
                 ObjExcel.Cells(excel_row, memb_numb_col).Value = member_number                      'writing in the member number with initial 0 trimmed.
                 ObjExcel.Cells(excel_row, fset_col).Value = replace(FSET_code, "_", "")
-    	        ObjExcel.Cells(excel_row, abawd_col).Value = replace(ABAWD_code, "_", "")
+    	           ObjExcel.Cells(excel_row, abawd_col).Value = replace(ABAWD_code, "_", "")
             End if
         End if
-    
-        Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-        ObjExcel.Cells(excel_row, snap_status_col).Value = snap_case
-        ObjExcel.Cells(excel_row, case_active_col).Value = case_active
-    
         STATS_counter = STATS_counter + 1
         excel_row = excel_row + 1
     Loop until ObjExcel.Cells(excel_row, 2).Value = ""
-Next 
+'Next
 
-FOR i = 1 to 15		'formatting the cells'
+FOR i = 1 to 21		'formatting the cells'
 	objExcel.Columns(i).AutoFit()				'sizing the columns'
 NEXT
 
