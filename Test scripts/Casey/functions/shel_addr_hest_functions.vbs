@@ -1238,15 +1238,40 @@ function display_HOUSING_CHANGE_information(housing_questions_step, household_mo
 		    Text 20, 140, 80, 10, "Who is the rent paid to?"
 		    EditBox 100, 135, 135, 15, rent_paid_to_name
 		    Text 20, 155, 225, 10, "Check the box for each person responsible for the housing payment:"
-		    CheckBox 30, 170, 80, 10, "Check1", Check1
-		    CheckBox 30, 185, 80, 10, "Check2", Check2
-		    CheckBox 155, 170, 80, 10, "Check3", Check3
-		    CheckBox 155, 185, 80, 10, "Check4", Check4
-		    CheckBox 290, 170, 145, 10, "Someone outside the household. Name:", Check6
-		    EditBox 300, 180, 160, 15, Edit3
+			x_pos = 30
+			y_pos = 170
+			for the_membs = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
+				If ALL_SHEL_PANELS_ARRAY(person_age_const, the_membs) >= 18 Then
+					CheckBox 30, 170, 80, 10, "MEMB " & ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, the_membs), ALL_SHEL_PANELS_ARRAY(person_shel_checkbox, the_membs)
+					x_pos = x_pos + 125
+					If x_pos = 200 Then
+						y_pos = y_pos + 15
+					End If
+				End If
+			next
+		    ' CheckBox 30, 170, 80, 10, "Check1", Check1
+		    ' CheckBox 30, 185, 80, 10, "Check2", Check2
+		    ' CheckBox 155, 170, 80, 10, "Check3", Check3
+		    ' CheckBox 155, 185, 80, 10, "Check4", Check4
+		    CheckBox 290, 170, 145, 10, "Someone outside the household. Name:", other_person_checkbox
+		    EditBox 300, 180, 160, 15, other_person_name
 		    Text 20, 205, 205, 10, "Is the payment split evenly among all the responsible parties?"
-		    DropListBox 230, 200, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", List6
+		    DropListBox 230, 200, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", payment_split_evenly_yn
 		    PushButton 410, 205, 50, 10, "Enter", enter_shel_two_btn
+		ElseIf (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") AND unit_owned = "Yes" Then
+
+		ElseIf what_is_the_living_arrangement = "Trailer Home/Mobile Home" Then
+
+		ElseIf what_is_the_living_arrangement = "Room Only" Then
+
+		ElseIf what_is_the_living_arrangement = "Shelter" Then
+
+		ElseIf what_is_the_living_arrangement = "Hotel" Then
+
+		ElseIf what_is_the_living_arrangement = "Vehicle" Then
+
+		ElseIf what_is_the_living_arrangement = "Other" Then
+
 		End If
 
 
@@ -2612,6 +2637,7 @@ If select_option = "Application/Renewal" Then
 		EMReadScreen memb_panel_age, 3, 8, 76
 		memb_panel_age = trim(memb_panel_age)
 		If memb_panel_age = "" Then memb_panel_age = 0
+		memb_panel_age = memb_panel_age * 1
 		ALL_SHEL_PANELS_ARRAY(person_age_const, members_counter) = memb_panel_age
 
 		members_counter = members_counter + 1
