@@ -129,7 +129,7 @@ LOOP UNTIL uBound(HH_member_array) <> -1
 
 CALL get_county_code
 EMReadscreen current_county, 4, 21, 21
-If current_county <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
+If lcase(current_county) <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
 'Establishing array
 avs_membs = 0       'incrementor for array
