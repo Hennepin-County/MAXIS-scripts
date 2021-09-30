@@ -208,10 +208,10 @@ function assess_caf_1_expedited_questions(expedited_screening)
 
 	exp_q_4_utilities_this_month = 0
 	If caf_exp_pay_heat_checkbox = checked OR caf_exp_pay_ac_checkbox = checked Then
-		exp_q_4_utilities_this_month = 496
+		exp_q_4_utilities_this_month = heat_AC_amt
 	Else
-		If caf_exp_pay_electricity_checkbox = checked Then exp_q_4_utilities_this_month = exp_q_4_utilities_this_month + 154
-		If caf_exp_pay_phone_checkbox = checked Then exp_q_4_utilities_this_month = exp_q_4_utilities_this_month + 56
+		If caf_exp_pay_electricity_checkbox = checked Then exp_q_4_utilities_this_month = exp_q_4_utilities_this_month + electric_amt
+		If caf_exp_pay_phone_checkbox = checked Then exp_q_4_utilities_this_month = exp_q_4_utilities_this_month + phone_amt
 	End If
 	exp_q_4_utilities_this_month = FormatNumber(exp_q_4_utilities_this_month, 2, -1, 0, -1)
 
@@ -2367,10 +2367,10 @@ function display_expedited_dialog()
 
 		determined_utilities = 0
 		If heat_expense = True OR ac_expense = True Then
-			determined_utilities = determined_utilities + 496
+			determined_utilities = determined_utilities + heat_AC_amt
 		Else
-			If electric_expense = True Then determined_utilities = determined_utilities + 154
-			If phone_expense = True Then determined_utilities = determined_utilities + 56
+			If electric_expense = True Then determined_utilities = determined_utilities + electric_amt
+			If phone_expense = True Then determined_utilities = determined_utilities + phone_amt
 		End If
 
 		all_utilities = ""
@@ -2718,13 +2718,13 @@ end function
 
 function evaluate_for_expedited(app_month_income, app_month_assets, app_month_housing_cost, heat_checkbox, air_checkbox, electric_checkbox, phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
 	If heat_checkbox = checked OR air_checkbox = checked Then
-		app_month_utilities_cost = 496
+        app_month_utilities_cost = heat_AC_amt
 	ElseIf electric_checkbox = checked AND phone_checkbox = checked Then
-		app_month_utilities_cost = 210
+		app_month_utilities_cost = electric_amt + phone_amt
 	ElseIf electric_checkbox = checked Then
-		app_month_utilities_cost = 154
+		app_month_utilities_cost = electric_amt
 	ElseIf phone_checkbox = checked Then
-		app_month_utilities_cost = 56
+		app_month_utilities_cost = phone_amt
 	End If
 	If app_month_housing_cost = "" Then app_month_housing_cost = 0
 	app_month_housing_cost = app_month_housing_cost * 1
@@ -7049,10 +7049,10 @@ function app_month_utility_detail(determined_utilities, heat_expense, ac_expense
 
 		determined_utilities = 0
 		If heat_checkbox = checked OR ac_checkbox = checked Then
-			determined_utilities = determined_utilities + 496
+			determined_utilities = determined_utilities + heat_AC_amt
 		Else
-			If electric_checkbox = checked Then determined_utilities = determined_utilities + 154
-			If phone_checkbox = checked Then determined_utilities = determined_utilities + 56
+			If electric_checkbox = checked Then determined_utilities = determined_utilities + electric_amt
+			If phone_checkbox = checked Then determined_utilities = determined_utilities + phone_amt
 		End If
 
 	Loop Until ButtonPressed = return_btn And some_vs_none_discrepancy = False
@@ -8285,6 +8285,8 @@ save_your_work
 
 Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
 too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
+
+Call hest_standards(heat_AC_amt, electric_amt, phone_amt, CAF_datestamp)
 
 note_row = 5
 Do
