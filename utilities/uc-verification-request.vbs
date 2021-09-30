@@ -109,10 +109,11 @@ MX_region = trim(MX_region)
 '	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
 '	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
 'End If
-If MX_region = "TRAINING" Then developer_mode = TRUE
+send_email = TRUE
+IF MX_region = "TRAINING" THEN developer_mode = TRUE
 
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 'navigating to stat memb to gather the ref number and name.
-If is_this_priv = TRUE then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
+IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 DO
     CALL HH_member_custom_dialog(HH_member_array)
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
@@ -120,7 +121,7 @@ LOOP UNTIL uBound(HH_member_array) <> -1
 
 CALL get_county_code
 EMReadscreen current_county, 4, 21, 21
-If lcase(current_county) <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
+IF lcase(current_county) <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
 '--------------------------------------------------------------------------------Gathering the MEMB/ALIA information
 
@@ -255,7 +256,7 @@ IF other_checkbox = CHECKED and other_check_editbox <> "" THEN member_info = "Ot
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
 
-If developer_mode = TRUE THEN send_email = FALSE 
+If developer_mode = TRUE THEN send_email = FALSE
 'Creating the email
 'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
 IF send_email = TRUE THEN Call create_outlook_email(team_email, "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", TRUE)   'will create email, will send.
