@@ -684,10 +684,10 @@ function app_month_utility_detail(determined_utilities, heat_expense, ac_expense
 
 		determined_utilities = 0
 		If heat_checkbox = checked OR ac_checkbox = checked Then
-			determined_utilities = determined_utilities + 496
+			determined_utilities = determined_utilities + heat_AC_amt
 		Else
-			If electric_checkbox = checked Then determined_utilities = determined_utilities + 154
-			If phone_checkbox = checked Then determined_utilities = determined_utilities + 56
+			If electric_checkbox = checked Then determined_utilities = determined_utilities + electric_amt
+			If phone_checkbox = checked Then determined_utilities = determined_utilities + phone_amt
 		End If
 
 	Loop Until ButtonPressed = return_btn And some_vs_none_discrepancy = False
@@ -1956,34 +1956,19 @@ function read_HEST_panel()
         EMReadScreen prosp_heat_air, 1, 13, 60
         EMReadScreen prosp_electric, 1, 14, 60
         EMReadScreen prosp_phone, 1, 15, 60
-        CAF_datestamp = cdate(CAF_datestamp)
+        combined_electric_and_phone_amt = electric_amt + phone_amt
 
-        If CAF_datestamp >= cdate("10/01/2020") then
-            If prosp_heat_air = "Y" Then
-                hest_information = "AC/Heat - Full $496"
-            ElseIf prosp_electric = "Y" Then
-                If prosp_phone = "Y" Then
-                    hest_information = "Electric and Phone - $210"
-                Else
-                    hest_information = "Electric ONLY - $154"
-                End If
-            ElseIf prosp_phone = "Y" Then
-                hest_information = "Phone ONLY - $56"
+        If prosp_heat_air = "Y" Then
+            hest_information = "AC/Heat - Full $" & heat_AC_amt
+        ElseIf prosp_electric = "Y" Then
+            If prosp_phone = "Y" Then
+                hest_information = "Electric and Phone - $" & combined_electric_and_phone_amt
+            Else
+                hest_information = "Electric ONLY - $" & electric_amt
             End If
-        Else
-            If prosp_heat_air = "Y" Then
-                hest_information = "AC/Heat - Full $490"
-            ElseIf prosp_electric = "Y" Then
-                If prosp_phone = "Y" Then
-                    hest_information = "Electric and Phone - $192"
-                Else
-                    hest_information = "Electric ONLY - $143"
-                End If
-            ElseIf prosp_phone = "Y" Then
-                hest_information = "Phone ONLY - $49"
-            End If
+        ElseIf prosp_phone = "Y" Then
+            hest_information = "Phone ONLY - $" & phone_amt
         End If
-        CAF_datestamp = CAF_datestamp & ""
     END IF
 end function
 
@@ -4294,6 +4279,13 @@ If IsDate(CAF_datestamp) = False Then
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 End If
 
+Call hest_standards(heat_AC_amt, electric_amt, phone_amt, CAF_datestamp)        'getting the correct amounts for HEST standards based on the application date.
+If the_process_for_snap = "Recertification" AND snap_recert_mo = "10" Then      'IF we are working a recertification CASE for SNAP for 10 - the recert month matters more than the app date. Pulling the correct HEST standards by footer month.
+    oct_first_date = snap_recert_mo & "/1/" & snap_recert_yr
+    oct_first_date = DateAdd("d", 0, oct_first_date)
+    Call hest_standards(heat_AC_amt, electric_amt, phone_amt, oct_first_date)
+End If
+
 'THIS IS HANDLING SPECIFICALLY AROUND THE ALLOWANCE TO WAIVE INTERVIEWS FOR RENEWALS IN EFFECT STARTING FOR 04/21 REVW
 check_for_waived_interview = FALSE
 exp_screening_note_found = False
@@ -5976,6 +5968,12 @@ Do
                     Loop Until pass_five = true
                     If show_six = true Then
                         If left(total_shelter_amount, 1) <> "$" Then total_shelter_amount = "$" & total_shelter_amount
+                        combined_electric_and_phone_amt = electric_amt + phone_amt
+                        heat_ac_detail = "AC/Heat - Full $" & heat_AC_amt
+                        electric_phone_detail = "Electric and Phone - $" & combined_electric_and_phone_amt
+                        electric_detail = "Electric ONLY - $" & electric_amt
+                        phone_detail = "Phone ONLY - $" & phone_amt
+                        hest_droplist = "Select ALLOWED HEST"+chr(9)+heat_ac_detail+chr(9)+electric_phone_detail+chr(9)+electric_detail+chr(9)+phone_detail+chr(9)+"NONE - $0"
 
                         Dialog1 = ""
                         BeginDialog Dialog1, 0, 0, 556, 290, "CAF Dialog 6 - WREG, Expenses, Address"
@@ -5983,7 +5981,7 @@ Do
                           ButtonGroup ButtonPressed
                             PushButton 440, 30, 105, 15, "Update ABAWD and WREG", abawd_button
                             PushButton 235, 85, 50, 15, "Update SHEL", update_shel_button
-                          DropListBox 45, 140, 100, 45, "Select ALLOWED HEST"+chr(9)+"AC/Heat - Full $496"+chr(9)+"AC/Heat - Full $490"+chr(9)+"Electric and Phone - $210"+chr(9)+"Electric and Phone - $192"+chr(9)+"Electric ONLY - $154"+chr(9)+"Electric ONLY - $143"+chr(9)+"Phone ONLY - $56"+chr(9)+"Phone ONLY - $49"+chr(9)+"NONE - $0", hest_information
+                          DropListBox 45, 140, 100, 45, hest_droplist, hest_information
                           EditBox 180, 140, 110, 15, notes_on_acut
                           EditBox 45, 160, 245, 15, notes_on_coex
                           EditBox 45, 180, 245, 15, notes_on_dcex
