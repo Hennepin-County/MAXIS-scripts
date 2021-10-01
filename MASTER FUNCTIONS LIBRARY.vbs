@@ -1842,6 +1842,192 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
     End If
 end function
 
+function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
+'--- This function adds STAT/ACCI data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
+'~~~~~ access_type:indicates if we need to read or write to the HEST panel, only options are 'READ' or 'WRITE' - case does not matter - the function wil ucase it
+'~~~~~ all_persons_paying: string - information with reference numbers for all of the members listed on the panel as currently paying
+'~~~~~ choice_date: information from the panel of the date the selection was made - formatted as mm/dd/yy - script may read this as a date - could be null
+'~~~~~ actual_initial_exp: string - information listed as the initial expense
+'~~~~~ retro_heat_ac_yn: string - the y/n selection for retro heat/ac - will be either 'Y', 'N', ''
+'~~~~~ retro_heat_ac_units: string - two digit entry of the number of units responsible for this expense for retro heat/ac
+'~~~~~ retro_heat_ac_amt: number - the expense amount of retro heat/ac listed on the HEST panel
+'~~~~~ retro_electric_yn: string - the y/n selection for retro electric - will be either 'Y', 'N', ''
+'~~~~~ retro_electric_units: string - two digit entry of the number of units responsible for this expense for retro electric
+'~~~~~ retro_electric_amt: number - the expense amount of retro electric listed on the HEST panel
+'~~~~~ retro_phone_yn: string - the y/n selection for retro phone - will be either 'Y', 'N', ''
+'~~~~~ retro_phone_units: string - two digit entry of the number of units responsible for this expense for retro phone
+'~~~~~ retro_phone_amt: number - the expense amount of retro phone listed on the HEST panel
+'~~~~~ prosp_heat_ac_yn: string - the y/n selection for prosp heat/ac - will be either 'Y', 'N', ''
+'~~~~~ prosp_heat_ac_units: string - two digit entry of the number of units responsible for this expense for prosp heat/ac
+'~~~~~ prosp_heat_ac_amt: number - the expense amount of prosp heat/ac listed on the HEST panel
+'~~~~~ prosp_electric_yn: string - the y/n selection for prosp electric - will be either 'Y', 'N', ''
+'~~~~~ prosp_electric_units: string - two digit entry of the number of units responsible for this expense for prosp electric
+'~~~~~ prosp_electric_amt: number - the expense amount of prosp electric listed on the HEST panel
+'~~~~~ prosp_phone_yn: string - the y/n selection for prosp phone - will be either 'Y', 'N', ''
+'~~~~~ prosp_phone_units: string - two digit entry of the number of units responsible for this expense for prosp phone
+'~~~~~ prosp_phone_amt: number - the expense amount of prosp phone listed on the HEST panel
+'~~~~~ total_utility_expense: number - the amount that will be budgeted for SNAP with SUA
+'===== Keywords: MAXIS, edit, HEST
+    access_type = UCase(access_type)
+	Call navigate_to_MAXIS_screen("STAT", "HEST")
+    If access_type = "READ" Then
+        hest_col = 40
+        Do
+            EMReadScreen pers_paying, 2, 6, hest_col
+            If pers_paying <> "__" Then
+                all_persons_paying = all_persons_paying & ", " & pers_paying
+            Else
+                exit do
+            End If
+            hest_col = hest_col + 3
+        Loop until hest_col = 70
+        If left(all_persons_paying, 1) = "," Then all_persons_paying = right(all_persons_paying, len(all_persons_paying) - 2)
+
+        EMReadScreen choice_date, 8, 7, 40
+        EMReadScreen actual_initial_exp, 8, 8, 61
+
+        EMReadScreen retro_heat_ac_yn, 1, 13, 34
+        EMReadScreen retro_heat_ac_units, 2, 13, 42
+        EMReadScreen retro_heat_ac_amt, 6, 13, 49
+        EMReadScreen retro_electric_yn, 1, 14, 34
+        EMReadScreen retro_electric_units, 2, 14, 42
+        EMReadScreen retro_electric_amt, 6, 14, 49
+        EMReadScreen retro_phone_yn, 1, 15, 34
+        EMReadScreen retro_phone_units, 2, 15, 42
+        EMReadScreen retro_phone_amt, 6, 15, 49
+
+        EMReadScreen prosp_heat_ac_yn, 1, 13, 60
+        EMReadScreen prosp_heat_ac_units, 2, 13, 68
+        EMReadScreen prosp_heat_ac_amt, 6, 13, 75
+        EMReadScreen prosp_electric_yn, 1, 14, 60
+        EMReadScreen prosp_electric_units, 2, 14, 68
+        EMReadScreen prosp_electric_amt, 6, 14, 75
+        EMReadScreen prosp_phone_yn, 1, 15, 60
+        EMReadScreen prosp_phone_units, 2, 15, 68
+        EMReadScreen prosp_phone_amt, 6, 15, 75
+
+        choice_date = replace(choice_date, " ", "/")
+        If choice_date = "__/__/__" Then choice_date = ""
+        actual_initial_exp = trim(actual_initial_exp)
+        actual_initial_exp = replace(actual_initial_exp, "_", "")
+
+        retro_heat_ac_yn = replace(retro_heat_ac_yn, "_", "")
+        retro_heat_ac_units = replace(retro_heat_ac_units, "_", "")
+        retro_heat_ac_amt = trim(retro_heat_ac_amt)
+		If retro_heat_ac_amt = "" Then retro_heat_ac_amt = 0
+		retro_heat_ac_amt = retro_heat_ac_amt * 1
+        retro_electric_yn = replace(retro_electric_yn, "_", "")
+        retro_electric_units = replace(retro_electric_units, "_", "")
+        retro_electric_amt = trim(retro_electric_amt)
+		If retro_electric_amt = "" Then retro_electric_amt = 0
+		retro_electric_amt = retro_electric_amt * 1
+        retro_phone_yn = replace(retro_phone_yn, "_", "")
+        retro_phone_units = replace(retro_phone_units, "_", "")
+        retro_phone_amt = trim(retro_phone_amt)
+		If retro_phone_amt = "" Then retro_phone_amt = 0
+		retro_phone_amt = retro_phone_amt * 1
+
+        prosp_heat_ac_yn = replace(prosp_heat_ac_yn, "_", "")
+        prosp_heat_ac_units = replace(prosp_heat_ac_units, "_", "")
+        prosp_heat_ac_amt = trim(prosp_heat_ac_amt)
+        If prosp_heat_ac_amt = "" Then prosp_heat_ac_amt = 0
+		prosp_heat_ac_amt = prosp_heat_ac_amt * 1
+        prosp_electric_yn = replace(prosp_electric_yn, "_", "")
+        prosp_electric_units = replace(prosp_electric_units, "_", "")
+        prosp_electric_amt = trim(prosp_electric_amt)
+        If prosp_electric_amt = "" Then prosp_electric_amt = 0
+		prosp_electric_amt = prosp_electric_amt * 1
+        prosp_phone_yn = replace(prosp_phone_yn, "_", "")
+        prosp_phone_units = replace(prosp_phone_units, "_", "")
+        prosp_phone_amt = trim(prosp_phone_amt)
+        If prosp_phone_amt = "" Then prosp_phone_amt = 0
+		prosp_phone_amt = prosp_phone_amt * 1
+
+        total_utility_expense = 0
+        If prosp_heat_ac_yn = "Y" Then
+            total_utility_expense =  prosp_heat_ac_amt
+        ElseIf prosp_electric_yn = "Y" AND prosp_phone_yn = "Y" Then
+            total_utility_expense =  prosp_electric_amt + prosp_phone_amt
+        ElseIf prosp_electric_yn = "Y" Then
+            total_utility_expense =  prosp_electric_amt
+        Elseif prosp_phone_yn = "Y" Then
+            total_utility_expense =  prosp_phone_amt
+        End If
+
+    End If
+
+	If access_type = "WRITE" Then
+		EMReadScreen hest_version, 1, 2, 73
+		If hest_version = "1" Then PF9
+		If hest_version = "0" Then
+			EMWriteScreen "nn", 20, 79
+			transmit
+		End If
+
+		all_persons_paying = trim(all_persons_paying)
+		If all_persons_paying <> "" Then
+			If InStr(all_persons_paying, ",") = 0 Then
+				persons_array = array(all_persons_paying)
+			Else
+				persons_array = split(all_persons_paying, ",")
+			End If
+
+			hest_col = 40
+			for each pers_paying in persons_array
+				EMWriteScreen pers_paying, 6, hest_col
+				hest_col = hest_col + 3
+			Next
+
+			If IsDate(choice_date) = True Then Call create_mainframe_friendly_date(choice_date, 7, 40, "YY")
+	        EMWriteScreen actual_initial_exp, 8, 61
+
+			EMWriteScreen retro_heat_ac_yn, 13, 34
+	        EMWriteScreen retro_heat_ac_units, 13, 42
+	        EMWriteScreen retro_electric_yn, 14, 34
+	        EMWriteScreen retro_electric_units, 14, 42
+	        EMWriteScreen retro_phone_yn, 15, 34
+	        EMWriteScreen retro_phone_units, 15, 42
+
+	        EMWriteScreen prosp_heat_ac_yn, 13, 60
+	        EMWriteScreen prosp_heat_ac_units, 13, 68
+	        EMWriteScreen prosp_electric_yn, 14, 60
+	        EMWriteScreen prosp_electric_units, 14, 68
+	        EMWriteScreen prosp_phone_yn, 15, 60
+	        EMWriteScreen prosp_phone_units, 15, 68
+
+			transmit
+
+			EMReadScreen retro_heat_ac_amt, 6, 13, 49
+			EMReadScreen retro_electric_amt, 6, 14, 49
+			EMReadScreen retro_phone_amt, 6, 15, 49
+
+			EMReadScreen prosp_heat_ac_amt, 6, 13, 75
+			EMReadScreen prosp_electric_amt, 6, 14, 75
+			EMReadScreen prosp_phone_amt, 6, 15, 75
+
+			retro_heat_ac_amt = trim(retro_heat_ac_amt)
+			If retro_heat_ac_amt = "" Then retro_heat_ac_amt = 0
+			retro_heat_ac_amt = retro_heat_ac_amt * 1
+			retro_electric_amt = trim(retro_electric_amt)
+			If retro_electric_amt = "" Then retro_electric_amt = 0
+			retro_electric_amt = retro_electric_amt * 1
+			retro_phone_amt = trim(retro_phone_amt)
+			If retro_phone_amt = "" Then retro_phone_amt = 0
+			retro_phone_amt = retro_phone_amt * 1
+
+			prosp_heat_ac_amt = trim(prosp_heat_ac_amt)
+			If prosp_heat_ac_amt = "" Then prosp_heat_ac_amt = 0
+			prosp_heat_ac_amt = prosp_heat_ac_amt * 1
+			prosp_electric_amt = trim(prosp_electric_amt)
+			If prosp_electric_amt = "" Then prosp_electric_amt = 0
+			prosp_electric_amt = prosp_electric_amt * 1
+			prosp_phone_amt = trim(prosp_phone_amt)
+			If prosp_phone_amt = "" Then prosp_phone_amt = 0
+			prosp_phone_amt = prosp_phone_amt * 1
+		End If
+	End If
+end function
+
 function add_ACCI_to_variable(ACCI_variable)
 '--- This function adds STAT/ACCI data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
 '~~~~~ ACCI_variable: the variable used by the editbox you wish to autofill.
