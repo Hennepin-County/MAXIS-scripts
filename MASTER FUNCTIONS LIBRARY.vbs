@@ -1268,18 +1268,54 @@ Function ABAWD_FSET_exemption_finder()
 End Function
 
 function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+'--- This function adds STAT/ACCI data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
+'~~~~~ access_type:indicates if we need to read or write to the ADDR panel, only options are 'READ' or 'WRITE' - case does not matter - the function wil ucase it
+'~~~~~ notes_on_address: string - information read from the panel and used typically in an editbox
+'~~~~~ resi_line_one: string - information from the first line of the residence street address
+'~~~~~ resi_line_two: string - information from the second line of the residence street address
+'~~~~~ resi_street_full: string - information from the first and second line of the residence street address
+'~~~~~ resi_city: string - information from the city line of the residence address
+'~~~~~ resi_state: string - information from the state line of the residence address - this is formatted as MN - Minnesota
+'~~~~~ resi_zip: string - information of the zip code from the residence address
+'~~~~~ resi_county: string - information of the county of the residence address - this is formatted as 27 Hennepin
+'~~~~~ addr_verif: string - information of the verification listed on ADDR - formattes as SF - Shlter Form
+'~~~~~ addr_homeless: string of 'Yes' or 'No' from the homeless yes/no code on ADDR
+'~~~~~ addr_reservation: string of 'Yes' or 'No' from the reservation yes/no code on ADDR
+'~~~~~ addr_living_sit: string - information of the living situation - formatted as 01 - Own Home, or as Blank
+'~~~~~ reservation_name: string - information of the reservation name - formatted as LL - Leech Lake
+'~~~~~ mail_line_one: string - information from first line of street address of the mailing address
+'~~~~~ mail_line_two: string - information from the second line of street address of the mailing address
+'~~~~~ mail_street_full: string - information of both the first and second line of the street address of the mailing address
+'~~~~~ mail_city: string - information of the city listed on the mailing address
+'~~~~~ mail_state: string - information of the state listed on the mailing address - this is formatted as MN - Minnesota
+'~~~~~ mail_zip: string - information of the zip code listed on the mailing address
+'~~~~~ addr_eff_date: string - the date listed as the effective date on the top of the panel. Formatted as MM/DD/YY - script may read as a date
+'~~~~~ addr_future_date: string - the date listed at the top if there is a future date of a change in a future month. formatted as MM/DD/YY - script may read as a date
+'~~~~~ phone_one: string - information listed on the first phone line - formatted as xxx-xxx-xxxx
+'~~~~~ phone_two: string - information listed on the second phone line - formatted as xxx-xxx-xxxx
+'~~~~~ phone_three: string - information listed on the third phone line - formatted as xxx-xxx-xxxx
+'~~~~~ type_one: string - information listed for the type of the first phone  - formatted as C - Cell
+'~~~~~ type_two: string - information listed for the type of the second phone  - formatted as C - Cell
+'~~~~~ type_three: string - information listed for the type of the third phone  - formatted as C - Cell
+'~~~~~ text_yn_one: string - information listed as the authorization on the first phone for texting - formatted as Y or N
+'~~~~~ text_yn_two: string - information listed as the authorization on the second phone for texting - formatted as Y or N
+'~~~~~ text_yn_three: string - information listed as the authorization on the third phone for texting - formatted as Y or N
+'~~~~~ addr_email: string - information listed on the email line. any trailing '_' will be trimmed off but NOT any in the middle
+'~~~~~ verif_received: string - StRING - used as entry on WRITE only
+'~~~~~ original_information: string that saves the original detail known on the panel - this is used to see if there is an update to any information
+'~~~~~ update_attempted: boolean - output after 'WRITE' to indicate that an update of panel information was attempted.
+'===== Keywords: MAXIS, update, ADDR
 	access_type = UCase(access_type)
     If access_type = "READ" Then
-        Call navigate_to_MAXIS_screen("STAT", "ADDR")
-		EMReadScreen curr_addr_footer_month, 2, 20, 55
+        Call navigate_to_MAXIS_screen("STAT", "ADDR")							'going to ADDR
+		EMReadScreen curr_addr_footer_month, 2, 20, 55							'reading the footer month and year on the panel because there is footer months pecific differences
 		EMReadScreen curr_addr_footer_year, 2, 20, 58
-		the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year
+		the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year		'making a date out of the footer month
 		the_footer_month_date = DateAdd("d", 0, the_footer_month_date)
-		new_version = True
-		If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False
-		' MsgBox "the footer date - " & the_footer_month_date & vbCr & "oct 1 - " & #10/1/2021# & vbCr & "date diff - " & DateDiff("d", the_footer_month_date, #10/1/2021#) & vbCr & "new version - " & new_version
+		new_version = True														'defaulting to using the new verion of the panel with text authorization and email
+		If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False	'if the footer months is BEFORE 10/1/2021, then we need to read the old version
 
-        EMReadScreen line_one, 22, 6, 43
+        EMReadScreen line_one, 22, 6, 43										'reading the information from the top half of the ADDR panel
         EMReadScreen line_two, 22, 7, 43
         EMReadScreen city_line, 15, 8, 43
         EMReadScreen state_line, 2, 8, 66
@@ -1289,15 +1325,15 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         EMReadScreen homeless_line, 1, 10, 43
         EMReadScreen reservation_line, 1, 10, 74
         EMReadScreen living_sit_line, 2, 11, 43
-		EMReadScreen reservation_name, 1, 10, 74
+		EMReadScreen reservation_name, 2, 11, 74
 
-        resi_line_one = replace(line_one, "_", "")
+        resi_line_one = replace(line_one, "_", "")								'formatting the residence address information to remove the '_'
         resi_line_two = replace(line_two, "_", "")
 		resi_street_full = trim(resi_line_one & " " & resi_line_two)
         resi_city = replace(city_line, "_", "")
         resi_zip = replace(zip_line, "_", "")
 
-        If county_line = "01" Then addr_county = "01 Aitkin"
+        If county_line = "01" Then addr_county = "01 Aitkin"					'Adding the county name to the county string
         If county_line = "02" Then addr_county = "02 Anoka"
         If county_line = "03" Then addr_county = "03 Becker"
         If county_line = "04" Then addr_county = "04 Beltrami"
@@ -1389,15 +1425,28 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 		Call get_state_name_from_state_code(state_line, resi_state, TRUE)		'This function makes the state code to be the state name written out - including the code
 
-        If homeless_line = "Y" Then addr_homeless = "Yes"
+        If homeless_line = "Y" Then addr_homeless = "Yes"						'formatting the Y and N to 'Yes' or 'No'
         If homeless_line = "N" Then addr_homeless = "No"
         If reservation_line = "Y" Then addr_reservation = "Yes"
         If reservation_line = "N" Then addr_reservation = "No"
 
-		If reservation_name = "" Then reservation_name = ""
+		If reservation_name = "__" Then reservation_name = ""					'Filling in the detail of the reservation name
+		If reservation_name = "BD" Then reservation_name = "BD - Bois Forte - Deer Creek"
+		If reservation_name = "BN" Then reservation_name = "BN - Bois Forte - Nett Lake"
+		If reservation_name = "BV" Then reservation_name = "BV - Bois Forte - Vermillion Lk"
+		If reservation_name = "FL" Then reservation_name = "FL - Fond du Lac"
+		If reservation_name = "GP" Then reservation_name = "GP - Grand Portage"
+		If reservation_name = "LL" Then reservation_name = "LL - Leach Lake"
+		If reservation_name = "LS" Then reservation_name = "LS - Lower Sioux"
+		If reservation_name = "ML" Then reservation_name = "ML - Mille Lacs"
+		If reservation_name = "PL" Then reservation_name = "PL - Prairie Island Community"
+		If reservation_name = "RL" Then reservation_name = "RL - Red Lake"
+		If reservation_name = "SM" Then reservation_name = "SM - Shakopee Mdewakanton"
+		If reservation_name = "US" Then reservation_name = "US - Upper Sioux"
+		If reservation_name = "WE" Then reservation_name = "WE - White Earth"
 
-        If verif_line = "SF" Then addr_verif = "SF - Shelter Form"
-        If verif_line = "Co" Then addr_verif = "CO - Coltrl Stmt"
+        If verif_line = "SF" Then addr_verif = "SF - Shelter Form"				'filling in the detail of the verification listed
+        If verif_line = "CO" Then addr_verif = "CO - Coltrl Stmt"
         If verif_line = "MO" Then addr_verif = "MO - Mortgage Papers"
         If verif_line = "TX" Then addr_verif = "TX - Prop Tax Stmt"
         If verif_line = "CD" Then addr_verif = "CD - Contrct for Deed"
@@ -1409,7 +1458,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If verif_line = "__" Then addr_verif = "Blank"
 
 
-        If living_sit_line = "__" Then living_situation = "Blank"
+        If living_sit_line = "__" Then living_situation = "Blank"				'Adding detail to the living situation code
         If living_sit_line = "01" Then living_situation = "01 - Own home, lease or roomate"
         If living_sit_line = "02" Then living_situation = "02 - Family/Friends - economic hardship"
         If living_sit_line = "03" Then living_situation = "03 -  servc prvdr- foster/group home"
@@ -1422,10 +1471,10 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If living_sit_line = "10" Then living_situation = "10 - Unknown"
         addr_living_sit = living_situation
 
-        EMReadScreen addr_eff_date, 8, 4, 43
+        EMReadScreen addr_eff_date, 8, 4, 43									'reading the dates on the panel
         EMReadScreen addr_future_date, 8, 4, 66
 
-		If new_version = False Then
+		If new_version = False Then												'reading the bottom half of the panel based on if we are in the new or old version
 	        EMReadScreen mail_line_one, 22, 13, 43
 	        EMReadScreen mail_line_two, 22, 14, 43
 	        EMReadScreen mail_city_line, 15, 15, 43
@@ -1460,10 +1509,11 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			EMReadScreen text_yn_two, 1, 17, 76
 			EMReadScreen text_yn_three, 1, 18, 76
 
+
 			EMReadScreen addr_email, 50, 19, 31
 		End If
 
-        addr_eff_date = replace(addr_eff_date, " ", "/")
+        addr_eff_date = replace(addr_eff_date, " ", "/")						'formatting the information from the second half
         addr_future_date = trim(addr_future_date)
         addr_future_date = replace(addr_future_date, " ", "/")
         mail_line_one = replace(mail_line_one, "_", "")
@@ -1473,6 +1523,15 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         mail_state = replace(mail_state_line, "_", "")
         mail_zip = replace(mail_zip_line, "_", "")
 
+		If text_yn_one = "_" Then text_yn_one = ""								'Changing blanks to nulls
+		If text_yn_two = "_" Then text_yn_two = ""
+		If text_yn_three = "_" Then text_yn_three = ""
+		'here we remove the '_' from the front and back of the string - we cannot use replace here because '_' may be a part of the email address.
+		Do
+			If right(addr_email, 1) = "_" Then addr_email = left(addr_email, len(addr_email) - 1)
+			If left(addr_email, 1) = "_" Then addr_email = right(addr_email, len(addr_email) - 1)
+		Loop until right(addr_email, 1) <> "_" AND  left(addr_email, 1) <> "_"
+
         notes_on_address = "Address effective: " & addr_eff_date & "."
         ' If mail_line_one <> "" Then
         '     If mail_line_two = "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
@@ -1480,7 +1539,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         ' End If
         If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
 
-        phone_one = replace(phone_one, " ) ", "-")
+        phone_one = replace(phone_one, " ) ", "-")								'formatting phone numbers
         phone_one = replace(phone_one, " ", "-")
         If phone_one = "___-___-____" Then phone_one = ""
 
@@ -1513,13 +1572,12 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
         If type_three = "T" Then type_three = "T - TTY/TDD"
         If type_three = "_" Then type_three = ""
 
-		Do
-			If right(addr_email, 1) = "_" Then addr_email = left(addr_email, len(addr_email) - 1)
-		Loop Until right(addr_email, 1) <> "_"
-
+		'here we save the information we gathered to start with so that we can compare it and know if it changed
 		original_information = resi_line_one&"|"&resi_line_two&"|"&resi_street_full&"|"&resi_city&"|"&resi_state&"|"&resi_zip&"|"&resi_county&"|"&addr_verif&"|"&_
 							   addr_homeless&"|"&addr_reservation&"|"&addr_living_sit&"|"&mail_line_one&"|"&mail_line_two&"|"&mail_street_full&"|"&mail_city&"|"&_
-							   mail_state&"|"&mail_zip&"|"&addr_eff_date&"|"&addr_future_date&"|"&phone_one&"|"&phone_two&"|"&phone_three&"|"&type_one&"|"&type_two&"|"&type_three&"|"&verif_received
+							   mail_state&"|"&mail_zip&"|"&addr_eff_date&"|"&addr_future_date&"|"&phone_one&"|"&phone_two&"|"&phone_three&"|"&type_one&"|"&type_two&"|"&type_three&"|"&_
+							   text_yn_one&"|"&text_yn_two&"|"&text_yn_three&"|"&addr_email&"|"&addr_verif
+		original_information = UCASE(original_information)
     End If
 
     If access_type = "WRITE" Then
@@ -1555,26 +1613,30 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 		current_information = resi_line_one&"|"&resi_line_two&"|"&resi_street_full&"|"&resi_city&"|"&resi_state&"|"&resi_zip&"|"&resi_county&"|"&addr_verif&"|"&_
 							  addr_homeless&"|"&addr_reservation&"|"&addr_living_sit&"|"&mail_line_one&"|"&mail_line_two&"|"&mail_street_full&"|"&mail_city&"|"&_
-							  mail_state&"|"&mail_zip&"|"&addr_eff_date&"|"&addr_future_date&"|"&phone_one&"|"&phone_two&"|"&phone_three&"|"&type_one&"|"&type_two&"|"&type_three&"|"&verif_received
+							  mail_state&"|"&mail_zip&"|"&addr_eff_date&"|"&addr_future_date&"|"&phone_one&"|"&phone_two&"|"&phone_three&"|"&type_one&"|"&type_two&"|"&type_three&"|"&_
+							  text_yn_one&"|"&text_yn_two&"|"&text_yn_three&"|"&addr_email&"|"&addr_verif
 
 
+		current_information = UCase(current_information)
 		' MsgBox "THIS" & vbCR & "ORIGINAL" & vbCr & original_information & vbCr & vbCr & "CURRENT" & vbCr & current_information
-		If current_information <> original_information Then
+		If current_information <> original_information Then						'If the information in the beginning and the information inthe end do not match - we need to update
 			update_attempted = True
 
-	        Call navigate_to_MAXIS_screen("STAT", "ADDR")
-			EMReadScreen curr_addr_footer_month, 2, 20, 55
+			Call navigate_to_MAXIS_screen("STAT", "ADDR")							'going to ADDR
+			EMReadScreen curr_addr_footer_month, 2, 20, 55							'reading the footer month and year on the panel because there is footer months pecific differences
 			EMReadScreen curr_addr_footer_year, 2, 20, 58
-			the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year
+			the_footer_month_date = curr_addr_footer_month &  "/1/" & curr_addr_footer_year		'making a date out of the footer month
 			the_footer_month_date = DateAdd("d", 0, the_footer_month_date)
-			new_version = True
-			If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False
+			new_version = True														'defaulting to using the new verion of the panel with text authorization and email
+			If DateDiff("d", the_footer_month_date, #10/1/2021#) > 0 Then new_version = False	'if the footer months is BEFORE 10/1/2021, then we need to read the old version
 
-	        PF9
+	        PF9																	'Put it in edit mode
 
+			'Now we write all the information
 	        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
 
 			If resi_street_full <> "" AND resi_line_one = "" Then resi_line_one = resi_street_full
+			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
 	        If len(resi_line_one) > 22 Then
 	            resi_words = split(resi_line_one, " ")
 	            write_resi_line_one = ""
@@ -1609,6 +1671,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	        EMWriteScreen left(addr_verif, 2), 9, 74
 
 			If mail_street_full <> "" AND mail_line_one = "" Then mail_line_one = mail_street_full
+			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
 	        If len(mail_line_one) > 22 Then
 	            mail_words = split(mail_line_one, " ")
 	            write_mail_line_one = ""
@@ -1778,7 +1841,6 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		End IF
     End If
 end function
-
 
 function add_ACCI_to_variable(ACCI_variable)
 '--- This function adds STAT/ACCI data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
