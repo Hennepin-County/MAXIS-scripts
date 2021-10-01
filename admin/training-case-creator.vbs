@@ -2767,15 +2767,31 @@ For cases_to_make = 1 to how_many_cases_to_make
 	EMWriteScreen ADDR_mailing_addr_city, 15, 43
 	If ADDR_mailing_addr_line_one <> "" then EMWriteScreen "MN", 16, 43	'Only writes if the user indicated a mailing address. Defaults to MN at this time.
 	EMWriteScreen ADDR_mailing_addr_zip, 16, 52
-	EMWriteScreen left(ADDR_phone_1, 3), 17, 45						'Has to split phone numbers up into three parts each
-	EMWriteScreen mid(ADDR_phone_1, 5, 3), 17, 51
-	EMWriteScreen right(ADDR_phone_1, 4), 17, 55
-	EMWriteScreen left(ADDR_phone_2, 3), 18, 45
-	EMWriteScreen mid(ADDR_phone_2, 5, 3), 18, 51
-	EMWriteScreen right(ADDR_phone_2, 4), 18, 55
-	EMWriteScreen left(ADDR_phone_3, 3), 19, 45
-	EMWriteScreen mid(ADDR_phone_3, 5, 3), 19, 51
-	EMWriteScreen right(ADDR_phone_3, 4), 19, 55
+	EMWriteScreen MAXIS_footer_month, 20, 43
+	EMWriteScreen MAXIS_footer_year, 20, 46
+	first_of_footer_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year		'We need to determine when we are updating what month we are in because these move
+	first_of_footer_month = DateAdd("d", 0, first_of_footer_month)
+	If DateDiff("d", first_of_footer_month, #10/1/2021#) > 0 Then 				''before 10/1/21 - they are here
+		EMWriteScreen left(ADDR_phone_1, 3), 17, 45						'Has to split phone numbers up into three parts each
+		EMWriteScreen mid(ADDR_phone_1, 5, 3), 17, 51
+		EMWriteScreen right(ADDR_phone_1, 4), 17, 55
+		EMWriteScreen left(ADDR_phone_2, 3), 18, 45
+		EMWriteScreen mid(ADDR_phone_2, 5, 3), 18, 51
+		EMWriteScreen right(ADDR_phone_2, 4), 18, 55
+		EMWriteScreen left(ADDR_phone_3, 3), 19, 45
+		EMWriteScreen mid(ADDR_phone_3, 5, 3), 19, 51
+		EMWriteScreen right(ADDR_phone_3, 4), 19, 55
+	Else 																		'10/1 and after will be this'
+		EMWriteScreen left(ADDR_phone_1, 3), 16, 39						'Has to split phone numbers up into three parts each
+		EMWriteScreen mid(ADDR_phone_1, 5, 3), 16, 45
+		EMWriteScreen right(ADDR_phone_1, 4), 16, 49
+		EMWriteScreen left(ADDR_phone_2, 3), 17, 39
+		EMWriteScreen mid(ADDR_phone_2, 5, 3), 17, 45
+		EMWriteScreen right(ADDR_phone_2, 4), 17, 49
+		EMWriteScreen left(ADDR_phone_3, 3), 18, 39
+		EMWriteScreen mid(ADDR_phone_3, 5, 3), 18, 45
+		EMWriteScreen right(ADDR_phone_3, 4), 18, 49
+	End If
 
 	'Reads the case number and adds to an array before exiting
 	EMReadScreen current_case_number, 8, 20, 37
