@@ -72,42 +72,42 @@ dfln_row = 237
 diet_row = 249
 disa_row = 261
 dstt_row = 277
-eats_row = 280
-emma_row = 285
-emps_row = 290
-faci_row = 301
-fmed_row = 308
-hest_row = 337
-imig_row = 345
-insa_row = 361
-jobs1_row = 370
-jobs2_row = 377
-jobs3_row = 384
-medi_row = 391
-mmsa_row = 398
-msur_row = 402
-othr_row = 403
-pare_row = 415
-pben1_row = 433
-pben2_row = 439
-pben3_row = 445
-pded_row = 451
-preg_row = 465
-rbic_row = 470
-rest_row = 495
-schl_row = 506
-secu_row = 516
-shel_row = 531
-sibl_row = 566
-spon_row = 569
-stec_row = 573
-stin_row = 585
-stwk_row = 595
-unea1_row = 607
-unea2_row = 613
-unea3_row = 619
-wkex_row = 625
-wreg_row = 674
+eats_row = 281
+emma_row = 286
+emps_row = 291
+faci_row = 302
+fmed_row = 309
+hest_row = 338
+imig_row = 346
+insa_row = 362
+jobs1_row = 371
+jobs2_row = 378
+jobs3_row = 385
+medi_row = 392
+mmsa_row = 399
+msur_row = 403
+othr_row = 404
+pare_row = 416
+pben1_row = 434
+pben2_row = 440
+pben3_row = 446
+pded_row = 452
+preg_row = 466
+rbic_row = 471
+rest_row = 496
+schl_row = 507
+secu_row = 515
+shel_row = 532
+sibl_row = 567
+spon_row = 570
+stec_row = 574
+stin_row = 586
+stwk_row = 596
+unea1_row = 608
+unea2_row = 614
+unea3_row = 620
+wkex_row = 626
+wreg_row = 675
 
 'custom function for determining data validation values in the given cell and matching with what is needed...
 FUNCTION check_for_data_validation(cell_row, cell_column, maxis_value, objExcel, objWorkbook, objTemplate, objNewSheet)
@@ -455,37 +455,9 @@ FOR EACH client IN client_array
 	excel_col = excel_col + 1
 NEXT
 
-'Navigating to ADDR------------------------------------------------------------------------------------------
-CALL navigate_to_MAXIS_screen("STAT", "ADDR")
+'Reading ADDR information ------------------------------------------------------------------------------------------
+Call access_ADDR_panel("READ", notes_on_address, addr_line1, addr_line2, resi_street_full, addr_city, resi_state, addr_zip, addr_county, addr_verif, addr_homeless, addr_reserv, addr_living_sit, reservation_name, mail_line1, mail_line2, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone1, phone2, phone3, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 STATS_manualtime = STATS_manualtime + 35		'<<< average time...if no mailing addr info...about 31 seconds...if mailing addr info...about 39 seconds
-'reading ADDR information
-EMReadScreen addr_line1, 22, 6, 43
-	addr_line1 = replace(addr_line1, "_", "")
-EMReadScreen addr_line2, 22, 7, 43
-	addr_line2 = replace(addr_line2, "_", "")
-EMReadScreen addr_city, 15, 8, 43
-	addr_city = replace(addr_city, "_", "")
-EMReadScreen addr_zip, 5, 9, 43
-EMReadScreen addr_county, 2, 9, 66
-EMReadScreen addr_verif, 2, 9, 74
-EMReadScreen addr_homeless, 1, 10, 43
-EMReadScreen addr_reserv, 1, 10, 74
-EMReadScreen mail_line1, 22, 13, 43
-	mail_line1 = replace(mail_line1, "_", "")
-EMReadScreen mail_line2, 22, 14, 43
-	mail_line2 = replace(mail_line2, "_", "")
-EMReadScreen mail_city, 15, 15, 43
-	mail_city = replace(mail_city, "_", "")
-EMReadScreen mail_zip, 5, 16, 15
-EMReadScreen phone1, 14, 17, 45
-	phone1 = replace(phone1, " ) ", "-")
-	phone1 = replace(phone1, " ", "-")
-EMReadScreen phone2, 14, 18, 45
-	phone2 = replace(phone2, " ) ", "-")
-	phone2 = replace(phone2, " ", "-")
-EMReadScreen phone3, 14, 19, 45
-	phone3 = replace(phone3, " ) ", "-")
-	phone3 = replace(phone3, " ", "-")
 
 'and writing it into the template
 objExcel.Cells(addr_row, 3).Value = addr_line1
@@ -500,9 +472,9 @@ objExcel.Cells(addr_row + 8, 3).Value = mail_line1
 objExcel.Cells(addr_row + 9, 3).Value = mail_line2
 objExcel.Cells(addr_row + 10, 3).Value = mail_city
 objExcel.Cells(addr_row + 11, 3).Value = mail_zip
-IF phone1 <> "___-___-____" THEN objExcel.Cells(addr_row + 12, 3).Value = phone1
-IF phone2 <> "___-___-____" THEN objExcel.Cells(addr_row + 13, 3).Value = phone2
-IF phone3 <> "___-___-____" THEN objExcel.Cells(addr_row + 14, 3).Value = phone3
+IF phone1 <> "" THEN objExcel.Cells(addr_row + 12, 3).Value = phone1
+IF phone2 <> "" THEN objExcel.Cells(addr_row + 13, 3).Value = phone2
+IF phone3 <> "" THEN objExcel.Cells(addr_row + 14, 3).Value = phone3
 
 'Navigating to TYPE------------------------------------------------------------------------------------------
 CALL navigate_to_MAXIS_screen("STAT", "TYPE")
@@ -2891,8 +2863,8 @@ NEXT
 FOR i = 3 TO excel_col - 1
 	objExcel.Columns(i).Autofit()
 NEXT
-
-objWorkbook.SaveAs(training_case_creator_excel_file_path)
+objExcel.Columns(1).ColumnWidth = 9
+objWorkbook.Save()		'saving the excel
 end_time = timer
 run_time = end_time - start_time
 script_end_procedure("file saved." & vbCr & "manual time = " & STATS_manualtime & vbCr & "script run time = " & run_time)
