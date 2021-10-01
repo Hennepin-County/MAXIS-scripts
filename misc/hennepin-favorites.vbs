@@ -1033,11 +1033,6 @@ For each tester in tester_array
     End If
 Next
 
-If tester_found = FALSE Then
-    tags_coming_soon = MsgBox("***            Coming soon!            ***" & vbNewLine & vbNewLine & "We are updating how we engage with the script tools. One of these ways is with a new system of tagging." & vbNewLine & "This button will have functionality to preview the new menu using these tags. It is not available just yet as we develop and test the functionality." & vbNewLine & vbNewLine & "Come back later to try this new functionality.", vbOk, "New Tags Menu Coming Soon.")
-    stopscript
-End If
-
 favorites_text_file_location = user_myDocs_folder & "\scripts-favorites.txt"
 hotkeys_text_file_location = user_myDocs_folder & "\scripts-hotkeys.txt"
 
