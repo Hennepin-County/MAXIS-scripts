@@ -68,6 +68,7 @@ END FUNCTION
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""		'Connects to BlueZone
+file_selection_path = "T:\Eligibility Support\Restricted\Reports\TeleVox\For Ilse\Renewals template file.xlsx"
 
 'dialog and dialog DO...Loop
 Do
