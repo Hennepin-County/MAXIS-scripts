@@ -2028,6 +2028,439 @@ function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_
 	End If
 end function
 
+function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, paid_to, rent_retro_amt, rent_retro_verif, rent_prosp_amt, rent_prosp_verif, lot_rent_retro_amt, lot_rent_retro_verif, lot_rent_prosp_amt, lot_rent_prosp_verif, mortgage_retro_amt, mortgage_retro_verif, mortgage_prosp_amt, mortgage_prosp_verif, insurance_retro_amt, insurance_retro_verif, insurance_prosp_amt, insurance_prosp_verif, tax_retro_amt, tax_retro_verif, tax_prosp_amt, tax_prosp_verif, room_retro_amt, room_retro_verif, room_prosp_amt, room_prosp_verif, garage_retro_amt, garage_retro_verif, garage_prosp_amt, garage_prosp_verif, subsidy_retro_amt, subsidy_retro_verif, subsidy_prosp_amt, subsidy_prosp_verif, original_information)
+'--- This function adds STAT/ACCI data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
+'~~~~~ access_type:indicates if we need to read or write to the HEST panel, only options are 'READ' or 'WRITE' - case does not matter - the function wil ucase it
+'~~~~~ shel_ref_number: String - the 2 digit reference number of the member the panels is for
+'~~~~~ hud_sub_yn: string - the y/n information about if the rent is HUD Subsidized - options: 'Y', 'N', ''
+'~~~~~ shared_yn: string - the y/n information about if the expense is shared - options: 'Y', 'N', ''
+'~~~~~ paid_to: string - information about who the expense is paid to
+'~~~~~ rent_retro_amt: number - amount entered of the retro rent
+'~~~~~ rent_retro_verif: string - verif entered for the retro rent - formatted as XX - VERIF NAME
+'~~~~~ rent_prosp_amt: number - amount entered of the prosp rent
+'~~~~~ rent_prosp_verif: string - verif entered for the prosp rent
+'~~~~~ lot_rent_retro_amt: number - amount entered of the retro lot rent
+'~~~~~ lot_rent_retro_verif: string - verif entered for the retro lot rent
+'~~~~~ lot_rent_prosp_amt: number - amount entered of the prosp lot rent
+'~~~~~ lot_rent_prosp_verif: string - verif entered for the prosp lot rent
+'~~~~~ mortgage_retro_amt: number - amount entered of the retro mortgage
+'~~~~~ mortgage_retro_verif: string - verif entered for the retro mortgage
+'~~~~~ mortgage_prosp_amt: number - amount entered of the prosp mortgage
+'~~~~~ mortgage_prosp_verif: string - verif entered for the prosp mortgage
+'~~~~~ insurance_retro_amt: number - amount entered of the retro insurance
+'~~~~~ insurance_retro_verif: string - verif entered for the retro insurance
+'~~~~~ insurance_prosp_amt: number - amount entered of the prosp insurance
+'~~~~~ insurance_prosp_verif: string - verif entered for the prosp insurance
+'~~~~~ tax_retro_amt: number - amount entered of the retro tax
+'~~~~~ tax_retro_verif: string - verif entered for the retro tax
+'~~~~~ tax_prosp_amt: number - amount entered of the prosp tax
+'~~~~~ tax_prosp_verif: string - verif entered for the prosp tax
+'~~~~~ room_retro_amt: number - amount entered of the retro room
+'~~~~~ room_retro_verif: string - verif entered for the retro room
+'~~~~~ room_prosp_amt: number - amount entered of the prosp room
+'~~~~~ room_prosp_verif: string - verif entered for the prosp room
+'~~~~~ garage_retro_amt: number - amount entered of the retro garage
+'~~~~~ garage_retro_verif: string - verif entered for the retro garage
+'~~~~~ garage_prosp_amt: number - amount entered of the prosp garage
+'~~~~~ garage_prosp_verif: string - verif entered for the prsop garage
+'~~~~~ subsidy_retro_amt: number - amount entered of the retro subsidy
+'~~~~~ subsidy_retro_verif: string - verif entered for the retro subsidy
+'~~~~~ subsidy_prosp_amt: number - amount entered of the prosp subsidy
+'~~~~~ subsidy_prosp_verif: string - verif entered for the prosp subsidy
+'~~~~~ original_information: string that saves the original detail known on the panel - this is used to see if there is an update to any information
+'===== Keywords: MAXIS, edit, update, SHEL
+	Call navigate_to_MAXIS_screen("STAT", "SHEL")
+	EMWriteScreen shel_ref_number, 20, 76
+	transmit
+
+	access_type = UCase(access_type)
+    If access_type = "READ" Then
+        EMReadScreen hud_sub_yn,            1, 6, 46
+        EMReadScreen shared_yn,             1, 6, 64
+        EMReadScreen paid_to,               25, 7, 50
+
+		if hud_sub_yn = "_" Then hud_sub_yn = ""
+		if shared_yn = "_" Then shared_yn = ""
+        paid_to = replace(paid_to, "_", "")
+
+        EMReadScreen rent_retro_amt,        8, 11, 37
+        EMReadScreen rent_retro_verif,      2, 11, 48
+        EMReadScreen rent_prosp_amt,        8, 11, 56
+        EMReadScreen rent_prosp_verif,      2, 11, 67
+
+        rent_retro_amt = replace(rent_retro_amt, "_", "")
+        rent_retro_amt = trim(rent_retro_amt)
+		If rent_retro_amt = "" Then rent_retro_amt = 0
+		rent_retro_amt = rent_retro_amt * 1
+        If rent_retro_verif = "SF" Then rent_retro_verif = "SF - Shelter Form"
+        If rent_retro_verif = "LE" Then rent_retro_verif = "LE - Lease"
+        If rent_retro_verif = "RE" Then rent_retro_verif = "RE - Rent Receipt"
+        If rent_retro_verif = "OT" Then rent_retro_verif = "OT - Other Doc"
+        If rent_retro_verif = "NC" Then rent_retro_verif = "NC - Chg, Neg Impact"
+        If rent_retro_verif = "PC" Then rent_retro_verif = "PC - Chg, Pos Impact"
+        If rent_retro_verif = "NO" Then rent_retro_verif = "NO - No Verif"
+		If rent_retro_verif = "?_" Then rent_retro_verif = "? - Delayed Verif"
+        If rent_retro_verif = "__" Then rent_retro_verif = ""
+        rent_prosp_amt = replace(rent_prosp_amt, "_", "")
+        rent_prosp_amt = trim(rent_prosp_amt)
+		If rent_prosp_amt = "" Then rent_prosp_amt = 0
+		rent_prosp_amt = rent_prosp_amt * 1
+        If rent_prosp_verif = "SF" Then rent_prosp_verif = "SF - Shelter Form"
+        If rent_prosp_verif = "LE" Then rent_prosp_verif = "LE - Lease"
+        If rent_prosp_verif = "RE" Then rent_prosp_verif = "RE - Rent Receipt"
+        If rent_prosp_verif = "OT" Then rent_prosp_verif = "OT - Other Doc"
+        If rent_prosp_verif = "NC" Then rent_prosp_verif = "NC - Chg, Neg Impact"
+        If rent_prosp_verif = "PC" Then rent_prosp_verif = "PC - Chg, Pos Impact"
+        If rent_prosp_verif = "NO" Then rent_prosp_verif = "NO - No Verif"
+		If rent_prosp_verif = "?_" Then rent_prosp_verif = "? - Delayed Verif"
+        If rent_prosp_verif = "__" Then rent_prosp_verif = ""
+
+        EMReadScreen lot_rent_retro_amt,    8, 12, 37
+        EMReadScreen lot_rent_retro_verif,  2, 12, 48
+        EMReadScreen lot_rent_prosp_amt,    8, 12, 56
+        EMReadScreen lot_rent_prosp_verif,  2, 12, 67
+
+        lot_rent_retro_amt = replace(lot_rent_retro_amt, "_", "")
+        lot_rent_retro_amt = trim(lot_rent_retro_amt)
+		If lot_rent_retro_amt = "" Then lot_rent_retro_amt = 0
+		lot_rent_retro_amt = lot_rent_retro_amt * 1
+        If lot_rent_retro_verif = "LE" Then lot_rent_retro_verif = "LE - Lease"
+        If lot_rent_retro_verif = "RE" Then lot_rent_retro_verif = "RE - Rent Receipt"
+        If lot_rent_retro_verif = "BI" Then lot_rent_retro_verif = "BI - Billing Stmt"
+        If lot_rent_retro_verif = "OT" Then lot_rent_retro_verif = "OT - Other Doc"
+        If lot_rent_retro_verif = "NC" Then lot_rent_retro_verif = "NC - Chg, Neg Impact"
+        If lot_rent_retro_verif = "PC" Then lot_rent_retro_verif = "PC - Chg, Pos Impact"
+        If lot_rent_retro_verif = "NO" Then lot_rent_retro_verif = "NO - No Verif"
+		If lot_rent_retro_verif = "?_" Then lot_rent_retro_verif = "? - Delayed Verif"
+        If lot_rent_retro_verif = "__" Then lot_rent_retro_verif = ""
+        lot_rent_prosp_amt = replace(lot_rent_prosp_amt, "_", "")
+        lot_rent_prosp_amt = trim(lot_rent_prosp_amt)
+		If lot_rent_prosp_amt = "" Then lot_rent_prosp_amt = 0
+		lot_rent_prosp_amt = lot_rent_prosp_amt * 1
+        If lot_rent_prosp_verif = "LE" Then lot_rent_prosp_verif = "LE - Lease"
+        If lot_rent_prosp_verif = "RE" Then lot_rent_prosp_verif = "RE - Rent Receipt"
+        If lot_rent_prosp_verif = "BI" Then lot_rent_prosp_verif = "BI - Billing Stmt"
+        If lot_rent_prosp_verif = "OT" Then lot_rent_prosp_verif = "OT - Other Doc"
+        If lot_rent_prosp_verif = "NC" Then lot_rent_prosp_verif = "NC - Chg, Neg Impact"
+        If lot_rent_prosp_verif = "PC" Then lot_rent_prosp_verif = "PC - Chg, Pos Impact"
+        If lot_rent_prosp_verif = "NO" Then lot_rent_prosp_verif = "NO - No Verif"
+		If lot_rent_prosp_verif = "?_" Then lot_rent_prosp_verif = "? - Delayed Verif"
+        If lot_rent_prosp_verif = "__" Then lot_rent_prosp_verif = ""
+
+        EMReadScreen mortgage_retro_amt,    8, 13, 37
+        EMReadScreen mortgage_retro_verif,  2, 13, 48
+        EMReadScreen mortgage_prosp_amt,    8, 13, 56
+        EMReadScreen mortgage_prosp_verif,  2, 13, 67
+
+        mortgage_retro_amt = replace(mortgage_retro_amt, "_", "")
+        mortgage_retro_amt = trim(mortgage_retro_amt)
+		If mortgage_retro_amt = "" Then mortgage_retro_amt = 0
+		mortgage_retro_amt = mortgage_retro_amt * 1
+        If mortgage_retro_verif = "MO" Then mortgage_retro_verif = "MO - Mortgage Pmt Book"
+        If mortgage_retro_verif = "CD" Then mortgage_retro_verif = "CD - Ctrct fro Deed"
+        If mortgage_retro_verif = "OT" Then mortgage_retro_verif = "OT - Other Doc"
+        If mortgage_retro_verif = "NC" Then mortgage_retro_verif = "NC - Chg, Neg Impact"
+        If mortgage_retro_verif = "PC" Then mortgage_retro_verif = "PC - Chg, Pos Impact"
+        If mortgage_retro_verif = "NO" Then mortgage_retro_verif = "NO - No Verif"
+		If mortgage_retro_verif = "?_" Then mortgage_retro_verif = "? - Delayed Verif"
+        If mortgage_retro_verif = "__" Then mortgage_retro_verif = ""
+        mortgage_prosp_amt = replace(mortgage_prosp_amt, "_", "")
+        mortgage_prosp_amt = trim(mortgage_prosp_amt)
+		If mortgage_prosp_amt = "" Then mortgage_prosp_amt = 0
+		mortgage_prosp_amt = mortgage_prosp_amt * 1
+        If mortgage_prosp_verif = "MO" Then mortgage_prosp_verif = "MO - Mortgage Pmt Book"
+        If mortgage_prosp_verif = "CD" Then mortgage_prosp_verif = "CD - Ctrct fro Deed"
+        If mortgage_prosp_verif = "OT" Then mortgage_prosp_verif = "OT - Other Doc"
+        If mortgage_prosp_verif = "NC" Then mortgage_prosp_verif = "NC - Chg, Neg Impact"
+        If mortgage_prosp_verif = "PC" Then mortgage_prosp_verif = "PC - Chg, Pos Impact"
+        If mortgage_prosp_verif = "NO" Then mortgage_prosp_verif = "NO - No Verif"
+		If mortgage_prosp_verif = "?_" Then mortgage_prosp_verif = "? - Delayed Verif"
+        If mortgage_prosp_verif = "__" Then mortgage_prosp_verif = ""
+
+        EMReadScreen insurance_retro_amt,   8, 14, 37
+        EMReadScreen insurance_retro_verif, 2, 14, 48
+        EMReadScreen insurance_prosp_amt,   8, 14, 56
+        EMReadScreen insurance_prosp_verif, 2, 14, 67
+
+        insurance_retro_amt = replace(insurance_retro_amt, "_", "")
+        insurance_retro_amt = trim(insurance_retro_amt)
+		If insurance_retro_amt = "" Then insurance_retro_amt = 0
+		insurance_retro_amt = insurance_retro_amt * 1
+        If insurance_retro_verif = "BI" Then insurance_retro_verif = "BI - Billing Stmt"
+        If insurance_retro_verif = "OT" Then insurance_retro_verif = "OT - Other Doc"
+        If insurance_retro_verif = "NC" Then insurance_retro_verif = "NC - Chg, Neg Impact"
+        If insurance_retro_verif = "PC" Then insurance_retro_verif = "PC - Chg, Pos Impact"
+        If insurance_retro_verif = "NO" Then insurance_retro_verif = "NO - No Verif"
+		If insurance_retro_verif = "?_" Then insurance_retro_verif = "? - Delayed Verif"
+        If insurance_retro_verif = "__" Then insurance_retro_verif = ""
+        insurance_prosp_amt = replace(insurance_prosp_amt, "_", "")
+        insurance_prosp_amt = trim(insurance_prosp_amt)
+		If insurance_prosp_amt = "" Then insurance_prosp_amt = 0
+		insurance_prosp_amt = insurance_prosp_amt * 1
+        If insurance_prosp_verif = "BI" Then insurance_prosp_verif = "BI - Billing Stmt"
+        If insurance_prosp_verif = "OT" Then insurance_prosp_verif = "OT - Other Doc"
+        If insurance_prosp_verif = "NC" Then insurance_prosp_verif = "NC - Chg, Neg Impact"
+        If insurance_prosp_verif = "PC" Then insurance_prosp_verif = "PC - Chg, Pos Impact"
+        If insurance_prosp_verif = "NO" Then insurance_prosp_verif = "NO - No Verif"
+		If insurance_prosp_verif = "?_" Then insurance_prosp_verif = "? - Delayed Verif"
+        If insurance_prosp_verif = "__" Then insurance_prosp_verif = ""
+
+        EMReadScreen tax_retro_amt,         8, 15, 37
+        EMReadScreen tax_retro_verif,       2, 15, 48
+        EMReadScreen tax_prosp_amt,         8, 15, 56
+        EMReadScreen tax_prosp_verif,       2, 15, 67
+
+        tax_retro_amt = replace(tax_retro_amt, "_", "")
+        tax_retro_amt = trim(tax_retro_amt)
+		If tax_retro_amt = "" Then tax_retro_amt = 0
+		tax_retro_amt = tax_retro_amt * 1
+        If tax_retro_verif = "TX" Then tax_retro_verif = "TX - Prop Tax Stmt"
+        If tax_retro_verif = "OT" Then tax_retro_verif = "OT - Other Doc"
+        If tax_retro_verif = "NC" Then tax_retro_verif = "NC - Chg, Neg Impact"
+        If tax_retro_verif = "PC" Then tax_retro_verif = "PC - Chg, Pos Impact"
+        If tax_retro_verif = "NO" Then tax_retro_verif = "NO - No Verif"
+		If tax_retro_verif = "?_" Then tax_retro_verif = "? - Delayed Verif"
+        If tax_retro_verif = "__" Then tax_retro_verif = ""
+        tax_prosp_amt = replace(tax_prosp_amt, "_", "")
+        tax_prosp_amt = trim(tax_prosp_amt)
+		If tax_prosp_amt = "" Then tax_prosp_amt = 0
+		tax_prosp_amt = tax_prosp_amt * 1
+        If tax_prosp_verif = "TX" Then tax_prosp_verif = "TX - Prop Tax Stmt"
+        If tax_prosp_verif = "OT" Then tax_prosp_verif = "OT - Other Doc"
+        If tax_prosp_verif = "NC" Then tax_prosp_verif = "NC - Chg, Neg Impact"
+        If tax_prosp_verif = "PC" Then tax_prosp_verif = "PC - Chg, Pos Impact"
+        If tax_prosp_verif = "NO" Then tax_prosp_verif = "NO - No Verif"
+		If tax_prosp_verif = "?_" Then tax_prosp_verif = "? - Delayed Verif"
+        If tax_prosp_verif = "__" Then tax_prosp_verif = ""
+
+        EMReadScreen room_retro_amt,        8, 16, 37
+        EMReadScreen room_retro_verif,      2, 16, 48
+        EMReadScreen room_prosp_amt,        8, 16, 56
+        EMReadScreen room_prosp_verif,      2, 16, 67
+
+        room_retro_amt = replace(room_retro_amt, "_", "")
+        room_retro_amt = trim(room_retro_amt)
+		If room_retro_amt = "" Then room_retro_amt = 0
+		room_retro_amt = room_retro_amt * 1
+        If room_retro_verif = "SF" Then room_retro_verif = "SF - Shelter Form"
+        If room_retro_verif = "LE" Then room_retro_verif = "LE - Lease"
+        If room_retro_verif = "RE" Then room_retro_verif = "RE - Rent Receipt"
+        If room_retro_verif = "OT" Then room_retro_verif = "OT - Other Doc"
+        If room_retro_verif = "NC" Then room_retro_verif = "NC - Chg, Neg Impact"
+        If room_retro_verif = "PC" Then room_retro_verif = "PC - Chg, Pos Impact"
+        If room_retro_verif = "NO" Then room_retro_verif = "NO - No Verif"
+		If room_retro_verif = "?_" Then room_retro_verif = "? - Delayed Verif"
+        If room_retro_verif = "__" Then room_retro_verif = ""
+        room_prosp_amt = replace(room_prosp_amt, "_", "")
+        room_prosp_amt = trim(room_prosp_amt)
+		If room_prosp_amt = "" Then room_prosp_amt = 0
+		room_prosp_amt = room_prosp_amt * 1
+        If room_prosp_verif = "SF" Then room_prosp_verif = "SF - Shelter Form"
+        If room_prosp_verif = "LE" Then room_prosp_verif = "LE - Lease"
+        If room_prosp_verif = "RE" Then room_prosp_verif = "RE - Rent Receipt"
+        If room_prosp_verif = "OT" Then room_prosp_verif = "OT - Other Doc"
+        If room_prosp_verif = "NC" Then room_prosp_verif = "NC - Chg, Neg Impact"
+        If room_prosp_verif = "PC" Then room_prosp_verif = "PC - Chg, Pos Impact"
+        If room_prosp_verif = "NO" Then room_prosp_verif = "NO - No Verif"
+		If room_prosp_verif = "?_" Then room_prosp_verif = "? - Delayed Verif"
+        If room_prosp_verif = "__" Then room_prosp_verif = ""
+
+        EMReadScreen garage_retro_amt,      8, 17, 37
+        EMReadScreen garage_retro_verif,    2, 17, 48
+        EMReadScreen garage_prosp_amt,      8, 17, 56
+        EMReadScreen garage_prosp_verif,    2, 17, 67
+
+        garage_retro_amt = replace(garage_retro_amt, "_", "")
+        garage_retro_amt = trim(garage_retro_amt)
+		If garage_retro_amt = "" Then garage_retro_amt = 0
+		garage_retro_amt = garage_retro_amt * 1
+        If garage_retro_verif = "SF" Then garage_retro_verif = "SF - Shelter Form"
+        If garage_retro_verif = "LE" Then garage_retro_verif = "LE - Lease"
+        If garage_retro_verif = "RE" Then garage_retro_verif = "RE - Rent Receipt"
+        If garage_retro_verif = "OT" Then garage_retro_verif = "OT - Other Doc"
+        If garage_retro_verif = "NC" Then garage_retro_verif = "NC - Chg, Neg Impact"
+        If garage_retro_verif = "PC" Then garage_retro_verif = "PC - Chg, Pos Impact"
+        If garage_retro_verif = "NO" Then garage_retro_verif = "NO - No Verif"
+		If garage_retro_verif = "?_" Then garage_retro_verif = "? - Delayed Verif"
+        If garage_retro_verif = "__" Then garage_retro_verif = ""
+        garage_prosp_amt = replace(garage_prosp_amt, "_", "")
+        garage_prosp_amt = trim(garage_prosp_amt)
+		If garage_prosp_amt = "" Then garage_prosp_amt = 0
+		garage_prosp_amt = garage_prosp_amt * 1
+        If garage_prosp_verif = "SF" Then garage_prosp_verif = "SF - Shelter Form"
+        If garage_prosp_verif = "LE" Then garage_prosp_verif = "LE - Lease"
+        If garage_prosp_verif = "RE" Then garage_prosp_verif = "RE - Rent Receipt"
+        If garage_prosp_verif = "OT" Then garage_prosp_verif = "OT - Other Doc"
+        If garage_prosp_verif = "NC" Then garage_prosp_verif = "NC - Chg, Neg Impact"
+        If garage_prosp_verif = "PC" Then garage_prosp_verif = "PC - Chg, Pos Impact"
+        If garage_prosp_verif = "NO" Then garage_prosp_verif = "NO - No Verif"
+		If garage_prosp_verif = "?_" Then garage_prosp_verif = "? - Delayed Verif"
+        If garage_prosp_verif = "__" Then garage_prosp_verif = ""
+
+        EMReadScreen subsidy_retro_amt,     8, 18, 37
+        EMReadScreen subsidy_retro_verif,   2, 18, 48
+        EMReadScreen subsidy_prosp_amt,     8, 18, 56
+        EMReadScreen subsidy_prosp_verif,   2, 18, 67
+
+        subsidy_retro_amt = replace(subsidy_retro_amt, "_", "")
+        subsidy_retro_amt = trim(subsidy_retro_amt)
+		If subsidy_retro_amt = "" Then subsidy_retro_amt = 0
+		subsidy_retro_amt = subsidy_retro_amt * 1
+        If subsidy_retro_verif = "SF" Then subsidy_retro_verif = "SF - Shelter Form"
+        If subsidy_retro_verif = "LE" Then subsidy_retro_verif = "LE - Lease"
+        If subsidy_retro_verif = "OT" Then subsidy_retro_verif = "OT - Other Doc"
+        If subsidy_retro_verif = "NO" Then subsidy_retro_verif = "NO - No Verif"
+		If subsidy_retro_verif = "?_" Then subsidy_retro_verif = "? - Delayed Verif"
+        If subsidy_retro_verif = "__" Then subsidy_retro_verif = ""
+        subsidy_prosp_amt = replace(subsidy_prosp_amt, "_", "")
+        subsidy_prosp_amt = trim(subsidy_prosp_amt)
+		If subsidy_prosp_amt = "" Then subsidy_prosp_amt = 0
+		subsidy_prosp_amt = subsidy_prosp_amt * 1
+        If subsidy_prosp_verif = "SF" Then subsidy_prosp_verif = "SF - Shelter Form"
+        If subsidy_prosp_verif = "LE" Then subsidy_prosp_verif = "LE - Lease"
+        If subsidy_prosp_verif = "OT" Then subsidy_prosp_verif = "OT - Other Doc"
+        If subsidy_prosp_verif = "NO" Then subsidy_prosp_verif = "NO - No Verif"
+		If subsidy_prosp_verif = "?_" Then subsidy_prosp_verif = "? - Delayed Verif"
+        If subsidy_prosp_verif = "__" Then subsidy_prosp_verif = ""
+
+		original_information = hud_sub_yn&"|"&shared_yn&"|"&paid_to&"|"&rent_retro_amt&"|"&rent_retro_verif&"|"&rent_prosp_amt&"|"&rent_prosp_verif&"|"&lot_rent_retro_amt&"|"&lot_rent_retro_verif&"|"&lot_rent_prosp_amt&"|"&_
+							   lot_rent_prosp_verif&"|"&mortgage_retro_amt&"|"&mortgage_retro_verif&"|"&mortgage_prosp_amt&"|"&mortgage_prosp_verif&"|"&insurance_retro_amt&"|"&insurance_retro_verif&"|"&insurance_prosp_amt&"|"&_
+							   insurance_prosp_verif&"|"&tax_retro_amt&"|"&tax_retro_verif&"|"&tax_prosp_amt&"|"&tax_prosp_verif&"|"&room_retro_amt&"|"&room_retro_verif&"|"&room_prosp_amt&"|"&room_prosp_verif&"|"&garage_retro_amt&"|"&_
+							   garage_retro_verif&"|"&garage_prosp_amt&"|"&garage_prosp_verif&"|"&subsidy_retro_amt&"|"&subsidy_retro_verif&"|"&subsidy_prosp_amt&"|"&subsidy_prosp_verif
+    End If
+
+	If access_type = "WRITE" Then
+		hud_sub_yn = trim(hud_sub_yn)
+		shared_yn = trim(shared_yn)
+		paid_to = trim(paid_to)
+		rent_retro_amt = trim(rent_retro_amt)
+		rent_retro_verif = trim(rent_retro_verif)
+		rent_prosp_amt = trim(rent_prosp_amt)
+		rent_prosp_verif = trim(rent_prosp_verif)
+		lot_rent_retro_amt = trim(lot_rent_retro_amt)
+		lot_rent_retro_verif = trim(lot_rent_retro_verif)
+		lot_rent_prosp_amt = trim(lot_rent_prosp_amt)
+		lot_rent_prosp_verif = trim(lot_rent_prosp_verif)
+		mortgage_retro_amt = trim(mortgage_retro_amt)
+		mortgage_retro_verif = trim(mortgage_retro_verif)
+		mortgage_prosp_amt = trim(mortgage_prosp_amt)
+		mortgage_prosp_verif = trim(mortgage_prosp_verif)
+		insurance_retro_amt = trim(insurance_retro_amt)
+		insurance_retro_verif = trim(insurance_retro_verif)
+		insurance_prosp_amt = trim(insurance_prosp_amt)
+		insurance_prosp_verif = trim(insurance_prosp_verif)
+		tax_retro_amt = trim(tax_retro_amt)
+		tax_retro_verif = trim(tax_retro_verif)
+		tax_prosp_amt = trim(tax_prosp_amt)
+		tax_prosp_verif = trim(tax_prosp_verif)
+		room_retro_amt = trim(room_retro_amt)
+		room_retro_verif = trim(room_retro_verif)
+		room_prosp_amt = trim(room_prosp_amt)
+		room_prosp_verif = trim(room_prosp_verif)
+		garage_retro_amt = trim(garage_retro_amt)
+		garage_retro_verif = trim(garage_retro_verif)
+		garage_prosp_amt = trim(garage_prosp_amt)
+		garage_prosp_verif = trim(garage_prosp_verif)
+		subsidy_retro_amt = trim(subsidy_retro_amt)
+		subsidy_retro_verif = trim(subsidy_retro_verif)
+		subsidy_prosp_amt = trim(subsidy_prosp_amt)
+		subsidy_prosp_verif = trim(subsidy_prosp_verif)
+
+		current_shel_details = hud_sub_yn&"|"&shared_yn&"|"&paid_to&"|"&rent_retro_amt&"|"&rent_retro_verif&"|"&rent_prosp_amt&"|"&rent_prosp_verif&"|"&lot_rent_retro_amt&"|"&lot_rent_retro_verif&"|"&lot_rent_prosp_amt&"|"&_
+							   lot_rent_prosp_verif&"|"&mortgage_retro_amt&"|"&mortgage_retro_verif&"|"&mortgage_prosp_amt&"|"&mortgage_prosp_verif&"|"&insurance_retro_amt&"|"&insurance_retro_verif&"|"&insurance_prosp_amt&"|"&_
+							   insurance_prosp_verif&"|"&tax_retro_amt&"|"&tax_retro_verif&"|"&tax_prosp_amt&"|"&tax_prosp_verif&"|"&room_retro_amt&"|"&room_retro_verif&"|"&room_prosp_amt&"|"&room_prosp_verif&"|"&garage_retro_amt&"|"&_
+							   garage_retro_verif&"|"&garage_prosp_amt&"|"&garage_prosp_verif&"|"&subsidy_retro_amt&"|"&subsidy_retro_verif&"|"&subsidy_prosp_amt&"|"&subsidy_prosp_verif
+
+
+
+		If current_shel_details <> original_information Then
+			EMReadScreen shel_version, 1, 2, 73
+			If shel_version = "1" Then PF9
+			If shel_version = "0" Then
+				EMWriteScreen "nn", 20, 79
+				transmit
+			End If
+
+			rent_retro_verif = 		rent_retro_verif & "  "
+			rent_prosp_verif = 		rent_prosp_verif & "  "
+			lot_rent_retro_verif = 	lot_rent_retro_verif & "  "
+			lot_rent_prosp_verif = 	lot_rent_prosp_verif & "  "
+			mortgage_retro_verif = 	mortgage_retro_verif & "  "
+			mortgage_prosp_verif = 	mortgage_prosp_verif & "  "
+			insurance_retro_verif = insurance_retro_verif & "  "
+			insurance_prosp_verif = insurance_prosp_verif & "  "
+			tax_retro_verif = 		tax_retro_verif & "  "
+			tax_prosp_verif = 		tax_prosp_verif & "  "
+			room_retro_verif = 		room_retro_verif & "  "
+			room_prosp_verif = 		room_prosp_verif & "  "
+			garage_retro_verif = 	garage_retro_verif & "  "
+			garage_prosp_verif = 	garage_prosp_verif & "  "
+			subsidy_retro_verif = 	subsidy_retro_verif & "  "
+			subsidy_prosp_verif = 	subsidy_prosp_verif & "  "
+
+			If hud_sub_yn = "" Then
+				EMSetCursor 6, 46
+				EMSendKey "<eraseEOF>"
+			Else
+				EMWriteScreen hud_sub_yn, 6, 46
+			End If
+			If shared_yn = "" Then
+				EMSetCursor 6, 64
+				EMSendKey "<eraseEOF>"
+			Else
+	        	EMWriteScreen shared_yn, 6, 64
+			End If
+			If paid_to = "" Then
+				EMSetCursor 7, 50
+				EMSendKey "<eraseEOF>"
+			Else
+	        	EMWriteScreen paid_to, 7, 50
+			End If
+
+			EMWriteScreen right("        " & rent_retro_amt, 8), 		11, 37
+	        EMWriteScreen left(rent_retro_verif, 2),      				11, 48
+	        EMWriteScreen right("        " & rent_prosp_amt, 8),    	11, 56
+	        EMWriteScreen left(rent_prosp_verif, 2),      				11, 67
+
+			EMWriteScreen right("        " & lot_rent_retro_amt, 8),    12, 37
+	        EMWriteScreen left(lot_rent_retro_verif, 2),  				12, 48
+	        EMWriteScreen right("        " & lot_rent_prosp_amt, 8),    12, 56
+	        EMWriteScreen left(lot_rent_prosp_verif, 2),  				12, 67
+
+			EMWriteScreen right("        " & mortgage_retro_amt, 8),    13, 37
+	        EMWriteScreen left(mortgage_retro_verif, 2),  				13, 48
+	        EMWriteScreen right("        " & mortgage_prosp_amt, 8),    13, 56
+	        EMWriteScreen left(mortgage_prosp_verif, 2),  				13, 67
+
+			EMWriteScreen right("        " & insurance_retro_amt, 8),   14, 37
+	        EMWriteScreen left(insurance_retro_verif, 2), 				14, 48
+	        EMWriteScreen right("        " & insurance_prosp_amt, 8),   14, 56
+	        EMWriteScreen left(insurance_prosp_verif, 2), 				14, 67
+
+			EMWriteScreen right("        " & tax_retro_amt, 8),         15, 37
+	        EMWriteScreen left(tax_retro_verif, 2),       				15, 48
+	        EMWriteScreen right("        " & tax_prosp_amt, 8),         15, 56
+	        EMWriteScreen left(tax_prosp_verif, 2),       				15, 67
+
+			EMWriteScreen right("        " & room_retro_amt, 8),        16, 37
+	        EMWriteScreen left(room_retro_verif, 2),      				16, 48
+	        EMWriteScreen right("        " & room_prosp_amt, 8),        16, 56
+	        EMWriteScreen left(room_prosp_verif, 2),      				16, 67
+
+			EMWriteScreen right("        " & garage_retro_amt, 8),      17, 37
+			EMWriteScreen left(garage_retro_verif, 2),    				17, 48
+			EMWriteScreen right("        " & garage_prosp_amt, 8),      17, 56
+			EMWriteScreen left(garage_prosp_verif, 2),    				17, 67
+
+			EMWriteScreen right("        " & subsidy_retro_amt, 8),     18, 37
+			EMWriteScreen left(subsidy_retro_verif, 2),   				18, 48
+			EMWriteScreen right("        " & subsidy_prosp_amt, 8),     18, 56
+			EMWriteScreen left(subsidy_prosp_verif, 2),   				18, 67
+
+		End If
+	End If
+end function
+
 function add_ACCI_to_variable(ACCI_variable)
 '--- This function adds STAT/ACCI data to a variable, which can then be displayed in a dialog. See autofill_editbox_from_MAXIS.
 '~~~~~ ACCI_variable: the variable used by the editbox you wish to autofill.
