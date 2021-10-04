@@ -5976,6 +5976,126 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
     End If
 End Function
 
+function display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
+'--- This function has a potion of dialog that can be insert into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of ADDR information in different scripts/dialogs
+
+'~~~~~ update_addr: boolean - This parameter will determine if the dialog will be displayed with the panel information is 'edit mode' or not.
+'~~~~~ notes_on_address: string - variable to enter information and details about the address information in an editbox
+'~~~~~ resi_street_full: string - resident address information
+'~~~~~ resi_city: string - resident address information
+'~~~~~ resi_state: string - resident address information
+'~~~~~ resi_zip: string - resident address information
+'~~~~~ resi_county: string - resident address information
+'~~~~~ addr_verif: string - the verification on the panel - can be updated here
+'~~~~~ addr_homeless: string - information about address homeless status
+'~~~~~ addr_reservation: string - information about address reservation status
+'~~~~~ reservation_name: string - information about address - the specifc reservation name
+'~~~~~ addr_living_sit: string - information about living situation
+'~~~~~ mail_street_full: string - mailing address information
+'~~~~~ mail_city: string - mailing address information
+'~~~~~ mail_state: string - mailing address information
+'~~~~~ mail_zip: string -  mailing address information
+'~~~~~ addr_eff_date: string - the date from the panel indicated as the effective date of the address informaiton
+'~~~~~ phone_one: string - phone number information
+'~~~~~ phone_two: string - phone number information
+'~~~~~ phone_three: string - phone number information
+'~~~~~ type_one: string - information about the type of the phone number from the ADDR panel
+'~~~~~ type_two: string - information about the type of the phone number from the ADDR panel
+'~~~~~ type_three: string - information about the type of the phone number from the ADDR panel
+'~~~~~ address_change_date: string - a date that can be entered in the dialog with the date of the change of address information
+'~~~~~ update_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ save_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ clear_mail_addr_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed 
+'~~~~~ clear_phone_one_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ clear_phone_two_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ clear_phone_three_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'===== Keywords: MAXIS, ADDR, dialog, update
+	GroupBox 10, 35, 375, 95, "Residence Address"
+	If update_addr = False Then
+		Text 330, 35, 50, 10, addr_eff_date
+		Text 70, 55, 305, 15, resi_street_full
+		Text 70, 75, 105, 15, resi_city
+		Text 205, 75, 110, 45, resi_state
+		Text 340, 75, 35, 15, resi_zip
+		Text 125, 95, 45, 45, addr_reservation
+		Text 245, 85, 130, 15, reservation_name
+		Text 125, 115, 45, 45, addr_homeless
+		If addr_living_sit = "10 - Unknown" OR addr_living_sit = "Blank" Then
+			DropListBox 245, 110, 130, 45, "Select"+chr(9)+"01 - Own home, lease or roommate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", addr_living_sit
+		Else
+			Text 245, 115, 130, 45, addr_living_sit
+		End If
+		Text 70, 165, 305, 15, mail_street_full
+		Text 70, 185, 105, 15, mail_city
+		Text 205, 185, 110, 45, mail_state
+		Text 340, 185, 35, 15, mail_zip
+		Text 20, 240, 90, 15, phone_one
+		Text 125, 240, 65, 45, type_one
+		Text 20, 260, 90, 15, phone_two
+		Text 125, 260, 65, 45, type_two
+		Text 20, 280, 90, 15, phone_three
+		Text 125, 280, 65, 45, type_three
+		Text 325, 215, 50, 10, address_change_date
+		Text 255, 245, 120, 10, resi_county
+		Text 255, 280, 120, 10, addr_verif
+		EditBox 10, 320, 375, 15, notes_on_address
+		PushButton 290, 300, 95, 15, "Update Information", update_information_btn
+	End If
+	If update_addr = True Then
+		EditBox 330, 30, 40, 15, addr_eff_date
+		EditBox 70, 50, 305, 15, resi_street_full
+		EditBox 70, 70, 105, 15, resi_city
+		DropListBox 205, 70, 110, 45, ""+chr(9)+state_list, resi_state
+		EditBox 340, 70, 35, 15, resi_zip
+		DropListBox 125, 90, 45, 45, "No"+chr(9)+"Yes", addr_reservation
+		DropListBox 245, 90, 130, 15, "Select One..."+chr(9)+""+chr(9)+"BD - Bois Forte - Deer Creek"+chr(9)+"BN - Bois Forte - Nett Lake"+chr(9)+"BV - Bois Forte - Vermillion Lk"+chr(9)+"FL - Fond du Lac"+chr(9)+"GP - Grand Portage"+chr(9)+"LL - Leach Lake"+chr(9)+"LS - Lower Sioux"+chr(9)+"ML - Mille Lacs"+chr(9)+"PL - Prairie Island Community"+chr(9)+"RL - Red Lake"+chr(9)+"SM - Shakopee Mdewakanton"+chr(9)+"US - Upper Sioux"+chr(9)+"WE - White Earth", reservation_name
+		DropListBox 125, 110, 45, 45, "No"+chr(9)+"Yes", addr_homeless
+		DropListBox 245, 110, 130, 45, "Select"+chr(9)+"01 - Own home, lease or roommate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", addr_living_sit
+		EditBox 70, 160, 305, 15, mail_street_full
+		EditBox 70, 180, 105, 15, mail_city
+		DropListBox 205, 180, 110, 45, ""+chr(9)+state_list, mail_state
+		EditBox 340, 180, 35, 15, mail_zip
+		EditBox 20, 240, 90, 15, phone_one
+		DropListBox 125, 240, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", type_one
+		EditBox 20, 260, 90, 15, phone_two
+		DropListBox 125, 260, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", type_two
+		EditBox 20, 280, 90, 15, phone_three
+		DropListBox 125, 280, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", type_three
+		EditBox 325, 210, 50, 15, address_change_date
+		ComboBox 255, 245, 120, 45, county_list_smalll+chr(9)+resi_county, resi_county
+		DropListBox 255, 280, 120, 45, "SF - Shelter Form"+chr(9)+"CO - Coltrl Stmt"+chr(9)+"MO - Mortgage Papers"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"CD - Contrct for Deed"+chr(9)+"UT - Utility Stmt"+chr(9)+"DL - Driver Lic/State ID"+chr(9)+"OT - Other Document"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed"+chr(9)+"Blank", addr_verif
+		EditBox 10, 320, 375, 15, notes_on_address
+		PushButton 290, 300, 95, 15, "Save Information", save_information_btn
+	End If
+
+	PushButton 325, 145, 50, 10, "CLEAR", clear_mail_addr_btn
+	PushButton 205, 240, 35, 10, "CLEAR", clear_phone_one_btn
+	PushButton 205, 260, 35, 10, "CLEAR", clear_phone_two_btn
+	PushButton 205, 280, 35, 10, "CLEAR", clear_phone_three_btn
+	' Text 10, 10, 360, 10, "Review the Address informaiton known with the client. If it needs updating, press this button to make changes:"
+	Text 250, 35, 80, 10, "ADDR effective date:"
+	Text 20, 55, 45, 10, "House/Street"
+	Text 45, 75, 20, 10, "City"
+	Text 185, 75, 20, 10, "State"
+	Text 325, 75, 15, 10, "Zip"
+	Text 20, 95, 100, 10, "Do you live on a Reservation?"
+	Text 180, 95, 60, 10, "If yes, which one?"
+	Text 30, 115, 90, 10, "Client Indicates Homeless:"
+	Text 185, 115, 60, 10, "Living Situation?"
+	GroupBox 10, 135, 375, 70, "Mailing Address"
+	Text 20, 165, 45, 10, "House/Street"
+	Text 45, 185, 20, 10, "City"
+	Text 185, 185, 20, 10, "State"
+	Text 325, 185, 15, 10, "Zip"
+	GroupBox 10, 210, 235, 90, "Phone Number"
+	Text 20, 225, 50, 10, "Number"
+	Text 125, 225, 25, 10, "Type"
+	Text 255, 215, 60, 10, "Date of Change:"
+	Text 255, 235, 75, 10, "County of Residence:"
+	Text 255, 270, 75, 10, "ADDR Verification:"
+	Text 10, 310, 75, 10, "Additional Notes:"
+end function
+
 function dynamic_calendar_dialog(selected_dates_array, month_to_use, text_prompt, one_date_only, disable_weekends, disable_month_change, start_date, end_date)
 '--- This function creates a dynamic calendar that users can select dates from to be used in scheduleing. This is used in BULK - REVS SCRUBBER.
 '~~~~~ selected_dates_array:the output array it will contain dates in MM/DD/YY format
