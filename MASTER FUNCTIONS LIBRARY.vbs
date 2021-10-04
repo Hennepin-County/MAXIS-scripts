@@ -6095,7 +6095,7 @@ function display_ADDR_information(update_addr, notes_on_address, resi_street_ful
 	Text 10, 310, 75, 10, "Additional Notes:"
 end function
 
-function display_HEST_information(update_hest, all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, notes_on_hest)
+function display_HEST_information(update_hest, all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, notes_on_hest, update_information_btn, save_information_btn)
 '--- This function has a potion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of HEST information in different scripts/dialogs
 '~~~~~ update_hest: boolean - This parameter will determine if the dialog will be displayed with the panel information is 'edit mode' or not.
 '~~~~~ all_persons_paying: string - detail of all the people that are responsible for paying utilities - from the HEST panel
@@ -6120,6 +6120,8 @@ function display_HEST_information(update_hest, all_persons_paying, choice_date, 
 '~~~~~ prosp_phone_units: string - 2 digit as a number - this indicates the number of units that split this expense
 '~~~~~ prosp_phone_amt: number - amount of the SUA for phone - read from the panel or calculated by navigate_HEST_buttons as detailed by HEST_standards functions
 '~~~~~ total_utility_expense: number - calculated by access_HEST_panel or navigate_HEST_buttons of the total the SUA allowed by what is paid
+'~~~~~ update_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ save_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
 '===== Keywords: MAXIS, PRISM, create, date, calendar, dialog
 	If update_hest = False Then
 		Text 75, 30, 145, 10, all_persons_paying
@@ -7280,6 +7282,102 @@ function navigate_ADDR_buttons(update_addr, err_var, update_information_btn, sav
 	If ButtonPressed = clear_phone_three_btn Then
 		phone_three = ""
 		type_three = ""
+	End If
+end function
+
+function navigate_HEST_buttons(update_hest, err_var, update_information_btn, save_information_btn, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, date_to_use_for_HEST_standards)
+'--- This function is to be used to navigate to a specific MAXIS screen and will check for privileged status
+'~~~~~ update_hest: boolean - this will indicate if the dialog information is in 'edit mode' and is adjusted in this function by the button presses
+'~~~~~ err_var: string - information output if any parameter if the detail is 'wrong' or missing for dialog entry
+'~~~~~ update_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ save_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ retro_heat_ac_yn: string - the y/n selection for retro heat/ac - will be either 'Y', 'N', ''
+'~~~~~ retro_heat_ac_units: string - two digit entry of the number of units responsible for this expense for retro heat/ac
+'~~~~~ retro_heat_ac_amt: number - the expense amount of retro heat/ac listed on the HEST panel
+'~~~~~ retro_electric_yn: string - the y/n selection for retro electric - will be either 'Y', 'N', ''
+'~~~~~ retro_electric_units: string - two digit entry of the number of units responsible for this expense for retro electric
+'~~~~~ retro_electric_amt: number - the expense amount of retro electric listed on the HEST panel
+'~~~~~ retro_phone_yn: string - the y/n selection for retro phone - will be either 'Y', 'N', ''
+'~~~~~ retro_phone_units: string - two digit entry of the number of units responsible for this expense for retro phone
+'~~~~~ retro_phone_amt: number - the expense amount of retro phone listed on the HEST panel
+'~~~~~ prosp_heat_ac_yn: string - the y/n selection for prosp heat/ac - will be either 'Y', 'N', ''
+'~~~~~ prosp_heat_ac_units: string - two digit entry of the number of units responsible for this expense for prosp heat/ac
+'~~~~~ prosp_heat_ac_amt: number - the expense amount of prosp heat/ac listed on the HEST panel
+'~~~~~ prosp_electric_yn: string - the y/n selection for prosp electric - will be either 'Y', 'N', ''
+'~~~~~ prosp_electric_units: string - two digit entry of the number of units responsible for this expense for prosp electric
+'~~~~~ prosp_electric_amt: number - the expense amount of prosp electric listed on the HEST panel
+'~~~~~ prosp_phone_yn: string - the y/n selection for prosp phone - will be either 'Y', 'N', ''
+'~~~~~ prosp_phone_units: string - two digit entry of the number of units responsible for this expense for prosp phone
+'~~~~~ prosp_phone_amt: number - the expense amount of prosp phone listed on the HEST panel
+'~~~~~ total_utility_expense: number - the amount that will be budgeted for SNAP with SUA
+'~~~~~ date_to_use_for_HEST_standards: date - this will indicate the date to use for HEST standards as they change every Oct 1
+'===== Keywords: MMIS, HEST, navigate, confirm. dialog
+
+	Call hest_standards(heat_AC_amt, electric_amt, phone_amt, date_to_use_for_HEST_standards)
+	If ButtonPressed = update_information_btn Then
+		update_hest = TRUE
+
+		retro_heat_ac_amt = retro_heat_ac_amt & ""
+		retro_electric_amt = retro_electric_amt & ""
+		retro_phone_amt = retro_phone_amt & ""
+		prosp_heat_ac_amt = prosp_heat_ac_amt & ""
+		prosp_electric_amt = prosp_electric_amt & ""
+		prosp_phone_amt = prosp_phone_amt & ""
+
+	ElseIf ButtonPressed = save_information_btn Then
+		update_hest = FALSE
+
+		retro_heat_ac_amt = 0
+		retro_heat_ac_units = ""
+		retro_electric_amt = 0
+		retro_electric_units = ""
+		retro_phone_amt = 0
+		retro_phone_units = ""
+		prosp_heat_ac_amt = 0
+		prosp_heat_ac_units = ""
+		prosp_electric_amt = 0
+		prosp_electric_units = ""
+		prosp_phone_amt = 0
+		prosp_phone_units = ""
+
+		If retro_heat_ac_yn = "Y" Then
+			retro_heat_ac_amt = heat_AC_amt
+			retro_heat_ac_units = "01"
+		End If
+		If retro_electric_yn = "Y" Then
+			retro_electric_amt = electric_amt
+			retro_electric_units = "01"
+		End If
+		If retro_phone_yn = "Y" Then
+			retro_phone_amt = phone_amt
+			retro_phone_units = "01"
+		End If
+		If prosp_heat_ac_yn = "Y" Then
+			prosp_heat_ac_amt = heat_AC_amt
+			prosp_heat_ac_units = "01"
+		End If
+		If prosp_electric_yn = "Y" Then
+			prosp_electric_amt = electric_amt
+			prosp_electric_units = "01"
+		End If
+		If prosp_phone_yn = "Y" Then
+			prosp_phone_amt = phone_amt
+			prosp_phone_units = "01"
+		End If
+
+		total_utility_expense = 0
+		If prosp_heat_ac_yn = "Y" Then
+			total_utility_expense =  heat_AC_amt
+		ElseIf prosp_electric_yn = "Y" AND prosp_phone_yn = "Y" Then
+			total_utility_expense =  electric_amt + phone_amt
+		ElseIf prosp_electric_yn = "Y" Then
+			total_utility_expense =  electric_amt
+		Elseif prosp_phone_yn = "Y" Then
+			total_utility_expense =  phone_amt
+		End If
+
+	Else
+		update_hest = FALSE
 	End If
 end function
 
