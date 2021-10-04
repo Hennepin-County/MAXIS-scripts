@@ -8196,6 +8196,270 @@ function read_boolean_from_excel(excel_place, script_variable)
 	'If this is not TRUE or FALSE, then it will just output what was in the cell all uppercase
 end function
 
+function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent_verif, lot_rent_amt, lot_rent_verif, mortgage_amt, mortgage_verif, insurance_amt, insurance_verif, taxes_amt, taxes_verif, room_amt, room_verif, garage_amt, garage_verif, subsidy_amt, subsidy_verif, original_information)
+'--- This function Will take the information in from the Excel cell and reformat it so that the script can use the information as a boolean
+'~~~~~ ref_numbers_with_panel: string of all member reference numbers that have a SHEL panel existing - seperated by "~"
+'~~~~~ paid_to: string - of who the sheler expense is paid to. If there is more than one on different panels, this will say 'Multiple'
+'~~~~~ rent_amt: number - the total of the prospective rent amount listed on all SHEL panels in the case
+'~~~~~ rent_verif: string - the verification listed on the panel for the rent expense. If there are different verifications on different SHEL panels on the case, this will say 'Multiple'
+'~~~~~ lot_rent_amt: number - the total of the prospective lot rent amount listed on all SHEL panels in the case
+'~~~~~ lot_rent_verif: string - the verification listed on the panel for the lot rent expense. If there are different verifications on different SHEL panels on the case, this will say 'Multiple'
+'~~~~~ mortgage_amt: number - the total of the prospective mortgage amount listed on all SHEL panels in the case
+'~~~~~ mortgage_verif: string - the verification listed on the panel for the mortgage expense. If there are different verifications on different SHEL panels on the case, this will say 'Multiple'
+'~~~~~ insurance_amt: number - the total of the prospective insurance amount listed on all SHEL panels in the case
+'~~~~~ insurance_verif: string - the verification listed on the panel for the insurance expense. If there are different verifications on different SHEL panels on the case, this will say 'Multiple'
+'~~~~~ taxes_amt: number - the total of the prospective taxes amount listed on all SHEL panels in the case
+'~~~~~ taxes_verif: string - the verification listed on the panel for the taxes expense. If there are different verifications on different SHEL panels on the case, this will say 'Multiple'
+'~~~~~ room_amt: number - the total of the prospective room amount listed on all SHEL panels in the case
+'~~~~~ room_verif: string - the verification listed on the panel for the room expense. If there are different verifications on different SHEL panels on the case, this will say 'Multiple'
+'~~~~~ garage_amt: number - the total of the prospective garage amount listed on all SHEL panels in the case
+'~~~~~ garage_verif: string - the verification listed on the panel for the garage expense. If there are different verifications on different SHEL panels on the case, this will say 'Multiple'
+'~~~~~ subsidy_amt: number - the total of the prospective subsidy amount listed on all SHEL panels in the case
+'~~~~~ subsidy_verif: string - the verification listed on the panel for the subsidy amount. If there are different verifications on different SHEL panels on the case, this will say 'Multiple'
+'~~~~~ original_information: string - combination of all information read
+'===== Keywords: MAXIS, SHEL
+	'SEARCH THE LIST OF HOUSEHOLD MEMBERS TO SEARCH ALL SHEL PANELS
+	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+
+	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+		EMReadscreen ref_nbr, 3, 4, 33
+		EMReadScreen access_denied_check, 13, 24, 2
+		'MsgBox access_denied_check
+		If access_denied_check = "ACCESS DENIED" Then
+			PF10
+			last_name = "UNABLE TO FIND"
+			first_name = " - Access Denied"
+			mid_initial = ""
+		Else
+			client_list = client_list & ref_nbr & "|"
+		End If
+		transmit
+		Emreadscreen edit_check, 7, 24, 2
+	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+	client_list = TRIM(client_list)				'making this list an array so we can go through it
+	If right(client_list, 1) = "|" Then client_list = left(client_list, len(client_list) - 1)
+	shel_ref_numbers_array = split(client_list, "|")
+
+	rent_amt = 0			'setting the defaults of these parameters
+	rent_verif = ""
+	lot_rent_amt = 0
+	lot_rent_verif = ""
+	mortgage_amt = 0
+	mortgage_verif = ""
+	insurance_amt = 0
+	insurance_verif = ""
+	taxes_amt = 0
+	taxes_verif = ""
+	room_amt = 0
+	room_verif = ""
+	garage_amt = 0
+	garage_verif = ""
+	subsidy_amt = 0
+	subsidy_verif = ""
+
+	Call navigate_to_MAXIS_screen("STAT", "SHEL")								'going to SHEL
+
+	For each memb_ref_number in shel_ref_numbers_array							'We are going to look at SHEL for each member.
+		EMWriteScreen memb_ref_number, 20, 76
+		transmit
+
+		EMReadScreen shel_version, 1, 2, 78
+		If shel_version = "1" Then												'if a SHEL panel exists, it will say '1' here
+			ref_numbers_with_panel = ref_numbers_with_panel & "~" & memb_ref_number	'saving the member reference number to the list
+
+		    EMReadScreen panel_paid_to,               25, 7, 50					'reading the panel paid to
+		    panel_paid_to = replace(panel_paid_to, "_", "")						'formatting the string
+			If paid_to = "" Then												'saving the information about who the SHEL expenses are paid to
+				paid_to = panel_paid_to
+			ElseIf paid_to <> panel_paid_to Then
+				paid_to = "Multiple"
+			End If
+
+		    EMReadScreen rent_prosp_amt,        8, 11, 56						'reading rent amount and verification
+		    EMReadScreen rent_prosp_verif,      2, 11, 67
+
+		    rent_prosp_amt = replace(rent_prosp_amt, "_", "")					'formatiing the information about the amount ans adding it in to the running total
+		    rent_prosp_amt = trim(rent_prosp_amt)
+			If rent_prosp_amt = "" Then rent_prosp_amt = 0
+			rent_prosp_amt = rent_prosp_amt * 1
+			rent_amt = rent_amt + rent_prosp_amt
+
+		    If rent_prosp_verif = "SF" Then rent_prosp_verif = "SF - Shelter Form"		'formatiing the verif information for rent and adding it to the output parameter
+		    If rent_prosp_verif = "LE" Then rent_prosp_verif = "LE - Lease"
+		    If rent_prosp_verif = "RE" Then rent_prosp_verif = "RE - Rent Receipt"
+		    If rent_prosp_verif = "OT" Then rent_prosp_verif = "OT - Other Doc"
+		    If rent_prosp_verif = "NC" Then rent_prosp_verif = "NC - Chg, Neg Impact"
+		    If rent_prosp_verif = "PC" Then rent_prosp_verif = "PC - Chg, Pos Impact"
+		    If rent_prosp_verif = "NO" Then rent_prosp_verif = "NO - No Verif"
+			If rent_prosp_verif = "?_" Then rent_prosp_verif = "? - Delayed Verif"
+		    If rent_prosp_verif = "__" Then rent_prosp_verif = ""
+			If rent_verif = "" Then
+				rent_verif = rent_prosp_verif
+			ElseIf rent_verif <> rent_prosp_verif Then
+				rent_verif = "Multiple"
+			End If
+
+		    EMReadScreen lot_rent_prosp_amt,    8, 12, 56						'reading lot rent amount and verification
+		    EMReadScreen lot_rent_prosp_verif,  2, 12, 67
+
+		    lot_rent_prosp_amt = replace(lot_rent_prosp_amt, "_", "")			'formatiing the information about the amount and adding it in to the running total
+		    lot_rent_prosp_amt = trim(lot_rent_prosp_amt)
+			If lot_rent_prosp_amt = "" Then lot_rent_prosp_amt = 0
+			lot_rent_prosp_amt = lot_rent_prosp_amt * 1
+			lot_rent_amt = lot_rent_amt + lot_rent_prosp_amt
+		    If lot_rent_prosp_verif = "LE" Then lot_rent_prosp_verif = "LE - Lease"				'formatiing the verif information for rent and adding it to the output parameter
+		    If lot_rent_prosp_verif = "RE" Then lot_rent_prosp_verif = "RE - Rent Receipt"
+		    If lot_rent_prosp_verif = "BI" Then lot_rent_prosp_verif = "BI - Billing Stmt"
+		    If lot_rent_prosp_verif = "OT" Then lot_rent_prosp_verif = "OT - Other Doc"
+		    If lot_rent_prosp_verif = "NC" Then lot_rent_prosp_verif = "NC - Chg, Neg Impact"
+		    If lot_rent_prosp_verif = "PC" Then lot_rent_prosp_verif = "PC - Chg, Pos Impact"
+		    If lot_rent_prosp_verif = "NO" Then lot_rent_prosp_verif = "NO - No Verif"
+			If lot_rent_prosp_verif = "?_" Then lot_rent_prosp_verif = "? - Delayed Verif"
+		    If lot_rent_prosp_verif = "__" Then lot_rent_prosp_verif = ""
+			If lot_rent_verif = "" Then
+				lot_rent_verif = lot_rent_prosp_verif
+			ElseIf lot_rent_verif <> lot_rent_prosp_verif Then
+				lot_rent_verif = "Multiple"
+			End If
+
+		    EMReadScreen mortgage_prosp_amt,    8, 13, 56						'reading mortgage amount and verification
+		    EMReadScreen mortgage_prosp_verif,  2, 13, 67
+
+		    mortgage_prosp_amt = replace(mortgage_prosp_amt, "_", "")			'formatiing the information about the amount and adding it in to the running total
+		    mortgage_prosp_amt = trim(mortgage_prosp_amt)
+			If mortgage_prosp_amt = "" Then mortgage_prosp_amt = 0
+			mortgage_prosp_amt = mortgage_prosp_amt * 1
+			mortgage_amt = mortgage_amt + mortgage_prosp_amt
+		    If mortgage_prosp_verif = "MO" Then mortgage_prosp_verif = "MO - Mortgage Pmt Book"		'formatiing the verif information for rent and adding it to the output parameter
+		    If mortgage_prosp_verif = "CD" Then mortgage_prosp_verif = "CD - Ctrct fro Deed"
+		    If mortgage_prosp_verif = "OT" Then mortgage_prosp_verif = "OT - Other Doc"
+		    If mortgage_prosp_verif = "NC" Then mortgage_prosp_verif = "NC - Chg, Neg Impact"
+		    If mortgage_prosp_verif = "PC" Then mortgage_prosp_verif = "PC - Chg, Pos Impact"
+		    If mortgage_prosp_verif = "NO" Then mortgage_prosp_verif = "NO - No Verif"
+			If mortgage_prosp_verif = "?_" Then mortgage_prosp_verif = "? - Delayed Verif"
+		    If mortgage_prosp_verif = "__" Then mortgage_prosp_verif = ""
+			If mortgage_verif = "" Then
+				mortgage_verif = mortgage_prosp_verif
+			ElseIf mortgage_verif <> mortgage_prosp_verif Then
+				mortgage_verif = "Multiple"
+			End If
+
+		    EMReadScreen insurance_prosp_amt,   8, 14, 56						'reading insurance amount and verification
+		    EMReadScreen insurance_prosp_verif, 2, 14, 67
+
+		    insurance_prosp_amt = replace(insurance_prosp_amt, "_", "")			'formatiing the information about the amount and adding it in to the running total
+		    insurance_prosp_amt = trim(insurance_prosp_amt)
+			If insurance_prosp_amt = "" Then insurance_prosp_amt = 0
+			insurance_prosp_amt = insurance_prosp_amt * 1
+			insurance_amt = insurance_amt + insurance_prosp_amt
+		    If insurance_prosp_verif = "BI" Then insurance_prosp_verif = "BI - Billing Stmt"		'formatiing the verif information for rent and adding it to the output parameter
+		    If insurance_prosp_verif = "OT" Then insurance_prosp_verif = "OT - Other Doc"
+		    If insurance_prosp_verif = "NC" Then insurance_prosp_verif = "NC - Chg, Neg Impact"
+		    If insurance_prosp_verif = "PC" Then insurance_prosp_verif = "PC - Chg, Pos Impact"
+		    If insurance_prosp_verif = "NO" Then insurance_prosp_verif = "NO - No Verif"
+			If insurance_prosp_verif = "?_" Then insurance_prosp_verif = "? - Delayed Verif"
+		    If insurance_prosp_verif = "__" Then insurance_prosp_verif = ""
+			If insurance_verif = "" Then
+				insurance_verif = insurance_prosp_verif
+			ElseIf insurance_verif <> insurance_prosp_verif Then
+				insurance_verif = "Multiple"
+			End If
+
+		    EMReadScreen tax_prosp_amt,         8, 15, 56						'reading tax amount and verification
+		    EMReadScreen tax_prosp_verif,       2, 15, 67
+
+		    tax_prosp_amt = replace(tax_prosp_amt, "_", "")						'formatiing the information about the amount and adding it in to the running total
+		    tax_prosp_amt = trim(tax_prosp_amt)
+			If tax_prosp_amt = "" Then tax_prosp_amt = 0
+			tax_prosp_amt = tax_prosp_amt * 1
+			taxes_amt = taxes_amt + tax_prosp_amt
+		    If tax_prosp_verif = "TX" Then tax_prosp_verif = "TX - Prop Tax Stmt"		'formatiing the verif information for rent and adding it to the output parameter
+		    If tax_prosp_verif = "OT" Then tax_prosp_verif = "OT - Other Doc"
+		    If tax_prosp_verif = "NC" Then tax_prosp_verif = "NC - Chg, Neg Impact"
+		    If tax_prosp_verif = "PC" Then tax_prosp_verif = "PC - Chg, Pos Impact"
+		    If tax_prosp_verif = "NO" Then tax_prosp_verif = "NO - No Verif"
+			If tax_prosp_verif = "?_" Then tax_prosp_verif = "? - Delayed Verif"
+		    If tax_prosp_verif = "__" Then tax_prosp_verif = ""
+			If taxes_verif = "" Then
+				taxes_verif = tax_prosp_verif
+			ElseIf taxes_verif <> tax_prosp_verif Then
+				taxes_verif = "Multiple"
+			End If
+
+		    EMReadScreen room_prosp_amt,        8, 16, 56						'reading room amount and verification
+		    EMReadScreen room_prosp_verif,      2, 16, 67
+
+		    room_prosp_amt = replace(room_prosp_amt, "_", "")					'formatiing the information about the amount and adding it in to the running total
+		    room_prosp_amt = trim(room_prosp_amt)
+			If room_prosp_amt = "" Then room_prosp_amt = 0
+			room_prosp_amt = room_prosp_amt * 1
+			room_amt = room_amt + room_prosp_amt
+		    If room_prosp_verif = "SF" Then room_prosp_verif = "SF - Shelter Form"		'formatiing the verif information for rent and adding it to the output parameter
+		    If room_prosp_verif = "LE" Then room_prosp_verif = "LE - Lease"
+		    If room_prosp_verif = "RE" Then room_prosp_verif = "RE - Rent Receipt"
+		    If room_prosp_verif = "OT" Then room_prosp_verif = "OT - Other Doc"
+		    If room_prosp_verif = "NC" Then room_prosp_verif = "NC - Chg, Neg Impact"
+		    If room_prosp_verif = "PC" Then room_prosp_verif = "PC - Chg, Pos Impact"
+		    If room_prosp_verif = "NO" Then room_prosp_verif = "NO - No Verif"
+			If room_prosp_verif = "?_" Then room_prosp_verif = "? - Delayed Verif"
+		    If room_prosp_verif = "__" Then room_prosp_verif = ""
+			If room_verif = "" Then
+				room_verif = room_prosp_verif
+			ElseIf room_verif <> room_prosp_verif Then
+				room_verif = "Multiple"
+			End If
+
+		    EMReadScreen garage_prosp_amt,      8, 17, 56						'reading garage amount and verification
+		    EMReadScreen garage_prosp_verif,    2, 17, 67
+
+		    garage_prosp_amt = replace(garage_prosp_amt, "_", "")				'formatiing the information about the amount and adding it in to the running total
+		    garage_prosp_amt = trim(garage_prosp_amt)
+			If garage_prosp_amt = "" Then garage_prosp_amt = 0
+			garage_prosp_amt = garage_prosp_amt * 1
+			garage_amt = garage_amt + garage_prosp_amt
+		    If garage_prosp_verif = "SF" Then garage_prosp_verif = "SF - Shelter Form"		'formatiing the verif information for rent and adding it to the output parameter
+		    If garage_prosp_verif = "LE" Then garage_prosp_verif = "LE - Lease"
+		    If garage_prosp_verif = "RE" Then garage_prosp_verif = "RE - Rent Receipt"
+		    If garage_prosp_verif = "OT" Then garage_prosp_verif = "OT - Other Doc"
+		    If garage_prosp_verif = "NC" Then garage_prosp_verif = "NC - Chg, Neg Impact"
+		    If garage_prosp_verif = "PC" Then garage_prosp_verif = "PC - Chg, Pos Impact"
+		    If garage_prosp_verif = "NO" Then garage_prosp_verif = "NO - No Verif"
+			If garage_prosp_verif = "?_" Then garage_prosp_verif = "? - Delayed Verif"
+		    If garage_prosp_verif = "__" Then garage_prosp_verif = ""
+			If garage_verif = "" Then
+				garage_verif = garage_prosp_verif
+			ElseIf garage_verif <> garage_prosp_verif Then
+				garage_verif = "Multiple"
+			End If
+
+		    EMReadScreen subsidy_prosp_amt,     8, 18, 56						'reading subsidy amount and verification
+		    EMReadScreen subsidy_prosp_verif,   2, 18, 67
+
+		    subsidy_prosp_amt = replace(subsidy_prosp_amt, "_", "")				'formatiing the information about the amount and adding it in to the running total
+		    subsidy_prosp_amt = trim(subsidy_prosp_amt)
+			If subsidy_prosp_amt = "" Then subsidy_prosp_amt = 0
+			subsidy_prosp_amt = subsidy_prosp_amt * 1
+			subsidy_amt = subsidy_amt + subsidy_prosp_amt
+		    If subsidy_prosp_verif = "SF" Then subsidy_prosp_verif = "SF - Shelter Form"		'formatiing the verif information for rent and adding it to the output parameter
+		    If subsidy_prosp_verif = "LE" Then subsidy_prosp_verif = "LE - Lease"
+		    If subsidy_prosp_verif = "OT" Then subsidy_prosp_verif = "OT - Other Doc"
+		    If subsidy_prosp_verif = "NO" Then subsidy_prosp_verif = "NO - No Verif"
+			If subsidy_prosp_verif = "?_" Then subsidy_prosp_verif = "? - Delayed Verif"
+		    If subsidy_prosp_verif = "__" Then subsidy_prosp_verif = ""
+			If subsidy_verif = "" Then
+				subsidy_verif = subsidy_prosp_verif
+			ElseIf subsidy_verif <> subsidy_prosp_verif Then
+				subsidy_verif = "Multiple"
+			End If
+		End If
+	Next
+
+	If left(ref_numbers_with_panel, 1) = "~" Then ref_numbers_with_panel = right(ref_numbers_with_panel, len(ref_numbers_with_panel)-1)		'formatting the list of reference numbers with a SHEL panel
+	'saving the information into the original information parameter for comparison
+	original_information = rent_amt&"|"&rent_verif&"|"&lot_rent_amt&"|"&lot_rent_verif&"|"&mortgage_amt&"|"&mortgage_verif&"|"&insurance_amt&"|"&insurance_verif&"|"&taxes_amt&"|"&taxes_verif&"|"&room_amt&"|"&room_verif&"|"&garage_amt&"|"&garage_verif&"|"&subsidy_amt&"|"&subsidy_verif
+end function
+
 function reformat_phone_number(phone_number, format_needed)
 	original_phone_number = phone_number
 	phone_number = replace(phone_number, "-", "")
