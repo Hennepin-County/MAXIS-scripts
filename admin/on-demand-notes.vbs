@@ -215,7 +215,7 @@ IF prog_updated_CHECKBOX = CHECKED THEN
     Do
     	EMReadscreen panel_check, 4, 2, 50
     	IF panel_check <> "PROG" THEN CALL navigate_to_MAXIS_screen("STAT", "PROG")
-    Loop until HCRE_panel_check = "PROG"		'repeats until case is not in the HCRE panel
+    Loop until panel_check = "PROG"		'repeats until case is not in the HCRE panel
 	PF9
 	'interview_date = date & ""		'Defaults the date of the interview to today's date.
 	intv_mo = DatePart("m", interview_date)     'Setting the date parts to individual variables for ease of writing
@@ -250,7 +250,7 @@ IF prog_updated_CHECKBOX = CHECKED THEN
 		EMWriteScreen intv_day, prog_row, 58
 		EMWriteScreen intv_yr, prog_row, 61
 	End If
-
+	
 	TRANSMIT                                    'Saving the panel
 	closing_message = closing_message & " PROG has been updated, please review for accuracy."
 
