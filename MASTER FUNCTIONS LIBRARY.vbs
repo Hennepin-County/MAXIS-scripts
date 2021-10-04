@@ -6005,7 +6005,7 @@ function display_ADDR_information(update_addr, notes_on_address, resi_street_ful
 '~~~~~ address_change_date: string - a date that can be entered in the dialog with the date of the change of address information
 '~~~~~ update_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
 '~~~~~ save_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
-'~~~~~ clear_mail_addr_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed 
+'~~~~~ clear_mail_addr_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
 '~~~~~ clear_phone_one_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
 '~~~~~ clear_phone_two_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
 '~~~~~ clear_phone_three_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
@@ -6018,7 +6018,7 @@ function display_ADDR_information(update_addr, notes_on_address, resi_street_ful
 		Text 205, 75, 110, 45, resi_state
 		Text 340, 75, 35, 15, resi_zip
 		Text 125, 95, 45, 45, addr_reservation
-		Text 245, 85, 130, 15, reservation_name
+		Text 245, 95, 130, 15, reservation_name
 		Text 125, 115, 45, 45, addr_homeless
 		If addr_living_sit = "10 - Unknown" OR addr_living_sit = "Blank" Then
 			DropListBox 245, 110, 130, 45, "Select"+chr(9)+"01 - Own home, lease or roommate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", addr_living_sit
@@ -6056,11 +6056,11 @@ function display_ADDR_information(update_addr, notes_on_address, resi_street_ful
 		DropListBox 205, 180, 110, 45, ""+chr(9)+state_list, mail_state
 		EditBox 340, 180, 35, 15, mail_zip
 		EditBox 20, 240, 90, 15, phone_one
-		DropListBox 125, 240, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", type_one
+		DropListBox 125, 240, 65, 45, "Select One..."+chr(9)+""+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", type_one
 		EditBox 20, 260, 90, 15, phone_two
-		DropListBox 125, 260, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", type_two
+		DropListBox 125, 260, 65, 45, "Select One..."+chr(9)+""+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", type_two
 		EditBox 20, 280, 90, 15, phone_three
-		DropListBox 125, 280, 65, 45, "Select One..."+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", type_three
+		DropListBox 125, 280, 65, 45, "Select One..."+chr(9)+""+chr(9)+"C - Cell"+chr(9)+"H - Home"+chr(9)+"W - Work"+chr(9)+"M - Message"+chr(9)+"T - TTY/TDD", type_three
 		EditBox 325, 210, 50, 15, address_change_date
 		ComboBox 255, 245, 120, 45, county_list_smalll+chr(9)+resi_county, resi_county
 		DropListBox 255, 280, 120, 45, "SF - Shelter Form"+chr(9)+"CO - Coltrl Stmt"+chr(9)+"MO - Mortgage Papers"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"CD - Contrct for Deed"+chr(9)+"UT - Utility Stmt"+chr(9)+"DL - Driver Lic/State ID"+chr(9)+"OT - Other Document"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed"+chr(9)+"Blank", addr_verif
@@ -7144,6 +7144,61 @@ Function MMIS_panel_confirmation(panel_name, col)
 		If panel_check <> panel_name then Call write_value_and_transmit(panel_name, 1, 8)
 	Loop until panel_check = panel_name
 End function
+
+function navigate_ADDR_buttons(update_addr, err_var, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, mail_street_full, mail_city, mail_state, mail_zip, phone_one, phone_two, phone_three, type_one, type_two, type_three)
+'--- This function works with display_ADDR_information to manage the dialog movement
+'~~~~~ update_addr: boolean - this will indicate if the dialog information is in 'edit mode' and is adjusted in this function by the button presses
+'~~~~~ err_var: string - information output if any parameter if the detail is 'wrong' or missing for dialog entry
+'~~~~~ update_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ save_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ clear_mail_addr_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ clear_phone_one_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ clear_phone_two_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ clear_phone_three_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ mail_street_full: string - mailing address information
+'~~~~~ mail_city: string - mailing address information
+'~~~~~ mail_state: string - mailing address information
+'~~~~~ mail_zip: string -  mailing address information
+'~~~~~ phone_one: string - phone number information
+'~~~~~ phone_two: string - phone number information
+'~~~~~ phone_three: string - phone number information
+'~~~~~ type_one: string - information about the type of the phone number from the ADDR panel
+'~~~~~ type_two: string - information about the type of the phone number from the ADDR panel
+'~~~~~ type_three: string - information about the type of the phone number from the ADDR panel
+'===== Keywords: MMIS, ADDR, navigate, confirm. dialog
+	If ButtonPressed = update_information_btn Then
+		update_addr = TRUE
+	ElseIf ButtonPressed = save_information_btn Then
+		update_addr = FALSE
+	Else
+		update_addr = FALSE
+	End If
+	If update_addr = FALSE Then
+		If type_one = "Select One..." Then type_one = ""
+		If type_two = "Select One..." Then type_two = ""
+		If type_three = "Select One..." Then type_three = ""
+		If reservation_name = "Select One..." Then reservation_name = ""
+	End If
+
+	If ButtonPressed = clear_mail_addr_btn Then
+		mail_street_full = ""
+		mail_city = ""
+		mail_state = ""
+		mail_zip = ""
+	End If
+	If ButtonPressed = clear_phone_one_btn Then
+		phone_one = ""
+		type_one = ""
+	End If
+	If ButtonPressed = clear_phone_two_btn Then
+		phone_two = ""
+		type_two = ""
+	End If
+	If ButtonPressed = clear_phone_three_btn Then
+		phone_three = ""
+		type_three = ""
+	End If
+end function
 
 function navigate_to_MAXIS_screen_review_PRIV(function_to_go_to, command_to_go_to, is_this_priv)
 '--- This function is to be used to navigate to a specific MAXIS screen and will check for privileged status
