@@ -5977,7 +5977,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 End Function
 
 function display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
-'--- This function has a potion of dialog that can be insert into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of ADDR information in different scripts/dialogs
+'--- This function has a portion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of ADDR information in different scripts/dialogs
 
 '~~~~~ update_addr: boolean - This parameter will determine if the dialog will be displayed with the panel information is 'edit mode' or not.
 '~~~~~ notes_on_address: string - variable to enter information and details about the address information in an editbox
@@ -6072,7 +6072,6 @@ function display_ADDR_information(update_addr, notes_on_address, resi_street_ful
 	PushButton 205, 240, 35, 10, "CLEAR", clear_phone_one_btn
 	PushButton 205, 260, 35, 10, "CLEAR", clear_phone_two_btn
 	PushButton 205, 280, 35, 10, "CLEAR", clear_phone_three_btn
-	' Text 10, 10, 360, 10, "Review the Address informaiton known with the client. If it needs updating, press this button to make changes:"
 	Text 250, 35, 80, 10, "ADDR effective date:"
 	Text 20, 55, 45, 10, "House/Street"
 	Text 45, 75, 20, 10, "City"
@@ -6094,6 +6093,90 @@ function display_ADDR_information(update_addr, notes_on_address, resi_street_ful
 	Text 255, 235, 75, 10, "County of Residence:"
 	Text 255, 270, 75, 10, "ADDR Verification:"
 	Text 10, 310, 75, 10, "Additional Notes:"
+end function
+
+function display_HEST_information(update_hest, all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, notes_on_hest)
+'--- This function has a potion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of HEST information in different scripts/dialogs
+'~~~~~ update_hest: boolean - This parameter will determine if the dialog will be displayed with the panel information is 'edit mode' or not.
+'~~~~~ all_persons_paying: string - detail of all the people that are responsible for paying utilities - from the HEST panel
+'~~~~~ choice_date: string - formatted as a date - the date from the HEST panel
+'~~~~~ actual_initial_exp: string - information from the panel of the actual expense amount in the initial month
+'~~~~~ retro_heat_ac_yn: string - as 'Y' or 'N' or blank - indicator of is retro heat/ac paid
+'~~~~~ retro_heat_ac_units: string - 2 digit as a number - this indicates the number of units that split this expense
+'~~~~~ retro_heat_ac_amt: number - amount of the SUA for heat/ac - read from the panel or calculated by navigate_HEST_buttons as detailed by HEST_standards functions
+'~~~~~ retro_electric_yn: string - as 'Y' or 'N' or blank - indicator of is retro electric is paid
+'~~~~~ retro_electric_units: string - 2 digit as a number - this indicates the number of units that split this expense
+'~~~~~ retro_electric_amt: number - amount of the SUA for electric - read from the panel or calculated by navigate_HEST_buttons as detailed by HEST_standards functions
+'~~~~~ retro_phone_yn: string - as 'Y' or 'N' or blank - indicator of is retro phone is paid
+'~~~~~ retro_phone_units: string - 2 digit as a number - this indicates the number of units that split this expense
+'~~~~~ retro_phone_amt: number - amount of the SUA for phone - read from the panel or calculated by navigate_HEST_buttons as detailed by HEST_standards functions
+'~~~~~ prosp_heat_ac_yn: string - as 'Y' or 'N' or blank - indicator of is prosp heat/ac is paid
+'~~~~~ prosp_heat_ac_units: string - 2 digit as a number - this indicates the number of units that split this expense
+'~~~~~ prosp_heat_ac_amt: number - amount of the SUA for heat/ac - read from the panel or calculated by navigate_HEST_buttons as detailed by HEST_standards functions
+'~~~~~ prosp_electric_yn: string - as 'Y' or 'N' or blank - indicator of is prosp electric is paid
+'~~~~~ prosp_electric_units: string - 2 digit as a number - this indicates the number of units that split this expense
+'~~~~~ prosp_electric_amt: number - amount of the SUA for electric - read from the panel or calculated by navigate_HEST_buttons as detailed by HEST_standards functions
+'~~~~~ prosp_phone_yn: string - as 'Y' or 'N' or blank - indicator of is prosp phone is paid
+'~~~~~ prosp_phone_units: string - 2 digit as a number - this indicates the number of units that split this expense
+'~~~~~ prosp_phone_amt: number - amount of the SUA for phone - read from the panel or calculated by navigate_HEST_buttons as detailed by HEST_standards functions
+'~~~~~ total_utility_expense: number - calculated by access_HEST_panel or navigate_HEST_buttons of the total the SUA allowed by what is paid
+'===== Keywords: MAXIS, PRISM, create, date, calendar, dialog
+	If update_hest = False Then
+		Text 75, 30, 145, 10, all_persons_paying
+	    Text 75, 50, 50, 10, choice_date
+	    Text 125, 70, 50, 10, actual_initial_exp
+	    Text 70, 125, 40, 10, retro_heat_ac_yn
+	    Text 115, 125, 20, 10, retro_heat_ac_units
+	    Text 150, 125, 45, 10, retro_heat_ac_amt
+	    Text 240, 125, 40, 10, prosp_heat_ac_yn
+	    Text 285, 125, 20, 10, prosp_heat_ac_units
+	    Text 320, 125, 45, 10, prosp_heat_ac_amt
+	    Text 70, 145, 40, 10, retro_electric_yn
+	    Text 115, 145, 20, 10, retro_electric_units
+	    Text 150, 145, 45, 10, retro_electric_amt
+	    Text 240, 145, 40, 10, prosp_electric_yn
+	    Text 285, 145, 20, 10, prosp_electric_units
+	    Text 320, 145, 45, 10, prosp_electric_amt
+	    Text 70, 165, 40, 10, retro_phone_yn
+	    Text 115, 165, 20, 10, retro_phone_units
+	    Text 150, 165, 45, 10, retro_phone_amt
+	    Text 240, 165, 40, 10, prosp_phone_yn
+	    Text 285, 165, 20, 10, prosp_phone_units
+	    Text 320, 165, 45, 10, prosp_phone_amt
+		Text 55, 185, 150, 10, "Total Counted Utility Expense: $" & total_utility_expense
+		EditBox 10, 220, 370, 15, notes_on_hest
+
+		PushButton 280, 185, 95, 15, "Update Information", update_information_btn
+	End If
+	If update_hest = True Then
+		EditBox 75, 25, 145, 15, all_persons_paying
+	    EditBox 75, 45, 50, 15, choice_date
+	    EditBox 125, 65, 50, 15, actual_initial_exp
+	    DropListBox 65, 120, 30, 45, ""+chr(9)+"Y"+chr(9)+"N", retro_heat_ac_yn
+	    DropListBox 235, 120, 30, 45, ""+chr(9)+"Y"+chr(9)+"N", prosp_heat_ac_yn
+	    DropListBox 65, 140, 30, 45, ""+chr(9)+"Y"+chr(9)+"N", retro_electric_yn
+	    DropListBox 235, 140, 30, 45, ""+chr(9)+"Y"+chr(9)+"N", prosp_electric_yn
+	    DropListBox 65, 160, 30, 45, ""+chr(9)+"Y"+chr(9)+"N", retro_phone_yn
+	    DropListBox 235, 160, 30, 45, ""+chr(9)+"Y"+chr(9)+"N", prosp_phone_yn
+		EditBox 10, 220, 370, 15, notes_on_hest
+		PushButton 280, 185, 95, 15, "Save Information", save_information_btn
+	End If
+	GroupBox 10, 15, 370, 190, "Utility Information (SUA - Standard Utility Allowance)"
+	Text 15, 30, 60, 10, "Persons Paying:"
+	Text 15, 50, 55, 10, "FS Choice Date:"
+	Text 15, 70, 110, 10, "Actual Expense In Initial Month: $ "
+	Text 20, 125, 30, 10, "Heat/Air:"
+	Text 20, 145, 30, 10, "Electric:"
+	Text 25, 165, 25, 10, "Phone:"
+	GroupBox 55, 85, 150, 95, "Retrospective"
+	Text 65, 105, 20, 10, "(Y/N)"
+	Text 110, 100, 20, 20, "#/FS Units"
+	Text 150, 105, 30, 10, "Amount"
+	GroupBox 225, 85, 150, 95, "Prospective"
+	Text 235, 105, 20, 10, "(Y/N)"
+	Text 280, 100, 20, 20, "#/FS Units"
+	Text 320, 105, 25, 10, "Amount"
+	Text 10, 210, 75, 10, "Additional Notes:"
 end function
 
 function dynamic_calendar_dialog(selected_dates_array, month_to_use, text_prompt, one_date_only, disable_weekends, disable_month_change, start_date, end_date)
