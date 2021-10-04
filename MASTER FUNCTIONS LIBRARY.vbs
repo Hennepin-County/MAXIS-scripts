@@ -6442,6 +6442,11 @@ function get_county_code()
 end function
 
 function get_state_name_from_state_code(state_code, state_name, include_state_code)
+'--- function to use the 2 digit code to get the name of the state
+'~~~~~ state_code: string - 2 digit state code
+'~~~~~ state_name: string - this will output the name of the state based on the entered code
+'~~~~~ include_state_code: boolean - enter TRUE here to have the state_name output with the state_code, eg. MN Minnesota
+'===== Keywords: format, variable
     If state_code = "NB" Then state_name = "MN Newborn"							'This is the list of all the states connected to the code.
     If state_code = "FC" Then state_name = "Foreign Country"
     If state_code = "UN" Then state_name = "Unknown"
@@ -8197,7 +8202,7 @@ function read_boolean_from_excel(excel_place, script_variable)
 end function
 
 function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent_verif, lot_rent_amt, lot_rent_verif, mortgage_amt, mortgage_verif, insurance_amt, insurance_verif, taxes_amt, taxes_verif, room_amt, room_verif, garage_amt, garage_verif, subsidy_amt, subsidy_verif, original_information)
-'--- This function Will take the information in from the Excel cell and reformat it so that the script can use the information as a boolean
+'--- Function to read all of the SHEL panels and total everything listed on each panel to a final total.
 '~~~~~ ref_numbers_with_panel: string of all member reference numbers that have a SHEL panel existing - seperated by "~"
 '~~~~~ paid_to: string - of who the sheler expense is paid to. If there is more than one on different panels, this will say 'Multiple'
 '~~~~~ rent_amt: number - the total of the prospective rent amount listed on all SHEL panels in the case
@@ -8461,23 +8466,27 @@ function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent
 end function
 
 function reformat_phone_number(phone_number, format_needed)
-	original_phone_number = phone_number
-	phone_number = replace(phone_number, "-", "")
+'--- This function will take a phone number and output it with different formatting.
+'~~~~~ phone_number: the number as it currently exists. This should be a 10 digit number
+'~~~~~ format_needed: enter the format desired - this should use 111, 222, 3333 as the parts of the phone number - eg '( 111 ) 222 - 3333'
+'===== Keywords: phone number, variable, format
+	original_phone_number = phone_number				'saving the number to an unchanged variable
+	phone_number = replace(phone_number, "-", "")		'removing all extra characters from the variable
 	phone_number = replace(phone_number, "(", "")
 	phone_number = replace(phone_number, ")", "")
 	phone_number = replace(phone_number, " ", "")
 
-	If len(phone_number) = 10 Then
-		phone_part_one = left(phone_number, 3)
+	If len(phone_number) = 10 Then						'making sure this phone number is 10 digit.
+		phone_part_one = left(phone_number, 3)			'getting each part of the phone number
 		phone_part_two = mid(phone_number, 4, 3)
 		phone_part_three = right(phone_number, 4)
 
-		temp_phone = replace(format_needed, "111", phone_part_one)
+		temp_phone = replace(format_needed, "111", phone_part_one)	'using the placeholders in the format variable to place the phone parts in
 		temp_phone = replace(temp_phone, "222", phone_part_two)
 		temp_phone = replace(temp_phone, "3333", phone_part_three)
 		phone_number = temp_phone
 	Else
-		phone_number = original_phone_number
+		phone_number = original_phone_number			'if this phone variable is NOT 10 digit, it outputs the original variable.
 	end If
 end function
 
@@ -8927,6 +8936,12 @@ end function
 
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
 'This function is to take the information provided as a phone number and split it up into the 3 parts
+'--- This function is to take the information provided as a phone number and split it up into the 3 parts
+'~~~~~ phone_variable: input the phone number here
+'~~~~~ phone_left: string - first 3 digits of a 10 digit phone number - area code
+'~~~~~ phone_mid: string - second 3 digits of a 10 digit phone number - the middle part
+'~~~~~ phone_right: string - last 4 digits of a 10 digit phone number
+'===== Keywords: MAXIS, case note, navigate, edit
     phone_variable = trim(phone_variable)
     If phone_variable <> "" Then
         phone_variable = replace(phone_variable, "(", "")						'formatting the phone variable to get rid of symbols and spaces
