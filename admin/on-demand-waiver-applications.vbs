@@ -1725,7 +1725,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             todays_cases = todays_cases + 1
 
         ElseIf ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30" Then
-            IF datediff("d", ALL_PENDING_CASES_ARRAY(application_date, case_entry), date) >= 30 and (ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" or ALL_PENDING_CASES_ARRAY(interview_date, case_entry) <> ""  THEN       'confirming that these cases meet all the criteria for denial
+            IF datediff("d", ALL_PENDING_CASES_ARRAY(application_date, case_entry), date) >= 30 and ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" or ALL_PENDING_CASES_ARRAY(interview_date, case_entry) <> ""  THEN       'confirming that these cases meet all the criteria for denial
                 'MsgBox ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
                 'IDEA - enhance the script to case note ON day 30 if the case is not denied for some reason.
                 'IDEA - add some additional error notes or information to Denial Needed to the script for cases that are at or over day 30 like why it is pending past day 30 worker entered
