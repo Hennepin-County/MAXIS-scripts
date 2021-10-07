@@ -70,6 +70,8 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
 EMConnect ""
+get_county_code
+Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time]
 
@@ -323,7 +325,10 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+If is_this_priv = True then script_end_procedure("This case is privileged and cannot be accessed. The script will now stop.")
+EmReadscreen county_code, 4, 21, 14
+If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE:NOTE. The script will now stop.")
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
@@ -359,3 +364,44 @@ If follow_up_needed_checkbox = checked then end_msg = end_msg & "Success! Follow
 If Opt_out_checkbox = checked then end_msg = end_msg & "The case has been updated to OPT OUT of recert text notifications. #" & MAXIS_case_number & vbcr
 
 script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/07/2021
+'--Tab orders reviewed & confirmed----------------------------------------------10/07/2021
+'--Mandatory fields all present & Reviewed--------------------------------------10/07/2021
+'--All variables in dialog match mandatory fields-------------------------------10/07/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/07/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/07/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/07/2021
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/07/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/07/2021
+'--PRIV Case handling reviewed -------------------------------------------------10/07/2021
+'--Out-of-County handling reviewed----------------------------------------------10/07/2021
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/07/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------10/07/2021------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/07/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------10/07/2021
+'--Denomination reviewed -------------------------------------------------------10/07/2021
+'--Script name reviewed---------------------------------------------------------10/07/2021
+'--BULK - remove 1 incrementor at end of script reviewed---------------------------------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------10/07/2021
+'--comment Code-----------------------------------------------------------------10/07/2021
+'--Update Changelog for release/update------------------------------------------10/07/2021
+'--Remove testing message boxes-------------------------------------------------10/07/2021
+'--Remove testing code/unnecessary code-----------------------------------------10/07/2021
+'--Review/update SharePoint instructions----------------------------------------10/07/2021
+'--Review Best Practices using BZS page ----------------------------------------10/07/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/07/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/07/2021
+'--Complete misc. documentation (if applicable)---------------------------------10/07/2021
+'--Update project team/issue contact (if applicable)----------------------------10/07/2021
