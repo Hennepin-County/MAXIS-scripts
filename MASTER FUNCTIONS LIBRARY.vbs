@@ -5571,7 +5571,7 @@ function get_county_code()
 				If two_digit_county_code_variable = "" then stopscript
 				If len(two_digit_county_code_variable) <> 2 or isnumeric(two_digit_county_code_variable) = False then MsgBox "Your county proxy code should be two digits and numeric."
 			Loop until len(two_digit_county_code_variable) = 2 and isnumeric(two_digit_county_code_variable) = True
-			worker_county_code = "x1" & two_digit_county_code_variable
+			worker_county_code = "X1" & two_digit_county_code_variable
 			If two_digit_county_code_variable = "91" then worker_county_code = "PW"	'For DHS folks without proxy
 		End If
 	End if
