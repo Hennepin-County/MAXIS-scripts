@@ -52,7 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("10/04/2021", "GitHub #475 ADMIN-ON DEMAND APPLICATION: Remove F2F interview supports #475", "MiKayla Handley, Hennepin County")
+call changelog_update("10/04/2021", "GitHub #475 ADMIN-ON DEMAND APPLICATION: Remove F2F interview supports.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/01/2021", "Changed the notices sent in 2 ways:##~## ##~## - Updated verbiage on how to submit documents to Hennepin.##~## ##~## - Appointment Notices will now be sent with a date of 5 days from the date of application.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/02/2021", "Update EZ Info Phone hours from 9-4 pm to 8-4:30 pm.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/24/2020", "Updated the script to hold the comments section each day.", "MiKayla Handley, Hennepin County")
@@ -110,18 +110,6 @@ function start_a_new_spec_memo_and_continue(success_var)
 	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 12     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
 	transmit                                                        'Transmits to start the memo writing process
 end function
-
-' function ONLY_create_MAXIS_friendly_date(date_variable)
-' '--- This function creates a MM DD YY date.
-' '~~~~~ date_variable: the name of the variable to output
-' 	var_month = datepart("m", date_variable)
-' 	If len(var_month) = 1 then var_month = "0" & var_month
-' 	var_day = datepart("d", date_variable)
-' 	If len(var_day) = 1 then var_day = "0" & var_day
-' 	var_year = datepart("yyyy", date_variable)
-' 	var_year = right(var_year, 2)
-' 	date_variable = var_month &"/" & var_day & "/" & var_year
-' end function
 
 
 'LEAVING THIS HERE - NOT USED AT THIS TIME
@@ -329,27 +317,27 @@ const next_action_needed    = 22
 const on_working_list       = 23
 const questionable_intv     = 24
 const take_action_today     = 25
-'const need_face_to_face     = 26
 
-const worker_name_one       = 27
-const sup_name_one          = 28
-const issue_item_one        = 29
-const email_ym_one          = 30
-const qi_worker_one         = 31
 
-const worker_name_two       = 32
-const sup_name_two          = 33
-const issue_item_two        = 34
-const email_ym_two          = 35
-const qi_worker_two         = 36
+const worker_name_one       = 26
+const sup_name_one          = 27
+const issue_item_one        = 28
+const email_ym_one          = 29
+const qi_worker_one         = 30
 
-const worker_name_three     = 37
-const sup_name_three        = 38
-const issue_item_three      = 39
-const email_ym_three        = 40
-const qi_worker_three       = 41
+const worker_name_two       = 31
+const sup_name_two          = 32
+const issue_item_two        = 33
+const email_ym_two          = 34
+const qi_worker_two         = 35
 
-const error_notes 			= 42
+const worker_name_three     = 36
+const sup_name_three        = 37
+const issue_item_three      = 38
+const email_ym_three        = 39
+const qi_worker_three       = 40
+
+const error_notes 			= 41
 
 'Constants for columns in the working excel sheet - to make the excel code easier to read.
 const worker_id_col         = 1
@@ -389,7 +377,7 @@ const sup_name_three_col    = 30
 const issue_item_three_col  = 31
 const email_ym_three_col    = 32
 const qi_worker_three_col   = 33
-'const ftof_still_need_col    = 9 removed 10/04/21
+
 ' const action_worker_col     = 20
 ' const action_sup_col        = 21
 ' const email_sent_col        = 22
@@ -489,7 +477,6 @@ Do
                 CASES_NO_LONGER_WORKING(nomi_confirm, case_removed) = ObjWorkExcel.Cells(row, nomi_confirm_col)
                 CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
                 CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-                'CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = ObjWorkExcel.Cells(row, ftof_still_need_col)
 
                 CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
                 CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
@@ -528,16 +515,13 @@ Do
                 CASES_NO_LONGER_WORKING(interview_date, case_removed) = ObjWorkExcel.Cells(row, intvw_date_col)
                 CASES_NO_LONGER_WORKING(CASH_status, case_removed) = ObjWorkExcel.Cells(row, cash_stat_col)
                 CASES_NO_LONGER_WORKING(SNAP_status, case_removed) = ObjWorkExcel.Cells(row, snap_stat_col)
-
-                CASES_NO_LONGER_WORKING(appt_notc_sent, case_removed) = ObjWorkExcel.Cells(row, appt_notc_date_col)
+            	CASES_NO_LONGER_WORKING(appt_notc_sent, case_removed) = ObjWorkExcel.Cells(row, appt_notc_date_col)
                 CASES_NO_LONGER_WORKING(appt_notc_confirm, case_removed) = ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
                 CASES_NO_LONGER_WORKING(appointment_date, case_removed) = ObjWorkExcel.Cells(row, appt_date_col)
                 CASES_NO_LONGER_WORKING(nomi_sent, case_removed) = ObjWorkExcel.Cells(row, nomi_date_col)
                 CASES_NO_LONGER_WORKING(nomi_confirm, case_removed) = ObjWorkExcel.Cells(row, nomi_confirm_col)
                 CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
                 CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-                'CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = ObjWorkExcel.Cells(row, ftof_still_need_col)
-
                 CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
                 CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
                 CASES_NO_LONGER_WORKING(issue_item_one, case_removed) = ObjWorkExcel.Cells(row, issue_item_one_col)
@@ -583,8 +567,7 @@ Do
                 ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = ObjWorkExcel.Cells(row, nomi_confirm_col)
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ObjWorkExcel.Cells(row, next_action_col)
                 ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-                'ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = ObjWorkExcel.Cells(row, ftof_still_need_col)
-				ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ObjWorkExcel.Cells(row, correct_need_col)
+                ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ObjWorkExcel.Cells(row, correct_need_col)
                 'ALL_PENDING_CASES_ARRAY(, case_entry) = ObjWorkExcel.Cells(row, )
 
                 'Defaulting this values at this time as we will determine them to be different as the script proceeds.
@@ -684,7 +667,6 @@ For case_entry = 0 to UBOUND(TODAYS_CASES_ARRAY, 2)     'now we are going to loo
         ALL_PENDING_CASES_ARRAY(nomi_confirm, add_a_case) = ObjWorkExcel.Cells(row, nomi_confirm_col)
         ALL_PENDING_CASES_ARRAY(next_action_needed, add_a_case) = ObjWorkExcel.Cells(row, next_action_col)
         ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-        'ALL_PENDING_CASES_ARRAY(need_face_to_face, add_a_case) = ObjWorkExcel.Cells(row, ftof_still_need_col)
         ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = trim(ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case))
 		ALL_PENDING_CASES_ARRAY(error_notes, add_a_case) = ObjWorkExcel.Cells(row, correct_need_col)
 		'ALL_PENDING_CASES_ARRAY(, add_a_case) = ObjWorkExcel.Cells(row, )
@@ -817,7 +799,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                 If cash_interview_done = TRUE Then      'if the cash interview was done - then even if SNAP is pending - the interview should have been compelted
                     If cash_intv_one <> "" Then ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = cash_intv_one     'setting the interview date from what was found in PROG
                     If cash_intv_two <> "" Then ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = cash_intv_two
-                    'ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = ""     'this is always blank if the cash interview has been completed
                     ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "NONE - Interview Completed"
                 Else                                    'if the cash interview was NOT done
                     If fs_pend = "PEND" Then            'if this is SNAP pending case as well
@@ -825,13 +806,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                             ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = ""
                         Else                            'if the SNAP interview was done but the cash one was not then we need to identify if another interview is needed
                             ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = fs_intv       'first we set the interview date in the array because one WAS actually done
-                            'If ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "CHECK FOR F2F NEEDED"        'if the array does not inidcate if we know about the interview then the next action is to check for if a face to face is needed
-                            'If ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "N" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "NONE - Interview Completed" 'if the array indicates that NONE is needed then the interview is done and no additional information is needed and there is no other action the script should take
-                            'If ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y" Then                'if the array indicates that a face to face is still needed then we use other information in the array to determine next action
-                            '    ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30"
-                            '    If ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = "" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI"
-                            '    IF ALL_PENDING_CASES_ARRAY(sppt_notc_sent, case_entry) = "" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND APPOINTMENT NOTICE"
-                            'End If
                             ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", Cash interview incomplete."
                         End If
                     Else
@@ -842,7 +816,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                 If fs_intv <> "" Then           'if an interview is done we will set the interview date and action in the array and blank out the face to face needed information
                     ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = fs_intv
                     ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "NONE - Interview Completed"
-                    'ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = ""
                 End If
             End If
         End If
@@ -880,11 +853,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             '        note_title = trim(note_title)               'trim it down
 
             '        'if the note headers match any of the following then we can know if a face to face is needed or not - then we add that detail to the ARRAY
-            '        If left(note_title, 50) = "~ Application interview for cash is still needed ~" Then ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y"
-            '        If left(note_title, 52) = "~ MFIP face to face application interview required ~" Then ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y"
-            '        If left(note_title, 51) = "~ DWP face to face application interview required ~" Then ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y"
-            '        If note_title = "~ MFIP face to face application interview not required" Then ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "N"
-            '        If left(note_title, 52) = "~ CASH face to face application interview required ~" Then ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y"
             '            'keeping this here if we need to add it in
             '            'THIS IS THE CASE/NOTE FOR CLIENTS REQUIRING NO INTERVIEW'
             '            ' ~ Application interview ~
@@ -900,8 +868,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             '        EMReadScreen next_note_date, 8, note_row, 6 'looking at the next note date
             '        IF next_note_date = "        " then Exit Do
             '    Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
-            '    If ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) <> "" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""   'if we were able to determing if a face to face is needed or not then we will blank out the action needed
-            'End If
+            ' 'End If
             'go_to_top_of_notes      'this is a function defined above so that if we need to read for different notes we don't miss ones on the first pages if we went to PF8
 
             If ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = "" Then        'if the ARRAY and Working Excel does not have a date listed for  when the appt notice was sent, the script will go to case ntoes to look for one
@@ -1231,7 +1198,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ' ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
-            ' ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
@@ -1454,7 +1420,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
             ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
             ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
-            'ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
             ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
             ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
             ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
@@ -1482,7 +1447,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ' ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
-            ' ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
             ' ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
@@ -1712,7 +1676,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
             ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
             ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
-            'ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
             ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
             ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
             ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
@@ -1782,7 +1745,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                             '     ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
                             '     ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
                             '     ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
-                            '     ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
                             '     ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
                             '     ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
                             '     ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
@@ -1800,7 +1762,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                             'TODO add functionality to update REPT PND2 with an I for these cases
                             If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
                                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL"
-                                'If ALL_PENDING_CASES_ARRAY(interview_date, case_entry) <> "" AND ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y" Then programs = "CASH"
 
                                 nomi_last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))
                                 'ensuring that we have given the client an additional10days fromt he day nomi sent'
@@ -1865,7 +1826,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                                 ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
                                 ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
                                 ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
-                                'ACTION_TODAY_CASES_ARRAY(need_face_to_face, todays_cases)   = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
                                 ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
                                 ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
                                 ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
@@ -1901,7 +1861,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 
     ObjWorkExcel.Cells(row, intvw_date_col).Value = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
     ObjWorkExcel.Cells(row, quest_intvw_date_col).Value = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
-    'ObjWorkExcel.Cells(row, ftof_still_need_col).Value = ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry)
     ObjWorkExcel.Cells(row, appt_notc_date_col).Value = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
     ObjWorkExcel.Cells(row, appt_date_col).Value = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
     ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
@@ -1966,7 +1925,6 @@ ObjExcel.Cells(1, qi_worker_three_col)  = "QI Worker Name - 3"
 ' ObjExcel.Cells(1, action_worker_col)    =
 ' ObjExcel.Cells(1, action_sup_col)       =
 ' ObjExcel.Cells(1, email_sent_col)       =
-'ObjExcel.Cells(1, ftof_still_need_col)  = "Face To Face Still Needed"
 ObjExcel.Rows(1).Font.Bold = TRUE   'Making the header row bold
 
 removed_row = 2     'setting a row counter
@@ -2069,7 +2027,6 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
                     If cash_interview_done = TRUE Then  'if the cash interview is done then the interview is done. and we will add the right information to the ARRAY
                         If cash_intv_one <> "" Then CASES_NO_LONGER_WORKING(interview_date, case_removed) = cash_intv_one
                         If cash_intv_two <> "" Then CASES_NO_LONGER_WORKING(interview_date, case_removed) = cash_intv_two
-                        'CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = ""
                         CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "NONE - Interview Completed"
                     Else        'if the cash interview is NOT done we are going to look for a possibel SNAP interview
                         If fs_pend = "PEND" Then        'this looks for a SNAP interview and then looks to see if we need a seperate Face to Face interview for the cash program
@@ -2077,13 +2034,6 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
                                 CASES_NO_LONGER_WORKING(interview_date, case_removed) = ""
                             Else
                                 CASES_NO_LONGER_WORKING(interview_date, case_removed) = fs_intv
-                                'If CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = "" Then CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "CHECK FOR F2F NEEDED"
-                                'If CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = "N" Then CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "NONE - Interview Completed"
-                                'If CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = "Y" Then
-                                '    CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "DENY AT DAY 30"
-                                '    If CASES_NO_LONGER_WORKING(nomi_sent, case_removed) = "" Then CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "SEND NOMI"
-                                '    IF CASES_NO_LONGER_WORKING(sppt_notc_sent, case_removed) = "" Then CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "SEND APPOINTMENT NOTICE"
-                                'End If
                                 CASES_NO_LONGER_WORKING(error_notes, case_removed) = ", Cash interview incomplete."
                             End If
                         End If
@@ -2092,7 +2042,6 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
                     If fs_intv <> "" Then
                         CASES_NO_LONGER_WORKING(interview_date, case_removed) = fs_intv
                         CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = "NONE - Interview Completed"
-                        'CASES_NO_LONGER_WORKING(need_face_to_face, case_removed) = ""
                     End If
                 End If
             End If
@@ -2129,8 +2078,6 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
     ObjExcel.Cells(removed_row, nomi_confirm_col).Value         = CASES_NO_LONGER_WORKING(nomi_confirm, case_removed)
     ObjExcel.Cells(removed_row, next_action_col).Value          = CASES_NO_LONGER_WORKING(next_action_needed, case_removed)
     ObjExcel.Cells(removed_row, quest_intvw_date_col).Value     = CASES_NO_LONGER_WORKING(questionable_intv, case_removed)
-    'ObjExcel.Cells(removed_row, ftof_still_need_col).Value     = CASES_NO_LONGER_WORKING(need_face_to_face, case_removed)
-
     ObjExcel.Cells(removed_row, correct_need_col).Value         = CASES_NO_LONGER_WORKING(error_notes, case_removed)
 
     ObjExcel.Cells(removed_row, worker_name_one_col).Value  = CASES_NO_LONGER_WORKING(worker_name_one, case_removed)
@@ -2172,7 +2119,6 @@ ObjExcel.Cells(1, cash_stat_col)         = "CASH"
 ObjExcel.Cells(1, app_date_col)          = "Application Date"
 ObjExcel.Cells(1, intvw_date_col)        = "Interview Date"
 ObjExcel.Cells(1, quest_intvw_date_col)  = "Questionable Interview Date"
-'ObjExcel.Cells(1, ftof_still_need_col)  = "Face To Face Still Needed"
 ObjExcel.Cells(1, appt_notc_date_col)    = "Appt Notice Sent"
 ObjExcel.Cells(1, appt_date_col)         = "Appointment Date"
 ObjExcel.Cells(1, appt_notc_confirm_col) = "Confirm"
@@ -2203,7 +2149,6 @@ For action_case = 0 to UBOUND(ACTION_TODAY_CASES_ARRAY, 2)      'looping through
     ObjExcel.Cells(action_row, app_date_col)         = ACTION_TODAY_CASES_ARRAY(application_date, action_case)
     ObjExcel.Cells(action_row, intvw_date_col)       = ACTION_TODAY_CASES_ARRAY(interview_date, action_case)
     ObjExcel.Cells(action_row, quest_intvw_date_col) = ACTION_TODAY_CASES_ARRAY(questionable_intv, action_case)
-    'ObjExcel.Cells(action_row, ftof_still_need_col)  = ACTION_TODAY_CASES_ARRAY(need_face_to_face, action_case)
     ObjExcel.Cells(action_row, appt_notc_date_col)   = ACTION_TODAY_CASES_ARRAY(appt_notc_sent, action_case)
     ObjExcel.Cells(action_row, appt_notc_confirm_col)= ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, action_case)
     ObjExcel.Cells(action_row, appt_date_col)        = ACTION_TODAY_CASES_ARRAY(appointment_date, action_case)
