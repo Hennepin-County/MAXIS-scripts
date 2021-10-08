@@ -5,7 +5,7 @@ STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 0                	'manual run time in seconds
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
-
+run_locally = true
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -285,7 +285,9 @@ ReDim DAY_SORT_ARRAY(type_last_const, 0)
 excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking"
 
 If user_ID_for_validation = "CALO001" Then
-	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking 2021.xlsx"
+	' t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking 2021.xlsx"
+	t_drive_excel_file_path = excel_file_path & "\MiKayla Time Tracking 2021.xlsx"
+
 	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking 2021.xlsx"
 End If
 If user_ID_for_validation = "ILFE001" Then
@@ -297,7 +299,8 @@ If user_ID_for_validation = "WFS395" Then
 	my_docs_excel_file_path = user_myDocs_folder & "MiKayla Time Tracking 2021.xlsx"
 End If
 
-Call excel_open(my_docs_excel_file_path, False, False, ObjExcel, objWorkbook)
+view_excel = False
+Call excel_open(t_drive_excel_file_path, view_excel, False, ObjExcel, objWorkbook)
 
 excel_row = 2
 activity_count = 0
@@ -324,13 +327,13 @@ Do
 	TIME_TRACKING_ARRAY(activity_meeting, activity_count) 		= ObjExcel.Cells(excel_row, 6).Value
 	TIME_TRACKING_ARRAY(activity_detail, activity_count) 		= ObjExcel.Cells(excel_row, 7).Value
 	TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = trim(ObjExcel.Cells(excel_row, 8).Value)
-	If TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) <> "" AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "&") = 0 Then
-		' ObjExcel.Cells(excel_row, 8).Value = ""
+	If TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) <> "" AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "&") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), ",") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "/") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "\") = 0 AND ucase(trim(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count))) <> "MULTIPLE" Then
+		ObjExcel.Cells(excel_row, 8).Value = ""
 		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "#", "")
 		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "Issue", "")
 		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = trim(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count))
 		TIME_TRACKING_ARRAY(activity_gh_issue_url, activity_count) = "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count)
-		' ObjExcel.Cells(excel_row, 8).Value = "=HYPERLINK(" & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_url, activity_count) & chr(34) & ", " & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) & chr(34) & ")"
+		ObjExcel.Cells(excel_row, 8).Value = "=HYPERLINK(" & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_url, activity_count) & chr(34) & ", " & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) & chr(34) & ")"
 	End If
 		' TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "#", "")
 	TIME_TRACKING_ARRAY(activity_project, activity_count) 		= trim(ObjExcel.Cells(excel_row, 9).Value)
@@ -341,7 +344,8 @@ Do
 	next_row_date = ObjExcel.Cells(excel_row, 1).Value
 Loop until next_row_date = ""
 
-objExcel.Visible = True 
+view_excel = True
+objExcel.Visible = view_excel
 
 hours_in_time_pd = 0
 hours_in_meetings_dur_time_pd = 0
@@ -362,6 +366,9 @@ category_button = 2001
 project_button = 2002
 git_hub_issue_button = 2003
 day_sort_button = 2004
+
+show_excel_button = 5000
+hide_excel_button = 5001
 
 current_day = date & ""
 For each week_item in week_array
@@ -401,9 +408,9 @@ Do
 	selected_end_date = selected_end_date & ""
 	selected_date = selected_date & ""
 
-	dlg_len = 145
-	grp_1_len = 30
-	grp_2_len = 110
+	dlg_len = 140
+	grp_1_len = 25
+	grp_2_len = 105
 	If selected_sort = "CATEGORY" Then
 		For cat_item = 0 to UBound(CATEGORY_ARRAY, 2)
 			dlg_len = dlg_len + 10
@@ -426,16 +433,26 @@ Do
 		Next
 	End If
 	If selected_sort = "DAY" Then
-		For cat_item = 0 to UBound(DAY_SORT_ARRAY, 2)
-			dlg_len = dlg_len + 10
-			grp_1_len = grp_1_len + 10
-			grp_2_len = grp_2_len + 10
-		Next
+		If dialog_view = day_view Then
+			For logged_activity = 0 to UBound(TIME_TRACKING_ARRAY, 2)
+				If DateDiff("d", selected_date, TIME_TRACKING_ARRAY(activity_date_const, logged_activity)) = 0 Then
+					dlg_len = dlg_len + 10
+					grp_1_len = grp_1_len + 10
+					grp_2_len = grp_2_len + 10
+				End If
+			Next
+		Else
+			For cat_item = 0 to UBound(DAY_SORT_ARRAY, 2)
+				dlg_len = dlg_len + 10
+				grp_1_len = grp_1_len + 10
+				grp_2_len = grp_2_len + 10
+			Next
+		End If
 	End If
 
 	BeginDialog Dialog1, 0, 0, 361, dlg_len, "View Hours and Activity"
 	  ButtonGroup ButtonPressed
-		GroupBox 5, 5, 275, grp_2_len, "Hours Breakdown"
+		GroupBox 5, 5, 285, grp_2_len, "Hours Breakdown"
 		If dialog_view = day_view Then EditBox 180, 15, 50, 15, selected_date
 		If dialog_view = week_view Then DropListBox 80, 15, 150, 45, week_list, selected_date
 		If dialog_view = biweek_view Then DropListBox 80, 15, 150, 45, biweek_list, selected_date
@@ -447,7 +464,7 @@ Do
 		End If
 		PushButton 235, 15, 40, 15, "Switch", switch_button
 		Text 85, 5, 110, 10, selected_date
-		Text 15, 35, 250, 10, "Total Hours Logged: " & display_total_hours
+		Text 15, 40, 250, 10, "Total Hours Logged: " & display_total_hours
 		Text 15, 55, 250, 10, "Hours in Meetings: " & display_meeting_hours
 		If dialog_view <> day_view Then PushButton 300, 10, 50, 15, "Day", day_button
 		If dialog_view = day_view Then Text 318, 13, 30, 10, "Day"
@@ -459,7 +476,7 @@ Do
 		If dialog_view = month_view Then Text 315, 58, 30, 10, "Month"
 		If dialog_view <> custom_view Then PushButton 300, 70, 50, 15, "Custom", custom_time_button
 		If dialog_view = custom_view Then Text 311, 73, 30, 10, "Custom"
-		GroupBox 15, 75, 255, grp_1_len, "Hours by " & selected_sort
+		GroupBox 10, 75, 275, grp_1_len, "Hours by " & selected_sort
 		y_pos = 90
 		If selected_sort = "CATEGORY" Then
 			For cat_item = 0 to UBound(CATEGORY_ARRAY, 2)
@@ -485,20 +502,38 @@ Do
 			Next
 		End If
 		If selected_sort = "DAY" Then
-			For cat_item = 0 to UBound(DAY_SORT_ARRAY, 2)
-				Text 20, y_pos, 90, 10, DAY_SORT_ARRAY(type_detail_const, cat_item) & ": "
-				Text 110, y_pos, 50, 10, DAY_SORT_ARRAY(total_hours_string_const, cat_item)
-				y_pos = y_pos + 10
-			Next
+			If dialog_view = day_view Then
+				For logged_activity = 0 to UBound(TIME_TRACKING_ARRAY, 2)
+					If DateDiff("d", selected_date, TIME_TRACKING_ARRAY(activity_date_const, logged_activity)) = 0 Then
+						If TIME_TRACKING_ARRAY(activity_paid_yn, logged_activity) = "Y" Then
+							Text 15, y_pos, 250, 10, TIME_TRACKING_ARRAY(activity_category, logged_activity) & ": " & TIME_TRACKING_ARRAY(activity_detail, logged_activity)
+							Text 265, y_pos, 15, 10, TIME_TRACKING_ARRAY(activity_time_spent, logged_activity)
+						Else
+							Text 15, y_pos, 240, 10, TIME_TRACKING_ARRAY(activity_category, logged_activity) & ": " & TIME_TRACKING_ARRAY(activity_detail, logged_activity)
+							Text 255, y_pos, 25, 10, "UnPaid"
+						End If
+						y_pos = y_pos + 10
+					End If
+				Next
+			Else
+				For cat_item = 0 to UBound(DAY_SORT_ARRAY, 2)
+					Text 20, y_pos, 90, 10, DAY_SORT_ARRAY(type_detail_const, cat_item) & ": "
+					Text 110, y_pos, 50, 10, DAY_SORT_ARRAY(total_hours_string_const, cat_item)
+					y_pos = y_pos + 10
+				Next
+			End If
 		End If
-		y_pos = y_pos + 10
+		y_pos = y_pos + 5
 		If selected_sort <> "CATEGORY" Then PushButton 15, y_pos, 60, 10, "CATEGORY", category_button
 		If selected_sort <> "PROJECT" Then PushButton 75, y_pos, 60, 10, "PROJECT", project_button
 		If selected_sort <> "GITHUB ISSUE" Then PushButton 135, y_pos, 60, 10, "GITHUB ISSUE", git_hub_issue_button
 		If selected_sort <> "DAY" Then PushButton 195, y_pos, 30, 10, "DAY", day_sort_button
 		y_pos = y_pos + 25
-		OkButton 255, y_pos, 50, 15
-		CancelButton 305, y_pos, 50, 15
+		If view_excel = False Then PushButton 5, y_pos, 100, 15, "Show Excel", show_excel_button
+		If view_excel = True Then PushButton 5, y_pos, 100, 15, "Hide Excel", hide_excel_button
+		CheckBox 110, y_pos + 5, 100, 10, "Leave Excel Open", leave_excel_open_checkbox
+		OkButton 305, y_pos, 50, 15
+		' CancelButton 305, y_pos, 50, 15
 	EndDialog
 
 	dialog Dialog1
@@ -507,6 +542,9 @@ Do
 
 	err_msg = "MORE"
 
+	If ButtonPressed = show_excel_button Then view_excel = True
+	If ButtonPressed = hide_excel_button Then view_excel = False
+	If ButtonPressed = hide_excel_button OR ButtonPressed = show_excel_button Then objExcel.Visible = view_excel
 	If selected_sort = "GITHUB ISSUE" Then
 		For cat_item = 0 to UBound(GITHUB_ISSUE_ARRAY, 2)
 			If ButtonPressed = GITHUB_ISSUE_ARRAY(type_btn_const, cat_item) Then run "C:\Program Files\Google\Chrome\Application\chrome.exe https://github.com/Hennepin-County/MAXIS-scripts/issues/" & GITHUB_ISSUE_ARRAY(type_detail_const, cat_item)
@@ -619,5 +657,9 @@ Do
 
 	If ButtonPressed = -1 Then err_msg = ""
 Loop until err_msg = ""
-ObjExcel.Quit
+If leave_excel_open_checkbox = checked Then
+	ObjExcel.Cells(excel_row - 1, 3).Value = ""
+	ObjExcel.Cells(excel_row - 1, 4).Value = ""
+End If
+If leave_excel_open_checkbox = unchecked Then ObjExcel.Quit
 stopscript
