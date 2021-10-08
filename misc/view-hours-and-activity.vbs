@@ -5,7 +5,7 @@ STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 0                	'manual run time in seconds
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
-run_locally = true
+run_locally = true		'this script does NOT open Global Variables. Setting the runLocally here.
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -38,6 +38,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'FUNCTIONS==================================================================================================================
 function format_time_variable(time_variable, is_this_from_excel)
 	If is_this_from_excel = True Then time_variable = time_variable * 24
 	time_hour = Int(time_variable)
@@ -120,28 +121,21 @@ function create_time_spent_totals(start_date, end_date, sort_type, total_hours, 
 
 				type_counter = type_counter + 1
 			End If
-			' If sort_type = "CATEGORY" Then MsgBox "Category - ~" & TIME_TRACKING_ARRAY(activity_category, logged_activity) & "~" & vbCr & "Date - " & TIME_TRACKING_ARRAY(activity_date_const, logged_activity) & " at " & TIME_TRACKING_ARRAY(activity_start_time, logged_activity) & vbCr &_
-			' "Elapsed Time - " & TIME_TRACKING_ARRAY(activity_time_spent_val, logged_activity) & vbCr & vbCr & "TYPE:" & vbCr & "Type Category - ~" & TYPE_ARRAY(type_detail_const, this_one) & "~" & vbCr & "Running Time - " & TYPE_ARRAY(total_hours_const, this_one)
-			' If sort_type = "PROJECT" Then MsgBox "PROJECT - ~" & TIME_TRACKING_ARRAY(activity_project, logged_activity) & "~" & vbCr & "Date - " & TIME_TRACKING_ARRAY(activity_date_const, logged_activity) & " at " & TIME_TRACKING_ARRAY(activity_start_time, logged_activity) & vbCr &_
-			' "Elapsed Time - " & TIME_TRACKING_ARRAY(activity_time_spent_val, logged_activity) & vbCr & vbCr & "TYPE:" & vbCr & "Type Project - ~" & TYPE_ARRAY(type_detail_const, this_one) & "~" & vbCr & "Running Time - " & TYPE_ARRAY(total_hours_const, this_one)
-			' If sort_type = "GITHUB ISSUE" Then MsgBox "GITHUB ISSUE - ~" & TIME_TRACKING_ARRAY(activity_gh_issue_numb, logged_activity) & "~" & vbCr & "Date - " & TIME_TRACKING_ARRAY(activity_date_const, logged_activity) & " at " & TIME_TRACKING_ARRAY(activity_start_time, logged_activity) & vbCr &_
-			' "Elapsed Time - " & TIME_TRACKING_ARRAY(activity_time_spent_val, logged_activity) & vbCr & vbCr & "TYPE:" & vbCr & "Type GITHUB ISSUE - ~" & TYPE_ARRAY(type_detail_const, this_one) & "~" & vbCr & "Running Time - " & TYPE_ARRAY(total_hours_const, this_one)
 		End If
 	Next
 	For each_type = 0 to UBound(TYPE_ARRAY, 2)
 		If TYPE_ARRAY(total_hours_const, each_type) = "" Then TYPE_ARRAY(total_hours_const, each_type) = 0
 		TYPE_ARRAY(total_hours_string_const, each_type) = TYPE_ARRAY(total_hours_const, each_type)
-		' MsgBox "Before the fn - " & TYPE_ARRAY(total_hours_string_const, each_type)
 		Call make_time_string(TYPE_ARRAY(total_hours_string_const, each_type))
 		If sort_type = "PROJECT" AND TYPE_ARRAY(type_detail_const, each_type) = "BLANK" Then TYPE_ARRAY(type_detail_const, each_type) = "No Specified Project"
 		If sort_type = "GITHUB ISSUE" AND TYPE_ARRAY(type_detail_const, each_type) = "BLANK" Then TYPE_ARRAY(type_detail_const, each_type) = "No Specified Issue"
 		If sort_type = "DAY" Then TYPE_ARRAY(type_detail_const, each_type) = TYPE_ARRAY(type_detail_const, each_type) & " - " & WeekdayName(WeekDay(TYPE_ARRAY(type_detail_const, each_type)))
 	Next
 end function
+'===========================================================================================================================
 
-
-
-
+'DECLARATIONS===============================================================================================================
+'Lists for Dialogs
 week_list = "Select"
 ' week_list = week_list+chr(9)+"12/27/2020 - 1/2/2021"
 ' week_list = week_list+chr(9)+"1/3/2021 - 1/9/2021"
@@ -244,6 +238,7 @@ month_list = month_list+chr(9)+"October"
 month_list = month_list+chr(9)+"November"
 month_list = month_list+chr(9)+"December"
 
+'Constants and arrays
 const activity_date_const 		= 00
 const activity_start_time		= 01
 const activity_end_time			= 02
@@ -256,9 +251,7 @@ const activity_gh_issue_numb	= 07
 const activity_gh_issue_url		= 08
 const activity_project			= 09
 const activity_paid_yn			= 10
-' const activity_
-' const activity_
-const last_const 				= 20
+const last_const 				= 12
 
 Dim TIME_TRACKING_ARRAY()
 ReDim TIME_TRACKING_ARRAY(last_const, 0)
@@ -282,80 +275,14 @@ ReDim GITHUB_ISSUE_ARRAY(type_last_const, 0)
 Dim DAY_SORT_ARRAY()
 ReDim DAY_SORT_ARRAY(type_last_const, 0)
 
-excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking"
-
-If user_ID_for_validation = "CALO001" Then
-	' t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking 2021.xlsx"
-	t_drive_excel_file_path = excel_file_path & "\MiKayla Time Tracking 2021.xlsx"
-
-	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking 2021.xlsx"
-End If
-If user_ID_for_validation = "ILFE001" Then
-	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking 2021.xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking 2021.xlsx"
-End If
-If user_ID_for_validation = "WFS395" Then
-	t_drive_excel_file_path = excel_file_path & "\MiKayla Time Tracking 2021.xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "MiKayla Time Tracking 2021.xlsx"
-End If
-
-view_excel = False
-Call excel_open(t_drive_excel_file_path, view_excel, False, ObjExcel, objWorkbook)
-
-excel_row = 2
-activity_count = 0
-Do
-	ReDim Preserve TIME_TRACKING_ARRAY(last_const, activity_count)
-	TIME_TRACKING_ARRAY(activity_date_const, activity_count) 	= ObjExcel.Cells(excel_row, 1).Value
-	TIME_TRACKING_ARRAY(activity_start_time, activity_count) 	= ObjExcel.Cells(excel_row, 2).Value
-	TIME_TRACKING_ARRAY(activity_end_time, activity_count) 		= ObjExcel.Cells(excel_row, 3).Value
-	If TIME_TRACKING_ARRAY(activity_end_time, activity_count) = "" Then
-		curr_hour = DatePart("h", time)
-		curr_min = DatePart("n", time)
-		ObjExcel.Cells(excel_row, 3).Value = TimeSerial(curr_hour, curr_min, 0)
-		ObjExcel.Cells(excel_row, 4).Value = "=TEXT([@[End Time]]-[@[Start Time]],"+chr(34)+"h:mm"+chr(34)+")"
-		TIME_TRACKING_ARRAY(activity_end_time, activity_count) 		= ObjExcel.Cells(excel_row, 3).Value
-	End If
-	TIME_TRACKING_ARRAY(activity_time_spent, activity_count) 	= ObjExcel.Cells(excel_row, 4).Value
-	If TIME_TRACKING_ARRAY(activity_time_spent, activity_count) <> "" Then
-		time_spent_hour = DatePart("h", TIME_TRACKING_ARRAY(activity_time_spent, activity_count))
-		time_spent_min = DatePart("n", TIME_TRACKING_ARRAY(activity_time_spent, activity_count))
-		time_spent_min = time_spent_min/60
-		TIME_TRACKING_ARRAY(activity_time_spent_val, activity_count) = time_spent_hour + time_spent_min
-	End If
-	TIME_TRACKING_ARRAY(activity_category, activity_count) 		= ObjExcel.Cells(excel_row, 5).Value
-	TIME_TRACKING_ARRAY(activity_meeting, activity_count) 		= ObjExcel.Cells(excel_row, 6).Value
-	TIME_TRACKING_ARRAY(activity_detail, activity_count) 		= ObjExcel.Cells(excel_row, 7).Value
-	TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = trim(ObjExcel.Cells(excel_row, 8).Value)
-	If TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) <> "" AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "&") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), ",") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "/") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "\") = 0 AND ucase(trim(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count))) <> "MULTIPLE" Then
-		ObjExcel.Cells(excel_row, 8).Value = ""
-		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "#", "")
-		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "Issue", "")
-		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = trim(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count))
-		TIME_TRACKING_ARRAY(activity_gh_issue_url, activity_count) = "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count)
-		ObjExcel.Cells(excel_row, 8).Value = "=HYPERLINK(" & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_url, activity_count) & chr(34) & ", " & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) & chr(34) & ")"
-	End If
-		' TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "#", "")
-	TIME_TRACKING_ARRAY(activity_project, activity_count) 		= trim(ObjExcel.Cells(excel_row, 9).Value)
-	TIME_TRACKING_ARRAY(activity_paid_yn, activity_count) 		= ObjExcel.Cells(excel_row, 10).Value
-
-	activity_count = activity_count + 1
-	excel_row = excel_row + 1
-	next_row_date = ObjExcel.Cells(excel_row, 1).Value
-Loop until next_row_date = ""
-
-view_excel = True
-objExcel.Visible = view_excel
-
-hours_in_time_pd = 0
-hours_in_meetings_dur_time_pd = 0
-
+'constants for the view changes in the dialog
 const day_view = 1
 const week_view = 2
 const biweek_view = 3
 const month_view = 4
 const custom_view = 5
 
+'buttons
 day_button = 1001
 week_button = 1002
 pay_period_button = 1003
@@ -369,6 +296,80 @@ day_sort_button = 2004
 
 show_excel_button = 5000
 hide_excel_button = 5001
+'===========================================================================================================================
+
+'Defining the excel files for when running the script
+excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking"
+
+If user_ID_for_validation = "CALO001" Then
+	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking 2021.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking 2021.xlsx"
+End If
+If user_ID_for_validation = "ILFE001" Then
+	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking 2021.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking 2021.xlsx"
+End If
+If user_ID_for_validation = "WFS395" Then
+	t_drive_excel_file_path = excel_file_path & "\MiKayla Time Tracking 2021.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "MiKayla Time Tracking 2021.xlsx"
+End If
+
+view_excel = False		'this variable allows us to set
+Call excel_open(t_drive_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file
+
+row_filled_with_end_time = " "
+
+'Here we read the entire excel file and save it into an array
+excel_row = 2			'start of the excel file information
+activity_count = 0		'starting of the counter of the array
+Do
+	ReDim Preserve TIME_TRACKING_ARRAY(last_const, activity_count)				'resize the array
+	TIME_TRACKING_ARRAY(activity_date_const, activity_count) 	= ObjExcel.Cells(excel_row, 1).Value				'date of the activity
+	TIME_TRACKING_ARRAY(activity_start_time, activity_count) 	= ObjExcel.Cells(excel_row, 2).Value				'start time of the activity
+	TIME_TRACKING_ARRAY(activity_end_time, activity_count) 		= ObjExcel.Cells(excel_row, 3).Value				'the end time of the activity
+	If TIME_TRACKING_ARRAY(activity_end_time, activity_count) = "" Then			'If there is no end time we put in the current time so that math works
+		curr_hour = DatePart("h", time)
+		curr_min = DatePart("n", time)
+		ObjExcel.Cells(excel_row, 3).Value = TimeSerial(curr_hour, curr_min, 0)
+		ObjExcel.Cells(excel_row, 4).Value = "=TEXT([@[End Time]]-[@[Start Time]],"+chr(34)+"h:mm"+chr(34)+")"		'adding the calculation of elapsed time for a line that didn't have an end time
+		row_filled_with_end_time = row_filled_with_end_time & excel_row & " "	'saving this so we can remove it later if the file is left open
+		TIME_TRACKING_ARRAY(activity_end_time, activity_count) 		= ObjExcel.Cells(excel_row, 3).Value
+	End If
+	TIME_TRACKING_ARRAY(activity_time_spent, activity_count) 	= ObjExcel.Cells(excel_row, 4).Value				'the elapsed time in a format that can be read
+	If TIME_TRACKING_ARRAY(activity_time_spent, activity_count) <> "" Then
+		time_spent_hour = DatePart("h", TIME_TRACKING_ARRAY(activity_time_spent, activity_count))					'here we create a number of the time spend so we can add it together
+		time_spent_min = DatePart("n", TIME_TRACKING_ARRAY(activity_time_spent, activity_count))
+		time_spent_min = time_spent_min/60
+		TIME_TRACKING_ARRAY(activity_time_spent_val, activity_count) = time_spent_hour + time_spent_min				'saving the time spent value into the array
+	End If
+	TIME_TRACKING_ARRAY(activity_category, activity_count) 		= ObjExcel.Cells(excel_row, 5).Value				'the activity category
+	TIME_TRACKING_ARRAY(activity_meeting, activity_count) 		= ObjExcel.Cells(excel_row, 6).Value				'the Yes/No of if this activity is a meeting
+	TIME_TRACKING_ARRAY(activity_detail, activity_count) 		= ObjExcel.Cells(excel_row, 7).Value				'the detail of the activity
+	TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = trim(ObjExcel.Cells(excel_row, 8).Value)			'the Git Hub issue information
+	If TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) <> "" AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "&") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), ",") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "/") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "\") = 0 AND ucase(trim(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count))) <> "MULTIPLE" Then
+		' ObjExcel.Cells(excel_row, 8).Value = ""
+		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "#", "")			''here we are reading the GH Issue information and making sure we are reading only a number and then making it a URL
+		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "Issue", "")
+		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = trim(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count))
+		TIME_TRACKING_ARRAY(activity_gh_issue_url, activity_count) = "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count)
+		' ObjExcel.Cells(excel_row, 8).Value = "=HYPERLINK(" & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_url, activity_count) & chr(34) & ", " & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) & chr(34) & ")"
+	End If
+	TIME_TRACKING_ARRAY(activity_project, activity_count) 		= trim(ObjExcel.Cells(excel_row, 9).Value)			'the project of the activity
+	TIME_TRACKING_ARRAY(activity_paid_yn, activity_count) 		= ObjExcel.Cells(excel_row, 10).Value				'if this is paid time
+
+	activity_count = activity_count + 1					'incrementing the array
+	excel_row = excel_row + 1							'go to the next excel row
+	next_row_date = ObjExcel.Cells(excel_row, 1).Value	'reading if there is more information on the next row.
+Loop until next_row_date = ""
+
+'now that the reading is done, we are going to make the Excel file visible.
+'This is particularly for TESTING and we can remove this in the future
+view_excel = True
+objExcel.Visible = view_excel
+
+'Setting some defaults for the dialog
+hours_in_time_pd = 0
+hours_in_meetings_dur_time_pd = 0
 
 current_day = date & ""
 For each week_item in week_array
@@ -396,19 +397,19 @@ dialog_view = day_view
 selected_sort = "CATEGORY"
 Call create_time_spent_totals(current_day, current_day, selected_sort, hours_in_time_pd, hours_in_meetings_dur_time_pd, CATEGORY_ARRAY)
 
+'now we show the dialog.
 Do
 	err_msg = ""
 
-	' MsgBox "hours - " & hours_in_time_pd
-	display_total_hours = hours_in_time_pd
+	display_total_hours = hours_in_time_pd					'these are set to a new variable because they have to remain numbers
 	display_meeting_hours = hours_in_meetings_dur_time_pd
-	Call make_time_string(display_total_hours)
+	Call make_time_string(display_total_hours)				'this will make these strings in the format H hrs, M min
 	Call make_time_string(display_meeting_hours)
-	selected_start_date = selected_start_date & ""
+	selected_start_date = selected_start_date & ""			'Making sure these are displayed
 	selected_end_date = selected_end_date & ""
 	selected_date = selected_date & ""
 
-	dlg_len = 140
+	dlg_len = 140											'setting the lengths of the dialog and group boxes based on what the sort options are
 	grp_1_len = 25
 	grp_2_len = 105
 	If selected_sort = "CATEGORY" Then
@@ -450,6 +451,7 @@ Do
 		End If
 	End If
 
+	'For real - the dialog
 	BeginDialog Dialog1, 0, 0, 361, dlg_len, "View Hours and Activity"
 	  ButtonGroup ButtonPressed
 		GroupBox 5, 5, 285, grp_2_len, "Hours Breakdown"
@@ -537,21 +539,21 @@ Do
 	EndDialog
 
 	dialog Dialog1
-	If ButtonPressed = 0 Then ObjExcel.Quit
+	If ButtonPressed = 0 Then ObjExcel.Quit			'If we press Cancel, it will close the file and stop the script
 	cancel_without_confirmation
 
-	err_msg = "MORE"
+	err_msg = "MORE"								'this is always filled in unless the 'Enter' button is pressed.
 
-	If ButtonPressed = show_excel_button Then view_excel = True
+	If ButtonPressed = show_excel_button Then view_excel = True					'Here we can change the showing of the Excel File
 	If ButtonPressed = hide_excel_button Then view_excel = False
 	If ButtonPressed = hide_excel_button OR ButtonPressed = show_excel_button Then objExcel.Visible = view_excel
-	If selected_sort = "GITHUB ISSUE" Then
+	If selected_sort = "GITHUB ISSUE" Then										'If a GitHub Issue button is pressed, it will open Chrome with the Issue Number
 		For cat_item = 0 to UBound(GITHUB_ISSUE_ARRAY, 2)
 			If ButtonPressed = GITHUB_ISSUE_ARRAY(type_btn_const, cat_item) Then run "C:\Program Files\Google\Chrome\Application\chrome.exe https://github.com/Hennepin-County/MAXIS-scripts/issues/" & GITHUB_ISSUE_ARRAY(type_detail_const, cat_item)
 		Next
 	End If
 
-	If ButtonPressed = day_button Then
+	If ButtonPressed = day_button Then			'Chaning the view based on the buttons pressed
 		dialog_view = day_view
 		selected_date = current_day
 	End If
@@ -574,7 +576,7 @@ Do
 		selected_date = ""
 	End If
 
-	If dialog_view = day_view Then
+	If dialog_view = day_view Then								'Based on the view selected, this will set the date(s) to be used when finding the right times/information to display from the array
 		selected_date = DateAdd("d", 0, selected_date)
 		selected_start_date = DateAdd("d", 0, selected_date)
 		selected_end_date = DateAdd("d", 0, selected_date)
@@ -642,24 +644,31 @@ Do
 		selected_end_date = DateAdd("d", 0, selected_end_date)
 	End If
 
-	If ButtonPressed = category_button Then selected_sort = "CATEGORY"
+	If ButtonPressed = category_button Then selected_sort = "CATEGORY"			'Setting the right sort
 	If ButtonPressed = project_button Then selected_sort = "PROJECT"
 	If ButtonPressed = git_hub_issue_button Then selected_sort = "GITHUB ISSUE"
 	If ButtonPressed = day_sort_button Then selected_sort = "DAY"
 
+	'This is going to call the function that will fill the array information from the options selected so that the display in the dialog is correct.
 	If selected_sort = "CATEGORY" Then Call create_time_spent_totals(selected_start_date, selected_end_date, selected_sort, hours_in_time_pd, hours_in_meetings_dur_time_pd, CATEGORY_ARRAY)
 	If selected_sort = "PROJECT" Then Call create_time_spent_totals(selected_start_date, selected_end_date, selected_sort, hours_in_time_pd, hours_in_meetings_dur_time_pd, PROJECT_ARRAY)
 	If selected_sort = "GITHUB ISSUE" Then Call create_time_spent_totals(selected_start_date, selected_end_date, selected_sort, hours_in_time_pd, hours_in_meetings_dur_time_pd, GITHUB_ISSUE_ARRAY)
 	If selected_sort = "DAY" Then Call create_time_spent_totals(selected_start_date, selected_end_date, selected_sort, hours_in_time_pd, hours_in_meetings_dur_time_pd, DAY_SORT_ARRAY)
 	' Call create_time_spent_totals(start_date, end_date, sort_type, total_hours, hours_in_meetings, TYPE_ARRAY)
 
-	' MsgBox "Dialog View - " & dialog_view & vbCr & "Selected Date - " & selected_date
-
-	If ButtonPressed = -1 Then err_msg = ""
+	If ButtonPressed = -1 Then err_msg = ""		'blanking out the err_msg if the 'OK' button is pressed so we can leave the dialog loop
 Loop until err_msg = ""
-If leave_excel_open_checkbox = checked Then
-	ObjExcel.Cells(excel_row - 1, 3).Value = ""
-	ObjExcel.Cells(excel_row - 1, 4).Value = ""
+If leave_excel_open_checkbox = checked Then				'If the checkbox is checked then we block out any row that was changed for math to work. This isn't needed if we aren't leaving it open then it closes without being saved.
+	row_filled_with_end_time = trim(row_filled_with_end_time)
+	If Instr(row_filled_with_end_time, " ") = 0 Then
+		row_filled_with_end_time = Array(row_filled_with_end_time)
+	Else
+		row_filled_with_end_time = split(row_filled_with_end_time, " ")
+	End If
+	For each changed_row in row_filled_with_end_time
+		ObjExcel.Cells(changed_row, 3).Value = ""
+		ObjExcel.Cells(changed_row, 4).Value = ""
+	Next
 End If
-If leave_excel_open_checkbox = unchecked Then ObjExcel.Quit
-stopscript
+If leave_excel_open_checkbox = unchecked Then ObjExcel.Quit		'Closing the Excel file.
+Call script_end_procedure("")
