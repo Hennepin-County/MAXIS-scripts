@@ -317,7 +317,7 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 			  ButtonGroup ButtonPressed
 			    OkButton 225, 75, 50, 15
 			    CancelButton 275, 75, 50, 15
-			  Text 10, 10, 315, 20, "Current Task:  & current_category &  :  & current_detail"
+			  Text 10, 10, 315, 20, "Current Task: " & current_category & " : " & current_detail
 			  Text 10, 40, 35, 10, "End Time:"
 			  Text 175, 40, 90, 10, "Is this break a paid break?"
 			  Text 20, 60, 25, 10, "Detail:"
@@ -369,7 +369,7 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 			  EditBox 275, 5, 50, 15, end_time
 			  EditBox 50, 40, 50, 15, next_date
 			  ' EditBox 65, 60, 50, 15, next_start_time
-			  DropListBox 65, 60, 155, 45, "Select One..."+chr(9)+"Admin"+chr(9)+"Break"+chr(9)+"Consulting on Systems and Processes"+chr(9)+"Department Wide Script Tools"+chr(9)+"New Projects and Script Development"+chr(9)+"Ongoing Script Support"+chr(9)+"Other"+chr(9)+"Personal Skills Development"+chr(9)+"Team Strategy Development"+chr(9)+"Training"+chr(9)+"Travel", next_category
+			  DropListBox 65, 60, 155, 45, "Select One..."+chr(9)+"Admin"+chr(9)+"Break"+chr(9)+"Consulting on Systems and Processes"+chr(9)+"Department Wide Script Tools"+chr(9)+"New Projects and Script Development"+chr(9)+"Ongoing Script Support"+chr(9)+"Other"+chr(9)+"Personal Skills Development"+chr(9)+"Supervisory"+chr(9)+"Team Strategy Development"+chr(9)+"Training"+chr(9)+"Travel", next_category
 			  EditBox 50, 80, 170, 15, next_detail
 			  DropListBox 265, 40, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", next_meeting
 			  EditBox 260, 60, 90, 15, next_project
