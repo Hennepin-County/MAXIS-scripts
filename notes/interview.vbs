@@ -5823,7 +5823,7 @@ function write_interview_CASE_NOTE()
 	q_8_input = "Q8. CAF Answer - " & question_8_yn
 	q_8_input = q_8_input & " - 8a - " & question_8a_yn
 	If question_8_yn <> "" OR trim(question_8_notes) <> "" Then q_8_input = q_8_input & " (Confirmed)"
-	If q_8_input <> "Q8. CAF Answer - " Then CALL write_variable_in_CASE_NOTE(q_8_input)
+	If q_8_input <> "Q8. CAF Answer -  - 8a - " Then CALL write_variable_in_CASE_NOTE(q_8_input)
 	If trim(question_8_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_8_notes)
 	If question_8_verif_yn <> "" Then
 		verif_header = "    Verification: "
@@ -6215,16 +6215,18 @@ function write_interview_CASE_NOTE()
 	IF create_verif_note = True Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
 	IF create_verif_note = False Then Call write_variable_in_CASE_NOTE("No Verifications were Indicated at this time.")
 
-	first_resource = True
-	For each note_line in note_detail_array
-		IF note_line <> "" Then
-			If first_resource = True Then
-				call write_variable_in_CASE_NOTE("Additional resource information given to resident")
-				first_resource = False
-			End If
-			Call write_variable_in_CASE_NOTE(note_line)
-		End If
-	Next
+    If IsArray(note_detail_array) = True Then
+    	first_resource = True
+    	For each note_line in note_detail_array
+    		IF note_line <> "" Then
+    			If first_resource = True Then
+    				call write_variable_in_CASE_NOTE("Additional resource information given to resident")
+    				first_resource = False
+    			End If
+    			Call write_variable_in_CASE_NOTE(note_line)
+    		End If
+    	Next
+    End If
 
 	If qual_questions_yes = FALSE Then Call write_variable_in_CASE_NOTE("* All CAF Qualifying Questions answered 'No'.")
 
