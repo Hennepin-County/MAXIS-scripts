@@ -5817,6 +5817,7 @@ If vars_filled = False Then
         	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
         LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
     End If
+    day_30_from_application = DateAdd("d", 30, CAF_datestamp)
 
     Call hest_standards(heat_AC_amt, electric_amt, phone_amt, CAF_datestamp)        'getting the correct amounts for HEST standards based on the application date.
     If the_process_for_snap = "Recertification" AND snap_recert_mo = "10" Then      'IF we are working a recertification CASE for SNAP for 10 - the recert month matters more than the app date. Pulling the correct HEST standards by footer month.
