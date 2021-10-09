@@ -5635,6 +5635,7 @@ function write_interview_CASE_NOTE()
 	Else
 		CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
 	End If
+    Call write_bullet_and_variable_in_CASE_NOTE("Case Information", case_summary)
 	CALL write_variable_in_CASE_NOTE("Completed with " & who_are_we_completing_the_interview_with & " via " & how_are_we_completing_the_interview)
 	If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
 		CALL write_variable_in_CASE_NOTE("Interview had interpreter: " & interpreter_information)
@@ -10210,7 +10211,7 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, 550, 385, "FORMS and INFORMATION Review with Resident"
 			  DropListBox 220, 365, 175, 45, "Enter confirmation"+chr(9)+"YES! Recap Discussed"+chr(9)+"No, I could not complete this", confirm_recap_read
-			  Text 220, 10, 280, 10, "The Interview Information has been completed. Review the information and next steps with the resident."
+			  Text 200, 10, 335, 10, "The Interview Information has been completed. Review the information and next steps with the resident."
 			  GroupBox 10, 20, 530, 340, "CASE INTERVIEW WRAP UP"
 
 			  ' Text 15, 30, 505, 10, "What would be helpful here?"
@@ -10230,6 +10231,7 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 					  y_pos = y_pos + 10
 				  Next
 			  End If
+
 
 			  ButtonGroup ButtonPressed
 			  	PushButton 15, y_pos, 100, 15, "Update Verifications", verif_button
@@ -10276,6 +10278,11 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 			  Text 20, y_pos, 505, 10, "In person - Not Available Currently"
 			  y_pos = y_pos + 10
 			  Text 20, y_pos, 505, 10, "Online - MNBenefits or InfoKeep"
+              y_pos = y_pos + 20
+
+              Text 15, y_pos, 250, 10, "Summarize what is happening with this case:"
+              y_pos = y_pos + 10
+              EditBox 15, y_pos, 520, 15, case_summary
 
 			  ButtonGroup ButtonPressed
 			    PushButton 465, 365, 80, 15, "Continue", continue_btn
