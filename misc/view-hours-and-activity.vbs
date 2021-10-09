@@ -315,7 +315,7 @@ If user_ID_for_validation = "WFS395" Then
 End If
 
 view_excel = False		'this variable allows us to set
-Call excel_open(t_drive_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file
+Call excel_open(my_docs_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file
 
 row_filled_with_end_time = " "
 
@@ -532,8 +532,10 @@ Do
 		If selected_sort <> "DAY" Then PushButton 195, y_pos, 30, 10, "DAY", day_sort_button
 		y_pos = y_pos + 25
 		If view_excel = False Then PushButton 5, y_pos, 100, 15, "Show Excel", show_excel_button
-		If view_excel = True Then PushButton 5, y_pos, 100, 15, "Hide Excel", hide_excel_button
-		CheckBox 110, y_pos + 5, 100, 10, "Leave Excel Open", leave_excel_open_checkbox
+		If view_excel = True Then
+			PushButton 5, y_pos, 100, 15, "Hide Excel", hide_excel_button
+			CheckBox 110, y_pos + 5, 100, 10, "Leave Excel Open", leave_excel_open_checkbox
+		End If
 		OkButton 305, y_pos, 50, 15
 		' CancelButton 305, y_pos, 50, 15
 	EndDialog
@@ -658,6 +660,7 @@ Do
 
 	If ButtonPressed = -1 Then err_msg = ""		'blanking out the err_msg if the 'OK' button is pressed so we can leave the dialog loop
 Loop until err_msg = ""
+If view_excel = False Then eave_excel_open_checkbox = unchecked
 If leave_excel_open_checkbox = checked Then				'If the checkbox is checked then we block out any row that was changed for math to work. This isn't needed if we aren't leaving it open then it closes without being saved.
 	row_filled_with_end_time = trim(row_filled_with_end_time)
 	If Instr(row_filled_with_end_time, " ") = 0 Then
@@ -669,7 +672,7 @@ If leave_excel_open_checkbox = checked Then				'If the checkbox is checked then 
 		If changed_row <> "" Then
 			ObjExcel.Cells(changed_row, 3).Value = ""
 			ObjExcel.Cells(changed_row, 4).Value = ""
-		End If 
+		End If
 	Next
 End If
 If leave_excel_open_checkbox = unchecked Then ObjExcel.Quit		'Closing the Excel file.
