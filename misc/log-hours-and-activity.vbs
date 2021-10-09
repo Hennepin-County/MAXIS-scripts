@@ -155,9 +155,9 @@ If on_task = True and current_task_from_today = False Then						'this is if the 
 		  EditBox 65, 140, 50, 15, end_date
 		  EditBox 165, 140, 50, 15, end_time
 		  ButtonGroup ButtonPressed
+		    If current_gh_issue <> "" Then PushButton 20, 115, 115, 15, "GitHub Issue #" & current_gh_issue, git_hub_issue_button
 		    OkButton 115, 160, 50, 15
 		    CancelButton 165, 160, 50, 15
-		    If current_gh_issue <> "" Then PushButton 20, 115, 115, 15, "GitHub Issue #" & current_gh_issue, git_hub_issue_button
 		  Text 10, 10, 195, 10, "It looks as though you didn't end your work day yesterday."
 		  Text 10, 25, 105, 10, "When did you finish this task:"
 		  Text 20, 40, 195, 10, "Category: " & current_category
@@ -245,16 +245,6 @@ If on_task = False Then					'If we are not currently on a task, this will start 
 		err_msg = ""
 		BeginDialog Dialog1, 0, 0, 361, 135, "Log Activity"
 		  GroupBox 10, 10, 345, 100, "Log New Activity"
-		  Text 25, 30, 20, 10, "Date: "
-		  Text 25, 50, 40, 10, "Start Time:"
-		  Text 25, 70, 35, 10, "Category: "
-		  Text 25, 90, 25, 10, "Detail:"
-		  Text 230, 30, 30, 10, "Meeting"
-		  Text 230, 50, 30, 10, "Project:"
-		  ButtonGroup ButtonPressed
-			OkButton 255, 115, 50, 15
-			CancelButton 305, 115, 50, 15
-		  Text 230, 70, 45, 10, "GitHub Issue:"
 		  EditBox 50, 25, 50, 15, next_date
 		  EditBox 65, 45, 50, 15, next_start_time
 		  DropListBox 65, 65, 155, 45, "Select One..."+chr(9)+"Admin"+chr(9)+"Break"+chr(9)+"Consulting on Systems and Processes"+chr(9)+"Department Wide Script Tools"+chr(9)+"New Projects and Script Development"+chr(9)+"Ongoing Script Support"+chr(9)+"Other"+chr(9)+"Personal Skills Development"+chr(9)+"Team Strategy Development"+chr(9)+"Training"+chr(9)+"Travel", next_category
@@ -262,6 +252,16 @@ If on_task = False Then					'If we are not currently on a task, this will start 
 		  DropListBox 265, 25, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", next_meeting
 		  EditBox 260, 45, 90, 15, next_project
 		  EditBox 280, 65, 35, 15, next_gh_issue
+		  ButtonGroup ButtonPressed
+			OkButton 255, 115, 50, 15
+			CancelButton 305, 115, 50, 15
+		  Text 25, 30, 20, 10, "Date: "
+		  Text 25, 50, 40, 10, "Start Time:"
+		  Text 25, 70, 35, 10, "Category: "
+		  Text 25, 90, 25, 10, "Detail:"
+		  Text 230, 30, 30, 10, "Meeting"
+		  Text 230, 50, 30, 10, "Project:"
+		  Text 230, 70, 45, 10, "GitHub Issue:"
 		EndDialog
 
 		dialog Dialog1
@@ -297,12 +297,12 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 		Do
 			err_msg = ""
 			BeginDialog Dialog1, 0, 0, 331, 45, "Work Day End"
+			  EditBox 275, 5, 50, 15, end_time
 			  ButtonGroup ButtonPressed
 			    OkButton 225, 25, 50, 15
 			    CancelButton 275, 25, 50, 15
 			  Text 10, 10, 215, 10, "End of the work day! When have you finished?"
 			  Text 235, 10, 35, 10, "End Time:"
-			  EditBox 275, 5, 50, 15, end_time
 			EndDialog
 
 			dialog Dialog1
