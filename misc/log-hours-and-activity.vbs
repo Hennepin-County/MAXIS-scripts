@@ -423,7 +423,7 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 		ObjExcel.Cells(next_blank_row, 5).Value = next_category
 		ObjExcel.Cells(next_blank_row, 6).Value = next_meeting
 		ObjExcel.Cells(next_blank_row, 7).Value = next_detail
-		ObjExcel.Cells(next_blank_row, 8).Value = "=HYPERLINK(" & chr(34) & "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & next_gh_issue & chr(34) & ", " & chr(34) & next_gh_issue & chr(34) & ")"
+		If next_gh_issue <> "" Then ObjExcel.Cells(next_blank_row, 8).Value = "=HYPERLINK(" & chr(34) & "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & next_gh_issue & chr(34) & ", " & chr(34) & next_gh_issue & chr(34) & ")"
 		ObjExcel.Cells(next_blank_row, 9).Value = next_project
 		ObjExcel.Cells(next_blank_row, 10).Value = "Y"
 		end_msg = "As of " & next_date & " at " & end_time & " you are now working on:" & vbCr & "  - Category: " & next_category & vbCr & "  - Detail: " & next_detail
