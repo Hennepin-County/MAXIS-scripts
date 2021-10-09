@@ -5185,124 +5185,124 @@ function verification_dialog()
 					End If
 				Next
 			  	If question_1_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q1 Verif Reuquested. Details: " & question_1_verif_details
+					Text 10, y_pos, 500, 10, "Q1 Verif Requested. Details: " & question_1_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_2_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q2 Verif Reuquested. Details: " & question_2_verif_details
+					Text 10, y_pos, 500, 10, "Q2 Verif Requested. Details: " & question_2_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_3_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q3 Verif Reuquested. Details: " & question_3_verif_details
+					Text 10, y_pos, 500, 10, "Q3 Verif Requested. Details: " & question_3_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_4_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q4 Verif Reuquested. Details: " & question_4_verif_details
+					Text 10, y_pos, 500, 10, "Q4 Verif Requested. Details: " & question_4_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_5_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q5 Verif Reuquested. Details: " & question_5_verif_details
+					Text 10, y_pos, 500, 10, "Q5 Verif Requested. Details: " & question_5_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_6_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q6 Verif Reuquested. Details: " & question_6_verif_details
+					Text 10, y_pos, 500, 10, "Q6 Verif Requested. Details: " & question_6_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_7_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q7 Verif Reuquested. Details: " & question_7_verif_details
+					Text 10, y_pos, 500, 10, "Q7 Verif Requested. Details: " & question_7_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_8_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q8 Verif Reuquested. Details: " & question_8_verif_details
+					Text 10, y_pos, 500, 10, "Q8 Verif Requested. Details: " & question_8_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				For each_job = 0 to UBound(JOBS_ARRAY, 2)
 					If JOBS_ARRAY(verif_yn, each_job) = "Requested" Then
-						Text 10, y_pos, 500, 10, "Q9 Verif Reuquested for " & JOBS_ARRAY(employer_name, each_job) & ". Details: " & JOBS_ARRAY(verif_details, each_job)
+						Text 10, y_pos, 500, 10, "Q9 Verif Requested for " & JOBS_ARRAY(employer_name, each_job) & ". Details: " & JOBS_ARRAY(verif_details, each_job)
 						y_pos = y_pos + 15
 						grp_len = grp_len + 15
 					End If
 				Next
 				If question_10_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q10 Verif Reuquested. Details: " & question_10_verif_details
+					Text 10, y_pos, 500, 10, "Q10 Verif Requested. Details: " & question_10_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_11_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q11 Verif Reuquested. Details: " & question_11_verif_details
+					Text 10, y_pos, 500, 10, "Q11 Verif Requested. Details: " & question_11_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_12_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q12 Verif Reuquested. Details: " & question_12_verif_details
+					Text 10, y_pos, 500, 10, "Q12 Verif Requested. Details: " & question_12_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_13_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q13 Verif Reuquested. Details: " & question_13_verif_details
+					Text 10, y_pos, 500, 10, "Q13 Verif Requested. Details: " & question_13_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_14_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q14 Verif Reuquested. Details: " & question_14_verif_details
+					Text 10, y_pos, 500, 10, "Q14 Verif Requested. Details: " & question_14_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_15_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q15 Verif Reuquested. Details: " & question_15_verif_details
+					Text 10, y_pos, 500, 10, "Q15 Verif Requested. Details: " & question_15_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_16_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q16 Verif Reuquested. Details: " & question_16_verif_details
+					Text 10, y_pos, 500, 10, "Q16 Verif Requested. Details: " & question_16_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_17_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q17 Verif Reuquested. Details: " & question_17_verif_details
+					Text 10, y_pos, 500, 10, "Q17 Verif Requested. Details: " & question_17_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_18_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q18 Verif Reuquested. Details: " & question_18_verif_details
+					Text 10, y_pos, 500, 10, "Q18 Verif Requested. Details: " & question_18_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_19_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q19 Verif Reuquested. Details: " & question_19_verif_details
+					Text 10, y_pos, 500, 10, "Q19 Verif Requested. Details: " & question_19_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_20_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q20 Verif Reuquested. Details: " & question_20_verif_details
+					Text 10, y_pos, 500, 10, "Q20 Verif Requested. Details: " & question_20_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_21_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q21 Verif Reuquested. Details: " & question_21_verif_details
+					Text 10, y_pos, 500, 10, "Q21 Verif Requested. Details: " & question_21_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_22_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q22 Verif Reuquested. Details: " & question_22_verif_details
+					Text 10, y_pos, 500, 10, "Q22 Verif Requested. Details: " & question_22_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_23_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q23 Verif Reuquested. Details: " & question_23_verif_details
+					Text 10, y_pos, 500, 10, "Q23 Verif Requested. Details: " & question_23_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
 				If question_24_verif_yn = "Requested" Then
-					Text 10, y_pos, 500, 10, "Q24 Verif Reuquested. Details: " & question_24_verif_details
+					Text 10, y_pos, 500, 10, "Q24 Verif Requested. Details: " & question_24_verif_details
 					y_pos = y_pos + 15
 					grp_len = grp_len + 15
 				End If
