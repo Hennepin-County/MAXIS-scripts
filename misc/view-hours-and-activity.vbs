@@ -666,8 +666,10 @@ If leave_excel_open_checkbox = checked Then				'If the checkbox is checked then 
 		row_filled_with_end_time = split(row_filled_with_end_time, " ")
 	End If
 	For each changed_row in row_filled_with_end_time
-		ObjExcel.Cells(changed_row, 3).Value = ""
-		ObjExcel.Cells(changed_row, 4).Value = ""
+		If changed_row <> "" Then
+			ObjExcel.Cells(changed_row, 3).Value = ""
+			ObjExcel.Cells(changed_row, 4).Value = ""
+		End If 
 	Next
 End If
 If leave_excel_open_checkbox = unchecked Then ObjExcel.Quit		'Closing the Excel file.
