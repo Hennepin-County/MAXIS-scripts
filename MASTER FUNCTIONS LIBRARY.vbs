@@ -5978,7 +5978,6 @@ End Function
 
 function display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
 '--- This function has a portion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of ADDR information in different scripts/dialogs
-
 '~~~~~ update_addr: boolean - This parameter will determine if the dialog will be displayed with the panel information is 'edit mode' or not.
 '~~~~~ notes_on_address: string - variable to enter information and details about the address information in an editbox
 '~~~~~ resi_street_full: string - resident address information
@@ -6096,7 +6095,7 @@ function display_ADDR_information(update_addr, notes_on_address, resi_street_ful
 end function
 
 function display_HEST_information(update_hest, all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, notes_on_hest, update_information_btn, save_information_btn)
-'--- This function has a potion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of HEST information in different scripts/dialogs
+'--- This function has a portion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of HEST information in different scripts/dialogs
 '~~~~~ update_hest: boolean - This parameter will determine if the dialog will be displayed with the panel information is 'edit mode' or not.
 '~~~~~ all_persons_paying: string - detail of all the people that are responsible for paying utilities - from the HEST panel
 '~~~~~ choice_date: string - formatted as a date - the date from the HEST panel
@@ -6179,6 +6178,229 @@ function display_HEST_information(update_hest, all_persons_paying, choice_date, 
 	Text 280, 100, 20, 20, "#/FS Units"
 	Text 320, 105, 25, 10, "Amount"
 	Text 10, 210, 75, 10, "Additional Notes:"
+end function
+
+function display_SHEL_information(update_shel, show_totals, SHEL_ARRAY, selection, const_shel_member, const_shel_exists, const_hud_sub_yn, const_shared_yn, const_paid_to, const_rent_retro_amt, const_rent_retro_verif, const_rent_prosp_amt, const_rent_prosp_verif, const_lot_rent_retro_amt, const_lot_rent_retro_verif, const_lot_rent_prosp_amt, const_lot_rent_prosp_verif, const_mortgage_retro_amt, const_mortgage_retro_verif, const_mortgage_prosp_amt, const_mortgage_prosp_verif, const_insurance_retro_amt, const_insurance_retro_verif, const_insurance_prosp_amt, const_insurance_prosp_verif, const_tax_retro_amt, const_tax_retro_verif, const_tax_prosp_amt, const_tax_prosp_verif, const_room_retro_amt, const_room_retro_verif, const_room_prosp_amt, const_room_prosp_verif, const_garage_retro_amt, const_garage_retro_verif, const_garage_prosp_amt, const_garage_prosp_verif, const_subsidy_retro_amt, const_subsidy_retro_verif, const_subsidy_prosp_amt, const_subsidy_prosp_verif, total_paid_to, percent_paid_by_household, percent_paid_by_others, total_current_rent, total_current_lot_rent, total_current_mortgage, total_current_insurance, total_current_taxes, total_current_room, total_current_garage, total_current_subsidy, update_information_btn, save_information_btn, const_memb_buttons, clear_all_btn, view_total_shel_btn, update_household_percent_button)
+'--- This function has a portion of dialog that can be inserted into a defined dialog. This does NOT have a 'BeginDialog' OR a dialog call. This can allow us to have the same display and update functionality of SHEL information in different scripts/dialogs
+'~~~~~ update_shel: boolean - indicating if the dialog information should be in edit mode or not
+'~~~~~ show_totals: boolean - indicates if we are looking at the case total information or the Member specific information
+'~~~~~ SHEL_ARRAY: The name of the array used for the all the MEMBER panel information, this is in line with the function access_SHEL_panel
+'~~~~~ selection: number - This defnies which of the member information from the array should be displayed - defined in navigate_SHEL_buttons
+'~~~~~ const_shel_member: number - constant - the defined constant for the array - the member number information
+'~~~~~ const_shel_exists: number - constant - the defined constant for the array - boolean - if a SHEL panel exists
+'~~~~~ const_hud_sub_yn: number - constant - the defined constant for the array - code from SHEL - if HUD Subsidy exists
+'~~~~~ const_shared_yn: number - constant - the defined constant for the array - code from SHEL - if the expense is shared
+'~~~~~ const_paid_to: number - constant - the defined constant for the array - from SHEL - who the expense is paid to
+'~~~~~ const_rent_retro_amt: number - constant - the defined constant for the array - number - rent amount
+'~~~~~ const_rent_retro_verif: number - constant - the defined constant for the array - string - rent verif
+'~~~~~ const_rent_prosp_amt: number - constant - the defined constant for the array - number - rent amount
+'~~~~~ const_rent_prosp_verif: number - constant - the defined constant for the array - string - rent verif
+'~~~~~ const_lot_rent_retro_amt: number - constant - the defined constant for the array - number - lot rent amount
+'~~~~~ const_lot_rent_retro_verif: number - constant - the defined constant for the array - string - lot rent verif
+'~~~~~ const_lot_rent_prosp_amt: number - constant - the defined constant for the array - number - lot rent amount
+'~~~~~ const_lot_rent_prosp_verif: number - constant - the defined constant for the array - string - lot rent verif
+'~~~~~ const_mortgage_retro_amt: number - constant - the defined constant for the array - number - mortgage amount
+'~~~~~ const_mortgage_retro_verif: number - constant - the defined constant for the array - string - mortgage verif
+'~~~~~ const_mortgage_prosp_amt: number - constant - the defined constant for the array - number - mortgage amount
+'~~~~~ const_mortgage_prosp_verif: number - constant - the defined constant for the array - string - mortgage verif
+'~~~~~ const_insurance_retro_amt: number - constant - the defined constant for the array - number - insurance amount
+'~~~~~ const_insurance_retro_verif: number - constant - the defined constant for the array - string - insurance verif
+'~~~~~ const_insurance_prosp_amt: number - constant - the defined constant for the array - number - insurance amount
+'~~~~~ const_insurance_prosp_verif: number - constant - the defined constant for the array - string - insurance verif
+'~~~~~ const_tax_retro_amt: number - constant - the defined constant for the array - number - tax amount
+'~~~~~ const_tax_retro_verif: number - constant - the defined constant for the array - string - tax verif
+'~~~~~ const_tax_prosp_amt: number - constant - the defined constant for the array - number - tax amount
+'~~~~~ const_tax_prosp_verif: number - constant - the defined constant for the array - string - tax verif
+'~~~~~ const_room_retro_amt: number - constant - the defined constant for the array - number - room amount
+'~~~~~ const_room_retro_verif: number - constant - the defined constant for the array - string - room verif
+'~~~~~ const_room_prosp_amt: number - constant - the defined constant for the array - number - room amount
+'~~~~~ const_room_prosp_verif: number - constant - the defined constant for the array - string - room verif
+'~~~~~ const_garage_retro_amt: number - constant - the defined constant for the array - number - garage amount
+'~~~~~ const_garage_retro_verif: number - constant - the defined constant for the array - string - garage verif
+'~~~~~ const_garage_prosp_amt: number - constant - the defined constant for the array - number - garage amount
+'~~~~~ const_garage_prosp_verif: number - constant - the defined constant for the array - string - garage verif
+'~~~~~ const_subsidy_retro_amt: number - constant - the defined constant for the array - number - subsidy amount
+'~~~~~ const_subsidy_retro_verif: number - constant - the defined constant for the array - string - subsidy verif
+'~~~~~ const_subsidy_prosp_amt: number - constant - the defined constant for the array - number - subsidy amount
+'~~~~~ const_subsidy_prosp_verif: number - constant - the defined constant for the array - string - subsidy verif
+'~~~~~ total_paid_to: who is the expense paid to - from reading all the panels on the case
+'~~~~~ percent_paid_by_household: number - how much of the expense is paid by the household
+'~~~~~ percent_paid_by_others: number - how much of the expese is paid by others
+'~~~~~ total_current_rent: numberr - the total rent amount in all panels on the case
+'~~~~~ total_current_lot_rent: numberr - the total lot rent amount in all panels on the case
+'~~~~~ total_current_mortgage: numberr - the total mortgage amount in all panels on the case
+'~~~~~ total_current_insurance: numberr - the total insurance amount in all panels on the case
+'~~~~~ total_current_taxes: numberr - the total tax amount in all panels on the case
+'~~~~~ total_current_room: numberr - the total room amount in all panels on the case
+'~~~~~ total_current_garage: numberr - the total garage amount in all panels on the case
+'~~~~~ total_current_subsidy: numberr - the total subsidy amount in all panels on the case
+'~~~~~ update_information_btn: number - defined button
+'~~~~~ save_information_btn: number - defined button
+'~~~~~ const_memb_buttons: number - constant - the defined constant for the array - defined button
+'~~~~~ clear_all_btn: number - defined button
+'~~~~~ view_total_shel_btn: number - defined button
+'~~~~~ update_household_percent_button: number - defined button
+'===== Keywords: MAXIS, Dialog, SHEL
+	Text 10, 10, 360, 10, "Review the Shelter informaiton known with the client. If it needs updating, press this button to make changes:"
+
+	If show_totals = True Then
+		Text 415, 253, 65, 10, "TOTAL SHEL"
+
+		If update_shel = True Then
+			EditBox 105, 25, 165, 15, total_paid_to
+			EditBox 125, 45, 20, 15, total_paid_by_household
+			EditBox 125, 65, 20, 15, total_paid_by_others
+			EditBox 105, 105, 45, 15, total_current_rent
+			EditBox 105, 125, 45, 15, total_current_lot_rent
+			EditBox 105, 145, 45, 15, total_current_mortgage
+			EditBox 105, 165, 45, 15, total_current_insurance
+			EditBox 105, 185, 45, 15, total_current_taxes
+			EditBox 105, 205, 45, 15, total_current_room
+			EditBox 105, 225, 45, 15, total_current_garage
+			EditBox 105, 245, 45, 15, total_current_subsidy
+			PushButton 400, 265, 75, 15, "Save Information", save_information_btn
+		End If
+		If update_shel = False Then
+			Text 105, 30, 165, 10, total_paid_to
+			Text 125, 50, 20, 10, total_paid_by_household
+			Text 125, 70, 20, 10, total_paid_by_others
+			Text 105, 110, 45, 10, total_current_rent
+			Text 105, 130, 45, 10, total_current_lot_rent
+			Text 105, 150, 45, 10, total_current_mortgage
+			Text 105, 170, 45, 10, total_current_insurance
+			Text 105, 190, 45, 10, total_current_taxes
+			Text 105, 210, 45, 10, total_current_room
+			Text 105, 230, 45, 10, total_current_garage
+			Text 105, 250, 45, 10, total_current_subsidy
+			PushButton 400, 265, 75, 15, "Update Information", update_information_btn
+		End If
+		Text 15, 30, 90, 10, "Housing Expense Paid to"
+		Text 15, 50, 100, 10, "Expense Paid by Household"
+		Text 145, 50, 50, 10, "% (percent)"
+		' PushButton 210, 41, 125, 13, "MANAGE HOUSEHOLD PERCENT", update_household_percent_button
+		Text 15, 70, 100, 10, "Expense Paid by Someone Else"
+		Text 145, 70, 50, 10, "% (percent)"
+		Text 105, 90, 120, 10, "Current Total Amount"
+		Text 80, 110, 20, 10, "Rent:"
+	    Text 70, 130, 30, 10, "Lot Rent:"
+	    Text 65, 150, 35, 10, "Mortgage:"
+	    Text 65, 170, 40, 10, "Insurance:"
+	    Text 75, 190, 25, 10, "Taxes:"
+	    Text 75, 210, 25, 10, "Room:"
+	    Text 75, 230, 30, 10, "Garage:"
+	    Text 70, 250, 30, 10, "Subsidy:"
+
+	Else
+		PushButton 400, 250, 75, 15, "TOTAL SHEL", view_total_shel_btn
+
+		If update_shel = True Then
+			EditBox 105, 25, 165, 15, SHEL_ARRAY(const_paid_to, selection)
+			DropListBox 165, 45, 40, 45, caf_answer_droplist, SHEL_ARRAY(const_hud_sub_yn, selection)
+			DropListBox 310, 45, 40, 45, caf_answer_droplist, SHEL_ARRAY(const_shared_yn, selection)
+			EditBox 105, 95, 45, 15, SHEL_ARRAY(const_rent_retro_amt, selection)
+			DropListBox 155, 95, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_rent_retro_verif, selection)
+			EditBox 255, 95, 45, 15, SHEL_ARRAY(const_rent_prosp_amt, selection)
+			DropListBox 305, 95, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_rent_prosp_verif, selection)
+			EditBox 105, 115, 45, 15, SHEL_ARRAY(const_lot_rent_retro_amt, selection)
+			DropListBox 155, 115, 85, 45, ""+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_lot_rent_retro_verif, selection)
+			EditBox 255, 115, 45, 15, SHEL_ARRAY(const_lot_rent_prosp_amt, selection)
+			DropListBox 305, 115, 85, 45, ""+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_lot_rent_prosp_verif, selection)
+			EditBox 105, 135, 45, 15, SHEL_ARRAY(const_mortgage_retro_amt, selection)
+			DropListBox 155, 135, 85, 45, ""+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_mortgage_retro_verif, selection)
+			EditBox 255, 135, 45, 15, SHEL_ARRAY(const_mortgage_prosp_amt, selection)
+			DropListBox 305, 135, 85, 45, ""+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_mortgage_prosp_verif, selection)
+			EditBox 105, 155, 45, 15, SHEL_ARRAY(const_insurance_retro_amt, selection)
+			DropListBox 155, 155, 85, 45, ""+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_insurance_retro_verif, selection)
+			EditBox 255, 155, 45, 15, SHEL_ARRAY(const_insurance_prosp_amt, selection)
+			DropListBox 305, 155, 85, 45, ""+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_insurance_prosp_verif, selection)
+			EditBox 105, 175, 45, 15, SHEL_ARRAY(const_tax_retro_amt, selection)
+			DropListBox 155, 175, 85, 45, ""+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_tax_retro_verif, selection)
+			EditBox 255, 175, 45, 15, SHEL_ARRAY(const_tax_prosp_amt, selection)
+			DropListBox 305, 175, 85, 45, ""+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_tax_prosp_verif, selection)
+			EditBox 105, 195, 45, 15, SHEL_ARRAY(const_room_retro_amt, selection)
+			DropListBox 155, 195, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_room_retro_verif, selection)
+			EditBox 255, 195, 45, 15, SHEL_ARRAY(const_room_prosp_amt, selection)
+			DropListBox 305, 195, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_room_prosp_verif, selection)
+			EditBox 105, 215, 45, 15, SHEL_ARRAY(const_garage_retro_amt, selection)
+			DropListBox 155, 215, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_garage_retro_verif, selection)
+			EditBox 255, 215, 45, 15, SHEL_ARRAY(const_garage_prosp_amt, selection)
+			DropListBox 305, 215, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_garage_prosp_verif, selection)
+			EditBox 105, 235, 45, 15, SHEL_ARRAY(const_subsidy_retro_amt, selection)
+			DropListBox 155, 235, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_subsidy_retro_verif, selection)
+			EditBox 255, 235, 45, 15, SHEL_ARRAY(const_subsidy_prosp_amt, selection)
+			DropListBox 305, 235, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", SHEL_ARRAY(const_subsidy_prosp_verif, selection)
+			PushButton 400, 265, 75, 15, "Save Information", save_information_btn
+		End If
+		If update_shel = False Then
+			Text 105, 30, 165, 10, SHEL_ARRAY(const_paid_to, selection)
+			Text 165, 50, 40, 10, SHEL_ARRAY(const_hud_sub_yn, selection)
+			Text 310, 50, 40, 10, SHEL_ARRAY(const_shared_yn, selection)
+			Text 105, 100, 45, 10, SHEL_ARRAY(const_rent_retro_amt, selection)
+			Text 160, 100, 70, 10, SHEL_ARRAY(const_rent_retro_verif, selection)
+			Text 255, 100, 45, 10, SHEL_ARRAY(const_rent_prosp_amt, selection)
+			Text 310, 100, 70, 10, SHEL_ARRAY(const_rent_prosp_verif, selection)
+			Text 105, 120, 45, 10, SHEL_ARRAY(const_lot_rent_retro_amt, selection)
+			Text 160, 120, 70, 10, SHEL_ARRAY(const_lot_rent_retro_verif, selection)
+			Text 255, 120, 45, 10, SHEL_ARRAY(const_lot_rent_prosp_amt, selection)
+			Text 310, 120, 70, 10, SHEL_ARRAY(const_lot_rent_prosp_verif, selection)
+			Text 105, 140, 45, 10, SHEL_ARRAY(const_mortgage_retro_amt, selection)
+			Text 160, 140, 70, 10, SHEL_ARRAY(const_mortgage_retro_verif, selection)
+			Text 255, 140, 45, 10, SHEL_ARRAY(const_mortgage_prosp_amt, selection)
+			Text 310, 140, 70, 10, SHEL_ARRAY(const_mortgage_prosp_verif, selection)
+			Text 105, 160, 45, 10, SHEL_ARRAY(const_insurance_retro_amt, selection)
+			Text 160, 160, 70, 10, SHEL_ARRAY(const_insurance_retro_verif, selection)
+			Text 255, 160, 45, 10, SHEL_ARRAY(const_insurance_prosp_amt, selection)
+			Text 310, 160, 70, 10, SHEL_ARRAY(const_insurance_prosp_verif, selection)
+			Text 105, 180, 45, 10, SHEL_ARRAY(const_tax_retro_amt, selection)
+			Text 160, 180, 70, 10, SHEL_ARRAY(const_tax_retro_verif, selection)
+			Text 255, 180, 45, 10, SHEL_ARRAY(const_tax_prosp_amt, selection)
+			Text 310, 180, 70, 10, SHEL_ARRAY(const_tax_prosp_verif, selection)
+			Text 105, 200, 45, 10, SHEL_ARRAY(const_room_retro_amt, selection)
+			Text 160, 200, 70, 10, SHEL_ARRAY(const_room_retro_verif, selection)
+			Text 255, 200, 45, 10, SHEL_ARRAY(const_room_prosp_amt, selection)
+			Text 310, 200, 70, 10, SHEL_ARRAY(const_room_prosp_verif, selection)
+			Text 105, 220, 45, 10, SHEL_ARRAY(const_garage_retro_amt, selection)
+			Text 160, 220, 70, 10, SHEL_ARRAY(const_garage_retro_verif, selection)
+			Text 255, 220, 45, 10, SHEL_ARRAY(const_garage_prosp_amt, selection)
+			Text 310, 220, 70, 10, SHEL_ARRAY(const_garage_prosp_verif, selection)
+			Text 105, 240, 45, 10, SHEL_ARRAY(const_subsidy_retro_amt, selection)
+			Text 160, 240, 70, 10, SHEL_ARRAY(const_subsidy_retro_verif, selection)
+			Text 255, 240, 45, 10, SHEL_ARRAY(const_subsidy_prosp_amt, selection)
+			Text 310, 240, 70, 10, SHEL_ARRAY(const_subsidy_prosp_verif, selection)
+			PushButton 400, 265, 75, 15, "Update Information", update_information_btn
+		End If
+
+		PushButton 325, 30, 70, 13, "CLEAR ALL", clear_all_btn
+	    Text 15, 30, 90, 10, "Housing Expense Paid to"
+		Text 105, 50, 60, 10, "HUD Subsidized"
+	    Text 225, 50, 85, 10, "Housing Expense Shared"
+	    GroupBox 15, 65, 380, 190, "Housing Expense Amounts"
+	    Text 105, 75, 65, 10, "Retrospective"
+	    Text 255, 75, 65, 10, "Prospective"
+	    Text 105, 85, 30, 10, "Amount"
+	    Text 255, 85, 25, 10, "Amount"
+	    Text 160, 85, 20, 10, "Verif"
+	    Text 310, 85, 20, 10, "Verif"
+		Text 80, 100, 20, 10, "Rent:"
+	    Text 70, 120, 30, 10, "Lot Rent:"
+	    Text 65, 140, 35, 10, "Mortgage:"
+	    Text 65, 160, 40, 10, "Insurance:"
+	    Text 75, 180, 25, 10, "Taxes:"
+	    Text 75, 200, 25, 10, "Room:"
+	    Text 75, 220, 30, 10, "Garage:"
+	    Text 70, 240, 30, 10, "Subsidy:"
+
+	End If
+	y_pos = 25
+	For the_member = 0 to UBound(SHEL_ARRAY, 2)
+		If the_member = selection Then
+			Text 416, y_pos + 2, 60, 10, "MEMBER " & SHEL_ARRAY(const_shel_member, the_member)
+			y_pos = y_pos + 15
+		Else
+			PushButton 400, y_pos, 75, 13, "MEMBER " & SHEL_ARRAY(const_shel_member, the_member), SHEL_ARRAY(const_memb_buttons, the_member)
+			y_pos = y_pos + 15
+		End If
+	Next
 end function
 
 function dynamic_calendar_dialog(selected_dates_array, month_to_use, text_prompt, one_date_only, disable_weekends, disable_month_change, start_date, end_date)
@@ -7286,7 +7508,7 @@ function navigate_ADDR_buttons(update_addr, err_var, update_information_btn, sav
 end function
 
 function navigate_HEST_buttons(update_hest, err_var, update_information_btn, save_information_btn, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, date_to_use_for_HEST_standards)
-'--- This function is to be used to navigate to a specific MAXIS screen and will check for privileged status
+'--- This function works with display_HEST_information to manage the dialog movement
 '~~~~~ update_hest: boolean - this will indicate if the dialog information is in 'edit mode' and is adjusted in this function by the button presses
 '~~~~~ err_var: string - information output if any parameter if the detail is 'wrong' or missing for dialog entry
 '~~~~~ update_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
@@ -7379,6 +7601,193 @@ function navigate_HEST_buttons(update_hest, err_var, update_information_btn, sav
 	Else
 		update_hest = FALSE
 	End If
+end function
+
+function navigate_SHEL_buttons(update_shel, show_totals, err_var, SHEL_ARRAY, selection, const_shel_member, const_shel_exists, const_hud_sub_yn, const_shared_yn, const_paid_to, const_rent_retro_amt, const_rent_retro_verif, const_rent_prosp_amt, const_rent_prosp_verif, const_lot_rent_retro_amt, const_lot_rent_retro_verif, const_lot_rent_prosp_amt, const_lot_rent_prosp_verif, const_mortgage_retro_amt, const_mortgage_retro_verif, const_mortgage_prosp_amt, const_mortgage_prosp_verif, const_insurance_retro_amt, const_insurance_retro_verif, const_insurance_prosp_amt, const_insurance_prosp_verif, const_tax_retro_amt, const_tax_retro_verif, const_tax_prosp_amt, const_tax_prosp_verif, const_room_retro_amt, const_room_retro_verif, const_room_prosp_amt, const_room_prosp_verif, const_garage_retro_amt, const_garage_retro_verif, const_garage_prosp_amt, const_garage_prosp_verif, const_subsidy_retro_amt, const_subsidy_retro_verif, const_subsidy_prosp_amt, const_subsidy_prosp_verif, update_information_btn, save_information_btn, const_memb_buttons, const_attempt_update, clear_all_btn, view_total_shel_btn, update_household_percent_button)
+'--- This function works with display_SHEL_information to manage the dialog movement
+
+'~~~~~ update_shel: boolean - indicating if the dialog information should be in edit mode or not
+'~~~~~ show_totals: boolean - indicates if we are looking at the case total information or the Member specific information
+'~~~~~ err_var: string - information output if any parameter if the detail is 'wrong' or missing for dialog entry
+'~~~~~ SHEL_ARRAY: The name of the array used for the all the MEMBER panel information, this is in line with the function access_SHEL_panel
+'~~~~~ selection: number - This defnies which of the member information from the array should be displayed - defined in navigate_SHEL_buttons
+'~~~~~ const_shel_member: number - constant - the defined constant for the array - the member number information
+'~~~~~ const_shel_exists: number - constant - the defined constant for the array - boolean - if a SHEL panel exists
+'~~~~~ const_hud_sub_yn: number - constant - the defined constant for the array - code from SHEL - if HUD Subsidy exists
+'~~~~~ const_shared_yn: number - constant - the defined constant for the array - code from SHEL - if the expense is shared
+'~~~~~ const_paid_to: number - constant - the defined constant for the array - from SHEL - who the expense is paid to
+'~~~~~ const_rent_retro_amt: number - constant - the defined constant for the array - number - rent amount
+'~~~~~ const_rent_retro_verif: number - constant - the defined constant for the array - string - rent verif
+'~~~~~ const_rent_prosp_amt: number - constant - the defined constant for the array - number - rent amount
+'~~~~~ const_rent_prosp_verif: number - constant - the defined constant for the array - string - rent verif
+'~~~~~ const_lot_rent_retro_amt: number - constant - the defined constant for the array - number - lot rent amount
+'~~~~~ const_lot_rent_retro_verif: number - constant - the defined constant for the array - string - lot rent verif
+'~~~~~ const_lot_rent_prosp_amt: number - constant - the defined constant for the array - number - lot rent amount
+'~~~~~ const_lot_rent_prosp_verif: number - constant - the defined constant for the array - string - lot rent verif
+'~~~~~ const_mortgage_retro_amt: number - constant - the defined constant for the array - number - mortgage amount
+'~~~~~ const_mortgage_retro_verif: number - constant - the defined constant for the array - string - mortgage verif
+'~~~~~ const_mortgage_prosp_amt: number - constant - the defined constant for the array - number - mortgage amount
+'~~~~~ const_mortgage_prosp_verif: number - constant - the defined constant for the array - string - mortgage verif
+'~~~~~ const_insurance_retro_amt: number - constant - the defined constant for the array - number - insurance amount
+'~~~~~ const_insurance_retro_verif: number - constant - the defined constant for the array - string - insurance verif
+'~~~~~ const_insurance_prosp_amt: number - constant - the defined constant for the array - number - insurance amount
+'~~~~~ const_insurance_prosp_verif: number - constant - the defined constant for the array - string - insurance verif
+'~~~~~ const_tax_retro_amt: number - constant - the defined constant for the array - number - tax amount
+'~~~~~ const_tax_retro_verif: number - constant - the defined constant for the array - string - tax verif
+'~~~~~ const_tax_prosp_amt: number - constant - the defined constant for the array - number - tax amount
+'~~~~~ const_tax_prosp_verif: number - constant - the defined constant for the array - string - tax verif
+'~~~~~ const_room_retro_amt: number - constant - the defined constant for the array - number - room amount
+'~~~~~ const_room_retro_verif: number - constant - the defined constant for the array - string - room verif
+'~~~~~ const_room_prosp_amt: number - constant - the defined constant for the array - number - room amount
+'~~~~~ const_room_prosp_verif: number - constant - the defined constant for the array - string - room verif
+'~~~~~ const_garage_retro_amt: number - constant - the defined constant for the array - number - garage amount
+'~~~~~ const_garage_retro_verif: number - constant - the defined constant for the array - string - garage verif
+'~~~~~ const_garage_prosp_amt: number - constant - the defined constant for the array - number - garage amount
+'~~~~~ const_garage_prosp_verif: number - constant - the defined constant for the array - string - garage verif
+'~~~~~ const_subsidy_retro_amt: number - constant - the defined constant for the array - number - subsidy amount
+'~~~~~ const_subsidy_retro_verif: number - constant - the defined constant for the array - string - subsidy verif
+'~~~~~ const_subsidy_prosp_amt: number - constant - the defined constant for the array - number - subsidy amount
+'~~~~~ const_subsidy_prosp_verif: number - constant - the defined constant for the array - string - subsidy verif
+'~~~~~ update_information_btn: number - defined button
+'~~~~~ save_information_btn: number - defined button
+'~~~~~ const_memb_buttons: number - constant - the defined constant for the array - defined button
+'~~~~~ const_attempt_update: number - constant - the defined constant for the array - if there is a change to the information
+'~~~~~ clear_all_btn: number - defined button
+'~~~~~ view_total_shel_btn: number - defined button
+'~~~~~ update_household_percent_button: number - defined button
+
+'===== Keywords: MMIS, HEST, navigate, confirm. dialog
+	If ButtonPressed = update_information_btn Then
+		update_shel = TRUE
+		update_attempted = True
+		' MsgBox "In UPDATE button" & vbCr & vbCr & "Show totals - " & show_totals
+	ElseIf ButtonPressed = save_information_btn Then
+		update_shel = FALSE
+	Else
+		update_shel = FALSE
+	End If
+
+	If selection <> "" Then
+		'REVIEWING THE INFORMATION IN THE ARRAY TO DETERMINE IF IT IS BLANK
+		all_shel_details_blank = True
+
+		If Trim(SHEL_ARRAY(const_paid_to, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_hud_sub_yn, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_shared_yn, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_rent_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_rent_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_rent_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_rent_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_lot_rent_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_lot_rent_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_lot_rent_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_lot_rent_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_mortgage_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_mortgage_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_mortgage_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_mortgage_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_insurance_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_insurance_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_insurance_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_insurance_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_tax_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_tax_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_tax_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_tax_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_room_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_room_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_room_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_room_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_garage_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_garage_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_garage_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_garage_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_subsidy_retro_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_subsidy_retro_verif, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_subsidy_prosp_amt, selection)) <> "" Then all_shel_details_blank = False
+		If Trim(SHEL_ARRAY(const_subsidy_prosp_verif, selection)) <> "" Then all_shel_details_blank = False
+
+		If all_shel_details_blank = True Then SHEL_ARRAY(const_shel_exists, selection) = False
+
+		If ButtonPressed = clear_all_btn Then
+			SHEL_ARRAY(const_paid_to, selection) = ""
+			SHEL_ARRAY(const_hud_sub_yn, selection) = ""
+			SHEL_ARRAY(const_shared_yn, selection) = ""
+			SHEL_ARRAY(const_rent_retro_amt, selection) = ""
+			SHEL_ARRAY(const_rent_retro_verif, selection) = ""
+			SHEL_ARRAY(const_rent_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_rent_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_lot_rent_retro_amt, selection) = ""
+			SHEL_ARRAY(const_lot_rent_retro_verif, selection) = ""
+			SHEL_ARRAY(const_lot_rent_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_lot_rent_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_mortgage_retro_amt, selection) = ""
+			SHEL_ARRAY(const_mortgage_retro_verif, selection) = ""
+			SHEL_ARRAY(const_mortgage_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_mortgage_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_insurance_retro_amt, selection) = ""
+			SHEL_ARRAY(const_insurance_retro_verif, selection) = ""
+			SHEL_ARRAY(const_insurance_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_insurance_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_tax_retro_amt, selection) = ""
+			SHEL_ARRAY(const_tax_retro_verif, selection) = ""
+			SHEL_ARRAY(const_tax_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_tax_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_room_retro_amt, selection) = ""
+			SHEL_ARRAY(const_room_retro_verif, selection) = ""
+			SHEL_ARRAY(const_room_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_room_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_garage_retro_amt, selection) = ""
+			SHEL_ARRAY(const_garage_retro_verif, selection) = ""
+			SHEL_ARRAY(const_garage_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_garage_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_subsidy_retro_amt, selection) = ""
+			SHEL_ARRAY(const_subsidy_retro_verif, selection) = ""
+			SHEL_ARRAY(const_subsidy_prosp_amt, selection) = ""
+			SHEL_ARRAY(const_subsidy_prosp_verif, selection) = ""
+			SHEL_ARRAY(const_shel_exists, selection) = False
+		End If
+	End If
+
+	For memb_btn = 0 to UBound(SHEL_ARRAY, 2)
+		If ButtonPressed = SHEL_ARRAY(const_memb_buttons, memb_btn) Then
+			selection = memb_btn
+			show_totals = False
+		End If
+	Next
+	If selection <> "" Then
+		If SHEL_ARRAY(const_shel_exists, selection) = False Then update_shel = True
+		If update_shel = True Then
+			SHEL_ARRAY(const_attempt_update, selection) = True
+			update_attempted = True
+
+			SHEL_ARRAY(const_rent_prosp_amt, selection) = SHEL_ARRAY(const_rent_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_lot_rent_prosp_amt, selection) = SHEL_ARRAY(const_lot_rent_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_mortgage_prosp_amt, selection) = SHEL_ARRAY(const_mortgage_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_insurance_prosp_amt, selection) = SHEL_ARRAY(const_insurance_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_tax_prosp_amt, selection) = SHEL_ARRAY(const_tax_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_room_prosp_amt, selection) = SHEL_ARRAY(const_room_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_garage_prosp_amt, selection) = SHEL_ARRAY(const_garage_prosp_amt, selection) & ""
+			SHEL_ARRAY(const_subsidy_prosp_amt, selection) = SHEL_ARRAY(const_subsidy_prosp_amt, selection) & ""
+		End If
+	End If
+	If ButtonPressed = view_total_shel_btn Then
+		show_totals = True
+		selection = ""
+	End If
+	If show_totals = True and update_shel = True Then
+		total_paid_by_household = total_paid_by_household & ""
+		total_paid_by_others = total_paid_by_others & ""
+		total_current_rent = total_current_rent & ""
+		total_current_lot_rent = total_current_lot_rent & ""
+		total_current_mortgage = total_current_mortgage & ""
+		total_current_insurance = total_current_insurance & ""
+		total_current_taxes = total_current_taxes & ""
+		total_current_room = total_current_room & ""
+		total_current_garage = total_current_garage & ""
+		total_current_subsidy = total_current_subsidy & ""
+	End If
+	' MsgBox "End NAVIGATE" & vbCr & vbCr & "Show totals - " & show_totals
 end function
 
 function navigate_to_MAXIS_screen_review_PRIV(function_to_go_to, command_to_go_to, is_this_priv)
@@ -8557,7 +8966,7 @@ function read_boolean_from_excel(excel_place, script_variable)
 	'If this is not TRUE or FALSE, then it will just output what was in the cell all uppercase
 end function
 
-function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent_verif, lot_rent_amt, lot_rent_verif, mortgage_amt, mortgage_verif, insurance_amt, insurance_verif, taxes_amt, taxes_verif, room_amt, room_verif, garage_amt, garage_verif, subsidy_amt, subsidy_verif, original_information)
+function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent_verif, lot_rent_amt, lot_rent_verif, mortgage_amt, mortgage_verif, insurance_amt, insurance_verif, taxes_amt, taxes_verif, room_amt, room_verif, garage_amt, garage_verif, subsidy_amt, subsidy_verif, total_shelter_expense, original_information)
 '--- Function to read all of the SHEL panels and total everything listed on each panel to a final total.
 '~~~~~ ref_numbers_with_panel: string of all member reference numbers that have a SHEL panel existing - seperated by "~"
 '~~~~~ paid_to: string - of who the sheler expense is paid to. If there is more than one on different panels, this will say 'Multiple'
@@ -8815,6 +9224,7 @@ function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent
 			End If
 		End If
 	Next
+	total_shelter_expense = rent_prosp_amt + lot_rent_prosp_amt + mortgage_prosp_amt + insurance_prosp_amt + tax_prosp_amt + room_prosp_amt + garage_prosp_amt
 
 	If left(ref_numbers_with_panel, 1) = "~" Then ref_numbers_with_panel = right(ref_numbers_with_panel, len(ref_numbers_with_panel)-1)		'formatting the list of reference numbers with a SHEL panel
 	'saving the information into the original information parameter for comparison
