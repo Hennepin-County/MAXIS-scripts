@@ -42,7 +42,7 @@ END IF
 'FUNCTIONS ================================================================================================================
 
 
-function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_step, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_rent_amount, new_garage_rent_required_yn, new_rent_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn)
+function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_step, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_rent_amount, new_garage_rent_required_yn, new_rent_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, THE_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn)
 
 	yes_no_list = "?"+chr(9)+"Yes"+chr(9)+"No"
 	x_pos = 345
@@ -150,6 +150,15 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 		' other_person_checkbox
 		' other_person_name
 		' payment_split_evenly_yn
+		' ALL_SHEL_PANELS_ARRAY
+		' person_age_const
+		' person_shel_checkbox
+		' shel_ref_number_const
+		' new_shel_pers_total_amt_const
+		' new_shel_pers_total_amt_type_const
+		' other_new_shel_total_amt
+		' other_new_shel_total_amt_type
+
 		If shel_update_step > 0 Then
 			Text 20, 45, 95, 10, "What is the living situation?"
 		    DropListBox 115, 40, 125, 45, "Select One..."+chr(9)+"Apartment or Townhouse"+chr(9)+"House"+chr(9)+"Trailer Home/Mobile Home"+chr(9)+"Room Only"+chr(9)+"Shelter"+chr(9)+"Hotel"+chr(9)+"Vehicle"+chr(9)+"Other", what_is_the_living_arrangement
@@ -159,6 +168,7 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 		End If
 
 		If shel_update_step > 1 Then
+			GroupBox 15, 65, 450, 150, "Payment Details"
 			If (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") AND unit_owned = "No" Then
 			    Text 20, 80, 105, 10, "What is the total rent amount?"
 			    EditBox 130, 75, 50, 15, new_total_rent_amount
@@ -174,12 +184,12 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 			    DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_garage_rent_required_yn
 			    Text 20, 140, 80, 10, "Who is the rent paid to?"
 			    EditBox 100, 135, 135, 15, new_rent_paid_to_name
-			    Text 20, 155, 225, 10, "Check the box for each person responsible for the housing payment:"
+			    GroupBox 20, 155, 440, 65, "Check the box for each person responsible for the housing payment:"
 				x_pos = 30
 				y_pos = 170
-				for the_membs = 0 to UBound(ALL_SHEL_PANELS_ARRAY, 2)
-					If ALL_SHEL_PANELS_ARRAY(person_age_const, the_membs) >= 18 Then
-						CheckBox 30, 170, 80, 10, "MEMB " & ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, the_membs), ALL_SHEL_PANELS_ARRAY(person_shel_checkbox, the_membs)
+				for the_membs = 0 to UBound(THE_ARRAY, 2)
+					If THE_ARRAY(person_age_const, the_membs) >= 18 Then
+						CheckBox 30, 170, 80, 10, "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs), THE_ARRAY(person_shel_checkbox, the_membs)
 						x_pos = x_pos + 125
 						If x_pos = 200 Then
 							y_pos = y_pos + 15
@@ -192,7 +202,7 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 			    ' CheckBox 155, 185, 80, 10, "Check4", Check4
 			    CheckBox 290, 170, 145, 10, "Someone outside the household. Name:", other_person_checkbox
 			    EditBox 300, 180, 160, 15, other_person_name
-			    Text 20, 205, 205, 10, "Is the payment split evenly among all the responsible parties?"
+			    Text 25, 205, 200, 10, "Is the payment split evenly among all the responsible parties?"
 			    DropListBox 230, 200, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", payment_split_evenly_yn
 			    PushButton 410, 205, 50, 10, "Enter", enter_shel_two_btn
 			ElseIf (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") AND unit_owned = "Yes" Then
@@ -213,19 +223,39 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 		End If
 
 		If shel_update_step > 2 Then
-		    Text 20, 220, 105, 10, "How is the payment split?"
-		    Text 25, 240, 60, 10, "Person ONE pays: "
-		    EditBox 90, 235, 50, 15, Edit6
-		    DropListBox 145, 240, 55, 45, "dollars"+chr(9)+"percent", List7
-		    Text 220, 240, 70, 10, "Person THREE pays: "
-		    EditBox 295, 235, 50, 15, Edit7
-		    DropListBox 350, 240, 55, 45, "dollars"+chr(9)+"percent", List8
-		    Text 25, 260, 65, 10, "Person TWO pays: "
-		    EditBox 90, 255, 50, 15, Edit8
-		    DropListBox 145, 260, 55, 45, "dollars"+chr(9)+"percent", List9
-		    Text 225, 260, 65, 10, "Person FOUR pays: "
-		    EditBox 295, 255, 50, 15, Edit9
-		    DropListBox 350, 260, 55, 45, "dollars"+chr(9)+"percent", List10
+		    GroupBox 15, 220, 450, 50, "How is the payment split?"
+			x_pos = 25
+			y_pos = 240
+			for the_membs = 0 to UBound(THE_ARRAY, 2)
+				If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then
+					Text x_pos, y_pos, 60, 10, "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs) & " pays: "
+					EditBox x_pos + 65, y_pos - 5, 50, 15, THE_ARRAY(new_shel_pers_total_amt_const, the_membs)
+					DropListBox x_pos + 120, y_pos - 5, 55, 45, "dollars"+chr(9)+"percent", THE_ARRAY(new_shel_pers_total_amt_type_const, the_membs)
+					x_pos = x_pos + 195
+					If x_pos = 415 Then
+						x_pos = 25
+						y_pos = y_pos + 20
+					End If
+				End If
+			next
+			If other_person_checkbox = checked Then
+				Text x_pos, y_pos, 100, 10, "Other: " & other_person_name & " pays: "
+				EditBox x_pos + 105, y_pos - 5, 50, 15, other_new_shel_total_amt
+				DropListBox x_pos + 160, y_pos - 5, 55, 45, "dollars"+chr(9)+"percent", other_new_shel_total_amt_type
+			End If
+
+		    ' Text 25, 240, 60, 10, "Person ONE pays: "
+		    ' EditBox 90, 235, 50, 15, Edit6
+		    ' DropListBox 145, 235, 55, 45, "dollars"+chr(9)+"percent", List7
+		    ' Text 220, 240, 70, 10, "Person THREE pays: "
+		    ' EditBox 295, 235, 50, 15, Edit7
+		    ' DropListBox 350, 235, 55, 45, "dollars"+chr(9)+"percent", List8
+		    ' Text 25, 260, 65, 10, "Person TWO pays: "
+		    ' EditBox 90, 255, 50, 15, Edit8
+		    ' DropListBox 145, 255, 55, 45, "dollars"+chr(9)+"percent", List9
+		    ' Text 225, 260, 65, 10, "Person FOUR pays: "
+		    ' EditBox 295, 255, 50, 15, Edit9
+		    ' DropListBox 350, 255, 55, 45, "dollars"+chr(9)+"percent", List10
 		    PushButton 410, 260, 50, 10, "Enter", enter_shel_three_btn
 		End If
 
@@ -1147,7 +1177,9 @@ const person_shel_checkbox 			= 39
 const person_shel_button			= 40
 const person_age_const 				= 41
 const original_panel_info_const		= 42
-const shel_entered_notes_const		= 43
+const new_shel_pers_total_amt_const = 43
+const new_shel_pers_total_amt_type_const = 44
+const shel_entered_notes_const		= 45
 
 Dim ALL_SHEL_PANELS_ARRAY()
 ReDim ALL_SHEL_PANELS_ARRAY(shel_entered_notes_const, 0)
@@ -1214,66 +1246,67 @@ EndDialog
 
 dialog Dialog1
 
+
+'SEARCH THE LIST OF HOUSEHOLD MEMBERS TO SEARCH ALL SHEL PANELS
+CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+
+DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+	EMReadscreen ref_nbr, 3, 4, 33
+	EMReadScreen access_denied_check, 13, 24, 2
+	'MsgBox access_denied_check
+	If access_denied_check = "ACCESS DENIED" Then
+		PF10
+		last_name = "UNABLE TO FIND"
+		first_name = " - Access Denied"
+		mid_initial = ""
+	Else
+		client_array = client_array & ref_nbr & "|"
+	End If
+	transmit
+	Emreadscreen edit_check, 7, 24, 2
+LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+client_array = TRIM(client_array)
+If right(client_array, 1) = "|" Then client_array = left(client_array, len(client_array) - 1)
+ref_numbers_array = split(client_array, "|")
+
+members_counter = 0
+btn_placeholder = 600
+member_selection = ""
+For each memb_ref_number in ref_numbers_array
+	Call navigate_to_MAXIS_screen("STAT", "SHEL")
+	EMWriteScreen memb_ref_number, 20, 76
+	transmit
+
+	ReDim Preserve ALL_SHEL_PANELS_ARRAY(shel_entered_notes_const, members_counter)
+	ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, members_counter) = memb_ref_number
+	ALL_SHEL_PANELS_ARRAY(memb_btn_const, members_counter) = btn_placeholder + members_counter
+	ALL_SHEL_PANELS_ARRAY(attempted_update_const, members_counter) = False
+
+	EMReadScreen shel_version, 1, 2, 73
+	If shel_version = "1" Then
+		ALL_SHEL_PANELS_ARRAY(shel_exists_const, members_counter) = True
+		If total_paid_to = "" Then total_paid_to =  ALL_SHEL_PANELS_ARRAY(paid_to_const, members_counter)
+		' If member_selection = "" Then member_selection = members_counter
+	Else
+		ALL_SHEL_PANELS_ARRAY(shel_exists_const, members_counter) = False
+		ALL_SHEL_PANELS_ARRAY(original_panel_info_const, members_counter) = "||||||||||||||||||||||||||||||||||"
+	End If
+
+	Call navigate_to_MAXIS_screen("STAT", "MEMB")
+	EMWriteScreen memb_ref_number, 20, 76
+	transmit
+	EMReadScreen memb_panel_age, 3, 8, 76
+	memb_panel_age = trim(memb_panel_age)
+	If memb_panel_age = "" Then memb_panel_age = 0
+	memb_panel_age = memb_panel_age * 1
+	ALL_SHEL_PANELS_ARRAY(person_age_const, members_counter) = memb_panel_age
+
+	If ALL_SHEL_PANELS_ARRAY(shel_exists_const, members_counter) = True Then ALL_SHEL_PANELS_ARRAY(person_shel_checkbox, members_counter) = checked
+	members_counter = members_counter + 1
+Next
+
 If select_option = "Application/Renewal" Then
-
-	'SEARCH THE LIST OF HOUSEHOLD MEMBERS TO SEARCH ALL SHEL PANELS
-	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-
-	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
-		EMReadscreen ref_nbr, 3, 4, 33
-		EMReadScreen access_denied_check, 13, 24, 2
-		'MsgBox access_denied_check
-		If access_denied_check = "ACCESS DENIED" Then
-			PF10
-			last_name = "UNABLE TO FIND"
-			first_name = " - Access Denied"
-			mid_initial = ""
-		Else
-			client_array = client_array & ref_nbr & "|"
-		End If
-		transmit
-		Emreadscreen edit_check, 7, 24, 2
-	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
-
-	client_array = TRIM(client_array)
-	If right(client_array, 1) = "|" Then client_array = left(client_array, len(client_array) - 1)
-	ref_numbers_array = split(client_array, "|")
-
-	members_counter = 0
-	btn_placeholder = 600
-	member_selection = ""
-	For each memb_ref_number in ref_numbers_array
-		Call navigate_to_MAXIS_screen("STAT", "SHEL")
-		EMWriteScreen memb_ref_number, 20, 76
-		transmit
-
-		ReDim Preserve ALL_SHEL_PANELS_ARRAY(shel_entered_notes_const, members_counter)
-		ALL_SHEL_PANELS_ARRAY(shel_ref_number_const, members_counter) = memb_ref_number
-		ALL_SHEL_PANELS_ARRAY(memb_btn_const, members_counter) = btn_placeholder + members_counter
-		ALL_SHEL_PANELS_ARRAY(attempted_update_const, members_counter) = False
-
-		EMReadScreen shel_version, 1, 2, 73
-		If shel_version = "1" Then
-			ALL_SHEL_PANELS_ARRAY(shel_exists_const, members_counter) = True
-			If total_paid_to = "" Then total_paid_to =  ALL_SHEL_PANELS_ARRAY(paid_to_const, members_counter)
-			' If member_selection = "" Then member_selection = members_counter
-		Else
-			ALL_SHEL_PANELS_ARRAY(shel_exists_const, members_counter) = False
-			ALL_SHEL_PANELS_ARRAY(original_panel_info_const, members_counter) = "||||||||||||||||||||||||||||||||||"
-		End If
-
-		Call navigate_to_MAXIS_screen("STAT", "MEMB")
-		EMWriteScreen memb_ref_number, 20, 76
-		transmit
-		EMReadScreen memb_panel_age, 3, 8, 76
-		memb_panel_age = trim(memb_panel_age)
-		If memb_panel_age = "" Then memb_panel_age = 0
-		memb_panel_age = memb_panel_age * 1
-		ALL_SHEL_PANELS_ARRAY(person_age_const, members_counter) = memb_panel_age
-
-		members_counter = members_counter + 1
-	Next
-
 	' Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit,                   mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, verif_received, original_addr_panel_info, addr_update_attempted)
 	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
 	' Call reformat_phone_number(phone_two, "(111) 222-3333")
@@ -1385,7 +1418,7 @@ If select_option = "Change" Then
 
 			If page_to_display = CHNG_dlg_page Then
 				Text 503, 57, 60, 10, "CHANGE"
-				Call display_HOUSING_CHANGE_information(housing_questions_step, shel_update_step, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_rent_amount, new_garage_rent_required_yn, new_rent_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn)
+				Call display_HOUSING_CHANGE_information(housing_questions_step, shel_update_step, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_rent_amount, new_garage_rent_required_yn, new_rent_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, ALL_SHEL_PANELS_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn)
 			End If
 
 			If page_to_display <> CHNG_dlg_page Then PushButton 485, 55, 65, 13, "CHANGE", CHNG_page_btn
