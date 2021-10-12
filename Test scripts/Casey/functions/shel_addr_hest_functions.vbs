@@ -168,7 +168,7 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 		End If
 
 		If shel_update_step > 1 Then
-			GroupBox 15, 65, 450, 150, "Payment Details"
+			GroupBox 15, 65, 450, 155, "Payment Details"
 			If (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") AND unit_owned = "No" Then
 			    Text 20, 80, 105, 10, "What is the total rent amount?"
 			    EditBox 130, 75, 50, 15, new_total_rent_amount
@@ -179,32 +179,12 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 			    Text 260, 100, 135, 10, "Is this insurance required per the lease?"
 			    DropListBox 400, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_renters_insurance_required_yn
 			    Text 20, 120, 130, 10, "What is the amount of the garage rent?"
-			    EditBox 150, 115, 50, 15, new_total_garage_rent_amount
+			    EditBox 150, 115, 50, 15, new_total_garage_amount
 			    Text 250, 120, 145, 10, "Is this garage rental required per the lease?"
 			    DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_garage_rent_required_yn
 			    Text 20, 140, 80, 10, "Who is the rent paid to?"
 			    EditBox 100, 135, 135, 15, new_rent_paid_to_name
-			    GroupBox 20, 155, 440, 65, "Check the box for each person responsible for the housing payment:"
-				x_pos = 30
-				y_pos = 170
-				for the_membs = 0 to UBound(THE_ARRAY, 2)
-					If THE_ARRAY(person_age_const, the_membs) >= 18 Then
-						CheckBox 30, 170, 80, 10, "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs), THE_ARRAY(person_shel_checkbox, the_membs)
-						x_pos = x_pos + 125
-						If x_pos = 200 Then
-							y_pos = y_pos + 15
-						End If
-					End If
-				next
-			    ' CheckBox 30, 170, 80, 10, "Check1", Check1
-			    ' CheckBox 30, 185, 80, 10, "Check2", Check2
-			    ' CheckBox 155, 170, 80, 10, "Check3", Check3
-			    ' CheckBox 155, 185, 80, 10, "Check4", Check4
-			    CheckBox 290, 170, 145, 10, "Someone outside the household. Name:", other_person_checkbox
-			    EditBox 300, 180, 160, 15, other_person_name
-			    Text 25, 205, 200, 10, "Is the payment split evenly among all the responsible parties?"
-			    DropListBox 230, 200, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", payment_split_evenly_yn
-			    PushButton 410, 205, 50, 10, "Enter", enter_shel_two_btn
+
 			ElseIf (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") AND unit_owned = "Yes" Then
 
 			ElseIf what_is_the_living_arrangement = "Trailer Home/Mobile Home" Then
@@ -220,12 +200,44 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 			ElseIf what_is_the_living_arrangement = "Other" Then
 
 			End If
+			GroupBox 20, 155, 440, 65, "Check the box for each person responsible for the housing payment:"
+			x_pos = 30
+			y_pos = 170
+			for the_membs = 0 to UBound(THE_ARRAY, 2)
+				If THE_ARRAY(person_age_const, the_membs) >= 18 Then
+					CheckBox 30, 170, 80, 10, "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs), THE_ARRAY(person_shel_checkbox, the_membs)
+					x_pos = x_pos + 125
+					If x_pos = 200 Then
+						y_pos = y_pos + 15
+					End If
+				End If
+			next
+			' CheckBox 30, 170, 80, 10, "Check1", Check1
+			' CheckBox 30, 185, 80, 10, "Check2", Check2
+			' CheckBox 155, 170, 80, 10, "Check3", Check3
+			' CheckBox 155, 185, 80, 10, "Check4", Check4
+			CheckBox 290, 170, 145, 10, "Someone outside the household. Name:", other_person_checkbox
+			EditBox 305, 180, 150, 15, other_person_name
+			Text 25, 205, 200, 10, "Is the payment split evenly among all the responsible parties?"
+			DropListBox 230, 200, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", payment_split_evenly_yn
+			PushButton 405, 205, 50, 10, "Enter", enter_shel_two_btn
 		End If
 
 		If shel_update_step > 2 Then
-		    GroupBox 15, 220, 450, 50, "How is the payment split?"
+		    GroupBox 15, 225, 450, 50, "How is the payment split?"
 			x_pos = 25
 			y_pos = 240
+			If new_rent_subsidy_yn = "Yes" Then
+				Text x_pos, y_pos, 60, 10, "Subsidy pays: "
+				EditBox x_pos + 65, y_pos - 5, 50, 15, new_total_subsidy_amount
+				Text x_pos + 120, y_pos, 55, 10, "dollars"
+				' DropListBox x_pos + 120, y_pos - 5, 55, 45, "dollars"+chr(9)+"percent", THE_ARRAY(new_shel_pers_total_amt_type_const, the_membs)
+				x_pos = x_pos + 195
+				If x_pos = 415 Then
+					x_pos = 25
+					y_pos = y_pos + 20
+				End If
+			End If
 			for the_membs = 0 to UBound(THE_ARRAY, 2)
 				If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then
 					Text x_pos, y_pos, 60, 10, "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs) & " pays: "
@@ -260,15 +272,100 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 		End If
 
 		If shel_update_step > 3 Then
-		    Text 20, 280, 120, 10, "Is the housing expense verified?"
-		    Text 30, 300, 110, 10, "Total Rent of $XXXX verification:"
-		    DropListBox 145, 295, 60, 45, "", List11
-		    Text 235, 300, 110, 10, "Total Rent of $XXXX verification:"
-		    DropListBox 350, 295, 60, 45, "", List12
-		    Text 30, 315, 110, 10, "Total Rent of $XXXX verification:"
-		    DropListBox 145, 310, 60, 45, "", List13
-		    Text 235, 315, 110, 10, "Total Rent of $XXXX verification:"
-		    DropListBox 350, 310, 60, 45, "", List14
+		    GroupBox 15, 280, 450, 55, "Is the housing expense verified?"
+			x_pos = 25
+			y_pos = 300
+
+			If new_total_rent_amount <> "" Then
+				Text x_pos, y_pos, 110, 10, "Total RENT of $" & new_total_rent_amount & " verification:"
+				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", List11
+
+
+				x_pos = x_pos + 320
+				If x_pos = 665 Then
+					x_pos = 25
+					y_pos = y_pos + 15
+				End If
+			End If
+
+			If new_total_lot_rent_amount <> "" Then
+				' hold
+				Text x_pos, y_pos, 110, 10, "Total LOT RENT of $" & new_total_lot_rent_amount & " verification:"
+				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", List11
+				x_pos = x_pos + 320
+				If x_pos = 665 Then
+					x_pos = 25
+					y_pos = y_pos + 15
+				End If
+			End If
+			If new_total_mortgage_amount <> "" Then
+				' hold
+				Text x_pos, y_pos, 110, 10, "Total MORTGAGE of $" & new_total_mortgage_amount & " verification:"
+				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", List11
+				x_pos = x_pos + 320
+				If x_pos = 665 Then
+					x_pos = 25
+					y_pos = y_pos + 15
+				End If
+			End If
+			If new_total_insurance_amount <> "" Then
+				' hold
+				Text x_pos, y_pos, 110, 10, "Total INSURANCE of $" & new_total_insurance_amount & " verification:"
+				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", List11
+				x_pos = x_pos + 320
+				If x_pos = 665 Then
+					x_pos = 25
+					y_pos = y_pos + 15
+				End If
+			End If
+			If new_total_taxes_amount <> "" Then
+				' hold
+				Text x_pos, y_pos, 110, 10, "Total TAXES of $" & new_total_taxes_amount & " verification:"
+				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", List11
+				x_pos = x_pos + 320
+				If x_pos = 665 Then
+					x_pos = 25
+					y_pos = y_pos + 15
+				End If
+			End If
+			If new_total_room_amount <> "" Then
+				' hold
+				Text x_pos, y_pos, 110, 10, "Total TOOM of $" & new_total_room_amount & " verification:"
+				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", List11
+				x_pos = x_pos + 320
+				If x_pos = 665 Then
+					x_pos = 25
+					y_pos = y_pos + 15
+				End If
+			End If
+			If new_total_garage_amount <> "" Then
+				' hold
+				Text x_pos, y_pos, 110, 10, "Total GARAGE of $" & new_total_garage_amount & " verification:"
+				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", List11
+				x_pos = x_pos + 320
+				If x_pos = 665 Then
+					x_pos = 25
+					y_pos = y_pos + 15
+				End If
+			End If
+			If new_total_subsidy_amount <> "" Then
+				' hold
+				Text x_pos, y_pos, 110, 10, "Total SUBSIDY of $" & new_total_subsidy_amount & " verification:"
+				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", List11
+				x_pos = x_pos + 320
+				If x_pos = 665 Then
+					x_pos = 25
+					y_pos = y_pos + 15
+				End If
+			End If
+		    ' Text 30, 300, 110, 10, "Total Rent of $XXXX verification:"
+		    ' DropListBox 145, 295, 60, 45, "", List11
+		    ' Text 235, 300, 110, 10, "Total Rent of $XXXX verification:"
+		    ' DropListBox 350, 295, 60, 45, "", List12
+		    ' Text 30, 315, 110, 10, "Total Rent of $XXXX verification:"
+		    ' DropListBox 145, 310, 60, 45, "", List13
+		    ' Text 235, 315, 110, 10, "Total Rent of $XXXX verification:"
+		    ' DropListBox 350, 310, 60, 45, "", List14
 		End If
 
 		' Text 20, 145, 160, 10, "Have we received verification of this expense?"
