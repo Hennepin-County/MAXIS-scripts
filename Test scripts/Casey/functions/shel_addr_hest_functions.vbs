@@ -220,17 +220,17 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 			ElseIf (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") AND unit_owned = "Yes" Then
 				Text 20, 80, 115, 10, "What is the total mortgage amount?"
 				EditBox 140, 75, 50, 15, new_total_mortgage_amount
-				Text 210, 80, 185, 10, "Does this payment include all taxes and insturance?"
+				Text 230, 80, 170, 10, "Does this payment include all taxes and insturance?"
 				DropListBox 400, 75, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_mortgage_have_escro_yn
 				Text 20, 100, 150, 10, "How much insurance do you pay seperately?"
-				EditBox 175, 95, 50, 15, new_morgage_insurance_amount
-				Text 245, 100, 150, 10, "Do have more insurance than required by the mortgage?"
+				EditBox 170, 95, 40, 15, new_morgage_insurance_amount
+				Text 220, 100, 195, 10, "Do have more insurance than required by the mortgage?"
 				DropListBox 400, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_excess_insurance_yn
 				Text 20, 120, 140, 10, "How much in taxes do you pay seperately?"
 				EditBox 160, 115, 50, 15, new_total_tax_amount
 				' Text 250, 120, 145, 10, "Is this garage rental required per the lease?"
 				' DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_garage_rent_required_yn
-				Text 20, 140, 100, 10, "Who is the moretgage paid to?"
+				Text 20, 140, 100, 10, "Who is the mortgage paid to?"
 				EditBox 120, 135, 135, 15, new_rent_paid_to_name
 			ElseIf what_is_the_living_arrangement = "Trailer Home/Mobile Home" Then
 				If unit_owned = "No" Then
@@ -238,10 +238,24 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 				End If
 
 				If unit_owned = "Yes" Then
-
+					Text 20, 80, 115, 10, "What is the total mortgage amount?"
+					EditBox 140, 75, 50, 15, new_total_mortgage_amount
+					Text 230, 80, 170, 10, "Does this payment include all taxes and insturance?"
+					DropListBox 400, 75, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_mortgage_have_escro_yn
+					Text 20, 100, 150, 10, "How much insurance do you pay seperately?"
+					EditBox 170, 95, 40, 15, new_morgage_insurance_amount
+					Text 220, 100, 195, 10, "Do have more insurance than required by the mortgage?"
+					DropListBox 400, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_excess_insurance_yn
+					Text 20, 120, 140, 10, "How much in taxes do you pay seperately?"
+					EditBox 160, 115, 50, 15, new_total_tax_amount
+					' Text 250, 120, 145, 10, ""
+					' DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_garage_rent_required_yn
+					Text 20, 140, 100, 10, "Who is the mortgage paid to?"
+					EditBox 120, 135, 135, 15, new_rent_paid_to_name
 				End If
 			ElseIf what_is_the_living_arrangement = "Room Only" Then
-
+				Text 20, 80, 115, 10, "What is the total room rent amount?"
+				EditBox 140, 75, 50, 15, new_total_room_amount
 			ElseIf what_is_the_living_arrangement = "Shelter" Then
 
 			ElseIf what_is_the_living_arrangement = "Hotel" Then
@@ -341,8 +355,8 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 
 			If new_total_lot_rent_amount <> "" Then
 				' hold
-				Text x_pos, y_pos, 110, 10, "Total LOT RENT of $" & new_total_lot_rent_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", new_lot_rent_verif
+				Text x_pos, y_pos, 130, 10, "Total LOT RENT of $" & new_total_lot_rent_amount & " verification:"
+				DropListBox x_pos + 135, y_pos - 5, 80, 45, "", new_lot_rent_verif
 				x_pos = x_pos + 200
 				If x_pos = 425 Then
 					x_pos = 25
@@ -351,8 +365,8 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 			End If
 			If new_total_mortgage_amount <> "" Then
 				' hold
-				Text x_pos, y_pos, 110, 10, "Total MORTGAGE of $" & new_total_mortgage_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", new_mortgage_verif
+				Text x_pos, y_pos, 130, 10, "Total MORTGAGE of $" & new_total_mortgage_amount & " verification:"
+				DropListBox x_pos + 135, y_pos - 5, 80, 45, "", new_mortgage_verif
 				x_pos = x_pos + 200
 				If x_pos = 425 Then
 					x_pos = 25
@@ -361,8 +375,8 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 			End If
 			If new_total_insurance_amount <> "" Then
 				' hold
-				Text x_pos, y_pos, 110, 10, "Total INSURANCE of $" & new_total_insurance_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", new_insurance_verif
+				Text x_pos, y_pos, 130, 10, "Total INSURANCE of $" & new_total_insurance_amount & " verification:"
+				DropListBox x_pos + 135, y_pos - 5, 80, 45, "", new_insurance_verif
 				x_pos = x_pos + 200
 				If x_pos = 425 Then
 					x_pos = 25
@@ -391,8 +405,8 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 			End If
 			If new_total_garage_amount <> "" Then
 				' hold
-				Text x_pos, y_pos, 110, 10, "Total GARAGE of $" & new_total_garage_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", new_garage_verif
+				Text x_pos, y_pos, 130, 10, "Total GARAGE of $" & new_total_garage_amount & " verification:"
+				DropListBox x_pos + 135, y_pos - 5, 80, 45, "", new_garage_verif
 				x_pos = x_pos + 200
 				If x_pos = 425 Then
 					x_pos = 25
@@ -401,8 +415,8 @@ function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_
 			End If
 			If new_total_subsidy_amount <> "" Then
 				' hold
-				Text x_pos, y_pos, 110, 10, "Total SUBSIDY of $" & new_total_subsidy_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, "", new_subsidy_verif
+				Text x_pos, y_pos, 130, 10, "Total SUBSIDY of $" & new_total_subsidy_amount & " verification:"
+				DropListBox x_pos + 135, y_pos - 5, 80, 45, "", new_subsidy_verif
 				x_pos = x_pos + 200
 				If x_pos = 425 Then
 					x_pos = 25
