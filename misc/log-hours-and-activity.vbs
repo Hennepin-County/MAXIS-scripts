@@ -249,7 +249,7 @@ If on_task = False Then					'If we are not currently on a task, this will start 
 		  EditBox 65, 45, 50, 15, next_start_time
 		  DropListBox 65, 65, 155, 45, "Select One..."+chr(9)+"Admin"+chr(9)+"Break"+chr(9)+"Consulting on Systems and Processes"+chr(9)+"Department Wide Script Tools"+chr(9)+"New Projects and Script Development"+chr(9)+"Ongoing Script Support"+chr(9)+"Other"+chr(9)+"Personal Skills Development"+chr(9)+"Team Strategy Development"+chr(9)+"Training"+chr(9)+"Travel", next_category
 		  EditBox 50, 85, 170, 15, next_detail
-		  DropListBox 265, 25, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", next_meeting
+		  DropListBox 265, 25, 30, 45, "?"+chr(9)+"Yes", next_meeting
 		  EditBox 260, 45, 90, 15, next_project
 		  EditBox 280, 65, 35, 15, next_gh_issue
 		  ButtonGroup ButtonPressed
@@ -271,12 +271,12 @@ If on_task = False Then					'If we are not currently on a task, this will start 
 		If IsDate(next_date) = False Then err_msg = err_msg & " - Enter the next date as a valid date."
 		If IsDate(next_start_time) = False Then err_msg = err_msg & " - Enter the time as a valid time."
 		If next_category = "Select One..." Then err_msg = err_msg & " - Select the category"
-		If next_meeting = "?" Then err_msg = err_msg & " - Indicate if the activity is a meeting."
 		If next_gh_issue <> "" and IsNumeric(next_gh_issue) = False Then err_msg = err_msg & " - Enter the GitHub issue as the number only."
 
 		If err_msg <> "" Then MsgBox "Need to Resolve:" & vbCr & err_msg
 
 	Loop until err_msg = ""
+	If next_meeting = "?" Then next_meeting = ""
 
 	'adding in the information from the new activity
 	ObjExcel.Cells(next_blank_row, 1).Value = next_date
@@ -356,7 +356,8 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 			Else
 				ObjExcel.Cells(next_blank_row, 7).Value = next_detail			'enter the detail that was entered into the dialog
 			End If
-			end_msg = "Your activity (Category: " & current_category & ", Details: " & current_detail & ") has been ended as of " & end_time & " and you are now on paid break." & vbCr & vbCR & "Fifteen minutes will be up at " & fifteen_minutes_from_now
+			fifteen_minutes_from_break_start = DateAdd("n", 15, end_time)
+			end_msg = "Your activity (Category: " & current_category & ", Details: " & current_detail & ") has been ended as of " & end_time & " and you are now on paid break." & vbCr & vbCR & "Fifteen minutes will be up at " & fifteen_minutes_from_break_start
 		Else
 			ObjExcel.Cells(next_blank_row, 10).Value = "N"						'entering an 'N' for the paid code
 			If trim(next_detail) = "" Then
@@ -383,7 +384,7 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 			  ' EditBox 65, 60, 50, 15, next_start_time
 			  DropListBox 65, 60, 155, 45, "Select One..."+chr(9)+"Admin"+chr(9)+"Break"+chr(9)+"Consulting on Systems and Processes"+chr(9)+"Department Wide Script Tools"+chr(9)+"New Projects and Script Development"+chr(9)+"Ongoing Script Support"+chr(9)+"Other"+chr(9)+"Personal Skills Development"+chr(9)+"Supervisory"+chr(9)+"Team Strategy Development"+chr(9)+"Training"+chr(9)+"Travel", next_category
 			  EditBox 50, 80, 170, 15, next_detail
-			  DropListBox 265, 40, 30, 45, "?"+chr(9)+"Yes"+chr(9)+"No", next_meeting
+			  DropListBox 265, 40, 30, 45, "?"+chr(9)+"Yes", next_meeting
 			  EditBox 260, 60, 90, 15, next_project
 			  EditBox 280, 80, 35, 15, next_gh_issue
 			  ButtonGroup ButtonPressed
@@ -408,12 +409,12 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 			If IsDate(next_date) = False Then err_msg = err_msg & vbCr & " - Enter the next date as a valid date."
 			If IsDate(end_time) = False Then err_msg = err_msg & vbCr & " - Enter the time as a valid time."
 			If next_category = "Select One..." Then err_msg = err_msg & vbCr & " - Select the category"
-			If next_meeting = "?" Then err_msg = err_msg & vbCr & " - Indicate if the activity is a meeting."
 			If next_gh_issue <> "" and IsNumeric(next_gh_issue) = False Then err_msg = err_msg & vbCr & " - Enter the GitHub issue as the number only."
 
 			If err_msg <> "" Then MsgBox "Need to Resolve:" & vbCr & err_msg
 
 		Loop until err_msg = ""
+		If next_meeting = "?" Then next_meeting = ""
 
 		ObjExcel.Cells(current_task_row, 3).Value = end_time					'entering the end time and time spent calculation on the current activity
 		ObjExcel.Cells(current_task_row, 4).Value = "=TEXT([@[End Time]]-[@[Start Time]],"+chr(34)+"h:mm"+chr(34)+")"
