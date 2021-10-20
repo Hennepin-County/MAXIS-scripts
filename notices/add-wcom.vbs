@@ -397,7 +397,7 @@ Do
         'DIALOG to select the WCOM to add
         Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
-		  CheckBox 10, 35, 195, 10, "Information about Client Virtual DropBox", clt_virtual_dropbox_checkbox
+		  CheckBox 10, 35, 195, 10, "Online Document Submission Options", clt_virtual_dropbox_checkbox
 		  CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
 		  CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
 		  CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
@@ -441,9 +441,7 @@ Do
         ReDim array_of_msg_lines(0)
         ReDim WCOM_TO_WRITE_ARRAY (0)
 
-		If clt_virtual_dropbox_checkbox = checked Then
-			CALL add_words_to_message("You have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. EMAIL: hhsews@hennepin.us ")
-		End If
+		If clt_virtual_dropbox_checkbox = checked Then CALL add_words_to_message("You can submit documents Online at www.MNBenefits.org or Email with documents attachment. EMAIL: hhsews@hennepin.us (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types).")
 
         If july_cola_wcom = checked Then
             'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
@@ -1088,7 +1086,7 @@ Next
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE("Detail added to each notice:")
 
-If clt_virtual_dropbox_checkbox Then CALL write_variable_in_CASE_NOTE("* Information about Virtual Dropbox.")
+If clt_virtual_dropbox_checkbox Then CALL write_variable_in_CASE_NOTE("* Information about online document submission options.")
 If july_cola_wcom = checked Then CALL write_variable_in_CASE_NOTE("* HC income budgeted increase as COLA disregards has ended for " & HC_Income_with_COLA & ".")
 If snap_pact_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* SNAP case was " & SNAP_close_or_deny & " because " & pact_close_reason & ".")
 If pact_fraud_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Request to add: " & new_hh_memb & ". Verification needed: " & new_memb_verifs & ". Verification not received causing closure.")
