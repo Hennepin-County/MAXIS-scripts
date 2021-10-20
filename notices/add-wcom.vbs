@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/20/2021", "Updated online document submission option to include MNBenefits. Added Health Care PARIS match WCOM.", "Ilse Ferris, Hennepin County")
 Call changelog_update("09/02/2021", "Added functionality to support sending a WCOM about any Expedited SNAP Postponed Verification.", "Casey Love, Hennepin County")
 Call changelog_update("04/09/2020", "Multiple updates to available WCOMs:##~## - ALL Banked Months WCOMs are removed as no Banked Months are currently being issued.##~## - Added client name information to Temporary Disabled ABAWD WCOM##~## - Added WCOM for Care of Child under 6 Exemption.##~## - Added WCOM for close/deny due to no verifications for when the notice reads 'No Eligible Members'.##~## - Added WCOM for Ineligible Student. ##~## - Added WCOM for Voluntary Quit.##~## - Added WCOM for Future Eligibility Begin Date for SNAP.##~##", "Casey Love, Hennepin County")
 Call changelog_update("03/22/2019", "Reformatted the Select WCOM Dialog. The layout is now clearer as to what WCOMs are for ABAWD. Additional DHS mandated WCOMs are indicated with an asterisk (*).", "Casey Love, Hennepin County")
@@ -1134,15 +1135,15 @@ script_end_procedure("WCOMs added to Notice and case note created.")
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------09/02/2021
-'--Tab orders reviewed & confirmed----------------------------------------------09/02/2021
-'--Mandatory fields all present & Reviewed--------------------------------------09/02/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/20/2021
+'--Tab orders reviewed & confirmed----------------------------------------------10/20/2021
+'--Mandatory fields all present & Reviewed--------------------------------------10/20/2021
 '--All variables in dialog match mandatory fields-------------------------------09/02/2021
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------09/02/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------09/02/2021
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/02/2021
+'--All variables are CASE:NOTEing (if required)---------------------------------10/20/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/20/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/20/2021
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/02/2021
@@ -1165,10 +1166,9 @@ script_end_procedure("WCOMs added to Notice and case note created.")
 '--Update Changelog for release/update------------------------------------------09/02/2021
 '--Remove testing message boxes-------------------------------------------------09/02/2021
 '--Remove testing code/unnecessary code-----------------------------------------09/02/2021
-'--Review/update SharePoint instructions----------------------------------------09/02/2021
+'--Review/update SharePoint instructions----------------------------------------10/20/2021
 '--Review Best Practices using BZS page ----------------------------------------09/02/2021
-'--Review script information on SharePoint BZ Script List-----------------------N/A
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/02/2021
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/20/2021
 '--Complete misc. documentation (if applicable)---------------------------------N/A
 '--Update project team/issue contact (if applicable)----------------------------09/02/2021
