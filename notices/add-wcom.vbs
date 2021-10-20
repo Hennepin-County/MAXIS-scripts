@@ -396,35 +396,37 @@ Do
 
         'DIALOG to select the WCOM to add
         Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
-		  CheckBox 10, 35, 195, 10, "Online Document Submission Options", clt_virtual_dropbox_checkbox
-		  CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
-		  CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
-		  CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
-		  CheckBox 20, 115, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
-		  CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
-		  CheckBox 20, 145, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
-		  CheckBox 20, 175, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
-		  CheckBox 20, 190, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
-		  CheckBox 20, 205, 195, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
-		  CheckBox 20, 220, 195, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
-		  CheckBox 20, 235, 195, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
-		  CheckBox 20, 250, 195, 10, "EXP SNAP - Postponed verifs *", postponed_verif_wcom_checkbox
-		  CheckBox 20, 265, 195, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
-		  CheckBox 20, 280, 195, 10, "Ineligible Student WCOMs", inelig_student_wcoms_checkbox
-		  CheckBox 20, 295, 195, 10, "Future Eligibility Begin Date WCOM", future_elig_wcom_checkbox
-		  CheckBox 20, 325, 60, 10, "CASH Denied *", cash_denied_checkbox
-		  CheckBox 20, 340, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
-		  CheckBox 20, 355, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
-		  ButtonGroup ButtonPressed
-		    OkButton 135, 375, 50, 15
-		    CancelButton 185, 375, 50, 15
-		  GroupBox 5, 50, 230, 265, "SNAP"
-		  GroupBox 15, 60, 215, 100, "ABAWD's"
-		  GroupBox 15, 165, 215, 145, "Other SNAP"
-		  GroupBox 5, 315, 230, 55, "Cash"
-		  Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
-		EndDialog
+        BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
+            CheckBox 10, 35, 195, 10, "Online Document Submission Options", clt_virtual_dropbox_checkbox
+            CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
+            CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
+            CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
+            CheckBox 20, 115, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
+            CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
+            CheckBox 20, 145, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
+            CheckBox 20, 175, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
+            CheckBox 20, 190, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
+            CheckBox 20, 205, 195, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
+            CheckBox 20, 220, 195, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
+            CheckBox 20, 235, 195, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
+            CheckBox 20, 250, 195, 10, "EXP SNAP - Postponed verifs *", postponed_verif_wcom_checkbox
+            CheckBox 20, 265, 195, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
+            CheckBox 20, 280, 195, 10, "Ineligible Student WCOMs", inelig_student_wcoms_checkbox
+            CheckBox 20, 295, 195, 10, "Future Eligibility Begin Date WCOM", future_elig_wcom_checkbox
+            CheckBox 20, 325, 60, 10, "CASH Denied *", cash_denied_checkbox
+            CheckBox 20, 340, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
+            CheckBox 20, 355, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
+            CheckBox 10, 375, 100, 10, "PARIS Match - Health Care", paris_match_HC_checkbox
+            ButtonGroup ButtonPressed
+              OkButton 135, 375, 50, 15
+              CancelButton 185, 375, 50, 15
+            GroupBox 15, 60, 215, 100, "ABAWD's"
+            GroupBox 15, 165, 215, 145, "Other SNAP"
+            GroupBox 5, 315, 230, 55, "Cash"
+            Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
+            GroupBox 5, 50, 230, 265, "SNAP"
+        EndDialog
+
 		' CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
 		' CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
 		' CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
@@ -1018,6 +1020,7 @@ Do
             CALL add_words_to_message("You are no longer eligible for MFIP because " & MFIP_closing_reason & ".")
         End If
 
+        If paris_match_HC_checkbox = checked then CALL add_words_to_message("You do not qualify for Medical Assistance because you are not a Minnesota resident. (Code of Federal Regulations, title 42, section 435.403)")
 
         'This assesses if the message generated is too long for WCOM. If so then the checklist will reappear along with each selected WCOM dialog so it can be changed
         If UBOUND(WCOM_TO_WRITE_ARRAY) > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
@@ -1120,6 +1123,7 @@ If cash_denied_checkbox = checked Then
 End If
 If mfip_returned_mail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Returned mail was received. Verification request sent: " & rm_sent_date_cash & ", cash denied and can be reopened if verif received by: " & rm_due_date_cash & ".")
 If mfip_to_snap_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* MFIP closure due to: " & MFIP_closing_reason & ".")
+If paris_match_HC_checkbox = checked then Call write_variable_in_CASE_NOTE("* Information about health care closure due to lack of state residency.")
 
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
