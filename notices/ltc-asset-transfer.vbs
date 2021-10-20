@@ -2,8 +2,8 @@
 name_of_script = "NOTICES - LTC - ASSET TRANSFER.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 70                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
+STATS_manualtime = 70                      'manual run time in seconds
+STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -57,6 +57,7 @@ changelog_display
 'connecting to MAXIS
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+get_county_code
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 306, 100, "LTC asset transfer dialog"
@@ -98,6 +99,13 @@ renewal_date = renewal_footer_month & "/" & renewal_footer_year 'Creating renewa
 Call fix_case_for_name(client)
 Call fix_case_for_name(spouse)
 
+'Ensuring we're in MAXIS, the case is not PRIV and it's in-county.
+Call check_for_MAXIS(False)
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+If is_this_priv = True then script_end_procedure("This case is privileged and cannot be accessed. The script will now stop.")
+EmReadscreen county_code, 4, 21, 14
+If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE:NOTE. The script will now stop.")
+
 Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)	'navigates to spec/memo and opens into edit mode
 
 Call write_variable_in_SPEC_MEMO("The ownership of " & client & "'s assets must be transferred to " & spouse & " to avoid having them counted in future eligibility determinations. You are encouraged to do this as soon as possible. This transfer of assets must be done before " & client & "'s first annual renewal for " & renewal_date & ". Verification of the transfer can be provided at any time.")
@@ -105,6 +113,7 @@ Call write_variable_in_SPEC_MEMO("")
 Call write_variable_in_SPEC_MEMO("At the first annual renewal in " & renewal_date & ", the value of all assets that list " & client & " as an owner or co-owner will be applied towards the Medical Assistance Asset limit of $3,000.00. If the total value of all countable assets for " & client & " is more than $3,000.00, Medical Assistance may be closed for " & renewal_date & ".")
 
 If case_note_checkbox = 1 then
+    stats_counter = stats_counter + 1
     PF4 'saving notice
     Call start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE("-- Asset Tranfer SPEC/MEMO Sent --")
@@ -127,3 +136,44 @@ If case_note_checkbox = 1 then
 End if
 
 script_end_procedure_with_error_report("Success! Please review your MEMO and/or CASE:NOTE for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/20/2021
+'--Tab orders reviewed & confirmed----------------------------------------------10/20/2021
+'--Mandatory fields all present & Reviewed--------------------------------------10/20/2021
+'--All variables in dialog match mandatory fields-------------------------------10/20/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/20/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/20/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/20/2021
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/20/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/20/2021
+'--PRIV Case handling reviewed -------------------------------------------------10/20/2021
+'--Out-of-County handling reviewed----------------------------------------------10/20/2021
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/20/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------10/20/2021----------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/20/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------10/20/2021
+'--Denomination reviewed -------------------------------------------------------10/20/2021
+'--Script name reviewed---------------------------------------------------------10/20/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/20/2021----------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------10/20/2021
+'--comment Code-----------------------------------------------------------------10/20/2021
+'--Update Changelog for release/update------------------------------------------10/20/2021
+'--Remove testing message boxes-------------------------------------------------10/20/2021
+'--Remove testing code/unnecessary code-----------------------------------------10/20/2021
+'--Review/update SharePoint instructions----------------------------------------10/20/2021
+'--Review Best Practices using BZS page ----------------------------------------10/20/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/20/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/20/2021
+'--Complete misc. documentation (if applicable)---------------------------------10/20/2021
+'--Update project team/issue contact (if applicable)----------------------------10/20/2021
