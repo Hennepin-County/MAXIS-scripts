@@ -8359,6 +8359,8 @@ If dialog_liv_sit_code <> panel_living_sit OR dialog_liv_sit_code = "__" Then
     PF9
     EMWriteScreen dialog_liv_sit_code, 11, 43
     transmit
+    EmReadscreen addr_error, 21, 24, 2
+    If addr_error = "ONLY ONE FUTURE PANEL" then transmit   'error message that needs to be bypassed if other changes occur in that footer month/year.
 End If
 
 
