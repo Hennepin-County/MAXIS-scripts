@@ -1049,7 +1049,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                 EMReadScreen note_title, 55, note_row, 25       'read the title of the note
                 note_title = trim(note_title)
                 check_this_date = TRUE                          'setting this as the default.
-
+				IF note_date = "        " THEN EXIT DO
                 array_of_dates = ""                             'clearing the array from previous loops
                 If InStr(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), "~") <> 0 Then             'if there is a ~ that means there is a list of dates
                     array_of_dates = split(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), "~")     'if there is a list then it should be split in to an array
@@ -1066,11 +1066,11 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                     If ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" Then            'If the questionable interview date is not blank
                         Call convert_to_mainframe_date(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), 2)   'making it mm/dd/yy for comparison
                         'MsgBox "Already known questionable date: " & ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) & vbNewLine & "Note Date: " & note_date
-                        if DateValue(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)) = DateValue(note_date) Then check_this_date = FALSE        'if the already known questionable interview matches the date of the case notes then we will not assess the note
+                        if DateValue(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)) = DateValue(note_date) Then check_this_date = FALSE        'IF the already known questionable interview matches the date of the case notes then we will not assess the note
                     End If
                 End If
 
-                If check_this_date = TRUE Then 'if a questionable interview date is left on the spreadsheet - that means it has been reviewed and is NOT an interview.
+                If check_this_date = TRUE Then 'IF a questionable interview date is left on the spreadsheet - that means it has been reviewed and is NOT an interview.
                     'All of these notes are used when intervies are done HOWEVER sometimes these notes are made when there is NO interview so we cannot assume the interview has happened - a worker must actually review these questionable interviews
                     'We will also add the note date to the list of questionable interviews
                     IF left(note_title, 15) = "***Add program:" then
@@ -1123,7 +1123,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                     END IF
                 End If
 
-                'These will be reviewed regardless of if there are questionable interviews because they indicate a denial
+                'These will be reviewed regardless of IF there are questionable interviews because they indicate a denial
                 IF left(UCase(note_title), 19) = "----DENIED SNAP----" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", DENY SNAP case note"       'possible enhancement to only note this if SNAP status is active or pending
                 IF left(UCase(note_title), 19) = "----DENIED CASH----" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", DENY CASH case note"       'possible enhancement to only note this if Cash status is active or pending
                 IF left(UCase(note_title), 24) = "----DENIED SNAP/CASH----" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", DENY SNAP/CASH"   'possible enhancement to only note this if Cash and SNAP status is active or pending
