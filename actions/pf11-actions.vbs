@@ -62,54 +62,64 @@ get_county_code
 CALL check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-MAXIS_background_check
 
 If MAXIS_case_number <> "" Then
+    MAXIS_background_check
     Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
-    If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
-Else
-    Call Generate_Client_List(HH_Memb_DropDown, "Select One:")		'If a case number is found the script will get the list of
+    If is_this_priv = True then
+        script_end_procedure("Case is privileged. The script will now end.")
+    Else
+        Call Generate_Client_List(HH_Memb_DropDown, "Select One:")		'If a case number is found the script will get the list of the members to select from ready.
+    End if
 End if
 
 'Running the dialog for case number and client
 Do
     Do
-    	err_msg = ""
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 201, 215, "PF11 Action"
-          Text 10, 10, 45, 10, "Case number:"
-          EditBox 60, 5, 45, 15, MAXIS_case_number
-          ButtonGroup ButtonPressed
-            PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
-          Text 5, 30, 70, 10, "Household member:"
-          DropListBox 75, 25, 120, 15, HH_Memb_DropDown, clt_to_update
-          Text 20, 50, 45, 10, "Select action:"
-          DropListBox 65, 45, 130, 15, "Select One:"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"Unable to update HC REVW dates"+chr(9)+"Other", PF11_actions
-          Text 5, 70, 60, 10, "Worker signature:"
-          EditBox 65, 65, 130, 15, worker_signature
-          Text 5, 85, 185, 20, "The system being down, issuance problems, or any type of emergency should NOT be reported via a PF11."
-          CheckBox 5, 110, 190, 10, "Check here if a PF11 is not required, CASE:NOTE only.", no_pf11_checkbox
-          ButtonGroup ButtonPressed
-            OkButton 100, 125, 45, 15
-            CancelButton 150, 125, 45, 15
-          GroupBox 5, 145, 190, 65, "How to check a PF11 status:"
-          Text 10, 155, 185, 50, "On the SELF menu and type TASK. If you have the task number enter it and it will take you directly into the PF11. If you do not have the task number or wish to look at a list of all the PF11s you have created, change the Option in TASK from T-task to a C-creator.  By placing an X next to a PF11 listed you will be able to view it."
-        EndDialog
+        Do
+    	    err_msg = ""
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 201, 215, "PF11 Action"
+              Text 10, 10, 45, 10, "Case number:"
+              EditBox 60, 5, 45, 15, MAXIS_case_number
+              ButtonGroup ButtonPressed
+                PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
+              Text 5, 30, 70, 10, "Household member:"
+              DropListBox 75, 25, 120, 15, HH_Memb_DropDown, clt_to_update
+              Text 20, 50, 45, 10, "Select action:"
+              DropListBox 65, 45, 130, 15, "Select One:"+chr(9)+"Non-Actionable DAIL Removal"+chr(9)+"Case Note Removal Request"+chr(9)+"Unable to update HC REVW dates"+chr(9)+"Other", PF11_actions
+              Text 5, 70, 60, 10, "Worker signature:"
+              EditBox 65, 65, 130, 15, worker_signature
+              Text 5, 85, 185, 20, "The system being down, issuance problems, or any type of emergency should NOT be reported via a PF11."
+              CheckBox 5, 110, 190, 10, "Check here if a PF11 is not required, CASE:NOTE only.", no_pf11_checkbox
+              ButtonGroup ButtonPressed
+                OkButton 100, 125, 45, 15
+                CancelButton 150, 125, 45, 15
+              GroupBox 5, 145, 190, 65, "How to check a PF11 status:"
+              Text 10, 155, 185, 50, "On the SELF menu and type TASK. If you have the task number enter it and it will take you directly into the PF11. If you do not have the task number or wish to look at a list of all the PF11s you have created, change the Option in TASK from T-task to a C-creator.  By placing an X next to a PF11 listed you will be able to view it."
+            EndDialog
 
-        Dialog Dialog1
-    	IF ButtonPressed = cancel Then cancel_without_confirmation
+            Dialog Dialog1
+    	    cancel_without_confirmation
+            Call validate_MAXIS_case_number(err_msg, "*")
+            IF err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+        Loop until err_msg = ""
     	IF ButtonPressed = search_button Then
-    		If MAXIS_case_number = "" Then
-    			MsgBox "Cannot search without a case number, please try again."
-    		Else
-    			HH_Memb_DropDown = ""
+    	 	If MAXIS_case_number = "" Then
+    	 		MsgBox "Cannot search without a case number, please try again."
+    	 	Else
+    	 		HH_Memb_DropDown = ""
+                MAXIS_case_number = MAXIS_case_number
                 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
-                If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
-    			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
-    			err_msg = err_msg & "Start Over"
-    		End If
-    	End If
-    	IF MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "* You must enter a valid case number."
+                If is_this_priv = True then
+                    script_end_procedure("Case is privileged. The script will now end.")
+                Else
+                    Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+                End if
+    	 		err_msg = err_msg & "Start Over"
+    	 	End If
+        End if
+
     	IF PF11_actions <> "Non-Actionable DAIL Removal" THEN
     	 	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "* Select a client to update."
     	END IF
