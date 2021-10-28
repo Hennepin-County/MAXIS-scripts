@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/20/2021", "Updated online document submission option to include MNBenefits. Added Health Care PARIS match WCOM.", "Ilse Ferris, Hennepin County")
 Call changelog_update("09/02/2021", "Added functionality to support sending a WCOM about any Expedited SNAP Postponed Verification.", "Casey Love, Hennepin County")
 Call changelog_update("04/09/2020", "Multiple updates to available WCOMs:##~## - ALL Banked Months WCOMs are removed as no Banked Months are currently being issued.##~## - Added client name information to Temporary Disabled ABAWD WCOM##~## - Added WCOM for Care of Child under 6 Exemption.##~## - Added WCOM for close/deny due to no verifications for when the notice reads 'No Eligible Members'.##~## - Added WCOM for Ineligible Student. ##~## - Added WCOM for Voluntary Quit.##~## - Added WCOM for Future Eligibility Begin Date for SNAP.##~##", "Casey Love, Hennepin County")
 Call changelog_update("03/22/2019", "Reformatted the Select WCOM Dialog. The layout is now clearer as to what WCOMs are for ABAWD. Additional DHS mandated WCOMs are indicated with an asterisk (*).", "Casey Love, Hennepin County")
@@ -396,35 +397,37 @@ Do
 
         'DIALOG to select the WCOM to add
         Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
-		  CheckBox 10, 35, 195, 10, "Information about Client Virtual DropBox", clt_virtual_dropbox_checkbox
-		  CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
-		  CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
-		  CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
-		  CheckBox 20, 115, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
-		  CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
-		  CheckBox 20, 145, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
-		  CheckBox 20, 175, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
-		  CheckBox 20, 190, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
-		  CheckBox 20, 205, 195, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
-		  CheckBox 20, 220, 195, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
-		  CheckBox 20, 235, 195, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
-		  CheckBox 20, 250, 195, 10, "EXP SNAP - Postponed verifs *", postponed_verif_wcom_checkbox
-		  CheckBox 20, 265, 195, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
-		  CheckBox 20, 280, 195, 10, "Ineligible Student WCOMs", inelig_student_wcoms_checkbox
-		  CheckBox 20, 295, 195, 10, "Future Eligibility Begin Date WCOM", future_elig_wcom_checkbox
-		  CheckBox 20, 325, 60, 10, "CASH Denied *", cash_denied_checkbox
-		  CheckBox 20, 340, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
-		  CheckBox 20, 355, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
-		  ButtonGroup ButtonPressed
-		    OkButton 135, 375, 50, 15
-		    CancelButton 185, 375, 50, 15
-		  GroupBox 5, 50, 230, 265, "SNAP"
-		  GroupBox 15, 60, 215, 100, "ABAWD's"
-		  GroupBox 15, 165, 215, 145, "Other SNAP"
-		  GroupBox 5, 315, 230, 55, "Cash"
-		  Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
-		EndDialog
+        BeginDialog Dialog1, 0, 0, 241, 395, "Check the WCOM needed"
+            CheckBox 10, 35, 195, 10, "Online Document Submission Options", clt_virtual_dropbox_checkbox
+            CheckBox 20, 70, 195, 10, "E and T Voluntary *", voluntary_e_t_wcom_checkbox
+            CheckBox 20, 85, 195, 10, "Homeless exemption information", abawd_homeless_wcom_checkbox
+            CheckBox 20, 100, 195, 10, "WREG Exemption coded - Temporarily disabled *", temp_disa_abawd_wcom_checkbox
+            CheckBox 20, 115, 195, 10, "WREG Exemption coded - Care of Child under 18 *", abawd_child_18_coded_wcom_checkbox
+            CheckBox 20, 130, 195, 10, "WREG Exemption coded - Care of Child under 6 *", abawd_child_6_coded_wcom_checkbox
+            CheckBox 20, 145, 195, 10, "Voluntary Quit WCOM - non-PWE", voluntary_quit_wcom_checkbox
+            CheckBox 20, 175, 195, 10, "No Eligible Members and verifs missing or unclear *", additional_verif_wcom_checkbox
+            CheckBox 20, 190, 195, 10, "Closed/denied with PACT *", snap_pact_wcom_checkbox
+            CheckBox 20, 205, 195, 10, "Closed via PACT for new HH Member *", pact_fraud_wcom_checkbox
+            CheckBox 20, 220, 195, 10, "Closing due to Returned Mail *", snap_returned_mail_wcom_checkbox
+            CheckBox 20, 235, 195, 10, "Closing SNAP and MFIP opening *", snap_to_mfip_wcom_checkbox
+            CheckBox 20, 250, 195, 10, "EXP SNAP - Postponed verifs *", postponed_verif_wcom_checkbox
+            CheckBox 20, 265, 195, 10, "EXP SNAP - Postponed verif of CAF page 9 Signature *", signature_postponed_verif_wcom_checkbox
+            CheckBox 20, 280, 195, 10, "Ineligible Student WCOMs", inelig_student_wcoms_checkbox
+            CheckBox 20, 295, 195, 10, "Future Eligibility Begin Date WCOM", future_elig_wcom_checkbox
+            CheckBox 20, 325, 60, 10, "CASH Denied *", cash_denied_checkbox
+            CheckBox 20, 340, 130, 10, "CASH closing due to Returned Mail*", mfip_returned_mail_wcom_checkbox
+            CheckBox 20, 355, 125, 10, "MFIP Closing and SNAP opening *", mfip_to_snap_wcom_checkbox
+            CheckBox 10, 375, 100, 10, "PARIS Match - Health Care", paris_match_HC_checkbox
+            ButtonGroup ButtonPressed
+              OkButton 135, 375, 50, 15
+              CancelButton 185, 375, 50, 15
+            GroupBox 15, 60, 215, 100, "ABAWD's"
+            GroupBox 15, 165, 215, 145, "Other SNAP"
+            GroupBox 5, 315, 230, 55, "Cash"
+            Text 20, 5, 210, 25, "Select WCOM(s) to add to the notice. Reminder: you can select more than one as required for the case, use multiple categories if necessary. "
+            GroupBox 5, 50, 230, 265, "SNAP"
+        EndDialog
+
 		' CheckBox 10, 35, 220, 10, "HC - July COLA Income Change Explanation", july_cola_wcom          'this is a TEMP WCOM - need to redesign based on notice type and adding HC WCOMs.
 		' CheckBox 25, 150, 140, 10, "Banked Months - E and T voluntary *", banked_mos_vol_e_t_wcom_checkbox
 		' CheckBox 25, 165, 175, 10, "Banked Months - Closing for all 9 months used", banked_mos_used_wcom_checkbox
@@ -441,9 +444,7 @@ Do
         ReDim array_of_msg_lines(0)
         ReDim WCOM_TO_WRITE_ARRAY (0)
 
-		If clt_virtual_dropbox_checkbox = checked Then
-			CALL add_words_to_message("You have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. EMAIL: hhsews@hennepin.us ")
-		End If
+		If clt_virtual_dropbox_checkbox = checked Then CALL add_words_to_message("You can submit documents Online at www.MNBenefits.org or Email with documents attachment. EMAIL: hhsews@hennepin.us (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types).")
 
         If july_cola_wcom = checked Then
             'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
@@ -1020,6 +1021,7 @@ Do
             CALL add_words_to_message("You are no longer eligible for MFIP because " & MFIP_closing_reason & ".")
         End If
 
+        If paris_match_HC_checkbox = checked then CALL add_words_to_message("You do not qualify for Medical Assistance because you are not a Minnesota resident. (Code of Federal Regulations, title 42, section 435.403)")
 
         'This assesses if the message generated is too long for WCOM. If so then the checklist will reappear along with each selected WCOM dialog so it can be changed
         If UBOUND(WCOM_TO_WRITE_ARRAY) > 14 Then big_err_msg = big_err_msg & vbNewLine & "The amount of text/information that is being added to WCOM will exceed the 15 lines available on MAXIS WCOMs. Please reduce the number of WCOMs that have been selected or reduce the amount of text in the selected WCOM."
@@ -1088,7 +1090,7 @@ Next
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE("Detail added to each notice:")
 
-If clt_virtual_dropbox_checkbox Then CALL write_variable_in_CASE_NOTE("* Information about Virtual Dropbox.")
+If clt_virtual_dropbox_checkbox Then CALL write_variable_in_CASE_NOTE("* Information about online document submission options.")
 If july_cola_wcom = checked Then CALL write_variable_in_CASE_NOTE("* HC income budgeted increase as COLA disregards has ended for " & HC_Income_with_COLA & ".")
 If snap_pact_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* SNAP case was " & SNAP_close_or_deny & " because " & pact_close_reason & ".")
 If pact_fraud_wcom_checkbox Then CALL write_variable_in_CASE_NOTE("* Request to add: " & new_hh_memb & ". Verification needed: " & new_memb_verifs & ". Verification not received causing closure.")
@@ -1122,6 +1124,7 @@ If cash_denied_checkbox = checked Then
 End If
 If mfip_returned_mail_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* Returned mail was received. Verification request sent: " & rm_sent_date_cash & ", cash denied and can be reopened if verif received by: " & rm_due_date_cash & ".")
 If mfip_to_snap_wcom_checkbox = checked Then CALL write_variable_in_CASE_NOTE("* MFIP closure due to: " & MFIP_closing_reason & ".")
+If paris_match_HC_checkbox = checked then Call write_variable_in_CASE_NOTE("* Information about health care closure due to lack of state residency.")
 
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
@@ -1132,15 +1135,15 @@ script_end_procedure("WCOMs added to Notice and case note created.")
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------09/02/2021
-'--Tab orders reviewed & confirmed----------------------------------------------09/02/2021
-'--Mandatory fields all present & Reviewed--------------------------------------09/02/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/20/2021
+'--Tab orders reviewed & confirmed----------------------------------------------10/20/2021
+'--Mandatory fields all present & Reviewed--------------------------------------10/20/2021
 '--All variables in dialog match mandatory fields-------------------------------09/02/2021
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------09/02/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------09/02/2021
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/02/2021
+'--All variables are CASE:NOTEing (if required)---------------------------------10/20/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/20/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/20/2021
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/02/2021
@@ -1163,10 +1166,9 @@ script_end_procedure("WCOMs added to Notice and case note created.")
 '--Update Changelog for release/update------------------------------------------09/02/2021
 '--Remove testing message boxes-------------------------------------------------09/02/2021
 '--Remove testing code/unnecessary code-----------------------------------------09/02/2021
-'--Review/update SharePoint instructions----------------------------------------09/02/2021
+'--Review/update SharePoint instructions----------------------------------------10/20/2021
 '--Review Best Practices using BZS page ----------------------------------------09/02/2021
-'--Review script information on SharePoint BZ Script List-----------------------N/A
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/02/2021
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/20/2021
 '--Complete misc. documentation (if applicable)---------------------------------N/A
 '--Update project team/issue contact (if applicable)----------------------------09/02/2021
