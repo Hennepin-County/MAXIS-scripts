@@ -107,20 +107,20 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		IF IsNumeric(maxis_case_number) = FALSE or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF case_status_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select valid status drop down."
 		IF application_date = isDate(application_date) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
 
 		'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
-		If do_not_update_prog = CHECKED AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
-		IF confirm_update_prog = "Select One:" and interview_date = isDate(interview_date) = TRUE THEN err_msg = err_msg & vbNewLine & "* Select if a progam needs to updated on PROG."
+
+		'IF confirm_update_prog = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Select if a progam needs to updated on PROG."
 		IF case_status_dropdown = "Case was not pended timely" THEN
-			IF notice_sent_date = isDate(notice_sent_date) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the date the NOMI was sent."
+			IF notice_sent_date = isDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter the date the NOMI was sent."
 		END IF
 		IF case_status_dropdown = "Denied programs for no interview" and notice_sent_date = isDate(notice_sent_date) THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
 		IF case_status_dropdown = "Client completed application interview" THEN
-			IF case_note_date = isDate(case_note_date) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case note date."
-			IF interview_date = isDate(interview_date) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid interview date."
+			IF case_note_date = isDate(case_note_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case note date."
+			IF interview_date = isDate(interview_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid interview date."
 		END IF
 		IF case_status_dropdown = "Other(please describe)" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a description of what occurred."
 		IF ButtonPressed = CASE_NOTE_button then call navigate_to_MAXIS_screen("CASE", "NOTE")
@@ -260,14 +260,11 @@ If confirm_update_prog <> "Select One:" THEN          'Interviews are only requi
     End If
 ELSE
 
-MsgBox notice_sent_date
-
 'this to remind workers that we must give clients 10 days when we are outside of that 30 day window for applications'
-	denial_date = dateadd("d", 10, notice_sent_date)
-	If denial_date <= date then denial_date = dateadd("d", 10, date)
+	IF notice_sent_date <> "" THEN denial_date = dateadd("d", 10, notice_sent_date)
+	IF denial_date <= cdate then denial_date = dateadd("d", 10, date)
 	Call change_date_to_soonest_working_day(denial_date, "FORWARD")
 
-MsgBox denial_date 
     'NOW WE START CASE NOTING - there are a few
     start_a_blank_case_note
     IF case_status_dropdown = "Client completed application interview" THEN
