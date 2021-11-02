@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ADMIN - 12 MONTH CONTACT.vbs"
+name_of_script = "ADMIN - DAIL 12 MONTH CONTACT.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
 STATS_manualtime = 30
