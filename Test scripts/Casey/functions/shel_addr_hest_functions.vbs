@@ -40,494 +40,404 @@ END IF
 
 
 'FUNCTIONS ================================================================================================================
-function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_step, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_total_mortgage_amount, new_total_lot_rent_amount, new_total_room_amount, new_room_payment_frequency, new_mortgage_have_escrow_yn, new_morgage_insurance_amount, new_excess_insurance_yn, new_total_tax_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_amount, new_garage_rent_required_yn, new_vehicle_insurance_amount, new_total_insurance_amount, new_total_subsidy_amount, new_SHEL_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, THE_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, new_rent_verif, new_lot_rent_verif, new_mortgage_verif, new_insurance_verif, new_taxes_verif, new_room_verif, new_garage_verif, new_subsidy_verif, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn)
-
-
-	yes_no_list = "?"+chr(9)+"Yes"+chr(9)+"No"
-	x_pos = 345
-	If view_shel_details_dlg = True Then
-		shel_det_x_pos = x_pos
-		x_pos = x_pos - 60
-	End If
-	If view_shel_update_dlg = True Then
-		shel_up_x_pos = x_pos
-		x_pos = x_pos - 60
-	End If
-	If view_addr_update_dlg = True Then
-		addr_up_x_pos = x_pos
-		x_pos = x_pos - 60
-	End If
-	overview_x_pos = x_pos
-
-	GroupBox 10, 10, 460, 355, "Change in HOUSING Information"
-
-	If housing_questions_step = 1 Then
-		Text overview_x_pos + 10, 10, 60, 13, "OVERVIEW"
-
-		GroupBox 15, 25, 450, 75, "Address"
-		Text 75, 45, 95, 10, "Did the household move?"
-		DropListBox 170, 40, 45, 45, yes_no_list, household_move_yn
-		Text 25, 65, 145, 10, "Did everyone in the household move with?"
-		DropListBox 170, 60, 45, 45, yes_no_list, household_move_everyone_yn
-		Text 75, 85, 90, 10, "What date did they move?"
-		EditBox 170, 80, 45, 15, move_date
-		Text 255, 40, 95, 10, "Current Residence Address:"
-		Text 265, 55, 190, 10, resi_street_full
-		Text 265, 70, 190, 10, resi_city & ", " & left(resi_state, 2) & " " & resi_zip
-		' PushButton 390, 85, 70, 10, "UPDATE ADDR", update_addr_button
-
-		GroupBox 15, 105, 450, 70, "Housing Cost"
-		Text 40, 125, 130, 10, "Is there a change to the housing cost?"
-		DropListBox 170, 120, 45, 45, yes_no_list, shel_change_yn
-
-		Text 40, 145, 125, 10, "What date did the new expense start?"
-		EditBox 170, 140, 45, 15, shel_start_date
-
-		Text 265, 115, 95, 10, "Current Housing Costs"
-		Text 280, 130, 35, 10, " Rent: "
-		Text 305, 130, 30, 10, "$ " & total_current_rent
-		Text 375, 130, 40, 10, " Taxes: "
-		Text 405, 130, 30, 10, "$ " & total_current_taxes
-		Text 270, 140, 45, 10, "Lot Rent: "
-		Text 305, 140, 30, 10, "$ " & total_current_lot_rent
-		Text 375, 140, 40, 10, " Room: "
-		Text 405, 140, 30, 10, "$ " & total_current_room
-		Text 265, 150, 50, 10, " Mortgage: "
-		Text 305, 150, 30, 10, "$ " & total_current_mortgage
-		Text 370, 150, 45, 10, " Garage: "
-		Text 405, 150, 30, 10, "$ " & total_current_garage
-		Text 265, 160, 50, 10, "Insurance: "
-		Text 305, 160, 30, 10, "$ " & total_current_insurance
-		Text 370, 160, 45, 10, "Subsidy: "
-		Text 405, 160, 30, 10, "$ " & total_current_subsidy
-		' Text 270, 185, 95, 10, "New shelter expense is a(n)"
-		' DropListBox 365, 180, 95, 45, ""+chr(9)+"Increate"+chr(9)+"Decrease"+chr(9)+"No Difference", shel_change_type
-		' PushButton 390, 205, 70, 10, "UPDATE SHEL", update_shel_button
-
-		GroupBox 15, 180, 450, 115, "Utilities Expense"
-	    Text 25, 195, 275, 10, "Is the household responsible to paythe Heat Expense or Air Conditioner Expense?"
-	    DropListBox 295, 190, 45, 45, yes_no_list, hest_heat_ac_yn
-	    Text 25, 215, 180, 10, "Is the household responsible to pay electric expense?"
-	    DropListBox 210, 210, 45, 45, yes_no_list, hest_electric_yn
-	    Text 40, 230, 235, 10, "If yes, is there any AC plugged into that is used at any point in the year?"
-	    DropListBox 280, 225, 45, 45, yes_no_list, hest_ac_on_electric_yn
-	    Text 40, 250, 235, 10, "If yes, does this include any heat source during any point in the year?"
-	    DropListBox 280, 245, 45, 45, yes_no_list, hest_heat_on_electric_yn
-	    Text 25, 270, 145, 10, "Is anyone responsible to PAY for a phone?"
-	    DropListBox 170, 265, 45, 45, yes_no_list, hest_phone_yn
-	    Text 30, 280, 230, 10, "(Free phone plans without a payment requirement cannot be counted.)"
-
-	End If
-
-	' view_addr_update_dlg
-	' view_shel_update_dlg
-	' view_shel_details_dlg
-
-	If housing_questions_step = 2 Then
-		Text addr_up_x_pos + 5, 10, 60, 10, "ADDR UPDATE"
-
-		Text 15, 25, 450, 10, "STEP 2 - ADDR UPDATES  -  Enter new address information here:"
-
-		Call display_ADDR_information(True, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
-
-		' PushButton x_pos, 8, 60, 13, "OVERVIEW", housing_change_overview_btn
-	End If
-	If housing_questions_step = 3 Then
-		Text shel_up_x_pos + 5, 10, 60, 10, "SHEL UPDATE"
-
-		Text 15, 25, 450, 10, "STEP 3 - SHEL UPDATES"
-
-		' what_is_the_living_arrangement
-		' unit_owned
-		' new_total_rent_amount
-		' new_rent_subsidy_yn
-		' new_renter_insurance_amount
-		' new_renters_insurance_required_yn
-		' new_total_garage_rent_amount
-		' new_garage_rent_required_yn
-		' new_rent_paid_to_name
-		' other_person_checkbox
-		' other_person_name
-		' payment_split_evenly_yn
-		' ALL_SHEL_PANELS_ARRAY
-		' person_age_const
-		' person_shel_checkbox
-		' shel_ref_number_const
-		' new_shel_pers_total_amt_const
-		' new_shel_pers_total_amt_type_const
-		' other_new_shel_total_amt
-		' other_new_shel_total_amt_type
-
-		If shel_update_step > 0 Then
-			Text 20, 45, 95, 10, "What is the living situation?"
-		    DropListBox 115, 40, 125, 45, "Select One..."+chr(9)+"Apartment or Townhouse"+chr(9)+"House"+chr(9)+"Trailer Home/Mobile Home"+chr(9)+"Room Only"+chr(9)+"Shelter"+chr(9)+"Hotel"+chr(9)+"Vehicle"+chr(9)+"Other", what_is_the_living_arrangement
-		    Text 250, 45, 120, 10, "Does the household own the home?"
-		    DropListBox 370, 40, 90, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", unit_owned
-		    PushButton 410, 55, 50, 10, "Enter", enter_shel_one_btn
-		End If
-
-		If shel_update_step > 1 Then
-			GroupBox 15, 65, 450, 155, "Payment Details"
-			If (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") Then
-				If unit_owned = "No" Then
-				    Text 20, 80, 105, 10, "What is the total rent amount?"
-				    EditBox 130, 75, 50, 15, new_total_rent_amount
-					Text 225, 80, 100, 10, "Who is the expense paid to?"
-					EditBox 325, 75, 135, 15, new_SHEL_paid_to_name
-				    Text 20, 100, 195, 10, "Does the household receive a subsidy for the rent amount?"
-				    DropListBox 220, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_rent_subsidy_yn
-					Text 290, 100, 75, 10, "Subsidy Amount:"
-					EditBox 365, 95, 50, 15, new_total_subsidy_amount
-				    Text 20, 120, 150, 10, "What is the amount of any renters insurance?"
-				    EditBox 175, 115, 50, 15, new_renter_insurance_amount
-				    Text 260, 120, 135, 10, "Is this insurance required per the lease?"
-				    DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_renters_insurance_required_yn
-				    Text 20, 140, 130, 10, "What is the amount of the garage rent?"
-				    EditBox 150, 135, 50, 15, new_total_garage_amount
-				    Text 250, 140, 145, 10, "Is this garage rental required per the lease?"
-				    DropListBox 400, 135, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_garage_rent_required_yn
-
-				End If
-
-				If unit_owned = "Yes" Then
-					Text 20, 80, 115, 10, "What is the total mortgage amount?"
-					EditBox 140, 75, 50, 15, new_total_mortgage_amount
-					Text 230, 80, 170, 10, "Does this payment include all taxes and insturance?"
-					DropListBox 400, 75, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_mortgage_have_escrow_yn
-					Text 20, 100, 150, 10, "How much insurance do you pay seperately?"
-					EditBox 170, 95, 40, 15, new_morgage_insurance_amount
-					Text 220, 100, 195, 10, "Do have more insurance than required by the mortgage?"
-					DropListBox 400, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_excess_insurance_yn
-					Text 20, 120, 140, 10, "How much in taxes do you pay seperately?"
-					EditBox 160, 115, 50, 15, new_total_tax_amount
-					' Text 250, 120, 145, 10, "Is this garage rental required per the lease?"
-					' DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_garage_rent_required_yn
-					Text 20, 140, 100, 10, "Who is the mortgage paid to?"
-					EditBox 120, 135, 135, 15, new_SHEL_paid_to_name
-				End If
-			ElseIf what_is_the_living_arrangement = "Trailer Home/Mobile Home" Then
-				If unit_owned = "No" Then
-					Text 20, 80, 110, 10, "What is the total unit rent amount?"
-					EditBox 135, 75, 50, 15, new_total_rent_amount
-					Text 20, 100, 105, 10, "What is the lot rent Amount?"
-					EditBox 130, 95, 50, 15, new_total_lot_rent_amount
-					Text 20, 120, 150, 10, "What is the amount of any renters insurance?"
-					EditBox 175, 115, 50, 15, new_renter_insurance_amount
-					Text 260, 120, 135, 10, "Is this insurance required per the lease?"
-					DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_renters_insurance_required_yn
-
-					Text 20, 140, 140, 10, "How much in taxes do you pay seperately?"
-					EditBox 160, 135, 50, 15, new_total_tax_amount
-					' Text 250, 120, 145, 10, ""
-					' DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_garage_rent_required_yn
-					Text 225, 140, 100, 10, "Who is the expense paid to?"
-					EditBox 325, 135, 135, 15, new_SHEL_paid_to_name
-				End If
-
-				If unit_owned = "Yes" Then
-					Text 20, 80, 115, 10, "What is the total mortgage amount?"
-					EditBox 140, 75, 50, 15, new_total_mortgage_amount
-					Text 230, 80, 170, 10, "Does this payment include all taxes and insturance?"
-					DropListBox 400, 75, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_mortgage_have_escrow_yn
-					Text 20, 100, 105, 10, "What is the lot rent Amount?"
-					EditBox 135, 95, 50, 15, new_total_lot_rent_amount
-					Text 20, 120, 150, 10, "How much insurance do you pay seperately?"
-					EditBox 170, 115, 40, 15, new_morgage_insurance_amount
-					Text 220, 120, 195, 10, "Do have more insurance than required by the mortgage?"
-					DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_excess_insurance_yn
-					Text 20, 140, 140, 10, "How much in taxes do you pay seperately?"
-					EditBox 160, 135, 50, 15, new_total_tax_amount
-					' Text 250, 120, 145, 10, ""
-					' DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_garage_rent_required_yn
-					Text 225, 140, 100, 10, "Who is the expense paid to?"
-					EditBox 325, 135, 135, 15, new_SHEL_paid_to_name
-				End If
-			ElseIf what_is_the_living_arrangement = "Room Only" Then
-				Text 20, 80, 115, 10, "What is the total room rent amount?"
-				EditBox 140, 75, 50, 15, new_total_room_amount
-				Text 200, 80, 65, 10, "How often paid?"
-				DropListBox 265, 75, 60, 45, "Select One..."+chr(9)+"Nightly"+chr(9)+"Weekly"+chr(9)+"Monthly", new_room_payment_frequency
-				Text 20, 100, 100, 10, "Who is the room rent paid to?"
-				EditBox 120, 95, 135, 15, new_SHEL_paid_to_name
-			ElseIf what_is_the_living_arrangement = "Shelter" Then
-				Text 20, 80, 115, 10, "What is the cost for the shelter"
-				EditBox 140, 75, 50, 15, new_total_room_amount
-				Text 200, 80, 65, 10, "How often paid?"
-				DropListBox 265, 75, 60, 45, "Select One..."+chr(9)+"Nightly"+chr(9)+"Weekly"+chr(9)+"Monthly", new_room_payment_frequency
-				Text 20, 100, 120, 10, "Who is the shelter expense paid to?"
-				EditBox 140, 95, 135, 15, new_SHEL_paid_to_name
-			ElseIf what_is_the_living_arrangement = "Hotel" Then
-				Text 20, 80, 115, 10, "What is the cost for the hotel room?"
-				EditBox 140, 75, 50, 15, new_total_room_amount
-				Text 200, 80, 65, 10, "How often paid?"
-				DropListBox 265, 75, 60, 45, "Select One..."+chr(9)+"Nightly"+chr(9)+"Weekly"+chr(9)+"Monthly", new_room_payment_frequency
-				Text 20, 100, 120, 10, "Who is the hotel expense paid to?"
-				EditBox 140, 95, 135, 15, new_SHEL_paid_to_name
-			ElseIf what_is_the_living_arrangement = "Vehicle" Then
-				Text 20, 80, 115, 10, "How much insurance do you pay?"
-				EditBox 135, 75, 40, 15, new_vehicle_insurance_amount
-				Text 20, 100, 120, 10, "Who is the vehicle expense paid to?"
-				EditBox 140, 95, 135, 15, new_SHEL_paid_to_name
-			ElseIf what_is_the_living_arrangement = "Other" Then
-				Text 25, 80, 35, 10, "Rent: $"
-				EditBox 55, 75, 30, 15, new_total_rent_amount
-				Text 120, 80, 60, 10, "Mortgage: $"
-				EditBox 165, 75, 30, 15, new_total_mortgage_amount
-				Text 230, 80, 50, 10, "Lot Rent: $"
-				EditBox 275, 75, 30, 15, new_total_lot_rent_amount
-				Text 330, 80, 35, 10, "Room: $"
-				EditBox 365, 75, 30, 15, new_total_room_amount
-
-				Text 20, 100, 40, 10, "Taxes: $"
-				EditBox 55, 95, 30, 15, new_total_tax_amount
-				Text 125, 100, 45, 10, "Garage: $"
-				EditBox 165, 95, 30, 15, new_total_garage_amount
-				Text 225, 100, 55, 10, "Insurance: $"
-				EditBox 275, 95, 30, 15, new_total_insurance_amount
-				Text 330, 100, 35, 10, "Subsidy: $"
-				EditBox 365, 95, 30, 15, new_total_subsidy_amount
-				' Text 20, 120, 195, 10, "Does the household receive a subsidy for the rent amount?"
-				' DropListBox 215, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_rent_subsidy_yn
-				Text 20, 120, 120, 10, "Who is the housing expense paid to?"
-				EditBox 140, 115, 135, 15, new_SHEL_paid_to_name
-				' Text 90, 160, 45, 10, "Subsidy: $"
-				' Text 405, 160, 30, 10, "$ " & total_current_subsidy
-			End If
-			GroupBox 20, 155, 440, 65, "Check the box for each person responsible for the housing payment:"
-			x_pos = 30
-			y_pos = 170
-			for the_membs = 0 to UBound(THE_ARRAY, 2)
-				If THE_ARRAY(person_age_const, the_membs) >= 18 Then
-					CheckBox 30, 170, 80, 10, "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs), THE_ARRAY(person_shel_checkbox, the_membs)
-					x_pos = x_pos + 125
-					If x_pos = 200 Then
-						y_pos = y_pos + 15
-					End If
-				End If
-			next
-			' CheckBox 30, 170, 80, 10, "Check1", Check1
-			' CheckBox 30, 185, 80, 10, "Check2", Check2
-			' CheckBox 155, 170, 80, 10, "Check3", Check3
-			' CheckBox 155, 185, 80, 10, "Check4", Check4
-			CheckBox 290, 170, 145, 10, "Someone outside the household. Name:", other_person_checkbox
-			EditBox 305, 180, 150, 15, other_person_name
-			Text 25, 205, 200, 10, "Is the payment split evenly among all the responsible parties?"
-			DropListBox 230, 200, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", payment_split_evenly_yn
-			PushButton 405, 205, 50, 10, "Enter", enter_shel_two_btn
-		End If
-
-		If shel_update_step > 2 Then
-		    GroupBox 15, 225, 450, 50, "How is the payment split?"
-			x_pos = 25
-			y_pos = 240
-			If new_rent_subsidy_yn = "Yes" Then
-				Text x_pos, y_pos, 60, 10, "Subsidy pays: "
-				EditBox x_pos + 65, y_pos - 5, 50, 15, new_total_subsidy_amount
-				Text x_pos + 120, y_pos, 55, 10, "dollars"
-				' DropListBox x_pos + 120, y_pos - 5, 55, 45, "dollars"+chr(9)+"percent", THE_ARRAY(new_shel_pers_total_amt_type_const, the_membs)
-				x_pos = x_pos + 195
-				If x_pos = 415 Then
-					x_pos = 25
-					y_pos = y_pos + 20
-				End If
-			End If
-			for the_membs = 0 to UBound(THE_ARRAY, 2)
-				If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then
-					Text x_pos, y_pos, 60, 10, "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs) & " pays: "
-					EditBox x_pos + 65, y_pos - 5, 50, 15, THE_ARRAY(new_shel_pers_total_amt_const, the_membs)
-					DropListBox x_pos + 120, y_pos - 5, 55, 45, "dollars"+chr(9)+"percent", THE_ARRAY(new_shel_pers_total_amt_type_const, the_membs)
-					x_pos = x_pos + 195
-					If x_pos = 415 Then
-						x_pos = 25
-						y_pos = y_pos + 20
-					End If
-				End If
-			next
-			If other_person_checkbox = checked Then
-				Text x_pos, y_pos, 100, 10, "Other: " & other_person_name & " pays: "
-				EditBox x_pos + 105, y_pos - 5, 50, 15, other_new_shel_total_amt
-				DropListBox x_pos + 160, y_pos - 5, 55, 45, "dollars"+chr(9)+"percent", other_new_shel_total_amt_type
-			End If
-
-		    ' Text 25, 240, 60, 10, "Person ONE pays: "
-		    ' EditBox 90, 235, 50, 15, Edit6
-		    ' DropListBox 145, 235, 55, 45, "dollars"+chr(9)+"percent", List7
-		    ' Text 220, 240, 70, 10, "Person THREE pays: "
-		    ' EditBox 295, 235, 50, 15, Edit7
-		    ' DropListBox 350, 235, 55, 45, "dollars"+chr(9)+"percent", List8
-		    ' Text 25, 260, 65, 10, "Person TWO pays: "
-		    ' EditBox 90, 255, 50, 15, Edit8
-		    ' DropListBox 145, 255, 55, 45, "dollars"+chr(9)+"percent", List9
-		    ' Text 225, 260, 65, 10, "Person FOUR pays: "
-		    ' EditBox 295, 255, 50, 15, Edit9
-		    ' DropListBox 350, 255, 55, 45, "dollars"+chr(9)+"percent", List10
-		    PushButton 410, 260, 50, 10, "Enter", enter_shel_three_btn
-		End If
-
-		If shel_update_step > 3 Then
-		    GroupBox 15, 280, 450, 55, "Is the housing expense verified?"
-			x_pos = 25
-			y_pos = 300
-
-			If new_total_rent_amount <> "" AND new_total_rent_amount <> "0" Then
-				Text x_pos, y_pos, 110, 10, "Total RENT of $" & new_total_rent_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_rent_verif
-				x_pos = x_pos + 200
-				If x_pos = 425 Then
-					x_pos = 25
-					y_pos = y_pos + 15
-				End If
-			End If
-
-			If new_total_lot_rent_amount <> "" AND new_total_lot_rent_amount <> "0" Then
-				' hold
-				Text x_pos, y_pos, 110, 10, "Total LOT RENT of $" & new_total_lot_rent_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_lot_rent_verif
-				x_pos = x_pos + 200
-				If x_pos = 425 Then
-					x_pos = 25
-					y_pos = y_pos + 15
-				End If
-			End If
-			If new_total_mortgage_amount <> "" AND new_total_mortgage_amount <> "0" Then
-				' hold
-				Text x_pos, y_pos, 110, 10, "Total MORTGAGE of $" & new_total_mortgage_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_mortgage_verif
-				x_pos = x_pos + 200
-				If x_pos = 425 Then
-					x_pos = 25
-					y_pos = y_pos + 15
-				End If
-			End If
-			If new_total_insurance_amount <> "" AND new_total_insurance_amount <> "0" Then
-				' hold
-				Text x_pos, y_pos, 120, 10, "Total INSURANCE of $" & new_total_insurance_amount & " verification:"
-				DropListBox x_pos + 125, y_pos - 5, 80, 45, ""+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_insurance_verif
-				x_pos = x_pos + 200
-				If x_pos = 425 Then
-					x_pos = 25
-					y_pos = y_pos + 15
-				End If
-			End If
-			If new_total_tax_amount <> "" AND new_total_tax_amount <> "0" Then
-				' hold
-				Text x_pos, y_pos, 110, 10, "Total TAXES of $" & new_total_tax_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_taxes_verif
-				x_pos = x_pos + 200
-				If x_pos = 425 Then
-					x_pos = 25
-					y_pos = y_pos + 15
-				End If
-			End If
-			If new_total_room_amount <> "" AND new_total_room_amount <> "0" Then
-				' hold
-				Text x_pos, y_pos, 110, 10, "Total TOOM of $" & new_total_room_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_room_verif
-				x_pos = x_pos + 200
-				If x_pos = 425 Then
-					x_pos = 25
-					y_pos = y_pos + 15
-				End If
-			End If
-			If new_total_garage_amount <> "" AND new_total_garage_amount <> "0" Then
-				' hold
-				Text x_pos, y_pos, 110, 10, "Total GARAGE of $" & new_total_garage_amount & " verification:"
-				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_garage_verif
-				x_pos = x_pos + 200
-				If x_pos = 425 Then
-					x_pos = 25
-					y_pos = y_pos + 15
-				End If
-			End If
-			If new_total_subsidy_amount <> "" AND new_total_subsidy_amount <> "0" Then
-				' hold
-				Text x_pos, y_pos, 120, 10, "Total SUBSIDY of $" & new_total_subsidy_amount & " verification:"
-				DropListBox x_pos + 125, y_pos - 5, 80, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_subsidy_verif
-				x_pos = x_pos + 200
-				If x_pos = 425 Then
-					x_pos = 25
-					y_pos = y_pos + 15
-				End If
-			End If
-		    ' Text 30, 300, 110, 10, "Total Rent of $XXXX verification:"
-		    ' DropListBox 145, 295, 60, 45, "", List11
-		    ' Text 235, 300, 110, 10, "Total Rent of $XXXX verification:"
-		    ' DropListBox 350, 295, 60, 45, "", List12
-		    ' Text 30, 315, 110, 10, "Total Rent of $XXXX verification:"
-		    ' DropListBox 145, 310, 60, 45, "", List13
-		    ' Text 235, 315, 110, 10, "Total Rent of $XXXX verification:"
-		    ' DropListBox 350, 310, 60, 45, "", List14
-		End If
-
-		' Text 20, 145, 160, 10, "Have we received verification of this expense?"
-		' DropListBox 180, 140, 45, 45, yes_no_list, shel_verif_received_yn
-
-		' Text 40, 45, 120, 10, "Is the new expense amount shared?"
-		' DropListBox 165, 40, 45, 45, yes_no_list, shel_shared_yn
-		' Text 240, 45, 135, 10, "Is the new expense amount subsidized?"
-		' DropListBox 380, 40, 45, 45, yes_no_list, shel_subsidized_yn
-
-		' EditBox 105, 95, 45, 15, total_current_rent
-		' DropListBox 155, 95, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Multiple", all_rent_verif
-		' EditBox 105, 115, 45, 15, total_current_lot_rent
-		' DropListBox 155, 115, 85, 45, ""+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Multiple", all_lot_rent_verif
-		' EditBox 105, 135, 45, 15, total_current_mortgage
-		' DropListBox 155, 135, 85, 45, ""+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Multiple", all_mortgage_verif
-		' EditBox 105, 155, 45, 15, total_current_insurance
-		' DropListBox 155, 155, 85, 45, ""+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Multiple", all_insurance_verif
-		' EditBox 105, 175, 45, 15, total_current_taxes
-		' DropListBox 155, 175, 85, 45, ""+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Multiple", all_taxes_verif
-		' EditBox 105, 195, 45, 15, total_current_room
-		' DropListBox 155, 195, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Multiple", all_room_verif
-		' EditBox 105, 215, 45, 15, total_current_garage
-		' DropListBox 155, 215, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif"+chr(9)+"Multiple", all_garage_verif
-		' EditBox 105, 235, 45, 15, total_current_subsidy
-		' DropListBox 155, 235, 85, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", all_subsidy_verif
-		'
-		' Text 105, 75, 100, 10, "TOTAL Expense Amounts"
-	    ' Text 105, 85, 30, 10, "Amount"
-	    ' Text 160, 85, 20, 10, "Verif"
-		' Text 80, 100, 20, 10, "Rent:"
-	    ' Text 70, 120, 30, 10, "Lot Rent:"
-	    ' Text 65, 140, 35, 10, "Mortgage:"
-	    ' Text 65, 160, 40, 10, "Insurance:"
-	    ' Text 75, 180, 25, 10, "Taxes:"
-	    ' Text 75, 200, 25, 10, "Room:"
-	    ' Text 75, 220, 30, 10, "Garage:"
-	    ' Text 70, 240, 30, 10, "Subsidy:"
-
-
-		' PushButton x_pos, 8, 60, 13, "OVERVIEW", housing_change_overview_btn
-		' PushButton x_pos + 60, 8, 60, 13, "ADDR UPDATE", housing_change_addr_update_btn
-	End If
-	' If housing_questions_step = 4 Then
-	' 	Text shel_det_x_pos + 5, 10, 60, 10, "SHEL DETAILS"
-	'
-	' 	Text 15, 25, 450, 10, "STEP 4 - SHEL Details"
-	'
-	' 	' PushButton x_pos, 8, 60, 13, "OVERVIEW", housing_change_overview_btn
-	' 	' PushButton x_pos + 60, 8, 60, 13, "ADDR UPDATE", housing_change_addr_update_btn
-	' 	' PushButton x_pos + 120, 8, 60, 13, "SHEL UPDATE", housing_change_shel_update_btn
-	' End If
-	If housing_questions_step = 4 Then
-		Text 420, 10, 60, 10, "REVIEW"
-
-		Text 15, 25, 450, 10, "STEP 5 - REVIEW AND CONFIRM"
-
-	End If
-
-	Text 20, 350, 55, 10, "Additional Notes:"
-	EditBox 80, 345, 385, 15, addr_or_shel_change_notes
-
-	If housing_questions_step <> 1 Then PushButton overview_x_pos, 8, 60, 13, "OVERVIEW", housing_change_overview_btn
-	If view_addr_update_dlg = True AND housing_questions_step <> 2 Then PushButton addr_up_x_pos, 8, 60, 13, "ADDR UPDATE", housing_change_addr_update_btn
-	If view_shel_update_dlg = True AND housing_questions_step <> 3 Then PushButton shel_up_x_pos, 8, 60, 13, "SHEL UPDATE", housing_change_shel_update_btn
-	' If view_shel_details_dlg = True AND housing_questions_step <> 4 Then PushButton shel_det_x_pos, 8, 60, 13, "SHEL DETAILS", housing_change_shel_details_btn
-	If err_msg = "" AND housing_questions_step <> 4 Then PushButton 405, 8, 60, 13, "REVIEW", housing_change_review_btn
-
-	If housing_questions_step <> 4 Then PushButton 390, 325, 70, 10, "CONTINUE", housing_change_continue_btn
-
-end function
+' function display_HOUSING_CHANGE_information(housing_questions_step, shel_update_step, notes_on_address, original_resi_street_full, original_resi_city, original_resi_state, original_resi_zip, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_total_mortgage_amount, new_total_lot_rent_amount, new_total_room_amount, new_room_payment_frequency, new_mortgage_have_escrow_yn, new_morgage_insurance_amount, new_excess_insurance_yn, new_total_tax_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_amount, new_garage_rent_required_yn, new_vehicle_insurance_amount, new_total_insurance_amount, new_total_subsidy_amount, new_SHEL_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, THE_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, new_rent_verif, new_lot_rent_verif, new_mortgage_verif, new_insurance_verif, new_taxes_verif, new_room_verif, new_garage_verif, new_subsidy_verif, hh_comp_change, hest_heat_ac_yn_code, hest_electric_yn_code, hest_phone_yn_code, new_total_shelter_expense_amount, people_paying_SHEL, verif_detail, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn)
+'
+' 	yes_no_list = "?"+chr(9)+"Yes"+chr(9)+"No"
+' 	x_pos = 345
+' 	If view_shel_details_dlg = True Then
+' 		shel_det_x_pos = x_pos
+' 		x_pos = x_pos - 60
+' 	End If
+' 	If view_shel_update_dlg = True Then
+' 		shel_up_x_pos = x_pos
+' 		x_pos = x_pos - 60
+' 	End If
+' 	If view_addr_update_dlg = True Then
+' 		addr_up_x_pos = x_pos
+' 		x_pos = x_pos - 60
+' 	End If
+' 	overview_x_pos = x_pos
+'
+' 	GroupBox 10, 10, 460, 355, "Change in HOUSING Information"
+'
+' 	If housing_questions_step = 1 Then
+' 		Text overview_x_pos + 10, 10, 60, 13, "OVERVIEW"
+'
+' 		GroupBox 15, 25, 450, 75, "Address"
+' 		Text 75, 45, 95, 10, "Did the household move?"
+' 		DropListBox 170, 40, 45, 45, yes_no_list, household_move_yn
+' 		Text 25, 65, 145, 10, "Did everyone in the household move with?"
+' 		DropListBox 170, 60, 45, 45, yes_no_list, household_move_everyone_yn
+' 		Text 75, 85, 90, 10, "What date did they move?"
+' 		EditBox 170, 80, 45, 15, move_date
+' 		Text 255, 40, 95, 10, "Current Residence Address:"
+' 		Text 265, 55, 190, 10, resi_street_full
+' 		Text 265, 70, 190, 10, resi_city & ", " & left(resi_state, 2) & " " & resi_zip
+'
+' 		GroupBox 15, 105, 450, 70, "Housing Cost"
+' 		Text 40, 125, 130, 10, "Is there a change to the housing cost?"
+' 		DropListBox 170, 120, 45, 45, yes_no_list, shel_change_yn
+'
+' 		Text 40, 145, 125, 10, "What date did the new expense start?"
+' 		EditBox 170, 140, 45, 15, shel_start_date
+'
+' 		Text 265, 115, 95, 10, "Current Housing Costs"
+' 		Text 280, 130, 35, 10, " Rent: "
+' 		Text 305, 130, 30, 10, "$ " & total_current_rent
+' 		Text 375, 130, 40, 10, " Taxes: "
+' 		Text 405, 130, 30, 10, "$ " & total_current_taxes
+' 		Text 270, 140, 45, 10, "Lot Rent: "
+' 		Text 305, 140, 30, 10, "$ " & total_current_lot_rent
+' 		Text 375, 140, 40, 10, " Room: "
+' 		Text 405, 140, 30, 10, "$ " & total_current_room
+' 		Text 265, 150, 50, 10, " Mortgage: "
+' 		Text 305, 150, 30, 10, "$ " & total_current_mortgage
+' 		Text 370, 150, 45, 10, " Garage: "
+' 		Text 405, 150, 30, 10, "$ " & total_current_garage
+' 		Text 265, 160, 50, 10, "Insurance: "
+' 		Text 305, 160, 30, 10, "$ " & total_current_insurance
+' 		Text 370, 160, 45, 10, "Subsidy: "
+' 		Text 405, 160, 30, 10, "$ " & total_current_subsidy
+'
+' 		GroupBox 15, 180, 450, 115, "Utilities Expense"
+' 	    Text 25, 195, 275, 10, "Is the household responsible to paythe Heat Expense or Air Conditioner Expense?"
+' 	    DropListBox 295, 190, 45, 45, yes_no_list, hest_heat_ac_yn
+' 	    Text 25, 215, 180, 10, "Is the household responsible to pay electric expense?"
+' 	    DropListBox 210, 210, 45, 45, yes_no_list, hest_electric_yn
+' 	    Text 40, 230, 235, 10, "If yes, is there any AC plugged into that is used at any point in the year?"
+' 	    DropListBox 280, 225, 45, 45, yes_no_list, hest_ac_on_electric_yn
+' 	    Text 40, 250, 235, 10, "If yes, does this include any heat source during any point in the year?"
+' 	    DropListBox 280, 245, 45, 45, yes_no_list, hest_heat_on_electric_yn
+' 	    Text 25, 270, 145, 10, "Is anyone responsible to PAY for a phone?"
+' 	    DropListBox 170, 265, 45, 45, yes_no_list, hest_phone_yn
+' 	    Text 30, 280, 230, 10, "(Free phone plans without a payment requirement cannot be counted.)"
+' 	End If
+'
+' 	If housing_questions_step = 2 Then
+' 		Text addr_up_x_pos + 5, 10, 60, 10, "ADDR UPDATE"
+'
+' 		Text 15, 25, 450, 10, "STEP 2 - ADDR UPDATES  -  Enter new address information here:"
+'
+' 		Call display_ADDR_information(True, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
+' 	End If
+' 	If housing_questions_step = 3 Then
+' 		Text shel_up_x_pos + 5, 10, 60, 10, "SHEL UPDATE"
+'
+' 		Text 15, 25, 450, 10, "STEP 3 - SHEL UPDATES"
+'
+' 		If shel_update_step > 0 Then
+' 			Text 20, 45, 95, 10, "What is the living situation?"
+' 		    DropListBox 115, 40, 125, 45, "Select One..."+chr(9)+"Apartment or Townhouse"+chr(9)+"House"+chr(9)+"Trailer Home/Mobile Home"+chr(9)+"Room Only"+chr(9)+"Shelter"+chr(9)+"Hotel"+chr(9)+"Vehicle"+chr(9)+"Other", what_is_the_living_arrangement
+' 		    Text 250, 45, 120, 10, "Does the household own the home?"
+' 		    DropListBox 370, 40, 90, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", unit_owned
+' 		    PushButton 410, 55, 50, 10, "Enter", enter_shel_one_btn
+' 		End If
+'
+' 		If shel_update_step > 1 Then
+' 			GroupBox 15, 65, 450, 155, "Payment Details"
+' 			If (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") Then
+' 				If unit_owned = "No" Then
+' 				    Text 20, 80, 105, 10, "What is the total rent amount?"
+' 				    EditBox 130, 75, 50, 15, new_total_rent_amount
+' 					Text 225, 80, 100, 10, "Who is the expense paid to?"
+' 					EditBox 325, 75, 135, 15, new_SHEL_paid_to_name
+' 				    Text 20, 100, 195, 10, "Does the household receive a subsidy for the rent amount?"
+' 				    DropListBox 220, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_rent_subsidy_yn
+' 					Text 290, 100, 75, 10, "Subsidy Amount:"
+' 					EditBox 365, 95, 50, 15, new_total_subsidy_amount
+' 				    Text 20, 120, 150, 10, "What is the amount of any renters insurance?"
+' 				    EditBox 175, 115, 50, 15, new_renter_insurance_amount
+' 				    Text 260, 120, 135, 10, "Is this insurance required per the lease?"
+' 				    DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_renters_insurance_required_yn
+' 				    Text 20, 140, 130, 10, "What is the amount of the garage rent?"
+' 				    EditBox 150, 135, 50, 15, new_total_garage_amount
+' 				    Text 250, 140, 145, 10, "Is this garage rental required per the lease?"
+' 				    DropListBox 400, 135, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_garage_rent_required_yn
+'
+' 				End If
+'
+' 				If unit_owned = "Yes" Then
+' 					Text 20, 80, 115, 10, "What is the total mortgage amount?"
+' 					EditBox 140, 75, 50, 15, new_total_mortgage_amount
+' 					Text 230, 80, 170, 10, "Does this payment include all taxes and insturance?"
+' 					DropListBox 400, 75, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_mortgage_have_escrow_yn
+' 					Text 20, 100, 150, 10, "How much insurance do you pay seperately?"
+' 					EditBox 170, 95, 40, 15, new_morgage_insurance_amount
+' 					Text 220, 100, 195, 10, "Do have more insurance than required by the mortgage?"
+' 					DropListBox 400, 95, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_excess_insurance_yn
+' 					Text 20, 120, 140, 10, "How much in taxes do you pay seperately?"
+' 					EditBox 160, 115, 50, 15, new_total_tax_amount
+' 					Text 20, 140, 100, 10, "Who is the mortgage paid to?"
+' 					EditBox 120, 135, 135, 15, new_SHEL_paid_to_name
+' 				End If
+' 			ElseIf what_is_the_living_arrangement = "Trailer Home/Mobile Home" Then
+' 				If unit_owned = "No" Then
+' 					Text 20, 80, 110, 10, "What is the total unit rent amount?"
+' 					EditBox 135, 75, 50, 15, new_total_rent_amount
+' 					Text 20, 100, 105, 10, "What is the lot rent Amount?"
+' 					EditBox 130, 95, 50, 15, new_total_lot_rent_amount
+' 					Text 20, 120, 150, 10, "What is the amount of any renters insurance?"
+' 					EditBox 175, 115, 50, 15, new_renter_insurance_amount
+' 					Text 260, 120, 135, 10, "Is this insurance required per the lease?"
+' 					DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_renters_insurance_required_yn
+'
+' 					Text 20, 140, 140, 10, "How much in taxes do you pay seperately?"
+' 					EditBox 160, 135, 50, 15, new_total_tax_amount
+' 					Text 225, 140, 100, 10, "Who is the expense paid to?"
+' 					EditBox 325, 135, 135, 15, new_SHEL_paid_to_name
+' 				End If
+'
+' 				If unit_owned = "Yes" Then
+' 					Text 20, 80, 115, 10, "What is the total mortgage amount?"
+' 					EditBox 140, 75, 50, 15, new_total_mortgage_amount
+' 					Text 230, 80, 170, 10, "Does this payment include all taxes and insturance?"
+' 					DropListBox 400, 75, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_mortgage_have_escrow_yn
+' 					Text 20, 100, 105, 10, "What is the lot rent Amount?"
+' 					EditBox 135, 95, 50, 15, new_total_lot_rent_amount
+' 					Text 20, 120, 150, 10, "How much insurance do you pay seperately?"
+' 					EditBox 170, 115, 40, 15, new_morgage_insurance_amount
+' 					Text 220, 120, 195, 10, "Do have more insurance than required by the mortgage?"
+' 					DropListBox 400, 115, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", new_excess_insurance_yn
+' 					Text 20, 140, 140, 10, "How much in taxes do you pay seperately?"
+' 					EditBox 160, 135, 50, 15, new_total_tax_amount
+' 					Text 225, 140, 100, 10, "Who is the expense paid to?"
+' 					EditBox 325, 135, 135, 15, new_SHEL_paid_to_name
+' 				End If
+' 			ElseIf what_is_the_living_arrangement = "Room Only" Then
+' 				Text 20, 80, 115, 10, "What is the total room rent amount?"
+' 				EditBox 140, 75, 50, 15, new_total_room_amount
+' 				Text 200, 80, 65, 10, "How often paid?"
+' 				DropListBox 265, 75, 60, 45, "Select One..."+chr(9)+"Nightly"+chr(9)+"Weekly"+chr(9)+"Monthly", new_room_payment_frequency
+' 				Text 20, 100, 100, 10, "Who is the room rent paid to?"
+' 				EditBox 120, 95, 135, 15, new_SHEL_paid_to_name
+' 			ElseIf what_is_the_living_arrangement = "Shelter" Then
+' 				Text 20, 80, 115, 10, "What is the cost for the shelter"
+' 				EditBox 140, 75, 50, 15, new_total_room_amount
+' 				Text 200, 80, 65, 10, "How often paid?"
+' 				DropListBox 265, 75, 60, 45, "Select One..."+chr(9)+"Nightly"+chr(9)+"Weekly"+chr(9)+"Monthly", new_room_payment_frequency
+' 				Text 20, 100, 120, 10, "Who is the shelter expense paid to?"
+' 				EditBox 140, 95, 135, 15, new_SHEL_paid_to_name
+' 			ElseIf what_is_the_living_arrangement = "Hotel" Then
+' 				Text 20, 80, 115, 10, "What is the cost for the hotel room?"
+' 				EditBox 140, 75, 50, 15, new_total_room_amount
+' 				Text 200, 80, 65, 10, "How often paid?"
+' 				DropListBox 265, 75, 60, 45, "Select One..."+chr(9)+"Nightly"+chr(9)+"Weekly"+chr(9)+"Monthly", new_room_payment_frequency
+' 				Text 20, 100, 120, 10, "Who is the hotel expense paid to?"
+' 				EditBox 140, 95, 135, 15, new_SHEL_paid_to_name
+' 			ElseIf what_is_the_living_arrangement = "Vehicle" Then
+' 				Text 20, 80, 115, 10, "How much insurance do you pay?"
+' 				EditBox 135, 75, 40, 15, new_vehicle_insurance_amount
+' 				Text 20, 100, 120, 10, "Who is the vehicle expense paid to?"
+' 				EditBox 140, 95, 135, 15, new_SHEL_paid_to_name
+' 			ElseIf what_is_the_living_arrangement = "Other" Then
+' 				Text 25, 80, 35, 10, "Rent: $"
+' 				EditBox 55, 75, 30, 15, new_total_rent_amount
+' 				Text 120, 80, 60, 10, "Mortgage: $"
+' 				EditBox 165, 75, 30, 15, new_total_mortgage_amount
+' 				Text 230, 80, 50, 10, "Lot Rent: $"
+' 				EditBox 275, 75, 30, 15, new_total_lot_rent_amount
+' 				Text 330, 80, 35, 10, "Room: $"
+' 				EditBox 365, 75, 30, 15, new_total_room_amount
+'
+' 				Text 20, 100, 40, 10, "Taxes: $"
+' 				EditBox 55, 95, 30, 15, new_total_tax_amount
+' 				Text 125, 100, 45, 10, "Garage: $"
+' 				EditBox 165, 95, 30, 15, new_total_garage_amount
+' 				Text 225, 100, 55, 10, "Insurance: $"
+' 				EditBox 275, 95, 30, 15, new_total_insurance_amount
+' 				Text 330, 100, 35, 10, "Subsidy: $"
+' 				EditBox 365, 95, 30, 15, new_total_subsidy_amount
+' 				Text 20, 120, 120, 10, "Who is the housing expense paid to?"
+' 				EditBox 140, 115, 135, 15, new_SHEL_paid_to_name
+' 			End If
+' 			GroupBox 20, 155, 440, 65, "Check the box for each person responsible for the housing payment:"
+' 			x_pos = 30
+' 			y_pos = 170
+' 			for the_membs = 0 to UBound(THE_ARRAY, 2)
+' 				If THE_ARRAY(person_age_const, the_membs) >= 18 Then
+' 					CheckBox 30, 170, 80, 10, "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs), THE_ARRAY(person_shel_checkbox, the_membs)
+' 					x_pos = x_pos + 125
+' 					If x_pos = 200 Then
+' 						y_pos = y_pos + 15
+' 					End If
+' 				End If
+' 			next
+' 			CheckBox 290, 170, 145, 10, "Someone outside the household. Name:", other_person_checkbox
+' 			EditBox 305, 180, 150, 15, other_person_name
+' 			Text 25, 205, 200, 10, "Is the payment split evenly among all the responsible parties?"
+' 			DropListBox 230, 200, 60, 45, "Select One..."+chr(9)+"No"+chr(9)+"Yes", payment_split_evenly_yn
+' 			PushButton 405, 205, 50, 10, "Enter", enter_shel_two_btn
+' 		End If
+'
+' 		If shel_update_step > 2 Then
+' 		    GroupBox 15, 225, 450, 50, "How is the payment split?"
+' 			x_pos = 25
+' 			y_pos = 240
+' 			If new_rent_subsidy_yn = "Yes" Then
+' 				Text x_pos, y_pos, 60, 10, "Subsidy pays: "
+' 				EditBox x_pos + 65, y_pos - 5, 50, 15, new_total_subsidy_amount
+' 				Text x_pos + 120, y_pos, 55, 10, "dollars"
+' 				x_pos = x_pos + 195
+' 				If x_pos = 415 Then
+' 					x_pos = 25
+' 					y_pos = y_pos + 20
+' 				End If
+' 			End If
+' 			for the_membs = 0 to UBound(THE_ARRAY, 2)
+' 				If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then
+' 					Text x_pos, y_pos, 60, 10, "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs) & " pays: "
+' 					EditBox x_pos + 65, y_pos - 5, 50, 15, THE_ARRAY(new_shel_pers_total_amt_const, the_membs)
+' 					DropListBox x_pos + 120, y_pos - 5, 55, 45, "dollars"+chr(9)+"percent", THE_ARRAY(new_shel_pers_total_amt_type_const, the_membs)
+' 					x_pos = x_pos + 195
+' 					If x_pos = 415 Then
+' 						x_pos = 25
+' 						y_pos = y_pos + 20
+' 					End If
+' 				End If
+' 			next
+' 			If other_person_checkbox = checked Then
+' 				Text x_pos, y_pos, 100, 10, "Other: " & other_person_name & " pays: "
+' 				EditBox x_pos + 105, y_pos - 5, 50, 15, other_new_shel_total_amt
+' 				DropListBox x_pos + 160, y_pos - 5, 55, 45, "dollars"+chr(9)+"percent", other_new_shel_total_amt_type
+' 			End If
+' 		    PushButton 410, 260, 50, 10, "Enter", enter_shel_three_btn
+' 		End If
+'
+' 		If shel_update_step > 3 Then
+' 		    GroupBox 15, 280, 450, 55, "Is the housing expense verified?"
+' 			x_pos = 25
+' 			y_pos = 300
+'
+' 			If new_total_rent_amount <> "" AND new_total_rent_amount <> "0" Then
+' 				Text x_pos, y_pos, 110, 10, "Total RENT of $" & new_total_rent_amount & " verification:"
+' 				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_rent_verif
+' 				x_pos = x_pos + 200
+' 				If x_pos = 425 Then
+' 					x_pos = 25
+' 					y_pos = y_pos + 15
+' 				End If
+' 			End If
+'
+' 			If new_total_lot_rent_amount <> "" AND new_total_lot_rent_amount <> "0" Then
+' 				Text x_pos, y_pos, 110, 10, "Total LOT RENT of $" & new_total_lot_rent_amount & " verification:"
+' 				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_lot_rent_verif
+' 				x_pos = x_pos + 200
+' 				If x_pos = 425 Then
+' 					x_pos = 25
+' 					y_pos = y_pos + 15
+' 				End If
+' 			End If
+' 			If new_total_mortgage_amount <> "" AND new_total_mortgage_amount <> "0" Then
+' 				Text x_pos, y_pos, 110, 10, "Total MORTGAGE of $" & new_total_mortgage_amount & " verification:"
+' 				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"MO - Mort Pmt Book"+chr(9)+"CD - Ctrct For Deed"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_mortgage_verif
+' 				x_pos = x_pos + 200
+' 				If x_pos = 425 Then
+' 					x_pos = 25
+' 					y_pos = y_pos + 15
+' 				End If
+' 			End If
+' 			If new_total_insurance_amount <> "" AND new_total_insurance_amount <> "0" Then
+' 				Text x_pos, y_pos, 120, 10, "Total INSURANCE of $" & new_total_insurance_amount & " verification:"
+' 				DropListBox x_pos + 125, y_pos - 5, 80, 45, ""+chr(9)+"BI - Billing Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_insurance_verif
+' 				x_pos = x_pos + 200
+' 				If x_pos = 425 Then
+' 					x_pos = 25
+' 					y_pos = y_pos + 15
+' 				End If
+' 			End If
+' 			If new_total_tax_amount <> "" AND new_total_tax_amount <> "0" Then
+' 				Text x_pos, y_pos, 110, 10, "Total TAXES of $" & new_total_tax_amount & " verification:"
+' 				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_taxes_verif
+' 				x_pos = x_pos + 200
+' 				If x_pos = 425 Then
+' 					x_pos = 25
+' 					y_pos = y_pos + 15
+' 				End If
+' 			End If
+' 			If new_total_room_amount <> "" AND new_total_room_amount <> "0" Then
+' 				Text x_pos, y_pos, 110, 10, "Total TOOM of $" & new_total_room_amount & " verification:"
+' 				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_room_verif
+' 				x_pos = x_pos + 200
+' 				If x_pos = 425 Then
+' 					x_pos = 25
+' 					y_pos = y_pos + 15
+' 				End If
+' 			End If
+' 			If new_total_garage_amount <> "" AND new_total_garage_amount <> "0" Then
+' 				Text x_pos, y_pos, 110, 10, "Total GARAGE of $" & new_total_garage_amount & " verification:"
+' 				DropListBox x_pos + 115, y_pos - 5, 80, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"RE - Rent Receipt"+chr(9)+"OT - Other Doc"+chr(9)+"NC - Chg, Neg Impact"+chr(9)+"PC - Chg, Pos Impact"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_garage_verif
+' 				x_pos = x_pos + 200
+' 				If x_pos = 425 Then
+' 					x_pos = 25
+' 					y_pos = y_pos + 15
+' 				End If
+' 			End If
+' 			If new_total_subsidy_amount <> "" AND new_total_subsidy_amount <> "0" Then
+' 				Text x_pos, y_pos, 120, 10, "Total SUBSIDY of $" & new_total_subsidy_amount & " verification:"
+' 				DropListBox x_pos + 125, y_pos - 5, 80, 45, ""+chr(9)+"SF - Shelter Form"+chr(9)+"LE - Lease"+chr(9)+"OT - Other Doc"+chr(9)+"NO - No Verif"+chr(9)+"? - Delayed Verif", new_subsidy_verif
+' 				x_pos = x_pos + 200
+' 				If x_pos = 425 Then
+' 					x_pos = 25
+' 					y_pos = y_pos + 15
+' 				End If
+' 			End If
+' 		End If
+' 	End If
+' 	If housing_questions_step = 4 Then
+' 		Text 420, 10, 60, 10, "REVIEW"
+'
+' 		Text 15, 25, 450, 10, "STEP 5 - REVIEW AND CONFIRM"
+'
+' 		GroupBox 15, 40, 450, 75, "Household Address Change"
+' 	    If household_move_yn = "Yes" Then Text 25, 55, 150, 10, "The household address changed on " & move_date
+' 		If household_move_yn = "No" Then Text 25, 55, 150, 10, "The household address has not changed."
+' 	    Text 35, 70, 65, 10, "Previous Address"
+' 	    Text 40, 85, 155, 10, original_resi_street_full
+' 	    Text 40, 95, 155, 10, original_resi_city & ", " & left(original_resi_state, 2) & " " & original_resi_zip
+' 	    Text 255, 70, 65, 10, "New Address"
+' 	    Text 260, 85, 155, 10, resi_street_full
+' 	    Text 260, 95, 155, 10, resi_city & ", " & left(resi_state, 2) & " " & resi_zip
+'
+' 	    GroupBox 15, 120, 450, 55, "Household Composition Change"
+' 	    Text 25, 140, 165, 10, "List any changes in the household composition:"
+' 	    EditBox 25, 150, 435, 15, hh_comp_change
+'
+' 	    GroupBox 15, 180, 450, 30, "Standard Utility Allowance - SUA"
+' 		hest_heat_ac_yn_code = "N"
+' 		hest_electric_yn_code = "N"
+' 		hest_phone_yn_code = "N"
+' 		If hest_heat_ac_yn = "Yes" Then hest_heat_ac_yn_code = "Y"
+' 		If hest_ac_on_electric_yn = "Yes" Then hest_heat_ac_yn_code = "Y"
+' 		If hest_heat_on_electric_yn = "Yes" Then hest_heat_ac_yn_code = "Y"
+' 		If hest_electric_yn = "Yes" Then hest_electric_yn_code = "Y"
+' 		If hest_phone_yn = "Yes" Then hest_phone_yn_code = "Y"
+' 	    Text 25, 195, 50, 10, "Heat/AC - " & hest_heat_ac_yn_code
+' 	    Text 110, 195, 50, 10, "Electric - "  & hest_electric_yn_code
+' 	    Text 195, 195, 50, 10, "Phone - " & hest_phone_yn_code
+'
+' 	    GroupBox 15, 215, 450, 70, "Housing Expense Change"
+' 	    Text 25, 230, 100, 10, "New Total Housing Expense:"
+' 	    Text 130, 230, 50, 10, "$" & new_total_shelter_expense_amount
+' 		Text 200, 230, 75, 10, "Effective Date:"
+' 	    Text 275, 230, 50, 10, shel_start_date
+'
+' 	    Text 95, 245, 30, 10, "Paid by:"
+' 	    Text 130, 245, 330, 10, people_paying_SHEL
+' 	    Text 85, 260, 40, 10, "Verification:"
+' 	    Text 130, 260, 330, 10, verif_detail
+'
+' 	End If
+'
+' 	Text 20, 350, 55, 10, "Additional Notes:"
+' 	EditBox 80, 345, 385, 15, addr_or_shel_change_notes
+'
+' 	If housing_questions_step <> 1 Then PushButton overview_x_pos, 8, 60, 13, "OVERVIEW", housing_change_overview_btn
+' 	If view_addr_update_dlg = True AND housing_questions_step <> 2 Then PushButton addr_up_x_pos, 8, 60, 13, "ADDR UPDATE", housing_change_addr_update_btn
+' 	If view_shel_update_dlg = True AND housing_questions_step <> 3 Then PushButton shel_up_x_pos, 8, 60, 13, "SHEL UPDATE", housing_change_shel_update_btn
+' 	If err_msg = "" AND housing_questions_step <> 4 Then PushButton 405, 8, 60, 13, "REVIEW", housing_change_review_btn
+'
+' 	If housing_questions_step <> 4 Then PushButton 390, 325, 70, 10, "CONTINUE", housing_change_continue_btn
+' end function
 
 ' function display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
 '
@@ -1167,262 +1077,209 @@ end function
 ' 	End If
 ' end function
 
-function navigate_HOUSING_CHANGE_buttons(err_msg, housing_questions_step, shel_update_step, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_total_mortgage_amount, new_total_lot_rent_amount, new_total_room_amount, new_room_payment_frequency, new_mortgage_have_escrow_yn, new_morgage_insurance_amount, new_excess_insurance_yn, new_total_tax_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_amount, new_garage_rent_required_yn, new_vehicle_insurance_amount, new_total_insurance_amount, new_total_subsidy_amount, new_SHEL_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, THE_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, new_total_shelter_expense_amount, new_rent_verif, new_lot_rent_verif, new_mortgage_verif, new_insurance_verif, new_taxes_verif, new_room_verif, new_garage_verif, new_subsidy_verif, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn, update_shel_button, addr_update_needed, shel_update_needed, hest_update_needed)
-
-	' view_addr_update_dlg
-	' view_shel_update_dlg
-	' view_shel_details_dlg
-	start_on_shel_questions = True
-	If housing_questions_step <> 3 Then start_on_shel_questions = False
-
-	If housing_questions_step = 3 Then
-
-		If (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") AND unit_owned = "Select One..." Then err_msg = err_msg & vbCr & "* For Apartment, House, or Mobile Home, you must select if the unit is owned or not to continue."
-		If new_rent_subsidy_yn = "Select One..." Then err_msg = err_msg & vbCr & "* You must indiccate if the rent is subsidized."
-		If trim(new_renter_insurance_amount) <> "" AND new_renter_insurance_amount <> "0" and new_renters_insurance_required_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Since you have indicated a renters insurance amount, you must indicate if the if the insurance is required by the lease."
-		If trim(new_total_garage_amount) <> "" AND new_total_garage_amount <> "0" and new_garage_rent_required_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Since you have indicated a garage expense, you must indicate if the garage rent is required by the leease."
-		If trim(new_total_mortgage_amount) <> "" AND new_total_mortgage_amount <> "0" and new_mortgage_have_escrow_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Since you have entered a mortgage amount, you must indicate if there is an escrow with that mortgage payment (if taxes and insurance are included in the expense amount)."
-		If trim(new_total_mortgage_amount) <> "" AND new_total_mortgage_amount <> "0" and new_excess_insurance_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Since this has a mortgage expensee, you must indicate if the insurance paid has excess ccoverage."
-		If new_mortgage_have_escrow_yn = "No" AND trim(new_morgage_insurance_amount) = "" Then err_msg = err_msg & vbCr & "* Since you indicated the mortgage does not have an escrow, you must indicate what the insurance amount is."
-		If new_mortgage_have_escrow_yn = "No" AND trim(new_total_tax_amount) = "" Then err_msg = err_msg & vbCr & "* Since you indicated the mortgage does not have an escrow, you must indicate what the tax amount is."
-		' If what_is_the_living_arrangement = "Trailer Home/Mobile Home" Then err_msg = err_msg & vbCr & "* "
-		If trim(new_total_room_amount) <> "" AND new_total_room_amount <> "0" AND new_room_payment_frequency = "Select One..." Then err_msg = err_msg & vbCr & "* You must indicate the frequency of the room expense payment."
-
-		total_current_rent = trim(total_current_rent)
-		If total_current_rent = "" Then total_current_rent = 0
-		total_current_rent = total_current_rent * 1
-		total_current_lot_rent = trim(total_current_lot_rent)
-		If total_current_lot_rent = "" Then total_current_lot_rent = 0
-		total_current_lot_rent = total_current_lot_rent * 1
-		total_current_garage = trim(total_current_garage)
-		If total_current_garage = "" Then total_current_garage = 0
-		total_current_garage = total_current_garage * 1
-		total_current_insurance = trim(total_current_insurance)
-		If total_current_insurance = "" Then total_current_insurance = 0
-		total_current_insurance = total_current_insurance * 1
-		total_current_taxes = trim(total_current_taxes)
-		If total_current_taxes = "" Then total_current_taxes = 0
-		total_current_taxes = total_current_taxes * 1
-		total_current_room = trim(total_current_room)
-		If total_current_room = "" Then total_current_room = 0
-		total_current_room = total_current_room * 1
-		total_current_mortgage = trim(total_current_mortgage)
-		If total_current_mortgage = "" Then total_current_mortgage = 0
-		total_current_mortgage = total_current_mortgage * 1
-		total_current_subsidy = trim(total_current_subsidy)
-		If total_current_subsidy = "" Then total_current_subsidy = 0
-		total_current_subsidy = total_current_subsidy * 1
-		' all_rent_verif,
-		' all_lot_rent_verif,
-		' all_mortgage_verif,
-		' all_insurance_verif,
-		' all_taxes_verif,
-		' all_room_verif,
-		' all_garage_verif,
-		' all_subsidy_verif,
-		' total_shel_original_information)
-
-		' new_total_rent_amount
-		' new_renter_insurance_amount
-		' new_total_garage_amount
-		' new_total_mortgage_amount
-		' new_morgage_insurance_amount
-		' new_total_tax_amount
-		' new_total_lot_rent_amount
-		' new_total_room_amount
-		' new_vehicle_insurance_amount
-		' new_total_insurance_amount
-
-		If new_total_rent_amount = "" Then new_total_rent_amount = 0
-		new_total_rent_amount = new_total_rent_amount * 1
-		If new_renter_insurance_amount = "" Then new_renter_insurance_amount = 0
-		new_renter_insurance_amount = new_renter_insurance_amount * 1
-		If new_total_garage_amount = "" Then new_total_garage_amount = 0
-		new_total_garage_amount = new_total_garage_amount * 1
-		If new_total_mortgage_amount = "" Then new_total_mortgage_amount = 0
-		new_total_mortgage_amount = new_total_mortgage_amount * 1
-		If new_morgage_insurance_amount = "" Then new_morgage_insurance_amount = 0
-		new_morgage_insurance_amount = new_morgage_insurance_amount * 1
-		If new_total_tax_amount = "" Then new_total_tax_amount = 0
-		new_total_tax_amount = new_total_tax_amount * 1
-		If new_total_lot_rent_amount = "" Then new_total_lot_rent_amount = 0
-		new_total_lot_rent_amount = new_total_lot_rent_amount * 1
-		If new_total_room_amount = "" Then new_total_room_amount = 0
-		new_total_room_amount = new_total_room_amount * 1
-		If new_vehicle_insurance_amount = "" Then new_vehicle_insurance_amount = 0
-		new_vehicle_insurance_amount = new_vehicle_insurance_amount * 1
-		If new_total_insurance_amount = "" Then new_total_insurance_amount = 0
-		new_total_insurance_amount = new_total_insurance_amount * 1
-		If new_total_subsidy_amount = "" Then new_total_subsidy_amount = 0
-		new_total_subsidy_amount = new_total_subsidy_amount * 1
-
-
-		new_total_insurance_amount = new_morgage_insurance_amount + new_renter_insurance_amount + new_vehicle_insurance_amount
-
-		new_total_shelter_expense_amount = 0
-		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_rent_amount
-		' new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_renter_insurance_amount
-		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_garage_amount
-		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_mortgage_amount
-		' new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_morgage_insurance_amount
-		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_tax_amount
-		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_lot_rent_amount
-		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_room_amount
-		' new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_vehicle_insurance_amount
-		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_insurance_amount
-
-		new_total_shelter_expense_amount = new_total_shelter_expense_amount - new_total_subsidy_amount
-
-		number_of_people_paying = 0
-		for the_membs = 0 to UBound(THE_ARRAY, 2)
-			If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then number_of_people_paying = number_of_people_paying + 1
-		Next
-		If other_person_checkbox = checked Then number_of_people_paying = number_of_people_paying + 1
-		If number_of_people_paying = 1 Then
-			for the_membs = 0 to UBound(THE_ARRAY, 2)
-				If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then
-					THE_ARRAY(new_shel_pers_total_amt_const, the_membs) = new_total_shelter_expense_amount & ""
-					THE_ARRAY(new_shel_pers_total_amt_type_const, the_membs) = "dollars"
-				End If
-			Next
-			If other_person_checkbox = checked Then
-				other_new_shel_total_amt = new_total_shelter_expense_amount & ""
-				other_new_shel_total_amt_type = "dollars"
-			End If
-		ElseIf payment_split_evenly_yn = "Yes" Then
-			If number_of_people_paying <> 0 Then
-				amount_per_person = new_total_shelter_expense_amount/number_of_people_paying
-				for the_membs = 0 to UBound(THE_ARRAY, 2)
-					If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then
-						THE_ARRAY(new_shel_pers_total_amt_const, the_membs) = amount_per_person & ""
-						THE_ARRAY(new_shel_pers_total_amt_type_const, the_membs) = "dollars"
-					End If
-				Next
-				If other_person_checkbox = checked Then
-					other_new_shel_total_amt = amount_per_person & ""
-					other_new_shel_total_amt_type = "dollars"
-				End If
-			End If
-		End if
-
-		new_total_rent_amount = new_total_rent_amount & ""
-		new_renter_insurance_amount = new_renter_insurance_amount & ""
-		new_total_garage_amount = new_total_garage_amount & ""
-		new_total_mortgage_amount = new_total_mortgage_amount & ""
-		new_morgage_insurance_amount = new_morgage_insurance_amount & ""
-		new_total_tax_amount = new_total_tax_amount & ""
-		new_total_lot_rent_amount = new_total_lot_rent_amount & ""
-		new_total_room_amount = new_total_room_amount & ""
-		new_vehicle_insurance_amount = new_vehicle_insurance_amount & ""
-		new_total_insurance_amount = new_total_insurance_amount & ""
-
-	End If
-
-	view_shel_details_dlg = False
-	If household_move_yn = "?" Then
-		view_addr_update_dlg = "Unknown"
-		err_msg = "STOP"
-	End If
-
-	If shel_change_yn = "?" Then
-		view_shel_update_dlg = "Unknown"
-		err_msg = "STOP"
-	End If
-
-	If household_move_yn = "Yes" Then
-		view_addr_update_dlg = True
-		shel_change_yn = "Yes"
-		view_shel_update_dlg = True
-		If shel_shared_yn = "Yes" Then view_shel_details_dlg = True
-	End If
-	If household_move_yn = "No" Then
-		view_addr_update_dlg = False
-		view_shel_details_dlg = False
-	End If
-
-	' household_move_yn,
-	' household_move_everyone_yn,
-	' move_date,
-	' shel_change_yn,
-	' shel_verif_received_yn,
-	' shel_start_date,
-	' shel_shared_yn,
-	' shel_subsidized_yn,
-	' total_current_rent,
-	' total_current_taxes,
-	' total_current_lot_rent,
-	' total_current_room,
-	' total_current_mortgage,
-	' total_current_garage,
-	' total_current_insurance,
-	' total_current_subsidy,
-	' shel_change_type,
-	' hest_heat_ac_yn,
-	' hest_electric_yn,
-	' hest_ac_on_electric_yn,
-	' hest_heat_on_electric_yn,
-	' hest_phone_yn
-
-
-	' MsgBox err_msg
-	If err_msg = "" Then
-		If ButtonPressed = housing_change_continue_btn Then
-			housing_questions_step = housing_questions_step + 1
-
-			If housing_questions_step = 2 and view_addr_update_dlg = False Then housing_questions_step = housing_questions_step + 1
-			If housing_questions_step = 3 and view_shel_update_dlg = False Then housing_questions_step = housing_questions_step + 1
-			' If housing_questions_step = 4 and view_shel_details_dlg = False Then housing_questions_step = housing_questions_step + 1
-
-			' If housing_questions_step = 1 Then 		'Initial Basic questions
-			' ElseIf housing_questions_step = 2 Then 		'update ADDR Information
-			'
-			' ElseIf housing_questions_step = 3 Then 		'update SHEL Information
-			'
-			' ElseIf housing_questions_step = 4 Then 		'update SHEL percentages and SHARING Information
-			'
-			' ElseIf housing_questions_step = 5 Then 		'review information
-			'
-			' End If
-		End If
-		If ButtonPressed = housing_change_overview_btn Then housing_questions_step = 1
-		If ButtonPressed = housing_change_addr_update_btn Then housing_questions_step = 2
-		If ButtonPressed = housing_change_shel_update_btn Then housing_questions_step = 3
-		' If ButtonPressed = housing_change_shel_details_btn Then housing_questions_step = 4
-
-		If housing_questions_step = 3 Then
-
-			if start_on_shel_questions = False Then shel_update_step = 1
-
-			If ButtonPressed = enter_shel_one_btn Then shel_update_step = 2
-			If ButtonPressed = enter_shel_two_btn Then shel_update_step = 3
-			If ButtonPressed = enter_shel_three_btn Then shel_update_step = 4
-			' If ButtonPressed = enter_shel_two_btn Then shel_update_step = 2
-			' If ButtonPressed = enter_shel_two_btn Then shel_update_step = 2
-			' If ButtonPressed = enter_shel_two_btn Then shel_update_step = 2
-
-			total_current_rent = total_current_rent & ""
-			total_current_lot_rent = total_current_lot_rent & ""
-			total_current_garage = total_current_garage & ""
-			total_current_insurance = total_current_insurance & ""
-			total_current_taxes = total_current_taxes & ""
-			total_current_room = total_current_room & ""
-			total_current_mortgage = total_current_mortgage & ""
-			total_current_subsidy = total_current_subsidy & ""
-			' all_rent_verif,
-			' all_lot_rent_verif,
-			' all_mortgage_verif,
-			' all_insurance_verif,
-			' all_taxes_verif,
-			' all_room_verif,
-			' all_garage_verif,
-			' all_subsidy_verif,
-			' total_shel_original_information)
-
-		End If
-	End If
-
-	' MsgBox housing_questions_step
-end function
+' function navigate_HOUSING_CHANGE_buttons(err_msg, housing_questions_step, shel_update_step, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_total_mortgage_amount, new_total_lot_rent_amount, new_total_room_amount, new_room_payment_frequency, new_mortgage_have_escrow_yn, new_morgage_insurance_amount, new_excess_insurance_yn, new_total_tax_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_amount, new_garage_rent_required_yn, new_vehicle_insurance_amount, new_total_insurance_amount, new_total_subsidy_amount, new_SHEL_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, THE_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, new_total_shelter_expense_amount, people_paying_SHEL, verif_detail, new_rent_verif, new_lot_rent_verif, new_mortgage_verif, new_insurance_verif, new_taxes_verif, new_room_verif, new_garage_verif, new_subsidy_verif, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn, update_shel_button, addr_update_needed, shel_update_needed, hest_update_needed)
+'
+' 	start_on_shel_questions = True
+' 	If housing_questions_step <> 3 Then start_on_shel_questions = False
+'
+' 	If housing_questions_step = 3 Then
+'
+' 		If (what_is_the_living_arrangement = "Apartment or Townhouse" OR what_is_the_living_arrangement = "House") AND unit_owned = "Select One..." Then err_msg = err_msg & vbCr & "* For Apartment, House, or Mobile Home, you must select if the unit is owned or not to continue."
+' 		If new_rent_subsidy_yn = "Select One..." Then err_msg = err_msg & vbCr & "* You must indiccate if the rent is subsidized."
+' 		If trim(new_renter_insurance_amount) <> "" AND new_renter_insurance_amount <> "0" and new_renters_insurance_required_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Since you have indicated a renters insurance amount, you must indicate if the if the insurance is required by the lease."
+' 		If trim(new_total_garage_amount) <> "" AND new_total_garage_amount <> "0" and new_garage_rent_required_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Since you have indicated a garage expense, you must indicate if the garage rent is required by the leease."
+' 		If trim(new_total_mortgage_amount) <> "" AND new_total_mortgage_amount <> "0" and new_mortgage_have_escrow_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Since you have entered a mortgage amount, you must indicate if there is an escrow with that mortgage payment (if taxes and insurance are included in the expense amount)."
+' 		If trim(new_total_mortgage_amount) <> "" AND new_total_mortgage_amount <> "0" and new_excess_insurance_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Since this has a mortgage expensee, you must indicate if the insurance paid has excess ccoverage."
+' 		If new_mortgage_have_escrow_yn = "No" AND trim(new_morgage_insurance_amount) = "" Then err_msg = err_msg & vbCr & "* Since you indicated the mortgage does not have an escrow, you must indicate what the insurance amount is."
+' 		If new_mortgage_have_escrow_yn = "No" AND trim(new_total_tax_amount) = "" Then err_msg = err_msg & vbCr & "* Since you indicated the mortgage does not have an escrow, you must indicate what the tax amount is."
+' 		If trim(new_total_room_amount) <> "" AND new_total_room_amount <> "0" AND new_room_payment_frequency = "Select One..." Then err_msg = err_msg & vbCr & "* You must indicate the frequency of the room expense payment."
+'
+' 		total_current_rent = trim(total_current_rent)
+' 		If total_current_rent = "" Then total_current_rent = 0
+' 		total_current_rent = total_current_rent * 1
+' 		total_current_lot_rent = trim(total_current_lot_rent)
+' 		If total_current_lot_rent = "" Then total_current_lot_rent = 0
+' 		total_current_lot_rent = total_current_lot_rent * 1
+' 		total_current_garage = trim(total_current_garage)
+' 		If total_current_garage = "" Then total_current_garage = 0
+' 		total_current_garage = total_current_garage * 1
+' 		total_current_insurance = trim(total_current_insurance)
+' 		If total_current_insurance = "" Then total_current_insurance = 0
+' 		total_current_insurance = total_current_insurance * 1
+' 		total_current_taxes = trim(total_current_taxes)
+' 		If total_current_taxes = "" Then total_current_taxes = 0
+' 		total_current_taxes = total_current_taxes * 1
+' 		total_current_room = trim(total_current_room)
+' 		If total_current_room = "" Then total_current_room = 0
+' 		total_current_room = total_current_room * 1
+' 		total_current_mortgage = trim(total_current_mortgage)
+' 		If total_current_mortgage = "" Then total_current_mortgage = 0
+' 		total_current_mortgage = total_current_mortgage * 1
+' 		total_current_subsidy = trim(total_current_subsidy)
+' 		If total_current_subsidy = "" Then total_current_subsidy = 0
+' 		total_current_subsidy = total_current_subsidy * 1
+'
+' 		If new_total_rent_amount = "" Then new_total_rent_amount = 0
+' 		new_total_rent_amount = new_total_rent_amount * 1
+' 		If new_renter_insurance_amount = "" Then new_renter_insurance_amount = 0
+' 		new_renter_insurance_amount = new_renter_insurance_amount * 1
+' 		If new_total_garage_amount = "" Then new_total_garage_amount = 0
+' 		new_total_garage_amount = new_total_garage_amount * 1
+' 		If new_total_mortgage_amount = "" Then new_total_mortgage_amount = 0
+' 		new_total_mortgage_amount = new_total_mortgage_amount * 1
+' 		If new_morgage_insurance_amount = "" Then new_morgage_insurance_amount = 0
+' 		new_morgage_insurance_amount = new_morgage_insurance_amount * 1
+' 		If new_total_tax_amount = "" Then new_total_tax_amount = 0
+' 		new_total_tax_amount = new_total_tax_amount * 1
+' 		If new_total_lot_rent_amount = "" Then new_total_lot_rent_amount = 0
+' 		new_total_lot_rent_amount = new_total_lot_rent_amount * 1
+' 		If new_total_room_amount = "" Then new_total_room_amount = 0
+' 		new_total_room_amount = new_total_room_amount * 1
+' 		If new_vehicle_insurance_amount = "" Then new_vehicle_insurance_amount = 0
+' 		new_vehicle_insurance_amount = new_vehicle_insurance_amount * 1
+' 		If new_total_insurance_amount = "" Then new_total_insurance_amount = 0
+' 		new_total_insurance_amount = new_total_insurance_amount * 1
+' 		If new_total_subsidy_amount = "" Then new_total_subsidy_amount = 0
+' 		new_total_subsidy_amount = new_total_subsidy_amount * 1
+'
+' 		new_total_insurance_amount = new_morgage_insurance_amount + new_renter_insurance_amount + new_vehicle_insurance_amount
+'
+' 		new_total_shelter_expense_amount = 0
+' 		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_rent_amount
+' 		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_garage_amount
+' 		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_mortgage_amount
+' 		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_tax_amount
+' 		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_lot_rent_amount
+' 		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_room_amount
+' 		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_insurance_amount
+'
+' 		new_total_shelter_expense_amount = new_total_shelter_expense_amount - new_total_subsidy_amount
+'
+' 		people_paying_SHEL = ""
+' 		number_of_people_paying = 0
+' 		for the_membs = 0 to UBound(THE_ARRAY, 2)
+' 			If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then
+' 				number_of_people_paying = number_of_people_paying + 1
+' 				people_paying_SHEL = people_paying_SHEL & ", " & "MEMB " & THE_ARRAY(shel_ref_number_const, the_membs)
+' 			End If
+' 		Next
+' 		If other_person_checkbox = checked Then
+' 			number_of_people_paying = number_of_people_paying + 1
+' 			people_paying_SHEL = people_paying_SHEL & ", " & other_person_name
+' 		End If
+' 		If new_rent_subsidy_yn = "Yes" Then people_paying_SHEL = people_paying_SHEL & ", SUBSIDY"
+' 		If left(people_paying_SHEL, 1) = "," Then people_paying_SHEL = right(people_paying_SHEL, len(people_paying_SHEL) - 1)
+' 		people_paying_SHEL = trim(people_paying_SHEL)
+'
+' 		If number_of_people_paying = 1 Then
+' 			for the_membs = 0 to UBound(THE_ARRAY, 2)
+' 				If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then
+' 					THE_ARRAY(new_shel_pers_total_amt_const, the_membs) = new_total_shelter_expense_amount & ""
+' 					THE_ARRAY(new_shel_pers_total_amt_type_const, the_membs) = "dollars"
+' 				End If
+' 			Next
+' 			If other_person_checkbox = checked Then
+' 				other_new_shel_total_amt = new_total_shelter_expense_amount & ""
+' 				other_new_shel_total_amt_type = "dollars"
+' 			End If
+' 		ElseIf payment_split_evenly_yn = "Yes" Then
+' 			If number_of_people_paying <> 0 Then
+' 				amount_per_person = new_total_shelter_expense_amount/number_of_people_paying
+' 				for the_membs = 0 to UBound(THE_ARRAY, 2)
+' 					If THE_ARRAY(person_shel_checkbox, the_membs) = checked Then
+' 						THE_ARRAY(new_shel_pers_total_amt_const, the_membs) = amount_per_person & ""
+' 						THE_ARRAY(new_shel_pers_total_amt_type_const, the_membs) = "dollars"
+' 					End If
+' 				Next
+' 				If other_person_checkbox = checked Then
+' 					other_new_shel_total_amt = amount_per_person & ""
+' 					other_new_shel_total_amt_type = "dollars"
+' 				End If
+' 			End If
+' 		End if
+' 		new_total_shelter_expense_amount = new_total_shelter_expense_amount + new_total_subsidy_amount
+'
+' 		verif_detail = ""
+' 		If new_rent_verif <> "" Then verif_detail = verif_detail & ", Rent - " & trim(right(new_rent_verif, len(new_rent_verif)-4))
+' 		If new_lot_rent_verif <> "" Then verif_detail = verif_detail & ", Lot Rent - " & trim(right(new_lot_rent_verif, len(new_lot_rent_verif)-4))
+' 		If new_mortgage_verif <> "" Then verif_detail = verif_detail & ", Mortgage - " & trim(right(new_mortgage_verif, len(new_mortgage_verif)-4))
+' 		If new_insurance_verif <> "" Then verif_detail = verif_detail & ", Insurance - " & trim(right(new_insurance_verif, len(new_insurance_verif)-4))
+' 		If new_taxes_verif <> "" Then verif_detail = verif_detail & ", Taxes - " & trim(right(new_taxes_verif, len(new_taxes_verif)-4))
+' 		If new_room_verif <> "" Then verif_detail = verif_detail & ", Room - " & trim(right(new_room_verif, len(new_room_verif)-4))
+' 		If new_garage_verif <> "" Then verif_detail = verif_detail & ", Garage - " & trim(right(new_garage_verif, len(new_garage_verif)-4))
+' 		If new_subsidy_verif <> "" Then verif_detail = verif_detail & ", Subisdy - " & trim(right(new_subsidy_verif, len(new_subsidy_verif)-4))
+' 		If left(verif_detail, 1) = "," Then verif_detail = right(verif_detail, len(verif_detail) - 1)
+' 		verif_detail = trim(verif_detail)
+'
+' 		new_total_rent_amount = new_total_rent_amount & ""
+' 		new_renter_insurance_amount = new_renter_insurance_amount & ""
+' 		new_total_garage_amount = new_total_garage_amount & ""
+' 		new_total_mortgage_amount = new_total_mortgage_amount & ""
+' 		new_morgage_insurance_amount = new_morgage_insurance_amount & ""
+' 		new_total_tax_amount = new_total_tax_amount & ""
+' 		new_total_lot_rent_amount = new_total_lot_rent_amount & ""
+' 		new_total_room_amount = new_total_room_amount & ""
+' 		new_vehicle_insurance_amount = new_vehicle_insurance_amount & ""
+' 		new_total_insurance_amount = new_total_insurance_amount & ""
+' 		new_total_subsidy_amount = new_total_subsidy_amount & ""
+'
+' 	End If
+'
+' 	view_shel_details_dlg = False
+' 	If household_move_yn = "?" Then
+' 		view_addr_update_dlg = "Unknown"
+' 		err_msg = "STOP"
+' 	End If
+'
+' 	If shel_change_yn = "?" Then
+' 		view_shel_update_dlg = "Unknown"
+' 		err_msg = "STOP"
+' 	End If
+'
+' 	If household_move_yn = "Yes" Then
+' 		view_addr_update_dlg = True
+' 		shel_change_yn = "Yes"
+' 		view_shel_update_dlg = True
+' 		If shel_shared_yn = "Yes" Then view_shel_details_dlg = True
+' 	End If
+' 	If household_move_yn = "No" Then
+' 		view_addr_update_dlg = False
+' 		view_shel_details_dlg = False
+' 	End If
+'
+'
+' 	If err_msg = "" Then
+' 		If ButtonPressed = housing_change_continue_btn Then
+' 			housing_questions_step = housing_questions_step + 1
+'
+' 			If housing_questions_step = 2 and view_addr_update_dlg = False Then housing_questions_step = housing_questions_step + 1
+' 			If housing_questions_step = 3 and view_shel_update_dlg = False Then housing_questions_step = housing_questions_step + 1
+'
+' 		End If
+' 		If ButtonPressed = housing_change_overview_btn Then housing_questions_step = 1
+' 		If ButtonPressed = housing_change_addr_update_btn Then housing_questions_step = 2
+' 		If ButtonPressed = housing_change_shel_update_btn Then housing_questions_step = 3
+' 		If ButtonPressed = housing_change_review_btn Then housing_questions_step = 4
+'
+' 		If housing_questions_step = 3 Then
+'
+' 			if start_on_shel_questions = False Then shel_update_step = 1
+'
+' 			If ButtonPressed = enter_shel_one_btn Then shel_update_step = 2
+' 			If ButtonPressed = enter_shel_two_btn Then shel_update_step = 3
+' 			If ButtonPressed = enter_shel_three_btn Then shel_update_step = 4
+'
+' 			total_current_rent = total_current_rent & ""
+' 			total_current_lot_rent = total_current_lot_rent & ""
+' 			total_current_garage = total_current_garage & ""
+' 			total_current_insurance = total_current_insurance & ""
+' 			total_current_taxes = total_current_taxes & ""
+' 			total_current_room = total_current_room & ""
+' 			total_current_mortgage = total_current_mortgage & ""
+' 			total_current_subsidy = total_current_subsidy & ""
+' 		End If
+' 	End If
+' end function
 
 '==========================================================================================================================
 
@@ -1696,6 +1553,11 @@ If select_option = "Change" Then
 	Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_addr_panel_info, addr_update_attempted)
 	Call access_HEST_panel("READ", all_persons_paying, choice_date, actual_initial_exp, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense)
 
+	original_resi_street_full = resi_street_full
+	original_resi_city = resi_city
+	original_resi_state = resi_state
+	original_resi_zip = resi_zip
+
 	housing_questions_step = 1
 	view_addr_update_dlg = False
 	view_shel_update_dlg = False
@@ -1705,7 +1567,7 @@ If select_option = "Change" Then
 	Do
 		err_msg = ""
 
-		MsgBox "HOUSING QUESTIONS - " & housing_questions_step & vbCr & "SHEL UPDATE - " & shel_update_step
+		' MsgBox "HOUSING QUESTIONS - " & housing_questions_step & vbCr & "SHEL UPDATE - " & shel_update_step
 
 		BeginDialog Dialog1, 0, 0, 555, 385, "Housing Expense Detail"
 
@@ -1713,7 +1575,7 @@ If select_option = "Change" Then
 
 			If page_to_display = CHNG_dlg_page Then
 				Text 503, 57, 60, 10, "CHANGE"
-				Call display_HOUSING_CHANGE_information(housing_questions_step, shel_update_step, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_total_mortgage_amount, new_total_lot_rent_amount, new_total_room_amount, new_room_payment_frequency, new_mortgage_have_escrow_yn, new_morgage_insurance_amount, new_excess_insurance_yn, new_total_tax_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_amount, new_garage_rent_required_yn, new_vehicle_insurance_amount, new_total_insurance_amount, new_total_subsidy_amount, new_SHEL_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, ALL_SHEL_PANELS_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, new_rent_verif, new_lot_rent_verif, new_mortgage_verif, new_insurance_verif, new_taxes_verif, new_room_verif, new_garage_verif, new_subsidy_verif, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn)
+				Call display_HOUSING_CHANGE_information(housing_questions_step, shel_update_step, notes_on_address, original_resi_street_full, original_resi_city, original_resi_state, original_resi_zip, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_total_mortgage_amount, new_total_lot_rent_amount, new_total_room_amount, new_room_payment_frequency, new_mortgage_have_escrow_yn, new_morgage_insurance_amount, new_excess_insurance_yn, new_total_tax_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_amount, new_garage_rent_required_yn, new_vehicle_insurance_amount, new_total_insurance_amount, new_total_subsidy_amount, new_SHEL_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, ALL_SHEL_PANELS_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, new_rent_verif, new_lot_rent_verif, new_mortgage_verif, new_insurance_verif, new_taxes_verif, new_room_verif, new_garage_verif, new_subsidy_verif, hh_comp_change, hest_heat_ac_yn_code, hest_electric_yn_code, hest_phone_yn_code, new_total_shelter_expense_amount, people_paying_SHEL, verif_detail, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn)
 
 			End If
 
@@ -1730,7 +1592,8 @@ If select_option = "Change" Then
 		' MsgBox "Button - " & ButtonPressed
 
 		If ButtonPressed = -1 AND housing_questions_step <> 5 Then ButtonPressed = housing_change_continue_btn
-		If page_to_display = CHNG_dlg_page Then Call navigate_HOUSING_CHANGE_buttons(err_msg, housing_questions_step, shel_update_step, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_total_mortgage_amount, new_total_lot_rent_amount, new_total_room_amount, new_room_payment_frequency, new_mortgage_have_escrow_yn, new_morgage_insurance_amount, new_excess_insurance_yn, new_total_tax_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_amount, new_garage_rent_required_yn, new_vehicle_insurance_amount, new_total_insurance_amount, new_total_subsidy_amount, new_SHEL_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, ALL_SHEL_PANELS_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, new_total_shelter_expense_amount, new_rent_verif, new_lot_rent_verif, new_mortgage_verif, new_insurance_verif, new_taxes_verif, new_room_verif, new_garage_verif, new_subsidy_verif, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn, update_shel_button, addr_update_needed, shel_update_needed, hest_update_needed)
+		If page_to_display = CHNG_dlg_page Then Call navigate_HOUSING_CHANGE_buttons(err_msg, housing_questions_step, shel_update_step, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn, household_move_yn, household_move_everyone_yn, move_date, shel_change_yn, shel_verif_received_yn, shel_start_date, shel_shared_yn, shel_subsidized_yn, total_current_rent, all_rent_verif, total_current_lot_rent, all_lot_rent_verif, total_current_garage, all_mortgage_verif, total_current_insurance, all_insurance_verif, total_current_taxes, all_taxes_verif, total_current_room, all_room_verif, total_current_mortgage, all_garage_verif, total_current_subsidy, all_subsidy_verif, shel_change_type, hest_heat_ac_yn, hest_electric_yn, hest_ac_on_electric_yn, hest_heat_on_electric_yn, hest_phone_yn, update_addr_button, addr_or_shel_change_notes, view_addr_update_dlg, view_shel_update_dlg, view_shel_details_dlg, what_is_the_living_arrangement, unit_owned, new_total_rent_amount, new_total_mortgage_amount, new_total_lot_rent_amount, new_total_room_amount, new_room_payment_frequency, new_mortgage_have_escrow_yn, new_morgage_insurance_amount, new_excess_insurance_yn, new_total_tax_amount, new_rent_subsidy_yn, new_renter_insurance_amount, new_renters_insurance_required_yn, new_total_garage_amount, new_garage_rent_required_yn, new_vehicle_insurance_amount, new_total_insurance_amount, new_total_subsidy_amount, new_SHEL_paid_to_name, other_person_checkbox, other_person_name, payment_split_evenly_yn, ALL_SHEL_PANELS_ARRAY, person_age_const, person_shel_checkbox, shel_ref_number_const, new_shel_pers_total_amt_const, new_shel_pers_total_amt_type_const, other_new_shel_total_amt, other_new_shel_total_amt_type, new_total_shelter_expense_amount, people_paying_SHEL, verif_detail, new_rent_verif, new_lot_rent_verif, new_mortgage_verif, new_insurance_verif, new_taxes_verif, new_room_verif, new_garage_verif, new_subsidy_verif, housing_change_continue_btn, housing_change_overview_btn, housing_change_addr_update_btn, housing_change_shel_update_btn, housing_change_shel_details_btn, housing_change_review_btn, enter_shel_one_btn, enter_shel_two_btn, enter_shel_three_btn, update_shel_button, addr_update_needed, shel_update_needed, hest_update_needed)
+
 		If ButtonPressed = CHNG_page_btn Then page_to_display = CHNG_dlg_page
 		If err_msg <> "" then MsgBox "Please Resolve:" & vbCr & err_msg
 	Loop until ButtonPressed = -1
