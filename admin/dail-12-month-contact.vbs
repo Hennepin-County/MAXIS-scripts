@@ -55,13 +55,9 @@ EMConnect ""
 all_workers_check = 1   'checked
 get_county_code
 
-'this_month = CM_mo & " " & CM_yr
-'next_month = CM_plus_1_mo & " " & CM_plus_1_yr
-'CM_minus_2_mo =  right("0" & DatePart("m", DateAdd("m", -2, date)), 2)
-
 'Finding the right folder to automatically save the file
 month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
-decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
+decimator_folder = CM_mo & "-" & CM_yr & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
 Dialog1 = ""
@@ -156,6 +152,7 @@ const case_status_const             = 9
 excel_row = 2
 deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 memo_count = 0      'counting number of memo's sent with this process.
+all_case_numbers_array = "*"    'setting up string to find duplicate case numbers
 
 MAXIS_case_number = ""
 CALL navigate_to_MAXIS_screen("DAIL", "PICK")
@@ -179,10 +176,6 @@ For each worker in worker_array
 		    'Determining if there is a new case number...
 		    EMReadScreen new_case, 8, dail_row, 63
 		    new_case = trim(new_case)
-		    'IF new_case <> "CASE NBR" THEN '...if there is NOT a new case number, the script will read the DAIL type, month, year, and message...
-			'	Call write_value_and_transmit("T", dail_row, 3)
-			'	dail_row = 6
-			'ELSE'
             IF new_case = "CASE NBR" THEN
 			    '...if the script does find that there is a new case number (indicated by "CASE NBR"), it will write a "T" in the next row and transmit, bringing that case number to the top of your DAIL
 			    Call write_value_and_transmit("T", dail_row + 1, 3)
@@ -197,24 +190,29 @@ For each worker in worker_array
 			stats_counter = stats_counter + 1
 
 			If instr(dail_msg, "IF SNAP IS OPEN, REVIEW TO SEE IF 12 MONTH CONTACT LETTER IS") then
-				'--------------------------------------------------------------------...and add to the array/put that in Excel.
-                ReDim Preserve DAIL_array(case_status_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
-            	DAIL_array(worker_const,	           DAIL_count) = trim(worker)
-            	DAIL_array(maxis_case_number_const,    DAIL_count) = trim(maxis_case_number)
-            	DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
-            	DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
-            	DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
-                DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
-                DAIL_array(send_memo_const,            DAIL_count) = False 'defaulting to False
-                DAIL_count = DAIL_count + 1
+                'If the case number is found in the string of case numbers, it's not added again.
+                If instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") then
+                    add_to_array = False
+                Else
+				    '--------------------------------------------------------------------...and add to the array/put that in Excel.
+                    ReDim Preserve DAIL_array(case_status_const, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
+            	    DAIL_array(worker_const,	           DAIL_count) = trim(worker)
+            	    DAIL_array(maxis_case_number_const,    DAIL_count) = trim(maxis_case_number)
+            	    DAIL_array(dail_type_const, 	       DAIL_count) = dail_type
+            	    DAIL_array(dail_month_const, 		   DAIL_count) = trim(dail_month)
+            	    DAIL_array(dail_msg_const, 		       DAIL_count) = trim(dail_msg)
+                    DAIL_array(excel_row_const, 		   DAIL_count) = excel_row
+                    DAIL_array(send_memo_const,            DAIL_count) = False 'defaulting to False
+                    DAIL_count = DAIL_count + 1
 
-                objExcel.Cells(excel_row, 1).Value = trim(worker)
-                objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
-                objExcel.Cells(excel_row, 3).Value = dail_type
-                objExcel.Cells(excel_row, 4).Value = trim(dail_month)
-                objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
-                excel_row = excel_row + 1
-                'msgbox MAXIS_CASE_NUMBER & vbcr & excel_row
+                    objExcel.Cells(excel_row, 1).Value = trim(worker)
+                    objExcel.Cells(excel_row, 2).Value = trim(maxis_case_number)
+                    objExcel.Cells(excel_row, 3).Value = dail_type
+                    objExcel.Cells(excel_row, 4).Value = trim(dail_month)
+                    objExcel.Cells(excel_row, 5).Value = trim(dail_msg)
+                    excel_row = excel_row + 1
+                    all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 'Adding MAXIS case number to case number string
+                End if
 
 				Call write_value_and_transmit("D", dail_row, 3)
 				EMReadScreen other_worker_error, 13, 24, 2
@@ -243,7 +241,7 @@ Next
 
 For item = 0 to Ubound(DAIL_array, 2)
     MAXIS_case_number = DAIL_array(maxis_case_number_const, item)
-    'msgbox MAXIS_case_number
+    MAXIS_background_check
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     EmReadscreen worker_county, 4, 21, 14
     If is_this_priv = True then
@@ -253,19 +251,11 @@ For item = 0 to Ubound(DAIL_array, 2)
     Else
         Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
         'Determinging if the MEMO's need to be sent or not. Only SNAP active only cases require a memo.
-        'msgbox snap_case & vbcr & snap_status
         If snap_case = True then
             If snap_status <> "ACTIVE" then
                 DAIL_array(case_status_const, item) = "SNAP is " & snap_status & "."
             Else
                 If case_pending = True then DAIL_array(case_status_const, item) = "Pending program."
-                'msgbox ga_status & vbcr & _
-                '    msa_status & vbcr & _
-                '    mfip_status & vbcr & _
-                '    dwp_status & vbcr & _
-                '    grh_status & vbcr & _
-                '    ma_status & vbcr & _
-                '    msp_status
                 'If other programs are active/pending then no notice is necessary
                 If  ga_case = True OR _
                     msa_case = True OR _
@@ -284,8 +274,6 @@ For item = 0 to Ubound(DAIL_array, 2)
         Else
             DAIL_array(case_status_const, item) = "SNAP not active."
         End if
-
-        'msgbox DAIL_array(send_memo_const, item)
         DAIL_array(snap_status_const, item) = snap_status
     End if
 
@@ -315,7 +303,6 @@ For item = 0 to Ubound(DAIL_array, 2)
         End if
     End if
 
-    'Testing code: Have the output occur at the end of the script run after testing.
     objExcel.Cells(DAIL_array(excel_row_const, item), 6).Value = DAIL_array(snap_status_const, item)
     objExcel.Cells(DAIL_array(excel_row_const, item), 7).Value = DAIL_array(other_programs_present_const, item)
     objExcel.Cells(DAIL_array(excel_row_const, item), 8).Value = DAIL_array(send_memo_const, item)
