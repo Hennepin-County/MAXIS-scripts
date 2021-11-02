@@ -49,6 +49,7 @@ CALL changelog_update("01/31/2020", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
 Function HCRE_panel_bypass()
 	'handling for cases that do not have a completed HCRE panel
 	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
@@ -65,16 +66,9 @@ End Function
 EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
 CALL Check_for_MAXIS(false)                         'Ensuring we are not passworded out
-'back_to_self                                        'added to ensure we have the time to update and send the case in the background
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 closing_message = "On Demand Application Waiver process has been case noted." 'setting up closing_message variable for possible additions later based on conditions
 
-
-'ensuring that the dates are infact read as dates'
-application_date = application_date & ""
-interview_date = interview_date & ""
-case_note_date = case_note_date & ""
-'notice_sent_date = notice_sent_date & ""
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 231, 185, "Notes On Demand"
@@ -109,18 +103,15 @@ Do
 		cancel_confirmation
 		IF IsNumeric(maxis_case_number) = FALSE or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF case_status_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select valid status drop down."
-		IF application_date = isDate(application_date) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
-
-		'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
-
-		'IF confirm_update_prog = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Select if a progam needs to updated on PROG."
+		IF IsDate(application_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
 		IF case_status_dropdown = "Case was not pended timely" THEN
-			IF notice_sent_date = isDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter the date the NOMI was sent."
+			IF IsDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter the date the NOMI was sent."
 		END IF
-		IF case_status_dropdown = "Denied programs for no interview" and notice_sent_date = isDate(notice_sent_date) THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
+		IF case_status_dropdown = "Denied programs for no interview" and IsDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
 		IF case_status_dropdown = "Client completed application interview" THEN
-			IF case_note_date = isDate(case_note_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case note date."
-			IF interview_date = isDate(interview_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid interview date."
+			IF confirm_update_prog = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Select if a progam needs to updated on PROG."
+			IF IsDate(case_note_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case note date."
+			IF IsDate(interview_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid interview date."
 		END IF
 		IF case_status_dropdown = "Other(please describe)" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a description of what occurred."
 		IF ButtonPressed = CASE_NOTE_button then call navigate_to_MAXIS_screen("CASE", "NOTE")
@@ -184,13 +175,13 @@ If confirm_update_prog <> "Select One:" THEN          'Interviews are only requi
     intv_day = right("00"&intv_day, 2)
     intv_yr = right(intv_yr, 2)
     intv_date_to_check = intv_mo & " " & intv_day & " " & intv_yr
-    If prog_update_SNAP_checkbox = CHECKED THEN     'If it was selected to SNAP interview to be updated
+    If confirm_update_prog = "Snap" THEN     'If it was selected to SNAP interview to be updated
         programs_w_interview = "SNAP"               'Setting a variable for case noting
         EMWriteScreen intv_mo, 10, 55               'SNAP is easy because there is only one area for interview - the variables go there
         EMWriteScreen intv_day, 10, 58
         EMWriteScreen intv_yr, 10, 61
     End If
-    If prog_update_cash_checkbox = CHECKED THEN     'If it was selected to update for Cash
+    If confirm_update_prog = "Cash" THEN     'If it was selected to update for Cash
         If programs_w_interview = "" THEN programs_w_interview = "CASH"     'variable for the case note
         If programs_w_interview <> "" THEN programs_w_interview = "SNAP and CASH"
         EMReadScreen cash_one_app, 8, 6, 33     'Reading app dates of both cash lines
@@ -223,79 +214,79 @@ If confirm_update_prog <> "Select One:" THEN          'Interviews are only requi
     Call back_to_SELF
     Call MAXIS_background_check
 
-    If intv_date_needed = TRUE and confirm_update_prog = 1 THEN         'If previous code has determined that PROG needs to be updated
+    If intv_date_needed = TRUE THEN         'If previous code has determined that PROG needs to be updated
         snap_intv_date_updated = FALSE
         cash_intv_date_updated = FALSE
         show_prog_update_failure = FALSE
         Call back_to_SELF
         CALL navigate_to_MAXIS_screen ("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
-        If prog_update_SNAP_checkbox = CHECKED Then
+    	IF confirm_update_prog = "Snap" or confirm_update_prog = "Cash & Snap" THEN
             EMReadScreen new_snap_intv_date, 8, 10, 55
             If new_snap_intv_date = intv_date_to_check Then snap_intv_date_updated = TRUE
             If snap_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
-        End If
-        If prog_update_cash_checkbox = CHECKED THEN
+		END IF
+        If confirm_update_prog = "Cash" or confirm_update_prog = "Cash & Snap" THEN
             EMReadScreen new_cash_intv_date, 8, prog_row, 55
             If new_cash_intv_date = intv_date_to_check Then cash_intv_date_updated = TRUE
             If cash_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
         End If
         If show_prog_update_failure = TRUE THEN
             fail_msg = "You have requested the script update PROG for "
-            If prog_update_SNAP_checkbox = CHECKED AND prog_update_cash_checkbox = CHECKED THEN
+            If confirm_update_prog = "Cash & Snap" THEN
                 fail_msg = fail_msg & "Cash and SNAP "
-            ElseIf prog_update_SNAP_checkbox = CHECKED THEN
+            ElseIf confirm_update_prog = "Snap"  THEN
                 fail_msg = fail_msg & "SNAP "
-            ElseIf prog_update_cash_checkbox = CHECKED THEN
+            ElseIf confirm_update_prog = "Cash"  THEN
                 fail_msg = fail_msg & "Cash "
             End If
             fail_msg = fail_msg & "to enter the interview date on PROG." & vbCr & vbCr & "The script was unable to update PROG completely." & vbCr
-            If prog_update_SNAP_checkbox = CHECKED THEN
+            If confirm_update_prog = "Snap" THEN
                 fail_msg = fail_msg & " - The SNAP Interview Date was not entered." & vbCr
-            ElseIf prog_update_cash_checkbox = CHECKED THEN
+            ElseIf confirm_update_prog = "Cash" THEN
                 fail_msg = fail_msg & " - The Cash Interview Date was not entered." & vbCr
             End If
             fail_msg = fail_msg & vbCr & "The PROG panel will need to be updated manually with the interview information."
             MsgBox fail_msg
         End If
     End If
-ELSE
-
-'this to remind workers that we must give clients 10 days when we are outside of that 30 day window for applications'
-	IF notice_sent_date <> "" THEN denial_date = dateadd("d", 10, notice_sent_date)
-	IF denial_date <= cdate then denial_date = dateadd("d", 10, date)
-	Call change_date_to_soonest_working_day(denial_date, "FORWARD")
-
-    'NOW WE START CASE NOTING - there are a few
-    start_a_blank_case_note
-    IF case_status_dropdown = "Client completed application interview" THEN
-    	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " on "  & interview_date & " PROG updated ~")
-    	CALL write_variable_in_CASE_NOTE("* Completed by previous worker per case note dated: " & case_note_date)
-    ELSEIF case_status_dropdown = "Client has not completed application interview" THEN
-    	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
-    	CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
-    	CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & notice_sent_date)
-    	CALL write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview.")
-        Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it, because the case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply. Denial can be done after " & notice_sent_date)
-    ELSEIF case_status_dropdown = "Case was not pended timely" THEN
-        CALL write_variable_in_CASE_NOTE("~ Client has not completed application interview ~")
-        CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
-        CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & notice_sent_date)
-        Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it, because the case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply. Denial can be done after " & notice_sent_date)
-    ELSEIF case_status_dropdown = "Denied programs for no interview" THEN
-        CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
-        CALL write_variable_in_CASE_NOTE("* Reason for denial: interview was not completed timely")
-        CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & notice_sent_date)
-       	CALL write_variable_in_CASE_NOTE("* Confirmed client was provided sufficient 10 day notice.")
-    ELSEIF case_status_dropdown = "Interview not needed for MFIP to SNAP transition" THEN
-    	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " ~")
-    	CALL write_variable_in_CASE_NOTE("* MFIP to SNAP transition no interview required updated PROG to reflect this")
-    END IF
-    CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-    CALL write_variable_in_CASE_NOTE("---")
-    CALL write_variable_in_CASE_NOTE (worker_signature)
-    PF3 'to save the case note'
-	script_end_procedure_with_error_report(closing_message)
 END IF
+'denial_date = dateadd("d", 0, denial_date) ' if needed this will help this the script recognize that the date is a date'
+'this to remind workers that we must give clients 10 days when we are outside of that 30 day window for applications'
+IF notice_sent_date <> "" THEN denial_date = dateadd("d", 10, notice_sent_date)
+IF denial_date < date then denial_date = dateadd("d", 10, date)
+
+'NOW WE START CASE NOTING - there are a few
+start_a_blank_case_note
+IF case_status_dropdown = "Client completed application interview" THEN
+	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " on "  & interview_date & " PROG updated ~")
+	CALL write_variable_in_CASE_NOTE("* Completed by previous worker per case note dated: " & case_note_date)
+ELSEIF case_status_dropdown = "Client has not completed application interview" THEN
+	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
+	CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
+	CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & notice_sent_date)
+	CALL write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview.")
+    Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it.")
+ELSEIF case_status_dropdown = "Case was not pended timely" THEN
+    CALL write_variable_in_CASE_NOTE("~ Client has not completed application interview ~")
+    CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
+    CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & notice_sent_date)
+    Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it, because the case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply. Denial can be done after " & denial_date)
+ELSEIF case_status_dropdown = "Denied programs for no interview" THEN
+	CALL write_variable_in_CASE_NOTE("~ Denied programs for no interview ~")
+    CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
+    CALL write_variable_in_CASE_NOTE("* Reason for denial: interview was not completed timely.")
+    CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & notice_sent_date)
+   	CALL write_variable_in_CASE_NOTE("* Confirmed client was provided sufficient 10 day notice.")
+ELSEIF case_status_dropdown = "Interview not needed for MFIP to SNAP transition" THEN
+	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " ~")
+	CALL write_variable_in_CASE_NOTE("* MFIP to SNAP transition no interview required updated PROG to reflect this")
+END IF
+CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE (worker_signature)
+PF3 'to save the case note'
+script_end_procedure_with_error_report(closing_message)
+
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
@@ -326,14 +317,14 @@ END IF
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------10/01/2021
-'--Comment Code-----------------------------------------------------------------10/01/2021
-'--Update Changelog for release/update------------------------------------------10/01/2021
-'--Remove testing message boxes-------------------------------------------------10/01/2021
-'--Remove testing code/unnecessary code-----------------------------------------10/01/2021
+'--Comment Code-----------------------------------------------------------------11/01/2021
+'--Update Changelog for release/update------------------------------------------11/01/2021
+'--Remove testing message boxes-------------------------------------------------11/01/2021
+'--Remove testing code/unnecessary code-----------------------------------------11/01/2021
 '--Review/update SharePoint instructions----------------------------------------10/01/2021
 '--Review Best Practices using BZS page ----------------------------------------10/01/2021
-'--Review script information on SharePoint BZ Script List-----------------------10/01/2021
+'--Review script information on SharePoint BZ Script List-----------------------11/01/2021
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/01/2021
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/01/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/01/2021
 '--Complete misc. documentation (if applicable)---------------------------------10/01/2021
 '--Update project team/issue contact (if applicable)----------------------------10/01/2021
