@@ -88,6 +88,8 @@ Do
   	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+Call check_for_MAXIS(False)
+
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
@@ -293,7 +295,7 @@ For item = 0 to Ubound(DAIL_array, 2)
             'THE CASE NOTE
             stats_counter = stats_counter + 1
             Call start_a_blank_CASE_NOTE
-            Call write_variable_in_CASE_NOTE("Sent SNAP 12 Month Contact letter via SPEC/MEMO on " & date)
+            Call write_variable_in_CASE_NOTE("Sent SNAP 12 Month Contact letter via MEMO on " & date)
 
             Call write_variable_in_CASE_NOTE("---")
             Call write_variable_in_CASE_NOTE(worker_signature)
@@ -338,4 +340,44 @@ file_info = month_folder & "\" & decimator_folder & "\" & report_date & " SNAP 1
 'Saves and closes the most recent Excel workbook with the Task based cases to process.
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 
-script_end_procedure("Success! Please review the list created for accuracy.")
+script_end_procedure_with_error_report("Success! Please review the list created for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/02/2021
+'--Tab orders reviewed & confirmed----------------------------------------------11/02/2021
+'--Mandatory fields all present & Reviewed--------------------------------------11/02/2021
+'--All variables in dialog match mandatory fields-------------------------------11/02/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------11/02/2021--------------N/A no varibles, just standard text
+'--CASE:NOTE Header doesn't look funky------------------------------------------11/02/2021--------------updated to remove "SPEC" from header
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/02/2021--------------N/A - Bulk run
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/02/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------11/02/2021
+'--PRIV Case handling reviewed -------------------------------------------------11/02/2021
+'--Out-of-County handling reviewed----------------------------------------------11/02/2021
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/02/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------11/02/2021
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------11/02/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------11/02/2021
+'--Denomination reviewed -------------------------------------------------------11/02/2021
+'--Script name reviewed---------------------------------------------------------11/02/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------11/02/2021
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------11/02/2021
+'--comment Code-----------------------------------------------------------------11/02/2021
+'--Update Changelog for release/update------------------------------------------11/02/2021
+'--Remove testing message boxes-------------------------------------------------11/02/2021
+'--Remove testing code/unnecessary code-----------------------------------------11/02/2021
+'--Review/update SharePoint instructions----------------------------------------11/02/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/02/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/02/2021
+'--Complete misc. documentation (if applicable)---------------------------------11/02/2021
+'--Update project team/issue contact (if applicable)----------------------------11/02/2021
