@@ -2141,24 +2141,23 @@ For action_case = 0 to UBOUND(ACTION_TODAY_CASES_ARRAY, 2)      'looping through
     IF ACTION_TODAY_CASES_ARRAY(error_notes, action_case) <> "" AND left(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), 3) = " - " THEN ACTION_TODAY_CASES_ARRAY(error_notes, action_case) = right(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), len(ACTION_TODAY_CASES_ARRAY(error_notes, action_case))- 3)
 
     'adding the information from the ARRAY to the spreadsheet
-    ObjExcel.Cells(action_row, worker_id_col)        = ACTION_TODAY_CASES_ARRAY(worker_ID, action_case)
-    ObjExcel.Cells(action_row, case_nbr_col)         = ACTION_TODAY_CASES_ARRAY(case_number, action_case)
-    ObjExcel.Cells(action_row, case_name_col)        = ACTION_TODAY_CASES_ARRAY(client_name, action_case)
-    ObjExcel.Cells(action_row, snap_stat_col)        = ACTION_TODAY_CASES_ARRAY(SNAP_status, action_case)
-    ObjExcel.Cells(action_row, cash_stat_col)        = ACTION_TODAY_CASES_ARRAY(CASH_status, action_case)
-    ObjExcel.Cells(action_row, app_date_col)         = ACTION_TODAY_CASES_ARRAY(application_date, action_case)
-    ObjExcel.Cells(action_row, intvw_date_col)       = ACTION_TODAY_CASES_ARRAY(interview_date, action_case)
-    ObjExcel.Cells(action_row, quest_intvw_date_col) = ACTION_TODAY_CASES_ARRAY(questionable_intv, action_case)
-    ObjExcel.Cells(action_row, appt_notc_date_col)   = ACTION_TODAY_CASES_ARRAY(appt_notc_sent, action_case)
-    ObjExcel.Cells(action_row, appt_notc_confirm_col)= ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, action_case)
-    ObjExcel.Cells(action_row, appt_date_col)        = ACTION_TODAY_CASES_ARRAY(appointment_date, action_case)
-    ObjExcel.Cells(action_row, nomi_date_col)        = ACTION_TODAY_CASES_ARRAY(nomi_sent, action_case)
-    ObjExcel.Cells(action_row, nomi_confirm_col)     = ACTION_TODAY_CASES_ARRAY(nomi_confirm, action_case)
-    ObjExcel.Cells(action_row, need_deny_col)        = ACTION_TODAY_CASES_ARRAY(deny_day30, action_case)
-    ObjExcel.Cells(action_row, deny_notc_confirm_col)= ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, action_case)
-    ObjExcel.Cells(action_row, next_action_col)      = ACTION_TODAY_CASES_ARRAY(next_action_needed, action_case)
-    ObjExcel.Cells(action_row, correct_need_col)     = ACTION_TODAY_CASES_ARRAY(error_notes, action_case)
-
+    ObjExcel.Cells(action_row, worker_id_col)        	= ACTION_TODAY_CASES_ARRAY(worker_ID, action_case)
+    ObjExcel.Cells(action_row, case_nbr_col)         	= ACTION_TODAY_CASES_ARRAY(case_number, action_case)
+    ObjExcel.Cells(action_row, case_name_col)        	= ACTION_TODAY_CASES_ARRAY(client_name, action_case)
+    ObjExcel.Cells(action_row, snap_stat_col)        	= ACTION_TODAY_CASES_ARRAY(SNAP_status, action_case)
+    ObjExcel.Cells(action_row, cash_stat_col)        	= ACTION_TODAY_CASES_ARRAY(CASH_status, action_case)
+    ObjExcel.Cells(action_row, app_date_col)         	= ACTION_TODAY_CASES_ARRAY(application_date, action_case)
+    ObjExcel.Cells(action_row, intvw_date_col)       	= ACTION_TODAY_CASES_ARRAY(interview_date, action_case)
+    ObjExcel.Cells(action_row, quest_intvw_date_col) 	= ACTION_TODAY_CASES_ARRAY(questionable_intv, action_case)
+    ObjExcel.Cells(action_row, appt_notc_date_col)   	= ACTION_TODAY_CASES_ARRAY(appt_notc_sent, action_case)
+    ObjExcel.Cells(action_row, appt_notc_confirm_col)	= ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, action_case)
+    ObjExcel.Cells(action_row, appt_date_col)        	= ACTION_TODAY_CASES_ARRAY(appointment_date, action_case)
+    ObjExcel.Cells(action_row, nomi_date_col)        	= ACTION_TODAY_CASES_ARRAY(nomi_sent, action_case)
+    ObjExcel.Cells(action_row, nomi_confirm_col)     	= ACTION_TODAY_CASES_ARRAY(nomi_confirm, action_case)
+    ObjExcel.Cells(action_row, need_deny_col)        	= ACTION_TODAY_CASES_ARRAY(deny_day30, action_case)
+    ObjExcel.Cells(action_row, deny_notc_confirm_col)	= ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, action_case)
+    ObjExcel.Cells(action_row, next_action_col)      	= ACTION_TODAY_CASES_ARRAY(next_action_needed, action_case)
+    ObjExcel.Cells(action_row, correct_need_col)     	= ACTION_TODAY_CASES_ARRAY(error_notes, action_case)
     action_row = action_row + 1     'go to the next row
 Next
 
@@ -2173,33 +2172,33 @@ statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Imp
 call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
 
 'Now we need to open the right worksheet
-'Select Case MonthName(Month(#2/15/21#)) 'will need to be updated to 2022
+'Select Case MonthName(Month(#2/15/21#)) 'will need to be updated for future dates and tracking
 
 Select Case MonthName(Month(date))
     Case "January"
-        sheet_selection = "January"
+        sheet_selection = "January 2020"
     Case "February"
-        sheet_selection = "February"
+        sheet_selection = "February 2020"
     Case "March"
-        sheet_selection = "March"
+        sheet_selection = "March 2020"
     Case "April"
-        sheet_selection = "April"
+        sheet_selection = "April 2020"
     Case "May"
-        sheet_selection = "May"
+        sheet_selection = "May 2020"
     Case "June"
-        sheet_selection = "June"
+        sheet_selection = "June 2020"
     Case "July"
-        sheet_selection = "July"
+        sheet_selection = "July 2020"
     Case "August"
-        sheet_selection = "August"
+        sheet_selection = "August 2020"
     Case "September"
-        sheet_selection = "September"
+        sheet_selection = "September 2020"
     Case "October"
-        sheet_selection = "October"
+        sheet_selection = "October 2020"
     Case "November"
-        sheet_selection = "November"
+        sheet_selection = "November 2020"
     Case "December"
-        sheet_selection = "December"
+        sheet_selection = "December 2020"
 End Select
 'Activates worksheet based on user selection
 ObjStatsExcel.worksheets(sheet_selection).Activate   'activates the stat worksheet.'
