@@ -322,7 +322,6 @@ const on_working_list       = 23
 const questionable_intv     = 24
 const take_action_today     = 25
 
-
 const worker_name_one       = 26
 const sup_name_one          = 27
 const issue_item_one        = 28
@@ -497,7 +496,6 @@ Do
                 CASES_NO_LONGER_WORKING(qi_worker_three, case_removed) = ObjWorkExcel.Cells(row, qi_worker_three_col)
 
                 CASES_NO_LONGER_WORKING(error_notes, case_removed) = "Interview Completed on " & TODAYS_CASES_ARRAY(interview_date, each_case)  'This field is used on the removed cases list to indicate WHY it no longer needs to be on the working list
-
 
                 case_removed = case_removed + 1     'increasing the incrementer for the removed cases ARRAY
                 'DELETING THE ROW FOR THIS CASE FROM THE WORKING LIST- notice that ROW does not increase as the curent row is now new
@@ -1866,6 +1864,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
     ObjWorkExcel.Cells(row, nomi_date_col).Value = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
     ObjWorkExcel.Cells(row, nomi_confirm_col).Value = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
+
+	
     If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
         ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
         ObjWorkExcel.Rows(row).Font.Bold = TRUE
