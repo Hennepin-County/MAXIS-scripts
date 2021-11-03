@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/03/2021", "Added United HealthCare plan option as a selection with the plan code. This plan is available starting in January 2022.##~## ##~##DO NOT ENROLL RESIDENTS IN THIS PLAN PRIOR TO 01/2022. MMIS WILL ERROR AS THAT PLAN IS NOT AVAILBLE FOR A MONTH PRIOR TO 01/2022##~##", "Casey Love, Hennepin County")
 call changelog_update("04/24/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
