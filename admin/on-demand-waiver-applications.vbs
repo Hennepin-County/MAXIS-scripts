@@ -111,6 +111,17 @@ function start_a_new_spec_memo_and_continue(success_var)
 	transmit                                                        'Transmits to start the memo writing process
 end function
 
+' function ONLY_create_MAXIS_friendly_date(date_variable)
+' '--- This function creates a MM DD YY date.
+' '~~~~~ date_variable: the name of the variable to output
+' 	var_month = datepart("m", date_variable)
+' 	If len(var_month) = 1 then var_month = "0" & var_month
+' 	var_day = datepart("d", date_variable)
+' 	If len(var_day) = 1 then var_day = "0" & var_day
+' 	var_year = datepart("yyyy", date_variable)
+' 	var_year = right(var_year, 2)
+' 	date_variable = var_month &"/" & var_day & "/" & var_year
+' end function
 
 'LEAVING THIS HERE - NOT USED AT THIS TIME
 'However the script has a planned enhancement to update PND2 and checking it will be a good idea.
@@ -224,13 +235,6 @@ query_start_time = timer
 '------------------------------------------------------------------------------------------------------establishing date variables
 MAXIS_footer_month = CM_plus_1_mo   'Setting footer month and year
 MAXIS_footer_year = CM_plus_1_yr
-
-'intv_day = right("00" & DatePart("d", date), 2)
-'Intv_mo  = right("00" & DatePart("m", date), 2)
-'intv_yr  = right(DatePart("yyyy", date), 2)
-
-' CM_minus_1_mo = right("0" & DatePart("m", DateAdd("m", -1, date)), 2)
-' CM_minus_1_yr = right(DatePart("yyyy", DateAdd("m", -1, date)), 2)
 
 'Opens the current day's list
 
@@ -378,10 +382,6 @@ const issue_item_three_col  = 31
 const email_ym_three_col    = 32
 const qi_worker_three_col   = 33
 
-' const action_worker_col     = 20
-' const action_sup_col        = 21
-' const email_sent_col        = 22
-
 'ARRAY used to store ALL the cases listed on the BOBI today
 Dim TODAYS_CASES_ARRAY()
 ReDim TODAYS_CASES_ARRAY(error_notes, 0)
@@ -441,13 +441,13 @@ Dim CASES_NO_LONGER_WORKING()
 ReDim CASES_NO_LONGER_WORKING(error_notes, 0)
 
 case_entry = 0      'incrementor to add a case to ALL_PENDING_CASES_ARRAY
-case_removed = 0    'incrementer to add a case to CASES_NO_LONGER_WORKING
+case_removed = 0    'incrementor to add a case to CASES_NO_LONGER_WORKING
 row = 2             'Working Excel sheet starts with cases on row 2
 
 'This do loops through all of the cases that are already on the working sheet to see if we can find them in today's array
 Do
     case_number_to_assess = trim(objWorkExcel.Cells(row, 2).Value)  'getting the case number in the Working Excel sheet
-    found_case_on_todays_list = FALSE                               'this boolean is used to determine if the case number is on the BOBI run today
+    found_case_on_todays_list = FALSE                               'this Boolean is used to determine if the case number is on the BOBI run today
     If trim(case_number_to_assess) = "" Then Exit DO                'if the cell is blank, we are at the end of the list.
 
     For each_case = 0 to UBound(TODAYS_CASES_ARRAY, 2)              'This loops through each case that was on the BOBI today
@@ -1002,7 +1002,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "" Then MsgBox "Case Number: " & ALL_PENDING_CASES_ARRAY(case_number, case_entry) & vbNewLine & "Does not have an action to take!!!"           'This is here for testing but has never come up
 
         'For cases that need an action taken and we do not know an interview date - we will check the case notes for a note that indicates an interview may have happened
-        If ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE and ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" or ALL_PENDING_CASES_ARRAY(interview_date, case_entry) Then
+        If ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE and (ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" or (ALL_PENDING_CASES_ARRAY(interview_date, case_entry) <> "" AND ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y")) Then
             Call navigate_to_MAXIS_screen("CASE", "NOTE")       'go to case note
             note_row = 5                                        'setting these for the beginning of the loop to look through all the notes
             start_dates = ""
@@ -1020,7 +1020,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                 EMReadScreen note_title, 55, note_row, 25       'read the title of the note
                 note_title = trim(note_title)
                 check_this_date = TRUE                          'setting this as the default.
-
+				IF note_date = "        " THEN EXIT DO
                 array_of_dates = ""                             'clearing the array from previous loops
                 If InStr(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), "~") <> 0 Then             'if there is a ~ that means there is a list of dates
                     array_of_dates = split(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), "~")     'if there is a list then it should be split in to an array
@@ -1037,12 +1037,12 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                     If ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" Then            'If the questionable interview date is not blank
                         Call convert_to_mainframe_date(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry), 2)   'making it mm/dd/yy for comparison
                         'MsgBox "Already known questionable date: " & ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) & vbNewLine & "Note Date: " & note_date
-                        if DateValue(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)) = DateValue(note_date) Then check_this_date = FALSE        'if the already known questionable interview matches the date of the case notes then we will not assess the note
+                        if DateValue(ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)) = DateValue(note_date) Then check_this_date = FALSE        'IF the already known questionable interview matches the date of the case notes then we will not assess the note
                     End If
                 End If
 
                 If check_this_date = TRUE Then 'if a questionable interview date is left on the spreadsheet - that means it has been reviewed and is NOT an interview.
-                    'All of these notes are used when intervies are done HOWEVER sometimes these notes are made when there is NO interview so we cannot assume the interview has happened - a worker must actually review these questionable interviews
+                    'All of these notes are used when interviews are done HOWEVER sometimes these notes are made when there is NO interview so we cannot assume the interview has happened - a worker must actually review these questionable interviews
                     'We will also add the note date to the list of questionable interviews
                     IF left(note_title, 15) = "***Add program:" then
                         ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) & "~" & note_date
@@ -1136,7 +1136,7 @@ back_to_SELF
 Dim ACTION_TODAY_CASES_ARRAY()
 ReDim ACTION_TODAY_CASES_ARRAY(error_notes, 0)
 
-todays_cases = 0        'incrementer for adding to this new array
+todays_cases = 0        'incrementor for adding to this new array
 
 'this FOR-NEXT adds information back to Excel - so people need to STAY OUT
 For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cases on the Working Excel
@@ -2137,7 +2137,7 @@ ObjExcel.Rows(1).Font.Bold = TRUE       'header row is bold
 action_row = 2      'setting the first row
 For action_case = 0 to UBOUND(ACTION_TODAY_CASES_ARRAY, 2)      'looping through the ARRAY created when we took actions on the cases on the Working Excel
 
-    'removing leading seperators
+    'removing leading separators
     IF ACTION_TODAY_CASES_ARRAY(error_notes, action_case) <> "" AND left(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), 3) = " - " THEN ACTION_TODAY_CASES_ARRAY(error_notes, action_case) = right(ACTION_TODAY_CASES_ARRAY(error_notes, action_case), len(ACTION_TODAY_CASES_ARRAY(error_notes, action_case))- 3)
 
     'adding the information from the ARRAY to the spreadsheet
@@ -2173,35 +2173,33 @@ statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Imp
 call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
 
 'Now we need to open the right worksheet
-'Select Case MonthName(Month(#2/15/21#)) 'need to be updated to 2021
+'Select Case MonthName(Month(#2/15/21#)) 'will need to be updated to 2022
 
 Select Case MonthName(Month(date))
-
     Case "January"
-        sheet_selection = "January 2020"
+        sheet_selection = "January"
     Case "February"
-        sheet_selection = "February 2020"
+        sheet_selection = "February"
     Case "March"
-        sheet_selection = "March 2020"
+        sheet_selection = "March"
     Case "April"
-        sheet_selection = "April 2020"
+        sheet_selection = "April"
     Case "May"
-        sheet_selection = "May 2020"
+        sheet_selection = "May"
     Case "June"
-        sheet_selection = "June 2020"
+        sheet_selection = "June"
     Case "July"
-        sheet_selection = "July 2020"
+        sheet_selection = "July"
     Case "August"
-        sheet_selection = "August 2020"
+        sheet_selection = "August"
     Case "September"
-        sheet_selection = "September 2020"
+        sheet_selection = "September"
     Case "October"
-        sheet_selection = "October 2020"
+        sheet_selection = "October"
     Case "November"
-        sheet_selection = "November 2020"
+        sheet_selection = "November"
     Case "December"
-        sheet_selection = "December 2020"
-
+        sheet_selection = "December"
 End Select
 'Activates worksheet based on user selection
 ObjStatsExcel.worksheets(sheet_selection).Activate   'activates the stat worksheet.'
