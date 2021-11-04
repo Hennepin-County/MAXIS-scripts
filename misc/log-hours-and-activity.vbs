@@ -55,6 +55,30 @@ switch_activity_button = 1002
 start_break_button = 1003
 end_work_day_button  = 1004
 '===========================================================================================================================
+'setting the current time and fifteen minutes from now for display/defaulting
+now_time = time
+end_time_hr = DatePart("h", now_time)
+end_time_min = DatePart("n", now_time)
+If end_time_min = 1 OR end_time_min = 2 Then end_time_min = 0
+If end_time_min = 3 OR end_time_min = 4 OR end_time_min = 6 OR end_time_min = 7 Then end_time_min = 5
+If end_time_min = 8 OR end_time_min = 9 OR end_time_min = 11 OR end_time_min = 12 Then end_time_min = 10
+If end_time_min = 13 OR end_time_min = 14 OR end_time_min = 16 OR end_time_min = 17 Then end_time_min = 15
+If end_time_min = 18 OR end_time_min = 19 OR end_time_min = 21 OR end_time_min = 22 Then end_time_min = 20
+If end_time_min = 23 OR end_time_min = 24 OR end_time_min = 26 OR end_time_min = 27 Then end_time_min = 25
+If end_time_min = 28 OR end_time_min = 29 OR end_time_min = 31 OR end_time_min = 32 Then end_time_min = 30
+If end_time_min = 33 OR end_time_min = 34 OR end_time_min = 36 OR end_time_min = 37 Then end_time_min = 35
+If end_time_min = 38 OR end_time_min = 39 OR end_time_min = 41 OR end_time_min = 42 Then end_time_min = 40
+If end_time_min = 43 OR end_time_min = 44 OR end_time_min = 46 OR end_time_min = 47 Then end_time_min = 45
+If end_time_min = 48 OR end_time_min = 49 OR end_time_min = 51 OR end_time_min = 52 Then end_time_min = 50
+If end_time_min = 53 OR end_time_min = 54 OR end_time_min = 56 OR end_time_min = 57 Then end_time_min = 55
+If end_time_min = 58 OR end_time_min = 59 Then
+	end_time_min = 0
+	end_time_hr = end_time_hr + 1
+End If
+
+now_time = TimeSerial(end_time_hr, end_time_min, 0)
+fifteen_minutes_from_now = DateAdd("n", 15, now_time)
+end_time = now_time & ""
 
 'Defining the excel files for when running the script
 excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking"
@@ -72,21 +96,40 @@ If user_ID_for_validation = "WFS395" Then
 	my_docs_excel_file_path = user_myDocs_folder & "MiKayla Time Tracking 2021.xlsx"
 End If
 
-Call excel_open(my_docs_excel_file_path, False, False, ObjExcel, objWorkbook)		'opening the excel file
+view_excel = False		'this variable allows us to set
+Call excel_open(my_docs_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file
 
 on_task = False						'default the booleans
 current_task_from_today = False
-
+project_droplist = ""
 'find the open ended line
-excel_row = 1
+excel_row = 2
 Do
-	' row_date = ObjExcel.Cells(excel_row, 1).Value								'removing this from here for now so we read it after we find the last row
+	row_date = ObjExcel.Cells(excel_row, 1).Value								'removing this from here for now so we read it after we find the last row
 	' row_start_time = ObjExcel.Cells(excel_row, 2).Value
 	' row_end_time = ObjExcel.Cells(excel_row, 3).Value
 	' row_start_time = row_start_time * 24
 	' row_end_time = row_end_time * 24
-
-	' row_date = DateAdd("d", 0, row_date)
+	' MsgBox row_date
+	row_date = DateAdd("d", 0, row_date)
+	If DateDiff("d", row_date, date) < 31 Then
+		listed_project = trim(ObjExcel.Cells(excel_row, 9).Value)
+		If listed_project <> "" Then
+			If InStr(project_droplist, listed_project) = 0 Then
+				project_droplist = project_droplist & "~!~" & listed_project
+			End If
+		End If
+	End If
+	listed_project = ""
+	' If row_date = date Then
+	' 		time_spent = ObjExcel.Cells(excel_row, 4).Value
+	' 		If time_spent <> "" Then
+	' 		time_spent_hour = DatePart("h", TIME_TRACKING_ARRAY(activity_time_spent, activity_count))					'here we create a number of the time spend so we can add it together
+	' 		time_spent_min = DatePart("n", TIME_TRACKING_ARRAY(activity_time_spent, activity_count))
+	' 		time_spent_min = time_spent_min/60
+	' 		TIME_TRACKING_ARRAY(activity_time_spent_val, activity_count) = time_spent_hour + time_spent_min				'saving the time spent value into the array
+	' 	End If
+	' End If
 	' If IsNumeric(row_start_time) = True and row_end_time = "" Then
 	' 	on_task = True
 	' 	If DateDiff("d", row_date, date) = 0 then current_task_from_today = True
@@ -94,6 +137,7 @@ Do
 	excel_row = excel_row + 1
 	next_row_date = ObjExcel.Cells(excel_row, 1).Value
 Loop until next_row_date = ""
+project_droplist = replace(project_droplist, "~!~", chr(9))
 
 row_date = ObjExcel.Cells(excel_row - 1, 1).Value								'excel_row is now the first blank row, so we read the last row
 row_start_time = ObjExcel.Cells(excel_row - 1, 2).Value
@@ -230,14 +274,6 @@ If on_task = True and current_task_from_today = True Then						'If we are on a t
 	Loop until err_msg = ""
 End If
 
-'setting the current time and fifteen minutes from now for display/defaulting
-now_time = time
-end_time_hr = DatePart("h", now_time)
-end_time_min = DatePart("n", now_time)
-now_time = TimeSerial(end_time_hr, end_time_min, 0)
-fifteen_minutes_from_now = DateAdd("n", 15, now_time)
-end_time = now_time & ""
-
 If on_task = False Then					'If we are not currently on a task, this will start a new activity only
 	next_date = date & ""				'defaulting the end time and date
 	next_start_time = now_time & ""
@@ -250,7 +286,7 @@ If on_task = False Then					'If we are not currently on a task, this will start 
 		  DropListBox 65, 65, 155, 45, "Select One..."+chr(9)+"Admin"+chr(9)+"Break"+chr(9)+"Consulting on Systems and Processes"+chr(9)+"Department Wide Script Tools"+chr(9)+"New Projects and Script Development"+chr(9)+"Ongoing Script Support"+chr(9)+"Other"+chr(9)+"Personal Skills Development"+chr(9)+"Team Strategy Development"+chr(9)+"Training"+chr(9)+"Travel", next_category
 		  EditBox 50, 85, 170, 15, next_detail
 		  DropListBox 265, 25, 30, 45, "?"+chr(9)+"Yes", next_meeting
-		  EditBox 260, 45, 90, 15, next_project
+		  ComboBox 260, 45, 90, 15, project_droplist, next_project
 		  EditBox 280, 65, 35, 15, next_gh_issue
 		  ButtonGroup ButtonPressed
 			OkButton 255, 115, 50, 15
@@ -317,7 +353,26 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 		ObjExcel.Cells(current_task_row, 3).Value = end_time					'enter the end time and calculation
 		ObjExcel.Cells(current_task_row, 4).Value = "=TEXT([@[End Time]]-[@[Start Time]],"+chr(34)+"h:mm"+chr(34)+")"
 
-		end_msg = "Your work day has ended at " & end_time & vbCr & vbCr & "Have a wonderful rest of the day!"
+		total_time_spent_today = 0
+		excel_row = current_task_row
+		Do
+			row_date = ObjExcel.Cells(excel_row, 1).Value
+			If row_date = date Then
+				time_spent = ObjExcel.Cells(excel_row, 4).Value
+				paid_yn = ObjExcel.Cells(excel_row, 10).Value
+
+				If time_spent <> "" and paid_yn = "Y" Then
+					time_spent_hour = DatePart("h", time_spent)					'here we create a number of the time spend so we can add it together
+					time_spent_min = DatePart("n", time_spent)
+					time_spent_min = time_spent_min/60
+					time_spent_val = time_spent_hour + time_spent_min				'saving the time spent value into the array
+					total_time_spent_today = total_time_spent_today + time_spent_val
+				End If
+			End If
+			excel_row = excel_row - 1
+		Loop Until row_date <> date
+
+		end_msg = "Your work day has ended at " & end_time & vbCr & vbCr & "You have worked a total of " & total_time_spent_today & " hours today." & vbCr & vbCr & "Have a wonderful rest of the day!"
 	End If
 
 	If ButtonPressed = start_break_button Then									'starting a break
@@ -385,7 +440,7 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 			  DropListBox 65, 60, 155, 45, "Select One..."+chr(9)+"Admin"+chr(9)+"Break"+chr(9)+"Consulting on Systems and Processes"+chr(9)+"Department Wide Script Tools"+chr(9)+"New Projects and Script Development"+chr(9)+"Ongoing Script Support"+chr(9)+"Other"+chr(9)+"Personal Skills Development"+chr(9)+"Supervisory"+chr(9)+"Team Strategy Development"+chr(9)+"Training"+chr(9)+"Travel", next_category
 			  EditBox 50, 80, 170, 15, next_detail
 			  DropListBox 265, 40, 30, 45, "?"+chr(9)+"Yes", next_meeting
-			  EditBox 260, 60, 90, 15, next_project
+			  ComboBox 260, 60, 90, 15, project_droplist, next_project
 			  EditBox 280, 80, 35, 15, next_gh_issue
 			  ButtonGroup ButtonPressed
 				OkButton 255, 110, 50, 15
