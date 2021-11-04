@@ -148,7 +148,7 @@ End If
 
 open_enrollment_case = FALSE
 ask_about_oe = FALSE
-nov_cut_off_date = #11/17/2020#
+nov_cut_off_date = #11/17/2021#
 If Month(date) = 10 OR Month(date) = 11 Then
 	If DateDiff("d", date, nov_cut_off_date) > 0 Then ask_about_oe = TRUE
 End If
@@ -157,7 +157,7 @@ If ask_about_oe = TRUE Then
 	ask_if_open_enrollment = MsgBox("Are you processing an Open Enrollment?", vbQuestion + vbYesNo, "Open Enrollment?")
 	If ask_if_open_enrollment = vbYes Then
 		enrollment_month = "01"
-		enrollment_year = "21"
+		enrollment_year = "22"
 		open_enrollment_case = TRUE
 		case_open_enrollment_yn = "Yes"
 	End If
@@ -240,7 +240,7 @@ Do
 	If enrollment_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate where the request for the enrollment came from (phone call or enrollment form)."
 	If case_open_enrollment_yn = "Yes" Then
 		enrollment_month = "01"
-		enrollment_year = "21"
+		enrollment_year = "22"
 		open_enrollment_case = TRUE
 	Else
 		If enrollment_month = "" OR enrollment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year enrollment is effective."
