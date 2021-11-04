@@ -139,7 +139,11 @@ function script_search(name_of_the_scripts)
 		dialog Dialog1
 
 		For the_script = 0 to UBound(script_array, 1)
-			If ButtonPressed = script_array(the_script).script_btn_one Then name_of_the_scripts = name_of_the_scripts & ", " & script_array(the_script).category & " - " & script_array(the_script).script_name
+			If ButtonPressed = script_array(the_script).script_btn_one Then
+				name_of_the_scripts = name_of_the_scripts & ", " & script_array(the_script).category & " - " & script_array(the_script).script_name
+				If script_array(the_script).category = "NOTES" AND script_array(the_script).script_name = "CAF" Then caf_script_reported = True
+				If script_array(the_script).category = "NOTES" AND script_array(the_script).script_name = "Interview" Then interview_script_reported = True
+			End If
 		Next
 
 	Loop until ButtonPressed = done_btn
@@ -153,13 +157,13 @@ end function
 '===========================================================================================================================
 EMConnect ""											'connecting to MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)		'Grabbing the case number if it can find one
-
+call find_user_name(email_signature)
 
 Do
     err_msg = ""
 
 	BeginDialog Dialog1, 0, 0, 436, 300, "What Type of Report Do you Have"
-	  DropListBox 10, 100, 420, 45, "Select One..."+chr(9)+"Something went wrong with a script run (Bug or Error Report)"+chr(9)+"Idea for improving a current script (Enhancement Request)"+chr(9)+"Idea for a New Script"+chr(9)+"There is a process that needs automation"+chr(9)+"Data or Lists needed"+chr(9)+"Script Instructions or Documentation Needed"+chr(9)+"Unsure", report_type
+	  DropListBox 10, 100, 420, 45, "Select One..."+chr(9)+"Something went wrong with a script run (Bug or Error Report)"+chr(9)+"Error Occured on the NOTES - Interview script"+chr(9)+"Error Occured on the NOTES - CAF script"+chr(9)+"Idea for improving a current script (Enhancement Request)"+chr(9)+"Idea for a New Script"+chr(9)+"There is a process that needs automation"+chr(9)+"Data or Lists needed"+chr(9)+"Script Instructions or Documentation Needed"+chr(9)+"Unsure", report_type
 	  ButtonGroup ButtonPressed
 	    OkButton 325, 280, 50, 15
 	    CancelButton 380, 280, 50, 15
@@ -187,6 +191,19 @@ Do
 	If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
 
 Loop until err_msg = ""
+interview_script_reported = False
+caf_script_reported = False
+If report_type = "Error Occured on the NOTES - Interview script" Then
+	report_type = "Something went wrong with a script run (Bug or Error Report)"
+	error_script_name = "NOTES - Interview"
+	interview_script_reported = True
+End If
+
+If report_type = "Error Occured on the NOTES - CAF script" Then
+	report_type = "Something went wrong with a script run (Bug or Error Report)"
+	error_script_name = "NOTES - CAF"
+	caf_script_reported = True
+End If
 
 If report_type = "Unsure" Then
 	BeginDialog Dialog1, 0, 0, 461, 155, "Identify Script Report Type"
@@ -297,7 +314,6 @@ Select Case report_type
 
 			message_confirmed = MsgBox("REVIEW THE WORDING OF YOUR EMAIL TO THE BZST:" & vbCr & vbCr & email_body, vbQuestion + vbYesNo, email_subject)
 		Loop until message_confirmed = vbYes
-
 
 	Case "Idea for improving a current script (Enhancement Request)"
 
@@ -645,9 +661,26 @@ Select Case report_type
 			message_confirmed = MsgBox("REVIEW THE WORDING OF YOUR EMAIL TO THE BZST:" & vbCr & vbCr & email_body, vbQuestion + vbYesNo, email_subject)
 		Loop until message_confirmed = vbYes
 End Select
+attachment_here = ""
+If interview_script_reported = True Then
+	local_interview_save_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+	With objFSO
+		If .FileExists(local_interview_save_work_path) = True then
+			attachment_here = local_interview_save_work_path
+		End if
+	End With
+End If
+If caf_script_reported = True Then
+	local_CAF_save_work_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
+	With objFSO
+		If .FileExists(local_CAF_save_work_path) = True then
+			attachment_here = local_CAF_save_work_path
+		End if
+	End With
+End If
 
 email_body = "~~This email is generated from completion of the 'Report to the BZST' Script.~~" & vbCr & vbCr & email_body
-call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, "", TRUE)
+call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, attachment_here, TRUE)
 
 STATS_manualtime = (timer-start_time) + 90
 end_msg = "Thank you!" & vbCr & "The Script to Report to BZST is Complete." & vbCr & vbCr & "Your Report has been submitted to the BlueZone Script Team. We will respond within a week. This response may not a resolution as some requests take longer for the team to discuss, plan and schedule."
