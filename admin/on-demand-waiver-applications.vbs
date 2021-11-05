@@ -1850,6 +1850,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     row = ALL_PENDING_CASES_ARRAY(excel_row, case_entry)    'setting the excel row
 
     'Now all the new information is added back to the Working Excel sheet
+	ObjWorkExcel.Rows(row).Font.ColorIndex = 1  'BLACK'
+	ObjWorkExcel.Rows(row).Font.Bold = FALSE
     ObjWorkExcel.Cells(row, worker_id_col).Value = ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
     ObjWorkExcel.Cells(row, case_nbr_col).Value = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
     ObjWorkExcel.Cells(row, case_name_col).Value = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
@@ -1865,8 +1867,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     ObjWorkExcel.Cells(row, nomi_date_col).Value = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
     ObjWorkExcel.Cells(row, nomi_confirm_col).Value = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
 
-	
-    If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
+	If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
         ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
         ObjWorkExcel.Rows(row).Font.Bold = TRUE
     End If
