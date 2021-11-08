@@ -10391,7 +10391,25 @@ function script_end_procedure_with_error_report(closing_message)
 
             If script_run_lowdown <> "" Then full_text = full_text & vbCr & vbCr & "All Script Run Details:" & vbCr & script_run_lowdown
 
-            Call create_outlook_email(bzt_email, "", subject_of_email, full_text, "", true)
+			attachment_here = ""
+			If name_of_script = "NOTES - CAF.vbs" Then
+				local_CAF_save_work_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
+				With objFSO
+					If .FileExists(local_CAF_save_work_path) = True then
+						attachment_here = local_CAF_save_work_path
+					End if
+				End With
+			End If
+			If name_of_script = "ACTIONS - INTERVIEW.vbs" Then
+				local_interview_save_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+				With objFSO
+					If .FileExists(local_interview_save_work_path) = True then
+						attachment_here = local_interview_save_work_path
+					End if
+				End With
+			End If
+
+            Call create_outlook_email(bzt_email, "", subject_of_email, full_text, attachment_here, true)
 
             MsgBox "Error Report completed!" & vbNewLine & vbNewLine & "Thank you for working with us for Continuous Improvement."
         Else
