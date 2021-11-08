@@ -72,6 +72,7 @@ DO
 		Dialog1 = "" 'Blanking out previous dialog detail
 		BeginDialog Dialog1, 0, 0, 306, 110, "PRIV Case Access"
 		  EditBox 80, 25, 60, 15, MAXIS_case_number
+		  CheckBox 160, 30, 125, 10, "Check here if you are on the phone", resident_on_phone_checkbox
 		  EditBox 80, 45, 60, 15, x_number
 		  EditBox 80, 65, 200, 15, notes
 		  EditBox 80, 90, 115, 15, worker_name
@@ -80,6 +81,7 @@ DO
 		    CancelButton 255, 90, 50, 15
 		  Text 10, 10, 280, 10, "Request Knowledge Now to update MAXIS to allow you access to a privileged case."
 		  Text 10, 30, 70, 10, "PRIV Case Number:"
+		  Text 170, 40, 60, 10, "with the resident."
 		  Text 20, 50, 55, 10, "Your X-Number:"
 		  Text 15, 70, 60, 10, "Information/Notes:"
 		  Text 20, 95, 55, 10, "Sign your Email"
@@ -99,6 +101,19 @@ DO
 		If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
 	Loop until err_msg = ""
 
+	Call back_to_SELF
+
+	Call navigate_to_MAXIS_panel("STAT", "SUMM")
+	'READ WHERE PRIVED TO
+
+	' If in X127966 or X127Y86 – these cases are Safe at Home cases and cannot be transferred. The call/work needs to be sent to one of the Safe at Home workers. HSR MANUAL ABOUT SAFE AT HOME CASES
+	'
+	' If it is in x127FG1, x127FG2, or x127EW4 then it is handled by Team 469 and cannot be transferred. The call/work needs to be sent to Team 469. HSR MANUAL ABOUT FOSTER CARE CASES.
+
+	'ALERT IF NO ACCESS TO BE GRANTED
+
+	'IF checkbox is checked, then alert to use teams and give link to Knowledge Now and end script
+	'https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Lists/Knowledge%20Now/calendar.aspx '
 	email_subject = "PRIV Case Access Request"
 
 	notes = trim(notes)
