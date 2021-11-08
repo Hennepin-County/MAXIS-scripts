@@ -70,7 +70,19 @@ match_found = FALSE
 EMReadscreen dail_check, 4, 2, 48
 If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
 
+'Finding the top of this case's list of dails.
 EMGetCursor dail_row, dail_col
+scrubber_starting_dail_cursor_row = dail_row
+dails_before_this_dail_for_this_case = 0
+Do
+	EMReadScreen dail_seperator, 5, dail_row - 1, 57
+	If dail_seperator <> "---->" Then
+		dail_row = dail_row - 1
+		dails_before_this_dail_for_this_case = dails_before_this_dail_for_this_case + 1
+	End If
+Loop until dail_seperator = "---->"
+If scrubber_starting_dail_cursor_row <> dail_row Then dail_row = 6 + dails_before_this_dail_for_this_case
+If dails_before_this_dail_for_this_case = 0 Then dail_row = 6
 
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 EMSendKey "t"
@@ -131,14 +143,14 @@ IF twelve_mo_contact_check = "IF SNAP IS OPEN, REVIEW TO SEE IF 12 MONTH CONTACT
 	run_from_GitHub(script_repository & "notices/12-month-contact.vbs")
 END IF
 
-'Run NOTES - AVS 
+'Run NOTES - AVS
 If Instr(full_message, "AN UPDATED DHS-7823 - AVS AUTH FORM(S) HAS BEEN REQUESTED") OR _
    Instr(full_message, "AVS 10-DAY CHECK IS DUE") OR _
-   Instr(full_message, "DHS-7823 - AVS AUTH FORM(S) HAVE BEEN REQUESTED FOR THIS") then 
-   match_found = True 
+   Instr(full_message, "DHS-7823 - AVS AUTH FORM(S) HAVE BEEN REQUESTED FOR THIS") then
+   match_found = True
    run_from_GitHub(script_repository & "notes/avs.vbs")
- End if 
-   
+ End if
+
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
 EMReadScreen BENDEX_check, 47, 6, 30
 If BENDEX_check = "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC" then
