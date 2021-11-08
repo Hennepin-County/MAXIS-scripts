@@ -1982,18 +1982,18 @@ function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_
 	        EMWriteScreen actual_initial_exp, 8, 61
 
 			EMWriteScreen retro_heat_ac_yn, 13, 34
-	        EMWriteScreen retro_heat_ac_units, 13, 42
+	        If retro_heat_ac_yn = "Y" Then EMWriteScreen "01", 13, 42
 	        EMWriteScreen retro_electric_yn, 14, 34
-	        EMWriteScreen retro_electric_units, 14, 42
+	        If retro_electric_yn = "Y" Then EMWriteScreen "01", 14, 42
 	        EMWriteScreen retro_phone_yn, 15, 34
-	        EMWriteScreen retro_phone_units, 15, 42
+	        If retro_phone_yn = "Y" Then EMWriteScreen "01", 15, 42
 
 	        EMWriteScreen prosp_heat_ac_yn, 13, 60
-	        EMWriteScreen prosp_heat_ac_units, 13, 68
+	        If prosp_heat_ac_yn = "Y" Then EMWriteScreen "01", 13, 68
 	        EMWriteScreen prosp_electric_yn, 14, 60
-	        EMWriteScreen prosp_electric_units, 14, 68
+	        If prosp_electric_yn = "Y" Then EMWriteScreen "01", 14, 68
 	        EMWriteScreen prosp_phone_yn, 15, 60
-	        EMWriteScreen prosp_phone_units, 15, 68
+	        If prosp_phone_yn = "Y" Then EMWriteScreen "01", 15, 68
 
 			transmit
 
@@ -8032,12 +8032,13 @@ function navigate_ADDR_buttons(update_addr, err_var, update_information_btn, sav
 	End If
 end function
 
-function navigate_HEST_buttons(update_hest, err_var, update_information_btn, save_information_btn, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, date_to_use_for_HEST_standards)
+function navigate_HEST_buttons(update_hest, err_var, update_information_btn, save_information_btn, choice_date, retro_heat_ac_yn, retro_heat_ac_units, retro_heat_ac_amt, retro_electric_yn, retro_electric_units, retro_electric_amt, retro_phone_yn, retro_phone_units, retro_phone_amt, prosp_heat_ac_yn, prosp_heat_ac_units, prosp_heat_ac_amt, prosp_electric_yn, prosp_electric_units, prosp_electric_amt, prosp_phone_yn, prosp_phone_units, prosp_phone_amt, total_utility_expense, date_to_use_for_HEST_standards)
 '--- This function works with display_HEST_information to manage the dialog movement
 '~~~~~ update_hest: boolean - this will indicate if the dialog information is in 'edit mode' and is adjusted in this function by the button presses
 '~~~~~ err_var: string - information output if any parameter if the detail is 'wrong' or missing for dialog entry
 '~~~~~ update_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
 '~~~~~ save_information_btn: number - the button assignment should be set in the dialog to be able to identify which button was pressed
+'~~~~~ choice_date: date - the variable to enter into the panel the FS choice date.
 '~~~~~ retro_heat_ac_yn: string - the y/n selection for retro heat/ac - will be either 'Y', 'N', ''
 '~~~~~ retro_heat_ac_units: string - two digit entry of the number of units responsible for this expense for retro heat/ac
 '~~~~~ retro_heat_ac_amt: number - the expense amount of retro heat/ac listed on the HEST panel
@@ -8121,6 +8122,11 @@ function navigate_HEST_buttons(update_hest, err_var, update_information_btn, sav
 			total_utility_expense =  electric_amt
 		Elseif prosp_phone_yn = "Y" Then
 			total_utility_expense =  phone_amt
+		End If
+
+		If IsDate(choice_date) = False then
+			update_hest = TRUE
+			err_var = err_var & "* You must enter a date in the FS Choice Date field as that is required for the panel update."
 		End If
 
 	Else
