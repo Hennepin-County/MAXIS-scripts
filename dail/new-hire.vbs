@@ -64,6 +64,8 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+still_on_dail = True
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------------
 EMConnect ""
 'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
@@ -153,6 +155,13 @@ EMSendKey "s"
 transmit
 EMReadScreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+EMReadScreen stat_case_number, 8, 20, 37
+stat_case_number = replace(stat_case_number, "_", "")
+If stat_case_number <> MAXIS_case_number Then
+	still_on_dail = FALSE
+	Call back_to_SELF
+	Call navigate_to_MAXIS_screen("STAT", "SUMM")
+End If
 'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
 EMWriteScreen "memb", 20, 71
 transmit
@@ -270,7 +279,11 @@ If create_JOBS_checkbox = checked then
 	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
 	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
-PF3 'back to DAIL
+If still_on_dail = FALSE Then
+	Call back_to_SELF
+Else
+	PF3 'back to DAIL
+End If
 
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
 Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
