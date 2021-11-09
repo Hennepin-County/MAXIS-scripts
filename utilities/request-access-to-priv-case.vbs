@@ -87,11 +87,9 @@ DO
 		  Text 20, 95, 55, 10, "Sign your Email"
 		EndDialog
 
-
-        Dialog Dialog1
+        Dialog Dialog1					'displaying the dialog
         cancel_without_confirmation
 
-		MAXIS_case_number = trim(MAXIS_case_number)
 		x_number = trim(x_number)
 
 		Call validate_MAXIS_case_number(err_msg, "*")
@@ -101,11 +99,12 @@ DO
 		If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
 	Loop until err_msg = ""
 
-	Call back_to_SELF
+	Call back_to_SELF								'trying to get in to the case in STAT
+	Call navigate_to_MAXIS_screen("STAT", "SUMM")
 
-	Call navigate_to_MAXIS_panel("STAT", "SUMM")
+	EMReadScreen priv_worker_x_number, 7, 24, 65	'reading the x number on the message if access isn't allowed.
 
-	EMReadScreen priv_worker_x_number, 7, 24, 65
+	'These are Safe at Home cases
 	If priv_worker_x_number = "X127966" OR priv_worker_x_number = "X127AP7" OR priv_worker_x_number = "X127Q95" OR priv_worker_x_number = "X127FAT" Then
 		priv_case_type = "Safe at Home"
 		If priv_worker_x_number = "X127966" Then
@@ -125,16 +124,17 @@ DO
 			priv_case_worker_email = "See.Xiong@hennepin.us"
 		End If
 	End If
-
+	'These are foster care cases
 	If priv_worker_x_number = "x127FG1" OR priv_worker_x_number = "x127FG2" OR priv_worker_x_number = "x127EW4" Then
 		priv_case_type = "Foster Care"
 		priv_case_worker_name = "Team 469"
 		priv_case_worker_email = "hsph.es.team.469@hennepin.us"
 	End If
 
+	'If a privileged case type was identified there is special handling to send an email to the correct worker/team
 	If priv_case_type <> "" Then
 		Do
-			BeginDialog Dialog1, 0, 0, 306, 165, "Dialog"
+			BeginDialog Dialog1, 0, 0, 306, 165, "Case is in a restricted basket"
 			  EditBox 10, 70, 290, 15, case_contact_reason
 			  EditBox 10, 100, 290, 15, notes
 			  ButtonGroup ButtonPressed
@@ -149,48 +149,65 @@ DO
 			  Text 10, 90, 95, 10, "Additional Notes for Email:"
 			EndDialog
 
-			dialog Dialog1
+			dialog Dialog1			'showing the dialog
 
+			'This option will send an email to the worker/team about the case.
 			If ButtonPressed = send_email_to_team_btn Then
-				email_subject = "PRIV Case Access Request"
+				email_subject = "PRIV Case Contact"
 
 				notes = trim(notes)
 				worker_name = trim(worker_name)
+				case_contact_reason = trim(case_contact_reason)
 
-				email_body = "Please update MAXIS to allow access to this privileged case." & vbCr & vbCr
+				email_body = "Hello! " & priv_case_worker_name & vbCr & "Privileged MAXIS case contact." & vbCr & vbCr
 
-				email_body = email_body & "Case Number: " & MAXIS_case_number & vbCr
-				email_body = email_body & "Worker Number for transfer: " & x_number & vbCr & vbCr
-
+				email_body = email_body & "Case Number: " & MAXIS_case_number & vbCr & vbCr
+				If case_contact_reason <> "" Then email_body = email_body & "Contact Reason: " & case_contact_reason & vbCr & vbCr
 				If notes <> "" Then email_body = email_body & "Notes: " & notes & vbCr & vbCr
 				email_body = email_body & "---" & vbCr
 				If worker_name <> "" Then email_body = email_body & "Signed, " & vbCr & worker_name
 
-				message_confirmed = MsgBox("REVIEW THE WORDING OF YOUR EMAIL TO KNOWLEDGE NOW:" & vbCr & vbCr & email_subject & vbCr & vbCr & email_body, vbQuestion + vbYesNo, email_subject)
+				message_confirmed = MsgBox("REVIEW THE WORDING OF YOUR EMAIL ABOUT THIS PRIVILEGED CASE:" & vbCr & vbCr & email_subject & vbCr & vbCr & email_body, vbQuestion + vbYesNo, email_subject)
 
+				end_msg = "Thank you!" & vbCr & "Your request for access has been sent to " & priv_case_worker_name & "." & vbCr & vbCr
+				end_msg = end_msg & "Content of your Email:" & vbCr & "----------------------------------------------------------" & vbCr
+				end_msg = end_msg & "Subject: " & email_subject & vbCr & vbCr
+				end_msg = end_msg & email_body
 			End If
 
 			If ButtonPressed = no_email_button Then
-
+				end_msg = "Script run is complete. Case is Privileged because it is a " & priv_case_type & " case." & vbCr & vbCr
+				end_msg = end_msg & "Case is privileged to " & priv_case_worker_name & "." & vbCr & vbCr
+				end_msg = end_msg & "No email sent regarding this case."
 			End If
 		Loop until message_confirmed = vbYes OR ButtonPressed = no_email_button
-		If ButtonPressed = send_email_to_team_btn Then 
+		If ButtonPressed = send_email_to_team_btn Then
 			email_body = "~~This email is generated from completion of the 'Request Access to PRIV Case' Script.~~" & vbCr & vbCr & email_body
-			call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", TRUE)
+			call create_outlook_email(priv_case_worker_email, "", email_subject, email_body, "", TRUE)
 		End If
-		call script_end_procedure_with_error_report("")
+		call script_end_procedure_with_error_report(end_msg)			'End the script run here because if the case is in one of these types, we do not need to request from Knowledge Now
 	End If
-	'READ WHERE PRIVED TO
 
-	' If in X127966 or X127Y86 – these cases are Safe at Home cases and cannot be transferred. The call/work needs to be sent to one of the Safe at Home workers. HSR MANUAL ABOUT SAFE AT HOME CASES
-	'
-	' If it is in x127FG1, x127FG2, or x127EW4 then it is handled by Team 469 and cannot be transferred. The call/work needs to be sent to Team 469. HSR MANUAL ABOUT FOSTER CARE CASES.
+	'If the user checked the box that they are on the phone, the script brings up this dialog to recommend to use Teams for the request.
+	If resident_on_phone_checkbox = checked Then
+		BeginDialog Dialog1, 0, 0, 191, 110, "Request Access to Case via Teams"
+		  ButtonGroup ButtonPressed
+		    PushButton 55, 70, 130, 15, "View Knowledge Now Page", open_knowledge_now_btn
+		    PushButton 55, 90, 130, 15, "Complete Script Run", somplete_script_btn
+		  Text 10, 10, 175, 20, "Requests for access to a PRIV Case while on the phone with the resident is best completed via Teams"
+		  Text 10, 40, 155, 10, "This script can only request access via Email."
+		  Text 15, 50, 175, 10, "Email requests are ideal for other case processing."
+		EndDialog
 
-	'ALERT IF NO ACCESS TO BE GRANTED
+		dialog Dialog1
 
-	'IF checkbox is checked, then alert to use teams and give link to Knowledge Now and end script
-	'https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Lists/Knowledge%20Now/calendar.aspx '
-	email_subject = "PRIV Case Access Request"
+		If ButtonPressed = open_knowledge_now_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Lists/Knowledge%20Now/calendar.aspx"
+
+		end_msg = "Script Run complete." & vbCr & vbCr & "No Email sent." & vbCr & vbCr & "Please reach out via Teams to Knowledge Now for access to the case."
+		call script_end_procedure_with_error_report(end_msg)			'ending the script run here since we should not continue to the email.
+	End If
+
+	email_subject = "PRIV Case Access Request"				'reviewing the wording for the email for any case that is not in a restricted basket and the resident is not on the phone.
 
 	notes = trim(notes)
 	worker_name = trim(worker_name)
@@ -206,7 +223,6 @@ DO
 
 	message_confirmed = MsgBox("REVIEW THE WORDING OF YOUR EMAIL TO KNOWLEDGE NOW:" & vbCr & vbCr & email_subject & vbCr & vbCr & email_body, vbQuestion + vbYesNo, email_subject)
 Loop until message_confirmed = vbYes
-
 
 email_body = "~~This email is generated from completion of the 'Request Access to PRIV Case' Script.~~" & vbCr & vbCr & email_body
 call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", TRUE)
