@@ -104,6 +104,82 @@ DO
 	Call back_to_SELF
 
 	Call navigate_to_MAXIS_panel("STAT", "SUMM")
+
+	EMReadScreen priv_worker_x_number, 7, 24, 65
+	If priv_worker_x_number = "X127966" OR priv_worker_x_number = "X127AP7" OR priv_worker_x_number = "X127Q95" OR priv_worker_x_number = "X127FAT" Then
+		priv_case_type = "Safe at Home"
+		If priv_worker_x_number = "X127966" Then
+			priv_case_worker_name = "Florence Manley"
+			priv_case_worker_email = "Florence.Manley@hennepin.us"
+		End If
+		If priv_worker_x_number = "X127AP7" Then
+			priv_case_worker_name = "Ryan Kierth"
+			priv_case_worker_email = "Ryan.Kierth@hennepin.us"
+		End If
+		If priv_worker_x_number = "X127Q95" Then
+			priv_case_worker_name = "Shanna Hansen"
+			priv_case_worker_email = "Shanna.Hansen@hennepin.us"
+		End If
+		If priv_worker_x_number = "X127FAT" Then
+			priv_case_worker_name = "See Xiong"
+			priv_case_worker_email = "See.Xiong@hennepin.us"
+		End If
+	End If
+
+	If priv_worker_x_number = "x127FG1" OR priv_worker_x_number = "x127FG2" OR priv_worker_x_number = "x127EW4" Then
+		priv_case_type = "Foster Care"
+		priv_case_worker_name = "Team 469"
+		priv_case_worker_email = "hsph.es.team.469@hennepin.us"
+	End If
+
+	If priv_case_type <> "" Then
+		Do
+			BeginDialog Dialog1, 0, 0, 306, 165, "Dialog"
+			  EditBox 10, 70, 290, 15, case_contact_reason
+			  EditBox 10, 100, 290, 15, notes
+			  ButtonGroup ButtonPressed
+			    PushButton 170, 125, 130, 15, "Send an Email about this Case", send_email_to_team_btn
+			    PushButton 170, 145, 130, 15, "No Email Needed", no_email_button
+			  Text 10, 10, 295, 10, "This case is privileged and is not transferred outside of the team that works on the cases."
+			  Text 25, 25, 60, 10, "PRIV Case type:"
+			  Text 85, 25, 85, 10, priv_case_type
+			  Text 20, 40, 65, 10, "PRIV Case worker:"
+			  Text 85, 40, 85, 10, priv_case_worker_name
+			  Text 10, 60, 70, 10, "Reason for Contact:"
+			  Text 10, 90, 95, 10, "Additional Notes for Email:"
+			EndDialog
+
+			dialog Dialog1
+
+			If ButtonPressed = send_email_to_team_btn Then
+				email_subject = "PRIV Case Access Request"
+
+				notes = trim(notes)
+				worker_name = trim(worker_name)
+
+				email_body = "Please update MAXIS to allow access to this privileged case." & vbCr & vbCr
+
+				email_body = email_body & "Case Number: " & MAXIS_case_number & vbCr
+				email_body = email_body & "Worker Number for transfer: " & x_number & vbCr & vbCr
+
+				If notes <> "" Then email_body = email_body & "Notes: " & notes & vbCr & vbCr
+				email_body = email_body & "---" & vbCr
+				If worker_name <> "" Then email_body = email_body & "Signed, " & vbCr & worker_name
+
+				message_confirmed = MsgBox("REVIEW THE WORDING OF YOUR EMAIL TO KNOWLEDGE NOW:" & vbCr & vbCr & email_subject & vbCr & vbCr & email_body, vbQuestion + vbYesNo, email_subject)
+
+			End If
+
+			If ButtonPressed = no_email_button Then
+
+			End If
+		Loop until message_confirmed = vbYes OR ButtonPressed = no_email_button
+		If ButtonPressed = send_email_to_team_btn Then 
+			email_body = "~~This email is generated from completion of the 'Request Access to PRIV Case' Script.~~" & vbCr & vbCr & email_body
+			call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", TRUE)
+		End If
+		call script_end_procedure_with_error_report("")
+	End If
 	'READ WHERE PRIVED TO
 
 	' If in X127966 or X127Y86 – these cases are Safe at Home cases and cannot be transferred. The call/work needs to be sent to one of the Safe at Home workers. HSR MANUAL ABOUT SAFE AT HOME CASES
