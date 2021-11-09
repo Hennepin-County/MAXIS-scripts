@@ -1,7 +1,7 @@
 name_of_script = "UTILITIES - Request Access to PRIV Case.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 45                	'manual run time in seconds - INCLUDES A POLICY LOOKUP
+STATS_manualtime = 90                	'manual run time in seconds - INCLUDES A POLICY LOOKUP
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
 
@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/19/2020", "PRIV Case Access script will now review for Foster Care and Safe at Home restricted baskets to provide the correct email action for the case entered. Additionally, script will no longer send an email if it is indicated that the resident is on the phone, these requests are more timely when completed in Teams.", "Casey Love, Hennepin County")
 call changelog_update("08/19/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -133,6 +134,7 @@ DO
 
 	'If a privileged case type was identified there is special handling to send an email to the correct worker/team
 	If priv_case_type <> "" Then
+		STATS_manualtime = STATS_manualtime + 120 								'adding time for review of restricted baskets and process as the script has completed this.
 		Do
 			BeginDialog Dialog1, 0, 0, 306, 165, "Case is in a restricted basket"
 			  EditBox 10, 70, 290, 15, case_contact_reason
@@ -184,6 +186,7 @@ DO
 		If ButtonPressed = send_email_to_team_btn Then
 			email_body = "~~This email is generated from completion of the 'Request Access to PRIV Case' Script.~~" & vbCr & vbCr & email_body
 			call create_outlook_email(priv_case_worker_email, "", email_subject, email_body, "", TRUE)
+			STATS_manualtime = STATS_manualtime + (timer - start_time)						'This script allows for the writing of the email - so the manual time is adjusted as email length will vary
 		End If
 		call script_end_procedure_with_error_report(end_msg)			'End the script run here because if the case is in one of these types, we do not need to request from Knowledge Now
 	End If
@@ -227,7 +230,7 @@ Loop until message_confirmed = vbYes
 email_body = "~~This email is generated from completion of the 'Request Access to PRIV Case' Script.~~" & vbCr & vbCr & email_body
 call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", TRUE)
 
-STATS_manualtime = STATS_manualtime + (timer - start_time)
+STATS_manualtime = STATS_manualtime + (timer - start_time)						'This script allows for the writing of the email - so the manual time is adjusted as email length will vary
 end_msg = "Thank you!" & vbCr & "Your request for access has been sent to QI Knowledge Now." & vbCr & vbCr
 end_msg = end_msg & "Content of your Email to Knowledge Now:" & vbCr & "----------------------------------------------------------" & vbCr
 end_msg = end_msg & "Subject: " & email_subject & vbCr & vbCr
