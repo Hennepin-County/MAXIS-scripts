@@ -1429,7 +1429,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "Appointment Notice Sent today"
             todays_cases = todays_cases + 1       'increasing the counter for the array
 
-
         ElseIf ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" Then       'These cases need NOMIs
 
             ' 'THIS IS FOR TESTING'
@@ -1694,8 +1693,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                     day_30 = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))
 					'IF isdate(ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)) = FALSE THEN MsgBox ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
                     IF datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date) >= 10 or datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), day_30) > 0 THEN      'cases are either at day 30 or 10 days from when the NOMI was sent
-                    MsgBox datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date)
-
+                    'MsgBox datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date)
 						multiple_app_dates = False                          'defaulting the boolean about multiple application dates to FALSE
 						EMWriteScreen MAXIS_case_number, 18, 43             'now we are going to try to get to REPT/PND2 for the case to read the application date.
 						Call navigate_to_MAXIS_screen("REPT", "PND2")
@@ -1710,11 +1708,10 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 						EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
 						If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
 						    multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
-						"this is where I am"
 						    EMReadScreen additional_application_date, 8, pnd2_row + 1, 38               'reading the app date from the other application line
 						    additional_application_date = replace(additional_application_date, " ", "/")
-
-
+							IF additional_application_date <> "" THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+						END IF
                         If row <> 24 and row <> 0 THEN
                             EMReadScreen nbr_days_pending, 3, row, 50
                             nbr_days_pending = trim(nbr_days_pending)
@@ -1723,9 +1720,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                             'We are going to check to see if MX identifies this case as MSA
                             If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" and ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" Then      'This checks for cash only pending
                                 EMReadScreen cash_prog, 2, row, 56
-
 								programs = ""
-								'IF instr(cash_prog, "EG") THEN programs = programs & "Emergency General Assistance, "
+								'IF instr(cash_prog, "EG") THEN programs = programs & "Emergency General Assistance, " for future state
 								'IF instr(cash_prog, "EA") THEN programs = programs & "Emergency Assistance, "
 								IF instr(cash_prog, "MS") THEN programs = programs & "MSA, "
 								'trims excess spaces of programs
@@ -1740,15 +1736,10 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                                         ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = FALSE
                                     End If
                                 End If
+
+								IF ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
+								IF right(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), 1) = "," THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = left(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), len(ALL_PENDING_CASES_ARRAY(error_notes, case_entry)) - 1) 'hopefully will time the extra off the end'
                             End If
-
-
-
-
-
-
-
-
 
                             back_to_SELF
 
@@ -1781,7 +1772,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 
                             'THIS IS FOR REAL'
                             'Cases identifed as needing a denial will have a MEMO sent with detail
-                            'TODO add functionality to update REPT PND2 with an I for these cases
+                            'TODO add functionality to update REPT PND2 with an I for these cases NOPE
                             If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
                                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL"
 
@@ -1861,7 +1852,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                             End If
                         Else
                             ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "NOT ON PND2 - process manually - " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
-
                         End If
                     END IF
                 END IF
