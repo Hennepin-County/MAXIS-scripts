@@ -592,7 +592,6 @@ Do
         CASES_NO_LONGER_WORKING(interview_date, case_removed) = ObjWorkExcel.Cells(row, intvw_date_col)
         CASES_NO_LONGER_WORKING(CASH_status, case_removed) = ObjWorkExcel.Cells(row, cash_stat_col)
         CASES_NO_LONGER_WORKING(SNAP_status, case_removed) = ObjWorkExcel.Cells(row, snap_stat_col)
-
         CASES_NO_LONGER_WORKING(appt_notc_sent, case_removed) = ObjWorkExcel.Cells(row, appt_notc_date_col)
         CASES_NO_LONGER_WORKING(appt_notc_confirm, case_removed) = ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
         CASES_NO_LONGER_WORKING(appointment_date, case_removed) = ObjWorkExcel.Cells(row, appt_date_col)
@@ -600,19 +599,16 @@ Do
         CASES_NO_LONGER_WORKING(nomi_confirm, case_removed) = ObjWorkExcel.Cells(row, nomi_confirm_col)
         CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
         CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-
         CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
         CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
         CASES_NO_LONGER_WORKING(issue_item_one, case_removed) = ObjWorkExcel.Cells(row, issue_item_one_col)
         CASES_NO_LONGER_WORKING(email_ym_one, case_removed) = ObjWorkExcel.Cells(row, email_ym_one_col)
         CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) = ObjWorkExcel.Cells(row, qi_worker_one_col)
-
         CASES_NO_LONGER_WORKING(worker_name_two, case_removed) = ObjWorkExcel.Cells(row, worker_name_two_col)
         CASES_NO_LONGER_WORKING(sup_name_two, case_removed) = ObjWorkExcel.Cells(row, sup_name_two_col)
         CASES_NO_LONGER_WORKING(issue_item_two, case_removed) = ObjWorkExcel.Cells(row, issue_item_two_col)
         CASES_NO_LONGER_WORKING(email_ym_two, case_removed) = ObjWorkExcel.Cells(row, email_ym_two_col)
         CASES_NO_LONGER_WORKING(qi_worker_two, case_removed) = ObjWorkExcel.Cells(row, qi_worker_two_col)
-
         CASES_NO_LONGER_WORKING(worker_name_three, case_removed) = ObjWorkExcel.Cells(row, worker_name_three_col)
         CASES_NO_LONGER_WORKING(sup_name_three, case_removed) = ObjWorkExcel.Cells(row, sup_name_three_col)
         CASES_NO_LONGER_WORKING(issue_item_three, case_removed) = ObjWorkExcel.Cells(row, issue_item_three_col)
@@ -668,10 +664,8 @@ For case_entry = 0 to UBOUND(TODAYS_CASES_ARRAY, 2)     'now we are going to loo
         ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = trim(ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case))
 		ALL_PENDING_CASES_ARRAY(error_notes, add_a_case) = ObjWorkExcel.Cells(row, correct_need_col)
 		'ALL_PENDING_CASES_ARRAY(, add_a_case) = ObjWorkExcel.Cells(row, )
-
         'defaulting this variable as we will determine if it is true later
         ALL_PENDING_CASES_ARRAY(take_action_today, add_a_case) = FALSE
-
         add_a_case = add_a_case + 1     'incrementing the counter for this ARRAY
         row = row + 1                   'going to the next row so that we don't overwrite the information we just added
     End If
@@ -682,7 +676,7 @@ Next
 For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     MAXIS_case_number	= ALL_PENDING_CASES_ARRAY(case_number, case_entry)        'setting this so that nav functionality works
     'MsgBox ALL_PENDING_CASES_ARRAY(case_number, case_entry)
-    back_to_SELF
+    CALL back_to_SELF
     CALL navigate_to_MAXIS_screen("CASE", "CURR")
     'Checking for PRIV cases.
     EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case needs to skip
@@ -708,7 +702,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             EMReadScreen last_name, 25, 6, 30       'read each name
             EMReadScreen first_name, 12, 6, 63
             EMReadScreen middle_initial, 1, 6, 79
-
             last_name = replace(last_name, "_", "") 'format so there are no underscores
             first_name = replace(first_name, "_", "")
             middle_initial = replace(middle_initial, "_", "")
@@ -725,10 +718,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         'reading programs types and statuses
         EMReadScreen cash_prog_one, 2, 6, 67
         EMReadScreen cash_stat_one, 4, 6, 74
-
         EMReadScreen cash_prog_two, 2, 7, 67
         EMReadScreen cash_stat_two, 4, 7, 74
-
         EMReadScreen fs_pend, 4, 10, 74
 
         'defaulting these to false for each run through the loop
@@ -836,39 +827,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 
         'Here we only go in to STAT to look at cases that need attention
         If ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE Then
-
             Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
-
             day_before_app = DateAdd("d", -1, ALL_PENDING_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date'
-            'If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "CHECK FOR F2F NEEDED" Then        'if on PROG we determined that we need to find if F2F is needed - we can go look for certain notes
-            '    note_row = 5        'these always need to be reset when looking at Case note
-            '    note_date = ""
-            '    note_title = ""
-            '    appt_date = ""
-            '    Do                  'this do-loop moves down the list of case notes - looking at each row in MAXIS
-            '        EMReadScreen note_date, 8, note_row, 6      'reading the date of the row
-            '        EMReadScreen note_title, 55, note_row, 25   'reading the header of the note
-            '        note_title = trim(note_title)               'trim it down
-
-            '        'if the note headers match any of the following then we can know if a face to face is needed or not - then we add that detail to the ARRAY
-            '            'keeping this here if we need to add it in
-            '            'THIS IS THE CASE/NOTE FOR CLIENTS REQUIRING NO INTERVIEW'
-            '            ' ~ Application interview ~
-            '            ' * Client is in an IMD FACI and is not required to complete interview
-            '            ' ---
-            '            ' EWS Quality Improvement Team
-            '        IF note_date = "        " then Exit Do      'if the case is new, we will hit blank note dates and we don't need to read any further
-            '        note_row = note_row + 1                     'going to the next row to look at the next notws
-            '        IF note_row = 19 THEN                       'if we have reached the end of the list of case notes then we will go to the enxt page of notes
-            '            PF8
-            '            note_row = 5
-            '        END IF
-            '        EMReadScreen next_note_date, 8, note_row, 6 'looking at the next note date
-            '        IF next_note_date = "        " then Exit Do
-            '    Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
-            ' 'End If
-            'go_to_top_of_notes      'this is a function defined above so that if we need to read for different notes we don't miss ones on the first pages if we went to PF8
-
             If ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = "" Then        'if the ARRAY and Working Excel does not have a date listed for  when the appt notice was sent, the script will go to case ntoes to look for one
                 note_row = 5            'resetting the variables on the loop
                 note_date = ""
@@ -878,7 +838,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                     EMReadScreen note_date, 8, note_row, 6      'reading the note date
                     EMReadScreen note_title, 55, note_row, 25   'reading the note header
                     note_title = trim(note_title)
-
                     IF left(note_title, 35) = "~ Appointment letter sent in MEMO ~" then
                         ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = note_date
     				ElseIF left(note_title, 42) = "~ Appointment letter sent in MEMO for SNAP" then
@@ -891,7 +850,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                         ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = note_date
                         'MsgBox ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
     				END IF
-
                     IF note_date = "        " then Exit Do
                     note_row = note_row + 1
                     IF note_row = 19 THEN
@@ -967,7 +925,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                     EMReadScreen create_date, 8, memo_row, 19                 'Reading the date of each memo and the status
                     EMReadScreen print_status, 7, memo_row, 67
                     'MsgBox print_status
-                    If create_date = look_date AND print_status = "Printed" Then   'MEMOs created the date the appointment notice was noted and has been printed is likely out memo
+                    IF create_date = look_date AND print_status = "Printed" Then   'MEMOs created the date the appointment notice was noted and has been printed is likely out memo
                         EmWriteScreen "X", memo_row, 16         'opening the memo
                         transmit
                         PF8                                     'going to the next page
@@ -1128,7 +1086,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         If left(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), 1) = "," Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = right(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), len(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))- 2)     'removing the first ', ' from the error notes to make it be not weird
     END IF
 Next
-back_to_SELF
+CALL back_to_SELF
 
 'creating a new ARRAY of all the cases that we take an action on so that we can add them to a sheet in the daily list
 Dim ACTION_TODAY_CASES_ARRAY()
@@ -1164,7 +1122,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
         '         MsgBox "Russian"
         ' End Select
 
-        if ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" then           'setting the language for the notices - Cash or SNAP or both
+        IF ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" then           'setting the language for the notices - Cash or SNAP or both
             if ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) = "Pending" then
                 programs = "CASH/SNAP"
             else
@@ -1210,9 +1168,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             'THIS IS FOR REAL LIFE'
             need_intv_date = dateadd("d", 5, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the appointment date - it should be 7 days from the date of application
             If need_intv_date <= date then need_intv_date = dateadd("d", 5, date)         'if this is today or in the past then we reset this for 7 days from today
-
 			Call change_date_to_soonest_working_day(need_intv_date, "FORWARD")
-
             last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the date to enter on the NOMI of the day of denial
             'ensuring that we have given the client an additional10days fromt he day nomi sent'
             IF DateDiff("d", need_intv_date, last_contact_day) < 1 then last_contact_day = need_intv_date
@@ -1257,7 +1213,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         CALL convert_date_to_day_first(ALL_PENDING_CASES_ARRAY(application_date, case_entry), day_first_app_date)
                         CALL convert_date_to_day_first(need_intv_date, day_first_intv_date)
                         CALL convert_date_to_day_first(last_contact_day, day_first_last_contact_date)
-
                         Call write_variable_in_SPEC_MEMO("Usted ha aplicado para recibir ayuda en el Condado de Hennepin el " & day_first_app_date & " y se requiere una entrevista para procesar su aplicacion.")
                         Call write_variable_in_SPEC_MEMO("**La entrevista debe ser completada para el " & day_first_intv_date & ".**")
                         Call write_variable_in_SPEC_MEMO("Para completar una entrevista telefonica, llame a la linea de informacion EZ al 612-596-1300 entre las 8:00 a.m. y las 4:30 p.m. de lunes a viernes.")
@@ -1387,13 +1342,12 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 			END IF
 
             If ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) <> "N" Then Call confirm_memo_waiting(ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry))       'reading that a MEMO exists to confirm the notice went
-
             If ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = "N" Then              'if the MEMO failed we need to send it manually
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual Appt Notice"
-            ElseIf ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = "Y" Then               'if the memo was successful then we will changed the next action needed and we will create a case note
+            ElseIf ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = "Y" Then
+	          	'if the memo was successful then we will changed the next action needed and we will create a case note
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI"
                 Call start_a_blank_case_note
-
                 Call write_variable_in_CASE_NOTE("~ Appointment letter sent in MEMO for " & need_intv_date & "~")
                 Call write_variable_in_CASE_NOTE("* A notice has been sent via SPEC/MEMO informing the client of needed interview.")
                 Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
@@ -1402,7 +1356,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                 Call write_variable_in_CASE_NOTE(worker_signature)
                 'MsgBox "What casenote was sent?"
                 PF3
-
             Else
                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???"       'if the memo confirm is not N or Y then this next action holder is here for testing
             End If
@@ -1497,11 +1450,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         'MsgBox "Somali"
 
                     Case "01"   'Spanish (3rd)
-
                         CALL convert_date_to_day_first(ALL_PENDING_CASES_ARRAY(application_date, case_entry), day_first_app_date)
                         CALL convert_date_to_day_first(ALL_PENDING_CASES_ARRAY(appointment_date, case_entry), day_first_intv_date)
                         CALL convert_date_to_day_first(nomi_last_contact_day, day_first_nomi_last_contact_date)
-
                         Call write_variable_in_SPEC_MEMO("Usted ha aplicado recientemente para recibir ayuda en el Condado de Hennepin el " & day_first_app_date & ".")
                         Call write_variable_in_SPEC_MEMO("Su entrevista debio haber sido realizada para el " & day_first_intv_date)
                         Call write_variable_in_SPEC_MEMO("Se requiere una entrevista para procesar su aplicacion.")
@@ -1535,7 +1486,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("Tambien puede solicitar una copia en papel.")
 
                         'MsgBox "Spanish"
-
                     Case "02"   'Hmong (4th)
                         Call write_variable_in_SPEC_MEMO("Koj nyuam qhuav ua ntawv tuaj thov kev pav thaum lub " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ". Kev yuav xam phaj koj mas yuav tsum tiav hlo rau thaum lub " & ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) & ". Yuav tsum muaj kev xam phaj mas thiaj li yuav pib khiav tau koj cov ntaub ntawv.")
                         Call write_variable_in_SPEC_MEMO("  Yog xam phaj hauv xov tooj, hu rau EZ Info Line ntawm 612-596-1300 thaum 8:00am thib 4:30pm hnub Mon txog Fri.")
@@ -1564,7 +1514,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                         Call write_variable_in_SPEC_MEMO("   Cov ntaub ntawv qhia txog kev raug tsim txom los ntawm cov txheeb ze kuj muaj nyob rau ntawm")
                         Call write_variable_in_SPEC_MEMO("https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
                         Call write_variable_in_SPEC_MEMO("Koj kuj thov tau ib qauv thiab.")
-
 
                     ' Case "06"   'Russian (5th)
                     '     Call write_variable_in_SPEC_MEMO("Vy' podali zayavlenie na pomoshh' " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
@@ -1595,7 +1544,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                     ' Case "03"   'Vietnamese (7th)
                     '     'MsgBox "VIETNAMESE"
                     Case Else  'English (1st)
-
                         Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
                         Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) & ".")
                         Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
@@ -1646,11 +1594,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                 ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
 
                 Call start_a_blank_case_note
-                If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" Then
-                    Call write_variable_in_CASE_NOTE("~ Client has not completed CASH APP interview, NOMI sent ~ ")
-                Else
-                    Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent ~ ")
-                End If
+                If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" Then Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent ~ ")
                 Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview. ")
                 Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
                 Call write_variable_in_CASE_NOTE("* A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
@@ -1695,54 +1639,35 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                     IF datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date) >= 10 or datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), day_30) > 0 THEN      'cases are either at day 30 or 10 days from when the NOMI was sent
                     'MsgBox datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date)
 						multiple_app_dates = False                          'defaulting the boolean about multiple application dates to FALSE
-						EMWriteScreen MAXIS_case_number, 18, 43             'now we are going to try to get to REPT/PND2 for the case to read the application date.
-						Call navigate_to_MAXIS_screen("REPT", "PND2")
 						EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
 						If pnd2_disp_limit = "Display Limit" Then transmit
 						row = 1                                             'searching for the CASE NUMBER to read from the right row
 						col = 1
 						EMSearch MAXIS_case_number, row, col
-						If row <> 24 and row <> 0 Then pnd2_row = row
-						EMReadScreen application_date, 8, pnd2_row, 38                                  'reading and formatting the application date
-						application_date = replace(application_date, " ", "/")
-						EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
-						If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
-						    multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
-						    EMReadScreen additional_application_date, 8, pnd2_row + 1, 38               'reading the app date from the other application line
-						    additional_application_date = replace(additional_application_date, " ", "/")
-							IF additional_application_date <> "" THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
-						END IF
-                        If row <> 24 and row <> 0 THEN
-                            EMReadScreen nbr_days_pending, 3, row, 50
+
+                        IF row <> 24 and row <> 0 THEN
+							EMReadScreen application_date, 8, row, 38                                  'reading and formatting the application date
+							application_date = replace(application_date, " ", "/")
+							EMReadScreen additional_application_check, 14, row + 1, 17                 'looking to see if this case has a secondary application date entered
+						    IF additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+						        multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
+						        EMReadScreen additional_application_date, 8, row + 1, 38               'reading the app date from the other application line
+						        additional_application_date = replace(additional_application_date, " ", "/")
+						    	IF additional_application_date <> "" THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+						    END IF
+						    EMReadScreen nbr_days_pending, 3, row, 50
                             nbr_days_pending = trim(nbr_days_pending)
                             nbr_days_pending = nbr_days_pending * 1
                             IF nbr_days_pending >= 30 THEN ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE
                             'We are going to check to see if MX identifies this case as MSA
                             If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" and ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" Then      'This checks for cash only pending
-                                EMReadScreen cash_prog, 2, row, 56
-								programs = ""
-								'IF instr(cash_prog, "EG") THEN programs = programs & "Emergency General Assistance, " for future state
-								'IF instr(cash_prog, "EA") THEN programs = programs & "Emergency Assistance, "
-								IF instr(cash_prog, "MS") THEN programs = programs & "MSA, "
-								'trims excess spaces of programs
-								programs = trim(programs)
-								IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
-
-                                If cash_prog = "MS" Then
-                                    ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & programs    'adding explanation of why this wont deny at day 30'
-                                    If datediff("d", ALL_PENDING_CASES_ARRAY(application_date, case_entry), date) >= 60 and ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" THEN   'for MSA cases - the denial day is day 60
-                                        ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE
-                                    Else
-                                        ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = FALSE
-                                    End If
-                                End If
-
-								IF ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
-								IF right(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), 1) = "," THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = left(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), len(ALL_PENDING_CASES_ARRAY(error_notes, case_entry)) - 1) 'hopefully will time the extra off the end'
+                                If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "MSA pending only") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", MSA pending only."
+								ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
+								IF left(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), 1) = "," THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = right(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), len(ALL_PENDING_CASES_ARRAY(error_notes, case_entry)) - 1) 'hopefully will trim the extra off the end'
+								ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
                             End If
 
-                            back_to_SELF
-
+							Call back_to_SELF
                             ' 'THIS IS FOR TESTING'
                             ' If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
                             '
@@ -1775,14 +1700,11 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                             'TODO add functionality to update REPT PND2 with an I for these cases NOPE
                             If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
                                 ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL"
-
                                 nomi_last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))
                                 'ensuring that we have given the client an additional10days fromt he day nomi sent'
                                 IF DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), nomi_last_contact_day) < 1 then nomi_last_contact_day = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
-
                                 'GOING TO SEE IF A DENIAL CNOTE EXISTS
                                 Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
-
                                 day_before_app = DateAdd("d", -1, ALL_PENDING_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date'
                                 note_row = 5        'these always need to be reset when looking at Case note
                                 note_date = ""
@@ -1800,6 +1722,10 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                                         Exit Do
                                     End If
 									If left(note_title, 8) = "~ Denied" Then
+                                        Need_NOTE = FALSE
+                                        Exit Do
+                                    End If
+									If left(note_title, 8) = " ~ Denie" Then 'sometimes the spacing is wonky'
                                         Need_NOTE = FALSE
                                         Exit Do
                                     End If
@@ -1849,18 +1775,16 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                                 ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
                                 ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "DENIED Today"
                                 todays_cases = todays_cases + 1
-                            End If
+                            END IF
                         Else
                             ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "NOT ON PND2 - process manually - " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
-                        End If
+                        END IF
                     END IF
                 END IF
             END IF
-
-        End If
-
+        END IF
         'ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""  'excel prefers this to be a string - sometimes
-    End If
+    END IF
     row = ALL_PENDING_CASES_ARRAY(excel_row, case_entry)    'setting the excel row
 
     'Now all the new information is added back to the Working Excel sheet
@@ -1872,7 +1796,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     ObjWorkExcel.Cells(row, snap_stat_col).Value = ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
     ObjWorkExcel.Cells(row, cash_stat_col).Value = ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
     ObjWorkExcel.Cells(row, app_date_col).Value = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
-
     ObjWorkExcel.Cells(row, intvw_date_col).Value = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
     ObjWorkExcel.Cells(row, quest_intvw_date_col).Value = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
     ObjWorkExcel.Cells(row, appt_notc_date_col).Value = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
@@ -1881,7 +1804,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     ObjWorkExcel.Cells(row, nomi_date_col).Value = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
     ObjWorkExcel.Cells(row, nomi_confirm_col).Value = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
 
-	If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
+	If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE or ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = TRUE or ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = TRUE Then
         ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
         ObjWorkExcel.Rows(row).Font.Bold = TRUE
     End If
