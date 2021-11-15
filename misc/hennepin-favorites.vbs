@@ -795,7 +795,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
 
 		'>>> Now we increment through the new scripts, and create buttons for them
         ' MsgBox new_scripts_array(1).script_name
-        If new_scripts_array(script_name_const, 1) = "" Then
+        If new_scripts_array(script_name_const, 0) = "" Then
             Text 185, vert_button_position, 200, 10, "*****         No new scripts added in the past 60 Days         *****"
         Else
             Text 5, vert_button_position, 500, 10, "------------------------------------------------------------------------------ NEW SCRIPTS --------------------------------------------------------------------------------"

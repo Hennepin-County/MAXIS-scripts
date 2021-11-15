@@ -1047,7 +1047,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                     END IF
                 End If
 
-                'These will be reviewed regardless of if there are questionable interviews because they indicate a denial
+                'These will be reviewed regardless of IF there are questionable interviews because they indicate a denial
                 IF left(UCase(note_title), 19) = "----DENIED SNAP----" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", DENY SNAP case note"       'possible enhancement to only note this if SNAP status is active or pending
                 IF left(UCase(note_title), 19) = "----DENIED CASH----" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", DENY CASH case note"       'possible enhancement to only note this if Cash status is active or pending
                 IF left(UCase(note_title), 24) = "----DENIED SNAP/CASH----" then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", DENY SNAP/CASH"   'possible enhancement to only note this if Cash and SNAP status is active or pending

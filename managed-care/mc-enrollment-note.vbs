@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/03/2021", "Added United HealthCare plan option as a selection with the plan code. This plan is available starting in January 2022.##~## ##~##DO NOT ENROLL RESIDENTS IN THIS PLAN PRIOR TO 01/2022. MMIS WILL ERROR AS THAT PLAN IS NOT AVAILBLE FOR A MONTH PRIOR TO 01/2022##~##", "Casey Love, Hennepin County")
 call changelog_update("04/24/2018", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -64,30 +65,32 @@ enrollment_year = CM_plus_1_yr
 
 this_month = monthname(month(date))
 Select Case this_month
-    Case "January"
-        cut_off_date = #01/22/2020#
-    Case "February"
-        cut_off_date = #2/19/2020#
-    Case "March"
-        cut_off_date = #3/20/2020#
-    Case "April"
-        cut_off_date = #4/21/2020#
-    Case "May"
-        cut_off_date = #5/19/2020#
-    Case "June"
-        cut_off_date = #6/19/2020#
-    Case "July"
-        cut_off_date = #7/22/2020#
-    Case "August"
-        cut_off_date = #8/20/2020#
-    Case "September"
-        cut_off_date = #9/21/2020#
-    Case "October"
-        cut_off_date = #10/21/2020#
-    Case "November"
-        cut_off_date = #11/17/2020#
-    Case "December"
-        cut_off_date = #12/21/2020#
+	Case "January"
+		cut_off_date = #01/20/2022#
+	Case "February"
+		cut_off_date = #02/16/2022#
+	Case "March"
+		cut_off_date = #03/22/2022#
+	Case "April"
+		cut_off_date = #04/20/2022#
+	Case "May"
+		cut_off_date = #05/19/2022#
+	Case "June"
+		cut_off_date = #06/21/2022#
+	Case "July"
+		cut_off_date = #07/20/2022#
+	Case "August"
+		cut_off_date = #08/22/2022#
+	Case "September"
+		cut_off_date = #09/21/2022#
+	Case "October"
+		cut_off_date = #10/20/2022#
+	Case "November"
+		cut_off_date = #11/17/2021#
+		' cut_off_date = #11/17/2022#
+	Case "December"
+		cut_off_date = #12/20/2021#
+		' cut_off_date = #12/20/2022#
 End Select
 'MsgBox cut_off_date
 If cut_off_date <> "" Then
@@ -258,6 +261,7 @@ For each member in HH_member_array
             If hp_code = "A565813600" then MMIS_clients_array(current_plan, item) = "Ucare"
             If hp_code = "A405713900" then MMIS_clients_array(current_plan, item) = "Medica"
             If hp_code = "A065813800" then MMIS_clients_array(current_plan, item) = "BluePlus"
+			If hp_code = "A168407400" then MMIS_clients_array(current_plan, item) = "United Healthcare"
             If hp_code = "A836618200" then MMIS_clients_array(current_plan, item) = "Hennepin Health PMAP"
             If hp_code = "A965713400" then MMIS_clients_array(current_plan, item) = "Hennepin Health SNBC"
 
@@ -327,7 +331,7 @@ BeginDialog Dialog1, 0, 0, 476, (max * 20) + dlg_len, "Enrollment Information"
     CheckBox 5, (x * 20) + y_pos, 25, 10, "Yes", MMIS_clients_array(case_note_checkbox, person)
   	Text 40, (x * 20) + y_pos, 95, 10, MMIS_clients_array(client_name, person)
   	Text 135, (x * 20) + y_pos, 35, 10, MMIS_clients_array(client_pmi, person)
-    DropListBox 180, (x * 20) + y_pos - 5, 105, 15, " "+chr(9)+"BluePlus"+chr(9)+"HealthPartners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare", MMIS_clients_array(current_plan, person)
+    DropListBox 180, (x * 20) + y_pos - 5, 105, 15, " "+chr(9)+"BluePlus"+chr(9)+"HealthPartners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Hennepin Health SNBC"+chr(9)+"Ucare"+chr(9)+"United Healthcare", MMIS_clients_array(current_plan, person)
   	DropListBox 295, (x * 20) + y_pos - 5, 40, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"MA 37", MMIS_clients_array(contr_code, person)
 	DropListBox 365, (x * 20) + y_pos - 5, 105, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn, person)
 	x = x + 1

@@ -42,10 +42,10 @@ END IF
 '
 
 
-tasks_on_hold = FALSE
-currently_on_task = TRUE
-phone_shift = FALSE
-running_as_HSS = FALSE
+tasks_on_hold = False
+currently_on_task = False
+phone_shift = False
+running_as_HSS = False
 
 
 
@@ -184,7 +184,7 @@ function assign_a_task()
 			PushButton 10, 105, 100, 15, "See all of Today's Tasks", see_task_list_btn
 		  Text 10, 10, 120, 10, "You have been assigned to work on:"
 		  Text 40, 25, 30, 10, "1234567"
-		  Text 85, 40, 60, 10, "Assigned on date"
+		  Text 70, 40, 100, 10, "Assigned on " & date
 		  ' Text 85, 50, 70, 10, "Resumed from Hold"
 		  GroupBox 5, 55, 150, 45, "Task Type"
 		  Text 15, 70, 85, 10, "Holistic Case Processing"
@@ -209,6 +209,32 @@ function assign_a_task()
 	Loop Until ButtonPressed <> hsr_manual_btn
 end function
 
+function start_a_phone_task()
+	case_number = "305625"
+	call_date = date & ""
+	call_time = time & ""
+	BeginDialog Dialog1, 0, 0, 346, 75, "Phone Task Capture"
+	  EditBox 125, 5, 50, 15, case_number
+	  EditBox 45, 25, 50, 15, call_date
+	  EditBox 65, 45, 50, 15, call_time
+	  ButtonGroup ButtonPressed
+	    OkButton 290, 55, 50, 15
+	  Text 10, 10, 115, 10, "Enter the Case Number of the call:"
+	  Text 10, 30, 35, 10, "Call Date:"
+	  Text 10, 50, 50, 10, "Call Start Time:"
+	  GroupBox 195, 5, 145, 45, "Task Type"
+	  Text 205, 20, 85, 10, "Inbound Phone Call"
+	EndDialog
+
+	dialog Dialog1
+	cancel_without_confirmation
+
+	MsgBox "Your task has been saved and you have been assigned." & vbCr & vbCr	& "You are now active on a task for Case " & case_number
+
+	currently_on_task = True
+end function
+
+
 If running_as_HSS = FALSE Then
 	If currently_on_task = TRUE Then
 		complete_task = TRUE
@@ -216,34 +242,58 @@ If running_as_HSS = FALSE Then
 
 		Do
 			If complete_task = TRUE Then
-				BeginDialog Dialog1, 0, 0, 336, 230, "Log Task Information"
-				  DropListBox 235, 35, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", work_to_be_completed_ans
-				  DropListBox 235, 50, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", all_work_completed_ans
-				  DropListBox 120, 90, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", did_you_intv_ans
-				  DropListBox 120, 105, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", did_you_APP_ans
-				  DropListBox 120, 120, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", did_you_accept_ecf_ans
-				  DropListBox 120, 135, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", did_you_send_ecf_ans
-				  DropListBox 275, 150, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", start_cic_ans
-				  DropListBox 275, 165, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", more_processing_ans
-				  GroupBox 10, 15, 315, 190, ""
-				  Text 25, 35, 85, 10, "Case: XXXXXXX"
-				  Text 115, 40, 115, 10, "Was there work to be completed?"
-				  Text 35, 55, 195, 10, "Were you able to complete EVERYTHING the case needs?"
-				  Text 25, 80, 50, 10, "Did you ..."
-				  Text 35, 95, 80, 10, "Complete an Interview?"
-				  Text 55, 110, 60, 10, "APP a Pprogram?"
-				  Text 35, 125, 85, 10, "Accept ECF Documents?"
-				  Text 20, 140, 100, 10, "Send a Document from ECF?"
-				  Text 145, 155, 125, 10, "Do you need to start the CIC process?"
-				  Text 65, 170, 210, 10, "Does this case need additional processing from another group?"
-				  ButtonGroup ButtonPressed
-				    PushButton 230, 185, 90, 15, "Save Task Log", save_task_log_btn
-				    ' PushButton 20, 10, 70, 15, "Complete Task", complete_task_btn
-				    Text 30, 10, 65, 10, "Complete Task"
-				    PushButton 95, 10, 120, 15, "Request Support - Task On Hold", hold_task_btn
-				    PushButton 10, 210, 100, 15, "See all of Today's Tasks", see_task_list_btn
-				    CancelButton 280, 210, 50, 15
-				EndDialog
+				If phone_shift = True Then
+					BeginDialog Dialog1, 0, 0, 331, 175, "Log Task Information"
+					  CheckBox 175, 40, 125, 10, "Provided Verbal Case Information", Check1
+					  CheckBox 175, 55, 65, 10, "Change Report", Check2
+					  CheckBox 175, 70, 105, 10, "Submitted Document Status", Check3
+					  CheckBox 175, 85, 75, 10, "Case is at Renewal", Check4
+					  CheckBox 175, 100, 100, 10, "New Application is on File", Check5
+					  CheckBox 175, 115, 145, 10, "Information about New Program Requests", Check6
+					  DropListBox 25, 85, 125, 45, "Select One..."+chr(9)+"Yes - Processing Needed"+chr(9)+"Yes - Interview Needed"+chr(9)+"No - All Tasks Complete", follow_up_needed
+					  DropListBox 110, 110, 40, 15, "Yes"+chr(9)+"No", Action_taken_during_call
+					  ButtonGroup ButtonPressed
+					    PushButton 225, 130, 90, 15, "Save Task Log", save_task_log_btn
+					    PushButton 10, 155, 100, 15, "See all of Today's Tasks", see_task_list_btn
+					    CancelButton 275, 155, 50, 15
+					  Text 165, 25, 70, 10, "Phone Call Actions:"
+					  GroupBox 15, 50, 140, 95, "Follow Up Work Needed"
+					  Text 25, 65, 125, 20, "Is there additional work to be completed from this phone call:"
+					  GroupBox 10, 10, 315, 140, "Complete an Inbound Phone Task"
+					  Text 25, 110, 80, 20, "Did you take action on the case during the call:"
+					  Text 25, 30, 85, 10, "Case: XXXXXXX"
+					  Text 25, 130, 110, 10, "(Other than providing information)"
+					EndDialog
+				Else
+					BeginDialog Dialog1, 0, 0, 336, 230, "Log Task Information"
+					  DropListBox 235, 35, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", work_to_be_completed_ans
+					  DropListBox 235, 50, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", all_work_completed_ans
+					  DropListBox 120, 90, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", did_you_intv_ans
+					  DropListBox 120, 105, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", did_you_APP_ans
+					  DropListBox 120, 120, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", did_you_accept_ecf_ans
+					  DropListBox 120, 135, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", did_you_send_ecf_ans
+					  DropListBox 275, 150, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", start_cic_ans
+					  DropListBox 275, 165, 40, 45, "?"+chr(9)+"Yes"+chr(9)+"No", more_processing_ans
+					  GroupBox 10, 15, 315, 190, ""
+					  Text 25, 35, 85, 10, "Case: XXXXXXX"
+					  Text 115, 40, 115, 10, "Was there work to be completed?"
+					  Text 35, 55, 195, 10, "Were you able to complete EVERYTHING the case needs?"
+					  Text 25, 80, 50, 10, "Did you ..."
+					  Text 35, 95, 80, 10, "Complete an Interview?"
+					  Text 55, 110, 60, 10, "APP a Pprogram?"
+					  Text 35, 125, 85, 10, "Accept ECF Documents?"
+					  Text 20, 140, 100, 10, "Send a Document from ECF?"
+					  Text 145, 155, 125, 10, "Do you need to start the CIC process?"
+					  Text 65, 170, 210, 10, "Does this case need additional processing from another group?"
+					  ButtonGroup ButtonPressed
+					    PushButton 230, 185, 90, 15, "Save Task Log", save_task_log_btn
+					    ' PushButton 20, 10, 70, 15, "Complete Task", complete_task_btn
+					    Text 30, 10, 65, 10, "Complete Task"
+					    PushButton 95, 10, 120, 15, "Request Support - Task On Hold", hold_task_btn
+					    PushButton 10, 210, 100, 15, "See all of Today's Tasks", see_task_list_btn
+					    CancelButton 280, 210, 50, 15
+					EndDialog
+				End If
 
 			ElseIf hold_task = True Then
 				BeginDialog Dialog1, 0, 0, 336, 230, "Log Task Information"
@@ -328,15 +378,16 @@ If running_as_HSS = FALSE Then
 			End If
 
 			If ButtonPressed = save_task_log_btn AND complete_task = TRUE Then
-				If all_work_completed_ans = "No" OR more_processing_ans = "Yes" Then
+				If all_work_completed_ans = "No" OR more_processing_ans = "Yes" or left(follow_up_needed, 3) = "Yes" Then
 					Do
-						BeginDialog Dialog1, 0, 0, 171, 140, "Passing the Baton"
+						BeginDialog Dialog1, 0, 0, 171, 155, "Passing the Baton"
 						  CheckBox 15, 65, 65, 10, "Overpayments", overpayment_check
 						  CheckBox 15, 80, 65, 10, "EA/EGA", emer_check
 						  CheckBox 15, 95, 65, 10, "GRH", grh_check
 						  CheckBox 15, 110, 85, 10, "Issue MONY/CHCK", mony_chck_check
+						  CheckBox 15, 125, 85, 10, "Phone Follow Up", phone_follow_up_check
 						  ButtonGroup ButtonPressed
-						    PushButton 70, 125, 95, 10, "Add Details", add_dtls_btn
+						    PushButton 70, 140, 95, 10, "Add Details", add_dtls_btn
 						  Text 60, 10, 75, 10, "Case # XXXXXX"
 						  Text 10, 25, 160, 20, "You have indicated that this case has additional work to be completed by another group."
 						  Text 10, 50, 155, 10, "Check each work type that this case requires:"
@@ -369,8 +420,9 @@ If running_as_HSS = FALSE Then
 						If emer_check = Checked Then reassign_msg = reassign_msg & vbCr & " - EA/EGA"
 						If grh_check = Checked Then reassign_msg = reassign_msg & vbCr & " - GRHH"
 						If mony_chck_check = Checked Then reassign_msg = reassign_msg & vbCr & " - MONY/CHCK"
+						If phone_follow_up_check = checked then reassign_msg = reassign_msg & vbCr & " - Phone Follow Up"
 
-						If overpayment_check = unchecked AND emer_check = unchecked AND grh_check = unchecked AND mony_chck_check = unchecked Then reassign_msg = "No reassignment tasks were selected."
+						If overpayment_check = unchecked AND emer_check = unchecked AND grh_check = unchecked AND mony_chck_check = unchecked AND phone_follow_up_check = unchecked Then reassign_msg = "No reassignment tasks were selected."
 
 						confirm_reassignment = MsgBox(reassign_msg & vbCr & vbCr & "Is this the correct reassignment action?", vbYesNo, "Confirm Reassgnment")
 					Loop until confirm_reassignment = vbYes
@@ -420,7 +472,8 @@ If running_as_HSS = FALSE Then
 			cancel_without_confirmation
 
 			If ButtonPressed = start_new_task_btn Then
-				call assign_a_task
+				If phone_shift = False Then call assign_a_task
+				If phone_shift = True Then Call start_a_phone_task
 				task_assigned = TRUE
 			End If
 			If ButtonPressed = see_task_list_btn Then
@@ -445,7 +498,10 @@ If running_as_HSS = FALSE Then
 
 	End If
 
-	If currently_on_task = FALSE AND tasks_on_hold = FALSE Then call assign_a_task
+	If currently_on_task = FALSE AND tasks_on_hold = FALSE Then
+		If phone_shift = False Then call assign_a_task
+		If phone_shift = True Then call start_a_phone_task
+	End If
 
 End If
 

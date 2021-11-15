@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/12/2021", "Fixed some BUGS on PA Verif Request when creating Word Documents. These have been updated and the script should now be correctly creating word documents for residents in person or requesting a FAX.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/21/2021", "Multiple updates to PA Verif Request:##~## ##~##1. Added support for DWP. The script can now resend DWP WCOMs of Eligibility Notices and create MEMOs of benefits issued for a certain month range.##~## ##~##2. Added functionality to create a WORD DOCUMENT of the WCOMs resent or MEMOs created for local printing or faxing.##~## ##~##3. The INQX screens have a page display limit that can preven the script from reading the issuance information correctly. Added a functionality to review if that display limit has been reached and return to the selection area for a reduction in the range of months.##~## ##~##4. Added a review to ensure the requested months do not include issuances that have been archived.##~## ##~##5. The script will ignore WCOMs that have been cancelled as these should not be resent.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/20/2021", "Adding GRH functionality to PA Verif Request.##~## ##~##You can now resend WCOM for GRH eligibility and a MEMO for issuance amounts for active or previous GRH eligibility.##~##", "Casey Love, Hennepin County")
 call changelog_update("06/23/2021", "PA Verif Request is back!##~## ##~##It is now built with the functionality to either create a SPEC/MEMO of benefit issuances from INQX, or resend a WCOM of an Eligibility Notice.##~## ##~##This new process follows the procedure detailed in the HSR Manual.##~##", "Casey Love, Hennepin County")
@@ -193,7 +194,7 @@ function check_if_mmis_in_session(mmis_running, maxis_region)
 	transmit
 end function
 
-function create_a_word_doc_of_a_NOTICE()
+function create_a_word_doc_of_a_NOTICE(caption_info)
 	notice_length = 0
     page_nbr = 2
 	Do
@@ -220,7 +221,7 @@ function create_a_word_doc_of_a_NOTICE()
 	Loop until notice_length = 20
 
 	Set objDoc = objWord.Documents.Add()
-	objWord.Caption = notices_array(information, notice_to_print)
+	objWord.Caption = caption_info
 	Set objSelection = objWord.Selection
 	objSelection.PageSetup.LeftMargin = 50
 	objSelection.PageSetup.RightMargin = 50
@@ -811,8 +812,8 @@ If msa_status = "ACTIVE" Then				'searching for MSA Information'
 		EMReadScreen notc_title, 30, wcom_row, 30
 
 		If prg_typ = "MS" AND InStr(notc_title, "ELIG") <> 0 Then		'the program needs to be MSA and the title should have ELIG in it.
-			ga_wcom_row = wcom_row										'saving the row of the WCOM and which notice in the list it is specific to MSA
-			ga_wcom_position = wcom_row - 6
+			msa_wcom_row = wcom_row										'saving the row of the WCOM and which notice in the list it is specific to MSA
+			msa_wcom_position = wcom_row - 6
 
 			EMReadScreen notice_date, 8,  wcom_row, 16
 			EMReadScreen notice_prog, 2,  wcom_row, 26
@@ -889,8 +890,8 @@ If mfip_status = "ACTIVE" Then				'searching for MFIP Information'
 		EMReadScreen notc_title, 30, wcom_row, 30
 
 		If prg_typ = "MF" AND InStr(notc_title, "ELIG") <> 0 Then		'the program needs to be MFIP and the title should have ELIG in it.
-			ga_wcom_row = wcom_row										'saving the row of the WCOM and which notice in the list it is specific to MFIP
-			ga_wcom_position = wcom_row - 6
+			mfip_wcom_row = wcom_row										'saving the row of the WCOM and which notice in the list it is specific to MFIP
+			mfip_wcom_position = wcom_row - 6
 
 			EMReadScreen notice_date, 8,  wcom_row, 16
 			EMReadScreen notice_prog, 2,  wcom_row, 26
@@ -3197,8 +3198,9 @@ End If
 snap_resent_wcom = False		'defaults to see if the wcom is susccessful.
 ga_resent_wcom = False
 msa_resent_wcom = False
-mfip_wcom_row = False
-grh_wcom_row = False
+mfip_resent_wcom = False
+dwp_resent_wcom = False
+grh_resent_wcom = False
 
 'If any program has a WCOM to resend as the option - we are going to send it
 If resend_wcom = True Then
@@ -3206,7 +3208,6 @@ If resend_wcom = True Then
 		Call resend_existing_wcom(snap_month, snap_year, snap_wcom_row, snap_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 		Call back_to_SELF
 		STATS_manualtime = STATS_manualtime + 15
-		' MsgBox snap_resent_wcom
 	End If
 	If ga_verification_method = "Resend WCOM - Eligibility Notice" Then
 		Call resend_existing_wcom(ga_month, ga_year, ga_wcom_row, ga_resent_wcom, False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
@@ -3638,7 +3639,6 @@ If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox =
 	objWord.Visible = True
 
 	If create_memo = True Then
-		call create_a_word_doc_of_a_NOTICE
 		Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 		EMWriteScreen CM_mo, 3, 46
 		EMWriteScreen CM_yr, 3, 51
@@ -3648,12 +3648,12 @@ If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox =
 		Do
 			EMReadScreen notice_stat, 8, memo_row, 67
 			notice_stat = trim(notice_stat)
-
 			If notice_stat = "Waiting" Then
-				EMWriteScreen, "X", memo_row, 16
+				caption_info = "SPEC/MEMO - " & date & " - Status: " & notice_stat
+				EMWriteScreen "X", memo_row, 16
 				transmit
 
-				call create_a_word_doc_of_a_NOTICE
+				call create_a_word_doc_of_a_NOTICE(caption_info)
 
 				PF3
 			End If
@@ -3670,9 +3670,12 @@ If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox =
 			EMWriteScreen snap_year, 3, 51
 			transmit
 			EMWriteScreen "X", snap_wcom_row, 13
+			EMReadScreen notice_date, 8, snap_wcom_row, 16
+			EMReadScreen notice_stat, 8, snap_wcom_row, 71
+			caption_info = "SPEC/WCOM - SNAP - " & notice_date & " - Status: " & notice_stat
 			transmit
 
-			call create_a_word_doc_of_a_NOTICE
+			call create_a_word_doc_of_a_NOTICE(caption_info)
 
 			PF3
 		End If
@@ -3684,9 +3687,12 @@ If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox =
 			EMWriteScreen ga_year, 3, 51
 			transmit
 			EMWriteScreen "X", ga_wcom_row, 13
+			EMReadScreen notice_date, 8, ga_wcom_row, 16
+			EMReadScreen notice_stat, 8, ga_wcom_row, 71
+			caption_info = "SPEC/WCOM - GA - " & notice_date & " - Status: " & notice_stat
 			transmit
 
-			call create_a_word_doc_of_a_NOTICE
+			call create_a_word_doc_of_a_NOTICE(caption_info)
 
 			PF3
 		End If
@@ -3698,9 +3704,12 @@ If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox =
 			EMWriteScreen msa_year, 3, 51
 			transmit
 			EMWriteScreen "X", msa_wcom_row, 13
+			EMReadScreen notice_date, 8, msa_wcom_row, 16
+			EMReadScreen notice_stat, 8, msa_wcom_row, 71
+			caption_info = "SPEC/WCOM - MSA - " & notice_date & " - Status: " & notice_stat
 			transmit
 
-			call create_a_word_doc_of_a_NOTICE
+			call create_a_word_doc_of_a_NOTICE(caption_info)
 
 			PF3
 		End If
@@ -3711,10 +3720,13 @@ If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox =
 			EMWriteScreen mfip_month, 3, 46
 			EMWriteScreen mfip_year, 3, 51
 			transmit
+			EMReadScreen notice_date, 8, mfip_wcom_row, 16
+			EMReadScreen notice_stat, 8, mfip_wcom_row, 71
+			caption_info = "SPEC/WCOM - MFIP - " & notice_date & " - Status: " & notice_stat
 			EMWriteScreen "X", mfip_wcom_row, 13
 			transmit
 
-			call create_a_word_doc_of_a_NOTICE
+			call create_a_word_doc_of_a_NOTICE(caption_info)
 
 			PF3
 		End If
@@ -3726,9 +3738,12 @@ If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox =
 			EMWriteScreen dwp_year, 3, 51
 			transmit
 			EMWriteScreen "X", dwp_wcom_row, 13
+			EMReadScreen notice_date, 8, dwp_wcom_row, 16
+			EMReadScreen notice_stat, 8, dwp_wcom_row, 71
+			caption_info = "SPEC/WCOM - DWP - " & notice_date & " - Status: " & notice_stat
 			transmit
 
-			call create_a_word_doc_of_a_NOTICE
+			call create_a_word_doc_of_a_NOTICE(caption_info)
 
 			PF3
 		End If
@@ -3740,9 +3755,12 @@ If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox =
 			EMWriteScreen grh_year, 3, 51
 			transmit
 			EMWriteScreen "X", grh_wcom_row, 13
+			EMReadScreen notice_date, 8, grh_wcom_row, 16
+			EMReadScreen notice_stat, 8, grh_wcom_row, 71
+			caption_info = "SPEC/WCOM - GRH - " & notice_date & " - Status: " & notice_stat
 			transmit
 
-			call create_a_word_doc_of_a_NOTICE
+			call create_a_word_doc_of_a_NOTICE(caption_info)
 
 			PF3
 		End If

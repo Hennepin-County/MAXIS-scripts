@@ -41,6 +41,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/04/2021", "Open Enrollment Dates updated for 2022.", "Casey Love, Hennepin County")
+call changelog_update("11/03/2021", "Added United HealthCare plan option as a selection with the plan code. This plan is available starting in January 2022.##~## ##~##DO NOT ENROLL RESIDENTS IN THIS PLAN PRIOR TO 01/2022. MMIS WILL ERROR AS THAT PLAN IS NOT AVAILBLE FOR A MONTH PRIOR TO 01/2022##~##", "Casey Love, Hennepin County")
 call changelog_update("04/28/2021", "New functionality added!##~## ##~##Script will now read RCAS for the SVC LOC to ensure the case is handled by Hennepin County. This functionality is BRAND NEW and in testing. Tell us is there are any issues (the script preventing you from working on any cases that you can update or not correctly finding cases that you CAN'T update.) We won't know if we are looking for the right information or evaluating it correctly until we try it out.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/26/2021", "Script can now end 'HH' Exclusions for PMAP.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/26/2021", "Phone Number field is changed to a COMBOBOX which will allow you to select a phone number from a list based on what has been entered in and listed on RCAD in MMIS. This field can still be typed in, to allow for entry of a number not known to the system.##~##", "Casey Love, Hennepin County")
@@ -80,6 +82,7 @@ Function read_detail_on_RPPH(curr_enrl_date, curr_hp_code, curr_cntrct_code_one,
 	If curr_hp_code = "A565813600" then curr_hp_name = "Ucare"
 	If curr_hp_code = "A405713900" then curr_hp_name = "Medica"
 	If curr_hp_code = "A065813800" then curr_hp_name = "Blue Plus"
+	If curr_hp_code = "A168407400" then curr_hp_name = "United Healthcare"
 	If curr_hp_code = "A836618200" then curr_hp_name = "Hennepin Health PMAP"
 	If curr_hp_code = "A965713400" then curr_hp_name = "Hennepin Health SNBC"
 	If curr_change_rsn_code = "FY" Then curr_chg_rsn_full = "First year change option"
@@ -146,7 +149,7 @@ End If
 
 open_enrollment_case = FALSE
 ask_about_oe = FALSE
-nov_cut_off_date = #11/17/2020#
+nov_cut_off_date = #11/17/2021#
 If Month(date) = 10 OR Month(date) = 11 Then
 	If DateDiff("d", date, nov_cut_off_date) > 0 Then ask_about_oe = TRUE
 End If
@@ -155,7 +158,7 @@ If ask_about_oe = TRUE Then
 	ask_if_open_enrollment = MsgBox("Are you processing an Open Enrollment?", vbQuestion + vbYesNo, "Open Enrollment?")
 	If ask_if_open_enrollment = vbYes Then
 		enrollment_month = "01"
-		enrollment_year = "21"
+		enrollment_year = "22"
 		open_enrollment_case = TRUE
 		case_open_enrollment_yn = "Yes"
 	End If
@@ -168,29 +171,31 @@ IF open_enrollment_case = FALSE Then
 	this_month = monthname(month(date))
 	Select Case this_month
 	    Case "January"
-			cut_off_date = #01/20/2021#
+			cut_off_date = #01/20/2022#
 	    Case "February"
-			cut_off_date = #02/17/2021#
+			cut_off_date = #02/16/2022#
 	    Case "March"
-			cut_off_date = #03/22/2021#
+			cut_off_date = #03/22/2022#
 	    Case "April"
-			cut_off_date = #04/21/2021#
+			cut_off_date = #04/20/2022#
 	    Case "May"
-			cut_off_date = #05/19/2021#
+			cut_off_date = #05/19/2022#
 	    Case "June"
-			cut_off_date = #06/21/2021#
+			cut_off_date = #06/21/2022#
 	    Case "July"
-			cut_off_date = #07/21/2021#
+			cut_off_date = #07/20/2022#
 	    Case "August"
-			cut_off_date = #08/20/2021#
+			cut_off_date = #08/22/2022#
 	    Case "September"
-			cut_off_date = #09/21/2021#
+			cut_off_date = #09/21/2022#
 	    Case "October"
-			cut_off_date = #10/20/2021#
+			cut_off_date = #10/20/2022#
 	    Case "November"
 			cut_off_date = #11/17/2021#
+			' cut_off_date = #11/17/2022#
 	    Case "December"
 			cut_off_date = #12/20/2021#
+			' cut_off_date = #12/20/2022#
 	End Select
 	'MsgBox cut_off_date
 	If cut_off_date <> "" Then
@@ -207,7 +212,7 @@ BeginDialog Dialog1, 0, 0, 206, 180, "Enrollment Information"
   EditBox 90, 25, 60, 15, MMIS_case_number
   EditBox 90, 45, 20, 15, enrollment_month
   EditBox 115, 45, 20, 15, enrollment_year
-  DropListBox 55, 75, 95, 15, "Select one..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", Health_plan
+  DropListBox 55, 75, 95, 15, "Select one..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare"+chr(9)+"United Healthcare", Health_plan
   CheckBox 120, 95, 25, 10, "Yes", Insurance_yes
   CheckBox 120, 105, 25, 10, "Yes", foster_care_yes
   DropListBox 110, 120, 90, 45, "Select One..."+chr(9)+"Phone"+chr(9)+"Paper Enrollment Form"+chr(9)+"Morning Letters", enrollment_source
@@ -238,7 +243,7 @@ Do
 	If enrollment_source = "Select One..." Then err_msg = err_msg & vbNewLine & "* Indicate where the request for the enrollment came from (phone call or enrollment form)."
 	If case_open_enrollment_yn = "Yes" Then
 		enrollment_month = "01"
-		enrollment_year = "21"
+		enrollment_year = "22"
 		open_enrollment_case = TRUE
 	Else
 		If enrollment_month = "" OR enrollment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the month and year enrollment is effective."
@@ -559,6 +564,7 @@ For each member in HH_member_array
 		If hp_code = "A565813600" then MMIS_clients_array(current_plan, item) = "Ucare"
 		If hp_code = "A405713900" then MMIS_clients_array(current_plan, item) = "Medica"
 		If hp_code = "A065813800" then MMIS_clients_array(current_plan, item) = "Blue Plus"
+		If hp_code = "A168407400" then MMIS_clients_array(current_plan, item) = "United Healthcare"
 		If hp_code = "A836618200" then MMIS_clients_array(current_plan, item) = "Hennepin Health PMAP"
 		If hp_code = "A965713400" then MMIS_clients_array(current_plan, item) = "Hennepin Health SNBC"
 		EMReadScreen hp_curr_start_date, 8, row, 5
@@ -613,7 +619,7 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
 	Text 240, (x * 20) + 25, 35, 10, MMIS_clients_array(current_plan_date, person)
   	EditBox 285, (x * 20) + 20, 45, 15, MMIS_clients_array(med_code, person)
   	EditBox 340, (x * 20) + 20, 45, 15, MMIS_clients_array(dent_code, person)
-    DropListBox 390, (x * 20) + 20, 60, 15, " "+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan, person)
+    DropListBox 390, (x * 20) + 20, 60, 15, " "+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare"+chr(9)+"United Healthcare", MMIS_clients_array(new_plan, person)
   	DropListBox 460, (x * 20) + 20, 50, 15, "MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array(contr_code, person)
 	DropListBox 520, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn, person)
   	DropListBox 585, (x * 20) + 20, 60, 15, "Select one..."+chr(9)+"Eligibility ended"+chr(9)+"Exclusion"+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Jail - Incarceration"+chr(9)+"Move"+chr(9)+"Loss of disability"+chr(9)+"Ninety Day change option"+chr(9)+"Open Enrollment"+chr(9)+"PMI merge"+chr(9)+"Voluntary"+chr(9)+"DELETE SPAN", MMIS_clients_array(disenrol_rsn, person)
@@ -844,6 +850,7 @@ If MNSURE_Case = TRUE Then
 			If MMIS_clients_array(new_plan, member) = "Ucare" then health_plan_code = "A565813600"
 			If MMIS_clients_array(new_plan, member) = "Medica" then health_plan_code = "A405713900"
 			If MMIS_clients_array(new_plan, member) = "Blue Plus" then health_plan_code = "A065813800"
+			If MMIS_clients_array(new_plan, member) = "United Healthcare" then health_plan_code = "A168407400"
 			If MMIS_clients_array(new_plan, member) = "Hennepin Health PMAP" then health_plan_code = "A836618200"
 			If MMIS_clients_array(new_plan, member) = "Hennepin Health SNBC" then health_plan_code = "A965713400"
 
@@ -945,7 +952,7 @@ If MNSURE_Case = TRUE Then
 						err_msg = ""
 
 						BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
-						  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan_two, member)
+						  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare"+chr(9)+"United Healthcare", MMIS_clients_array(new_plan_two, member)
 						  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array (contr_code_two, member)
 						  EditBox 390, 185, 50, 15, new_enrol_date
 						  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)
@@ -1317,6 +1324,7 @@ Else
 			If MMIS_clients_array(new_plan, member) = "Ucare" then health_plan_code = "A565813600"
 			If MMIS_clients_array(new_plan, member) = "Medica" then health_plan_code = "A405713900"
 			If MMIS_clients_array(new_plan, member) = "Blue Plus" then health_plan_code = "A065813800"
+			If MMIS_clients_array(new_plan, member) = "United Healthcare" then health_plan_code = "A168407400"
 			If MMIS_clients_array(new_plan, member) = "Hennepin Health PMAP" then health_plan_code = "A836618200"
 			If MMIS_clients_array(new_plan, member) = "Hennepin Health SNBC" then health_plan_code = "A965713400"
 
@@ -1421,7 +1429,7 @@ Else
 						err_msg = ""
 
 						BeginDialog Dialog1, 0, 0, 456, 290, "Update Enrollment Options due to MMIS Failure or Error"
-						  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare", MMIS_clients_array(new_plan_two, member)
+						  DropListBox 80, 185, 125, 45, "Select One..."+chr(9)+"Blue Plus"+chr(9)+"Health Partners"+chr(9)+"Hennepin Health PMAP"+chr(9)+"Medica"+chr(9)+"Ucare"+chr(9)+"United Healthcare", MMIS_clients_array(new_plan_two, member)
 						  DropListBox 250, 185, 65, 45, "Select One..."+chr(9)+"MA 12"+chr(9)+"NM 12"+chr(9)+"MA 30"+chr(9)+"MA 35"+chr(9)+"IM 12", MMIS_clients_array (contr_code_two, member)
 						  EditBox 390, 185, 50, 15, new_enrol_date
 						  DropListBox 80, 205, 130, 45, "Select one..."+chr(9)+"First year change option"+chr(9)+"Health plan contract end"+chr(9)+"Initial enrollment"+chr(9)+"Move"+chr(9)+"Ninety Day change option"+chr(9)+"Open enrollment"+chr(9)+"PMI merge"+chr(9)+"Reenrollment", MMIS_clients_array(change_rsn_two, member)

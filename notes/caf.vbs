@@ -5817,6 +5817,7 @@ If vars_filled = False Then
         	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
         LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
     End If
+    day_30_from_application = DateAdd("d", 30, CAF_datestamp)
 
     Call hest_standards(heat_AC_amt, electric_amt, phone_amt, CAF_datestamp)        'getting the correct amounts for HEST standards based on the application date.
     If the_process_for_snap = "Recertification" AND snap_recert_mo = "10" Then      'IF we are working a recertification CASE for SNAP for 10 - the recert month matters more than the app date. Pulling the correct HEST standards by footer month.
@@ -7527,7 +7528,7 @@ Do
                           DropListBox 480, 150, 30, 45, "No"+chr(9)+"Yes", homeless_yn
                           DropListBox 335, 170, 95, 45, "SF - Shelter Form"+chr(9)+"CO - Coltrl Stmt"+chr(9)+"LE - Lease/Rent Doc"+chr(9)+"MO - Mortgage Papers"+chr(9)+"TX - Prop Tax Stmt"+chr(9)+"CD - Contrct for Deed"+chr(9)+"UT - Utility Stmt"+chr(9)+"DL - Driver Lic/State ID"+chr(9)+"OT - Other Document"+chr(9)+"NO - No Ver Prvd"+chr(9)+"? - Delayed"+chr(9)+"Blank", addr_verif
                           DropListBox 480, 170, 30, 45, "No"+chr(9)+"Yes", reservation_yn
-                          DropListBox 375, 190, 165, 45, " "+chr(9)+"01 - Own home, lease or roommate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", living_situation
+                          DropListBox 375, 190, 165, 45, "  "+chr(9)+"01 - Own home, lease or roommate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown"+chr(9)+"Blank", living_situation
                           EditBox 315, 220, 230, 15, notes_on_address
                           EditBox 60, 245, 490, 15, verifs_needed
                           GroupBox 5, 5, 545, 65, "WREG and ABAWD Information"
@@ -8358,6 +8359,8 @@ If dialog_liv_sit_code <> panel_living_sit OR dialog_liv_sit_code = "__" Then
     PF9
     EMWriteScreen dialog_liv_sit_code, 11, 43
     transmit
+    EmReadscreen addr_error, 21, 24, 2
+    If addr_error = "ONLY ONE FUTURE PANEL" then transmit   'error message that needs to be bypassed if other changes occur in that footer month/year.
 End If
 
 

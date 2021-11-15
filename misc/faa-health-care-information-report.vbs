@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/29/2020", "Added PMAP information to report for new plan: United HealthCare.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/29/2020", "Added PMAP information to report. Added status to report. Removed error list. Status cases may also have health care information, enhancement from previous error list.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/20/2020", "Added link to instructions in main dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/06/2020", "Final release version ready for production.", "Ilse Ferris, Hennepin County")
@@ -368,10 +369,12 @@ For item = 0 to UBound(case_array, 2)
                 case_array(pmap_end_const, item) = trim(pmap_end)
 
                 EMReadScreen hp_code, 10, 13, 23
+
                 If hp_code = "A585713900" then case_array(pmap_name_const, item) = "HealthPartners"
                 If hp_code = "A565813600" then case_array(pmap_name_const, item) = "Ucare"
                 If hp_code = "A405713900" then case_array(pmap_name_const, item) = "Medica"
                 If hp_code = "A065813800" then case_array(pmap_name_const, item) = "BluePlus"
+                If hp_code = "A168407400" then case_array(pmap_name_const, item) = "United Healthcare"
                 If hp_code = "A836618200" then case_array(pmap_name_const, item) = "Hennepin Health PMAP"
                 If hp_code = "A965713400" then case_array(pmap_name_const, item) = "Hennepin Health SNBC"
             End if

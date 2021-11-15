@@ -44,36 +44,56 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("10/01/2021", "GitHub #189 Updated script to remove correction email process.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/31/2020", "Initial version.", "MiKayla Handley, Hennepin County")
-
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-correction_process = "On Demand Applications" 'for the next script'
+
+
+Function HCRE_panel_bypass()
+	'handling for cases that do not have a completed HCRE panel
+	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+	Do
+		EMReadscreen HCRE_panel_check, 4, 2, 50
+		IF HCRE_panel_check = "HCRE" then
+			PF10	'exists edit mode in cases where HCRE isn't complete for a member
+			PF3
+		END IF
+	Loop until HCRE_panel_check <> "HCRE"
+End Function
 '---------------------------------------------------------------------------------------The script
-'Grabs the case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
-back_to_SELF' added to ensure we have the time to update and send the case in the background
+
+EMConnect ""                                        'Connecting to BlueZone
+CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
+CALL Check_for_MAXIS(false)                         'Ensuring we are not passworded out
+
+closing_message = "On Demand Application Waiver process has been case noted." 'setting up closing_message variable for possible additions later based on conditions
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 226, 120, "Notes On Demand"
+BeginDialog Dialog1, 0, 0, 231, 185, "Notes On Demand"
   EditBox 55, 5, 45, 15, MAXIS_case_number
-  DropListBox 55, 25, 165, 15, "Select One:"+chr(9)+"Additional application pended prior to interview being completed"+chr(9)+"Case was not pended timely"+chr(9)+"Clear case note for other pending program pending not mentioned"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Client has not completed F2F CASH application interview"+chr(9)+"Client contact was made no interview offered"+chr(9)+"Denied programs for no interview"+chr(9)+"Interview completed on NOMI day and NOMI was not cancelled"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"Script-Application Received-not used when pending case"+chr(9)+"Script-CAF-used but no interview completed"+chr(9)+"Script-CAF-not used but approval made"+chr(9)+"Worker completed denial for no interview in ELIG"+chr(9)+"Other(please describe)", case_status_dropdown
-  EditBox 55, 40, 165, 15, other_notes
-  EditBox 170, 60, 50, 15, interview_date
-  EditBox 170, 80, 50, 15, case_note_date
-  CheckBox 5, 105, 85, 10, "Send Email Correction", correction_email_CHECKBOX
+  DropListBox 55, 25, 170, 15, "Select One:"+chr(9)+"Case was not pended timely"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Denied programs for no interview"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"Other(please describe)", case_status_dropdown
+  EditBox 175, 45, 50, 15, application_date
+  EditBox 175, 65, 50, 15, case_note_date
+  EditBox 175, 85, 50, 15, interview_date
+  DropListBox 170, 105, 55, 15, "Select One:"+chr(9)+"Cash & Snap"+chr(9)+"Snap"+chr(9)+"Cash"+chr(9)+"Already updated"+chr(9)+"Do not update", confirm_update_prog
+  EditBox 175, 125, 50, 15, notice_sent_date
+  EditBox 55, 145, 170, 15, other_notes
   ButtonGroup ButtonPressed
-    OkButton 115, 100, 50, 15
-    CancelButton 170, 100, 50, 15
+    OkButton 120, 165, 50, 15
+    CancelButton 175, 165, 50, 15
+	PushButton 110, 5, 55, 15, "STAT/PROG", PROG_button
+    PushButton 170, 5, 55, 15, "CASE/NOTE", NOTE_button
+  Text 5, 150, 45, 10, "Other notes:"
   Text 5, 10, 50, 10, "Case number:"
+  Text 5, 50, 65, 10, "Date of application:"
+  Text 5, 130, 140, 10, "Date most recent appt letter or NOMI sent:"
   Text 5, 30, 45, 10, "Case status:"
-  Text 5, 65, 165, 10, "Date NOMI sent or interview completed case note:"
-  Text 5, 45, 45, 10, "Other notes:"
-  Text 5, 85, 90, 10, "Date of appt or case note:"
-  CheckBox 140, 10, 80, 10, "Update STAT/PROG", prog_updated_CHECKBOX
+  Text 5, 70, 60, 10, "Date of case note:"
+  Text 5, 90, 125, 10, "Update PROG with the interview date:"
+  Text 95, 110, 40, 10, "Programs:"
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -82,351 +102,200 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-		IF case_status_dropdown = "Case was not pended timely" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
-		IF case_status_dropdown = "Denied programs for no interview" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
-		IF case_status_dropdown = "Client completed application interview" and prog_updated_CHECKBOX <> CHECKED THEN err_msg = err_msg & vbNewLine & "* Please update PROG with interview date."
-		IF case_status_dropdown = "Client completed application interview" and case_note_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case note date."
-		IF case_status_dropdown = "Client completed application interview" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid interview date."
-		IF case_status_dropdown = "Client has not completed application interview" and interview_date = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date that the NOMI was sent."
-		IF case_status_dropdown = "Other(please describe)" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a description of what occured."
-      	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+		CALL MAXIS_dialog_navigation()
+
+		IF IsNumeric(maxis_case_number) = FALSE or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		IF case_status_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select valid status drop down."
+		IF IsDate(application_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
+		IF case_status_dropdown = "Case was not pended timely" THEN
+			IF IsDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter the date the NOMI was sent."
+		END IF
+		IF case_status_dropdown = "Denied programs for no interview" THEN
+			IF datediff("d", application_date, date) >= 30 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date, the resident must be provided 30 days from the date of application."    'confirming that these cases meet all the criteria for denial
+			IF IsDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
+		END IF
+		IF case_status_dropdown = "Client completed application interview" THEN
+			IF confirm_update_prog = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Select if a progam needs to updated on PROG."
+			IF IsDate(case_note_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case note date."
+			IF IsDate(interview_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid interview date."
+		END IF
+		IF case_status_dropdown = "Client has not completed application interview" THEN
+			IF IsDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter the date the NOMI was sent."
+		END IF
+		IF case_status_dropdown = "Other(please describe)" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a description of what occurred."
+
+		IF ButtonPressed = NOTE_button or ButtonPressed = PROG_button THEN 'need the error message to not be blank so that it wont message box but it will not leave '
+			err_msg = "Loop"
+		ELSE
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+		END IF
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-'----------------------------------------------------------------------------------------------------'pending & active programs information
-'information gathering to auto-populate the application date
-back_to_self
-EMWriteScreen MAXIS_case_number, 18, 43
-Call navigate_to_MAXIS_screen("REPT", "PND2")
 
-limit_reached = FALSE
-row = 1
-col = 1
-EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
-If row <> 0 Then
-    transmit
-    limit_reached = TRUE
-End If
+'Checking for PRIV cases.
+If case_status_dropdown = "Client completed application interview" THEN          'Interviews are only required for Cash and SNAP
+    CALL back_to_SELF               'Need to do this because we need to go to the footer month of the application and we may be in a different month
+    Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
+	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)  'Going to STAT to check to see if there is already an interview indicated.
+	IF is_this_priv = TRUE THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
+    PF9                                            'Edit
+    intv_mo = DatePart("m", interview_date)     'Setting the date parts to individual variables for ease of writing
+    intv_day = DatePart("d", interview_date)
+    intv_yr = DatePart("yyyy", interview_date)
+    intv_mo = right("00"&intv_mo, 2)            'formatting variables in to 2 digit strings - because MAXIS
+    intv_day = right("00"&intv_day, 2)
+    intv_yr = right(intv_yr, 2)
+    intv_date_to_check = intv_mo & " " & intv_day & " " & intv_yr
+    If confirm_update_prog = "Snap" or confirm_update_prog = "Cash & Snap" THEN     'If it was selected to SNAP interview to be updated
+        programs_w_interview = "SNAP"               'Setting a variable for case noting
+        EMWriteScreen intv_mo, 10, 55               'SNAP is easy because there is only one area for interview - the variables go there
+        EMWriteScreen intv_day, 10, 58
+        EMWriteScreen intv_yr, 10, 61
+    End If
+    If confirm_update_prog = "Cash" or confirm_update_prog = "Cash & Snap" THEN     'If it was selected to update for Cash
+        If programs_w_interview = "" THEN programs_w_interview = "CASH"     'variable for the case note
+        If programs_w_interview <> "" THEN programs_w_interview = "Cash & Snap"
+        EMReadScreen cash_one_app, 8, 6, 33     'Reading app dates of both cash lines
+        EMReadScreen cash_two_app, 8, 7, 33
+        EMReadScreen grh_cash_app, 8, 9, 33
+        cash_one_app = replace(cash_one_app, " ", "/")      'Formatting as dates
+        cash_two_app = replace(cash_two_app, " ", "/")
+        grh_cash_app = replace(grh_cash_app, " ", "/")
+        If cash_one_app <> "__/__/__" THEN              'Comparing them to the date of application to determine which row to use
+            If IsDate(cash_one_app) = TRUE THEN
+                if DateDiff("d", cash_one_app, application_date) = 0 then prog_row = 6
+            End If
+        End If
+        If cash_two_app <> "__/__/__" THEN
+            If IsDate(cash_two_app) = TRUE THEN
+                if DateDiff("d", cash_two_app, application_date) = 0 then prog_row = 7
+            End If
+        End If
+        If grh_cash_app <> "__/__/__" THEN
+            If IsDate(grh_cash_app) = TRUE THEN
+                if DateDiff("d", grh_cash_app, application_date) = 0 then prog_row = 9
+            End If
+        End If
+        EMWriteScreen intv_mo, prog_row, 55     'Writing the interview date in
+        EMWriteScreen intv_day, prog_row, 58
+        EMWriteScreen intv_yr, prog_row, 61
+    End If
+    TRANSMIT                                  'Saving the panel
+    Call HCRE_panel_bypass()
+    Call back_to_SELF
+    Call MAXIS_background_check
 
-'Ensuring that the user is in REPT/PND2
-Do
-	EMReadScreen PND2_check, 4, 2, 52
-	If PND2_check <> "PND2" then
-		back_to_SELF
-		Call navigate_to_MAXIS_screen("REPT", "PND2")
-	End if
-LOOP until PND2_check = "PND2"
-
-'checking the case to make sure there is a pending case.  If not script will end & inform the user no pending case exists in PND2 this does not tell you if it is active or pnd1
-EMReadScreen not_pending_check, 5, 24, 2
-If not_pending_check = "CASE " THEN script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
-
-If limit_reached = TRUE Then
-    MAXIS_row = 7
-    Do
-        EMReadScreen PND2_case_number, 8, MAXIS_row, 5
-        if trim(PND2_case_number) = MAXIS_case_number Then Exit Do
-        MAXIS_row = MAXIS_row + 1
-    Loop until MAXIS_row = 19
-Else
-    EMGetCursor MAXIS_row, MAXIS_col
-End If
-If MAXIS_row > 18 Then script_end_procedure("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
-
-'grabs row and col number that the cursor is at this is where the application date comes in
-EMReadScreen app_month, 2, MAXIS_row, 38
-EMReadScreen app_day, 2, MAXIS_row, 41
-EMReadScreen app_year, 2, MAXIS_row, 44
-EMReadScreen days_pending, 3, MAXIS_row, 50
-EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17
-EMReadScreen add_app_month, 2, MAXIS_row + 1, 38
-EMReadScreen add_app_day, 2, MAXIS_row + 1, 41
-EMReadScreen add_app_year, 2, MAXIS_row + 1, 44
-
-'Creating new variable for application check date and additional application date.
-application_date = app_month & "/" & app_day & "/" & app_year
-additional_application_date = add_app_month & "/" & add_app_day & "/" & add_app_year
-
-'checking for multiple application dates.  Creates message boxes giving the user an option of which app date to choose
-If additional_application_check = "ADDITIONAL APP" THEN multiple_apps = MsgBox("Do you want this application date: " & application_date, VbYesNoCancel)
-If multiple_apps = vbCancel then stopscript
-If multiple_apps = vbYes then application_date = application_date
-IF multiple_apps = vbNo then
-	additional_apps = Msgbox("Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date." & vbcr & "Do you want this application date: " & additional_application_date, VbYesNoCancel)
-	application_date = ""
-	If additional_apps = vbCancel then stopscript
-	If additional_apps = vbNo then script_end_procedure_with_error_report("No more application dates exist. Please review the case, and start the script again if applicable.")
-	If additional_apps = vbYes then
-		additional_date_found = TRUE
-		application_date = additional_application_date
-		MAXIS_row = MAXIS_row + 1
-	END IF
-End if
-
-EMReadScreen PEND_CASH_check,	1, MAXIS_row, 54
-EMReadScreen PEND_SNAP_check, 1, MAXIS_row, 62
-EMReadScreen PEND_HC_check, 1, MAXIS_row, 65
-EMReadScreen PEND_EMER_check,	1, MAXIS_row, 68
-EMReadScreen PEND_GRH_check, 1, MAXIS_row, 72
-
-MAXIS_footer_month = right("00" & DatePart("m", application_date), 2)
-MAXIS_footer_year = right(DatePart("yyyy", application_date), 2)
-
-CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
-'EMReadScreen application_date, 8, 6, 33
-
-EMReadScreen err_msg, 7, 24, 02
-IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
-
-'Reading the app date from PROG
-EMReadScreen cash1_app_date, 8, 6, 33
-cash1_app_date = replace(cash1_app_date, " ", "/")
-EMReadScreen cash2_app_date, 8, 7, 33
-cash2_app_date = replace(cash2_app_date, " ", "/")
-EMReadScreen emer_app_date, 8, 8, 33
-emer_app_date = replace(emer_app_date, " ", "/")
-EMReadScreen grh_app_date, 8, 9, 33
-grh_app_date = replace(grh_app_date, " ", "/")
-EMReadScreen snap_app_date, 8, 10, 33
-snap_app_date = replace(snap_app_date, " ", "/")
-EMReadScreen ive_app_date, 8, 11, 33
-ive_app_date = replace(ive_app_date, " ", "/")
-EMReadScreen hc_app_date, 8, 12, 33
-hc_app_date = replace(hc_app_date, " ", "/")
-EMReadScreen cca_app_date, 8, 14, 33
-cca_app_date = replace(cca_app_date, " ", "/")
-
-'Reading the program status
-EMReadScreen cash1_status_check, 4, 6, 74
-EMReadScreen cash2_status_check, 4, 7, 74
-EMReadScreen emer_status_check, 4, 8, 74
-EMReadScreen grh_status_check, 4, 9, 74
-EMReadScreen snap_status_check, 4, 10, 74
-EMReadScreen ive_status_check, 4, 11, 74
-EMReadScreen hc_status_check, 4, 12, 74
-EMReadScreen cca_status_check, 4, 14, 74
-'----------------------------------------------------------------------------------------------------ACTIVE program coding
-EMReadScreen cash1_prog_check, 2, 6, 67     'Reading cash 1
-EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2
-EMReadScreen emer_prog_check, 2, 8, 67      'EMER Program
-
-'Logic to determine if MFIP is active
-IF cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "MS" THEN
-	IF cash1_status_check = "ACTV" THEN cash_active = TRUE
-END IF
-IF cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "MS" THEN
-	IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
-END IF
-IF emer_prog_check = "EG" and emer_status_check = "ACTV" THEN emer_active = TRUE
-IF emer_prog_check = "EA" and emer_status_check = "ACTV" THEN emer_active = TRUE
-
-IF cash1_status_check = "ACTV" THEN cash_active  = TRUE
-IF cash2_status_check = "ACTV" THEN cash2_active = TRUE
-IF snap_status_check  = "ACTV" THEN SNAP_active  = TRUE
-IF grh_status_check   = "ACTV" THEN grh_active   = TRUE
-IF ive_status_check   = "ACTV" THEN IVE_active   = TRUE
-IF hc_status_check    = "ACTV" THEN hc_active    = TRUE
-IF cca_status_check   = "ACTV" THEN cca_active   = TRUE
-
-active_programs = ""        'Creates a variable that lists all the active.
-IF cash_active = TRUE or cash2_active = TRUE THEN active_programs = active_programs & "CASH, "
-IF emer_active = TRUE THEN active_programs = active_programs & "Emergency, "
-IF grh_active  = TRUE THEN active_programs = active_programs & "GRH, "
-IF snap_active = TRUE THEN active_programs = active_programs & "SNAP, "
-IF ive_active  = TRUE THEN active_programs = active_programs & "IV-E, "
-IF hc_active   = TRUE THEN active_programs = active_programs & "HC, "
-IF cca_active  = TRUE THEN active_programs = active_programs & "CCA"
-
-active_programs = trim(active_programs)  'trims excess spaces of active_programs
-If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
-
-'----------------------------------------------------------------------------------------------------Pending programs
-programs_applied_for = ""   'Creates a variable that lists all pending cases.
-additional_programs_applied_for = ""
-'cash I
-IF cash1_status_check = "PEND" then
-    If cash1_app_date = application_date THEN
-        cash_pends = TRUE
-        programs_applied_for = programs_applied_for & "CASH, "
-    Else
-        additional_programs_applied_for = additional_programs_applied_for & "CASH, "
-    End if
-End if
-'cash II
-IF cash2_status_check = "PEND" then
-    if cash2_app_date = application_date THEN
-        cash2_pends = TRUE
-        programs_applied_for = programs_applied_for & "CASH, "
-    Else
-        additional_programs_applied_for = additional_programs_applied_for & "CASH, "
-    End if
-End if
-'SNAP
-IF snap_status_check  = "PEND" then
-    If snap_app_date  = application_date THEN
-        SNAP_pends = TRUE
-        programs_applied_for = programs_applied_for & "SNAP, "
-    else
-        additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
-    end if
-End if
-'GRH
-IF grh_status_check = "PEND" then
-    If grh_app_date = application_date THEN
-        grh_pends = TRUE
-        programs_applied_for = programs_applied_for & "GRH, "
-    else
-        additional_programs_applied_for = additional_programs_applied_for & "GRH, "
-    End if
-End if
-'I-VE
-IF ive_status_check = "PEND" then
-    if ive_app_date = application_date THEN
-        IVE_pends = TRUE
-        programs_applied_for = programs_applied_for & "IV-E, "
-    else
-        additional_programs_applied_for = additional_programs_applied_for & "IV-E, "
-    End if
-End if
-'HC
-IF hc_status_check = "PEND" then
-    If hc_app_date = application_date THEN
-        hc_pends = TRUE
-        programs_applied_for = programs_applied_for & "HC, "
-    else
-        additional_programs_applied_for = additional_programs_applied_for & "HC, "
-    End if
-End if
-'CCA
-IF cca_status_check = "PEND" then
-    If cca_app_date = application_date THEN
-        cca_pends = TRUE
-        programs_applied_for = programs_applied_for & "CCA, "
-    else
-        additional_programs_applied_for = additional_programs_applied_for & "CCA, "
-    End if
-End if
-'EMER
-If emer_status_check = "PEND" then
-    If emer_app_date = application_date then
-        emer_pends = TRUE
-        IF emer_prog_check = "EG" THEN programs_applied_for = programs_applied_for & "EGA, "
-        IF emer_prog_check = "EA" THEN programs_applied_for = programs_applied_for & "EA, "
-    else
-        IF emer_prog_check = "EG" THEN additional_programs_applied_for = additional_programs_applied_for & "EGA, "
-        IF emer_prog_check = "EA" THEN additional_programs_applied_for = additional_programs_applied_for & "EA, "
-    End if
-End if
-
-programs_applied_for = trim(programs_applied_for)       'trims excess spaces of programs_applied_for
-If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
-
-additional_programs_applied_for = trim(additional_programs_applied_for)       'trims excess spaces of programs_applied_for
-If right(additional_programs_applied_for, 1) = "," THEN additional_programs_applied_for = left(additional_programs_applied_for, len(additional_programs_applied_for) - 1)
-
-IF programs_applied_for = "" THEN
-    DO
-    	prog_confirmation = MsgBox("Press YES to confirm this application is PND1 and has no programs selected. If this is not the case select NO and run the script again.", vbYesNo, "Program confirmation")
-    	IF prog_confirmation = vbNo THEN script_end_procedure_with_error_report("The script has ended. The application has not been acted on.")
-    	IF prog_confirmation = vbYes THEN
-    		EXIT DO
+    If intv_date_needed = TRUE THEN         'If previous code has determined that PROG needs to be updated
+        snap_intv_date_updated = FALSE
+        cash_intv_date_updated = FALSE
+        show_prog_update_failure = FALSE
+        Call back_to_SELF
+        CALL navigate_to_MAXIS_screen("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
+    	IF confirm_update_prog = "Snap" or confirm_update_prog = "Cash & Snap" THEN
+            EMReadScreen new_snap_intv_date, 8, 10, 55
+            If new_snap_intv_date = intv_date_to_check Then snap_intv_date_updated = TRUE
+            If snap_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
     	END IF
-    Loop
+        If confirm_update_prog = "Cash" or confirm_update_prog = "Cash & Snap" THEN
+            EMReadScreen new_cash_intv_date, 8, prog_row, 55
+            If new_cash_intv_date = intv_date_to_check Then cash_intv_date_updated = TRUE
+            If cash_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
+        End If
+        If show_prog_update_failure = TRUE THEN
+            fail_msg = "You have requested the script update PROG for "
+            If confirm_update_prog = "Cash & Snap" THEN
+                fail_msg = fail_msg & "Cash and SNAP "
+            ElseIf confirm_update_prog = "Snap"  THEN
+                fail_msg = fail_msg & "SNAP "
+            ElseIf confirm_update_prog = "Cash"  THEN
+                fail_msg = fail_msg & "Cash "
+            End If
+            fail_msg = fail_msg & "to enter the interview date on PROG." & vbCr & vbCr & "The script was unable to update PROG completely." & vbCr
+            If confirm_update_prog = "Snap" THEN
+                fail_msg = fail_msg & " - The SNAP Interview Date was not entered." & vbCr
+            ElseIf confirm_update_prog = "Cash" THEN
+                fail_msg = fail_msg & " - The Cash Interview Date was not entered." & vbCr
+            End If
+            fail_msg = fail_msg & closing_message & "The PROG panel will need to be updated manually with the interview information."
+        End If
+    End If
 END IF
-'pended_date = date need for future reference
+'denial_date = dateadd("d", 0, denial_date) ' if needed this will help this the script recognize that the date is a date'
+'this to remind workers that we must give clients 10 days when we are outside of that 30 day window for applications'
+IF notice_sent_date <> "" THEN denial_date = dateadd("d", 10, notice_sent_date)
+IF denial_date < date then denial_date = dateadd("d", 10, date)
 
-'intv_day = right("00" & DatePart("d", date), 2)
-'Intv_mo  = right("00" & DatePart("m", date), 2)
-'intv_yr  = right(DatePart("yyyy", date), 2)
-If cash_pends = TRUE Then
-    EmReadscreen PROG_interview_date, 8, 6, 55
-    'If interview_date = "__ __ __" Then
-        'EmWriteScreen intv_mo, 6, 55
-        'EmWriteScreen intv_day, 6, 58
-        'EmWriteScreen intv_yr, 6, 61
-    'End If
-End If
-If cash2_pends = TRUE Then
-    EmReadscreen PROG_interview_date, 8, 7, 55
-    'If interview_date = "__ __ __" Then
-        'EmWriteScreen intv_mo, 7, 55
-        'EmWriteScreen intv_day, 7, 58
-        'EmWriteScreen intv_yr, 7, 61
-    'End If
-End If
-If SNAP_pends = TRUE Then
-    EmReadscreen PROG_interview_date, 8, 10, 55
-    'If interview_date = "__ __ __" Then
-    '    EmWriteScreen intv_mo, 10, 55
-    '    EmWriteScreen intv_day, 10, 58
-    '    EmWriteScreen intv_yr, 10, 61
-    'End If
-End If
-case_note = TRUE
-DropListBox 55, 25, 215, 15, "Select One:"+chr(9)+"Additional application pended prior to interview being completed"+chr(9)+"Case was not pended timely"+chr(9)+"Clear case note for other pending program pending not mentioned"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Client has not completed F2F CASH application interview"+chr(9)+"Client contact was made no interview offered"+chr(9)+"Denied programs for no interview"+chr(9)+"Interview completed on NOMI day and NOMI was not cancelled"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"Script-Application Received-not used when pending case"+chr(9)+"Script-CAF-used but no interview completed"+chr(9)+"Script-CAF-not used but approval made"+chr(9)+"Worker completed denial for no interview in ELIG"+chr(9)+"Other(please describe)", case_status_dropdown
-
-
-IF case_status_dropdown = "Additional application pended prior to interview being completed" OR case_status_dropdown = 	"Clear case note for other pending program pending not mentioned" OR case_status_dropdown = "Client contact was made no interview offered" OR case_status_dropdown = "Interview completed on NOMI day and NOMI was not cancelled" OR case_status_dropdown = "Interview not needed for MFIP to SNAP transition" OR case_status_dropdown = "Script-Application Received-not used when pending case" OR case_status_dropdown = "Script-CAF-used but no interview completed" OR case_status_dropdown = "Script-CAF-not used but approval made" OR case_status_dropdown = "Worker completed denial for no interview in ELIG" THEN
-	case_note = FALSE
-
-	IF case_status_dropdown = "Script-Application Received-not used when pending case" THEN  app_recvd_script_not_used_checkbox = CHECKED
-
-	IF case_status_dropdown = "Client completed application interview" THEN prog_not_updated_interview_completed_checkbox = CHECKED
-
-	IF case_status_dropdown = "Additional application pended prior to interview being completed"  THEN email_notes = case_status_dropdown
-
-	IF case_status_dropdown = 	"Clear case note for other pending program pending not mentioned" THEN  cash_detail_not_covered_checkbox = CHECKED
-
-	IF case_status_dropdown = "Cash and SNAP were applied for, Cash needs a face to face, SNAP should have had a phone interview offered." THEN snap_phone_interview_should_have_been_offered_checkbox = CHECKED
-
-	IF case_status_dropdown = "Worker completed denial for no interview in ELIG" THEN denied_for_no_interview_NOT_on_PND2_checkbox = CHECKED
-
-	IF case_status_dropdown = "Script-CAF-not used but approval made" THEN  caf_script_used_no_interview_checkbox = CHECKED
-
-	IF case_status_dropdown = "Client contact was made no interview offered" THEN  client_contacted_should_have_been_offered_interview_checkbox = CHECKED
-
-	IF case_status_dropdown = "Interview completed on NOMI day and NOMI was not cancelled" THEN  interview_completed_same_day_NOMI_sent_checkbox = CHECKED
-	CALL run_another_script("C:\MAXIS-scripts\admin\send-email-correction.vbs")
+'NOW WE START CASE NOTING - there are a few
+start_a_blank_case_note
+IF case_status_dropdown = "Client completed application interview" THEN
+	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " on "  & interview_date & " PROG updated ~")
+	CALL write_variable_in_CASE_NOTE("* Completed by previous worker per case note dated: " & case_note_date)
+ELSEIF case_status_dropdown = "Client has not completed application interview" THEN
+	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
+	CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
+	CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & notice_sent_date)
+	CALL write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview.")
+    Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it.")
+ELSEIF case_status_dropdown = "Case was not pended timely" THEN
+    CALL write_variable_in_CASE_NOTE("~ Client has not completed application interview ~")
+    CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
+    CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & notice_sent_date)
+    Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it, because the case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply. Denial can be done after " & denial_date)
+ELSEIF case_status_dropdown = "Denied programs for no interview" THEN
+	CALL write_variable_in_CASE_NOTE("~ Denied programs for no interview ~")
+    CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
+    CALL write_variable_in_CASE_NOTE("* Reason for denial: interview was not completed timely.")
+    CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & notice_sent_date)
+   	CALL write_variable_in_CASE_NOTE("* Confirmed client was provided sufficient 10 day notice.")
+ELSEIF case_status_dropdown = "Interview not needed for MFIP to SNAP transition" THEN
+	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " ~")
+	CALL write_variable_in_CASE_NOTE("* MFIP to SNAP transition no interview required updated PROG to reflect this")
 END IF
+CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
+CALL write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE (worker_signature)
+PF3 'to save the case note'
+script_end_procedure_with_error_report(closing_message)
 
-IF case_note = TRUE THEN
-	start_a_blank_CASE_NOTE
-    IF case_status_dropdown = "Client completed application interview" THEN
-    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " on "  & interview_date & " PROG updated ~")
-    	Call write_variable_in_CASE_NOTE("* Completed by previous worker per case note dated: " & case_note_date)
-    ELSEIF case_status_dropdown = "Client has not completed application interview" THEN
-    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
-    	Call write_variable_in_CASE_NOTE("* Application date: " & application_date)
-    	Call write_variable_in_CASE_NOTE("* NOMI sent to client on: " & interview_date  )
-    	Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview.")
-    	Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice.")
-    'ELSEIF case_status_dropdown = "Client has not completed CASH application interview" THEN
-    	'Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " NOMI sent ~")
-    	'Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an     interview.")
-    	'Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file     an application will receive a denial notice")
-    	'Call write_variable_in_CASE_NOTE("* Face to face interview required because client has not been open on CASH in the     last 12 months")
-     	'Call write_variable_in_CASE_NOTE("* SNAP interview completed by previous worker per case note dated: " &     case_note_date)
-    ELSEIF case_status_dropdown = "Case was not pended timely" THEN
-        Call write_variable_in_CASE_NOTE("~ Client has not completed application interview ~")
-        Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
-        Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
-        Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it. Because the case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply.")
-    ELSEIF case_status_dropdown = "Denied programs for no interview" THEN
-    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " - " & programs_applied_for & " for no interview" & " ~")
-        Call write_variable_in_CASE_NOTE("* Application date:" & application_date)
-        Call write_variable_in_CASE_NOTE("* Reason for denial: interview was not completed timely")
-        Call write_variable_in_CASE_NOTE("* NOMI sent to client on:" & interview_date  )
-       	Call write_variable_in_CASE_NOTE("* Confirmed client was provided sufficient 10 day notice.")
-    ELSEIF case_status_dropdown = "Interview not needed for MFIP to SNAP transition" THEN
-    	Call write_variable_in_CASE_NOTE("~ " & case_status_dropdown  & " ~")
-    	Call write_variable_in_CASE_NOTE("* MFIP to SNAP transition no interview required updated PROG to reflect this")
-    ELSEIF case_status_dropdown = "Other(please describe)" THEN
-    	Call write_variable_in_CASE_NOTE("~ " & issue_notes  & " ~")
-    END IF
-    CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
-    Call write_variable_in_CASE_NOTE("---")
-    CALL write_variable_in_CASE_NOTE (worker_signature)
-    PF3
-END IF
-script_end_procedure_with_error_report ("Case note has been entered please review.")
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/01/2021
+'--Tab orders reviewed & confirmed----------------------------------------------10/01/2021
+'--Mandatory fields all present & Reviewed--------------------------------------10/01/2021
+'--All variables in dialog match mandatory fields-------------------------------10/01/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/01/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/01/2021
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------10/01/2021
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures(w/ or w/o error messaging)-----------------------------10/01/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/01/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------N/A
+'--Script name reviewed---------------------------------------------------------10/01/20211
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/01/2021
+'--Comment Code-----------------------------------------------------------------11/01/2021
+'--Update Changelog for release/update------------------------------------------11/01/2021
+'--Remove testing message boxes-------------------------------------------------11/01/2021
+'--Remove testing code/unnecessary code-----------------------------------------11/01/2021
+'--Review/update SharePoint instructions----------------------------------------10/01/2021
+'--Review Best Practices using BZS page ----------------------------------------10/01/2021
+'--Review script information on SharePoint BZ Script List-----------------------11/01/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/01/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/01/2021
+'--Complete misc. documentation (if applicable)---------------------------------10/01/2021
+'--Update project team/issue contact (if applicable)----------------------------10/01/2021

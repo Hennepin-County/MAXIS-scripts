@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/07/2021", "Updated Suggested Q-Flow population to include DWP baskets (FE7,FE8, and FE9) and changed FAD poplution to Families.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/30/2021", "Suggested Q-Flow population basket information updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/03/2020", "Removed TIKL and email functionality for follow ups. Q-Flow ticket number field and suggested Q-Flow population information added.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/15/2020", "Removed email for follow up to DWP baskets.", "Ilse Ferris, Hennepin County")
@@ -69,6 +70,8 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
 EMConnect ""
+get_county_code
+Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time]
 
@@ -187,36 +190,40 @@ If basket_number = "X127EX9" then suggested_population = "Adults"
 If basket_number = "X127F3D" then suggested_population = "Adults"
 If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adults Basket
 
-If basket_number = "X127ES1" then suggested_population = "FAD"
-If basket_number = "X127ES2" then suggested_population = "FAD"
-If basket_number = "X127ES3" then suggested_population = "FAD"
-If basket_number = "X127ES4" then suggested_population = "FAD"
-If basket_number = "X127ES5" then suggested_population = "FAD"
-If basket_number = "X127ES6" then suggested_population = "FAD"
-If basket_number = "X127ES7" then suggested_population = "FAD"
-If basket_number = "X127ES8" then suggested_population = "FAD"
-If basket_number = "X127ES9" then suggested_population = "FAD"
-If basket_number = "X127ET1" then suggested_population = "FAD"
-If basket_number = "X127ET2" then suggested_population = "FAD"
-If basket_number = "X127ET3" then suggested_population = "FAD"
-If basket_number = "X127ET4" then suggested_population = "FAD"
-If basket_number = "X127ET5" then suggested_population = "FAD"
-If basket_number = "X127ET6" then suggested_population = "FAD"
-If basket_number = "X127ET7" then suggested_population = "FAD"
-If basket_number = "X127ET8" then suggested_population = "FAD"
-If basket_number = "X127ET9" then suggested_population = "FAD"
-If basket_number = "X127F4E" then suggested_population = "FAD"
-If basket_number = "X127F3H" then suggested_population = "FAD"
-If basket_number = "X127FB7" then suggested_population = "FAD"
-If basket_number = "X127EZ1" then suggested_population = "FAD"
-If basket_number = "X127EZ2" then suggested_population = "FAD"
-If basket_number = "X127EZ3" then suggested_population = "FAD"
-If basket_number = "X127EZ4" then suggested_population = "FAD"
-If basket_number = "X127EZ5" then suggested_population = "FAD"
-If basket_number = "X127EZ6" then suggested_population = "FAD"
-If basket_number = "X127EZ7" then suggested_population = "FAD"
-If basket_number = "X127EZ8" then suggested_population = "FAD"
-If basket_number = "X127F3K" then suggested_population = "FAD"  'MA-EPD FAD Basket
+If basket_number = "X127FE7" then suggested_population = "DWP"
+If basket_number = "X127FE8" then suggested_population = "DWP"
+If basket_number = "X127FE9" then suggested_population = "DWP"
+
+If basket_number = "X127ES1" then suggested_population = "Families"
+If basket_number = "X127ES2" then suggested_population = "Families"
+If basket_number = "X127ES3" then suggested_population = "Families"
+If basket_number = "X127ES4" then suggested_population = "Families"
+If basket_number = "X127ES5" then suggested_population = "Families"
+If basket_number = "X127ES6" then suggested_population = "Families"
+If basket_number = "X127ES7" then suggested_population = "Families"
+If basket_number = "X127ES8" then suggested_population = "Families"
+If basket_number = "X127ES9" then suggested_population = "Families"
+If basket_number = "X127ET1" then suggested_population = "Families"
+If basket_number = "X127ET2" then suggested_population = "Families"
+If basket_number = "X127ET3" then suggested_population = "Families"
+If basket_number = "X127ET4" then suggested_population = "Families"
+If basket_number = "X127ET5" then suggested_population = "Families"
+If basket_number = "X127ET6" then suggested_population = "Families"
+If basket_number = "X127ET7" then suggested_population = "Families"
+If basket_number = "X127ET8" then suggested_population = "Families"
+If basket_number = "X127ET9" then suggested_population = "Families"
+If basket_number = "X127F4E" then suggested_population = "Families"
+If basket_number = "X127F3H" then suggested_population = "Families"
+If basket_number = "X127FB7" then suggested_population = "Families"
+If basket_number = "X127EZ1" then suggested_population = "Families"
+If basket_number = "X127EZ2" then suggested_population = "Families"
+If basket_number = "X127EZ3" then suggested_population = "Families"
+If basket_number = "X127EZ4" then suggested_population = "Families"
+If basket_number = "X127EZ5" then suggested_population = "Families"
+If basket_number = "X127EZ6" then suggested_population = "Families"
+If basket_number = "X127EZ7" then suggested_population = "Families"
+If basket_number = "X127EZ8" then suggested_population = "Families"
+If basket_number = "X127F3K" then suggested_population = "Families"  'MA-EPD FAD Basket
 
 If basket_number = "X127EH9" then suggested_population = "LTH"
 If basket_number = "X127EM2" then suggested_population = "LTH"
@@ -318,7 +325,10 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'checking for an active MAXIS session
 Call check_for_MAXIS(False)
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+If is_this_priv = True then script_end_procedure("This case is privileged and cannot be accessed. The script will now stop.")
+EmReadscreen county_code, 4, 21, 14
+If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE:NOTE. The script will now stop.")
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 start_a_blank_case_note
@@ -354,3 +364,44 @@ If follow_up_needed_checkbox = checked then end_msg = end_msg & "Success! Follow
 If Opt_out_checkbox = checked then end_msg = end_msg & "The case has been updated to OPT OUT of recert text notifications. #" & MAXIS_case_number & vbcr
 
 script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/07/2021
+'--Tab orders reviewed & confirmed----------------------------------------------10/07/2021
+'--Mandatory fields all present & Reviewed--------------------------------------10/07/2021
+'--All variables in dialog match mandatory fields-------------------------------10/07/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/07/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/07/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/07/2021
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/07/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/07/2021
+'--PRIV Case handling reviewed -------------------------------------------------10/07/2021
+'--Out-of-County handling reviewed----------------------------------------------10/07/2021
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/07/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------10/07/2021------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/07/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------10/07/2021
+'--Denomination reviewed -------------------------------------------------------10/07/2021
+'--Script name reviewed---------------------------------------------------------10/07/2021
+'--BULK - remove 1 incrementor at end of script reviewed---------------------------------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------10/07/2021
+'--comment Code-----------------------------------------------------------------10/07/2021
+'--Update Changelog for release/update------------------------------------------10/07/2021
+'--Remove testing message boxes-------------------------------------------------10/07/2021
+'--Remove testing code/unnecessary code-----------------------------------------10/07/2021
+'--Review/update SharePoint instructions----------------------------------------10/07/2021
+'--Review Best Practices using BZS page ----------------------------------------10/07/2021
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/07/2021
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/07/2021
+'--Complete misc. documentation (if applicable)---------------------------------10/07/2021
+'--Update project team/issue contact (if applicable)----------------------------10/07/2021

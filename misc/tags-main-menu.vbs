@@ -587,7 +587,7 @@ function declare_tabbed_menu(tab_selected)
           ' Text 170, 60, 170, 10, "Description"p
 
             PushButton 635, 45, 100, 15, "Clear TAG Selection", clear_selection_btn
-			PushButton 300, dlg_len - 20, 100, 15, "Reources", resources_btn
+			PushButton 300, dlg_len - 20, 100, 15, "Resources", resources_btn
             If bz_staff = TRUE Then
                 PushButton 595, dlg_len - 20, 55, 15, "Monthly Tasks", monthly_task_btn
                 PushButton 650, dlg_len - 20, 40, 15, "BZST", bz_btn
