@@ -2261,11 +2261,13 @@ function display_expedited_dialog()
 				EXP_JOBS_ARRAY(jobs_employer_const, exp_job_count) = JOBS_ARRAY(jobs_employer_name, each_caf_job)
 				EXP_JOBS_ARRAY(jobs_wage_const, exp_job_count) = JOBS_ARRAY(jobs_hourly_wage, each_caf_job)
 
-				If IsNumeric(JOBS_ARRAY(jobs_gross_monthly_earnings, each_caf_job)) = True and IsNumeric(JOBS_ARRAY(jobs_hourly_wage, each_caf_job)) = True Then
-					monthly_hours = JOBS_ARRAY(jobs_gross_monthly_earnings, each_caf_job)/JOBS_ARRAY(jobs_hourly_wage, each_caf_job)
-					weekly_hours = monthly_hours/4
-					EXP_JOBS_ARRAY(jobs_hours_const, exp_job_count) = weekly_hours
-					EXP_JOBS_ARRAY(jobs_frequency_const, exp_job_count) = "Weekly"
+				If IsNumeric(JOBS_ARRAY(jobs_gross_monthly_earnings, each_caf_job)) = True and IsNumeric(JOBS_ARRAY(jobs_hourly_wage, each_caf_job)) = True Then 
+                    If JOBS_ARRAY(jobs_hourly_wage, each_caf_job) > 0 Then
+    					monthly_hours = JOBS_ARRAY(jobs_gross_monthly_earnings, each_caf_job)/JOBS_ARRAY(jobs_hourly_wage, each_caf_job)
+    					weekly_hours = monthly_hours/4
+    					EXP_JOBS_ARRAY(jobs_hours_const, exp_job_count) = weekly_hours
+    					EXP_JOBS_ARRAY(jobs_frequency_const, exp_job_count) = "Weekly"
+                    End If
 				End If
 
 				exp_job_count = exp_job_count + 1
