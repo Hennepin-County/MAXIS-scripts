@@ -850,7 +850,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                         ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = note_date
                         'MsgBox ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
     				END IF
-                    IF note_date = "        " then Exit Do
                     note_row = note_row + 1
                     IF note_row = 19 THEN
                         PF8
