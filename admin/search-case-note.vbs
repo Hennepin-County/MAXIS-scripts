@@ -5,7 +5,8 @@ STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 1            'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block==========================================================================================================
-
+skip_tester_list = True
+run_locally = True
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -97,22 +98,30 @@ search_item_found = False
 DO
 	Original_search = search_text
 	If search_array(0) = "" OR search_item_found = True Then
-		BeginDialog Dialog1, 0, 0, 316, 90, "Search " & MAXIS_case_number & " CASE:NOTEs"
+		BeginDialog Dialog1, 0, 0, 316, 120, "Search " & MAXIS_case_number & " CASE:NOTEs"
 		  EditBox 50, 10, 260, 15, search_text
 		  DropListBox 50, 30, 60, 45, "AND"+chr(9)+"OR", search_type
+		  If search_item_found = True Then
+			  Text 5, 50, 70, 10, "CASE:NOTE header: "
+			  Text 75, 50, 235, 10, case_note_header
+			  Text 5, 60, 70, 10, "CASE:NOTE date: "
+			  Text 75, 60, 100, 10, case_note_date
+			  Text 75, 70, 100, 10, "LINE: " & case_note_row
+			  Text 5, 80, 305, 20, case_note_line_display
+		  End If
 		  ButtonGroup ButtonPressed
 		    PushButton 250, 30, 60, 15, "Search", search_button
-		    If search_array(0) <> "" Then PushButton 190, 70, 70, 15, "Find Next - PF3", find_next_button
-		    PushButton 260, 75, 50, 10, "Done", done_button
+		    If search_array(0) <> "" Then PushButton 190, 100, 70, 15, "Find Next - PF3", find_next_button
+		    PushButton 260, 105, 50, 10, "Done", done_button
 		  Text 5, 15, 45, 10, "Search Text:"
 		  Text 5, 35, 45, 10, "Search Type:"
-		  Text 5, 55, 305, 10, read_the_line
 		EndDialog
 
 		err_msg = ""                                       'Blanks this out every time the loop runs. If mandatory fields aren't entered, this variable is updated below with messages, which then display for the worker.
 		Dialog Dialog1                               'The Dialog command shows the dialog. Replace sample_dialog with your actual dialog pasted above.
 		If ButtonPressed = done_button Then ButtonPressed = 0
 		cancel_without_confirmation
+		search_item_found = False
 		If ButtonPressed = -1 Then
 			If Original_search = search_text Then ButtonPressed = find_next_button
 			If Original_search <> search_text Then ButtonPressed = search_button
@@ -122,7 +131,11 @@ DO
 	If ButtonPressed = search_button Then
 		EMReadScreen check_we_are_in_case_note, 17, 2, 33
 		If check_we_are_in_case_note <> "Case Notes (NOTE)" then call navigate_to_MAXIS_screen("CASE", "NOTE")
-
+		on_note_menu = False
+		EMReadScreen are_we_on_note_menu, 10, 4, 25
+		If are_we_on_note_menu = "First line" Then on_note_menu = True
+		If on_note_menu = False Then PF3
+		
 		go_to_top_of_notes
 
 		case_to_read_row = 5
@@ -150,21 +163,25 @@ DO
 
 	If on_note_menu = True Then
 		EMWriteScreen "X", case_to_read_row, 3
+		EMReadScreen case_note_date, 8, case_to_read_row, 6
 		transmit
+		EMReadScreen case_note_header, 78, 4, 3
 		line_to_read_row = 4
 	End If
 
 	EMReadScreen read_the_line, 78, line_to_read_row, 3
+	case_note_line_display = read_the_line
 	read_the_line = UCase(read_the_line)
 
 	For each search_item in search_array
 		If Instr(read_the_line, search_item) <> 0 Then
 			search_item_found = True
 			EMSetCursor line_to_read_row, Instr(read_the_line, search_item) + 2
-			line_to_read_row = line_to_read_row + 1
+			case_note_row = line_to_read_row - 3
 			Exit For
 		End If
 	Next
+	line_to_read_row = line_to_read_row + 1
 	If line_to_read_row = 18 Then
 		PF8
 		line_to_read_row = 4
