@@ -1657,18 +1657,20 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                             nbr_days_pending = trim(nbr_days_pending)
                             nbr_days_pending = nbr_days_pending * 1
                             IF nbr_days_pending >= 30 THEN ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE
-                            'We are going to check to see if MX identifies this case as MSA
+							                            'We are going to check to see if MX identifies this case as MSA
                             If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" and ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" Then      'This checks for cash only pending
-                                If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "MSA pending only") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", MSA pending only."
-								ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
-								IF left(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), 1) = "," THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = right(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), len(ALL_PENDING_CASES_ARRAY(error_notes, case_entry)) - 1) 'hopefully will trim the extra off the end'
-								ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
+								EMReadScreen cash_prog, 2, row, 56
+								IF cash_prog = "MS" THEN
+							        If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "MSA pending only") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", MSA pending only."
+								    ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
+								    IF left(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), 1) = "," THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = right(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), len(ALL_PENDING_CASES_ARRAY(error_notes, case_entry)) - 1) 'hopefully will trim the extra off the end'
+								    ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
+								END IF
                             End If
 
 							Call back_to_SELF
                             ' 'THIS IS FOR TESTING'
                             ' If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE Then
-                            '
                             '     ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry) = "Y"
                             '     ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL"
                             '
@@ -1806,8 +1808,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 	IF ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE THEN add_red_formatting = TRUE
 	IF ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" THEN add_red_formatting = TRUE
 
-	IF ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ", Denial Failed" THEN add_red_formatting = TRUE
-	IF ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "NOT ON PND2 - process manually - " THEN add_red_formatting = TRUE
+	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Denial Failed") <> 0 THEN add_red_formatting = TRUE
+	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "NOT ON PND2 - process manually - ") <> 0 THEN add_red_formatting = TRUE
+
 	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???" THEN add_red_formatting = TRUE
 	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual Appt Notice" THEN add_red_formatting = TRUE
 	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI" THEN add_red_formatting = TRUE
