@@ -871,7 +871,6 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                     EMReadScreen note_date, 8, note_row, 6
                     EMReadScreen note_title, 55, note_row, 25
                     note_title = trim(note_title)
-
                     IF note_title = "~ Client missed application interview, NOMI sent via sc" then ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = note_date
                     IF left(note_title, 32) = "**Client missed SNAP interview**" then ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = note_date
     				IF left(note_title, 32) = "**Client missed CASH interview**" then ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = note_date
@@ -954,8 +953,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
         If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND APPOINTMENT NOTICE" Then ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE           'we always need to take additional action if the next step is to send an appointment notice
         If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" AND DateDiff("d", date, ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)) <= 1 Then ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE         'Cases where we must send a NOMI and the appointment day is tomorrow or before.
         If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30" AND DateDiff("d", ALL_PENDING_CASES_ARRAY(application_date, case_entry), date) >= 29 Then ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE           'Cases where the next step is to deny and day 30 is tomorrow or before
-
-        If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "" Then MsgBox "Case Number: " & ALL_PENDING_CASES_ARRAY(case_number, case_entry) & vbNewLine & "Does not have an action to take!!!"           'This is here for testing but has never come up
+        If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "" Then "Case Number: " & ALL_PENDING_CASES_ARRAY(case_number, case_entry) & vbNewLine & "Does not have an action to take!!!"           'This is here for testing but has never come up
 
         'For cases that need an action taken and we do not know an interview date - we will check the case notes for a note that indicates an interview may have happened
         If ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE and (ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" or (ALL_PENDING_CASES_ARRAY(interview_date, case_entry) <> "" AND ALL_PENDING_CASES_ARRAY(need_face_to_face, case_entry) = "Y")) Then
@@ -1804,10 +1802,24 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     ObjWorkExcel.Cells(row, nomi_date_col).Value = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
     ObjWorkExcel.Cells(row, nomi_confirm_col).Value = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
 
-	If ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE or ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = TRUE or ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = TRUE Then
-        ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
-        ObjWorkExcel.Rows(row).Font.Bold = TRUE
-    End If
+	add_red_formatting = FALSE
+	IF ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE THEN add_red_formatting = TRUE
+	IF ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" THEN add_red_formatting = TRUE
+
+	IF ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ", Denial Failed" THEN add_red_formatting = TRUE
+	IF ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "NOT ON PND2 - process manually - " THEN add_red_formatting = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???" THEN add_red_formatting = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual Appt Notice" THEN add_red_formatting = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI" THEN add_red_formatting = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" THEN add_red_formatting = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***" THEN add_red_formatting = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" THEN add_red_formatting = TRUE
+
+	IF add_red_formatting = TRUE THEN
+		ObjWorkExcel.Rows(row).Font.Bold = TRUE
+		ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
+	END IF
+
     ObjWorkExcel.Cells(row, need_deny_col).Value = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""
     ObjWorkExcel.Cells(row, deny_notc_confirm_col).Value = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
     ObjWorkExcel.Cells(row, next_action_col).Value = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
