@@ -54,7 +54,7 @@ end function
 
 'Connects to BlueZone
 EMConnect ""
-CALL check_for_MAXIS(True)
+CALL check_for_MAXIS(True)			'Making sure we are signed in - ends the script run if we are not
 
 'Grabs the MAXIS case number automatically
 CALL MAXIS_case_number_finder(MAXIS_case_number)
@@ -90,67 +90,73 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+'declaring some defaults
 Dim search_array()
 ReDim search_array(0)
 search_item_found = False
 end_of_notes = False
 
-'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
+'Here we loop a lot. The rest of the sript is this loop.
+'Basically we are using this dialog to enter the search parameter and display the information found in the search.
 DO
-	Original_search = search_text
-	If search_array(0) = "" OR search_item_found = True OR end_of_notes = True Then
-		BeginDialog Dialog1, 0, 0, 316, 120, "Search " & MAXIS_case_number & " CASE:NOTEs"
-		  EditBox 50, 10, 260, 15, search_text
-		  DropListBox 50, 30, 60, 45, "OR"+chr(9)+"AND", search_type
-		  If search_item_found = True Then
-			  Text 5, 50, 35, 10, "Date: "
-			  Text 40, 50, 100, 10, case_note_date
-			  Text 5, 60, 35, 10, "Header: "
-			  Text 40, 60, 265, 10, case_note_header
-			  Text 5, 75, 305, 20, case_note_line_display
-		  End If
-		  If end_of_notes = True Then
-		  	Text 5, 50, 305, 30, "All current notes have been searched for " & join(search_array, ", ")
-		  End If
-		  ButtonGroup ButtonPressed
-		    PushButton 250, 30, 60, 15, "Search", search_button
-		    If search_array(0) <> "" AND end_of_notes = False Then PushButton 190, 100, 70, 15, "Find Next - PF3", find_next_button
-		    PushButton 260, 105, 50, 10, "Done", done_button
-		  Text 5, 15, 45, 10, "Search Text:"
-		  Text 5, 35, 45, 10, "Search Type:"
-		EndDialog
+	Original_search = search_text												'defining what we were previously searching so we know if it is changed/new
+	If search_array(0) = "" OR search_item_found = True OR end_of_notes = True Then						'we will not display the dialog on every loop - only if we need to display a search or if there is no parameter
+		Do
+			Dialog1 = ""                                        'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 316, 120, "Search " & MAXIS_case_number & " CASE:NOTEs"
+			  EditBox 50, 10, 260, 15, search_text
+			  DropListBox 50, 30, 60, 45, "OR"+chr(9)+"AND", search_type
+			  If search_item_found = True Then									'only show the search results if there is a result of the search
+				  Text 5, 50, 35, 10, "Date: "
+				  Text 40, 50, 100, 10, case_note_date
+				  Text 5, 60, 35, 10, "Header: "
+				  Text 40, 60, 265, 10, case_note_header
+				  Text 5, 75, 305, 20, case_note_line_display
+			  End If
+			  If end_of_notes = True Then										'only display the information about the notes end being reached if that happened
+			  	Text 5, 50, 305, 30, "All current notes have been searched for " & join(search_array, ", ")
+			  End If
+			  ButtonGroup ButtonPressed
+			    PushButton 250, 30, 60, 15, "Search", search_button
+			    If search_array(0) <> "" AND end_of_notes = False Then PushButton 190, 100, 70, 15, "Find Next - PF3", find_next_button
+			    PushButton 260, 105, 50, 10, "Done", done_button
+			  Text 5, 15, 45, 10, "Search Text:"
+			  Text 5, 35, 45, 10, "Search Type:"
+			EndDialog
 
-		err_msg = ""                                       'Blanks this out every time the loop runs. If mandatory fields aren't entered, this variable is updated below with messages, which then display for the worker.
-		Dialog Dialog1                               'The Dialog command shows the dialog. Replace sample_dialog with your actual dialog pasted above.
-		If ButtonPressed = done_button Then ButtonPressed = 0
-		cancel_without_confirmation
-		search_item_found = False
-		If ButtonPressed = -1 Then
-			If Original_search = search_text Then ButtonPressed = find_next_button
-			If Original_search <> search_text Then ButtonPressed = search_button
-		End If
+			Dialog Dialog1                               						'The Dialog command shows the dialog.
+			If ButtonPressed = done_button Then ButtonPressed = 0
+			cancel_without_confirmation
+			search_item_found = False		'resetting this after the display
+			If ButtonPressed = -1 Then		'defaulting what happens if the user presses the 'enter' button
+				If Original_search = search_text Then ButtonPressed = find_next_button
+				If Original_search <> search_text Then ButtonPressed = search_button
+			End If
+			Call check_for_password(are_we_passworded_out)
+		Loop until are_we_passworded_out = False
 	End If
 
+	'if there is a new search to complete, this code gets us back to starting from the beginning
 	If ButtonPressed = search_button Then
-		EMReadScreen check_we_are_in_case_note, 17, 2, 33
+		EMReadScreen check_we_are_in_case_note, 17, 2, 33						'making sure we are in CASE:NOTES'
 		If check_we_are_in_case_note <> "Case Notes (NOTE)" then call navigate_to_MAXIS_screen("CASE", "NOTE")
-		on_note_menu = False
+		on_note_menu = False													'making sure we are on the main menu of CASE:NOTES'
 		EMReadScreen are_we_on_note_menu, 10, 4, 25
 		If are_we_on_note_menu = "First line" Then on_note_menu = True
-		If on_note_menu = False Then PF3
+		If on_note_menu = False Then PF3										'backing out of the note if we are in it'
 
-		go_to_top_of_notes
+		go_to_top_of_notes														'make sure we haven't paged down in CASE::NOTES
 		end_of_notes = False
 
-		case_to_read_row = 5
+		case_to_read_row = 5		'defaulting which row to start at
 		line_to_read_row = 4
 
-		ReDim search_array(0)
+		ReDim search_array(0)		''resetting the search array
 		search_array(0) = ""
-		If search_type = "AND" Then
+		If search_type = "AND" Then												'creating an array with a single item of the ALL of the search critera
 			search_array(0) = UCase(search_text)
 		End If
-		If search_type = "OR" Then
+		If search_type = "OR" Then												'creating an array of all of the words in the search field
 			temp_array = split(search_text, " ")
 			search_item_counter = 0
 			For each search_item in temp_array
@@ -159,49 +165,51 @@ DO
 				search_item_counter = search_item_counter + 1
 			Next
 		End If
-		ButtonPressed = find_next_button
+		ButtonPressed = find_next_button										'making sure the search button is not the pressed button on the next loop
 	End If
 
-	on_note_menu = False
+	on_note_menu = False														'checking to see if we are on the menu of the CASE:NOTES
 	EMReadScreen are_we_on_note_menu, 10, 4, 25
 	If are_we_on_note_menu = "First line" Then on_note_menu = True
 
-	If on_note_menu = True Then
+	If on_note_menu = True Then													'if we are on the menu we need to open the note
 		EMWriteScreen "X", case_to_read_row, 3
-		EMReadScreen case_note_date, 8, case_to_read_row, 6
+		EMReadScreen case_note_date, 8, case_to_read_row, 6						'grabbing the date for display
 		If case_note_date = "        " Then end_of_notes = True
-		' MsgBox case_to_read_row
 		transmit
-		EMReadScreen case_note_header, 78, 4, 3
+		EMReadScreen case_note_header, 78, 4, 3									'grabbing the ccase note header for display
 		line_to_read_row = 4
 	End If
 
-	EMReadScreen read_the_line, 78, line_to_read_row, 3
-	case_note_line_display = read_the_line
-	read_the_line = UCase(read_the_line)
+	EMReadScreen read_the_line, 78, line_to_read_row, 3							'reading a line of the note
+	case_note_line_display = read_the_line										'creeating a display variable of the line
+	read_the_line = UCase(read_the_line)										'ucase the line so we are comparing capitals to capitals'
 
-	' MsgBox case_note_line_display & vbCr & line_to_read_row
-	For each search_item in search_array
-		If Instr(read_the_line, search_item) <> 0 Then
-			search_item_found = True
-			EMSetCursor line_to_read_row, Instr(read_the_line, search_item) + 2
-			case_note_row = line_to_read_row - 3
+	For each search_item in search_array										'checking each item in the search parameters to see if it is somewhere in the line that was read.
+		If Instr(read_the_line, search_item) <> 0 Then							'if the instring was found
+			search_item_found = True											'identify in the boolean that it was found so the dialog displays
+			EMSetCursor line_to_read_row, Instr(read_the_line, search_item) + 2	'set the cursor on the found parameter
 			Exit For
 		End If
 	Next
-	line_to_read_row = line_to_read_row + 1
-	If line_to_read_row = 18 Then
-		PF8
-		line_to_read_row = 4
-		EmReadScreen end_of_note, 9, 24, 14
-		If end_of_note = "LAST PAGE" Then
-			PF3
-			case_to_read_row = case_to_read_row + 1
+	line_to_read_row = line_to_read_row + 1										'going to the next line in the case:note
+	If line_to_read_row = 18 Then												'if we are at line 18 - this page is at the end
+		PF8																		'go to the next page of the case:note
+		line_to_read_row = 4													'reset the line to read to the top of the case:note
+		EMReadScreen end_of_note, 9, 24, 14										'read to see if we go a message that we are at the last page - this only displays when you try to PF8 from the last page, NOT when you arrive at the last page
+		If end_of_note = "LAST PAGE" Then										'if the message indicates we are already at the last page
+			PF3																	'leave the current case:note
+			case_to_read_row = case_to_read_row + 1								'go to the next line of notes
+			If case_to_read_row = 19 Then										'if we are at row 19 - this page of case:notes is at the end
+				PF8																'go to the next row
+				case_to_read_row = 5											'reset the row to start opening notes'
+				EMReadScreen end_of_all_notes, 9, 24, 14						'read the message that will display if we PF8 from the last page of notes
+				If end_of_all_notes = "LAST PAGE" Then							'if it displays last page, there are no more notes to read.
+					end_of_notes = True
+				End If
+			End If
 		End If
 	End If
-
 LOOP
 
-
-'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
 script_end_procedure("")
