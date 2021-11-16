@@ -74,7 +74,7 @@ closing_message = "On Demand Application Waiver process has been case noted." 's
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 231, 185, "Notes On Demand"
   EditBox 55, 5, 45, 15, MAXIS_case_number
-  DropListBox 55, 25, 170, 15, "Select One:"+chr(9)+"Case was not pended timely"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Denied programs for no interview"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"Other(please describe)", case_status_dropdown
+  DropListBox 55, 25, 170, 15, "Select One:"+chr(9)+"Case was not pended timely"+chr(9)+"Client completed application interview"+chr(9)+"Client has not completed application interview"+chr(9)+"Denied programs for no interview"+chr(9)+"Interview not needed for MFIP to SNAP transition"+chr(9)+"MSA Pends"+chr(9)+"Other(please describe)", case_status_dropdown
   EditBox 175, 45, 50, 15, application_date
   EditBox 175, 65, 50, 15, case_note_date
   EditBox 175, 85, 50, 15, interview_date
@@ -111,7 +111,7 @@ Do
 			IF IsDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter the date the NOMI was sent."
 		END IF
 		IF case_status_dropdown = "Denied programs for no interview" THEN
-			IF datediff("d", application_date, date) >= 30 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date, the resident must be provided 30 days from the date of application."    'confirming that these cases meet all the criteria for denial
+			IF datediff("d", application_date, date) <= 30 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date, the resident must be provided 30 days from the date of application."    'confirming that these cases meet all the criteria for denial
 			IF IsDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
 		END IF
 		IF case_status_dropdown = "Client completed application interview" THEN
@@ -251,6 +251,14 @@ ELSEIF case_status_dropdown = "Denied programs for no interview" THEN
 ELSEIF case_status_dropdown = "Interview not needed for MFIP to SNAP transition" THEN
 	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " ~")
 	CALL write_variable_in_CASE_NOTE("* MFIP to SNAP transition no interview required updated PROG to reflect this")
+ELSEIF case_status_dropdown = "MSA Pends" THEN
+	CALL write_variable_in_CASE_NOTE("~ " & case_status_dropdown & " ~")
+	CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
+	Call write_variable_in_CASE_NOTE("* Interview is still needed, client has 60 days from date of application to complete and adequate time provided to the client to comply. Denial can be done after " & denial_date)
+ELSEIF case_status_dropdown = "Other(please describe)" THEN
+	CALL write_variable_in_CASE_NOTE("~ Application review on demand ~")
+	CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
+	CALL write_bullet_and_variable_in_case_notevariable_in_CASE_NOTE("NOMI sent to client on: ", notice_sent_date)
 END IF
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
