@@ -93,25 +93,28 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 Dim search_array()
 ReDim search_array(0)
 search_item_found = False
+end_of_notes = False
 
 'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
 DO
 	Original_search = search_text
-	If search_array(0) = "" OR search_item_found = True Then
+	If search_array(0) = "" OR search_item_found = True OR end_of_notes = True Then
 		BeginDialog Dialog1, 0, 0, 316, 120, "Search " & MAXIS_case_number & " CASE:NOTEs"
 		  EditBox 50, 10, 260, 15, search_text
-		  DropListBox 50, 30, 60, 45, "AND"+chr(9)+"OR", search_type
+		  DropListBox 50, 30, 60, 45, "OR"+chr(9)+"AND", search_type
 		  If search_item_found = True Then
-			  Text 5, 50, 70, 10, "CASE:NOTE header: "
-			  Text 75, 50, 235, 10, case_note_header
-			  Text 5, 60, 70, 10, "CASE:NOTE date: "
-			  Text 75, 60, 100, 10, case_note_date
-			  Text 75, 70, 100, 10, "LINE: " & case_note_row
-			  Text 5, 80, 305, 20, case_note_line_display
+			  Text 5, 50, 35, 10, "Date: "
+			  Text 40, 50, 100, 10, case_note_date
+			  Text 5, 60, 35, 10, "Header: "
+			  Text 40, 60, 265, 10, case_note_header
+			  Text 5, 75, 305, 20, case_note_line_display
+		  End If
+		  If end_of_notes = True Then
+		  	Text 5, 50, 305, 30, "All current notes have been searched for " & join(search_array, ", ")
 		  End If
 		  ButtonGroup ButtonPressed
 		    PushButton 250, 30, 60, 15, "Search", search_button
-		    If search_array(0) <> "" Then PushButton 190, 100, 70, 15, "Find Next - PF3", find_next_button
+		    If search_array(0) <> "" AND end_of_notes = False Then PushButton 190, 100, 70, 15, "Find Next - PF3", find_next_button
 		    PushButton 260, 105, 50, 10, "Done", done_button
 		  Text 5, 15, 45, 10, "Search Text:"
 		  Text 5, 35, 45, 10, "Search Type:"
@@ -135,8 +138,9 @@ DO
 		EMReadScreen are_we_on_note_menu, 10, 4, 25
 		If are_we_on_note_menu = "First line" Then on_note_menu = True
 		If on_note_menu = False Then PF3
-		
+
 		go_to_top_of_notes
+		end_of_notes = False
 
 		case_to_read_row = 5
 		line_to_read_row = 4
@@ -155,6 +159,7 @@ DO
 				search_item_counter = search_item_counter + 1
 			Next
 		End If
+		ButtonPressed = find_next_button
 	End If
 
 	on_note_menu = False
@@ -164,6 +169,8 @@ DO
 	If on_note_menu = True Then
 		EMWriteScreen "X", case_to_read_row, 3
 		EMReadScreen case_note_date, 8, case_to_read_row, 6
+		If case_note_date = "        " Then end_of_notes = True
+		' MsgBox case_to_read_row
 		transmit
 		EMReadScreen case_note_header, 78, 4, 3
 		line_to_read_row = 4
@@ -173,6 +180,7 @@ DO
 	case_note_line_display = read_the_line
 	read_the_line = UCase(read_the_line)
 
+	' MsgBox case_note_line_display & vbCr & line_to_read_row
 	For each search_item in search_array
 		If Instr(read_the_line, search_item) <> 0 Then
 			search_item_found = True
@@ -193,28 +201,7 @@ DO
 	End If
 
 LOOP
-'End dialog section-----------------------------------------------------------------------------------------------
 
-' 'Checks Maxis for password prompt
-' CALL check_for_MAXIS(True)
-'
-' 'Now it navigates to a blank case note
-' start_a_blank_case_note
-'
-' '...and enters a title (replace variables with your own content)...
-' CALL write_variable_in_case_note("*** CASE NOTE HEADER ***")
-'
-' '...some editboxes or droplistboxes (replace variables with your own content)...
-' CALL write_bullet_and_variable_in_case_note( "Here's the first bullet",  a_variable_from_your_dialog        )
-' CALL write_bullet_and_variable_in_case_note( "Here's another bullet",    another_variable_from_your_dialog  )
-'
-' '...checkbox responses (replace variables with your own content)...
-' If some_checkbox_from_your_dialog = checked     then CALL write_variable_in_case_note( "* The checkbox was checked."     )
-' If some_checkbox_from_your_dialog = unchecked   then CALL write_variable_in_case_note( "* The checkbox was not checked." )
-'
-' '...and a worker signature.
-' CALL write_variable_in_case_note("---")
-' CALL write_variable_in_case_note(worker_signature)
 
 'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
 script_end_procedure("")
