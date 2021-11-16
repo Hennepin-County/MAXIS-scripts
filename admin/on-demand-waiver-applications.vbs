@@ -1624,43 +1624,42 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
             ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
             ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " - " & "NOMI Sent today"
             todays_cases = todays_cases + 1
-
+'IDEA - enhance the script to case note ON day 30 if the case is not denied for some reason.
+'IDEA - add some additional error notes or information to Denial Needed to the script for cases that are at or over day 30 like why it is pending past day 30 worker entered
         ElseIf ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30" Then
             IF datediff("d", ALL_PENDING_CASES_ARRAY(application_date, case_entry), date) >= 30 and ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" or ALL_PENDING_CASES_ARRAY(interview_date, case_entry) <> ""  THEN       'confirming that these cases meet all the criteria for denial
-                'MsgBox ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
-                'IDEA - enhance the script to case note ON day 30 if the case is not denied for some reason.
-                'IDEA - add some additional error notes or information to Denial Needed to the script for cases that are at or over day 30 like why it is pending past day 30 worker entered
-                IF ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) <> "" then    'confirming a NOMI was sent
+            	IF ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) <> "" then    'confirming a NOMI was sent
+					Call navigate_to_MAXIS_screen("REPT", "PND2")       'looking at PND2 to confirm day 30 AND look for MSA cases - which get 60 days
                     day_30 = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))
-					'IF isdate(ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)) = FALSE THEN MsgBox ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
-                    IF datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date) >= 10 or datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), day_30) > 0 THEN      'cases are either at day 30 or 10 days from when the NOMI was sent
-                    'MsgBox datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date)
-						multiple_app_dates = False                          'defaulting the boolean about multiple application dates to FALSE
+					IF datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), date) >= 10 or datediff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), day_30) > 0 THEN      'cases are either at day 30 or 10 days from when the NOMI was sent
+        				multiple_app_dates = False                          'defaulting the boolean about multiple application dates to FALSE
 						EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
-						If pnd2_disp_limit = "Display Limit" Then transmit
+						If pnd2_disp_limit = "Display Limit" Then
+							TRANSMIT
+							ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
+							'msgbox "that happened"
+						END IF
 						row = 1                                             'searching for the CASE NUMBER to read from the right row
 						col = 1
 						EMSearch MAXIS_case_number, row, col
-
                         IF row <> 24 and row <> 0 THEN
 							EMReadScreen application_date, 8, row, 38                                  'reading and formatting the application date
-							application_date = replace(application_date, " ", "/")
 							EMReadScreen additional_application_check, 14, row + 1, 17                 'looking to see if this case has a secondary application date entered
 						    IF additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
 						        multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
 						        EMReadScreen additional_application_date, 8, row + 1, 38               'reading the app date from the other application line
 						        additional_application_date = replace(additional_application_date, " ", "/")
-						    	IF additional_application_date <> "" THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+						    	ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
 						    END IF
 						    EMReadScreen nbr_days_pending, 3, row, 50
                             nbr_days_pending = trim(nbr_days_pending)
-                            nbr_days_pending = nbr_days_pending * 1
-                            IF nbr_days_pending >= 30 THEN ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE
-							                            'We are going to check to see if MX identifies this case as MSA
+                            'nbr_days_pending = nbr_days_pending * 1
+                            IF nbr_days_pending >= 30 THEN ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE  'We are going to check to see if MX identifies this case as MSA
                             If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" and ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = "Pending" Then      'This checks for cash only pending
 								EMReadScreen cash_prog, 2, row, 56
 								IF cash_prog = "MS" THEN
-							        If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "MSA pending only") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", MSA pending only."
+									IF nbr_days_pending < 60 THEN ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = FALSE
+							        If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "MSA pending") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & ", MSA pending."
 								    ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
 								    IF left(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), 1) = "," THEN ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = right(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), len(ALL_PENDING_CASES_ARRAY(error_notes, case_entry)) - 1) 'hopefully will trim the extra off the end'
 								    ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
