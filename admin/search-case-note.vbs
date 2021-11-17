@@ -90,7 +90,7 @@ Do
 		cancel_without_confirmation
       	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
         If ButtonPressed = script_instructions_btn Then             'Pulling up the instructions if the instruction button was pressed.
-            run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20RECEIVED.docx"
+            run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ADMIN/ADMIN%20-%20SEARCH%20CASE%20NOTE.docx"
             err_msg = "LOOP"
         Else                                                        'If the instructions button was NOT pressed, we want to display the error message if it exists.
 		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
