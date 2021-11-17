@@ -1,12 +1,11 @@
 'STATS GATHERING=============================================================================================================
-name_of_script = "ADMIN - Search CASE NOTE.vbs"       'Replace TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
+name_of_script = "UTILITIES - Search CASE NOTE.vbs"       'Replace TYPE with either ACTIONS, BULK, DAIL, NAV, NOTES, NOTICES, or UTILITIES. The name of the script should be all caps. The ".vbs" should be all lower case.
 start_time = timer
-STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 1            'manual run time in seconds
-STATS_denomination = "C"        'C is for each case
+STATS_counter = 0               'sets the stats counter at one
+STATS_manualtime = 5            'manual run time in seconds
+STATS_denomination = "I"        'C is for each case
 'END OF stats block==========================================================================================================
-skip_tester_list = True
-run_locally = True
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -38,7 +37,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/17/2021", "Initial version.", "Casey Love, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'FUNCTIONS FOR THE SCRIPT====================================================================================================
 
 function go_to_top_of_notes()
@@ -181,6 +190,7 @@ DO
 		line_to_read_row = 4
 	End If
 
+	STATS_counter = STATS_counter + 1											'incrementing the counter for each line read'
 	EMReadScreen read_the_line, 78, line_to_read_row, 3							'reading a line of the note
 	case_note_line_display = read_the_line										'creeating a display variable of the line
 	read_the_line = UCase(read_the_line)										'ucase the line so we are comparing capitals to capitals'
