@@ -223,3 +223,43 @@ DO
 LOOP
 
 script_end_procedure("")
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/17/2021
+'--Tab orders reviewed & confirmed----------------------------------------------11/17/2021
+'--Mandatory fields all present & Reviewed--------------------------------------N/A
+'--All variables in dialog match mandatory fields-------------------------------N/A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/17/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------11/17/2021
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/17/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------11/17/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------11/17/2021
+'--Denomination reviewed -------------------------------------------------------11/17/2021
+'--Script name reviewed---------------------------------------------------------11/17/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------11/17/2021
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------11/17/2021
+'--comment Code-----------------------------------------------------------------11/17/2021
+'--Update Changelog for release/update------------------------------------------11/17/2021
+'--Remove testing message boxes-------------------------------------------------11/17/2021
+'--Remove testing code/unnecessary code-----------------------------------------11/17/2021
+'--Review/update SharePoint instructions----------------------------------------11/17/2021
+'--Review Best Practices using BZS page ----------------------------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/17/2021
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
