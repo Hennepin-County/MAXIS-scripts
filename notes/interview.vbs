@@ -10597,8 +10597,8 @@ If update_revw = True OR update_prog = True Then
 			Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
 			Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
 
-			EMReadScreen cash_revw_status_code, 7, 40
-			EMReadScreen snap_revw_status_code, 7, 60
+			EMReadScreen cash_revw_status_code, 1, 7, 40
+			EMReadScreen snap_revw_status_code, 1, 7, 60
 			If cash_revw_status_code = "N" Then EMWriteScreen "I", 7, 40
 			If snap_revw_status_code = "N" Then EMWriteScreen "I", 7, 60
 
@@ -10636,7 +10636,7 @@ If update_revw = True OR update_prog = True Then
 				Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
 				Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
 
-				EMReadScreen cash_revw_status_code, 7, 40
+				EMReadScreen cash_revw_status_code, 1, 7, 40
 				If cash_revw_status_code = "N" Then EMWriteScreen "I", 7, 40
 
 				attempt_count = 1
@@ -10671,8 +10671,8 @@ If update_revw = True OR update_prog = True Then
 				Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
 				Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
 
-				EMReadScreen cash_revw_status_code, 7, 40
-				EMReadScreen snap_revw_status_code, 7, 60
+				EMReadScreen cash_revw_status_code, 1, 7, 40
+				EMReadScreen snap_revw_status_code, 1, 7, 60
 				If cash_revw_status_code = "N" Then EMWriteScreen "I", 7, 40
 				If snap_revw_status_code = "N" Then EMWriteScreen "I", 7, 60
 
