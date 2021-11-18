@@ -127,7 +127,10 @@ DO
 			  End If
 			  ButtonGroup ButtonPressed
 			    PushButton 250, 30, 60, 15, "Search", search_button
-			    If search_array(0) <> "" AND end_of_notes = False Then PushButton 190, 100, 70, 15, "Find Next - PF3", find_next_button
+			    If search_array(0) <> "" AND end_of_notes = False Then
+					PushButton 120, 100, 70, 15, "Find Next - PF3", find_next_button
+					PushButton 190, 100, 70, 15, "Search Next Note", next_note_button
+				End If
 			    PushButton 260, 105, 50, 10, "Done", done_button
 			  Text 5, 15, 45, 10, "Search Text:"
 			  Text 5, 35, 45, 10, "Search Type:"
@@ -175,6 +178,22 @@ DO
 			Next
 		End If
 		ButtonPressed = find_next_button										'making sure the search button is not the pressed button on the next loop
+	End If
+	If ButtonPressed = next_note_button Then
+		on_note_menu = False													'making sure we are on the main menu of CASE:NOTES'
+		EMReadScreen are_we_on_note_menu, 10, 4, 25
+		If are_we_on_note_menu = "First line" Then on_note_menu = True
+		If on_note_menu = False Then PF3										'backing out of the note if we are in it'
+		
+		case_to_read_row = case_to_read_row + 1								'go to the next line of notes
+		If case_to_read_row = 19 Then										'if we are at row 19 - this page of case:notes is at the end
+			PF8																'go to the next row
+			case_to_read_row = 5											'reset the row to start opening notes'
+			EMReadScreen end_of_all_notes, 9, 24, 14						'read the message that will display if we PF8 from the last page of notes
+			If end_of_all_notes = "LAST PAGE" Then							'if it displays last page, there are no more notes to read.
+				end_of_notes = True
+			End If
+		End If
 	End If
 
 	on_note_menu = False														'checking to see if we are on the menu of the CASE:NOTES
