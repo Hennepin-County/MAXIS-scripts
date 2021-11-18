@@ -105,6 +105,11 @@ ReDim search_array(0)
 search_item_found = False
 end_of_notes = False
 
+search_button		= 2001			'These are the buttons and they need to be defined here so they don't have an identity crisis.
+find_next_button	= 2002
+next_note_button	= 2003
+done_button			= 2004
+
 'Here we loop a lot. The rest of the sript is this loop.
 'Basically we are using this dialog to enter the search parameter and display the information found in the search.
 DO
@@ -184,7 +189,7 @@ DO
 		EMReadScreen are_we_on_note_menu, 10, 4, 25
 		If are_we_on_note_menu = "First line" Then on_note_menu = True
 		If on_note_menu = False Then PF3										'backing out of the note if we are in it'
-		
+
 		case_to_read_row = case_to_read_row + 1								'go to the next line of notes
 		If case_to_read_row = 19 Then										'if we are at row 19 - this page of case:notes is at the end
 			PF8																'go to the next row
@@ -194,6 +199,7 @@ DO
 				end_of_notes = True
 			End If
 		End If
+		ButtonPressed = find_next_button										'making sure the search button is not the pressed button on the next loop
 	End If
 
 	on_note_menu = False														'checking to see if we are on the menu of the CASE:NOTES
