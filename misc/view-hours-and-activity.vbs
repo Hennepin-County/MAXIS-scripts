@@ -400,6 +400,11 @@ Call create_time_spent_totals(current_day, current_day, selected_sort, hours_in_
 'now we show the dialog.
 Do
 	err_msg = ""
+	on_current_time_pd = False
+	If dialog_view = day_view AND selected_date = current_day Then on_current_time_pd = True			'determining if we need a plus button or not
+	If dialog_view = week_view AND selected_date = current_week Then on_current_time_pd = True
+	If dialog_view = biweek_view AND selected_date = current_pay_pd Then on_current_time_pd = True
+	If dialog_view = month_view AND selected_date = current_month Then on_current_time_pd = True
 
 	display_total_hours = hours_in_time_pd					'these are set to a new variable because they have to remain numbers
 	display_meeting_hours = hours_in_meetings_dur_time_pd
@@ -452,45 +457,52 @@ Do
 	End If
 
 	'For real - the dialog
-	BeginDialog Dialog1, 0, 0, 361, dlg_len, "View Hours and Activity"
+	BeginDialog Dialog1, 0, 0, 460, dlg_len, "View Hours and Activity"
 	  ButtonGroup ButtonPressed
-		GroupBox 5, 5, 285, grp_2_len, "Hours Breakdown"
-		If dialog_view = day_view Then EditBox 180, 15, 50, 15, selected_date
-		If dialog_view = week_view Then DropListBox 80, 15, 150, 45, week_list, selected_date
-		If dialog_view = biweek_view Then DropListBox 80, 15, 150, 45, biweek_list, selected_date
-		If dialog_view = month_view Then DropListBox 80, 15, 150, 45, month_list, selected_date
+		GroupBox 5, 5, 385, grp_2_len, "Hours Breakdown"
+		If dialog_view = day_view Then EditBox 280, 15, 50, 15, selected_date
+		If dialog_view = week_view Then DropListBox 180, 15, 150, 45, week_list, selected_date
+		If dialog_view = biweek_view Then DropListBox 180, 15, 150, 45, biweek_list, selected_date
+		If dialog_view = month_view Then DropListBox 180, 15, 150, 45, month_list, selected_date
 		If dialog_view = custom_view Then
-			EditBox 130, 15, 40, 15, selected_start_date
-			Text 170, 17, 10, 10, " - "
-			EditBox 180, 15, 50, 15, selected_end_date
+			EditBox 230, 15, 40, 15, selected_start_date
+			Text 270, 17, 10, 10, " - "
+			EditBox 280, 15, 50, 15, selected_end_date
+		Else
+			If dialog_view = day_view Then
+				PushButton 280, 33, 15, 12, "-", minus_button
+			Else
+				PushButton 180, 33, 15, 12, "-", minus_button
+			End If
+			If on_current_time_pd = False Then PushButton 315, 33, 15, 12, "+", plus_button
 		End If
-		PushButton 235, 15, 40, 15, "Switch", switch_button
+		PushButton 335, 15, 40, 15, "Switch", switch_button
 		Text 85, 5, 110, 10, selected_date
-		Text 15, 40, 250, 10, "Total Hours Logged: " & display_total_hours
-		Text 15, 55, 250, 10, "Hours in Meetings: " & display_meeting_hours
-		If dialog_view <> day_view Then PushButton 300, 10, 50, 15, "Day", day_button
-		If dialog_view = day_view Then Text 318, 13, 30, 10, "Day"
-		If dialog_view <> week_view Then PushButton 300, 25, 50, 15, "Week", week_button
-		If dialog_view = week_view Then Text 315, 28, 35, 10, "Week"
-		If dialog_view <> biweek_view Then PushButton 300, 40, 50, 15, "Pay Period", pay_period_button
-		If dialog_view = biweek_view Then Text 305, 43, 43, 10, "Pay Period"
-		If dialog_view <> month_view Then PushButton 300, 55, 50, 15, "Month", month_button
-		If dialog_view = month_view Then Text 315, 58, 30, 10, "Month"
-		If dialog_view <> custom_view Then PushButton 300, 70, 50, 15, "Custom", custom_time_button
-		If dialog_view = custom_view Then Text 311, 73, 30, 10, "Custom"
-		GroupBox 10, 75, 275, grp_1_len, "Hours by " & selected_sort
+		Text 15, 40, 165, 10, "Total Hours Logged: " & display_total_hours
+		Text 15, 55, 165, 10, "Hours in Meetings: " & display_meeting_hours
+		If dialog_view <> day_view Then PushButton 400, 10, 50, 15, "Day", day_button
+		If dialog_view = day_view Then Text 418, 13, 30, 10, "Day"
+		If dialog_view <> week_view Then PushButton 400, 25, 50, 15, "Week", week_button
+		If dialog_view = week_view Then Text 415, 28, 35, 10, "Week"
+		If dialog_view <> biweek_view Then PushButton 400, 40, 50, 15, "Pay Period", pay_period_button
+		If dialog_view = biweek_view Then Text 405, 43, 43, 10, "Pay Period"
+		If dialog_view <> month_view Then PushButton 400, 55, 50, 15, "Month", month_button
+		If dialog_view = month_view Then Text 415, 58, 30, 10, "Month"
+		If dialog_view <> custom_view Then PushButton 400, 70, 50, 15, "Custom", custom_time_button
+		If dialog_view = custom_view Then Text 411, 73, 30, 10, "Custom"
+		GroupBox 10, 75, 375, grp_1_len, "Hours by " & selected_sort
 		y_pos = 90
 		If selected_sort = "CATEGORY" Then
 			For cat_item = 0 to UBound(CATEGORY_ARRAY, 2)
 				Text 20, y_pos, 150, 10, CATEGORY_ARRAY(type_detail_const, cat_item) & ": "
-				Text 170, y_pos, 50, 10, CATEGORY_ARRAY(total_hours_string_const, cat_item)
+				Text 270, y_pos, 50, 10, CATEGORY_ARRAY(total_hours_string_const, cat_item)
 				y_pos = y_pos + 10
 			Next
 		End If
 		If selected_sort = "PROJECT" Then
 			For cat_item = 0 to UBound(PROJECT_ARRAY, 2)
-				Text 20, y_pos, 90, 10, PROJECT_ARRAY(type_detail_const, cat_item) & ": "
-				Text 110, y_pos, 50, 10, PROJECT_ARRAY(total_hours_string_const, cat_item)
+				Text 20, y_pos, 150, 10, PROJECT_ARRAY(type_detail_const, cat_item) & ": "
+				Text 170, y_pos, 50, 10, PROJECT_ARRAY(total_hours_string_const, cat_item)
 				y_pos = y_pos + 10
 			Next
 		End If
@@ -508,11 +520,11 @@ Do
 				For logged_activity = 0 to UBound(TIME_TRACKING_ARRAY, 2)
 					If DateDiff("d", selected_date, TIME_TRACKING_ARRAY(activity_date_const, logged_activity)) = 0 Then
 						If TIME_TRACKING_ARRAY(activity_paid_yn, logged_activity) = "Y" Then
-							Text 15, y_pos, 250, 10, TIME_TRACKING_ARRAY(activity_category, logged_activity) & ": " & TIME_TRACKING_ARRAY(activity_detail, logged_activity)
-							Text 265, y_pos, 15, 10, TIME_TRACKING_ARRAY(activity_time_spent, logged_activity)
+							Text 15, y_pos, 350, 10, TIME_TRACKING_ARRAY(activity_category, logged_activity) & ": " & TIME_TRACKING_ARRAY(activity_detail, logged_activity)
+							Text 365, y_pos, 15, 10, TIME_TRACKING_ARRAY(activity_time_spent, logged_activity)
 						Else
-							Text 15, y_pos, 240, 10, TIME_TRACKING_ARRAY(activity_category, logged_activity) & ": " & TIME_TRACKING_ARRAY(activity_detail, logged_activity)
-							Text 255, y_pos, 25, 10, "UnPaid"
+							Text 15, y_pos, 340, 10, TIME_TRACKING_ARRAY(activity_category, logged_activity) & ": " & TIME_TRACKING_ARRAY(activity_detail, logged_activity)
+							Text 355, y_pos, 25, 10, "UnPaid"
 						End If
 						y_pos = y_pos + 10
 					End If
@@ -536,7 +548,7 @@ Do
 			PushButton 5, y_pos, 100, 15, "Hide Excel", hide_excel_button
 			CheckBox 110, y_pos + 5, 100, 10, "Leave Excel Open", leave_excel_open_checkbox
 		End If
-		OkButton 305, y_pos, 50, 15
+		OkButton 405, y_pos, 50, 15
 		' CancelButton 305, y_pos, 50, 15
 	EndDialog
 
@@ -576,6 +588,78 @@ Do
 		selected_start_date = "1/1/2021"
 		selected_end_date = "12/31/2021"
 		selected_date = ""
+	End If
+	If ButtonPressed = plus_button Then
+		If dialog_view = day_view Then
+			selected_date = DateAdd("d", 1, selected_date)
+		End If
+		If dialog_view = week_view OR dialog_view = biweek_view Then
+			temp_array = ""
+			temp_array = split(selected_date, " - ")
+			temp_array(0) = DateAdd("d", 0, temp_array(0))
+			temp_array(1) = DateAdd("d", 0, temp_array(1))
+			selected_start_date = temp_array(0)
+			selected_end_date = temp_array(1)
+			If dialog_view = week_view Then
+				selected_start_date = DateAdd("d", 7, selected_start_date)
+				selected_end_date = DateAdd("d", 7, selected_end_date)
+			End if
+			If dialog_view = biweek_view Then
+				selected_start_date = DateAdd("d", 14, selected_start_date)
+				selected_end_date = DateAdd("d", 14, selected_end_date)
+			End If
+			selected_date = selected_start_date & " - " & selected_end_date
+		End If
+		If dialog_view = month_view Then
+			If selected_date = "January" Then selected_date = "February"
+			If selected_date = "February" Then selected_date = "March"
+			If selected_date = "March" Then selected_date = "April"
+			If selected_date = "April" Then selected_date = "May"
+			If selected_date = "May" Then selected_date = "June"
+			If selected_date = "June" Then selected_date = "July"
+			If selected_date = "July" Then selected_date = "August"
+			If selected_date = "August" Then selected_date = "September"
+			If selected_date = "September" Then selected_date = "October"
+			If selected_date = "October" Then selected_date = "November"
+			If selected_date = "November" Then selected_date = "December"
+			If selected_date = "December" Then selected_date = "January"
+		End If
+	End If
+	If ButtonPressed = minus_button Then
+		If dialog_view = day_view Then
+			selected_date = DateAdd("d", -1, selected_date)
+		End If
+		If dialog_view = week_view OR dialog_view = biweek_view Then
+			temp_array = ""
+			temp_array = split(selected_date, " - ")
+			temp_array(0) = DateAdd("d", 0, temp_array(0))
+			temp_array(1) = DateAdd("d", 0, temp_array(1))
+			selected_start_date = temp_array(0)
+			selected_end_date = temp_array(1)
+			If dialog_view = week_view Then
+				selected_start_date = DateAdd("d", -7, selected_start_date)
+				selected_end_date = DateAdd("d", -7, selected_end_date)
+			End if
+			If dialog_view = biweek_view Then
+				selected_start_date = DateAdd("d", -14, selected_start_date)
+				selected_end_date = DateAdd("d", -14, selected_end_date)
+			End If
+			selected_date = selected_start_date & " - " & selected_end_date
+		End If
+		If dialog_view = month_view Then
+			If selected_date = "January" Then selected_date = "December"
+			If selected_date = "February" Then selected_date = "January"
+			If selected_date = "March" Then selected_date = "February"
+			If selected_date = "April" Then selected_date = "March"
+			If selected_date = "May" Then selected_date = "April"
+			If selected_date = "June" Then selected_date = "May"
+			If selected_date = "July" Then selected_date = "June"
+			If selected_date = "August" Then selected_date = "July"
+			If selected_date = "September" Then selected_date = "August"
+			If selected_date = "October" Then selected_date = "September"
+			If selected_date = "November" Then selected_date = "October"
+			If selected_date = "December" Then selected_date = "November"
+		End If
 	End If
 
 	If dialog_view = day_view Then								'Based on the view selected, this will set the date(s) to be used when finding the right times/information to display from the array
