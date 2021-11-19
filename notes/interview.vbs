@@ -687,11 +687,11 @@ function define_main_dialog()
 			EditBox 155, 295, 320, 15, HH_MEMB_ARRAY(client_verification_details, selected_memb)
 			EditBox 70, 325, 405, 15, HH_MEMB_ARRAY(client_notes, selected_memb)
 			If HH_MEMB_ARRAY(ref_number, selected_memb) = "" Then
-				GroupBox 65, 25, 415, 200, "Person " & known_membs+1
-				GroupBox 65, 245, 415, 100, "Person " & known_membs+1 & "  ---  Interview Questions"
+				GroupBox 65, 25, 415, 200, "Person " & selected_memb+1
+				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & "  ---  Interview Questions"
 			Else
-				GroupBox 65, 25, 415, 200, "Person " & known_membs+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb)
-				GroupBox 65, 245, 415, 100, "Person " & known_membs+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb) & "  ---  Interview Questions"
+				GroupBox 65, 25, 415, 200, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb)
+				GroupBox 65, 245, 415, 100, "Person " & selected_memb+1 & " - MEMBER " & HH_MEMB_ARRAY(ref_number, selected_memb) & "  ---  Interview Questions"
 
 			End If
 			y_pos = 35
@@ -704,7 +704,7 @@ function define_main_dialog()
 				y_pos = y_pos + 10
 			Next
 			y_pos = y_pos + 10
-			PushButton 10, y_pos, 45, 10, "Add Person", add_person_btn
+			PushButton 10, 335, 45, 10, "Add Person", add_person_btn
 			Text 70, 35, 50, 10, "Last Name"
 			Text 165, 35, 50, 10, "First Name"
 			Text 245, 35, 50, 10, "Middle Name"
@@ -1950,8 +1950,8 @@ function dialog_movement()
 		last_clt = UBound(HH_MEMB_ARRAY, 2)
 		new_clt = last_clt + 1
 		ReDim Preserve HH_MEMB_ARRAY(last_const, new_clt)
-		HH_MEMB_ARRAY(button_one, last_clt) = 500 + last_clt
-		HH_MEMB_ARRAY(button_two, last_clt) = 600 + last_clt
+		HH_MEMB_ARRAY(button_one, new_clt) = 500 + new_clt
+		HH_MEMB_ARRAY(button_two, new_clt) = 600 + new_clt
 
 		selected_memb = new_clt
 		update_pers = TRUE
