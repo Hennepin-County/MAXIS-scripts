@@ -1628,7 +1628,7 @@ Next
 ' CALL write_variable_in_MMIS_NOTE ("***Hennepin MHC note*** Household enrollment updated for " & Enrollment_date & " per enrollment form")
 If create_case_note = TRUE Then
 	If open_enrollment_case = TRUE Then
-		CALL write_variable_in_MMIS_NOTE ("AHPS request processed for 2020 selection")
+		CALL write_variable_in_MMIS_NOTE ("AHPS request processed for 2022 selection")
 		If enrollment_source = "Morning Letters" Then
 		ElseIf enrollment_source = "Phone" Then
 			CALL write_variable_in_MMIS_NOTE ("Enrollment requested by " & caller_rela & " via " & enrollment_source)
