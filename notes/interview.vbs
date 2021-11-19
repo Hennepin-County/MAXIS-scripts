@@ -1442,8 +1442,8 @@ function define_main_dialog()
 		    Text 375, 105, 20, 10, "date"
 		    EditBox 400, 100, 50, 15, second_signature_date
 
-			Text 10, 125, 120, 10, "Cient signature accepted verbally?"
-			DropListBox 130, 120, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_verbally_yn
+			Text 10, 125, 130, 10, "Resident signature accepted verbally?"
+			DropListBox 135, 120, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", client_signed_verbally_yn
 			Text 335, 125, 50, 10, "Interview Date:"
 			EditBox 390, 120, 60, 15, interview_date
 
