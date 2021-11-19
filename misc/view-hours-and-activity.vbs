@@ -744,7 +744,7 @@ Do
 
 	If ButtonPressed = -1 Then err_msg = ""		'blanking out the err_msg if the 'OK' button is pressed so we can leave the dialog loop
 Loop until err_msg = ""
-If view_excel = False Then eave_excel_open_checkbox = unchecked
+If view_excel = False Then leave_excel_open_checkbox = unchecked
 If leave_excel_open_checkbox = checked Then				'If the checkbox is checked then we block out any row that was changed for math to work. This isn't needed if we aren't leaving it open then it closes without being saved.
 	row_filled_with_end_time = trim(row_filled_with_end_time)
 	If Instr(row_filled_with_end_time, " ") = 0 Then
