@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/24/2021", "#644 Updates to the dropdown and dialog.", "MiKayla Handley")
 call changelog_update("07/30/2021", "Inital Version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -69,7 +70,7 @@ BeginDialog Dialog1, 0, 0, 311, 85, "Request for Unemployment Insurance"
   ButtonGroup ButtonPressed
     PushButton 175, 5, 15, 15, "!", initial_help_button
     PushButton 200, 5, 105, 15, "Unemployment Insurance", HSR_manual_button
-  DropListBox 245, 30, 60, 15, "Select One:"+chr(9)+"1800 Chicago"+chr(9)+"Central/NE"+chr(9)+"HC in METs"+chr(9)+"QI"+chr(9)+"Northwest"+chr(9)+"South", team_email_dropdown
+  DropListBox 245, 30, 60, 15, "Select One:"+chr(9)+"1800 Chicago"+chr(9)+"DEED"+chr(9)+"HC in METs", team_email_dropdown
   CheckBox 10, 35, 25, 10, "CCA", cca_checkbox
   CheckBox 10, 50, 80, 10, "Other (please specify)", other_checkbox
   EditBox 95, 45, 45, 15, other_check_editbox
@@ -79,7 +80,7 @@ BeginDialog Dialog1, 0, 0, 311, 85, "Request for Unemployment Insurance"
   Text 5, 10, 50, 10, "Case Number:"
   GroupBox 5, 25, 140, 40, "Department (if outside ES)"
   Text 5, 70, 305, 10, "Overpaypayment, tax, child/spousal support deductions will be reviewed for this individual."
-  Text 170, 35, 70, 10, "Select a team/region:"
+  Text 170, 35, 70, 10, "Select:"
 EndDialog
 
 DO
@@ -93,7 +94,7 @@ DO
             End if
             IF buttonpressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Unemployment_Insurance.aspx") 'HSR manual policy page
         LOOP until ButtonPressed = -1
-        IF team_email_dropdown = "Select One:" THEN err_msg = err_msg & vbCr & "* Specify what team/region you want to send your email to."
+        IF team_email_dropdown = "Select One:" THEN err_msg = err_msg & vbCr & "* Specify what team you want to send your email to."
       IF other_checkbox = CHECKED and trim(other_check_editbox) = "" THEN err_msg = err_msg & vbCr & "* Specify what your department you are in."
       IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & "Resolve for the following for the script to continue." & vbcr & err_msg
         LOOP UNTIL err_msg = ""
@@ -240,15 +241,8 @@ FOR uc_membs = 0 to Ubound(uc_members_array, 2) 'start at the zero person and go
     member_info = member_info & vbNewLine & "Please review deductions and withholdings for this individual. " & vbNewLine
 NEXT
 
-IF team_email_dropdown = "Central/NE" THEN team_email_dropdown = "HSPH.ES.DEED"
-IF team_email_dropdown = "West" THEN team_email = "HSPH.ES.DEED"
-IF team_email_dropdown = "Onboarding" THEN team_email = "HSPH.ES.DEED"
-IF team_email_dropdown = "North" THEN team_email = "HSPH.ES.DEED"
-IF team_email_dropdown = "South Suburban" THEN team_email = "HSPH.ES.DEED"
+IF team_email_dropdown = "DEED" THEN team_email_dropdown = "HSPH.ES.DEED"
 IF team_email_dropdown = "HC in METs" THEN team_email = "James.Berka@Hennepin.us; diane.beauchamp@hennepin.us"
-IF team_email_dropdown = "Northwest" THEN team_email = "Shamikka.Lenear@Hennepin.us; Samantha.Haw@Hennepin.us"
-IF team_email_dropdown = "QI" THEN team_email= "Mandora.Young@Hennepin.us; Laurie.Hennen@Hennepin.us"
-IF team_email_dropdown = "South" THEN team_email = "Faduma.Abdi@Hennepin.us; Lindsey.Remus@Hennepin.us"
 IF team_email_dropdown = "1800 Chicago" THEN team_email= "Jennifer.Moses@Hennepin.us"
 
 IF cca_checkbox = CHECKED THEN member_info = "CCA Request" & vbNewLine & member_info
