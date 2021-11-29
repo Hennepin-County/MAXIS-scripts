@@ -70,7 +70,7 @@ BeginDialog Dialog1, 0, 0, 311, 85, "Request for Unemployment Insurance"
   ButtonGroup ButtonPressed
     PushButton 175, 5, 15, 15, "!", initial_help_button
     PushButton 200, 5, 105, 15, "Unemployment Insurance", HSR_manual_button
-  DropListBox 245, 30, 60, 15, "ES Supports"+chr(9)+"1800 Chicago"+chr(9)+"HC in METs", team_email_dropdown
+  DropListBox 245, 30, 60, 15, "ES Support"+chr(9)+"1800 Chicago"+chr(9)+"HC in METs", team_email_dropdown
   CheckBox 10, 35, 25, 10, "CCA", cca_checkbox
   CheckBox 10, 50, 80, 10, "Other (please specify)", other_checkbox
   EditBox 95, 45, 45, 15, other_check_editbox
@@ -240,7 +240,7 @@ FOR uc_membs = 0 to Ubound(uc_members_array, 2) 'start at the zero person and go
     member_info = member_info & vbNewLine & "Please review deductions and withholdings for this individual. " & vbNewLine
 NEXT
 
-IF team_email_dropdown = "ES Supports" THEN team_email_dropdown = "HSPH.ES.DEED"
+IF team_email_dropdown = "ES Support" THEN team_email_dropdown = "HSPH.ES.DEED"
 IF team_email_dropdown = "HC in METs" THEN team_email = "James.Berka@Hennepin.us; diane.beauchamp@hennepin.us"
 IF team_email_dropdown = "1800 Chicago" THEN team_email= "Jennifer.Moses@Hennepin.us"
 
