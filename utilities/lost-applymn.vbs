@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/29/2021", "Convert UTILITIES-Lost ApplyMN to be UTILITIES-Lost Online Application", "MiKayla Handley, Hennepin County") '#628'
 call changelog_update("03/10/2020", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -107,31 +108,35 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)		'try to find the case number
 DO
     DO
         err_msg = ""
-
 		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 331, 165, "ApplyMN not Found"
-		  EditBox 140, 35, 80, 15, MAXIS_case_number
-		  CheckBox 25, 55, 225, 10, "Check here if this is for a NEW request with no Case Number yet.", no_case_number_checkbox
-		  EditBox 80, 100, 50, 15, date_of_app
-		  EditBox 225, 100, 75, 15, applymn_confirmation_number
-		  EditBox 80, 120, 220, 15, name_of_applicant
-		  EditBox 65, 145, 115, 15, worker_name
+		BeginDialog Dialog1, 0, 0, 331, 230, "Application not found"
+		  EditBox 145, 35, 50, 15, MAXIS_case_number
+		  CheckBox 10, 55, 225, 10, "Check here if this is for a NEW request -  not known to MAXIS.", no_case_number_checkbox
+		  EditBox 80, 145, 50, 15, date_of_app
+		  EditBox 230, 145, 75, 15, applymn_confirmation_number
+		  DropListBox 80, 165, 55, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
+		  PushButton 170, 165, 135, 15, "Read application info from CASE NOTE", collect_from_case_note_btn
+		  EditBox 80, 185, 225, 15, name_of_applicant
+		  EditBox 65, 210, 115, 15, worker_name
 		  ButtonGroup ButtonPressed
-		    PushButton 165, 80, 135, 15, "Read ApplyMN Info from CASE:NOTE", collect_from_case_note_btn
-		    OkButton 215, 145, 50, 15
-		    CancelButton 270, 145, 50, 15
-		  Text 10, 10, 315, 20, "If a client is reporting they have submitted an ApplyMN application, and there is no coresponding application in ECF, this script can assist in sending the request to QI to find the ApplyMN."
-		  Text 15, 40, 120, 10, "Case Number with the lost ApplyMN:"
-		  GroupBox 10, 70, 310, 70, "ApplyMN Detail"
-		  Text 15, 105, 65, 10, "Date of Application:"
-		  Text 150, 105, 75, 10, "Confirmation Number:"
-		  Text 25, 125, 55, 10, "Applicant Name: "
-		  Text 10, 150, 55, 10, "Sign your Email"
-		  ButtonGroup ButtonPressed
-		    PushButton 300, 80, 15, 15, "?", read_note_question
-		    PushButton 300, 100, 15, 15, "?", confirmation_number_question
-		    PushButton 300, 120, 15, 15, "?", applicant_name_question
-		    PushButton 130, 100, 15, 15, "?", app_date_question
+		    OkButton 220, 210, 50, 15
+		    CancelButton 270, 210, 50, 15
+		    PushButton 135, 145, 15, 15, "?", app_date_question
+		    PushButton 305, 145, 15, 15, "?", confirmation_number_question
+		    PushButton 140, 165, 15, 15, "?", app_type_question
+		    PushButton 305, 165, 15, 15, "?", read_note_question
+		    PushButton 305, 185, 15, 15, "?", applicant_name_question
+			Text 155, 150, 75, 10, "Confirmation Number:"
+		  Text 10, 10, 315, 20, "If a client is reporting they have submitted an online application, and there is no coresponding application in ECF, this script can assist in sending the request to QI to locate."
+		  GroupBox 5, 70, 320, 60, "Application Support"
+		  Text 65, 85, 170, 10, "Case Assignment is currently APPLing cases dated: "
+		  Text 10, 150, 65, 10, "Date of Application:"
+		  Text 10, 215, 55, 10, "Sign your Email"
+		  Text 10, 40, 130, 10, "Case Number with the lost application:"
+		  GroupBox 5, 135, 320, 70, "Application Detail"
+		  Text 10, 190, 55, 10, "Applicant Name: "
+		  Text 75, 105, 170, 10, "TALKING POINTS HERE! Developed by leadership."
+		  Text 10, 170, 65, 10, "Type of Application:"
 		EndDialog
 
         Dialog Dialog1
