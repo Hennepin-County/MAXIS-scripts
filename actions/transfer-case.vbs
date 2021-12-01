@@ -51,10 +51,11 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/05/2021", "Audit case note in a universal caseload and out-of-county option for case note information. Move the note to after the XFER confirmed. Restrict transfer of cases to CCL with the script.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/09/2020", "No issues with SPEC/MEMO for out-of-county cases. SIR Announcement from 11/05/20 stated an issue was identified. Hennepin County's script project is seperate from DHS's script project. We are not experiencing the reported issue. Thank you!", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/20/2020", "Updated link for out-of-county use form.", "Ilse Ferris, Hennepin County")
-CALL changelog_update("10/16/2020", "Added closing message box with information if a case is identified as being transferred to the MNPrairie Bank of counties.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("10/16/2020", "Added closing message box with information if a case is identified as being transferred to the MN Prairie Bank of counties.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/20/2020", "Rewrite.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -63,41 +64,46 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-EMConnect ""
-check_for_MAXIS(True)
-call MAXIS_case_number_finder(MAXIS_case_number)
-'VARIABLES TO DECLARE----------------------------------------------------------------------------
+'---------------------------------------------------------------------------------------The script
+EMConnect ""                                        'Connecting to BlueZone
+CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
+call Check_for_MAXIS(false)                         'Ensuring we are not passworded out
+back_to_self                                        'added to ensure we have the time to update and send the case in the background
+EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
+
+closing_message = "Transfer case is complete." 'setting up closing_message variable for possible additions later based on conditions
 
 '-------------------------------------------------------------------------------------------------DIALOG
 DO
-	BeginDialog Dialog1, 0, 0, 231, 145, "Case Transfer"
-    EditBox 55, 5, 50, 15, MAXIS_case_number
-    EditBox 175, 5, 50, 15, servicing_worker
-    CheckBox 40, 30, 55, 10, "out of county", out_of_county_checkbox
-    CheckBox 95, 30, 55, 10, "within county", in_county_checkbox
-    EditBox 105, 45, 120, 15, transfer_reason
-    EditBox 105, 65, 120, 15, action_taken
-    EditBox 105, 85, 120, 15, requested_verifs
-    EditBox 105, 105, 120, 15, other_notes
-    'CheckBox 5, 130, 75, 10, "Send SPEC/MEMO", SPEC_MEMO_checkbox
-    ButtonGroup ButtonPressed
-    OkButton 120, 125, 50, 15
-    CancelButton 175, 125, 50, 15
-    Text 115, 10, 55, 10, "Transferring to:"
-    Text 5, 30, 35, 10, "Transfer:"
-    Text 5, 50, 70, 10, "Reason for transfer:"
-    Text 5, 70, 70, 10, "Actions taken:"
-    Text 5, 90, 95, 10, "Actions/verifications needed:"
-    Text 5, 110, 45, 10, "Other notes:"
-    Text 5, 10, 50, 10, "Case number:"
-    Text 175, 20, 50, 10, " Ex. (X127ICT)"
+    BeginDialog Dialog1, 0, 0, 261, 145, "Case Transfer"
+      EditBox 55, 5, 45, 15, MAXIS_case_number
+      EditBox 160, 5, 45, 15, servicing_worker
+      CheckBox 40, 30, 55, 10, "out of county", out_of_county_checkbox
+      CheckBox 95, 30, 55, 10, "within county", in_county_checkbox
+      EditBox 105, 45, 150, 15, transfer_reason
+      EditBox 105, 65, 150, 15, action_taken
+      EditBox 105, 85, 150, 15, requested_verifs
+      EditBox 105, 105, 150, 15, other_notes
+      ButtonGroup ButtonPressed
+        OkButton 150, 125, 50, 15
+        CancelButton 205, 125, 50, 15
+      Text 5, 10, 50, 10, "Case number:"
+      Text 105, 10, 55, 10, "Transferring to:"
+      Text 210, 10, 50, 10, " Ex. (X127ICT)"
+      Text 5, 30, 35, 10, "Transfer:"
+      Text 5, 50, 70, 10, "Reason for transfer:"
+      Text 5, 70, 50, 10, "Actions taken:"
+      Text 5, 90, 95, 10, "Actions/verifications needed:"
+      Text 5, 110, 45, 10, "Other notes:"
+      Text 5, 10, 50, 10, "Case number:"
+      Text 175, 20, 50, 10, " Ex. (X127ICT)"
     EndDialog
 
 	Do
 		Do
 			err_msg = ""
 			Dialog Dialog1
-			cancel_without_confirmation
+			cancel_confirmation
 	      	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "Please enter a valid case number."
 			IF servicing_worker = "" or len(servicing_worker) > 7 THEN err_msg = err_msg & vbNewLine & "Please enter a valid  worker number (EX. X120ICT)."
 			IF out_of_county_checkbox <> CHECKED and in_county_checkbox <> CHECKED THEN err_msg = err_msg & vbNewLine & "Please select the type of transfer."
@@ -116,6 +122,109 @@ DO
 	IF inactive_worker = "INACTIVE" THEN MsgBox "The worker or agency selected is not active. Please try again."
 	IF worker_found = "NO WORKER FOUND" THEN MsgBox "The worker or agency selected does not exist. Please try again."
 LOOP UNTIL inactive_worker <> "INACTIVE" AND worker_found <> "NO WORKER FOUND"
+
+transfer_to_worker = trim(transfer_to_worker)               'formatting the information entered in the dialog
+transfer_to_worker = Ucase(transfer_to_worker)
+request_worker_number = trim(request_worker_number)
+request_worker_number = Ucase(request_worker_number)
+f = date
+
+
+'IF a transfer is needed (by entry of a transfer_to_worker in the Action dialog) the script will transfer it here
+tansfer_message = ""            'some defaults
+transfer_case = False
+action_completed = TRUE
+
+If transfer_to_worker <> "" Then        'If a transfer_to_worker was entered - we are attempting the transfer
+	transfer_case = True
+	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
+	EMWriteScreen "x", 7, 16                               'transfer within county option
+	transmit
+	PF9                                                    'putting the transfer in edit mode
+	EMreadscreen servicing_worker, 3, 18, 65               'checking to see if the transfer_to_worker is the same as the current_worker (because then it won't transfer)
+	servicing_worker = trim(servicing_worker)
+	IF servicing_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
+		action_completed = False
+        transfer_message = "This case is already in the requested worker's number."
+		PF10 'backout
+		PF3 'SPEC menu
+		PF3 'SELF Menu'
+	ELSE                                                   'otherwise we are going for the tranfer
+	    EMWriteScreen "X127" & transfer_to_worker, 18, 61  'entering the worker ifnormation
+	    transmit                                           'saving - this should then take us to the transfer menu
+        EMReadScreen panel_check, 4, 2, 55                 'reading to see if we made it to the right place
+        If panel_check = "XWKR" Then
+            action_completed = False                       'this is not the right place
+            transfer_message = "Transfer of this case to " & transfer_to_worker & " has failed."
+            PF10 'backout
+            PF3 'SPEC menu
+            PF3 'SELF Menu'
+        Else                                               'if we are in the right place - read to see if the new worker is the transfer_to_worker
+            EMReadScreen new_pw, 3, 21, 20
+            If new_pw <> transfer_to_worker Then           'if it is not the transfer_tow_worker - the transfer failed.
+                action_completed = False
+                transfer_message = "Transfer of this case to " & transfer_to_worker & " has failed."
+            End If
+        End If
+	END IF
+END IF
+
+'SENDING a SPEC/MEMO - this happens AFTER the transfer so that the correct team information is on the notice.
+'there should not be an issue with PRIV cases because going directly here we shouldn't lose the 'connection/access'
+
+If transfer_message = "" Then
+    If transfer_case = True Then closing_message = closing_message & vbCr & vbCr & "Case transfer has been completed to x127" & transfer_to_worker
+Else
+    closing_message = closing_message & vbCr & vbCr & "FAILED CASE TRANSFER:" & vbCr & transfer_message
+End If
+If transfer_case = False Then closing_message = closing_message & vbCr & vbCr & "NO TRANSFER HAS BEEN REQUESTED."
+
+Call script_end_procedure_with_error_report(closing_message)
+
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/05/2021
+'--Tab orders reviewed & confirmed----------------------------------------------10/05/2021
+'--Mandatory fields all present & Reviewed--------------------------------------10/05/2021
+'--All variables in dialog match mandatory fields-------------------------------10/05/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/05/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/05/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/05/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/05/2021
+'--PRIV Case handling reviewed -------------------------------------------------10/05/2021
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/05/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/05/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------10/05/2021
+'--Script name reviewed---------------------------------------------------------10/05/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub task are complete-----------------------------------------10/05/2021
+'--comment Code-----------------------------------------------------------------10/05/2021
+'--Update Changelog for release/update------------------------------------------10/05/2021
+'--Remove testing message boxes-------------------------------------------------10/05/2021
+'--Remove testing code/unnecessary code-----------------------------------------10/05/2021
+'--Review/update SharePoint instructions----------------------------------------10/05/2021
+'--Review Best Practices using BZS page ----------------------------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/05/2021
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------10/05/2021
+
+
+
 
 EMWriteScreen "X", 7, 3 ' navigating to read the worker information'
 TRANSMIT
@@ -463,59 +572,7 @@ PF3
 	cfr_year = datepart("YYYY", cfr_date)
 	cfr_year = right(cfr_year, 2)
 
-	'----------The case note of the reason for the XFER----------
-    start_a_blank_CASE_NOTE
-    Call write_variable_in_CASE_NOTE("~ Case transferred to " & servicing_worker & " ~")
-    Call write_bullet_and_variable_in_CASE_NOTE("Active programs", active_programs)
-    Call write_bullet_and_variable_in_CASE_NOTE("Pending programs", pend_programs)
-    Call write_bullet_and_variable_in_CASE_NOTE("Reason case was transferred", transfer_reason)
-	Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
-	Call write_bullet_and_variable_in_CASE_NOTE("Requested verifications", requested_verifs)
-	Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-	IF mmis_update_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Updated MMIS")
-	IF mets_active_checkbox = CHECKED THEN call write_variable_in_case_note("* Client is active on HC through METS case number:", METS_case_number)
-	IF mcre_active_checkbox = CHECKED THEN call write_variable_in_case_note("* Client is active on HC through Minnesota Care")
-	IF pend_programs <> "" THEN call write_bullet_and_variable_in_case_note("Pending Programs", (left(pend_programs, (len(pend_programs) - 1))))
-	IF mnsure_pend_checkbox = CHECKED THEN call write_variable_in_case_note("* Client has pending HC application through METS")
-	call write_bullet_and_variable_in_case_note("Client Move Date", Client_move_date)
-	IF crf_sent_checkbox = CHECKED THEN
-		crf_sent_date = date
-		call write_bullet_and_variable_in_case_note("Change Report Sent", crf_sent_date)
-		call write_bullet_and_variable_in_case_note("Case File Sent:", crf_sent_date)
-	END IF
-	IF excluded_time = "Yes" THEN
-		excluded_time = excluded_time & ", Begins " & excluded_date
-		call write_bullet_and_variable_in_case_note("Excluded Time" , excluded_time)
-		excluded_time = "Yes"
-	ELSEIF excluded_time = "No" THEN
-		call write_bullet_and_variable_in_case_note("Excluded Time", excluded_time)
-	ELSEIF excluded_time = "" THEN
-		call write_variable_in_case_note("* Excluded Time: N/A")
-	END IF
-	IF hc_status_check = "ACTV" THEN
-		CALL write_bullet_and_variable_in_case_note("HC County of Financial Responsibility", hc_cfr)
-		IF hc_cfr_no_change_checkbox = 0 THEN
-			CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (cfr_month & "/" & cfr_year))
-		ELSE
-			CALL write_bullet_and_variable_in_case_note("HC CFR", "Not changing")
-		END IF
-	END IF
-	IF cash1_status_check = "ACTV" OR cash2_status_check = "ACTV" THEN
-		CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", county_financial_responsibilty)
-		IF cash_cfr_no_change_checkbox = 0 THEN
-			CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cfr_month & "/" & cfr_year))
-		ELSE
-			CALL write_bullet_and_variable_in_case_note("CASH CFR", "Not changing")
-		END IF
-	END IF
-	IF closure_date_checkbox = CHECKED THEN call write_variable_in_case_note("* Client has until " & closure_date & " to provide required proofs or the case will close.")
-	If transfer_form_checkbox = CHECKED THEN call write_variable_in_case_note("* DHS 3195 Inter Agency Case Transfer Form completed and sent.")
-	IF SPEC_MEMO_checkbox = CHECKED THEN call write_variable_in_case_note("* SPEC/MEMO sent to client with new worker information.")
-	IF forms_to_arep = "Y" THEN call write_variable_in_case_note("* Copy of SPEC/MEMO sent to AREP.")
-	IF forms_to_swkr = "Y" THEN call write_variable_in_case_note("* Copy of SPEC/MEMO sent to social worker.")
-    Call write_variable_in_CASE_NOTE("---")
-    CALL write_variable_in_CASE_NOTE (worker_signature)
-    PF3
+
 	'----------The business end of the script (DON'T POINT THIS SCRIPT AT ANYTHING YOU DON'T WANT TRANSFERRED!!)----------
 	call navigate_to_MAXIS_screen("SPEC", "XFER")
 	EMWriteScreen "X", 9, 16
@@ -591,6 +648,60 @@ PF3
 	END IF
 
 	PF3
+    IF case
+    '----------The case note of the reason for the XFER----------
+    start_a_blank_CASE_NOTE
+    Call write_variable_in_CASE_NOTE("~ Case transferred to " & servicing_worker & " ~")
+    Call write_bullet_and_variable_in_CASE_NOTE("Active programs", active_programs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Pending programs", pend_programs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Reason case was transferred", transfer_reason)
+    Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
+    Call write_bullet_and_variable_in_CASE_NOTE("Requested verifications", requested_verifs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+    IF mmis_update_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("* Updated MMIS")
+    IF mets_active_checkbox = CHECKED THEN call write_variable_in_case_note("* Client is active on HC through METS case number:", METS_case_number)
+    IF mcre_active_checkbox = CHECKED THEN call write_variable_in_case_note("* Client is active on HC through Minnesota Care")
+    IF pend_programs <> "" THEN call write_bullet_and_variable_in_case_note("Pending Programs", (left(pend_programs, (len(pend_programs) - 1))))
+    IF mnsure_pend_checkbox = CHECKED THEN call write_variable_in_case_note("* Client has pending HC application through METS")
+    call write_bullet_and_variable_in_case_note("Client Move Date", Client_move_date)
+    IF crf_sent_checkbox = CHECKED THEN
+        crf_sent_date = date
+        call write_bullet_and_variable_in_case_note("Change Report Sent", crf_sent_date)
+        call write_bullet_and_variable_in_case_note("Case File Sent:", crf_sent_date)
+    END IF
+    IF excluded_time = "Yes" THEN
+        excluded_time = excluded_time & ", Begins " & excluded_date
+        call write_bullet_and_variable_in_case_note("Excluded Time" , excluded_time)
+        excluded_time = "Yes"
+    ELSEIF excluded_time = "No" THEN
+        call write_bullet_and_variable_in_case_note("Excluded Time", excluded_time)
+    ELSEIF excluded_time = "" THEN
+        call write_variable_in_case_note("* Excluded Time: N/A")
+    END IF
+    IF hc_status_check = "ACTV" THEN
+        CALL write_bullet_and_variable_in_case_note("HC County of Financial Responsibility", hc_cfr)
+        IF hc_cfr_no_change_checkbox = 0 THEN
+            CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (cfr_month & "/" & cfr_year))
+        ELSE
+            CALL write_bullet_and_variable_in_case_note("HC CFR", "Not changing")
+        END IF
+    END IF
+    IF cash1_status_check = "ACTV" OR cash2_status_check = "ACTV" THEN
+        CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", county_financial_responsibilty)
+        IF cash_cfr_no_change_checkbox = 0 THEN
+            CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cfr_month & "/" & cfr_year))
+        ELSE
+            CALL write_bullet_and_variable_in_case_note("CASH CFR", "Not changing")
+        END IF
+    END IF
+    IF closure_date_checkbox = CHECKED THEN call write_variable_in_case_note("* Client has until " & closure_date & " to provide required proofs or the case will close.")
+    If transfer_form_checkbox = CHECKED THEN call write_variable_in_case_note("* DHS 3195 Inter Agency Case Transfer Form completed and sent.")
+    IF SPEC_MEMO_checkbox = CHECKED THEN call write_variable_in_case_note("* SPEC/MEMO sent to client with new worker information.")
+    IF forms_to_arep = "Y" THEN call write_variable_in_case_note("* Copy of SPEC/MEMO sent to AREP.")
+    IF forms_to_swkr = "Y" THEN call write_variable_in_case_note("* Copy of SPEC/MEMO sent to social worker.")
+    Call write_variable_in_CASE_NOTE("---")
+    CALL write_variable_in_CASE_NOTE (worker_signature)
+    PF3
 
 	navigate_decision = Msgbox("Do you want to navigate to open a the case transfer useform?" & vbcr & "If you are using Chrome you will be asked to open in Adobe.", vbQuestion + vbYesNo, "Navigate to Useform?")
 	If navigate_decision = vbYes then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://aem.hennepin.us/rest/services/HennepinCounty/Processes/ServletRenderForm:1.0?formName=HSPH5069_1-0.xdp&interactive=1"
