@@ -122,8 +122,8 @@ IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...
 If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not previously defined, allowing scripts the benefit of not having to declare ButtonPressed all the time
 
 'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
-IF CM_mo = "01" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #01/21/2021#
+IF CM_mo = "01" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #01/20/2022#
 ELSEIF CM_mo = "02" AND CM_yr = "21" THEN
     ten_day_cutoff_date = #02/18/2021#
 ELSEIF CM_mo = "03" AND CM_yr = "21" THEN
