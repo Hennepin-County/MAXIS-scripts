@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("12/01/2021", "Set Excel Visibilty to False.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/08/2021", "Added option for a warning before the Excel/Outlook output. Changed DWP and removed QI assignments. Updated background functionality.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("07/10/2021", "Added Brittany Lane to YET assignment email. Removed Maslah.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("06/03/2021", "Updated T drive file path to more stable LOBROOT path.", "Ilse Ferris, Hennepin County")
@@ -329,7 +330,7 @@ objExcel.Quit
 '----------------------------------------------------------------------------------------------------'Pending over 30 days report
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
+objExcel.Visible = False
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
@@ -386,7 +387,7 @@ objExcel.Quit
 '----------------------------------------------------------------------------------------------------'QI Expedited Review
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
+objExcel.Visible = False
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
@@ -446,7 +447,7 @@ objExcel.Quit
 '----------------------------------------------------------------------------------------------------Appears Expedited for YET Team only X127FA5
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
+objExcel.Visible = False
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
@@ -509,7 +510,7 @@ objExcel.Quit
 '----------------------------------------------------------------------------------------------------Appears Expedited for 1800 Team: X127EF8 and X127EF9
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
+objExcel.Visible = False
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
