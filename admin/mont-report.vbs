@@ -217,15 +217,10 @@ function read_case_details_for_mrsr_report(incrementor_var)
 	Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) 'function to check PRIV status
 	If is_this_priv = True then
 		mont_array(notes_const, incrementor_var) = "PRIV Case."
-		mont_array(cash_hrf_const, incrementor_var) = ""
-		mont_array(snap_hrf_const, incrementor_var) = ""
 	Else
 		EmReadscreen worker_prefix, 4, 21, 14
 		If worker_prefix <> "X127" then
-			mont_array(notes_const, i) = "Out-of-County: " & right(worker_prefix, 2)
-			mont_array(notes_const, incrementor_var) = "PRIV Case."
-			mont_array(cash_hrf_const, incrementor_var) = ""
-			mont_array(snap_hrf_const, incrementor_var) = ""
+			mont_array(notes_const, incrementor_var) = "Out-of-County: " & right(worker_prefix, 2)
 		Else
 			'function to determine programs and the program's status---Yay Casey!
 			Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
@@ -711,7 +706,7 @@ If open_existing_review_report = TRUE Then
 	For Each objWorkSheet In objWorkbook.Worksheets
 		If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
 	Next
-	scenario_dropdown = report_date & " Review Report"
+	scenario_dropdown = report_date & " MRSR Report"
 
 	'Dialog to select worksheet
 	'DIALOG is defined here so that the dropdown can be populated with the above code
@@ -1173,31 +1168,37 @@ If report_option = "Create MRSR Report" then
     ' Next
 
 	end_msg = "Success! The review report is ready."
-' ElseIf report_option = "Collect Statistics" Then			'This option is used when we are ready to collect statistics about review cases.
-' 	If REPT_month = CM_plus_2_mo AND REPT_year = CM_plus_2_yr Then
-' 		MAXIS_footer_month = CM_plus_1_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
-' 		MAXIS_footer_year = CM_plus_1_yr
-' 	Else
-' 		MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
-' 		MAXIS_footer_year = REPT_year
-' 	End If
+ElseIf report_option = "Collect Statistics" Then			'This option is used when we are ready to collect statistics about review cases.
+	If REPT_month = CM_plus_2_mo AND REPT_year = CM_plus_2_yr Then
+		MAXIS_footer_month = CM_plus_1_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
+		MAXIS_footer_year = CM_plus_1_yr
+	Else
+		MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
+		MAXIS_footer_year = REPT_year
+	End If
 '
 ' 	info_sheet_name = replace(excel_file_path, t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\", "")
 '
-' 	'Finding the last column that has something in it so we can add to the end.
-' 	col_to_use = 0
-' 	Do
-' 		col_to_use = col_to_use + 1
-' 		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
-' 	Loop until col_header = ""
-' 	last_col_letter = convert_digit_to_excel_column(col_to_use)
-'
-' 	'Insert columns in excel for additional information to be added
-' 	column_end = last_col_letter & "1"
-' 	Set objRange = objExcel.Range(column_end).EntireColumn
-'
-' 	objRange.Insert(xlShiftToRight)			'We neeed six more columns
-' 	objRange.Insert(xlShiftToRight)
+	'Finding the last column that has something in it so we can add to the end.
+	col_to_use = 0
+	Do
+		col_to_use = col_to_use + 1
+		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+	Loop until col_header = ""
+	last_col_letter = convert_digit_to_excel_column(col_to_use)
+
+	'Insert columns in excel for additional information to be added
+	column_end = last_col_letter & "1"
+	Set objRange = ObjExcel.Range(column_end).EntireColumn
+
+	objRange.Insert(xlShiftToRight)			'We neeed six more columns
+	objRange.Insert(xlShiftToRight)
+	objRange.Insert(xlShiftToRight)
+
+	cash_mont_excel_col = col_to_use
+	stat_mont_excel_col = col_to_use + 1
+	recvd_date_excel_col = col_to_use + 2
+
 ' 	objRange.Insert(xlShiftToRight)
 ' 	objRange.Insert(xlShiftToRight)
 ' 	objRange.Insert(xlShiftToRight)
@@ -1210,24 +1211,24 @@ If report_option = "Create MRSR Report" then
 ' 	recvd_date_excel_col = col_to_use + 4
 ' 	intvw_date_excel_col = col_to_use + 5
 '
-' 	date_month = DatePart("m", date)		'Creating a variable to enter in the column headers
-' 	date_day = DatePart("d", date)
-' 	date_header = date_month & "/" & date_day
-'
-' 	ObjExcel.Cells(1, cash_stat_excel_col).Value = "CASH (" & date_header & ")"			'creating the column headers for the statistics information for the day of the run.
-' 	ObjExcel.Cells(1, snap_stat_excel_col).Value = "SNAP (" & date_header & ")"
+	date_month = DatePart("m", date)		'Creating a variable to enter in the column headers
+	date_day = DatePart("d", date)
+	date_header = date_month & "/" & date_day
+
+	ObjExcel.Cells(1, cash_mont_excel_col).Value = "CASH (" & date_header & ")"			'creating the column headers for the statistics information for the day of the run.
+	ObjExcel.Cells(1, stat_mont_excel_col).Value = "SNAP (" & date_header & ")"
+	ObjExcel.Cells(1, recvd_date_excel_col).Value = "HRF Date (" & date_header & ")"
 ' 	ObjExcel.Cells(1, hc_stat_excel_col).Value = "HC (" & date_header & ")"
 ' 	ObjExcel.Cells(1, magi_stat_excel_col).Value = "MAGI (" & date_header & ")"
-' 	ObjExcel.Cells(1, recvd_date_excel_col).Value = "CAF Date (" & date_header & ")"
 ' 	ObjExcel.Cells(1, intvw_date_excel_col).Value = "Intvw Date (" & date_header & ")"
 '
-' 	FOR i = col_to_use to col_to_use + 5									'formatting the cells'
-' 		objExcel.Cells(1, i).Font.Bold = True		'bold font'
-' 		ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-' 		objExcel.Columns(i).AutoFit()				'sizing the columns'
-' 	NEXT
+	FOR i = col_to_use to col_to_use + 2									'formatting the cells'
+		objExcel.Cells(1, i).Font.Bold = True		'bold font'
+		ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+		objExcel.Columns(i).AutoFit()				'sizing the columns'
+	NEXT
 '
-' 	'This is for th end of processing month option - it needs 2 additional columns.
+' 	'This is for the end of processing month option - it needs 2 additional columns.
 ' 	If add_case_note = True Then
 ' 		closure_note_col = col_to_use + 6
 ' 		ObjExcel.Cells(1, closure_note_col).Value = "Close Note"
@@ -1236,135 +1237,118 @@ If report_option = "Create MRSR Report" then
 ' 		ObjExcel.Cells(1, closure_progs_col).Value = "Progs Closed"
 ' 	End If
 '
-' 	recert_cases = 0	            'incrementor for the array
-'
-' 	back_to_self    'We need to get back to SELF and manually update the footer month
-'     Call navigate_to_MAXIS_screen("REPT", "REVS")		'going to REPT REVS where all the information is displayed'
-'     EMWriteScreen REPT_month, 20, 55					'going to the right month
-'     EMWriteScreen REPT_year, 20, 58
-'     transmit
-'
-'     'We are going to look at REPT/REVS for each worker in Hennepin County
-'     For each worker in worker_array
-'     	worker = trim(worker)				'get to the right worker
-'         If worker = "" then exit for
-'     	Call write_value_and_transmit(worker, 21, 6)   'writing in the worker number in the correct col
-'
-'         'Grabbing case numbers from REVS for requested worker
-'     	DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
-'     		row = 7	'Setting or resetting this to look at the top of the list
-'     		DO		'All of this loops until row = 19
-'     			'Reading case information (case number, SNAP status, and cash status)
-'     			EMReadScreen MAXIS_case_number, 8, row, 6
-'     			MAXIS_case_number = trim(MAXIS_case_number)
-'     			EMReadScreen SNAP_status, 1, row, 45
-'     			EMReadScreen cash_status, 1, row, 39
-'                 EmReadscreen HC_status, 1, row, 49
-' 				EMReadScreen MAGI_status, 4, row, 55
-' 				EMReadScreen recvd_date, 8, row, 62
-' 				EMReadScreen intvw_date, 8, row, 72
-'
-'     			'Navigates though until it runs out of case numbers to read
-'     			IF MAXIS_case_number = "" then exit do
-'
-'     			'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
-'     			If cash_status = "-" 	then cash_status = ""
-'     			If SNAP_status = "-" 	then SNAP_status = ""
-'     			If HC_status = "-" 		then HC_status = ""
-'
-' 				ReDim Preserve mont_array(notes_const, recert_cases)		'resizing the array
-'
-' 				'Adding the case information to the array
-' 				mont_array(worker_const, recert_cases) = worker
-' 				mont_array(case_number_const, recert_cases) = trim(MAXIS_case_number)
-' 				mont_array(CASH_revw_status_const, recert_cases) = cash_status
-' 				mont_array(SNAP_revw_status_const, recert_cases) = SNAP_status
-' 				mont_array(HC_revw_status_const, recert_cases) = HC_status
-' 				mont_array(HC_MAGI_code_const, recert_cases) = trim(MAGI_status)
-' 				mont_array(review_recvd_const, recert_cases) = replace(recvd_date, " ", "/")
-' 				If mont_array(review_recvd_const, recert_cases) = "__/__/__" Then mont_array(review_recvd_const, recert_cases) = ""
-' 				mont_array(interview_date_const, recert_cases) = replace(intvw_date, " ", "/")
-' 				If mont_array(interview_date_const, recert_cases) = "__/__/__" Then mont_array(interview_date_const, recert_cases) = ""
-' 				mont_array(saved_to_excel_const, recert_cases) = FALSE
-'
-'                 recert_cases = recert_cases + 1
-' 				STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
-'
-'     			row = row + 1    'On the next loop it must look to the next row
-'     			MAXIS_case_number = "" 'Clearing variables before next loop
-'     		Loop until row = 19		'Last row in REPT/REVS
-'     		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
-'     		PF8
-'     		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-'             'if max reviews are reached, the goes to next worker is applicable
-'     	Loop until last_page_check = "THIS IS THE LAST PAGE"
-'     next
-' 	Call back_to_SELF
-'
-'
-' 	'Now we are going to look at the Excel spreadsheet that has all of the reviews saved.
-' 	excel_row = "2"		'starts at row 2'
-' 	Do
-' 		case_number_to_check = trim(ObjExcel.Cells(excel_row, 2).Value)			'getting the case number from the spreadsheet
-' 		found_in_array = FALSE													'variale to identify if we have found this case in our array
-' 		MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
-' 		'Here we look through the entire array until we find a match
-' 		For revs_item = 0 to UBound(mont_array, 2)
-' 			If mont_array(saved_to_excel_const, revs_item) = FALSE Then
-' 				If case_number_to_check = mont_array(case_number_const, revs_item) Then		'if the case numbers match we have found our case.
-' 					'Entering information from the array into the excel spreadsheet
-' 					If mont_array(CASH_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = mont_array(CASH_revw_status_const, revs_item)
-' 					If mont_array(SNAP_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = mont_array(SNAP_revw_status_const, revs_item)
-' 					If mont_array(HC_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = mont_array(HC_revw_status_const, revs_item)
-' 					If mont_array(HC_MAGI_code_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, magi_stat_excel_col).Value = mont_array(HC_MAGI_code_const, revs_item)
-' 					If mont_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = mont_array(review_recvd_const, revs_item)
-' 					If mont_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = mont_array(interview_date_const, revs_item)
-' 					found_in_array = TRUE			'this lets the script know that this case was found in the array
-' 					mont_array(saved_to_excel_const, revs_item) = TRUE
-'
-' 					Call add_autoclose_case_note(mont_array(CASH_revw_status_const, revs_item), mont_array(SNAP_revw_status_const, revs_item), mont_array(HC_revw_status_const, revs_item), mont_array(review_recvd_const, revs_item), mont_array(interview_date_const, revs_item))
-'
-' 					Exit For						'if we found a match, we should stop looking
-' 				End If
-' 			End If
-' 		Next
-' 		'if the case was not found in the array, we need to look in STAT for the information
-' 		If found_in_array = FALSE AND case_number_to_check <> "" Then
-' 			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
-'
-' 			' MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
-' 			call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)		'Go to STAT REVW and be sure the case is not privleged.
-' 			If is_this_priv = FALSE Then
-' 				EMReadScreen recvd_date, 8, 13, 37										'Reading the CAF Received Date and format
-' 				recvd_date = replace(recvd_date, " ", "/")
-' 				if recvd_date = "__/__/__" then recvd_date = ""
-'
-' 				EMReadScreen interview_date, 8, 15, 37									'Reading the interview date and format
-' 				interview_date = replace(interview_date, " ", "/")
-' 				if interview_date = "__/__/__" then interview_date = ""
-'
-' 				EMReadScreen cash_review_status, 1, 7, 40								'Reading the review status and format
-' 				EMReadScreen snap_review_status, 1, 7, 60
-' 				EMReadScreen hc_review_status, 1, 7, 73
-' 				If cash_review_status = "_" Then cash_review_status = ""
-' 				If snap_review_status = "_" Then snap_review_status = ""
-' 				If hc_review_status = "_" Then hc_review_status = ""
-'
-' 				If cash_review_status <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = cash_review_status		'Enter all the information into Excel
-' 				If snap_review_status <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = snap_review_status
-' 				If hc_review_status <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = hc_review_status
-' 				If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
-' 				If interview_date <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = interview_date
-'
-' 				Call add_autoclose_case_note(cash_review_status, snap_review_status, hc_review_status, recvd_date, interview_date)
-'
-' 			End If
-'
-' 			Call back_to_SELF		'Back out in case we need to look into another case.
-' 		End If
-' 		excel_row = excel_row + 1		'going to the next excel
-' 	Loop until case_number_to_check = ""
-' 	excel_row = excel_row - 1
+	recert_cases = 0	            'incrementor for the array
+
+	back_to_self    'We need to get back to SELF and manually update the footer month
+    Call navigate_to_MAXIS_screen("REPT", "MRSR")		'going to REPT REVS where all the information is displayed'
+    EMWriteScreen REPT_month, 20, 54					'going to the right month
+    EMWriteScreen REPT_year, 20, 57
+    transmit
+
+    'We are going to look at REPT/REVS for each worker in Hennepin County
+    For each worker in worker_array
+    	worker = trim(worker)				'get to the right worker
+        If worker = "" then exit for
+    	Call write_value_and_transmit(worker, 21, 6)   'writing in the worker number in the correct col
+
+        'Grabbing case numbers from REVS for requested worker
+    	DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
+    		row = 7	'Setting or resetting this to look at the top of the list
+    		DO		'All of this loops until row = 19
+    			'Reading case information (case number, SNAP status, and cash status)
+    			EMReadScreen MAXIS_case_number, 8, row, 6
+    			MAXIS_case_number = trim(MAXIS_case_number)
+				EMReadScreen cash_status, 1, row, 45
+    			EMReadScreen SNAP_status, 1, row, 53
+				EMReadScreen recvd_date, 8, row, 72
+
+    			'Navigates though until it runs out of case numbers to read
+    			IF MAXIS_case_number = "" then exit do
+
+				ReDim Preserve mont_array(notes_const, recert_cases)		'resizing the array
+
+				'Adding the case information to the array
+				mont_array(worker_const, recert_cases) = worker
+				mont_array(case_number_const, recert_cases) = trim(MAXIS_case_number)
+				mont_array(cash_hrf_const, recert_cases) = cash_status
+				mont_array(snap_hrf_const, recert_cases) = SNAP_status
+				mont_array(review_recvd_const, recert_cases) = replace(recvd_date, " ", "/")
+				If mont_array(review_recvd_const, recert_cases) = "////////" Then mont_array(review_recvd_const, recert_cases) = ""
+				mont_array(saved_to_excel_const, recert_cases) = FALSE
+
+                recert_cases = recert_cases + 1
+				STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
+
+    			row = row + 1    'On the next loop it must look to the next row
+    			MAXIS_case_number = "" 'Clearing variables before next loop
+    		Loop until row = 19		'Last row in REPT/REVS
+    		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
+    		PF8
+    		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
+            'if max reviews are reached, the goes to next worker is applicable
+    	Loop until last_page_check = "THIS IS THE LAST PAGE"
+    next
+	Call back_to_SELF
+
+	'Now we are going to look at the Excel spreadsheet that has all of the reviews saved.
+	excel_row = "2"		'starts at row 2'
+	Do
+		case_number_to_check = trim(ObjExcel.Cells(excel_row, 2).Value)			'getting the case number from the spreadsheet
+		found_in_array = FALSE													'variale to identify if we have found this case in our array
+		MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
+		'Here we look through the entire array until we find a match
+		For revs_item = 0 to UBound(mont_array, 2)
+			If mont_array(saved_to_excel_const, revs_item) = FALSE Then
+				If case_number_to_check = mont_array(case_number_const, revs_item) Then		'if the case numbers match we have found our case.
+					'Entering information from the array into the excel spreadsheet
+					If mont_array(cash_hrf_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_mont_excel_col).Value = mont_array(cash_hrf_const, revs_item)
+					If mont_array(snap_hrf_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, stat_mont_excel_col).Value = mont_array(snap_hrf_const, revs_item)
+					If mont_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = mont_array(review_recvd_const, revs_item)
+					found_in_array = TRUE			'this lets the script know that this case was found in the array
+					mont_array(saved_to_excel_const, revs_item) = TRUE
+
+					' Call add_autoclose_case_note(mont_array(CASH_revw_status_const, revs_item), mont_array(SNAP_revw_status_const, revs_item), mont_array(HC_revw_status_const, revs_item), mont_array(review_recvd_const, revs_item), mont_array(interview_date_const, revs_item))
+
+					Exit For						'if we found a match, we should stop looking
+				End If
+			End If
+		Next
+		'if the case was not found in the array, we need to look in STAT for the information
+		If found_in_array = FALSE AND case_number_to_check <> "" Then
+			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
+
+			' MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
+			call navigate_to_MAXIS_screen_review_PRIV("STAT", "MONT", is_this_priv)		'Go to STAT REVW and be sure the case is not privleged.
+			If is_this_priv = FALSE Then
+				EMReadScreen recvd_date, 8, 6, 39										'Reading the CAF Received Date and format
+				recvd_date = replace(recvd_date, " ", "/")
+				if recvd_date = "__/__/__" then recvd_date = ""
+
+				EMReadScreen cash_mont_status, 1, 7, 40								'Reading the review status and format
+				EMReadScreen snap_mont_status, 1, 7, 60
+				If cash_review_status = "_" Then cash_review_status = ""
+				If snap_mont_status = "_" Then snap_mont_status = ""
+
+				If cash_mont_status <> "" Then ObjExcel.Cells(excel_row, cash_mont_excel_col).Value = cash_mont_status		'Enter all the information into Excel
+				If snap_mont_status <> "" Then ObjExcel.Cells(excel_row, stat_mont_excel_col).Value = snap_mont_status
+				If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
+
+				' Call add_autoclose_case_note(cash_mont_status, snap_review_status, hc_review_status, recvd_date, interview_date)
+
+			End If
+
+			Call back_to_SELF		'Back out in case we need to look into another case.
+		End If
+		excel_row = excel_row + 1		'going to the next excel
+	Loop until case_number_to_check = ""
+	excel_row = excel_row - 1
+
+	'Saves and closes the main reivew report
+	objWorkbook.Save()
+	objExcel.ActiveWorkbook.Close
+	objExcel.Application.Quit
+	objExcel.Quit
+
 ' 	'Now we will check for any cases that have been ADDED to REVS since we created the report or last ran statistics.
 ' 	For revs_item = 0 to UBound(mont_array, 2)
 ' 		If mont_array(saved_to_excel_const, revs_item) = FALSE Then
