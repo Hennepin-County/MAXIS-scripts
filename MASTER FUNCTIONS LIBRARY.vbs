@@ -124,30 +124,30 @@ If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not pr
 'All 10-day cutoff dates are provided in POLI/TEMP TE19.132
 IF CM_mo = "01" AND CM_yr = "22" THEN
     ten_day_cutoff_date = #01/20/2022#
-ELSEIF CM_mo = "02" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #02/18/2021#
-ELSEIF CM_mo = "03" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #03/19/2021#
-ELSEIF CM_mo = "04" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #04/20/2021#
-ELSEIF CM_mo = "05" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #05/20/2021#
-ELSEIF CM_mo = "06" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #06/18/2021#
-ELSEIF CM_mo = "07" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #07/21/2021#
-ELSEIF CM_mo = "08" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #08/19/2021#
-ELSEIF CM_mo = "09" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #09/20/2021#
-ELSEIF CM_mo = "10" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #10/21/2021#
-ELSEIF CM_mo = "11" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #11/18/2021#
+ELSEIF CM_mo = "02" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #02/17/2022#
+ELSEIF CM_mo = "03" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #03/21/2022#
+ELSEIF CM_mo = "04" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #04/20/2022#
+ELSEIF CM_mo = "05" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #05/19/2022#
+ELSEIF CM_mo = "06" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #06/17/2022#
+ELSEIF CM_mo = "07" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #07/21/2022#
+ELSEIF CM_mo = "08" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #08/19/2022#
+ELSEIF CM_mo = "09" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #09/20/2022#
+ELSEIF CM_mo = "10" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #10/20/2022#
+ELSEIF CM_mo = "11" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #11/18/2022#
+ELSEIF CM_mo = "12" AND CM_yr = "22" THEN
+    ten_day_cutoff_date = #12/21/2022#
 ELSEIF CM_mo = "12" AND CM_yr = "21" THEN
-    ten_day_cutoff_date = #12/21/2021#
-ELSEIF CM_mo = "12" AND CM_yr = "20" THEN
-    ten_day_cutoff_date = #12/21/2020#                                'last month of current year
+    ten_day_cutoff_date = #12/21/2021#                                'last month of current year
 ELSE
 	MsgBox "You have entered a date (" & CM_mo & "/" & CM_yr & ") not supported by this function. Please contact a scripts administrator to determine if the script requires updating.", vbInformation + vbSystemModal, "NOTICE"
 END IF
