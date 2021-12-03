@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/03/2021", "Suggested Q-Flow population basket information added for EGA: X127EQ2 and X127EP8.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/07/2021", "Updated Suggested Q-Flow population to include DWP baskets (FE7,FE8, and FE9) and changed FAD poplution to Families.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/30/2021", "Suggested Q-Flow population basket information updated.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/03/2020", "Removed TIKL and email functionality for follow ups. Q-Flow ticket number field and suggested Q-Flow population information added.", "Ilse Ferris, Hennepin County")
@@ -175,7 +176,6 @@ If basket_number = "X127EP6" then suggested_population = "Adults"
 If basket_number = "X127EP7" then suggested_population = "Adults"
 If basket_number = "X127EP8" then suggested_population = "Adults"
 If basket_number = "X127EQ1" then suggested_population = "Adults"
-If basket_number = "X127EQ2" then suggested_population = "Adults"
 If basket_number = "X127EQ3" then suggested_population = "Adults"
 If basket_number = "X127EQ4" then suggested_population = "Adults"
 If basket_number = "X127EQ5" then suggested_population = "Adults"
@@ -193,6 +193,9 @@ If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adul
 If basket_number = "X127FE7" then suggested_population = "DWP"
 If basket_number = "X127FE8" then suggested_population = "DWP"
 If basket_number = "X127FE9" then suggested_population = "DWP"
+
+If basket_number = "X127EP8" then suggested_population = "EGA"
+If basket_number = "X127EQ2" then suggested_population = "EGA"
 
 If basket_number = "X127ES1" then suggested_population = "Families"
 If basket_number = "X127ES2" then suggested_population = "Families"
