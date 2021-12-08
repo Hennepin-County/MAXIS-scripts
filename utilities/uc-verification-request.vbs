@@ -105,15 +105,16 @@ CALL check_for_MAXIS(False)
 Call back_to_SELF
 EMReadScreen MX_region, 10, 22, 48
 MX_region = trim(MX_region)
-'If MX_region = "INQUIRY DB" Then
-'	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
-'	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
-'End If
+If MX_region = "INQUIRY DB" Then
+	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
+	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
+End If
 send_email = TRUE
 IF MX_region = "TRAINING" THEN developer_mode = TRUE
 
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 'navigating to stat memb to gather the ref number and name.
 IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
+
 DO
     CALL HH_member_custom_dialog(HH_member_array)
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
@@ -240,9 +241,9 @@ FOR uc_membs = 0 to Ubound(uc_members_array, 2) 'start at the zero person and go
     member_info = member_info & vbNewLine & "Please review deductions and withholdings for this individual. " & vbNewLine
 NEXT
 
-IF team_email_dropdown = "ES Support" THEN team_email_dropdown = "HSPH.ES.DEED"
+IF team_email_dropdown = "ES Support" THEN team_email = "HSPH.ES.DEED@Hennepin.us"
 IF team_email_dropdown = "HC in METs" THEN team_email = "James.Berka@Hennepin.us; diane.beauchamp@hennepin.us"
-IF team_email_dropdown = "1800 Chicago" THEN team_email= "Jennifer.Moses@Hennepin.us"
+IF team_email_dropdown = "1800 Chicago" THEN team_email = "Jennifer.Moses@Hennepin.us"
 
 IF cca_checkbox = CHECKED THEN member_info = "CCA Request" & vbNewLine & member_info
 IF other_checkbox = CHECKED and other_check_editbox <> "" THEN member_info = "Other Request: " & other_check_editbox & vbNewLine & member_info
