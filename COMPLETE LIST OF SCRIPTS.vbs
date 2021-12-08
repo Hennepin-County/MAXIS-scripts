@@ -2165,6 +2165,20 @@ script_array(script_num).used_for_elig			= False
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "MONT Report"
+' script_array(script_num).description 			= "Template for noting Medical Service Questionaires (MSQ)."
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("MFIP", "Adult Cash", "Income", "Monthly Tasks")
+script_array(script_num).dlg_keys               = array("Cn", "Ex")
+script_array(script_num).subcategory            = array()
+script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "MSQ"
 ' script_array(script_num).description 			= "Template for noting Medical Service Questionaires (MSQ)."
 script_array(script_num).category               = "NOTES"
