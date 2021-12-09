@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "ADMIN - REVIEW REPORT.vbs"
+name_of_script = "ADMIN - MONT REPORT.vbs"
 start_time = timer
 STATS_counter = 1			     'sets the stats counter at one
 STATS_manualtime = 	100			 'manual run time in seconds
@@ -534,8 +534,13 @@ end function
 'strings for use in Excel formulas
 is_not_blank = chr(34) & "<>" & chr(34)
 is_blank = chr(34) & chr(34)
-is_true = chr(34)&"TRUE"&chr(34)
-is_false = chr(34)&"FALSE"&chr(34)
+is_true = chr(34)&"=TRUE"&chr(34)
+is_false = chr(34)&"=FALSE"&chr(34)
+is_N = chr(34)&"=N"&chr(34)
+is_A = chr(34)&"=A"&chr(34)
+is_I = chr(34)&"=I"&chr(34)
+is_T = chr(34)&"=T"&chr(34)
+is_U = chr(34)&"=U"&chr(34)
 
 'These are the constants that we need to create tables in Excel
 Const xlSrcRange = 1
@@ -627,6 +632,8 @@ Else
     REPT_month = CM_plus_1_mo
     REPT_year  = CM_plus_1_yr
 End if
+REPT_month = "11"
+REPT_year = "21"
 
 'The End of Processing Month option is mostly 'collecting statistics' just with adding a CNOTE
 If report_option = "End of Processing Month" Then
@@ -1056,8 +1063,52 @@ If report_option = "Create MRSR Report" then
 
     'Formatting the columns to autofit after they are all finished being created.
     FOR i = 1 to 19
-    	objExcel.Columns(i).autofit()
+    	ObjExcel.Columns(i).autofit()
     Next
+
+	table1Range = t1_REVW_type_letter & "A1:S" & excel_row - 1
+	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "Table1"
+
+	ObjExcel.Worksheets.Add().Name = "STATISTICS"
+
+	ObjExcel.Cells(1, 1).value = "Number of Cases with HRF"
+	ObjExcel.Cells(2, 1).value = "Cash HRFs"
+	ObjExcel.Cells(3, 1).value = "SNAP HRFs"
+	ObjExcel.Cells(4, 1).value = "HRF for BOTH"
+
+	ObjExcel.Cells(1, 2).value = "=COUNTIF(Table1[X number]," & chr(34) & "<>" & chr(34) & ")"
+	ObjExcel.Cells(2, 2).value = "=COUNTIF(Table1[Cash HRF]," & chr(34) & "=TRUE" & chr(34) & ")"
+	ObjExcel.Cells(3, 2).value = "=COUNTIF(Table1[SNAP HRF]," & chr(34) & "=TRUE" & chr(34) & ")"
+	ObjExcel.Cells(4, 2).value = "=COUNTIFS(Table1[Cash HRF]," & chr(34) & "=TRUE" & chr(34) & ",Table1[SNAP HRF]," & chr(34) & "=TRUE" & chr(34) & ")"
+
+	ObjExcel.Columns(1).autofit()
+	ObjExcel.Columns(2).autofit()
+
+	ObjExcel.Cells(1, 7).Value = "Code N"
+	ObjExcel.Cells(1, 9).Value = "Code A"
+	ObjExcel.Cells(1, 11).Value = "Code I"
+	ObjExcel.Cells(1, 13).Value = "Code U"
+	ObjExcel.Cells(1, 15).Value = "Code T"
+	For i = 7 to 15 Step 2
+		ObjExcel.Cells(2, i).Value = "Count"
+		ObjExcel.Cells(2, i+1).Value = "Percent"
+	Next
+	ObjExcel.ActiveWorkbook.ActiveSheet.Range("G1:H1").Merge
+	ObjExcel.Cells(1, 7).HorizontalAlignment = -4108
+	ObjExcel.ActiveWorkbook.ActiveSheet.Range("I1:J1").Merge
+	ObjExcel.Cells(1, 9).HorizontalAlignment = -4108
+	ObjExcel.ActiveWorkbook.ActiveSheet.Range("K1:L1").Merge
+	ObjExcel.Cells(1, 11).HorizontalAlignment = -4108
+	ObjExcel.ActiveWorkbook.ActiveSheet.Range("M1:N1").Merge
+	ObjExcel.Cells(1, 13).HorizontalAlignment = -4108
+	ObjExcel.ActiveWorkbook.ActiveSheet.Range("O1:P1").Merge
+	ObjExcel.Cells(1, 15).HorizontalAlignment = -4108
+
+	FOR i = 1 to 4
+		objExcel.Cells(i, 1).Font.Bold = TRUE
+	Next
+
+	objExcel.worksheets(report_date & " MRSR Report").Activate
 
     'Saves and closes the main reivew report
     objWorkbook.Save()
@@ -1176,6 +1227,8 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 		MAXIS_footer_month = REPT_month							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
 		MAXIS_footer_year = REPT_year
 	End If
+	last_processing_day = REPT_month & "/1/" & REPT_year
+	last_processing_day = DateAdd("d", -1, last_processing_day)
 '
 ' 	info_sheet_name = replace(excel_file_path, t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\", "")
 '
@@ -1342,6 +1395,118 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 		excel_row = excel_row + 1		'going to the next excel
 	Loop until case_number_to_check = ""
 	excel_row = excel_row - 1
+
+	objExcel.worksheets("STATISTICS").Activate
+
+	excel_row = 4
+	Do
+		excel_row = excel_row + 1
+	Loop Until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
+
+
+	If DateDiff("d", last_processing_day, date) >= 0 Then
+		With ObjExcel.ActiveSheet.Range("A" & excel_row & ":C" & excel_row)
+			With .Borders(8)	'Top'
+				.LineStyle = 1
+				.Weight = 4
+				.ColorIndex = -4105
+			End With
+		End With
+		ObjExcel.Cells(excel_row, 1).Value = "Cases Terminated (" & date_header & ")"
+		ObjExcel.Cells(excel_row, 1).Font.Bold = True
+		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], "&is_N&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_I&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_U&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_T&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_N&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_I&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_U&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_T&")"
+		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+		excel_row = excel_row + 1
+
+		ObjExcel.Cells(excel_row, 1).Value = "CASH Terminated (" & date_header & ")"
+		ObjExcel.Cells(excel_row, 1).Font.Bold = True
+		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], "&is_N&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_I&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_U&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_T&")"
+		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+		excel_row = excel_row + 1
+
+		ObjExcel.Cells(excel_row, 1).Value = "SNAP Terminated (" & date_header & ")"
+		ObjExcel.Cells(excel_row, 1).Font.Bold = True
+		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], "&is_N&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_I&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_U&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_T&")"
+		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+		excel_row = excel_row + 1
+	End If
+
+	ObjExcel.Cells(excel_row, 1).Value = "HRFs Received (" & date_header & ")"
+	ObjExcel.Cells(excel_row, 1).Font.Bold = True
+	ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[HRF Date (" & date_header & ")], " & chr(34) & "<>" & chr(34) & ")"
+	ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+
+	excel_row = 4
+	Do
+		excel_row = excel_row + 1
+	Loop Until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
+
+	bottom_edge = "E" & excel_row+1 & ":P" & excel_row+1
+	box_array = Array("G" & excel_row & ":H" & excel_row+1, "I" & excel_row & ":J" & excel_row+1, "K" & excel_row & ":L" & excel_row+1, "M" & excel_row & ":N" & excel_row+1, "O" & excel_row & ":P" & excel_row+1)
+
+	ObjExcel.Cells(excel_row, 5).Value = date
+	ObjExcel.Cells(excel_row, 6).Value = "CASH"
+	ObjExcel.Cells(excel_row+1, 6).Value = "SNAP"
+
+	ObjExcel.Cells(excel_row, 7).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_N & ")"
+	ObjExcel.Cells(excel_row+1, 7).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_N & ")"
+	ObjExcel.Cells(excel_row, 8).Value = "=G" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 8).Value = "=G" & excel_row+1 & "/B3"
+
+
+	ObjExcel.Cells(excel_row, 9).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_A & ")"
+	ObjExcel.Cells(excel_row+1, 9).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_A & ")"
+	ObjExcel.Cells(excel_row, 10).Value = "=I" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 10).Value = "=I" & excel_row+1 & "/B3"
+
+	ObjExcel.Cells(excel_row, 11).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_I & ")"
+	ObjExcel.Cells(excel_row+1, 11).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_I & ")"
+	ObjExcel.Cells(excel_row, 12).Value = "=K" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 12).Value = "=K" & excel_row+1 & "/B3"
+
+	ObjExcel.Cells(excel_row, 13).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_U & ")"
+	ObjExcel.Cells(excel_row+1, 13).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_U & ")"
+	ObjExcel.Cells(excel_row, 14).Value = "=M" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 14).Value = "=M" & excel_row+1 & "/B3"
+
+	ObjExcel.Cells(excel_row, 15).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_T & ")"
+	ObjExcel.Cells(excel_row+1, 15).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_T & ")"
+	ObjExcel.Cells(excel_row, 16).Value = "=O" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 16).Value = "=O" & excel_row+1 & "/B3"
+
+	For each range in box_array
+		With ObjExcel.ActiveSheet.Range(range)
+			With .Borders(7)	'left'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+			With .Borders(8)	'Top'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+			With .Borders(9)	'Bottom'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+			With .Borders(10)	'Right'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+		End With
+	Next
+	With ObjExcel.ActiveSheet.Range(bottom_edge)
+		With .Borders(9)	'Bottom'
+			.LineStyle = 1
+			.Weight = 4
+			.ColorIndex = -4105
+		End With
+	End With
+
+	objExcel.worksheets(report_date & " MRSR Report").Activate
 
 	'Saves and closes the main reivew report
 	objWorkbook.Save()
