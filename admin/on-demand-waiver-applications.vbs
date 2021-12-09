@@ -248,17 +248,18 @@ file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Im
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 316, 175, "Select the source file"
+  DropListBox 185, 75, 125, 45, "Select One..."+chr(9)+"Brooke Reiley"+chr(9)+"Deborah Lechner"+chr(9)+"Jacob Arco"+chr(9)+"Jessica Hall"+chr(9)+"Keith Semmelink"+chr(9)+"Kerry Walsh"+chr(9)+"Louise Kinzer"+chr(9)+"Mandora Young", qi_member_on_ONDEMAND
   EditBox 5, 125, 260, 15, file_selection_path
   ButtonGroup ButtonPressed
     PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
     OkButton 205, 155, 50, 15
     CancelButton 260, 155, 50, 15
-  Text 5, 5, 305, 25, "This script will send Appointment Notices and NOMIs or update for denials when no interview has been completed. Once an interview has taken place, this script no longer takes action on the case."
-  Text 5, 35, 255, 10, "Cases with an interview completed should have the interview listed on PROG."
-  Text 5, 50, 310, 10, "An Appointment Notice will be sent on any case without a case note of appointment notice sent."
-  Text 5, 65, 300, 10, "A NOMI will be sent once the appointment date indicated on Appointment Notice has passed."
-  Text 5, 80, 305, 20, "A denial will be indicated when a case reaches day 30 (unless the NOMI did not go out until day 30 or after)."
-  Text 5, 105, 295, 15, "Click the BROWSE button and select the BOBI report for today. Once selected, click 'OK'. There will be no additional input needed until the script run is complete."
+  Text 5, 5, 305, 25, "This script will send Appointment Notices and NOMIs after reviewing cases from the BOBI for today. Once completed, this script will create a WorkList for QI to complete any additional manual review or updates."
+  Text 5, 35, 80, 10, "Scrript Requirements:"
+  Text 10, 50, 45, 10, "- Production"
+  Text 10, 60, 75, 10, "- Heavy use of Excel"
+  Text 10, 80, 175, 10, "Select the QI Member assigned to On Demand today:"
+  Text 5, 105, 295, 20, "Click the BROWSE button and select the BOBI report for today. Once selected, click 'OK'. There will be no additional input needed until the script run is complete."
   Text 5, 150, 195, 20, "Reminder, do not use Excel during the time the script is running. The script needs to use Excel."
 EndDialog
 
@@ -340,7 +341,14 @@ const issue_item_three      = 38
 const email_ym_three        = 39
 const qi_worker_three       = 40
 
-const error_notes 			= 41
+const add_to_daily_worklist = 41
+const intvw_quest_resolve	= 42
+const email_worker_from_wl	= 43
+const email_issue_from_wl	= 44
+const rept_pnd2_listed_days	= 45
+const additional_app_date 	= 46
+
+const error_notes 			= 47
 
 'Constants for columns in the working excel sheet - to make the excel code easier to read.
 const worker_id_col         = 1
@@ -351,6 +359,20 @@ const cash_stat_col         = 5
 const app_date_col          = 6
 const intvw_date_col        = 7
 const quest_intvw_date_col  = 8
+const rept_pnd2_days_col		= 6		'worklist'
+const wl_app_date_col 			= 7		'worklist'
+const wl_intvw_date_col        	= 8		'worklist'
+const wl_quest_intvw_date_col  	= 9		'worklist'
+const wl_resolve_quest_intvw_col	= 10	'worklist'
+const wl_appt_notc_date_col   	= 11	'worklist'
+const wl_appt_date_col         	= 12	'worklist'
+const wl_nomi_date_col         	= 13	'worklist'
+const wl_day_30_col 			= 14	'worklist'
+const wl_deny_col 				= 15	'worklist'
+const wl_action_taken_col 		= 16	'worklist'
+const wl_work_notes_col			= 17	'worklist'
+const wl_email_worker_col		= 18	'worklist'
+const wl_email_issue_col		= 19	'worklist'
 
 const appt_notc_date_col    = 9
 const appt_date_col         = 10
@@ -380,6 +402,10 @@ const sup_name_three_col    = 30
 const issue_item_three_col  = 31
 const email_ym_three_col    = 32
 const qi_worker_three_col   = 33
+
+next_working_day = DateAdd("d", 1, date)
+Call change_date_to_soonest_working_day(next_working_day, "FORWARD")
+DateDiff("d", date, next_working_day) = number_of_days_until_next_working_day
 
 'ARRAY used to store ALL the cases listed on the BOBI today
 Dim TODAYS_CASES_ARRAY()
@@ -671,10 +697,13 @@ For case_entry = 0 to UBOUND(TODAYS_CASES_ARRAY, 2)     'now we are going to loo
     End If
 Next
 
+list_of_baskets_at_display_limit = ""
+cases_to_alert_BZST = ""
 'Now we are going to start gathering information from MAXIS
 'Excel will not be accessed during this loop - we could add msgbox to let worker know that excel is available.
 For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     MAXIS_case_number	= ALL_PENDING_CASES_ARRAY(case_number, case_entry)        'setting this so that nav functionality works
+	ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
     'MsgBox ALL_PENDING_CASES_ARRAY(case_number, case_entry)
     CALL back_to_SELF
     CALL navigate_to_MAXIS_screen("CASE", "CURR")
@@ -685,6 +714,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     If priv_check = "PRIVIL" THEN
         priv_case_list = priv_case_list & "|" & MAXIS_case_number
         ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = TRUE
+		ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+		ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "PRIVILEGED CASE. " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
     ElseIf county_check <> "27" THEN
         ALL_PENDING_CASES_ARRAY(out_of_co, case_entry) = "OUT OF COUNTY - " & county_check
     ElseIf case_removed_in_MAXIS = "INVALID CASE NUMBER" Then
@@ -708,6 +739,32 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 
             ALL_PENDING_CASES_ARRAY(client_name, case_entry) = last_name & ", " & first_name & " " & middle_initial     'this is how the BOBI lists names so we want them to match
         End If
+
+		If ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = "" Then
+			Call back_to_SELF
+			Call navigate_to_MAXIS_screen("REPT", "PND2")
+			EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
+			If pnd2_disp_limit = "Display Limit" Then
+				TRANSMIT
+				ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
+				If Instr(list_of_baskets_at_display_limit, ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)) = 0 Then list_of_baskets_at_display_limit = list_of_baskets_at_display_limit & ", " & ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+			End If
+			row = 1                                             'searching for the CASE NUMBER to read from the right row
+			col = 1
+			EMSearch MAXIS_case_number, row, col
+			If row <> 24 and row <> 0 Then
+				EMReadScreen nbr_days_pending, 3, row, 50
+				ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = trim(nbr_days_pending)
+				EMReadScreen additional_application_check, 14, row + 1, 17                 'looking to see if this case has a secondary application date entered
+				IF additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+					multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
+					EMReadScreen additional_application_date, 8, row + 1, 38               'reading the app date from the other application line
+					additional_application_date = replace(additional_application_date, " ", "/")
+					ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = additional_application_date
+					' ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+				END IF
+			End If
+		End If
 
         'PROG to determine programs pending and interview dates
         Call navigate_to_MAXIS_screen("STAT", "PROG")
@@ -1701,55 +1758,55 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                                 nomi_last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))
                                 'ensuring that we have given the client an additional10days fromt he day nomi sent'
                                 IF DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), nomi_last_contact_day) < 1 then nomi_last_contact_day = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
-                                'GOING TO SEE IF A DENIAL CNOTE EXISTS
-                                Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
-                                day_before_app = DateAdd("d", -1, ALL_PENDING_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date'
-                                note_row = 5        'these always need to be reset when looking at Case note
-                                note_date = ""
-                                note_title = ""
-                                appt_date = ""
-                                Need_NOTE = TRUE
-                                Do                  'this do-loop moves down the list of case notes - looking at each row in MAXIS
-                                    EMReadScreen note_date, 8, note_row, 6      'reading the date of the row
-                                    EMReadScreen note_title, 55, note_row, 25   'reading the header of the note
-                                    note_title = trim(note_title)               'trim it down
-
-                                    'Looking for the Denial Header'
-                                    If left(note_title, 8) = "~ Denied" AND right(note_title, 12) = "via script ~" Then
-                                        Need_NOTE = FALSE
-                                        Exit Do
-                                    End If
-									If left(note_title, 8) = "~ Denied" Then
-                                        Need_NOTE = FALSE
-                                        Exit Do
-                                    End If
-									If left(note_title, 8) = " ~ Denie" Then 'sometimes the spacing is wonky'
-                                        Need_NOTE = FALSE
-                                        Exit Do
-                                    End If
-                                    IF note_date = "        " then Exit Do      'if the case is new, we will hit blank note dates and we don't need to read any further
-                                    note_row = note_row + 1                     'going to the next row to look at the next notws
-                                    IF note_row = 19 THEN                       'if we have reached the end of the list of case notes then we will go to the enxt page of notes
-                                        PF8
-                                        note_row = 5
-                                    END IF
-                                    EMReadScreen next_note_date, 8, note_row, 6 'looking at the next note date
-                                    IF next_note_date = "        " then Exit Do
-                                Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
-                                go_to_top_of_notes
-
-                                If Need_NOTE = TRUE Then
-                                    Call start_a_blank_case_note
-                                    Call write_variable_in_case_note("~ Denied " & programs & " ~")
-                                	Call write_bullet_and_variable_in_case_note("Application date", ALL_PENDING_CASES_ARRAY(application_date, case_entry))
-                                    Call write_variable_in_case_note("* Reason for denial: interview was not completed timely.")
-                                    Call write_variable_in_case_note("* Confirmed client was provided sufficient 10 day notice.")
-                                    Call write_bullet_and_variable_in_case_note("NOMI sent to client on ", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
-                                    Call write_variable_in_case_note("---")
-                                    Call write_variable_in_CASE_NOTE(worker_signature)
-                                    'MsgBox "What casenote was sent?"
-                                    PF3
-                                End If
+                                'GOING TO SEE IF A DENIAL CNOTE EXISTS - REMOVING AS LAURIE WILL NOT BE DOING THE DENIAL
+                                ' Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
+                                ' day_before_app = DateAdd("d", -1, ALL_PENDING_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date'
+                                ' note_row = 5        'these always need to be reset when looking at Case note
+                                ' note_date = ""
+                                ' note_title = ""
+                                ' appt_date = ""
+                                ' Need_NOTE = TRUE
+                                ' Do                  'this do-loop moves down the list of case notes - looking at each row in MAXIS
+                                '     EMReadScreen note_date, 8, note_row, 6      'reading the date of the row
+                                '     EMReadScreen note_title, 55, note_row, 25   'reading the header of the note
+                                '     note_title = trim(note_title)               'trim it down
+								'
+                                '     'Looking for the Denial Header'
+                                '     If left(note_title, 8) = "~ Denied" AND right(note_title, 12) = "via script ~" Then
+                                '         Need_NOTE = FALSE
+                                '         Exit Do
+                                '     End If
+								' 	If left(note_title, 8) = "~ Denied" Then
+                                '         Need_NOTE = FALSE
+                                '         Exit Do
+                                '     End If
+								' 	If left(note_title, 8) = " ~ Denie" Then 'sometimes the spacing is wonky'
+                                '         Need_NOTE = FALSE
+                                '         Exit Do
+                                '     End If
+                                '     IF note_date = "        " then Exit Do      'if the case is new, we will hit blank note dates and we don't need to read any further
+                                '     note_row = note_row + 1                     'going to the next row to look at the next notws
+                                '     IF note_row = 19 THEN                       'if we have reached the end of the list of case notes then we will go to the enxt page of notes
+                                '         PF8
+                                '         note_row = 5
+                                '     END IF
+                                '     EMReadScreen next_note_date, 8, note_row, 6 'looking at the next note date
+                                '     IF next_note_date = "        " then Exit Do
+                                ' Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
+                                ' go_to_top_of_notes
+								'
+                                ' If Need_NOTE = TRUE Then
+                                '     Call start_a_blank_case_note
+                                '     Call write_variable_in_case_note("~ Denied " & programs & " ~")
+                                ' 	Call write_bullet_and_variable_in_case_note("Application date", ALL_PENDING_CASES_ARRAY(application_date, case_entry))
+                                '     Call write_variable_in_case_note("* Reason for denial: interview was not completed timely.")
+                                '     Call write_variable_in_case_note("* Confirmed client was provided sufficient 10 day notice.")
+                                '     Call write_bullet_and_variable_in_case_note("NOMI sent to client on ", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
+                                '     Call write_variable_in_case_note("---")
+                                '     Call write_variable_in_CASE_NOTE(worker_signature)
+                                '     'MsgBox "What casenote was sent?"
+                                '     PF3
+                                ' End If
                                 'msgbox nbr_days_pending
                                 Call back_to_SELF
 
@@ -1776,6 +1833,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
                             END IF
                         Else
                             ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = "NOT ON PND2 - process manually - " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+							ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
                         END IF
                     END IF
                 END IF
@@ -1802,24 +1860,34 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     ObjWorkExcel.Cells(row, nomi_date_col).Value = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
     ObjWorkExcel.Cells(row, nomi_confirm_col).Value = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
 
-	add_red_formatting = FALSE
-	IF ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE THEN add_red_formatting = TRUE
-	IF ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" THEN add_red_formatting = TRUE
+	If IsNumeric(ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry)) = True Then
+		days_pending_nbr = ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) * 1
+		For next_day = 0 to number_of_days_until_next_working_day
+			If days_pending_nbr + next_day = 30 Then ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+		Next
+	End If
 
-	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Denial Failed") <> 0 THEN add_red_formatting = TRUE
-	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "NOT ON PND2 - process manually - ") <> 0 THEN add_red_formatting = TRUE
+	IF ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+	IF ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
 
-	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???" THEN add_red_formatting = TRUE
-	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual Appt Notice" THEN add_red_formatting = TRUE
-	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI" THEN add_red_formatting = TRUE
-	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" THEN add_red_formatting = TRUE
-	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***" THEN add_red_formatting = TRUE
-	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" THEN add_red_formatting = TRUE
+	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Denial Failed") <> 0 THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "NOT ON PND2 - process manually - ") <> 0 THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
 
-	IF add_red_formatting = TRUE THEN
-		ObjWorkExcel.Rows(row).Font.Bold = TRUE
-		ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
-	END IF
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???" THEN
+		ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+		cases_to_alert_BZST = cases_to_alert_BZST & ", " & MAXIS_case_number
+	End If
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual Appt Notice" THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI" THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***" THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+	IF ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+	If ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = TRUE Then ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+	If ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) <> "" Then ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+	' IF add_red_formatting = TRUE THEN
+	' 	ObjWorkExcel.Rows(row).Font.Bold = TRUE
+	' 	ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
+	' END IF
 
     ObjWorkExcel.Cells(row, need_deny_col).Value = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""
     ObjWorkExcel.Cells(row, deny_notc_confirm_col).Value = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
@@ -1829,6 +1897,98 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "process manually") <> 0 THEN ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
     'ObjWorkExcel.Cells(row, ) = ALL_PENDING_CASES_ARRAY(, case_entry)
 Next
+
+date_month = DatePart("m", date)
+date_day = DatePart("d", date)
+date_year = DatePart("yyyy", date)
+date_header = date_month & "-" & date_day "-" & date_year
+worksheet_header = "Work List for " & date_header
+
+daily_worklist_template_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/Archive/Worklist Template.xlsx"
+daily_worklist_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_header & " Worklist.xlsx"
+
+call excel_open(daily_worklist_template_path, True, True, ObjDailyWorkListExcel, objWorkListWorkbook)
+
+ObjDailyWorkListExcel.ActiveWorkbook.SaveAs daily_worklist_path
+
+ObjDailyWorkListExcel.worksheets("CASE LIST").Activate
+ObjDailyWorkListExcel.ActiveSheet.Name = worksheet_header
+
+excel_row = 2
+count_cases_on_wl = 0		'we are counting the case types for Statistics on the work list
+count_denials = 0			'we could use Excel function BUT this will be less changable
+count_priv = 0
+count_manual_appt_notc = 0
+count_manual_nomis = 0
+count_quest_intvw = 0
+For case_entry = 0 to UBound(ALL_PENDING_CASES_ARRAY, 2)
+	If ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE Then
+
+		If ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = "" Then
+			MAXIS_case_number = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+			Call back_to_SELF
+			Call navigate_to_MAXIS_screen("REPT", "PND2")
+			EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
+			If pnd2_disp_limit = "Display Limit" Then
+				TRANSMIT
+				ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
+			End If
+			row = 1                                             'searching for the CASE NUMBER to read from the right row
+			col = 1
+			EMSearch MAXIS_case_number, row, col
+			If row <> 24 and row <> 0 Then
+				EMReadScreen nbr_days_pending, 3, row, 50
+				ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = trim(nbr_days_pending)
+			End If
+		End If
+		ObjDailyWorkListExcel.Cells(excel_row, worker_id_col).Value 				= ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, case_nbr_col).Value 					= ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, case_name_col).Value 				= ALL_PENDING_CASES_ARRAY(client_name, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, snap_stat_col).Value 				= ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, cash_stat_col).Value 				= ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, rept_pnd2_days_col).Value 			= ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, wl_app_date_col).Value 				= ALL_PENDING_CASES_ARRAY(application_date, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, wl_intvw_date_col).Value 			= ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, wl_quest_intvw_date_col).Value 		= ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, wl_resolve_quest_intvw_col).Value 	= ALL_PENDING_CASES_ARRAY(intvw_quest_resolve, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, wl_appt_notc_date_col).Value 		= ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, wl_appt_date_col).Value 				= ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, wl_nomi_date_col).Value 				= ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+		ObjDailyWorkListExcel.Cells(excel_row, wl_day_30_col).Value 				= "=[@[Application Date]]+30"
+		' ObjDailyWorkListExcel.Cells(excel_row, wl_action_taken_col).Value 			=
+		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" OR ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***" Then ObjDailyWorkListExcel.Cells(excel_row, wl_deny_col).Value = "TRUE"
+		ObjDailyWorkListExcel.Cells(excel_row, wl_work_notes_col).Value 			= ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+		' ObjDailyWorkListExcel.Cells(excel_row, wl_email_worker_col).Value 		= ALL_PENDING_CASES_ARRAY(email_worker_from_wl, case_entry)
+		' ObjDailyWorkListExcel.Cells(excel_row, wl_email_issue_col).Value 			= ALL_PENDING_CASES_ARRAY(email_issue_from_wl, case_entry)
+		' ObjDailyWorkListExcel.Cells(excel_row, COLUMN).Value = ALL_PENDING_CASES_ARRAY(CONSTANT, case_entry)
+		' ObjDailyWorkListExcel.Cells(excel_row, COLUMN).Value = ALL_PENDING_CASES_ARRAY(CONSTANT, case_entry)
+
+		count_cases_on_wl = count_cases_on_wl + 1
+		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" OR ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***" Then count_denials = count_denials + 1
+		If ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = True Then count_priv = count_priv + 1
+		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual Appt Notice" Then count_manual_appt_notc = count_manual_appt_notc + 1
+		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI" Then count_manual_nomis = count_manual_nomis + 1
+		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" Then count_quest_intvw = count_quest_intvw + 1
+
+		excel_row = excel_row + 1
+	End If
+Next
+
+qi_worklist_threshold_reached = False
+If count_cases_on_wl > 99 Then qi_worklist_threshold_reached = True
+
+ObjDailyWorkListExcel.worksheets("Statistics").Activate
+ObjDailyWorkListExcel.Cells(2, 2).Value = date
+ObjDailyWorkListExcel.Cells(3, 2).Value = time
+ObjDailyWorkListExcel.Cells(4, 2).Value = count_cases_on_wl
+ObjDailyWorkListExcel.Cells(5, 2).Value = count_denials
+ObjDailyWorkListExcel.Cells(6, 2).Value = count_priv
+ObjDailyWorkListExcel.Cells(7, 2).Value = count_manual_appt_notc
+ObjDailyWorkListExcel.Cells(8, 2).Value = count_manual_nomis
+ObjDailyWorkListExcel.Cells(9, 2).Value = count_quest_intvw
+
+objWorkListWorkbook.Save
+ObjDailyWorkListExcel.Quit
 
 'Now the script reopens the daily list that was identified in the beginning
 call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
@@ -2206,5 +2366,31 @@ Next
 
 objStatsWorkbook.Save
 ObjStatsExcel.Quit
+
+qi_member_email = replace(qi_member_on_ONDEMAND, " ", ".") & "@hennepin.us"
+cc_email = "jennifer.frey@hennepin.us"
+If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; jennifer.frey@hennepin.us"
+
+email_subject = "On Demand List is Ready"
+If qi_worklist_threshold_reached = True Then email_subject = email_subject & " - HELP NEEDED"
+email_body = "Hello " & qi_member_on_ONDEMAND & "," & vbCr & vbCr
+email_body = email_body & "The worklist is completed and ready to be worked. All cases on the list should be reveiwed." & vbCr
+email_body = email_body & "There are " & count_cases_on_wl & " cases on the worklist." & vbCr
+If qi_worklist_threshold_reached = True Then email_body = email_body & "As the list is so large, help has been requested via email to the QUALITY IMPROVEMENT email. If you are NOT on the assignment today and have capacity to assist, contact " & qi_member_on_ONDEMAND & "." & vbCr
+email_body = email_body & "Access the Wsorklist here: " & daily_worklist_path & vbCr
+email_body = email_body & "Please contact Jennifer if you have issues with the list or questions about the assignment." & vbCr & vbCr
+email_body = email_body & "Thank you!"
+
+Call create_outlook_email(qi_member_email, cc_email, email_subject, email_body, "", True)
+
+If list_of_baskets_at_display_limit <> "" Then
+
+End If
+
+If cases_to_alert_BZST <> "" Then
+	If left(cases_to_alert_BZST, 1) = "," Then cases_to_alert_BZST = right(cases_to_alert_BZST, len(cases_to_alert_BZST)-1)
+	cases_to_alert_BZST = trim(cases_to_alert_BZST)
+	Call create_outlook_email("", "", "ON DEMAND Could not determine next action needed", "These cases have an unknown issue... " & cases_to_alert_BZST, "", True)
+End If
 
 script_end_procedure_with_error_report("It worked!")  'WE'RE DONE!
