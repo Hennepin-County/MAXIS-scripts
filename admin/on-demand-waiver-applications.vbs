@@ -73,6 +73,15 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 '----------------------------------------------------------------------------------------------------Custom function
+Function File_Exists(file_name, does_file_exist)
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    If (fso.FileExists(file_name)) Then
+        does_file_exist = True
+    Else
+      does_file_exist = False
+    End If
+End Function
+
 function start_a_new_spec_memo_and_continue(success_var)
 '--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
 '===== Keywords: MAXIS, notice, navigate, edit
@@ -695,6 +704,31 @@ For case_entry = 0 to UBOUND(TODAYS_CASES_ARRAY, 2)     'now we are going to loo
         add_a_case = add_a_case + 1     'incrementing the counter for this ARRAY
         row = row + 1                   'going to the next row so that we don't overwrite the information we just added
     End If
+Next
+
+previous_date = dateadd("d", -1, date)
+Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
+archive_folder = DatePart("yyyy", previous_date) & "-" & right("0" & DatePart("m", previous_date), 2)
+
+archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\" & archive_folder
+
+previous_date_month = DatePart("m", previous_date)
+previous_date_day = DatePart("d", previous_date)
+previous_date_year = DatePart("yyyy", previous_date)
+previous_date_header = date_month & "-" & date_day "-" & date_year
+
+previous_list_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & previous_date_header & " Worklist.xlsx"
+Call File_Exists(previous_list_file_selection_path, does_file_exist)
+
+
+If does_file_exist = True Then
+	'open the file 
+	'Pull info into a NEW array of prevvious day work.
+	'close the file
+End If
+
+For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
+	'CHECK THE LIST and compare it against the previous day work to capture any important details
 Next
 
 list_of_baskets_at_display_limit = ""
@@ -2279,38 +2313,16 @@ Next
 'Saving the Daily List
 objWorkbook.Save
 
-statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\2020 Statistics Tracking.xlsx"
+this_year = DatePart("yyyy", date)
+this_month = MonthName(Month(date))
+
+statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\" & this_year & " Statistics Tracking.xlsx"
 call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
 
 'Now we need to open the right worksheet
 'Select Case MonthName(Month(#2/15/21#)) 'will need to be updated for future dates and tracking
+sheet_selection = this_month & " " & this_year
 
-Select Case MonthName(Month(date))
-    Case "January"
-        sheet_selection = "January 2020"
-    Case "February"
-        sheet_selection = "February 2020"
-    Case "March"
-        sheet_selection = "March 2020"
-    Case "April"
-        sheet_selection = "April 2020"
-    Case "May"
-        sheet_selection = "May 2020"
-    Case "June"
-        sheet_selection = "June 2020"
-    Case "July"
-        sheet_selection = "July 2020"
-    Case "August"
-        sheet_selection = "August 2020"
-    Case "September"
-        sheet_selection = "September 2020"
-    Case "October"
-        sheet_selection = "October 2020"
-    Case "November"
-        sheet_selection = "November 2020"
-    Case "December"
-        sheet_selection = "December 2020"
-End Select
 'Activates worksheet based on user selection
 ObjStatsExcel.worksheets(sheet_selection).Activate   'activates the stat worksheet.'
 
@@ -2337,7 +2349,6 @@ For action_case = 0 to UBOUND(ACTION_TODAY_CASES_ARRAY, 2)      'looping through
         ObjStatsExcel.Cells(stats_excel_nomi_row, 1).Value = ALL_PENDING_CASES_ARRAY(case_number, action_case)        'Adding the case number to the statistics sheet
         ObjStatsExcel.Cells(stats_excel_nomi_row, 2).Value = ALL_PENDING_CASES_ARRAY(application_date, action_case)   'Adding the date of application to the statistics sheet
         ObjStatsExcel.Cells(stats_excel_nomi_row, 3).Value = date                                                    'Adding today's date of the NOMI date for the stats sheet
-        ObjStatsExcel.Cells(stats_excel_nomi_row, 4).Value = 1                                                       'Need to count - this is always 1
         stats_excel_nomi_row = stats_excel_nomi_row + 1
     End If
 Next
@@ -2369,6 +2380,7 @@ ObjStatsExcel.Quit
 
 qi_member_email = replace(qi_member_on_ONDEMAND, " ", ".") & "@hennepin.us"
 cc_email = "jennifer.frey@hennepin.us"
+cc_email = ""
 If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; jennifer.frey@hennepin.us"
 
 email_subject = "On Demand List is Ready"
@@ -2384,13 +2396,25 @@ email_body = email_body & "Thank you!"
 Call create_outlook_email(qi_member_email, cc_email, email_subject, email_body, "", True)
 
 If list_of_baskets_at_display_limit <> "" Then
-
+	If left(list_of_baskets_at_display_limit, 1) = "," Then list_of_baskets_at_display_limit = right(list_of_baskets_at_display_limit, len(list_of_baskets_at_display_limit)-1)
+	list_of_baskets_at_display_limit = trim(list_of_baskets_at_display_limit)
+	basket_email_subject = "Baskets at Display Limit for PND2"
+	basket_email_body = "Good morning," & vbCr & vbCr
+	basket_email_body = basket_email_body & "It appears there are some baskets in which the REPT/PND2 Display limit has been reached." & vbCr
+	basket_email_body = basket_email_body & "The following baskets were identified during the On Demand Application process:" & vbCr
+	basket_email_body = basket_email_body & list_of_baskets_at_display_limit & vbCr & vbCr
+	' basket_email_body = basket_email_body & "" & vbCr
+	basket_email_body = basket_email_body & "Thank you!" & vbCr
+	Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us", "hsph.ews.bluezonescripts@hennepin.us", basket_email_subject, basket_email_body, "", True)
 End If
 
 If cases_to_alert_BZST <> "" Then
 	If left(cases_to_alert_BZST, 1) = "," Then cases_to_alert_BZST = right(cases_to_alert_BZST, len(cases_to_alert_BZST)-1)
 	cases_to_alert_BZST = trim(cases_to_alert_BZST)
-	Call create_outlook_email("", "", "ON DEMAND Could not determine next action needed", "These cases have an unknown issue... " & cases_to_alert_BZST, "", True)
+	Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "", "ON DEMAND Could not determine next action needed", "These cases have an unknown issue... " & cases_to_alert_BZST, "", True)
 End If
 
-script_end_procedure_with_error_report("It worked!")  'WE'RE DONE!
+If does_file_exist = True then objFSO.MoveFile previous_list_file_selection_path , archive_files & "\QI " & previous_date_header & " Worklist.xlsx"    'moving each file to the archive file
+
+
+script_end_procedure_with_error_report("The Daily On Demand Assignment has been created. Emails have been sent regarding the case discovery and work to be completed.")  'WE'RE DONE!
