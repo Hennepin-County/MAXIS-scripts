@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/10/2021", "Suggested Q-Flow population basket information added for FAD GRH: X127EZ2.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/03/2021", "Suggested Q-Flow population basket information added for EGA: X127EQ2 and X127EP8.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/07/2021", "Updated Suggested Q-Flow population to include DWP baskets (FE7,FE8, and FE9) and changed FAD poplution to Families.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/30/2021", "Suggested Q-Flow population basket information updated.", "Ilse Ferris, Hennepin County")
@@ -219,7 +220,6 @@ If basket_number = "X127F4E" then suggested_population = "Families"
 If basket_number = "X127F3H" then suggested_population = "Families"
 If basket_number = "X127FB7" then suggested_population = "Families"
 If basket_number = "X127EZ1" then suggested_population = "Families"
-If basket_number = "X127EZ2" then suggested_population = "Families"
 If basket_number = "X127EZ3" then suggested_population = "Families"
 If basket_number = "X127EZ4" then suggested_population = "Families"
 If basket_number = "X127EZ5" then suggested_population = "Families"
@@ -227,6 +227,8 @@ If basket_number = "X127EZ6" then suggested_population = "Families"
 If basket_number = "X127EZ7" then suggested_population = "Families"
 If basket_number = "X127EZ8" then suggested_population = "Families"
 If basket_number = "X127F3K" then suggested_population = "Families"  'MA-EPD FAD Basket
+
+If basket_number = "X127EZ2" then suggested_population = "FAD GRH"
 
 If basket_number = "X127EH9" then suggested_population = "LTH"
 If basket_number = "X127EM2" then suggested_population = "LTH"
