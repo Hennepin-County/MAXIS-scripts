@@ -91,6 +91,31 @@ const faci_entry_col_const 					= 37
 const faci_release_col_const 				= 38
 const faci_release_in_30_col_const 			= 39
 const script_run_date_col_const 			= 40
+const script_run_col_const					= 41
+
+const disc_case_nbr_col_const 			= 1
+const disc_exp_det_col_const 			= 2
+const disc_app_in_5_col_const 			= 3
+const disc_app_in_7_col_const 			= 4
+const disc_appl_date_col_const 			= 5
+const disc_bdays_appl_notc_col_const 	= 6
+const disc_cdays_appl_notc_col_const 	= 7
+const disc_notc_date_col_const 			= 8
+const disc_bdays_notc_intv_col_const 	= 9
+const disc_cdays_notc_intv_col_const 	= 10
+const disc_intv_date_col_const 			= 11
+const disc_app_date_col_const 			= 12
+const disc_id_col_const 				= 13
+const disc_app_delays_col_const 		= 14
+const disc_income_col_const 			= 15
+const disc_asset_col_const 				= 16
+const disc_shelter_col_const 			= 17
+const disc_utilities_col_const 			= 18
+const disc_screening_col_const 			= 19
+const disc_wworker_col_const 			= 20
+const disc_bdays_appl_app_col_const 	= 21
+const disc_cdays_appl_app_col_const 	= 22
+
 'END DECLARATIONS BLOCK ====================================================================================================
 
 'There is no EMConnect and no MAXIS checking because this script does not use MAXIS at all
@@ -115,9 +140,26 @@ Set objFolder = objFSO.GetFolder(exp_assignment_folder)										'Creates an oje
 Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
 
 'Open an existing Excel for the year
-report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\2021 EXP Determination Report Out.xlsx"
+report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination Report Out.xlsx"
+discovery_template_worklist_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Jake's Discovery\"
+discovery_template_file = discovery_template_worklist_path & "Discovery Template.xlsx"
+
+date_month = DatePart("m", date)
+date_day = DatePart("d", date)
+date_year = DatePart("yyyy", date)
+date_header = date_month & "-" & date_day & "-" & date_year
+disc_file_name = "Case List from " & date_header & ".xlsx"
+
+daily_worklist_path = discovery_template_worklist_path & disc_file_name
+
+' daily_worklist_template_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/Archive/Worklist Template.xlsx"
+' daily_worklist_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_header & " Worklist.xlsx"
 
 Call excel_open(report_out_file, True, True, ObjExcel, objWorkbook)  			'opens the selected excel file'
+Call excel_open(discovery_template_file, True, True, ObjDISCExcel, objDISCWorkbook)  			'opens the selected excel file'
+
+ObjDISCExcel.ActiveWorkbook.SaveAs daily_worklist_path
+ObjDISCExcel.worksheets("CASE LIST").Activate
 
 For Each objWorkSheet In objWorkbook.Worksheets									'looking through each of the worksheets to find the 'ALL CASES' worksheet
     If instr(objWorkSheet.Name, "ALL CASES") <> 0 Then
@@ -193,6 +235,8 @@ ObjExcel.Cells(1, faci_entry_col_const).Value 					= "FACI ENTRY"
 ObjExcel.Cells(1, faci_release_col_const).Value 				= "FACI RELEASE"
 ObjExcel.Cells(1, faci_release_in_30_col_const).Value 			= "FACI RELEASE IN 30"
 ObjExcel.Cells(1, script_run_date_col_const).Value 				= "DATE OF SCRIPT RUN"
+ObjExcel.Cells(1, script_run_col_const).Value 					= "SCRIPT RUN"
+
 ObjExcel.Rows(1).Font.Bold = True
 
 excel_row = 2		'setting the first row
@@ -255,12 +299,17 @@ For Each objFile in colFiles																'looping through each file
 			If line_info(0) = "FACI ENTRY DATE" 						Then ObjExcel.Cells(total_excel_row, faci_entry_col_const).Value  = line_info(1)
 			If line_info(0) = "FACI RELEASE DATE" 						Then ObjExcel.Cells(total_excel_row, faci_release_col_const).Value  = line_info(1)
 			If line_info(0) = "FACI RELEASE IN 30 DAYS" 				Then ObjExcel.Cells(total_excel_row, faci_release_in_30_col_const).Value  = line_info(1)
-            If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(total_excel_row, script_run_date_col_const).Value = line_info(1)
+			If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(total_excel_row, script_run_date_col_const).Value = line_info(1)
+            If line_info(0) = "SCRIPT RUN"                      		Then ObjExcel.Cells(total_excel_row, script_run_col_const).Value = line_info(1)
         End If
     Next
     total_excel_row = total_excel_row + 1										'advance to the next row
 
 	objTODAYWorkSheet.Activate													'opening the daily sheet
+	appl_date = ""
+	notc_date = ""
+	intvw_date = ""
+	app_date = ""
 	For Each text_line in exp_det_details										'read each line in the file
 		If Instr(text_line, "^*^*^") <> 0 Then
 			line_info = split(text_line, "^*^*^")								'creating a small array for each line. 0 has the header and 1 has the information
@@ -308,8 +357,84 @@ For Each objFile in colFiles																'looping through each file
 			If line_info(0) = "FACI RELEASE DATE" 						Then ObjExcel.Cells(excel_row, faci_release_col_const).Value  = line_info(1)
 			If line_info(0) = "FACI RELEASE IN 30 DAYS" 				Then ObjExcel.Cells(excel_row, faci_release_in_30_col_const).Value  = line_info(1)
 			If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(excel_row, script_run_date_col_const).Value = line_info(1)
+			If line_info(0) = "SCRIPT RUN"                      		Then ObjExcel.Cells(excel_row, script_run_col_const).Value = line_info(1)
+
+
+			If line_info(0) = "CASE NUMBER"                             Then ObjDISCExcel.Cells(excel_row, disc_case_nbr_col_const).Value  = line_info(1)
+			If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjDISCExcel.Cells(excel_row, disc_exp_det_col_const).Value  = line_info(1)
+			If line_info(0) = "DATE OF APPLICATION" Then
+				ObjDISCExcel.Cells(excel_row, disc_appl_date_col_const).Value  = line_info(1)
+				appl_date = line_info(1)
+			End If
+
+			If line_info(0) = "APPT NOTC SENT DATE" Then
+				ObjDISCExcel.Cells(excel_row, disc_notc_date_col_const).Value  = line_info(1)
+				notc_date = line_info(1)
+			End If
+
+			If line_info(0) = "DATE OF INTERVIEW" Then
+				ObjDISCExcel.Cells(excel_row, disc_intv_date_col_const).Value  = line_info(1)
+				intvw_date = line_info(1)
+			End If
+			If line_info(0) = "DATE OF APPROVAL" Then
+				ObjDISCExcel.Cells(excel_row, disc_app_date_col_const).Value  = line_info(1)
+				app_date = line_info(1)
+			End If
+			If line_info(0) = "ID ON FILE"                              Then ObjDISCExcel.Cells(excel_row, disc_id_col_const).Value = line_info(1)
+			If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjDISCExcel.Cells(excel_row, disc_app_delays_col_const).Value = line_info(1)
+			If line_info(0) = "DET INCOME" 								Then ObjDISCExcel.Cells(excel_row, disc_income_col_const).Value  = line_info(1)
+			If line_info(0) = "DET ASSETS" 								Then ObjDISCExcel.Cells(excel_row, disc_asset_col_const).Value  = line_info(1)
+			If line_info(0) = "DET SHEL" 								Then ObjDISCExcel.Cells(excel_row, disc_shelter_col_const).Value  = line_info(1)
+			If line_info(0) = "DET HEST" 								Then ObjDISCExcel.Cells(excel_row, disc_utilities_col_const).Value  = line_info(1)
+			If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjDISCExcel.Cells(excel_row, disc_screening_col_const).Value  = line_info(1)
+			If line_info(0) = "WORKER NAME"                             Then ObjDISCExcel.Cells(excel_row, disc_wworker_col_const).Value  = line_info(1)
 		End If
 	Next
+	If IsDate(appl_date) = True Then appl_date = DateAdd("d", 0, appl_date)
+	If IsDate(notc_date) = True Then notc_date = DateAdd("d", 0, notc_date)
+	If IsDate(intvw_date) = True Then intvw_date = DateAdd("d", 0, intvw_date)
+	If IsDate(app_date) = True Then app_date = DateAdd("d", 0, app_date)
+
+	If IsDate(appl_date) = True AND IsDate(notc_date) = True Then
+		count_days = 0
+		Do While DateDiff("d", appl_date, notc_date) <> 0
+			appl_date = DateAdd("d", 1, appl_date)
+			call change_date_to_soonest_working_day(appl_date, "FORWARD")
+			If DateDiff("d", appl_date, notc_date) < 0 Then Exit Do
+			count_days = count_days + 1
+		Loop
+		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = count_days
+	Else
+		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = ""
+	End If
+
+	If IsDate(notc_date) = True AND IsDate(intvw_date) = True Then
+		count_days = 0
+		If notc_date <= intvw_date Then
+			Do While DateDiff("d", notc_date, intvw_date) <> 0
+				notc_date = DateAdd("d", 1, notc_date)
+				call change_date_to_soonest_working_day(notc_date, "FORWARD")
+				If DateDiff("d", notc_date, intvw_date) < 0 Then Exit Do
+				count_days = count_days + 1
+			Loop
+		End If
+		ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = count_days
+	Else
+		ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = ""
+	End If
+
+	If IsDate(appl_date) = True AND IsDate(app_date) = True Then
+		count_days = 0
+		Do While DateDiff("d", appl_date, app_date) <> 0
+			appl_date = DateAdd("d", 1, appl_date)
+			call change_date_to_soonest_working_day(appl_date, "FORWARD")
+			If DateDiff("d", appl_date, app_date) < 0 Then Exit Do
+			count_days = count_days + 1
+		Loop
+		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = count_days
+	Else
+		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = ""
+	End If
 	excel_row = excel_row + 1													'advance to the next row
 
 	STATS_counter = STATS_counter + 1
@@ -352,11 +477,16 @@ For Each objWorkSheet In objWorkbook.Worksheets
 Next
 
 objWorkbook.Save()		'saving the excel
+objDISCWorkbook.Save()		'saving the excel
 
 If leave_excel_open = "No - Close the file" Then		'if the file should be closed - it does it here.
 	objExcel.ActiveWorkbook.Close
+	ObjDISCExcel.ActiveWorkbook.Close
+
 	objExcel.Application.Quit
 	objExcel.Quit
+	ObjDISCExcel.Application.Quit
+	ObjDISCExcel.Quit
 End If
 
 'SAVE EXCEL'
