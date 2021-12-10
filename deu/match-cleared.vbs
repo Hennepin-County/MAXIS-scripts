@@ -681,6 +681,8 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 				TRANSMIT
 			END IF
 			IF resolution_status = "CA-Excess Assets" THEN IULB_notes = "Excess Assets. " & other_notes
+			IF resolution_status = "CB-Ovrpmt And Future Save" THEN IULB_notes = "OP Claim entered and future savings."
+			IF resolution_status = "CC-Overpayment Only" THEN IULB_notes = "Claim entered. See case note. "
 			IF resolution_status = "CI-Benefit Increase" THEN IULB_notes = "Benefit Increase. " & other_notes
 			IF resolution_status = "CP-Applicant Only Savings" THEN IULB_notes = "Applicant Only Savings. " & other_notes
 			IF resolution_status = "BC-Case Closed" THEN IULB_notes = "Case closed. " & other_notes
@@ -710,9 +712,10 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 			Next
 
     	    TRANSMIT
+
     		EMReadScreen MISC_error_check,  74, 24, 02
     		IF trim(MISC_error_check) <> "" THEN
-    			next_steps_message_box = MsgBox("***Next steps***" & vbNewLine & "Transmit?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion,     "Message handling")
+    			next_steps_message_box = MsgBox("***WARNING MESSAGE***" & vbNewLine & "Transmit?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion,     "Message handling")
     			IF next_steps_message_box = vbYes THEN
     				TRANSMIT
     				EMReadScreen panel_name, 4, 02, 52
