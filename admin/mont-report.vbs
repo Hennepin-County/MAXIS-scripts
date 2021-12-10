@@ -632,8 +632,6 @@ Else
     REPT_month = CM_plus_1_mo
     REPT_year  = CM_plus_1_yr
 End if
-REPT_month = "11"
-REPT_year = "21"
 
 'The End of Processing Month option is mostly 'collecting statistics' just with adding a CNOTE
 If report_option = "End of Processing Month" Then
@@ -1083,6 +1081,9 @@ If report_option = "Create MRSR Report" then
 
 	ObjExcel.Columns(1).autofit()
 	ObjExcel.Columns(2).autofit()
+	FOR i = 1 to 4
+		objExcel.Cells(i, 1).Font.Bold = TRUE
+	Next
 
 	ObjExcel.Cells(1, 7).Value = "Code N"
 	ObjExcel.Cells(1, 9).Value = "Code A"
@@ -1090,8 +1091,12 @@ If report_option = "Create MRSR Report" then
 	ObjExcel.Cells(1, 13).Value = "Code U"
 	ObjExcel.Cells(1, 15).Value = "Code T"
 	For i = 7 to 15 Step 2
+		objExcel.Cells(1, i).Font.Bold = TRUE
+		objExcel.Cells(1, i).Font.Size = "12"
 		ObjExcel.Cells(2, i).Value = "Count"
 		ObjExcel.Cells(2, i+1).Value = "Percent"
+		objExcel.Cells(2, i).Font.Bold = TRUE
+		objExcel.Cells(2, i+1).Font.Bold = TRUE
 	Next
 	ObjExcel.ActiveWorkbook.ActiveSheet.Range("G1:H1").Merge
 	ObjExcel.Cells(1, 7).HorizontalAlignment = -4108
@@ -1104,8 +1109,30 @@ If report_option = "Create MRSR Report" then
 	ObjExcel.ActiveWorkbook.ActiveSheet.Range("O1:P1").Merge
 	ObjExcel.Cells(1, 15).HorizontalAlignment = -4108
 
-	FOR i = 1 to 4
-		objExcel.Cells(i, 1).Font.Bold = TRUE
+	box_array = Array("G1:H2", "I1:J2", "K1:L2", "M1:N2", "O1:P2")
+	For each range in box_array
+		With ObjExcel.ActiveSheet.Range(range)
+			With .Borders(7)	'left'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+			With .Borders(8)	'Top'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+			With .Borders(9)	'Bottom'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+			With .Borders(10)	'Right'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+		End With
 	Next
 
 	objExcel.worksheets(report_date & " MRSR Report").Activate
@@ -1416,18 +1443,21 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 		ObjExcel.Cells(excel_row, 1).Font.Bold = True
 		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], "&is_N&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_I&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_U&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_T&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_N&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_I&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_U&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_T&")"
 		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+		ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
 		excel_row = excel_row + 1
 
 		ObjExcel.Cells(excel_row, 1).Value = "CASH Terminated (" & date_header & ")"
 		ObjExcel.Cells(excel_row, 1).Font.Bold = True
 		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], "&is_N&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_I&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_U&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_T&")"
 		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+		ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
 		excel_row = excel_row + 1
 
 		ObjExcel.Cells(excel_row, 1).Value = "SNAP Terminated (" & date_header & ")"
 		ObjExcel.Cells(excel_row, 1).Font.Bold = True
 		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], "&is_N&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_I&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_U&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_T&")"
 		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+		ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
 		excel_row = excel_row + 1
 	End If
 
@@ -1435,11 +1465,12 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 	ObjExcel.Cells(excel_row, 1).Font.Bold = True
 	ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[HRF Date (" & date_header & ")], " & chr(34) & "<>" & chr(34) & ")"
 	ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+	ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
 
-	excel_row = 4
+	excel_row = 2
 	Do
 		excel_row = excel_row + 1
-	Loop Until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
+	Loop Until trim(ObjExcel.Cells(excel_row, 7).Value) = ""
 
 	bottom_edge = "E" & excel_row+1 & ":P" & excel_row+1
 	box_array = Array("G" & excel_row & ":H" & excel_row+1, "I" & excel_row & ":J" & excel_row+1, "K" & excel_row & ":L" & excel_row+1, "M" & excel_row & ":N" & excel_row+1, "O" & excel_row & ":P" & excel_row+1)
@@ -1452,27 +1483,36 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 	ObjExcel.Cells(excel_row+1, 7).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_N & ")"
 	ObjExcel.Cells(excel_row, 8).Value = "=G" & excel_row & "/B2"
 	ObjExcel.Cells(excel_row+1, 8).Value = "=G" & excel_row+1 & "/B3"
-
+	ObjExcel.Cells(excel_row, 8).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 8).NumberFormat = "0.00%"
 
 	ObjExcel.Cells(excel_row, 9).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_A & ")"
 	ObjExcel.Cells(excel_row+1, 9).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_A & ")"
 	ObjExcel.Cells(excel_row, 10).Value = "=I" & excel_row & "/B2"
 	ObjExcel.Cells(excel_row+1, 10).Value = "=I" & excel_row+1 & "/B3"
+	ObjExcel.Cells(excel_row, 10).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 10).NumberFormat = "0.00%"
 
 	ObjExcel.Cells(excel_row, 11).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_I & ")"
 	ObjExcel.Cells(excel_row+1, 11).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_I & ")"
 	ObjExcel.Cells(excel_row, 12).Value = "=K" & excel_row & "/B2"
 	ObjExcel.Cells(excel_row+1, 12).Value = "=K" & excel_row+1 & "/B3"
+	ObjExcel.Cells(excel_row, 12).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 12).NumberFormat = "0.00%"
 
 	ObjExcel.Cells(excel_row, 13).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_U & ")"
 	ObjExcel.Cells(excel_row+1, 13).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_U & ")"
 	ObjExcel.Cells(excel_row, 14).Value = "=M" & excel_row & "/B2"
 	ObjExcel.Cells(excel_row+1, 14).Value = "=M" & excel_row+1 & "/B3"
+	ObjExcel.Cells(excel_row, 14).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 14).NumberFormat = "0.00%"
 
 	ObjExcel.Cells(excel_row, 15).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_T & ")"
 	ObjExcel.Cells(excel_row+1, 15).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_T & ")"
 	ObjExcel.Cells(excel_row, 16).Value = "=O" & excel_row & "/B2"
 	ObjExcel.Cells(excel_row+1, 16).Value = "=O" & excel_row+1 & "/B3"
+	ObjExcel.Cells(excel_row, 16).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 16).NumberFormat = "0.00%"
 
 	For each range in box_array
 		With ObjExcel.ActiveSheet.Range(range)
@@ -1481,11 +1521,11 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 				.Weight = 2
 				.ColorIndex = -4105
 			End With
-			With .Borders(8)	'Top'
-				.LineStyle = 1
-				.Weight = 2
-				.ColorIndex = -4105
-			End With
+			' With .Borders(8)	'Top'
+			' 	.LineStyle = 1
+			' 	.Weight = 2
+			' 	.ColorIndex = -4105
+			' End With
 			With .Borders(9)	'Bottom'
 				.LineStyle = 1
 				.Weight = 2
