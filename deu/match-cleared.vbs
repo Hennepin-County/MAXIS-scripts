@@ -1036,7 +1036,7 @@ If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & 
 	    	PF9
 	    END IF
 
-	    IF match_type = "WAGE" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_quarter & " QTR " & IEVS_year & "WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
+	    IF match_type = "WAGE" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
         IF match_type = "BEER" or match_type = "UNVI" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
         IF match_type = "UBEN" THEN CALL write_variable_in_CCOL_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") CLEARED CC-CLAIM ENTERED " & header_note & "-----")
 	    CALL write_bullet_and_variable_in_CCOL_NOTE("Discovery date", discovery_date)
