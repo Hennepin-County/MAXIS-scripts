@@ -278,9 +278,13 @@ Do
         err_msg = ""
         dialog Dialog1
         cancel_without_confirmation
-        If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+        If ButtonPressed = select_a_file_button then
+			call file_selection_system_dialog(file_selection_path, ".xlsx")
+			err_msg = "LOOP"
+		End If
+		If qi_member_on_ONDEMAND = "Select One..." Then err_msg = err_msg & vbcr & "* Indicate which member of QI is assigned to On Demand today."
         If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."
-        If err_msg <> "" Then MsgBox err_msg
+        If err_msg <> "" and left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbCr & err_msg
     Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -356,8 +360,9 @@ const email_worker_from_wl	= 43
 const email_issue_from_wl	= 44
 const rept_pnd2_listed_days	= 45
 const additional_app_date 	= 46
+const yesterday_action_taken = 47
 
-const error_notes 			= 47
+const error_notes 			= 48
 
 'Constants for columns in the working excel sheet - to make the excel code easier to read.
 const worker_id_col         = 1
@@ -715,20 +720,71 @@ archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvem
 previous_date_month = DatePart("m", previous_date)
 previous_date_day = DatePart("d", previous_date)
 previous_date_year = DatePart("yyyy", previous_date)
-previous_date_header = date_month & "-" & date_day "-" & date_year
+previous_date_header = date_month & "-" & date_day & "-" & date_year
 
 previous_list_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & previous_date_header & " Worklist.xlsx"
 Call File_Exists(previous_list_file_selection_path, does_file_exist)
 
+Dim YESTERDAYS_PENDING_CASES_ARRAY()
+ReDim YESTERDAYS_PENDING_CASES_ARRAY(error_notes, 0)
+yesterday_case_list = 0
 
 If does_file_exist = True Then
-	'open the file 
+	'open the file
+	call excel_open(previous_list_file_selection_path, True, True, ObjYestExcel, objYestWorkbook)
+
+	ObjDailyWorkListExcel.Worksheets("Statistics").visible = True
+	ObjDailyWorkListExcel.worksheets("Statistics").Activate
+	yesterday_worker = ObjYestExcel.Cells(2, 2).Value
+
+	ObjDailyWorkListExcel.worksheets("CASE LIST").Activate
+	ObjDailyWorkListExcel.Worksheets("Statistics").visible = False
+
 	'Pull info into a NEW array of prevvious day work.
+	excel_row = 2
+	Do
+		this_case = trim(ObjYestExcel.Cells(excel_row, case_nbr_col).Value)
+		If this_case <> "" Then
+			ReDim Preserve YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yesterday_case_list)
+
+			YESTERDAYS_PENDING_CASES_ARRAY(worker_ID, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, worker_id_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(case_number, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, case_nbr_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(client_name, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, case_name_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(SNAP_status, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, snap_stat_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(CASH_status, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, cash_stat_col).Value)
+			' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, rept_pnd2_days_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(application_date, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_app_date_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(interview_date, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_intvw_date_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(questionable_intv, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_quest_intvw_date_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(intvw_quest_resolve, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_resolve_quest_intvw_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(appt_notc_sent, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_appt_notc_date_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(appointment_date, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_appt_date_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(nomi_sent, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_nomi_date_col).Value)
+			' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_day_30_col).Value)
+			' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_deny_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_action_taken_col).Value)
+			' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_work_notes_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(worker_name_one, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_email_worker_col).Value)
+			YESTERDAYS_PENDING_CASES_ARRAY(issue_item_one, yesterday_case_list) = trim(ObjYestExcel.Cells(excel_row, wl_email_issue_col).Value)
+
+			yesterday_case_list = yesterday_case_list + 1
+			excel_row = excel_row + 1
+		End If
+	Loop until this_case = ""
+
 	'close the file
+	ObjYestExcel.ActiveWorkbook.Close
+	ObjYestExcel.Application.Quit
+	ObjYestExcel.Quit
 End If
 
 For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 	'CHECK THE LIST and compare it against the previous day work to capture any important details
+	For yest_entry = 0 to UBound(YESTERDAYS_PENDING_CASES_ARRAY, 2)
+		If ALL_PENDING_CASES_ARRAY(case_number, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(case_number, yest_entry) Then
+			If yesterday_worker = qi_member_on_ONDEMAND Then ALL_PENDING_CASES_ARRAY(yesterday_action_taken, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yest_entry)
+		End If
+	Next
 Next
 
 list_of_baskets_at_display_limit = ""
@@ -1935,7 +1991,7 @@ Next
 date_month = DatePart("m", date)
 date_day = DatePart("d", date)
 date_year = DatePart("yyyy", date)
-date_header = date_month & "-" & date_day "-" & date_year
+date_header = date_month & "-" & date_day & "-" & date_year
 worksheet_header = "Work List for " & date_header
 
 daily_worklist_template_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/Archive/Worklist Template.xlsx"
@@ -1991,7 +2047,11 @@ For case_entry = 0 to UBound(ALL_PENDING_CASES_ARRAY, 2)
 		ObjDailyWorkListExcel.Cells(excel_row, wl_day_30_col).Value 				= "=[@[Application Date]]+30"
 		' ObjDailyWorkListExcel.Cells(excel_row, wl_action_taken_col).Value 			=
 		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" OR ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***" Then ObjDailyWorkListExcel.Cells(excel_row, wl_deny_col).Value = "TRUE"
-		ObjDailyWorkListExcel.Cells(excel_row, wl_work_notes_col).Value 			= ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+		If yesterday_worker = qi_member_on_ONDEMAND Then
+			ObjDailyWorkListExcel.Cells(excel_row, wl_work_notes_col).Value 			= ALL_PENDING_CASES_ARRAY(yesterday_action_taken, case_entry) & " - " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+		Else
+			ObjDailyWorkListExcel.Cells(excel_row, wl_work_notes_col).Value 			= ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+		End If
 		' ObjDailyWorkListExcel.Cells(excel_row, wl_email_worker_col).Value 		= ALL_PENDING_CASES_ARRAY(email_worker_from_wl, case_entry)
 		' ObjDailyWorkListExcel.Cells(excel_row, wl_email_issue_col).Value 			= ALL_PENDING_CASES_ARRAY(email_issue_from_wl, case_entry)
 		' ObjDailyWorkListExcel.Cells(excel_row, COLUMN).Value = ALL_PENDING_CASES_ARRAY(CONSTANT, case_entry)
@@ -2011,15 +2071,20 @@ Next
 qi_worklist_threshold_reached = False
 If count_cases_on_wl > 99 Then qi_worklist_threshold_reached = True
 
+ObjDailyWorkListExcel.Worksheets("Statistics").visible = True
 ObjDailyWorkListExcel.worksheets("Statistics").Activate
-ObjDailyWorkListExcel.Cells(2, 2).Value = date
-ObjDailyWorkListExcel.Cells(3, 2).Value = time
-ObjDailyWorkListExcel.Cells(4, 2).Value = count_cases_on_wl
-ObjDailyWorkListExcel.Cells(5, 2).Value = count_denials
-ObjDailyWorkListExcel.Cells(6, 2).Value = count_priv
-ObjDailyWorkListExcel.Cells(7, 2).Value = count_manual_appt_notc
-ObjDailyWorkListExcel.Cells(8, 2).Value = count_manual_nomis
-ObjDailyWorkListExcel.Cells(9, 2).Value = count_quest_intvw
+ObjDailyWorkListExcel.Cells(2, 2).Value = qi_member_on_ONDEMAND
+ObjDailyWorkListExcel.Cells(3, 2).Value = date
+ObjDailyWorkListExcel.Cells(4, 2).Value = time
+ObjDailyWorkListExcel.Cells(5, 2).Value = count_cases_on_wl
+ObjDailyWorkListExcel.Cells(6, 2).Value = count_denials
+ObjDailyWorkListExcel.Cells(7, 2).Value = count_priv
+ObjDailyWorkListExcel.Cells(8, 2).Value = count_manual_appt_notc
+ObjDailyWorkListExcel.Cells(9, 2).Value = count_manual_nomis
+ObjDailyWorkListExcel.Cells(10, 2).Value = count_quest_intvw
+
+ObjDailyWorkListExcel.worksheets("CASE LIST").Activate
+ObjDailyWorkListExcel.Worksheets("Statistics").visible = False
 
 objWorkListWorkbook.Save
 ObjDailyWorkListExcel.Quit
