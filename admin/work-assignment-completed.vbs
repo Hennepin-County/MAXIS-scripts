@@ -111,7 +111,7 @@ If qi_staff = FALSE Then script_end_procedure_with_error_report("This script is 
 
 work_assignment_date = date & ""                'defaulting some of the variables for the initial values
 email_signature = qi_worker_first_name
-type_of_work_assignment = "Expedited Review"
+type_of_work_assignment = "On Demand Applications"
 
 'Dialog to determine who you are and what kind of assignment you finished.
 Dialog1 = ""
