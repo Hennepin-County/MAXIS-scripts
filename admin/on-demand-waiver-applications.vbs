@@ -2069,7 +2069,7 @@ For case_entry = 0 to UBound(ALL_PENDING_CASES_ARRAY, 2)
 Next
 
 qi_worklist_threshold_reached = False
-If count_cases_on_wl > 99 Then qi_worklist_threshold_reached = True
+' If count_cases_on_wl > 99 Then qi_worklist_threshold_reached = True
 
 ObjDailyWorkListExcel.Worksheets("Statistics").visible = True
 ObjDailyWorkListExcel.worksheets("Statistics").Activate
@@ -2454,7 +2454,8 @@ email_body = "Hello " & qi_member_on_ONDEMAND & "," & vbCr & vbCr
 email_body = email_body & "The worklist is completed and ready to be worked. All cases on the list should be reveiwed." & vbCr
 email_body = email_body & "There are " & count_cases_on_wl & " cases on the worklist." & vbCr
 If qi_worklist_threshold_reached = True Then email_body = email_body & "As the list is so large, help has been requested via email to the QUALITY IMPROVEMENT email. If you are NOT on the assignment today and have capacity to assist, contact " & qi_member_on_ONDEMAND & "." & vbCr
-email_body = email_body & "Access the Wsorklist here: " & daily_worklist_path & vbCr
+email_body = email_body & "Access the Worklist here: "
+email_body = email_body & vbCr & "<" & daily_worklist_path & ">"
 email_body = email_body & "Please contact Jennifer if you have issues with the list or questions about the assignment." & vbCr & vbCr
 email_body = email_body & "Thank you!"
 
@@ -2481,5 +2482,5 @@ End If
 
 If does_file_exist = True then objFSO.MoveFile previous_list_file_selection_path , archive_files & "\QI " & previous_date_header & " Worklist.xlsx"    'moving each file to the archive file
 
-
-script_end_procedure_with_error_report("The Daily On Demand Assignment has been created. Emails have been sent regarding the case discovery and work to be completed.")  'WE'RE DONE!
+end_msg = "The Daily On Demand Assignment has been created. Emails have been sent regarding the case discovery and work to be completed." & vbCr & vbCr & "The worklist generated today has " & count_cases_on_wl & " cases, with " & count_denials & " denials."
+script_end_procedure_with_error_report(end_msg)  'WE'RE DONE!
