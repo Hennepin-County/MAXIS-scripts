@@ -155,6 +155,8 @@ Do
 
 Loop until err_msg = ""
 
+
+
 work_assignment_date = FormatDateTime(work_assignment_date, 2)                  'date formats to be sure the year is 4 digits
 month_of_assignment = right("0" & DatePart("m", work_assignment_date), 2)       'Pulling the month and year of the assignment for use in doc names and folders.
 year_of_assignment = DatePart("yyyy", work_assignment_date)
@@ -167,6 +169,9 @@ word_doc_file_path = ""
 'Dialog to gather the details/stats/counts
 Select Case type_of_work_assignment                                             'differen selections/options based on the work assignment selection
 	Case "On Demand Applications"
+		close_worklist_msgbox = MsgBox("This script can only function properly if On Demand Daily Worklist is saved and closed. Be sure you have finished your notes and entered all informationn on the worklist, save it and closed the file." & vbCr & vbCr & "Do it now if you have it open." & vbCr & vbCr & "Is the worklist for this assignment closed?", vbQuestion + vbYesNo, "Close the worklist")
+		If close_worklist_msgbox = vbNo Then script_end_procedure("Complete the work on the list, then save and close the file. Once that is done you can rerun this script to capture the end of the work assignment. This script will now end.")
+
 		file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_for_doc & " Worklist.xlsx"
 
 		Dialog1 = ""
