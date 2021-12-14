@@ -50,7 +50,14 @@ call changelog_update("06/01/2020", "Initial version.", "Casey Love, Hennepin Co
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
+Function File_Exists(file_name, does_file_exist)
+    ' Set objFSO = CreateObject("Scripting.FileSystemObject")
+    If (objFSO.FileExists(file_name)) Then
+        does_file_exist = True
+    Else
+      does_file_exist = False
+    End If
+End Function
 'DECLARATIONS ==============================================================================================================
 
 Const date_col                          = 1                         'These are the constants for the columns in the tracking Excel documents
@@ -254,11 +261,10 @@ Select Case type_of_work_assignment                                             
 
 		today_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_for_doc & " Worklist.xlsx"
 		archive_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/Archive/" & year_of_assignment & "-" & month_of_assignment & "QI " & date_for_doc & " Worklist.xlsx"
-		If work_assignment_date = date Then
-			file_selection_path = today_file_selection_path
-		Else
-			file_selection_path = archive_file_selection_path
-		End if
+
+		Call File_Exists(today_file_selection_path, does_file_exist)
+		If does_file_exist = True Then file_selection_path = today_file_selection_path
+		If does_file_exist = False Then file_selection_path = archive_file_selection_path
 
 		If IsNumeric(assignment_minutes) = FALSE Then assignment_minutes = 0    'creating a time variable with ONLY minutes for the spreadsheet
 		If IsNumeric(assignment_hours) = TRUE Then
@@ -267,7 +273,7 @@ Select Case type_of_work_assignment                                             
 		Else
 			assignment_time = assignment_minutes
 		End If
-
+		case_list_sheet_name = "Work List for " & date_for_doc
 
 		call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
 
@@ -289,7 +295,7 @@ Select Case type_of_work_assignment                                             
 		ObjExcel.Cells(15, 5).Value = assignment_new_ideas
 		ObjExcel.Cells(16, 5).Value = assignment_other_notes
 
-		ObjExcel.worksheets("CASE LIST").Activate
+		ObjExcel.worksheets(case_list_sheet_name).Activate
 		ObjExcel.Worksheets("Statistics").visible = False
 
 		objWorkbook.Save
