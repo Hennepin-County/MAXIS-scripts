@@ -160,7 +160,7 @@ Function declare_main_menu_dialog(script_category)
 
 				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
 				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-				PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
+				' PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
 				PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
 				Text 			120 + 23, 				vert_button_position+1, 500, 		14, 			"--- " & script_array(current_script).description
 				'----------
