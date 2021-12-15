@@ -77,8 +77,7 @@ changelog_display
 
 
 Function File_Exists(file_name, does_file_exist)
-    Set objFSO = CreateObject("Scripting.FileSystemObject")
-    If (fso.FileExists(file_name)) Then
+    If (objFSO.FileExists(file_name)) Then
         does_file_exist = True
     Else
       does_file_exist = False
