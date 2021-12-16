@@ -74,8 +74,8 @@ changelog_display
 
 '----------------------------------------------------------------------------------------------------Custom function
 Function File_Exists(file_name, does_file_exist)
-    Set objFSO = CreateObject("Scripting.FileSystemObject")
-    If (fso.FileExists(file_name)) Then
+    ' Set objFSO = CreateObject("Scripting.FileSystemObject")
+    If (objFSO.FileExists(file_name)) Then
         does_file_exist = True
     Else
       does_file_exist = False
@@ -383,26 +383,27 @@ const nomi_date_col         = 15
 const nomi_confirm_col      = 16
 const need_deny_col         = 17
 const next_action_col       = 18
-const day_30_col            = 19
-const correct_need_col      = 20
+const recent_wl_date_col	= 19
+const day_30_col            = 20
+const correct_need_col      = 21
 
-const worker_name_one_col   = 21
-const sup_name_one_col      = 22
-const issue_item_one_col    = 23
-const email_ym_one_col      = 24
-const qi_worker_one_col     = 25
+const worker_name_one_col   = 22
+const sup_name_one_col      = 23
+const issue_item_one_col    = 24
+const email_ym_one_col      = 25
+const qi_worker_one_col     = 26
 
-const worker_name_two_col   = 26
-const sup_name_two_col      = 27
-const issue_item_two_col    = 28
-const email_ym_two_col      = 29
-const qi_worker_two_col     = 30
+const worker_name_two_col   = 27
+const sup_name_two_col      = 28
+const issue_item_two_col    = 29
+const email_ym_two_col      = 30
+const qi_worker_two_col     = 31
 
-const worker_name_three_col = 31
-const sup_name_three_col    = 32
-const issue_item_three_col  = 33
-const email_ym_three_col    = 34
-const qi_worker_three_col   = 35
+const worker_name_three_col = 32
+const sup_name_three_col    = 33
+const issue_item_three_col  = 34
+const email_ym_three_col    = 35
+const qi_worker_three_col   = 36
 
 const wl_rept_pnd2_days_col		= 6		'worklist'
 const wl_app_date_col 			= 7		'worklist'
@@ -728,7 +729,7 @@ For case_entry = 0 to UBOUND(TODAYS_CASES_ARRAY, 2)     'now we are going to loo
     End If
 Next
 
-MsgBox "Step One - we have gathered the daily list and updated the Working Excel"
+' MsgBox "Step One - we have gathered the daily list and updated the Working Excel"
 
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
@@ -808,7 +809,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 	Next
 Next
 
-MsgBox "Step Two - Now we go do all the things in the MAXIS"
+' MsgBox "Step Two - Now we go do all the things in the MAXIS"
 list_of_baskets_at_display_limit = ""
 cases_to_alert_BZST = ""
 'Now we are going to start gathering information from MAXIS
@@ -817,6 +818,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     MAXIS_case_number	= ALL_PENDING_CASES_ARRAY(case_number, case_entry)        'setting this so that nav functionality works
 	ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
 	If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "NONE - Interview Completed" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""
+	ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = Replace(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Display Limit", "")
+	ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
     'MsgBox ALL_PENDING_CASES_ARRAY(case_number, case_entry)
     CALL back_to_SELF
     CALL navigate_to_MAXIS_screen("CASE", "CURR")
@@ -859,7 +862,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 			EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
 			If pnd2_disp_limit = "Display Limit" Then
 				TRANSMIT
-				ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
+				If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Display Limit") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
 				If Instr(list_of_baskets_at_display_limit, ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)) = 0 Then list_of_baskets_at_display_limit = list_of_baskets_at_display_limit & ", " & ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
 			End If
 			row = 1                                             'searching for the CASE NUMBER to read from the right row
@@ -871,9 +874,34 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 				EMReadScreen additional_application_check, 14, row + 1, 17                 'looking to see if this case has a secondary application date entered
 				IF additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
 					multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
+					EMReadScreen original_application_date, 8, row, 38               'reading the app date from the other application line
+					EMReadScreen original_cash_code, 1, row, 54
+					EMReadScreen original_snap_code, 1, row, 62
+					EMReadScreen original_emer_code, 1, row, 68
+					EMReadScreen original_grh_code, 1, row, 72
+					use_original_app_date = False
+					If original_cash_code <> "_" Then use_original_app_date = True
+					If original_snap_code <> "_" Then use_original_app_date = True
+					If original_emer_code <> "_" Then use_original_app_date = True
+					If original_grh_code <> "_" Then use_original_app_date = True
+
 					EMReadScreen additional_application_date, 8, row + 1, 38               'reading the app date from the other application line
-					additional_application_date = replace(additional_application_date, " ", "/")
-					ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = additional_application_date
+					EMReadScreen additional_cash_code, 1, row + 1, 54
+					EMReadScreen additional_snap_code, 1, row + 1, 62
+					EMReadScreen additional_emer_code, 1, row + 1, 68
+					EMReadScreen additional_grh_code, 1, row + 1, 72
+					use_additional_app_date = False
+					If additional_cash_code <> "_" Then use_additional_app_date = True
+					If additional_snap_code <> "_" Then use_additional_app_date = True
+					If additional_emer_code <> "_" Then use_additional_app_date = True
+					If additional_grh_code <> "_" Then use_additional_app_date = True
+
+					If use_original_app_date = True AND use_additional_app_date = True Then
+						original_application_date = replace(original_application_date, " ", "/")
+						ALL_PENDING_CASES_ARRAY(application_date, case_entry) = original_application_date
+						additional_application_date = replace(additional_application_date, " ", "/")
+						ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = additional_application_date
+					End If
 					' ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
 				END IF
 			End If
@@ -1807,7 +1835,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 						EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
 						If pnd2_disp_limit = "Display Limit" Then
 							TRANSMIT
-							ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
+							If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Display Limit") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
+
 							'msgbox "that happened"
 						END IF
 						row = 1                                             'searching for the CASE NUMBER to read from the right row
@@ -2004,16 +2033,17 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 	' 	ObjWorkExcel.Rows(row).Font.Bold = TRUE
 	' 	ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
 	' END IF
+	If ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE Then ObjWorkExcel.Cells(row, recent_wl_date_col).Value = date
 
     ObjWorkExcel.Cells(row, need_deny_col).Value = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""
     ObjWorkExcel.Cells(row, next_action_col).Value = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
 
-    ObjWorkExcel.Cells(row, correct_need_col) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+    ObjWorkExcel.Cells(row, correct_need_col) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
 	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "process manually") <> 0 THEN ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
     'ObjWorkExcel.Cells(row, ) = ALL_PENDING_CASES_ARRAY(, case_entry)
 Next
 
-MsgBox "Step Three - We are about to make the Worklist"
+' MsgBox "Step Three - We are about to make the Worklist"
 date_month = DatePart("m", date)
 date_day = DatePart("d", date)
 date_year = DatePart("yyyy", date)
@@ -2047,7 +2077,7 @@ For case_entry = 0 to UBound(ALL_PENDING_CASES_ARRAY, 2)
 			EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
 			If pnd2_disp_limit = "Display Limit" Then
 				TRANSMIT
-				ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
+				If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Display Limit") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
 			End If
 			row = 1                                             'searching for the CASE NUMBER to read from the right row
 			col = 1
@@ -2114,7 +2144,7 @@ ObjDailyWorkListExcel.Worksheets("Statistics").visible = False
 
 objWorkListWorkbook.Save
 ObjDailyWorkListExcel.Quit
-MsgBox "Step Four - Worklist DONE"
+' MsgBox "Step Four - Worklist DONE"
 'Now the script reopens the daily list that was identified in the beginning
 call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
 
@@ -2412,7 +2442,7 @@ Next
 
 'Saving the Daily List
 objWorkbook.Save
-MsgBox "Step Five - going to do the stats"
+' MsgBox "Step Five - going to do the stats"
 this_year = DatePart("yyyy", date)
 this_month = MonthName(Month(date))
 
@@ -2477,7 +2507,7 @@ Next
 
 objStatsWorkbook.Save
 ObjStatsExcel.Quit
-MsgBox "Step Six - The emails, the emails, what what, the emails"
+' MsgBox "Step Six - The emails, the emails, what what, the emails"
 qi_member_email = replace(qi_member_on_ONDEMAND, " ", ".") & "@hennepin.us"
 cc_email = "jennifer.frey@hennepin.us"
 cc_email = ""
@@ -2490,7 +2520,7 @@ email_body = email_body & "The worklist is completed and ready to be worked. All
 email_body = email_body & "There are " & count_cases_on_wl & " cases on the worklist." & vbCr
 If qi_worklist_threshold_reached = True Then email_body = email_body & "As the list is so large, help has been requested via email to the QUALITY IMPROVEMENT email. If you are NOT on the assignment today and have capacity to assist, contact " & qi_member_on_ONDEMAND & "." & vbCr
 email_body = email_body & "Access the Worklist here: "
-email_body = email_body & vbCr & "<" & daily_worklist_path & ">"
+email_body = email_body & vbCr & "<" & daily_worklist_path & ">" & vbCr
 email_body = email_body & "Please contact Jennifer if you have issues with the list or questions about the assignment." & vbCr & vbCr
 email_body = email_body & "Thank you!"
 
