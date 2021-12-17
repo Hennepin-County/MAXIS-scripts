@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
 Call changelog_update("10/20/2021", "Updated online document submission option to include MNBenefits. Added Health Care PARIS match WCOM.", "Ilse Ferris, Hennepin County")
 Call changelog_update("09/02/2021", "Added functionality to support sending a WCOM about any Expedited SNAP Postponed Verification.", "Casey Love, Hennepin County")
 Call changelog_update("04/09/2020", "Multiple updates to available WCOMs:##~## - ALL Banked Months WCOMs are removed as no Banked Months are currently being issued.##~## - Added client name information to Temporary Disabled ABAWD WCOM##~## - Added WCOM for Care of Child under 6 Exemption.##~## - Added WCOM for close/deny due to no verifications for when the notice reads 'No Eligible Members'.##~## - Added WCOM for Ineligible Student. ##~## - Added WCOM for Voluntary Quit.##~## - Added WCOM for Future Eligibility Begin Date for SNAP.##~##", "Casey Love, Hennepin County")
@@ -444,7 +445,7 @@ Do
         ReDim array_of_msg_lines(0)
         ReDim WCOM_TO_WRITE_ARRAY (0)
 
-		If clt_virtual_dropbox_checkbox = checked Then CALL add_words_to_message("You can submit documents Online at www.MNBenefits.org or Email with documents attachment. EMAIL: hhsews@hennepin.us (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types).")
+		If clt_virtual_dropbox_checkbox = checked Then CALL add_words_to_message("You can submit documents Online at www.MNBenefits.mn.gov or Email with documents attachment. EMAIL: hhsews@hennepin.us (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types).")
 
         If july_cola_wcom = checked Then
             'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
