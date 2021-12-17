@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -2782,7 +2783,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 						' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
 						' Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
 						' Call write_variable_in_SPEC_MEMO(" ")
-						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+						CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.mn.gov **")
 						CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
 						CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 						CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
@@ -2843,7 +2844,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 						CALL write_variable_in_SPEC_MEMO("")
 						If renewal_guidance_needed = False Then CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
 						If renewal_guidance_needed = True Then
-							CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+							CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.mn.gov **")
 							CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
 							CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 							CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
@@ -3484,7 +3485,7 @@ If renewal_option = "Send NOMIs" Then
 					' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
 					' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
 					' Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
-					CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.org **")
+					CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.mn.gov **")
 					CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
 					CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 					CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
