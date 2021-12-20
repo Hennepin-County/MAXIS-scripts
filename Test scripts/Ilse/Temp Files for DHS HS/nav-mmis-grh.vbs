@@ -16,7 +16,7 @@ collecting_statistics = true
 using_SQL_database = true
 
 'This is the file path for the statistics Access database.
-stats_database_path = "hssqlpw017;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 
 'If the "enhanced database" is used (with new features added in January 2016), this variable should be set to true
 STATS_enhanced_db = true
