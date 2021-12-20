@@ -258,7 +258,7 @@ file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Im
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 316, 175, "Select the source file"
-  DropListBox 185, 75, 125, 45, "Select One..."+chr(9)+"Brooke Reiley"+chr(9)+"Deborah Lechner"+chr(9)+"Jacob Arco"+chr(9)+"Jessica Hall"+chr(9)+"Keith Semmelink"+chr(9)+"Kerry Walsh"+chr(9)+"Louise Kinzer"+chr(9)+"Mandora Young", qi_member_on_ONDEMAND
+  DropListBox 185, 75, 125, 45, "Select One..."+chr(9)+"Brooke Reilley"+chr(9)+"Deborah Lechner"+chr(9)+"Jacob Arco"+chr(9)+"Jessica Hall"+chr(9)+"Keith Semmelink"+chr(9)+"Kerry Walsh"+chr(9)+"Louise Kinzer"+chr(9)+"Mandora Young", qi_member_on_ONDEMAND
   EditBox 5, 125, 260, 15, file_selection_path
   ButtonGroup ButtonPressed
     PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
