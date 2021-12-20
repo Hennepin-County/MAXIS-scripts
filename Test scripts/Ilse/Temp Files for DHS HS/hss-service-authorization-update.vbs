@@ -16,7 +16,7 @@ collecting_statistics = true
 using_SQL_database = true
 
 'This is the file path for the statistics Access database.
-stats_database_path = "hssqlpw017;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 
 'If the "enhanced database" is used (with new features added in January 2016), this variable should be set to true
 STATS_enhanced_db = true
@@ -68,7 +68,7 @@ IF PRISM_script <> true then county_name = ""		'VKC NOTE 08/12/2016: ADDED IF...
 
 If ButtonPressed <> "" then ButtonPressed = ""		'Defines ButtonPressed if not previously defined, allowing scripts the benefit of not having to declare ButtonPressed all the time
 
-'----------------------------------------------------------------------------------------------------Custom Functions 
+'----------------------------------------------------------------------------------------------------Custom Functions
 function transmit()
 '--- This function sends or hits the transmit key.
  '===== Keywords: MAXIS, MMIS, PRISM, transmit
@@ -1207,17 +1207,17 @@ For item = 0 to Ubound(adjustment_array, 2)
         new_agreement_start_date = #07/01/21#
         Call ONLY_create_MAXIS_friendly_date(new_agreement_start_date)
         adjustment_array(adjustment_start_date_const, item) = new_agreement_start_date
-    Else 
+    Else
         Call ONLY_create_MAXIS_friendly_date(adjustment_array(HSS_start_const, item))
         adjustment_array(adjustment_start_date_const, item) = adjustment_array(HSS_start_const, item)
-    End if 
-        
+    End if
+
     'if this date is a negative then the agreement start date is after the HSS start date. Use the agreement start date instead of HSS start date.
-    If DateDiff("d", adjustment_array(agreement_start_const, item), adjustment_array(adjustment_start_date_const, item)) <= 0 then 
+    If DateDiff("d", adjustment_array(agreement_start_const, item), adjustment_array(adjustment_start_date_const, item)) <= 0 then
         Call ONLY_create_MAXIS_friendly_date(adjustment_array(agreement_start_const, item))
         adjustment_array(adjustment_start_date_const, item) = adjustment_array(agreement_start_const, item)
-    End if 
-    
+    End if
+
     'Finding facility panels that may have ended before the HSS start date
     active_facility = False     'default value
     If (adjustment_array(faci_in_const, item) <> "" and adjustment_array(faci_out_const, item) = "") then
@@ -1307,16 +1307,16 @@ For item = 0 to Ubound(adjustment_array, 2)
                 transmit 'to ASA1
                 Call write_value_and_transmit("ASA3", 1, 8)             'Direct navigate to ASA3
                 Call MMIS_panel_confirmation("ASA3", 51)				'ensuring we are on the right MMIS screen
-                
+
                 EmReadscreen line_1_rate, 5, 9, 24
-                If trim(line_1_rate) = "7.94" then 
+                If trim(line_1_rate) = "7.94" then
                     adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 1 already reflects reduction of 7.94."
                     PF6 'cancel
                     transmit 'to re-enter ASA1
                     EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field
                     PF3
                     adjustment_array(reduce_rate_const, item) = False
-                Else     
+                Else
                     'Checking Line 2 to ensure it's blank
                     EmReadscreen line_2_check, 6, 14, 60
                     If trim(line_2_check) <> "" then
@@ -1326,12 +1326,12 @@ For item = 0 to Ubound(adjustment_array, 2)
                         EmWriteScreen "A", 3, 17   'Restoring the agreement on ASA1 in AGMT/TYPE STAT field
                         PF3
                         adjustment_array(reduce_rate_const, item) = False
-                        'creating status message if reduce is already in exisitance. 
-                        If line_2_rate = "7.94" then 
+                        'creating status message if reduce is already in exisitance.
+                        If line_2_rate = "7.94" then
                             adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Line 2 already reflects reduction of 7.94."
-                        Else 
+                        Else
                             adjustment_array(rr_status_const, item) = adjustment_array(rr_status_const, item) & adjustment_array(rr_status_const, item) & "Agreement already exists in Line 2. Review Manually."
-                        End if 
+                        End if
                     Else
                         'Reading and converting start and end dates
                         'agreement start date
@@ -1500,7 +1500,7 @@ For item = 0 to Ubound(adjustment_array, 2)
                                     'saving the agreements
                                     PF3
                                     EmReadscreen current_panel, 4, 1, 51
-                                    
+
                                     If current_panel = "AKEY" then
                                         error_message = ""
                                         EmReadscreen error_message, 50, 24, 2
@@ -1555,14 +1555,14 @@ For item = 0 to Ubound(adjustment_array, 2)
                 row = row + 1
             End if
         Loop
-        
-        'Writing in the ADHS - DHS Comments Notes 
+
+        'Writing in the ADHS - DHS Comments Notes
 		for each comment_line in AN_ARRAY_OF_THE_THING_TO_WRITE
 			EmWriteScreen comment_line, row, 3
 			row = row + 1
 			If row = 14 Then Exit For
 		Next
-        
+
         PF3
         error_message = ""
         EmReadscreen error_message, 40, 24, 2
@@ -1627,12 +1627,12 @@ MAXIS_case_number = ""  'blanking out for statistical purposes. Cannot collect m
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure_with_error_report("Success! The script run is complete. Please review the worksheet for reduction statuses and manual updates.")
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation 
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------08/13/2021
-'--Tab orders reviewed & confirmed----------------------------------------------08/13/2021  
+'--Tab orders reviewed & confirmed----------------------------------------------08/13/2021
 '--Mandatory fields all present & Reviewed--------------------------------------08/13/2021
 '--All variables in dialog match mandatory fields-------------------------------08/13/2021
 '
@@ -1662,7 +1662,7 @@ script_end_procedure_with_error_report("Success! The script run is complete. Ple
 '--Remove testing message boxes-------------------------------------------------08/13/2021
 '--Remove testing code/unnecessary code-----------------------------------------08/13/2021
 '--Review/update SharePoint instructions----------------------------------------08/13/2021-------------------N/A: Logic Map provided to DHS
-'--Review Best Practices using BZS page ----------------------------------------08/13/2021-------------------N/A: DHS script 
+'--Review Best Practices using BZS page ----------------------------------------08/13/2021-------------------N/A: DHS script
 '--Review script information on SharePoint BZ Script List-----------------------08/13/2021-------------------N/A: DHS script
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/13/2021-------------------N/A: DHS script
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/13/2021-------------------N/A: DHS script
