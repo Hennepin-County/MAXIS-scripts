@@ -55,7 +55,7 @@ changelog_display
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
-'Gathering windows user information for transpancy purposes. 
+'Gathering windows user information for transpancy purposes.
 Set objNet = CreateObject("WScript.NetWork")
 windows_user_ID = objNet.UserName
 Call find_user_name(the_person_running_the_script)
@@ -72,16 +72,16 @@ BeginDialog Dialog1, 0, 0, 281, 140, "Delete DAIL Tasks Dialog"
   Text 35, 105, 185, 10, "Do you wish to delete the task-based DAILs in database?"
 EndDialog
 
-Do 
+Do
     err_msg = ""
     dialog Dialog1
-    cancel_without_confirmation 
+    cancel_without_confirmation
     If deletion_choice = "Select one..." then err_msg = err_msg & vbcr & "* Select a deletion option."
     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-Loop Until err_msg = ""  
+Loop Until err_msg = ""
 
 If deletion_choice = "No" then script_end_procedure("The database will not be deleted. The script will now end.")
-    
+
 'Setting constants
 Const adOpenStatic = 3
 Const adLockOptimistic = 3
@@ -97,7 +97,7 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 'user id: your username.
 'password: um, your password. ;)
 
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= HSSQLPW017;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+objConnection.Open "Provider = SQLOLEDB.1;Data Source= hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 
 'Deleting ALL data fom DAIL table prior to loading new DAIL messages.
 objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, adLockOptimistic
