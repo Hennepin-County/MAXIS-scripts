@@ -2474,6 +2474,7 @@ If developer_mode = False Then
 		objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date
 		objTextStream.WriteLine "FACI RELEASE IN 30 DAYS ^*^*^" & release_within_30_days_yn
 		objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
+        objTextStream.WriteLine "SCRIPT RUN ^*^*^EXPEDITED DETERMINATION"
 
 		'Close the object so it can be opened again shortly
 		objTextStream.Close
