@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/18/2021", "Updated new server name.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/26/2021", "Removed emailing Todd Bennington per request.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/17/2021", "Added defaults for DAIL type selctions based on if before or on/after ten day cut off. DAIL types selected on/after ten day cut off are only TIKL messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/02/2021", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -55,21 +56,21 @@ changelog_display
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 
-'Defaulting these populations to checked per current process. 
+'Defaulting these populations to checked per current process.
 FAD_checkbox = 1
-ADAD_checkbox = 1   
+ADAD_checkbox = 1
 
-'Defaulting autochecks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled. 
-If DateDiff("d", date, ten_day_cutoff_date) > 0 then  
-    'Defaulting these messages to checked as these are the most assigned cases. 
+'Defaulting autochecks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled.
+If DateDiff("d", date, ten_day_cutoff_date) > 0 then
+    'Defaulting these messages to checked as these are the most assigned cases.
     cola_check = 1
     cses_check = 1
     info_check = 1
     pepr_check = 1
     tikl_check = 1
-Else 
+Else
     tikl_check = 1
-End if 
+End if
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 251, 260, "Task-Based DAIL Capture Main Dialog"
@@ -106,20 +107,20 @@ BeginDialog Dialog1, 0, 0, 251, 260, "Task-Based DAIL Capture Main Dialog"
 EndDialog
 
 Do
-    Do 
+    Do
         err_msg = ""
   	    dialog Dialog1
-  	    cancel_without_confirmation 
-        If all_baskets_checkbox = 1 then 
+  	    cancel_without_confirmation
+        If all_baskets_checkbox = 1 then
             If ADAD_checkbox = 1 or ADS_checkbox = 1 or FAD_checkbox = 1 then err_msg = err_msg & vbcr & "* You cannot select a population and all populations."
-        End if 
-        If all_workers_check = 1 then 
+        End if
+        If all_workers_check = 1 then
             If ADAD_checkbox = 1 or ADS_checkbox = 1 or FAD_checkbox = 1 or all_baskets_checkbox = 1 then err_msg = err_msg & vbcr & "* You cannot select a population(s) and all workers."
-        End if 
+        End if
         If (all_baskets_checkbox = 0 and all_workers_check = 0 and ADAD_checkbox = 0 and ADS_checkbox = 0 and FAD_checkbox = 0 and all_baskets_checkbox = 0) then err_msg = err_msg & vbcr & "* You must select at least one population option."
         If (all_check = 0 and cola_check = 0 and clms_check = 0 and cses_check  = 0 and elig_check  = 0 and ievs_check = 0 and info_check = 0 and ive_check = 0 and ma_check = 0 and mec2_check = 0 and pari_chck = 0 and pepr_check = 0 and tikl_check = 0 and wf1_check = 0) then err_msg = err_msg & vbcr & "* You must select at least one DAIL type."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-    Loop Until err_msg = ""     
+    Loop Until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -132,14 +133,14 @@ Else
     ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4,X127EQ3,X127EQ2,X127EP6,X127EP7,X127EP8,X127EF8,X127EF9,"
     ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5,"
     FAD_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,X127FE7,X127FE8,X127FE9,X127FA5,X127FA9,X127FA6,X127FA7,X127FA8"
-    
+
     worker_numbers = ""     'Creating and valuing incrementor variables
-    
+
     If ADAD_checkbox = 1 then worker_numbers = worker_numbers & ADAD_baskets
     If ADS_checkbox = 1 then worker_numbers = worker_numbers & ADS_baskets
     If FAD_checkbox = 1 then worker_numbers = worker_numbers & FAD_baskets
     If all_baskets_checkbox = 1 then worker_numbers = ADAD_baskets & "," & ADS_baskets & "," & FAD_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
-    
+
     x1s_from_dialog = split(worker_numbers, ",")	'Splits the worker array based on commas
 
 	'Need to add the worker_county_code to each one
@@ -154,7 +155,7 @@ Else
 	worker_array = split(worker_array, ",")
 End if
 
-'----------------------------------------------------------------------------------------------------Setting up and valueing the array 
+'----------------------------------------------------------------------------------------------------Setting up and valueing the array
 Dim DAIL_array()
 ReDim DAIL_array(4, 0)
 Dail_count = 0              'Incremental for the array
@@ -174,7 +175,7 @@ deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 CALL navigate_to_MAXIS_screen("DAIL", "PICK")
 EMReadscreen pick_confirmation, 26, 4, 29
 
-If pick_confirmation = "View/Pick Selection (PICK)" then 
+If pick_confirmation = "View/Pick Selection (PICK)" then
     'selecting the type of DAIl message
     If all_check = 1   then EMWriteScreen "x", 7, 39
 	If cola_check = 1  then EMWriteScreen "x", 8, 39
@@ -193,7 +194,7 @@ If pick_confirmation = "View/Pick Selection (PICK)" then
 	transmit
 Else
     script_end_procedure("Unable to navigate to DAIL/PICK. The script will now end.")
-End if 
+End if
 
 'This for...next contains each worker indicated above
 For each worker in worker_array
@@ -224,7 +225,7 @@ For each worker in worker_array
             'Reading the DAIL Information
 			EMReadScreen MAXIS_case_number, 8, dail_row - 1, 73
             MAXIS_case_number = trim(MAXIS_case_number)
-            
+
             EMReadScreen dail_type, 4, dail_row, 6
 
             EMReadScreen dail_msg, 61, dail_row, 20
@@ -235,8 +236,8 @@ For each worker in worker_array
 
             stats_counter = stats_counter + 1   'I increment thee
             Call non_actionable_dails(actionable_dail)   'Function to evaluate the DAIL messages
-            
-            IF actionable_dail = True then      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.  
+
+            IF actionable_dail = True then      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
                 If len(dail_month) = 5 then
                     output_year = ("20" & right(dail_month, 2))
                     output_month = left(dail_month, 2)
@@ -249,20 +250,20 @@ For each worker in worker_array
                     output_day      = DatePart("d", dail_month)
                     dail_month = output_year & "-" & output_month & "-" & output_day
                 End if
-                
+
                 dail_string = worker & " " & MAXIS_case_number & " " & dail_type & " " & dail_month & " " & dail_msg
-                'If the case number is found in the string of case numbers, it's not added again. 
+                'If the case number is found in the string of case numbers, it's not added again.
                 If instr(all_dail_array, "*" & dail_string & "*") then
                     If dail_type = "HIRE" then
-                        add_to_array = True 
-                    Else 
+                        add_to_array = True
+                    Else
                         add_to_array = False
-                    End if 
-                else 
-                    add_to_array = True 
-                End if 
-                
-                If add_to_array = True then          
+                    End if
+                else
+                    add_to_array = True
+                End if
+
+                If add_to_array = True then
                     ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
             	    DAIL_array(worker_const,	           DAIL_count) = worker
             	    DAIL_array(maxis_case_number_const,    DAIL_count) = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
@@ -272,9 +273,9 @@ For each worker in worker_array
                     Dail_count = DAIL_count + 1
                     all_dail_array = trim(all_dail_array & dail_string & "*") 'Adding MAXIS case number to case number string
                     dail_string = ""
-                elseif add_to_array = False then 
+                elseif add_to_array = False then
                     false_count = false_count + 1
-                End if 
+                End if
 			End if
 
             dail_row = dail_row + 1
@@ -311,7 +312,7 @@ Set objRecordSet = CreateObject("ADODB.Recordset")
 'user id: your username.
 'password: um, your password. ;)
 
-objConnection.Open "Provider = SQLOLEDB.1;Data Source= HSSQLPW017;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+objConnection.Open "Provider = SQLOLEDB.1;Data Source= hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
 
 'Deleting ALL data fom DAIL table prior to loading new DAIL messages.
 objRecordSet.Open "DELETE FROM EWS.DAILDecimator",objConnection, adOpenStatic, adLockOptimistic
