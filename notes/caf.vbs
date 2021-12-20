@@ -9390,6 +9390,7 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
         		objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date
         		objTextStream.WriteLine "FACI RELEASE IN 30 DAYS ^*^*^" & release_within_30_days_yn
         		objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
+                objTextStream.WriteLine "SCRIPT RUN ^*^*^CAF"
 
         		'Close the object so it can be opened again shortly
         		objTextStream.Close
