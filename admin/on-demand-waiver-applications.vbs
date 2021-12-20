@@ -258,7 +258,7 @@ file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Im
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 316, 175, "Select the source file"
-  DropListBox 185, 75, 125, 45, "Select One..."+chr(9)+"Brooke Reiley"+chr(9)+"Deborah Lechner"+chr(9)+"Jacob Arco"+chr(9)+"Jessica Hall"+chr(9)+"Keith Semmelink"+chr(9)+"Kerry Walsh"+chr(9)+"Louise Kinzer"+chr(9)+"Mandora Young", qi_member_on_ONDEMAND
+  DropListBox 185, 75, 125, 45, "Select One..."+chr(9)+"Brooke Reilley"+chr(9)+"Deborah Lechner"+chr(9)+"Jacob Arco"+chr(9)+"Jessica Hall"+chr(9)+"Keith Semmelink"+chr(9)+"Kerry Walsh"+chr(9)+"Louise Kinzer"+chr(9)+"Mandora Young", qi_member_on_ONDEMAND
   EditBox 5, 125, 260, 15, file_selection_path
   ButtonGroup ButtonPressed
     PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
@@ -2510,7 +2510,7 @@ objStatsWorkbook.Save
 ObjStatsExcel.Quit
 ' MsgBox "Step Six - The emails, the emails, what what, the emails"
 qi_member_email = replace(qi_member_on_ONDEMAND, " ", ".") & "@hennepin.us"
-cc_email = "jennifer.frey@hennepin.us"
+cc_email = "jennifer.frey@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
 cc_email = ""
 If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; jennifer.frey@hennepin.us"
 
@@ -2519,6 +2519,7 @@ If qi_worklist_threshold_reached = True Then email_subject = email_subject & " -
 email_body = "Hello " & qi_member_on_ONDEMAND & "," & vbCr & vbCr
 email_body = email_body & "The worklist is completed and ready to be worked. All cases on the list should be reveiwed." & vbCr
 email_body = email_body & "There are " & count_cases_on_wl & " cases on the worklist." & vbCr
+email_body = email_body & "There are " & count_denials & " DENIALS on the worklist." & vbCr
 If qi_worklist_threshold_reached = True Then email_body = email_body & "As the list is so large, help has been requested via email to the QUALITY IMPROVEMENT email. If you are NOT on the assignment today and have capacity to assist, contact " & qi_member_on_ONDEMAND & "." & vbCr
 email_body = email_body & "Access the Worklist here: "
 email_body = email_body & vbCr & "<" & daily_worklist_path & ">" & vbCr
@@ -2547,6 +2548,7 @@ If cases_to_alert_BZST <> "" Then
 End If
 
 If does_file_exist = True then objFSO.MoveFile previous_list_file_selection_path , archive_files & "\QI " & previous_date_header & " Worklist.xlsx"    'moving each file to the archive file
+MsgBox "******************* LAURIE *********************" & vbCr & vbCr & "Please take a screenshot of this message and email to Casey." & vbCr & vbCr & "does_file_exist: " & does_file_exist & vbCr & "archive_files:: " & archive_files & vbCr & "previous_date_header: " & previous_date_header & vbCr & vbCr & "THANK YOU!" & vbCr &"You are the best!"
 
 end_msg = "The Daily On Demand Assignment has been created. Emails have been sent regarding the case discovery and work to be completed." & vbCr & vbCr & "The worklist generated today has " & count_cases_on_wl & " cases, with " & count_denials & " denials."
 script_end_procedure_with_error_report(end_msg)  'WE'RE DONE!
