@@ -64,14 +64,14 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 				hc_autoclosed = ""
 				n_code_programs = ""
 
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)		'reading the program status information from the Review Report information
+				Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)		'reading the program status information from the MONT Report information
 				Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, DWP_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, GA_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, MSA_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row, 10).value, GRH_status)
 				Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
 
-				REPT_full = REPT_month & "/" & REPT_year						'creating a string from the review month and year for comparing the information in the REVW columns of the Review Report
+				REPT_full = REPT_month & "/" & REPT_year						'creating a string from the review month and year for comparing the information in the REVW columns of the MONT Report
 				CASH_SR_Info = trim(objExcel.cells(excel_row, 11).value)
 				CASH_ER_Info = trim(objExcel.cells(excel_row, 12).value)
 				SNAP_SR_Info = trim(objExcel.cells(excel_row, 14).value)
@@ -160,7 +160,7 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 					' MsgBox "Look here"
 					PF3															'saving the CASE:NOTE
 
-					' Adding the note informaiton to the Review Report Excel
+					' Adding the note informaiton to the MONT Report Excel
 					ObjExcel.Cells(excel_row, closure_note_col) = "Yes"
 					ObjExcel.Cells(excel_row, closure_progs_col) = autoclosed_programs
 					' ObjExcel.Cells(excel_row, closure_progs_col+1) = n_code_programs
@@ -595,7 +595,7 @@ If today_day = 1 Then report_option = "End of Processing Month"
 
 'DISPLAYS DIALOG
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 186, 85, "Review Report"
+BeginDialog Dialog1, 0, 0, 186, 85, "MONT Report"
   ' DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create MRSR Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist", report_option
   DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create MRSR Report"+chr(9)+"Collect Statistics"+chr(9)+"End of Processing Month", report_option
   CheckBox 5, 55, 70, 10, "Select all agency.", all_workers_check
@@ -693,7 +693,7 @@ If open_existing_review_report = TRUE Then
 		If report_option = "Collect Statistics" Then CheckBox 10, 45, 205, 10, "Check here if this is the END of the processing month.", last_day_checkbox
 		OkButton 250, 45, 50, 15
 		CancelButton 305, 45, 50, 15
-	  Text 10, 10, 170, 10, "Select the recert fle from the Review Report original run"
+	  Text 10, 10, 170, 10, "Select the recert fle from the MONT Report original run"
 	  Text 10, 25, 120, 10, "Select an Excel file for recert cases:"
 	EndDialog
 
@@ -707,7 +707,7 @@ If open_existing_review_report = TRUE Then
 	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 	call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
 
-	'Finding all of the worksheets available in the file. We will likely open up the main 'Review Report' so the script will default to that one.
+	'Finding all of the worksheets available in the file. We will likely open up the main 'MONT Report' so the script will default to that one.
 	For Each objWorkSheet In objWorkbook.Worksheets
 		If instr(objWorkSheet.Name, "Sheet") = 0 and objWorkSheet.Name <> "controls" then scenario_list = scenario_list & chr(9) & objWorkSheet.Name
 	Next
@@ -791,7 +791,7 @@ If report_option = "Create MRSR Report" then
 		  ButtonGroup ButtonPressed
 		    OkButton 100, 95, 50, 15
 		    CancelButton 150, 95, 50, 15
-		  Text 10, 10, 190, 10, "It appears this Review Report has already been created."
+		  Text 10, 10, 190, 10, "It appears this MONT Report has already been created."
 		  GroupBox 10, 30, 170, 55, "Do you need to RESTART a Report Creation?"
 		EndDialog
 
