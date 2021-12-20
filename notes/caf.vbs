@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/20/2021", "Removal of interview completed button. ", "MiKayla Handley")
 call changelog_update("10/04/2021", "The CAF script now has 'SAVE YOUR WORK' functionality in testing. If the script fails, run it again on the same case and information should be filled back in to the dialog.##~##", "Casey Love, Hennepin County")
 Call changelog_update("09/01/2021", "Expedited Determination Functionality has been completely enhanced.##~####~##The functionality to guide through the assesment of a case meeting expedited criteria has been updated. This new functionality adds a series of 3 new dialogs to support this process.##~####~##This new functionality matches the scripts NOTES - Expedited Determination and the new script NOTES - Interview.##~##", "Casey Love, Hennepin County")
 Call changelog_update("11/6/2020", "The script will now check the interview date entered on PROG or REVW to confirm the updated happened accurately when the script is tasked with updating PROG or REVW.##~## ##~##There may be a message that the update failed, this means this update must be completed manually.##~##", "Casey Love, Hennepin County")
@@ -5422,35 +5423,35 @@ Call find_user_name(worker_name)
 script_run_lowdown = ""
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 281, 235, "CAF Script Case number dialog"
-  EditBox 65, 50, 60, 15, MAXIS_case_number
-  EditBox 210, 50, 15, 15, MAXIS_footer_month
-  EditBox 230, 50, 15, 15, MAXIS_footer_year
-  CheckBox 10, 85, 30, 10, "CASH", CASH_on_CAF_checkbox
-  CheckBox 50, 85, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-  CheckBox 90, 85, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 135, 85, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MN Benefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
-  EditBox 40, 130, 220, 15, cash_other_req_detail
-  EditBox 40, 150, 220, 15, snap_other_req_detail
-  EditBox 40, 170, 220, 15, emer_other_req_detail
-  CheckBox 10, 195, 150, 10, "HC REVW Form is also being processed.", HC_checkbox
+BeginDialog Dialog1, 0, 0, 281, 185, "CAF Script Case number dialog"
+  EditBox 55, 20, 40, 15, MAXIS_case_number
+  EditBox 165, 20, 15, 15, MAXIS_footer_month
+  EditBox 185, 20, 15, 15, MAXIS_footer_year
+  CheckBox 10, 55, 30, 10, "CASH", CASH_on_CAF_checkbox
+  CheckBox 50, 55, 35, 10, "SNAP", SNAP_on_CAF_checkbox
+  CheckBox 90, 55, 35, 10, "EMER", EMER_on_CAF_checkbox
+  DropListBox 135, 55, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MN Benefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  EditBox 40, 100, 220, 15, cash_other_req_detail
+  EditBox 40, 120, 220, 15, snap_other_req_detail
+  EditBox 40, 140, 220, 15, emer_other_req_detail
+  CheckBox 5, 165, 150, 10, "HC REVW Form is also being processed.", HC_checkbox
   ButtonGroup ButtonPressed
-    PushButton 35, 215, 15, 15, "!", tips_and_tricks_button
-    OkButton 170, 215, 50, 15
-    CancelButton 225, 215, 50, 15
-    PushButton 10, 30, 105, 10, "NOTES - Interview Completed", interview_completed_button
-  Text 10, 10, 265, 20, "This script works best when run AFTER all STAT panels have been updated. If STAT panels have not been updated but you need to case note the interview use "
-  Text 10, 55, 50, 10, "Case number:"
-  Text 140, 55, 65, 10, "Footer month/year: "
-  GroupBox 5, 70, 125, 30, "Programs marked on CAF"
-  Text 135, 75, 65, 10, "Actual CAF Form:"
-  GroupBox 5, 105, 265, 85, "OTHER Program Requests (not marked on CAF)"
-  Text 40, 120, 130, 10, "Explain how the program was requested."
-  Text 15, 135, 20, 10, "Cash:"
-  Text 15, 155, 20, 10, "SNAP:"
-  Text 15, 175, 25, 10, "EMER:"
-  Text 55, 220, 105, 10, "Look for me for Tips and Tricks!"
+    OkButton 175, 165, 50, 15
+    CancelButton 225, 165, 50, 15
+    PushButton 210, 20, 15, 15, "!", tips_and_tricks_button
+  Text 5, 5, 270, 10, "This script is intended to be run AFTER all STAT panels have been updated."
+  Text 5, 25, 50, 10, "Case number:"
+  Text 100, 25, 65, 10, "Footer month/year: "
+  GroupBox 5, 40, 125, 30, "Programs marked on CAF"
+  Text 135, 45, 65, 10, "Actual CAF Form:"
+  GroupBox 5, 75, 270, 85, "OTHER Program Requests (not marked on CAF)"
+  Text 40, 90, 145, 10, "Explain how the program was requested."
+  Text 15, 105, 20, 10, "Cash:"
+  Text 15, 125, 20, 10, "SNAP:"
+  Text 15, 145, 25, 10, "EMER:"
+  Text 225, 25, 55, 10, "Tips and Tricks!"
 EndDialog
+
 
 'initial dialog
 Do
@@ -5458,14 +5459,6 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-
-		If buttonpressed = interview_completed_button Then
-            confirm_run_another_script = MsgBox("You have selected the 'NOTES - Interview completed' option. This will stop the NOTES - CAF script and run the script NOTES - Interview Completed." & vbNewLine & vbNewLine &_
-                                                "This option is best for when the STAT panels have not been updated when running the script. We recommend runing NOTES - CAF once STAT panels are updated to capture the correct case information in CASE/NOTE." & vbNewLine & vbNewLine &_
-                                                "Would you like to continue to NOTES - Interview Completed?", vbQuestion + vbYesNo, "Stop CAF Script?")
-            If confirm_run_another_script = vbYes Then Call run_from_GitHub(script_repository & "notes/interview-completed.vbs")
-            If confirm_run_another_script = vbNo Then err_msg = "LOOP" & err_msg
-        End If
         If ButtonPressed = tips_and_tricks_button Then
             tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Once the script reads the case, updates in MAXIS will not be reflected in the dialogs or case notes. This is not new, but if you run the script and realize a panel is out of date, definitely update the panel while the script is running, just don't expect the script to know that it was updated. You must also change the information IN the dialog. Or you can cancel the script, update and rerun the script with the panels correct." & vbNewLine & vbNewLine &_
                                     "Footer month/year - Use the month with the most accurate information for the CAF being processed." & vbNewLine & "Typically: " & vbNewLine & " - Recertifications use the month of recert." & vbNewLine & " - Applications use the month of application." & vbNewLine & vbNewLine &_
@@ -5473,10 +5466,8 @@ Do
                                     "Programs Requested - Listing anything in the boxes for other program requests will have the script assume that program is requested. Do not write anything here if that particular program has not been requested." & vbNewLine & "** An example would be a CAF with SNAP requested and in the interview a client requests CASH." & vbNewLine & vbNewLine &_
                                     "*** REMINDER***" & vbNewLine & "This script works best when MAXIS has been updated because it creates special dialogs with details from the MAXIS STAT panels and the most detail and specifics will be captured from an updated case." & vbNewLine &_
                                     "** Due to the complexity of this script and the noting needs, this script can take some time to complete. Use 'Interview Completed' if STAT has not been updated OR a quick note needs to be made. Run CAF once the case is updated.", vbInformation, "Tips and Tricks")
-
             err_msg = "LOOP" & err_msg
         End If
-
         If CAF_form = "Select One:" then err_msg = err_msg & vbnewline & "* You must select the CAF form received."
         Call validate_MAXIS_case_number(err_msg, "*")
         If IsNumeric(MAXIS_footer_month) = FALSE OR len(MAXIS_footer_month) > 2 Then err_msg = err_msg & vbNewLine & "* Enter a valid Footer Month."
@@ -5497,7 +5488,6 @@ Do
                 emer_other_req_detail = ""
             End If
         End If
-
         IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
