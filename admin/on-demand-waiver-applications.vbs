@@ -741,7 +741,7 @@ archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvem
 previous_date_month = DatePart("m", previous_date)
 previous_date_day = DatePart("d", previous_date)
 previous_date_year = DatePart("yyyy", previous_date)
-previous_date_header = date_month & "-" & date_day & "-" & date_year
+previous_date_header = previous_date_month & "-" & previous_date_day & "-" & previous_date_year
 
 previous_list_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & previous_date_header & " Worklist.xlsx"
 Call File_Exists(previous_list_file_selection_path, does_file_exist)
