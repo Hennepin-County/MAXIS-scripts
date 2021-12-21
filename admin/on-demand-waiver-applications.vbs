@@ -2511,7 +2511,7 @@ ObjStatsExcel.Quit
 ' MsgBox "Step Six - The emails, the emails, what what, the emails"
 qi_member_email = replace(qi_member_on_ONDEMAND, " ", ".") & "@hennepin.us"
 cc_email = "jennifer.frey@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
-cc_email = ""
+cc_email = "hsph.ews.bluezonescripts@hennepin.us"
 If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; jennifer.frey@hennepin.us"
 
 email_subject = "On Demand List is Ready"
