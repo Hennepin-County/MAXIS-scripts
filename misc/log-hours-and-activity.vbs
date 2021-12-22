@@ -47,6 +47,15 @@ function format_time_variable(time_variable, is_this_from_excel)
 	time_minute = time_minute * 60
 	time_variable = TimeSerial(time_hour, time_minute, 0)
 end function
+
+Function File_Exists(file_name, does_file_exist)
+    ' Set objFSO = CreateObject("Scripting.FileSystemObject")
+    If (objFSO.FileExists(file_name)) Then
+        does_file_exist = True
+    Else
+      does_file_exist = False
+    End If
+End Function
 '===========================================================================================================================
 
 'DECLARATIONS===============================================================================================================
@@ -54,6 +63,27 @@ git_hub_issue_button = 1001
 switch_activity_button = 1002
 start_break_button = 1003
 end_work_day_button  = 1004
+request_time_off_button = 1005
+insert_leave = 1006
+approve_leave_button = 1007
+
+task_category_list = "Select One..."
+task_category_list = task_category_list+chr(9)+"Admin"
+task_category_list = task_category_list+chr(9)+"Break"
+task_category_list = task_category_list+chr(9)+"Consulting on Systems and Processes"
+task_category_list = task_category_list+chr(9)+"Department Wide Script Tools"
+task_category_list = task_category_list+chr(9)+"New Projects and Script Development"
+task_category_list = task_category_list+chr(9)+"Ongoing Script Support"
+task_category_list = task_category_list+chr(9)+"Other"
+task_category_list = task_category_list+chr(9)+"Personal Skills Development"
+task_category_list = task_category_list+chr(9)+"PTO"
+task_category_list = task_category_list+chr(9)+"Sick Time"
+task_category_list = task_category_list+chr(9)+"Teachhing"
+task_category_list = task_category_list+chr(9)+"Team Strategy Development"
+task_category_list = task_category_list+chr(9)+"Training"
+task_category_list = task_category_list+chr(9)+"Travel"
+task_category_list = task_category_list+chr(9)+"Vacation"
+
 '===========================================================================================================================
 'setting the current time and fifteen minutes from now for display/defaulting
 now_time = time
@@ -79,25 +109,52 @@ End If
 now_time = TimeSerial(end_time_hr, end_time_min, 0)
 fifteen_minutes_from_now = DateAdd("n", 15, now_time)
 end_time = now_time & ""
+the_year = DatePart("yyyy", date)
 
 'Defining the excel files for when running the script
 excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking"
 
 If user_ID_for_validation = "CALO001" Then
-	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking 2021.xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking 2021.xlsx"
+	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking " & the_year & ".xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking " & the_year & ".xlsx"
+	bz_member = "Casey Love"
+	bz_leave_type = "Vacation"
 End If
 If user_ID_for_validation = "ILFE001" Then
-	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking 2021.xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking 2021.xlsx"
+	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking " & the_year & ".xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking " & the_year & ".xlsx"
+	bz_member = "Ilse Ferris"
+	bz_leave_type = "PTO"
 End If
 If user_ID_for_validation = "WFS395" Then
-	t_drive_excel_file_path = excel_file_path & "\MiKayla Time Tracking 2021.xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "MiKayla Time Tracking 2021.xlsx"
+	t_drive_excel_file_path = excel_file_path & "\MiKayla Time Tracking " & the_year & ".xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "MiKayla Time Tracking " & the_year & ".xlsx"
+	bz_member = "MiKayla Handley"
+	bz_leave_type = "Vacation"
 End If
+
+time_off_excel_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking\BZST Time Off.xlsx"
 
 view_excel = False		'this variable allows us to set
 Call excel_open(my_docs_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file
+
+time_off_requestes_for_approval = False
+If user_ID_for_validation = "ILFE001" Then
+	view_excel = False		'this variable allows us to set
+	Call excel_open(time_off_excel_path, view_excel, False, ObjTimeOffExcel, objTimeOffWorkbook)		'opening the excel file
+	excel_row = 2
+	Do
+		If ObjTimeOffExcel.Cells(excel_row, 1).Value <> "" Then
+			Call read_boolean_from_excel(ObjTimeOffExcel.Cells(excel_row, 9).Value, case_approved_variable)
+			If case_approved_variable = False Then
+				time_off_requestes_for_approval = True
+				Exit Do
+			End If
+		End If
+		excel_row = excel_row + 1
+	Loop until ObjTimeOffExcel.Cells(excel_row, 1).Value = ""
+	ObjTimeOffExcel.Quit
+End If
 
 on_task = False						'default the booleans
 current_task_from_today = False
@@ -259,6 +316,9 @@ If on_task = True and current_task_from_today = True Then						'If we are on a t
 		    PushButton 135, 5, 65, 15, "Switch Activity", switch_activity_button
 		    PushButton 205, 5, 60, 15, "Start Break", start_break_button
 		    PushButton 270, 5, 85, 15, "End Work Day", end_work_day_button
+			PushButton 10, 130, 70, 15, "Request Time Off", request_time_off_button
+			' PushButton 85, 130, 60, 15, "Insert Leave", insert_leave
+			If time_off_requestes_for_approval = True Then PushButton 150, 130, 60, 15, "Approve Leave", approve_leave_button
 		    OkButton 255, 130, 50, 15
 		    CancelButton 305, 130, 50, 15
 		EndDialog
@@ -274,6 +334,63 @@ If on_task = True and current_task_from_today = True Then						'If we are on a t
 	Loop until err_msg = ""
 End If
 
+If ButtonPressed = request_time_off_button Then
+	ObjExcel.Quit
+	Do
+		err_msg = ""
+		BeginDialog Dialog1, 0, 0, 266, 115, "Time Off Request"
+		  EditBox 90, 20, 50, 15, leave_request_start_date
+		  EditBox 195, 20, 50, 15, leave_request_start_time
+		  EditBox 90, 55, 50, 15, leave_request_end_date
+		  EditBox 195, 55, 50, 15, leave_request_end_time
+		  EditBox 90, 90, 25, 15, leave_request_days_off
+		  ButtonGroup ButtonPressed
+		    CancelButton 155, 90, 50, 15
+		    OkButton 205, 90, 50, 15
+		  GroupBox 5, 5, 255, 105, "Enter details about the time off you are requesting"
+		  Text 50, 25, 40, 10, "Start Date:"
+		  Text 155, 25, 40, 10, "Start Time:"
+		  Text 120, 40, 130, 10, "(Date is required but time can be blank)"
+		  Text 50, 60, 40, 10, "End Date:"
+		  Text 155, 60, 40, 10, "End Time:"
+		  Text 120, 75, 130, 10, "(Date is required but time can be blank)"
+		  Text 15, 95, 75, 10, "Total WORK Days off:"
+		EndDialog
+
+		dialog Dialog1
+		cancel_without_confirmation
+
+	Loop until err_msg = ""
+
+	view_excel = False		'this variable allows us to set
+	Call excel_open(time_off_excel_path, view_excel, False, ObjTimeOffExcel, objTimeOffWorkbook)		'opening the excel file
+
+	excel_row = 2
+	Do
+		If ObjTimeOffExcel.Cells(excel_row, 1).Value = "" Then
+			ObjTimeOffExcel.Cells(excel_row, 1).Value = bz_member
+			ObjTimeOffExcel.Cells(excel_row, 2).Value = leave_request_start_date
+			ObjTimeOffExcel.Cells(excel_row, 3).Value = leave_request_start_time
+			ObjTimeOffExcel.Cells(excel_row, 4).Value = leave_request_end_date
+			ObjTimeOffExcel.Cells(excel_row, 5).Value = leave_request_end_time
+			ObjTimeOffExcel.Cells(excel_row, 6).Value = leave_request_days_off
+			' ObjTimeOffExcel.Cells(excel_row, 7).Value =
+			ObjTimeOffExcel.Cells(excel_row, 8).Value = bz_leave_type
+			ObjTimeOffExcel.Cells(excel_row, 9).Value = False
+			Exit Do
+		End If
+		excel_row = excel_row + 1
+	Loop
+	objTimeOffWorkbook.Save
+	ObjTimeOffExcel.Quit
+	end_msg = "Your request for time off has been added to the list for approval:" & vbCr & vbCr & "Start Date: " & leave_request_start_date & vbCr &_
+			  "Start Time: " & leave_request_start_time & vbCr &_
+			  "End Date: " & leave_request_end_date & vbCr &_
+			  "End Time: " & leave_request_end_time & vbCr & vbCr &_
+			  "Number of days off: " & leave_request_days_off
+	Call script_end_procedure(end_msg)
+End If
+
 If on_task = False Then					'If we are not currently on a task, this will start a new activity only
 	next_date = date & ""				'defaulting the end time and date
 	next_start_time = now_time & ""
@@ -283,12 +400,13 @@ If on_task = False Then					'If we are not currently on a task, this will start 
 		  GroupBox 10, 10, 345, 100, "Log New Activity"
 		  EditBox 50, 25, 50, 15, next_date
 		  EditBox 65, 45, 50, 15, next_start_time
-		  DropListBox 65, 65, 155, 45, "Select One..."+chr(9)+"Admin"+chr(9)+"Break"+chr(9)+"Consulting on Systems and Processes"+chr(9)+"Department Wide Script Tools"+chr(9)+"New Projects and Script Development"+chr(9)+"Ongoing Script Support"+chr(9)+"Other"+chr(9)+"Personal Skills Development"+chr(9)+"Team Strategy Development"+chr(9)+"Training"+chr(9)+"Travel", next_category
+		  DropListBox 65, 65, 155, 45, task_category_list, next_category
 		  EditBox 50, 85, 170, 15, next_detail
 		  DropListBox 265, 25, 30, 45, "?"+chr(9)+"Yes", next_meeting
 		  ComboBox 260, 45, 90, 15, project_droplist, next_project
 		  EditBox 280, 65, 35, 15, next_gh_issue
 		  ButtonGroup ButtonPressed
+			PushButton 10, 115, 60, 15, "Insert Leave", insert_leave
 			OkButton 255, 115, 50, 15
 			CancelButton 305, 115, 50, 15
 		  Text 25, 30, 20, 10, "Date: "
@@ -309,22 +427,29 @@ If on_task = False Then					'If we are not currently on a task, this will start 
 		If next_category = "Select One..." Then err_msg = err_msg & " - Select the category"
 		If next_gh_issue <> "" and IsNumeric(next_gh_issue) = False Then err_msg = err_msg & " - Enter the GitHub issue as the number only."
 
+		If ButtonPressed = insert_leave Then err_msg = ""
 		If err_msg <> "" Then MsgBox "Need to Resolve:" & vbCr & err_msg
 
 	Loop until err_msg = ""
 	If next_meeting = "?" Then next_meeting = ""
 
-	'adding in the information from the new activity
-	ObjExcel.Cells(next_blank_row, 1).Value = next_date
-	If next_start_time <> now_time Then ObjExcel.Cells(next_blank_row, 2).Value = next_start_time
-	ObjExcel.Cells(next_blank_row, 4).Value = ""								'we will be blanking this out because it will default to a formula that could cause errors on future runs of the script
-	ObjExcel.Cells(next_blank_row, 5).Value = next_category
-	ObjExcel.Cells(next_blank_row, 6).Value = next_meeting
-	ObjExcel.Cells(next_blank_row, 7).Value = next_detail
-	If next_gh_issue <> "" Then ObjExcel.Cells(next_blank_row, 8).Value = "=HYPERLINK(" & chr(34) & "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & next_gh_issue & chr(34) & ", " & chr(34) & next_gh_issue & chr(34) & ")"
-	ObjExcel.Cells(next_blank_row, 9).Value = next_project
-	ObjExcel.Cells(next_blank_row, 10).Value = "Y"
-	end_msg = "As of " & next_date & " at " & next_start_time & " you are now working on:" & vbCr & "  - Category: " & next_category & vbCr & "  - Detail: " & next_detail
+	If ButtonPressed <> insert_leave Then
+		'adding in the information from the new activity
+		ObjExcel.Cells(next_blank_row, 1).Value = next_date
+		If next_start_time <> now_time Then ObjExcel.Cells(next_blank_row, 2).Value = next_start_time
+		ObjExcel.Cells(next_blank_row, 4).Value = ""								'we will be blanking this out because it will default to a formula that could cause errors on future runs of the script
+		ObjExcel.Cells(next_blank_row, 5).Value = next_category
+		ObjExcel.Cells(next_blank_row, 6).Value = next_meeting
+		ObjExcel.Cells(next_blank_row, 7).Value = next_detail
+		If next_gh_issue <> "" Then ObjExcel.Cells(next_blank_row, 8).Value = "=HYPERLINK(" & chr(34) & "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & next_gh_issue & chr(34) & ", " & chr(34) & next_gh_issue & chr(34) & ")"
+		ObjExcel.Cells(next_blank_row, 9).Value = next_project
+		ObjExcel.Cells(next_blank_row, 10).Value = "Y"
+		end_msg = "As of " & next_date & " at " & next_start_time & " you are now working on:" & vbCr & "  - Category: " & next_category & vbCr & "  - Detail: " & next_detail
+	End If
+End If
+
+If ButtonPressed = insert_leave Then
+
 End If
 
 'If the on task option selected was to take a new action - this will start that
@@ -437,7 +562,7 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 			  EditBox 275, 5, 50, 15, end_time
 			  EditBox 50, 40, 50, 15, next_date
 			  ' EditBox 65, 60, 50, 15, next_start_time
-			  DropListBox 65, 60, 155, 45, "Select One..."+chr(9)+"Admin"+chr(9)+"Break"+chr(9)+"Consulting on Systems and Processes"+chr(9)+"Department Wide Script Tools"+chr(9)+"New Projects and Script Development"+chr(9)+"Ongoing Script Support"+chr(9)+"Other"+chr(9)+"Personal Skills Development"+chr(9)+"Supervisory"+chr(9)+"Team Strategy Development"+chr(9)+"Training"+chr(9)+"Travel", next_category
+			  DropListBox 65, 60, 155, 45, task_category_list, next_category
 			  EditBox 50, 80, 170, 15, next_detail
 			  DropListBox 265, 40, 30, 45, "?"+chr(9)+"Yes", next_meeting
 			  ComboBox 260, 60, 90, 15, project_droplist, next_project
