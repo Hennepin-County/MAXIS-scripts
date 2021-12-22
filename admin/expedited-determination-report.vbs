@@ -112,9 +112,10 @@ const disc_asset_col_const 				= 16
 const disc_shelter_col_const 			= 17
 const disc_utilities_col_const 			= 18
 const disc_screening_col_const 			= 19
-const disc_wworker_col_const 			= 20
-const disc_bdays_appl_app_col_const 	= 21
-const disc_cdays_appl_app_col_const 	= 22
+const disc_worker_col_const 			= 20
+const disc_script_run_col_const			= 21
+const disc_bdays_appl_app_col_const 	= 22
+const disc_cdays_appl_app_col_const 	= 23
 
 'END DECLARATIONS BLOCK ====================================================================================================
 
@@ -387,7 +388,8 @@ For Each objFile in colFiles																'looping through each file
 			If line_info(0) = "DET SHEL" 								Then ObjDISCExcel.Cells(excel_row, disc_shelter_col_const).Value  = line_info(1)
 			If line_info(0) = "DET HEST" 								Then ObjDISCExcel.Cells(excel_row, disc_utilities_col_const).Value  = line_info(1)
 			If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjDISCExcel.Cells(excel_row, disc_screening_col_const).Value  = line_info(1)
-			If line_info(0) = "WORKER NAME"                             Then ObjDISCExcel.Cells(excel_row, disc_wworker_col_const).Value  = line_info(1)
+			If line_info(0) = "WORKER NAME"                             Then ObjDISCExcel.Cells(excel_row, disc_worker_col_const).Value  = line_info(1)
+			If line_info(0) = "SCRIPT RUN"                      		Then ObjDISCExcel.Cells(excel_row, disc_script_run_col_const).Value = line_info(1)
 		End If
 	Next
 	If IsDate(appl_date) = True Then appl_date = DateAdd("d", 0, appl_date)
