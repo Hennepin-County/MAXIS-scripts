@@ -755,13 +755,13 @@ If does_file_exist = True Then
 	'open the file
 	call excel_open(previous_list_file_selection_path, True, True, ObjYestExcel, objYestWorkbook)
 
-	ObjDailyWorkListExcel.Worksheets("Statistics").visible = True
-	ObjDailyWorkListExcel.worksheets("Statistics").Activate
+	objYestWorkbook.Worksheets("Statistics").visible = True
+	objYestWorkbook.worksheets("Statistics").Activate
 	yesterday_worker = ObjYestExcel.Cells(2, 2).Value
 
-	ObjDailyWorkListExcel.worksheets(previous_worksheet_header).Activate
+	objYestWorkbook.worksheets(previous_worksheet_header).Activate
 
-	ObjDailyWorkListExcel.Worksheets("Statistics").visible = False
+	objYestWorkbook.Worksheets("Statistics").visible = False
 
 	'Pull info into a NEW array of prevvious day work.
 	xl_row = 2
