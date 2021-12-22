@@ -819,7 +819,12 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     MAXIS_case_number	= ALL_PENDING_CASES_ARRAY(case_number, case_entry)        'setting this so that nav functionality works
 	ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
 	If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "NONE - Interview Completed" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""
+	If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REMOVE FROM LIST" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""
+	If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""
 	ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = Replace(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Display Limit", "")
+	ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = Replace(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "PRIVILEGED CASE.", "")
+	ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = Replace(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Cash interview incomplete.", "")
+	ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = Replace(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "SCRIPT DENIAL ALREADY NOTED", "")
 	ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
     'MsgBox ALL_PENDING_CASES_ARRAY(case_number, case_entry)
     CALL back_to_SELF
@@ -2548,7 +2553,6 @@ If cases_to_alert_BZST <> "" Then
 End If
 
 If does_file_exist = True then objFSO.MoveFile previous_list_file_selection_path , archive_files & "\QI " & previous_date_header & " Worklist.xlsx"    'moving each file to the archive file
-MsgBox "******************* LAURIE *********************" & vbCr & vbCr & "Please take a screenshot of this message and email to Casey." & vbCr & vbCr & "does_file_exist: " & does_file_exist & vbCr & "archive_files:: " & archive_files & vbCr & "previous_date_header: " & previous_date_header & vbCr & vbCr & "THANK YOU!" & vbCr &"You are the best!"
 
 end_msg = "The Daily On Demand Assignment has been created. Emails have been sent regarding the case discovery and work to be completed." & vbCr & vbCr & "The worklist generated today has " & count_cases_on_wl & " cases, with " & count_denials & " denials."
 script_end_procedure_with_error_report(end_msg)  'WE'RE DONE!
