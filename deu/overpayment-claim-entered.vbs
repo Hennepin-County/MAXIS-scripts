@@ -59,11 +59,13 @@ CALL changelog_update("12/11/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'---------------------------------------------------------------------------------------The script
+'Grabs the case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-memb_number = "01"
-'discovery_date = date & ""
-
+memb_number = "01" 'defaults to 01'
+discovery_date = "" & date
+servicing_worker = "X127720" ' add the transfer to the end of script '
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -504,3 +506,44 @@ CALL write_variable_in_CCOL_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1
 PF3'
 
 script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------12/29/2021
+'--Tab orders reviewed & confirmed----------------------------------------------12/29/2021
+'--Mandatory fields all present & Reviewed--------------------------------------12/29/2021
+'--All variables in dialog match mandatory fields-------------------------------12/29/2021
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------12/29/2021
+'--CASE:NOTE Header doesn't look funky------------------------------------------12/29/2021
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------12/29/2021
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------12/29/2021
+'--MAXIS_background_check reviewed (if applicable)------------------------------12/29/2021
+'--PRIV Case handling reviewed -------------------------------------------------12/29/2021
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------12/29/2021
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------12/29/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------N/A
+'--Script name reviewed---------------------------------------------------------12/29/2021
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------12/29/2021
+'--comment Code-----------------------------------------------------------------12/29/2021
+'--Update Changelog for release/update------------------------------------------12/29/2021
+'--Remove testing message boxes-------------------------------------------------12/29/2021
+'--Remove testing code/unnecessary code-----------------------------------------12/29/2021
+'--Review/update SharePoint instructions----------------------------------------12/29/2021
+'--Review Best Practices using BZS page ----------------------------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------12/29/2021
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------12/29/2021
