@@ -10815,9 +10815,9 @@ Function write_editbox_in_person_note(x, y) 'x is the header, y is the variable 
     EMSendKey "<PF8>"
     EMWaitReady 0, 0
   End if
-End function
+END FUNCTION
 
-function write_bullet_and_variable_in_CASE_NOTE(bullet, variable)
+FUNCTION write_bullet_and_variable_in_CASE_NOTE(bullet, variable)
 '--- This function creates an asterisk, a bullet, a colon then a variable to style CASE notes
 '~~~~~ bullet: name of the field to update. Put bullet in "".
 '~~~~~ variable: variable from script to be written into CASE note
@@ -10944,93 +10944,7 @@ function write_bullet_and_variable_in_CASE_NOTE(bullet, variable)
 		'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
 		EMSetCursor noting_row + 1, 3
 	End if
-end function
-
-function write_bullet_and_variable_in_CCOL_note(bullet, variable)
-'--- This function creates an asterisk, a bullet, a colon then a variable to style CCOL notes
-'~~~~~ bullet: name of the field to update. Put bullet in "".
-'~~~~~ variable: variable from script to be written into CCOL note
-'===== Keywords: MAXIS, bullet, CCOL note
-    If trim(variable) <> "" THEN
-        EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-        'msgbox varible & vbcr & "noting_row " & noting_row
-        noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
-        'The following figures out if we need a new page, or if we need a new case note entirely as well.
-        Do
-            EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-            character_test = trim(character_test)
-            If character_test <> "" or noting_row >= 19 then
-                noting_row = noting_row + 1
-                'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
-                If noting_row >= 19 then
-                    PF8
-                    'msgbox "sent PF8"
-                    EMReadScreen next_page_confirmation, 4, 19, 3
-                    'msgbox "next_page_confirmation " & next_page_confirmation
-                    IF next_page_confirmation = "More" THEN
-                        next_page = TRUE
-                        noting_row = 5
-                    Else
-                        next_page = FALSE
-                    End If
-                    'msgbox "next_page " & next_page
-                Else
-                    noting_row = noting_row + 1
-                End if
-            End if
-        Loop until character_test = ""
-
-        'Looks at the length of the bullet. This determines the indent for the rest of the info. Going with a maximum indent of 18.
-        If len(bullet) >= 14 then
-            indent_length = 18	'It's four more than the bullet text to account for the asterisk, the colon, and the spaces.
-        Else
-            indent_length = len(bullet) + 4 'It's four more for the reason explained above.
-        End if
-
-        'Writes the bullet
-        EMWriteScreen "* " & bullet & ": ", noting_row, noting_col
-        'Determines new noting_col based on length of the bullet length (bullet + 4 to account for asterisk, colon, and spaces).
-        noting_col = noting_col + (len(bullet) + 4)
-        'Splits the contents of the variable into an array of words
-        variable_array = split(variable, " ")
-
-        For each word in variable_array
-            'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
-            If len(word) + noting_col > 80 then
-                noting_row = noting_row + 1
-                noting_col = 3
-            End if
-
-            'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
-            If noting_row >= 19 then
-                PF8
-                noting_row = 5
-                'Msgbox "what's Happening? Noting row: " & noting_row
-            End if
-
-            'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
-            If noting_col = 3 then
-                EMWriteScreen space(indent_length), noting_row, noting_col
-                noting_col = noting_col + indent_length
-            End if
-
-            'Writes the word and a space using EMWriteScreen
-            EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
-
-            'If a semicolon is seen (we use this to mean "go down a row", it will kick the noting row down by one and add more indent again.
-            If right(word, 1) = ";" then
-                noting_row = noting_row + 1
-                noting_col = 3
-                EMWriteScreen space(indent_length), noting_row, noting_col
-                noting_col = noting_col + indent_length
-            End if
-            'Increases noting_col the length of the word + 1 (for the space)
-            noting_col = noting_col + (len(word) + 1)
-        Next
-        'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
-    	EMSetCursor noting_row + 1, 3
-    End if
-end function
+END FUNCTION
 
 Function write_bullet_and_variable_in_MMIS_NOTE(bullet, variable)
 '--- This function creates an asterisk, a bullet, a colon then a variable to style MMIS notes
@@ -11329,7 +11243,7 @@ function write_variable_in_CASE_NOTE(variable)
 	End if
 end function
 
-Function write_variable_in_CCOL_note(variable)
+FUNCTION write_variable_in_CCOL_note(variable)
     ''--- This function writes a variable in CCOL note
     '~~~~~ variable: information to be entered into CASE note from script/edit box
     '===== Keywords: MAXIS, CASE note
@@ -11401,7 +11315,93 @@ Function write_variable_in_CCOL_note(variable)
         'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
     	EMSetCursor noting_row + 1, 3
     End if
-End Function
+END FUNCTION
+
+function write_bullet_and_variable_in_CCOL_note(bullet, variable)
+'--- This function creates an asterisk, a bullet, a colon then a variable to style CCOL notes
+'~~~~~ bullet: name of the field to update. Put bullet in "".
+'~~~~~ variable: variable from script to be written into CCOL note
+'===== Keywords: MAXIS, bullet, CCOL note
+    If trim(variable) <> "" THEN
+        EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
+        'msgbox varible & vbcr & "noting_row " & noting_row
+        noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
+        'The following figures out if we need a new page, or if we need a new case note entirely as well.
+        Do
+            EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
+            character_test = trim(character_test)
+            If character_test <> "" or noting_row >= 19 then
+                noting_row = noting_row + 1
+                'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
+                If noting_row >= 19 then
+                    PF8
+                    'msgbox "sent PF8"
+                    EMReadScreen next_page_confirmation, 4, 19, 3
+                    'msgbox "next_page_confirmation " & next_page_confirmation
+                    IF next_page_confirmation = "More" THEN
+                        next_page = TRUE
+                        noting_row = 5
+                    Else
+                        next_page = FALSE
+                    End If
+                    'msgbox "next_page " & next_page
+                Else
+                    noting_row = noting_row + 1
+                End if
+            End if
+        Loop until character_test = ""
+
+        'Looks at the length of the bullet. This determines the indent for the rest of the info. Going with a maximum indent of 18.
+        If len(bullet) >= 14 then
+            indent_length = 18	'It's four more than the bullet text to account for the asterisk, the colon, and the spaces.
+        Else
+            indent_length = len(bullet) + 4 'It's four more for the reason explained above.
+        End if
+
+        'Writes the bullet
+        EMWriteScreen "* " & bullet & ": ", noting_row, noting_col
+        'Determines new noting_col based on length of the bullet length (bullet + 4 to account for asterisk, colon, and spaces).
+        noting_col = noting_col + (len(bullet) + 4)
+        'Splits the contents of the variable into an array of words
+        variable_array = split(variable, " ")
+
+        For each word in variable_array
+            'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+            If len(word) + noting_col > 80 then
+                noting_row = noting_row + 1
+                noting_col = 3
+            End if
+
+            'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
+            If noting_row >= 19 then
+                PF8
+                noting_row = 5
+                'Msgbox "what's Happening? Noting row: " & noting_row
+            End if
+
+            'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
+            If noting_col = 3 then
+                EMWriteScreen space(indent_length), noting_row, noting_col
+                noting_col = noting_col + indent_length
+            End if
+
+            'Writes the word and a space using EMWriteScreen
+            EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
+
+            'If a semicolon is seen (we use this to mean "go down a row", it will kick the noting row down by one and add more indent again.
+            If right(word, 1) = ";" then
+                noting_row = noting_row + 1
+                noting_col = 3
+                EMWriteScreen space(indent_length), noting_row, noting_col
+                noting_col = noting_col + indent_length
+            End if
+            'Increases noting_col the length of the word + 1 (for the space)
+            noting_col = noting_col + (len(word) + 1)
+        Next
+        'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
+    	EMSetCursor noting_row + 1, 3
+    End if
+end function
 
 Function write_variable_in_MMIS_NOTE(variable)
 ''--- This function writes a variable in MMIS case note
