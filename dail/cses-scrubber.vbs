@@ -1019,7 +1019,7 @@ If SNAP_active = true AND UNEA_review_checkbox = checked then
 
 		'Dynamic Dialog that will mimmick the PIC and ask for worker Input
         Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 346, 170, "REVIEW THE PIC"
+		BeginDialog Dialog1, 0, 0, 345, 195, "REVIEW THE PIC"
 		  Text 170, 5, 50, 10, UNEA_panel
 		  GroupBox 5, 15, 225, 130, "PIC"
 		  Text 10, 25, 65, 10, "Date of Calculation:"
@@ -1057,10 +1057,12 @@ If SNAP_active = true AND UNEA_review_checkbox = checked then
 		  Next
 		  Text 245, 130, 25, 10, "Total:"
 		  Text 280, 130, 50, 10, "$" & total_to_count
-		  Text 30, 155, 205, 10, "Does this income require rebudgeting and a new approval?"
+		  Text 35, 180, 195, 10, "Does this income require rebudgeting and a new approval?"
 		  ButtonGroup ButtonPressed
-		    PushButton 245, 150, 25, 15, "YES", yes_button
-		    PushButton 275, 150, 25, 15, "NO", No_button
+		    PushButton 240, 175, 45, 15, "YES", yes_button
+		    PushButton 290, 175, 45, 15, "NO", No_button
+		  Text 5, 155, 25, 10, "Notes:"
+		  EditBox 30, 150, 305, 15, other_notes
 		EndDialog
 
 		'The only options on this dialog are Yes or No
