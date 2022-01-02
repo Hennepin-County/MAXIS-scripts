@@ -117,24 +117,25 @@ function add_hrf_autoclose_case_note(mont_status_cash, mont_status_snap, hrf_for
 				If autoclosed_programs <> "" Then
 					If left(autoclosed_programs, 1) = "/" Then autoclosed_programs = right(autoclosed_programs, len(autoclosed_programs)-1)
 					If left(n_code_programs, 1) = "/" Then n_code_programs = right(n_code_programs, len(n_code_programs)-1)
-					Call start_a_blank_case_note
+					If developer_mode = False Then 
+						Call start_a_blank_case_note
 
-					Call write_variable_in_CASE_NOTE(autoclosed_programs & " AUTOCLOSED eff " & REPT_month & "/" & REPT_year & " for Incomplete HRF (Monthly Report)")
-					Call write_variable_in_CASE_NOTE("Monthly Reports Terminated:")
-					If cash_1_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_1_autoclosed)
-					If cash_2_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_2_autoclosed)
-					If snap_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & snap_autoclosed)
-					If hc_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & hc_autoclosed)
-					If hrf_form_date <> "" Then Call write_variable_in_CASE_NOTE("HRF Received on " & hrf_form_date)
-					Call write_variable_in_CASE_NOTE("Review case to determine additional actions to be taken.")
-					If n_code_programs <> "" Then Call write_variable_in_CASE_NOTE("Check previous CASE:NOTE information for status about: " & n_code_programs)
-					Call write_variable_in_CASE_NOTE("---")
-					Call write_variable_in_CASE_NOTE("This is an automated process to NOTE a system action and no manual review of the case was completed. The programs autoclosed because the HRF process was incomplete, no action taken at county level.")
-					Call write_variable_in_CASE_NOTE("---")
-					Call write_variable_in_CASE_NOTE(worker_signature)
-					' MsgBox "Look here"
-					PF3															'saving the CASE:NOTE
-
+						Call write_variable_in_CASE_NOTE(autoclosed_programs & " AUTOCLOSED eff " & REPT_month & "/" & REPT_year & " for Incomplete HRF (Monthly Report)")
+						Call write_variable_in_CASE_NOTE("Monthly Reports Terminated:")
+						If cash_1_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_1_autoclosed)
+						If cash_2_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_2_autoclosed)
+						If snap_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & snap_autoclosed)
+						If hc_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & hc_autoclosed)
+						If hrf_form_date <> "" Then Call write_variable_in_CASE_NOTE("HRF Received on " & hrf_form_date)
+						Call write_variable_in_CASE_NOTE("Review case to determine additional actions to be taken.")
+						If n_code_programs <> "" Then Call write_variable_in_CASE_NOTE("Check previous CASE:NOTE information for status about: " & n_code_programs)
+						Call write_variable_in_CASE_NOTE("---")
+						Call write_variable_in_CASE_NOTE("This is an automated process to NOTE a system action and no manual review of the case was completed. The programs autoclosed because the HRF process was incomplete, no action taken at county level.")
+						Call write_variable_in_CASE_NOTE("---")
+						Call write_variable_in_CASE_NOTE(worker_signature)
+						' MsgBox "Look here"
+						PF3															'saving the CASE:NOTE
+					End If
 					' Adding the note informaiton to the MONT Report Excel
 					ObjExcel.Cells(excel_row, closure_note_col) = "Yes"
 					ObjExcel.Cells(excel_row, closure_progs_col) = autoclosed_programs
@@ -567,6 +568,7 @@ add_case_note = False
 If Weekday(date) = 2 Then report_option = "Collect Statistics"
 If today_day = 16 Then report_option = "Create MRSR Report"
 If today_day = 1 Then report_option = "End of Processing Month"
+developer_mode = False
 
 'DISPLAYS DIALOG
 Dialog1 = ""
@@ -621,6 +623,7 @@ If report_option = "End of Processing Month" Then
 	If mx_region = "INQUIRY DB" Then
 		continue_in_inquiry = MsgBox("It appears you are attempting to have the script create CASE:NOTEs for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
 		If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
+		developer_mode = True
 	End If
 End If
 
@@ -1273,15 +1276,11 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 	ObjExcel.Cells(1, cash_mont_excel_col).Value = "CASH (" & date_header & ")"			'creating the column headers for the statistics information for the day of the run.
 	ObjExcel.Cells(1, stat_mont_excel_col).Value = "SNAP (" & date_header & ")"
 	ObjExcel.Cells(1, recvd_date_excel_col).Value = "HRF Date (" & date_header & ")"
+	last_col = col_to_use + 2
 ' 	ObjExcel.Cells(1, hc_stat_excel_col).Value = "HC (" & date_header & ")"
 ' 	ObjExcel.Cells(1, magi_stat_excel_col).Value = "MAGI (" & date_header & ")"
 ' 	ObjExcel.Cells(1, intvw_date_excel_col).Value = "Intvw Date (" & date_header & ")"
 '
-	FOR i = col_to_use to col_to_use + 2									'formatting the cells'
-		objExcel.Cells(1, i).Font.Bold = True		'bold font'
-		ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-		objExcel.Columns(i).AutoFit()				'sizing the columns'
-	NEXT
 
 	'This is for the end of processing month option - it needs 2 additional columns.
 	If add_case_note = True Then
@@ -1290,7 +1289,15 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 
 		closure_progs_col = col_to_use + 4
 		ObjExcel.Cells(1, closure_progs_col).Value = "Progs Closed"
+
+		last_col = col_to_use + 4
 	End If
+
+	FOR i = col_to_use to last_col									'formatting the cells'
+		objExcel.Cells(1, i).Font.Bold = True		'bold font'
+		ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+		objExcel.Columns(i).AutoFit()				'sizing the columns'
+	NEXT
 
 	recert_cases = 0	            'incrementor for the array
 
