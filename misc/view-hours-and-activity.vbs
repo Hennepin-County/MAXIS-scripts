@@ -110,6 +110,7 @@ function create_time_spent_totals(start_date, end_date, sort_type, total_hours, 
 				If sort_type = "PROJECT" Then TYPE_ARRAY(type_detail_const, type_counter) = TIME_TRACKING_ARRAY(activity_project, logged_activity)
 				If sort_type = "GITHUB ISSUE" Then TYPE_ARRAY(type_detail_const, type_counter) = TIME_TRACKING_ARRAY(activity_gh_issue_numb, logged_activity)
 				If sort_type = "DAY" Then TYPE_ARRAY(type_detail_const, type_counter) = TIME_TRACKING_ARRAY(activity_date_const, logged_activity)
+
 				If TYPE_ARRAY(type_detail_const, type_counter) = "" Then TYPE_ARRAY(type_detail_const, type_counter) = "BLANK"
 
 				TYPE_ARRAY(total_hours_const, type_counter) = TIME_TRACKING_ARRAY(activity_time_spent_val, logged_activity)
@@ -129,7 +130,10 @@ function create_time_spent_totals(start_date, end_date, sort_type, total_hours, 
 		Call make_time_string(TYPE_ARRAY(total_hours_string_const, each_type))
 		If sort_type = "PROJECT" AND TYPE_ARRAY(type_detail_const, each_type) = "BLANK" Then TYPE_ARRAY(type_detail_const, each_type) = "No Specified Project"
 		If sort_type = "GITHUB ISSUE" AND TYPE_ARRAY(type_detail_const, each_type) = "BLANK" Then TYPE_ARRAY(type_detail_const, each_type) = "No Specified Issue"
-		If sort_type = "DAY" Then TYPE_ARRAY(type_detail_const, each_type) = TYPE_ARRAY(type_detail_const, each_type) & " - " & WeekdayName(WeekDay(TYPE_ARRAY(type_detail_const, each_type)))
+		If sort_type = "DAY" Then
+			If IsDate(TYPE_ARRAY(type_detail_const, each_type)) = False Then TYPE_ARRAY(type_detail_const, each_type) = start_date
+			TYPE_ARRAY(type_detail_const, each_type) = TYPE_ARRAY(type_detail_const, each_type) & " - " & WeekdayName(WeekDay(TYPE_ARRAY(type_detail_const, each_type)))
+		End If
 	Next
 end function
 '===========================================================================================================================
@@ -187,9 +191,9 @@ week_list = "Select"
 ' week_list = week_list+chr(9)+"11/21/2021 - 11/27/2021"
 ' week_list = week_list+chr(9)+"11/28/2021 - 12/4/2021"
 ' week_list = week_list+chr(9)+"12/5/2021 - 12/11/2021"
-week_list = week_list+chr(9)+"12/12/2021 - 12/18/2021"
-week_list = week_list+chr(9)+"12/19/2021 - 12/25/2021"
-week_list = week_list+chr(9)+"12/26/2021 - 1/1/2022"
+' week_list = week_list+chr(9)+"12/12/2021 - 12/18/2021"
+' week_list = week_list+chr(9)+"12/19/2021 - 12/25/2021"
+' week_list = week_list+chr(9)+"12/26/2021 - 1/1/2022"
 week_list = week_list+chr(9)+"1/2/2022 - 1/8/2022"
 week_list = week_list+chr(9)+"1/9/2022 - 1/15/2022"
 week_list = week_list+chr(9)+"1/16/2022 - 1/22/2022"
@@ -219,8 +223,6 @@ week_list = week_list+chr(9)+"6/26/2022 - 7/2/2022"
 week_array = split(week_list, chr(9))
 
 biweek_list = "Select"
-biweek_list = biweek_list+chr(9)+"12/12/2021 - 12/25/2022"
-biweek_list = biweek_list+chr(9)+"12/26/2021 - 1/1/2022"
 biweek_list = biweek_list+chr(9)+"1/2/2022 - 1/15/2022"
 biweek_list = biweek_list+chr(9)+"1/16/2022 - 1/29/2022"
 biweek_list = biweek_list+chr(9)+"1/30/2022 - 2/12/2022"
@@ -341,7 +343,7 @@ If user_ID_for_validation = "WFS395" Then
 	my_docs_excel_file_path = user_myDocs_folder & "MiKayla Time Tracking " & the_year & ".xlsx"
 End If
 
-view_excel = False		'this variable allows us to set
+view_excel = True		'this variable allows us to set
 Call excel_open(my_docs_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file
 
 row_filled_with_end_time = " "
@@ -419,19 +421,19 @@ For each biweek_item in biweek_array
 Next
 current_month = MonthName(DatePart("m", date))
 
+first_date = "1/1/2022"
+first_week = "1/2/2022 - 1/8/2022"
+first_pay_pd = "1/2/2022 - 1/15/2022"
+first_month = "January"
+
 selected_date = current_day
 dialog_view = day_view
-selected_sort = "CATEGORY"
+selected_sort = "DAY"
 Call create_time_spent_totals(current_day, current_day, selected_sort, hours_in_time_pd, hours_in_meetings_dur_time_pd, CATEGORY_ARRAY)
 
 'now we show the dialog.
 Do
 	err_msg = ""
-	on_current_time_pd = False
-	If dialog_view = day_view AND selected_date = current_day Then on_current_time_pd = True			'determining if we need a plus button or not
-	If dialog_view = week_view AND selected_date = current_week Then on_current_time_pd = True
-	If dialog_view = biweek_view AND selected_date = current_pay_pd Then on_current_time_pd = True
-	If dialog_view = month_view AND selected_date = current_month Then on_current_time_pd = True
 
 	display_total_hours = hours_in_time_pd					'these are set to a new variable because they have to remain numbers
 	display_meeting_hours = hours_in_meetings_dur_time_pd
@@ -440,6 +442,18 @@ Do
 	selected_start_date = selected_start_date & ""			'Making sure these are displayed
 	selected_end_date = selected_end_date & ""
 	selected_date = selected_date & ""
+
+	on_current_time_pd = False
+	If dialog_view = day_view AND selected_date = current_day Then on_current_time_pd = True			'determining if we need a plus button or not
+	If dialog_view = week_view AND selected_date = current_week Then on_current_time_pd = True
+	If dialog_view = biweek_view AND selected_date = current_pay_pd Then on_current_time_pd = True
+	If dialog_view = month_view AND selected_date = current_month Then on_current_time_pd = True
+
+	on_first_time_ppd = False
+	If dialog_view = day_view AND selected_date = first_date Then on_first_time_ppd = True			'determining if we need a plus button or not
+	If dialog_view = week_view AND selected_date = first_week Then on_first_time_ppd = True
+	If dialog_view = biweek_view AND selected_date = first_pay_pd Then on_first_time_ppd = True
+	If dialog_view = month_view AND selected_date = first_month Then on_first_time_ppd = True
 
 	dlg_len = 140											'setting the lengths of the dialog and group boxes based on what the sort options are
 	grp_1_len = 25
@@ -496,10 +510,12 @@ Do
 			Text 270, 17, 10, 10, " - "
 			EditBox 280, 15, 50, 15, selected_end_date
 		Else
-			If dialog_view = day_view Then
-				PushButton 280, 33, 15, 12, "-", minus_button
-			Else
-				PushButton 180, 33, 15, 12, "-", minus_button
+			If on_first_time_ppd = False Then
+				If dialog_view = day_view Then
+					PushButton 280, 33, 15, 12, "-", minus_button
+				Else
+					PushButton 180, 33, 15, 12, "-", minus_button
+				End If
 			End If
 			If on_current_time_pd = False Then PushButton 315, 33, 15, 12, "+", plus_button
 		End If
@@ -704,52 +720,52 @@ Do
 	End If
 	If dialog_view = month_view Then
 		If selected_date = "January" Then
-			selected_start_date = #1/1/2021#
-			selected_end_date = #1/31/2021#
+			selected_start_date = #1/1/2022#
+			selected_end_date = #1/31/2022#
 		End if
 		If selected_date = "February" Then
-			selected_start_date = #2/1/2021#
-			selected_end_date = #2/28/2021#
+			selected_start_date = #2/1/2022#
+			selected_end_date = #2/28/2022#
 		End if
 		If selected_date = "March" Then
-			selected_start_date = #3/1/2021#
-			selected_end_date = #3/31/2021#
+			selected_start_date = #3/1/2022#
+			selected_end_date = #3/31/2022#
 		End if
 		If selected_date = "April" Then
-			selected_start_date = #4/1/2021#
-			selected_end_date = #4/30/2021#
+			selected_start_date = #4/1/2022#
+			selected_end_date = #4/30/2022#
 		End if
 		If selected_date = "May" Then
-			selected_start_date = #5/1/2021#
-			selected_end_date = #5/31/2021#
+			selected_start_date = #5/1/2022#
+			selected_end_date = #5/31/2022#
 		End if
 		If selected_date = "June" Then
-			selected_start_date = #6/1/2021#
-			selected_end_date = #6/30/2021#
+			selected_start_date = #6/1/2022#
+			selected_end_date = #6/30/2022#
 		End if
 		If selected_date = "July" Then
-			selected_start_date = #7/1/2021#
-			selected_end_date = #7/31/2021#
+			selected_start_date = #7/1/2022#
+			selected_end_date = #7/31/2022#
 		End if
 		If selected_date = "August" Then
-			selected_start_date = #8/1/2021#
-			selected_end_date = #8/31/2021#
+			selected_start_date = #8/1/2022#
+			selected_end_date = #8/31/2022#
 		End if
 		If selected_date = "September" Then
-			selected_start_date = #9/1/2021#
-			selected_end_date = #9/30/2021#
+			selected_start_date = #9/1/2022#
+			selected_end_date = #9/30/2022#
 		End if
 		If selected_date = "October" Then
-			selected_start_date = #10/1/2021#
-			selected_end_date = #10/31/2021#
+			selected_start_date = #10/1/2022#
+			selected_end_date = #10/31/2022#
 		End if
 		If selected_date = "November" Then
-			selected_start_date = #11/1/2021#
-			selected_end_date = #11/30/2021#
+			selected_start_date = #11/1/2022#
+			selected_end_date = #11/30/2022#
 		End if
 		If selected_date = "December" Then
-			selected_start_date = #12/1/2021#
-			selected_end_date = #12/31/2021#
+			selected_start_date = #12/1/2022#
+			selected_end_date = #12/31/2022#
 		End if
 	End If
 	If dialog_view = custom_view Then
