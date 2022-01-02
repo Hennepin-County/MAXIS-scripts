@@ -77,18 +77,18 @@ function add_hrf_autoclose_case_note(mont_status_cash, mont_status_snap, hrf_for
 				If mont_status_cash = "T" OR mont_status_cash = "I" OR mont_status_cash = "U" Then
 					If MFIP_status = True Then
 						autoclosed_programs = autoclosed_programs & "/MFIP"
-						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP HRF"
 						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MFIP HRF"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP HRF"
 					End If
 					If GA_status = True Then
 						autoclosed_programs = autoclosed_programs & "/GA"
-						If cash_1_autoclosed = "" Then cash_1_autoclosed = "GA HRF"
 						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GA HRF"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "GA HRF"
 					End If
 					If MSA_status = True Then
 						autoclosed_programs = autoclosed_programs & "/MSA"
-						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MSA HRF"
 						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MSA HRF"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MSA HRF"
 					End If
 				End If
 				'Now looking at SNAP if the review status is T, I, or '
@@ -117,7 +117,7 @@ function add_hrf_autoclose_case_note(mont_status_cash, mont_status_snap, hrf_for
 				If autoclosed_programs <> "" Then
 					If left(autoclosed_programs, 1) = "/" Then autoclosed_programs = right(autoclosed_programs, len(autoclosed_programs)-1)
 					If left(n_code_programs, 1) = "/" Then n_code_programs = right(n_code_programs, len(n_code_programs)-1)
-					If developer_mode = False Then 
+					If developer_mode = False Then
 						Call start_a_blank_case_note
 
 						Call write_variable_in_CASE_NOTE(autoclosed_programs & " AUTOCLOSED eff " & REPT_month & "/" & REPT_year & " for Incomplete HRF (Monthly Report)")
@@ -125,7 +125,6 @@ function add_hrf_autoclose_case_note(mont_status_cash, mont_status_snap, hrf_for
 						If cash_1_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_1_autoclosed)
 						If cash_2_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_2_autoclosed)
 						If snap_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & snap_autoclosed)
-						If hc_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & hc_autoclosed)
 						If hrf_form_date <> "" Then Call write_variable_in_CASE_NOTE("HRF Received on " & hrf_form_date)
 						Call write_variable_in_CASE_NOTE("Review case to determine additional actions to be taken.")
 						If n_code_programs <> "" Then Call write_variable_in_CASE_NOTE("Check previous CASE:NOTE information for status about: " & n_code_programs)
