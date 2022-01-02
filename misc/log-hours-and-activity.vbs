@@ -135,8 +135,9 @@ End If
 
 time_off_excel_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking\BZST Time Off.xlsx"
 
-view_excel = False		'this variable allows us to set
+view_excel = True		'this variable allows us to set
 Call excel_open(my_docs_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file
+ObjExcel.worksheets("Time Tracking List").Activate
 
 time_off_requestes_for_approval = False
 If user_ID_for_validation = "ILFE001" Then
@@ -441,6 +442,7 @@ If on_task = False Then					'If we are not currently on a task, this will start 
 		ObjExcel.Cells(next_blank_row, 5).Value = next_category
 		ObjExcel.Cells(next_blank_row, 6).Value = next_meeting
 		ObjExcel.Cells(next_blank_row, 7).Value = next_detail
+		ObjExcel.Cells(next_blank_row, 8).Value = ""
 		If next_gh_issue <> "" Then ObjExcel.Cells(next_blank_row, 8).Value = "=HYPERLINK(" & chr(34) & "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & next_gh_issue & chr(34) & ", " & chr(34) & next_gh_issue & chr(34) & ")"
 		ObjExcel.Cells(next_blank_row, 9).Value = next_project
 		ObjExcel.Cells(next_blank_row, 10).Value = "Y"
@@ -604,6 +606,7 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 		ObjExcel.Cells(next_blank_row, 5).Value = next_category
 		ObjExcel.Cells(next_blank_row, 6).Value = next_meeting
 		ObjExcel.Cells(next_blank_row, 7).Value = next_detail
+		ObjExcel.Cells(next_blank_row, 8).Value = ""
 		If next_gh_issue <> "" Then ObjExcel.Cells(next_blank_row, 8).Value = "=HYPERLINK(" & chr(34) & "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & next_gh_issue & chr(34) & ", " & chr(34) & next_gh_issue & chr(34) & ")"
 		ObjExcel.Cells(next_blank_row, 9).Value = next_project
 		ObjExcel.Cells(next_blank_row, 10).Value = "Y"
