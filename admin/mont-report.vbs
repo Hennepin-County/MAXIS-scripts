@@ -50,9 +50,9 @@ call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status_hc, revw_form_date, revw_intvw_date)
+function add_hrf_autoclose_case_note(mont_status_cash, mont_status_snap, hrf_form_date)
 	If add_case_note = True Then		'only run the details here if we are running the 'end of month processing'
-		If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" OR revw_status_snap = "T" OR revw_status_snap = "I" OR revw_status_snap = "U" Then
+		If mont_status_cash = "T" OR mont_status_cash = "I" OR mont_status_cash = "U" OR mont_status_snap = "T" OR mont_status_snap = "I" OR mont_status_snap = "U" Then
 		'We only care if the review has been terminated by the system, which is only indicated if the REVW status is T, I or U'
 			Call navigate_to_MAXIS_screen("CASE", "NOTE")						'navigating to CASE:NOTE now
 			EMReadScreen pw_county, 2, 21, 16									'reading to make sure this is still in Hennepin Country
@@ -64,63 +64,39 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 				hc_autoclosed = ""
 				n_code_programs = ""
 
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, MFIP_status)		'reading the program status information from the MONT Report information
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, DWP_status)
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, GA_status)
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, MSA_status)
-				Call read_boolean_from_excel(objExcel.cells(excel_row, 10).value, GRH_status)
-				Call read_boolean_from_excel(objExcel.cells(excel_row, 13).value, SNAP_status)
+				Call read_boolean_from_excel(objExcel.cells(excel_row,  5).value, MFIP_status)		'reading the program status information from the MONT Report information
+				Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, DWP_status)
+				Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, GA_status)
+				Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, MSA_status)
+				Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, GRH_status)
+				Call read_boolean_from_excel(objExcel.cells(excel_row, 12).value, SNAP_status)
 
-				REPT_full = REPT_month & "/" & REPT_year						'creating a string from the review month and year for comparing the information in the REVW columns of the MONT Report
-				CASH_SR_Info = trim(objExcel.cells(excel_row, 11).value)
-				CASH_ER_Info = trim(objExcel.cells(excel_row, 12).value)
-				SNAP_SR_Info = trim(objExcel.cells(excel_row, 14).value)
-				SNAP_ER_Info = trim(objExcel.cells(excel_row, 15).value)
+				MONT_full = REPT_month & "/" & REPT_year						'creating a string from the review month and year for comparing the information in the REVW columns of the MONT Report
 
 				'CASH is first - if the status is T, I, or U - we are going to look at program status to firgure out which program of cash that it actually is
-				If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" Then
-					If CASH_ER_Info = REPT_full then		'These programs are only ER
-						If MFIP_status = True Then
-							autoclosed_programs = autoclosed_programs & "/MFIP"
-							If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP ER"
-							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MFIP ER"
-						End If
-						If DWP_status = True Then
-							autoclosed_programs = autoclosed_programs & "/DWP"
-							If cash_1_autoclosed = "" Then cash_1_autoclosed = "DWP ER"
-							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "DWP ER"
-						End If
-						If GA_status = True Then
-							autoclosed_programs = autoclosed_programs & "/GA"
-							If cash_1_autoclosed = "" Then cash_1_autoclosed = "GA ER"
-							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GA ER"
-						End If
-						If MSA_status = True Then
-							autoclosed_programs = autoclosed_programs & "/MSA"
-							If cash_1_autoclosed = "" Then cash_1_autoclosed = "MSA ER"
-							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MSA ER"
-						End If
+				If mont_status_cash = "T" OR mont_status_cash = "I" OR mont_status_cash = "U" Then
+					If MFIP_status = True Then
+						autoclosed_programs = autoclosed_programs & "/MFIP"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP HRF"
+						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MFIP HRF"
 					End If
-					If GRH_status = True AND (CASH_SR_Info = REPT_full OR CASH_ER_Info = REPT_full) Then		'GRH could be ER or SR
-						If GRH_status = True Then
-							autoclosed_programs = autoclosed_programs & "/GRH"
-							If CASH_SR_Info = REPT_full Then
-								If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH SR"
-								If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GRH SR"
-							End If
-							If CASH_ER_Info = REPT_full Then
-								If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH ER"						'ER will overwrite SR because it is higher on the heirarchy
-								If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GRH ER"
-							End If
-						End If
+					If GA_status = True Then
+						autoclosed_programs = autoclosed_programs & "/GA"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "GA HRF"
+						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GA HRF"
+					End If
+					If MSA_status = True Then
+						autoclosed_programs = autoclosed_programs & "/MSA"
+						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MSA HRF"
+						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MSA HRF"
 					End If
 				End If
 				'Now looking at SNAP if the review status is T, I, or '
-				If revw_status_snap = "T" OR revw_status_snap = "I" OR revw_status_snap = "U" Then
+				If mont_status_snap = "T" OR mont_status_snap = "I" OR mont_status_snap = "U" Then
 					If SNAP_status = True AND (SNAP_SR_Info = REPT_full OR SNAP_ER_Info = REPT_full) Then
 						autoclosed_programs = autoclosed_programs & "/SNAP"
-						If SNAP_SR_Info = REPT_full Then snap_autoclosed = "SNAP SR"
-						If SNAP_ER_Info = REPT_full Then snap_autoclosed = "SNAP ER"							'ER will overwirte SR
+						If SNAP_SR_Info = REPT_full Then snap_autoclosed = "SNAP HRF"
+						If SNAP_ER_Info = REPT_full Then snap_autoclosed = "SNAP HRF"							'ER will overwirte SR
 					End If
 				End If
 				' 'HC Cases not set up yet as no REVWs and we cannot test
@@ -128,14 +104,14 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 				' End If
 
 				'Now we check for any programs that have an 'N' as the review status so we can add a line about a program that may not be active.
-				If revw_status_cash = "N" Then
+				If mont_status_cash = "N" Then
 					If MFIP_status = True Then n_code_programs = n_code_programs & "/MFIP"
 					If DWP_status = True Then n_code_programs = n_code_programs & "/DWP"
 					If GA_status = True Then n_code_programs = n_code_programs & "/GA"
 					If MSA_status = True Then n_code_programs = n_code_programs & "/MSA"
 					If GRH_status = True Then n_code_programs = n_code_programs & "/GRH"
 				End If
-				If revw_status_snap = "N" Then n_code_programs = n_code_programs & "/SNAP"
+				If mont_status_snap = "N" Then n_code_programs = n_code_programs & "/SNAP"
 
 				'If there is at least one 'autoclosed' program, we are going to enter the note.
 				If autoclosed_programs <> "" Then
@@ -143,18 +119,17 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 					If left(n_code_programs, 1) = "/" Then n_code_programs = right(n_code_programs, len(n_code_programs)-1)
 					Call start_a_blank_case_note
 
-					Call write_variable_in_CASE_NOTE(autoclosed_programs & " AUTOCLOSED eff " & REPT_month & "/" & REPT_year & " for Incomplete REVW")
-					Call write_variable_in_CASE_NOTE("Renewals Terminated:")
+					Call write_variable_in_CASE_NOTE(autoclosed_programs & " AUTOCLOSED eff " & REPT_month & "/" & REPT_year & " for Incomplete HRF (Monthly Report)")
+					Call write_variable_in_CASE_NOTE("Monthly Reports Terminated:")
 					If cash_1_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_1_autoclosed)
 					If cash_2_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_2_autoclosed)
 					If snap_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & snap_autoclosed)
 					If hc_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & hc_autoclosed)
-					If revw_form_date <> "" Then Call write_variable_in_CASE_NOTE("Renewal Form Received on " & revw_form_date)
-					' If revw_intvw_date <> "" Then Call write_variable_in_CASE_NOTE("Interview Completed on " & revw_intvw_date )				'Taking this out during the Interview Waiver time.
+					If hrf_form_date <> "" Then Call write_variable_in_CASE_NOTE("HRF Received on " & hrf_form_date)
 					Call write_variable_in_CASE_NOTE("Review case to determine additional actions to be taken.")
 					If n_code_programs <> "" Then Call write_variable_in_CASE_NOTE("Check previous CASE:NOTE information for status about: " & n_code_programs)
 					Call write_variable_in_CASE_NOTE("---")
-					Call write_variable_in_CASE_NOTE("This is an automated process to NOTE a system action and no manual review of the case was completed. The programs autoclosed because the renewal process was incomplete, no action taken at county level.")
+					Call write_variable_in_CASE_NOTE("This is an automated process to NOTE a system action and no manual review of the case was completed. The programs autoclosed because the HRF process was incomplete, no action taken at county level.")
 					Call write_variable_in_CASE_NOTE("---")
 					Call write_variable_in_CASE_NOTE(worker_signature)
 					' MsgBox "Look here"
@@ -644,7 +619,7 @@ If report_option = "End of Processing Month" Then
 	EMReadScreen mx_region, 10, 22, 48
 
 	If mx_region = "INQUIRY DB" Then
-		continue_in_inquiry = MsgBox("It appears you are attempting to have the script send notices for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
+		continue_in_inquiry = MsgBox("It appears you are attempting to have the script create CASE:NOTEs for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
 		If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
 	End If
 End If
@@ -1307,16 +1282,16 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 		ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 		objExcel.Columns(i).AutoFit()				'sizing the columns'
 	NEXT
-'
-' 	'This is for the end of processing month option - it needs 2 additional columns.
-' 	If add_case_note = True Then
-' 		closure_note_col = col_to_use + 6
-' 		ObjExcel.Cells(1, closure_note_col).Value = "Close Note"
-'
-' 		closure_progs_col = col_to_use + 7
-' 		ObjExcel.Cells(1, closure_progs_col).Value = "Progs Closed"
-' 	End If
-'
+
+	'This is for the end of processing month option - it needs 2 additional columns.
+	If add_case_note = True Then
+		closure_note_col = col_to_use + 3
+		ObjExcel.Cells(1, closure_note_col).Value = "Close Note"
+
+		closure_progs_col = col_to_use + 4
+		ObjExcel.Cells(1, closure_progs_col).Value = "Progs Closed"
+	End If
+
 	recert_cases = 0	            'incrementor for the array
 
 	back_to_self    'We need to get back to SELF and manually update the footer month
@@ -1387,7 +1362,7 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 					found_in_array = TRUE			'this lets the script know that this case was found in the array
 					mont_array(saved_to_excel_const, revs_item) = TRUE
 
-					' Call add_autoclose_case_note(mont_array(CASH_revw_status_const, revs_item), mont_array(SNAP_revw_status_const, revs_item), mont_array(HC_revw_status_const, revs_item), mont_array(review_recvd_const, revs_item), mont_array(interview_date_const, revs_item))
+					Call add_hrf_autoclose_case_note(mont_array(cash_hrf_const, revs_item), mont_array(snap_hrf_const, revs_item), mont_array(review_recvd_const, revs_item))
 
 					Exit For						'if we found a match, we should stop looking
 				End If
@@ -1413,7 +1388,7 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 				If snap_mont_status <> "" Then ObjExcel.Cells(excel_row, stat_mont_excel_col).Value = snap_mont_status
 				If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
 
-				' Call add_autoclose_case_note(cash_mont_status, snap_review_status, hc_review_status, recvd_date, interview_date)
+				Call add_hrf_autoclose_case_note(cash_mont_status, snap_mont_status, recvd_date)
 
 			End If
 
@@ -1604,7 +1579,7 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 ' 			ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, intvw_date_excel_col)).Interior.ColorIndex = 6
 ' 			Call back_to_SELF		'Back out in case we need to look into another case.
 '
-' 			Call add_autoclose_case_note(mont_array(CASH_revw_status_const, revs_item), mont_array(SNAP_revw_status_const, revs_item), mont_array(HC_revw_status_const, revs_item), mont_array(review_recvd_const, revs_item), mont_array(interview_date_const, revs_item))
+' 			Call add_hrf_autoclose_case_note(mont_array(CASH_revw_status_const, revs_item), mont_array(SNAP_revw_status_const, revs_item), mont_array(HC_revw_status_const, revs_item), mont_array(review_recvd_const, revs_item), mont_array(interview_date_const, revs_item))
 '
 ' 			excel_row = excel_row + 1		'going to the next excel
 ' 		End If
