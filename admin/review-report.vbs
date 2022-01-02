@@ -83,35 +83,35 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 					If CASH_ER_Info = REPT_full then		'These programs are only ER
 						If MFIP_status = True Then
 							autoclosed_programs = autoclosed_programs & "/MFIP"
-							If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP ER"
 							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MFIP ER"
+							If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP ER"
 						End If
 						If DWP_status = True Then
 							autoclosed_programs = autoclosed_programs & "/DWP"
-							If cash_1_autoclosed = "" Then cash_1_autoclosed = "DWP ER"
 							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "DWP ER"
+							If cash_1_autoclosed = "" Then cash_1_autoclosed = "DWP ER"
 						End If
 						If GA_status = True Then
 							autoclosed_programs = autoclosed_programs & "/GA"
-							If cash_1_autoclosed = "" Then cash_1_autoclosed = "GA ER"
 							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GA ER"
+							If cash_1_autoclosed = "" Then cash_1_autoclosed = "GA ER"
 						End If
 						If MSA_status = True Then
 							autoclosed_programs = autoclosed_programs & "/MSA"
-							If cash_1_autoclosed = "" Then cash_1_autoclosed = "MSA ER"
 							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MSA ER"
+							If cash_1_autoclosed = "" Then cash_1_autoclosed = "MSA ER"
 						End If
 					End If
 					If GRH_status = True AND (CASH_SR_Info = REPT_full OR CASH_ER_Info = REPT_full) Then		'GRH could be ER or SR
 						If GRH_status = True Then
 							autoclosed_programs = autoclosed_programs & "/GRH"
 							If CASH_SR_Info = REPT_full Then
-								If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH SR"
 								If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GRH SR"
+								If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH SR"
 							End If
 							If CASH_ER_Info = REPT_full Then
-								If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH ER"						'ER will overwrite SR because it is higher on the heirarchy
 								If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GRH ER"
+								If cash_1_autoclosed = "" Then cash_1_autoclosed = "GRH ER"						'ER will overwrite SR because it is higher on the heirarchy
 							End If
 						End If
 					End If
