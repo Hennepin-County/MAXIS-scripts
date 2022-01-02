@@ -538,7 +538,7 @@ End If
 'TODO - add more defaults to the transfer_to_worker as we confirm procedure
 
 dlg_len = 75                'this is another dynamic dialog that needs different sizes based on what it has to display.
-IF send_appt_ltr = TRUE THEN dlg_len = dlg_len + 70
+IF send_appt_ltr = TRUE THEN dlg_len = dlg_len + 95
 IF how_application_rcvd = "Request to APPL Form" THEN dlg_len = dlg_len + 80
 
 'defining the actions dialog
@@ -552,17 +552,21 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Actions in MAXIS"
   Text 10, 20, 85, 10, "Transfer the case to x127"
   y_pos = 55
   IF send_appt_ltr = TRUE THEN
-      GroupBox 5, 55, 255, 65, "Appointment Notice"
+      GroupBox 5, 55, 255, 90, "Appointment Notice"
       y_pos = y_pos + 15
       Text 15, y_pos, 35, 10, "CAF date:"
       Text 50, y_pos, 55, 15, application_date
       Text 120, y_pos, 60, 10, "Appointment date:"
-      EditBox 185, y_pos - 5, 55, 15, interview_date
+      Text 185, y_pos, 55, 15, interview_date
       y_pos = y_pos + 15
-      Text 50, y_pos, 185, 10, "If interview is being completed please use today's date."
+      Text 50, y_pos, 195, 10, "The NOTICE cannot be cancelled or changed from this script."
       y_pos = y_pos + 10
-      Text 50, y_pos, 190, 20, "Enter a new appointment date only if it's a date county offices are not open."
-      y_pos = y_pos + 30
+      Text 50, y_pos, 190, 20, "An Eligibility Worker can make changes/cancellations to the notice in MAXIS."
+      y_pos = y_pos + 20
+      Text 50, y_pos, 200, 10, "This script follows the requirements for the On Demand Waiver."
+      y_pos = y_pos + 10
+      odw_btn_y_pos = y_pos
+      y_pos = y_pos + 25
   End If
   IF how_application_rcvd = "Request to APPL Form" THEN
       GroupBox 5, y_pos, 255, 75, "Request to APPL Information"
@@ -589,6 +593,7 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Actions in MAXIS"
   ButtonGroup ButtonPressed
     OkButton 155, y_pos, 50, 15
     CancelButton 210, y_pos, 50, 15
+    IF send_appt_ltr = TRUE THEN PushButton 50, odw_btn_y_pos, 125, 13, "HSR Manual - On Demand Waiver", on_demand_waiver_button
 EndDialog
 'THIS COMMENTED OUT DIALOG IS THE DLG EDITOR FRIENDLY VERSION SINCE THERE IS LOGIC IN THE DIALOG
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -637,7 +642,12 @@ Do
             IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
             IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg &  vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
         End If
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        If ButtonPressed = on_demand_waiver_button Then
+            run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/On_Demand_Waiver.aspx"
+            err_msg = "LOOP"
+        Else
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        End If
     LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has     not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE
