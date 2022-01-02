@@ -86,11 +86,9 @@ Select Case this_month
 	Case "October"
 		cut_off_date = #10/20/2022#
 	Case "November"
-		cut_off_date = #11/17/2021#
-		' cut_off_date = #11/17/2022#
+		cut_off_date = #11/17/2022#
 	Case "December"
-		cut_off_date = #12/20/2021#
-		' cut_off_date = #12/20/2022#
+		cut_off_date = #12/20/2022#
 End Select
 'MsgBox cut_off_date
 If cut_off_date <> "" Then
