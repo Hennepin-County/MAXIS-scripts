@@ -91,7 +91,7 @@ END FUNCTION
 
 'THE SCRIPT-------------------------------------------------------------------------
 'Gathering county code for multi-county...
-get_county_code
+'get_county_code
 
 'Connects to BlueZone
 EMConnect ""
@@ -149,8 +149,10 @@ ObjExcel.Cells(1, 3).Value = "NAME"
 objExcel.Cells(1, 3).Font.Bold = TRUE
 ObjExcel.Cells(1, 4).Value = "APPL DATE"
 objExcel.Cells(1, 4).Font.Bold = TRUE
-ObjExcel.Cells(1, 5).Value = "DAYS PENDING"
+ObjExcel.Cells(1, 5).Value = "ADD APPL DATE"
 objExcel.Cells(1, 5).Font.Bold = TRUE
+ObjExcel.Cells(1, 6).Value = "DAYS PENDING"
+objExcel.Cells(1, 6).Font.Bold = TRUE
 
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
 '	Below, use the "[blank]_col" variable to recall which col you set for which option.
@@ -253,19 +255,18 @@ End if
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_MAXIS_screen("REPT", "PND2")       'looking at PND2 to confirm day 30 AND look for MSA cases - which get 60 days
+	multiple_app_dates = False                          'defaulting the boolean about multiple application dates to FALSE
+
+	Call navigate_to_MAXIS_screen("REPT", "PND2")
 	EMWriteScreen worker, 21, 13
-	transmit
-	'This code is for bypassing a warning box if the basket has too many cases
-	row = 1
-	col = 1
-	EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
-	If row <> 24 and row <> 0 THEN
-    	row = 1
-    	col = 1
-    	EMSearch MAXIS_case_number, row, col
-    End If 
-	'TODO add handling to read for an additional app line so that we are sure we are reading the correct line for days pending and cash program
+	EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
+	If pnd2_disp_limit = "Display Limit" Then TRANSMIT
+
+	EMWriteScreen worker, 21, 13
+	TRANSMIT
+	msgbox "where are we"
+	TRANSMIT
+	msgbox "Did we pass?"
 	'Skips workers with no info
 	EMReadScreen has_content_check, 6, 3, 74
 	If has_content_check <> "0 Of 0" then
@@ -275,7 +276,14 @@ For each worker in worker_array
 			Do
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 5	'Reading case number
 				EMReadScreen client_name, 22, MAXIS_row, 16		'Reading client name
-				EMReadScreen APPL_date, 8, MAXIS_row, 38		'Reading application date
+				EMReadScreen application_date, 8, MAXIS_row, 38                                  'reading and formatting the application date
+				application_date = replace(application_date, " ", "/")
+				EMReadScreen additional_application_check, 14, MAXIS_row + 1, 17                 'looking to see if this case has a secondary application date entered
+				If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+				    multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
+				    EMReadScreen additional_application_date, 8, MAXIS_row + 1, 38               'reading the app date from the other application line
+				    additional_application_date = replace(additional_application_date, " ", "/")
+				END IF
 				EMReadScreen days_pending, 4, MAXIS_row, 49		'Reading days pending
 				EMReadScreen cash_status, 1, MAXIS_row, 54		'Reading cash status
 				EMReadScreen SNAP_status, 1, MAXIS_row, 62		'Reading SNAP status
@@ -288,10 +296,6 @@ For each worker in worker_array
 				'Doing this because sometimes BlueZone registers a "ghost" of previous data when the script runs. This checks against an array and stops if we've seen this one before.
 				client_name = trim(client_name)
 				MAXIS_case_number = trim(MAXIS_case_number)
-				If client_name <> "ADDITIONAL APP" Then			'When there is an additional app on this rept, the script actually reads a case number even though one is not visible to the worker on the screen - so we are skipping this ghosting issue because it will ALWAYS find the previous case number.
-					If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
-					all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
-				End If
 
 				If MAXIS_case_number = "" AND client_name = "" Then Exit Do			'Exits do if we reach the end
 
@@ -327,8 +331,9 @@ For each worker in worker_array
 					ObjExcel.Cells(excel_row, 1).Value = worker
 					ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 					ObjExcel.Cells(excel_row, 3).Value = client_name
-					ObjExcel.Cells(excel_row, 4).Value = replace(APPL_date, " ", "/")
-					ObjExcel.Cells(excel_row, 5).Value = abs(days_pending)
+					ObjExcel.Cells(excel_row, 4).Value = replace(application_date, " ", "/")
+					ObjExcel.Cells(excel_row, 5).Value = replace(additional_application_date, " ", "/")
+					ObjExcel.Cells(excel_row, 6).Value = abs(days_pending)
 					If SNAP_check = checked then ObjExcel.Cells(excel_row, snap_pends_col).Value = SNAP_status
 					If cash_check = checked then ObjExcel.Cells(excel_row, cash_pends_col).Value = cash_status
 					If HC_check = checked then ObjExcel.Cells(excel_row, HC_pends_col).Value = HC_status
