@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/03/2022", "Updated remedial care amount to $195.00 for January 2022.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/10/2021", "Updated remedial care amount to $189.00 for July 2021.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/07/2020", "Updated remedial care amount to $177.00 for January 2021.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/04/2020", "Updated remedial care amount to $176.00 for July 2020.", "Ilse Ferris, Hennepin County")
@@ -58,8 +59,8 @@ changelog_display
 
 '<<<GO THROUGH AND REMOVE REDUNDANT FUNCTIONS
 EMConnect ""
-remedial_care_amt = "189.00"	'Amount that needs to be updated with current remedial care amount.
-target_date = "07/01/2021" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
+remedial_care_amt = "195.00"	'Amount that needs to be updated with current remedial care amount.
+target_date = "01/01/2022" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 256, 65, "LTC Remedial Care BILS Panel Updater"
@@ -83,7 +84,7 @@ EMWriteScreen "bils", 20, 71
 EMSendKey "<enter>"
 EMWaitReady 0, 0
 
-PF9 'into edit mode 
+PF9 'into edit mode
 
 Do
     EMReadScreen page_number, 2, 3, 72
@@ -91,7 +92,7 @@ Do
     PF19
 Loop until page_number = " 1"
 
-updates_made = 0 'Setting the variable count 
+updates_made = 0 'Setting the variable count
 bils_row = 6
 Do
     'msgbox bils_row
@@ -103,21 +104,21 @@ Do
         '1 = Date
         '2 = Serv (code)
         '3 = Gross ($ amt)
-        '4 = Third Payments 
+        '4 = Third Payments
         '5 = Ver (code)
-    BILS_line(1) = replace(BILS_line(1), " ", "/") 'changing format to be recongized as a date 
-    If IsDate(BILS_line(1)) = False then exit do 
-    
+    BILS_line(1) = replace(BILS_line(1), " ", "/") 'changing format to be recongized as a date
+    If IsDate(BILS_line(1)) = False then exit do
+
     If datediff("d", target_date, BILS_line(1)) => 0 and BILS_line(2) = 27 and BILS_line(5) <> remedial_care_amt then
         EMWriteScreen remedial_care_amt, bils_row, 48
         EMWriteScreen "C", bils_row, 24
-        updates_made = updates_made + 1  
-        stats_counter = stats_counter + 1      
-    End if 
+        updates_made = updates_made + 1
+        stats_counter = stats_counter + 1
+    End if
 
     bils_row = bils_row + 1
     BILS_line = ""
-    
+
     If bils_row = 18 then
         PF20
         bils_row = 6
@@ -129,10 +130,10 @@ Loop until cint(current_page) = cint(total_pages)
 
 PF3
 PF3
-stats_counter = stats_counter - 1 'get get true count of stats 
+stats_counter = stats_counter - 1 'get get true count of stats
 
-If updates_made <> 0 then 
+If updates_made <> 0 then
     script_end_procedure_with_error_report("Success! Updates made: " & updates_made & ".")
-elseif updates_made = 0 then 
+elseif updates_made = 0 then
     script_end_procedure_with_error_report("No remedial care entries found to update. You may have already updated this case or need to add new BILS. Use ACTIONS - BILS UPDATER to add new BILS.")
-End if 
+End if
