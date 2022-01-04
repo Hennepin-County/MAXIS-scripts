@@ -65,133 +65,65 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01" 'defaults to 01'
 discovery_date = "" & date
-servicing_worker = "X127720" ' add the transfer to the end of script '
+transfer_to_worker = "X127720" ' add the transfer to the end of script '
+
+
+DO
+'Drop down list for available household members to put into the drop down list.
+	Call HH_member_custom_dialog(HH_Member_Array)
+	Call convert_array_to_droplist_items(HH_Member_Array, hh_member_dropdown)
+	IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
+LOOP UNTIL uBound(HH_member_array) <> -1
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
-  EditBox 60, 5, 40, 15, MAXIS_case_number
-  EditBox 140, 5, 20, 15, memb_number
-  EditBox 230, 5, 20, 15, OT_resp_memb
-  DropListBox 310, 5, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
-  EditBox 60, 25, 40, 15, discovery_date
-  DropListBox 210, 25, 40, 15, "Select:"+chr(9)+"WAGE"+chr(9)+"BEER", IEVS_type
-  DropListBox 310, 25, 45, 15, "Select:"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"YEAR"+chr(9)+"LAST YEAR"+chr(9)+"OTHER", select_quarter
-  DropListBox 50, 65, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
-  EditBox 130, 65, 30, 15, OP_from
-  EditBox 180, 65, 30, 15, OP_to
-  EditBox 245, 65, 35, 15, Claim_number
-  EditBox 305, 65, 45, 15, Claim_amount
-  DropListBox 50, 85, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
-  EditBox 130, 85, 30, 15, OP_from_II
-  EditBox 180, 85, 30, 15, OP_to_II
-  EditBox 245, 85, 35, 15, Claim_number_II
-  EditBox 305, 85, 45, 15, Claim_amount_II
-  DropListBox 50, 105, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
-  EditBox 130, 105, 30, 15, OP_from_III
-  EditBox 180, 105, 30, 15, OP_to_III
-  EditBox 245, 105, 35, 15, claim_number_III
-  EditBox 305, 105, 45, 15, Claim_amount_III
-  DropListBox 50, 125, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_IV
-  EditBox 130, 125, 30, 15, OP_from_IV
-  EditBox 180, 125, 30, 15, OP_to_IV
-  EditBox 245, 125, 35, 15, claim_number_IV
-  EditBox 305, 125, 45, 15, Claim_amount_IV
-  EditBox 40, 155, 30, 15, HC_from
-  EditBox 90, 155, 30, 15, HC_to
-  EditBox 160, 155, 50, 15, HC_claim_number
-  EditBox 235, 155, 45, 15, HC_claim_amount
-  EditBox 100, 175, 20, 15, HC_resp_memb
-  EditBox 235, 175, 45, 15, Fed_HC_AMT
-  EditBox 70, 200, 160, 15, income_source
-  CheckBox 235, 205, 120, 10, "Earned income disregard allowed", EI_checkbox
-  EditBox 70, 220, 160, 15, EVF_used
-  EditBox 310, 220, 45, 15, income_rcvd_date
-  EditBox 70, 240, 285, 15, Reason_OP
+BeginDialog Dialog1, 0, 0, 311, 180, "Claims/Overpayment"
+  EditBox 60, 20, 45, 15, MAXIS_case_number
+  EditBox 170, 20, 45, 15, discovery_date
+  EditBox 280, 20, 25, 15, OT_resp_memb
+  EditBox 60, 40, 45, 15, Claim_number
+  EditBox 110, 40, 45, 15, Claim_number_II
+  EditBox 160, 40, 45, 15, claim_number_III
+  EditBox 210, 40, 45, 15, OP_from_IV
+  EditBox 260, 40, 45, 15, OP_from_V
+  EditBox 95, 60, 45, 15, income_rcvd_date
+  EditBox 95, 80, 210, 15, EVF_used
+  EditBox 65, 100, 240, 15, Reason_OP
+  EditBox 65, 120, 130, 15, verif_requested
+  EditBox 65, 140, 135, 15, other_notes
+  EditBox 65, 160, 100, 15, worker_signature
+  CheckBox 190, 65, 120, 10, "Earned income disregard allowed", EI_checkbox
+  DropListBox 260, 120, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
   ButtonGroup ButtonPressed
-    OkButton 260, 260, 45, 15
-    CancelButton 310, 260, 45, 15
-  Text 5, 10, 50, 10, "Case number: "
-  Text 110, 10, 30, 10, "Memb #:"
-  Text 170, 10, 60, 10, "OT resp. Memb #:"
-  Text 260, 10, 50, 10, "Fraud referral:"
-  Text 5, 30, 55, 10, "Discovery date: "
-  Text 170, 30, 40, 10, "Match type:"
-  Text 260, 30, 45, 10, "Match period:"
-  GroupBox 5, 45, 350, 100, "Overpayment Information"
-  Text 15, 70, 30, 10, "Program:"
-  Text 105, 70, 20, 10, "From:"
-  Text 165, 70, 10, 10, "To:"
-  Text 215, 70, 25, 10, "Claim #"
-  Text 285, 70, 20, 10, "AMT:"
-  Text 130, 55, 30, 10, "(MM/YY)"
-  Text 180, 55, 30, 10, "(MM/YY)"
-  Text 15, 90, 30, 10, "Program:"
-  Text 105, 90, 20, 10, "From:"
-  Text 165, 90, 10, 10, "To:"
-  Text 215, 90, 25, 10, "Claim #"
-  Text 285, 90, 20, 10, "AMT:"
-  Text 15, 110, 30, 10, "Program:"
-  Text 105, 110, 20, 10, "From:"
-  Text 165, 110, 10, 10, "To:"
-  Text 215, 110, 25, 10, "Claim #"
-  Text 285, 110, 20, 10, "AMT:"
-  Text 15, 90, 30, 10, "Program:"
-  Text 15, 130, 30, 10, "Program:"
-  Text 105, 130, 20, 10, "From:"
-  Text 165, 130, 10, 10, "To:"
-  Text 215, 130, 25, 10, "Claim #"
-  Text 285, 130, 20, 10, "AMT:"
-  Text 5, 225, 65, 10, "Income verif used:"
-  Text 15, 180, 80, 10, "HC OT resp. Memb(s) #:"
-  Text 160, 180, 75, 10, "Total federal HC AMT:"
-  Text 30, 245, 40, 10, "OP reason:"
-  Text 245, 225, 60, 10, "Date income rcvd: "
-  Text 215, 160, 20, 10, "AMT:"
-  Text 15, 205, 50, 10, "Income source:"
-  Text 15, 160, 20, 10, "From:"
-  Text 130, 160, 25, 10, "Claim #"
-  Text 75, 160, 10, 10, "To:"
-  GroupBox 5, 145, 350, 50, "HC Programs Only"
-  Text 15, 70, 30, 10, "Program:"
-  Text 165, 70, 10, 10, "To:"
-  GroupBox 5, 45, 350, 100, "Overpayment Information"
-  Text 105, 70, 20, 10, "From:"
-''  CheckBox 5, 260, 250, 15, "DHS 2776E Cash (agency) Error Overpayment Worksheet form completed", ECF_checkbox
+    PushButton 220, 140, 85, 15, "Claims Procedures", claims_procedures_btn
+    OkButton 210, 160, 45, 15
+    CancelButton 260, 160, 45, 15
+  Text 5, 5, 295, 10, "This script will only enter/update STAT/MISC panel for a SNAP or MFIP federal food claim. "
+  Text 5, 25, 50, 10, "Case Number: "
+  Text 115, 25, 55, 10, "Discovery Date: "
+  Text 220, 25, 60, 10, "OT resp. Memb #:"
+  Text 5, 45, 55, 10, "Claim Number: "
+  Text 5, 65, 85, 10, "Date Income Received: "
+  Text 5, 85, 85, 10, "Income Verification Used:"
+  Text 5, 105, 40, 10, "OP Reason:"
+  Text 5, 125, 55, 10, "Verif Requested:"
+  Text 5, 145, 45, 10, "Other Notes:"
+  Text 5, 165, 40, 10, "Worker Sig:"
+  Text 210, 125, 50, 10, "Fraud referral:"
 EndDialog
 
 Do
 	err_msg = ""
 	dialog Dialog1
 	cancel_without_confirmation
-	IF memb_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the member number."
 	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
     IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
-    	'IF OP_program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment."
-	IF OP_program_II <> "Select:" THEN
-		IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred II."
-		IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-		IF Claim_amount_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
+    IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
+	IF income_rcvd_date <> "" THEN
+	 	isdate(income_rcvd_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income received."
 	END IF
-	IF OP_program_III <> "Select:" THEN
-		IF OP_from_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred III."
-		IF Claim_number_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-		IF Claim_amount_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	END IF
-	IF OP_program_IV <> "Select:" THEN
-		IF OP_from_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred IV."
-		IF Claim_number_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-		IF Claim_amount_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	END IF
-	IF HC_claim_number <> "" THEN
-		IF HC_from = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment started."
-		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
-		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	END IF
-    	IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-	'IF isdate(income_rcvd_date) = False or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income received."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -212,6 +144,7 @@ CALL write_value_and_transmit(SSN_number_read, 3, 63) '
 EMReadScreen edit_error, 2, 24, 2
 edit_error = trim(edit_error)
 IF edit_error <> "" THEN script_end_procedure_with_error_report("No IEVS matches and/ or could not access IEVP.")
+
 '---------------------------------------------------------------------------------------------Chosing the match to clear'
 Row = 7
 DO
@@ -329,134 +262,7 @@ IF IEVS_type = "BEER" THEN type_match = "B"
 IEVS_period = replace(IEVS_period, "/", " to ")
 Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days requested for HEADER of casenote'
 PF3 'back to the DAIL'
-IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_program_IV = "FS" or OP_program = "MF" or OP_program_II = "MF" or OP_program_III = "MF" or OP_program_IV = "MF" THEN
 
-    Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 276, 60, "Claim Referral Tracking"
-      ButtonGroup ButtonPressed
-        OkButton 175, 40, 45, 15
-        CancelButton 225, 40, 45, 15
-      GroupBox 5, 5, 265, 30, "SNAP or MFIP Federal Food only"
-      DropListBox 140, 15, 125, 15, "Select One:"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please provide notes)"+chr(9)+"No Savings/Overpayment"+chr(9)+"N/A-STAT/MISC will not be updated", claim_referral_tracking_dropdown
-      Text 10, 20, 130, 10, "Claim Referral Tracking on STAT/MISC:"
-    EndDialog
-    'Showing case number dialog
-    Do
-    	Dialog Dialog1
-    	cancel_without_confirmation
-    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-
-
-    'Going to the MISC panel to add claim referral tracking information
-    Call navigate_to_MAXIS_screen ("STAT", "MISC")
-	Row = 6
-	EmReadScreen panel_number, 1, 02, 73
-	If panel_number = "0" then
-		EMWriteScreen "NN", 20,79
-		TRANSMIT
-		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
-		EmReadScreen MISC_error_check,  74, 24, 02
-		IF trim(MISC_error_check) = "" THEN
-			case_note_only = FALSE
-		else
-			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion, "Message handling")
-			IF maxis_error_check = vbYes THEN
-				case_note_only = TRUE 'this will case note only'
-			END IF
-			IF maxis_error_check= vbNo THEN
-				case_note_only = FALSE 'this will update the panels and case note'
-			END IF
-		END IF
-	END IF
-
-	Do
-		'Checking to see if the MISC panel is empty, if not it will find a new line'
-		EmReadScreen MISC_description, 25, row, 30
-		MISC_description = replace(MISC_description, "_", "")
-		If trim(MISC_description) = "" then
-			'PF9
-			EXIT DO
-		Else
-			row = row + 1
-		End if
-	Loop Until row = 17
-	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-
-	'writing in the action taken and date to the MISC panel
-	PF9
-	IF claim_referral_tracking_dropdown =  "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
-	IF claim_referral_tracking_dropdown =  "No Savings/Overpayment" THEN MISC_action_taken = "Determination-No Savings"
-	IF claim_referral_tracking_dropdown =  "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
-
-	EMWriteScreen MISC_action_taken, Row, 30
-	EMWriteScreen date, Row, 66
-	TRANSMIT
-	start_a_blank_case_note
-	Call write_variable_in_case_note("-----Claim Referral Tracking - " & MISC_action_taken & "-----")
-	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
-	Call write_bullet_and_variable_in_case_note("Action Date", date)
-	Call write_bullet_and_variable_in_case_note("Program(s)", programs)
-	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-	Call write_variable_in_case_note("-----")
-	Call write_variable_in_case_note(worker_signature)
-	PF3
-END IF
-'-----------------------------------------------------------------------------------------CASENOTE
-start_a_blank_CASE_NOTE
-IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-IF IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
-CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-'CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
-CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
-CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
-Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-IF OP_program_III <> "Select:" then	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-IF OP_program_IV <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
-IF HC_claim_number <> "" THEN
-	Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
-	Call write_bullet_and_variable_in_CASE_NOTE("Health Care responsible members", HC_resp_memb)
-	Call write_bullet_and_variable_in_CASE_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
-	Call write_variable_in_CASE_NOTE("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
-END IF
-IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
-IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Not Allowed")
-CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
-CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
-CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
-CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
-CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
-'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
-CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-PF3 'to save casenote'
-
-IF HC_claim_number <> "" THEN
-	EmWriteScreen "x", 5, 3
-	Transmit
-	note_row = 4			'Beginning of the case notes
-	Do 						'Read each line
-		EMReadScreen note_line, 76, note_row, 3
-		note_line = trim(note_line)
-		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
-		message_array = message_array & note_line & vbcr		'putting the lines together
-		note_row = note_row + 1
-		If note_row = 18 then 									'End of a single page of the case note
-			EMReadScreen next_page, 7, note_row, 3
-			If next_page = "More: +" Then 						'This indicates there is another page of the case note
-				PF8												'goes to the next line and resets the row to read'\
-				note_row = 4
-			End If
-		End If
-	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
-END IF
 
 '---------------------------------------------------------------writing the CCOL case note'
 msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
@@ -504,6 +310,105 @@ CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_re
 CALL write_variable_in_CCOL_note("----- ----- ----- ----- ----- ----- -----")
 CALL write_variable_in_CCOL_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3'
+
+
+'-----------------------------------------------------------------------------------------CASENOTE
+start_a_blank_CASE_NOTE
+IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+IF IEVS_type = "BEER" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+IF IEVS_type = "UBEN" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_month & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+IF IEVS_type = "UNVI" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type & ") " & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
+CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
+CALL write_bullet_and_variable_in_CASE_NOTE("Period", IEVS_period)
+CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
+Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+IF OP_program_III <> "Select:" then	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+IF OP_program_IV <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
+IF HC_claim_number <> "" THEN
+	Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
+	Call write_bullet_and_variable_in_CASE_NOTE("Health Care responsible members", HC_resp_memb)
+	Call write_bullet_and_variable_in_CASE_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
+	Call write_variable_in_CASE_NOTE("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+END IF
+IF EI_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Allowed")
+IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Income Disregard Not Allowed")
+CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
+CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
+CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
+CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
+IF transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("* Case transferred to X127" & transfer_to_worker)
+'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
+CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+PF3 'to save casenote'
+
+IF HC_claim_number <> "" THEN
+	EmWriteScreen "x", 5, 3
+	Transmit
+	note_row = 4			'Beginning of the case notes
+	Do 						'Read each line
+		EMReadScreen note_line, 76, note_row, 3
+		note_line = trim(note_line)
+		If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+		message_array = message_array & note_line & vbcr		'putting the lines together
+		note_row = note_row + 1
+		If note_row = 18 then 									'End of a single page of the case note
+			EMReadScreen next_page, 7, note_row, 3
+			If next_page = "More: +" Then 						'This indicates there is another page of the case note
+				PF8												'goes to the next line and resets the row to read'\
+				note_row = 4
+			End If
+		End If
+	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+END IF
+
+transfer_to_worker = trim(transfer_to_worker)               'formatting the information entered in the dialog
+transfer_to_worker = Ucase(transfer_to_worker)
+'IF a transfer is needed (by entry of a transfer_to_worker in the Action dialog) the script will transfer it here
+tansfer_message = ""            'some defaults
+transfer_case = False
+action_completed = TRUE
+
+If transfer_to_worker <> "" Then        'If a transfer_to_worker was entered - we are attempting the transfer
+	transfer_case = True
+	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
+	EMWriteScreen "x", 7, 16                               'transfer within county option
+	transmit
+	PF9                                                    'putting the transfer in edit mode
+	EMreadscreen servicing_worker, 3, 18, 65               'checking to see if the transfer_to_worker is the same as the current_worker (because then it won't transfer)
+	servicing_worker = trim(servicing_worker)
+	IF servicing_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
+		action_completed = False
+        transfer_message = "This case is already in the requested worker's number."
+		PF10 'backout
+		PF3 'SPEC menu
+		PF3 'SELF Menu'
+	ELSE                                                   'otherwise we are going for the tranfer
+	    EMWriteScreen transfer_to_worker, 18, 61 		   'entering the worker ifnormation
+	    transmit                                           'saving - this should then take us to the transfer menu
+        EMReadScreen panel_check, 4, 2, 55                 'reading to see if we made it to the right place
+        If panel_check = "XWKR" Then
+            action_completed = False                       'this is not the right place
+            transfer_message = "Transfer of this case to " & transfer_to_worker & " has failed."
+            PF10 'backout
+            PF3 'SPEC menu
+            PF3 'SELF Menu'
+        Else                                               'if we are in the right place - read to see if the new worker is the transfer_to_worker
+            EMReadScreen new_pw, 3, 21, 20
+            If new_pw <> transfer_to_worker Then           'if it is not the transfer_tow_worker - the transfer failed.
+                action_completed = False
+                transfer_message = "Transfer of this case to " & transfer_to_worker & " has failed."
+            End If
+        End If
+	END IF
+END IF
+'' TODO call claim_referral_tracking
 
 script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
 
