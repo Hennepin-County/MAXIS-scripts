@@ -753,7 +753,7 @@ yesterday_case_list = 0
 
 If does_file_exist = True Then
 	'open the file
-	call excel_open(previous_list_file_selection_path, True, True, ObjYestExcel, objYestWorkbook)
+	call excel_open(previous_list_file_selection_path, True, False, ObjYestExcel, objYestWorkbook)
 
 	objYestWorkbook.Worksheets("Statistics").visible = True
 	objYestWorkbook.worksheets("Statistics").Activate
@@ -862,55 +862,53 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             ALL_PENDING_CASES_ARRAY(client_name, case_entry) = last_name & ", " & first_name & " " & middle_initial     'this is how the BOBI lists names so we want them to match
         End If
 
-		If ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = "" Then
-			Call back_to_SELF
-			Call navigate_to_MAXIS_screen("REPT", "PND2")
-			EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
-			If pnd2_disp_limit = "Display Limit" Then
-				TRANSMIT
-				If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Display Limit") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
-				If Instr(list_of_baskets_at_display_limit, ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)) = 0 Then list_of_baskets_at_display_limit = list_of_baskets_at_display_limit & ", " & ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
-			End If
-			row = 1                                             'searching for the CASE NUMBER to read from the right row
-			col = 1
-			EMSearch MAXIS_case_number, row, col
-			If row <> 24 and row <> 0 Then
-				EMReadScreen nbr_days_pending, 3, row, 50
-				ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = trim(nbr_days_pending)
-				EMReadScreen additional_application_check, 14, row + 1, 17                 'looking to see if this case has a secondary application date entered
-				IF additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
-					multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
-					EMReadScreen original_application_date, 8, row, 38               'reading the app date from the other application line
-					EMReadScreen original_cash_code, 1, row, 54
-					EMReadScreen original_snap_code, 1, row, 62
-					EMReadScreen original_emer_code, 1, row, 68
-					EMReadScreen original_grh_code, 1, row, 72
-					use_original_app_date = False
-					If original_cash_code <> "_" Then use_original_app_date = True
-					If original_snap_code <> "_" Then use_original_app_date = True
-					If original_emer_code <> "_" Then use_original_app_date = True
-					If original_grh_code <> "_" Then use_original_app_date = True
+		Call back_to_SELF
+		Call navigate_to_MAXIS_screen("REPT", "PND2")
+		EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
+		If pnd2_disp_limit = "Display Limit" Then
+			TRANSMIT
+			If InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "Display Limit") = 0 Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_entry) & " Display Limit"
+			If Instr(list_of_baskets_at_display_limit, ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)) = 0 Then list_of_baskets_at_display_limit = list_of_baskets_at_display_limit & ", " & ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+		End If
+		row = 1                                             'searching for the CASE NUMBER to read from the right row
+		col = 1
+		EMSearch MAXIS_case_number, row, col
+		If row <> 24 and row <> 0 Then
+			EMReadScreen nbr_days_pending, 3, row, 50
+			ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = trim(nbr_days_pending)
+			EMReadScreen additional_application_check, 14, row + 1, 17                 'looking to see if this case has a secondary application date entered
+			IF additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
+				multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
+				EMReadScreen original_application_date, 8, row, 38               'reading the app date from the other application line
+				EMReadScreen original_cash_code, 1, row, 54
+				EMReadScreen original_snap_code, 1, row, 62
+				EMReadScreen original_emer_code, 1, row, 68
+				EMReadScreen original_grh_code, 1, row, 72
+				use_original_app_date = False
+				If original_cash_code <> "_" Then use_original_app_date = True
+				If original_snap_code <> "_" Then use_original_app_date = True
+				If original_emer_code <> "_" Then use_original_app_date = True
+				If original_grh_code <> "_" Then use_original_app_date = True
 
-					EMReadScreen additional_application_date, 8, row + 1, 38               'reading the app date from the other application line
-					EMReadScreen additional_cash_code, 1, row + 1, 54
-					EMReadScreen additional_snap_code, 1, row + 1, 62
-					EMReadScreen additional_emer_code, 1, row + 1, 68
-					EMReadScreen additional_grh_code, 1, row + 1, 72
-					use_additional_app_date = False
-					If additional_cash_code <> "_" Then use_additional_app_date = True
-					If additional_snap_code <> "_" Then use_additional_app_date = True
-					If additional_emer_code <> "_" Then use_additional_app_date = True
-					If additional_grh_code <> "_" Then use_additional_app_date = True
+				EMReadScreen additional_application_date, 8, row + 1, 38               'reading the app date from the other application line
+				EMReadScreen additional_cash_code, 1, row + 1, 54
+				EMReadScreen additional_snap_code, 1, row + 1, 62
+				EMReadScreen additional_emer_code, 1, row + 1, 68
+				EMReadScreen additional_grh_code, 1, row + 1, 72
+				use_additional_app_date = False
+				If additional_cash_code <> "_" Then use_additional_app_date = True
+				If additional_snap_code <> "_" Then use_additional_app_date = True
+				If additional_emer_code <> "_" Then use_additional_app_date = True
+				If additional_grh_code <> "_" Then use_additional_app_date = True
 
-					If use_original_app_date = True AND use_additional_app_date = True Then
-						original_application_date = replace(original_application_date, " ", "/")
-						ALL_PENDING_CASES_ARRAY(application_date, case_entry) = original_application_date
-						additional_application_date = replace(additional_application_date, " ", "/")
-						ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = additional_application_date
-					End If
-					' ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
-				END IF
-			End If
+				If use_original_app_date = True AND use_additional_app_date = True Then
+					original_application_date = replace(original_application_date, " ", "/")
+					ALL_PENDING_CASES_ARRAY(application_date, case_entry) = original_application_date
+					additional_application_date = replace(additional_application_date, " ", "/")
+					ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = additional_application_date
+				End If
+				' ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = additional_application_date & " Please review,  " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+			END IF
 		End If
 
         'PROG to determine programs pending and interview dates
@@ -2016,6 +2014,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 		For next_day = 0 to number_of_days_until_next_working_day
 			If days_pending_nbr + next_day = 30 Then ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
 		Next
+	Else
+		ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
 	End If
 
 	IF ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
@@ -2040,6 +2040,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
 	' 	ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
 	' END IF
 	If ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE Then ObjWorkExcel.Cells(row, recent_wl_date_col).Value = date
+	' If ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE Then ObjWorkExcel.Rows(row).Font.ColorIndex = 3
 
     ObjWorkExcel.Cells(row, need_deny_col).Value = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""
     ObjWorkExcel.Cells(row, next_action_col).Value = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
