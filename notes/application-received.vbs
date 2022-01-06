@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("1/6/2022", "The script no longer allows you to change the Appointment Notice date if one is required based on the pending programs. This change is to ensure compliance with notification requirements of the On Demand Waiver.", "Casey Love, Hennepin County")
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/29/2021", "Added functionality to determine HEST utility allowances based on application date. ", "Ilse Ferris, Hennepin County")
 call changelog_update("09/17/2021", "Removed the field for 'Requested by X#' in the 'Request to APPL' option as this information will no longer be in the CASE/NOTE as this information is not pertinent to case actions/decisions.##~##", "Casey Love, Hennepin County")
