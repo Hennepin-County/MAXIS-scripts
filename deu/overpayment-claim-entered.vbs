@@ -61,86 +61,158 @@ changelog_display
 
 '---------------------------------------------------------------------------------------The script
 'Grabs the case number
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
+EMConnect ""                                        'Connecting to BlueZone
+CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
+call Check_for_MAXIS(false)                         'Ensuring we are not passworded out
+income_rcvd_date = date & ""
+'for testing'
+'action_date = date & ""
+verif_requested = "TEST"
+other_notes = "TEST"
 memb_number = "01" 'defaults to 01'
-discovery_date = "" & date
+reason_OP = "TEST TEST"
+discovery_date = date & ""
 transfer_to_worker = "X127720" ' add the transfer to the end of script '
-
-
-DO
-'Drop down list for available household members to put into the drop down list.
-	Call HH_member_custom_dialog(HH_Member_Array)
-	Call convert_array_to_droplist_items(HH_Member_Array, hh_member_dropdown)
-	IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
-LOOP UNTIL uBound(HH_member_array) <> -1
-
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 311, 180, "Claims/Overpayment"
-  EditBox 60, 20, 45, 15, MAXIS_case_number
-  EditBox 170, 20, 45, 15, discovery_date
-  EditBox 280, 20, 25, 15, OT_resp_memb
-  EditBox 60, 40, 45, 15, Claim_number
-  EditBox 110, 40, 45, 15, Claim_number_II
-  EditBox 160, 40, 45, 15, claim_number_III
-  EditBox 210, 40, 45, 15, OP_from_IV
-  EditBox 260, 40, 45, 15, OP_from_V
-  EditBox 95, 60, 45, 15, income_rcvd_date
-  EditBox 95, 80, 210, 15, EVF_used
-  EditBox 65, 100, 240, 15, Reason_OP
-  EditBox 65, 120, 130, 15, verif_requested
-  EditBox 65, 140, 135, 15, other_notes
-  EditBox 65, 160, 100, 15, worker_signature
-  CheckBox 190, 65, 120, 10, "Earned income disregard allowed", EI_checkbox
-  DropListBox 260, 120, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+'Running the dialog for case number and client
+
+BeginDialog Dialog1, 0, 0, 221, 65, "Overpmayment Claim Entered"
+  EditBox 70, 5, 45, 15, MAXIS_case_number
+  EditBox 70, 25, 140, 15, worker_signature
   ButtonGroup ButtonPressed
-    PushButton 220, 140, 85, 15, "Claims Procedures", claims_procedures_btn
-    OkButton 210, 160, 45, 15
-    CancelButton 260, 160, 45, 15
-  Text 5, 5, 295, 10, "This script will only enter/update STAT/MISC panel for a SNAP or MFIP federal food claim. "
-  Text 5, 25, 50, 10, "Case Number: "
-  Text 115, 25, 55, 10, "Discovery Date: "
-  Text 220, 25, 60, 10, "OT resp. Memb #:"
-  Text 5, 45, 55, 10, "Claim Number: "
-  Text 5, 65, 85, 10, "Date Income Received: "
-  Text 5, 85, 85, 10, "Income Verification Used:"
-  Text 5, 105, 40, 10, "OP Reason:"
-  Text 5, 125, 55, 10, "Verif Requested:"
-  Text 5, 145, 45, 10, "Other Notes:"
-  Text 5, 165, 40, 10, "Worker Sig:"
-  Text 210, 125, 50, 10, "Fraud referral:"
+  PushButton 125, 5, 85, 15, "Claims Procedures", claims_procedures_btn
+    OkButton 115, 45, 45, 15
+    CancelButton 165, 45, 45, 15
+  Text 5, 10, 55, 10, "Case Number:"
+  Text 5, 30, 60, 10, "Worker Signature:"
 EndDialog
 
 Do
-	err_msg = ""
-	dialog Dialog1
-	cancel_without_confirmation
-	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
-    IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
-	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
-	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
-    IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-	IF income_rcvd_date <> "" THEN
-	 	isdate(income_rcvd_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income received."
-	END IF
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-LOOP UNTIL err_msg = ""
-CALL check_for_password_without_transmit(are_we_passworded_out)
+	Do
+		err_msg = ""
+		Do
+            dialog Dialog1
+            cancel_without_confirmation
+            If ButtonPressed = claims_procedures_btn then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Claims_and_Overpayments.aspx")
+        Loop until ButtonPressed = -1
+		IF buttonpressed = 0 then stopscript
+		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+    	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-back_to_self
+If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
+	Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+End If
+
+DO
+    err_msg = ""
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 201, 45, "Overpmayment Claim Entered"
+     DropListBox 80, 5, 115, 15, HH_Memb_DropDown, client_to_update
+     ButtonGroup ButtonPressed
+       PushButton 5, 25, 85, 15, "HH MEMB SEARCH", search_button
+       OkButton 100, 25, 45, 15
+       CancelButton 150, 25, 45, 15
+     Text 5, 10, 70, 10, "Household Member:"
+    EndDialog
+
+    DO
+    	Dialog Dialog1
+    	IF ButtonPressed = search_button THEN
+    		If MAXIS_case_number = "" Then
+    			MsgBox "Cannot search without a case number, please try again."
+    		Else
+    			HH_Memb_DropDown = ""
+    			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+    			err_msg = err_msg & "Start Over"
+    		End If
+    	End If
+    	IF client_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please select a client to update."
+    	IF err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+    Loop until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 311, 160, "Claims/Overpayment"
+  EditBox 60, 20, 45, 15, discovery_date
+  EditBox 180, 20, 25, 15, OT_resp_memb
+  EditBox 60, 40, 45, 15, claim_number
+  EditBox 110, 40, 45, 15, claim_number_II
+  EditBox 160, 40, 45, 15, claim_number_III
+  EditBox 210, 40, 45, 15, claim_number_IV
+  EditBox 260, 40, 45, 15, claim_number_V
+  EditBox 95, 60, 45, 15, income_rcvd_date
+  CheckBox 185, 65, 120, 10, "Earned income disregard allowed", EI_checkbox
+  EditBox 95, 80, 210, 15, EVF_used
+  EditBox 65, 100, 240, 15, Reason_OP
+  EditBox 65, 120, 140, 15, verif_requested
+  DropListBox 260, 120, 45, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", fraud_referral
+  EditBox 65, 140, 140, 15, other_notes
+  ButtonGroup ButtonPressed
+    PushButton 220, 20, 85, 15, "Claims Procedures", claims_procedures_btn
+    OkButton 215, 140, 45, 15
+    CancelButton 260, 140, 45, 15
+  Text 5, 5, 295, 10, "This script will only enter/update STAT/MISC panel for a SNAP or MFIP federal food claim. "
+  Text 5, 25, 55, 10, "Discovery Date: "
+  Text 115, 25, 60, 10, "OT resp. Memb #:"
+  Text 5, 45, 55, 10, "Claim Number: "
+  Text 5, 65, 85, 10, "Date Income Received: "
+  Text 5, 85, 85, 10, "Income Verification Used:"
+  Text 5, 105, 55, 10, "Reason for OP:"
+  Text 5, 125, 55, 10, "Verif Requested:"
+  Text 5, 145, 45, 10, "Other Notes:"
+  Text 210, 125, 50, 10, "Fraud referral:"
+EndDialog
+DO
+    Do
+    	Do
+    		dialog Dialog1
+    		cancel_without_confirmation
+    		If ButtonPressed = claims_procedures_btn then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Claims_and_Overpayments.aspx")
+    	Loop until ButtonPressed = -1
+    	err_msg = ""
+    	dialog Dialog1
+    	cancel_without_confirmation
+    	IF trim(reason_OP) = "" or len(reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
+    	IF trim(EVF_used) = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
+    	IF income_rcvd_date <> "" THEN
+    	 	If isdate(income_rcvd_date) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income received."
+    	END IF
+    	IF isdate(discovery_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the discovery date."
+    	IF claim_number = "" or IsNumeric(claim_number) = False or len(claim_number) > 8 then err_msg = err_msg & vbnewline & "* Please enter a valid claim number."
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 '----------------------------------------------------------------------------------------------------STAT
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-EMwritescreen memb_number, 20, 76
-EMReadScreen first_name, 12, 6, 63
-first_name = replace(first_name, "_", "")
-first_name = trim(first_name)
-transmit
-EMReadscreen SSN_number_read, 11, 7, 42
-SSN_number_read = replace(SSN_number_read, " ", "")
+CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
+
+'redefine ref_numb'
+MEMB_number = left(client_to_update, 2)	'Settin the reference number
+EMWriteScreen MEMB_number, 20, 76
+TRANSMIT
+EMReadScreen client_first_name, 12, 6, 63
+client_first_name = replace(client_first_name, "_", "")
+client_first_name = trim(client_first_name)
+EMReadScreen client_last_name, 25, 6, 30
+client_last_name = replace(client_last_name, "_", "")
+client_last_name = trim(client_last_name)
+EMReadscreen client_mid_initial, 1, 6, 79
+EMReadScreen client_DOB, 10, 8, 42
+EMReadscreen client_SSN, 11, 7, 42
+client_SSN = replace(client_SSN, " ", "")
+
+
 CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
-CALL write_value_and_transmit(SSN_number_read, 3, 63) '
+CALL write_value_and_transmit(client_SSN, 3, 63) '
 EMReadScreen edit_error, 2, 24, 2
 edit_error = trim(edit_error)
 IF edit_error <> "" THEN script_end_procedure_with_error_report("No IEVS matches and/ or could not access IEVP.")
@@ -152,10 +224,8 @@ DO
 	IF trim(IEVS_match) = "" THEN script_end_procedure_with_error_report("IEVS match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-	'msgbox IEVS_match
 	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
-	'msgbox "row: " & row
 		IF row = 17 THEN
 			PF8
 			row = 7
@@ -192,7 +262,6 @@ End if
 
 '----------------------------------------------------------------------------------------------------Client name
 EMReadScreen client_name, 35, 5, 24
-'Formatting the client name for the spreadsheet
 client_name = trim(client_name)                         'trimming the client name
 if instr(client_name, ",") then    						'Most cases have both last name and 1st name. This separates the two names
 	length = len(client_name)                           'establishing the length of the variable
@@ -304,7 +373,7 @@ IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_note("* Earned Incom
 CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
 CALL write_bullet_and_variable_in_CCOL_note("Income verification received", EVF_used)
 CALL write_bullet_and_variable_in_CCOL_note("Date verification received", income_rcvd_date)
-CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
+CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", reason_OP)
 CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note("* DHS 2776E - Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CCOL_note("----- ----- ----- ----- ----- ----- -----")
@@ -338,7 +407,7 @@ IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_case_note("* Earned Incom
 CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 CALL write_bullet_and_variable_in_case_note("Income verification received", EVF_used)
 CALL write_bullet_and_variable_in_case_note("Date verification received", income_rcvd_date)
-CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
+CALL write_bullet_and_variable_in_case_note("Reason for overpayment", reason_OP)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 IF transfer_to_worker <> "" THEN CALL write_variable_in_CASE_NOTE ("* Case transferred to X127" & transfer_to_worker)
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
