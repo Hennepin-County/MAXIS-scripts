@@ -173,6 +173,117 @@ function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status
 	End If
 end function
 
+function create_u_code_worklist(cash_col, snap_col, recvd_date_col, intvw_date_col)
+	const ucode_worker_number_const	= 0
+	const ucode_case_nbr_const 		= 1
+	const ucode_client_name_const	= 2		'???'
+	const ucode_cash_progs_const	= 3
+	const ucode_snap_elig_const		= 4
+	const ucode_cash_status_const	= 5
+	const ucode_snap_status_const	= 6
+	const ucode_recvd_date_const	= 7
+	const ucode_intvw_date_const	= 8
+	const ucode_last_const			= 10
+
+	date_for_excel = replace(date, "/", "-") & ""
+
+	DIM U_CODE_CASES_ARRAY()
+	ReDim U_CODE_CASES_ARRAY(ucode_last_const, 0)
+
+	cash_col_header = trim(ObjExcel.Cells(1, cash_col).Value)
+	snap_col_header = trim(ObjExcel.Cells(1, snap_col).Value)
+	recvd_date_col_header = trim(ObjExcel.Cells(1, recvd_date_col).Value)
+	intvw_date_col_header = trim(ObjExcel.Cells(1, intvw_date_col).Value)
+
+	excel_row = 2
+	cases_on_the_list = 0
+	Do
+		MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+		If trim(ObjExcel.Cells(excel_row, cash_col).Value) = "U" OR trim(ObjExcel.Cells(excel_row, snap_col).Value) = "U" Then
+			ReDim Preserve U_CODE_CASES_ARRAY(ucode_last_const, cases_on_the_list)
+
+			U_CODE_CASES_ARRAY(ucode_worker_number_const, cases_on_the_list)	= trim(ObjExcel.Cells(excel_row, 1).Value)
+			U_CODE_CASES_ARRAY(ucode_case_nbr_const, cases_on_the_list) 		= trim(ObjExcel.Cells(excel_row, 2).Value)
+
+			U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = ""
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  5).value, MFIP_status)		'reading the program status information from the MONT Report information
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, DWP_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, GA_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, MSA_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, GRH_status)
+			Call read_boolean_from_excel(objExcel.cells(excel_row, 12).value, SNAP_status)
+			If MFIP_status = True Then U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) & ", MFIP"
+			If DWP_status = True Then U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) & ", DWP"
+			If GA_status = True Then U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) & ", GA"
+			If MSA_status = True Then U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) & ", MSA"
+			If GRH_status = True Then U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) & ", GRH"
+			If left(U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list), 2) = ", " Then  U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = right( U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list), len( U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list))-2)
+			If  U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = "" Then  U_CODE_CASES_ARRAY(ucode_cash_progs_const, cases_on_the_list) = "None"
+
+			If SNAP_status = True Then
+				U_CODE_CASES_ARRAY(ucode_snap_elig_const, cases_on_the_list) = "SNAP"
+			Else
+				U_CODE_CASES_ARRAY(ucode_snap_elig_const, cases_on_the_list) = "None"
+			End If
+
+			U_CODE_CASES_ARRAY(ucode_cash_status_const, cases_on_the_list) 		= trim(ObjExcel.Cells(excel_row, cash_col).Value)
+			U_CODE_CASES_ARRAY(ucode_snap_status_const, cases_on_the_list) 		= trim(ObjExcel.Cells(excel_row, snap_col).Value)
+			U_CODE_CASES_ARRAY(ucode_recvd_date_const, cases_on_the_list) 		= trim(ObjExcel.Cells(excel_row, recvd_date_col).Value)
+			U_CODE_CASES_ARRAY(ucode_intvw_date_const, cases_on_the_list) 		= trim(ObjExcel.Cells(excel_row, intvw_date_col).Value)
+
+			cases_on_the_list = cases_on_the_list + 1
+		End if
+		excel_row = excel_row + 1
+	Loop until trim(ObjExcel.Cells(excel_row, 2).Value) = ""
+
+	Set objUCODEExcel = CreateObject("Excel.Application")
+	objUCODEExcel.Visible = True
+	Set objUCODEWorkbook = objUCODEExcel.Workbooks.Add()
+	objUCODEExcel.DisplayAlerts = True
+	objUCODEExcel.ActiveSheet.Name = "U Code Worklist " & date_for_excel
+
+	objUCODEExcel.cells(1, 1).value = "X Number"
+	objUCODEExcel.cells(1, 2).value = "Case number"
+	objUCODEExcel.cells(1, 3).value = "Cash PROG"
+	objUCODEExcel.cells(1, 4).value = "SNAP PROG"
+	objUCODEExcel.cells(1, 5).value = cash_col_header
+	objUCODEExcel.cells(1, 6).value = snap_col_header
+	objUCODEExcel.cells(1, 7).value = recvd_date_col_header
+	objUCODEExcel.cells(1, 8).value = intvw_date_col_header
+	FOR i = 1 to 8									'formatting the cells'
+		objUCODEExcel.Cells(1, i).Font.Bold = True		'bold font'
+		objUCODEExcel.columns(i).NumberFormat = "@" 		'formatting as text
+		objUCODEExcel.Columns(i).AutoFit()				'sizing the columns'
+	NEXT
+
+	excel_row = 2
+	FOR each_case = 0 to UBOUND(U_CODE_CASES_ARRAY, 2)
+		objUCODEExcel.cells(excel_row, 1).value = U_CODE_CASES_ARRAY(ucode_worker_number_const, each_case)
+		objUCODEExcel.cells(excel_row, 2).value = U_CODE_CASES_ARRAY(ucode_case_nbr_const, each_case)
+
+		objUCODEExcel.cells(excel_row, 3).value = U_CODE_CASES_ARRAY(ucode_cash_progs_const, each_case)
+		objUCODEExcel.cells(excel_row, 4).value = U_CODE_CASES_ARRAY(ucode_snap_elig_const, each_case)
+
+		objUCODEExcel.cells(excel_row, 5).value = U_CODE_CASES_ARRAY(ucode_cash_status_const, each_case)
+		objUCODEExcel.cells(excel_row, 6).value = U_CODE_CASES_ARRAY(ucode_snap_status_const, each_case)
+		objUCODEExcel.cells(excel_row, 7).value = U_CODE_CASES_ARRAY(ucode_recvd_date_const, each_case)
+		objUCODEExcel.cells(excel_row, 8).value = U_CODE_CASES_ARRAY(ucode_intvw_date_const, each_case)
+		excel_row = excel_row + 1
+	NEXT
+
+	'Saves and closes the most the main spreadsheet before continuing
+	objUCODEExcel.ActiveWorkbook.SaveAs  t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Worklists\REVW " & date_for_excel & " U Code Worklist.xlsx"
+	objUCODEExcel.ActiveWorkbook.Close
+	objUCODEExcel.Application.Quit
+	objUCODEExcel.Quit
+
+	If end_msg = "" Then
+		end_msg = "Worklist of U Code cases created."
+	Else
+		end_msg = end_msg & vbCr & vbCr & "Worklist of U Code cases created."
+	End If
+end function
+
 'defining this function here because it needs to not end the script if a MEMO fails.
 function start_a_new_spec_memo_and_continue(success_var)
 '--- This function navigates user to SPEC/MEMO and starts a new SPEC/MEMO, selecting client, AREP, and SWKR if appropriate
@@ -624,20 +735,23 @@ If today_day = 16 Then renewal_option = "Create Renewal Report"
 If today_day = 18 Then renewal_option = "Send Appointment Letters"
 If today_day = 15 Then renewal_option = "Send NOMIs"
 If today_day = 1 Then renewal_option = "End of Processing Month"
+do_we_create_u_code_worklists = False
 
 'DISPLAYS DIALOG
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 186, 85, "Review Report"
+BeginDialog Dialog1, 0, 0, 186, 100, "Review Report"
   DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist", renewal_option
-  CheckBox 5, 55, 70, 10, "Select all agency.", all_workers_check
-  CheckBox 5, 70, 70, 10, "Select for CM + 2.", CM_plus_two_checkbox
+  CheckBox 90, 55, 90, 10, "Select to create U code", create_u_code_worklist_checkbox
+  CheckBox 5, 70, 70, 10, "Select all agency.", all_workers_check
+  CheckBox 5, 85, 70, 10, "Select for CM + 2.", CM_plus_two_checkbox
   ButtonGroup ButtonPressed
-    OkButton 95, 65, 40, 15
-    CancelButton 140, 65, 40, 15
+	OkButton 95, 80, 40, 15
+	CancelButton 140, 80, 40, 15
   EditBox 70, 5, 110, 15, worker_number
+  Text 5, 10, 60, 10, "Worker number(s):"
   Text 5, 20, 175, 10, "Enter the fulll 7-digit worker #(s), comma separated."
   Text 5, 40, 85, 10, "Select a reporting option:"
-  Text 5, 10, 60, 10, "Worker number(s):"
+  Text 102, 65, 50, 10, "worklist"
 EndDialog
 
 DO
@@ -653,6 +767,8 @@ DO
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+If create_u_code_worklist_checkbox = checked Then do_we_create_u_code_worklists = True
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -1260,6 +1376,11 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		MAXIS_footer_year = REPT_year
 	End If
 
+	date_month = DatePart("m", date)		'Creating a variable to enter in the column headers
+	date_day = DatePart("d", date)
+	date_header = date_month & "/" & date_day
+	statistics_already_run_today = False
+
 	info_sheet_name = replace(excel_file_path, t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\", "")
 
 	'Finding the last column that has something in it so we can add to the end.
@@ -1267,1334 +1388,1360 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	Do
 		col_to_use = col_to_use + 1
 		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+		If InStr(col_header, date_header) <> 0 Then statistics_already_run_today = True
+		If col_header = "CASH (" & date_header & ")" Then existing_cash_revw_excel_col = col_to_use
+		If col_header = "SNAP (" & date_header & ")" Then existing_stat_revw_excel_col = col_to_use
+		If col_header = "CAF Date (" & date_header & ")" Then existing_recvd_date_excel_col = col_to_use
+		If col_header = "Intvw Date (" & date_header & ")" Then existing_intvw_date_excel_col = col_to_use
 	Loop until col_header = ""
 	last_col_letter = convert_digit_to_excel_column(col_to_use)
 
-	'Insert columns in excel for additional information to be added
-	column_end = last_col_letter & "1"
-	Set objRange = objExcel.Range(column_end).EntireColumn
+	If statistics_already_run_today = True Then
+		Continue_with_STATs_from_earlier_today = MsgBox("It appears statistics have already been run today. The script cannot process multiple statistics runs on the same day due to naming conventions. You can chose to continue the script without pulling new statistics (if you have functionality to run AFTER the statistics) or cancel the run." & vbCr & vbCr & "OK - continue the run without gathering new Statistics" & vbCr & "CANCEL - Cancel the script run", vbImportant + vbOkCancel, "Statistics already gathered for today")
 
-	objRange.Insert(xlShiftToRight)			'We neeed six more columns
-	objRange.Insert(xlShiftToRight)
-	objRange.Insert(xlShiftToRight)
-	objRange.Insert(xlShiftToRight)
-	objRange.Insert(xlShiftToRight)
-	objRange.Insert(xlShiftToRight)
+		If Continue_with_STATs_from_earlier_today = vbCancel Then call script_end_procedure("Review Report Statistics cancelled as statistics were already gathered today.")
+	End if
 
-	cash_stat_excel_col = col_to_use		'Setting the columns to individual variables so we enter the found information in the right place
-	snap_stat_excel_col = col_to_use + 1
-	hc_stat_excel_col = col_to_use + 2
-	magi_stat_excel_col = col_to_use + 3
-	recvd_date_excel_col = col_to_use + 4
-	intvw_date_excel_col = col_to_use + 5
+	If statistics_already_run_today = False Then
+		'Insert columns in excel for additional information to be added
+		column_end = last_col_letter & "1"
+		Set objRange = objExcel.Range(column_end).EntireColumn
 
-	date_month = DatePart("m", date)		'Creating a variable to enter in the column headers
-	date_day = DatePart("d", date)
-	date_header = date_month & "/" & date_day
+		objRange.Insert(xlShiftToRight)			'We neeed six more columns
+		objRange.Insert(xlShiftToRight)
+		objRange.Insert(xlShiftToRight)
+		objRange.Insert(xlShiftToRight)
+		objRange.Insert(xlShiftToRight)
+		objRange.Insert(xlShiftToRight)
 
-	ObjExcel.Cells(1, cash_stat_excel_col).Value = "CASH (" & date_header & ")"			'creating the column headers for the statistics information for the day of the run.
-	ObjExcel.Cells(1, snap_stat_excel_col).Value = "SNAP (" & date_header & ")"
-	ObjExcel.Cells(1, hc_stat_excel_col).Value = "HC (" & date_header & ")"
-	ObjExcel.Cells(1, magi_stat_excel_col).Value = "MAGI (" & date_header & ")"
-	ObjExcel.Cells(1, recvd_date_excel_col).Value = "CAF Date (" & date_header & ")"
-	ObjExcel.Cells(1, intvw_date_excel_col).Value = "Intvw Date (" & date_header & ")"
+		cash_stat_excel_col = col_to_use		'Setting the columns to individual variables so we enter the found information in the right place
+		snap_stat_excel_col = col_to_use + 1
+		hc_stat_excel_col = col_to_use + 2
+		magi_stat_excel_col = col_to_use + 3
+		recvd_date_excel_col = col_to_use + 4
+		intvw_date_excel_col = col_to_use + 5
 
-	FOR i = col_to_use to col_to_use + 5									'formatting the cells'
-		objExcel.Cells(1, i).Font.Bold = True		'bold font'
-		ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
-		objExcel.Columns(i).AutoFit()				'sizing the columns'
-	NEXT
+		ObjExcel.Cells(1, cash_stat_excel_col).Value = "CASH (" & date_header & ")"			'creating the column headers for the statistics information for the day of the run.
+		ObjExcel.Cells(1, snap_stat_excel_col).Value = "SNAP (" & date_header & ")"
+		ObjExcel.Cells(1, hc_stat_excel_col).Value = "HC (" & date_header & ")"
+		ObjExcel.Cells(1, magi_stat_excel_col).Value = "MAGI (" & date_header & ")"
+		ObjExcel.Cells(1, recvd_date_excel_col).Value = "CAF Date (" & date_header & ")"
+		ObjExcel.Cells(1, intvw_date_excel_col).Value = "Intvw Date (" & date_header & ")"
 
-	'This is for th end of processing month option - it needs 2 additional columns.
-	If add_case_note = True Then
-		closure_note_col = col_to_use + 6
-		ObjExcel.Cells(1, closure_note_col).Value = "Close Note"
+		FOR i = col_to_use to col_to_use + 5									'formatting the cells'
+			objExcel.Cells(1, i).Font.Bold = True		'bold font'
+			ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
+			objExcel.Columns(i).AutoFit()				'sizing the columns'
+		NEXT
 
-		closure_progs_col = col_to_use + 7
-		ObjExcel.Cells(1, closure_progs_col).Value = "Progs Closed"
-	End If
+		'This is for th end of processing month option - it needs 2 additional columns.
+		If add_case_note = True Then
+			closure_note_col = col_to_use + 6
+			ObjExcel.Cells(1, closure_note_col).Value = "Close Note"
 
-	recert_cases = 0	            'incrementor for the array
+			closure_progs_col = col_to_use + 7
+			ObjExcel.Cells(1, closure_progs_col).Value = "Progs Closed"
+		End If
 
-	back_to_self    'We need to get back to SELF and manually update the footer month
-    Call navigate_to_MAXIS_screen("REPT", "REVS")		'going to REPT REVS where all the information is displayed'
-    EMWriteScreen REPT_month, 20, 55					'going to the right month
-    EMWriteScreen REPT_year, 20, 58
-    transmit
+		recert_cases = 0	            'incrementor for the array
 
-    'We are going to look at REPT/REVS for each worker in Hennepin County
-    For each worker in worker_array
-    	worker = trim(worker)				'get to the right worker
-        If worker = "" then exit for
-    	Call write_value_and_transmit(worker, 21, 6)   'writing in the worker number in the correct col
+		back_to_self    'We need to get back to SELF and manually update the footer month
+	    Call navigate_to_MAXIS_screen("REPT", "REVS")		'going to REPT REVS where all the information is displayed'
+	    EMWriteScreen REPT_month, 20, 55					'going to the right month
+	    EMWriteScreen REPT_year, 20, 58
+	    transmit
 
-        'Grabbing case numbers from REVS for requested worker
-    	DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
-    		row = 7	'Setting or resetting this to look at the top of the list
-    		DO		'All of this loops until row = 19
-    			'Reading case information (case number, SNAP status, and cash status)
-    			EMReadScreen MAXIS_case_number, 8, row, 6
-    			MAXIS_case_number = trim(MAXIS_case_number)
-    			EMReadScreen SNAP_status, 1, row, 45
-    			EMReadScreen cash_status, 1, row, 39
-                EmReadscreen HC_status, 1, row, 49
-				EMReadScreen MAGI_status, 4, row, 55
-				EMReadScreen recvd_date, 8, row, 62
-				EMReadScreen intvw_date, 8, row, 72
+	    'We are going to look at REPT/REVS for each worker in Hennepin County
+	    For each worker in worker_array
+	    	worker = trim(worker)				'get to the right worker
+	        If worker = "" then exit for
+	    	Call write_value_and_transmit(worker, 21, 6)   'writing in the worker number in the correct col
 
-    			'Navigates though until it runs out of case numbers to read
-    			IF MAXIS_case_number = "" then exit do
+	        'Grabbing case numbers from REVS for requested worker
+	    	DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
+	    		row = 7	'Setting or resetting this to look at the top of the list
+	    		DO		'All of this loops until row = 19
+	    			'Reading case information (case number, SNAP status, and cash status)
+	    			EMReadScreen MAXIS_case_number, 8, row, 6
+	    			MAXIS_case_number = trim(MAXIS_case_number)
+	    			EMReadScreen SNAP_status, 1, row, 45
+	    			EMReadScreen cash_status, 1, row, 39
+	                EmReadscreen HC_status, 1, row, 49
+					EMReadScreen MAGI_status, 4, row, 55
+					EMReadScreen recvd_date, 8, row, 62
+					EMReadScreen intvw_date, 8, row, 72
 
-    			'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
-    			If cash_status = "-" 	then cash_status = ""
-    			If SNAP_status = "-" 	then SNAP_status = ""
-    			If HC_status = "-" 		then HC_status = ""
+	    			'Navigates though until it runs out of case numbers to read
+	    			IF MAXIS_case_number = "" then exit do
 
-				ReDim Preserve review_array(notes_const, recert_cases)		'resizing the array
+	    			'For some goofy reason the dash key shows up instead of the space key. No clue why. This will turn them into null variables.
+	    			If cash_status = "-" 	then cash_status = ""
+	    			If SNAP_status = "-" 	then SNAP_status = ""
+	    			If HC_status = "-" 		then HC_status = ""
 
-				'Adding the case information to the array
-				review_array(worker_const, recert_cases) = worker
-				review_array(case_number_const, recert_cases) = trim(MAXIS_case_number)
-				review_array(CASH_revw_status_const, recert_cases) = cash_status
-				review_array(SNAP_revw_status_const, recert_cases) = SNAP_status
-				review_array(HC_revw_status_const, recert_cases) = HC_status
-				review_array(HC_MAGI_code_const, recert_cases) = trim(MAGI_status)
-				review_array(review_recvd_const, recert_cases) = replace(recvd_date, " ", "/")
-				If review_array(review_recvd_const, recert_cases) = "__/__/__" Then review_array(review_recvd_const, recert_cases) = ""
-				review_array(interview_date_const, recert_cases) = replace(intvw_date, " ", "/")
-				If review_array(interview_date_const, recert_cases) = "__/__/__" Then review_array(interview_date_const, recert_cases) = ""
-				review_array(saved_to_excel_const, recert_cases) = FALSE
+					ReDim Preserve review_array(notes_const, recert_cases)		'resizing the array
 
-                recert_cases = recert_cases + 1
-				STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
+					'Adding the case information to the array
+					review_array(worker_const, recert_cases) = worker
+					review_array(case_number_const, recert_cases) = trim(MAXIS_case_number)
+					review_array(CASH_revw_status_const, recert_cases) = cash_status
+					review_array(SNAP_revw_status_const, recert_cases) = SNAP_status
+					review_array(HC_revw_status_const, recert_cases) = HC_status
+					review_array(HC_MAGI_code_const, recert_cases) = trim(MAGI_status)
+					review_array(review_recvd_const, recert_cases) = replace(recvd_date, " ", "/")
+					If review_array(review_recvd_const, recert_cases) = "__/__/__" Then review_array(review_recvd_const, recert_cases) = ""
+					review_array(interview_date_const, recert_cases) = replace(intvw_date, " ", "/")
+					If review_array(interview_date_const, recert_cases) = "__/__/__" Then review_array(interview_date_const, recert_cases) = ""
+					review_array(saved_to_excel_const, recert_cases) = FALSE
 
-    			row = row + 1    'On the next loop it must look to the next row
-    			MAXIS_case_number = "" 'Clearing variables before next loop
-    		Loop until row = 19		'Last row in REPT/REVS
-    		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
-    		PF8
-    		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-            'if max reviews are reached, the goes to next worker is applicable
-    	Loop until last_page_check = "THIS IS THE LAST PAGE"
-    next
-	Call back_to_SELF
+	                recert_cases = recert_cases + 1
+					STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
+
+	    			row = row + 1    'On the next loop it must look to the next row
+	    			MAXIS_case_number = "" 'Clearing variables before next loop
+	    		Loop until row = 19		'Last row in REPT/REVS
+	    		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
+	    		PF8
+	    		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
+	            'if max reviews are reached, the goes to next worker is applicable
+	    	Loop until last_page_check = "THIS IS THE LAST PAGE"
+	    next
+		Call back_to_SELF
 
 
-	'Now we are going to look at the Excel spreadsheet that has all of the reviews saved.
-	excel_row = "2"		'starts at row 2'
-	Do
-		case_number_to_check = trim(ObjExcel.Cells(excel_row, 2).Value)			'getting the case number from the spreadsheet
-		found_in_array = FALSE													'variale to identify if we have found this case in our array
-		MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
-		'Here we look through the entire array until we find a match
+		'Now we are going to look at the Excel spreadsheet that has all of the reviews saved.
+		excel_row = "2"		'starts at row 2'
+		Do
+			case_number_to_check = trim(ObjExcel.Cells(excel_row, 2).Value)			'getting the case number from the spreadsheet
+			found_in_array = FALSE													'variale to identify if we have found this case in our array
+			MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
+			'Here we look through the entire array until we find a match
+			For revs_item = 0 to UBound(review_array, 2)
+				If review_array(saved_to_excel_const, revs_item) = FALSE Then
+					If case_number_to_check = review_array(case_number_const, revs_item) Then		'if the case numbers match we have found our case.
+						'Entering information from the array into the excel spreadsheet
+						If review_array(CASH_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = review_array(CASH_revw_status_const, revs_item)
+						If review_array(SNAP_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = review_array(SNAP_revw_status_const, revs_item)
+						If review_array(HC_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = review_array(HC_revw_status_const, revs_item)
+						If review_array(HC_MAGI_code_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, magi_stat_excel_col).Value = review_array(HC_MAGI_code_const, revs_item)
+						If review_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = review_array(review_recvd_const, revs_item)
+						If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
+						found_in_array = TRUE			'this lets the script know that this case was found in the array
+						review_array(saved_to_excel_const, revs_item) = TRUE
+
+						Call add_autoclose_case_note(review_array(CASH_revw_status_const, revs_item), review_array(SNAP_revw_status_const, revs_item), review_array(HC_revw_status_const, revs_item), review_array(review_recvd_const, revs_item), review_array(interview_date_const, revs_item))
+
+						Exit For						'if we found a match, we should stop looking
+					End If
+				End If
+			Next
+			'if the case was not found in the array, we need to look in STAT for the information
+			If found_in_array = FALSE AND case_number_to_check <> "" Then
+				Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
+
+				' MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
+				call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)		'Go to STAT REVW and be sure the case is not privleged.
+				If is_this_priv = FALSE Then
+					EMReadScreen recvd_date, 8, 13, 37										'Reading the CAF Received Date and format
+					recvd_date = replace(recvd_date, " ", "/")
+					if recvd_date = "__/__/__" then recvd_date = ""
+
+					EMReadScreen interview_date, 8, 15, 37									'Reading the interview date and format
+					interview_date = replace(interview_date, " ", "/")
+					if interview_date = "__/__/__" then interview_date = ""
+
+					EMReadScreen cash_review_status, 1, 7, 40								'Reading the review status and format
+					EMReadScreen snap_review_status, 1, 7, 60
+					EMReadScreen hc_review_status, 1, 7, 73
+					If cash_review_status = "_" Then cash_review_status = ""
+					If snap_review_status = "_" Then snap_review_status = ""
+					If hc_review_status = "_" Then hc_review_status = ""
+
+					If cash_review_status <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = cash_review_status		'Enter all the information into Excel
+					If snap_review_status <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = snap_review_status
+					If hc_review_status <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = hc_review_status
+					If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
+					If interview_date <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = interview_date
+
+					Call add_autoclose_case_note(cash_review_status, snap_review_status, hc_review_status, recvd_date, interview_date)
+
+				End If
+
+				Call back_to_SELF		'Back out in case we need to look into another case.
+			End If
+			excel_row = excel_row + 1		'going to the next excel
+		Loop until case_number_to_check = ""
+		excel_row = excel_row - 1
+		'Now we will check for any cases that have been ADDED to REVS since we created the report or last ran statistics.
 		For revs_item = 0 to UBound(review_array, 2)
 			If review_array(saved_to_excel_const, revs_item) = FALSE Then
-				If case_number_to_check = review_array(case_number_const, revs_item) Then		'if the case numbers match we have found our case.
-					'Entering information from the array into the excel spreadsheet
-					If review_array(CASH_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = review_array(CASH_revw_status_const, revs_item)
-					If review_array(SNAP_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = review_array(SNAP_revw_status_const, revs_item)
-					If review_array(HC_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = review_array(HC_revw_status_const, revs_item)
-					If review_array(HC_MAGI_code_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, magi_stat_excel_col).Value = review_array(HC_MAGI_code_const, revs_item)
-					If review_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = review_array(review_recvd_const, revs_item)
-					If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
-					found_in_array = TRUE			'this lets the script know that this case was found in the array
-					review_array(saved_to_excel_const, revs_item) = TRUE
+				Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
+				MAXIS_case_number = review_array(case_number_const, revs_item)
 
-					Call add_autoclose_case_note(review_array(CASH_revw_status_const, revs_item), review_array(SNAP_revw_status_const, revs_item), review_array(HC_revw_status_const, revs_item), review_array(review_recvd_const, revs_item), review_array(interview_date_const, revs_item))
+				review_array(interview_const,       revs_item) = False   'values defaulted to False
+				review_array(no_interview_const,    revs_item) = False
+				review_array(current_SR_const,      revs_item) = False
 
-					Exit For						'if we found a match, we should stop looking
-				End If
+				Call read_case_details_for_review_report(revs_item)
+
+				'----------------------------------------------------------------------------------------------------Excel Output
+				ObjExcel.Cells(excel_row,  1).value = review_array(worker_const,      	  revs_item)     'COL A
+				ObjExcel.Cells(excel_row,  2).value = review_array(case_number_const,     revs_item)     'COL B
+
+				ObjExcel.Cells(excel_row,  3).value = review_array(interview_const,       revs_item)     'COL C
+				ObjExcel.Cells(excel_row,  4).value = review_array(no_interview_const,    revs_item)     'COL D
+				ObjExcel.Cells(excel_row,  5).value = review_array(current_SR_const,      revs_item)     'COL E
+				ObjExcel.Cells(excel_row,  6).value = review_array(MFIP_status_const,     revs_item)     'COL F
+				ObjExcel.Cells(excel_row,  7).value = review_array(DWP_status_const,      revs_item)     'COL G
+				ObjExcel.Cells(excel_row,  8).value = review_array(GA_status_const,       revs_item)     'COL H
+				ObjExcel.Cells(excel_row,  9).value = review_array(MSA_status_const,      revs_item)     'COL I
+				ObjExcel.Cells(excel_row, 10).value = review_array(GRH_status_const,      revs_item)     'COL J
+				ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    revs_item)     'COL K
+				ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    revs_item)     'COL L
+				ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     revs_item)     'COL M
+				ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    revs_item)     'COL N
+				ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    revs_item)     'COL O
+				ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       revs_item)     'COL P
+				ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      revs_item)     'COL Q
+				ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      revs_item)     'COL R
+				ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      revs_item)     'COL S
+				ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        revs_item)     'COL T
+				ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     revs_item)     'COL U
+				ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         revs_item)     'COL V
+				ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         revs_item)     'COL W
+				ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         revs_item)     'COL X
+				ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           revs_item)     'COL Y
+
+				'Entering information from the array into the excel spreadsheet
+				If review_array(CASH_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = review_array(CASH_revw_status_const, revs_item)
+				If review_array(SNAP_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = review_array(SNAP_revw_status_const, revs_item)
+				If review_array(HC_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = review_array(HC_revw_status_const, revs_item)
+				If review_array(HC_MAGI_code_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, magi_stat_excel_col).Value = review_array(HC_MAGI_code_const, revs_item)
+				If review_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = review_array(review_recvd_const, revs_item)
+				If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
+				ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, intvw_date_excel_col)).Interior.ColorIndex = 6
+				Call back_to_SELF		'Back out in case we need to look into another case.
+
+				Call add_autoclose_case_note(review_array(CASH_revw_status_const, revs_item), review_array(SNAP_revw_status_const, revs_item), review_array(HC_revw_status_const, revs_item), review_array(review_recvd_const, revs_item), review_array(interview_date_const, revs_item))
+
+				excel_row = excel_row + 1		'going to the next excel
 			End If
 		Next
-		'if the case was not found in the array, we need to look in STAT for the information
-		If found_in_array = FALSE AND case_number_to_check <> "" Then
-			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
 
-			' MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
-			call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)		'Go to STAT REVW and be sure the case is not privleged.
-			If is_this_priv = FALSE Then
-				EMReadScreen recvd_date, 8, 13, 37										'Reading the CAF Received Date and format
-				recvd_date = replace(recvd_date, " ", "/")
-				if recvd_date = "__/__/__" then recvd_date = ""
+		'Going to another sheet, to enter statistics for the entire Renewal load
+		sheet_name = "Statistics from " & date_month & "-" & date_day
+		ObjExcel.Worksheets.Add().Name = sheet_name
 
-				EMReadScreen interview_date, 8, 15, 37									'Reading the interview date and format
-				interview_date = replace(interview_date, " ", "/")
-				if interview_date = "__/__/__" then interview_date = ""
+		'HERE WE open a new Excel document so we can save the stats counts for uyse in report outs
+		'The Review Report Excel will use Excel formulas and the data on the main Review Report Table to calculate the counts and percentages
+		'The new Excel - the Stats Excel will just pull the value from the calculation that Excel completes
 
-				EMReadScreen cash_review_status, 1, 7, 40								'Reading the review status and format
-				EMReadScreen snap_review_status, 1, 7, 60
-				EMReadScreen hc_review_status, 1, 7, 73
-				If cash_review_status = "_" Then cash_review_status = ""
-				If snap_review_status = "_" Then snap_review_status = ""
-				If hc_review_status = "_" Then hc_review_status = ""
+		'Opening the Excel file
+		Set objStatsExcel = CreateObject("Excel.Application")
+		objStatsExcel.Visible = True
+		Set objStatsWorkbook = objStatsExcel.Workbooks.Add()
+		objStatsExcel.DisplayAlerts = FALSE		'This is off because we are saving over an existing file and Excel will alert and we need those to be off
 
-				If cash_review_status <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = cash_review_status		'Enter all the information into Excel
-				If snap_review_status <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = snap_review_status
-				If hc_review_status <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = hc_review_status
-				If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
-				If interview_date <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = interview_date
+		'This function just enters the header information - which is exactly the same for each sheet
+		Call enter_excel_headers(ObjExcel)
+		Call enter_excel_headers(objStatsExcel)
 
-				Call add_autoclose_case_note(cash_review_status, snap_review_status, hc_review_status, recvd_date, interview_date)
+		'Now we enter all theformulas and counts in the stats areas
+		ObjExcel.Cells(t1_er_w_intv, t1_all_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_true&")"
+		ObjExcel.Cells(t1_er_w_intv, t1_apps_revd_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
+		ObjExcel.Cells(t1_er_w_intv, t1_no_app_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
+		ObjExcel.Cells(t1_er_w_intv, t1_app_percent_count).Value 		= "=" & t1_apps_revd_count_letter & t1_er_w_intv &"/" & t1_all_count_letter & t1_er_w_intv
+		ObjExcel.Cells(t1_er_w_intv, t1_app_percent_count).NumberFormat = "0.00%"
+		ObjExcel.Cells(t1_er_w_intv, t1_interview_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
+		ObjExcel.Cells(t1_er_w_intv, t1_no_intvw_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[Intvw Date ("&date_header&")],"&is_blank&")"
+		ObjExcel.Cells(t1_er_w_intv, t1_intvw_percent).Value 			= "=" & t1_interview_count_letter & t1_er_w_intv &"/" & t1_all_count_letter & t1_er_w_intv
+		ObjExcel.Cells(t1_er_w_intv, t1_intvw_percent).NumberFormat 	= "0.00%"
 
-			End If
+		ObjExcel.Cells(t1_er_no_intv, t1_all_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&")"
+		ObjExcel.Cells(t1_er_no_intv, t1_apps_revd_count).Value 		= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
+		ObjExcel.Cells(t1_er_no_intv, t1_no_app_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
+		ObjExcel.Cells(t1_er_no_intv, t1_app_percent_count).Value 		= "=" & t1_apps_revd_count_letter & t1_er_no_intv &"/" & t1_all_count_letter & t1_er_no_intv
+		ObjExcel.Cells(t1_er_no_intv, t1_app_percent_count).NumberFormat = "0.00%"
 
-			Call back_to_SELF		'Back out in case we need to look into another case.
+		ObjExcel.Cells(t1_csr, t1_all_count).Value 						= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&")"
+		ObjExcel.Cells(t1_csr, t1_apps_revd_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
+		ObjExcel.Cells(t1_csr, t1_no_app_count).Value 					= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
+		ObjExcel.Cells(t1_csr, t1_app_percent_count).Value 				= "=" & t1_apps_revd_count_letter & t1_csr &"/" & t1_all_count_letter & t1_csr
+		ObjExcel.Cells(t1_csr, t1_app_percent_count).NumberFormat 		= "0.00%"
+
+		ObjExcel.Cells(t1_priv, t1_all_count).Value 					= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&")"
+		ObjExcel.Cells(t1_priv, t1_apps_revd_count).Value 				= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
+		ObjExcel.Cells(t1_priv, t1_no_app_count).Value 					= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
+		ObjExcel.Cells(t1_priv, t1_app_percent_count).Value 			= "=" & t1_apps_revd_count_letter & t1_priv &"/" & t1_all_count_letter & t1_priv
+		ObjExcel.Cells(t1_priv, t1_app_percent_count).NumberFormat 		= "0.00%"
+		ObjExcel.Cells(t1_priv, t1_interview_count).Value 				= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
+		ObjExcel.Cells(t1_priv, t1_no_intvw_count).Value 				= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")],"&is_blank&")"
+		ObjExcel.Cells(t1_priv, t1_intvw_percent).Value 				= "=" & t1_interview_count_letter & t1_priv &"/" & t1_all_count_letter & t1_priv
+		ObjExcel.Cells(t1_priv, t1_intvw_percent).NumberFormat 			= "0.00%"
+
+		ObjExcel.Cells(t1_total, t1_all_count).Value 					= "=COUNTA(Table1[Case number])"
+		ObjExcel.Cells(t1_total, t1_apps_revd_count).Value 				= "=COUNTIFS(Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(t1_total, t1_no_app_count).Value 				= "=COUNTIFS(Table1[CAF Date ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(t1_total, t1_app_percent_count).Value 			= "=" & t1_apps_revd_count_letter & t1_total &"/" & t1_all_count_letter & t1_total
+		ObjExcel.Cells(t1_total, t1_app_percent_count).NumberFormat 	= "0.00%"
+		ObjExcel.Cells(t1_total, t1_interview_count).Value 				= "=COUNTIFS(Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
+		ObjExcel.Cells(t1_total, t1_no_intvw_count).Value 				= "=COUNTIFS(Table1[Intvw Date ("&date_header&")],"&is_blank&")"
+		ObjExcel.Cells(t1_total, t1_intvw_percent).Value 				= "=" & t1_interview_count_letter & t1_total &"/" & t1_all_count_letter & t1_total
+		ObjExcel.Cells(t1_total, t1_intvw_percent).NumberFormat 		= "0.00%"
+
+		objStatsExcel.Cells(t1_er_w_intv, t1_all_count).Value 					= ObjExcel.Cells(t1_er_w_intv, t1_all_count).Value
+		objStatsExcel.Cells(t1_er_w_intv, t1_apps_revd_count).Value 			= ObjExcel.Cells(t1_er_w_intv, t1_apps_revd_count).Value
+		objStatsExcel.Cells(t1_er_w_intv, t1_no_app_count).Value 				= ObjExcel.Cells(t1_er_w_intv, t1_no_app_count).Value
+		objStatsExcel.Cells(t1_er_w_intv, t1_app_percent_count).Value 			= ObjExcel.Cells(t1_er_w_intv, t1_app_percent_count).Value
+		objStatsExcel.Cells(t1_er_w_intv, t1_app_percent_count).NumberFormat 	= "0.00%"
+		objStatsExcel.Cells(t1_er_w_intv, t1_interview_count).Value 			= ObjExcel.Cells(t1_er_w_intv, t1_interview_count).Value
+		objStatsExcel.Cells(t1_er_w_intv, t1_no_intvw_count).Value 				= ObjExcel.Cells(t1_er_w_intv, t1_no_intvw_count).Value
+		objStatsExcel.Cells(t1_er_w_intv, t1_intvw_percent).Value 				= ObjExcel.Cells(t1_er_w_intv, t1_intvw_percent).Value
+		objStatsExcel.Cells(t1_er_w_intv, t1_intvw_percent).NumberFormat 		= "0.00%"
+
+		objStatsExcel.Cells(t1_er_no_intv, t1_all_count).Value 					= ObjExcel.Cells(t1_er_no_intv, t1_all_count).Value
+		objStatsExcel.Cells(t1_er_no_intv, t1_apps_revd_count).Value 			= ObjExcel.Cells(t1_er_no_intv, t1_apps_revd_count).Value
+		objStatsExcel.Cells(t1_er_no_intv, t1_no_app_count).Value 				= ObjExcel.Cells(t1_er_no_intv, t1_no_app_count).Value
+		objStatsExcel.Cells(t1_er_no_intv, t1_app_percent_count).Value 			= ObjExcel.Cells(t1_er_no_intv, t1_app_percent_count).Value
+		objStatsExcel.Cells(t1_er_no_intv, t1_app_percent_count).NumberFormat 	= "0.00%"
+
+		objStatsExcel.Cells(t1_csr, t1_all_count).Value 						= ObjExcel.Cells(t1_csr, t1_all_count).Value
+		objStatsExcel.Cells(t1_csr, t1_apps_revd_count).Value 					= ObjExcel.Cells(t1_csr, t1_apps_revd_count).Value
+		objStatsExcel.Cells(t1_csr, t1_no_app_count).Value 						= ObjExcel.Cells(t1_csr, t1_no_app_count).Value
+		objStatsExcel.Cells(t1_csr, t1_app_percent_count).Value 				= ObjExcel.Cells(t1_csr, t1_app_percent_count).Value
+		objStatsExcel.Cells(t1_csr, t1_app_percent_count).NumberFormat 			= "0.00%"
+
+		objStatsExcel.Cells(t1_priv, t1_all_count).Value 						= ObjExcel.Cells(t1_priv, t1_all_count).Value
+		objStatsExcel.Cells(t1_priv, t1_apps_revd_count).Value 					= ObjExcel.Cells(t1_priv, t1_apps_revd_count).Value
+		objStatsExcel.Cells(t1_priv, t1_no_app_count).Value 					= ObjExcel.Cells(t1_priv, t1_no_app_count).Value
+		objStatsExcel.Cells(t1_priv, t1_app_percent_count).Value 				= ObjExcel.Cells(t1_priv, t1_app_percent_count).Value
+		objStatsExcel.Cells(t1_priv, t1_app_percent_count).NumberFormat 		= "0.00%"
+		objStatsExcel.Cells(t1_priv, t1_interview_count).Value 					= ObjExcel.Cells(t1_priv, t1_interview_count).Value
+		objStatsExcel.Cells(t1_priv, t1_no_intvw_count).Value 					= ObjExcel.Cells(t1_priv, t1_no_intvw_count).Value
+		objStatsExcel.Cells(t1_priv, t1_intvw_percent).Value 					= ObjExcel.Cells(t1_priv, t1_intvw_percent).Value
+		objStatsExcel.Cells(t1_priv, t1_intvw_percent).NumberFormat 			= "0.00%"
+
+		objStatsExcel.Cells(t1_total, t1_all_count).Value 						= ObjExcel.Cells(t1_total, t1_all_count).Value
+		objStatsExcel.Cells(t1_total, t1_apps_revd_count).Value 				= ObjExcel.Cells(t1_total, t1_apps_revd_count).Value
+		objStatsExcel.Cells(t1_total, t1_no_app_count).Value 					= ObjExcel.Cells(t1_total, t1_no_app_count).Value
+		objStatsExcel.Cells(t1_total, t1_app_percent_count).Value 				= ObjExcel.Cells(t1_total, t1_app_percent_count).Value
+		objStatsExcel.Cells(t1_total, t1_app_percent_count).NumberFormat 		= "0.00%"
+		objStatsExcel.Cells(t1_total, t1_interview_count).Value 				= ObjExcel.Cells(t1_total, t1_interview_count).Value
+		objStatsExcel.Cells(t1_total, t1_no_intvw_count).Value 					= ObjExcel.Cells(t1_total, t1_no_intvw_count).Value
+		objStatsExcel.Cells(t1_total, t1_intvw_percent).Value 					= ObjExcel.Cells(t1_total, t1_intvw_percent).Value
+		objStatsExcel.Cells(t1_total, t1_intvw_percent).NumberFormat 			= "0.00%"
+
+		stats_row = 2
+		Do
+			ObjExcel.Cells(stats_row, t2_er_w_intv_app_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[Intvw Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
+			ObjExcel.Cells(stats_row, t2_er_w_intv_intv_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
+			ObjExcel.Cells(stats_row, t2_er_no_intv_app_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
+			ObjExcel.Cells(stats_row, t2_csr_app_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
+			ObjExcel.Cells(stats_row, t2_priv_intv_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
+			ObjExcel.Cells(stats_row, t2_priv_app_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
+			ObjExcel.Cells(stats_row, t2_total_intv_count).Value = "=COUNTIFS(Table1[Intvw Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
+			ObjExcel.Cells(stats_row, t2_total_app_count).Value = "=COUNTIFS(Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
+			stats_row = stats_row + 1
+			next_row_date = ObjExcel.Cells(stats_row, t2_dates).Value
+		Loop until next_row_date = ""
+		ObjExcel.columns(t2_dates).AutoFit()
+		last_row = stats_row - 1
+
+		stats_row = 2
+		Do
+			objStatsExcel.Cells(stats_row, t2_er_w_intv_app_count).Value = ObjExcel.Cells(stats_row, t2_er_w_intv_app_count).Value
+			objStatsExcel.Cells(stats_row, t2_er_w_intv_intv_count).Value = ObjExcel.Cells(stats_row, t2_er_w_intv_intv_count).Value
+			objStatsExcel.Cells(stats_row, t2_er_no_intv_app_count).Value = ObjExcel.Cells(stats_row, t2_er_no_intv_app_count).Value
+			objStatsExcel.Cells(stats_row, t2_csr_app_count).Value = ObjExcel.Cells(stats_row, t2_csr_app_count).Value
+			objStatsExcel.Cells(stats_row, t2_priv_intv_count).Value = ObjExcel.Cells(stats_row, t2_priv_intv_count).Value
+			objStatsExcel.Cells(stats_row, t2_priv_app_count).Value = ObjExcel.Cells(stats_row, t2_priv_app_count).Value
+			objStatsExcel.Cells(stats_row, t2_total_intv_count).Value = ObjExcel.Cells(stats_row, t2_total_intv_count).Value
+			objStatsExcel.Cells(stats_row, t2_total_app_count).Value = ObjExcel.Cells(stats_row, t2_total_app_count).Value
+			stats_row = stats_row + 1
+			next_row_date = ObjExcel.Cells(stats_row, t2_dates).Value
+		Loop until next_row_date = ""
+		ObjExcel.columns(t2_dates).AutoFit()
+
+		ObjExcel.Cells(2, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
+		ObjExcel.Cells(3, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(4, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
+
+		ObjExcel.Cells(2, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(3, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(4, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(2, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "2/" & t3_totals_count_letter & "2"
+		ObjExcel.Cells(3, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "3/" & t3_totals_count_letter & "3"
+		ObjExcel.Cells(4, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "4/" & t3_totals_count_letter & "4"
+		ObjExcel.Cells(2, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(3, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(4, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(2, t3_intvs_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(3, t3_intvs_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(4, t3_intvs_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(2, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "2/" & t3_totals_count_letter & "2"
+		ObjExcel.Cells(3, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "3/" & t3_totals_count_letter & "3"
+		ObjExcel.Cells(4, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "4/" & t3_totals_count_letter & "4"
+		ObjExcel.Cells(2, t3_intvs_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(3, t3_intvs_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(4, t3_intvs_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(2, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(3, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(4, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(2, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "2/" & t3_totals_count_letter & "2"
+		ObjExcel.Cells(3, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "3/" & t3_totals_count_letter & "3"
+		ObjExcel.Cells(4, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "4/" & t3_totals_count_letter & "4"
+		ObjExcel.Cells(2, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(3, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(4, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(2, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(3, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(4, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(2, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "2/" & t3_totals_count_letter & "2"
+		ObjExcel.Cells(3, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "3/" & t3_totals_count_letter & "3"
+		ObjExcel.Cells(4, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "4/" & t3_totals_count_letter & "4"
+		ObjExcel.Cells(2, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(3, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(4, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(2, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(3, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(4, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(2, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "2/" & t3_totals_count_letter & "2"
+		ObjExcel.Cells(3, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "3/" & t3_totals_count_letter & "3"
+		ObjExcel.Cells(4, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "4/" & t3_totals_count_letter & "4"
+		ObjExcel.Cells(2, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(3, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(4, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(2, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(3, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(4, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(2, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "2/" & t3_totals_count_letter & "2"
+		ObjExcel.Cells(3, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "3/" & t3_totals_count_letter & "3"
+		ObjExcel.Cells(4, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "4/" & t3_totals_count_letter & "4"
+		ObjExcel.Cells(2, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(3, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(4, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(2, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(3, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(4, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(2, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "2/" & t3_totals_count_letter & "2"
+		ObjExcel.Cells(3, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "3/" & t3_totals_count_letter & "3"
+		ObjExcel.Cells(4, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "4/" & t3_totals_count_letter & "4"
+		ObjExcel.Cells(2, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(3, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(4, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(2, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(3, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(4, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(2, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "2/" & t3_totals_count_letter & "2"
+		ObjExcel.Cells(3, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "3/" & t3_totals_count_letter & "3"
+		ObjExcel.Cells(4, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "4/" & t3_totals_count_letter & "4"
+		ObjExcel.Cells(2, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(3, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(4, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(2, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(3, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(4, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(2, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "2/" & t3_totals_count_letter & "2"
+		ObjExcel.Cells(3, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "3/" & t3_totals_count_letter & "3"
+		ObjExcel.Cells(4, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "4/" & t3_totals_count_letter & "4"
+		ObjExcel.Cells(2, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(3, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(4, t3_revw_d_percent).NumberFormat = "0.00%"
+
+		ObjExcel.Cells(5, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&")"
+		ObjExcel.Cells(6, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(7, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
+
+		ObjExcel.Cells(5, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(6, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(7, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(5, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "5/" & t3_totals_count_letter & "5"
+		ObjExcel.Cells(6, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "6/" & t3_totals_count_letter & "6"
+		ObjExcel.Cells(7, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "7/" & t3_totals_count_letter & "7"
+		ObjExcel.Cells(5, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(6, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(7, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(5, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(6, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(7, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(5, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "5/" & t3_totals_count_letter & "5"
+		ObjExcel.Cells(6, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "6/" & t3_totals_count_letter & "6"
+		ObjExcel.Cells(7, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "7/" & t3_totals_count_letter & "7"
+		ObjExcel.Cells(5, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(6, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(7, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(5, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(6, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(7, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(5, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "5/" & t3_totals_count_letter & "5"
+		ObjExcel.Cells(6, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "6/" & t3_totals_count_letter & "6"
+		ObjExcel.Cells(7, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "7/" & t3_totals_count_letter & "7"
+		ObjExcel.Cells(5, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(6, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(7, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(5, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(6, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(7, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(5, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "5/" & t3_totals_count_letter & "5"
+		ObjExcel.Cells(6, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "6/" & t3_totals_count_letter & "6"
+		ObjExcel.Cells(7, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "7/" & t3_totals_count_letter & "7"
+		ObjExcel.Cells(5, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(6, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(7, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(5, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(6, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(7, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(5, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "5/" & t3_totals_count_letter & "5"
+		ObjExcel.Cells(6, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "6/" & t3_totals_count_letter & "6"
+		ObjExcel.Cells(7, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "7/" & t3_totals_count_letter & "7"
+		ObjExcel.Cells(5, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(6, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(7, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(5, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(6, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(7, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(5, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "5/" & t3_totals_count_letter & "5"
+		ObjExcel.Cells(6, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "6/" & t3_totals_count_letter & "6"
+		ObjExcel.Cells(7, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "7/" & t3_totals_count_letter & "7"
+		ObjExcel.Cells(5, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(6, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(7, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(5, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(6, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(7, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(5, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "5/" & t3_totals_count_letter & "5"
+		ObjExcel.Cells(6, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "6/" & t3_totals_count_letter & "6"
+		ObjExcel.Cells(7, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "7/" & t3_totals_count_letter & "7"
+		ObjExcel.Cells(5, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(6, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(7, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(5, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(6, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(7, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(5, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "5/" & t3_totals_count_letter & "5"
+		ObjExcel.Cells(6, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "6/" & t3_totals_count_letter & "6"
+		ObjExcel.Cells(7, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "7/" & t3_totals_count_letter & "7"
+		ObjExcel.Cells(5, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(6, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(7, t3_revw_d_percent).NumberFormat = "0.00%"
+
+		ObjExcel.Cells(8, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&")"
+		ObjExcel.Cells(9, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(10, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
+
+		ObjExcel.Cells(8, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(9, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(10, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(8, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "8/" & t3_totals_count_letter & "8"
+		ObjExcel.Cells(9, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "9/" & t3_totals_count_letter & "9"
+		ObjExcel.Cells(10, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "10/" & t3_totals_count_letter & "10"
+		ObjExcel.Cells(8, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(9, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(10, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(8, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&_
+		",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(9, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(10, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(8, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "8/" & t3_totals_count_letter & "8"
+		ObjExcel.Cells(9, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "9/" & t3_totals_count_letter & "9"
+		ObjExcel.Cells(10, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "10/" & t3_totals_count_letter & "10"
+		ObjExcel.Cells(8, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(9, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(10, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(8, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(9, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(10, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(8, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "8/" & t3_totals_count_letter & "8"
+		ObjExcel.Cells(9, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "9/" & t3_totals_count_letter & "9"
+		ObjExcel.Cells(10, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "10/" & t3_totals_count_letter & "10"
+		ObjExcel.Cells(8, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(9, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(10, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(8, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(9, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(10, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(8, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "8/" & t3_totals_count_letter & "8"
+		ObjExcel.Cells(9, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "9/" & t3_totals_count_letter & "9"
+		ObjExcel.Cells(10, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "10/" & t3_totals_count_letter & "10"
+		ObjExcel.Cells(8, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(9, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(10, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(8, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(9, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(10, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(8, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "8/" & t3_totals_count_letter & "8"
+		ObjExcel.Cells(9, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "9/" & t3_totals_count_letter & "9"
+		ObjExcel.Cells(10, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "10/" & t3_totals_count_letter & "10"
+		ObjExcel.Cells(8, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(9, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(10, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(8, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(9, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(10, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(8, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "8/" & t3_totals_count_letter & "8"
+		ObjExcel.Cells(9, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "9/" & t3_totals_count_letter & "9"
+		ObjExcel.Cells(10, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "10/" & t3_totals_count_letter & "10"
+		ObjExcel.Cells(8, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(9, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(10, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(8, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(9, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(10, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(8, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "8/" & t3_totals_count_letter & "8"
+		ObjExcel.Cells(9, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "9/" & t3_totals_count_letter & "9"
+		ObjExcel.Cells(10, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "10/" & t3_totals_count_letter & "10"
+		ObjExcel.Cells(8, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(9, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(10, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(8, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(9, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(10, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(8, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "8/" & t3_totals_count_letter & "8"
+		ObjExcel.Cells(9, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "9/" & t3_totals_count_letter & "9"
+		ObjExcel.Cells(10, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "10/" & t3_totals_count_letter & "10"
+		ObjExcel.Cells(8, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(9, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(10, t3_revw_d_percent).NumberFormat = "0.00%"
+
+		ObjExcel.Cells(11, t3_totals_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&")"
+		ObjExcel.Cells(12, t3_totals_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(13, t3_totals_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
+
+		ObjExcel.Cells(11, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(12, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(13, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(11, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "11/" & t3_totals_count_letter & "11"
+		ObjExcel.Cells(12, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "12/" & t3_totals_count_letter & "12"
+		ObjExcel.Cells(13, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "13/" & t3_totals_count_letter & "13"
+		ObjExcel.Cells(11, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(12, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(13, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(11, t3_intvs_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(12, t3_intvs_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(13, t3_intvs_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(11, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "11/" & t3_totals_count_letter & "11"
+		ObjExcel.Cells(12, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "12/" & t3_totals_count_letter & "12"
+		ObjExcel.Cells(13, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "13/" & t3_totals_count_letter & "13"
+		ObjExcel.Cells(11, t3_intvs_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(12, t3_intvs_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(13, t3_intvs_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(11, t3_revw_i_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(12, t3_revw_i_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(13, t3_revw_i_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(11, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "11/" & t3_totals_count_letter & "11"
+		ObjExcel.Cells(12, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "12/" & t3_totals_count_letter & "12"
+		ObjExcel.Cells(13, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "13/" & t3_totals_count_letter & "13"
+		ObjExcel.Cells(11, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(12, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(13, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(11, t3_revw_u_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(12, t3_revw_u_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(13, t3_revw_u_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(11, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "11/" & t3_totals_count_letter & "11"
+		ObjExcel.Cells(12, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "12/" & t3_totals_count_letter & "12"
+		ObjExcel.Cells(13, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "13/" & t3_totals_count_letter & "13"
+		ObjExcel.Cells(11, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(12, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(13, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(11, t3_revw_n_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(12, t3_revw_n_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(13, t3_revw_n_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(11, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "11/" & t3_totals_count_letter & "11"
+		ObjExcel.Cells(12, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "12/" & t3_totals_count_letter & "12"
+		ObjExcel.Cells(13, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "13/" & t3_totals_count_letter & "13"
+		ObjExcel.Cells(11, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(12, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(13, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(11, t3_revw_a_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(12, t3_revw_a_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(13, t3_revw_a_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(11, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "11/" & t3_totals_count_letter & "11"
+		ObjExcel.Cells(12, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "12/" & t3_totals_count_letter & "12"
+		ObjExcel.Cells(13, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "13/" & t3_totals_count_letter & "13"
+		ObjExcel.Cells(11, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(12, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(13, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(11, t3_revw_o_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(12, t3_revw_o_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(13, t3_revw_o_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(11, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "11/" & t3_totals_count_letter & "11"
+		ObjExcel.Cells(12, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "12/" & t3_totals_count_letter & "12"
+		ObjExcel.Cells(13, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "13/" & t3_totals_count_letter & "13"
+		ObjExcel.Cells(11, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(12, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(13, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(11, t3_revw_t_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(12, t3_revw_t_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(13, t3_revw_t_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(11, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "11/" & t3_totals_count_letter & "11"
+		ObjExcel.Cells(12, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "12/" & t3_totals_count_letter & "12"
+		ObjExcel.Cells(13, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "13/" & t3_totals_count_letter & "13"
+		ObjExcel.Cells(11, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(12, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(13, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(11, t3_revw_d_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(12, t3_revw_d_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(13, t3_revw_d_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(11, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "11/" & t3_totals_count_letter & "11"
+		ObjExcel.Cells(12, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "12/" & t3_totals_count_letter & "12"
+		ObjExcel.Cells(13, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "13/" & t3_totals_count_letter & "13"
+		ObjExcel.Cells(11, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(12, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(13, t3_revw_d_percent).NumberFormat = "0.00%"
+
+		ObjExcel.Cells(14, t3_totals_count).Value = "=COUNTA(Table1[Case number])"
+		ObjExcel.Cells(15, t3_totals_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(16, t3_totals_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&")"
+
+		ObjExcel.Cells(14, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(15, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(16, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(14, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "14/" & t3_totals_count_letter & "14"
+		ObjExcel.Cells(15, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "15/" & t3_totals_count_letter & "15"
+		ObjExcel.Cells(16, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "16/" & t3_totals_count_letter & "16"
+		ObjExcel.Cells(14, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(15, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(16, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(14, t3_intvs_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(15, t3_intvs_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(16, t3_intvs_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
+		ObjExcel.Cells(14, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "14/" & t3_totals_count_letter & "14"
+		ObjExcel.Cells(15, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "15/" & t3_totals_count_letter & "15"
+		ObjExcel.Cells(16, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "16/" & t3_totals_count_letter & "16"
+		ObjExcel.Cells(14, t3_intvs_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(15, t3_intvs_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(16, t3_intvs_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(14, t3_revw_i_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(15, t3_revw_i_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(16, t3_revw_i_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
+		ObjExcel.Cells(14, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "14/" & t3_totals_count_letter & "14"
+		ObjExcel.Cells(15, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "15/" & t3_totals_count_letter & "15"
+		ObjExcel.Cells(16, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "16/" & t3_totals_count_letter & "16"
+		ObjExcel.Cells(14, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(15, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(16, t3_revw_i_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(14, t3_revw_u_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(15, t3_revw_u_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(16, t3_revw_u_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
+		ObjExcel.Cells(14, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "14/" & t3_totals_count_letter & "14"
+		ObjExcel.Cells(15, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "15/" & t3_totals_count_letter & "15"
+		ObjExcel.Cells(16, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "16/" & t3_totals_count_letter & "16"
+		ObjExcel.Cells(14, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(15, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(16, t3_revw_u_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(14, t3_revw_n_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(15, t3_revw_n_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(16, t3_revw_n_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
+		ObjExcel.Cells(14, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "14/" & t3_totals_count_letter & "14"
+		ObjExcel.Cells(15, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "15/" & t3_totals_count_letter & "15"
+		ObjExcel.Cells(16, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "16/" & t3_totals_count_letter & "16"
+		ObjExcel.Cells(14, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(15, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(16, t3_revw_n_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(14, t3_revw_a_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(15, t3_revw_a_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(16, t3_revw_a_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
+		ObjExcel.Cells(14, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "14/" & t3_totals_count_letter & "14"
+		ObjExcel.Cells(15, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "15/" & t3_totals_count_letter & "15"
+		ObjExcel.Cells(16, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "16/" & t3_totals_count_letter & "16"
+		ObjExcel.Cells(14, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(15, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(16, t3_revw_a_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(14, t3_revw_o_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(15, t3_revw_o_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(16, t3_revw_o_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
+		ObjExcel.Cells(14, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "14/" & t3_totals_count_letter & "14"
+		ObjExcel.Cells(15, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "15/" & t3_totals_count_letter & "15"
+		ObjExcel.Cells(16, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "16/" & t3_totals_count_letter & "16"
+		ObjExcel.Cells(14, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(15, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(16, t3_revw_o_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(14, t3_revw_t_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(15, t3_revw_t_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(16, t3_revw_t_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
+		ObjExcel.Cells(14, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "14/" & t3_totals_count_letter & "14"
+		ObjExcel.Cells(15, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "15/" & t3_totals_count_letter & "15"
+		ObjExcel.Cells(16, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "16/" & t3_totals_count_letter & "16"
+		ObjExcel.Cells(14, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(15, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(16, t3_revw_t_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(14, t3_revw_d_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
+		ObjExcel.Cells(15, t3_revw_d_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(16, t3_revw_d_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
+		ObjExcel.Cells(14, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "14/" & t3_totals_count_letter & "14"
+		ObjExcel.Cells(15, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "15/" & t3_totals_count_letter & "15"
+		ObjExcel.Cells(16, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "16/" & t3_totals_count_letter & "16"
+		ObjExcel.Cells(14, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(15, t3_revw_d_percent).NumberFormat = "0.00%"
+		ObjExcel.Cells(16, t3_revw_d_percent).NumberFormat = "0.00%"
+
+		objStatsExcel.Cells(2, t3_totals_count).Value = ObjExcel.Cells(2, t3_totals_count).Value
+		objStatsExcel.Cells(3, t3_totals_count).Value = ObjExcel.Cells(3, t3_totals_count).Value
+		objStatsExcel.Cells(4, t3_totals_count).Value = ObjExcel.Cells(4, t3_totals_count).Value
+
+		objStatsExcel.Cells(2, t3_apps_recvd_count).Value = ObjExcel.Cells(2, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(3, t3_apps_recvd_count).Value = ObjExcel.Cells(3, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(4, t3_apps_recvd_count).Value = ObjExcel.Cells(4, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(2, t3_apps_recvd_percent).Value = ObjExcel.Cells(2, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(3, t3_apps_recvd_percent).Value = ObjExcel.Cells(3, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(4, t3_apps_recvd_percent).Value = ObjExcel.Cells(4, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(2, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(3, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(4, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(2, t3_intvs_count).Value = ObjExcel.Cells(2, t3_intvs_count).Value
+		objStatsExcel.Cells(3, t3_intvs_count).Value = ObjExcel.Cells(3, t3_intvs_count).Value
+		objStatsExcel.Cells(4, t3_intvs_count).Value = ObjExcel.Cells(4, t3_intvs_count).Value
+		objStatsExcel.Cells(2, t3_intvs_percent).Value = ObjExcel.Cells(2, t3_intvs_percent).Value
+		objStatsExcel.Cells(3, t3_intvs_percent).Value = ObjExcel.Cells(3, t3_intvs_percent).Value
+		objStatsExcel.Cells(4, t3_intvs_percent).Value = ObjExcel.Cells(4, t3_intvs_percent).Value
+		objStatsExcel.Cells(2, t3_intvs_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(3, t3_intvs_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(4, t3_intvs_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(2, t3_revw_i_count).Value = ObjExcel.Cells(2, t3_revw_i_count).Value
+		objStatsExcel.Cells(3, t3_revw_i_count).Value = ObjExcel.Cells(3, t3_revw_i_count).Value
+		objStatsExcel.Cells(4, t3_revw_i_count).Value = ObjExcel.Cells(4, t3_revw_i_count).Value
+		objStatsExcel.Cells(2, t3_revw_i_percent).Value = ObjExcel.Cells(2, t3_revw_i_percent).Value
+		objStatsExcel.Cells(3, t3_revw_i_percent).Value = ObjExcel.Cells(3, t3_revw_i_percent).Value
+		objStatsExcel.Cells(4, t3_revw_i_percent).Value = ObjExcel.Cells(4, t3_revw_i_percent).Value
+		objStatsExcel.Cells(2, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(3, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(4, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(2, t3_revw_u_count).Value = ObjExcel.Cells(2, t3_revw_u_count).Value
+		objStatsExcel.Cells(3, t3_revw_u_count).Value = ObjExcel.Cells(3, t3_revw_u_count).Value
+		objStatsExcel.Cells(4, t3_revw_u_count).Value = ObjExcel.Cells(4, t3_revw_u_count).Value
+		objStatsExcel.Cells(2, t3_revw_u_percent).Value = ObjExcel.Cells(2, t3_revw_u_percent).Value
+		objStatsExcel.Cells(3, t3_revw_u_percent).Value = ObjExcel.Cells(3, t3_revw_u_percent).Value
+		objStatsExcel.Cells(4, t3_revw_u_percent).Value = ObjExcel.Cells(4, t3_revw_u_percent).Value
+		objStatsExcel.Cells(2, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(3, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(4, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(2, t3_revw_n_count).Value = ObjExcel.Cells(2, t3_revw_n_count).Value
+		objStatsExcel.Cells(3, t3_revw_n_count).Value = ObjExcel.Cells(3, t3_revw_n_count).Value
+		objStatsExcel.Cells(4, t3_revw_n_count).Value = ObjExcel.Cells(4, t3_revw_n_count).Value
+		objStatsExcel.Cells(2, t3_revw_n_percent).Value = ObjExcel.Cells(2, t3_revw_n_percent).Value
+		objStatsExcel.Cells(3, t3_revw_n_percent).Value = ObjExcel.Cells(3, t3_revw_n_percent).Value
+		objStatsExcel.Cells(4, t3_revw_n_percent).Value = ObjExcel.Cells(4, t3_revw_n_percent).Value
+		objStatsExcel.Cells(2, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(3, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(4, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(2, t3_revw_a_count).Value = ObjExcel.Cells(2, t3_revw_a_count).Value
+		objStatsExcel.Cells(3, t3_revw_a_count).Value = ObjExcel.Cells(3, t3_revw_a_count).Value
+		objStatsExcel.Cells(4, t3_revw_a_count).Value = ObjExcel.Cells(4, t3_revw_a_count).Value
+		objStatsExcel.Cells(2, t3_revw_a_percent).Value = ObjExcel.Cells(2, t3_revw_a_percent).Value
+		objStatsExcel.Cells(3, t3_revw_a_percent).Value = ObjExcel.Cells(3, t3_revw_a_percent).Value
+		objStatsExcel.Cells(4, t3_revw_a_percent).Value = ObjExcel.Cells(4, t3_revw_a_percent).Value
+		objStatsExcel.Cells(2, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(3, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(4, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(2, t3_revw_o_count).Value = ObjExcel.Cells(2, t3_revw_o_count).Value
+		objStatsExcel.Cells(3, t3_revw_o_count).Value = ObjExcel.Cells(3, t3_revw_o_count).Value
+		objStatsExcel.Cells(4, t3_revw_o_count).Value = ObjExcel.Cells(4, t3_revw_o_count).Value
+		objStatsExcel.Cells(2, t3_revw_o_percent).Value = ObjExcel.Cells(2, t3_revw_o_percent).Value
+		objStatsExcel.Cells(3, t3_revw_o_percent).Value = ObjExcel.Cells(3, t3_revw_o_percent).Value
+		objStatsExcel.Cells(4, t3_revw_o_percent).Value = ObjExcel.Cells(4, t3_revw_o_percent).Value
+		objStatsExcel.Cells(2, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(3, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(4, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(2, t3_revw_t_count).Value = ObjExcel.Cells(2, t3_revw_t_count).Value
+		objStatsExcel.Cells(3, t3_revw_t_count).Value = ObjExcel.Cells(3, t3_revw_t_count).Value
+		objStatsExcel.Cells(4, t3_revw_t_count).Value = ObjExcel.Cells(4, t3_revw_t_count).Value
+		objStatsExcel.Cells(2, t3_revw_t_percent).Value = ObjExcel.Cells(2, t3_revw_t_percent).Value
+		objStatsExcel.Cells(3, t3_revw_t_percent).Value = ObjExcel.Cells(3, t3_revw_t_percent).Value
+		objStatsExcel.Cells(4, t3_revw_t_percent).Value = ObjExcel.Cells(4, t3_revw_t_percent).Value
+		objStatsExcel.Cells(2, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(3, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(4, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(2, t3_revw_d_count).Value = ObjExcel.Cells(2, t3_revw_d_count).Value
+		objStatsExcel.Cells(3, t3_revw_d_count).Value = ObjExcel.Cells(3, t3_revw_d_count).Value
+		objStatsExcel.Cells(4, t3_revw_d_count).Value = ObjExcel.Cells(4, t3_revw_d_count).Value
+		objStatsExcel.Cells(2, t3_revw_d_percent).Value = ObjExcel.Cells(2, t3_revw_d_percent).Value
+		objStatsExcel.Cells(3, t3_revw_d_percent).Value = ObjExcel.Cells(3, t3_revw_d_percent).Value
+		objStatsExcel.Cells(4, t3_revw_d_percent).Value = ObjExcel.Cells(4, t3_revw_d_percent).Value
+		objStatsExcel.Cells(2, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(3, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(4, t3_revw_d_percent).NumberFormat = "0.00%"
+
+
+		objStatsExcel.Cells(5, t3_totals_count).Value = ObjExcel.Cells(5, t3_totals_count).Value
+		objStatsExcel.Cells(6, t3_totals_count).Value = ObjExcel.Cells(6, t3_totals_count).Value
+		objStatsExcel.Cells(7, t3_totals_count).Value = ObjExcel.Cells(7, t3_totals_count).Value
+
+		objStatsExcel.Cells(5, t3_apps_recvd_count).Value = ObjExcel.Cells(5, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(6, t3_apps_recvd_count).Value = ObjExcel.Cells(6, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(7, t3_apps_recvd_count).Value = ObjExcel.Cells(7, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(5, t3_apps_recvd_percent).Value = ObjExcel.Cells(5, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(6, t3_apps_recvd_percent).Value = ObjExcel.Cells(6, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(7, t3_apps_recvd_percent).Value = ObjExcel.Cells(7, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(5, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(6, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(7, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(5, t3_revw_i_count).Value = ObjExcel.Cells(5, t3_revw_i_count).Value
+		objStatsExcel.Cells(6, t3_revw_i_count).Value = ObjExcel.Cells(6, t3_revw_i_count).Value
+		objStatsExcel.Cells(7, t3_revw_i_count).Value = ObjExcel.Cells(7, t3_revw_i_count).Value
+		objStatsExcel.Cells(5, t3_revw_i_percent).Value = ObjExcel.Cells(5, t3_revw_i_percent).Value
+		objStatsExcel.Cells(6, t3_revw_i_percent).Value = ObjExcel.Cells(6, t3_revw_i_percent).Value
+		objStatsExcel.Cells(7, t3_revw_i_percent).Value = ObjExcel.Cells(7, t3_revw_i_percent).Value
+		objStatsExcel.Cells(5, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(6, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(7, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(5, t3_revw_u_count).Value = ObjExcel.Cells(5, t3_revw_u_count).Value
+		objStatsExcel.Cells(6, t3_revw_u_count).Value = ObjExcel.Cells(6, t3_revw_u_count).Value
+		objStatsExcel.Cells(7, t3_revw_u_count).Value = ObjExcel.Cells(7, t3_revw_u_count).Value
+		objStatsExcel.Cells(5, t3_revw_u_percent).Value = ObjExcel.Cells(5, t3_revw_u_percent).Value
+		objStatsExcel.Cells(6, t3_revw_u_percent).Value = ObjExcel.Cells(6, t3_revw_u_percent).Value
+		objStatsExcel.Cells(7, t3_revw_u_percent).Value = ObjExcel.Cells(7, t3_revw_u_percent).Value
+		objStatsExcel.Cells(5, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(6, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(7, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(5, t3_revw_n_count).Value = ObjExcel.Cells(5, t3_revw_n_count).Value
+		objStatsExcel.Cells(6, t3_revw_n_count).Value = ObjExcel.Cells(6, t3_revw_n_count).Value
+		objStatsExcel.Cells(7, t3_revw_n_count).Value = ObjExcel.Cells(7, t3_revw_n_count).Value
+		objStatsExcel.Cells(5, t3_revw_n_percent).Value = ObjExcel.Cells(5, t3_revw_n_percent).Value
+		objStatsExcel.Cells(6, t3_revw_n_percent).Value = ObjExcel.Cells(6, t3_revw_n_percent).Value
+		objStatsExcel.Cells(7, t3_revw_n_percent).Value = ObjExcel.Cells(7, t3_revw_n_percent).Value
+		objStatsExcel.Cells(5, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(6, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(7, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(5, t3_revw_a_count).Value = ObjExcel.Cells(5, t3_revw_a_count).Value
+		objStatsExcel.Cells(6, t3_revw_a_count).Value = ObjExcel.Cells(6, t3_revw_a_count).Value
+		objStatsExcel.Cells(7, t3_revw_a_count).Value = ObjExcel.Cells(7, t3_revw_a_count).Value
+		objStatsExcel.Cells(5, t3_revw_a_percent).Value = ObjExcel.Cells(5, t3_revw_a_percent).Value
+		objStatsExcel.Cells(6, t3_revw_a_percent).Value = ObjExcel.Cells(6, t3_revw_a_percent).Value
+		objStatsExcel.Cells(7, t3_revw_a_percent).Value = ObjExcel.Cells(7, t3_revw_a_percent).Value
+		objStatsExcel.Cells(5, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(6, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(7, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(5, t3_revw_o_count).Value = ObjExcel.Cells(5, t3_revw_o_count).Value
+		objStatsExcel.Cells(6, t3_revw_o_count).Value = ObjExcel.Cells(6, t3_revw_o_count).Value
+		objStatsExcel.Cells(7, t3_revw_o_count).Value = ObjExcel.Cells(7, t3_revw_o_count).Value
+		objStatsExcel.Cells(5, t3_revw_o_percent).Value = ObjExcel.Cells(5, t3_revw_o_percent).Value
+		objStatsExcel.Cells(6, t3_revw_o_percent).Value = ObjExcel.Cells(6, t3_revw_o_percent).Value
+		objStatsExcel.Cells(7, t3_revw_o_percent).Value = ObjExcel.Cells(7, t3_revw_o_percent).Value
+		objStatsExcel.Cells(5, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(6, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(7, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(5, t3_revw_t_count).Value = ObjExcel.Cells(5, t3_revw_t_count).Value
+		objStatsExcel.Cells(6, t3_revw_t_count).Value = ObjExcel.Cells(6, t3_revw_t_count).Value
+		objStatsExcel.Cells(7, t3_revw_t_count).Value = ObjExcel.Cells(7, t3_revw_t_count).Value
+		objStatsExcel.Cells(5, t3_revw_t_percent).Value = ObjExcel.Cells(5, t3_revw_t_percent).Value
+		objStatsExcel.Cells(6, t3_revw_t_percent).Value = ObjExcel.Cells(6, t3_revw_t_percent).Value
+		objStatsExcel.Cells(7, t3_revw_t_percent).Value = ObjExcel.Cells(7, t3_revw_t_percent).Value
+		objStatsExcel.Cells(5, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(6, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(7, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(5, t3_revw_d_count).Value = ObjExcel.Cells(5, t3_revw_d_count).Value
+		objStatsExcel.Cells(6, t3_revw_d_count).Value = ObjExcel.Cells(6, t3_revw_d_count).Value
+		objStatsExcel.Cells(7, t3_revw_d_count).Value = ObjExcel.Cells(7, t3_revw_d_count).Value
+		objStatsExcel.Cells(5, t3_revw_d_percent).Value = ObjExcel.Cells(5, t3_revw_d_percent).Value
+		objStatsExcel.Cells(6, t3_revw_d_percent).Value = ObjExcel.Cells(6, t3_revw_d_percent).Value
+		objStatsExcel.Cells(7, t3_revw_d_percent).Value = ObjExcel.Cells(7, t3_revw_d_percent).Value
+		objStatsExcel.Cells(5, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(6, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(7, t3_revw_d_percent).NumberFormat = "0.00%"
+
+		objStatsExcel.Cells(8, t3_totals_count).Value = ObjExcel.Cells(8, t3_totals_count).Value
+		objStatsExcel.Cells(9, t3_totals_count).Value = ObjExcel.Cells(9, t3_totals_count).Value
+		objStatsExcel.Cells(10, t3_totals_count).Value = ObjExcel.Cells(10, t3_totals_count).Value
+
+		objStatsExcel.Cells(8, t3_apps_recvd_count).Value = ObjExcel.Cells(8, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(9, t3_apps_recvd_count).Value = ObjExcel.Cells(9, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(10, t3_apps_recvd_count).Value = ObjExcel.Cells(10, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(8, t3_apps_recvd_percent).Value = ObjExcel.Cells(8, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(9, t3_apps_recvd_percent).Value = ObjExcel.Cells(9, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(10, t3_apps_recvd_percent).Value = ObjExcel.Cells(10, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(8, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(9, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(10, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(8, t3_revw_i_count).Value = ObjExcel.Cells(8, t3_revw_i_count).Value
+		objStatsExcel.Cells(9, t3_revw_i_count).Value = ObjExcel.Cells(9, t3_revw_i_count).Value
+		objStatsExcel.Cells(10, t3_revw_i_count).Value = ObjExcel.Cells(10, t3_revw_i_count).Value
+		objStatsExcel.Cells(8, t3_revw_i_percent).Value = ObjExcel.Cells(8, t3_revw_i_percent).Value
+		objStatsExcel.Cells(9, t3_revw_i_percent).Value = ObjExcel.Cells(9, t3_revw_i_percent).Value
+		objStatsExcel.Cells(10, t3_revw_i_percent).Value = ObjExcel.Cells(10, t3_revw_i_percent).Value
+		objStatsExcel.Cells(8, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(9, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(10, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(8, t3_revw_u_count).Value = ObjExcel.Cells(8, t3_revw_u_count).Value
+		objStatsExcel.Cells(9, t3_revw_u_count).Value = ObjExcel.Cells(9, t3_revw_u_count).Value
+		objStatsExcel.Cells(10, t3_revw_u_count).Value = ObjExcel.Cells(10, t3_revw_u_count).Value
+		objStatsExcel.Cells(8, t3_revw_u_percent).Value = ObjExcel.Cells(8, t3_revw_u_percent).Value
+		objStatsExcel.Cells(9, t3_revw_u_percent).Value = ObjExcel.Cells(9, t3_revw_u_percent).Value
+		objStatsExcel.Cells(10, t3_revw_u_percent).Value = ObjExcel.Cells(10, t3_revw_u_percent).Value
+		objStatsExcel.Cells(8, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(9, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(10, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(8, t3_revw_n_count).Value = ObjExcel.Cells(8, t3_revw_n_count).Value
+		objStatsExcel.Cells(9, t3_revw_n_count).Value = ObjExcel.Cells(9, t3_revw_n_count).Value
+		objStatsExcel.Cells(10, t3_revw_n_count).Value = ObjExcel.Cells(10, t3_revw_n_count).Value
+		objStatsExcel.Cells(8, t3_revw_n_percent).Value = ObjExcel.Cells(8, t3_revw_n_percent).Value
+		objStatsExcel.Cells(9, t3_revw_n_percent).Value = ObjExcel.Cells(9, t3_revw_n_percent).Value
+		objStatsExcel.Cells(10, t3_revw_n_percent).Value = ObjExcel.Cells(10, t3_revw_n_percent).Value
+		objStatsExcel.Cells(8, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(9, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(10, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(8, t3_revw_a_count).Value = ObjExcel.Cells(8, t3_revw_a_count).Value
+		objStatsExcel.Cells(9, t3_revw_a_count).Value = ObjExcel.Cells(9, t3_revw_a_count).Value
+		objStatsExcel.Cells(10, t3_revw_a_count).Value = ObjExcel.Cells(10, t3_revw_a_count).Value
+		objStatsExcel.Cells(8, t3_revw_a_percent).Value = ObjExcel.Cells(8, t3_revw_a_percent).Value
+		objStatsExcel.Cells(9, t3_revw_a_percent).Value = ObjExcel.Cells(9, t3_revw_a_percent).Value
+		objStatsExcel.Cells(10, t3_revw_a_percent).Value = ObjExcel.Cells(10, t3_revw_a_percent).Value
+		objStatsExcel.Cells(8, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(9, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(10, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(8, t3_revw_o_count).Value = ObjExcel.Cells(8, t3_revw_o_count).Value
+		objStatsExcel.Cells(9, t3_revw_o_count).Value = ObjExcel.Cells(9, t3_revw_o_count).Value
+		objStatsExcel.Cells(10, t3_revw_o_count).Value = ObjExcel.Cells(10, t3_revw_o_count).Value
+		objStatsExcel.Cells(8, t3_revw_o_percent).Value = ObjExcel.Cells(8, t3_revw_o_percent).Value
+		objStatsExcel.Cells(9, t3_revw_o_percent).Value = ObjExcel.Cells(9, t3_revw_o_percent).Value
+		objStatsExcel.Cells(10, t3_revw_o_percent).Value = ObjExcel.Cells(10, t3_revw_o_percent).Value
+		objStatsExcel.Cells(8, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(9, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(10, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(8, t3_revw_t_count).Value = ObjExcel.Cells(8, t3_revw_t_count).Value
+		objStatsExcel.Cells(9, t3_revw_t_count).Value = ObjExcel.Cells(9, t3_revw_t_count).Value
+		objStatsExcel.Cells(10, t3_revw_t_count).Value = ObjExcel.Cells(10, t3_revw_t_count).Value
+		objStatsExcel.Cells(8, t3_revw_t_percent).Value = ObjExcel.Cells(8, t3_revw_t_percent).Value
+		objStatsExcel.Cells(9, t3_revw_t_percent).Value = ObjExcel.Cells(9, t3_revw_t_percent).Value
+		objStatsExcel.Cells(10, t3_revw_t_percent).Value = ObjExcel.Cells(10, t3_revw_t_percent).Value
+		objStatsExcel.Cells(8, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(9, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(10, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(8, t3_revw_d_count).Value = ObjExcel.Cells(8, t3_revw_d_count).Value
+		objStatsExcel.Cells(9, t3_revw_d_count).Value = ObjExcel.Cells(9, t3_revw_d_count).Value
+		objStatsExcel.Cells(10, t3_revw_d_count).Value = ObjExcel.Cells(10, t3_revw_d_count).Value
+		objStatsExcel.Cells(8, t3_revw_d_percent).Value = ObjExcel.Cells(8, t3_revw_d_percent).Value
+		objStatsExcel.Cells(9, t3_revw_d_percent).Value = ObjExcel.Cells(9, t3_revw_d_percent).Value
+		objStatsExcel.Cells(10, t3_revw_d_percent).Value = ObjExcel.Cells(10, t3_revw_d_percent).Value
+		objStatsExcel.Cells(8, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(9, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(10, t3_revw_d_percent).NumberFormat = "0.00%"
+
+		objStatsExcel.Cells(11, t3_totals_count).Value = ObjExcel.Cells(11, t3_totals_count).Value
+		objStatsExcel.Cells(12, t3_totals_count).Value = ObjExcel.Cells(12, t3_totals_count).Value
+		objStatsExcel.Cells(13, t3_totals_count).Value = ObjExcel.Cells(13, t3_totals_count).Value
+
+		objStatsExcel.Cells(11, t3_apps_recvd_count).Value = ObjExcel.Cells(11, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(12, t3_apps_recvd_count).Value = ObjExcel.Cells(12, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(13, t3_apps_recvd_count).Value = ObjExcel.Cells(13, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(11, t3_apps_recvd_percent).Value = ObjExcel.Cells(11, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(12, t3_apps_recvd_percent).Value = ObjExcel.Cells(12, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(13, t3_apps_recvd_percent).Value = ObjExcel.Cells(13, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(11, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(12, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(13, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(11, t3_intvs_count).Value = ObjExcel.Cells(11, t3_intvs_count).Value
+		objStatsExcel.Cells(12, t3_intvs_count).Value = ObjExcel.Cells(12, t3_intvs_count).Value
+		objStatsExcel.Cells(13, t3_intvs_count).Value = ObjExcel.Cells(13, t3_intvs_count).Value
+		objStatsExcel.Cells(11, t3_intvs_percent).Value = ObjExcel.Cells(11, t3_intvs_percent).Value
+		objStatsExcel.Cells(12, t3_intvs_percent).Value = ObjExcel.Cells(12, t3_intvs_percent).Value
+		objStatsExcel.Cells(13, t3_intvs_percent).Value = ObjExcel.Cells(13, t3_intvs_percent).Value
+		objStatsExcel.Cells(11, t3_intvs_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(12, t3_intvs_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(13, t3_intvs_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(11, t3_revw_i_count).Value = ObjExcel.Cells(11, t3_revw_i_count).Value
+		objStatsExcel.Cells(12, t3_revw_i_count).Value = ObjExcel.Cells(12, t3_revw_i_count).Value
+		objStatsExcel.Cells(13, t3_revw_i_count).Value = ObjExcel.Cells(13, t3_revw_i_count).Value
+		objStatsExcel.Cells(11, t3_revw_i_percent).Value = ObjExcel.Cells(11, t3_revw_i_percent).Value
+		objStatsExcel.Cells(12, t3_revw_i_percent).Value = ObjExcel.Cells(12, t3_revw_i_percent).Value
+		objStatsExcel.Cells(13, t3_revw_i_percent).Value = ObjExcel.Cells(13, t3_revw_i_percent).Value
+		objStatsExcel.Cells(11, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(12, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(13, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(11, t3_revw_u_count).Value = ObjExcel.Cells(11, t3_revw_u_count).Value
+		objStatsExcel.Cells(12, t3_revw_u_count).Value = ObjExcel.Cells(12, t3_revw_u_count).Value
+		objStatsExcel.Cells(13, t3_revw_u_count).Value = ObjExcel.Cells(13, t3_revw_u_count).Value
+		objStatsExcel.Cells(11, t3_revw_u_percent).Value = ObjExcel.Cells(11, t3_revw_u_percent).Value
+		objStatsExcel.Cells(12, t3_revw_u_percent).Value = ObjExcel.Cells(12, t3_revw_u_percent).Value
+		objStatsExcel.Cells(13, t3_revw_u_percent).Value = ObjExcel.Cells(13, t3_revw_u_percent).Value
+		objStatsExcel.Cells(11, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(12, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(13, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(11, t3_revw_n_count).Value = ObjExcel.Cells(11, t3_revw_n_count).Value
+		objStatsExcel.Cells(12, t3_revw_n_count).Value = ObjExcel.Cells(12, t3_revw_n_count).Value
+		objStatsExcel.Cells(13, t3_revw_n_count).Value = ObjExcel.Cells(13, t3_revw_n_count).Value
+		objStatsExcel.Cells(11, t3_revw_n_percent).Value = ObjExcel.Cells(11, t3_revw_n_percent).Value
+		objStatsExcel.Cells(12, t3_revw_n_percent).Value = ObjExcel.Cells(12, t3_revw_n_percent).Value
+		objStatsExcel.Cells(13, t3_revw_n_percent).Value = ObjExcel.Cells(13, t3_revw_n_percent).Value
+		objStatsExcel.Cells(11, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(12, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(13, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(11, t3_revw_a_count).Value = ObjExcel.Cells(11, t3_revw_a_count).Value
+		objStatsExcel.Cells(12, t3_revw_a_count).Value = ObjExcel.Cells(12, t3_revw_a_count).Value
+		objStatsExcel.Cells(13, t3_revw_a_count).Value = ObjExcel.Cells(13, t3_revw_a_count).Value
+		objStatsExcel.Cells(11, t3_revw_a_percent).Value = ObjExcel.Cells(11, t3_revw_a_percent).Value
+		objStatsExcel.Cells(12, t3_revw_a_percent).Value = ObjExcel.Cells(12, t3_revw_a_percent).Value
+		objStatsExcel.Cells(13, t3_revw_a_percent).Value = ObjExcel.Cells(13, t3_revw_a_percent).Value
+		objStatsExcel.Cells(11, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(12, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(13, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(11, t3_revw_o_count).Value = ObjExcel.Cells(11, t3_revw_o_count).Value
+		objStatsExcel.Cells(12, t3_revw_o_count).Value = ObjExcel.Cells(12, t3_revw_o_count).Value
+		objStatsExcel.Cells(13, t3_revw_o_count).Value = ObjExcel.Cells(13, t3_revw_o_count).Value
+		objStatsExcel.Cells(11, t3_revw_o_percent).Value = ObjExcel.Cells(11, t3_revw_o_percent).Value
+		objStatsExcel.Cells(12, t3_revw_o_percent).Value = ObjExcel.Cells(12, t3_revw_o_percent).Value
+		objStatsExcel.Cells(13, t3_revw_o_percent).Value = ObjExcel.Cells(13, t3_revw_o_percent).Value
+		objStatsExcel.Cells(11, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(12, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(13, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(11, t3_revw_t_count).Value = ObjExcel.Cells(11, t3_revw_t_count).Value
+		objStatsExcel.Cells(12, t3_revw_t_count).Value = ObjExcel.Cells(12, t3_revw_t_count).Value
+		objStatsExcel.Cells(13, t3_revw_t_count).Value = ObjExcel.Cells(13, t3_revw_t_count).Value
+		objStatsExcel.Cells(11, t3_revw_t_percent).Value = ObjExcel.Cells(11, t3_revw_t_percent).Value
+		objStatsExcel.Cells(12, t3_revw_t_percent).Value = ObjExcel.Cells(12, t3_revw_t_percent).Value
+		objStatsExcel.Cells(13, t3_revw_t_percent).Value = ObjExcel.Cells(13, t3_revw_t_percent).Value
+		objStatsExcel.Cells(11, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(12, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(13, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(11, t3_revw_d_count).Value = ObjExcel.Cells(11, t3_revw_d_count).Value
+		objStatsExcel.Cells(12, t3_revw_d_count).Value = ObjExcel.Cells(12, t3_revw_d_count).Value
+		objStatsExcel.Cells(13, t3_revw_d_count).Value = ObjExcel.Cells(13, t3_revw_d_count).Value
+		objStatsExcel.Cells(11, t3_revw_d_percent).Value = ObjExcel.Cells(11, t3_revw_d_percent).Value
+		objStatsExcel.Cells(12, t3_revw_d_percent).Value = ObjExcel.Cells(12, t3_revw_d_percent).Value
+		objStatsExcel.Cells(13, t3_revw_d_percent).Value = ObjExcel.Cells(13, t3_revw_d_percent).Value
+		objStatsExcel.Cells(11, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(12, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(13, t3_revw_d_percent).NumberFormat = "0.00%"
+
+		objStatsExcel.Cells(14, t3_totals_count).Value = ObjExcel.Cells(14, t3_totals_count).Value
+		objStatsExcel.Cells(15, t3_totals_count).Value = ObjExcel.Cells(15, t3_totals_count).Value
+		objStatsExcel.Cells(16, t3_totals_count).Value = ObjExcel.Cells(16, t3_totals_count).Value
+
+		objStatsExcel.Cells(14, t3_apps_recvd_count).Value = ObjExcel.Cells(14, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(15, t3_apps_recvd_count).Value = ObjExcel.Cells(15, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(16, t3_apps_recvd_count).Value = ObjExcel.Cells(16, t3_apps_recvd_count).Value
+		objStatsExcel.Cells(14, t3_apps_recvd_percent).Value = ObjExcel.Cells(14, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(15, t3_apps_recvd_percent).Value = ObjExcel.Cells(15, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(16, t3_apps_recvd_percent).Value = ObjExcel.Cells(16, t3_apps_recvd_percent).Value
+		objStatsExcel.Cells(14, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(15, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(16, t3_apps_recvd_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(14, t3_intvs_count).Value = ObjExcel.Cells(14, t3_intvs_count).Value
+		objStatsExcel.Cells(15, t3_intvs_count).Value = ObjExcel.Cells(15, t3_intvs_count).Value
+		objStatsExcel.Cells(16, t3_intvs_count).Value = ObjExcel.Cells(16, t3_intvs_count).Value
+		objStatsExcel.Cells(14, t3_intvs_percent).Value = ObjExcel.Cells(14, t3_intvs_percent).Value
+		objStatsExcel.Cells(15, t3_intvs_percent).Value = ObjExcel.Cells(15, t3_intvs_percent).Value
+		objStatsExcel.Cells(16, t3_intvs_percent).Value = ObjExcel.Cells(16, t3_intvs_percent).Value
+		objStatsExcel.Cells(14, t3_intvs_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(15, t3_intvs_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(16, t3_intvs_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(14, t3_revw_i_count).Value = ObjExcel.Cells(14, t3_revw_i_count).Value
+		objStatsExcel.Cells(15, t3_revw_i_count).Value = ObjExcel.Cells(15, t3_revw_i_count).Value
+		objStatsExcel.Cells(16, t3_revw_i_count).Value = ObjExcel.Cells(16, t3_revw_i_count).Value
+		objStatsExcel.Cells(14, t3_revw_i_percent).Value = ObjExcel.Cells(14, t3_revw_i_percent).Value
+		objStatsExcel.Cells(15, t3_revw_i_percent).Value = ObjExcel.Cells(15, t3_revw_i_percent).Value
+		objStatsExcel.Cells(16, t3_revw_i_percent).Value = ObjExcel.Cells(16, t3_revw_i_percent).Value
+		objStatsExcel.Cells(14, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(15, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(16, t3_revw_i_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(14, t3_revw_u_count).Value = ObjExcel.Cells(14, t3_revw_u_count).Value
+		objStatsExcel.Cells(15, t3_revw_u_count).Value = ObjExcel.Cells(15, t3_revw_u_count).Value
+		objStatsExcel.Cells(16, t3_revw_u_count).Value = ObjExcel.Cells(16, t3_revw_u_count).Value
+		objStatsExcel.Cells(14, t3_revw_u_percent).Value = ObjExcel.Cells(14, t3_revw_u_percent).Value
+		objStatsExcel.Cells(15, t3_revw_u_percent).Value = ObjExcel.Cells(15, t3_revw_u_percent).Value
+		objStatsExcel.Cells(16, t3_revw_u_percent).Value = ObjExcel.Cells(16, t3_revw_u_percent).Value
+		objStatsExcel.Cells(14, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(15, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(16, t3_revw_u_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(14, t3_revw_n_count).Value = ObjExcel.Cells(14, t3_revw_n_count).Value
+		objStatsExcel.Cells(15, t3_revw_n_count).Value = ObjExcel.Cells(15, t3_revw_n_count).Value
+		objStatsExcel.Cells(16, t3_revw_n_count).Value = ObjExcel.Cells(16, t3_revw_n_count).Value
+		objStatsExcel.Cells(14, t3_revw_n_percent).Value = ObjExcel.Cells(14, t3_revw_n_percent).Value
+		objStatsExcel.Cells(15, t3_revw_n_percent).Value = ObjExcel.Cells(15, t3_revw_n_percent).Value
+		objStatsExcel.Cells(16, t3_revw_n_percent).Value = ObjExcel.Cells(16, t3_revw_n_percent).Value
+		objStatsExcel.Cells(14, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(15, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(16, t3_revw_n_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(14, t3_revw_a_count).Value = ObjExcel.Cells(14, t3_revw_a_count).Value
+		objStatsExcel.Cells(15, t3_revw_a_count).Value = ObjExcel.Cells(15, t3_revw_a_count).Value
+		objStatsExcel.Cells(16, t3_revw_a_count).Value = ObjExcel.Cells(16, t3_revw_a_count).Value
+		objStatsExcel.Cells(14, t3_revw_a_percent).Value = ObjExcel.Cells(14, t3_revw_a_percent).Value
+		objStatsExcel.Cells(15, t3_revw_a_percent).Value = ObjExcel.Cells(15, t3_revw_a_percent).Value
+		objStatsExcel.Cells(16, t3_revw_a_percent).Value = ObjExcel.Cells(16, t3_revw_a_percent).Value
+		objStatsExcel.Cells(14, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(15, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(16, t3_revw_a_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(14, t3_revw_o_count).Value = ObjExcel.Cells(14, t3_revw_o_count).Value
+		objStatsExcel.Cells(15, t3_revw_o_count).Value = ObjExcel.Cells(15, t3_revw_o_count).Value
+		objStatsExcel.Cells(16, t3_revw_o_count).Value = ObjExcel.Cells(16, t3_revw_o_count).Value
+		objStatsExcel.Cells(14, t3_revw_o_percent).Value = ObjExcel.Cells(14, t3_revw_o_percent).Value
+		objStatsExcel.Cells(15, t3_revw_o_percent).Value = ObjExcel.Cells(15, t3_revw_o_percent).Value
+		objStatsExcel.Cells(16, t3_revw_o_percent).Value = ObjExcel.Cells(16, t3_revw_o_percent).Value
+		objStatsExcel.Cells(14, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(15, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(16, t3_revw_o_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(14, t3_revw_t_count).Value = ObjExcel.Cells(14, t3_revw_t_count).Value
+		objStatsExcel.Cells(15, t3_revw_t_count).Value = ObjExcel.Cells(15, t3_revw_t_count).Value
+		objStatsExcel.Cells(16, t3_revw_t_count).Value = ObjExcel.Cells(16, t3_revw_t_count).Value
+		objStatsExcel.Cells(14, t3_revw_t_percent).Value = ObjExcel.Cells(14, t3_revw_t_percent).Value
+		objStatsExcel.Cells(15, t3_revw_t_percent).Value = ObjExcel.Cells(15, t3_revw_t_percent).Value
+		objStatsExcel.Cells(16, t3_revw_t_percent).Value = ObjExcel.Cells(16, t3_revw_t_percent).Value
+		objStatsExcel.Cells(14, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(15, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(16, t3_revw_t_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(14, t3_revw_d_count).Value = ObjExcel.Cells(14, t3_revw_d_count).Value
+		objStatsExcel.Cells(15, t3_revw_d_count).Value = ObjExcel.Cells(15, t3_revw_d_count).Value
+		objStatsExcel.Cells(16, t3_revw_d_count).Value = ObjExcel.Cells(16, t3_revw_d_count).Value
+		objStatsExcel.Cells(14, t3_revw_d_percent).Value = ObjExcel.Cells(14, t3_revw_d_percent).Value
+		objStatsExcel.Cells(15, t3_revw_d_percent).Value = ObjExcel.Cells(15, t3_revw_d_percent).Value
+		objStatsExcel.Cells(16, t3_revw_d_percent).Value = ObjExcel.Cells(16, t3_revw_d_percent).Value
+		objStatsExcel.Cells(14, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(15, t3_revw_d_percent).NumberFormat = "0.00%"
+		objStatsExcel.Cells(16, t3_revw_d_percent).NumberFormat = "0.00%"
+
+		'Resizing all of the columns to autofit
+		For xl_col = 1 to t3_totals_count
+			ObjExcel.columns(xl_col).AutoFit()
+		Next
+		For xl_col = 1 to t3_totals_count
+			objStatsExcel.columns(xl_col).AutoFit()
+		Next
+
+		'Setting the Ranges for each of the 3 tables
+		table1Range = t1_REVW_type_letter & "1:" & t1_intvw_percent_letter & "6"
+		table2Range = t2_dates_letter & "1:" & t2_total_app_count_letter & last_row
+		table3Range = t3_progs_letter & "1:" & t3_totals_count_letter & "16"
+
+		'This is how we make a range of cells into a table.
+		'The ADD Method creates the table and Full Detail can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.listobjects.add
+		'This is a fairly simple use of this functionality and probably has a lot more to it than is exemplified here and the methods/properties can be found:
+			'https://docs.microsoft.com/en-us/office/vba/api/excel.listobject
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "AppsANDIntvwTable"
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table2Range, xlYes).Name = "DateCountTable"
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table3Range, xlYes).Name = "REVWStatusTable"
+
+		'xlSrcRange is a constant that needs to be set in the script and is '1' which sets the source of the information to a range of cells for defining the table
+			'Other documentation and information about this option can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.xllistobjectsourcetype
+			' XlListObjectSourceType enumeration (Excel)
+			' NAME				VALUE		DESCRIPTION
+			' xlSrcExternal		0			External data source (Microsoft SharePoint Foundation site).
+			' xlSrcModel		4			PowerPivot Model
+			' xlSrcQuery		3			Query
+			' xlSrcRange		1			Range
+			' xlSrcXml			2			XML
+		'xlYes is a constant that needs to be set in the script and is '1' which inidcates that the data source has headers.
+			'Other documentation and information about this option can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.xlyesnoguess
+			' XLYESNOGUESS ENUMERATION (EXCEL)
+			' NAME		VALUE	DESCRIPTION
+			' xlGuess	0		Excel determines whether there is a header, and where it is, if there is one.
+			' xlNo		2		Default. The entire range should be sorted.
+			' xlYes		1		The entire range should not be sorted.
+
+		'This is how you can use the property 'TableStyle' to set the visuals of the table. The words here can be found IN EXCEL by hovering over the table styles to see how they are called - these 3 below work.
+		' ObjExcel.ActiveSheet.ListObjects("AppsANDIntvwTable").TableStyle = "TableStyleDark9"
+		' ObjExcel.ActiveSheet.ListObjects("DateCountTable").TableStyle = "TableStyleDark10"
+		' ObjExcel.ActiveSheet.ListObjects("REVWStatusTable").TableStyle = "TableStyleDark11"
+
+		'Now we make more tables for the other excel
+		objStatsExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "Table1"
+		objStatsExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table2Range, xlYes).Name = "Table2"
+		objStatsExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table3Range, xlYes).Name = "Table3"
+
+		' 'https://docs.microsoft.com/en-us/office/vba/api/excel.xlcolorindex - This is where you find all the excel numbers to use are.
+		ObjExcel.Range(t3_apps_recvd_count_letter 	& "2:" & t3_intvs_percent_letter 		& "2").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_revw_a_count_letter 		& "2:" & t3_revw_a_percent_letter 		& "2").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_totals_count_letter 		& "2:" & t3_totals_count_letter 		& "2").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_apps_recvd_count_letter 	& "5:" & t3_iapps_recvd_percent_letter 	& "5").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_revw_i_count_letter 		& "5:" & t3_revw_i_percent_letter 		& "5").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_revw_a_count_letter 		& "5:" & t3_revw_a_percent_letter 		& "5").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_totals_count_letter 		& "5:" & t3_totals_count_letter 		& "5").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_apps_recvd_count_letter 	& "8:" & t3_iapps_recvd_percent_letter 	& "8").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_revw_i_count_letter 		& "8:" & t3_revw_i_percent_letter 		& "8").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_revw_a_count_letter 		& "8:" & t3_revw_a_percent_letter 		& "8").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_totals_count_letter 		& "8:" & t3_totals_count_letter 		& "8").Interior.ColorIndex = 6
+		ObjExcel.Range(t3_revw_a_count_letter 		& "14:" & t3_revw_a_percent_letter 		& "14").Interior.ColorIndex = 6
+
+		objStatsExcel.Range(t3_apps_recvd_count_letter 	& "2:" & t3_intvs_percent_letter 		& "2").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_revw_a_count_letter 		& "2:" & t3_revw_a_percent_letter 		& "2").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_totals_count_letter 		& "2:" & t3_totals_count_letter 		& "2").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_apps_recvd_count_letter 	& "5:" & t3_iapps_recvd_percent_letter 	& "5").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_revw_i_count_letter 		& "5:" & t3_revw_i_percent_letter 		& "5").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_revw_a_count_letter 		& "5:" & t3_revw_a_percent_letter 		& "5").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_totals_count_letter 		& "5:" & t3_totals_count_letter 		& "5").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_apps_recvd_count_letter 	& "8:" & t3_iapps_recvd_percent_letter 	& "8").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_revw_i_count_letter 		& "8:" & t3_revw_i_percent_letter 		& "8").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_revw_a_count_letter 		& "8:" & t3_revw_a_percent_letter 		& "8").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_totals_count_letter 		& "8:" & t3_totals_count_letter 		& "8").Interior.ColorIndex = 6
+		objStatsExcel.Range(t3_revw_a_count_letter 		& "14:" & t3_revw_a_percent_letter 		& "14").Interior.ColorIndex = 6
+
+		'Query date/time/runtime info
+		ObjExcel.Cells(1, output_headers).Font.Bold = TRUE
+		ObjExcel.Cells(2, output_headers).Font.Bold = TRUE
+		ObjExcel.Cells(1, output_headers).Value = "Query date and time:"
+		ObjExcel.Cells(2, output_headers).Value = "Query runtime (in seconds):"
+		ObjExcel.Cells(1, output_data).Value = now
+		ObjExcel.Cells(2, output_data).Value = timer - query_start_time
+
+		ObjExcel.columns(output_headers).AutoFit()
+		ObjExcel.columns(output_data).AutoFit()
+
+		objWorkbook.Save
+
+		'Query date/time/runtime info
+		objStatsExcel.Cells(1, output_headers).Font.Bold = TRUE
+		objStatsExcel.Cells(2, output_headers).Font.Bold = TRUE
+		objStatsExcel.Cells(1, output_headers).Value = "Query date and time:"
+		objStatsExcel.Cells(2, output_headers).Value = "Query runtime (in seconds):"
+		objStatsExcel.Cells(1, output_data).Value = now
+		objStatsExcel.Cells(2, output_data).Value = timer - query_start_time
+
+		objStatsExcel.columns(output_headers).AutoFit()
+		objStatsExcel.columns(output_data).AutoFit()
+
+		objStatsExcel.ActiveWorkbook.SaveAs t_drive & "\IPA\Restricted\DMA\PowerBIData\ES QI\Recertification Statistics\" & report_date & " Renewal Data.xlsx"
+		If last_day_checkbox = checked Then objStatsExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Recertification Statistics\Data\Last Processing Day for " & report_date & " Renewal Data.xlsx"
+
+		'HERE WE NEED TO CLOSE THE NEW SHEETS
+		ObjStatsExcel.Quit
+
+		' WE AREN'T USING THIS BUT I AM SAVING THIS CODE BECAUSE IT IS THE ONLY PLACE WE HAVE THE BORDER FUNCTIONS INFORMATION
+		' border_array = array("B1:C"&last_row, "D1:D"&last_row, "E1:E"&last_row, "F1:G"&last_row, "H1:I"&last_row, "A2:I2", "A3:I5", "A6:I8", "B10:I10", "K3:AE5", "K6:AE8", "K9:AE11", "K12:AE14", "K15:AE17", "M1:N17", "O1:P17",_
+		'  					 "Q1:R17", "S1:T17", "U1:V17", "W1:X17", "Y1:Z17", "AA1:AB17", "AC1:AD17", "AE1:AE17")
+		'
+		' For each group in border_array
+		' 	With ObjExcel.ActiveSheet.Range(group)
+		' 		With .Borders(7)	'left'
+		' 			.LineStyle = 1
+		' 			.Weight = 2
+		' 			.ColorIndex = -4105
+		' 		End With
+		' 		With .Borders(8)	'Top'
+		' 			.LineStyle = 1
+		' 			.Weight = 2
+		' 			.ColorIndex = -4105
+		' 		End With
+		' 		With .Borders(9)	'Bottom'
+		' 			.LineStyle = 1
+		' 			.Weight = 2
+		' 			.ColorIndex = -4105
+		' 		End With
+		' 		With .Borders(10)	'Right'
+		' 			.LineStyle = 1
+		' 			.Weight = 2
+		' 			.ColorIndex = -4105
+		' 		End With
+		' 	End With
+		' Next
+
+		run_time = timer - query_start_time
+		end_msg = "Case details have been added to the Review Report" & vbCr & vbCr & "Run time: " & run_time & " seconds."
+	End If
+
+	If do_we_create_u_code_worklists = True Then
+		If statistics_already_run_today = False Then
+			ucode_cash_col = cash_stat_excel_col
+			ucode_snap_col = stat_stat_excel_col
+			ucode_recvd_date_col = recvd_date_excel_col
+			ucode_intvw_date_col = intvw_date_excel_col
 		End If
-		excel_row = excel_row + 1		'going to the next excel
-	Loop until case_number_to_check = ""
-	excel_row = excel_row - 1
-	'Now we will check for any cases that have been ADDED to REVS since we created the report or last ran statistics.
-	For revs_item = 0 to UBound(review_array, 2)
-		If review_array(saved_to_excel_const, revs_item) = FALSE Then
-			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
-			MAXIS_case_number = review_array(case_number_const, revs_item)
-
-			review_array(interview_const,       revs_item) = False   'values defaulted to False
-			review_array(no_interview_const,    revs_item) = False
-			review_array(current_SR_const,      revs_item) = False
-
-			Call read_case_details_for_review_report(revs_item)
-
-			'----------------------------------------------------------------------------------------------------Excel Output
-			ObjExcel.Cells(excel_row,  1).value = review_array(worker_const,      	  revs_item)     'COL A
-			ObjExcel.Cells(excel_row,  2).value = review_array(case_number_const,     revs_item)     'COL B
-
-			ObjExcel.Cells(excel_row,  3).value = review_array(interview_const,       revs_item)     'COL C
-			ObjExcel.Cells(excel_row,  4).value = review_array(no_interview_const,    revs_item)     'COL D
-			ObjExcel.Cells(excel_row,  5).value = review_array(current_SR_const,      revs_item)     'COL E
-			ObjExcel.Cells(excel_row,  6).value = review_array(MFIP_status_const,     revs_item)     'COL F
-			ObjExcel.Cells(excel_row,  7).value = review_array(DWP_status_const,      revs_item)     'COL G
-			ObjExcel.Cells(excel_row,  8).value = review_array(GA_status_const,       revs_item)     'COL H
-			ObjExcel.Cells(excel_row,  9).value = review_array(MSA_status_const,      revs_item)     'COL I
-			ObjExcel.Cells(excel_row, 10).value = review_array(GRH_status_const,      revs_item)     'COL J
-			ObjExcel.Cells(excel_row, 11).value = review_array(CASH_next_SR_const,    revs_item)     'COL K
-			ObjExcel.Cells(excel_row, 12).value = review_array(CASH_next_ER_const,    revs_item)     'COL L
-			ObjExcel.Cells(excel_row, 13).value = review_array(SNAP_status_const,     revs_item)     'COL M
-			ObjExcel.Cells(excel_row, 14).value = review_array(SNAP_next_SR_const,    revs_item)     'COL N
-			ObjExcel.Cells(excel_row, 15).value = review_array(SNAP_next_ER_const,    revs_item)     'COL O
-			ObjExcel.Cells(excel_row, 16).value = review_array(MA_status_const,       revs_item)     'COL P
-			ObjExcel.Cells(excel_row, 17).value = review_array(MSP_status_const,      revs_item)     'COL Q
-			ObjExcel.Cells(excel_row, 18).value = review_array(HC_next_SR_const,      revs_item)     'COL R
-			ObjExcel.Cells(excel_row, 19).value = review_array(HC_next_ER_const,      revs_item)     'COL S
-			ObjExcel.Cells(excel_row, 20).value = review_array(Language_const,        revs_item)     'COL T
-			ObjExcel.Cells(excel_row, 21).value = review_array(Interpreter_const,     revs_item)     'COL U
-			ObjExcel.Cells(excel_row, 22).value = review_array(phone_1_const,         revs_item)     'COL V
-			ObjExcel.Cells(excel_row, 23).value = review_array(phone_2_const,         revs_item)     'COL W
-			ObjExcel.Cells(excel_row, 24).value = review_array(phone_3_const,         revs_item)     'COL X
-			ObjExcel.Cells(excel_row, 25).value = review_array(notes_const,           revs_item)     'COL Y
-
-			'Entering information from the array into the excel spreadsheet
-			If review_array(CASH_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_stat_excel_col).Value = review_array(CASH_revw_status_const, revs_item)
-			If review_array(SNAP_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, snap_stat_excel_col).Value = review_array(SNAP_revw_status_const, revs_item)
-			If review_array(HC_revw_status_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, hc_stat_excel_col).Value = review_array(HC_revw_status_const, revs_item)
-			If review_array(HC_MAGI_code_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, magi_stat_excel_col).Value = review_array(HC_MAGI_code_const, revs_item)
-			If review_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = review_array(review_recvd_const, revs_item)
-			If review_array(interview_date_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, intvw_date_excel_col).Value = review_array(interview_date_const, revs_item)
-			ObjExcel.Range(ObjExcel.Cells(excel_row, 1), ObjExcel.Cells(excel_row, intvw_date_excel_col)).Interior.ColorIndex = 6
-			Call back_to_SELF		'Back out in case we need to look into another case.
-
-			Call add_autoclose_case_note(review_array(CASH_revw_status_const, revs_item), review_array(SNAP_revw_status_const, revs_item), review_array(HC_revw_status_const, revs_item), review_array(review_recvd_const, revs_item), review_array(interview_date_const, revs_item))
-
-			excel_row = excel_row + 1		'going to the next excel
+		If statistics_already_run_today = True Then
+			ucode_cash_col = existing_cash_revw_excel_col
+			ucode_snap_col = existing_stat_revw_excel_col
+			ucode_recvd_date_col = existing_recvd_date_excel_col
+			ucode_intvw_date_col = existing_intvw_date_excel_col
 		End If
-	Next
-
-	'Going to another sheet, to enter statistics for the entire Renewal load
-	sheet_name = "Statistics from " & date_month & "-" & date_day
-	ObjExcel.Worksheets.Add().Name = sheet_name
-
-	'HERE WE open a new Excel document so we can save the stats counts for uyse in report outs
-	'The Review Report Excel will use Excel formulas and the data on the main Review Report Table to calculate the counts and percentages
-	'The new Excel - the Stats Excel will just pull the value from the calculation that Excel completes
-
-	'Opening the Excel file
-	Set objStatsExcel = CreateObject("Excel.Application")
-	objStatsExcel.Visible = True
-	Set objStatsWorkbook = objStatsExcel.Workbooks.Add()
-	objStatsExcel.DisplayAlerts = FALSE		'This is off because we are saving over an existing file and Excel will alert and we need those to be off
-
-	'This function just enters the header information - which is exactly the same for each sheet
-	Call enter_excel_headers(ObjExcel)
-	Call enter_excel_headers(objStatsExcel)
-
-	'Now we enter all theformulas and counts in the stats areas
-	ObjExcel.Cells(t1_er_w_intv, t1_all_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_true&")"
-	ObjExcel.Cells(t1_er_w_intv, t1_apps_revd_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(t1_er_w_intv, t1_no_app_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(t1_er_w_intv, t1_app_percent_count).Value 		= "=" & t1_apps_revd_count_letter & t1_er_w_intv &"/" & t1_all_count_letter & t1_er_w_intv
-	ObjExcel.Cells(t1_er_w_intv, t1_app_percent_count).NumberFormat = "0.00%"
-	ObjExcel.Cells(t1_er_w_intv, t1_interview_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(t1_er_w_intv, t1_no_intvw_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[Intvw Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(t1_er_w_intv, t1_intvw_percent).Value 			= "=" & t1_interview_count_letter & t1_er_w_intv &"/" & t1_all_count_letter & t1_er_w_intv
-	ObjExcel.Cells(t1_er_w_intv, t1_intvw_percent).NumberFormat 	= "0.00%"
-
-	ObjExcel.Cells(t1_er_no_intv, t1_all_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&")"
-	ObjExcel.Cells(t1_er_no_intv, t1_apps_revd_count).Value 		= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(t1_er_no_intv, t1_no_app_count).Value 			= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(t1_er_no_intv, t1_app_percent_count).Value 		= "=" & t1_apps_revd_count_letter & t1_er_no_intv &"/" & t1_all_count_letter & t1_er_no_intv
-	ObjExcel.Cells(t1_er_no_intv, t1_app_percent_count).NumberFormat = "0.00%"
-
-	ObjExcel.Cells(t1_csr, t1_all_count).Value 						= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&")"
-	ObjExcel.Cells(t1_csr, t1_apps_revd_count).Value 				= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(t1_csr, t1_no_app_count).Value 					= "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(t1_csr, t1_app_percent_count).Value 				= "=" & t1_apps_revd_count_letter & t1_csr &"/" & t1_all_count_letter & t1_csr
-	ObjExcel.Cells(t1_csr, t1_app_percent_count).NumberFormat 		= "0.00%"
-
-	ObjExcel.Cells(t1_priv, t1_all_count).Value 					= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&")"
-	ObjExcel.Cells(t1_priv, t1_apps_revd_count).Value 				= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(t1_priv, t1_no_app_count).Value 					= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(t1_priv, t1_app_percent_count).Value 			= "=" & t1_apps_revd_count_letter & t1_priv &"/" & t1_all_count_letter & t1_priv
-	ObjExcel.Cells(t1_priv, t1_app_percent_count).NumberFormat 		= "0.00%"
-	ObjExcel.Cells(t1_priv, t1_interview_count).Value 				= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(t1_priv, t1_no_intvw_count).Value 				= "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(t1_priv, t1_intvw_percent).Value 				= "=" & t1_interview_count_letter & t1_priv &"/" & t1_all_count_letter & t1_priv
-	ObjExcel.Cells(t1_priv, t1_intvw_percent).NumberFormat 			= "0.00%"
-
-	ObjExcel.Cells(t1_total, t1_all_count).Value 					= "=COUNTA(Table1[Case number])"
-	ObjExcel.Cells(t1_total, t1_apps_revd_count).Value 				= "=COUNTIFS(Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(t1_total, t1_no_app_count).Value 				= "=COUNTIFS(Table1[CAF Date ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(t1_total, t1_app_percent_count).Value 			= "=" & t1_apps_revd_count_letter & t1_total &"/" & t1_all_count_letter & t1_total
-	ObjExcel.Cells(t1_total, t1_app_percent_count).NumberFormat 	= "0.00%"
-	ObjExcel.Cells(t1_total, t1_interview_count).Value 				= "=COUNTIFS(Table1[Intvw Date ("&date_header&")],"&is_not_blank&")"
-	ObjExcel.Cells(t1_total, t1_no_intvw_count).Value 				= "=COUNTIFS(Table1[Intvw Date ("&date_header&")],"&is_blank&")"
-	ObjExcel.Cells(t1_total, t1_intvw_percent).Value 				= "=" & t1_interview_count_letter & t1_total &"/" & t1_all_count_letter & t1_total
-	ObjExcel.Cells(t1_total, t1_intvw_percent).NumberFormat 		= "0.00%"
-
-	objStatsExcel.Cells(t1_er_w_intv, t1_all_count).Value 					= ObjExcel.Cells(t1_er_w_intv, t1_all_count).Value
-	objStatsExcel.Cells(t1_er_w_intv, t1_apps_revd_count).Value 			= ObjExcel.Cells(t1_er_w_intv, t1_apps_revd_count).Value
-	objStatsExcel.Cells(t1_er_w_intv, t1_no_app_count).Value 				= ObjExcel.Cells(t1_er_w_intv, t1_no_app_count).Value
-	objStatsExcel.Cells(t1_er_w_intv, t1_app_percent_count).Value 			= ObjExcel.Cells(t1_er_w_intv, t1_app_percent_count).Value
-	objStatsExcel.Cells(t1_er_w_intv, t1_app_percent_count).NumberFormat 	= "0.00%"
-	objStatsExcel.Cells(t1_er_w_intv, t1_interview_count).Value 			= ObjExcel.Cells(t1_er_w_intv, t1_interview_count).Value
-	objStatsExcel.Cells(t1_er_w_intv, t1_no_intvw_count).Value 				= ObjExcel.Cells(t1_er_w_intv, t1_no_intvw_count).Value
-	objStatsExcel.Cells(t1_er_w_intv, t1_intvw_percent).Value 				= ObjExcel.Cells(t1_er_w_intv, t1_intvw_percent).Value
-	objStatsExcel.Cells(t1_er_w_intv, t1_intvw_percent).NumberFormat 		= "0.00%"
-
-	objStatsExcel.Cells(t1_er_no_intv, t1_all_count).Value 					= ObjExcel.Cells(t1_er_no_intv, t1_all_count).Value
-	objStatsExcel.Cells(t1_er_no_intv, t1_apps_revd_count).Value 			= ObjExcel.Cells(t1_er_no_intv, t1_apps_revd_count).Value
-	objStatsExcel.Cells(t1_er_no_intv, t1_no_app_count).Value 				= ObjExcel.Cells(t1_er_no_intv, t1_no_app_count).Value
-	objStatsExcel.Cells(t1_er_no_intv, t1_app_percent_count).Value 			= ObjExcel.Cells(t1_er_no_intv, t1_app_percent_count).Value
-	objStatsExcel.Cells(t1_er_no_intv, t1_app_percent_count).NumberFormat 	= "0.00%"
-
-	objStatsExcel.Cells(t1_csr, t1_all_count).Value 						= ObjExcel.Cells(t1_csr, t1_all_count).Value
-	objStatsExcel.Cells(t1_csr, t1_apps_revd_count).Value 					= ObjExcel.Cells(t1_csr, t1_apps_revd_count).Value
-	objStatsExcel.Cells(t1_csr, t1_no_app_count).Value 						= ObjExcel.Cells(t1_csr, t1_no_app_count).Value
-	objStatsExcel.Cells(t1_csr, t1_app_percent_count).Value 				= ObjExcel.Cells(t1_csr, t1_app_percent_count).Value
-	objStatsExcel.Cells(t1_csr, t1_app_percent_count).NumberFormat 			= "0.00%"
-
-	objStatsExcel.Cells(t1_priv, t1_all_count).Value 						= ObjExcel.Cells(t1_priv, t1_all_count).Value
-	objStatsExcel.Cells(t1_priv, t1_apps_revd_count).Value 					= ObjExcel.Cells(t1_priv, t1_apps_revd_count).Value
-	objStatsExcel.Cells(t1_priv, t1_no_app_count).Value 					= ObjExcel.Cells(t1_priv, t1_no_app_count).Value
-	objStatsExcel.Cells(t1_priv, t1_app_percent_count).Value 				= ObjExcel.Cells(t1_priv, t1_app_percent_count).Value
-	objStatsExcel.Cells(t1_priv, t1_app_percent_count).NumberFormat 		= "0.00%"
-	objStatsExcel.Cells(t1_priv, t1_interview_count).Value 					= ObjExcel.Cells(t1_priv, t1_interview_count).Value
-	objStatsExcel.Cells(t1_priv, t1_no_intvw_count).Value 					= ObjExcel.Cells(t1_priv, t1_no_intvw_count).Value
-	objStatsExcel.Cells(t1_priv, t1_intvw_percent).Value 					= ObjExcel.Cells(t1_priv, t1_intvw_percent).Value
-	objStatsExcel.Cells(t1_priv, t1_intvw_percent).NumberFormat 			= "0.00%"
-
-	objStatsExcel.Cells(t1_total, t1_all_count).Value 						= ObjExcel.Cells(t1_total, t1_all_count).Value
-	objStatsExcel.Cells(t1_total, t1_apps_revd_count).Value 				= ObjExcel.Cells(t1_total, t1_apps_revd_count).Value
-	objStatsExcel.Cells(t1_total, t1_no_app_count).Value 					= ObjExcel.Cells(t1_total, t1_no_app_count).Value
-	objStatsExcel.Cells(t1_total, t1_app_percent_count).Value 				= ObjExcel.Cells(t1_total, t1_app_percent_count).Value
-	objStatsExcel.Cells(t1_total, t1_app_percent_count).NumberFormat 		= "0.00%"
-	objStatsExcel.Cells(t1_total, t1_interview_count).Value 				= ObjExcel.Cells(t1_total, t1_interview_count).Value
-	objStatsExcel.Cells(t1_total, t1_no_intvw_count).Value 					= ObjExcel.Cells(t1_total, t1_no_intvw_count).Value
-	objStatsExcel.Cells(t1_total, t1_intvw_percent).Value 					= ObjExcel.Cells(t1_total, t1_intvw_percent).Value
-	objStatsExcel.Cells(t1_total, t1_intvw_percent).NumberFormat 			= "0.00%"
-
-	stats_row = 2
-	Do
-		ObjExcel.Cells(stats_row, t2_er_w_intv_app_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[Intvw Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
-		ObjExcel.Cells(stats_row, t2_er_w_intv_intv_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
-		ObjExcel.Cells(stats_row, t2_er_no_intv_app_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_false&",Table1[No Interview ER],"&is_true&",Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
-		ObjExcel.Cells(stats_row, t2_csr_app_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
-		ObjExcel.Cells(stats_row, t2_priv_intv_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[Intvw Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
-		ObjExcel.Cells(stats_row, t2_priv_app_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
-		ObjExcel.Cells(stats_row, t2_total_intv_count).Value = "=COUNTIFS(Table1[Intvw Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
-		ObjExcel.Cells(stats_row, t2_total_app_count).Value = "=COUNTIFS(Table1[CAF Date ("&date_header&")], " & t2_dates_letter &stats_row&")"
-		stats_row = stats_row + 1
-		next_row_date = ObjExcel.Cells(stats_row, t2_dates).Value
-	Loop until next_row_date = ""
-	ObjExcel.columns(t2_dates).AutoFit()
-	last_row = stats_row - 1
-
-	stats_row = 2
-	Do
-		objStatsExcel.Cells(stats_row, t2_er_w_intv_app_count).Value = ObjExcel.Cells(stats_row, t2_er_w_intv_app_count).Value
-		objStatsExcel.Cells(stats_row, t2_er_w_intv_intv_count).Value = ObjExcel.Cells(stats_row, t2_er_w_intv_intv_count).Value
-		objStatsExcel.Cells(stats_row, t2_er_no_intv_app_count).Value = ObjExcel.Cells(stats_row, t2_er_no_intv_app_count).Value
-		objStatsExcel.Cells(stats_row, t2_csr_app_count).Value = ObjExcel.Cells(stats_row, t2_csr_app_count).Value
-		objStatsExcel.Cells(stats_row, t2_priv_intv_count).Value = ObjExcel.Cells(stats_row, t2_priv_intv_count).Value
-		objStatsExcel.Cells(stats_row, t2_priv_app_count).Value = ObjExcel.Cells(stats_row, t2_priv_app_count).Value
-		objStatsExcel.Cells(stats_row, t2_total_intv_count).Value = ObjExcel.Cells(stats_row, t2_total_intv_count).Value
-		objStatsExcel.Cells(stats_row, t2_total_app_count).Value = ObjExcel.Cells(stats_row, t2_total_app_count).Value
-		stats_row = stats_row + 1
-		next_row_date = ObjExcel.Cells(stats_row, t2_dates).Value
-	Loop until next_row_date = ""
-	ObjExcel.columns(t2_dates).AutoFit()
-
-	ObjExcel.Cells(2, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
-	ObjExcel.Cells(3, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(4, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
-
-	ObjExcel.Cells(2, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(3, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(4, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(2, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "2/" & t3_totals_count_letter & "2"
-	ObjExcel.Cells(3, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "3/" & t3_totals_count_letter & "3"
-	ObjExcel.Cells(4, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "4/" & t3_totals_count_letter & "4"
-	ObjExcel.Cells(2, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(3, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(4, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(2, t3_intvs_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(3, t3_intvs_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(4, t3_intvs_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(2, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "2/" & t3_totals_count_letter & "2"
-	ObjExcel.Cells(3, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "3/" & t3_totals_count_letter & "3"
-	ObjExcel.Cells(4, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "4/" & t3_totals_count_letter & "4"
-	ObjExcel.Cells(2, t3_intvs_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(3, t3_intvs_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(4, t3_intvs_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(2, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(3, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(4, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(2, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "2/" & t3_totals_count_letter & "2"
-	ObjExcel.Cells(3, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "3/" & t3_totals_count_letter & "3"
-	ObjExcel.Cells(4, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "4/" & t3_totals_count_letter & "4"
-	ObjExcel.Cells(2, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(3, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(4, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(2, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(3, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(4, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(2, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "2/" & t3_totals_count_letter & "2"
-	ObjExcel.Cells(3, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "3/" & t3_totals_count_letter & "3"
-	ObjExcel.Cells(4, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "4/" & t3_totals_count_letter & "4"
-	ObjExcel.Cells(2, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(3, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(4, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(2, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(3, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(4, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(2, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "2/" & t3_totals_count_letter & "2"
-	ObjExcel.Cells(3, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "3/" & t3_totals_count_letter & "3"
-	ObjExcel.Cells(4, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "4/" & t3_totals_count_letter & "4"
-	ObjExcel.Cells(2, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(3, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(4, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(2, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(3, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(4, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(2, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "2/" & t3_totals_count_letter & "2"
-	ObjExcel.Cells(3, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "3/" & t3_totals_count_letter & "3"
-	ObjExcel.Cells(4, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "4/" & t3_totals_count_letter & "4"
-	ObjExcel.Cells(2, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(3, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(4, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(2, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(3, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(4, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(2, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "2/" & t3_totals_count_letter & "2"
-	ObjExcel.Cells(3, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "3/" & t3_totals_count_letter & "3"
-	ObjExcel.Cells(4, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "4/" & t3_totals_count_letter & "4"
-	ObjExcel.Cells(2, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(3, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(4, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(2, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(3, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(4, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(2, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "2/" & t3_totals_count_letter & "2"
-	ObjExcel.Cells(3, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "3/" & t3_totals_count_letter & "3"
-	ObjExcel.Cells(4, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "4/" & t3_totals_count_letter & "4"
-	ObjExcel.Cells(2, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(3, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(4, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(2, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(3, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(4, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER], "&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(2, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "2/" & t3_totals_count_letter & "2"
-	ObjExcel.Cells(3, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "3/" & t3_totals_count_letter & "3"
-	ObjExcel.Cells(4, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "4/" & t3_totals_count_letter & "4"
-	ObjExcel.Cells(2, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(3, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(4, t3_revw_d_percent).NumberFormat = "0.00%"
-
-	ObjExcel.Cells(5, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&")"
-	ObjExcel.Cells(6, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(7, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
-
-	ObjExcel.Cells(5, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(6, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(7, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(5, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "5/" & t3_totals_count_letter & "5"
-	ObjExcel.Cells(6, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "6/" & t3_totals_count_letter & "6"
-	ObjExcel.Cells(7, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "7/" & t3_totals_count_letter & "7"
-	ObjExcel.Cells(5, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(7, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(5, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(6, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(7, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(5, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "5/" & t3_totals_count_letter & "5"
-	ObjExcel.Cells(6, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "6/" & t3_totals_count_letter & "6"
-	ObjExcel.Cells(7, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "7/" & t3_totals_count_letter & "7"
-	ObjExcel.Cells(5, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(7, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(5, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(6, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(7, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(5, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "5/" & t3_totals_count_letter & "5"
-	ObjExcel.Cells(6, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "6/" & t3_totals_count_letter & "6"
-	ObjExcel.Cells(7, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "7/" & t3_totals_count_letter & "7"
-	ObjExcel.Cells(5, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(7, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(5, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(6, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(7, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(5, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "5/" & t3_totals_count_letter & "5"
-	ObjExcel.Cells(6, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "6/" & t3_totals_count_letter & "6"
-	ObjExcel.Cells(7, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "7/" & t3_totals_count_letter & "7"
-	ObjExcel.Cells(5, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(7, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(5, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(6, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(7, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(5, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "5/" & t3_totals_count_letter & "5"
-	ObjExcel.Cells(6, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "6/" & t3_totals_count_letter & "6"
-	ObjExcel.Cells(7, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "7/" & t3_totals_count_letter & "7"
-	ObjExcel.Cells(5, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(7, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(5, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(6, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(7, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(5, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "5/" & t3_totals_count_letter & "5"
-	ObjExcel.Cells(6, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "6/" & t3_totals_count_letter & "6"
-	ObjExcel.Cells(7, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "7/" & t3_totals_count_letter & "7"
-	ObjExcel.Cells(5, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(7, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(5, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(6, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(7, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(5, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "5/" & t3_totals_count_letter & "5"
-	ObjExcel.Cells(6, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "6/" & t3_totals_count_letter & "6"
-	ObjExcel.Cells(7, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "7/" & t3_totals_count_letter & "7"
-	ObjExcel.Cells(5, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(7, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(5, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(6, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(7, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(5, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "5/" & t3_totals_count_letter & "5"
-	ObjExcel.Cells(6, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "6/" & t3_totals_count_letter & "6"
-	ObjExcel.Cells(7, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "7/" & t3_totals_count_letter & "7"
-	ObjExcel.Cells(5, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(6, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(7, t3_revw_d_percent).NumberFormat = "0.00%"
-
-	ObjExcel.Cells(8, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&")"
-	ObjExcel.Cells(9, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(10, t3_totals_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
-
-	ObjExcel.Cells(8, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(9, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(10, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(8, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "8/" & t3_totals_count_letter & "8"
-	ObjExcel.Cells(9, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "9/" & t3_totals_count_letter & "9"
-	ObjExcel.Cells(10, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "10/" & t3_totals_count_letter & "10"
-	ObjExcel.Cells(8, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(9, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(10, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(8, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&_
-	",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(9, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(10, t3_revw_i_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(8, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "8/" & t3_totals_count_letter & "8"
-	ObjExcel.Cells(9, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "9/" & t3_totals_count_letter & "9"
-	ObjExcel.Cells(10, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "10/" & t3_totals_count_letter & "10"
-	ObjExcel.Cells(8, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(9, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(10, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(8, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(9, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(10, t3_revw_u_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(8, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "8/" & t3_totals_count_letter & "8"
-	ObjExcel.Cells(9, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "9/" & t3_totals_count_letter & "9"
-	ObjExcel.Cells(10, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "10/" & t3_totals_count_letter & "10"
-	ObjExcel.Cells(8, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(9, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(10, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(8, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(9, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(10, t3_revw_n_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(8, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "8/" & t3_totals_count_letter & "8"
-	ObjExcel.Cells(9, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "9/" & t3_totals_count_letter & "9"
-	ObjExcel.Cells(10, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "10/" & t3_totals_count_letter & "10"
-	ObjExcel.Cells(8, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(9, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(10, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(8, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(9, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(10, t3_revw_a_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(8, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "8/" & t3_totals_count_letter & "8"
-	ObjExcel.Cells(9, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "9/" & t3_totals_count_letter & "9"
-	ObjExcel.Cells(10, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "10/" & t3_totals_count_letter & "10"
-	ObjExcel.Cells(8, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(9, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(10, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(8, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(9, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(10, t3_revw_o_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(8, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "8/" & t3_totals_count_letter & "8"
-	ObjExcel.Cells(9, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "9/" & t3_totals_count_letter & "9"
-	ObjExcel.Cells(10, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "10/" & t3_totals_count_letter & "10"
-	ObjExcel.Cells(8, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(9, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(10, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(8, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(9, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(10, t3_revw_t_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(8, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "8/" & t3_totals_count_letter & "8"
-	ObjExcel.Cells(9, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "9/" & t3_totals_count_letter & "9"
-	ObjExcel.Cells(10, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "10/" & t3_totals_count_letter & "10"
-	ObjExcel.Cells(8, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(9, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(10, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(8, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(9, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(10, t3_revw_d_count).Value = "=COUNTIFS(Table1[Interview ER],"&is_false&",Table1[No Interview ER],"&is_false&", Table1[Current SR],"&is_true&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(8, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "8/" & t3_totals_count_letter & "8"
-	ObjExcel.Cells(9, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "9/" & t3_totals_count_letter & "9"
-	ObjExcel.Cells(10, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "10/" & t3_totals_count_letter & "10"
-	ObjExcel.Cells(8, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(9, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(10, t3_revw_d_percent).NumberFormat = "0.00%"
-
-	ObjExcel.Cells(11, t3_totals_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&")"
-	ObjExcel.Cells(12, t3_totals_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(13, t3_totals_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&")"
-
-	ObjExcel.Cells(11, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(12, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(13, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(11, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "11/" & t3_totals_count_letter & "11"
-	ObjExcel.Cells(12, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "12/" & t3_totals_count_letter & "12"
-	ObjExcel.Cells(13, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "13/" & t3_totals_count_letter & "13"
-	ObjExcel.Cells(11, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(12, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(13, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(11, t3_intvs_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(12, t3_intvs_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(13, t3_intvs_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(11, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "11/" & t3_totals_count_letter & "11"
-	ObjExcel.Cells(12, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "12/" & t3_totals_count_letter & "12"
-	ObjExcel.Cells(13, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "13/" & t3_totals_count_letter & "13"
-	ObjExcel.Cells(11, t3_intvs_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(12, t3_intvs_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(13, t3_intvs_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(11, t3_revw_i_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(12, t3_revw_i_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(13, t3_revw_i_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(11, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "11/" & t3_totals_count_letter & "11"
-	ObjExcel.Cells(12, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "12/" & t3_totals_count_letter & "12"
-	ObjExcel.Cells(13, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "13/" & t3_totals_count_letter & "13"
-	ObjExcel.Cells(11, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(12, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(13, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(11, t3_revw_u_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(12, t3_revw_u_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(13, t3_revw_u_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(11, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "11/" & t3_totals_count_letter & "11"
-	ObjExcel.Cells(12, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "12/" & t3_totals_count_letter & "12"
-	ObjExcel.Cells(13, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "13/" & t3_totals_count_letter & "13"
-	ObjExcel.Cells(11, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(12, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(13, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(11, t3_revw_n_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(12, t3_revw_n_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(13, t3_revw_n_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(11, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "11/" & t3_totals_count_letter & "11"
-	ObjExcel.Cells(12, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "12/" & t3_totals_count_letter & "12"
-	ObjExcel.Cells(13, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "13/" & t3_totals_count_letter & "13"
-	ObjExcel.Cells(11, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(12, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(13, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(11, t3_revw_a_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(12, t3_revw_a_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(13, t3_revw_a_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(11, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "11/" & t3_totals_count_letter & "11"
-	ObjExcel.Cells(12, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "12/" & t3_totals_count_letter & "12"
-	ObjExcel.Cells(13, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "13/" & t3_totals_count_letter & "13"
-	ObjExcel.Cells(11, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(12, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(13, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(11, t3_revw_o_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(12, t3_revw_o_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(13, t3_revw_o_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(11, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "11/" & t3_totals_count_letter & "11"
-	ObjExcel.Cells(12, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "12/" & t3_totals_count_letter & "12"
-	ObjExcel.Cells(13, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "13/" & t3_totals_count_letter & "13"
-	ObjExcel.Cells(11, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(12, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(13, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(11, t3_revw_t_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(12, t3_revw_t_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(13, t3_revw_t_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(11, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "11/" & t3_totals_count_letter & "11"
-	ObjExcel.Cells(12, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "12/" & t3_totals_count_letter & "12"
-	ObjExcel.Cells(13, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "13/" & t3_totals_count_letter & "13"
-	ObjExcel.Cells(11, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(12, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(13, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(11, t3_revw_d_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(12, t3_revw_d_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(13, t3_revw_d_count).Value = "=COUNTIFS(Table1[Notes], "&chr(34)&"PRIV Case."&chr(34)&",Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(11, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "11/" & t3_totals_count_letter & "11"
-	ObjExcel.Cells(12, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "12/" & t3_totals_count_letter & "12"
-	ObjExcel.Cells(13, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "13/" & t3_totals_count_letter & "13"
-	ObjExcel.Cells(11, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(12, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(13, t3_revw_d_percent).NumberFormat = "0.00%"
-
-	ObjExcel.Cells(14, t3_totals_count).Value = "=COUNTA(Table1[Case number])"
-	ObjExcel.Cells(15, t3_totals_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(16, t3_totals_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&")"
-
-	ObjExcel.Cells(14, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(15, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(16, t3_apps_recvd_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[CAF Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(14, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "14/" & t3_totals_count_letter & "14"
-	ObjExcel.Cells(15, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "15/" & t3_totals_count_letter & "15"
-	ObjExcel.Cells(16, t3_apps_recvd_percent).Value = "=" & t3_apps_recvd_count_letter & "16/" & t3_totals_count_letter & "16"
-	ObjExcel.Cells(14, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(15, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(16, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(14, t3_intvs_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")+COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[SNAP ("&date_header&")], "&is_blank&", Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(15, t3_intvs_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(16, t3_intvs_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&is_not_blank&",Table1[Intvw Date ("&date_header&")], "&is_not_blank&")"
-	ObjExcel.Cells(14, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "14/" & t3_totals_count_letter & "14"
-	ObjExcel.Cells(15, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "15/" & t3_totals_count_letter & "15"
-	ObjExcel.Cells(16, t3_intvs_percent).Value = "=" & t3_intvs_count_letter & "16/" & t3_totals_count_letter & "16"
-	ObjExcel.Cells(14, t3_intvs_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(15, t3_intvs_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(16, t3_intvs_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(14, t3_revw_i_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(15, t3_revw_i_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(16, t3_revw_i_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"I"&chr(34)&")"
-	ObjExcel.Cells(14, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "14/" & t3_totals_count_letter & "14"
-	ObjExcel.Cells(15, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "15/" & t3_totals_count_letter & "15"
-	ObjExcel.Cells(16, t3_revw_i_percent).Value = "=" & t3_revw_i_count_letter & "16/" & t3_totals_count_letter & "16"
-	ObjExcel.Cells(14, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(15, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(16, t3_revw_i_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(14, t3_revw_u_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(15, t3_revw_u_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(16, t3_revw_u_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"U"&chr(34)&")"
-	ObjExcel.Cells(14, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "14/" & t3_totals_count_letter & "14"
-	ObjExcel.Cells(15, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "15/" & t3_totals_count_letter & "15"
-	ObjExcel.Cells(16, t3_revw_u_percent).Value = "=" & t3_revw_u_count_letter & "16/" & t3_totals_count_letter & "16"
-	ObjExcel.Cells(14, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(15, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(16, t3_revw_u_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(14, t3_revw_n_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(15, t3_revw_n_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(16, t3_revw_n_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"N"&chr(34)&")"
-	ObjExcel.Cells(14, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "14/" & t3_totals_count_letter & "14"
-	ObjExcel.Cells(15, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "15/" & t3_totals_count_letter & "15"
-	ObjExcel.Cells(16, t3_revw_n_percent).Value = "=" & t3_revw_n_count_letter & "16/" & t3_totals_count_letter & "16"
-	ObjExcel.Cells(14, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(15, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(16, t3_revw_n_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(14, t3_revw_a_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(15, t3_revw_a_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(16, t3_revw_a_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"A"&chr(34)&")"
-	ObjExcel.Cells(14, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "14/" & t3_totals_count_letter & "14"
-	ObjExcel.Cells(15, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "15/" & t3_totals_count_letter & "15"
-	ObjExcel.Cells(16, t3_revw_a_percent).Value = "=" & t3_revw_a_count_letter & "16/" & t3_totals_count_letter & "16"
-	ObjExcel.Cells(14, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(15, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(16, t3_revw_a_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(14, t3_revw_o_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(15, t3_revw_o_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(16, t3_revw_o_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"O"&chr(34)&")"
-	ObjExcel.Cells(14, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "14/" & t3_totals_count_letter & "14"
-	ObjExcel.Cells(15, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "15/" & t3_totals_count_letter & "15"
-	ObjExcel.Cells(16, t3_revw_o_percent).Value = "=" & t3_revw_o_count_letter & "16/" & t3_totals_count_letter & "16"
-	ObjExcel.Cells(14, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(15, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(16, t3_revw_o_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(14, t3_revw_t_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(15, t3_revw_t_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(16, t3_revw_t_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"T"&chr(34)&")"
-	ObjExcel.Cells(14, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "14/" & t3_totals_count_letter & "14"
-	ObjExcel.Cells(15, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "15/" & t3_totals_count_letter & "15"
-	ObjExcel.Cells(16, t3_revw_t_percent).Value = "=" & t3_revw_t_count_letter & "16/" & t3_totals_count_letter & "16"
-	ObjExcel.Cells(14, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(15, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(16, t3_revw_t_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(14, t3_revw_d_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")+COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&",Table1[SNAP ("&date_header&")], "&is_blank&")"
-	ObjExcel.Cells(15, t3_revw_d_count).Value = "=COUNTIFS(Table1[CASH ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(16, t3_revw_d_count).Value = "=COUNTIFS(Table1[SNAP ("&date_header&")], "&chr(34)&"D"&chr(34)&")"
-	ObjExcel.Cells(14, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "14/" & t3_totals_count_letter & "14"
-	ObjExcel.Cells(15, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "15/" & t3_totals_count_letter & "15"
-	ObjExcel.Cells(16, t3_revw_d_percent).Value = "=" & t3_revw_d_count_letter & "16/" & t3_totals_count_letter & "16"
-	ObjExcel.Cells(14, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(15, t3_revw_d_percent).NumberFormat = "0.00%"
-	ObjExcel.Cells(16, t3_revw_d_percent).NumberFormat = "0.00%"
-
-	objStatsExcel.Cells(2, t3_totals_count).Value = ObjExcel.Cells(2, t3_totals_count).Value
-	objStatsExcel.Cells(3, t3_totals_count).Value = ObjExcel.Cells(3, t3_totals_count).Value
-	objStatsExcel.Cells(4, t3_totals_count).Value = ObjExcel.Cells(4, t3_totals_count).Value
-
-	objStatsExcel.Cells(2, t3_apps_recvd_count).Value = ObjExcel.Cells(2, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(3, t3_apps_recvd_count).Value = ObjExcel.Cells(3, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(4, t3_apps_recvd_count).Value = ObjExcel.Cells(4, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(2, t3_apps_recvd_percent).Value = ObjExcel.Cells(2, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(3, t3_apps_recvd_percent).Value = ObjExcel.Cells(3, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(4, t3_apps_recvd_percent).Value = ObjExcel.Cells(4, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(2, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(3, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(4, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(2, t3_intvs_count).Value = ObjExcel.Cells(2, t3_intvs_count).Value
-	objStatsExcel.Cells(3, t3_intvs_count).Value = ObjExcel.Cells(3, t3_intvs_count).Value
-	objStatsExcel.Cells(4, t3_intvs_count).Value = ObjExcel.Cells(4, t3_intvs_count).Value
-	objStatsExcel.Cells(2, t3_intvs_percent).Value = ObjExcel.Cells(2, t3_intvs_percent).Value
-	objStatsExcel.Cells(3, t3_intvs_percent).Value = ObjExcel.Cells(3, t3_intvs_percent).Value
-	objStatsExcel.Cells(4, t3_intvs_percent).Value = ObjExcel.Cells(4, t3_intvs_percent).Value
-	objStatsExcel.Cells(2, t3_intvs_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(3, t3_intvs_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(4, t3_intvs_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(2, t3_revw_i_count).Value = ObjExcel.Cells(2, t3_revw_i_count).Value
-	objStatsExcel.Cells(3, t3_revw_i_count).Value = ObjExcel.Cells(3, t3_revw_i_count).Value
-	objStatsExcel.Cells(4, t3_revw_i_count).Value = ObjExcel.Cells(4, t3_revw_i_count).Value
-	objStatsExcel.Cells(2, t3_revw_i_percent).Value = ObjExcel.Cells(2, t3_revw_i_percent).Value
-	objStatsExcel.Cells(3, t3_revw_i_percent).Value = ObjExcel.Cells(3, t3_revw_i_percent).Value
-	objStatsExcel.Cells(4, t3_revw_i_percent).Value = ObjExcel.Cells(4, t3_revw_i_percent).Value
-	objStatsExcel.Cells(2, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(3, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(4, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(2, t3_revw_u_count).Value = ObjExcel.Cells(2, t3_revw_u_count).Value
-	objStatsExcel.Cells(3, t3_revw_u_count).Value = ObjExcel.Cells(3, t3_revw_u_count).Value
-	objStatsExcel.Cells(4, t3_revw_u_count).Value = ObjExcel.Cells(4, t3_revw_u_count).Value
-	objStatsExcel.Cells(2, t3_revw_u_percent).Value = ObjExcel.Cells(2, t3_revw_u_percent).Value
-	objStatsExcel.Cells(3, t3_revw_u_percent).Value = ObjExcel.Cells(3, t3_revw_u_percent).Value
-	objStatsExcel.Cells(4, t3_revw_u_percent).Value = ObjExcel.Cells(4, t3_revw_u_percent).Value
-	objStatsExcel.Cells(2, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(3, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(4, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(2, t3_revw_n_count).Value = ObjExcel.Cells(2, t3_revw_n_count).Value
-	objStatsExcel.Cells(3, t3_revw_n_count).Value = ObjExcel.Cells(3, t3_revw_n_count).Value
-	objStatsExcel.Cells(4, t3_revw_n_count).Value = ObjExcel.Cells(4, t3_revw_n_count).Value
-	objStatsExcel.Cells(2, t3_revw_n_percent).Value = ObjExcel.Cells(2, t3_revw_n_percent).Value
-	objStatsExcel.Cells(3, t3_revw_n_percent).Value = ObjExcel.Cells(3, t3_revw_n_percent).Value
-	objStatsExcel.Cells(4, t3_revw_n_percent).Value = ObjExcel.Cells(4, t3_revw_n_percent).Value
-	objStatsExcel.Cells(2, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(3, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(4, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(2, t3_revw_a_count).Value = ObjExcel.Cells(2, t3_revw_a_count).Value
-	objStatsExcel.Cells(3, t3_revw_a_count).Value = ObjExcel.Cells(3, t3_revw_a_count).Value
-	objStatsExcel.Cells(4, t3_revw_a_count).Value = ObjExcel.Cells(4, t3_revw_a_count).Value
-	objStatsExcel.Cells(2, t3_revw_a_percent).Value = ObjExcel.Cells(2, t3_revw_a_percent).Value
-	objStatsExcel.Cells(3, t3_revw_a_percent).Value = ObjExcel.Cells(3, t3_revw_a_percent).Value
-	objStatsExcel.Cells(4, t3_revw_a_percent).Value = ObjExcel.Cells(4, t3_revw_a_percent).Value
-	objStatsExcel.Cells(2, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(3, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(4, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(2, t3_revw_o_count).Value = ObjExcel.Cells(2, t3_revw_o_count).Value
-	objStatsExcel.Cells(3, t3_revw_o_count).Value = ObjExcel.Cells(3, t3_revw_o_count).Value
-	objStatsExcel.Cells(4, t3_revw_o_count).Value = ObjExcel.Cells(4, t3_revw_o_count).Value
-	objStatsExcel.Cells(2, t3_revw_o_percent).Value = ObjExcel.Cells(2, t3_revw_o_percent).Value
-	objStatsExcel.Cells(3, t3_revw_o_percent).Value = ObjExcel.Cells(3, t3_revw_o_percent).Value
-	objStatsExcel.Cells(4, t3_revw_o_percent).Value = ObjExcel.Cells(4, t3_revw_o_percent).Value
-	objStatsExcel.Cells(2, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(3, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(4, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(2, t3_revw_t_count).Value = ObjExcel.Cells(2, t3_revw_t_count).Value
-	objStatsExcel.Cells(3, t3_revw_t_count).Value = ObjExcel.Cells(3, t3_revw_t_count).Value
-	objStatsExcel.Cells(4, t3_revw_t_count).Value = ObjExcel.Cells(4, t3_revw_t_count).Value
-	objStatsExcel.Cells(2, t3_revw_t_percent).Value = ObjExcel.Cells(2, t3_revw_t_percent).Value
-	objStatsExcel.Cells(3, t3_revw_t_percent).Value = ObjExcel.Cells(3, t3_revw_t_percent).Value
-	objStatsExcel.Cells(4, t3_revw_t_percent).Value = ObjExcel.Cells(4, t3_revw_t_percent).Value
-	objStatsExcel.Cells(2, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(3, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(4, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(2, t3_revw_d_count).Value = ObjExcel.Cells(2, t3_revw_d_count).Value
-	objStatsExcel.Cells(3, t3_revw_d_count).Value = ObjExcel.Cells(3, t3_revw_d_count).Value
-	objStatsExcel.Cells(4, t3_revw_d_count).Value = ObjExcel.Cells(4, t3_revw_d_count).Value
-	objStatsExcel.Cells(2, t3_revw_d_percent).Value = ObjExcel.Cells(2, t3_revw_d_percent).Value
-	objStatsExcel.Cells(3, t3_revw_d_percent).Value = ObjExcel.Cells(3, t3_revw_d_percent).Value
-	objStatsExcel.Cells(4, t3_revw_d_percent).Value = ObjExcel.Cells(4, t3_revw_d_percent).Value
-	objStatsExcel.Cells(2, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(3, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(4, t3_revw_d_percent).NumberFormat = "0.00%"
-
-
-	objStatsExcel.Cells(5, t3_totals_count).Value = ObjExcel.Cells(5, t3_totals_count).Value
-	objStatsExcel.Cells(6, t3_totals_count).Value = ObjExcel.Cells(6, t3_totals_count).Value
-	objStatsExcel.Cells(7, t3_totals_count).Value = ObjExcel.Cells(7, t3_totals_count).Value
-
-	objStatsExcel.Cells(5, t3_apps_recvd_count).Value = ObjExcel.Cells(5, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(6, t3_apps_recvd_count).Value = ObjExcel.Cells(6, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(7, t3_apps_recvd_count).Value = ObjExcel.Cells(7, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(5, t3_apps_recvd_percent).Value = ObjExcel.Cells(5, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(6, t3_apps_recvd_percent).Value = ObjExcel.Cells(6, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(7, t3_apps_recvd_percent).Value = ObjExcel.Cells(7, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(5, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(7, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(5, t3_revw_i_count).Value = ObjExcel.Cells(5, t3_revw_i_count).Value
-	objStatsExcel.Cells(6, t3_revw_i_count).Value = ObjExcel.Cells(6, t3_revw_i_count).Value
-	objStatsExcel.Cells(7, t3_revw_i_count).Value = ObjExcel.Cells(7, t3_revw_i_count).Value
-	objStatsExcel.Cells(5, t3_revw_i_percent).Value = ObjExcel.Cells(5, t3_revw_i_percent).Value
-	objStatsExcel.Cells(6, t3_revw_i_percent).Value = ObjExcel.Cells(6, t3_revw_i_percent).Value
-	objStatsExcel.Cells(7, t3_revw_i_percent).Value = ObjExcel.Cells(7, t3_revw_i_percent).Value
-	objStatsExcel.Cells(5, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(7, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(5, t3_revw_u_count).Value = ObjExcel.Cells(5, t3_revw_u_count).Value
-	objStatsExcel.Cells(6, t3_revw_u_count).Value = ObjExcel.Cells(6, t3_revw_u_count).Value
-	objStatsExcel.Cells(7, t3_revw_u_count).Value = ObjExcel.Cells(7, t3_revw_u_count).Value
-	objStatsExcel.Cells(5, t3_revw_u_percent).Value = ObjExcel.Cells(5, t3_revw_u_percent).Value
-	objStatsExcel.Cells(6, t3_revw_u_percent).Value = ObjExcel.Cells(6, t3_revw_u_percent).Value
-	objStatsExcel.Cells(7, t3_revw_u_percent).Value = ObjExcel.Cells(7, t3_revw_u_percent).Value
-	objStatsExcel.Cells(5, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(7, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(5, t3_revw_n_count).Value = ObjExcel.Cells(5, t3_revw_n_count).Value
-	objStatsExcel.Cells(6, t3_revw_n_count).Value = ObjExcel.Cells(6, t3_revw_n_count).Value
-	objStatsExcel.Cells(7, t3_revw_n_count).Value = ObjExcel.Cells(7, t3_revw_n_count).Value
-	objStatsExcel.Cells(5, t3_revw_n_percent).Value = ObjExcel.Cells(5, t3_revw_n_percent).Value
-	objStatsExcel.Cells(6, t3_revw_n_percent).Value = ObjExcel.Cells(6, t3_revw_n_percent).Value
-	objStatsExcel.Cells(7, t3_revw_n_percent).Value = ObjExcel.Cells(7, t3_revw_n_percent).Value
-	objStatsExcel.Cells(5, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(7, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(5, t3_revw_a_count).Value = ObjExcel.Cells(5, t3_revw_a_count).Value
-	objStatsExcel.Cells(6, t3_revw_a_count).Value = ObjExcel.Cells(6, t3_revw_a_count).Value
-	objStatsExcel.Cells(7, t3_revw_a_count).Value = ObjExcel.Cells(7, t3_revw_a_count).Value
-	objStatsExcel.Cells(5, t3_revw_a_percent).Value = ObjExcel.Cells(5, t3_revw_a_percent).Value
-	objStatsExcel.Cells(6, t3_revw_a_percent).Value = ObjExcel.Cells(6, t3_revw_a_percent).Value
-	objStatsExcel.Cells(7, t3_revw_a_percent).Value = ObjExcel.Cells(7, t3_revw_a_percent).Value
-	objStatsExcel.Cells(5, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(7, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(5, t3_revw_o_count).Value = ObjExcel.Cells(5, t3_revw_o_count).Value
-	objStatsExcel.Cells(6, t3_revw_o_count).Value = ObjExcel.Cells(6, t3_revw_o_count).Value
-	objStatsExcel.Cells(7, t3_revw_o_count).Value = ObjExcel.Cells(7, t3_revw_o_count).Value
-	objStatsExcel.Cells(5, t3_revw_o_percent).Value = ObjExcel.Cells(5, t3_revw_o_percent).Value
-	objStatsExcel.Cells(6, t3_revw_o_percent).Value = ObjExcel.Cells(6, t3_revw_o_percent).Value
-	objStatsExcel.Cells(7, t3_revw_o_percent).Value = ObjExcel.Cells(7, t3_revw_o_percent).Value
-	objStatsExcel.Cells(5, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(7, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(5, t3_revw_t_count).Value = ObjExcel.Cells(5, t3_revw_t_count).Value
-	objStatsExcel.Cells(6, t3_revw_t_count).Value = ObjExcel.Cells(6, t3_revw_t_count).Value
-	objStatsExcel.Cells(7, t3_revw_t_count).Value = ObjExcel.Cells(7, t3_revw_t_count).Value
-	objStatsExcel.Cells(5, t3_revw_t_percent).Value = ObjExcel.Cells(5, t3_revw_t_percent).Value
-	objStatsExcel.Cells(6, t3_revw_t_percent).Value = ObjExcel.Cells(6, t3_revw_t_percent).Value
-	objStatsExcel.Cells(7, t3_revw_t_percent).Value = ObjExcel.Cells(7, t3_revw_t_percent).Value
-	objStatsExcel.Cells(5, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(7, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(5, t3_revw_d_count).Value = ObjExcel.Cells(5, t3_revw_d_count).Value
-	objStatsExcel.Cells(6, t3_revw_d_count).Value = ObjExcel.Cells(6, t3_revw_d_count).Value
-	objStatsExcel.Cells(7, t3_revw_d_count).Value = ObjExcel.Cells(7, t3_revw_d_count).Value
-	objStatsExcel.Cells(5, t3_revw_d_percent).Value = ObjExcel.Cells(5, t3_revw_d_percent).Value
-	objStatsExcel.Cells(6, t3_revw_d_percent).Value = ObjExcel.Cells(6, t3_revw_d_percent).Value
-	objStatsExcel.Cells(7, t3_revw_d_percent).Value = ObjExcel.Cells(7, t3_revw_d_percent).Value
-	objStatsExcel.Cells(5, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(6, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(7, t3_revw_d_percent).NumberFormat = "0.00%"
-
-	objStatsExcel.Cells(8, t3_totals_count).Value = ObjExcel.Cells(8, t3_totals_count).Value
-	objStatsExcel.Cells(9, t3_totals_count).Value = ObjExcel.Cells(9, t3_totals_count).Value
-	objStatsExcel.Cells(10, t3_totals_count).Value = ObjExcel.Cells(10, t3_totals_count).Value
-
-	objStatsExcel.Cells(8, t3_apps_recvd_count).Value = ObjExcel.Cells(8, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(9, t3_apps_recvd_count).Value = ObjExcel.Cells(9, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(10, t3_apps_recvd_count).Value = ObjExcel.Cells(10, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(8, t3_apps_recvd_percent).Value = ObjExcel.Cells(8, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(9, t3_apps_recvd_percent).Value = ObjExcel.Cells(9, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(10, t3_apps_recvd_percent).Value = ObjExcel.Cells(10, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(8, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(9, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(10, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(8, t3_revw_i_count).Value = ObjExcel.Cells(8, t3_revw_i_count).Value
-	objStatsExcel.Cells(9, t3_revw_i_count).Value = ObjExcel.Cells(9, t3_revw_i_count).Value
-	objStatsExcel.Cells(10, t3_revw_i_count).Value = ObjExcel.Cells(10, t3_revw_i_count).Value
-	objStatsExcel.Cells(8, t3_revw_i_percent).Value = ObjExcel.Cells(8, t3_revw_i_percent).Value
-	objStatsExcel.Cells(9, t3_revw_i_percent).Value = ObjExcel.Cells(9, t3_revw_i_percent).Value
-	objStatsExcel.Cells(10, t3_revw_i_percent).Value = ObjExcel.Cells(10, t3_revw_i_percent).Value
-	objStatsExcel.Cells(8, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(9, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(10, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(8, t3_revw_u_count).Value = ObjExcel.Cells(8, t3_revw_u_count).Value
-	objStatsExcel.Cells(9, t3_revw_u_count).Value = ObjExcel.Cells(9, t3_revw_u_count).Value
-	objStatsExcel.Cells(10, t3_revw_u_count).Value = ObjExcel.Cells(10, t3_revw_u_count).Value
-	objStatsExcel.Cells(8, t3_revw_u_percent).Value = ObjExcel.Cells(8, t3_revw_u_percent).Value
-	objStatsExcel.Cells(9, t3_revw_u_percent).Value = ObjExcel.Cells(9, t3_revw_u_percent).Value
-	objStatsExcel.Cells(10, t3_revw_u_percent).Value = ObjExcel.Cells(10, t3_revw_u_percent).Value
-	objStatsExcel.Cells(8, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(9, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(10, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(8, t3_revw_n_count).Value = ObjExcel.Cells(8, t3_revw_n_count).Value
-	objStatsExcel.Cells(9, t3_revw_n_count).Value = ObjExcel.Cells(9, t3_revw_n_count).Value
-	objStatsExcel.Cells(10, t3_revw_n_count).Value = ObjExcel.Cells(10, t3_revw_n_count).Value
-	objStatsExcel.Cells(8, t3_revw_n_percent).Value = ObjExcel.Cells(8, t3_revw_n_percent).Value
-	objStatsExcel.Cells(9, t3_revw_n_percent).Value = ObjExcel.Cells(9, t3_revw_n_percent).Value
-	objStatsExcel.Cells(10, t3_revw_n_percent).Value = ObjExcel.Cells(10, t3_revw_n_percent).Value
-	objStatsExcel.Cells(8, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(9, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(10, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(8, t3_revw_a_count).Value = ObjExcel.Cells(8, t3_revw_a_count).Value
-	objStatsExcel.Cells(9, t3_revw_a_count).Value = ObjExcel.Cells(9, t3_revw_a_count).Value
-	objStatsExcel.Cells(10, t3_revw_a_count).Value = ObjExcel.Cells(10, t3_revw_a_count).Value
-	objStatsExcel.Cells(8, t3_revw_a_percent).Value = ObjExcel.Cells(8, t3_revw_a_percent).Value
-	objStatsExcel.Cells(9, t3_revw_a_percent).Value = ObjExcel.Cells(9, t3_revw_a_percent).Value
-	objStatsExcel.Cells(10, t3_revw_a_percent).Value = ObjExcel.Cells(10, t3_revw_a_percent).Value
-	objStatsExcel.Cells(8, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(9, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(10, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(8, t3_revw_o_count).Value = ObjExcel.Cells(8, t3_revw_o_count).Value
-	objStatsExcel.Cells(9, t3_revw_o_count).Value = ObjExcel.Cells(9, t3_revw_o_count).Value
-	objStatsExcel.Cells(10, t3_revw_o_count).Value = ObjExcel.Cells(10, t3_revw_o_count).Value
-	objStatsExcel.Cells(8, t3_revw_o_percent).Value = ObjExcel.Cells(8, t3_revw_o_percent).Value
-	objStatsExcel.Cells(9, t3_revw_o_percent).Value = ObjExcel.Cells(9, t3_revw_o_percent).Value
-	objStatsExcel.Cells(10, t3_revw_o_percent).Value = ObjExcel.Cells(10, t3_revw_o_percent).Value
-	objStatsExcel.Cells(8, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(9, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(10, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(8, t3_revw_t_count).Value = ObjExcel.Cells(8, t3_revw_t_count).Value
-	objStatsExcel.Cells(9, t3_revw_t_count).Value = ObjExcel.Cells(9, t3_revw_t_count).Value
-	objStatsExcel.Cells(10, t3_revw_t_count).Value = ObjExcel.Cells(10, t3_revw_t_count).Value
-	objStatsExcel.Cells(8, t3_revw_t_percent).Value = ObjExcel.Cells(8, t3_revw_t_percent).Value
-	objStatsExcel.Cells(9, t3_revw_t_percent).Value = ObjExcel.Cells(9, t3_revw_t_percent).Value
-	objStatsExcel.Cells(10, t3_revw_t_percent).Value = ObjExcel.Cells(10, t3_revw_t_percent).Value
-	objStatsExcel.Cells(8, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(9, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(10, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(8, t3_revw_d_count).Value = ObjExcel.Cells(8, t3_revw_d_count).Value
-	objStatsExcel.Cells(9, t3_revw_d_count).Value = ObjExcel.Cells(9, t3_revw_d_count).Value
-	objStatsExcel.Cells(10, t3_revw_d_count).Value = ObjExcel.Cells(10, t3_revw_d_count).Value
-	objStatsExcel.Cells(8, t3_revw_d_percent).Value = ObjExcel.Cells(8, t3_revw_d_percent).Value
-	objStatsExcel.Cells(9, t3_revw_d_percent).Value = ObjExcel.Cells(9, t3_revw_d_percent).Value
-	objStatsExcel.Cells(10, t3_revw_d_percent).Value = ObjExcel.Cells(10, t3_revw_d_percent).Value
-	objStatsExcel.Cells(8, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(9, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(10, t3_revw_d_percent).NumberFormat = "0.00%"
-
-	objStatsExcel.Cells(11, t3_totals_count).Value = ObjExcel.Cells(11, t3_totals_count).Value
-	objStatsExcel.Cells(12, t3_totals_count).Value = ObjExcel.Cells(12, t3_totals_count).Value
-	objStatsExcel.Cells(13, t3_totals_count).Value = ObjExcel.Cells(13, t3_totals_count).Value
-
-	objStatsExcel.Cells(11, t3_apps_recvd_count).Value = ObjExcel.Cells(11, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(12, t3_apps_recvd_count).Value = ObjExcel.Cells(12, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(13, t3_apps_recvd_count).Value = ObjExcel.Cells(13, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(11, t3_apps_recvd_percent).Value = ObjExcel.Cells(11, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(12, t3_apps_recvd_percent).Value = ObjExcel.Cells(12, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(13, t3_apps_recvd_percent).Value = ObjExcel.Cells(13, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(11, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(12, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(13, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(11, t3_intvs_count).Value = ObjExcel.Cells(11, t3_intvs_count).Value
-	objStatsExcel.Cells(12, t3_intvs_count).Value = ObjExcel.Cells(12, t3_intvs_count).Value
-	objStatsExcel.Cells(13, t3_intvs_count).Value = ObjExcel.Cells(13, t3_intvs_count).Value
-	objStatsExcel.Cells(11, t3_intvs_percent).Value = ObjExcel.Cells(11, t3_intvs_percent).Value
-	objStatsExcel.Cells(12, t3_intvs_percent).Value = ObjExcel.Cells(12, t3_intvs_percent).Value
-	objStatsExcel.Cells(13, t3_intvs_percent).Value = ObjExcel.Cells(13, t3_intvs_percent).Value
-	objStatsExcel.Cells(11, t3_intvs_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(12, t3_intvs_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(13, t3_intvs_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(11, t3_revw_i_count).Value = ObjExcel.Cells(11, t3_revw_i_count).Value
-	objStatsExcel.Cells(12, t3_revw_i_count).Value = ObjExcel.Cells(12, t3_revw_i_count).Value
-	objStatsExcel.Cells(13, t3_revw_i_count).Value = ObjExcel.Cells(13, t3_revw_i_count).Value
-	objStatsExcel.Cells(11, t3_revw_i_percent).Value = ObjExcel.Cells(11, t3_revw_i_percent).Value
-	objStatsExcel.Cells(12, t3_revw_i_percent).Value = ObjExcel.Cells(12, t3_revw_i_percent).Value
-	objStatsExcel.Cells(13, t3_revw_i_percent).Value = ObjExcel.Cells(13, t3_revw_i_percent).Value
-	objStatsExcel.Cells(11, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(12, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(13, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(11, t3_revw_u_count).Value = ObjExcel.Cells(11, t3_revw_u_count).Value
-	objStatsExcel.Cells(12, t3_revw_u_count).Value = ObjExcel.Cells(12, t3_revw_u_count).Value
-	objStatsExcel.Cells(13, t3_revw_u_count).Value = ObjExcel.Cells(13, t3_revw_u_count).Value
-	objStatsExcel.Cells(11, t3_revw_u_percent).Value = ObjExcel.Cells(11, t3_revw_u_percent).Value
-	objStatsExcel.Cells(12, t3_revw_u_percent).Value = ObjExcel.Cells(12, t3_revw_u_percent).Value
-	objStatsExcel.Cells(13, t3_revw_u_percent).Value = ObjExcel.Cells(13, t3_revw_u_percent).Value
-	objStatsExcel.Cells(11, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(12, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(13, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(11, t3_revw_n_count).Value = ObjExcel.Cells(11, t3_revw_n_count).Value
-	objStatsExcel.Cells(12, t3_revw_n_count).Value = ObjExcel.Cells(12, t3_revw_n_count).Value
-	objStatsExcel.Cells(13, t3_revw_n_count).Value = ObjExcel.Cells(13, t3_revw_n_count).Value
-	objStatsExcel.Cells(11, t3_revw_n_percent).Value = ObjExcel.Cells(11, t3_revw_n_percent).Value
-	objStatsExcel.Cells(12, t3_revw_n_percent).Value = ObjExcel.Cells(12, t3_revw_n_percent).Value
-	objStatsExcel.Cells(13, t3_revw_n_percent).Value = ObjExcel.Cells(13, t3_revw_n_percent).Value
-	objStatsExcel.Cells(11, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(12, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(13, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(11, t3_revw_a_count).Value = ObjExcel.Cells(11, t3_revw_a_count).Value
-	objStatsExcel.Cells(12, t3_revw_a_count).Value = ObjExcel.Cells(12, t3_revw_a_count).Value
-	objStatsExcel.Cells(13, t3_revw_a_count).Value = ObjExcel.Cells(13, t3_revw_a_count).Value
-	objStatsExcel.Cells(11, t3_revw_a_percent).Value = ObjExcel.Cells(11, t3_revw_a_percent).Value
-	objStatsExcel.Cells(12, t3_revw_a_percent).Value = ObjExcel.Cells(12, t3_revw_a_percent).Value
-	objStatsExcel.Cells(13, t3_revw_a_percent).Value = ObjExcel.Cells(13, t3_revw_a_percent).Value
-	objStatsExcel.Cells(11, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(12, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(13, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(11, t3_revw_o_count).Value = ObjExcel.Cells(11, t3_revw_o_count).Value
-	objStatsExcel.Cells(12, t3_revw_o_count).Value = ObjExcel.Cells(12, t3_revw_o_count).Value
-	objStatsExcel.Cells(13, t3_revw_o_count).Value = ObjExcel.Cells(13, t3_revw_o_count).Value
-	objStatsExcel.Cells(11, t3_revw_o_percent).Value = ObjExcel.Cells(11, t3_revw_o_percent).Value
-	objStatsExcel.Cells(12, t3_revw_o_percent).Value = ObjExcel.Cells(12, t3_revw_o_percent).Value
-	objStatsExcel.Cells(13, t3_revw_o_percent).Value = ObjExcel.Cells(13, t3_revw_o_percent).Value
-	objStatsExcel.Cells(11, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(12, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(13, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(11, t3_revw_t_count).Value = ObjExcel.Cells(11, t3_revw_t_count).Value
-	objStatsExcel.Cells(12, t3_revw_t_count).Value = ObjExcel.Cells(12, t3_revw_t_count).Value
-	objStatsExcel.Cells(13, t3_revw_t_count).Value = ObjExcel.Cells(13, t3_revw_t_count).Value
-	objStatsExcel.Cells(11, t3_revw_t_percent).Value = ObjExcel.Cells(11, t3_revw_t_percent).Value
-	objStatsExcel.Cells(12, t3_revw_t_percent).Value = ObjExcel.Cells(12, t3_revw_t_percent).Value
-	objStatsExcel.Cells(13, t3_revw_t_percent).Value = ObjExcel.Cells(13, t3_revw_t_percent).Value
-	objStatsExcel.Cells(11, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(12, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(13, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(11, t3_revw_d_count).Value = ObjExcel.Cells(11, t3_revw_d_count).Value
-	objStatsExcel.Cells(12, t3_revw_d_count).Value = ObjExcel.Cells(12, t3_revw_d_count).Value
-	objStatsExcel.Cells(13, t3_revw_d_count).Value = ObjExcel.Cells(13, t3_revw_d_count).Value
-	objStatsExcel.Cells(11, t3_revw_d_percent).Value = ObjExcel.Cells(11, t3_revw_d_percent).Value
-	objStatsExcel.Cells(12, t3_revw_d_percent).Value = ObjExcel.Cells(12, t3_revw_d_percent).Value
-	objStatsExcel.Cells(13, t3_revw_d_percent).Value = ObjExcel.Cells(13, t3_revw_d_percent).Value
-	objStatsExcel.Cells(11, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(12, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(13, t3_revw_d_percent).NumberFormat = "0.00%"
-
-	objStatsExcel.Cells(14, t3_totals_count).Value = ObjExcel.Cells(14, t3_totals_count).Value
-	objStatsExcel.Cells(15, t3_totals_count).Value = ObjExcel.Cells(15, t3_totals_count).Value
-	objStatsExcel.Cells(16, t3_totals_count).Value = ObjExcel.Cells(16, t3_totals_count).Value
-
-	objStatsExcel.Cells(14, t3_apps_recvd_count).Value = ObjExcel.Cells(14, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(15, t3_apps_recvd_count).Value = ObjExcel.Cells(15, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(16, t3_apps_recvd_count).Value = ObjExcel.Cells(16, t3_apps_recvd_count).Value
-	objStatsExcel.Cells(14, t3_apps_recvd_percent).Value = ObjExcel.Cells(14, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(15, t3_apps_recvd_percent).Value = ObjExcel.Cells(15, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(16, t3_apps_recvd_percent).Value = ObjExcel.Cells(16, t3_apps_recvd_percent).Value
-	objStatsExcel.Cells(14, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(15, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(16, t3_apps_recvd_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(14, t3_intvs_count).Value = ObjExcel.Cells(14, t3_intvs_count).Value
-	objStatsExcel.Cells(15, t3_intvs_count).Value = ObjExcel.Cells(15, t3_intvs_count).Value
-	objStatsExcel.Cells(16, t3_intvs_count).Value = ObjExcel.Cells(16, t3_intvs_count).Value
-	objStatsExcel.Cells(14, t3_intvs_percent).Value = ObjExcel.Cells(14, t3_intvs_percent).Value
-	objStatsExcel.Cells(15, t3_intvs_percent).Value = ObjExcel.Cells(15, t3_intvs_percent).Value
-	objStatsExcel.Cells(16, t3_intvs_percent).Value = ObjExcel.Cells(16, t3_intvs_percent).Value
-	objStatsExcel.Cells(14, t3_intvs_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(15, t3_intvs_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(16, t3_intvs_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(14, t3_revw_i_count).Value = ObjExcel.Cells(14, t3_revw_i_count).Value
-	objStatsExcel.Cells(15, t3_revw_i_count).Value = ObjExcel.Cells(15, t3_revw_i_count).Value
-	objStatsExcel.Cells(16, t3_revw_i_count).Value = ObjExcel.Cells(16, t3_revw_i_count).Value
-	objStatsExcel.Cells(14, t3_revw_i_percent).Value = ObjExcel.Cells(14, t3_revw_i_percent).Value
-	objStatsExcel.Cells(15, t3_revw_i_percent).Value = ObjExcel.Cells(15, t3_revw_i_percent).Value
-	objStatsExcel.Cells(16, t3_revw_i_percent).Value = ObjExcel.Cells(16, t3_revw_i_percent).Value
-	objStatsExcel.Cells(14, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(15, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(16, t3_revw_i_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(14, t3_revw_u_count).Value = ObjExcel.Cells(14, t3_revw_u_count).Value
-	objStatsExcel.Cells(15, t3_revw_u_count).Value = ObjExcel.Cells(15, t3_revw_u_count).Value
-	objStatsExcel.Cells(16, t3_revw_u_count).Value = ObjExcel.Cells(16, t3_revw_u_count).Value
-	objStatsExcel.Cells(14, t3_revw_u_percent).Value = ObjExcel.Cells(14, t3_revw_u_percent).Value
-	objStatsExcel.Cells(15, t3_revw_u_percent).Value = ObjExcel.Cells(15, t3_revw_u_percent).Value
-	objStatsExcel.Cells(16, t3_revw_u_percent).Value = ObjExcel.Cells(16, t3_revw_u_percent).Value
-	objStatsExcel.Cells(14, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(15, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(16, t3_revw_u_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(14, t3_revw_n_count).Value = ObjExcel.Cells(14, t3_revw_n_count).Value
-	objStatsExcel.Cells(15, t3_revw_n_count).Value = ObjExcel.Cells(15, t3_revw_n_count).Value
-	objStatsExcel.Cells(16, t3_revw_n_count).Value = ObjExcel.Cells(16, t3_revw_n_count).Value
-	objStatsExcel.Cells(14, t3_revw_n_percent).Value = ObjExcel.Cells(14, t3_revw_n_percent).Value
-	objStatsExcel.Cells(15, t3_revw_n_percent).Value = ObjExcel.Cells(15, t3_revw_n_percent).Value
-	objStatsExcel.Cells(16, t3_revw_n_percent).Value = ObjExcel.Cells(16, t3_revw_n_percent).Value
-	objStatsExcel.Cells(14, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(15, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(16, t3_revw_n_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(14, t3_revw_a_count).Value = ObjExcel.Cells(14, t3_revw_a_count).Value
-	objStatsExcel.Cells(15, t3_revw_a_count).Value = ObjExcel.Cells(15, t3_revw_a_count).Value
-	objStatsExcel.Cells(16, t3_revw_a_count).Value = ObjExcel.Cells(16, t3_revw_a_count).Value
-	objStatsExcel.Cells(14, t3_revw_a_percent).Value = ObjExcel.Cells(14, t3_revw_a_percent).Value
-	objStatsExcel.Cells(15, t3_revw_a_percent).Value = ObjExcel.Cells(15, t3_revw_a_percent).Value
-	objStatsExcel.Cells(16, t3_revw_a_percent).Value = ObjExcel.Cells(16, t3_revw_a_percent).Value
-	objStatsExcel.Cells(14, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(15, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(16, t3_revw_a_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(14, t3_revw_o_count).Value = ObjExcel.Cells(14, t3_revw_o_count).Value
-	objStatsExcel.Cells(15, t3_revw_o_count).Value = ObjExcel.Cells(15, t3_revw_o_count).Value
-	objStatsExcel.Cells(16, t3_revw_o_count).Value = ObjExcel.Cells(16, t3_revw_o_count).Value
-	objStatsExcel.Cells(14, t3_revw_o_percent).Value = ObjExcel.Cells(14, t3_revw_o_percent).Value
-	objStatsExcel.Cells(15, t3_revw_o_percent).Value = ObjExcel.Cells(15, t3_revw_o_percent).Value
-	objStatsExcel.Cells(16, t3_revw_o_percent).Value = ObjExcel.Cells(16, t3_revw_o_percent).Value
-	objStatsExcel.Cells(14, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(15, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(16, t3_revw_o_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(14, t3_revw_t_count).Value = ObjExcel.Cells(14, t3_revw_t_count).Value
-	objStatsExcel.Cells(15, t3_revw_t_count).Value = ObjExcel.Cells(15, t3_revw_t_count).Value
-	objStatsExcel.Cells(16, t3_revw_t_count).Value = ObjExcel.Cells(16, t3_revw_t_count).Value
-	objStatsExcel.Cells(14, t3_revw_t_percent).Value = ObjExcel.Cells(14, t3_revw_t_percent).Value
-	objStatsExcel.Cells(15, t3_revw_t_percent).Value = ObjExcel.Cells(15, t3_revw_t_percent).Value
-	objStatsExcel.Cells(16, t3_revw_t_percent).Value = ObjExcel.Cells(16, t3_revw_t_percent).Value
-	objStatsExcel.Cells(14, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(15, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(16, t3_revw_t_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(14, t3_revw_d_count).Value = ObjExcel.Cells(14, t3_revw_d_count).Value
-	objStatsExcel.Cells(15, t3_revw_d_count).Value = ObjExcel.Cells(15, t3_revw_d_count).Value
-	objStatsExcel.Cells(16, t3_revw_d_count).Value = ObjExcel.Cells(16, t3_revw_d_count).Value
-	objStatsExcel.Cells(14, t3_revw_d_percent).Value = ObjExcel.Cells(14, t3_revw_d_percent).Value
-	objStatsExcel.Cells(15, t3_revw_d_percent).Value = ObjExcel.Cells(15, t3_revw_d_percent).Value
-	objStatsExcel.Cells(16, t3_revw_d_percent).Value = ObjExcel.Cells(16, t3_revw_d_percent).Value
-	objStatsExcel.Cells(14, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(15, t3_revw_d_percent).NumberFormat = "0.00%"
-	objStatsExcel.Cells(16, t3_revw_d_percent).NumberFormat = "0.00%"
-
-	'Resizing all of the columns to autofit
-	For xl_col = 1 to t3_totals_count
-		ObjExcel.columns(xl_col).AutoFit()
-	Next
-	For xl_col = 1 to t3_totals_count
-		objStatsExcel.columns(xl_col).AutoFit()
-	Next
-
-	'Setting the Ranges for each of the 3 tables
-	table1Range = t1_REVW_type_letter & "1:" & t1_intvw_percent_letter & "6"
-	table2Range = t2_dates_letter & "1:" & t2_total_app_count_letter & last_row
-	table3Range = t3_progs_letter & "1:" & t3_totals_count_letter & "16"
-
-	'This is how we make a range of cells into a table.
-	'The ADD Method creates the table and Full Detail can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.listobjects.add
-	'This is a fairly simple use of this functionality and probably has a lot more to it than is exemplified here and the methods/properties can be found:
-		'https://docs.microsoft.com/en-us/office/vba/api/excel.listobject
-	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "AppsANDIntvwTable"
-	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table2Range, xlYes).Name = "DateCountTable"
-	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table3Range, xlYes).Name = "REVWStatusTable"
-
-	'xlSrcRange is a constant that needs to be set in the script and is '1' which sets the source of the information to a range of cells for defining the table
-		'Other documentation and information about this option can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.xllistobjectsourcetype
-		' XlListObjectSourceType enumeration (Excel)
-		' NAME				VALUE		DESCRIPTION
-		' xlSrcExternal		0			External data source (Microsoft SharePoint Foundation site).
-		' xlSrcModel		4			PowerPivot Model
-		' xlSrcQuery		3			Query
-		' xlSrcRange		1			Range
-		' xlSrcXml			2			XML
-	'xlYes is a constant that needs to be set in the script and is '1' which inidcates that the data source has headers.
-		'Other documentation and information about this option can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.xlyesnoguess
-		' XLYESNOGUESS ENUMERATION (EXCEL)
-		' NAME		VALUE	DESCRIPTION
-		' xlGuess	0		Excel determines whether there is a header, and where it is, if there is one.
-		' xlNo		2		Default. The entire range should be sorted.
-		' xlYes		1		The entire range should not be sorted.
-
-	'This is how you can use the property 'TableStyle' to set the visuals of the table. The words here can be found IN EXCEL by hovering over the table styles to see how they are called - these 3 below work.
-	' ObjExcel.ActiveSheet.ListObjects("AppsANDIntvwTable").TableStyle = "TableStyleDark9"
-	' ObjExcel.ActiveSheet.ListObjects("DateCountTable").TableStyle = "TableStyleDark10"
-	' ObjExcel.ActiveSheet.ListObjects("REVWStatusTable").TableStyle = "TableStyleDark11"
-
-	'Now we make more tables for the other excel
-	objStatsExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "Table1"
-	objStatsExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table2Range, xlYes).Name = "Table2"
-	objStatsExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table3Range, xlYes).Name = "Table3"
-
-	' 'https://docs.microsoft.com/en-us/office/vba/api/excel.xlcolorindex - This is where you find all the excel numbers to use are.
-	ObjExcel.Range(t3_apps_recvd_count_letter 	& "2:" & t3_intvs_percent_letter 		& "2").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_revw_a_count_letter 		& "2:" & t3_revw_a_percent_letter 		& "2").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_totals_count_letter 		& "2:" & t3_totals_count_letter 		& "2").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_apps_recvd_count_letter 	& "5:" & t3_iapps_recvd_percent_letter 	& "5").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_revw_i_count_letter 		& "5:" & t3_revw_i_percent_letter 		& "5").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_revw_a_count_letter 		& "5:" & t3_revw_a_percent_letter 		& "5").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_totals_count_letter 		& "5:" & t3_totals_count_letter 		& "5").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_apps_recvd_count_letter 	& "8:" & t3_iapps_recvd_percent_letter 	& "8").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_revw_i_count_letter 		& "8:" & t3_revw_i_percent_letter 		& "8").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_revw_a_count_letter 		& "8:" & t3_revw_a_percent_letter 		& "8").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_totals_count_letter 		& "8:" & t3_totals_count_letter 		& "8").Interior.ColorIndex = 6
-	ObjExcel.Range(t3_revw_a_count_letter 		& "14:" & t3_revw_a_percent_letter 		& "14").Interior.ColorIndex = 6
-
-	objStatsExcel.Range(t3_apps_recvd_count_letter 	& "2:" & t3_intvs_percent_letter 		& "2").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_revw_a_count_letter 		& "2:" & t3_revw_a_percent_letter 		& "2").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_totals_count_letter 		& "2:" & t3_totals_count_letter 		& "2").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_apps_recvd_count_letter 	& "5:" & t3_iapps_recvd_percent_letter 	& "5").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_revw_i_count_letter 		& "5:" & t3_revw_i_percent_letter 		& "5").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_revw_a_count_letter 		& "5:" & t3_revw_a_percent_letter 		& "5").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_totals_count_letter 		& "5:" & t3_totals_count_letter 		& "5").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_apps_recvd_count_letter 	& "8:" & t3_iapps_recvd_percent_letter 	& "8").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_revw_i_count_letter 		& "8:" & t3_revw_i_percent_letter 		& "8").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_revw_a_count_letter 		& "8:" & t3_revw_a_percent_letter 		& "8").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_totals_count_letter 		& "8:" & t3_totals_count_letter 		& "8").Interior.ColorIndex = 6
-	objStatsExcel.Range(t3_revw_a_count_letter 		& "14:" & t3_revw_a_percent_letter 		& "14").Interior.ColorIndex = 6
-
-	'Query date/time/runtime info
-	ObjExcel.Cells(1, output_headers).Font.Bold = TRUE
-	ObjExcel.Cells(2, output_headers).Font.Bold = TRUE
-	ObjExcel.Cells(1, output_headers).Value = "Query date and time:"
-	ObjExcel.Cells(2, output_headers).Value = "Query runtime (in seconds):"
-	ObjExcel.Cells(1, output_data).Value = now
-	ObjExcel.Cells(2, output_data).Value = timer - query_start_time
-
-	ObjExcel.columns(output_headers).AutoFit()
-	ObjExcel.columns(output_data).AutoFit()
-
-	objWorkbook.Save
-
-	'Query date/time/runtime info
-	objStatsExcel.Cells(1, output_headers).Font.Bold = TRUE
-	objStatsExcel.Cells(2, output_headers).Font.Bold = TRUE
-	objStatsExcel.Cells(1, output_headers).Value = "Query date and time:"
-	objStatsExcel.Cells(2, output_headers).Value = "Query runtime (in seconds):"
-	objStatsExcel.Cells(1, output_data).Value = now
-	objStatsExcel.Cells(2, output_data).Value = timer - query_start_time
-
-	objStatsExcel.columns(output_headers).AutoFit()
-	objStatsExcel.columns(output_data).AutoFit()
-
-	objStatsExcel.ActiveWorkbook.SaveAs t_drive & "\IPA\Restricted\DMA\PowerBIData\ES QI\Recertification Statistics\" & report_date & " Renewal Data.xlsx"
-	If last_day_checkbox = checked Then objStatsExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Recertification Statistics\Data\Last Processing Day for " & report_date & " Renewal Data.xlsx"
-
-	'HERE WE NEED TO CLOSE THE NEW SHEETS
-	ObjStatsExcel.Quit
-
-	' WE AREN'T USING THIS BUT I AM SAVING THIS CODE BECAUSE IT IS THE ONLY PLACE WE HAVE THE BORDER FUNCTIONS INFORMATION
-	' border_array = array("B1:C"&last_row, "D1:D"&last_row, "E1:E"&last_row, "F1:G"&last_row, "H1:I"&last_row, "A2:I2", "A3:I5", "A6:I8", "B10:I10", "K3:AE5", "K6:AE8", "K9:AE11", "K12:AE14", "K15:AE17", "M1:N17", "O1:P17",_
-	'  					 "Q1:R17", "S1:T17", "U1:V17", "W1:X17", "Y1:Z17", "AA1:AB17", "AC1:AD17", "AE1:AE17")
-	'
-	' For each group in border_array
-	' 	With ObjExcel.ActiveSheet.Range(group)
-	' 		With .Borders(7)	'left'
-	' 			.LineStyle = 1
-	' 			.Weight = 2
-	' 			.ColorIndex = -4105
-	' 		End With
-	' 		With .Borders(8)	'Top'
-	' 			.LineStyle = 1
-	' 			.Weight = 2
-	' 			.ColorIndex = -4105
-	' 		End With
-	' 		With .Borders(9)	'Bottom'
-	' 			.LineStyle = 1
-	' 			.Weight = 2
-	' 			.ColorIndex = -4105
-	' 		End With
-	' 		With .Borders(10)	'Right'
-	' 			.LineStyle = 1
-	' 			.Weight = 2
-	' 			.ColorIndex = -4105
-	' 		End With
-	' 	End With
-	' Next
-
-	run_time = timer - query_start_time
-	end_msg = "Case details have been added to the Review Report" & vbCr & vbCr & "Run time: " & run_time & " seconds."
+		objExcel.worksheets(scenario_dropdown).Activate
+		Call create_u_code_worklist(ucode_cash_col, ucode_snap_col, ucode_recvd_date_col, ucode_intvw_date_col)
+	End If
 
 	If original_renewal_option = "Send NOMIs" Then renewal_option = "Send NOMIs"
 	If original_renewal_option <> "Send NOMIs" Then ObjExcel.Quit
