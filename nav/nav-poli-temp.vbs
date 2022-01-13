@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/13/2022", "Added 'TE'manual entry line if navigating to the TABLE menu.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/10/2018", "Added password handling to main dialog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -66,12 +67,12 @@ BeginDialog Dialog1, 0, 0, 211, 75, "POLI/TEMP dialog"
   Text 95, 35, 115, 10, "INDEX - Search by a word or topic"
 EndDialog
 
-Do 
+Do
     Dialog Dialog1
     Cancel_without_confirmation
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
-    
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 'Determines which POLI/TEMP section to go to, using the dropdown list outcome to decide
 If Temp_table_index = "TABLE" then
 	panel_title = "TABLE"
@@ -90,5 +91,7 @@ Call check_for_MAXIS(True)  'Checks to make sure we're in MAXIS
 Call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
 EMWriteScreen "TEMP", 5, 40     'Writes TEMP
 Call write_value_and_transmit(panel_title, 21, 71)  'Writes the panel_title selection
+If panel_title = "TABLE" then EmWriteScreen "TE", 3, 21
+EMSetCursor 3, 23
 
 script_end_procedure("")
