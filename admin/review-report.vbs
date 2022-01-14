@@ -2729,7 +2729,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	If do_we_create_u_code_worklists = True Then
 		If statistics_already_run_today = False Then
 			ucode_cash_col = cash_stat_excel_col
-			ucode_snap_col = stat_stat_excel_col
+			ucode_snap_col = snap_stat_excel_col
 			ucode_recvd_date_col = recvd_date_excel_col
 			ucode_intvw_date_col = intvw_date_excel_col
 		End If
