@@ -250,11 +250,14 @@ function create_u_code_worklist(cash_col, snap_col, recvd_date_col, intvw_date_c
 	objUCODEExcel.cells(1, 6).value = snap_col_header
 	objUCODEExcel.cells(1, 7).value = recvd_date_col_header
 	objUCODEExcel.cells(1, 8).value = intvw_date_col_header
+	objUCODEExcel.cells(1, 9).value = "Notes"
 	FOR i = 1 to 8									'formatting the cells'
 		objUCODEExcel.Cells(1, i).Font.Bold = True		'bold font'
 		objUCODEExcel.columns(i).NumberFormat = "@" 		'formatting as text
 		objUCODEExcel.Columns(i).AutoFit()				'sizing the columns'
 	NEXT
+	objUCODEExcel.Columns(9).ColumnWidth = 100
+	objUCODEExcel.Columns(9).WrapText = True
 
 	excel_row = 2
 	FOR each_case = 0 to UBOUND(U_CODE_CASES_ARRAY, 2)
@@ -272,10 +275,18 @@ function create_u_code_worklist(cash_col, snap_col, recvd_date_col, intvw_date_c
 	NEXT
 
 	'Saves and closes the most the main spreadsheet before continuing
-	objUCODEExcel.ActiveWorkbook.SaveAs  t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\Worklists\REVW " & date_for_excel & " U Code Worklist.xlsx"
+	objUCODEExcel.ActiveWorkbook.SaveAs  t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\QI project reports\REVW and MONT Cases Coded with U\REVW " & date_for_excel & " U Code Worklist.xlsx"
 	objUCODEExcel.ActiveWorkbook.Close
 	objUCODEExcel.Application.Quit
 	objUCODEExcel.Quit
+
+	email_subject = "Worklist Ready REVW Cases coded as U"
+	email_body = "The worklist has been created and is ready for assignment and work."
+	email_body = email_body & vbCr & "The file can be found here:"
+	email_body = email_body & vbCr & "<" & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\QI project reports\REVW and MONT Cases Coded with U\REVW " & date_for_excel & " U Code Worklist.xlsx" & ">"
+	email_body = email_body & vbCr & vbCr & "-This email is automated from a script."
+
+	Call create_outlook_email("jennifer.frey@hennepin.us", "", email_subject, email_body, "", True)
 
 	If end_msg = "" Then
 		end_msg = "Worklist of U Code cases created."
