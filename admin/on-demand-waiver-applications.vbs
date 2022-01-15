@@ -408,18 +408,20 @@ const qi_worker_three_col   = 36
 
 const wl_rept_pnd2_days_col		= 6		'worklist'
 const wl_app_date_col 			= 7		'worklist'
-const wl_intvw_date_col        	= 8		'worklist'
-const wl_quest_intvw_date_col  	= 9		'worklist'
-const wl_resolve_quest_intvw_col	= 10	'worklist'
-const wl_appt_notc_date_col   	= 11	'worklist'
-const wl_appt_date_col         	= 12	'worklist'
-const wl_nomi_date_col         	= 13	'worklist'
-const wl_day_30_col 			= 14	'worklist'
-const wl_deny_col 				= 15	'worklist'
-const wl_action_taken_col 		= 16	'worklist'
-const wl_work_notes_col			= 17	'worklist'
-const wl_email_worker_col		= 18	'worklist'
-const wl_email_issue_col		= 19	'worklist'
+const wl_second_app_date_col	= 8	'worklist'
+const wl_intvw_date_col        	= 9		'worklist'
+const wl_quest_intvw_date_col  	= 10		'worklist'
+const wl_resolve_quest_intvw_col	= 11	'worklist'
+const wl_appt_notc_date_col   	= 12	'worklist'
+const wl_appt_date_col         	= 13	'worklist'
+const wl_nomi_date_col         	= 14	'worklist'
+const wl_day_30_col 			= 15	'worklist'
+const wl_deny_col 				= 16	'worklist'
+const wl_ecf_doc_accepted_col	= 17	'worklist'
+const wl_action_taken_col 		= 18	'worklist'
+const wl_work_notes_col			= 19	'worklist'
+const wl_email_worker_col		= 20	'worklist'
+const wl_email_issue_col		= 21	'worklist'
 
 next_working_day = DateAdd("d", 1, date)
 Call change_date_to_soonest_working_day(next_working_day, "FORWARD")
@@ -2095,18 +2097,20 @@ For case_entry = 0 to UBound(ALL_PENDING_CASES_ARRAY, 2)
 			End If
 		End If
 		ObjDailyWorkListExcel.Cells(xl_row, worker_id_col).Value 				= ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
-		ObjDailyWorkListExcel.Cells(xl_row, case_nbr_col).Value 					= ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+		ObjDailyWorkListExcel.Cells(xl_row, case_nbr_col).Value 				= ALL_PENDING_CASES_ARRAY(case_number, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, case_name_col).Value 				= ALL_PENDING_CASES_ARRAY(client_name, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, snap_stat_col).Value 				= ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, cash_stat_col).Value 				= ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
-		ObjDailyWorkListExcel.Cells(xl_row, wl_rept_pnd2_days_col).Value 			= ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry)
+		ObjDailyWorkListExcel.Cells(xl_row, wl_rept_pnd2_days_col).Value 		= ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_app_date_col).Value 				= ALL_PENDING_CASES_ARRAY(application_date, case_entry)
+		ObjDailyWorkListExcel.Cells(xl_row, wl_second_app_date_col).Value 		= ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry)
+
 		ObjDailyWorkListExcel.Cells(xl_row, wl_intvw_date_col).Value 			= ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_quest_intvw_date_col).Value 		= ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_resolve_quest_intvw_col).Value 	= ALL_PENDING_CASES_ARRAY(intvw_quest_resolve, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_appt_notc_date_col).Value 		= ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
-		ObjDailyWorkListExcel.Cells(xl_row, wl_appt_date_col).Value 				= ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
-		ObjDailyWorkListExcel.Cells(xl_row, wl_nomi_date_col).Value 				= ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+		ObjDailyWorkListExcel.Cells(xl_row, wl_appt_date_col).Value 			= ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
+		ObjDailyWorkListExcel.Cells(xl_row, wl_nomi_date_col).Value 			= ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_day_30_col).Value 				= "=[@[Application Date]]+30"
 		' ObjDailyWorkListExcel.Cells(xl_row, wl_action_taken_col).Value 			=
 		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" OR ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***" Then ObjDailyWorkListExcel.Cells(xl_row, wl_deny_col).Value = "TRUE"
