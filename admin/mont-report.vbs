@@ -221,11 +221,14 @@ function create_u_code_worklist(cash_col, snap_col, recvd_date_col)
 	objUCODEExcel.cells(1, 5).value = cash_col_header
 	objUCODEExcel.cells(1, 6).value = snap_col_header
 	objUCODEExcel.cells(1, 7).value = recvd_date_col_header
+	objUCODEExcel.cells(1, 8).value = "Notes"
 	FOR i = 1 to 7									'formatting the cells'
 		objUCODEExcel.Cells(1, i).Font.Bold = True		'bold font'
 		objUCODEExcel.columns(i).NumberFormat = "@" 		'formatting as text
 		objUCODEExcel.Columns(i).AutoFit()				'sizing the columns'
 	NEXT
+	objUCODEExcel.Columns(8).ColumnWidth = 100
+	objUCODEExcel.Columns(8).WrapText = True
 
 	excel_row = 2
 	FOR each_case = 0 to UBOUND(U_CODE_CASES_ARRAY, 2)
@@ -242,10 +245,18 @@ function create_u_code_worklist(cash_col, snap_col, recvd_date_col)
 	NEXT
 
 	'Saves and closes the most the main spreadsheet before continuing
-	objUCODEExcel.ActiveWorkbook.SaveAs  t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\MONT\Worklists\MONT " & date_for_excel & " U Code Worklist.xlsx"
+	objUCODEExcel.ActiveWorkbook.SaveAs  t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\QI project reports\REVW and MONT Cases Coded with U\MONT " & date_for_excel & " U Code Worklist.xlsx"
 	objUCODEExcel.ActiveWorkbook.Close
 	objUCODEExcel.Application.Quit
 	objUCODEExcel.Quit
+
+	email_subject = "Worklist Ready MONT Cases coded as U"
+	email_body = "The worklist has been created and is ready for assignment and work."
+	email_body = email_body & vbCr & "The file can be found here:"
+	email_body = email_body & vbCr & "<" & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\QI project reports\REVW and MONT Cases Coded with U\MONT " & date_for_excel & " U Code Worklist.xlsx" & ">"
+	email_body = email_body & vbCr & vbCr & "-This email is automated from a script."
+
+	Call create_outlook_email("jennifer.frey@hennepin.us", "", email_subject, email_body, "", True)
 
 	end_msg = end_msg & vbCr & vbCr & "Worklist of U Code cases created."
 end function
