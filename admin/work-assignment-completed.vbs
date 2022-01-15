@@ -90,6 +90,8 @@ Const d30_list_of_cases_col             = 13
 Dim TABLE_ARRAY()
 
 'SCRIPT ====================================================================================================================
+EMConnect ""
+Call check_for_MAXIS(True)
 'Find who is running
 Set objNet = CreateObject("WScript.NetWork")                                    'getting the users windows ID
 windows_user_ID = objNet.UserName
@@ -139,28 +141,31 @@ BeginDialog Dialog1, 0, 0, 306, 110, "Work Assingment Selection"
 EndDialog
 
 Do
-    err_msg = ""
+	Do
+	    err_msg = ""
 
-    dialog Dialog1
-    cancel_without_confirmation
+	    dialog Dialog1
+	    cancel_without_confirmation
 
-    qi_worker_full_name = trim(qi_worker_full_name)
-    email_signature = trim(email_signature)
+	    qi_worker_full_name = trim(qi_worker_full_name)
+	    email_signature = trim(email_signature)
 
-    'Everything is required in this dialog.
-    If qi_worker_full_name = "" Then err_msg = err_msg & vbNewLine & "* Enter your full name."
-    If IsDate(work_assignment_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date of the assignment, the day you worked on the assignment list."
-    If type_of_work_assignment = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select which work assignment you are completing for the day."
-    If email_signature = "" Then err_msg = err_msg & vbNewLine & "* Enter how you want your email signed."
+	    'Everything is required in this dialog.
+	    If qi_worker_full_name = "" Then err_msg = err_msg & vbNewLine & "* Enter your full name."
+	    If IsDate(work_assignment_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date of the assignment, the day you worked on the assignment list."
+	    If type_of_work_assignment = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select which work assignment you are completing for the day."
+	    If email_signature = "" Then err_msg = err_msg & vbNewLine & "* Enter how you want your email signed."
 
-	If ButtonPressed = instructions_btn Then
-		Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/ADMIN/ADMIN%20-%20WORK%20ASSIGNMENT%20COMPLETED.docx")
-		err_msg = "LOOP" & err_msg
-    ElseIf err_msg <> "" Then
-		MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-	End If
+		If ButtonPressed = instructions_btn Then
+			Call open_URL_in_browser("https://dept.hennepin.us/hsphd/sa/ews/BlueZone_Script_Instructions/ADMIN/ADMIN%20-%20WORK%20ASSIGNMENT%20COMPLETED.docx")
+			err_msg = "LOOP" & err_msg
+	    ElseIf err_msg <> "" Then
+			MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+		End If
 
-Loop until err_msg = ""
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
 
 
 
@@ -179,10 +184,131 @@ Select Case type_of_work_assignment                                             
 		close_worklist_msgbox = MsgBox("This script can only function properly if On Demand Daily Worklist is saved and closed. Be sure you have finished your notes and entered all informationn on the worklist, save it and closed the file." & vbCr & vbCr & "Do it now if you have it open." & vbCr & vbCr & "Is the worklist for this assignment closed?", vbQuestion + vbYesNo, "Close the worklist")
 		If close_worklist_msgbox = vbNo Then script_end_procedure("Complete the work on the list, then save and close the file. Once that is done you can rerun this script to capture the end of the work assignment. This script will now end.")
 
-		file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_for_doc & " Worklist.xlsx"
+		today_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_for_doc & " Worklist.xlsx"
+		archive_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/Archive/" & year_of_assignment & "-" & month_of_assignment & "QI " & date_for_doc & " Worklist.xlsx"
+
+		Call File_Exists(today_file_selection_path, does_file_exist)
+		If does_file_exist = True Then file_selection_path = today_file_selection_path
+		If does_file_exist = False Then file_selection_path = archive_file_selection_path
+		case_list_sheet_name = "Work List for " & date_for_doc
+
+		call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
+		ObjExcel.worksheets(case_list_sheet_name).Activate
+
+		orig_oda_number_of_cases_reviewed = 0
+		orig_oda_number_of_cases_denied_no_interview = 0
+		orig_oda_number_prog_updated = 0
+		orig_oda_number_of_appt_notc = 0
+		orig_oda_number_of_nomis = 0
+		orig_oda_number_correction_emails = 0
+		orig_oda_number_of_case_notes = 0
+		orig_oda_ecf_docs_accepted = 0
+
+		oda_ecf_docs_still_need_to_be_accepted = 0
+		oda_second_app_date = 0
+		oda_no_priv_access = 0
+		cases_with_denial_note_and_not_coded_I = ""
+
+		'This functionality looks at the worklist and reads the information entered and then checks some detail from MAXIS
+		excel_row = 2
+		Do
+			MAXIS_case_number = ""
+			MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+			If trim(ObjExcel.Cells(excel_row, 8).Value) = "Yes" Then orig_oda_ecf_docs_accepted = orig_oda_ecf_docs_accepted + 1					'ecf documents accepted column'
+			If trim(ObjExcel.Cells(excel_row, 8).Value) = "Complete Tomorrow" Then oda_ecf_docs_still_need_to_be_accepted = oda_ecf_docs_still_need_to_be_accepted + 1						'second app column'
+			If trim(ObjExcel.Cells(excel_row, 18).Value) <> "" Then orig_oda_number_of_cases_reviewed = orig_oda_number_of_cases_reviewed + 1		'action taken column'
+			If InStr(UCase(ObjExcel.Cells(excel_row, 18).Value), "UPDATED PROG") <> 0 Then orig_oda_number_prog_updated = orig_oda_number_prog_updated + 1		'action taken column'
+			If trim(ObjExcel.Cells(excel_row, 20).Value) <> "" Then orig_oda_number_correction_emails = orig_oda_number_correction_emails + 1		'email correction worker column'
+
+			If trim(ObjExcel.Cells(excel_row, 8).Value) = "Yes" Then oda_second_app_date = oda_second_app_date + 1						'second app column'
+
+			Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+			If is_this_priv = True Then
+				oda_no_priv_access = oda_no_priv_access + 1
+			Else
+				yesterday = DateAdd("d", -1, work_assignment_date) 'will set the date one day prior to app date'
+				note_row = 5            'resetting the variables on the loop
+				note_date = ""
+				note_title = ""
+				appt_date = ""
+				denied_note_exists = False
+				I_code_on_SNAP = True
+				I_code_on_CASH = True
+
+				Do
+					EMReadScreen note_date, 8, note_row, 6      'reading the note date
+					EMReadScreen note_x_number, 7, note_row, 16 'reading the note worker
+					EMReadScreen note_title, 55, note_row, 25   'reading the note header
+					IF next_note_date = "        " then Exit Do
+
+					If note_x_number = qi_worker_x_number and DateDiff("d", note_date, work_assignment_date) = 0 Then
+						orig_oda_number_of_case_notes = orig_oda_number_of_case_notes + 1
+						If InStr(note_title, "~ Denied") <> 0 Then denied_note_exists = True
+						If InStr(note_title, "----Denied") <> 0 Then denied_note_exists = True
+
+						If InStr(note_title, "~ Appointment letter sent in MEMO") <> 0 Then orig_oda_number_of_appt_notc = orig_oda_number_of_appt_notc + 1
+						If InStr(note_title, "~ Client has not completed application interview, NOMI") <> 0 Then orig_oda_number_of_nomis = orig_oda_number_of_nomis + 1
+
+					End If
+					note_row = note_row + 1
+                    IF note_row = 19 THEN
+                        PF8
+                        note_row = 5
+                    END IF
+                    EMReadScreen next_note_date, 8, note_row, 6
+				Loop until datevalue(next_note_date) < yesterday 'looking ahead at the next case note kicking out the dates before app'
+
+				Call back_to_SELF
+				If denied_note_exists = True Then
+					Call navigate_to_MAXIS_screen("REPT", "PND2")
+					EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
+					If pnd2_disp_limit = "Display Limit" Then TRANSMIT
+
+					row = 1                                             'searching for the CASE NUMBER to read from the right row
+					col = 1
+					EMSearch MAXIS_case_number, row, col
+					If row <> 24 and row <> 0 Then
+						EMReadScreen cash_pend_status, 1, row, 54
+						EMReadScreen snap_pend_status, 1, row, 62
+						If cash_pend_status <> "_" AND cash_pend_status <> "I" Then I_code_on_CASH = False
+						If snap_pend_status <> "_" AND snap_pend_status <> "I" Then I_code_on_SNAP = False
+
+						If trim(ObjExcel.Cells(excel_row, 8).Value) <> "" Then
+							EMReadScreen second_cash_pend_status, 1, row+1, 54
+							EMReadScreen second_snap_pend_status, 1, row+1, 62
+							If second_cash_pend_status <> "_" AND second_cash_pend_status <> "I" Then I_code_on_CASH = False
+							If second_snap_pend_status <> "_" AND second_snap_pend_status <> "I" Then I_code_on_SNAP = False
+						End If
+						If I_code_on_CASH = False or I_code_on_SNAP = False Then
+							cases_with_denial_note_and_not_coded_I = cases_with_denial_note_and_not_coded_I  & ", " & MAXIS_case_number
+						Else
+							orig_oda_number_of_cases_denied_no_interview = orig_oda_number_of_cases_denied_no_interview + 1
+						End If
+					End If
+					Call back_to_SELF
+				End If
+			End If
+
+
+			excel_row = excel_row + 1
+			MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+		Loop Until MAXIS_case_number = ""
+
+		If left(cases_with_denial_note_and_not_coded_I, 1) = "," Then cases_with_denial_note_and_not_coded_I = right(cases_with_denial_note_and_not_coded_I, len(cases_with_denial_note_and_not_coded_I) - 1)
+		cases_with_denial_note_and_not_coded_I = trim(cases_with_denial_note_and_not_coded_I)
+
+		'We save the information read through autom,ation but use it to autofill the worker entered fields.
+		oda_number_of_cases_reviewed 			= orig_oda_number_of_cases_reviewed & ""
+		oda_number_of_cases_denied_no_interview = orig_oda_number_of_cases_denied_no_interview & ""
+		oda_number_prog_updated 				= orig_oda_number_prog_updated & ""
+		oda_number_of_appt_notc 				= orig_oda_number_of_appt_notc & ""
+		oda_number_of_nomis 					= orig_oda_number_of_nomis & ""
+		oda_number_correction_emails 			= orig_oda_number_correction_emails & ""
+		oda_number_of_case_notes				= orig_oda_number_of_case_notes & ""
+		oda_ecf_docs_accepted 					= orig_oda_ecf_docs_accepted & ""
 
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 556, 235, "Details of Cases Pending over 30 Days Work Assignment"
+		BeginDialog Dialog1, 0, 0, 556, 260, "Details of On Demand Assignment Work"
 		  EditBox 80, 40, 30, 15, oda_number_of_cases_reviewed
 		  EditBox 125, 60, 30, 15, oda_number_of_cases_denied_no_interview
 		  EditBox 130, 80, 30, 15, oda_number_of_appt_notc
@@ -190,24 +316,26 @@ Select Case type_of_work_assignment                                             
 		  EditBox 135, 120, 30, 15, oda_number_correction_emails
 		  EditBox 165, 140, 30, 15, oda_number_prog_updated
 		  EditBox 125, 160, 30, 15, oda_number_of_case_notes
+		  EditBox 140, 180, 30, 15, oda_ecf_docs_accepted
 		  EditBox 405, 35, 20, 15, assignment_hours
 		  EditBox 455, 35, 20, 15, assignment_minutes
 		  DropListBox 400, 60, 110, 45, "Select One..."+chr(9)+"Great"+chr(9)+"Good"+chr(9)+"Okay"+chr(9)+"Neutral"+chr(9)+"A little rough"+chr(9)+"Bad"+chr(9)+"Terrible", assignment_assesment
 		  EditBox 265, 95, 285, 15, assignment_case_numbers_to_save
 		  EditBox 265, 135, 285, 15, assignment_new_ideas
-		  EditBox 10, 195, 540, 15, assignment_other_notes
+		  EditBox 10, 220, 540, 15, assignment_other_notes
 		  ButtonGroup ButtonPressed
-		    OkButton 450, 215, 50, 15
-		    CancelButton 500, 215, 50, 15
+		    OkButton 450, 240, 50, 15
+		    CancelButton 500, 240, 50, 15
 		  Text 115, 10, 295, 10, "****************** On Demand Waiver Applications - QI Daily Assignment ******************"
-		  GroupBox 10, 25, 245, 155, "Number of cases that:"
+		  GroupBox 10, 25, 245, 175, "Number of cases that:"
 		  Text 20, 45, 60, 10, "... you reviewed:"
-		  Text 20, 65, 100, 10, ".. you denied for no interview:"
-		  Text 20, 85, 110, 10, ".. you sent a manual APPT NOTC:"
-		  Text 20, 105, 90, 10, ".. you sent a manual NOMI:"
-		  Text 20, 125, 110, 10, ".. you sent a correction email on:"
-		  Text 20, 145, 145, 10, ".. you updated PROG with an interview date:"
-		  Text 20, 165, 105, 10, ".. you added a CASE:NOTE on:"
+		  Text 20, 65, 100, 10, "... you denied for no interview:"
+		  Text 20, 85, 110, 10, "... you sent a manual APPT NOTC:"
+		  Text 20, 105, 90, 10, "... you sent a manual NOMI:"
+		  Text 20, 125, 110, 10, "... you sent a correction email on:"
+		  Text 20, 145, 145, 10, "... you updated PROG with an interview date:"
+		  Text 20, 165, 105, 10, "... you added a CASE:NOTE on:"
+		  Text 20, 185, 115, 10, "... you accepted ECF Document(s):"
 		  Text 265, 40, 140, 10, "About how long did the assignment take?"
 		  Text 430, 40, 20, 10, "hours"
 		  Text 480, 40, 30, 10, "minutes"
@@ -215,7 +343,7 @@ Select Case type_of_work_assignment                                             
 		  Text 265, 85, 180, 10, "Any case numbers to save for example/larger reivew?"
 		  Text 265, 125, 105, 10, "Ideas of other counts to collect:"
 		  Text 265, 150, 285, 15, "These are common errors or handling that we are seeing in review, this would be to add to the option on the left."
-		  Text 10, 185, 140, 10, "Other notes about assignment from today:"
+		  Text 10, 210, 140, 10, "Other notes about assignment from today:"
 		EndDialog
 
 		Do
@@ -225,13 +353,6 @@ Select Case type_of_work_assignment                                             
 				dialog Dialog1
 				cancel_confirmation
 
-				EditBox 80, 40, 30, 15, oda_number_of_cases_reviewed
-	  		  EditBox 125, 60, 30, 15, oda_number_of_cases_denied_no_interview
-	  		  EditBox 130, 80, 30, 15, oda_number_of_appt_notc
-	  		  EditBox 115, 100, 30, 15, oda_number_of_nomis
-	  		  EditBox 135, 120, 30, 15, oda_number_correction_emails
-	  		  EditBox 165, 140, 30, 15, oda_number_prog_updated
-	  		  EditBox 125, 160, 30, 15, oda_number_of_case_notes
 				If IsNumeric(oda_number_of_cases_reviewed) = FALSE OR IsNumeric(oda_number_of_cases_denied_no_interview) = FALSE OR IsNumeric(oda_number_of_appt_notc) = FALSE OR IsNumeric(oda_number_of_nomis) = FALSE OR IsNumeric(oda_number_correction_emails) = FALSE OR IsNumeric(oda_number_prog_updated) = FALSE OR IsNumeric(oda_number_of_case_notes) = FALSE Then
 					err_msg = err_msg & vbNewLine & "* Count needed. Enter the number of cases that meet the following criteria: "
 					If IsNumeric(oda_number_of_cases_reviewed) = FALSE Then err_msg = err_msg & vbNewLine & "  - total you reviewed (1st)"
@@ -253,19 +374,6 @@ Select Case type_of_work_assignment                                             
 			Call check_for_password(are_we_passworded_out)
 		Loop until are_we_passworded_out = FALSE
 
-		work_assignment_date = FormatDateTime(work_assignment_date, 2)                  'date formats to be sure the year is 4 digits
-		month_of_assignment = right("0" & DatePart("m", work_assignment_date), 2)       'Pulling the month and year of the assignment for use in doc names and folders.
-		year_of_assignment = DatePart("yyyy", work_assignment_date)
-		date_for_doc = work_assignment_date & ""
-		date_for_doc = replace(date_for_doc, "/", "-")                                  'taking the '/' out for the doc names because otherwise it can't save
-
-		today_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_for_doc & " Worklist.xlsx"
-		archive_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/Archive/" & year_of_assignment & "-" & month_of_assignment & "QI " & date_for_doc & " Worklist.xlsx"
-
-		Call File_Exists(today_file_selection_path, does_file_exist)
-		If does_file_exist = True Then file_selection_path = today_file_selection_path
-		If does_file_exist = False Then file_selection_path = archive_file_selection_path
-
 		If IsNumeric(assignment_minutes) = FALSE Then assignment_minutes = 0    'creating a time variable with ONLY minutes for the spreadsheet
 		If IsNumeric(assignment_hours) = TRUE Then
 			minutes_from_hours = assignment_hours * 60
@@ -273,9 +381,6 @@ Select Case type_of_work_assignment                                             
 		Else
 			assignment_time = assignment_minutes
 		End If
-		case_list_sheet_name = "Work List for " & date_for_doc
-
-		call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
 
 		ObjExcel.Worksheets("Statistics").visible = True
 		ObjExcel.worksheets("Statistics").Activate
@@ -289,11 +394,26 @@ Select Case type_of_work_assignment                                             
 		ObjExcel.Cells(9, 5).Value = oda_number_of_nomis
 		ObjExcel.Cells(10, 5).Value = oda_number_correction_emails
 		ObjExcel.Cells(11, 5).Value = oda_number_of_case_notes
-		ObjExcel.Cells(12, 5).Value = assignment_time
-		ObjExcel.Cells(13, 5).Value = assignment_assesment
-		ObjExcel.Cells(14, 5).Value = assignment_case_numbers_to_save
-		ObjExcel.Cells(15, 5).Value = assignment_new_ideas
-		ObjExcel.Cells(16, 5).Value = assignment_other_notes
+		ObjExcel.Cells(12, 5).Value = oda_ecf_docs_accepted
+		ObjExcel.Cells(13, 5).Value = assignment_time
+		ObjExcel.Cells(14, 5).Value = assignment_assesment
+		ObjExcel.Cells(15, 5).Value = assignment_case_numbers_to_save
+		ObjExcel.Cells(16, 5).Value = assignment_new_ideas
+		ObjExcel.Cells(17, 5).Value = assignment_other_notes
+
+		ObjExcel.Cells(2, 8).Value = orig_oda_number_of_cases_reviewed
+		ObjExcel.Cells(3, 8).Value = orig_oda_number_of_cases_denied_no_interview
+		ObjExcel.Cells(4, 8).Value = orig_oda_number_prog_updated
+		ObjExcel.Cells(5, 8).Value = orig_oda_number_of_appt_notc
+		ObjExcel.Cells(6, 8).Value = orig_oda_number_of_nomis
+		ObjExcel.Cells(7, 8).Value = orig_oda_number_correction_emails
+		ObjExcel.Cells(8, 8).Value = orig_oda_number_of_case_notes
+		ObjExcel.Cells(9, 8).Value = orig_oda_ecf_docs_accepted
+
+		ObjExcel.Cells(10, 8).Value = oda_ecf_docs_still_need_to_be_accepted
+		ObjExcel.Cells(11, 8).Value = oda_second_app_date
+		ObjExcel.Cells(12, 8).Value = oda_no_priv_access
+		ObjExcel.Cells(13, 8).Value = cases_with_denial_note_and_not_coded_I
 
 		ObjExcel.worksheets(case_list_sheet_name).Activate
 		ObjExcel.Worksheets("Statistics").visible = False
@@ -302,6 +422,51 @@ Select Case type_of_work_assignment                                             
 		ObjExcel.Quit
 
 		excel_file_path = file_selection_path
+
+		reports_list_file_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/Archive/Worklist Reports.xlsx"
+
+		call excel_open(reports_list_file_path, False, False, ObjReportExcel, objReportWorkbook)
+
+		excel_row = 1
+		Do
+			excel_row = excel_row + 1
+		Loop until trim(ObjReportExcel.Cells(excel_row, 1).Value) = ""
+
+		ObjReportExcel.Cells(excel_row, 1).Value = qi_worker_full_name
+		ObjReportExcel.Cells(excel_row, 2).Value = date
+		ObjReportExcel.Cells(excel_row, 3).Value = time
+		ObjReportExcel.Cells(excel_row, 4).Value = assignment_time
+		ObjReportExcel.Cells(excel_row, 5).Value = assignment_assesment
+		ObjReportExcel.Cells(excel_row, 6).Value = oda_number_of_cases_reviewed
+		ObjReportExcel.Cells(excel_row, 7).Value = oda_number_of_cases_denied_no_interview
+		ObjReportExcel.Cells(excel_row, 8).Value = oda_number_prog_updated
+		ObjReportExcel.Cells(excel_row, 9).Value = oda_number_of_appt_notc
+		ObjReportExcel.Cells(excel_row, 10).Value = oda_number_of_nomis
+		ObjReportExcel.Cells(excel_row, 11).Value = oda_number_correction_emails
+		ObjReportExcel.Cells(excel_row, 12).Value = oda_number_of_case_notes
+		ObjReportExcel.Cells(excel_row, 13).Value = oda_ecf_docs_accepted
+
+		ObjReportExcel.Cells(excel_row, 14).Value = orig_oda_number_of_cases_reviewed
+		ObjReportExcel.Cells(excel_row, 15).Value = orig_oda_number_of_cases_denied_no_interview
+		ObjReportExcel.Cells(excel_row, 16).Value = orig_oda_number_prog_updated
+		ObjReportExcel.Cells(excel_row, 17).Value = orig_oda_number_of_appt_notc
+		ObjReportExcel.Cells(excel_row, 18).Value = orig_oda_number_of_nomis
+		ObjReportExcel.Cells(excel_row, 19).Value = orig_oda_number_correction_emails
+		ObjReportExcel.Cells(excel_row, 20).Value = orig_oda_number_of_case_notes
+		ObjReportExcel.Cells(excel_row, 21).Value = orig_oda_ecf_docs_accepted
+
+		ObjReportExcel.Cells(excel_row, 22).Value = oda_ecf_docs_still_need_to_be_accepted
+		ObjReportExcel.Cells(excel_row, 23).Value = oda_second_app_date
+		ObjReportExcel.Cells(excel_row, 24).Value = oda_no_priv_access
+		ObjReportExcel.Cells(excel_row, 25).Value = cases_with_denial_note_and_not_coded_I
+
+		ObjReportExcel.Cells(excel_row, 26).Value = assignment_case_numbers_to_save
+		ObjReportExcel.Cells(excel_row, 27).Value = assignment_new_ideas
+		ObjReportExcel.Cells(excel_row, 28).Value = assignment_other_notes
+		ObjReportExcel.Cells(excel_row, 29).Value = "=HYPERLINK(" & chr(34) & archive_file_selection_path & chr(34) & ", " & chr(34) & "QI " & date_for_doc & " Worklist Excel File" & chr(34) & ")"
+
+		objReportWorkbook.Save
+		ObjReportExcel.Quit
 
 		main_email_body = "The On Demand Appplication Assignment has been completed for " & work_assignment_date & "."
 		main_email_subject = "On Demand Application worklist Complete"
@@ -681,6 +846,9 @@ main_email_body = main_email_body & vbCr & "This will work for " & date & ". If 
 main_email_body = main_email_body & vbCr & "<" & archive_file_selection_path & ">"
 main_email_body = main_email_body & vbCr & vbCr & "Work assignment assesment: " & assignment_assesment
 main_email_body = main_email_body & vbCr & vbCr & "Length of assignment: " & assignment_hours & " hours and " & assignment_minutes & " minutes."
+
+main_email_body = main_email_body & vbCr & vbCr & "Worklist Reports List link:"
+main_email_body = main_email_body & vbCr & "<" & t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/Archive/Worklist Reports.xlsx>"
 
 assignment_case_numbers_to_save = trim(assignment_case_numbers_to_save)
 assignment_new_ideas = trim(assignment_new_ideas)
