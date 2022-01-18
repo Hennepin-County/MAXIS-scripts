@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/18/2022", "Added out-of-county handling.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/06/2020", "Added autosave functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/20/2019", "Removed output of all actionable DAIL messages to end of script run. Default all workers checkbox to checked.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/16/2019", "Added output of all actionable DAIL messages to end of script run.", "Ilse Ferris, Hennepin County")
@@ -316,10 +317,16 @@ Do
     	EMWriteScreen "________", 18, 43		'clears the MAXIS case number
     	transmit
     Else
-        Call start_a_blank_CASE_NOTE
-        CALL write_variable_in_case_note(dail_msg)
-        PF3 ' save message
-        objExcel.Cells(excel_row, 6).Value = "Case note created."
+        EmReadscreen county_check, 2, 21, 16
+        If county_check <> "27" then
+            objExcel.Cells(excel_row, 6).Value = "Out of county case."
+        Else
+            PF9
+            CALL write_variable_in_case_note(dail_msg)
+            CALL write_variable_in_case_note("")
+            PF3 ' save message
+            objExcel.Cells(excel_row, 6).Value = "Case note created."
+        End if
     End If
     excel_row = excel_row + 1
 Loop until ObjExcel.Cells(excel_row, 2).Value = ""
