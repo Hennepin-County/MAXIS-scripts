@@ -110,6 +110,8 @@ Do
   	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+Call check_for_MAXIS(False)
+
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
@@ -359,3 +361,43 @@ file_info = month_folder & "\" & decimator_folder & "\" & report_date & " CCD " 
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 
 script_end_procedure("Success! Please review the list created for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------01/18/2022
+'--Tab orders reviewed & confirmed----------------------------------------------01/18/2022
+'--Mandatory fields all present & Reviewed--------------------------------------01/18/2022
+'--All variables in dialog match mandatory fields-------------------------------01/18/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------01/18/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------01/18/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------01/18/2022--------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/18/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------01/18/2022---------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------01/18/2022
+'--Out-of-County handling reviewed----------------------------------------------01/18/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------01/18/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------01/18/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------01/18/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------01/18/2022
+'--Denomination reviewed -------------------------------------------------------01/18/2022
+'--Script name reviewed---------------------------------------------------------01/18/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------01/18/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------01/18/2022
+'--comment Code-----------------------------------------------------------------01/18/2022
+'--Update Changelog for release/update------------------------------------------01/18/2022
+'--Remove testing message boxes-------------------------------------------------01/18/2022
+'--Remove testing code/unnecessary code-----------------------------------------01/18/2022
+'--Review/update SharePoint instructions----------------------------------------01/18/2022---------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------01/18/2022---------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------01/18/2022
+'--Complete misc. documentation (if applicable)---------------------------------01/18/2022
+'--Update project team/issue contact (if applicable)----------------------------01/18/2022
