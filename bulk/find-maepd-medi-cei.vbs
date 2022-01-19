@@ -195,182 +195,187 @@ excel_row = 2												'resetting excel row so script can review each case num
 DO
     back_to_SELF
 	MAXIS_case_number = objExcel.Cells(excel_row, 2).Value					'reading case number from excel spreadsheet
-    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-    objExcel.Cells(excel_row, msp_col).Value = msp_case
-	CALL navigate_to_MAXIS_screen("ELIG", "HC")
-	hhmm_row = 8	                                                         'setting starting point to review all HH members in ELIG HC
-    notes = ""
-    MaEPD_found = ""
-	DO																		'the script will now navigate to ELIG HC and begin to search for MA caes with DP as the elig type.
-		EMReadScreen hc_type, 2, hhmm_row, 28
-		IF hc_type = "MA" THEN												'if it finds MA as the HC type it will go into those results
-            EMReadScreen hh_memb_num, 2, hhmm_row, 3
-			'Identifies unapproved versions of HC
-            EmReadscreen approval_code, 6, 8, 68
-            If trim(approval_code) = "UNAPP" then Call write_value_and_transmit("D", hhmm_row, 26)
+    Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
+    If is_this_priv = True then
+        objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("Privilged Case.")
+    Else
+        Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+        objExcel.Cells(excel_row, msp_col).Value = msp_case
+	    CALL navigate_to_MAXIS_screen("ELIG", "HC")
+	    hhmm_row = 8	                                                         'setting starting point to review all HH members in ELIG HC
+        notes = ""
+        MaEPD_found = ""
+	    DO																		'the script will now navigate to ELIG HC and begin to search for MA caes with DP as the elig type.
+	    	EMReadScreen hc_type, 2, hhmm_row, 28
+	    	IF hc_type = "MA" THEN												'if it finds MA as the HC type it will go into those results
+                EMReadScreen hh_memb_num, 2, hhmm_row, 3
+	    		'Identifies unapproved versions of HC
+                EmReadscreen approval_code, 6, 8, 68
+                If trim(approval_code) = "UNAPP" then Call write_value_and_transmit("D", hhmm_row, 26)
 
-            Call write_value_and_transmit("X", hhmm_row, 26)
-			'start looking for current month budget results
-            row = 6
-            col = 19
-            EMSearch current_month, row, col
-            If row = 0 then
-                'For cases without current HC elig
-                objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " DOES NOT HAVE HC ELIG covering the current month. Review. ")
-                For col = 1 to 7
-                    objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
-                Next
-            else
-                 'Chekcing for MA-EPD results in the current month
-			    EMReadScreen elig_type, 2, 12, col - 2
-			    IF elig_type <> "DP" THEN										'once in those HC results it will look for DP as the elig type. DP is for MA-EPD
-                    'For cases without current MA-EPD
-                    objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " NOT OPEN ON MA-EPD for "  & current_month & ". ")
-
-                    MaEPD_found = False                                         'ELIG TYPE DID NOT = DP
-    				PF3															'if the MA elig results don't have DP we end up here
-    				hhmm_row = hhmm_row + 1	                                    'adding to the read row since we have finished evaluating this particular HH member.
+                Call write_value_and_transmit("X", hhmm_row, 26)
+	    		'start looking for current month budget results
+                row = 6
+                col = 19
+                EMSearch current_month, row, col
+                If row = 0 then
+                    'For cases without current HC elig
+                    objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " DOES NOT HAVE HC ELIG covering the current month. Review.")
+                    For col = 1 to 7
+                        objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
+                    Next
                 else
-                    MaEPD_found = True
-                End if
+                     'Chekcing for MA-EPD results in the current month
+	    		    EMReadScreen elig_type, 2, 12, col - 2
+	    		    IF elig_type <> "DP" THEN										'once in those HC results it will look for DP as the elig type. DP is for MA-EPD
+                        'For cases without current MA-EPD
+                        objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " NOT OPEN ON MA-EPD for "  & current_month & ". ")
 
-                If MaEPD_found = True then
-                    'Heading into the budget
-                    EmReadscreen x_budget, 1, 13, col + 2
-                    If x_budget = "X" then
-                        objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " has X budget. Review eligibility.")  'writing eligibility status in spreadsheet
-                        For col = 1 to 7
-                            objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
-                        Next
-                    Else
-                        Call write_value_and_transmit("X", 9, col + 2)
-				        EMReadScreen pct_fpg, 4, 18, 38								'here it will check the percert of FPG client is at.
-				        pct_fpg = trim(pct_fpg)
-                        If pct_fpg = "" then
-                            objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " Doesn't reflect FPG % in BSUM. Review.")  'writing eligibility status in spreadsheet
+                        MaEPD_found = False                                         'ELIG TYPE DID NOT = DP
+        				PF3															'if the MA elig results don't have DP we end up here
+        				hhmm_row = hhmm_row + 1	                                    'adding to the read row since we have finished evaluating this particular HH member.
+                    else
+                        MaEPD_found = True
+                    End if
+
+                    If MaEPD_found = True then
+                        'Heading into the budget
+                        EmReadscreen x_budget, 1, 13, col + 2       'Added supports for X budget cases as they cannot enter the budget on line 250
+                        If x_budget = "X" then
+                            objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " has X budget. Review eligibility.")  'writing eligibility status in spreadsheet
                             For col = 1 to 7
-        	            		objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
-        	                Next
+                                objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
+                            Next
                         Else
-                            pct_fpg = pct_fpg * 1
-				            IF pct_fpg < 201 THEN										'If the client is 200% or under they may eligible for reimbursement
-				            	PF3														'the script will now grab that person's member number and head into memb to get that person's PMI this will be used later to check MMIS
-				            	PF3
-                                'Grabbing the Medicare Part B premium
-                                'Getting PMI number
-				            	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-				            	EMWriteScreen hh_memb_num, 20, 76
-				            	transmit
-				            	EMReadScreen cl_pmi, 8, 4, 46
-				            	cl_pmi = replace(cl_pmi, " ", "")
-				            	DO
-				            		IF len(cl_pmi) <> 8 THEN cl_pmi = "0" & cl_pmi
-				            	LOOP UNTIL len(cl_pmi) = 8
+                            Call write_value_and_transmit("X", 9, col + 2)
+	    			        EMReadScreen pct_fpg, 4, 18, 38								'here it will check the percert of FPG client is at.
+	    			        pct_fpg = trim(pct_fpg)
+                            If pct_fpg = "" then
+                                objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " Doesn't reflect FPG % in BSUM. Review.")  'writing eligibility status in spreadsheet
+                                For col = 1 to 7
+            	            		objExcel.Cells(excel_row, col).Interior.ColorIndex = 3	'Fills the row with red
+            	                Next
+                            Else
+                                pct_fpg = pct_fpg * 1
+	    			            IF pct_fpg < 201 THEN										'If the client is 200% or under they may eligible for reimbursement
+	    			            	PF3														'the script will now grab that person's member number and head into memb to get that person's PMI this will be used later to check MMIS
+	    			            	PF3
+                                    'Grabbing the Medicare Part B premium
+                                    'Getting PMI number
+	    			            	CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+	    			            	EMWriteScreen hh_memb_num, 20, 76
+	    			            	transmit
+	    			            	EMReadScreen cl_pmi, 8, 4, 46
+	    			            	cl_pmi = replace(cl_pmi, " ", "")
+	    			            	DO
+	    			            		IF len(cl_pmi) <> 8 THEN cl_pmi = "0" & cl_pmi
+	    			            	LOOP UNTIL len(cl_pmi) = 8
 
-                                'Grabbing the Medicare Part B premium
-                               Call navigate_to_MAXIS_screen("STAT", "MEDI")
-                               Call write_value_and_transmit(hh_memb_num, 20, 76)
-                               EmReadscreen medi_premium, 8, 7, 73
-                               objExcel.Cells(excel_row, 6).Value = trim(replace(medi_premium, "_", ""))
+                                    'Grabbing the Medicare Part B premium
+                                   Call navigate_to_MAXIS_screen("STAT", "MEDI")
+                                   Call write_value_and_transmit(hh_memb_num, 20, 76)
+                                   EmReadscreen medi_premium, 8, 7, 73
+                                   objExcel.Cells(excel_row, 6).Value = trim(replace(medi_premium, "_", ""))
 
-				            	Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
+	    			            	Call navigate_to_MMIS_region("CTY ELIG STAFF/UPDATE")	'function to navigate into MMIS, select the HC realm, and enters the prior autorization area
 
-                                DO
-				            		EMReadScreen RKEY, 4, 1, 52
-				            		IF RKEY <> "RKEY" THEN EMWaitReady 0, 0
-				            	LOOP UNTIL RKEY = "RKEY"
-				            	EMWriteScreen "I", 2, 19
-				            	EMWriteScreen cl_pmi, 4, 19
-				            	transmit
-				            	EMWriteScreen "RELG", 1, 8
-				            	transmit
+                                    DO
+	    			            		EMReadScreen RKEY, 4, 1, 52
+	    			            		IF RKEY <> "RKEY" THEN EMWaitReady 0, 0
+	    			            	LOOP UNTIL RKEY = "RKEY"
+	    			            	EMWriteScreen "I", 2, 19
+	    			            	EMWriteScreen cl_pmi, 4, 19
+	    			            	transmit
+	    			            	EMWriteScreen "RELG", 1, 8
+	    			            	transmit
 
-				            	'Reading RELG to determine if the CL is active on MA-EPD
-				            	EMReadScreen prog01_type, 8, 6, 13
-				            		EMReadScreen elig01_type, 2, 6, 33
-				            		EMReadScreen elig01_end, 8, 7, 36
-				            	EMReadScreen prog02_type, 8, 10, 13
-				            		EMReadScreen elig02_type, 2, 10, 33
-				            		EMReadScreen elig02_end, 8, 11, 36
-				            	EMReadScreen prog03_type, 8, 14, 13
-				            		EMReadScreen elig03_type, 2, 14, 33
-				            		EMReadScreen elig03_end, 8, 15, 36
-				            	EMReadScreen prog04_type, 8, 18, 13
-				            		EMReadScreen elig04_type, 2, 18, 33
-				            		EMReadScreen elig04_end, 8, 19, 36
+	    			            	'Reading RELG to determine if the CL is active on MA-EPD
+	    			            	EMReadScreen prog01_type, 8, 6, 13
+	    			            		EMReadScreen elig01_type, 2, 6, 33
+	    			            		EMReadScreen elig01_end, 8, 7, 36
+	    			            	EMReadScreen prog02_type, 8, 10, 13
+	    			            		EMReadScreen elig02_type, 2, 10, 33
+	    			            		EMReadScreen elig02_end, 8, 11, 36
+	    			            	EMReadScreen prog03_type, 8, 14, 13
+	    			            		EMReadScreen elig03_type, 2, 14, 33
+	    			            		EMReadScreen elig03_end, 8, 15, 36
+	    			            	EMReadScreen prog04_type, 8, 18, 13
+	    			            		EMReadScreen elig04_type, 2, 18, 33
+	    			            		EMReadScreen elig04_end, 8, 19, 36
 
-				            	IF ((prog01_type = "MEDICAID" AND elig01_type = "DP" AND elig01_end = "99/99/99") OR _
-				            		(prog02_type = "MEDICAID" AND elig02_type = "DP" AND elig02_end = "99/99/99") OR _
-				            		(prog03_type = "MEDICAID" AND elig03_type = "DP" AND elig03_end = "99/99/99") OR _
-				            		(prog04_type = "MEDICAID" AND elig04_type = "DP" AND elig04_end = "99/99/99")) THEN
+	    			            	IF ((prog01_type = "MEDICAID" AND elig01_type = "DP" AND elig01_end = "99/99/99") OR _
+	    			            		(prog02_type = "MEDICAID" AND elig02_type = "DP" AND elig02_end = "99/99/99") OR _
+	    			            		(prog03_type = "MEDICAID" AND elig03_type = "DP" AND elig03_end = "99/99/99") OR _
+	    			            		(prog04_type = "MEDICAID" AND elig04_type = "DP" AND elig04_end = "99/99/99")) THEN
 
-				            		EMWriteScreen "RMCR", 1, 8							'the script will now check RMCR for an active medicare case
-				            		transmit
+	    			            		EMWriteScreen "RMCR", 1, 8							'the script will now check RMCR for an active medicare case
+	    			            		transmit
 
-				            		'-----CHECKING FOR ON-GOING MEDICARE PART B-----
-				            		EMReadScreen part_b_begin01, 8, 13, 4
-				            			part_b_begin01 = trim(part_b_begin01)
-				            		EMReadScreen part_b_end01, 8, 13, 15
-				            		EMReadScreen part_b_begin02, 8, 14, 4
-				            			part_b_begin02 = trim(part_b_begin02)
-				            		EMReadScreen part_b_end02, 8, 14, 15
+	    			            		'-----CHECKING FOR ON-GOING MEDICARE PART B-----
+	    			            		EMReadScreen part_b_begin01, 8, 13, 4
+	    			            			part_b_begin01 = trim(part_b_begin01)
+	    			            		EMReadScreen part_b_end01, 8, 13, 15
+	    			            		EMReadScreen part_b_begin02, 8, 14, 4
+	    			            			part_b_begin02 = trim(part_b_begin02)
+	    			            		EMReadScreen part_b_end02, 8, 14, 15
 
-				            		IF (part_b_begin01 <> "" AND part_b_end01 = "99/99/99") THEN				'lastly the script will check RBYB to see what the client's buy in status is
-				            			EMWriteScreen "RBYB", 1, 8
-				            			transmit
+	    			            		IF (part_b_begin01 <> "" AND part_b_end01 = "99/99/99") THEN				'lastly the script will check RBYB to see what the client's buy in status is
+	    			            			EMWriteScreen "RBYB", 1, 8
+	    			            			transmit
 
-				            			EMReadScreen accrete_date, 8, 5, 66
-				            			EMReadScreen delete_date, 8, 6, 65
-				            			accrete_date = replace(accrete_date, " ", "")
+	    			            			EMReadScreen accrete_date, 8, 5, 66
+	    			            			EMReadScreen delete_date, 8, 6, 65
+	    			            			accrete_date = replace(accrete_date, " ", "")
 
-                                        EMReadScreen accrete_date_two, 8, 5, 33
-                                        EMReadScreen delete_date_two, 8, 6, 32
-                                        accrete_date_two = replace(accrete_date_two, " ", "")
+                                            EMReadScreen accrete_date_two, 8, 5, 33
+                                            EMReadScreen delete_date_two, 8, 6, 32
+                                            accrete_date_two = replace(accrete_date_two, " ", "")
 
-				            			IF (accrete_date = "" and accrete_date_two = "") then
-                                            reim_elig = True
-                                        elseif (accrete_date <> "" AND delete_date = "99/99/99") THEN				'if the PMI is found to be open on MA-EPD, under 200% open on medicare and they don't have an end date on the delete date (rbyb) the script marks them as eligible for reimbursement.
-                                            reim_elig = false
-                                        else
-                                            'Some cases that have opened & closed on MSP OR new MSP cases will have the accrete/delete information here.
-                                            IF (accrete_date_two = "") then
+	    			            			IF (accrete_date = "" and accrete_date_two = "") then
                                                 reim_elig = True
-                                            elseif (accrete_date_two <> "" AND isdate(delete_date_two) = true) then
-                                                reim_elig = True 'this handling is for cases that have closed on the buy in previously, but it has restarted
+                                            elseif (accrete_date <> "" AND delete_date = "99/99/99") THEN				'if the PMI is found to be open on MA-EPD, under 200% open on medicare and they don't have an end date on the delete date (rbyb) the script marks them as eligible for reimbursement.
+                                                reim_elig = false
                                             else
-                                                reim_elig = False
+                                                'Some cases that have opened & closed on MSP OR new MSP cases will have the accrete/delete information here.
+                                                IF (accrete_date_two = "") then
+                                                    reim_elig = True
+                                                elseif (accrete_date_two <> "" AND isdate(delete_date_two) = true) then
+                                                    reim_elig = True 'this handling is for cases that have closed on the buy in previously, but it has restarted
+                                                else
+                                                    reim_elig = False
+                                                End if
                                             End if
-                                        End if
 
-                                        If reim_elig = True then objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " ELIG FOR REIMBURSEMENT. " & notes)  'writing eligibility status in spreadsheet
+                                            If reim_elig = True then objExcel.Cells(excel_row, reim_elig_col).Value = objExcel.Cells(excel_row, reim_elig_col).Value & ("MEMB " & hh_memb_num & " ELIG FOR REIMBURSEMENT. " & notes)  'writing eligibility status in spreadsheet
 
-				            			CALL write_value_and_transmit("RKEY", 1, 8)
-				            		END IF
-				            	ELSE
-				            		CALL write_value_and_transmit("RKEY", 1, 8)
-				            	END IF
-				            	CALL navigate_to_MAXIS_test(production_or_inquiry)				'the script now navigates back to the environment the user left MAXIS in to continue searching Household members on the current case.
-				            	hhmm_row = hhmm_row + 1
-				            	CALL navigate_to_MAXIS_screen("ELIG", "HC")
-				            ELSE
-				            	DO
-				            		EMReadScreen at_hhmm, 4, 3, 51						'making sure the script made it back to ELIG/HC
-				            		IF at_hhmm <> "HHMM" THEN PF3
-				            	LOOP UNTIL at_hhmm = "HHMM"
-				            	hhmm_row = hhmm_row + 1									'adding to the read row since we have finished evaluating this particular HH member.
-				            END IF
+	    			            			CALL write_value_and_transmit("RKEY", 1, 8)
+	    			            		END IF
+	    			            	ELSE
+	    			            		CALL write_value_and_transmit("RKEY", 1, 8)
+	    			            	END IF
+	    			            	CALL navigate_to_MAXIS_test(production_or_inquiry)				'the script now navigates back to the environment the user left MAXIS in to continue searching Household members on the current case.
+	    			            	hhmm_row = hhmm_row + 1
+	    			            	CALL navigate_to_MAXIS_screen("ELIG", "HC")
+	    			            ELSE
+	    			            	DO
+	    			            		EMReadScreen at_hhmm, 4, 3, 51						'making sure the script made it back to ELIG/HC
+	    			            		IF at_hhmm <> "HHMM" THEN PF3
+	    			            	LOOP UNTIL at_hhmm = "HHMM"
+	    			            	hhmm_row = hhmm_row + 1									'adding to the read row since we have finished evaluating this particular HH member.
+	    			            END IF
+                            End if
                         End if
                     End if
-                End if
-			END IF
-		ELSE
-			hhmm_row = hhmm_row + 1											'If the elig/hc results aren't MA we end up here and add to the read row since we have finished evaluating this particular HH member.
-		END IF
-		IF hhmm_row = 20 THEN												'here we are determining that we've read all of the HH members on the current HHMM screen.
-			PF8																'pf8 will cause elig hc to move to the next set of HH members if that page is full
-			EMReadScreen this_is_the_last_page, 21, 24, 2					'if the script has read everyone on a page and PF8'd and reached the last page the script is done evaulating this case
-		END IF
-	LOOP UNTIL hc_type = "  " OR this_is_the_last_page = "THIS IS THE LAST PAGE"
+	    		END IF
+	    	ELSE
+	    		hhmm_row = hhmm_row + 1											'If the elig/hc results aren't MA we end up here and add to the read row since we have finished evaluating this particular HH member.
+	    	END IF
+	    	IF hhmm_row = 20 THEN												'here we are determining that we've read all of the HH members on the current HHMM screen.
+	    		PF8																'pf8 will cause elig hc to move to the next set of HH members if that page is full
+	    		EMReadScreen this_is_the_last_page, 21, 24, 2					'if the script has read everyone on a page and PF8'd and reached the last page the script is done evaulating this case
+	    	END IF
+	    LOOP UNTIL hc_type = "  " OR this_is_the_last_page = "THIS IS THE LAST PAGE"
+    End if
 
 	'Deleting the blank results to clean up the spreadsheet
 	IF objExcel.Cells(excel_row, reim_elig_col).Value = "" THEN
@@ -386,4 +391,43 @@ FOR i = 1 to 7							'making the columns stretch to fit the widest cell
 NEXT
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success!!")
+script_end_procedure_with_error_report("Success!!")
+
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------01/19/2022
+'--Tab orders reviewed & confirmed----------------------------------------------01/19/2022
+'--Mandatory fields all present & Reviewed--------------------------------------01/19/2022
+'--All variables in dialog match mandatory fields-------------------------------01/19/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------01/19/2022------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------01/19/2022------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------01/19/2022------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/19/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------01/19/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------01/19/2022
+'--Out-of-County handling reviewed----------------------------------------------01/19/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------01/19/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------01/19/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------01/19/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------01/19/2022
+'--Denomination reviewed -------------------------------------------------------01/19/2022
+'--Script name reviewed---------------------------------------------------------01/19/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------01/19/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------01/19/2022
+'--comment Code-----------------------------------------------------------------01/19/2022
+'--Update Changelog for release/update------------------------------------------01/19/2022
+'--Remove testing message boxes-------------------------------------------------01/19/2022
+'--Remove testing code/unnecessary code-----------------------------------------01/19/2022
+'--Review/update SharePoint instructions----------------------------------------01/19/2022------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------01/19/2022------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------01/19/2022
+'--Complete misc. documentation (if applicable)---------------------------------01/19/2022
+'--Update project team/issue contact (if applicable)----------------------------01/19/2022
