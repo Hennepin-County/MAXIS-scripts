@@ -796,7 +796,7 @@ Select Case correction_process
 
 		If add_hsr_app_guide_resource = TRUE OR add_hsr_interview_process_resource = TRUE OR add_hsr_appling_resource = TRUE OR add_client_contact_interview_qs_resource = TRUE OR add_hsr_nomi_resource = TRUE OR add_hsr_on_demand_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Internal:" & "</i><br>"
 
-		If add_hsr_appling_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/APPLing.aspx" & chr(34) & ">" & " APPLing" & "</a><br>"
+		'If add_hsr_appling_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/APPLing.aspx" & chr(34) & ">" & " APPLing" & "</a><br>"
 		If add_hsr_app_guide_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx" & chr(34) & ">" & " Applications" & "</a><br>"
 		If add_hsr_interview_process_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Interview_Resources.aspx" & chr(34) & ">" & " Interview" & "</a><br>"
 		If add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- Client Contact Documents: " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Cash%20and%20EGA%20interview%20questions.docx" & chr(34) & ">" & "Cash and EGA Interview Questions" & "</a><br>"
