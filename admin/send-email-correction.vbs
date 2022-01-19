@@ -93,6 +93,7 @@ send_email = FALSE
 
 
 'Dialog to select which type of correction needs to be sent
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 231, 170, "What type of correction?"
   DropListBox 10, 40, 215, 45, "Select One ..."+chr(9)+"Expedited Review"+chr(9)+"On Demand Applications", correction_process
   EditBox 10, 70, 160, 15, email_recipient
@@ -154,7 +155,7 @@ STATS_manualtime = STATS_manualtime + 45
 Select Case correction_process
 	Case "Expedited Review"
 		end_msg = "Expedited Review Correction Email sent and tracking updated. Thank you!"
-
+        Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 550, 395, "Expedited Corrections"
 		  EditBox 130, 5, 50, 15, MAXIS_case_number
 		  CheckBox 20, 40, 235, 10, "Case was not approved timely. Case should have been approved on ", not_approved_timely_checkbox
@@ -638,6 +639,7 @@ Select Case correction_process
 		add_script_clt_contact_resource = FALSE
 		add_script_interview_comp_resource = FALSE
 
+        Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 536, 265, "On Demand Corrections"
 		  EditBox 130, 5, 50, 15, MAXIS_case_number
 		  CheckBox 20, 25, 295, 10, "The script NOTES - APPLICATION RECEIVED was not used when the case was APPL'd.", app_recvd_script_not_used_checkbox
@@ -897,3 +899,43 @@ Select Case correction_process
 End Select
 
 Call script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------01/19/2022
+'--Tab orders reviewed & confirmed----------------------------------------------01/19/2022
+'--Mandatory fields all present & Reviewed--------------------------------------01/19/2022
+'--All variables in dialog match mandatory fields-------------------------------01/19/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------01/19/2022------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------01/19/2022------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------01/19/2022------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/19/2022------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------01/19/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------01/19/2022------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------01/19/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------01/19/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------01/19/2022------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------01/19/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------01/19/2022
+'--Denomination reviewed -------------------------------------------------------01/19/2022
+'--Script name reviewed---------------------------------------------------------01/19/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------01/19/2022------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------01/19/2022
+'--comment Code-----------------------------------------------------------------01/19/2022
+'--Update Changelog for release/update------------------------------------------01/19/2022
+'--Remove testing message boxes-------------------------------------------------01/19/2022
+'--Remove testing code/unnecessary code-----------------------------------------01/19/2022
+'--Review/update SharePoint instructions----------------------------------------01/19/2022------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------01/19/2022------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------01/19/2022
+'--Complete misc. documentation (if applicable)---------------------------------01/19/2022
+'--Update project team/issue contact (if applicable)----------------------------01/19/2022
