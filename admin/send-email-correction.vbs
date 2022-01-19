@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/19/2022", "Updated Application Guide HSR Manual link to Application. Updated Interview script link from NOTES - INTERVIEW COMPLETED to NOTES - INTERVIEW.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2021", "Added option to Expedited Review for insufficient annotations/interview notes in ECF.", "Casey Love, Hennepin County")
 call changelog_update("01/28/2021", "Added the Expedited Retrain Your Brain Video links as resources to be sent on email corrections.", "Casey Love, Hennepin County")
 call changelog_update("11/12/2020", "Updated all SharePoint hyperlinks due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
@@ -794,7 +795,7 @@ Select Case correction_process
 		If add_hsr_app_guide_resource = TRUE OR add_hsr_interview_process_resource = TRUE OR add_hsr_appling_resource = TRUE OR add_client_contact_interview_qs_resource = TRUE OR add_hsr_nomi_resource = TRUE OR add_hsr_on_demand_resource = TRUE Then email_body = email_body & "<i>" & "&emsp;" & "Internal:" & "</i><br>"
 
 		If add_hsr_appling_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/APPLing.aspx" & chr(34) & ">" & " APPLing" & "</a><br>"
-		If add_hsr_app_guide_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Application_Guide.aspx" & chr(34) & ">" & " Application Guide" & "</a><br>"
+		If add_hsr_app_guide_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx" & chr(34) & ">" & " Application" & "</a><br>"
 		If add_hsr_interview_process_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Application_Guide_Interview_Process.aspx" & chr(34) & ">" & " Application Guide: Interview Process" & "</a><br>"
 		If add_client_contact_interview_qs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- Client Contact Documents: " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Adults%20and%20Families%20Eligibility%20Documents/Cash%20and%20EGA%20interview%20questions.docx" & chr(34) & ">" & "Cash and EGA Interview Questions" & "</a><br>"
 		If add_hsr_nomi_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- HSR Manual:" & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/NOMI.aspx" & chr(34) & ">" & " NOMI" & "</a><br>"
@@ -808,7 +809,7 @@ Select Case correction_process
 		If add_script_caf_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20CAF.docx" & chr(34) & ">" & "NOTES - CAF" & "</a><br>"
 		If add_script_appr_progs_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPROVED%20PROGRAMS.docx" & chr(34) & ">" & "NOTES - APPROVED PROGRAMS" & "</a><br>"
 		If add_script_clt_contact_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20CLIENT%20CONTACT.docx" & chr(34) & ">" & "NOTES - CLIENT CONTACT" & "</a><br>"
-		If add_script_interview_comp_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20COMPLETED.docx" & chr(34) & ">" & "NOTES - INTERVIEW COMPLETED" & "</a><br>"
+		If add_script_interview_comp_resource = TRUE Then email_body = email_body & "&emsp;&ensp;" & "- " & "<a href=" & chr(34) & "https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW.docx" & chr(34) & ">" & "NOTES - INTERVIEW" & "</a><br>"
 
 		'End of the message with email llinks
 		email_body = email_body & "<p>" & "Thank you for taking the time to review this information. If you have any additional questions or want additional directions and resources, please contact the QI team. For Script questions contact the BlueZone Script Team." & "<br>"
