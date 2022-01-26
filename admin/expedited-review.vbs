@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("01/26/2022", "Added QI Assignment supports for strike planning pivot work.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/08/2021", "Adding option to run specialty assignment vs. whole agency lists.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/01/2021", "Set Excel Visibilty to False.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/08/2021", "Added option for a warning before the Excel/Outlook output. Changed DWP and removed QI assignments. Updated background functionality.", "Ilse Ferris, Hennepin County")
@@ -125,7 +126,7 @@ EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 warning_checkbox = 1    'auto-checked
-assignment_choice = "Speciality Only"
+assignment_choice = "All Agency"
 
 'Setting up counts for data tracking
 screening_count = 0
@@ -466,7 +467,7 @@ If assignment_choice = "All Agency" then
     NEXT
 
     'Saves and closes the most recent Excel workbook
-    objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx"
+    objExcel.ActiveWorkbook.SaveAs t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP Interview Completed " & report_date & ".xlsx"
     objExcel.ActiveWorkbook.Close
     objExcel.Application.Quit
     objExcel.Quit
@@ -603,13 +604,17 @@ objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
 
+body_of_email = "Interview Completed Assignment: " & t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP Interview Completed " & report_date & ".xlsx" & vbcr & vbcr & _
+"Interview Needed-Appears Expedited Assignment :" & t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx" & vbcr & vbcr & _
+"Pending Over 30 Days Assignment: " & t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Pending Over 30 Days " & report_date & ".xlsx"
+
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 Call create_outlook_email("Brittany.Lane@hennepin.us; Debrice.Jackson@hennepin.us","Laurie.Hennen@hennepin.us", "EXP SNAP Report for YET without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP X127FA5 " & report_date & ".xlsx", True)
 Call create_outlook_email("Carlotta.Madison@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report for 1800 without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP 1800 " & report_date & ".xlsx", True)
-'Call create_outlook_email("Mohamed.Ahmed@hennepin.us; Dawn.Welch@hennepin.us", "Laurie.Hennen@hennepin.us", "Today's EXP SNAP assignment is ready.", "See attachment.", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP DWP " & report_date & ".xlsx", True)
+Call create_outlook_email("Jennifer.Frey@hennepin.us; Ilse.Ferris@hennepin.us, Laurie.Hennen@hennepin.us", "Today's EXP SNAP assignments are ready.", body_of_email , "", True)
 
 '----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
-array_of_archive_assigments = array("Pending Over 30 Days ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "EXP SNAP DWP ", "")
+array_of_archive_assigments = array("Pending Over 30 Days ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "EXP SNAP Interview Completed ", "")
 
 previous_date = dateadd("d", -1, date)
 Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
