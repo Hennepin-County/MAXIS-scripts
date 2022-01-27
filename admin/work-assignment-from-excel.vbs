@@ -589,7 +589,7 @@ ElseIf worker_selection = "Excel List" Then
     email_col_letter = replace(email_col_letter, "COLUMN", "")
     email_col_letter = trim(email_col_letter)
 
-    For each_col = 0 to UBound(WORKERS_COL_ARRAY)
+    For each_col = 0 to UBound(WORKERS_COL_ARRAY, 2)
         this_col = WORKERS_COL_ARRAY(wrk_col_letter, each_col)
         If this_col = full_name_col_leter Then worker_full_name_col = WORKERS_COL_ARRAY(wrk_col_numb, each_col)
         If this_col = first_name_col_letter Then worker_first_name_col = WORKERS_COL_ARRAY(wrk_col_numb, each_col)
