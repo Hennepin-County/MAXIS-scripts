@@ -2976,6 +2976,7 @@ function HH_comp_dialog(HH_member_array)
         EMReadScreen access_denied_check, 13, 24, 2         'Sometimes MEMB gets this access denied issue and we have to work around it.
         If access_denied_check = "ACCESS DENIED" Then
             PF10
+            EMWaitReady 0, 0
             last_name = "UNABLE TO FIND"
             first_name = " - Access Denied"
             mid_initial = ""
