@@ -606,20 +606,21 @@ objExcel.ActiveWorkbook.Close
 objExcel.Application.Quit
 objExcel.Quit
 
-'QI Assignment hyperlink paths for email
-QI_assign_one = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP Interview Completed " & report_date & ".xlsx"
-QI_assign_two = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
-QI_assign_three = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Pending Over 30 Days " & report_date & ".xlsx"
+If assignment_choice = "All Agency" then
+    'QI Assignment hyperlink paths for email
+    QI_assign_one = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP Interview Completed " & report_date & ".xlsx"
+    QI_assign_two = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\" & report_date & ".xlsx"
+    QI_assign_three = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Pending Over 30 Days " & report_date & ".xlsx"
 
-body_of_email = "Interview Completed Assignment: " & "<" & QI_assign_one & ">" & vbcr & vbcr & _
-"Interview Needed-Appears Expedited Assignment :" & "<" & QI_assign_two & ">" & vbcr & vbcr & _
-"Pending Over 30 Days Assignment: " & "<" & QI_assign_three & ">"
+    body_of_email = "Interview Completed Assignment: " & "<" & QI_assign_one & ">" & vbcr & vbcr & _
+    "Interview Needed-Appears Expedited Assignment :" & "<" & QI_assign_two & ">" & vbcr & vbcr & _
+    "Pending Over 30 Days Assignment: " & "<" & QI_assign_three & ">"
+    Call create_outlook_email("Jennifer.Frey@hennepin.us; Ilse.Ferris@hennepin.us", "Laurie.Hennen@hennepin.us", "Today's EXP SNAP Assignments are Ready", body_of_email , "", True)
+End if 
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 Call create_outlook_email("Brittany.Lane@hennepin.us; Debrice.Jackson@hennepin.us","Laurie.Hennen@hennepin.us", "EXP SNAP Report for YET without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP X127FA5 " & report_date & ".xlsx", True)
 Call create_outlook_email("Carlotta.Madison@hennepin.us", "Laurie.Hennen@hennepin.us", "EXP SNAP Report for 1800 without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP 1800 " & report_date & ".xlsx", True)
-Call create_outlook_email("Jennifer.Frey@hennepin.us; Ilse.Ferris@hennepin.us", "Laurie.Hennen@hennepin.us", "Today's EXP SNAP Assignments are Ready", body_of_email , "", True)
-
 '----------------------------------------------------------------------------------------------------Moves yesterday's files to the archive folder for the specific month
 array_of_archive_assigments = array("Pending Over 30 Days ", "EXP SNAP X127FA5 ", "EXP SNAP 1800 ", "EXP SNAP Interview Completed ", "")
 
