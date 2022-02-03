@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("02/03/2022", "Removed confirmation when hitting cancel.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/01/2021", "GitHub #189 Updated script to remove correction email process.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/31/2020", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -101,7 +102,7 @@ Do
 	Do
 		err_msg = ""
 		Dialog Dialog1
-		cancel_confirmation
+		cancel_without_confirmation
 		CALL MAXIS_dialog_navigation()
 		IF IsNumeric(maxis_case_number) = FALSE or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
 		IF case_status_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select valid status drop down."
@@ -127,7 +128,7 @@ Do
 		IF ButtonPressed = NOTE_button or ButtonPressed = PROG_button THEN 'need the error message to not be blank so that it wont message box but it will not leave '
 			err_msg = "Loop"
 		ELSE
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+			IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine 'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 		END IF
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
