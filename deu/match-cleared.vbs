@@ -230,7 +230,7 @@ ELSE
     IF number_IEVS_type = "A80" THEN match_type = "UNVI"
     IF number_IEVS_type = "A60" THEN match_type = "UBEN"
     IF number_IEVS_type = "A50" THEN match_type = "WAGE"
-			IF number_IEVS_type = "A51" THEN match_type = "WAGE"
+		IF number_IEVS_type = "A51" THEN match_type = "WAGE"
 	IEVS_year = ""
 	IF match_type = "WAGE" THEN
 		EMReadScreen select_quarter, 1, 8, 14
@@ -1021,7 +1021,7 @@ If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & 
 	    		End If
 	    	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
 	    	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	    	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+	    	CALL create_outlook_email("HSPH.FAA.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 	    END IF
 '-----------------------------------------------------------------writing the CCOL case note'
 	    'msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
