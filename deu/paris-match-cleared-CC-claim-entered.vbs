@@ -491,7 +491,7 @@ Row = 8
 			End If
 		Loop until next_page = "More:  " OR next_page = "       "	'No more pages
 		'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-		CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & MEMB_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
+		CALL create_outlook_email("HSPH.FAA.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & MEMB_number & " Date Overpayment Created: " & discovery_date & " Programs: " & programs, "CASE NOTE" & vbcr & message_array,"", False)
 	END IF
 '---------------------------------------------------------------writing the CCOL case note'
 	msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
