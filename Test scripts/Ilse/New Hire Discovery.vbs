@@ -57,7 +57,9 @@ all_workers_check = 1   'checked
 worker_county_code = "X127"
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\DAIL 11-2021\11-24-2021 Reporting Discovery.xlsx"
+
+report_month = CM_mo & "-20" & CM_yr
+file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\DAIL " & report_month & "\" & report_month & " DAIL Six Month Discovery.xlsx"
 
 ''Finding the right folder to automatically save the file
 'month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
@@ -160,7 +162,7 @@ const no_action_req_const           = 9
 const excel_row_const               = 10
 
 'Sets variable for all of the Excel stuff
-excel_row = 46
+excel_row = 2
 'deleted_dails = 0	'establishing the value of the count for deleted deleted_dails
 Do
     'Reading information from the BOBI report in Excel

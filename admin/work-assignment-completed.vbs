@@ -239,7 +239,6 @@ Select Case type_of_work_assignment                                             
 					EMReadScreen note_date, 8, note_row, 6      'reading the note date
 					EMReadScreen note_x_number, 7, note_row, 16 'reading the note worker
 					EMReadScreen note_title, 55, note_row, 25   'reading the note header
-					IF next_note_date = "        " then Exit Do
 
 					If note_x_number = qi_worker_x_number and DateDiff("d", note_date, work_assignment_date) = 0 Then
 						orig_oda_number_of_case_notes = orig_oda_number_of_case_notes + 1
@@ -256,6 +255,7 @@ Select Case type_of_work_assignment                                             
                         note_row = 5
                     END IF
                     EMReadScreen next_note_date, 8, note_row, 6
+                    IF next_note_date = "        " then Exit Do
 				Loop until datevalue(next_note_date) < yesterday 'looking ahead at the next case note kicking out the dates before app'
 
 				Call back_to_SELF
