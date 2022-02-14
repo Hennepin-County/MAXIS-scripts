@@ -304,7 +304,7 @@ IF denial_checkbox = CHECKED THEN
             		IF datediff("d", application_date, date) < 30 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date, the resident must be provided 30 days from the date of application."    'confirming that these cases meet all the criteria for denial
             	END IF
         		IF IsDate(appointment_letter_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter the date the appointment letter was sent."
-            	IF IsDate(notice_sent_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
+            	IF IsDate(NOMI_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
             END IF
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
@@ -456,7 +456,7 @@ IF case_status = "Client completed application interview" THEN          'Intervi
 END IF
 'denial_date = dateadd("d", 0, denial_date) ' if needed this will help this the script recognize that the date is a date'
 'this to remind workers that we must give clients 10 days when we are outside of that 30 day window for applications'
-IF notice_sent_date <> "" THEN denial_date = dateadd("d", 10, notice_sent_date)
+IF NOMI_date <> "" THEN denial_date = dateadd("d", 10, NOMI_date)
 IF denial_date < date then denial_date = dateadd("d", 10, date)
 
 'NOW WE START CASE NOTING - there are a few
