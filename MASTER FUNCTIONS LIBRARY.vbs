@@ -1632,6 +1632,62 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 	        PF9																	'Put it in edit mode
 
+			Call clear_line_of_text(6, 43) 	'residence addr 1
+			Call clear_line_of_text(7, 43) 	'residence addr 2
+			Call clear_line_of_text(8, 43) 	'residence city
+			Call clear_line_of_text(8, 66) 	'residence state
+			Call clear_line_of_text(9, 43) 	'residence zip
+
+			If new_version = True then
+				Call clear_line_of_text(12, 49) 	'mail addr 1
+				Call clear_line_of_text(13, 49) 	'mail addr 2
+				Call clear_line_of_text(14, 49) 	'mail city
+				Call clear_line_of_text(15, 49) 	'mail state
+				Call clear_line_of_text(15, 58) 	'mail zip
+
+				Call clear_line_of_text(16, 39)		'phone information'
+				Call clear_line_of_text(16, 45)
+				Call clear_line_of_text(16, 49)
+				Call clear_line_of_text(16, 61)
+				Call clear_line_of_text(16, 76)
+
+				Call clear_line_of_text(17, 39)
+				Call clear_line_of_text(17, 45)
+				Call clear_line_of_text(17, 49)
+				Call clear_line_of_text(17, 61)
+				Call clear_line_of_text(17, 76)
+
+				Call clear_line_of_text(18, 39)
+				Call clear_line_of_text(18, 45)
+				Call clear_line_of_text(18, 49)
+				Call clear_line_of_text(18, 61)
+				Call clear_line_of_text(18, 76)
+
+				Call clear_line_of_text(19, 31)
+			End If
+			If new_version = False then
+				Call clear_line_of_text(13, 43) 	'mail addr 1
+				Call clear_line_of_text(14, 43) 	'mail addr 2
+				Call clear_line_of_text(15, 43) 	'mail city
+				Call clear_line_of_text(16, 43) 	'mail state
+				Call clear_line_of_text(16, 52) 	'mail zip
+
+				Call clear_line_of_text(17, 45)		'phone information'
+				Call clear_line_of_text(17, 15)
+				Call clear_line_of_text(17, 55)
+				Call clear_line_of_text(17, 67)
+
+				Call clear_line_of_text(18, 45)
+				Call clear_line_of_text(18, 15)
+				Call clear_line_of_text(18, 55)
+				Call clear_line_of_text(18, 67)
+
+				Call clear_line_of_text(19, 45)
+				Call clear_line_of_text(19, 15)
+				Call clear_line_of_text(19, 55)
+				Call clear_line_of_text(19, 67)
+			End If
+
 			'Now we write all the information
 	        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
 
@@ -1694,35 +1750,6 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	        End If
 
 			If new_version = False then
-				If mail_street_full = "" Then
-					EMSetCursor 13, 43
-					EMSendKey "<eraseEOF>"
-
-					EMSetCursor 14, 43
-					EMSendKey "<eraseEOF>"
-
-					EMSetCursor 16, 43
-					EMSendKey "<eraseEOF>"
-				End If
-				If write_mail_line_one = "" Then
-					EMSetCursor 13, 43
-					EMSendKey "<eraseEOF>"
-
-					EMSetCursor 16, 43
-					EMSendKey "<eraseEOF>"
-				End If
-				If write_mail_line_two = "" Then
-					EMSetCursor 14, 43
-					EMSendKey "<eraseEOF>"
-				End If
-				If mail_city = "" Then
-					EMSetCursor 15, 43
-					EMSendKey "<eraseEOF>"
-				End If
-				If mail_zip = "" Then
-					EMSetCursor 16, 52
-					EMSendKey "<eraseEOF>"
-				End If
 				EMWriteScreen write_mail_line_one, 13, 43
 				EMWriteScreen write_mail_line_two, 14, 43
 				EMWriteScreen mail_city, 15, 43
@@ -1750,35 +1777,6 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			End If
 
 			If new_version = True then
-				If mail_street_full = "" Then
-					EMSetCursor 12, 49
-					EMSendKey "<eraseEOF>"
-
-					EMSetCursor 13, 49
-					EMSendKey "<eraseEOF>"
-
-					EMSetCursor 15, 49
-					EMSendKey "<eraseEOF>"
-				End If
-				If write_mail_line_one = "" Then
-					EMSetCursor 12, 49
-					EMSendKey "<eraseEOF>"
-
-					EMSetCursor 15, 49
-					EMSendKey "<eraseEOF>"
-				End If
-				If write_mail_line_two = "" Then
-					EMSetCursor 13, 49
-					EMSendKey "<eraseEOF>"
-				End If
-				If mail_city = "" Then
-					EMSetCursor 14, 49
-					EMSendKey "<eraseEOF>"
-				End If
-				If mail_zip = "" Then
-					EMSetCursor 15, 58
-					EMSendKey "<eraseEOF>"
-				End If
 				EMWriteScreen write_mail_line_one, 12, 49
 		        EMWriteScreen write_mail_line_two, 13, 49
 		        EMWriteScreen mail_city, 14, 49
@@ -1793,19 +1791,19 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 		        EMWriteScreen phone_one_mid, 16, 45
 		        EMWriteScreen phone_one_right, 16, 49
 		        If type_one <> "Select One..." Then EMWriteScreen type_one, 16, 61
-				EMWriteScreen text_yn_one, 16, 76
+				If phone_one <> "" Then EMWriteScreen text_yn_one, 16, 76
 
 		        EMWriteScreen phone_two_left, 17, 39
 		        EMWriteScreen phone_two_mid, 17, 45
 		        EMWriteScreen phone_two_right, 17, 49
 		        If type_two <> "Select One..." Then EMWriteScreen type_two, 17, 61
-				EMWriteScreen text_yn_two, 17, 76
+				If phone_two <> "" Then EMWriteScreen text_yn_two, 17, 76
 
 		        EMWriteScreen phone_three_left, 18, 39
 		        EMWriteScreen phone_three_mid, 18, 45
 		        EMWriteScreen phone_three_right, 18, 49
 		        If type_three <> "Select One..." Then EMWriteScreen type_three, 18, 61
-				EMWriteScreen text_yn_three, 18, 76
+				If phone_three <> "" Then EMWriteScreen text_yn_three, 18, 76
 
 				EMSetCursor 19, 31
 				EMSendKey "<eraseEOF>"
