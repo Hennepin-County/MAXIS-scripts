@@ -606,7 +606,6 @@ BeginDialog Dialog1, 0, 0, 750, dlg_len, "Enrollment Information"
 
   For person = 0 to Ubound(MMIS_clients_array, 2)
     If enrollment_source = "Morning Letters" Then MMIS_clients_array(change_rsn, person) = "Reenrollment"
-    If MMIS_clients_array(new_plan, person) = "Medica" Then MMIS_clients_array(contr_code, person) = "MA 30"
 	If open_enrollment_case = TRUE Then
 		MMIS_clients_array(change_rsn, person) = "Open enrollment"
 		MMIS_clients_array(disenrol_rsn, person) = "Open Enrollment"
