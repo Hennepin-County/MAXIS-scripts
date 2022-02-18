@@ -252,6 +252,11 @@ If select_option = "Application/Renewal" Then
 	shel_update_attempted = False
 	hest_update_attempted = False
 
+	 resi_line_one = ""
+	 resi_line_two = ""
+	 mail_line_one = ""
+	 mail_line_two = ""
+
 	Do
 		err_msg = ""
 
