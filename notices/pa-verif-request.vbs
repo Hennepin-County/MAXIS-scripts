@@ -1815,6 +1815,9 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 								err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The SNAP end month of " & snap_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
 								snap_end_month = CM_mo & "/" & CM_yr
 							End If
+							first_day_of_start_month = left(snap_start_month, 2) & "/1/" & right(snap_start_month, 2)
+							first_day_of_start_month = DateAdd("d", 0, first_day_of_start_month)
+							If DateDiff("d", first_day_of_start_month, first_day_of_end_month) < 0 Then err_msg = err_msg & vbNewLine & "* The Start Month for SNAP cannot be after the End Month."
 						End If
 					End If
 				End If
@@ -1830,6 +1833,9 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 								err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The GA end month of " & ga_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
 								ga_end_month = CM_mo & "/" & CM_yr
 							End If
+							first_day_of_start_month = left(ga_start_month, 2) & "/1/" & right(ga_start_month, 2)
+							first_day_of_start_month = DateAdd("d", 0, first_day_of_start_month)
+							If DateDiff("d", first_day_of_start_month, first_day_of_end_month) < 0 Then err_msg = err_msg & vbNewLine & "* The Start Month for GA cannot be after the End Month."
 						End If
 					End If
 				End If
@@ -1845,6 +1851,9 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 								err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The MSA end month of " & msa_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
 								msa_end_month = CM_mo & "/" & CM_yr
 							End If
+							first_day_of_start_month = left(msa_start_month, 2) & "/1/" & right(msa_start_month, 2)
+							first_day_of_start_month = DateAdd("d", 0, first_day_of_start_month)
+							If DateDiff("d", first_day_of_start_month, first_day_of_end_month) < 0 Then err_msg = err_msg & vbNewLine & "* The Start Month for MSA cannot be after the End Month."
 						End If
 					End If
 				End If
@@ -1860,6 +1869,9 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 								err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The MFIP end month of " & mfip_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
 								mfip_end_month = CM_mo & "/" & CM_yr
 							End If
+							first_day_of_start_month = left(mfip_start_month, 2) & "/1/" & right(mfip_start_month, 2)
+							first_day_of_start_month = DateAdd("d", 0, first_day_of_start_month)
+							If DateDiff("d", first_day_of_start_month, first_day_of_end_month) < 0 Then err_msg = err_msg & vbNewLine & "* The Start Month for MFIP cannot be after the End Month."
 						End If
 					End If
 				End If
@@ -1875,6 +1887,9 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 								err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The DWP end month of " & dwp_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
 								dwp_end_month = CM_mo & "/" & CM_yr
 							End If
+							first_day_of_start_month = left(dwp_start_month, 2) & "/1/" & right(dwp_start_month, 2)
+							first_day_of_start_month = DateAdd("d", 0, first_day_of_start_month)
+							If DateDiff("d", first_day_of_start_month, first_day_of_end_month) < 0 Then err_msg = err_msg & vbNewLine & "* The Start Month for DWP cannot be after the End Month."
 						End If
 					End If
 				End If
@@ -1890,6 +1905,9 @@ Do 		'BIG Loop to see if INQX is over the 9 page limit
 								err_msg = err_msg & vbNewLine & "* We should not send information about benefits issued for a future month. The GRH end month of " & grh_end_month & " has been changed to " & CM_mo & "/" & CM_yr & " as benefits have not been issued for a future month and would not provide good information to the resident."
 								grh_end_month = CM_mo & "/" & CM_yr
 							End If
+							first_day_of_start_month = left(grh_start_month, 2) & "/1/" & right(grh_start_month, 2)
+							first_day_of_start_month = DateAdd("d", 0, first_day_of_start_month)
+							If DateDiff("d", first_day_of_start_month, first_day_of_end_month) < 0 Then err_msg = err_msg & vbNewLine & "* The Start Month for GRH cannot be after the End Month."
 						End If
 					End If
 				End If
