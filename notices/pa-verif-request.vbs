@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/22/2022", "Two updates to PA Verif Request:##~## ##~## - Bug fix to prevent the 'start month' from being after the 'end month'. ##~## ##~## - Added functionality to specifically resend the Tax Refund Notice from any of the past 7 years.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/12/2021", "Fixed some BUGS on PA Verif Request when creating Word Documents. These have been updated and the script should now be correctly creating word documents for residents in person or requesting a FAX.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/21/2021", "Multiple updates to PA Verif Request:##~## ##~##1. Added support for DWP. The script can now resend DWP WCOMs of Eligibility Notices and create MEMOs of benefits issued for a certain month range.##~## ##~##2. Added functionality to create a WORD DOCUMENT of the WCOMs resent or MEMOs created for local printing or faxing.##~## ##~##3. The INQX screens have a page display limit that can preven the script from reading the issuance information correctly. Added a functionality to review if that display limit has been reached and return to the selection area for a reduction in the range of months.##~## ##~##4. Added a review to ensure the requested months do not include issuances that have been archived.##~## ##~##5. The script will ignore WCOMs that have been cancelled as these should not be resent.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/20/2021", "Adding GRH functionality to PA Verif Request.##~## ##~##You can now resend WCOM for GRH eligibility and a MEMO for issuance amounts for active or previous GRH eligibility.##~##", "Casey Love, Hennepin County")
@@ -700,83 +701,95 @@ script_run_lowdown = script_run_lowdown & vbCr & "case_active - " & case_active 
 script_run_lowdown = script_run_lowdown & vbCr & "family_cash_case - " & family_cash_case & vbCr & "mfip_case - " & mfip_case & vbCr & "dwp_case - " & dwp_case & vbCr & "adult_cash_case - " & adult_cash_case & vbCr & "ga_case - " & ga_case & vbCr & "msa_case - " & msa_case & vbCr & "grh_case - " & grh_case & vbCr & "snap_case - " & snap_case  & vbCr & "ma_case - " & ma_case & vbCr & "msp_case - " & msp_case
 script_run_lowdown = script_run_lowdown & vbCr & "unknown_cash_pending - " & unknown_cash_pending & vbCr & "unknown_hc_pending - " & unknown_hc_pending & vbCr & "ga_status - " & ga_status & vbCr & "msa_status - " & msa_status & vbCr & "mfip_status - " & mfip_status & vbCr & "dwp_status - " & dwp_status  & vbCr & "grh_status - " & grh_status & vbCr & "snap_status - " & snap_status  & vbCr & "ma_status - " & ma_status & vbCr & "msp_status - " & msp_status
 
+'If these selection is resending the TAX Notices for a case, this functionality will run to determin which notice(s) should be sent.
+'With this option, only the Tax notice can be resent, other WCOMs or MEMOs will not be an option to select.
 If contact_type = "Resend TAX Notice of Cash Benefit" Then
-	notc_year_number_const 		= 0
-	two_digit_year_const 		= 1
-	tax_notice_exists_const 	= 2
-	resend_notc_checkbox_const 	= 3
-	notc_resent_const 			= 4
-	tax_year_const 				= 5
-	tax_notc_row_const 			= 6
-	confirm_notc_resent_const 	= 7
-	last_yrs_const 				= 8
+	const notc_year_number_const 		= 0			'Setting the constants for the ARRAY of TAX Notices.
+	const two_digit_year_const 			= 1
+	const tax_notice_exists_const 		= 2
+	const resend_notc_checkbox_const 	= 3
+	const notc_resent_const 			= 4
+	const tax_year_const 				= 5
+	const tax_notc_row_const 			= 6
+	const confirm_notc_resent_const 	= 7
+	const last_yrs_const 				= 8
 
+	'We will look for notices going back for the past 7 years (this is -6 because the current year is already used)
 	six_years_ago = DateAdd("yyyy", -6, date)
 	the_year = six_years_ago
-	Dim ARRAY_OF_SEVEN_YEARS()
-	ReDim ARRAY_OF_SEVEN_YEARS(last_yrs_const, 6)
-	tax_notice_exists_on_case = False
+	Dim ARRAY_OF_SEVEN_YEARS(8, 6)			'creating the ARRAY for reading the past 7 years of notices - the ARRAY size is known because we are always looking at 7 years
 
-	Call navigate_to_MAXIS_screen("SPEC", "WCOM")
-	For year_to_revw = 0 to 6
-		the_year_part = DatePart("yyyy", the_year)
-		ARRAY_OF_SEVEN_YEARS(notc_year_number_const, year_to_revw) = the_year_part
+	tax_notice_exists_on_case = False					'defaulting a boolean variable to identify if this case has any tax notice in the past 7 years.
+
+	Call navigate_to_MAXIS_screen("SPEC", "WCOM")		'navigating to WCOM to read for notices
+	For year_to_revw = 0 to 6							'Do not need a loop to go through to identify the size of the array since it is defnined, we can just loop through each one to start with.
+		the_year_part = DatePart("yyyy", the_year)		'pulling the year portion of the date which is defnined above and starting at -6 year from the current date.
+		ARRAY_OF_SEVEN_YEARS(notc_year_number_const, year_to_revw) = the_year_part				'setting the year information into the array
 		ARRAY_OF_SEVEN_YEARS(two_digit_year_const, year_to_revw) = right(the_year_part, 2)
-		ARRAY_OF_SEVEN_YEARS(tax_notice_exists_const, year_to_revw) = False
-		' MsgBox year_to_revw & vbCr & "NOCT Year - " & ARRAY_OF_SEVEN_YEARS(two_digit_year_const, year_to_revw)
+		ARRAY_OF_SEVEN_YEARS(tax_notice_exists_const, year_to_revw) = False						'defaulting a boolean that the notice does not exist for this year
 
-		EMWriteScreen "01", 3, 46
-		EMWriteScreen ARRAY_OF_SEVEN_YEARS(two_digit_year_const, year_to_revw), 3, 51
+		EMWriteScreen "01", 3, 46						'going to January (the month the notices are always sent)
+		EMWriteScreen ARRAY_OF_SEVEN_YEARS(two_digit_year_const, year_to_revw), 3, 51			'going to the year as defined in the loop
 		transmit
 
-		wcom_row = 7										'looking for a WCOM
+		wcom_row = 7									'setting to the top of the list of wcoms
 		Do
-			EMReadScreen notc_title, 30, wcom_row, 30
+			EMReadScreen notc_title, 30, wcom_row, 30	'reading the title of the notice
 
+			'if the title of the notice is one of the Tax notices, we save the information to the ARRAY
 			If trim(notc_title) = "Tax Refund Notice" Then
 				ARRAY_OF_SEVEN_YEARS(tax_notice_exists_const, year_to_revw) = True
 				ARRAY_OF_SEVEN_YEARS(tax_notc_row_const, year_to_revw) = wcom_row
 
-				tax_notice_exists_on_case = True
+				tax_notice_exists_on_case = True		'setting this variable to know that we have at least one notice
 			End If
 
-			wcom_row = wcom_row + 1
+			wcom_row = wcom_row + 1						'going to the next wcom listed
 		Loop until trim(notc_title) = ""
-		tax_year = DateAdd("yyyy", -1, the_year)
-		ARRAY_OF_SEVEN_YEARS(tax_year_const, year_to_revw) = DatePart("yyyy", tax_year)
-		the_year = DateAdd("yyyy", 1, the_year)
+		tax_year = DateAdd("yyyy", -1, the_year)		'moving backward one year to define the tax year the notice covers
+		ARRAY_OF_SEVEN_YEARS(tax_year_const, year_to_revw) = DatePart("yyyy", tax_year)		'setting the tax year that the notice covers into the array for display (in dialogs and CASE NOTEs)
+		the_year = DateAdd("yyyy", 1, the_year)			'moving to the next year to look for the next notice
 	Next
 
+	'if there are no notices found in the past 7 years, the script will end as there are no notices to review.
 	If tax_notice_exists_on_case = False Then script_end_procedure_with_error_report("Script run has ended. You have selected to resend the Tax Notice for this case and the script was unable to find a Tax Notice on this case for the past 7 years. Run the script again and select a different option to send verification of public assistance as needed by the resident.")
 
+	'Here we are going to display the notices we found for the user to select as many tax notices as needed.
 	Do
 		err_msg = ""
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 206, 155, "Dialog"
-		  y_pos = 25
-		  For year_to_revw = 6 to 0 step -1
+		BeginDialog Dialog1, 0, 0, 210, 170, "Selection of Tax Refund Notices to Resend"
+		  ComboBox 55, 5, 150, 45, select_a_client+chr(9)+verif_request_by, verif_request_by
+		  y_pos = 40
+		  For year_to_revw = 6 to 0 step -1				'looking at each part of the array, moving backward to display the most recent notice at the top.
+		  	  'This element will be a checkbox if the notice was found for this year and a text field if none was found.
 			  If ARRAY_OF_SEVEN_YEARS(tax_notice_exists_const, year_to_revw) = True Then CheckBox 20, y_pos, 135, 10, ARRAY_OF_SEVEN_YEARS(tax_year_const, year_to_revw) & " Tax Year - Notice from 01/" & ARRAY_OF_SEVEN_YEARS(two_digit_year_const, year_to_revw), ARRAY_OF_SEVEN_YEARS(resend_notc_checkbox_const, year_to_revw)
 			  If ARRAY_OF_SEVEN_YEARS(tax_notice_exists_const, year_to_revw) = False Then Text 30, y_pos, 165, 10, ARRAY_OF_SEVEN_YEARS(tax_year_const, year_to_revw) & " Tax Year - NO NOTICE FOR THIS YEAR"
 			  y_pos = y_pos + 15
 		  Next
 		  ButtonGroup ButtonPressed
-		    OkButton 95, 135, 50, 15
-		    CancelButton 150, 135, 50, 15
-		  Text 10, 10, 170, 10, "Check the box for every TAX Notice to be re-sent:"
+			OkButton 100, 150, 50, 15
+			CancelButton 155, 150, 50, 15
+		  Text 10, 25, 170, 10, "Check the box for every TAX Notice to be re-sent:"
+		  Text 5, 10, 50, 10, "Requested by:"
 		EndDialog
 
 		dialog Dialog1
 		cancel_without_confirmation
 
+		'here we ensure that at least one notice was selected and loop back to show the dialog again
 		tax_notice_selected = False
+		verif_request_by = trim(verif_request_by)
 		For year_to_revw = 0 to 6
 			If ARRAY_OF_SEVEN_YEARS(resend_notc_checkbox_const, year_to_revw) = checked Then tax_notice_selected = True
 		Next
-		If tax_notice_selected = False Then err_msg = "ou have selected to resend the Tax Notice for this case but none of the Tax Notices were selected."
-		If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbCr & vbCr & "Please Resolve to continue:" & vbCr & vbCr & err_msg & vbCr & vbCr & "Select a tax notice to resend from at least one year."
+		If tax_notice_selected = False Then err_msg = "* You have selected to resend the Tax Notice for this case but none of the Tax Notices were selected." & vbCr & "  -Select a tax notice to resend from at least one year."
+		If verif_request_by = "" or verif_request_by = "Select or Type" Then err_msg = err_msg & vbCr & vbCr  & "* Indicate who is requesting the information. You can select someone from the household or write in the name of the person. Please only provide information to individuals who have the right to access the information."
+
+		If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbCr & vbCr & "Please Resolve to continue:" & vbCr & vbCr & err_msg
 	Loop until err_msg = ""
 
-	resend_wcom = True
+	resend_wcom = True		'setting this variable for the next steps of the script
 Else
 
 	'Now the script will go to find the benefit amount and the ELIGIBILITY NOTICE from the WCOM of the most recent approved month.
@@ -1302,17 +1315,6 @@ Else
 
 	'saving information for error output email
 	script_run_lowdown = script_run_lowdown & vbCr & vbCr & "PROGRAM HISTORY:" & vbCr & "snap_prog_history_exists - " & snap_prog_history_exists & vbCr & "ga_prog_history_exists - " & ga_prog_history_exists & vbCr & "msa_prog_history_exists - " & msa_prog_history_exists & vbCr & "mfip_prog_history_exists - " & mfip_prog_history_exists & vbCr & "dwp_prog_history_exists - " & dwp_prog_history_exists & vbCr & "grh_prog_history_exists - " & grh_prog_history_exists
-
-	' Call navigate_to_MAXIS_screen("STAT", "SUMM")		'Going in to STAT to read address information
-	' EMReadScreen case_name, 22, 21, 46					'case name for address'
-	' case_name = trim(case_name)
-	' 'Reading the information from STAT
-	' Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-	' Call access_AREP_panel("READ", arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
-	' Call access_SWKR_panel("READ", swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone, swkr_ext, notc_to_swkr)
-	'
-	' If arep_name <> "" Then select_a_client = select_a_client+chr(9)+"AREP - " & arep_name		'Adding AREP and SWKR to the droplist for the dialog
-	' If swkr_name <> "" Then select_a_client = select_a_client+chr(9)+"SWKR - " & swkr_name
 
 	Do 		'BIG Loop to see if INQX is over the 9 page limit
 
@@ -3343,10 +3345,10 @@ If resend_wcom = True Then
 		Call back_to_SELF
 		STATS_manualtime = STATS_manualtime + 15
 	End If
-	If contact_type = "Resend TAX Notice of Cash Benefit" Then
+	If contact_type = "Resend TAX Notice of Cash Benefit" Then					'if it was selected to resent the tax notice, we need to loop through the whole array of notices
 		For year_to_revw = 0 to 6
-			ARRAY_OF_SEVEN_YEARS(confirm_notc_resent_const, year_to_revw) = False
-			If ARRAY_OF_SEVEN_YEARS(resend_notc_checkbox_const, year_to_revw) = checked Then
+			ARRAY_OF_SEVEN_YEARS(confirm_notc_resent_const, year_to_revw) = False				'default that the resending of the notice was unsuccessful
+			If ARRAY_OF_SEVEN_YEARS(resend_notc_checkbox_const, year_to_revw) = checked Then	'if the notice was selected in the selection dialog - the functionality to resend a notice will be called for that notice.
 				Call resend_existing_wcom("01", ARRAY_OF_SEVEN_YEARS(two_digit_year_const, year_to_revw), ARRAY_OF_SEVEN_YEARS(tax_notc_row_const, year_to_revw), ARRAY_OF_SEVEN_YEARS(confirm_notc_resent_const, year_to_revw), False, forms_to_arep, forms_to_swkr, send_to_other, other_address_person, other_address_street, other_address_city, other_address_state, other_address_zip)
 				Call back_to_SELF
 				STATS_manualtime = STATS_manualtime + 15
@@ -3883,6 +3885,26 @@ If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox =
 
 			PF3
 		End If
+		If contact_type = "Resend TAX Notice of Cash Benefit" Then					'if it was selected to resent the tax notice, we need to loop through the whole array of notices
+			For year_to_revw = 0 to 6
+				If ARRAY_OF_SEVEN_YEARS(resend_notc_checkbox_const, year_to_revw) = checked Then	'if the notice was selected in the selection dialog - the functionality to create a word document of the existing notice will be called
+					Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+					tax_notice_row = ARRAY_OF_SEVEN_YEARS(tax_notc_row_const, year_to_revw)
+
+					EMWriteScreen "01", 3, 46
+					EMWriteScreen ARRAY_OF_SEVEN_YEARS(two_digit_year_const, year_to_revw), 3, 51
+					transmit
+					EMWriteScreen "X", tax_notice_row, 13
+					EMReadScreen notice_date, 8, tax_notice_row, 16
+					EMReadScreen notice_stat, 8, tax_notice_row, 71
+					caption_info = "SPEC/WCOM - Tax Refund Notice - " & notice_date & " - Status: " & notice_stat
+					transmit
+
+					call create_a_word_doc_of_a_NOTICE(caption_info)
+					PF3
+				End If
+			Next
+		End If
 	End If
 End If
 
@@ -3964,15 +3986,15 @@ script_end_procedure_with_error_report(end_msg)
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------09/21/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------02/22/2022
 '--Tab orders reviewed & confirmed----------------------------------------------09/21/2021
 '--Mandatory fields all present & Reviewed--------------------------------------09/21/2021
 '--All variables in dialog match mandatory fields-------------------------------09/21/2021
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------09/21/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------09/21/2021
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/21/2021
+'--All variables are CASE:NOTEing (if required)---------------------------------02/22/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------02/22/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------02/22/2022
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/21/2021
 '--MAXIS_background_check reviewed (if applicable)------------------------------09/21/2021
@@ -3989,12 +4011,12 @@ script_end_procedure_with_error_report(end_msg)
 '--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------09/21/2021
-'--comment Code-----------------------------------------------------------------09/21/2021
-'--Update Changelog for release/update------------------------------------------09/21/2021
-'--Remove testing message boxes-------------------------------------------------09/21/2021
+'--Confirm all GitHub taks are complete-----------------------------------------02/22/2022
+'--comment Code-----------------------------------------------------------------02/22/2022
+'--Update Changelog for release/update------------------------------------------02/22/2022
+'--Remove testing message boxes-------------------------------------------------02/22/2022
 '--Remove testing code/unnecessary code-----------------------------------------09/21/2021
-'--Review/update SharePoint instructions----------------------------------------09/21/2021
+'--Review/update SharePoint instructions----------------------------------------02/22/2022
 '--Review Best Practices using BZS page ----------------------------------------N/A
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/21/2021 					Requested J Arco to update HSR Manual Page
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
