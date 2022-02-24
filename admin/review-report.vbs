@@ -2909,9 +2909,8 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 
 				notes_info = Trim(ObjExcel.cells(excel_row, 25).value)
 
-				' If er_with_intherview = True Then
-
-				If er_with_intherview = True AND MFIP_status = True Then
+				If er_with_intherview = True Then
+				' If er_with_intherview = True AND MFIP_status = True Then
 					'Writing the SPEC MEMO - dates will be input from the determination made earlier.
 					' MsgBox "We're writing a MEMO here"
 					Call start_a_new_spec_memo_and_continue(memo_started)
