@@ -224,10 +224,9 @@ class script_bowie
 		If script_name = "Update Worker Signature" Then description = "Sets or updates the default worker signature for this user."
 		If script_name = "EMPS" Then description = description & " --- EMPS Panel Information in a List"
 		If script_name = "DAIL Report" Then description = description & " --- List of DAILs selected by Type"
-		If script_name ="Delete DAIL Tasks" Then description = description & " --- USE WITH CAUTION! Deletes info from SQL Database."
-		If script_name ="Open Interview PDF" Then description = description & " --- Opens a PDF generated from NOTES - Interview if not yet in ECF."
-		If script_name ="Search CASE NOTE" Then description = description & " --- Searches all CASE:NOTEs for a particular case for word(s) or a phrase."
-
+		If script_name = "Delete DAIL Tasks" Then description = description & " --- USE WITH CAUTION! Deletes info from SQL Database."
+		If script_name = "Open Interview PDF" Then description = description & " --- Opens a PDF generated from NOTES - Interview if not yet in ECF."
+		If script_name = "Search CASE NOTE" Then description = description & " --- Searches all CASE:NOTEs for a particular case for word(s) or a phrase."
 	end property
 
 
@@ -2769,6 +2768,7 @@ script_array(script_num).tags                   = array("QI", "SNAP")
 script_array(script_num).dlg_keys               = array("Oe", "Ex")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/21/2020#
+script_array(script_num).retirement_date        = #02/25/2022# 'Script removed until an agency wide process can be implemented
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
