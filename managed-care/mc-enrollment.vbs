@@ -821,7 +821,7 @@ If MNSURE_Case = TRUE Then
 			' msgbox enrollment_date & vbNewLine & xcl_end_date
 			'Checks for exclusion code only deletes if YY or blank, if any other span entered it stops script.
 			If left(MMIS_clients_array(current_plan, member), 3) = "XCL" Then
-				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" OR MMIS_clients_array(current_plan, member) = "XCL - Private HMO Coverage" OR MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance"  Then
+				If MMIS_clients_array(current_plan, member) = "XCL - Delayed Decision" OR MMIS_clients_array(current_plan, member) = "XCL - Private HMO Coverage" OR MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then
 					row = 1
 					col = 1
 					EMSearch "99/99/99", row, col
@@ -895,6 +895,7 @@ If MNSURE_Case = TRUE Then
     			End If
 
 				transmit
+				If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then transmit
 				EMReadScreen current_panel, 4, 1, 52
     			EMReadScreen RPPH_error_check, 78, 24, 2
 
@@ -1372,6 +1373,7 @@ Else
     			'REFM screen
     			' EMWriteScreen "refm", 1, 8
     			transmit
+				If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then transmit
 				EMReadScreen current_panel, 4, 1, 52
     			EMReadScreen RPPH_error_check, 78, 24, 2
 
