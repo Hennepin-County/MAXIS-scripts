@@ -895,7 +895,6 @@ If MNSURE_Case = TRUE Then
     			End If
 
 				transmit
-				If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then transmit
 				EMReadScreen current_panel, 4, 1, 52
     			EMReadScreen RPPH_error_check, 78, 24, 2
 
@@ -1107,6 +1106,7 @@ If MNSURE_Case = TRUE Then
 
 		If MMIS_clients_array(manual_enrollment, member) <> TRUE Then
 			PF9
+			If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then PF9
 
 			'error handling to ensure that enrollment date and exclusion dates don't conflict
 			EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
@@ -1373,7 +1373,6 @@ Else
     			'REFM screen
     			' EMWriteScreen "refm", 1, 8
     			transmit
-				If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then transmit
 				EMReadScreen current_panel, 4, 1, 52
     			EMReadScreen RPPH_error_check, 78, 24, 2
 
@@ -1538,6 +1537,7 @@ Else
 
 		If MMIS_clients_array(manual_enrollment, member) <> TRUE Then
 			PF9
+			If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then PF9
 
 			'error handling to ensure that enrollment date and exclusion dates don't conflict
 			EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
