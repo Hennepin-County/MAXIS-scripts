@@ -1106,7 +1106,7 @@ If MNSURE_Case = TRUE Then
 
 		If MMIS_clients_array(manual_enrollment, member) <> TRUE Then
 			PF9
-			If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then PF9
+			If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then PF9			'there is a warning message for these cases when trying to save the enrollment, so you must confirm that save by pressing the button again
 
 			'error handling to ensure that enrollment date and exclusion dates don't conflict
 			EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
@@ -1537,7 +1537,7 @@ Else
 
 		If MMIS_clients_array(manual_enrollment, member) <> TRUE Then
 			PF9
-			If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then PF9
+			If MMIS_clients_array(current_plan, member) = "XCL - Adoption Assistance" Then PF9		'there is a warning message for these cases when trying to save the enrollment, so you must confirm that save by pressing the button again
 
 			'error handling to ensure that enrollment date and exclusion dates don't conflict
 			EMReadScreen REFM_error_check, 19, 24, 2 'checks for an inhibiting edit
