@@ -5291,7 +5291,7 @@ function convert_digit_to_excel_column(col_in_excel)
 	If col_in_excel >= 27 and col_in_excel < 53 then convert_digit_to_excel_column = "A" & Mid(alphabet, col_in_excel - 26, 1)
 	If col_in_excel >= 53 and col_in_excel < 79 then convert_digit_to_excel_column = "B" & Mid(alphabet, col_in_excel - 52, 1)
 	If col_in_excel >= 79 and col_in_excel < 105 then convert_digit_to_excel_column = "C" & Mid(alphabet, col_in_excel - 78, 1)
-    If col_in_excel >= 105 and col_in_excel < 131 then convert_digit_to_excel_column = "D" & Mid(alphabet, col_in_excel - 105, 1)
+    If col_in_excel >= 105 and col_in_excel < 131 then convert_digit_to_excel_column = "D" & Mid(alphabet, col_in_excel - 104, 1)
 
 	'Closes script if the number gets too high (very rare circumstance, just errorproofing)
 	If col_in_excel >= 131 then script_end_procedure("This script is only able to assign excel columns to 130 distinct digits. You've exceeded this number, and this script cannot continue.")
