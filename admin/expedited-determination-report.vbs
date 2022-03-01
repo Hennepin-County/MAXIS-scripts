@@ -135,7 +135,7 @@ const work_utilities_col_const 			= 13
 'END DECLARATIONS BLOCK ====================================================================================================
 'Manually set if you want to run the testing code for creating a worklist.
 'This option is only available to scriptwriters.
-create_a_test_worklist = False
+create_a_test_worklist = True
 'If TRUE - the script will NOT delete the files that create the reports so that our data review is not changed. It also does not update any of the other reports/files
 '          You should also have MAXIS ready - there may not be good password handling. Inquiry or Production is fine.
 'If FALSE - the script WILL delete the files that fill in information
@@ -166,8 +166,10 @@ Set colFiles = objFolder.Files																'Creates an array/collection of al
 'Open an existing Excel for the year
 report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination Report Out.xlsx"
 discovery_template_worklist_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Jake's Discovery\"
+worklist_template_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Exp Det Worklists\"
+
 discovery_template_file = discovery_template_worklist_path & "Discovery Template.xlsx"
-worklist_template_file = discovery_template_worklist_path & "Worklist Template.xlsx"
+worklist_template_file = worklist_template_path & "Worklist Template.xlsx"
 
 date_month = DatePart("m", date)
 date_day = DatePart("d", date)
@@ -178,7 +180,7 @@ disc_file_name = "Case List from " & date_header & ".xlsx"
 work_file_name = date_header & " " & time_header & " Worklist.xlsx"
 
 daily_discovery_path = discovery_template_worklist_path & disc_file_name
-current_worklist_path = discovery_template_worklist_path & work_file_name
+current_worklist_path = worklist_template_path & work_file_name
 
 ' daily_worklist_template_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/Archive/Worklist Template.xlsx"
 ' daily_discovery_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_header & " Worklist.xlsx"
@@ -189,91 +191,90 @@ If create_a_test_worklist = True Then
 	ObjWORKExcel.worksheets("CASE LIST").Activate
 End If
 
-If create_a_test_worklist = False Then
-	Call excel_open(report_out_file, True, True, ObjExcel, objWorkbook)  			'opens the selected excel file'
-	Call excel_open(discovery_template_file, True, True, ObjDISCExcel, objDISCWorkbook)  			'opens the selected excel file'
+Call excel_open(report_out_file, True, True, ObjExcel, objWorkbook)  			'opens the selected excel file'
+Call excel_open(discovery_template_file, True, True, ObjDISCExcel, objDISCWorkbook)  			'opens the selected excel file'
 
-	ObjDISCExcel.ActiveWorkbook.SaveAs daily_discovery_path
-	ObjDISCExcel.worksheets("CASE LIST").Activate
+ObjDISCExcel.ActiveWorkbook.SaveAs daily_discovery_path
+ObjDISCExcel.worksheets("CASE LIST").Activate
 
-	For Each objWorkSheet In objWorkbook.Worksheets									'looking through each of the worksheets to find the 'ALL CASES' worksheet
-	    If instr(objWorkSheet.Name, "ALL CASES") <> 0 Then
-			set objALLCASESWorkSheet = objWorkSheet									'setting the 'ALL CASES' to a worksheet variable because we need it a lot
-	        objALLCASESWorkSheet.Activate											'opening that worksheet
-	        Exit For
-	    End If
-	Next
+For Each objWorkSheet In objWorkbook.Worksheets									'looking through each of the worksheets to find the 'ALL CASES' worksheet
+    If instr(objWorkSheet.Name, "ALL CASES") <> 0 Then
+		set objALLCASESWorkSheet = objWorkSheet									'setting the 'ALL CASES' to a worksheet variable because we need it a lot
+        objALLCASESWorkSheet.Activate											'opening that worksheet
+        Exit For
+    End If
+Next
 
-	'Now we need to find the last row in the 'ALL CASES' sheet so we don't overwrite anything
-	total_excel_row = 1																'default to the first row
-	Do
-	    total_excel_row = total_excel_row + 1
-	    this_case_number = trim(ObjExcel.Cells(total_excel_row, 1).Value)
-	Loop Until this_case_number = ""												'if the case number is blank then the row is blank
+'Now we need to find the last row in the 'ALL CASES' sheet so we don't overwrite anything
+total_excel_row = 1																'default to the first row
+Do
+    total_excel_row = total_excel_row + 1
+    this_case_number = trim(ObjExcel.Cells(total_excel_row, 1).Value)
+Loop Until this_case_number = ""												'if the case number is blank then the row is blank
 
-	ObjExcel.Columns(deny_reason_col_const).ColumnWidth = 150						'setting some column widths
-	ObjExcel.Columns(deny_reason_col_const).WrapText = True
-	ObjExcel.Columns(expl_appr_delay_col_const).ColumnWidth = 150
-	ObjExcel.Columns(expl_appr_delay_col_const).WrapText = True
+ObjExcel.Columns(deny_reason_col_const).ColumnWidth = 150						'setting some column widths
+ObjExcel.Columns(deny_reason_col_const).WrapText = True
+ObjExcel.Columns(expl_appr_delay_col_const).ColumnWidth = 150
+ObjExcel.Columns(expl_appr_delay_col_const).WrapText = True
 
-	'Add a sheet to the Excel with the report date
-	sheet_friendly_date = replace(date, "/", "-")
-	sheet_name = sheet_friendly_date & " REPT"
-	ObjExcel.Worksheets.Add().Name = sheet_name
+'Add a sheet to the Excel with the report date
+sheet_friendly_date = replace(date, "/", "-")
+sheet_name = sheet_friendly_date & " REPT"
+ObjExcel.Worksheets.Add().Name = sheet_name
 
-	For Each objWorkSheet In objWorkbook.Worksheets									'setting the worksheet to a variable so we can use it again
-	    If objWorkSheet.Name = sheet_name Then
-			set objTODAYWorkSheet = objWorkSheet
-			objTODAYWorkSheet.Activate
-	        Exit For
-	    End If
-	Next
+For Each objWorkSheet In objWorkbook.Worksheets									'setting the worksheet to a variable so we can use it again
+    If objWorkSheet.Name = sheet_name Then
+		set objTODAYWorkSheet = objWorkSheet
+		objTODAYWorkSheet.Activate
+        Exit For
+    End If
+Next
 
-	'ADD HEADERS HERE - to the new sheet
-	ObjExcel.Cells(1, case_number_col_const).Value  				= "CASE NUMBER"
-	ObjExcel.Cells(1, worker_col_const).Value  						= "WORKER NAME"
-	ObjExcel.Cells(1, xnumber_col_const).Value  					= "CASE X NUMBER"
-	ObjExcel.Cells(1, date_of_appl_col_const).Value  				= "DATE OF APPLICATION"
-	ObjExcel.Cells(1, appt_notc_date_col_const).Value  				= "APPT NOTC SENT DATE"
-	ObjExcel.Cells(1, date_of_appt_col_const).Value  				= "DATE OF APPT"
-	ObjExcel.Cells(1, date_of_intve_col_const).Value  				= "DATE OF INTERVIEW"
-	ObjExcel.Cells(1, screen_status_col_const).Value  				= "EXPEDITED SCREENING STATUS"
-	ObjExcel.Cells(1, det_status_col_const).Value  					= "EXPEDITED DETERMINATION STATUS"
-	ObjExcel.Cells(1, det_income_col_const).Value 					= "INCOME"
-	ObjExcel.Cells(1, det_asset_col_const).Value 					= "ASSETS"
-	ObjExcel.Cells(1, det_shel_col_const).Value 					= "SHELTER"
-	ObjExcel.Cells(1, det_hest_col_const).Value 					= "UTILITIES"
-	ObjExcel.Cells(1, date_of_appr_col_const).Value  				= "DATE OF APPROVAL"
-	ObjExcel.Cells(1, date_of_deny_col_const).Value  				= "SNAP DENIAL DATE"
-	ObjExcel.Cells(1, deny_reason_col_const).Value 					= "SNAP DENIAL REASON"
-	ObjExcel.Cells(1, id_on_file_col_const).Value 					= "ID ON FILE"
-	ObjExcel.Cells(1, outstate_action_col_const).Value 				= "OUT STATE ACTION"
-	ObjExcel.Cells(1, outstate_state_col_const).Value 				= "OUT STATE STATE"
-	ObjExcel.Cells(1, outstate_end_date_rept_col_const).Value 		= "OUT STATE REPORTED END"
-	ObjExcel.Cells(1, outstate_openended_col_const).Value 			= "OUT STATE OPEN ENDED"
-	ObjExcel.Cells(1, outstate_end_date_verif_col_const).Value 		= "OUT STATE VERIFIED END"
-	ObjExcel.Cells(1, mn_elig_begin_col_const).Value 				= "MN ELIG BEGIN"
-	ObjExcel.Cells(1, prev_post_delay_col_const).Value 				= "PREV POSTPND CAUSE DELAY"
-	ObjExcel.Cells(1, prev_post_prev_date_of_appl_col_const).Value 	= "PREV POSTPND PREV DATE OF APPL"
-	ObjExcel.Cells(1, prev_post_list_col_const).Value 				= "PREV POSTPND LIST"
-	ObjExcel.Cells(1, prev_post_curr_verif_post_col_const).Value 	= "PREV POSTPND CURR VERIF POST"
-	ObjExcel.Cells(1, prev_post_reg_snap_app_col_const).Value 		= "PREV POSTPND REG SNAP APPR"
-	ObjExcel.Cells(1, prev_post_verifs_recvd_col_const).Value 		= "PREV POSTPND VERIFS RECVD"
-	ObjExcel.Cells(1, expl_appr_delay_col_const).Value 				= "EXPLAIN APPROVAL DELAYS "
-	ObjExcel.Cells(1, post_verifs_yn_col_const).Value 				= "POSTPONED VERIFICATIONS"
-	ObjExcel.Cells(1, post_verifs_list_col_const).Value 			= "WHAT ARE THE POSTPONED VERIFICATIONS"
-	ObjExcel.Cells(1, faci_delay_col_const).Value 					= "FACI CASUE DELAY"
-	ObjExcel.Cells(1, faci_deny_col_const).Value 					= "FACI CAUSE DENY"
-	ObjExcel.Cells(1, faci_name_col_const).Value 					= "FACI NAME"
-	ObjExcel.Cells(1, faci_snap_inelig_col_const).Value 			= "FACI INELIG SNAP"
-	ObjExcel.Cells(1, faci_entry_col_const).Value 					= "FACI ENTRY"
-	ObjExcel.Cells(1, faci_release_col_const).Value 				= "FACI RELEASE"
-	ObjExcel.Cells(1, faci_release_in_30_col_const).Value 			= "FACI RELEASE IN 30"
-	ObjExcel.Cells(1, script_run_date_col_const).Value 				= "DATE OF SCRIPT RUN"
-	ObjExcel.Cells(1, script_run_col_const).Value 					= "SCRIPT RUN"
+'ADD HEADERS HERE - to the new sheet
+ObjExcel.Cells(1, case_number_col_const).Value  				= "CASE NUMBER"
+ObjExcel.Cells(1, worker_col_const).Value  						= "WORKER NAME"
+ObjExcel.Cells(1, xnumber_col_const).Value  					= "CASE X NUMBER"
+ObjExcel.Cells(1, date_of_appl_col_const).Value  				= "DATE OF APPLICATION"
+ObjExcel.Cells(1, appt_notc_date_col_const).Value  				= "APPT NOTC SENT DATE"
+ObjExcel.Cells(1, date_of_appt_col_const).Value  				= "DATE OF APPT"
+ObjExcel.Cells(1, date_of_intve_col_const).Value  				= "DATE OF INTERVIEW"
+ObjExcel.Cells(1, screen_status_col_const).Value  				= "EXPEDITED SCREENING STATUS"
+ObjExcel.Cells(1, det_status_col_const).Value  					= "EXPEDITED DETERMINATION STATUS"
+ObjExcel.Cells(1, det_income_col_const).Value 					= "INCOME"
+ObjExcel.Cells(1, det_asset_col_const).Value 					= "ASSETS"
+ObjExcel.Cells(1, det_shel_col_const).Value 					= "SHELTER"
+ObjExcel.Cells(1, det_hest_col_const).Value 					= "UTILITIES"
+ObjExcel.Cells(1, date_of_appr_col_const).Value  				= "DATE OF APPROVAL"
+ObjExcel.Cells(1, date_of_deny_col_const).Value  				= "SNAP DENIAL DATE"
+ObjExcel.Cells(1, deny_reason_col_const).Value 					= "SNAP DENIAL REASON"
+ObjExcel.Cells(1, id_on_file_col_const).Value 					= "ID ON FILE"
+ObjExcel.Cells(1, outstate_action_col_const).Value 				= "OUT STATE ACTION"
+ObjExcel.Cells(1, outstate_state_col_const).Value 				= "OUT STATE STATE"
+ObjExcel.Cells(1, outstate_end_date_rept_col_const).Value 		= "OUT STATE REPORTED END"
+ObjExcel.Cells(1, outstate_openended_col_const).Value 			= "OUT STATE OPEN ENDED"
+ObjExcel.Cells(1, outstate_end_date_verif_col_const).Value 		= "OUT STATE VERIFIED END"
+ObjExcel.Cells(1, mn_elig_begin_col_const).Value 				= "MN ELIG BEGIN"
+ObjExcel.Cells(1, prev_post_delay_col_const).Value 				= "PREV POSTPND CAUSE DELAY"
+ObjExcel.Cells(1, prev_post_prev_date_of_appl_col_const).Value 	= "PREV POSTPND PREV DATE OF APPL"
+ObjExcel.Cells(1, prev_post_list_col_const).Value 				= "PREV POSTPND LIST"
+ObjExcel.Cells(1, prev_post_curr_verif_post_col_const).Value 	= "PREV POSTPND CURR VERIF POST"
+ObjExcel.Cells(1, prev_post_reg_snap_app_col_const).Value 		= "PREV POSTPND REG SNAP APPR"
+ObjExcel.Cells(1, prev_post_verifs_recvd_col_const).Value 		= "PREV POSTPND VERIFS RECVD"
+ObjExcel.Cells(1, expl_appr_delay_col_const).Value 				= "EXPLAIN APPROVAL DELAYS "
+ObjExcel.Cells(1, post_verifs_yn_col_const).Value 				= "POSTPONED VERIFICATIONS"
+ObjExcel.Cells(1, post_verifs_list_col_const).Value 			= "WHAT ARE THE POSTPONED VERIFICATIONS"
+ObjExcel.Cells(1, faci_delay_col_const).Value 					= "FACI CASUE DELAY"
+ObjExcel.Cells(1, faci_deny_col_const).Value 					= "FACI CAUSE DENY"
+ObjExcel.Cells(1, faci_name_col_const).Value 					= "FACI NAME"
+ObjExcel.Cells(1, faci_snap_inelig_col_const).Value 			= "FACI INELIG SNAP"
+ObjExcel.Cells(1, faci_entry_col_const).Value 					= "FACI ENTRY"
+ObjExcel.Cells(1, faci_release_col_const).Value 				= "FACI RELEASE"
+ObjExcel.Cells(1, faci_release_in_30_col_const).Value 			= "FACI RELEASE IN 30"
+ObjExcel.Cells(1, script_run_date_col_const).Value 				= "DATE OF SCRIPT RUN"
+ObjExcel.Cells(1, script_run_col_const).Value 					= "SCRIPT RUN"
 
-	ObjExcel.Rows(1).Font.Bold = True
-End If
+ObjExcel.Rows(1).Font.Bold = True
+
 
 excel_row = 2		'setting the first row
 work_excel_row = 2
@@ -292,57 +293,57 @@ For Each objFile in colFiles																'looping through each file
 
     exp_det_details = split(every_line_in_text_file, vbNewLine)					'creating an array of all of the information in the TXT files
 
-	If create_a_test_worklist = False Then objALLCASESWorkSheet.Activate												'go to the ALL CASES sheet
+	objALLCASESWorkSheet.Activate												'go to the ALL CASES sheet
     For Each text_line in exp_det_details										'read each line in the file
         If Instr(text_line, "^*^*^") <> 0 Then
             line_info = split(text_line, "^*^*^")								'creating a small array for each line. 0 has the header and 1 has the information
             line_info(0) = trim(line_info(0))
 			'here we add the information from TXT to Excel
-			If create_a_test_worklist = False Then
-	            If line_info(0) = "CASE NUMBER"                             Then ObjExcel.Cells(total_excel_row, case_number_col_const).Value  = line_info(1)
-	            If line_info(0) = "WORKER NAME"                             Then ObjExcel.Cells(total_excel_row, worker_col_const).Value  = line_info(1)
-	            If line_info(0) = "CASE X NUMBER"                           Then ObjExcel.Cells(total_excel_row, xnumber_col_const).Value  = line_info(1)
-	            If line_info(0) = "DATE OF APPLICATION"                     Then ObjExcel.Cells(total_excel_row, date_of_appl_col_const).Value  = line_info(1)
-				If line_info(0) = "APPT NOTC SENT DATE"                     Then ObjExcel.Cells(total_excel_row, appt_notc_date_col_const).Value  = line_info(1)
-				If line_info(0) = "APPT DATE"                     			Then ObjExcel.Cells(total_excel_row, date_of_appt_col_const).Value  = line_info(1)
-	            If line_info(0) = "DATE OF INTERVIEW"                       Then ObjExcel.Cells(total_excel_row, date_of_intve_col_const).Value  = line_info(1)
-	            If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjExcel.Cells(total_excel_row, screen_status_col_const).Value  = line_info(1)
-	            If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjExcel.Cells(total_excel_row, det_status_col_const).Value  = line_info(1)
-				If line_info(0) = "DET INCOME" 								Then ObjExcel.Cells(total_excel_row, det_income_col_const).Value  = line_info(1)
-				If line_info(0) = "DET ASSETS" 								Then ObjExcel.Cells(total_excel_row, det_asset_col_const).Value  = line_info(1)
-				If line_info(0) = "DET SHEL" 								Then ObjExcel.Cells(total_excel_row, det_shel_col_const).Value  = line_info(1)
-				If line_info(0) = "DET HEST" 								Then ObjExcel.Cells(total_excel_row, det_hest_col_const).Value  = line_info(1)
-	            If line_info(0) = "DATE OF APPROVAL"                        Then ObjExcel.Cells(total_excel_row, date_of_appr_col_const).Value  = line_info(1)
-	            If line_info(0) = "SNAP DENIAL DATE"                        Then ObjExcel.Cells(total_excel_row, date_of_deny_col_const).Value  = line_info(1)
-	            If line_info(0) = "SNAP DENIAL REASON"                      Then ObjExcel.Cells(total_excel_row, deny_reason_col_const).Value = line_info(1)
-	            If line_info(0) = "ID ON FILE"                              Then ObjExcel.Cells(total_excel_row, id_on_file_col_const).Value = line_info(1)
-				If line_info(0) = "OUTSTATE ACTION" 						Then ObjExcel.Cells(total_excel_row, outstate_action_col_const).Value  = line_info(1)
-				If line_info(0) = "OUTSTATE STATE" 							Then ObjExcel.Cells(total_excel_row, outstate_state_col_const).Value  = line_info(1)
-	            If line_info(0) = "END DATE OF SNAP IN ANOTHER STATE"       Then ObjExcel.Cells(total_excel_row, outstate_end_date_rept_col_const).Value = line_info(1)
-				If line_info(0) = "OUTSTATE REPORTED END DATE"				Then ObjExcel.Cells(total_excel_row, outstate_end_date_rept_col_const).Value = line_info(1)
-				If line_info(0) = "OUTSTATE OPENENDED" 						Then ObjExcel.Cells(total_excel_row, outstate_openended_col_const).Value  = line_info(1)
-				If line_info(0) = "OUTSTATE VERIFIED END DATE" 				Then ObjExcel.Cells(total_excel_row, outstate_end_date_verif_col_const).Value  = line_info(1)
-				If line_info(0) = "MN ELIG BEGIN DATE" 						Then ObjExcel.Cells(total_excel_row, mn_elig_begin_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST DELAY APP" 					Then ObjExcel.Cells(total_excel_row, prev_post_delay_col_const).Value = line_info(1)
-				If line_info(0) = "EXPEDITED APPROVE PREVIOUSLY POSTPONED"  Then ObjExcel.Cells(total_excel_row, prev_post_delay_col_const).Value = line_info(1)
-				If line_info(0) = "PREV POST PREV DATE OF APP" 				Then ObjExcel.Cells(total_excel_row, prev_post_prev_date_of_appl_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST LIST" 							Then ObjExcel.Cells(total_excel_row, prev_post_list_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST CURR VERIF POST" 				Then ObjExcel.Cells(total_excel_row, prev_post_curr_verif_post_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST ONGOING SNAP APP" 				Then ObjExcel.Cells(total_excel_row, prev_post_reg_snap_app_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST VERIFS RECVD" 					Then ObjExcel.Cells(total_excel_row, prev_post_verifs_recvd_col_const).Value  = line_info(1)
-	            If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjExcel.Cells(total_excel_row, expl_appr_delay_col_const).Value = line_info(1)
-	            If line_info(0) = "POSTPONED VERIFICATIONS"                 Then ObjExcel.Cells(total_excel_row, post_verifs_yn_col_const).Value = line_info(1)
-	            If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS"    Then ObjExcel.Cells(total_excel_row, post_verifs_list_col_const).Value = line_info(1)
-				If line_info(0) = "FACI DELAY ACTION" 						Then ObjExcel.Cells(total_excel_row, faci_delay_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI DENY" 								Then ObjExcel.Cells(total_excel_row, faci_deny_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI NAME" 								Then ObjExcel.Cells(total_excel_row, faci_name_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI INELIG SNAP" 						Then ObjExcel.Cells(total_excel_row, faci_snap_inelig_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI ENTRY DATE" 						Then ObjExcel.Cells(total_excel_row, faci_entry_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI RELEASE DATE" 						Then ObjExcel.Cells(total_excel_row, faci_release_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI RELEASE IN 30 DAYS" 				Then ObjExcel.Cells(total_excel_row, faci_release_in_30_col_const).Value  = line_info(1)
-				If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(total_excel_row, script_run_date_col_const).Value = line_info(1)
-	            If line_info(0) = "SCRIPT RUN"                      		Then ObjExcel.Cells(total_excel_row, script_run_col_const).Value = line_info(1)
-			End If
+
+            If line_info(0) = "CASE NUMBER"                             Then ObjExcel.Cells(total_excel_row, case_number_col_const).Value  = line_info(1)
+            If line_info(0) = "WORKER NAME"                             Then ObjExcel.Cells(total_excel_row, worker_col_const).Value  = line_info(1)
+            If line_info(0) = "CASE X NUMBER"                           Then ObjExcel.Cells(total_excel_row, xnumber_col_const).Value  = line_info(1)
+            If line_info(0) = "DATE OF APPLICATION"                     Then ObjExcel.Cells(total_excel_row, date_of_appl_col_const).Value  = line_info(1)
+			If line_info(0) = "APPT NOTC SENT DATE"                     Then ObjExcel.Cells(total_excel_row, appt_notc_date_col_const).Value  = line_info(1)
+			If line_info(0) = "APPT DATE"                     			Then ObjExcel.Cells(total_excel_row, date_of_appt_col_const).Value  = line_info(1)
+            If line_info(0) = "DATE OF INTERVIEW"                       Then ObjExcel.Cells(total_excel_row, date_of_intve_col_const).Value  = line_info(1)
+            If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjExcel.Cells(total_excel_row, screen_status_col_const).Value  = line_info(1)
+            If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjExcel.Cells(total_excel_row, det_status_col_const).Value  = line_info(1)
+			If line_info(0) = "DET INCOME" 								Then ObjExcel.Cells(total_excel_row, det_income_col_const).Value  = line_info(1)
+			If line_info(0) = "DET ASSETS" 								Then ObjExcel.Cells(total_excel_row, det_asset_col_const).Value  = line_info(1)
+			If line_info(0) = "DET SHEL" 								Then ObjExcel.Cells(total_excel_row, det_shel_col_const).Value  = line_info(1)
+			If line_info(0) = "DET HEST" 								Then ObjExcel.Cells(total_excel_row, det_hest_col_const).Value  = line_info(1)
+            If line_info(0) = "DATE OF APPROVAL"                        Then ObjExcel.Cells(total_excel_row, date_of_appr_col_const).Value  = line_info(1)
+            If line_info(0) = "SNAP DENIAL DATE"                        Then ObjExcel.Cells(total_excel_row, date_of_deny_col_const).Value  = line_info(1)
+            If line_info(0) = "SNAP DENIAL REASON"                      Then ObjExcel.Cells(total_excel_row, deny_reason_col_const).Value = line_info(1)
+            If line_info(0) = "ID ON FILE"                              Then ObjExcel.Cells(total_excel_row, id_on_file_col_const).Value = line_info(1)
+			If line_info(0) = "OUTSTATE ACTION" 						Then ObjExcel.Cells(total_excel_row, outstate_action_col_const).Value  = line_info(1)
+			If line_info(0) = "OUTSTATE STATE" 							Then ObjExcel.Cells(total_excel_row, outstate_state_col_const).Value  = line_info(1)
+            If line_info(0) = "END DATE OF SNAP IN ANOTHER STATE"       Then ObjExcel.Cells(total_excel_row, outstate_end_date_rept_col_const).Value = line_info(1)
+			If line_info(0) = "OUTSTATE REPORTED END DATE"				Then ObjExcel.Cells(total_excel_row, outstate_end_date_rept_col_const).Value = line_info(1)
+			If line_info(0) = "OUTSTATE OPENENDED" 						Then ObjExcel.Cells(total_excel_row, outstate_openended_col_const).Value  = line_info(1)
+			If line_info(0) = "OUTSTATE VERIFIED END DATE" 				Then ObjExcel.Cells(total_excel_row, outstate_end_date_verif_col_const).Value  = line_info(1)
+			If line_info(0) = "MN ELIG BEGIN DATE" 						Then ObjExcel.Cells(total_excel_row, mn_elig_begin_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST DELAY APP" 					Then ObjExcel.Cells(total_excel_row, prev_post_delay_col_const).Value = line_info(1)
+			If line_info(0) = "EXPEDITED APPROVE PREVIOUSLY POSTPONED"  Then ObjExcel.Cells(total_excel_row, prev_post_delay_col_const).Value = line_info(1)
+			If line_info(0) = "PREV POST PREV DATE OF APP" 				Then ObjExcel.Cells(total_excel_row, prev_post_prev_date_of_appl_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST LIST" 							Then ObjExcel.Cells(total_excel_row, prev_post_list_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST CURR VERIF POST" 				Then ObjExcel.Cells(total_excel_row, prev_post_curr_verif_post_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST ONGOING SNAP APP" 				Then ObjExcel.Cells(total_excel_row, prev_post_reg_snap_app_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST VERIFS RECVD" 					Then ObjExcel.Cells(total_excel_row, prev_post_verifs_recvd_col_const).Value  = line_info(1)
+            If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjExcel.Cells(total_excel_row, expl_appr_delay_col_const).Value = line_info(1)
+            If line_info(0) = "POSTPONED VERIFICATIONS"                 Then ObjExcel.Cells(total_excel_row, post_verifs_yn_col_const).Value = line_info(1)
+            If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS"    Then ObjExcel.Cells(total_excel_row, post_verifs_list_col_const).Value = line_info(1)
+			If line_info(0) = "FACI DELAY ACTION" 						Then ObjExcel.Cells(total_excel_row, faci_delay_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI DENY" 								Then ObjExcel.Cells(total_excel_row, faci_deny_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI NAME" 								Then ObjExcel.Cells(total_excel_row, faci_name_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI INELIG SNAP" 						Then ObjExcel.Cells(total_excel_row, faci_snap_inelig_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI ENTRY DATE" 						Then ObjExcel.Cells(total_excel_row, faci_entry_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI RELEASE DATE" 						Then ObjExcel.Cells(total_excel_row, faci_release_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI RELEASE IN 30 DAYS" 				Then ObjExcel.Cells(total_excel_row, faci_release_in_30_col_const).Value  = line_info(1)
+			If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(total_excel_row, script_run_date_col_const).Value = line_info(1)
+            If line_info(0) = "SCRIPT RUN"                      		Then ObjExcel.Cells(total_excel_row, script_run_col_const).Value = line_info(1)
+
 			If line_info(0) = "EXPEDITED DETERMINATION STATUS" Then
 				If UCASE(line_info(1))&"" = "TRUE" Then exp_det = True
 			End If
@@ -372,7 +373,7 @@ For Each objFile in colFiles																'looping through each file
 		End If
 	End If
 
-	If create_a_test_worklist = False Then objTODAYWorkSheet.Activate													'opening the daily sheet
+	objTODAYWorkSheet.Activate													'opening the daily sheet
 	appl_date = ""
 	notc_date = ""
 	intvw_date = ""
@@ -381,83 +382,82 @@ For Each objFile in colFiles																'looping through each file
 		If Instr(text_line, "^*^*^") <> 0 Then
 			line_info = split(text_line, "^*^*^")								'creating a small array for each line. 0 has the header and 1 has the information
 			line_info(0) = trim(line_info(0))
-			If create_a_test_worklist = False Then
-				'here we add the information from TXT to Excel
-				If line_info(0) = "CASE NUMBER"                             Then ObjExcel.Cells(excel_row, case_number_col_const).Value  = line_info(1)
-				If line_info(0) = "WORKER NAME"                             Then ObjExcel.Cells(excel_row, worker_col_const).Value  = line_info(1)
-				If line_info(0) = "CASE X NUMBER"                           Then ObjExcel.Cells(excel_row, xnumber_col_const).Value  = line_info(1)
-				If line_info(0) = "DATE OF APPLICATION"                     Then ObjExcel.Cells(excel_row, date_of_appl_col_const).Value  = line_info(1)
-				If line_info(0) = "APPT NOTC SENT DATE"                     Then ObjExcel.Cells(excel_row, appt_notc_date_col_const).Value  = line_info(1)
-				If line_info(0) = "APPT DATE"                     			Then ObjExcel.Cells(excel_row, date_of_appt_col_const).Value  = line_info(1)
-				If line_info(0) = "DATE OF INTERVIEW"                       Then ObjExcel.Cells(excel_row, date_of_intve_col_const).Value  = line_info(1)
-				If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjExcel.Cells(excel_row, screen_status_col_const).Value  = line_info(1)
-				If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjExcel.Cells(excel_row, det_status_col_const).Value  = line_info(1)
-				If line_info(0) = "DET INCOME" 								Then ObjExcel.Cells(excel_row, det_income_col_const).Value  = line_info(1)
-				If line_info(0) = "DET ASSETS" 								Then ObjExcel.Cells(excel_row, det_asset_col_const).Value  = line_info(1)
-				If line_info(0) = "DET SHEL" 								Then ObjExcel.Cells(excel_row, det_shel_col_const).Value  = line_info(1)
-				If line_info(0) = "DET HEST" 								Then ObjExcel.Cells(excel_row, det_hest_col_const).Value  = line_info(1)
-				If line_info(0) = "DATE OF APPROVAL"                        Then ObjExcel.Cells(excel_row, date_of_appr_col_const).Value  = line_info(1)
-				If line_info(0) = "SNAP DENIAL DATE"                        Then ObjExcel.Cells(excel_row, date_of_deny_col_const).Value  = line_info(1)
-				If line_info(0) = "SNAP DENIAL REASON"                      Then ObjExcel.Cells(excel_row, deny_reason_col_const).Value = line_info(1)
-				If line_info(0) = "ID ON FILE"                              Then ObjExcel.Cells(excel_row, id_on_file_col_const).Value = line_info(1)
-				If line_info(0) = "OUTSTATE ACTION" 						Then ObjExcel.Cells(excel_row, outstate_action_col_const).Value  = line_info(1)
-				If line_info(0) = "OUTSTATE STATE" 							Then ObjExcel.Cells(excel_row, outstate_state_col_const).Value  = line_info(1)
-				If line_info(0) = "END DATE OF SNAP IN ANOTHER STATE"       Then ObjExcel.Cells(excel_row, outstate_end_date_rept_col_const).Value = line_info(1)
-				If line_info(0) = "OUTSTATE REPORTED END DATE"				Then ObjExcel.Cells(excel_row, outstate_end_date_rept_col_const).Value = line_info(1)
-				If line_info(0) = "OUTSTATE OPENENDED" 						Then ObjExcel.Cells(excel_row, outstate_openended_col_const).Value  = line_info(1)
-				If line_info(0) = "OUTSTATE VERIFIED END DATE" 				Then ObjExcel.Cells(excel_row, outstate_end_date_verif_col_const).Value  = line_info(1)
-				If line_info(0) = "MN ELIG BEGIN DATE" 						Then ObjExcel.Cells(excel_row, mn_elig_begin_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST DELAY APP" 					Then ObjExcel.Cells(excel_row, prev_post_delay_col_const).Value = line_info(1)
-				If line_info(0) = "EXPEDITED APPROVE PREVIOUSLY POSTPONED"  Then ObjExcel.Cells(excel_row, prev_post_delay_col_const).Value = line_info(1)
-				If line_info(0) = "PREV POST PREV DATE OF APP" 				Then ObjExcel.Cells(excel_row, prev_post_prev_date_of_appl_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST LIST" 							Then ObjExcel.Cells(excel_row, prev_post_list_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST CURR VERIF POST" 				Then ObjExcel.Cells(excel_row, prev_post_curr_verif_post_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST ONGOING SNAP APP" 				Then ObjExcel.Cells(excel_row, prev_post_reg_snap_app_col_const).Value  = line_info(1)
-				If line_info(0) = "PREV POST VERIFS RECVD" 					Then ObjExcel.Cells(excel_row, prev_post_verifs_recvd_col_const).Value  = line_info(1)
-				If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjExcel.Cells(excel_row, expl_appr_delay_col_const).Value = line_info(1)
-				If line_info(0) = "POSTPONED VERIFICATIONS"                 Then ObjExcel.Cells(excel_row, post_verifs_yn_col_const).Value = line_info(1)
-				If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS"    Then ObjExcel.Cells(excel_row, post_verifs_list_col_const).Value = line_info(1)
-				If line_info(0) = "FACI DELAY ACTION" 						Then ObjExcel.Cells(excel_row, faci_delay_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI DENY" 								Then ObjExcel.Cells(excel_row, faci_deny_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI NAME" 								Then ObjExcel.Cells(excel_row, faci_name_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI INELIG SNAP" 						Then ObjExcel.Cells(excel_row, faci_snap_inelig_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI ENTRY DATE" 						Then ObjExcel.Cells(excel_row, faci_entry_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI RELEASE DATE" 						Then ObjExcel.Cells(excel_row, faci_release_col_const).Value  = line_info(1)
-				If line_info(0) = "FACI RELEASE IN 30 DAYS" 				Then ObjExcel.Cells(excel_row, faci_release_in_30_col_const).Value  = line_info(1)
-				If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(excel_row, script_run_date_col_const).Value = line_info(1)
-				If line_info(0) = "SCRIPT RUN"                      		Then ObjExcel.Cells(excel_row, script_run_col_const).Value = line_info(1)
+
+			'here we add the information from TXT to Excel
+			If line_info(0) = "CASE NUMBER"                             Then ObjExcel.Cells(excel_row, case_number_col_const).Value  = line_info(1)
+			If line_info(0) = "WORKER NAME"                             Then ObjExcel.Cells(excel_row, worker_col_const).Value  = line_info(1)
+			If line_info(0) = "CASE X NUMBER"                           Then ObjExcel.Cells(excel_row, xnumber_col_const).Value  = line_info(1)
+			If line_info(0) = "DATE OF APPLICATION"                     Then ObjExcel.Cells(excel_row, date_of_appl_col_const).Value  = line_info(1)
+			If line_info(0) = "APPT NOTC SENT DATE"                     Then ObjExcel.Cells(excel_row, appt_notc_date_col_const).Value  = line_info(1)
+			If line_info(0) = "APPT DATE"                     			Then ObjExcel.Cells(excel_row, date_of_appt_col_const).Value  = line_info(1)
+			If line_info(0) = "DATE OF INTERVIEW"                       Then ObjExcel.Cells(excel_row, date_of_intve_col_const).Value  = line_info(1)
+			If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjExcel.Cells(excel_row, screen_status_col_const).Value  = line_info(1)
+			If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjExcel.Cells(excel_row, det_status_col_const).Value  = line_info(1)
+			If line_info(0) = "DET INCOME" 								Then ObjExcel.Cells(excel_row, det_income_col_const).Value  = line_info(1)
+			If line_info(0) = "DET ASSETS" 								Then ObjExcel.Cells(excel_row, det_asset_col_const).Value  = line_info(1)
+			If line_info(0) = "DET SHEL" 								Then ObjExcel.Cells(excel_row, det_shel_col_const).Value  = line_info(1)
+			If line_info(0) = "DET HEST" 								Then ObjExcel.Cells(excel_row, det_hest_col_const).Value  = line_info(1)
+			If line_info(0) = "DATE OF APPROVAL"                        Then ObjExcel.Cells(excel_row, date_of_appr_col_const).Value  = line_info(1)
+			If line_info(0) = "SNAP DENIAL DATE"                        Then ObjExcel.Cells(excel_row, date_of_deny_col_const).Value  = line_info(1)
+			If line_info(0) = "SNAP DENIAL REASON"                      Then ObjExcel.Cells(excel_row, deny_reason_col_const).Value = line_info(1)
+			If line_info(0) = "ID ON FILE"                              Then ObjExcel.Cells(excel_row, id_on_file_col_const).Value = line_info(1)
+			If line_info(0) = "OUTSTATE ACTION" 						Then ObjExcel.Cells(excel_row, outstate_action_col_const).Value  = line_info(1)
+			If line_info(0) = "OUTSTATE STATE" 							Then ObjExcel.Cells(excel_row, outstate_state_col_const).Value  = line_info(1)
+			If line_info(0) = "END DATE OF SNAP IN ANOTHER STATE"       Then ObjExcel.Cells(excel_row, outstate_end_date_rept_col_const).Value = line_info(1)
+			If line_info(0) = "OUTSTATE REPORTED END DATE"				Then ObjExcel.Cells(excel_row, outstate_end_date_rept_col_const).Value = line_info(1)
+			If line_info(0) = "OUTSTATE OPENENDED" 						Then ObjExcel.Cells(excel_row, outstate_openended_col_const).Value  = line_info(1)
+			If line_info(0) = "OUTSTATE VERIFIED END DATE" 				Then ObjExcel.Cells(excel_row, outstate_end_date_verif_col_const).Value  = line_info(1)
+			If line_info(0) = "MN ELIG BEGIN DATE" 						Then ObjExcel.Cells(excel_row, mn_elig_begin_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST DELAY APP" 					Then ObjExcel.Cells(excel_row, prev_post_delay_col_const).Value = line_info(1)
+			If line_info(0) = "EXPEDITED APPROVE PREVIOUSLY POSTPONED"  Then ObjExcel.Cells(excel_row, prev_post_delay_col_const).Value = line_info(1)
+			If line_info(0) = "PREV POST PREV DATE OF APP" 				Then ObjExcel.Cells(excel_row, prev_post_prev_date_of_appl_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST LIST" 							Then ObjExcel.Cells(excel_row, prev_post_list_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST CURR VERIF POST" 				Then ObjExcel.Cells(excel_row, prev_post_curr_verif_post_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST ONGOING SNAP APP" 				Then ObjExcel.Cells(excel_row, prev_post_reg_snap_app_col_const).Value  = line_info(1)
+			If line_info(0) = "PREV POST VERIFS RECVD" 					Then ObjExcel.Cells(excel_row, prev_post_verifs_recvd_col_const).Value  = line_info(1)
+			If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjExcel.Cells(excel_row, expl_appr_delay_col_const).Value = line_info(1)
+			If line_info(0) = "POSTPONED VERIFICATIONS"                 Then ObjExcel.Cells(excel_row, post_verifs_yn_col_const).Value = line_info(1)
+			If line_info(0) = "WHAT ARE THE POSTPONED VERIFICATIONS"    Then ObjExcel.Cells(excel_row, post_verifs_list_col_const).Value = line_info(1)
+			If line_info(0) = "FACI DELAY ACTION" 						Then ObjExcel.Cells(excel_row, faci_delay_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI DENY" 								Then ObjExcel.Cells(excel_row, faci_deny_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI NAME" 								Then ObjExcel.Cells(excel_row, faci_name_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI INELIG SNAP" 						Then ObjExcel.Cells(excel_row, faci_snap_inelig_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI ENTRY DATE" 						Then ObjExcel.Cells(excel_row, faci_entry_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI RELEASE DATE" 						Then ObjExcel.Cells(excel_row, faci_release_col_const).Value  = line_info(1)
+			If line_info(0) = "FACI RELEASE IN 30 DAYS" 				Then ObjExcel.Cells(excel_row, faci_release_in_30_col_const).Value  = line_info(1)
+			If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(excel_row, script_run_date_col_const).Value = line_info(1)
+			If line_info(0) = "SCRIPT RUN"                      		Then ObjExcel.Cells(excel_row, script_run_col_const).Value = line_info(1)
 
 
-				If line_info(0) = "CASE NUMBER"                             Then ObjDISCExcel.Cells(excel_row, disc_case_nbr_col_const).Value  = line_info(1)
-				If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjDISCExcel.Cells(excel_row, disc_exp_det_col_const).Value  = line_info(1)
-				If line_info(0) = "DATE OF APPLICATION" Then
-					ObjDISCExcel.Cells(excel_row, disc_appl_date_col_const).Value  = line_info(1)
-					appl_date = line_info(1)
-				End If
-
-				If line_info(0) = "APPT NOTC SENT DATE" Then
-					ObjDISCExcel.Cells(excel_row, disc_notc_date_col_const).Value  = line_info(1)
-					notc_date = line_info(1)
-				End If
-
-				If line_info(0) = "DATE OF INTERVIEW" Then
-					ObjDISCExcel.Cells(excel_row, disc_intv_date_col_const).Value  = line_info(1)
-					intvw_date = line_info(1)
-				End If
-				If line_info(0) = "DATE OF APPROVAL" Then
-					ObjDISCExcel.Cells(excel_row, disc_app_date_col_const).Value  = line_info(1)
-					app_date = line_info(1)
-				End If
-				If line_info(0) = "ID ON FILE"                              Then ObjDISCExcel.Cells(excel_row, disc_id_col_const).Value = line_info(1)
-				If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjDISCExcel.Cells(excel_row, disc_app_delays_col_const).Value = line_info(1)
-				If line_info(0) = "DET INCOME" 								Then ObjDISCExcel.Cells(excel_row, disc_income_col_const).Value  = line_info(1)
-				If line_info(0) = "DET ASSETS" 								Then ObjDISCExcel.Cells(excel_row, disc_asset_col_const).Value  = line_info(1)
-				If line_info(0) = "DET SHEL" 								Then ObjDISCExcel.Cells(excel_row, disc_shelter_col_const).Value  = line_info(1)
-				If line_info(0) = "DET HEST" 								Then ObjDISCExcel.Cells(excel_row, disc_utilities_col_const).Value  = line_info(1)
-				If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjDISCExcel.Cells(excel_row, disc_screening_col_const).Value  = line_info(1)
-				If line_info(0) = "WORKER NAME"                             Then ObjDISCExcel.Cells(excel_row, disc_worker_col_const).Value  = line_info(1)
-				If line_info(0) = "SCRIPT RUN"                      		Then ObjDISCExcel.Cells(excel_row, disc_script_run_col_const).Value = line_info(1)
+			If line_info(0) = "CASE NUMBER"                             Then ObjDISCExcel.Cells(excel_row, disc_case_nbr_col_const).Value  = line_info(1)
+			If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjDISCExcel.Cells(excel_row, disc_exp_det_col_const).Value  = line_info(1)
+			If line_info(0) = "DATE OF APPLICATION" Then
+				ObjDISCExcel.Cells(excel_row, disc_appl_date_col_const).Value  = line_info(1)
+				appl_date = line_info(1)
 			End If
+
+			If line_info(0) = "APPT NOTC SENT DATE" Then
+				ObjDISCExcel.Cells(excel_row, disc_notc_date_col_const).Value  = line_info(1)
+				notc_date = line_info(1)
+			End If
+
+			If line_info(0) = "DATE OF INTERVIEW" Then
+				ObjDISCExcel.Cells(excel_row, disc_intv_date_col_const).Value  = line_info(1)
+				intvw_date = line_info(1)
+			End If
+			If line_info(0) = "DATE OF APPROVAL" Then
+				ObjDISCExcel.Cells(excel_row, disc_app_date_col_const).Value  = line_info(1)
+				app_date = line_info(1)
+			End If
+			If line_info(0) = "ID ON FILE"                              Then ObjDISCExcel.Cells(excel_row, disc_id_col_const).Value = line_info(1)
+			If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjDISCExcel.Cells(excel_row, disc_app_delays_col_const).Value = line_info(1)
+			If line_info(0) = "DET INCOME" 								Then ObjDISCExcel.Cells(excel_row, disc_income_col_const).Value  = line_info(1)
+			If line_info(0) = "DET ASSETS" 								Then ObjDISCExcel.Cells(excel_row, disc_asset_col_const).Value  = line_info(1)
+			If line_info(0) = "DET SHEL" 								Then ObjDISCExcel.Cells(excel_row, disc_shelter_col_const).Value  = line_info(1)
+			If line_info(0) = "DET HEST" 								Then ObjDISCExcel.Cells(excel_row, disc_utilities_col_const).Value  = line_info(1)
+			If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjDISCExcel.Cells(excel_row, disc_screening_col_const).Value  = line_info(1)
+			If line_info(0) = "WORKER NAME"                             Then ObjDISCExcel.Cells(excel_row, disc_worker_col_const).Value  = line_info(1)
+			If line_info(0) = "SCRIPT RUN"                      		Then ObjDISCExcel.Cells(excel_row, disc_script_run_col_const).Value = line_info(1)
 
 			If save_to_worklist = True Then
 				If line_info(0) = "CASE NUMBER" 					Then ObjWORKExcel.Cells(work_excel_row, work_case_nbr_col_const).Value = line_info(1)
@@ -478,59 +478,59 @@ For Each objFile in colFiles																'looping through each file
 		End If
 	Next
 
-	If create_a_test_worklist = False Then
-		If IsDate(appl_date) = True Then appl_date = DateAdd("d", 0, appl_date)
-		If IsDate(notc_date) = True Then notc_date = DateAdd("d", 0, notc_date)
-		If IsDate(intvw_date) = True Then intvw_date = DateAdd("d", 0, intvw_date)
-		If IsDate(app_date) = True Then app_date = DateAdd("d", 0, app_date)
+	' If create_a_test_worklist = False Then
+	If IsDate(appl_date) = True Then appl_date = DateAdd("d", 0, appl_date)
+	If IsDate(notc_date) = True Then notc_date = DateAdd("d", 0, notc_date)
+	If IsDate(intvw_date) = True Then intvw_date = DateAdd("d", 0, intvw_date)
+	If IsDate(app_date) = True Then app_date = DateAdd("d", 0, app_date)
 
-		If IsDate(appl_date) = True AND IsDate(notc_date) = True Then
-			count_days = 0
-			Do While DateDiff("d", appl_date, notc_date) <> 0
-				appl_date = DateAdd("d", 1, appl_date)
-				call change_date_to_soonest_working_day(appl_date, "FORWARD")
-				If DateDiff("d", appl_date, notc_date) < 0 Then Exit Do
-				count_days = count_days + 1
-			Loop
-			ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = count_days
-		Else
-			ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = ""
-		End If
-
-		If IsDate(notc_date) = True AND IsDate(intvw_date) = True Then
-			count_days = 0
-			If notc_date <= intvw_date Then
-				Do While DateDiff("d", notc_date, intvw_date) <> 0
-					notc_date = DateAdd("d", 1, notc_date)
-					call change_date_to_soonest_working_day(notc_date, "FORWARD")
-					If DateDiff("d", notc_date, intvw_date) < 0 Then Exit Do
-					count_days = count_days + 1
-				Loop
-			End If
-			ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = count_days
-		Else
-			ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = ""
-		End If
-
-		If IsDate(appl_date) = True AND IsDate(app_date) = True Then
-			count_days = 0
-			Do While DateDiff("d", appl_date, app_date) <> 0
-				appl_date = DateAdd("d", 1, appl_date)
-				call change_date_to_soonest_working_day(appl_date, "FORWARD")
-				If DateDiff("d", appl_date, app_date) < 0 Then Exit Do
-				count_days = count_days + 1
-			Loop
-			ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = count_days
-		Else
-			ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = ""
-		End If
+	If IsDate(appl_date) = True AND IsDate(notc_date) = True Then
+		count_days = 0
+		Do While DateDiff("d", appl_date, notc_date) <> 0
+			appl_date = DateAdd("d", 1, appl_date)
+			call change_date_to_soonest_working_day(appl_date, "FORWARD")
+			If DateDiff("d", appl_date, notc_date) < 0 Then Exit Do
+			count_days = count_days + 1
+		Loop
+		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = count_days
+	Else
+		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = ""
 	End If
+
+	If IsDate(notc_date) = True AND IsDate(intvw_date) = True Then
+		count_days = 0
+		If notc_date <= intvw_date Then
+			Do While DateDiff("d", notc_date, intvw_date) <> 0
+				notc_date = DateAdd("d", 1, notc_date)
+				call change_date_to_soonest_working_day(notc_date, "FORWARD")
+				If DateDiff("d", notc_date, intvw_date) < 0 Then Exit Do
+				count_days = count_days + 1
+			Loop
+		End If
+		ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = count_days
+	Else
+		ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = ""
+	End If
+
+	If IsDate(appl_date) = True AND IsDate(app_date) = True Then
+		count_days = 0
+		Do While DateDiff("d", appl_date, app_date) <> 0
+			appl_date = DateAdd("d", 1, appl_date)
+			call change_date_to_soonest_working_day(appl_date, "FORWARD")
+			If DateDiff("d", appl_date, app_date) < 0 Then Exit Do
+			count_days = count_days + 1
+		Loop
+		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = count_days
+	Else
+		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = ""
+	End If
+	' End If
 	excel_row = excel_row + 1													'advance to the next row
 
 	STATS_counter = STATS_counter + 1
 	If save_to_worklist = True Then work_excel_row = work_excel_row + 1
 	objTextStream.Close						'we are done with this file, so we must close the access
-    If create_a_test_worklist = False Then objFSO.DeleteFile(this_file_path)		'deleting the TXT file because hgave the information
+    objFSO.DeleteFile(this_file_path)		'deleting the TXT file because hgave the information
 Next
 
 If create_a_test_worklist = True then
@@ -544,53 +544,52 @@ If create_a_test_worklist = True then
 	End If
 End If
 
-If create_a_test_worklist = False Then
-	'formatting the worksheet made for the day
-	objTODAYWorkSheet.Activate
-	Const xlSrcRange = 1
-	Const xlYes = 1
-	xlVAlignTop = -4160
-	xlHAlignLeft = -4131
-	For col = 1 to 17
-	    ObjExcel.columns(col).AutoFit()
-	    ObjExcel.columns(col).VerticalAlignment = xlVAlignTop
-	    ObjExcel.columns(col).HorizontalAlignment = xlHAlignLeft
-	Next
+'formatting the worksheet made for the day
+objTODAYWorkSheet.Activate
+Const xlSrcRange = 1
+Const xlYes = 1
+xlVAlignTop = -4160
+xlHAlignLeft = -4131
+For col = 1 to 17
+    ObjExcel.columns(col).AutoFit()
+    ObjExcel.columns(col).VerticalAlignment = xlVAlignTop
+    ObjExcel.columns(col).HorizontalAlignment = xlHAlignLeft
+Next
 
-	'setting some column widths on the day sheet
-	ObjExcel.Columns(deny_reason_col_const).ColumnWidth = 150
-	ObjExcel.Columns(deny_reason_col_const).WrapText = True
-	ObjExcel.Columns(expl_appr_delay_col_const).ColumnWidth = 150
-	ObjExcel.Columns(expl_appr_delay_col_const).WrapText = True
+'setting some column widths on the day sheet
+ObjExcel.Columns(deny_reason_col_const).ColumnWidth = 150
+ObjExcel.Columns(deny_reason_col_const).WrapText = True
+ObjExcel.Columns(expl_appr_delay_col_const).ColumnWidth = 150
+ObjExcel.Columns(expl_appr_delay_col_const).WrapText = True
 
-	'here we add the table format to the sheet from today
-	tableRange = "A1:AN" & excel_row-1
-	table_friendly_date = replace(date, "/", "")
-	table_friendly_date = trim(table_friendly_date)
-	table_name = table_friendly_date & "TABLE"
-	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, tableRange, xlYes).Name = table_name
-	' ObjExcel.ActiveSheet.ListObjects(table_name).TableStyle = "TableStyleDark2"
+'here we add the table format to the sheet from today
+tableRange = "A1:AN" & excel_row-1
+table_friendly_date = replace(date, "/", "")
+table_friendly_date = trim(table_friendly_date)
+table_name = table_friendly_date & "TABLE"
+ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, tableRange, xlYes).Name = table_name
+' ObjExcel.ActiveSheet.ListObjects(table_name).TableStyle = "TableStyleDark2"
 
-	'ending on the statistics sheet
-	For Each objWorkSheet In objWorkbook.Worksheets
-	    If objWorkSheet.Name = "Statistics" Then
-			objWorkSheet.Activate
-	        Exit For
-	    End If
-	Next
+'ending on the statistics sheet
+For Each objWorkSheet In objWorkbook.Worksheets
+    If objWorkSheet.Name = "Statistics" Then
+		objWorkSheet.Activate
+        Exit For
+    End If
+Next
 
-	objWorkbook.Save()		'saving the excel
-	objDISCWorkbook.Save()		'saving the excel
+objWorkbook.Save()		'saving the excel
+objDISCWorkbook.Save()		'saving the excel
 
-	If leave_excel_open = "No - Close the file" Then		'if the file should be closed - it does it here.
-		objExcel.ActiveWorkbook.Close
-		ObjDISCExcel.ActiveWorkbook.Close
+If leave_excel_open = "No - Close the file" Then		'if the file should be closed - it does it here.
+	objExcel.ActiveWorkbook.Close
+	ObjDISCExcel.ActiveWorkbook.Close
 
-		objExcel.Application.Quit
-		objExcel.Quit
-		ObjDISCExcel.Application.Quit
-		ObjDISCExcel.Quit
-	End If
+	objExcel.Application.Quit
+	objExcel.Quit
+	ObjDISCExcel.Application.Quit
+	ObjDISCExcel.Quit
 End If
+
 'SAVE EXCEL'
 Call script_end_procedure("Expedited Determination report is updated and the tracking files removed.")
