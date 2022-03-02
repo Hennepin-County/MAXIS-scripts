@@ -939,6 +939,7 @@ script_array(script_num).tags                   = array("Support", "Utility", "S
 script_array(script_num).dlg_keys               = array("Cn", "Wrd")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #11/24/2020#
+script_array(script_num).retirement_date		= #3/2/2022#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
