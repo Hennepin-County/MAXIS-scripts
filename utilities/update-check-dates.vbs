@@ -126,6 +126,7 @@ Dim PANELS_ARRAY()
 ReDim PANELS_ARRAY(panel_notes_const, 0)
 
 day_list = "?"+chr(9)+"1"+chr(9)+"2"+chr(9)+"3"+chr(9)+"4"+chr(9)+"5"+chr(9)+"6"+chr(9)+"7"+chr(9)+"8"+chr(9)+"9"+chr(9)+"10"+chr(9)+"11"+chr(9)+"12"+chr(9)+"13"+chr(9)+"14"+chr(9)+"15"+chr(9)+"16"+chr(9)+"17"+chr(9)+"18"+chr(9)+"19"+chr(9)+"20"+chr(9)+"21"+chr(9)+"22"+chr(9)+"23"+chr(9)+"24"+chr(9)+"25"+chr(9)+"26"+chr(9)+"27"+chr(9)+"28"+chr(9)+"29"+chr(9)+"30"
+second_day_list = day_list+chr(9)+"Last"
 
 Call navigate_to_MAXIS_screen("STAT", "SUMM")
 EMWriteScreen "PNLI", 20, 71
@@ -352,9 +353,11 @@ For view_panel = 0 to UBound(PANELS_ARRAY, 2)
         PANELS_ARRAY(panel_weekday_const, view_panel) = "Inconsistent"
         If IsDate(PANELS_ARRAY(panel_known_paydate, view_panel)) = TRUE Then
             the_day = DatePart("d", PANELS_ARRAY(panel_known_paydate, view_panel))
-            If the_day < 15 Then PANELS_ARRAY(semi_mo_pay_one, view_panel) = the_day
-            If the_day > 14 AND the_day < 28 Then PANELS_ARRAY(semi_mo_pay_two, view_panel) = the_day
-            If the_day > 27 Then PANELS_ARRAY(semi_mo_pay_two, view_panel) = "Last"
+			' MsgBox the_day																									'Taking the functionality out to try to guess the dates because it messes up the dialogs.
+            ' If the_day < 15 Then PANELS_ARRAY(semi_mo_pay_one, view_panel) = the_day
+            ' If the_day > 14 AND the_day < 28 Then PANELS_ARRAY(semi_mo_pay_two, view_panel) = the_day
+            ' If the_day > 27 Then PANELS_ARRAY(semi_mo_pay_two, view_panel) = "Last"
+			' MsgBox "1 - " & PANELS_ARRAY(semi_mo_pay_one, view_panel) & vbCr & "2 - " & PANELS_ARRAY(semi_mo_pay_two, view_panel)
             PANELS_ARRAY(panel_known_paydate, view_panel) = ""
         End If
     End If
@@ -390,24 +393,9 @@ Do
               Text 485, y_pos+5, 45, 10, PANELS_ARRAY(panel_pay_amt_const, view_panel)
               DropListBox 395, y_pos, 25, 45, day_list, PANELS_ARRAY(semi_mo_pay_one, view_panel)
               Text 425, y_pos+5, 15, 10, "and"
-              DropListBox 440, y_pos, 30, 45, day_list+chr(9)+"Last", PANELS_ARRAY(semi_mo_pay_two, view_panel)
+              DropListBox 440, y_pos, 30, 45, second_day_list, PANELS_ARRAY(semi_mo_pay_two, view_panel)
               y_pos = y_pos + 20
           Next
-          ' Text 395, 30, 75, 10, "Semi-Monthly Paid on"
-          ' DropListBox 395, 45, 25, 45, day_list, List5
-          ' Text 425, 50, 15, 10, "and"
-          ' DropListBox 440, 45, 30, 45, day_list+chr(9)+"Last", List6
-
-          ' CheckBox 10, 50, 60, 10, "UNEA 01 01", checkbox
-          ' DropListBox 75, 45, 60, 45, "", List1
-          ' EditBox 145, 45, 55, 15, Edit1
-          ' DropListBox 210, 45, 65, 45, "", List2
-          ' Text 285, 50, 45, 10, "pay_amt"
-          ' CheckBox 10, 70, 60, 10, "UNEA 01 01", Check2
-          ' DropListBox 75, 65, 60, 45, "", List3
-          ' EditBox 145, 65, 55, 15, Edit2
-          ' DropListBox 210, 65, 65, 45, "", List4
-          ' Text 285, 70, 45, 10, "pay_amt"
           ButtonGroup ButtonPressed
             OkButton 425, y_pos+15, 50, 15
             CancelButton 480, y_pos+15, 50, 15
@@ -438,7 +426,9 @@ Do
                         err_msg = err_msg & vbNewLine & "* Since the pay frequency is SEMI-MONTHLY the days the pay is issued in each month need to be indicated in the column 'Always paid on'."
                     Else
                         If PANELS_ARRAY(semi_mo_pay_two, view_panel) <> "Last" Then
-                            If PANELS_ARRAY(semi_mo_pay_two, view_panel) <= PANELS_ARRAY(semi_mo_pay_one, view_panel) Then
+							If IsNumeric(PANELS_ARRAY(semi_mo_pay_one, view_panel)) = true then PANELS_ARRAY(semi_mo_pay_one, view_panel) = PANELS_ARRAY(semi_mo_pay_one, view_panel) * 1		'need to ensure the script is reading and comparing these as numbers
+							If IsNumeric(PANELS_ARRAY(semi_mo_pay_two, view_panel)) = true then PANELS_ARRAY(semi_mo_pay_two, view_panel) = PANELS_ARRAY(semi_mo_pay_two, view_panel) * 1
+							If PANELS_ARRAY(semi_mo_pay_two, view_panel) <= PANELS_ARRAY(semi_mo_pay_one, view_panel) Then
                                 number_one = PANELS_ARRAY(semi_mo_pay_one, view_panel)
                                 number_two = PANELS_ARRAY(semi_mo_pay_two, view_panel)
                                 PANELS_ARRAY(semi_mo_pay_one, view_panel) = number_two
@@ -480,6 +470,8 @@ For view_panel = 0 to UBound(PANELS_ARRAY, 2)
 	    End If
 	    If PANELS_ARRAY(panel_freq_const, view_panel) = "2 - Semi-Monthly" Then
 	        PANELS_ARRAY(panel_known_paydate, view_panel) = MAXIS_footer_month & "/" & PANELS_ARRAY(semi_mo_pay_one, view_panel) & "/" & MAXIS_footer_year
+			If IsNumeric(PANELS_ARRAY(semi_mo_pay_one, view_panel)) = true then PANELS_ARRAY(semi_mo_pay_one, view_panel) = PANELS_ARRAY(semi_mo_pay_one, view_panel) * 1		'need to ensure the script is reading and comparing these as numbers
+			If IsNumeric(PANELS_ARRAY(semi_mo_pay_two, view_panel)) = true then PANELS_ARRAY(semi_mo_pay_two, view_panel) = PANELS_ARRAY(semi_mo_pay_two, view_panel) * 1
 	    End If
 
 	    If PANELS_ARRAY(panel_freq_const, view_panel) = "4 - Weekly" Then
@@ -551,53 +543,56 @@ Do
                 panel_row = panel_row + 1
             Loop until panel_row = end_row
 
-            check_date = PANELS_ARRAY(panel_known_paydate, view_panel)
-            frequency = left(PANELS_ARRAY(panel_freq_const, view_panel), 1)
-            panel_row = start_row
-            total_hours = 0
+            check_date = PANELS_ARRAY(panel_known_paydate, view_panel)			'this variable is set from the the known paydate and is changed through the update process here to find each pay date in sequence
+            frequency = left(PANELS_ARRAY(panel_freq_const, view_panel), 1)		'identifying the frequency in a variable
+            panel_row = start_row												'resetting the panel row for the start of the Do Loop
+            total_hours = 0														'resetting the hours count for this partifular panel (source and month specific) to 0 so we can count up as we find paydates in the month
+
+			'comments in this section kept in place for any future bug reports - these are longer message boxes and are ehlpful to have in place.
             Do
-                ' MsgBox "Month Date Part: " & DatePart("m", check_date) & vbNewLine & "The Month: " & the_month & vbNewLine & vbNewLine & "Year Date Part: " &  DatePart("yyyy", check_date) & vbNewLine & "The Year: " & the_year
-                If DatePart("m", check_date) = the_month AND DatePart("yyyy", check_date) = the_year Then
+                ' MsgBox "Check Date: " & check_date & vbCr & "Month Date Part: " & DatePart("m", check_date) & vbNewLine & "The Month: " & the_month & vbNewLine & vbNewLine & "Year Date Part: " &  DatePart("yyyy", check_date) & vbNewLine & "The Year: " & the_year
+                If DatePart("m", check_date) = the_month AND DatePart("yyyy", check_date) = the_year Then		'if the check date is in the current month - we write the information to the panel here.
                     ' MsgBox "MATCH FOUND"
-                    call create_mainframe_friendly_date(check_date, panel_row, 54, "YY")
+                    call create_mainframe_friendly_date(check_date, panel_row, 54, "YY")						'writing in the information
                     EMWriteScreen PANELS_ARRAY(panel_pay_amt_const, view_panel), panel_row, 68
                     total_hours = total_hours + PANELS_ARRAY(check_hours_const, view_panel)
-                    panel_row = panel_row + 1
+                    panel_row = panel_row + 1																	'going to the next row
                 End If
+				'Here we need to go to the next check and that calculation is different depending on the frequency of the pay
                 Select case frequency
-                    Case "1"
+                    Case "1"													'monthly - just add one month
                         check_date = DateAdd("m", 1, check_date)
-                    Case "2"
-                        now_month = DatePart("m", check_date)
+                    Case "2"													'semi monthly  - this is the most complicated
+                        now_month = DatePart("m", check_date)					'this is the current month
                         now_year = DatePart("yyyy", check_date)
-                        later_month = DatePart("m", DateAdd("m", 1, check_date))
+                        later_month = DatePart("m", DateAdd("m", 1, check_date))'this is next month - we need to know this specifically because we need these months when calculating the next paydate
                         later_year = DatePart("yyyy", DateAdd("m", 1, check_date))
-                        If DatePart("d", check_date) = PANELS_ARRAY(semi_mo_pay_one, view_panel) Then
-                            If PANELS_ARRAY(semi_mo_pay_two, view_panel) = "Last" Then
-                                check_date = DateAdd("d", -1, DateAdd("m", 1, check_date))
+						first_of_later_month = later_month & "/1/" & later_year
+						' MsgBox "check day - " & DatePart("d", check_date) & vbCr & "semi pay one - " & PANELS_ARRAY(semi_mo_pay_one, view_panel) & vbCr & "semi pay two - " & PANELS_ARRAY(semi_mo_pay_two, view_panel)
+						If DatePart("d", check_date) = PANELS_ARRAY(semi_mo_pay_one, view_panel) Then		'if we just added the first paycheck for the month
+							If PANELS_ARRAY(semi_mo_pay_two, view_panel) = "Last" Then						'if the second pay always comes on the last day of the month
+								check_date = DateAdd("d", -1, first_of_later_month)							'we go one day back from the first day of the next month
                             Else
-                                check_date = now_month & "/" & PANELS_ARRAY(semi_mo_pay_two, view_panel) & "/" & now_year
+                                check_date = now_month & "/" & PANELS_ARRAY(semi_mo_pay_two, view_panel) & "/" & now_year		'if the second pay date is a specific date of the month we create the date using the current month and that date
                             End If
+                        ElseIf PANELS_ARRAY(semi_mo_pay_two, view_panel) = "Last" Then						'if the date we just added is NOT the first pay date and the second one is always on the last day of the month
+							check_date = later_month & "/" & PANELS_ARRAY(semi_mo_pay_one, view_panel) & "/" & later_year		'make the next check the first pay of next month
+                        ElseIf DatePart("d", check_date) = PANELS_ARRAY(semi_mo_pay_two, view_panel) Then	'if we just added the second paychek of the month and it ISN'T the last month
+							check_date = later_month & "/" & PANELS_ARRAY(semi_mo_pay_one, view_panel) & "/" & later_year		'Make the next check the fist pay of the next month
                         End If
-                        If PANELS_ARRAY(semi_mo_pay_two, view_panel) = "Last" Then
-                            If DateAdd("d", 1, check_date) = 1 Then
-                                check_date = later_month & "/" & PANELS_ARRAY(semi_mo_pay_one, view_panel) & "/" & later_year
-                            End If
-                        ElseIf DatePart("d", check_date) = PANELS_ARRAY(semi_mo_pay_two, view_panel) Then
-                            check_date = later_month & "/" & PANELS_ARRAY(semi_mo_pay_one, view_panel) & "/" & later_year
-                        End If
-                    Case "3"
+                    Case "3"													'biweekly - just add 14 days
                         check_date = DateAdd("d", 14, check_date)
-                    Case "4"
+                    Case "4"													'weekly - just add 7 days
                         check_date = DateAdd("d", 7, check_date)
                 End Select
                 ' MsgBox check_date
-            Loop until DatePart("m", check_date) = next_month_mo AND DatePart("yyyy", check_date) = next_month_yr
+            Loop until DatePart("m", check_date) = next_month_mo AND DatePart("yyyy", check_date) = next_month_yr	'if the next pay check is the next month - we leave the loop because we have all the dates for the current month
             If PANELS_ARRAY(panel_type_const, view_panel) = "JOBS" Then
                 total_hours = FormatNumber(total_hours, 0)
                 EMWriteScreen "   ", 18, 72
                 EMWriteScreen total_hours, 18, 72
             End If
+			' MsgBox "Review the panel update because the script thinks it's done."
             Do
                 transmit            'save the panel'
                 EMReadScreen look_for_warning, 7, 24, 2
