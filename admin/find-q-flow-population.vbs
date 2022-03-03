@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/03/2022", "Updated baskets including new EGA basket, X127EP3.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/16/2020", "Added multi-case search functionalty.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/09/2020", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -64,7 +65,7 @@ EMConnect ""
 'CALL MAXIS_case_number_finder(MAXIS_case_number)
 end_msg = "Case Numbers reviewed: "
 
-Do 
+Do
     MAXIS_case_number = ""
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
@@ -76,7 +77,7 @@ Do
       Text 10, 10, 50, 10, "Case Number:"
       CheckBox 20, 45, 90, 10, "Checking multiple cases.", multi_case_checkbox
     EndDialog
-    
+
     Do
     	DO
     		err_msg = ""
@@ -87,38 +88,46 @@ Do
     	Loop until err_msg = ""
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-    
+
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     If is_this_priv = TRUE then script_end_procedure("Privileged case, cannot access/update. The script will now end.")
-    
+
     '----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. needed during the COVID-19 PEACETIME STATE OF EMERGENCY
-    EmReadscreen basket_number, 7, 21, 14    'Reading basket number on CASE/CURR 
+    EmReadscreen basket_number, 7, 21, 14    'Reading basket number on CASE/CURR
     suggested_population = ""                'Blanking this out. Will default to no suggestions if x number is not in this this.
-    
+
     If basket_number = "X127EF8" then suggested_population = "1800"
     If basket_number = "X127EF9" then suggested_population = "1800"
     If basket_number = "X127EG9" then suggested_population = "1800"
     If basket_number = "X127EG0" then suggested_population = "1800"
-    
+
+    If basket_number = "X127EH1" then suggested_population = "ADS"
     If basket_number = "X127EH2" then suggested_population = "ADS"
     If basket_number = "X127EH3" then suggested_population = "ADS"
+    If basket_number = "X127EH4" then suggested_population = "ADS"
+    If basket_number = "X127EH5" then suggested_population = "ADS"
+    If basket_number = "X127EH6" then suggested_population = "ADS"
+    If basket_number = "X127EH7" then suggested_population = "ADS"
     If basket_number = "X127EJ4" then suggested_population = "ADS"
     If basket_number = "X127EJ7" then suggested_population = "ADS"
     If basket_number = "X127EJ8" then suggested_population = "ADS"
-    If basket_number = "X127EJ9" then suggested_population = "ADS"
     If basket_number = "X127EK1" then suggested_population = "ADS"
     If basket_number = "X127EK2" then suggested_population = "ADS"
+    If basket_number = "X127EK3" then suggested_population = "ADS"
     If basket_number = "X127EK4" then suggested_population = "ADS"
     If basket_number = "X127EK5" then suggested_population = "ADS"
     If basket_number = "X127EK6" then suggested_population = "ADS"
+    If basket_number = "X127EK7" then suggested_population = "ADS"
+    If basket_number = "X127EK8" then suggested_population = "ADS"
+    If basket_number = "X127EK9" then suggested_population = "ADS"
     If basket_number = "X127EM1" then suggested_population = "ADS"
     If basket_number = "X127EM8" then suggested_population = "ADS"
     If basket_number = "X127EM9" then suggested_population = "ADS"
     If basket_number = "X127EN6" then suggested_population = "ADS"
-    If basket_number = "X127EN7" then suggested_population = "ADS"
     If basket_number = "X127EP4" then suggested_population = "ADS"
     If basket_number = "X127EP5" then suggested_population = "ADS"
     If basket_number = "X127EP9" then suggested_population = "ADS"
+    If basket_number = "X127F3F" then suggested_population = "ADS"  'MA-EPD ADS Basket
     If basket_number = "X127FE5" then suggested_population = "ADS"
     If basket_number = "X127FG3" then suggested_population = "ADS"
     If basket_number = "X127FH4" then suggested_population = "ADS"
@@ -127,17 +136,17 @@ Do
     If basket_number = "X127FI7" then suggested_population = "ADS"
     If basket_number = "X127F3U" then suggested_population = "ADS"
     If basket_number = "X127F3V" then suggested_population = "ADS"
-    
+
     'Contacted Case Mgt
-    If basket_number = "X127FG6" then suggested_population = "ADS"           'Kristen Kasem
-    If basket_number = "X127FG7" then suggested_population = "ADS"           'Kristen Kasem
-    If basket_number = "X127EM3" then suggested_population = "ADS"           'True L. or Gina G.
-    If basket_number = "X127EM4" then suggested_population = "ADS"           'True L. or Gina G.
-    If basket_number = "X127EW7" then suggested_population = "ADS"           'Kimberly Hill
-    If basket_number = "X127EW8" then suggested_population = "ADS"           'Kimberly Hill
-    If basket_number = "X127FF4" then suggested_population = "ADS"           'Alyssa Taylor
-    If basket_number = "X127FF5" then suggested_population = "ADS"           'Alyssa Taylor
-    
+    If basket_number = "X127FG6" then suggested_population = "ADS"           '"Kristen Kasem"
+    If basket_number = "X127FG7" then suggested_population = "ADS"           '"Kristen Kasem"
+    If basket_number = "X127EM3" then suggested_population = "ADS"           '"True L. or Gina G."
+    If basket_number = "X127EM4" then suggested_population = "ADS"            '"True L. or Gina G."
+    If basket_number = "X127EW7" then suggested_population = "ADS"            '"Kimberly Hill"
+    If basket_number = "X127EW8" then suggested_population = "ADS"            '"Kimberly Hill"
+    If basket_number = "X127FF4" then suggested_population = "ADS"            '"Alyssa Taylor"
+    If basket_number = "X127FF5" then suggested_population = "ADS"            '"Alyssa Taylor"
+
     If basket_number = "X127ED8" then suggested_population = "Adults"
     If basket_number = "X127EE1" then suggested_population = "Adults"
     If basket_number = "X127EE2" then suggested_population = "Adults"
@@ -149,8 +158,8 @@ Do
     If basket_number = "X127EG4" then suggested_population = "Adults"
     If basket_number = "X127EG5" then suggested_population = "Adults"
     If basket_number = "X127EH8" then suggested_population = "Adults"
-    If basket_number = "X127EH9" then suggested_population = "Adults"
     If basket_number = "X127EJ1" then suggested_population = "Adults"
+    If basket_number = "X127EL1" then suggested_population = "Adults"
     If basket_number = "X127EL2" then suggested_population = "Adults"
     If basket_number = "X127EL3" then suggested_population = "Adults"
     If basket_number = "X127EL4" then suggested_population = "Adults"
@@ -164,13 +173,14 @@ Do
     If basket_number = "X127EN3" then suggested_population = "Adults"
     If basket_number = "X127EN4" then suggested_population = "Adults"
     If basket_number = "X127EN5" then suggested_population = "Adults"
+    If basket_number = "X127EN7" then suggested_population = "Adults"
     If basket_number = "X127EP6" then suggested_population = "Adults"
     If basket_number = "X127EP7" then suggested_population = "Adults"
     If basket_number = "X127EP8" then suggested_population = "Adults"
     If basket_number = "X127EQ1" then suggested_population = "Adults"
-    If basket_number = "X127EQ2" then suggested_population = "Adults"
     If basket_number = "X127EQ3" then suggested_population = "Adults"
     If basket_number = "X127EQ4" then suggested_population = "Adults"
+    If basket_number = "X127EQ5" then suggested_population = "Adults"
     If basket_number = "X127EQ8" then suggested_population = "Adults"
     If basket_number = "X127EQ9" then suggested_population = "Adults"
     If basket_number = "X127EX1" then suggested_population = "Adults"
@@ -180,56 +190,68 @@ Do
     If basket_number = "X127EX8" then suggested_population = "Adults"
     If basket_number = "X127EX9" then suggested_population = "Adults"
     If basket_number = "X127F3D" then suggested_population = "Adults"
-    
-    If basket_number = "X127ES1" then suggested_population = "FAD"
-    If basket_number = "X127ES2" then suggested_population = "FAD"
-    If basket_number = "X127ES3" then suggested_population = "FAD"
-    If basket_number = "X127ES4" then suggested_population = "FAD"
-    If basket_number = "X127ES5" then suggested_population = "FAD"
-    If basket_number = "X127ES6" then suggested_population = "FAD"
-    If basket_number = "X127ES7" then suggested_population = "FAD"
-    If basket_number = "X127ES9" then suggested_population = "FAD"
-    If basket_number = "X127ET1" then suggested_population = "FAD"
-    If basket_number = "X127ET2" then suggested_population = "FAD"
-    If basket_number = "X127ET3" then suggested_population = "FAD"
-    If basket_number = "X127ET4" then suggested_population = "FAD"
-    If basket_number = "X127ET5" then suggested_population = "FAD"
-    If basket_number = "X127ET6" then suggested_population = "FAD"
-    If basket_number = "X127ET7" then suggested_population = "FAD"
-    If basket_number = "X127ET8" then suggested_population = "FAD"
-    If basket_number = "X127ET9" then suggested_population = "FAD"
-    If basket_number = "X127F3H" then suggested_population = "FAD"
-    If basket_number = "X127FB7" then suggested_population = "FAD"
-    If basket_number = "X127EZ1" then suggested_population = "FAD"
-    If basket_number = "X127EZ2" then suggested_population = "FAD"
-    If basket_number = "X127EZ3" then suggested_population = "FAD"
-    If basket_number = "X127EZ4" then suggested_population = "FAD"
-    If basket_number = "X127EZ5" then suggested_population = "FAD"
-    If basket_number = "X127EZ6" then suggested_population = "FAD"
-    If basket_number = "X127EZ7" then suggested_population = "FAD"
-    If basket_number = "X127EZ8" then suggested_population = "FAD"
-    
+    If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adults Basket
+
+    If basket_number = "X127FE7" then suggested_population = "DWP"
+    If basket_number = "X127FE8" then suggested_population = "DWP"
+    If basket_number = "X127FE9" then suggested_population = "DWP"
+
+    If basket_number = "X127EP3" then suggested_population = "EGA"
+    If basket_number = "X127EP8" then suggested_population = "EGA"
+    If basket_number = "X127EQ2" then suggested_population = "EGA"
+
+    If basket_number = "X127ES1" then suggested_population = "Families"
+    If basket_number = "X127ES2" then suggested_population = "Families"
+    If basket_number = "X127ES3" then suggested_population = "Families"
+    If basket_number = "X127ES4" then suggested_population = "Families"
+    If basket_number = "X127ES5" then suggested_population = "Families"
+    If basket_number = "X127ES6" then suggested_population = "Families"
+    If basket_number = "X127ES7" then suggested_population = "Families"
+    If basket_number = "X127ES8" then suggested_population = "Families"
+    If basket_number = "X127ES9" then suggested_population = "Families"
+    If basket_number = "X127ET1" then suggested_population = "Families"
+    If basket_number = "X127ET2" then suggested_population = "Families"
+    If basket_number = "X127ET3" then suggested_population = "Families"
+    If basket_number = "X127ET4" then suggested_population = "Families"
+    If basket_number = "X127ET5" then suggested_population = "Families"
+    If basket_number = "X127ET6" then suggested_population = "Families"
+    If basket_number = "X127ET7" then suggested_population = "Families"
+    If basket_number = "X127ET8" then suggested_population = "Families"
+    If basket_number = "X127ET9" then suggested_population = "Families"
+    If basket_number = "X127F4E" then suggested_population = "Families"
+    If basket_number = "X127F3H" then suggested_population = "Families"
+    If basket_number = "X127FB7" then suggested_population = "Families"
+    If basket_number = "X127EZ1" then suggested_population = "Families"
+    If basket_number = "X127EZ3" then suggested_population = "Families"
+    If basket_number = "X127EZ4" then suggested_population = "Families"
+    If basket_number = "X127EZ5" then suggested_population = "Families"
+    If basket_number = "X127EZ6" then suggested_population = "Families"
+    If basket_number = "X127EZ7" then suggested_population = "Families"
+    If basket_number = "X127EZ8" then suggested_population = "Families"
+    If basket_number = "X127F3K" then suggested_population = "Families"  'MA-EPD FAD Basket
+
+    If basket_number = "X127EZ2" then suggested_population = "FAD GRH"
+
     If basket_number = "X127EH9" then suggested_population = "LTH"
     If basket_number = "X127EM2" then suggested_population = "LTH"
     If basket_number = "X127FE6" then suggested_population = "LTH"
-    
+
     If basket_number = "X127FA5" then suggested_population = "YET"
     If basket_number = "X127FA6" then suggested_population = "YET"
     If basket_number = "X127FA7" then suggested_population = "YET"
     If basket_number = "X127FA8" then suggested_population = "YET"
     If basket_number = "X127FB1" then suggested_population = "YET"
-    If basket_number = "X127F3S" then suggested_population = "YET"
     If basket_number = "X127FA9" then suggested_population = "YET"
-    
+
     If trim(suggested_population) = "" then suggested_population = "No suggestions available"
-    stats_counter = stats_counter + 1 
+    stats_counter = stats_counter + 1
     msgbox "Q Flow Population: " & suggested_population
-    end_msg = end_msg & MAXIS_case_number & ", " 
+    end_msg = end_msg & MAXIS_case_number & ", "
     If multi_case_checkbox = 0 then exit do
-Loop     
+Loop
 
 end_msg = trim(end_msg)  'trims excess spaces of end_msg
 If right(end_msg, 1) = "," THEN end_msg = left(end_msg, len(end_msg) - 1)
 
-stats_counter = stats_counter - 1 'removing extra count 
+stats_counter = stats_counter - 1 'removing extra count
 script_end_procedure(end_msg)
