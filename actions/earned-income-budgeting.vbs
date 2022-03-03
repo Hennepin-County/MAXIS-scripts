@@ -1212,6 +1212,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                       EditBox 485, (dlg_factor * 20) + 115, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
                                       CheckBox 510, (dlg_factor * 20) + 120, 120, 10, "Update Future Months", EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel)
 
+									  Text 45, (dlg_factor * 20) + 115, 300, 10, "* Combine checks paid on the same date and enter here as one."
+
                                       ButtonGroup ButtonPressed
 									    PushButton 445, 55, 15, 15, "!", pay_frequency_tips_and_tricks_btn
 										PushButton 5, 70, 15, 15, "!", listing_checks_tips_and_tricks_btn
