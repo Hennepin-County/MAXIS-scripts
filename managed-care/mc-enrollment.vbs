@@ -41,6 +41,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/03/2022", "The script is not able to process enrollments for every recipient, this is particularly dependent on which exclusion the receiptient is currently on. Right now the script is only programed to handle 'YY', 'HH', and 'AA' exclusions. If a recipient has any other exclusion, the enrollment should be processed manually.##~## ##~##The script will now display the fact that it is unable to process these enrollments in the dialog with each individual's enrollment details. It will be clear if an enrollment is not able to be automated by the script before attempting the enrollment to better communicate the script capabilities.##~##", "Casey Love, Hennepin County")
 call changelog_update("02/18/2022", "Medica Plan will no longer default to the contract code of 'MA 30'##~## ##~##All plans will default to the contract code of 'MA 12' and if this selection is not changed manually during the script run, the script will enter the enrollment(s) as 'MA 12'.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/04/2021", "Open Enrollment Dates updated for 2022.", "Casey Love, Hennepin County")
 call changelog_update("11/03/2021", "Added United HealthCare plan option as a selection with the plan code. This plan is available starting in January 2022.##~## ##~##DO NOT ENROLL RESIDENTS IN THIS PLAN PRIOR TO 01/2022. MMIS WILL ERROR AS THAT PLAN IS NOT AVAILBLE FOR A MONTH PRIOR TO 01/2022##~##", "Casey Love, Hennepin County")
@@ -529,7 +530,7 @@ For each member in HH_member_array
 			EMReadScreen hp_curr_start_date, 8, row, 63
 		End If
 		MMIS_clients_array(current_plan_date, item) = hp_curr_start_date
-		MsgBox excl_code
+
 		If excl_code <> "AA" AND excl_code <> "HH" AND excl_code <> "YY" AND excl_code <> "" Then MMIS_clients_array(enroll_allow, item) = False
 
 		If excl_code = "AA" Then MMIS_clients_array(current_plan, item) = "XCL - Adoption Assistance"
@@ -722,7 +723,7 @@ Next
 
 If MNSURE_Case = TRUE Then
 	For member = 0 to Ubound(MMIS_clients_array, 2)
-		If MMIS_clients_array(enroll_allow, item) = True Then
+		If MMIS_clients_array(enroll_allow, member) = True Then
 			first_attempt = TRUE
 			updated_manually = FALSE
 			replace_enrollment_span = FALSE
@@ -1176,7 +1177,7 @@ If MNSURE_Case = TRUE Then
 	Next
 Else
 	For member = 0 to Ubound(MMIS_clients_array, 2)
-		If MMIS_clients_array(enroll_allow, item) = True Then
+		If MMIS_clients_array(enroll_allow, member) = True Then
 			first_attempt = TRUE
 			updated_manually = FALSE
 			replace_enrollment_span = FALSE
