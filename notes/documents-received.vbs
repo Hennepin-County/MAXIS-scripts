@@ -81,6 +81,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/03/2022", "Removed DVD Orientation option in the MTAF form supports.", "Ilse Ferris")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 Call changelog_update("01/03/2020", "Added new functionality to ask about accepting documents in ECF as a reminder at the end of the script.", "Casey Love, Hennepin County")
 Call changelog_update("09/25/2019", "Bug Fix - script would error/stop if case was stuck in background. Added a number of checks to be sure case is not in background so the script run can continue.", "Casey Love, Hennepin County")
@@ -2357,26 +2358,25 @@ If mtaf_form_checkbox = checked Then
 	Dialog1 = "" 'Blanking out previous dialog detail
     Do
         Do
-	      BeginDialog Dialog1, 0, 0, 186, 265, "MTAF dialog"
-              EditBox 55, 5, 60, 15, MTAF_date
-              DropListBox 55, 25, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", MTAF_status_dropdown
-              EditBox 55, 45, 60, 15, MFIP_elig_date
-              CheckBox 5, 65, 55, 10, "MTAF signed.", mtaf_signed_checkbox
-              CheckBox 5, 80, 140, 10, "MFIP/financial orientation completed.", mfip_financial_orientation_checkbox
-              CheckBox 5, 95, 150, 10, "Client exempt from cooperation with ES.", ES_exemption_checkbox
-              CheckBox 5, 110, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
-              EditBox 55, 125, 60, 15, interview_date
-              CheckBox 5, 145, 135, 10, "Rights and responsibilities explained.", RR_explained_checkbox
-              ButtonGroup ButtonPressed
-                OkButton 80, 245, 50, 15
-                CancelButton 130, 245, 50, 15
-              Text 5, 10, 40, 10, "MTAF date:"
-              Text 5, 30, 45, 10, "MTAF status:"
-              Text 5, 50, 50, 10, "MFIP elig date:"
-              Text 5, 130, 50, 10, "Interview date:"
-              GroupBox 5, 155, 175, 85, ""
-              Text 15, 165, 155, 25, "*STOP WORK - Verification only necessary to verify income in the month of application/eligibility. (CM 0010.18.01)"
-              Text 15, 200, 160, 35, "**SUBSIDY - Verification of housing subsidy is a mandatory verification for MFIP. STAT must be appropriately updated to ensure accurate approval of housing grant. (CM 0010.18.01)"
+            BeginDialog Dialog1, 0, 0, 186, 250, "MTAF dialog"
+                EditBox 55, 5, 60, 15, MTAF_date
+                DropListBox 55, 25, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", MTAF_status_dropdown
+                EditBox 55, 45, 60, 15, MFIP_elig_date
+                CheckBox 5, 65, 55, 10, "MTAF signed.", mtaf_signed_checkbox
+                CheckBox 5, 80, 140, 10, "MFIP/financial orientation completed.", mfip_financial_orientation_checkbox
+                CheckBox 5, 95, 150, 10, "Client exempt from cooperation with ES.", ES_exemption_checkbox
+                EditBox 55, 110, 60, 15, interview_date
+                CheckBox 5, 130, 135, 10, "Rights and responsibilities explained.", RR_explained_checkbox
+                ButtonGroup ButtonPressed
+                OkButton 80, 230, 50, 15
+                CancelButton 130, 230, 50, 15
+                Text 5, 10, 40, 10, "MTAF date:"
+                Text 5, 30, 45, 10, "MTAF status:"
+                Text 5, 50, 50, 10, "MFIP elig date:"
+                Text 5, 115, 50, 10, "Interview date:"
+                GroupBox 5, 140, 175, 85, ""
+                Text 15, 150, 155, 25, "*STOP WORK - Verification only necessary to verify income in the month of application/eligibility. (CM 0010.18.01)"
+                Text 15, 185, 160, 35, "**SUBSIDY - Verification of housing subsidy is a mandatory verification for MFIP. STAT must be appropriately updated to ensure accurate approval of housing grant. (CM 0010.18.01)"
             EndDialog
 
             err_msg = ""
@@ -2385,7 +2385,6 @@ If mtaf_form_checkbox = checked Then
             cancel_continue_confirmation(skip_mtaf)
             If IsDate(MTAF_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the MTAF was received."
             If MTAF_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate the status of the MTAF."
-            'If  Then err_msg = err_msg & vbNewLine & "* "
             If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_mtaf = TRUE Then
                 err_msg = ""
@@ -2482,7 +2481,6 @@ If mtaf_form_checkbox = checked Then
     CALL write_bullet_and_variable_in_CASE_NOTE ("ELIG results fiated", elig_results_fiated)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Other notes", other_notes)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Verifications Needed", verifications_needed)
-    IF MFIP_DVD_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Sent MFIP orientation DVD to participant(s).")
     If RR_explained_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* Rights & responsibilities explained.")
     If mtaf_signed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* MTAF was signed.")
     If mfip_financial_orientation_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* MFIP orientation information reviewed/completed.")
