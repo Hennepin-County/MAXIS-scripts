@@ -224,6 +224,8 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 		PMI_numbers_no_spaces = Replace(raw_PMI_numbers, " ", "")				'Removes spaces from the lines
 		PMI_array = Split(PMI_numbers_no_spaces, ",")							'Splits PMIs into an array
 
+		first_row_for_this_message = excel_row
+
 		'ADDS THE INFO TO EXCEL BASED ON PMI
 		For each PMI_number in PMI_array
 	    	ObjExcel.Cells(excel_row, col_msg_number).Value 	= message_number					'Each message is numbered in sequence
@@ -238,11 +240,11 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 
 	    	ObjExcel.Cells(excel_row, col_CS_type).Value 		= CS_type						'This is the type, and it's helpful to know this when we write to UNEA
 	    	ObjExcel.Cells(excel_row, col_issue_date).Value 	= issue_date						'The date it was issued
-	    	excel_row = excel_row + 1											'Increments up one in order to start on the next Excel row
+			excel_row = excel_row + 1											'Increments up one in order to start on the next Excel row
 	    Next
 
 		'Adding partial pennies to the member 01
-		ObjExcel.Cells(3, col_amt_alloted).Value = ObjExcel.Cells(3, col_amt_alloted).Value + penny_issue_partial_pennies_total
+		ObjExcel.Cells(first_row_for_this_message, col_amt_alloted).Value = ObjExcel.Cells(first_row_for_this_message, col_amt_alloted).Value + penny_issue_partial_pennies_total
 
 		'Clearing this variable so we can start over again next message (next run through the loop)
 		penny_issue_partial_pennies_total = 0
