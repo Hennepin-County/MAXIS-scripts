@@ -451,41 +451,21 @@ IF case_status = "Client completed application interview" THEN          'Intervi
 	    	END IF
             Call HCRE_panel_bypass()
             Call MAXIS_background_check
-	    	Call navigate_to_MAXIS_screen("STAT", "PROG")
-            If intv_date_needed = TRUE THEN         'If previous code has determined that PROG needs to be updated
-                snap_intv_date_updated = FALSE
-                cash_intv_date_updated = FALSE
-                show_prog_update_failure = FALSE
-                Call back_to_SELF
-                CALL navigate_to_MAXIS_screen("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
-            	IF confirm_update_prog = "Snap" or confirm_update_prog = "Cash & Snap" THEN
-                    EMReadScreen new_snap_intv_date, 8, 10, 55
-                    If new_snap_intv_date = intv_date_to_check Then snap_intv_date_updated = TRUE
-                    If snap_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
-            	END IF
-                If confirm_update_prog = "Cash" or confirm_update_prog = "Cash & Snap" THEN
-                    EMReadScreen new_cash_intv_date, 8, prog_row, 55
-                    If new_cash_intv_date = intv_date_to_check Then cash_intv_date_updated = TRUE
-                    If cash_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
-                End If
-                If show_prog_update_failure = TRUE THEN
-                    fail_msg = "You have requested the script update PROG for "
-                    If confirm_update_prog = "Cash & Snap" THEN
-                        fail_msg = fail_msg & "Cash and SNAP "
-                    ElseIf confirm_update_prog = "Snap"  THEN
-                        fail_msg = fail_msg & "SNAP "
-                    ElseIf confirm_update_prog = "Cash"  THEN
-                        fail_msg = fail_msg & "Cash "
-                    End If
-                    fail_msg = fail_msg & "to enter the interview date on PROG." & vbCr & vbCr & "The script was unable to update PROG completely." & vbCr
-                    If confirm_update_prog = "Snap" THEN
-                        fail_msg = fail_msg & " - The SNAP Interview Date was not entered." & vbCr
-                    ElseIf confirm_update_prog = "Cash" THEN
-                        fail_msg = fail_msg & " - The Cash Interview Date was not entered." & vbCr
-                    End If
-                    fail_msg = fail_msg & closing_message & "The PROG panel will need to be updated manually with the interview information."
-                END IF
-	        END IF
+
+            snap_intv_date_updated = FALSE
+            cash_intv_date_updated = FALSE
+            show_prog_update_failure = FALSE
+            Call back_to_SELF
+            CALL navigate_to_MAXIS_screen("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
+            EMReadScreen new_snap_intv_date, 8, 10, 55
+            If new_snap_intv_date = intv_date_to_check Then snap_intv_date_updated = TRUE
+            If snap_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
+            EMReadScreen new_cash_intv_date, 8, prog_row, 55
+            If new_cash_intv_date = intv_date_to_check Then cash_intv_date_updated = TRUE
+            If cash_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
+            If show_prog_update_failure = TRUE THEN
+                fail_msg = fail_msg & closing_message & "The PROG panel will need to be updated manually with the interview information."
+            END IF
         END IF
 	END IF
 END IF
@@ -502,7 +482,11 @@ IF case_status = "Case was not pended timely" THEN
     CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & NOMI_date)
     CALL write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it, because the case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply. Denial can be done after " & denial_date)
 ELSEIF case_status = "Client completed application interview" THEN
-	CALL write_variable_in_CASE_NOTE("~ " & case_status & " on "  & interview_date & " PROG updated ~")
+	IF confirm_update_prog = "YES" THEN
+		CALL write_variable_in_CASE_NOTE("~ " & case_status & " on "  & interview_date & " updated PROG ~")
+	ELSE
+		CALL write_variable_in_CASE_NOTE("~ " & case_status & " on "  & interview_date & " PROG updated previously ~")
+	END IF
 	CALL write_variable_in_CASE_NOTE("* Completed by previous worker per case note dated: " & case_note_date)
 ELSEIF case_status = "Client has not completed application interview" THEN
 	CALL write_variable_in_CASE_NOTE("~ " & case_status  & " ~")
