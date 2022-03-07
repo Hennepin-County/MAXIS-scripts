@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/07/2022", "Updated team emails from 601 to team 603 for retro processing. Added FIAT checkbox for retro determination option.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/20/2020", "Updated link to REQUEST TO APPL use form on SharePoint.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/04/2019", "Per project request - Removed checkbox for DOA and scenario pushbuttons.", "MiKayla Handley, Hennepin County")
@@ -278,7 +279,7 @@ If initial_option = "Retro Determination" then
     case_note_header = "METS Retro Determination"
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 356, (100 + (HC_membs * 15)), "Retro Determination for #" & MAXIS_case_number
+    BeginDialog Dialog1, 0, 0, 356, (130 + (HC_membs * 15)), "Retro Determination for #" & MAXIS_case_number
     x = 0
     For item = 0 to Ubound(HC_array, 2)
         If HC_array(member_name_const, item) <> "" then
@@ -291,11 +292,12 @@ If initial_option = "Retro Determination" then
     GroupBox 5, 5, 345, (50 + (x * 15)), "For each applicant, enter the retro determination:"
     Text 10, (65 + (x * 15)), 45, 10, "Other Notes:"
     EditBox 70, (60 + (x * 15)), 280, 15, other_notes
-    Text 5, (85 + (x * 15)), 60, 10, "Worker Signature:"
-    EditBox 70, (80 + (x * 15)), 130, 15, worker_signature
+    CheckBox 70, (80 + (x * 15)), 140, 10, "HC eligibility was FIATed.", fiat_checkbox
+    Text 5, (100 + (x * 15)), 60, 10, "Worker Signature:"
+    EditBox 70, (95 + (x * 15)), 150, 15, worker_signature
     ButtonGroup ButtonPressed
-    OkButton 265, (80 + (x * 15)), 40, 15
-    CancelButton 310, (80 + (x * 15)), 40, 15
+    OkButton 265, (95 + (x * 15)), 40, 15
+    CancelButton 310, (95 + (x * 15)), 40, 15
     Text 75, 20, 105, 10, "App'd months or Denial Reason"
     Text 15, 20, 45, 10, "Determination"
     Text 270, 20, 60, 10, "Applicant's Name"
@@ -342,14 +344,14 @@ email_content = ""
 If DOA_checkbox = checked then
     send_email = True
     email_content = "* METS DOA (Date of Application) was 11 months prior to today." & vbcr & vbcr
-    team_email = "601"
+    team_email = "603"
 elseif initial_option = "Retro Determination" then
     send_email = False
     team_email = ""
 else
     If HC_array(retro_scenario_const, 0) = "B"  or HC_array(retro_scenario_const, 0) = "C" or HC_array(retro_scenario_const, 0) = "D" or HC_array(retro_scenario_const, 0) = "E" then
         send_email = True
-        team_email = "601"
+        team_email = "603"
     Elseif HC_array(retro_scenario_const, 0) = "A" then
         send_email = False
         team_email = ""
@@ -377,7 +379,7 @@ email_header = initial_option & " for " & MAXIS_case_number & " - Action Require
 body_of_email = email_content & "---Health Care Member Information---" & household_info & vbcr & additional_content
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Team." & team_email, "", email_header, body_of_email, "", TRUE)
+IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Team." & team_email, "", email_header, body_of_email, "", False)
 
 '------------------------------------------------------------------------------------Case Note
 start_a_blank_CASE_NOTE
@@ -401,10 +403,11 @@ For i = 0 to ubound(HC_array, 2)
     End if
 Next
 
-IF DOA_checkbox = 1 then Call write_variable_in_case_note("* Team 601 emailed re: DOA over 11 months prior to current date.")
+IF DOA_checkbox = 1 then Call write_variable_in_case_note("* Team " & team_email & " emailed re: DOA over 11 months prior to current date.")
 IF useform_checkbox = 1 then CALL write_variable_in_case_note("* Request to APPL use form created and sent.")
 If task_checkbox = 1 then Call write_variable_in_case_note("* Task created in METS for retro request.")
 If verifs_checkbox = 1 then Call write_variable_in_case_note("* All verification and/or forms received for retro determination.")
+If fiat_checkbox = 1 then Call write_variable_in_case_note("* HC eligibility was fiated.")
 If send_email = True then Call write_variable_in_case_note("* Email notification sent to " & team_email & ".")
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_case_note("---")
