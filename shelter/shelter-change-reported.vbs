@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/07/2022", "Updated Team 601 contact emails to be 603 per De Vang's request.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/13/2020", "Updated TIKL Functionality and updates to script to pull a list of contacts for emails outside of the script.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated dialog boxes to prepare for enhancements to script.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -256,7 +257,7 @@ ELSE
     EndDialog
 
 	DO
-        DO 
+        DO
             err_msg = ""
 		    DIALOG Dialog1
 		    cancel_without_confirmation
@@ -532,10 +533,10 @@ IF worker_number =	"X127EW5" 	THEN email_address = "hsph.es.team.469@hennepin.us
 IF worker_number =	"X127FE7" 	THEN email_address = "hsph.es.team.470@hennepin.us"
 IF worker_number =	"X127FE8" 	THEN email_address = "hsph.es.team.470@hennepin.us"
 IF worker_number =	"X127FE9" 	THEN email_address = "hsph.es.team.470@hennepin.us"
-IF worker_number =	"X127EX4" 	THEN email_address = "hsph.es.team.601@hennepin.us"
-IF worker_number =	"X127EX5" 	THEN email_address = "hsph.es.team.601@hennepin.us"
-IF worker_number =	"X127FF1"	THEN email_address = "hsph.es.team.601@hennepin.us"
-IF worker_number =	"X127FF2"	THEN email_address = "hsph.es.team.601@hennepin.us"
+IF worker_number =	"X127EX4" 	THEN email_address = "hsph.es.team.603@hennepin.us"
+IF worker_number =	"X127EX5" 	THEN email_address = "hsph.es.team.603@hennepin.us"
+IF worker_number =	"X127FF1"	THEN email_address = "hsph.es.team.603@hennepin.us"
+IF worker_number =	"X127FF2"	THEN email_address = "hsph.es.team.603@hennepin.us"
 IF worker_number =	"X127EN8" 	THEN email_address = "hsph.es.team.602@hennepin.us"
 IF worker_number =	"X127EN9" 	THEN email_address = "hsph.es.team.602@hennepin.us"
 IF worker_number =	"X127FH3" 	THEN email_address = "hsph.es.team.602@hennepin.us"
@@ -621,7 +622,7 @@ IF send_email_checkbox = CHECKED THEN
 			End If
 		End If
 	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-    
+
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	CALL create_outlook_email(email_address, "","Change Reported For #" &  MAXIS_case_number & " Member # " & memb_number & " Date Change Reported " & date_received, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
