@@ -379,7 +379,7 @@ email_header = initial_option & " for " & MAXIS_case_number & " - Action Require
 body_of_email = email_content & "---Health Care Member Information---" & household_info & vbcr & additional_content
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Team." & team_email, "", email_header, body_of_email, "", False)
+IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Team." & team_email, "", email_header, body_of_email, "", True)
 
 '------------------------------------------------------------------------------------Case Note
 start_a_blank_CASE_NOTE
