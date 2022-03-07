@@ -50,10 +50,6 @@ CALL changelog_update("01/31/2020", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
- application_date = "02/01/22"
- completed_interview_checkbox = CHECKED
- case_note_date = "02/01/22"
- interview_date = "02/01/22"
 
 Function HCRE_panel_bypass()
 	'handling for cases that do not have a completed HCRE panel
