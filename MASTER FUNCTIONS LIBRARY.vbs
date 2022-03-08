@@ -4914,9 +4914,20 @@ end function
 
 function claim_referral_tracking(action_taken, action_date)
 '--- This function tracks the date a worker first suspects there may be a SNAP or MFIP claim. It also helps to track the discovery date and the established date of a claim. This will create or update the MISC panel and case note the referral.
-'~~~~~ action_taken:
+'~~~~~ action_taken: 3 options exist for clearing claim referral "Sent Request for Additional Info", "Overpayment Exists", & "No Overpayment Exists"  each has different handling
 '===== Keywords: MAXIS, Claim, MISC, CCOL, overpayment
+CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
+CALL Check_for_MAXIS(false)                         'Ensuring we are not passworded out
+action_date = date & ""
+
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 221, 155, "Claim Referral Tracking"
+  EditBox 65, 30, 45, 15, MAXIS_case_number
+  EditBox 165, 30, 45, 15, action_date
+  DropListBox 65, 50, 145, 15, "Select One:"+chr(9)+"Sent Request for Additional Info"+chr(9)+"Overpayment Exists"+chr(9)+"No Overpayment Exists", action_taken
+  EditBox 65, 70, 145, 15, verif_requested
+  EditBox 65, 90, 145, 15, other_notes
+  EditBox 110, 110, 100, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 115, 135, 45, 15
     CancelButton 165, 135, 45, 15
@@ -4924,54 +4935,45 @@ BeginDialog Dialog1, 0, 0, 221, 155, "Claim Referral Tracking"
   Text 5, 5, 210, 20, "This script will only enter a STAT/MISC panel for a SNAP or MFIP federal food claim. "
   Text 15, 35, 50, 10, "Case Number: "
   Text 120, 35, 40, 10, "Action Date: "
-    Do
-		err_msg = ""
-		Do
+  Text 15, 55, 45, 10, "Action Taken:"
+  Text 5, 75, 55, 10, "Verif Requested:"
+  Text 20, 95, 45, 10, "Other Notes:"
+  Text 65, 115, 40, 10, "Worker Sig:"
+EndDialog
+
+DO
+    DO
+	    err_msg = ""
+	    DO
             dialog Dialog1
             cancel_without_confirmation
             If ButtonPressed = claims_procedures_btn then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Claims_and_Overpayments.aspx")
         Loop until ButtonPressed = -1
-		IF buttonpressed = 0 then stopscript
-		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-		IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Please enter a valid action date."
-		IF action_taken = "Select One:" then err_msg = err_msg & vbnewline & "* Please select the action taken for next step in overpayment."
+	    IF buttonpressed = 0 then stopscript
+	    IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+	    IF isdate(action_date) = False then err_msg = err_msg & vbnewline & "* Please enter a valid action date."
+	    IF action_taken = "Select One:" then err_msg = err_msg & vbnewline & "* Please select the action taken for next step in overpayment."
         IF action_taken = "Sent Request for Additional Info" and verif_requested = "" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
-		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+	    IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+'Checking for PRIV cases.
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
+IF is_this_priv = True THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
 MAXIS_background_check      'Making sure we are out of background.
 
 'Grabbing case and program status information from MAXIS.
 'For tis script to work correctly, these must be correct BEFORE running the script.
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
 EMReadScreen case_status, 15, 8, 9                  'Now we are reading the CASE STATUS string from the panel - we want to make sure this does NOT read CAF1 PENDING
-EMReadScreen pnd2_appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
-ive_status = "INACTIVE"                             'There are some programs that are NOT read from the function and are pretty specific to this script/functionality
-cca_status = "INACTIVE"                             'defaulting these statuses to 'INACTIVE' until they are read from the panel
+EMReadScreen appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
 ega_status = "INACTIVE"
 ea_status = "INACTIVE"
+
 '\This functionality is how the above function reads for program information - just pulled out for these specific programs
-row = 1                                             'Looking for IV-E information
-col = 1
-EMSearch "IV-E:", row, col
-If row <> 0 Then
-    EMReadScreen ive_status, 9, row, col + 6
-    ive_status = trim(ive_status)
-    If ive_status = "ACTIVE" or ive_status = "APP CLOSE" or ive_status = "APP OPEN" Then ive_status = "ACTIVE"
-    If ive_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
-End If
-row = 1                                             'Looking for CCAP information
-col = 1
-EMSearch "CCAP", row, col
-If row <> 0 Then
-    EMReadScreen cca_status, 9, row, col + 6
-    cca_status = trim(cca_status)
-    If cca_status = "ACTIVE" or cca_status = "APP CLOSE" or cca_status = "APP OPEN" Then cca_status = "ACTIVE"
-    If cca_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
-End If
 
 row = 1                                             'Looking for EGA information
 col = 1
@@ -4994,11 +4996,6 @@ If row <> 0 Then
 End If
 
 case_status = trim(case_status)     'cutting off any excess space from the case_status read from CASE/CURR above
-
-IF IsDate(application_date) = False THEN                   'If we could NOT find the application date - then it will use the PND2 application date.
-    application_date = pnd2_appl_date
-End if
-
 active_programs = ""        'Creates a variable that lists all the active programs on the case.
 If ga_status = "ACTIVE" Then active_programs = active_programs & "GA, "
 If msa_status = "ACTIVE" Then active_programs = active_programs & "MSA, "
@@ -5034,27 +5031,102 @@ If right(pending_programs, 1) = "," THEN pending_programs = left(pending_program
 
 Call back_to_SELF
 
-'Determines which programs are currently status_checking in the month of application
-CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG KEEPING PROG Navigtion because there re sometimes discrepencies on CASE/CURR
-
+CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
+CASH_STATUS = FALSE 'overall variable'
+'CCA_STATUS = FALSE
 DW_STATUS = FALSE 'Diversionary Work Program'
+EMER_STATUS = FALSE 'Emergency Assistance'
+FS_STATUS = FALSE
 GA_STATUS = FALSE 'General Assistance'
-    IF cash2_prog_check = "MF" THEN
-	IF cash2_status_check = "DENY" THEN CASH_STATUS = FALSE
-	IF cash2_status_check = ""     THEN CASH_STATUS = FALSE
+GRH_STATUS = FALSE
+'HC_STATUS = FALSE
+MS_STATUS = FALSE 'Mn Suppl Aid '
+MF_STATUS = FALSE 'Mn Family Invest Program '
+RC_STATUS = FALSE 'Refugee Cash Assistance'
+
+'Reading the status and program
+EMReadScreen cash1_status_check, 4, 6, 74
+EMReadScreen cash2_status_check, 4, 7, 74
+EMReadScreen emer_status_check, 4, 8, 74
+EMReadScreen grh_status_check, 4, 9, 74
+EMReadScreen fs_status_check, 4, 10, 74
+'EMReadScreen ive_status_check, 4, 11, 74
+'EMReadScreen hc_status_check, 4, 12, 74
+'EMReadScreen cca_status_check, 4, 14, 74
+EMReadScreen cash1_prog_check, 2, 6, 67
+EMReadScreen cash2_prog_check, 2, 7, 67
+EMReadScreen emer_prog_check, 2, 8, 67
+EMReadScreen grh_prog_check, 2, 9, 67
+EMReadScreen fs_prog_check, 2, 10, 67
+'EMReadScreen ive_prog_check, 2, 11, 67
+'EMReadScreen hc_prog_check, 2, 12, 67
+'EMReadScreen cca_prog_check, 2, 14, 67
+
+IF FS_status_check = "ACTV" or FS_status_check = "PEND"  THEN FS_STATUS = TRUE
+IF emer_status_check = "ACTV" or emer_status_check = "PEND"  THEN ER_STATUS = TRUE
+IF grh_status_check = "ACTV" or grh_status_check = "PEND"  THEN GRH_STATUS = TRUE
+'IF hc_status_check = "ACTV" or hc_status_check = "PEND"  THEN HC_STATUS = TRUE
+IF cca_status_check = "ACTV" or cca_status_check = "PEND"  THEN CCA_STATUS = TRUE
+'Logic to determine if MFIP is active
+If cash1_prog_check = "MF" or cash1_prog_check = "GA" or cash1_prog_check = "DW" or cash1_prog_check = "RC" or cash1_prog_check = "MS" THEN
+	If cash1_status_check = "ACTV" Then CASH_STATUS = TRUE
+	If cash1_status_check = "PEND" Then CASH_STATUS = TRUE
+	If cash1_status_check = "INAC" Then CASH_STATUS = FALSE
+	If cash1_status_check = "SUSP" Then CASH_STATUS = FALSE
+	If cash1_status_check = "DENY" Then CASH_STATUS = FALSE
+	If cash1_status_check = ""     Then CASH_STATUS = FALSE
+END IF
+If cash2_prog_check = "MF" or cash2_prog_check = "GA" or cash2_prog_check = "DW" or cash2_prog_check = "RC" or cash2_prog_check = "MS" THEN
+	If cash2_status_check = "ACTV" Then CASH_STATUS = TRUE
+	If cash2_status_check = "PEND" Then CASH_STATUS = TRUE
+	If cash2_status_check = "INAC" Then CASH_STATUS = FALSE
+	If cash2_status_check = "SUSP" Then CASH_STATUS = FALSE
+	If cash2_status_check = "DENY" Then CASH_STATUS = FALSE
+	If cash2_status_check = ""     Then CASH_STATUS = FALSE
+END IF
+
+IF SNAP_STATUS = FALSE or CASH_STATUS = FALSE THEN
+    PROG_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "This case does not appear to have snap or cash active."  & vbNewLine & "Continue to case note only?" & vbNewLine, vbYesNo + vbQuestion, "No cash or snap programs")
+    IF PROG_check = vbYes THEN  case_note_only = TRUE
+    IF PROG_check = vbNo THEN script_end_procedure("Please review the case if cash or snap were active previously select yes and case note only.")
 END IF
 
 IF SNAP_STATUS = TRUE or CASH_STATUS = TRUE THEN
-    'MsgBox programs
-	IF SNAP_STATUS = TRUE or CASH_STATUS = TRUE THEN
+    case_note_only = FALSE
+    'Going to the MISC panel to add claim referral tracking information
+    CALL navigate_to_MAXIS_screen ("STAT", "MISC")
+    Row = 6
+    EMReadScreen panel_number, 1, 02, 73
+    IF panel_number = "0" THEN
+        EMWriteScreen "NN", 20,79
+        TRANSMIT
+    ELSE
+        DO
+            'Checking to see if the MISC panel is empty, if not it will find a new line'
+            EMReadScreen MISC_description, 25, row, 30
+            MISC_description = replace(MISC_description, "_", "")
+            IF trim(MISC_description) = "" THEN
+                PF9
+                EXIT DO
+            ELSE
+              row = row + 1
+            END IF
+        LOOP UNTIL row = 17
+        IF row = 17 THEN MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+    END IF
+    'writing in the action taken and date to the MISC panel
+    PF9
+    '_________________________ 25 characters to write on MISC
+    IF claim_referral_tracking_dropdown = "Initial" THEN MISC_action_taken = "Claim Referral Initial"
+    IF claim_referral_tracking_dropdown = "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
+    IF claim_referral_tracking_dropdown = "No Savings/Overpayment" THEN MISC_action_taken = "Determination-No Savings"
+    IF claim_referral_tracking_dropdown = "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
+    EMWriteScreen MISC_action_taken, Row, 30
     EMWriteScreen date, Row, 66
     TRANSMIT
-    'PF3
 
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    IF action_taken = "Sent Request for Additional Info" THEN
-        Call create_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.", 10, date, False, TIKL_note_text)
-    End if
+    IF action_taken = "Sent Request for Additional Info" THEN Call create_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.", 10, date, False, TIKL_note_text)
 
     'The case note-------------------------------------------------------------------------------------------------
     start_a_blank_CASE_NOTE
@@ -5065,37 +5137,33 @@ IF SNAP_STATUS = TRUE or CASH_STATUS = TRUE THEN
     IF action_taken = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", MISC_action_taken)
     IF action_taken = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note(TIKL_note_text)
     If action_taken = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
-	IF SNAP_STATUS = TRUE or CASH_STATUS = TRUE THEN
     Call write_variable_in_case_note("---")
     Call write_variable_in_case_note(worker_signature)
 
     IF action_taken = "Sent Request for Additional Info" THEN
         end_msg = end_msg & vbCr & ("Claim Referral Tracking - you have indicated that you sent a request for additional information. Please follow the agency's procedure(s) for claim entry once received.")
-    Else
-    	end_msg = end_msg & vbCr & ("Claim Referral Tracking - you have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
-    End if
-ELSE
-    IF SNAP_STATUS = FALSE and CASH_STATUS = FALSE THEN
-'TODO case_note
     ELSE
-        LOOP
+    	end_msg = end_msg & vbCr & ("Claim Referral Tracking - you have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
     END IF
+ELSE
+    case_note_only = TRUE
     IF case_note_only = TRUE THEN
         end_msg = end_msg & vbCr & "Claim Referral Tracking " & programs & " action " & action_taken 'we create some messaging to explain what happened in the script run.
-         start_a_blank_CASE_NOTE
-         Call write_variable_in_case_note("***Claim Referral Tracking " & action_taken & "***")
-         Call write_bullet_and_variable_in_case_note("Pending Program(s)", pending_programs)
-         CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-         IF action_taken = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", MISC_action_taken)
-         IF action_taken = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note(TIKL_note_text)
-         If action_taken = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
-    ELSE
-         Call write_variable_in_case_note(worker_signature)
-         PF3
+        start_a_blank_CASE_NOTE
+        Call write_variable_in_case_note("***Claim Referral Tracking " & action_taken & "***")
+        Call write_bullet_and_variable_in_case_note("Pending Program(s)", pending_programs)
+        CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
+        IF action_taken = "Sent Request for Additional Info" THEN Call write_bullet_and_variable_in_case_note("Action taken", MISC_action_taken)
+        IF action_taken = "Sent Request for Additional Info" THEN CALL write_variable_in_case_note(TIKL_note_text)
+        If action_taken = "Sent Request for Additional Info" THEN  Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
+        Call write_variable_in_case_note(worker_signature)
+        PF3
     ELSE
         end_msg = "Claim Referral Tracking is for MFIP and SNAP cases only. Please let us know if there are further considerations needed."
     END IF
 END IF
+
+'Call script_end_procedure_with_error_report(end_msg)
 
 end function
 
