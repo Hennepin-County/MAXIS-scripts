@@ -115,7 +115,9 @@ const ssn_no_space					= 51
 const edrs_msg						= 52
 const edrs_match					= 53
 const edrs_notes 					= 54
-const last_const					= 55
+const ignore_person                 = 55
+const pers_in_maxis                 = 56
+const last_const					= 57
 
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
@@ -274,10 +276,12 @@ function check_for_errors(interview_questions_clear)
 		'require 'intends to reside in MN
 		'ID for 01? Other caregiver?
 	For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-		HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
-		If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
-		If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
-		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Veer Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
+		If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+            HH_MEMB_ARRAY(imig_status, the_memb) = trim(HH_MEMB_ARRAY(imig_status, the_memb))
+    		If HH_MEMB_ARRAY(imig_status, the_memb) <> "" AND HH_MEMB_ARRAY(clt_has_sponsor, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Sponsor?##~##   - Since there is immigration details listed for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ", you need to ask and record if this resident has a sponsor."
+    		If HH_MEMB_ARRAY(intend_to_reside_in_mn, the_memb) = "" Then err_msg = err_msg & "~!~" & "3 ^* Intends to Reside in MN##~##   - Indicate if this resident (" & HH_MEMB_ARRAY(full_name_const, the_memb) & ") intends to reside in MN."
+    		If the_memb = 0 AND (HH_MEMB_ARRAY(id_verif, the_memb) = "" OR HH_MEMB_ARRAY(id_verif, the_memb) = "NO - No Veer Prvd") Then err_msg = err_msg & "~!~" & "3 ^* Identidty Verification##~##   - Identity is required for " & HH_MEMB_ARRAY(full_name_const, the_memb) & ". Enter the ID information on file/received or indicate that it has been requested."
+        End If
 	Next
 
 	' If current_listing = "4"  Then tagline = ": Q. 1- 6"
@@ -696,13 +700,16 @@ function define_main_dialog()
 			End If
 			y_pos = 35
 			For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-				If the_memb = selected_memb Then
-					Text 20, y_pos + 1, 45, 10, "Person " & (the_memb + 1)
-				Else
-					PushButton 10, y_pos, 45, 10, "Person " & (the_memb + 1), HH_MEMB_ARRAY(button_one, the_memb)
-				End If
-				y_pos = y_pos + 10
+				If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+                    If the_memb = selected_memb Then
+    					Text 20, y_pos + 1, 45, 10, "Person " & (the_memb + 1)
+    				Else
+    					PushButton 10, y_pos, 45, 10, "Person " & (the_memb + 1), HH_MEMB_ARRAY(button_one, the_memb)
+    				End If
+    				y_pos = y_pos + 10
+                End If
 			Next
+            If HH_MEMB_ARRAY(pers_in_maxis, selected_memb) = False Then PushButton 375, 30, 105, 13, "Remove Member from Script", HH_MEMB_ARRAY(button_two, selected_memb)
 			y_pos = y_pos + 10
 			PushButton 10, 335, 45, 10, "Add Person", add_person_btn
 			Text 70, 35, 50, 10, "Last Name"
@@ -1860,6 +1867,10 @@ function dialog_movement()
 		If ButtonPressed = HH_MEMB_ARRAY(button_one, i) Then
 			If page_display = show_pg_memb_list Then selected_memb = i
 		End If
+        If ButtonPressed = HH_MEMB_ARRAY(button_two, i) Then
+            HH_MEMB_ARRAY(ignore_person, i) = True
+            selected_memb = 0
+        End If
 	Next
 	If ButtonPressed = add_verif_1_btn Then Call verif_details_dlg(1)
 	If ButtonPressed = add_verif_2_btn Then Call verif_details_dlg(2)
@@ -1942,7 +1953,10 @@ function dialog_movement()
 	If page_display = show_pg_memb_info AND ButtonPressed = -1 Then ButtonPressed = next_memb_btn
 
 	If ButtonPressed = next_memb_btn Then
-		memb_selected = memb_selected + 1
+		Do
+            memb_selected = memb_selected + 1
+            If HH_MEMB_ARRAY(ignore_person, memb_selected) = True Then memb_selected = memb_selected + 1
+        Loop until HH_MEMB_ARRAY(ignore_person, memb_selected) = False OR memb_selected > UBound(HH_MEMB_ARRAY, 2)
 		If memb_selected > UBound(HH_MEMB_ARRAY, 2) Then ButtonPressed = next_btn
 	End If
 
@@ -1952,6 +1966,7 @@ function dialog_movement()
 		ReDim Preserve HH_MEMB_ARRAY(last_const, new_clt)
 		HH_MEMB_ARRAY(button_one, new_clt) = 500 + new_clt
 		HH_MEMB_ARRAY(button_two, new_clt) = 600 + new_clt
+        HH_MEMB_ARRAY(pers_in_maxis, new_clt) = False
 
 		selected_memb = new_clt
 		update_pers = TRUE
@@ -3368,7 +3383,7 @@ function save_your_work()
 				HH_MEMB_ARRAY(fs_pwe, known_membs)&"~"&HH_MEMB_ARRAY(button_one, known_membs)&"~"&HH_MEMB_ARRAY(button_two, known_membs)&"~"&HH_MEMB_ARRAY(clt_has_sponsor, known_membs)&"~"&HH_MEMB_ARRAY(client_verification, known_membs)&"~"&_
 				HH_MEMB_ARRAY(client_verification_details, known_membs)&"~"&HH_MEMB_ARRAY(client_notes, known_membs)&"~"&HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)&"~"&race_a_info&"~"&race_b_info&"~"&race_n_info&"~"&race_p_info&"~"&race_w_info&"~"&prog_s_info&"~"&prog_c_info&"~"&_
 				prog_e_info&"~"&prog_n_info&"~"&HH_MEMB_ARRAY(ssn_no_space, known_membs)&"~"&HH_MEMB_ARRAY(edrs_msg, known_membs)&"~"&HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&_
-				HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
+				HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
 			Next
 
 			for this_jobs = 0 to UBOUND(JOBS_ARRAY, 2)
@@ -3873,7 +3888,7 @@ function save_your_work()
 				HH_MEMB_ARRAY(fs_pwe, known_membs)&"~"&HH_MEMB_ARRAY(button_one, known_membs)&"~"&HH_MEMB_ARRAY(button_two, known_membs)&"~"&HH_MEMB_ARRAY(clt_has_sponsor, known_membs)&"~"&HH_MEMB_ARRAY(client_verification, known_membs)&"~"&_
 				HH_MEMB_ARRAY(client_verification_details, known_membs)&"~"&HH_MEMB_ARRAY(client_notes, known_membs)&"~"&HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)&"~"&race_a_info&"~"&race_b_info&"~"&race_n_info&"~"&race_p_info&"~"&race_w_info&"~"&prog_s_info&"~"&prog_c_info&"~"&_
 				prog_e_info&"~"&prog_n_info&"~"&HH_MEMB_ARRAY(ssn_no_space, known_membs)&"~"&HH_MEMB_ARRAY(edrs_msg, known_membs)&"~"&HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&_
-				HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs) & vbCr & vbCr
+                HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs) & vbCr & vbCr
 			Next
 
 			for this_jobs = 0 to UBOUND(JOBS_ARRAY, 2)
@@ -4502,7 +4517,23 @@ function restore_your_work(vars_filled)
 							HH_MEMB_ARRAY(edrs_msg, known_membs)					= array_info(51)
 							HH_MEMB_ARRAY(edrs_match, known_membs)					= array_info(52)
 							HH_MEMB_ARRAY(edrs_notes, known_membs) 					= array_info(53)
-							HH_MEMB_ARRAY(last_const, known_membs)					= array_info(54)
+
+                            If UBound(array_info) = 56 Then
+                                HH_MEMB_ARRAY(ignore_person, known_membs) 			= array_info(54)
+                                HH_MEMB_ARRAY(pers_in_maxis, known_membs) 			= array_info(55)
+                                HH_MEMB_ARRAY(last_const, known_membs)				= array_info(56)
+
+                                If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(ignore_person, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(ignore_person, known_membs) = False
+                                If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
+                            Else
+                                HH_MEMB_ARRAY(last_const, known_membs)				= array_info(54)
+
+                                HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
+                                If HH_MEMB_ARRAY(ref_number, known_membs) <> "" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
+                                HH_MEMB_ARRAY(ignore_person, known_membs) = False
+                            End If
 
 							known_membs = known_membs + 1
 						End If
@@ -5667,18 +5698,20 @@ function write_interview_CASE_NOTE()
 
 	CALL write_variable_in_CASE_NOTE("Household Members:")
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
-		CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
-		If the_members = 0 Then CALL write_variable_in_CASE_NOTE("    Identity: " & HH_MEMB_ARRAY(id_verif, the_members))
-		If trim(HH_MEMB_ARRAY(client_notes, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    NOTES: " & HH_MEMB_ARRAY(client_notes, the_members))
-		If HH_MEMB_ARRAY(client_verification, the_members) <> "Not Needed" Then
-			If HH_MEMB_ARRAY(client_verification, the_members) = "On File" Then
-				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification on file for M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(client_verification_details, the_members))
-				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification on file for M" & HH_MEMB_ARRAY(ref_number, the_members) & ".")
-			Else
-				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: of M" & HH_MEMB_ARRAY(ref_number, the_members) & " Information - " & HH_MEMB_ARRAY(client_verification_details, the_members))
-				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: of M" & HH_MEMB_ARRAY(ref_number, the_members) & " Information")
-			End If
-		End If
+		If HH_MEMB_ARRAY(ignore_person, the_members) = False Then
+            CALL write_variable_in_CASE_NOTE("  * " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members))
+    		If the_members = 0 Then CALL write_variable_in_CASE_NOTE("    Identity: " & HH_MEMB_ARRAY(id_verif, the_members))
+    		If trim(HH_MEMB_ARRAY(client_notes, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    NOTES: " & HH_MEMB_ARRAY(client_notes, the_members))
+    		If HH_MEMB_ARRAY(client_verification, the_members) <> "Not Needed" Then
+    			If HH_MEMB_ARRAY(client_verification, the_members) = "On File" Then
+    				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification on file for M" & HH_MEMB_ARRAY(ref_number, the_members) & " - " & HH_MEMB_ARRAY(client_verification_details, the_members))
+    				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification on file for M" & HH_MEMB_ARRAY(ref_number, the_members) & ".")
+    			Else
+    				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) <> "" Then CALL write_variable_in_CASE_NOTE("    Verification: of M" & HH_MEMB_ARRAY(ref_number, the_members) & " Information - " & HH_MEMB_ARRAY(client_verification_details, the_members))
+    				If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: of M" & HH_MEMB_ARRAY(ref_number, the_members) & " Information")
+    			End If
+    		End If
+        End If
 	Next
 	CALL write_variable_in_CASE_NOTE("-----  ADDRESS Information -----")
 	CALL write_variable_in_CASE_NOTE("Residence Address:")
@@ -6092,8 +6125,10 @@ function write_interview_CASE_NOTE()
 	If edrs_match_found = True Then
 		Call write_variable_in_CASE_NOTE("eDRS run for all Household Members:")
 		For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-			If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) = "" Then Call write_variable_in_CASE_NOTE("    " & HH_MEMB_ARRAY(edrs_msg, the_memb))
-			If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("    " & HH_MEMB_ARRAY(edrs_msg, the_memb) & "Notes: " & HH_MEMB_ARRAY(edrs_notes, the_memb))
+			If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+                If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) = "" Then Call write_variable_in_CASE_NOTE("    " & HH_MEMB_ARRAY(edrs_msg, the_memb))
+    			If trim(HH_MEMB_ARRAY(edrs_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("    " & HH_MEMB_ARRAY(edrs_msg, the_memb) & "Notes: " & HH_MEMB_ARRAY(edrs_notes, the_memb))
+            End If
 		Next
 	End If
 
@@ -6150,10 +6185,12 @@ function create_verifs_needed_list(verifs_selected, verifs_needed)
 	If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
 
 	For the_members = 0 to UBound(HH_MEMB_ARRAY, 2)
-		If HH_MEMB_ARRAY(client_verification, the_members) = "Requested" Then
-			verifs_needed = verifs_needed & "; MEMB " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members) & " Information. "
-			If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) <> "" Then verifs_needed = verifs_needed & " - " & HH_MEMB_ARRAY(client_verification_details, the_members)
-		End If
+        If HH_MEMB_ARRAY(ignore_person, the_members) = False Then
+            If HH_MEMB_ARRAY(client_verification, the_members) = "Requested" Then
+    			verifs_needed = verifs_needed & "; MEMB " & HH_MEMB_ARRAY(ref_number, the_members) & "-" & HH_MEMB_ARRAY(full_name_const, the_members) & " Information. "
+    			If trim(HH_MEMB_ARRAY(client_verification_details, the_members)) <> "" Then verifs_needed = verifs_needed & " - " & HH_MEMB_ARRAY(client_verification_details, the_members)
+    		End If
+        End If
 	Next
 	If question_1_verif_yn = "Requested" Then
 		verifs_needed = verifs_needed & "; CAF Q1 Information (P&P Together)"
@@ -8354,6 +8391,8 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 		ReDim Preserve HH_MEMB_ARRAY(last_const, clt_count)
 		HH_MEMB_ARRAY(ref_number, clt_count) = hh_clt
+        HH_MEMB_ARRAY(pers_in_maxis, clt_count) = True
+        HH_MEMB_ARRAY(ignore_person, clt_count) = False
 		' HH_MEMB_ARRAY(define_the_member, clt_count)
 
 		Call navigate_to_MAXIS_screen("STAT", "MEMB")		'===============================================================================================
@@ -8802,32 +8841,33 @@ CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 
 edrs_match_found = False
 For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+    If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+    	'Write in SSN number into EDRS
+    	EMwritescreen HH_MEMB_ARRAY(ssn_no_space, the_memb), 2, 7
+    	transmit
+    	Emreadscreen SSN_output, 7, 24, 2
 
-	'Write in SSN number into EDRS
-	EMwritescreen HH_MEMB_ARRAY(ssn_no_space, the_memb), 2, 7
-	transmit
-	Emreadscreen SSN_output, 7, 24, 2
-
-	'Check to see what results you get from entering the SSN. If you get NO DISQ then check the person's name
-	IF SSN_output = "NO DISQ" THEN
-		EMWritescreen HH_MEMB_ARRAY(last_name_const, the_memb), 2, 24
-		EMWritescreen HH_MEMB_ARRAY(first_name_const, the_memb), 2, 58
-		EMWritescreen HH_MEMB_ARRAY(mid_initial, the_memb), 2, 76
-		transmit
-		EMreadscreen NAME_output, 7, 24, 2
-		IF NAME_output = "NO DISQ" THEN        'If after entering a name you still get NO DISQ then let worker know otherwise let them know you found a name.
-			HH_MEMB_ARRAY(edrs_msg, the_memb) = "No disqualifications found for Member #: " & HH_MEMB_ARRAY(ref_number, the_memb) & " " & HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
-			HH_MEMB_ARRAY(edrs_match, the_memb) = FALSE
-		ELSE
-			HH_MEMB_ARRAY(edrs_msg, the_memb) = "Member #: " & HH_MEMB_ARRAY(ref_number, the_memb) & " " & HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb) & " has a potential name match."
-			HH_MEMB_ARRAY(edrs_match, the_memb) = TRUE
-			edrs_match_found = True
-		END IF
-	ELSE
-		HH_MEMB_ARRAY(edrs_msg, the_memb) = "Member #: " & HH_MEMB_ARRAY(ref_number, the_memb) & " " & HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb) & " has SSN Match."    'If after searching a SSN number you don't get the NO DISQ message then let worker know you found the SSN
-		HH_MEMB_ARRAY(edrs_match, the_memb) = TRUE
-		edrs_match_found = True
-	END IF
+    	'Check to see what results you get from entering the SSN. If you get NO DISQ then check the person's name
+    	IF SSN_output = "NO DISQ" THEN
+    		EMWritescreen HH_MEMB_ARRAY(last_name_const, the_memb), 2, 24
+    		EMWritescreen HH_MEMB_ARRAY(first_name_const, the_memb), 2, 58
+    		EMWritescreen HH_MEMB_ARRAY(mid_initial, the_memb), 2, 76
+    		transmit
+    		EMreadscreen NAME_output, 7, 24, 2
+    		IF NAME_output = "NO DISQ" THEN        'If after entering a name you still get NO DISQ then let worker know otherwise let them know you found a name.
+    			HH_MEMB_ARRAY(edrs_msg, the_memb) = "No disqualifications found for Member #: " & HH_MEMB_ARRAY(ref_number, the_memb) & " " & HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb)
+    			HH_MEMB_ARRAY(edrs_match, the_memb) = FALSE
+    		ELSE
+    			HH_MEMB_ARRAY(edrs_msg, the_memb) = "Member #: " & HH_MEMB_ARRAY(ref_number, the_memb) & " " & HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb) & " has a potential name match."
+    			HH_MEMB_ARRAY(edrs_match, the_memb) = TRUE
+    			edrs_match_found = True
+    		END IF
+    	ELSE
+    		HH_MEMB_ARRAY(edrs_msg, the_memb) = "Member #: " & HH_MEMB_ARRAY(ref_number, the_memb) & " " & HH_MEMB_ARRAY(first_name_const, the_memb) & " " & HH_MEMB_ARRAY(last_name_const, the_memb) & " has SSN Match."    'If after searching a SSN number you don't get the NO DISQ message then let worker know you found the SSN
+    		HH_MEMB_ARRAY(edrs_match, the_memb) = TRUE
+    		edrs_match_found = True
+    	END IF
+    End If
 Next
 
 Do
@@ -8841,18 +8881,20 @@ Do
 		    Text 10, 10, 320, 10, "EDRs has been completed for all Household Members."
 			y_pos = 25
 		    For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
-				Text 20, y_pos, 420, 10, HH_MEMB_ARRAY(edrs_msg, the_memb)
+				If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+                    Text 20, y_pos, 420, 10, HH_MEMB_ARRAY(edrs_msg, the_memb)
 
-				PushButton 390, y_pos, 70, 10, "SSN SEARCH", HH_MEMB_ARRAY(button_one, the_memb)
-				PushButton 460, y_pos, 70, 10, "NAME SEARCH", HH_MEMB_ARRAY(button_two, the_memb)
-				If HH_MEMB_ARRAY(edrs_match, the_memb) = TRUE Then
-					' GroupBox 15, y_pos - 15, 520, 50, "MEMB " & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)
-					Text 30, y_pos + 20, 45, 10, "EDRs Notes:"
-		  		    EditBox 80, y_pos + 15, 450, 15, HH_MEMB_ARRAY(edrs_notes, the_memb)
-					y_pos = y_pos + 20
-				End If
-				' If HH_MEMB_ARRAY(edrs_match, the_memb) = FALSE Then GroupBox 15, y_pos - 15, 520, 30, "MEMB XX - MEMBER NAME"
-				y_pos = y_pos + 20
+    				PushButton 390, y_pos, 70, 10, "SSN SEARCH", HH_MEMB_ARRAY(button_one, the_memb)
+    				PushButton 460, y_pos, 70, 10, "NAME SEARCH", HH_MEMB_ARRAY(button_two, the_memb)
+    				If HH_MEMB_ARRAY(edrs_match, the_memb) = TRUE Then
+    					' GroupBox 15, y_pos - 15, 520, 50, "MEMB " & HH_MEMB_ARRAY(ref_number, the_memb) & " - " & HH_MEMB_ARRAY(full_name_const, the_memb)
+    					Text 30, y_pos + 20, 45, 10, "EDRs Notes:"
+    		  		    EditBox 80, y_pos + 15, 450, 15, HH_MEMB_ARRAY(edrs_notes, the_memb)
+    					y_pos = y_pos + 20
+    				End If
+    				' If HH_MEMB_ARRAY(edrs_match, the_memb) = FALSE Then GroupBox 15, y_pos - 15, 520, 30, "MEMB XX - MEMBER NAME"
+    				y_pos = y_pos + 20
+                End If
 			Next
 		    Text 15, 350, 70, 10, "EDRs CASE Notes:"
 		    EditBox 15, 360, 440, 15, edrs_notes_for_case
@@ -10761,9 +10803,11 @@ objSelection.TypeText vbCr
 'Program CAF Information
 caf_progs = ""
 for the_memb = 0 to UBOUND(HH_MEMB_ARRAY, 2)
-	If HH_MEMB_ARRAY(snap_req_checkbox, the_memb) = checked AND InStr(caf_progs, "SNAP") = 0 Then caf_progs = caf_progs & ", SNAP"
-	If HH_MEMB_ARRAY(cash_req_checkbox, the_memb) = checked AND InStr(caf_progs, "Cash") = 0 Then caf_progs = caf_progs & ", Cash"
-	If HH_MEMB_ARRAY(emer_req_checkbox, the_memb) = checked AND InStr(caf_progs, "EMER") = 0 Then caf_progs = caf_progs & ", EMER"
+    If HH_MEMB_ARRAY(ignore_person, the_memb) = False Then
+        If HH_MEMB_ARRAY(snap_req_checkbox, the_memb) = checked AND InStr(caf_progs, "SNAP") = 0 Then caf_progs = caf_progs & ", SNAP"
+    	If HH_MEMB_ARRAY(cash_req_checkbox, the_memb) = checked AND InStr(caf_progs, "Cash") = 0 Then caf_progs = caf_progs & ", Cash"
+    	If HH_MEMB_ARRAY(emer_req_checkbox, the_memb) = checked AND InStr(caf_progs, "EMER") = 0 Then caf_progs = caf_progs & ", EMER"
+    End If
 Next
 If left(caf_progs, 2) = ", " Then caf_progs = right(caf_progs, len(caf_progs)-2)
 objSelection.TypeText "PROGRAMS REQUESTED ON CAF: " & caf_progs & vbCr
@@ -11135,164 +11179,176 @@ If HH_MEMB_ARRAY(client_verification_details, 0) <> "" Then objSelection.TypeTex
 'Now we have a dynamic number of tables
 'each table has to be defined with its index so we need to have a variable to increment
 table_count = 4			'table index variable
+additional_person = False
 If UBound(HH_MEMB_ARRAY, 2) <> 0 Then
-	ReDim TABLE_ARRAY(UBound(HH_MEMB_ARRAY, 2)-1)		'defining the table array for as many persons aas are in the household - each person gets their own table
+    For each_member = 1 to UBound(HH_MEMB_ARRAY, 2)
+        If HH_MEMB_ARRAY(ignore_person, each_member) = False Then additional_person = True
+    Next
+End If
+If additional_person = True Then
+    numb_of_tables = 0
+    For each_member = 1 to UBound(HH_MEMB_ARRAY, 2)
+        If HH_MEMB_ARRAY(ignore_person, each_member) = False Then numb_of_tables = numb_of_tables + 1
+    Next
+    ReDim TABLE_ARRAY(numb_of_tables)		'defining the table array for as many persons aas are in the household - each person gets their own table
 	array_counters = 0		'the incrementer for the table array'
 
 	For each_member = 1 to UBound(HH_MEMB_ARRAY, 2)
-		objSelection.TypeText "PERSON " & each_member + 1
-		Set objRange = objSelection.Range										'range is needed to create tables
-		objDoc.Tables.Add objRange, 10, 1										'This sets the rows and columns needed row then column'
-		set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)			'Creates the table with the specific index - using the vairable index
-		table_count = table_count + 1											'incrementing the table index'
+		If HH_MEMB_ARRAY(ignore_person, each_member) = False Then
+            objSelection.TypeText "PERSON " & each_member + 1
+    		Set objRange = objSelection.Range										'range is needed to create tables
+    		objDoc.Tables.Add objRange, 10, 1										'This sets the rows and columns needed row then column'
+    		set TABLE_ARRAY(array_counters) = objDoc.Tables(table_count)			'Creates the table with the specific index - using the vairable index
+    		table_count = table_count + 1											'incrementing the table index'
 
-		'This table is now formatted to match how the CAF looks with person information.
-		'This formatting uses 'spliting' and resizing to make theym look like the CAF
-		TABLE_ARRAY(array_counters).AutoFormat(16)								'This adds the borders to the table and formats it
-		TABLE_ARRAY(array_counters).Columns(1).Width = 500
+    		'This table is now formatted to match how the CAF looks with person information.
+    		'This formatting uses 'spliting' and resizing to make theym look like the CAF
+    		TABLE_ARRAY(array_counters).AutoFormat(16)								'This adds the borders to the table and formats it
+    		TABLE_ARRAY(array_counters).Columns(1).Width = 500
 
-		for row = 1 to 9 Step 2
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetHeight 10, 2
-		Next
-		for row = 2 to 10 Step 2
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetHeight 15, 2
-		Next
+    		for row = 1 to 9 Step 2
+    			TABLE_ARRAY(array_counters).Cell(row, 1).SetHeight 10, 2
+    		Next
+    		for row = 2 to 10 Step 2
+    			TABLE_ARRAY(array_counters).Cell(row, 1).SetHeight 15, 2
+    		Next
 
-		For row = 1 to 2
-			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 4, TRUE
+    		For row = 1 to 2
+    			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 4, TRUE
 
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 140, 2
-			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 85, 2
-			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 85, 2
-			TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 190, 2
-		Next
-		For col = 1 to 4
-			TABLE_ARRAY(array_counters).Cell(1, col).Range.Font.Size = 6
-			TABLE_ARRAY(array_counters).Cell(2, col).Range.Font.Size = 12
-		Next
+    			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 140, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 85, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 85, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 190, 2
+    		Next
+    		For col = 1 to 4
+    			TABLE_ARRAY(array_counters).Cell(1, col).Range.Font.Size = 6
+    			TABLE_ARRAY(array_counters).Cell(2, col).Range.Font.Size = 12
+    		Next
 
-		TABLE_ARRAY(array_counters).Cell(1, 1).Range.Text = "LEGAL NAME - LAST"
-		TABLE_ARRAY(array_counters).Cell(1, 2).Range.Text = "FIRST NAME"
-		TABLE_ARRAY(array_counters).Cell(1, 3).Range.Text = "MIDDLE NAME"
-		TABLE_ARRAY(array_counters).Cell(1, 4).Range.Text = "OTHER NAMES"
+    		TABLE_ARRAY(array_counters).Cell(1, 1).Range.Text = "LEGAL NAME - LAST"
+    		TABLE_ARRAY(array_counters).Cell(1, 2).Range.Text = "FIRST NAME"
+    		TABLE_ARRAY(array_counters).Cell(1, 3).Range.Text = "MIDDLE NAME"
+    		TABLE_ARRAY(array_counters).Cell(1, 4).Range.Text = "OTHER NAMES"
 
-		TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = HH_MEMB_ARRAY(last_name_const, each_member)
-		TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = HH_MEMB_ARRAY(first_name_const, each_member)
-		TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = HH_MEMB_ARRAY(mid_initial, each_member)
-		TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = HH_MEMB_ARRAY(other_names, each_member)
+    		TABLE_ARRAY(array_counters).Cell(2, 1).Range.Text = HH_MEMB_ARRAY(last_name_const, each_member)
+    		TABLE_ARRAY(array_counters).Cell(2, 2).Range.Text = HH_MEMB_ARRAY(first_name_const, each_member)
+    		TABLE_ARRAY(array_counters).Cell(2, 3).Range.Text = HH_MEMB_ARRAY(mid_initial, each_member)
+    		TABLE_ARRAY(array_counters).Cell(2, 4).Range.Text = HH_MEMB_ARRAY(other_names, each_member)
 
-		For row = 3 to 4
-			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 5, TRUE
+    		For row = 3 to 4
+    			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 5, TRUE
 
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 95, 2
-			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 80, 2
-			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 65, 2
-			TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 190, 2
-			TABLE_ARRAY(array_counters).Cell(row, 5).SetWidth 70, 2
-		Next
-		For col = 1 to 5
-			TABLE_ARRAY(array_counters).Cell(3, col).Range.Font.Size = 6
-			TABLE_ARRAY(array_counters).Cell(4, col).Range.Font.Size = 12
-		Next
-		TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "SOCIAL SECURITY NUMBER"
-		TABLE_ARRAY(array_counters).Cell(3, 2).Range.Text = "DATE OF BIRTH"
-		TABLE_ARRAY(array_counters).Cell(3, 3).Range.Text = "GENDER"
-		TABLE_ARRAY(array_counters).Cell(3, 4).Range.Text = "RELATIONSHIP TO YOU"
-		TABLE_ARRAY(array_counters).Cell(3, 5).Range.Text = "MARITAL STATUS"
+    			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 95, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 80, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 65, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 4).SetWidth 190, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 5).SetWidth 70, 2
+    		Next
+    		For col = 1 to 5
+    			TABLE_ARRAY(array_counters).Cell(3, col).Range.Font.Size = 6
+    			TABLE_ARRAY(array_counters).Cell(4, col).Range.Font.Size = 12
+    		Next
+    		TABLE_ARRAY(array_counters).Cell(3, 1).Range.Text = "SOCIAL SECURITY NUMBER"
+    		TABLE_ARRAY(array_counters).Cell(3, 2).Range.Text = "DATE OF BIRTH"
+    		TABLE_ARRAY(array_counters).Cell(3, 3).Range.Text = "GENDER"
+    		TABLE_ARRAY(array_counters).Cell(3, 4).Range.Text = "RELATIONSHIP TO YOU"
+    		TABLE_ARRAY(array_counters).Cell(3, 5).Range.Text = "MARITAL STATUS"
 
-		TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = HH_MEMB_ARRAY(ssn, each_member)
-		TABLE_ARRAY(array_counters).Cell(4, 2).Range.Text = HH_MEMB_ARRAY(date_of_birth, each_member)
-		TABLE_ARRAY(array_counters).Cell(4, 3).Range.Text = HH_MEMB_ARRAY(gender, each_member)
-		TABLE_ARRAY(array_counters).Cell(4, 4).Range.Text = HH_MEMB_ARRAY(rel_to_applcnt, each_member)
-		TABLE_ARRAY(array_counters).Cell(4, 5).Range.Text = Left(HH_MEMB_ARRAY(marital_status, each_member), 1)
+    		TABLE_ARRAY(array_counters).Cell(4, 1).Range.Text = HH_MEMB_ARRAY(ssn, each_member)
+    		TABLE_ARRAY(array_counters).Cell(4, 2).Range.Text = HH_MEMB_ARRAY(date_of_birth, each_member)
+    		TABLE_ARRAY(array_counters).Cell(4, 3).Range.Text = HH_MEMB_ARRAY(gender, each_member)
+    		TABLE_ARRAY(array_counters).Cell(4, 4).Range.Text = HH_MEMB_ARRAY(rel_to_applcnt, each_member)
+    		TABLE_ARRAY(array_counters).Cell(4, 5).Range.Text = Left(HH_MEMB_ARRAY(marital_status, each_member), 1)
 
-		For row = 5 to 6
-			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
+    		For row = 5 to 6
+    			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
 
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 120, 2
-			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 190, 2
-			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 190, 2
-		Next
-		For col = 1 to 3
-			TABLE_ARRAY(array_counters).Cell(5, col).Range.Font.Size = 6
-			TABLE_ARRAY(array_counters).Cell(6, col).Range.Font.Size = 12
-		Next
-		TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "DO YOU NEED AN INTERPRETER?"
-		TABLE_ARRAY(array_counters).Cell(5, 2).Range.Text = "WHAT IS YOU PREFERRED SPOKEN LANGUAGE?"
-		TABLE_ARRAY(array_counters).Cell(5, 3).Range.Text = "WHAT IS YOUR PREFERRED WRITTEN LANGUAGE?"
+    			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 120, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 190, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 190, 2
+    		Next
+    		For col = 1 to 3
+    			TABLE_ARRAY(array_counters).Cell(5, col).Range.Font.Size = 6
+    			TABLE_ARRAY(array_counters).Cell(6, col).Range.Font.Size = 12
+    		Next
+    		TABLE_ARRAY(array_counters).Cell(5, 1).Range.Text = "DO YOU NEED AN INTERPRETER?"
+    		TABLE_ARRAY(array_counters).Cell(5, 2).Range.Text = "WHAT IS YOU PREFERRED SPOKEN LANGUAGE?"
+    		TABLE_ARRAY(array_counters).Cell(5, 3).Range.Text = "WHAT IS YOUR PREFERRED WRITTEN LANGUAGE?"
 
-		TABLE_ARRAY(array_counters).Cell(6, 1).Range.Text = HH_MEMB_ARRAY(interpreter, each_member)
-		TABLE_ARRAY(array_counters).Cell(6, 2).Range.Text = HH_MEMB_ARRAY(spoken_lang, each_member)
-		TABLE_ARRAY(array_counters).Cell(6, 3).Range.Text = HH_MEMB_ARRAY(written_lang, each_member)
+    		TABLE_ARRAY(array_counters).Cell(6, 1).Range.Text = HH_MEMB_ARRAY(interpreter, each_member)
+    		TABLE_ARRAY(array_counters).Cell(6, 2).Range.Text = HH_MEMB_ARRAY(spoken_lang, each_member)
+    		TABLE_ARRAY(array_counters).Cell(6, 3).Range.Text = HH_MEMB_ARRAY(written_lang, each_member)
 
-		For row = 7 to 8
-			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
+    		For row = 7 to 8
+    			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
 
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 120, 2
-			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 270, 2
-			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 110, 2
-		Next
-		For col = 1 to 3
-			TABLE_ARRAY(array_counters).Cell(7, col).Range.Font.Size = 6
-			TABLE_ARRAY(array_counters).Cell(8, col).Range.Font.Size = 12
-		Next
-		TABLE_ARRAY(array_counters).Cell(7, 1).Range.Text = "LAST SCHOOL GRADE COMPLETED"
-		TABLE_ARRAY(array_counters).Cell(7, 2).Range.Text = "MOST RECENTLY MOVED TO MINNESOTA"
-		TABLE_ARRAY(array_counters).Cell(7, 3).Range.Text = "US CITIZEN OR US NATIONAL?"
+    			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 120, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 270, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 110, 2
+    		Next
+    		For col = 1 to 3
+    			TABLE_ARRAY(array_counters).Cell(7, col).Range.Font.Size = 6
+    			TABLE_ARRAY(array_counters).Cell(8, col).Range.Font.Size = 12
+    		Next
+    		TABLE_ARRAY(array_counters).Cell(7, 1).Range.Text = "LAST SCHOOL GRADE COMPLETED"
+    		TABLE_ARRAY(array_counters).Cell(7, 2).Range.Text = "MOST RECENTLY MOVED TO MINNESOTA"
+    		TABLE_ARRAY(array_counters).Cell(7, 3).Range.Text = "US CITIZEN OR US NATIONAL?"
 
-		TABLE_ARRAY(array_counters).Cell(8, 1).Range.Text = HH_MEMB_ARRAY(last_grade_completed, each_member)
-		TABLE_ARRAY(array_counters).Cell(8, 2).Range.Text = "Date: " & HH_MEMB_ARRAY(mn_entry_date, each_member) & "   From: " & HH_MEMB_ARRAY(former_state, each_member)
-		TABLE_ARRAY(array_counters).Cell(8, 3).Range.Text = HH_MEMB_ARRAY(citizen, each_member)
+    		TABLE_ARRAY(array_counters).Cell(8, 1).Range.Text = HH_MEMB_ARRAY(last_grade_completed, each_member)
+    		TABLE_ARRAY(array_counters).Cell(8, 2).Range.Text = "Date: " & HH_MEMB_ARRAY(mn_entry_date, each_member) & "   From: " & HH_MEMB_ARRAY(former_state, each_member)
+    		TABLE_ARRAY(array_counters).Cell(8, 3).Range.Text = HH_MEMB_ARRAY(citizen, each_member)
 
-		For row = 9 to 10
-			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
+    		For row = 9 to 10
+    			TABLE_ARRAY(array_counters).Rows(row).Cells.Split 1, 3, TRUE
 
-			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 275, 2
-			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 95, 2
-			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 130, 2
-		Next
-		For col = 1 to 3
-			TABLE_ARRAY(array_counters).Cell(9, col).Range.Font.Size = 6
-			TABLE_ARRAY(array_counters).Cell(10, col).Range.Font.Size = 12
-		Next
-		TABLE_ARRAY(array_counters).Cell(9, 1).Range.Text = "WHAT PROGRAMS ARE YOU APPLYING FOR?"
-		TABLE_ARRAY(array_counters).Cell(9, 2).Range.Text = "ETHNICITY"
-		TABLE_ARRAY(array_counters).Cell(9, 3).Range.Text = "RACE"
+    			TABLE_ARRAY(array_counters).Cell(row, 1).SetWidth 275, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 2).SetWidth 95, 2
+    			TABLE_ARRAY(array_counters).Cell(row, 3).SetWidth 130, 2
+    		Next
+    		For col = 1 to 3
+    			TABLE_ARRAY(array_counters).Cell(9, col).Range.Font.Size = 6
+    			TABLE_ARRAY(array_counters).Cell(10, col).Range.Font.Size = 12
+    		Next
+    		TABLE_ARRAY(array_counters).Cell(9, 1).Range.Text = "WHAT PROGRAMS ARE YOU APPLYING FOR?"
+    		TABLE_ARRAY(array_counters).Cell(9, 2).Range.Text = "ETHNICITY"
+    		TABLE_ARRAY(array_counters).Cell(9, 3).Range.Text = "RACE"
 
-		progs_applying_for = ""
-		If HH_MEMB_ARRAY(none_req_checkbox, each_member) = checked then progs_applying_for = "NONE"
-		If HH_MEMB_ARRAY(snap_req_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", SNAP"
-		If HH_MEMB_ARRAY(cash_req_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", Cash"
-		If HH_MEMB_ARRAY(emer_req_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", Emergency Assistance"
-		If left(progs_applying_for, 2) = ", " Then progs_applying_for = right(progs_applying_for, len(progs_applying_for) - 2)
+    		progs_applying_for = ""
+    		If HH_MEMB_ARRAY(none_req_checkbox, each_member) = checked then progs_applying_for = "NONE"
+    		If HH_MEMB_ARRAY(snap_req_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", SNAP"
+    		If HH_MEMB_ARRAY(cash_req_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", Cash"
+    		If HH_MEMB_ARRAY(emer_req_checkbox, each_member) = checked then progs_applying_for = progs_applying_for & ", Emergency Assistance"
+    		If left(progs_applying_for, 2) = ", " Then progs_applying_for = right(progs_applying_for, len(progs_applying_for) - 2)
 
-		race_to_enter = ""
-		If HH_MEMB_ARRAY(race_a_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Asian"
-		If HH_MEMB_ARRAY(race_b_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Black"
-		If HH_MEMB_ARRAY(race_n_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", American Indian or Alaska Native"
-		If HH_MEMB_ARRAY(race_p_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Pacific Islander and Native Hawaiian"
-		If HH_MEMB_ARRAY(race_w_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", White"
-		If left(race_to_enter, 2) = ", " Then race_to_enter = right(race_to_enter, len(race_to_enter) - 2)
+    		race_to_enter = ""
+    		If HH_MEMB_ARRAY(race_a_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Asian"
+    		If HH_MEMB_ARRAY(race_b_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Black"
+    		If HH_MEMB_ARRAY(race_n_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", American Indian or Alaska Native"
+    		If HH_MEMB_ARRAY(race_p_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", Pacific Islander and Native Hawaiian"
+    		If HH_MEMB_ARRAY(race_w_checkbox, each_member) = checked then race_to_enter = race_to_enter & ", White"
+    		If left(race_to_enter, 2) = ", " Then race_to_enter = right(race_to_enter, len(race_to_enter) - 2)
 
-		TABLE_ARRAY(array_counters).Cell(10, 1).Range.Text = progs_applying_for
-		TABLE_ARRAY(array_counters).Cell(10, 2).Range.Text = HH_MEMB_ARRAY(ethnicity_yn, each_member)
-		TABLE_ARRAY(array_counters).Cell(10, 3).Range.Text = race_to_enter
+    		TABLE_ARRAY(array_counters).Cell(10, 1).Range.Text = progs_applying_for
+    		TABLE_ARRAY(array_counters).Cell(10, 2).Range.Text = HH_MEMB_ARRAY(ethnicity_yn, each_member)
+    		TABLE_ARRAY(array_counters).Cell(10, 3).Range.Text = race_to_enter
 
 
-		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+    		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 
-		objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(client_notes, each_member) & vbCR
-		' objSelection.Font.Bold = TRUE
-		' objSelection.TypeText "AGENCY USE:" & vbCr
-		' objSelection.Font.Bold = FALSE
-		objSelection.TypeText chr(9) & "Identity: " & HH_MEMB_ARRAY(id_verif, each_member) & vbCr
-		objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(intend_to_reside_in_mn, each_member) & vbCr
-		objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(clt_has_sponsor, each_member) & vbCr
-		objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(imig_status, each_member) & vbCr
-		objSelection.TypeText chr(9) & "Verification: " & HH_MEMB_ARRAY(client_verification, each_member) & vbCr
-		If HH_MEMB_ARRAY(client_verification_details, each_member) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & HH_MEMB_ARRAY(client_verification_details, each_member) & vbCr
+    		objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(client_notes, each_member) & vbCR
+    		' objSelection.Font.Bold = TRUE
+    		' objSelection.TypeText "AGENCY USE:" & vbCr
+    		' objSelection.Font.Bold = FALSE
+    		objSelection.TypeText chr(9) & "Identity: " & HH_MEMB_ARRAY(id_verif, each_member) & vbCr
+    		objSelection.TypeText chr(9) & "Intends to reside in MN? - " & HH_MEMB_ARRAY(intend_to_reside_in_mn, each_member) & vbCr
+    		objSelection.TypeText chr(9) & "Has Sponsor? - " & HH_MEMB_ARRAY(clt_has_sponsor, each_member) & vbCr
+    		objSelection.TypeText chr(9) & "Immigration Status: " & HH_MEMB_ARRAY(imig_status, each_member) & vbCr
+    		objSelection.TypeText chr(9) & "Verification: " & HH_MEMB_ARRAY(client_verification, each_member) & vbCr
+    		If HH_MEMB_ARRAY(client_verification_details, each_member) <> "" Then objSelection.TypeText chr(9) & chr(9) & "Details: " & HH_MEMB_ARRAY(client_verification_details, each_member) & vbCr
 
-		array_counters = array_counters + 1
+    		array_counters = array_counters + 1
+        End If
 	Next
 Else
 	objSelection.TypeText "THERE ARE NO OTHER PEOPLE TO BE LISTED ON THIS APPLICATION" & vbCr
