@@ -121,7 +121,7 @@ If grh_status <> "ACTV" then
 End if
 
 EMReadscreen current_county, 4, 21, 21
-If current_county <> worker_county_code then script_end_procedure("Out-of-county case. Cannot update. The script will now end.")
+If current_county <> UCase(worker_county_code) then script_end_procedure("Out-of-county case. Cannot update. The script will now end.")
 
 Call HCRE_panel_bypass			'Function to bypass a jenky HCRE panel. If the HCRE panel has fields not completed/'reds up' this gets us out of there.
 
