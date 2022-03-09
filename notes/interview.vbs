@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/09/2022", "For MFIP Applications an MFIP Orientation to Financial Services is required and should be completed during the interview.##~## ##~##Currently, the script does not have functionality to support the details of the MFIP Orientation Requuirement. This functionality is in the process of being built and tested.##~## ##~##Until that update is complete and ready to be released, we have added a dialog with referece links to the policy requirements that will serve as a placeholder for when to complete the MFIP Orientation during the Interview.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/29/2021", "TESTING UPDATES##~##We made a couple changes.##~## ##~##Added a 'Worker Signature' box to the first dialog as that was missing.##~##Updated the look of the first dialog and added some guidance in pop-up boxes.##~##Changed the 'Error Message' handling in the dialog so if you have to 'BACK' to a question from the last page, it will let you.##~##Removed the 'Update PROG' functionality, since it is broken.##~## ##~##Another addition is a new tool in UTILITIES to open a PDF that was previously created. Go try it out!##~##", "Casey Love, Hennepin County")
 call changelog_update("07/02/2021", "Initial version.", "Casey Love, Hennepin County")
 
@@ -9002,6 +9003,54 @@ Do
 Loop until are_we_passworded_out = FALSE
 
 call back_to_SELF
+
+'THIS IS WHERE THE MFIP ORIENTATION FUNCTIONALITY WILL GO!
+If family_cash_case_yn = "Yes" AND the_process_for_cash = "Application" Then
+
+    Do
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 551, 385, "MFIP Orientation"
+          ButtonGroup ButtonPressed
+            PushButton 370, 50, 150, 15, "Open MFIP Orientation HSR Manual", open_hsr_manual_btn
+            PushButton 360, 210, 160, 15, "Open DOCUMENT of MFIP Orientation Script", open_mfip_orientation_doc_btn
+            PushButton 335, 365, 190, 15, "MFIP Orientation Completed - Continue", continue_btn
+            PushButton 20, 285, 205, 15, "Orientation to Financial Services - CM 05.12.12.06", cm_05_12_12_06_btn
+            PushButton 20, 300, 205, 15, "Educational Requirements - CM 28.12", cm_28_12_btn
+          GroupBox 10, 10, 515, 35, "This is the place for the MFIP Orientation to Financial Services"
+          Text 160, 20, 200, 10, "Complete the MFIP Orientation to Financial Services now. "
+          Text 90, 30, 365, 10, "The MFIP Orientation needs to be completed by an Eligibility Worker and should happen during the interview."
+          GroupBox 10, 65, 515, 205, "HSR Manual Information on the MFIP Orientation"
+          Text 25, 75, 445, 10, "Workers must provide caregivers with an orientation to financial services unless the caregiver meets one of the following exemptions:"
+          Text 35, 90, 285, 10, "A single parent, or 1 parent in a 2-parent family, employed at least 35 hours per week."
+          Text 35, 105, 285, 20, "The 2nd parent in a 2-parent family, when the 2nd parent is employed at least 20 hours per week and the 1st parent is employed for at least 35 hours per week."
+          Text 35, 130, 285, 20, "Pregnant or parenting minor under the age of 20 who is not exempt from the educational requirement and is complying with that requirement."
+          Text 25, 155, 440, 20, "The Orientation to Financial Services should take place at the same time you are conducting the interview. If the resident is unable to complete the orientation at the time of interview, they have 30 days from the date MFIP is approved to complete it."
+          Text 25, 175, 330, 10, "Each caregiver who receives MFIP will need to complete the Orientation to Financial Services."
+          Text 20, 190, 70, 10, "Processing Steps"
+          Text 25, 200, 400, 10, "1. Use the MFIP Orientation to Financial Services Script to conduct the Orientation to Financial Services with the resident."
+          Text 35, 210, 305, 10, "Read through the script in its entirety as it covers all key points of the MFIP orientation."
+          Text 25, 220, 325, 10, "2. Complete the ESP Choice Sheet (D387) with the resident and place it into their ECF case folder. "
+          Text 35, 230, 305, 10, "This must be done from ECF as the available choices change weekly."
+          Text 25, 240, 400, 10, "3. Update the Fin Orient Dt: __ __ __ field on STAT/EMPS with the date you conducted the orientation."
+          Text 25, 250, 400, 10, "4. Case note that you provided the mandatory information for MFIP Orientation to Financial Services to the resident."
+          Text 10, 275, 205, 10, "Combined Manual resources on MFIP Orientation"
+          GroupBox 230, 275, 295, 85, "NOTES - Interview Script update Planned to Support the MFIP Orientation"
+          Text 240, 290, 275, 20, "Currently this script does NOT enter a CASE/NOTE or provide the verbal script for the MFIP Orientation Requirement. "
+          Text 240, 310, 275, 25, "The script is being updated to have functionality to guide you through the MFIP Orientation, but for the time being, this is the placeholder for when the orientation should happen."
+          Text 240, 340, 270, 20, "Look for script updates HERE soon as we get the MFIP Orientation embedded into the interview script."
+        EndDialog
+
+        dialog Dialog1
+        cancel_confirmation
+
+        If ButtonPressed = open_hsr_manual_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MFIP_Orientation.aspx"
+        If ButtonPressed = open_mfip_orientation_doc_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-es-manual/_layouts/15/Doc.aspx?sourcedoc=%7BCB2C8281-95F1-45EE-84D8-B2DF617AA62C%7D&file=MFIP%20Orientation%20to%20Financial%20Services.docx"
+        If ButtonPressed = cm_05_12_12_06_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_0005121206"
+        If ButtonPressed = cm_28_12_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_002812"
+
+    Loop until ButtonPressed = continue_btn
+
+End If
 
 'CLIENT RESPONSIBILITEIS
 If left(confirm_resp_read, 4) <> "YES!" Then
