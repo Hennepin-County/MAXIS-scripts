@@ -85,7 +85,7 @@ Do
 		  Text 10, 195, 245, 20, "If you use a different layout in the file you select, the script will likely not function correctly."
 		EndDialog
 
-	  	err_msg = ""
+	  err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
 		If ButtonPressed = select_a_file_button then
@@ -114,29 +114,29 @@ DIM match_based_array()  'Declaring the array this is what this list is
 ReDim match_based_array(other_note_const, 0)  'Resizing the array 'that ,list is going to have 20 parameter but to start with there is only one paparmeter it gets complicated - grid'
 'for each row the column is going to be the same information type
 'Creating constants to value the array elements this is why we create constants
-const date_posted_to_maxis_const	 	= 0 '=  Date Posted to Maxis'
-const worker_number_const			 	= 1 '=  Basket
-const client_DOB_const 				 	= 2 '=  DOB
-const relationship_const			 	= 3 '=  Relationship
-const case_earner_name_const	     	= 4 '=  Earner Name
-const maxis_case_number_const   		= 5 '=  Case #
-const client_name_const					= 6 '=  Name
-const client_ssn_const					= 7 '=  SSN
-const program_const  				 	= 8 '=  Prog
-const amount_const 					 	= 9 '=  Amount
-const income_source_const		     	= 10 '=  Employer
-const notice_sent_const		     		= 11 '=  Date Notice Sent
-const notice_sent_date_const		    = 12 '=  Date Notice Sent
-const resolution_status_const   	 	= 13 '=  How cleared
-const IEVS_period_const					= 14
-const date_cleared_const			 	= 15 '=  Date cleared
-const assigned_to_const				 	= 16 '=  Who worker who cleared
-const match_cleared_const				= 17 '=  true/false
-const other_note_const					= 18 '=  case note to check match cleared
+const date_posted_to_maxis_const	 		= 0 'Date Posted to Maxis'
+const worker_number_const			    	= 1 'Basket
+const client_DOB_const 				     	= 2 'DOB
+const relationship_const			     	= 3 'Relationship
+const case_earner_name_const	   			= 4 'Earner Name
+const maxis_case_number_const      			= 5 'Case #
+const client_name_const				     	= 6 'Name
+const client_ssn_const				    	= 7 'SSN
+const program_const  				       	= 8 'Prog
+const amount_const 					 	    = 9 'Amount
+const income_source_const		     	 	= 10 'Employer
+const notice_sent_const		     		  	= 11 'Date Notice Sent
+const notice_sent_date_const		    	= 12 'Date Notice Sent
+const resolution_status_const   	 		= 13 'How cleared
+const IEVS_period_const					    = 14
+const date_cleared_const			 	    = 15 'Date cleared
+const assigned_to_const				 	    = 16 'Who worker who cleared
+const match_cleared_const				    = 17 'true/false
+const other_note_const				    	= 18 'case note to check match cleared
 
 'setting the columns - using constant so that we know what is going on'
 const excel_col_date_posted_to_maxis	 = 1 'A' 'Date Posted to Maxis'
-const excel_col_worker_number 			 = 2 'B'  Worker #
+const excel_col_worker_number 			 = 2 'B' Worker #
 const excel_col_client_DOB				 = 3 'C' DOB
 const excel_col_relationship			 = 4 'D' Relationship
 const excel_col_case_earner_name 	     = 5 'E' Earner Name
@@ -154,9 +154,9 @@ const excel_col_assigned_to				 = 16 'P' Who worker who cleared
 const excel_col_match_cleared            = 17 'Q  case note to check match cleared
 const excel_col_period		   		     = 18 'R' match periods
 const excel_col_atr_signed				 = 19 'S' Date signed ATR
-const excel_col_evf_rcvd				 = 20 'T' Date EVF Recieved
+const excel_col_evf_rcvd				 = 20 'T' Date EVF Received
 const excel_col_other_note				 = 21 'U
-const excel_col_comments				 = 22 'V I dont use this
+const excel_col_comments				 = 22 'V I don't use this
 
 
 'Now the script adds all the clients on the excel list into an array
@@ -187,30 +187,47 @@ Do 'purpose is to read each excel row and to add into each excel array '
 
 	IF add_to_array = TRUE THEN   'Adding client information to the array - this is for READING FROM the excel
      	ReDim Preserve match_based_array(other_note_const, entry_record)	'This resizes the array based on the number of cases
-	    match_based_array(maxis_case_number_const,  entry_record)	 = MAXIS_case_number
+
+		match_based_array(maxis_case_number_const,  entry_record)	 = MAXIS_case_number
+		match_based_array(date_posted_to_maxis,  	entry_record)	 = trim(objExcel.cells(excel_row, excel_col_date_posted_to_maxis).Value)
+		match_based_array(worker_number_const,  	entry_record)	 = trim(objExcel.cells(excel_row, excel_col_worker_number).Value)
+		match_based_array(client_DOB_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_client_DOB).Value)
+
+		match_based_array(relationship_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_relationship).Value)
+		match_based_array(case_earner_name_const,  	entry_record)    = trim(objExcel.cells(excel_row, excel_col_case_earner_name).Value)
+
+		match_based_array(client_name_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_client_name).Value)
 		match_based_array(client_ssn_const, 		entry_record)	 = trim(objExcel.cells(excel_row, excel_col_client_ssn).Value)
 		match_based_array(client_ssn_const, 		entry_record)	 = replace(match_based_array(client_ssn_const, entry_record), "-", "")
-	    match_based_array(assigned_to_const,  		entry_record)	 = trim(objExcel.cells(excel_row, excel_col_assigned_to).Value)
-	    match_based_array(worker_number_const,  	entry_record)	 = trim(objExcel.cells(excel_row, excel_col_worker_number).Value)
-	    match_based_array(client_DOB_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_client_DOB).Value)
-	    match_based_array(relationship_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_relationship).Value)
-	    match_based_array(case_earner_name_const,  	entry_record)    = trim(objExcel.cells(excel_row, excel_col_case_earner_name).Value)
-	    match_based_array(client_name_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_client_name).Value)
+
 		match_based_array(program_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_program).Value)
-	    match_based_array(amount_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_amount).Value)
+		
+		match_based_array(amount_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_amount).Value)
 		match_based_array(amount_const, 			entry_record) 	 = replace(match_based_array(amount_const, entry_record), "$", "")
 		match_based_array(amount_const, 			entry_record)	 = replace(match_based_array(amount_const, entry_record), ",", "")
 		match_based_array(amount_const, 			entry_record) 	 = trim(match_based_array(amount_const, entry_record))
-	    match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
-	    match_based_array(resolution_status_const,  entry_record)    = trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) 'does it matter I repeat this'
-		match_based_array(resolution_status_const,  entry_record)    = UCASE(objExcel.cells(excel_row, excel_col_resolution_status).Value)
+
+		match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
 		match_based_array(notice_sent_date_const,  	entry_record)    = trim(objExcel.cells(excel_row, excel_date_notice_sent).Value)
-		match_based_array(date_cleared_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_date_cleared).Value)
+
+		match_based_array(resolution_status_const,  entry_record)    = trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) 'does it matter I repeat this'
+		match_based_array(resolution_status_const,  entry_record)    = UCASE(objExcel.cells(excel_row, excel_col_resolution_status).Value)
+
+		match_based_array(date_cleared_const,       entry_record)    = trim(objExcel.cells(excel_row, excel_col_date_cleared).Value)	' = 14 'N' Date cleared
+		match_based_array(claim_entered_const,      entry_record)    = trim(objExcel.cells(excel_row, excel_col_claim_entered).Value)	' = 15 'O  Claim(s) Entered
+		match_based_array(assigned_to_const,        entry_record)    = trim(objExcel.cells(excel_row, excel_col_assigned_to).Value)		' = 16 'P' Who worker who cleared
+		match_based_array(match_cleared_const,      entry_record)    = trim(objExcel.cells(excel_row, excel_col_match_cleared).Value)   ' = 17 'Q  case note to check match cleared
+		match_based_array(period_const,             entry_record)    = trim(objExcel.cells(excel_row, excel_col_period).Value)		   	' = 18 'R' match periods
+		match_based_array(atr_signed_const,         entry_record)    = trim(objExcel.cells(excel_row, excel_col_atr_signed).Value)		' = 19 'S' Date signed ATR
+		match_based_array(evf_rcvd_const,           entry_record)    = trim(objExcel.cells(excel_row, excel_col_evf_rcvd).Value)		' = 20 'T' Date EVF Received
+
 		match_based_array(IEVS_period_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_period).Value)
+		match_based_array(assigned_to_const,  		entry_record)	 = trim(objExcel.cells(excel_row, excel_col_assigned_to).Value)
+
 
 		match_based_array(other_note_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_other_note).Value)
 		match_based_array(excel_row_const, entry_record) = excel_row
-		'msgbox  "?" & entry_record
+		msgbox  "?" & entry_record
 	    'making space in the array for these variables, but valuing them as "" for now
       	entry_record = entry_record + 1			'This increments to the next entry in the array
       	stats_counter = stats_counter + 1 'Increment for stats counter
@@ -218,12 +235,13 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	END IF
 Loop
 
-'msgbox "*" & entry_record & vbcr & " excel row " & excel_row
+msgbox "*" & entry_record & vbcr & " excel row " & excel_row
 
 'Loading of cases is complete. Reviewing the cases in the array.
-'msgbox " ????" & excel_row & " " & add_to_array & vbcr & " " & MAXIS_case_number & " " & client_SSN
+msgbox " ????" & excel_row & " " & add_to_array & vbcr & " " & MAXIS_case_number & " " & client_SSN
 For item = 0 to UBound(match_based_array, 2)
 	MAXIS_case_number = match_based_array(maxis_case_number_const, item)
+	msgbox MAXIS_case_number
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
 	'CALL write_value_and_transmit(client_SSN, 3, 63)
 	CALL write_value_and_transmit(match_based_array(client_ssn_const, item), 3, 63)
@@ -290,13 +308,13 @@ For item = 0 to UBound(match_based_array, 2)
 		                	income_amount = replace(income_amount, ",", "")
 		                	income_amount = trim(income_amount)
 		                END IF
-		                'msgbox "7" & match_based_array(amount_const,  item) & vbcr & income_amount & vbcr & match_based_array(match_cleared_const, item)
+		                msgbox "7" & match_based_array(amount_const,  item) & vbcr & income_amount & vbcr & match_based_array(match_cleared_const, item)
 		                'This is the bigger loop to exit the loop for the excel sheet
 		                'IF income_source <> match_based_array(income_source_const, item) THEN match_based_array(match_cleared_const, item) = FALSE
 		                'IF active_Programs <> match_based_array(program_const,  item) THEN match_based_array(match_cleared_const, item) = FALSE
 		                IF income_amount = match_based_array(amount_const,  item) THEN match_based_array(match_cleared_const, item) = TRUE
 		                IF match_based_array(match_cleared_const, item) = TRUE THEN
-                            'msgbox "true - exit do"
+                            msgbox "true - exit do"
                             EXIT DO
                         End if
 		        		msgbox "match based array = " & income_amount = match_based_array(amount_const,  item)
@@ -306,16 +324,16 @@ For item = 0 to UBound(match_based_array, 2)
 							EXIT DO
 						END IF
 					ELSEIF match_based_array(match_cleared_const, item) = FALSE THEN
-						'msgbox "my date is false and I'm exiting the do"
+						msgbox "my date is false and I'm exiting the do"
 						PF3
-						'MsgBox "did I need to PF3?"
+						MsgBox "did I need to PF3?"
                         exit do
 					END IF
 		        END IF
 			END IF
 		END IF
 	    row = row + 1
-	    'msgbox "ROW " & row
+	    msgbox "ROW " & row
 	    IF row = 17 THEN
 		    PF8
 		    row = 7
@@ -325,7 +343,7 @@ For item = 0 to UBound(match_based_array, 2)
     '---------------------------------------------------------------------Reading potential errors for out-of-county cases
     IF match_based_array(match_cleared_const, item) = TRUE THEN
 	    '--------------------------------------------------------------------IULA
-		'msgbox " I think I shall go update "
+		msgbox " I think I shall go update "
     	EMReadScreen OutOfCounty_error, 12, 24, 2
 		IF OutOfCounty_error = "MATCH IS NOT" THEN match_based_array(match_cleared_const, item) = FALSE
 		'possiblie PRIV read here'
