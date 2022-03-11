@@ -51,15 +51,17 @@ call changelog_update("03/20/2017", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 
+'This can only be run by Maureen Headbird DEU HSS = WF7329
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------
 EMConnect ""
+
+If user_ID_for_validation <> "WF7329" THEN
+	IF user_ID_for_validation <> "WFS395" THEN
+		script_end_procedure("This is restricted to use by HSS only. Please contact your supervisor to run.")
+	END IF
+END IF
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
-back_to_self 'resetting MAXIS back to self before getting started
-Call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
-
-match_type = "WAGE"
-
 Do
 	Do
 		'The dialog is defined in the loop as it can change as buttons are pressed
@@ -110,6 +112,8 @@ Do
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 'setting the footer month to make the updates in'
+back_to_self 'resetting MAXIS back to self before getting started
+Call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
 
 'Establishing array
 DIM match_based_array()  'Declaring the array this is what this list is
@@ -506,16 +510,16 @@ For item = 0 to UBound(match_based_array, 2)
 
 	    	IF IsNumeric(days_pending) = TRUE THEN
 			 	match_based_array(match_cleared_const, item) = FALSE
-				match_based_array(date_cleared_const, item) = "FALSE"
+				match_based_array(date_cleared_const, item) = days_pending
 			ELSE
 				match_based_array(match_cleared_const, item) = TRUE
 				match_based_array(date_cleared_const, item) = date
 			END IF
 			' MsgBox "Cleared? " & match_based_array(match_cleared_const, item)
    		END IF
-	 	    '------------------------------------------------------------------STAT/MISC for claim referral tracking
-   	    IF claim_referral_tracking_dropdown <> "Not Needed" THEN
-	    'Going to the MISC panel to add claim referral tracking information
+	  	'------------------------------------------------------------------STAT/MISC for claim referral tracking
+		'Going to the MISC panel to add claim referral tracking information
+	    IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	    	CALL navigate_to_MAXIS_screen ("STAT", "MISC")
 	       	Row = 6
 	       	EMReadScreen panel_number, 1, 02, 73
@@ -573,8 +577,27 @@ For item = 0 to UBound(match_based_array, 2)
         IF match_type <> "UBEN" THEN IEVS_period = replace(IEVS_period, "/", " to ")
         IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
         Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
-		CALL navigate_to_MAXIS_screen("CASE", "NOTE")
-		EMReadScreen MAXIS_case_name, 27, 21, 40 'not always the same as the match name'
+
+		CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+		EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT
+		EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to  navigate'
+		case_invalid_error = trim(case_invalid_error)
+		IF priv_check = TRUE THEN  'PRIV cases
+		    EMReadscreen priv_worker, 26, 24, 46
+		    match_based_array(other_note_const, item) = "PRIV"
+		    match_based_array(match_cleared_const, item) = FALSE
+		    ' MsgBox "We think it is PRIV"
+		ELSEIf county_code <> worker_county_code THEN
+		  	match_based_array(other_note_const, item) = "OUT OF COUNTY CASE"
+		  	match_based_array(match_cleared_const, item) = FALSE
+		  	' MsgBox "We think it is Out of County"
+		ELSEIF instr(case_invalid_error, "IS INVALID") THEN  'CASE xxxxxxxx IS INVALID FOR PERIOD 12/99
+		    match_based_array(other_note_const, item) = case_invalid_error
+		    match_based_array(match_cleared_const, item) = FALSE
+		    ' MsgBox "INVALID?"
+		END IF
+
+		'EMReadScreen MAXIS_case_name, 27, 21, 40 'not always the same as the match name'
 		programs = ""
 		IF instr(match_based_array(program_const,  			item) , "D") THEN programs = programs & "DWP, "
 		IF instr(match_based_array(program_const,  			item) , "F") THEN programs = programs & "Food Support, "
@@ -585,6 +608,7 @@ For item = 0 to UBound(match_based_array, 2)
 		programs = trim(programs)
 		'takes the last comma off of programs when autofilled into dialog
 		IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
+		'match_based_array(period_const, item) = replace(match_based_array(period_const, item), ) TODO fix this date
 		IF match_based_array(match_cleared_const, item) = TRUE THEN
     	    PF9
     	    IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
@@ -662,3 +686,42 @@ NEXT
 STATS_counter = STATS_counter - 1   'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 
 script_end_procedure_with_error_report("Success your list has been updated, please review to ensure accuracy.")
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/11/2022
+'--Tab orders reviewed & confirmed----------------------------------------------03/11/2022
+'--Mandatory fields all present & Reviewed--------------------------------------03/11/2022
+'--All variables in dialog match mandatory fields-------------------------------03/11/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------03/11/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------03/11/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/11/2022
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/11/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------03/11/2022
+'--PRIV Case handling reviewed -------------------------------------------------03/11/2022
+'--Out-of-County handling reviewed----------------------------------------------03/11/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/11/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------03/11/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------03/11/2022
+'--Denomination reviewed -------------------------------------------------------03/11/2022
+'--Script name reviewed---------------------------------------------------------03/11/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------03/11/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------03/11/2022
+'--Comment Code-----------------------------------------------------------------03/11/2022
+'--Update Changelog for release/update------------------------------------------03/11/2022
+'--Remove testing message boxes-------------------------------------------------03/11/2022
+'--Remove testing code/unnecessary code-----------------------------------------03/11/2022
+'--Review/update SharePoint instructions----------------------------------------03/11/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------03/11/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------03/11/2022
+'--Update project team/issue contact (if applicable)----------------------------03/11/2022
