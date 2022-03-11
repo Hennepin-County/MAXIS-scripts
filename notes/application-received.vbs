@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("03/11/2022", "Added randomizer functionality for Adults appplications that appear expedited. Caseloads suggested will be either EX1 or EX2", "Ilse Ferris, Hennepin County")
 call changelog_update("03/07/2022", "Updated METS retro contact from Team 601 to Team 603.", "Ilse Ferris, Hennepin County")
 call changelog_update("1/6/2022", "The script no longer allows you to change the Appointment Notice date if one is required based on the pending programs. This change is to ensure compliance with notification requirements of the On Demand Waiver.", "Casey Love, Hennepin County")
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
@@ -506,8 +507,53 @@ IF rent   = "" THEN rent   = 0
 If snap_status = "PENDING" Then
     IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN
         If population_of_case = "Families" Then transfer_to_worker = "EZ1"      'cases that screen as expedited are defaulted to expedited specific baskets based on population
-        If population_of_case = "Adults" Then transfer_to_worker = "EX1"
+        If population_of_case = "Adults" Then
+            'making sure that Adults EXP baskets are not at limit
+            EZ1_basket_available = True
+            Call navigate_to_MAXIS_screen("REPT", "PND2")
+            Call write_value_and_transmit("EZ1", 21, 17)
+            EMReadScreen pnd2_disp_limit, 13, 6, 35
+            If pnd2_disp_limit = "Display Limit" Then EZ1_basket_available = False
+
+            EZ2_basket_available = True
+            Call navigate_to_MAXIS_screen("REPT", "PND2")
+            Call write_value_and_transmit("EZ2", 21, 17)
+            EMReadScreen pnd2_disp_limit, 13, 6, 35
+            If pnd2_disp_limit = "Display Limit" Then EZ2_basket_available = False
+
+            If (EZ1_basket_available = True and EZ2_basket_available = False) then
+                transfer_to_worker = "EZ1"
+            ElseIf (EZ1_basket_available = False and EZ2_basket_available = True) then
+                transfer_to_worker = "EZ2"
+            Else
+            'Do all the randomization here
+                Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
+                random_number = Int(100*Rnd) 'rnd function returns a value greater or equal 0 and less than 1.
+
+                msgbox random_number
+                If right(random_number, 1) = 0 or _
+                   right(random_number, 1) = 2 or _
+                   right(random_number, 1) = 4 or _
+                   right(random_number, 1) = 6 or _
+                   right(random_number, 1) = 8 then
+                    even_number = True
+                End if
+
+                If right(random_number, 1) = 1 or _
+                   right(random_number, 1) = 3 or _
+                   right(random_number, 1) = 5 or _
+                   right(random_number, 1) = 7 or _
+                   right(random_number, 1) = 9 then
+                   odd_number = True
+                End if
+
+                If odd_number = True then transfer_to_worker = "EX1"
+                If even_number = True then transfer_to_worker = "EX2"
+            End if
+        End If
+
         expedited_status = "Client Appears Expedited"                           'setting a variable with expedited information
+
     End If
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
 End If
