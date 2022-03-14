@@ -509,13 +509,13 @@ If snap_status = "PENDING" Then
         If population_of_case = "Families" Then transfer_to_worker = "EZ1"      'cases that screen as expedited are defaulted to expedited specific baskets based on population
         If population_of_case = "Adults" Then
             'making sure that Adults EXP baskets are not at limit
-            EZ1_basket_available = True
+            EX1_basket_available = True
             Call navigate_to_MAXIS_screen("REPT", "PND2")
             Call write_value_and_transmit("EX1", 21, 17)
             EMReadScreen pnd2_disp_limit, 13, 6, 35
             If pnd2_disp_limit = "Display Limit" Then EX1_basket_available = False
 
-            EZ2_basket_available = True
+            EX2_basket_available = True
             Call navigate_to_MAXIS_screen("REPT", "PND2")
             Call write_value_and_transmit("EX2", 21, 17)
             EMReadScreen pnd2_disp_limit, 13, 6, 35
