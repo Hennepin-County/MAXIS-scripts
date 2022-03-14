@@ -511,20 +511,20 @@ If snap_status = "PENDING" Then
             'making sure that Adults EXP baskets are not at limit
             EZ1_basket_available = True
             Call navigate_to_MAXIS_screen("REPT", "PND2")
-            Call write_value_and_transmit("EZ1", 21, 17)
+            Call write_value_and_transmit("EX1", 21, 17)
             EMReadScreen pnd2_disp_limit, 13, 6, 35
-            If pnd2_disp_limit = "Display Limit" Then EZ1_basket_available = False
+            If pnd2_disp_limit = "Display Limit" Then EX1_basket_available = False
 
             EZ2_basket_available = True
             Call navigate_to_MAXIS_screen("REPT", "PND2")
-            Call write_value_and_transmit("EZ2", 21, 17)
+            Call write_value_and_transmit("EX2", 21, 17)
             EMReadScreen pnd2_disp_limit, 13, 6, 35
-            If pnd2_disp_limit = "Display Limit" Then EZ2_basket_available = False
+            If pnd2_disp_limit = "Display Limit" Then EX2_basket_available = False
 
-            If (EZ1_basket_available = True and EZ2_basket_available = False) then
-                transfer_to_worker = "EZ1"
-            ElseIf (EZ1_basket_available = False and EZ2_basket_available = True) then
-                transfer_to_worker = "EZ2"
+            If (EX1_basket_available = True and EX2_basket_available = False) then
+                transfer_to_worker = "EX1"
+            ElseIf (EX1_basket_available = False and EX2_basket_available = True) then
+                transfer_to_worker = "EX2"
             Else
             'Do all the randomization here
                 Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
@@ -568,6 +568,9 @@ End If
 dlg_len = 75                'this is another dynamic dialog that needs different sizes based on what it has to display.
 IF send_appt_ltr = TRUE THEN dlg_len = dlg_len + 95
 IF how_application_rcvd = "Request to APPL Form" THEN dlg_len = dlg_len + 80
+
+back_to_self                                        'added to ensure we have the time to update and send the case in the background
+EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
 'defining the actions dialog
 Dialog1 = ""
