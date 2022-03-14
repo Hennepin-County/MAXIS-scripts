@@ -529,31 +529,11 @@ If snap_status = "PENDING" Then
             'Do all the randomization here
                 Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
                 random_number = Int(100*Rnd) 'rnd function returns a value greater or equal 0 and less than 1.
-
-                msgbox random_number
-                If right(random_number, 1) = 0 or _
-                   right(random_number, 1) = 2 or _
-                   right(random_number, 1) = 4 or _
-                   right(random_number, 1) = 6 or _
-                   right(random_number, 1) = 8 then
-                    even_number = True
-                End if
-
-                If right(random_number, 1) = 1 or _
-                   right(random_number, 1) = 3 or _
-                   right(random_number, 1) = 5 or _
-                   right(random_number, 1) = 7 or _
-                   right(random_number, 1) = 9 then
-                   odd_number = True
-                End if
-
-                If odd_number = True then transfer_to_worker = "EX1"
-                If even_number = True then transfer_to_worker = "EX2"
+                If random_number MOD 2 = 1 then transfer_to_worker = "EX1"		'odd Number
+                If random_number MOD 2 = 0 then transfer_to_worker = "EX2"		'even Number
             End if
         End If
-
         expedited_status = "Client Appears Expedited"                           'setting a variable with expedited information
-
     End If
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
 End If
