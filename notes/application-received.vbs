@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("03/11/2022", "Added randomizer functionality for Adults appplications that appear expedited. Caseloads suggested will be either EX1 or EX2", "Ilse Ferris, Hennepin County")
 call changelog_update("03/07/2022", "Updated METS retro contact from Team 601 to Team 603.", "Ilse Ferris, Hennepin County")
 call changelog_update("1/6/2022", "The script no longer allows you to change the Appointment Notice date if one is required based on the pending programs. This change is to ensure compliance with notification requirements of the On Demand Waiver.", "Casey Love, Hennepin County")
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
@@ -506,7 +507,32 @@ IF rent   = "" THEN rent   = 0
 If snap_status = "PENDING" Then
     IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN
         If population_of_case = "Families" Then transfer_to_worker = "EZ1"      'cases that screen as expedited are defaulted to expedited specific baskets based on population
-        If population_of_case = "Adults" Then transfer_to_worker = "EX1"
+        If population_of_case = "Adults" Then
+            'making sure that Adults EXP baskets are not at limit
+            EX1_basket_available = True
+            Call navigate_to_MAXIS_screen("REPT", "PND2")
+            Call write_value_and_transmit("EX1", 21, 17)
+            EMReadScreen pnd2_disp_limit, 13, 6, 35
+            If pnd2_disp_limit = "Display Limit" Then EX1_basket_available = False
+
+            EX2_basket_available = True
+            Call navigate_to_MAXIS_screen("REPT", "PND2")
+            Call write_value_and_transmit("EX2", 21, 17)
+            EMReadScreen pnd2_disp_limit, 13, 6, 35
+            If pnd2_disp_limit = "Display Limit" Then EX2_basket_available = False
+
+            If (EX1_basket_available = True and EX2_basket_available = False) then
+                transfer_to_worker = "EX1"
+            ElseIf (EX1_basket_available = False and EX2_basket_available = True) then
+                transfer_to_worker = "EX2"
+            Else
+            'Do all the randomization here
+                Randomize       'Before calling Rnd, use the Randomize statement without an argument to initialize the random-number generator.
+                random_number = Int(100*Rnd) 'rnd function returns a value greater or equal 0 and less than 1.
+                If random_number MOD 2 = 1 then transfer_to_worker = "EX1"		'odd Number
+                If random_number MOD 2 = 0 then transfer_to_worker = "EX2"		'even Number
+            End if
+        End If
         expedited_status = "Client Appears Expedited"                           'setting a variable with expedited information
     End If
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
@@ -542,6 +568,9 @@ End If
 dlg_len = 75                'this is another dynamic dialog that needs different sizes based on what it has to display.
 IF send_appt_ltr = TRUE THEN dlg_len = dlg_len + 95
 IF how_application_rcvd = "Request to APPL Form" THEN dlg_len = dlg_len + 80
+
+back_to_self                                        'added to ensure we have the time to update and send the case in the background
+EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
 'defining the actions dialog
 Dialog1 = ""
