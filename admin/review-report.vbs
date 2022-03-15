@@ -3594,8 +3594,8 @@ If renewal_option = "Send NOMIs" Then
 			send_nomi_now = False
 			in_county = True
 
-			' If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
-			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then send_nomi_now = True
+			If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" Then send_nomi_now = True						'USING DIFFERENT CRITERA DUE TO WAIVED INTVW FOR SNAP DURING COVID-19'
+			' If er_with_intherview = True AND interview_date_as_of_today = "" AND appt_notc_sent = "Y" AND MFIP_status = True Then send_nomi_now = True
 
 			If send_nomi_now = True Then
 				If notes_info = "PRIV Case." Then send_nomi_now = False
@@ -3690,8 +3690,6 @@ If renewal_option = "Send NOMIs" Then
 					PF3
 				End If
 
-			ElseIf er_with_intherview = True  AND MFIP_status = False Then
-				ObjExcel.Cells(excel_row, notc_col).Value = "Not MFIP"
 			ElseIf er_with_intherview = True AND interview_date_as_of_today <> "" Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "INTV Done"
 			ElseIf er_with_intherview = True AND MFIP_status = TRUE AND appt_notc_sent <> "Y" Then
@@ -3700,6 +3698,8 @@ If renewal_option = "Send NOMIs" Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "N/A"
 			ElseIf in_county = False Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "Out of County - " & right(curr_primary_worker, 2)
+			ElseIf er_with_intherview = True  AND MFIP_status = False Then
+				ObjExcel.Cells(excel_row, notc_col).Value = "Not MFIP"
 			End If
 		End If
 		excel_row = excel_row + 1
