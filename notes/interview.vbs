@@ -10557,7 +10557,7 @@ If left(confirm_disa_read, 4) <> "YES!" Then
 
 			  ButtonGroup ButtonPressed
 			    PushButton 15, 340, 100, 13, "Open DHS 4133", open_disa_doc
-			  Text 10, 370, 210, 10, "Confirm you have reviewed Domestic Violence Information:"
+			  Text 10, 370, 210, 10, "Confirm you have reviewed Disability Information:"
 			EndDialog
 
 			dialog Dialog1
