@@ -6815,7 +6815,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_20_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_20_interview_notes)
 
-    q_21_verbiage = "Q21.Has anyone sold, given away or traded assets in the past 12 months?(CASH ONLY)"
+    q_21_verbiage = "Q21.Has anyone sold/given away/traded assets in the past 12 mos?(CASH ONLY)"
     If question_21_yn <> "" OR trim(question_21_notes) <> "" OR question_21_verif_yn <> "" OR trim(question_21_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_21_verbiage)
 	q_21_input = "    CAF Answer - " & question_21_yn
 	If question_21_yn <> "" OR trim(question_21_notes) <> "" Then q_21_input = q_21_input & " (Confirmed)"
@@ -6917,8 +6917,9 @@ function write_interview_CASE_NOTE()
 	If left(forms_reviewed, 2) = " -" Then forms_reviewed = right(forms_reviewed, len(forms_reviewed)-2)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reviewed DHS Forms", forms_reviewed)
 	If left(confirm_snap_forms_read, 4) = "YES!" Then
-		Call write_variable_in_CASE_NOTE("SNAP Reporting discussed. Case appears to be a " & snap_reporting_type & " reporter, with the next review month of " & next_revw_month)
-		Call write_variable_in_CASE_NOTE("     This may change dependent on information received up until SNAP approval.")
+		Call write_variable_in_CASE_NOTE("SNAP Reporting discussed. Case appears to be a " & snap_reporting_type & " reporter.")
+        Call write_variable_in_CASE_NOTE("     Next review month of " & next_revw_month)
+		Call write_variable_in_CASE_NOTE("     This may change dependent on info received up until SNAP approval.")
 	End If
 
 
