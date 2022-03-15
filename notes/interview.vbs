@@ -280,7 +280,7 @@ function check_for_errors(interview_questions_clear)
 
 	' If current_listing = "2"  Then tagline = ": CAF ADDR"
 		'If living situation is 'Blank' or 'Unknown' - ask it and update
-	If living_situation = "10 - Unknown" OR living_situation = "Blank" Then err_msg = err_msg & "~!~" & "2 ^* Living Situation?##~##   - Clarify the living situation with the resident for entry."
+	If living_situation = "10 - Unknown" OR living_situation = "Blank" or living_situation = "Select" Then err_msg = err_msg & "~!~" & "2 ^* Living Situation?##~##   - Clarify the living situation with the resident for entry."
 
 	' If current_listing = "3"  Then tagline = ": CAF MEMBs"
 		'If IMIG Statis is not blank - require sponsor information
