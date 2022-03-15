@@ -2908,19 +2908,11 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 
                 call back_to_SELF
 
-
 			End If
-
-
-
-			MsgBox CAREGIVER_ARRAY(memb_name_const, caregiver) & " - DONE"
+			' MsgBox CAREGIVER_ARRAY(memb_name_const, caregiver) & " - DONE"
 		Next
-
 	End If
-
-
-	MsgBox "STOP HERE"
-
+	' MsgBox "STOP HERE"
 end function
 
 function display_expedited_dialog()
