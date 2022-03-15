@@ -11849,8 +11849,13 @@ objPers1Table.Cell(16, 3).Range.Text = race_to_enter
 objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 objSelection.TypeParagraph()						'adds a line between the table and the next information
 
+objSelection.TypeText "Household Lives in " & resi_addr_county & " County" & vbCR
+If disc_out_of_county = "RESOLVED" Then objSelection.TypeText "- Household reported living Out of Hennepin County - Case Needs Transfer - additional interview conversation: " & disc_out_of_county_confirmation & vbCr
+
 objSelection.TypeText "LIVING SITUATION: " & living_situation & vbCR
 objSelection.TypeText "INTERVIEW NOTES: " & HH_MEMB_ARRAY(client_notes, 0) & vbCR
+If disc_homeless_no_mail_addr = "RESOLVED" Then objSelection.TypeText "- Household Experiencing Housing Insecurity - MAIL is Primary Communication of Agency Requests and Actions - additional interview conversation: " & disc_homeless_confirmation & vbCr
+If disc_no_phone_number = "RESOLVED" Then objSelection.TypeText "- No Phone Number was Provided - additional interview conversation: " & disc_phone_confirmation & vbCr
 
 ' objSelection.Font.Bold = TRUE
 objSelection.TypeText "CAF 1 - EXPEDITED QUESTIONS from the CAF"
