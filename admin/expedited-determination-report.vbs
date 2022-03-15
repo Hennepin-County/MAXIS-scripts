@@ -294,7 +294,7 @@ For Each objFile in colFiles																'looping through each file
 
     exp_det_details = split(every_line_in_text_file, vbNewLine)					'creating an array of all of the information in the TXT files
 
-	objALLCASESWorkSheet.Activate												'go to the ALL CASES sheet
+	' objALLCASESWorkSheet.Activate												'go to the ALL CASES sheet - commented out because we aren't switching right now
     For Each text_line in exp_det_details										'read each line in the file
         If Instr(text_line, "^*^*^") <> 0 Then
             line_info = split(text_line, "^*^*^")								'creating a small array for each line. 0 has the header and 1 has the information
