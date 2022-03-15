@@ -6459,7 +6459,7 @@ function write_interview_CASE_NOTE()
     		End If
         End If
 	Next
-	CALL write_variable_in_CASE_NOTE("-----  ADDRESS Information -----")
+	CALL write_variable_in_CASE_NOTE("----- ADDR Information -----")
 	CALL write_variable_in_CASE_NOTE("Residence Address:")
 	CALL write_variable_in_CASE_NOTE("    " & resi_addr_street_full)
 	CALL write_variable_in_CASE_NOTE("    " & resi_addr_city & ", " & left(resi_addr_state, 2) & " " & resi_addr_zip)
@@ -6468,7 +6468,7 @@ function write_interview_CASE_NOTE()
 	If trim(reservation_name) = "" Then CALL write_variable_in_CASE_NOTE("    Lives on Reservation: " & reservation_yn)
 	If trim(reservation_name) <> "" Then CALL write_variable_in_CASE_NOTE("    Lives on Reservation: " & reservation_yn & " Name: " & reservation_name)
 	CALL write_variable_in_CASE_NOTE("    Living Situation: " & living_situation)
-	CALL write_variable_in_CASE_NOTE("Reporing Homeless: " & homeless_yn)
+	CALL write_variable_in_CASE_NOTE("Reporting Homeless: " & homeless_yn)
 	If disc_homeless_no_mail_addr = "RESOLVED" Then call write_variable_in_CASE_NOTE("* Household Experiencing Housing Insecurity - MAIL is Primary Communication of Agency Requests and Actions - additional interview conversation: " & disc_homeless_confirmation)
 	If trim(mail_addr_street_full) <> "" OR trim(mail_addr_city) <> "" OR trim(mail_addr_state) <> "" OR trim(mail_addr_zip) <> "" Then
 		CALL write_variable_in_CASE_NOTE("Mailing Address:")
@@ -6484,7 +6484,7 @@ function write_interview_CASE_NOTE()
 
 	CALL write_variable_in_CASE_NOTE("-----  CAF Information and Notes -----")
 
-	q_1_verbiage = "Q1. Everyone buy, fix, or eat food together?"
+	q_1_verbiage = "Q1. Does Everyone buy, fix, or eat food together?"
     If question_1_yn <> "" OR trim(question_1_notes) <> "" OR question_1_verif_yn <> "" OR trim(question_1_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE(q_1_verbiage)
     q_1_input = "    CAF Answer - " & question_1_yn
 	If question_1_yn <> "" OR trim(question_1_notes) <> "" Then q_1_input = q_1_input & " (Confirmed)"
@@ -6496,7 +6496,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_1_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_1_interview_notes)
 
-	q_2_verbiage = "Q2. Is anyone over age 60, disabled, unable to prepare food?"
+	q_2_verbiage = "Q2. Is anyone (60+) disabled or unable to prepare food?"
     If question_2_yn <> "" OR trim(question_2_notes) <> "" OR question_2_verif_yn <> "" OR trim(question_2_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_2_verbiage)
     q_2_input = "    CAF Answer - " & question_2_yn
 	If question_2_yn <> "" OR trim(question_2_notes) <> "" Then q_2_input = q_2_input & " (Confirmed)"
@@ -6532,7 +6532,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_4_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_4_interview_notes)
 
-    q_5_verbiage = "Q5. Is anyone blind, ill, or disabled and unable to work?"
+    q_5_verbiage = "Q5. Is anyone blind or does anyone have a limiting illness or disability?"
     If question_5_yn <> "" OR trim(question_5_notes) <> "" OR question_5_verif_yn <> "" OR trim(question_5_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_5_verbiage)
 	q_5_input = "    CAF Answer - " & question_5_yn
 	If question_5_yn <> "" OR trim(question_5_notes) <> "" Then q_5_input = q_5_input & " (Confirmed)"
@@ -6556,7 +6556,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_6_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_6_interview_notes)
 
-    q_7_verbiage = "Q7. Did anyone STOP WORKING in the past 60 days?"
+    q_7_verbiage = "Q7. Has anyone stopped, quit or refused employment in the past 60 days?"
     If question_7_yn <> "" OR trim(question_7_notes) <> "" OR question_7_verif_yn <> "" OR trim(question_7_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_7_verbiage)
 	q_7_input = "    CAF Answer - " & question_7_yn
 	If question_7_yn <> "" OR trim(question_7_notes) <> "" Then q_7_input = q_7_input & " (Confirmed)"
@@ -6631,7 +6631,7 @@ function write_interview_CASE_NOTE()
 
 	If trim(pwe_selection) <> "" AND pwe_selection <> "Select or Type" Then CALL write_variable_in_CASE_NOTE("PWE: " & pwe_selection)
 
-    q_12_verbiage = "Q12.Anyone have any UNEARNED Income?"
+    q_12_verbiage = "Q12.Does anyone have any unearned income?"
 	If q_12_totally_blank = False Then
         Call write_variable_in_CASE_NOTE(q_12_verbiage)
 		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
@@ -6667,7 +6667,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_12_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_12_interview_notes)
 
-    q_13_verbiage = "Q13.Any loans, scholarships or grants for attending school?"
+    q_13_verbiage = "Q13.Does anyone receive financial aid for attending school?"
     If question_13_yn <> "" OR trim(question_13_notes) <> "" OR question_13_verif_yn <> "" OR trim(question_13_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_13_verbiage)
 	q_13_input = "    CAF Answer - " & question_13_yn
 	If question_13_yn <> "" OR trim(question_13_notes) <> "" Then q_13_input = q_13_input & " (Confirmed)"
@@ -6679,7 +6679,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_13_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_13_interview_notes)
 
-    q_14_verbiage = "Q14.Is there any of the following housing expenses?"
+    q_14_verbiage = "Q14.Are there any of the following housing expenses?"
 	If q_14_totally_blank = False Then
         Call write_variable_in_CASE_NOTE(q_14_verbiage)
 		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
@@ -6687,14 +6687,16 @@ function write_interview_CASE_NOTE()
 		question_14_rent_yn = left(question_14_rent_yn & "   ", 5)
 		question_14_subsidy_yn = left(question_14_subsidy_yn & "   ", 5)
 		question_14_mortgage_yn = left(question_14_mortgage_yn & "   ", 5)
-		question_14_taxes_yn = left(question_14_taxes_yn & "   ", 5)
+		' question_14_taxes_yn = left(question_14_taxes_yn & "   ", 5)
 		question_14_association_yn = left(question_14_association_yn & "   ", 5)
-		question_14_insurance_yn = left(question_14_insurance_yn & "   ", 5)
+		' question_14_insurance_yn = left(question_14_insurance_yn & "   ", 5)
 		question_14_room_yn = left(question_14_room_yn & "   ", 5)
 
-		CALL write_variable_in_CASE_NOTE("       Rent - " & question_14_rent_yn        & " Rental Subsidy - " & question_14_subsidy_yn & "  Mortgage - " & question_14_mortgage_yn & " Taxes - " & question_14_taxes_yn)
-		CALL write_variable_in_CASE_NOTE(" Assoc Fees - " & question_14_association_yn & "     Room/Board - " & question_14_room_yn    & " Insurance - " & question_14_insurance_yn)
-		If trim(question_14_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_14_notes)
+		' CALL write_variable_in_CASE_NOTE("       Rent - " & question_14_rent_yn        & " Rental Subsidy - " & question_14_subsidy_yn & "  Mortgage - " & question_14_mortgage_yn & " Taxes - " & question_14_taxes_yn)
+		' CALL write_variable_in_CASE_NOTE(" Assoc Fees - " & question_14_association_yn & "     Room/Board - " & question_14_room_yn    & " Insurance - " & question_14_insurance_yn)
+		CALL write_variable_in_CASE_NOTE("       Rent - " & question_14_rent_yn &  " Rental Subsidy - " & question_14_subsidy_yn & "  Mortgage - " & question_14_mortgage_yn & "    Taxes - " & question_14_taxes_yn)
+		CALL write_variable_in_CASE_NOTE("                        Assoc Fees - " & question_14_association_yn & "Room/Board - " & question_14_room_yn    & "Insurance - " & question_14_insurance_yn)
+        If trim(question_14_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_14_notes)
 	End If
 	If question_14_verif_yn <> "" Then
 		If trim(question_14_verif_details) = "" Then CALL write_variable_in_CASE_NOTE("    Verification: " & question_14_verif_yn)
@@ -6714,21 +6716,22 @@ function write_interview_CASE_NOTE()
 		CALL write_variable_in_CASE_NOTE("    Resolution: " & disc_no_phone_yes_expense_confirmation)
 	End If
 
-    q_15_verbiage = "Q15.Is there any of the following utility expenses?"
+    q_15_verbiage = "Q15.Are there any of the following utility expenses?"
 	If q_15_totally_blank = False Then
         Call write_variable_in_CASE_NOTE(q_15_verbiage)
 		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
 
 		question_15_heat_ac_yn = left(question_15_heat_ac_yn & "   ", 5)
 		question_15_electricity_yn = left(question_15_electricity_yn & "   ", 5)
-		question_15_cooking_fuel_yn = left(question_15_cooking_fuel_yn & "   ", 5)
+		' question_15_cooking_fuel_yn = left(question_15_cooking_fuel_yn & "   ", 5)
 		question_15_water_and_sewer_yn = left(question_15_water_and_sewer_yn & "   ", 5)
 		question_15_garbage_yn = left(question_15_garbage_yn & "   ", 5)
-		question_15_phone_yn = left(question_15_phone_yn & "   ", 5)
-		question_15_liheap_yn = left(question_15_liheap_yn & "   ", 5)
+		' question_15_phone_yn = left(question_15_phone_yn & "   ", 5)
+		' question_15_liheap_yn = left(question_15_liheap_yn & "   ", 5)
 
-		CALL write_variable_in_CASE_NOTE("     Heat/AC - " & question_15_heat_ac_yn & " Electric - " & question_15_electricity_yn & " Cooking Fuel - " & question_15_cooking_fuel_yn)
-		CALL write_variable_in_CASE_NOTE(" Water/Sewer - " & question_15_water_and_sewer_yn & "  Garbage - " & question_15_garbage_yn & "        Phone - " & question_15_phone_yn & " LIHEAP - " & question_15_liheap_yn)
+		CALL write_variable_in_CASE_NOTE("        Heat/AC - " & question_15_heat_ac_yn & " Electric - " & question_15_electricity_yn & " Cooking Fuel - " & question_15_cooking_fuel_yn)
+		CALL write_variable_in_CASE_NOTE("    Water/Sewer - " & question_15_water_and_sewer_yn & "  Garbage - " & question_15_garbage_yn & "        Phone - " & question_15_phone_yn)
+        CALL write_variable_in_CASE_NOTE("    LIHEAP/Energy Assistance in past 12 months - " & question_15_liheap_yn)
 		If trim(question_15_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    WriteIn Answer - " & question_15_notes)
 	End If
 	If question_15_verif_yn <> "" Then
@@ -6779,7 +6782,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_18_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_18_interview_notes)
 
-    q_19_verbiage = "Q19.Does anyone have medical expenses? (SNAP ONLY)"
+    q_19_verbiage = "Q19.Does anyone (disabled or 60+) have medical expenses? (SNAP ONLY)"
     If question_19_yn <> "" OR trim(question_19_notes) <> "" OR question_19_verif_yn <> "" OR trim(question_19_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_19_verbiage)
 	q_19_input = "    CAF Answer - " & question_19_yn
 	If question_19_yn <> "" OR trim(question_19_notes) <> "" Then q_19_input = q_19_input & " (Confirmed)"
@@ -6791,7 +6794,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_19_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_19_interview_notes)
 
-    q_20_verbiage = "Q20.Does anyone own or is buying any of the following:"
+    q_20_verbiage = "Q20.Does anyone own or is anyone buying any of the following:"
 	If q_20_totally_blank = False Then
         Call write_variable_in_CASE_NOTE(q_20_verbiage)
 		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
@@ -6812,7 +6815,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_20_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_20_interview_notes)
 
-    q_21_verbiage = "Q21.Any Assets sold, given away, or traded in past 12 months? (CASH ONLY)"
+    q_21_verbiage = "Q21.Has anyone sold, given away or traded assets in the past 12 months?(CASH ONLY)"
     If question_21_yn <> "" OR trim(question_21_notes) <> "" OR question_21_verif_yn <> "" OR trim(question_21_interview_notes) <> "" Then Call write_variable_in_CASE_NOTE(q_21_verbiage)
 	q_21_input = "    CAF Answer - " & question_21_yn
 	If question_21_yn <> "" OR trim(question_21_notes) <> "" Then q_21_input = q_21_input & " (Confirmed)"
@@ -6848,7 +6851,7 @@ function write_interview_CASE_NOTE()
 	End If
     If trim(question_23_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE("    INTVW NOTES: " & question_23_interview_notes)
 
-    q_24_verbiage = "Q24.Does anyone have any of these expenses? (MSA ONLY)"
+    q_24_verbiage = "Q24.Does anyone have any of the following expenses? (MSA ONLY)"
 	If q_24_totally_blank = False Then
         Call write_variable_in_CASE_NOTE(q_24_verbiage)
 		CALL write_variable_in_CASE_NOTE("    CAF Answer:")
@@ -6879,7 +6882,7 @@ function write_interview_CASE_NOTE()
 	End If
 
 	IF create_verif_note = True Then Call write_variable_in_CASE_NOTE("** VERIFICATIONS REQUESTED - See previous case note for detail")
-	IF create_verif_note = False Then Call write_variable_in_CASE_NOTE("No Verifications were Indicated at this time.")
+	IF create_verif_note = False Then Call write_variable_in_CASE_NOTE("No verifications were indicated at this time.")
 
     If IsArray(note_detail_array) = True Then
     	first_resource = True
@@ -6915,7 +6918,7 @@ function write_interview_CASE_NOTE()
 	Call write_bullet_and_variable_in_CASE_NOTE("Reviewed DHS Forms", forms_reviewed)
 	If left(confirm_snap_forms_read, 4) = "YES!" Then
 		Call write_variable_in_CASE_NOTE("SNAP Reporting discussed. Case appears to be a " & snap_reporting_type & " reporter, with the next review month of " & next_revw_month)
-		Call write_variable_in_CASE_NOTE("     This may change dependant on information received up until SNAP approval.")
+		Call write_variable_in_CASE_NOTE("     This may change dependent on information received up until SNAP approval.")
 	End If
 
 
