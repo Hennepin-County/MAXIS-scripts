@@ -130,28 +130,8 @@ const choice_form_done_const        = 66
 const orientation_notes             = 67
 const last_const					= 68
 
-
-' CAREGIVER_ARRAY
-' memb_ref_numb_const
-' memb_name_const
-' memb_age_const
-' memb_is_caregiver
-' cash_request_const
-' hours_per_week_const
-' exempt_from_ed_const
-' comply_with_ed_const
-' orientation_needed_const
-' orientation_done_const
-' orientation_exempt_const
-' exemption_reason_const
-' emps_exemption_code_const
-' choice_form_done_const
-' orientation_notes
-
-
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
-
 
 
 '===========================================================================================================================
