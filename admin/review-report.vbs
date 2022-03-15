@@ -3691,7 +3691,7 @@ If renewal_option = "Send NOMIs" Then
 
 			ElseIf er_with_intherview = True AND interview_date_as_of_today <> "" Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "INTV Done"
-			ElseIf er_with_intherview = True AND MFIP_status = TRUE AND appt_notc_sent <> "Y" Then
+			ElseIf er_with_intherview = True AND appt_notc_sent <> "Y" Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "Check APPT NOTC"
 			ElseIf er_with_intherview = False Then
 				ObjExcel.Cells(excel_row, notc_col).Value = "N/A"
