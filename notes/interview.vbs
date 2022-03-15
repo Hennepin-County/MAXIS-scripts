@@ -59,6 +59,9 @@ call changelog_update("07/02/2021", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+' Call select_testing_file(selection_type, the_selection, file_path, file_branch, force_error_reporting, allow_option)
+Call select_testing_file("ALL", "", "notes/interview.vbs", "interview-2022Q1-updates", True, True)
+
 'DECLARATIONS ==============================================================================================================
 
 const ref_number					= 0
