@@ -11883,11 +11883,11 @@ objEXPTable.Cell(3, 1).Range.Text = "3. How much does your household pay for ren
 objEXPTable.Cell(3, 2).Range.Text = exp_q_3_rent_this_month
 
 objEXPTable.Cell(4, 1).Range.Text = "   What utilities do you pay?"
-If exp_pay_heat_checkbox = checked Then util_pay = util_pay & "Heat, "
-If exp_pay_ac_checkbox = checked Then util_pay = util_pay & "Air Conditioning, "
-If exp_pay_electricity_checkbox = checked Then util_pay = util_pay & "Electricity, "
-If exp_pay_phone_checkbox = checked Then util_pay = util_pay & "Phone, "
-If exp_pay_none_checkbox = checked Then util_pay = util_pay & "NONE"
+If caf_exp_pay_heat_checkbox = checked Then util_pay = util_pay & "Heat, "
+If caf_exp_pay_ac_checkbox = checked Then util_pay = util_pay & "Air Conditioning, "
+If caf_exp_pay_electricity_checkbox = checked Then util_pay = util_pay & "Electricity, "
+If caf_exp_pay_phone_checkbox = checked Then util_pay = util_pay & "Phone, "
+If caf_exp_pay_none_checkbox = checked Then util_pay = util_pay & "NONE"
 If right(util_pay, 2) = ", " Then util_pay = left(util_pay, len(util_pay) - 2)
 objEXPTable.Cell(4, 2).Range.Text = util_pay
 
