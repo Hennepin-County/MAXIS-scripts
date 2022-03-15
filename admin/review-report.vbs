@@ -3090,13 +3090,12 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 		objExcel.Cells(entry_row, 1).Value      = "Total Cases with ER Interview"             'All cases from the spreadsheet
 		objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
 		objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
-		' total_row = entry_row
+		total_row = entry_row
 		entry_row = entry_row + 1
 
 		objExcel.Cells(entry_row, 1).Value      = "Total MFIP Cases with ER Interview"             'All cases from the spreadsheet
 		objExcel.Cells(entry_row, 1).Font.Bold 	= TRUE
 		objExcel.Cells(entry_row, 2).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[MFIP Status],"&is_true&")"
-		total_row = entry_row
 		entry_row = entry_row + 1
 
 	    if successful_notices = "" then successful_notices = 0
@@ -3733,13 +3732,12 @@ If renewal_option = "Send NOMIs" Then
 	objExcel.Cells(entry_row, 4).Value      = "Total Cases with ER Interview"             'All cases from the spreadsheet
 	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
 	objExcel.Cells(entry_row, 5).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&")"
-	' total_row = entry_row
+	total_row = entry_row
 	entry_row = entry_row + 1
 
 	objExcel.Cells(entry_row, 4).Value      = "Total MFIP Cases with ER Interview"             'All cases from the spreadsheet
 	objExcel.Cells(entry_row, 4).Font.Bold 	= TRUE
 	objExcel.Cells(entry_row, 5).Value      = "=COUNTIFS(Table1[Interview ER],"&is_true&",Table1[MFIP Status],"&is_true&")"
-	total_row = entry_row
 	entry_row = entry_row + 1
 
 	if successful_notices = "" then successful_notices = 0
