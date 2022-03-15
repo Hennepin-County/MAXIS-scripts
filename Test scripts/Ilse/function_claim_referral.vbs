@@ -122,7 +122,7 @@ function claim_referral_tracking(action_taken, action_date)
 
     msgbox claim_referral
 
-    IF claim_referral = False then
+    IF claim_referral = False OR case_active = False then
         PROG_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "This case does not appear to have snap or cash active."  & vbNewLine & "Continue to case note only?" & vbNewLine, vbYesNo + vbQuestion, "No cash or snap programs")
         IF PROG_check = vbYes THEN case_note = True
         IF PROG_check = vbNo THEN
