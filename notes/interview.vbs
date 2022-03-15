@@ -6479,7 +6479,7 @@ function write_interview_CASE_NOTE()
 
 	CALL write_variable_in_CASE_NOTE("-----  CAF Information and Notes -----")
 
-	q_1_verbiage = "Q1. Does Everyone buy, fix, or eat food together?"
+	q_1_verbiage = "Q1. Does everyone buy, fix, or eat food together?"
     If question_1_yn <> "" OR trim(question_1_notes) <> "" OR question_1_verif_yn <> "" OR trim(question_1_interview_notes) <> "" Then CALL write_variable_in_CASE_NOTE(q_1_verbiage)
     q_1_input = "    CAF Answer - " & question_1_yn
 	If question_1_yn <> "" OR trim(question_1_notes) <> "" Then q_1_input = q_1_input & " (Confirmed)"
