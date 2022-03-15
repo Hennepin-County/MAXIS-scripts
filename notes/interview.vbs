@@ -117,18 +117,19 @@ const edrs_match					= 53
 const edrs_notes 					= 54
 const ignore_person                 = 55
 const pers_in_maxis                 = 56
-const cash_request_const            = 57
-const hours_per_week_const          = 58
-const exempt_from_ed_const          = 59
-const comply_with_ed_const          = 60
-const orientation_needed_const      = 61
-const orientation_done_const        = 62
-const orientation_exempt_const      = 63
-const exemption_reason_const        = 64
-const emps_exemption_code_const     = 65
-const choice_form_done_const        = 66
-const orientation_notes             = 67
-const last_const					= 68
+const memb_is_caregiver             = 57
+const cash_request_const            = 58
+const hours_per_week_const          = 59
+const exempt_from_ed_const          = 60
+const comply_with_ed_const          = 61
+const orientation_needed_const      = 62
+const orientation_done_const        = 63
+const orientation_exempt_const      = 64
+const exemption_reason_const        = 65
+const emps_exemption_code_const     = 66
+const choice_form_done_const        = 67
+const orientation_notes             = 68
+const last_const					= 69
 
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
@@ -4081,7 +4082,7 @@ function save_your_work()
 				HH_MEMB_ARRAY(fs_pwe, known_membs)&"~"&HH_MEMB_ARRAY(button_one, known_membs)&"~"&HH_MEMB_ARRAY(button_two, known_membs)&"~"&HH_MEMB_ARRAY(clt_has_sponsor, known_membs)&"~"&HH_MEMB_ARRAY(client_verification, known_membs)&"~"&_
 				HH_MEMB_ARRAY(client_verification_details, known_membs)&"~"&HH_MEMB_ARRAY(client_notes, known_membs)&"~"&HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)&"~"&race_a_info&"~"&race_b_info&"~"&race_n_info&"~"&race_p_info&"~"&race_w_info&"~"&prog_s_info&"~"&prog_c_info&"~"&_
 				prog_e_info&"~"&prog_n_info&"~"&HH_MEMB_ARRAY(ssn_no_space, known_membs)&"~"&HH_MEMB_ARRAY(edrs_msg, known_membs)&"~"&HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&_
-				HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&_
+				HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(memb_is_caregiver, known_membs)&"~"&_
                 HH_MEMB_ARRAY(cash_request_const, known_membs)&"~"&HH_MEMB_ARRAY(hours_per_week_const, known_membs)&"~"&HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(comply_with_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_needed_const, known_membs)&"~"&_
                 HH_MEMB_ARRAY(orientation_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_exempt_const, known_membs)&"~"&HH_MEMB_ARRAY(exemption_reason_const, known_membs)&"~"&HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)&"~"&_
                 HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs)
@@ -4591,7 +4592,7 @@ function save_your_work()
 				HH_MEMB_ARRAY(fs_pwe, known_membs)&"~"&HH_MEMB_ARRAY(button_one, known_membs)&"~"&HH_MEMB_ARRAY(button_two, known_membs)&"~"&HH_MEMB_ARRAY(clt_has_sponsor, known_membs)&"~"&HH_MEMB_ARRAY(client_verification, known_membs)&"~"&_
 				HH_MEMB_ARRAY(client_verification_details, known_membs)&"~"&HH_MEMB_ARRAY(client_notes, known_membs)&"~"&HH_MEMB_ARRAY(intend_to_reside_in_mn, known_membs)&"~"&race_a_info&"~"&race_b_info&"~"&race_n_info&"~"&race_p_info&"~"&race_w_info&"~"&prog_s_info&"~"&prog_c_info&"~"&_
 				prog_e_info&"~"&prog_n_info&"~"&HH_MEMB_ARRAY(ssn_no_space, known_membs)&"~"&HH_MEMB_ARRAY(edrs_msg, known_membs)&"~"&HH_MEMB_ARRAY(edrs_match, known_membs)&"~"&_
-                HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&_
+                HH_MEMB_ARRAY(edrs_notes, known_membs)&"~"&HH_MEMB_ARRAY(ignore_person, known_membs)&"~"&HH_MEMB_ARRAY(pers_in_maxis, known_membs)&"~"&HH_MEMB_ARRAY(memb_is_caregiver, known_membs)&"~"&_
                 HH_MEMB_ARRAY(cash_request_const, known_membs)&"~"&HH_MEMB_ARRAY(hours_per_week_const, known_membs)&"~"&HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(comply_with_ed_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_needed_const, known_membs)&"~"&_
                 HH_MEMB_ARRAY(orientation_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_exempt_const, known_membs)&"~"&HH_MEMB_ARRAY(exemption_reason_const, known_membs)&"~"&HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)&"~"&_
                 HH_MEMB_ARRAY(choice_form_done_const, known_membs)&"~"&HH_MEMB_ARRAY(orientation_notes, known_membs)&"~"&HH_MEMB_ARRAY(last_const, known_membs) & vbCr & vbCr
@@ -5226,7 +5227,7 @@ function restore_your_work(vars_filled)
 							HH_MEMB_ARRAY(edrs_match, known_membs)					= array_info(52)
 							HH_MEMB_ARRAY(edrs_notes, known_membs) 					= array_info(53)
 
-                            If UBound(array_info) = 68 Then
+                            If UBound(array_info) = 69 Then
                                 HH_MEMB_ARRAY(ignore_person, known_membs) 			= array_info(54)
                                 HH_MEMB_ARRAY(pers_in_maxis, known_membs) 			= array_info(55)
                                 HH_MEMB_ARRAY(last_const, known_membs)				= array_info(56)
@@ -5236,38 +5237,40 @@ function restore_your_work(vars_filled)
                                 If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = True
                                 If UCASE(HH_MEMB_ARRAY(pers_in_maxis, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(pers_in_maxis, known_membs) = False
 
+                                HH_MEMB_ARRAY(memb_is_caregiver, known_membs)      = array_info(57)
+                                If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = True
+                                If UCASE(HH_MEMB_ARRAY(memb_is_caregiver, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(memb_is_caregiver, known_membs) = False
 
-                                HH_MEMB_ARRAY(cash_request_const, known_membs)      = array_info(57)
+                                HH_MEMB_ARRAY(cash_request_const, known_membs)      = array_info(58)
                                 If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = True
                                 If UCASE(HH_MEMB_ARRAY(cash_request_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(cash_request_const, known_membs) = False
-
-                                HH_MEMB_ARRAY(hours_per_week_const, known_membs)    = array_info(58)
+                                HH_MEMB_ARRAY(hours_per_week_const, known_membs)    = array_info(59)
                                 If IsNumeric(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = True Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = HH_MEMB_ARRAY(hours_per_week_const, known_membs) * 1
                                 If trim(HH_MEMB_ARRAY(hours_per_week_const, known_membs)) = "" Then HH_MEMB_ARRAY(hours_per_week_const, known_membs) = 0
-                                HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)    = array_info(59)
+                                HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)    = array_info(60)
                                 If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = True
                                 If UCASE(HH_MEMB_ARRAY(exempt_from_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(exempt_from_ed_const, known_membs) = False
-                                HH_MEMB_ARRAY(comply_with_ed_const, known_membs)    = array_info(60)
+                                HH_MEMB_ARRAY(comply_with_ed_const, known_membs)    = array_info(61)
                                 If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = True
                                 If UCASE(HH_MEMB_ARRAY(comply_with_ed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(comply_with_ed_const, known_membs) = False
-                                HH_MEMB_ARRAY(orientation_needed_const, known_membs)= array_info(61)
+                                HH_MEMB_ARRAY(orientation_needed_const, known_membs)= array_info(62)
                                 If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = True
                                 If UCASE(HH_MEMB_ARRAY(orientation_needed_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_needed_const, known_membs) = False
 
-                                HH_MEMB_ARRAY(orientation_done_const, known_membs)  = array_info(62)
+                                HH_MEMB_ARRAY(orientation_done_const, known_membs)  = array_info(63)
                                 If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = True
                                 If UCASE(HH_MEMB_ARRAY(orientation_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_done_const, known_membs) = False
-                                HH_MEMB_ARRAY(orientation_exempt_const, known_membs)= array_info(63)
+                                HH_MEMB_ARRAY(orientation_exempt_const, known_membs)= array_info(64)
                                 If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = True
                                 If UCASE(HH_MEMB_ARRAY(orientation_exempt_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(orientation_exempt_const, known_membs) = False
-                                HH_MEMB_ARRAY(exemption_reason_const, known_membs)  = array_info(64)
-                                HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)= array_info(65)
+                                HH_MEMB_ARRAY(exemption_reason_const, known_membs)  = array_info(65)
+                                HH_MEMB_ARRAY(emps_exemption_code_const, known_membs)= array_info(66)
 
-                                HH_MEMB_ARRAY(choice_form_done_const, known_membs)  = array_info(66)
+                                HH_MEMB_ARRAY(choice_form_done_const, known_membs)  = array_info(67)
                                 If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "TRUE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = True
                                 If UCASE(HH_MEMB_ARRAY(choice_form_done_const, known_membs)) = "FALSE" Then HH_MEMB_ARRAY(choice_form_done_const, known_membs) = False
-                                HH_MEMB_ARRAY(orientation_notes, known_membs)       = array_info(67)
-                                HH_MEMB_ARRAY(last_const, known_membs)              = array_info(68)
+                                HH_MEMB_ARRAY(orientation_notes, known_membs)       = array_info(68)
+                                HH_MEMB_ARRAY(last_const, known_membs)              = array_info(69)
 
 
                             Else
@@ -8553,7 +8556,7 @@ Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_
 Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, CAF_datestamp, all_the_clients, err_msg, interpreter_information, interpreter_language, arep_interview_id_information, non_applicant_interview_info
 Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
 Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
-Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail
+Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail, family_cash_program
 
 Dim question_1_yn, question_1_notes, question_1_verif_yn, question_1_verif_details, question_1_interview_notes
 Dim question_2_yn, question_2_notes, question_2_verif_yn, question_2_verif_details, question_2_interview_notes
@@ -9674,6 +9677,21 @@ call back_to_SELF
 If MFIP_orientation_assessed_and_completed = False Then
     If cash_request = True and the_process_for_cash = "Application" and type_of_cash = "Family" Then
         Call complete_MFIP_orientation(HH_MEMB_ARRAY, ref_number, full_name_const, age, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
+        For caregiver = 0 to UBound(HH_MEMB_ARRAY, 2)
+            If HH_MEMB_ARRAY(memb_is_caregiver, caregiver) = True and HH_MEMB_ARRAY(orientation_needed_const, caregiver) = True and HH_MEMB_ARRAY(orientation_done_const, caregiver) = False and HH_MEMB_ARRAY(orientation_exempt_const, caregiver) = False Then
+                Call start_a_blank_CASE_NOTE
+
+                Call write_variable_in_CASE_NOTE("MF Orientation NOT COMPLETED for " & HH_MEMB_ARRAY(full_name_const, caregiver))
+                Call write_variable_in_CASE_NOTE("Interview completed but could not complete the MFIP Orientation at the time of the interview.")
+                Call write_variable_in_CASE_NOTE("* MFIP Orientation is still needed for " & HH_MEMB_ARRAY(full_name_const, caregiver))
+                Call write_variable_in_CASE_NOTE(HH_MEMB_ARRAY(full_name_const, caregiver) & " did not meet an exemption from completing an MFIP Orientation")
+                Call write_variable_in_CASE_NOTE("---")
+                Call write_variable_in_CASE_NOTE(worker_signature)
+                PF3
+                call back_to_SELF
+
+            End If
+        Next
     End If
 End If
 MFIP_orientation_assessed_and_completed = True
