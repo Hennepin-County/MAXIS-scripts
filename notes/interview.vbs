@@ -1697,7 +1697,7 @@ function define_main_dialog()
 			' CheckBox 30, 285, 200, 10, "Check Here if this AREP is ALSO Listed on the CAF", CAF_arep_on_CAF_checkbox
 
 			Text 10, 295, 85, 10, "Authorization of AREP:"
-			DropListBox 95, 290, 175, 15, "Select One..."+chr(9)+"AREP authorized verball"+chr(9)+"AREP Authorized by entry on the CAF"+chr(9)+"AREP authorized by seperate writen document"+chr(9)+"AREP previously entered - authorization unknown"+chr(9)+"DO NOT AUTHORIZE AN AREP"+chr(9)+arep_authorization, arep_authorization
+			DropListBox 95, 290, 175, 15, "Select One..."+chr(9)+"AREP authorized verbal"+chr(9)+"AREP Authorized by entry on the CAF"+chr(9)+"AREP authorized by seperate writen document"+chr(9)+"AREP previously entered - authorization unknown"+chr(9)+"DO NOT AUTHORIZE AN AREP"+chr(9)+arep_authorization, arep_authorization
 			PushButton 395, 292, 85, 13, "Save AREP Detail", save_information_btn
 
 		ElseIf page_display = discrepancy_questions Then
