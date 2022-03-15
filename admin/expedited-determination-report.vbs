@@ -192,10 +192,11 @@ If create_a_test_worklist = True Then
 End If
 
 Call excel_open(report_out_file, True, True, ObjExcel, objWorkbook)  			'opens the selected excel file'
-Call excel_open(discovery_template_file, True, True, ObjDISCExcel, objDISCWorkbook)  			'opens the selected excel file'
+'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
+' Call excel_open(discovery_template_file, True, True, ObjDISCExcel, objDISCWorkbook)  			'opens the selected excel file'
 
-ObjDISCExcel.ActiveWorkbook.SaveAs daily_discovery_path
-ObjDISCExcel.worksheets("CASE LIST").Activate
+' ObjDISCExcel.ActiveWorkbook.SaveAs daily_discovery_path
+' ObjDISCExcel.worksheets("CASE LIST").Activate
 
 For Each objWorkSheet In objWorkbook.Worksheets									'looking through each of the worksheets to find the 'ALL CASES' worksheet
     If instr(objWorkSheet.Name, "ALL CASES") <> 0 Then
@@ -428,36 +429,36 @@ For Each objFile in colFiles																'looping through each file
 			If line_info(0) = "DATE OF SCRIPT RUN"                      Then ObjExcel.Cells(excel_row, script_run_date_col_const).Value = line_info(1)
 			If line_info(0) = "SCRIPT RUN"                      		Then ObjExcel.Cells(excel_row, script_run_col_const).Value = line_info(1)
 
-
-			If line_info(0) = "CASE NUMBER"                             Then ObjDISCExcel.Cells(excel_row, disc_case_nbr_col_const).Value  = line_info(1)
-			If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjDISCExcel.Cells(excel_row, disc_exp_det_col_const).Value  = line_info(1)
-			If line_info(0) = "DATE OF APPLICATION" Then
-				ObjDISCExcel.Cells(excel_row, disc_appl_date_col_const).Value  = line_info(1)
-				appl_date = line_info(1)
-			End If
-
-			If line_info(0) = "APPT NOTC SENT DATE" Then
-				ObjDISCExcel.Cells(excel_row, disc_notc_date_col_const).Value  = line_info(1)
-				notc_date = line_info(1)
-			End If
-
-			If line_info(0) = "DATE OF INTERVIEW" Then
-				ObjDISCExcel.Cells(excel_row, disc_intv_date_col_const).Value  = line_info(1)
-				intvw_date = line_info(1)
-			End If
-			If line_info(0) = "DATE OF APPROVAL" Then
-				ObjDISCExcel.Cells(excel_row, disc_app_date_col_const).Value  = line_info(1)
-				app_date = line_info(1)
-			End If
-			If line_info(0) = "ID ON FILE"                              Then ObjDISCExcel.Cells(excel_row, disc_id_col_const).Value = line_info(1)
-			If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjDISCExcel.Cells(excel_row, disc_app_delays_col_const).Value = line_info(1)
-			If line_info(0) = "DET INCOME" 								Then ObjDISCExcel.Cells(excel_row, disc_income_col_const).Value  = line_info(1)
-			If line_info(0) = "DET ASSETS" 								Then ObjDISCExcel.Cells(excel_row, disc_asset_col_const).Value  = line_info(1)
-			If line_info(0) = "DET SHEL" 								Then ObjDISCExcel.Cells(excel_row, disc_shelter_col_const).Value  = line_info(1)
-			If line_info(0) = "DET HEST" 								Then ObjDISCExcel.Cells(excel_row, disc_utilities_col_const).Value  = line_info(1)
-			If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjDISCExcel.Cells(excel_row, disc_screening_col_const).Value  = line_info(1)
-			If line_info(0) = "WORKER NAME"                             Then ObjDISCExcel.Cells(excel_row, disc_worker_col_const).Value  = line_info(1)
-			If line_info(0) = "SCRIPT RUN"                      		Then ObjDISCExcel.Cells(excel_row, disc_script_run_col_const).Value = line_info(1)
+			'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
+			' If line_info(0) = "CASE NUMBER"                             Then ObjDISCExcel.Cells(excel_row, disc_case_nbr_col_const).Value  = line_info(1)
+			' If line_info(0) = "EXPEDITED DETERMINATION STATUS"          Then ObjDISCExcel.Cells(excel_row, disc_exp_det_col_const).Value  = line_info(1)
+			' If line_info(0) = "DATE OF APPLICATION" Then
+			' 	ObjDISCExcel.Cells(excel_row, disc_appl_date_col_const).Value  = line_info(1)
+			' 	appl_date = line_info(1)
+			' End If
+			'
+			' If line_info(0) = "APPT NOTC SENT DATE" Then
+			' 	ObjDISCExcel.Cells(excel_row, disc_notc_date_col_const).Value  = line_info(1)
+			' 	notc_date = line_info(1)
+			' End If
+			'
+			' If line_info(0) = "DATE OF INTERVIEW" Then
+			' 	ObjDISCExcel.Cells(excel_row, disc_intv_date_col_const).Value  = line_info(1)
+			' 	intvw_date = line_info(1)
+			' End If
+			' If line_info(0) = "DATE OF APPROVAL" Then
+			' 	ObjDISCExcel.Cells(excel_row, disc_app_date_col_const).Value  = line_info(1)
+			' 	app_date = line_info(1)
+			' End If
+			' If line_info(0) = "ID ON FILE"                              Then ObjDISCExcel.Cells(excel_row, disc_id_col_const).Value = line_info(1)
+			' If line_info(0) = "EXPLAIN APPROVAL DELAYS"                 Then ObjDISCExcel.Cells(excel_row, disc_app_delays_col_const).Value = line_info(1)
+			' If line_info(0) = "DET INCOME" 								Then ObjDISCExcel.Cells(excel_row, disc_income_col_const).Value  = line_info(1)
+			' If line_info(0) = "DET ASSETS" 								Then ObjDISCExcel.Cells(excel_row, disc_asset_col_const).Value  = line_info(1)
+			' If line_info(0) = "DET SHEL" 								Then ObjDISCExcel.Cells(excel_row, disc_shelter_col_const).Value  = line_info(1)
+			' If line_info(0) = "DET HEST" 								Then ObjDISCExcel.Cells(excel_row, disc_utilities_col_const).Value  = line_info(1)
+			' If line_info(0) = "EXPEDITED SCREENING STATUS"              Then ObjDISCExcel.Cells(excel_row, disc_screening_col_const).Value  = line_info(1)
+			' If line_info(0) = "WORKER NAME"                             Then ObjDISCExcel.Cells(excel_row, disc_worker_col_const).Value  = line_info(1)
+			' If line_info(0) = "SCRIPT RUN"                      		Then ObjDISCExcel.Cells(excel_row, disc_script_run_col_const).Value = line_info(1)
 
 			If save_to_worklist = True Then
 				If line_info(0) = "CASE NUMBER" 					Then ObjWORKExcel.Cells(work_excel_row, work_case_nbr_col_const).Value = line_info(1)
@@ -479,51 +480,52 @@ For Each objFile in colFiles																'looping through each file
 	Next
 
 	' If create_a_test_worklist = False Then
-	If IsDate(appl_date) = True Then appl_date = DateAdd("d", 0, appl_date)
-	If IsDate(notc_date) = True Then notc_date = DateAdd("d", 0, notc_date)
-	If IsDate(intvw_date) = True Then intvw_date = DateAdd("d", 0, intvw_date)
-	If IsDate(app_date) = True Then app_date = DateAdd("d", 0, app_date)
-
-	If IsDate(appl_date) = True AND IsDate(notc_date) = True Then
-		count_days = 0
-		Do While DateDiff("d", appl_date, notc_date) <> 0
-			appl_date = DateAdd("d", 1, appl_date)
-			call change_date_to_soonest_working_day(appl_date, "FORWARD")
-			If DateDiff("d", appl_date, notc_date) < 0 Then Exit Do
-			count_days = count_days + 1
-		Loop
-		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = count_days
-	Else
-		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = ""
-	End If
-
-	If IsDate(notc_date) = True AND IsDate(intvw_date) = True Then
-		count_days = 0
-		If notc_date <= intvw_date Then
-			Do While DateDiff("d", notc_date, intvw_date) <> 0
-				notc_date = DateAdd("d", 1, notc_date)
-				call change_date_to_soonest_working_day(notc_date, "FORWARD")
-				If DateDiff("d", notc_date, intvw_date) < 0 Then Exit Do
-				count_days = count_days + 1
-			Loop
-		End If
-		ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = count_days
-	Else
-		ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = ""
-	End If
-
-	If IsDate(appl_date) = True AND IsDate(app_date) = True Then
-		count_days = 0
-		Do While DateDiff("d", appl_date, app_date) <> 0
-			appl_date = DateAdd("d", 1, appl_date)
-			call change_date_to_soonest_working_day(appl_date, "FORWARD")
-			If DateDiff("d", appl_date, app_date) < 0 Then Exit Do
-			count_days = count_days + 1
-		Loop
-		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = count_days
-	Else
-		ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = ""
-	End If
+	'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
+	' If IsDate(appl_date) = True Then appl_date = DateAdd("d", 0, appl_date)
+	' If IsDate(notc_date) = True Then notc_date = DateAdd("d", 0, notc_date)
+	' If IsDate(intvw_date) = True Then intvw_date = DateAdd("d", 0, intvw_date)
+	' If IsDate(app_date) = True Then app_date = DateAdd("d", 0, app_date)
+	'
+	' If IsDate(appl_date) = True AND IsDate(notc_date) = True Then
+	' 	count_days = 0
+	' 	Do While DateDiff("d", appl_date, notc_date) <> 0
+	' 		appl_date = DateAdd("d", 1, appl_date)
+	' 		call change_date_to_soonest_working_day(appl_date, "FORWARD")
+	' 		If DateDiff("d", appl_date, notc_date) < 0 Then Exit Do
+	' 		count_days = count_days + 1
+	' 	Loop
+	' 	ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = count_days
+	' Else
+	' 	ObjDISCExcel.Cells(excel_row, disc_bdays_appl_notc_col_const).Value = ""
+	' End If
+	'
+	' If IsDate(notc_date) = True AND IsDate(intvw_date) = True Then
+	' 	count_days = 0
+	' 	If notc_date <= intvw_date Then
+	' 		Do While DateDiff("d", notc_date, intvw_date) <> 0
+	' 			notc_date = DateAdd("d", 1, notc_date)
+	' 			call change_date_to_soonest_working_day(notc_date, "FORWARD")
+	' 			If DateDiff("d", notc_date, intvw_date) < 0 Then Exit Do
+	' 			count_days = count_days + 1
+	' 		Loop
+	' 	End If
+	' 	ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = count_days
+	' Else
+	' 	ObjDISCExcel.Cells(excel_row, disc_bdays_notc_intv_col_const).Value = ""
+	' End If
+	'
+	' If IsDate(appl_date) = True AND IsDate(app_date) = True Then
+	' 	count_days = 0
+	' 	Do While DateDiff("d", appl_date, app_date) <> 0
+	' 		appl_date = DateAdd("d", 1, appl_date)
+	' 		call change_date_to_soonest_working_day(appl_date, "FORWARD")
+	' 		If DateDiff("d", appl_date, app_date) < 0 Then Exit Do
+	' 		count_days = count_days + 1
+	' 	Loop
+	' 	ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = count_days
+	' Else
+	' 	ObjDISCExcel.Cells(excel_row, disc_bdays_appl_app_col_const).Value = ""
+	' End If
 	' End If
 	excel_row = excel_row + 1													'advance to the next row
 
@@ -583,12 +585,12 @@ objDISCWorkbook.Save()		'saving the excel
 
 If leave_excel_open = "No - Close the file" Then		'if the file should be closed - it does it here.
 	objExcel.ActiveWorkbook.Close
-	ObjDISCExcel.ActiveWorkbook.Close
+	' ObjDISCExcel.ActiveWorkbook.Close					'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
 
 	objExcel.Application.Quit
 	objExcel.Quit
-	ObjDISCExcel.Application.Quit
-	ObjDISCExcel.Quit
+	' ObjDISCExcel.Application.Quit						'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
+	' ObjDISCExcel.Quit
 End If
 
 'SAVE EXCEL'
