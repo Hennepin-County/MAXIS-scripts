@@ -2856,7 +2856,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 281, 185, "Update EMPS Panel"
 				  ButtonGroup ButtonPressed
-				    PushButton 125, 135, 145, 15, "The EMPS Panel Updates is Complete", emps_update_complete_btn
+				    PushButton 125, 135, 145, 15, "The EMPS Panel Update is Complete", emps_update_complete_btn
 				  Text 15, 10, 125, 10, "Caregiver: " & CAREGIVER_ARRAY(memb_name_const, caregiver)
 				  If CAREGIVER_ARRAY(orientation_needed_const, caregiver) = True Then Text 35, 20, 205, 10, "NEEDS an MFIP Orientation"
 				  If CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then Text 35, 20, 205, 10, "Is Exempt from having an MFIP Orientation"
@@ -4644,6 +4644,8 @@ function restore_your_work(vars_filled)
 
 					If left(text_line, 10) = "CAF - DATE" Then CAF_datestamp = Mid(text_line, 14)
                     If left(text_line, 11) = "MFIP - ORNT" Then MFIP_orientation_assessed_and_completed = Mid(text_line, 15)
+                    If UCase(MFIP_orientation_assessed_and_completed) = "TRUE" Then MFIP_orientation_assessed_and_completed = True
+                    If UCase(MFIP_orientation_assessed_and_completed) = "FALSE" Then MFIP_orientation_assessed_and_completed = False
                     If left(text_line, 10) = "MFIP - DWP" Then family_cash_program = Mid(text_line, 14)
 
 					If left(text_line, 11) = "PROG - CASH" Then cash_other_req_detail = Mid(text_line, 15)
@@ -9692,7 +9694,7 @@ If MFIP_orientation_assessed_and_completed = False Then
     End If
 End If
 MFIP_orientation_assessed_and_completed = True
-
+save_your_work
 
 'CLIENT RESPONSIBILITEIS
 If left(confirm_resp_read, 4) <> "YES!" Then
