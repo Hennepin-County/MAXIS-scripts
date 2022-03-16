@@ -2358,25 +2358,23 @@ If mtaf_form_checkbox = checked Then
 	Dialog1 = "" 'Blanking out previous dialog detail
     Do
         Do
-            BeginDialog Dialog1, 0, 0, 186, 250, "MTAF dialog"
-                EditBox 55, 5, 60, 15, MTAF_date
-                DropListBox 55, 25, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", MTAF_status_dropdown
-                EditBox 55, 45, 60, 15, MFIP_elig_date
-                CheckBox 5, 65, 55, 10, "MTAF signed.", mtaf_signed_checkbox
-                CheckBox 5, 80, 140, 10, "MFIP/financial orientation completed.", mfip_financial_orientation_checkbox
-                CheckBox 5, 95, 150, 10, "Client exempt from cooperation with ES.", ES_exemption_checkbox
-                EditBox 55, 110, 60, 15, interview_date
-                CheckBox 5, 130, 135, 10, "Rights and responsibilities explained.", RR_explained_checkbox
-                ButtonGroup ButtonPressed
-                OkButton 80, 230, 50, 15
-                CancelButton 130, 230, 50, 15
-                Text 5, 10, 40, 10, "MTAF date:"
-                Text 5, 30, 45, 10, "MTAF status:"
-                Text 5, 50, 50, 10, "MFIP elig date:"
-                Text 5, 115, 50, 10, "Interview date:"
-                GroupBox 5, 140, 175, 85, ""
-                Text 15, 150, 155, 25, "*STOP WORK - Verification only necessary to verify income in the month of application/eligibility. (CM 0010.18.01)"
-                Text 15, 185, 160, 35, "**SUBSIDY - Verification of housing subsidy is a mandatory verification for MFIP. STAT must be appropriately updated to ensure accurate approval of housing grant. (CM 0010.18.01)"
+            BeginDialog Dialog1, 0, 0, 186, 235, "MTAF dialog"
+              EditBox 55, 5, 60, 15, MTAF_date
+              DropListBox 55, 25, 60, 15, "Select one..."+chr(9)+"complete"+chr(9)+"incomplete", MTAF_status_dropdown
+              EditBox 55, 45, 60, 15, MFIP_elig_date
+              CheckBox 5, 65, 55, 10, "MTAF signed.", mtaf_signed_checkbox
+              CheckBox 5, 80, 140, 10, "MFIP Financial Orientation completed.", mfip_financial_orientation_checkbox
+              CheckBox 5, 95, 150, 10, "Client exempt from cooperation with ES.", ES_exemption_checkbox
+              ButtonGroup ButtonPressed
+                PushButton 70, 110, 110, 15, "MFIP Orientation HSR Manual", mfip_orientation_info_btn
+                OkButton 80, 215, 50, 15
+                CancelButton 130, 215, 50, 15
+              Text 5, 10, 40, 10, "MTAF date:"
+              Text 5, 30, 45, 10, "MTAF status:"
+              Text 5, 50, 50, 10, "MFIP elig date:"
+              GroupBox 5, 125, 175, 85, ""
+              Text 15, 135, 155, 25, "*STOP WORK - Verification only necessary to verify income in the month of application/eligibility. (CM 0010.18.01)"
+              Text 15, 170, 160, 35, "**SUBSIDY - Verification of housing subsidy is a mandatory verification for MFIP. STAT must be appropriately updated to ensure accurate approval of housing grant. (CM 0010.18.01)"
             EndDialog
 
             err_msg = ""
@@ -2385,6 +2383,7 @@ If mtaf_form_checkbox = checked Then
             cancel_continue_confirmation(skip_mtaf)
             If IsDate(MTAF_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the MTAF was received."
             If MTAF_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate the status of the MTAF."
+            If ButtonPressed = mfip_orientation_info_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MFIP_Orientation.aspx"
             If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_mtaf = TRUE Then
                 err_msg = ""
@@ -2466,7 +2465,6 @@ If mtaf_form_checkbox = checked Then
     CALL write_variable_in_CASE_NOTE("***MTAF Processed: " & MTAF_status_dropdown & "***")
     CALL write_bullet_and_variable_in_CASE_NOTE ("Date received", MTAF_date)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Date of eligibility", MFIP_elig_date)
-    CALL write_bullet_and_variable_in_CASE_NOTE ("Date of interview", interview_date)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Address change", ADDR_change)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Household composition change", HHcomp_change)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Change in assets", asset_change)
@@ -2481,7 +2479,6 @@ If mtaf_form_checkbox = checked Then
     CALL write_bullet_and_variable_in_CASE_NOTE ("ELIG results fiated", elig_results_fiated)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Other notes", other_notes)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Verifications Needed", verifications_needed)
-    If RR_explained_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* Rights & responsibilities explained.")
     If mtaf_signed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* MTAF was signed.")
     If mfip_financial_orientation_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* MFIP orientation information reviewed/completed.")
     If ES_exemption_checkbox = checked THEN CALL write_variable_in_CASE_NOTE ("* Client is exempt from cooperation with ES at this time.")
