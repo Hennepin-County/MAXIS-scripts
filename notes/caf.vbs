@@ -9310,6 +9310,7 @@ If HC_checkbox = checked Then
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
+    Call back_to_SELF
 
 End If
 
@@ -9644,6 +9645,9 @@ If interview_waived = TRUE Then
     CALL write_variable_in_CASE_NOTE("Details can be seen in a SIR announcement on 4/14/2021")
     CALL write_variable_in_CASE_NOTE("---")
     CALL write_variable_in_CASE_NOTE(worker_signature)
+
+    PF3
+    Call back_to_SELF
 End If
 
 If interview_required = TRUE AND interview_completed_case_note_found = False Then
@@ -9725,6 +9729,7 @@ If interview_required = TRUE AND interview_completed_case_note_found = False The
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
+    Call back_to_SELF
 End If
 
 'Verification NOTE
@@ -9765,6 +9770,7 @@ If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
+    Call back_to_SELF
 End If
 
 If qual_questions_yes = TRUE AND caf_qualifying_questions_case_note_found = False Then
@@ -9779,6 +9785,8 @@ If qual_questions_yes = TRUE AND caf_qualifying_questions_case_note_found = Fals
     Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
 
+    PF3
+    Call back_to_SELF
 End If
 
 'MAIN CAF Information NOTE
