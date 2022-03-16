@@ -2384,7 +2384,11 @@ If mtaf_form_checkbox = checked Then
             cancel_continue_confirmation(skip_mtaf)
             If IsDate(MTAF_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the MTAF was received."
             If MTAF_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "* Indicate the status of the MTAF."
-            If ButtonPressed = mfip_orientation_info_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MFIP_Orientation.aspx"
+            If ButtonPressed = mfip_orientation_info_btn Then
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MFIP_Orientation.aspx"
+                err_msg = "LOOP" & err_msg
+            End If 
+
             If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_mtaf = TRUE Then
                 err_msg = ""
