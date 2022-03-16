@@ -1205,7 +1205,6 @@ function save_your_work()
             objTextStream.WriteLine "notes_on_other_assets" & "^~^~^~^~^~^~^" & notes_on_other_assets
             objTextStream.WriteLine "MEDI" & "^~^~^~^~^~^~^" & MEDI
             objTextStream.WriteLine "DISQ" & "^~^~^~^~^~^~^" & DISQ
-            If MFIP_DVD_checkbox = checked Then objTextStream.WriteLine "MFIP_DVD_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             'EXP DET'
             objTextStream.WriteLine "full_determination_done" & "^~^~^~^~^~^~^" & full_determination_done
             ' Call run_expedited_determination_script_functionality(
@@ -1599,8 +1598,6 @@ function save_your_work()
             script_run_lowdown = script_run_lowdown & vbCr & "notes_on_other_assets" & ": " & notes_on_other_assets
             script_run_lowdown = script_run_lowdown & vbCr & "MEDI" & ": " & MEDI
             script_run_lowdown = script_run_lowdown & vbCr & "DISQ" & ": " & DISQ
-            If MFIP_DVD_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "MFIP_DVD_checkbox" & ": " & "CHECKED"
-            If MFIP_DVD_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "MFIP_DVD_checkbox" & ": " & "UNCHECKED"
             'EXP DET'
             script_run_lowdown = script_run_lowdown & vbCr & "full_determination_done" & ": " & full_determination_done & vbCr & vbCr
             ' Call run_expedited_determination_script_functionality(
@@ -1696,7 +1693,7 @@ function save_your_work()
             If client_delay_TIKL_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "client_delay_TIKL_checkbox" & ": " & "UNCHECKED" & vbCr & vbCr
             script_run_lowdown = script_run_lowdown & vbCr & "verif_req_form_sent_date" & ": " & verif_req_form_sent_date
             script_run_lowdown = script_run_lowdown & vbCr & "worker_signature" & ": " & worker_signature
-            script_run_lowdown = script_run_lowdown & vbCr & "script_information_was_restored" & ":" & script_information_was_restored
+            script_run_lowdown = script_run_lowdown & vbCr & "script_information_was_restored" & ": " & script_information_was_restored
             case_note_lowdown = replace(case_notes_information, "%^%", vbCr)
             script_run_lowdown = script_run_lowdown & vbCr & vbCr & case_note_lowdown
         End If
@@ -2279,8 +2276,6 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "notes_on_other_assets" Then notes_on_other_assets = line_info(1)
                         If line_info(0) = "MEDI" Then MEDI = line_info(1)
                         If line_info(0) = "DISQ" Then DISQ = line_info(1)
-                        ' If MFIP_DVD_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "MFIP_DVD_checkbox" and line_info(1) = "CHECKED" Then MFIP_DVD_checkbox = checked
                         'EXP DET'
                         If line_info(0) = "full_determination_done" Then full_determination_done = line_info(1)
                         If UCase(full_determination_done) = "TRUE" Then full_determination_done = True
@@ -5388,7 +5383,7 @@ Dim prosp_heat_air, prosp_electric, prosp_phone, ABPS, ACCI, notes_on_acct, note
 Dim FACI, FMED, IMIG, INSA, cit_id, other_assets, case_changes, PREG, earned_income, notes_on_rest, SCHL, notes_on_jobs, notes_on_time, notes_on_sanction, notes_on_wreg, full_abawd_info, notes_on_abawd
 Dim notes_on_abawd_two, notes_on_abawd_three, programs_applied_for, TIKL_checkbox, interview_memb_list, shel_memb_list, verification_memb_list, notes_on_busi, Used_Interpreter_checkbox
 Dim arep_id_info, CS_forms_sent_date, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, other_uc_income_notes, notes_on_other_UNEA, hest_information, notes_on_other_deduction, expense_notes
-Dim address_confirmation_checkbox, manual_total_shelter, app_month_assets, confirm_no_account_panel_checkbox, notes_on_other_assets, MEDI, DISQ, MFIP_DVD_checkbox, full_determination_done
+Dim address_confirmation_checkbox, manual_total_shelter, app_month_assets, confirm_no_account_panel_checkbox, notes_on_other_assets, MEDI, DISQ, full_determination_done
 Dim determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test
 Dim is_elig_XFS, approval_date, applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, snap_denial_explain, case_assesment_text, next_steps_one, next_steps_two, next_steps_three
 Dim next_steps_four, postponed_verifs_yn, list_postponed_verifs, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn
@@ -7867,7 +7862,6 @@ Do
                       EditBox 50, 245, 500, 15, EMPS
                       ButtonGroup ButtonPressed
                         PushButton 25, 265, 15, 15, "!", tips_and_tricks_emps_button
-                      CheckBox 50, 270, 180, 10, "Sent MFIP financial orientation DVD to participant(s).", MFIP_DVD_checkbox
                       EditBox 60, 290, 495, 15, verifs_needed
                       GroupBox 105, 310, 355, 25, "Dialog Tabs"
                       Text 110, 320, 300, 10, "                       |                    |                   |                  |                    |                    |   7 - Assets    |"
@@ -8994,7 +8988,6 @@ If trim(all_abawd_notes) <> "" Then case_has_personal = TRUE
 If trim(notes_on_time) <> "" Then case_has_personal = TRUE
 If trim(notes_on_sanction) <> "" Then case_has_personal = TRUE
 If trim(EMPS) <> "" Then case_has_personal = TRUE
-If MFIP_DVD_checkbox = checked Then case_has_personal = TRUE
 If trim(MEDI) <> "" Then case_has_personal = TRUE
 If trim(DIET) <> "" Then case_has_personal = TRUE
 If trim(case_changes) <> "" Then case_has_personal = TRUE
@@ -10158,7 +10151,6 @@ Call write_bullet_and_variable_in_CASE_NOTE("Diet", DIET)
 Call write_bullet_and_variable_in_CASE_NOTE("Time Tracking (MFIP)", notes_on_time)
 Call write_bullet_and_variable_in_CASE_NOTE("MFIP Sanction", notes_on_sanction)
 Call write_bullet_and_variable_in_CASE_NOTE("MF/DWP Employment Services", EMPS)
-If MFIP_DVD_checkbox = checked Then Call write_variable_in_CASE_NOTE("* MFIP financial orientation DVD sent to participant(s).")
 
 If case_has_expenses = TRUE Then
     Call write_variable_in_CASE_NOTE("===== EXPENSES =====")
