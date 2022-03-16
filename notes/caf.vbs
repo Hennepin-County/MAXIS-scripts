@@ -1285,6 +1285,9 @@ function save_your_work()
             If client_delay_TIKL_checkbox = checked Then objTextStream.WriteLine "client_delay_TIKL_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             objTextStream.WriteLine "verif_req_form_sent_date" & "^~^~^~^~^~^~^" & verif_req_form_sent_date
             objTextStream.WriteLine "worker_signature" & "^~^~^~^~^~^~^" & worker_signature
+            objTextStream.WriteLine "script_information_was_restored" & "^~^~^~^~^~^~^" & script_information_was_restored
+
+            objTextStream.WriteLine case_notes_information
             ' objTextStream.WriteLine "" & "^~^~^~^~^~^~^" &
 
             'Close the object so it can be opened again shortly
@@ -1693,6 +1696,9 @@ function save_your_work()
             If client_delay_TIKL_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "client_delay_TIKL_checkbox" & ": " & "UNCHECKED" & vbCr & vbCr
             script_run_lowdown = script_run_lowdown & vbCr & "verif_req_form_sent_date" & ": " & verif_req_form_sent_date
             script_run_lowdown = script_run_lowdown & vbCr & "worker_signature" & ": " & worker_signature
+            script_run_lowdown = script_run_lowdown & vbCr & "script_information_was_restored" & ":" & script_information_was_restored
+            case_note_lowdown = replace(case_notes_information, "%^%", vbCr)
+            script_run_lowdown = script_run_lowdown & vbCr & vbCr & case_note_lowdown
         End If
     End With
 end function
@@ -1702,6 +1708,7 @@ function restore_your_work(vars_filled)
 
 	'Now determines name of file
 	local_changelog_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
+    script_information_was_restored = True
 
 	With objFSO
 
@@ -1814,7 +1821,8 @@ function restore_your_work(vars_filled)
                         If UCase(none_expense) = "FALSE" Then none_expense = False
                         If line_info(0) = "all_utilities" Then all_utilities = line_info(1)
                         If line_info(0) = "do_we_have_applicant_id" Then do_we_have_applicant_id = line_info(1)
-
+                        If UCase(do_we_have_applicant_id) = "TRUE" Then do_we_have_applicant_id = True
+                        If UCase(do_we_have_applicant_id) = "FALSE" Then do_we_have_applicant_id = False
                         If line_info(0) = "adult_cash" Then adult_cash = line_info(1)
                         If UCase(adult_cash) = "TRUE" Then adult_cash = True
                         If UCase(adult_cash) = "FALSE" Then adult_cash = False
@@ -1868,6 +1876,8 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "interview_with" Then interview_with = line_info(1)
                         If line_info(0) = "interview_type" Then interview_type = line_info(1)
                         If line_info(0) = "verifications_requested_case_note_found" Then verifications_requested_case_note_found = line_info(1)
+                        If UCase(verifications_requested_case_note_found) = "TRUE" Then verifications_requested_case_note_found = True
+                        If UCase(verifications_requested_case_note_found) = "FALSE" Then verifications_requested_case_note_found = False
                         If line_info(0) = "verifs_needed" Then verifs_needed = line_info(1)
                         If line_info(0) = "caf_qualifying_questions_case_note_found" Then caf_qualifying_questions_case_note_found = line_info(1)
                         If UCase(caf_qualifying_questions_case_note_found) = "TRUE" Then caf_qualifying_questions_case_note_found = True
@@ -2261,6 +2271,8 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "address_confirmation_checkbox" and line_info(1) = "CHECKED" Then address_confirmation_checkbox = checked
                         If line_info(0) = "manual_total_shelter" Then manual_total_shelter = line_info(1)
                         If line_info(0) = "manual_amount_used" Then manual_amount_used = line_info(1)
+                        If UCase(manual_amount_used) = "TRUE" Then manual_amount_used = True
+                        If UCase(manual_amount_used) = "FALSE" Then manual_amount_used = False
                         If line_info(0) = "app_month_assets" Then app_month_assets = line_info(1)
                         ' If confirm_no_account_panel_checkbox = checked Then objTextStream.WriteLine
                         If line_info(0) = "confirm_no_account_panel_checkbox" and line_info(1) = "CHECKED" Then confirm_no_account_panel_checkbox = checked
@@ -5422,6 +5434,8 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 Call remove_dash_from_droplist(county_list)
 Call find_user_name(worker_name)
 script_run_lowdown = ""
+case_notes_information = "No CASE NOTEs Attempted"
+script_information_was_restored = False
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 281, 185, "CAF Script Case number dialog"
@@ -8872,9 +8886,6 @@ If HC_checkbox = checked Then
     End If
 End If
 
-'Adding a colon to the beginning of the CAF status variable if it isn't blank (simplifies writing the header of the case note)
-If CAF_status <> "" then CAF_status = ": " & CAF_status
-
 'Adding footer month to the recertification case notes
 If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS_footer_year & " recert"
 progs_list = ""
@@ -9015,6 +9026,7 @@ If trim(FMED) <> "" Then case_has_expenses = TRUE
 'Expedited Determination Case Note
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 case_notes_information = "CASE NOTES ATTEMPTED AND OUTCOME %^% %^%"
+If HC_checkbox = unchecked Then case_notes_information = case_notes_information & "No HC NOTE Attempted - HC not checked %^% %^%"
 If HC_checkbox = checked Then
     case_notes_information = case_notes_information & "HC NOTE Attempted %^%"
     hc_note_header = HC_datestamp & " " & HC_document_received & ": " & HC_form_status
@@ -9314,6 +9326,7 @@ If HC_checkbox = checked Then
     PF3
     EMReadScreen top_note_header, 55, 5, 25
     case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+    save_your_work
 
     Call back_to_SELF
 
@@ -9634,6 +9647,7 @@ interview_note = FALSE
 'Interview Incomfation Detail Case Note
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 ' If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then
+If interview_waived = False Then case_notes_information = case_notes_information & "No Interview Waived NOTE Attempted - interview waived is false %^% %^%"
 If interview_waived = TRUE Then
     case_notes_information = case_notes_information & "Interview Waived NOTE Attempted %^%"
     case_notes_information = case_notes_information & "Script Header - " & "Interview for the Renewal was WAIVED" & " %^%"
@@ -9656,10 +9670,17 @@ If interview_waived = TRUE Then
     PF3
     EMReadScreen top_note_header, 55, 5, 25
     case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+    save_your_work
 
     Call back_to_SELF
 End If
 
+If interview_required = False or interview_completed_case_note_found = True Then
+    case_notes_information = case_notes_information & "No Interview Completed NOTE Attempted "
+    If interview_required = False Then case_notes_information = case_notes_information & "- interview required is false"
+    If interview_completed_case_note_found = True Then case_notes_information = case_notes_information & "- interview completed case note was found"
+    case_notes_information = case_notes_information & " %^% %^%"
+End If
 If interview_required = TRUE AND interview_completed_case_note_found = False Then
     interview_note = TRUE
     case_notes_information = case_notes_information & "Interview Completed NOTE Attempted %^%"
@@ -9743,12 +9764,19 @@ If interview_required = TRUE AND interview_completed_case_note_found = False The
     PF3
     EMReadScreen top_note_header, 55, 5, 25
     case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+    save_your_work
 
     Call back_to_SELF
 End If
 
 'Verification NOTE
 verifs_needed = replace(verifs_needed, "[Information here creates a SEPARATE CASE/NOTE.]", "")
+If trim(verifs_needed) = "" or verifications_requested_case_note_found = True Then
+    case_notes_information = case_notes_information & "No Verifs NOTE Attempted "
+    If trim(verifs_needed) = "" Then case_notes_information = case_notes_information & "- verif field is blank"
+    If verifications_requested_case_note_found = True Then case_notes_information = case_notes_information & "- verif case note was found"
+    case_notes_information = case_notes_information & " %^% %^%"
+End If
 If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False Then
 
     verif_counter = 1
@@ -9789,10 +9817,17 @@ If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False
     PF3
     EMReadScreen top_note_header, 55, 5, 25
     case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+    save_your_work
 
     Call back_to_SELF
 End If
 
+If qual_questions_yes = False or caf_qualifying_questions_case_note_found = True Then
+    case_notes_information = case_notes_information & "No Qualifying Questions NOTE Attempted "
+    If qual_questions_yes = False Then case_notes_information = case_notes_information & "- no qualifying questions were yes"
+    If caf_qualifying_questions_case_note_found = True Then case_notes_information = case_notes_information & "- qualifying questions case note was found"
+    case_notes_information = case_notes_information & " %^% %^%"
+End If
 If qual_questions_yes = TRUE AND caf_qualifying_questions_case_note_found = False Then
     case_notes_information = case_notes_information & "Qualifying Questions NOTE Attempted %^%"
     case_notes_information = case_notes_information & "Script Header - " & "CAF Qualifying Questions had an answer of 'YES' for at least one question" & " %^%"
@@ -9810,6 +9845,7 @@ If qual_questions_yes = TRUE AND caf_qualifying_questions_case_note_found = Fals
     PF3
     EMReadScreen top_note_header, 55, 5, 25
     case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+    save_your_work
 
     Call back_to_SELF
 End If
@@ -9820,11 +9856,11 @@ case_notes_information = case_notes_information & "MAIN CAF NOTE Attempted %^%"
 Call start_a_blank_CASE_NOTE
 
 If CAF_form = "HUF (DHS-8107)" Then
-    case_notes_information = case_notes_information & "Script Header - " & CAF_datestamp & " HUF for " & prog_and_type_list & CAF_status & " %^% %^%"
-    CALL write_variable_in_CASE_NOTE(CAF_datestamp & " HUF for " & prog_and_type_list & CAF_status)
+    case_notes_information = case_notes_information & "Script Header - " & CAF_datestamp & " HUF for " & prog_and_type_list & ": " & CAF_status & " %^% %^%"
+    CALL write_variable_in_CASE_NOTE(CAF_datestamp & " HUF for " & prog_and_type_list & ": " & CAF_status)
 Else
-    case_notes_information = case_notes_information & "Script Header - " & CAF_datestamp & " CAF for " & prog_and_type_list & CAF_status & " %^% %^%"
-    CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & prog_and_type_list & CAF_status)
+    case_notes_information = case_notes_information & "Script Header - " & CAF_datestamp & " CAF for " & prog_and_type_list & ": " & CAF_status & " %^% %^%"
+    CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & prog_and_type_list & ": " & CAF_status)
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("Form Received", CAF_form)
 'Programs requested
@@ -10209,7 +10245,6 @@ end_msg = "Success! " & CAF_form & " has been successfully noted. Please remembe
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
 If interview_waived = TRUE Then end_msg = "INTERVIEW WAIVED" & vbCR & vbCr & end_msg
 
-
-case_notes_information
+save_your_work
 
 script_end_procedure_with_error_report(end_msg)
