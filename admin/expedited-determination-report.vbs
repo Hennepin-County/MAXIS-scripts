@@ -616,11 +616,44 @@ If report_selection = "Combine Worklists" Then
 
 	last_week_sunday = DateAdd("d", adjust_to_sunday, last_week)
 	last_week_saturday = DateAdd("d", adjust_to_saturday, last_week)
+	' MsgBox "Last Week: Sunday - " & last_week_sunday & vbCr & "                   Saturday - " & last_week_saturday
 
 	'Open the worklist report
+	Call excel_open(worklist_review_file, True, True, ObjReportExcel, objReportWorkbook)  			'opens the selected excel file'
+
+	For Each objWorkSheet In objReportWorkbook.Worksheets									'looking through each of the worksheets to find the 'ALL CASES' worksheet
+		If instr(objWorkSheet.Name, "All Review Cases") <> 0 Then
+			set objALLCASESWorkSheet = objWorkSheet									'setting the 'ALL CASES' to a worksheet variable because we need it a lot
+			objALLCASESWorkSheet.Activate											'opening that worksheet
+			Exit For
+		End If
+	Next
+
+	'Now we need to find the last row in the 'ALL CASES' sheet so we don't overwrite anything
+	total_excel_row = 1																'default to the first row
+	Do
+		total_excel_row = total_excel_row + 1
+		this_case_number = trim(ObjReportExcel.Cells(total_excel_row, 1).Value)
+	Loop Until this_case_number = ""												'if the case number is blank then the row is blank
+
 	'create a sheet for last week'
 
-	' MsgBox "Last Week: Sunday - " & last_week_sunday & vbCr & "                   Saturday - " & last_week_saturday
+	'Add a sheet to the Excel with the report date
+	sheet_name = "Week of " & last_week_sunday
+	ObjReportExcel.Worksheets.Add().Name = sheet_name
+
+	For Each objWorkSheet In objReportWorkbook.Worksheets									'setting the worksheet to a variable so we can use it again
+	    If objWorkSheet.Name = sheet_name Then
+			set objTODAYWorkSheet = objWorkSheet
+			objTODAYWorkSheet.Activate
+	        Exit For
+	    End If
+	Next
+	excel_row = 2
+
+	'Add Column Headers
+	'
+
 
 
 	Set objWorkFolder = objFSO.GetFolder(worklist_template_folder)										'Creates an oject of the whole my documents folder
@@ -646,6 +679,9 @@ If report_selection = "Combine Worklists" Then
 		End If
 
 	Next
+
+	'turn the new sheet to a table
+	'save all files
 	MsgBox "Stop here"
 End If
 
