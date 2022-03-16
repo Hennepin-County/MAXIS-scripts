@@ -10704,7 +10704,7 @@ function start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_a
 
 			transmit											'saving the OTHER address
 			EMReadScreen post_office_warning, 7, 3, 6			'Reading if MAXIS indicates this is not a 'VALID ADDRESS' -- we just transmit past this
-			If post_office_warning = "Warning" Then transmit
+			If UCASE(post_office_warning) = "WARNING" Then transmit
 		End If
 		EMReadScreen memo_input_screen, 17, 2, 37				'Checking to see if we made it to the 'MEMO INPUT SCREEN' as there are sometimes warning messages
 		If memo_input_screen <> "Memo Input Screen" Then transmit 'moving past any warning message
