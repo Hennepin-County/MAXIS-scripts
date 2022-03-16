@@ -9014,9 +9014,11 @@ If trim(FMED) <> "" Then case_has_expenses = TRUE
 'THE CASE NOTES-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Expedited Determination Case Note
 'Navigates to case note, and checks to make sure we aren't in inquiry.
+case_notes_information = "CASE NOTES ATTEMPTED AND OUTCOME %^% %^%"
 If HC_checkbox = checked Then
-
+    case_notes_information = case_notes_information & "HC NOTE Attempted %^%"
     hc_note_header = HC_datestamp & " " & HC_document_received & ": " & HC_form_status
+    case_notes_information = case_notes_information & "Script Header - " & hc_note_header & " %^%"
 
     Call start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE(hc_note_header)
@@ -9310,6 +9312,9 @@ If HC_checkbox = checked Then
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
+    EMReadScreen top_note_header, 55, 5, 25
+    case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+
     Call back_to_SELF
 
 End If
@@ -9630,6 +9635,8 @@ interview_note = FALSE
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 ' If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then
 If interview_waived = TRUE Then
+    case_notes_information = case_notes_information & "Interview Waived NOTE Attempted %^%"
+    case_notes_information = case_notes_information & "Script Header - " & "Interview for the Renewal was WAIVED" & " %^%"
     Call start_a_blank_CASE_NOTE
 
     CALL write_variable_in_CASE_NOTE("Interview for the Renewal was WAIVED")
@@ -9647,11 +9654,16 @@ If interview_waived = TRUE Then
     CALL write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
+    EMReadScreen top_note_header, 55, 5, 25
+    case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+
     Call back_to_SELF
 End If
 
 If interview_required = TRUE AND interview_completed_case_note_found = False Then
     interview_note = TRUE
+    case_notes_information = case_notes_information & "Interview Completed NOTE Attempted %^%"
+    case_notes_information = case_notes_information & "Script Header - " & "~ Interview Completed on " & interview_date & " ~" & " %^%"
     Call start_a_blank_CASE_NOTE
 
     CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
@@ -9729,6 +9741,9 @@ If interview_required = TRUE AND interview_completed_case_note_found = False The
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
+    EMReadScreen top_note_header, 55, 5, 25
+    case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+
     Call back_to_SELF
 End If
 
@@ -9746,6 +9761,8 @@ If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False
         verifs_array = array(verifs_needed)
     End If
 
+    case_notes_information = case_notes_information & "Verifs NOTE Attempted %^%"
+    case_notes_information = case_notes_information & "Script Header - " & "VERIFICATIONS REQUESTED" & " %^%"
     Call start_a_blank_CASE_NOTE
 
     Call write_variable_in_CASE_NOTE("VERIFICATIONS REQUESTED")
@@ -9770,10 +9787,15 @@ If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
+    EMReadScreen top_note_header, 55, 5, 25
+    case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+
     Call back_to_SELF
 End If
 
 If qual_questions_yes = TRUE AND caf_qualifying_questions_case_note_found = False Then
+    case_notes_information = case_notes_information & "Qualifying Questions NOTE Attempted %^%"
+    case_notes_information = case_notes_information & "Script Header - " & "CAF Qualifying Questions had an answer of 'YES' for at least one question" & " %^%"
     Call start_a_blank_CASE_NOTE
 
     Call write_variable_in_CASE_NOTE("CAF Qualifying Questions had an answer of 'YES' for at least one question")
@@ -9786,16 +9808,22 @@ If qual_questions_yes = TRUE AND caf_qualifying_questions_case_note_found = Fals
     Call write_variable_in_CASE_NOTE(worker_signature)
 
     PF3
+    EMReadScreen top_note_header, 55, 5, 25
+    case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+
     Call back_to_SELF
 End If
 
 'MAIN CAF Information NOTE
 'Navigates to case note, and checks to make sure we aren't in inquiry.
+case_notes_information = case_notes_information & "MAIN CAF NOTE Attempted %^%"
 Call start_a_blank_CASE_NOTE
 
 If CAF_form = "HUF (DHS-8107)" Then
+    case_notes_information = case_notes_information & "Script Header - " & CAF_datestamp & " HUF for " & prog_and_type_list & CAF_status & " %^% %^%"
     CALL write_variable_in_CASE_NOTE(CAF_datestamp & " HUF for " & prog_and_type_list & CAF_status)
 Else
+    case_notes_information = case_notes_information & "Script Header - " & CAF_datestamp & " CAF for " & prog_and_type_list & CAF_status & " %^% %^%"
     CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & prog_and_type_list & CAF_status)
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("Form Received", CAF_form)
@@ -10180,5 +10208,8 @@ END IF
 end_msg = "Success! " & CAF_form & " has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
 If interview_waived = TRUE Then end_msg = "INTERVIEW WAIVED" & vbCR & vbCr & end_msg
+
+
+case_notes_information
 
 script_end_procedure_with_error_report(end_msg)
