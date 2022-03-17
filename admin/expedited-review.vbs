@@ -271,10 +271,10 @@ For item = 0 to UBound(expedited_array, 2)
     End if
 
     If expedited_array(appears_exp_const, item) = "" then
-        Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status)
 
         'ACTIVE SNAP Cases - not expedited, end of evaluation
-        If snap_status = "ACTIVE" then
+        If snap_status = "ACTIVE" or snap_status = "APP OPEN" or snap_status = "APP CLOSE" then
             'SNAP is active, EXP review not needed
             expedited_array(case_status_const, item) = "SNAP ACTIVE"
             expedited_array(appears_exp_const, item) = "Not Expedited"
@@ -284,7 +284,7 @@ For item = 0 to UBound(expedited_array, 2)
             check_case_note = True
         Elseif snap_case = False then
             'If SNAP is not active but MFIP is, EXP review not needed
-            IF mfip_case = True and mfip_status = "ACTIVE" then
+            IF mfip_case = True and (mfip_status = "ACTIVE" or mfip_status = "APP OPEN" or mfip_status = "APP CLOSE") then
                 expedited_array(case_status_const, item) = "MFIP ACTIVE"
                 expedited_array(appears_exp_const, item) = "Not Expedited"
                 check_case_note = False
@@ -616,7 +616,7 @@ If assignment_choice = "All Agency" then
     "Interview Needed-Appears Expedited Assignment :" & "<" & QI_assign_two & ">" & vbcr & vbcr & _
     "Pending Over 30 Days Assignment: " & "<" & QI_assign_three & ">"
     Call create_outlook_email("Jennifer.Frey@hennepin.us; Ilse.Ferris@hennepin.us", "Laurie.Hennen@hennepin.us", "Today's EXP SNAP Assignments are Ready", body_of_email , "", True)
-End if 
+End if
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 Call create_outlook_email("Brittany.Lane@hennepin.us; Debrice.Jackson@hennepin.us","Laurie.Hennen@hennepin.us", "EXP SNAP Report for YET without Interviews is Ready. EOM.", "", "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP SNAP X127FA5 " & report_date & ".xlsx", True)
