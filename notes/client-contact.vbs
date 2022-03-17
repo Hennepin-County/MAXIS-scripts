@@ -191,6 +191,8 @@ If basket_number = "X127EX9" then suggested_population = "Adults"
 If basket_number = "X127F3D" then suggested_population = "Adults"
 If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adults Basket
 
+If basket_number = "X127EY8" then suggested_population = "DWP"
+If basket_number = "X127EY9" then suggested_population = "DWP"
 If basket_number = "X127FE7" then suggested_population = "DWP"
 If basket_number = "X127FE8" then suggested_population = "DWP"
 If basket_number = "X127FE9" then suggested_population = "DWP"
