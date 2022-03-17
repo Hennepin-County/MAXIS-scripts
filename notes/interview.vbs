@@ -135,7 +135,14 @@ const last_const					= 69
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
 
-
+'HERE we are declaring some information about the questions that we ask. '
+' Generally:
+' - question number
+' - question wording
+' - caf answer yes/no
+' - caf write in
+' - interview notes
+' - verifications
 '===========================================================================================================================
 
 'FUNCTIONS =================================================================================================================
