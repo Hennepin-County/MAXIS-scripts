@@ -657,12 +657,12 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 '
 ' call script_end_procedure("DONE")
 '
-Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status)
 Call script_end_procedure("Case Information" & vbNewLine & vbNewLine & "Case Active - " & case_active & vbNewLine & "Case Pending - " & case_pending & vbNewLine & "Case REIN - " & case_rein & vbNewLine & "Family Cash - " & family_cash_case & vbNewLine &_
        "MFIP - " & mfip_case & vbNewLine & "DWP - " & dwp_case & vbNewLine & "Adult Cash - " & adult_cash_case & vbNewLine & "GA - " & ga_case & vbNewLine & "MSA - " & msa_case & vbNewLine & "GRH - " & grh_case & vbNewLine &_
-       "SNAP - " & snap_case & vbNewLine & "MA - " & ma_case & vbNewLine & "MSP - " & msp_case & vbNewLine & "CASH Pend - " & unknown_cash_pending & vbNewLine & "HC Pend - " & unknown_hc_pending & vbNewLine & "GA Status - " & ga_status & vbNewLine &_
+       "SNAP - " & snap_case & vbNewLine & "MA - " & ma_case & vbNewLine & "MSP - " & msp_case  & vbNewLine & "EMER - " & emer_case & vbNewLine & "CASH Pend - " & unknown_cash_pending & vbNewLine & "HC Pend - " & unknown_hc_pending & vbNewLine & "GA Status - " & ga_status & vbNewLine &_
 	   "MSA Status - " & msa_status & vbNewLine & "MFIP Status - " & mfip_status & vbNewLine & "DWP Status - " & dwp_status & vbNewLine & "GRH Status - " & grh_status & vbNewLine & "SNAP Status - " & snap_status & vbNewLine &_
-	   "MA Status - " & ma_status & vbNewLine & "MSP Status - " & msp_status)
+	   "MA Status - " & ma_status & vbNewLine & "MSP Status - " & msp_status & vbNewLine & "MSP Type - " & msp_type & vbNewLine & "EMER Status - " & emer_status & vbNewLine & "EMER Type - " & emer_type & vbNewLine & "Case Status - " & case_status)
 ' 'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
 ' 'Show initial dialog
 ' Do
