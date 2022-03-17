@@ -364,7 +364,10 @@ const rept_pnd2_listed_days	= 45
 const additional_app_date 	= 46
 const yesterday_action_taken = 47
 
-const error_notes 			= 48
+const case_in_other_co		= 48
+const case_closed_in_30		= 49
+
+const error_notes 			= 50
 
 'Constants for columns in the working excel sheet - to make the excel code easier to read.
 const worker_id_col         = 1
@@ -377,52 +380,59 @@ const second_app_date_col	= 7
 const rept_pnd2_days_col	= 8
 const intvw_date_col        = 9
 const quest_intvw_date_col  = 10
-const resolve_quest_intvw_col = 11
-const appt_notc_date_col    = 12
-const appt_date_col         = 13
-const appt_notc_confirm_col = 14
-const nomi_date_col         = 15
-const nomi_confirm_col      = 16
-const need_deny_col         = 17
-const next_action_col       = 18
-const recent_wl_date_col	= 19
-const day_30_col            = 20
-const correct_need_col      = 21
+' const resolve_quest_intvw_col = 11
+const other_county_col 		= 11
+const closed_in_30_col		= 12
 
-const worker_name_one_col   = 22
-const sup_name_one_col      = 23
-const issue_item_one_col    = 24
-const email_ym_one_col      = 25
-const qi_worker_one_col     = 26
+const appt_notc_date_col    = 13
+const appt_date_col         = 14
+const appt_notc_confirm_col = 15
+const nomi_date_col         = 16
+const nomi_confirm_col      = 17
+const need_deny_col         = 18
+const next_action_col       = 19
+const recent_wl_date_col	= 20
+const day_30_col            = 21
+const worker_notes_col      = 22
+const script_notes_col		= 23
 
-const worker_name_two_col   = 27
-const sup_name_two_col      = 28
-const issue_item_two_col    = 29
-const email_ym_two_col      = 30
-const qi_worker_two_col     = 31
+const worker_name_one_col   = 24
+const sup_name_one_col      = 25
+const issue_item_one_col    = 26
+const email_ym_one_col      = 27
+const qi_worker_one_col     = 28
 
-const worker_name_three_col = 32
-const sup_name_three_col    = 33
-const issue_item_three_col  = 34
-const email_ym_three_col    = 35
-const qi_worker_three_col   = 36
+const worker_name_two_col   = 29
+const sup_name_two_col      = 30
+const issue_item_two_col    = 31
+const email_ym_two_col      = 32
+const qi_worker_two_col     = 33
+
+const worker_name_three_col = 34
+const sup_name_three_col    = 35
+const issue_item_three_col  = 36
+const email_ym_three_col    = 37
+const qi_worker_three_col   = 38
 
 const wl_rept_pnd2_days_col		= 6		'worklist'
 const wl_app_date_col 			= 7		'worklist'
-const wl_second_app_date_col	= 8	'worklist'
+const wl_second_app_date_col	= 8		'worklist'
 const wl_intvw_date_col        	= 9		'worklist'
-const wl_quest_intvw_date_col  	= 10		'worklist'
-const wl_resolve_quest_intvw_col	= 11	'worklist'
-const wl_appt_notc_date_col   	= 12	'worklist'
-const wl_appt_date_col         	= 13	'worklist'
-const wl_nomi_date_col         	= 14	'worklist'
-const wl_day_30_col 			= 15	'worklist'
-const wl_deny_col 				= 16	'worklist'
-const wl_ecf_doc_accepted_col	= 17	'worklist'
-const wl_action_taken_col 		= 18	'worklist'
-const wl_work_notes_col			= 19	'worklist'
-const wl_email_worker_col		= 20	'worklist'
-const wl_email_issue_col		= 21	'worklist'
+const wl_quest_intvw_date_col  	= 10	'worklist'
+' const wl_resolve_quest_intvw_col	= 11	'worklist'
+const wl_other_county_col		= 11	'worklist'
+const wl_closed_in_30_col		= 12	'worklist'
+
+const wl_appt_notc_date_col   	= 13	'worklist'
+const wl_appt_date_col         	= 14	'worklist'
+const wl_nomi_date_col         	= 15	'worklist'
+const wl_day_30_col 			= 16	'worklist'
+const wl_deny_col 				= 17	'worklist'
+const wl_ecf_doc_accepted_col	= 18	'worklist'
+const wl_action_taken_col 		= 19	'worklist'
+const wl_work_notes_col			= 20	'worklist'
+const wl_email_worker_col		= 21	'worklist'
+const wl_email_issue_col		= 22	'worklist'
 
 next_working_day = DateAdd("d", 1, date)
 Call change_date_to_soonest_working_day(next_working_day, "FORWARD")
@@ -525,7 +535,12 @@ Do
                 CASES_NO_LONGER_WORKING(nomi_confirm, case_removed) = ObjWorkExcel.Cells(row, nomi_confirm_col)
                 CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
                 CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-				CASES_NO_LONGER_WORKING(intvw_quest_resolve, case_removed) = ObjWorkExcel.Cells(row, resolve_quest_intvw_col)
+
+				CASES_NO_LONGER_WORKING(case_in_other_co, case_removed) = ObjWorkExcel.Cells(row, other_county_col)
+				CASES_NO_LONGER_WORKING(case_closed_in_30, case_removed) = ObjWorkExcel.Cells(row, closed_in_30_col)
+
+				' CASES_NO_LONGER_WORKING(intvw_quest_resolve, case_removed) = ObjWorkExcel.Cells(row, resolve_quest_intvw_col)
+
 
                 CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
                 CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
@@ -572,7 +587,12 @@ Do
                 CASES_NO_LONGER_WORKING(nomi_confirm, case_removed) = ObjWorkExcel.Cells(row, nomi_confirm_col)
                 CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
                 CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-				CASES_NO_LONGER_WORKING(intvw_quest_resolve, case_removed) = ObjWorkExcel.Cells(row, resolve_quest_intvw_col)
+
+				CASES_NO_LONGER_WORKING(case_in_other_co, case_removed) = ObjWorkExcel.Cells(row, other_county_col)
+				CASES_NO_LONGER_WORKING(case_closed_in_30, case_removed) = ObjWorkExcel.Cells(row, closed_in_30_col)
+
+				' CASES_NO_LONGER_WORKING(intvw_quest_resolve, case_removed) = ObjWorkExcel.Cells(row, resolve_quest_intvw_col)
+
                 CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
                 CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
                 CASES_NO_LONGER_WORKING(issue_item_one, case_removed) = ObjWorkExcel.Cells(row, issue_item_one_col)
@@ -605,23 +625,24 @@ Do
                 ALL_PENDING_CASES_ARRAY(worker_ID, case_entry) = TODAYS_CASES_ARRAY(worker_ID, each_case)
                 ALL_PENDING_CASES_ARRAY(case_number, case_entry) = TODAYS_CASES_ARRAY(case_number, each_case)
                 ALL_PENDING_CASES_ARRAY(excel_row, case_entry) = row
-                ALL_PENDING_CASES_ARRAY(client_name, case_entry) = ObjWorkExcel.Cells(row, case_name_col)       'This is gathered from the Working Excel instead of the BOBI list because we may have populated a priv case with an actual name
-                ALL_PENDING_CASES_ARRAY(application_date, case_entry) = ObjWorkExcel.Cells(row, app_date_col)
-                ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = ObjWorkExcel.Cells(row, intvw_date_col)   'This is gathered from the Working Excel as we may have found an interview date that is NOT in PROG
-                ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) = ObjWorkExcel.Cells(row, cash_stat_col)
-                ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) = ObjWorkExcel.Cells(row, snap_stat_col)
+                ALL_PENDING_CASES_ARRAY(client_name, case_entry) 			= ObjWorkExcel.Cells(row, case_name_col)       'This is gathered from the Working Excel instead of the BOBI list because we may have populated a priv case with an actual name
+                ALL_PENDING_CASES_ARRAY(application_date, case_entry) 		= ObjWorkExcel.Cells(row, app_date_col)
+                ALL_PENDING_CASES_ARRAY(interview_date, case_entry) 		= ObjWorkExcel.Cells(row, intvw_date_col)   'This is gathered from the Working Excel as we may have found an interview date that is NOT in PROG
+                ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) 			= ObjWorkExcel.Cells(row, cash_stat_col)
+                ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) 			= ObjWorkExcel.Cells(row, snap_stat_col)
 
-                ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = ObjWorkExcel.Cells(row, appt_notc_date_col)
-                ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) = ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
-                ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = ObjWorkExcel.Cells(row, appt_date_col)
-				ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = ObjWorkExcel.Cells(row, second_app_date_col).Value
-				ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = ObjWorkExcel.Cells(row, rept_pnd2_days_col).Value
-                ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = ObjWorkExcel.Cells(row, nomi_date_col)
-                ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = ObjWorkExcel.Cells(row, nomi_confirm_col)
-                ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ObjWorkExcel.Cells(row, next_action_col)
-                ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-				ALL_PENDING_CASES_ARRAY(intvw_quest_resolve, case_entry) = ObjWorkExcel.Cells(row, resolve_quest_intvw_col).Value
-                ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = ObjWorkExcel.Cells(row, correct_need_col)
+                ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) 		= ObjWorkExcel.Cells(row, appt_notc_date_col)
+                ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) 		= ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
+                ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) 		= ObjWorkExcel.Cells(row, appt_date_col)
+				ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) 	= ObjWorkExcel.Cells(row, second_app_date_col).Value
+				ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) 	= ObjWorkExcel.Cells(row, rept_pnd2_days_col).Value
+                ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) 				= ObjWorkExcel.Cells(row, nomi_date_col)
+                ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) 			= ObjWorkExcel.Cells(row, nomi_confirm_col)
+                ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) 	= ObjWorkExcel.Cells(row, next_action_col)
+                ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) 		= ObjWorkExcel.Cells(row, quest_intvw_date_col)
+				Call read_boolean_from_excel(ObjWorkExcel.Cells(row, other_county_col).Value, ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry))
+				Call read_boolean_from_excel(ObjWorkExcel.Cells(row, closed_in_30_col).Value, ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry))
+                ALL_PENDING_CASES_ARRAY(error_notes, case_entry) 			= ObjWorkExcel.Cells(row, worker_notes_col)
                 'ALL_PENDING_CASES_ARRAY(, case_entry) = ObjWorkExcel.Cells(row, )
 
                 'Defaulting this values at this time as we will determine them to be different as the script proceeds.
@@ -657,7 +678,12 @@ Do
         CASES_NO_LONGER_WORKING(nomi_confirm, case_removed) = ObjWorkExcel.Cells(row, nomi_confirm_col)
         CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
         CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-		CASES_NO_LONGER_WORKING(intvw_quest_resolve, case_removed) = ObjWorkExcel.Cells(row, resolve_quest_intvw_col).Value
+
+		CASES_NO_LONGER_WORKING(case_in_other_co, case_removed) = ObjWorkExcel.Cells(row, other_county_col)
+		CASES_NO_LONGER_WORKING(case_closed_in_30, case_removed) = ObjWorkExcel.Cells(row, closed_in_30_col)
+
+		' CASES_NO_LONGER_WORKING(intvw_quest_resolve, case_removed) = ObjWorkExcel.Cells(row, resolve_quest_intvw_col)
+
         CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
         CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
         CASES_NO_LONGER_WORKING(issue_item_one, case_removed) = ObjWorkExcel.Cells(row, issue_item_one_col)
@@ -708,23 +734,24 @@ For case_entry = 0 to UBOUND(TODAYS_CASES_ARRAY, 2)     'now we are going to loo
         ALL_PENDING_CASES_ARRAY(case_number, add_a_case) = TODAYS_CASES_ARRAY(case_number, case_entry)
         ALL_PENDING_CASES_ARRAY(excel_row, add_a_case) = row
         ALL_PENDING_CASES_ARRAY(client_name, add_a_case) = TODAYS_CASES_ARRAY(client_name, case_entry)
-        ALL_PENDING_CASES_ARRAY(application_date, add_a_case) = ObjWorkExcel.Cells(row, app_date_col)
-        ALL_PENDING_CASES_ARRAY(interview_date, add_a_case) = ObjWorkExcel.Cells(row, intvw_date_col)
-        ALL_PENDING_CASES_ARRAY(CASH_status, add_a_case) = ObjWorkExcel.Cells(row, cash_stat_col)
-        ALL_PENDING_CASES_ARRAY(SNAP_status, add_a_case) = ObjWorkExcel.Cells(row, snap_stat_col)
+        ALL_PENDING_CASES_ARRAY(application_date, add_a_case) 		= ObjWorkExcel.Cells(row, app_date_col)
+        ALL_PENDING_CASES_ARRAY(interview_date, add_a_case) 		= ObjWorkExcel.Cells(row, intvw_date_col)
+        ALL_PENDING_CASES_ARRAY(CASH_status, add_a_case) 			= ObjWorkExcel.Cells(row, cash_stat_col)
+        ALL_PENDING_CASES_ARRAY(SNAP_status, add_a_case) 			= ObjWorkExcel.Cells(row, snap_stat_col)
 
-        ALL_PENDING_CASES_ARRAY(appt_notc_sent, add_a_case) = ObjWorkExcel.Cells(row, appt_notc_date_col)
-        ALL_PENDING_CASES_ARRAY(appt_notc_confirm, add_a_case) = ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
-        ALL_PENDING_CASES_ARRAY(appointment_date, add_a_case) = ObjWorkExcel.Cells(row, appt_date_col)
-		ALL_PENDING_CASES_ARRAY(additional_app_date, add_a_case) = ObjWorkExcel.Cells(row, second_app_date_col).Value
-		ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, add_a_case) = ObjWorkExcel.Cells(row, rept_pnd2_days_col).Value
-        ALL_PENDING_CASES_ARRAY(nomi_sent, add_a_case) = ObjWorkExcel.Cells(row, nomi_date_col)
-        ALL_PENDING_CASES_ARRAY(nomi_confirm, add_a_case) = ObjWorkExcel.Cells(row, nomi_confirm_col)
-        ALL_PENDING_CASES_ARRAY(next_action_needed, add_a_case) = ObjWorkExcel.Cells(row, next_action_col)
-        ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-        ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) = trim(ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case))
-		ALL_PENDING_CASES_ARRAY(intvw_quest_resolve, add_a_case) = ObjWorkExcel.Cells(row, resolve_quest_intvw_col).Value
-		ALL_PENDING_CASES_ARRAY(error_notes, add_a_case) = ObjWorkExcel.Cells(row, correct_need_col)
+        ALL_PENDING_CASES_ARRAY(appt_notc_sent, add_a_case) 		= ObjWorkExcel.Cells(row, appt_notc_date_col)
+        ALL_PENDING_CASES_ARRAY(appt_notc_confirm, add_a_case) 		= ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
+        ALL_PENDING_CASES_ARRAY(appointment_date, add_a_case) 		= ObjWorkExcel.Cells(row, appt_date_col)
+		ALL_PENDING_CASES_ARRAY(additional_app_date, add_a_case) 	= ObjWorkExcel.Cells(row, second_app_date_col).Value
+		ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, add_a_case) 	= ObjWorkExcel.Cells(row, rept_pnd2_days_col).Value
+        ALL_PENDING_CASES_ARRAY(nomi_sent, add_a_case) 				= ObjWorkExcel.Cells(row, nomi_date_col)
+        ALL_PENDING_CASES_ARRAY(nomi_confirm, add_a_case) 			= ObjWorkExcel.Cells(row, nomi_confirm_col)
+        ALL_PENDING_CASES_ARRAY(next_action_needed, add_a_case) 	= ObjWorkExcel.Cells(row, next_action_col)
+        ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) 		= ObjWorkExcel.Cells(row, quest_intvw_date_col)
+        ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) 		= trim(ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case))
+		Call read_boolean_from_excel(ObjWorkExcel.Cells(row, other_county_col).Value, ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry))
+		Call read_boolean_from_excel(ObjWorkExcel.Cells(row, closed_in_30_col).Value, ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry))
+		ALL_PENDING_CASES_ARRAY(error_notes, add_a_case) 			= ObjWorkExcel.Cells(row, worker_notes_col)
 		'ALL_PENDING_CASES_ARRAY(, add_a_case) = ObjWorkExcel.Cells(row, )
         'defaulting this variable as we will determine if it is true later
         ALL_PENDING_CASES_ARRAY(take_action_today, add_a_case) = FALSE
@@ -782,7 +809,12 @@ If does_file_exist = True Then
 			YESTERDAYS_PENDING_CASES_ARRAY(application_date, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_app_date_col).Value)
 			YESTERDAYS_PENDING_CASES_ARRAY(interview_date, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_intvw_date_col).Value)
 			YESTERDAYS_PENDING_CASES_ARRAY(questionable_intv, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_quest_intvw_date_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(intvw_quest_resolve, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_resolve_quest_intvw_col).Value)
+
+			YESTERDAYS_PENDING_CASES_ARRAY(case_in_other_co, yesterday_case_list) = ObjWorkExcel.Cells(row, wl_other_county_col)
+			YESTERDAYS_PENDING_CASES_ARRAY(case_closed_in_30, yesterday_case_list) = ObjWorkExcel.Cells(row, wl_closed_in_30_col)
+
+			' YESTERDAYS_PENDING_CASES_ARRAY(intvw_quest_resolve, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_resolve_quest_intvw_col).Value)
+
 			YESTERDAYS_PENDING_CASES_ARRAY(appt_notc_sent, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_appt_notc_date_col).Value)
 			YESTERDAYS_PENDING_CASES_ARRAY(appointment_date, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_appt_date_col).Value)
 			YESTERDAYS_PENDING_CASES_ARRAY(nomi_sent, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_nomi_date_col).Value)
@@ -805,10 +837,14 @@ If does_file_exist = True Then
 End If
 
 For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
+	ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
 	'CHECK THE LIST and compare it against the previous day work to capture any important details
 	For yest_entry = 0 to UBound(YESTERDAYS_PENDING_CASES_ARRAY, 2)
 		If ALL_PENDING_CASES_ARRAY(case_number, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(case_number, yest_entry) Then
 			If yesterday_worker = qi_member_on_ONDEMAND Then ALL_PENDING_CASES_ARRAY(yesterday_action_taken, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yest_entry)
+			yesterdays_action_info = YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yest_entry)
+			yesterdays_action_info = UCase(yesterdays_action_info)
+			If InStr(yesterdays_action_info, "FOLLOW UP NEEDED") <> 0 Then ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 		End If
 	Next
 Next
@@ -820,7 +856,7 @@ cases_to_alert_BZST = ""
 'Excel will not be accessed during this loop - we could add msgbox to let worker know that excel is available.
 For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
     MAXIS_case_number	= ALL_PENDING_CASES_ARRAY(case_number, case_entry)        'setting this so that nav functionality works
-	ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
+	' ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
 	If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "NONE - Interview Completed" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""
 	If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REMOVE FROM LIST" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""
 	If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""
@@ -864,6 +900,38 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 
             ALL_PENDING_CASES_ARRAY(client_name, case_entry) = last_name & ", " & first_name & " " & middle_initial     'this is how the BOBI lists names so we want them to match
         End If
+		If ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry) = "" Then
+			ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry) = False
+			EMWriteScreen "X", 4, 9
+			transmit
+			prog_hist_row = 8
+			Do
+				EMReadScreen prog_name, 4, prog_hist_row, 4
+				EMReadScreen prog_status, 8, prog_hist_row, 38
+				' MsgBox "PROGRAM - " & prog_name & vbCr & "STATUS - *" & prog_status & "*"
+				If last_prog_name <> prog_name AND prog_status = "INACTIVE" Then
+					EMReadScreen inactive_date, 8, prog_hist_row, 18
+					inactive_date = DateAdd("d", 0, inactive_date)
+
+					' MsgBox "PROGRAM - " & prog_name & vbCr & "Inactive Date - " & inactive_date & vbCr & "DATE DIFF - " & DateDiff("m", inactive_date, date)
+					If DateDiff("m", inactive_date, date) < 1 OR DateDiff("d", inactive_date, date) < 31 Then
+						If prog_name <> "  MD" and prog_name <> " QI1" and prog_name <> "SLMB" and prog_name <> " QMB" and prog_name <> "  MA" and prog_name <> "EMER" Then
+							ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry) = True
+							ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+							Exit Do
+						End If
+					End If
+				End If
+
+				last_prog_name = prog_name
+				prog_hist_row = prog_hist_row + 1
+				If prog_hist_row = 18 Then
+					PF8
+					prog_hist_row = 8
+					EMReadScreen end_of_list, 9, 24, 14
+				End If
+			Loop until end_of_list = "LAST PAGE"
+		End If
 
 		Call back_to_SELF
 		Call navigate_to_MAXIS_screen("REPT", "PND2")
@@ -1065,6 +1133,18 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
                 Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
             End If
             go_to_top_of_notes
+
+			If ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = "" Then
+				note_row = 5            'resetting the variables on the loop
+				note_worker = ""
+				ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = False
+				Do
+					EMReadScreen note_worker, 4, note_row, 16
+					If note_worker <> "X127" Then ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = True
+				Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
+				IF ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = True THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
+				go_to_top_of_notes
+			End If
 
             If ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = "" Then     'if the date the NOMI was sent is blank in the ARRAY/Working Excel - then we are going to check CASE NOTES for information
                 note_row = 5
@@ -2048,7 +2128,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)    'look at all the cas
     ObjWorkExcel.Cells(row, need_deny_col).Value = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) & ""
     ObjWorkExcel.Cells(row, next_action_col).Value = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
 
-    ObjWorkExcel.Cells(row, correct_need_col) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
+    ObjWorkExcel.Cells(row, worker_notes_col) = trim(ALL_PENDING_CASES_ARRAY(error_notes, case_entry))
 	IF InStr(ALL_PENDING_CASES_ARRAY(error_notes, case_entry), "process manually") <> 0 THEN ObjWorkExcel.Rows(row).Font.ColorIndex = 3  'Red'
     'ObjWorkExcel.Cells(row, ) = ALL_PENDING_CASES_ARRAY(, case_entry)
 Next
@@ -2108,12 +2188,17 @@ For case_entry = 0 to UBound(ALL_PENDING_CASES_ARRAY, 2)
 
 		ObjDailyWorkListExcel.Cells(xl_row, wl_intvw_date_col).Value 			= ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_quest_intvw_date_col).Value 		= ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
-		ObjDailyWorkListExcel.Cells(xl_row, wl_resolve_quest_intvw_col).Value 	= ALL_PENDING_CASES_ARRAY(intvw_quest_resolve, case_entry)
+
+		ObjDailyWorkListExcel.Cells(xl_row, wl_other_county_col).Value 			= ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry)
+		ObjDailyWorkListExcel.Cells(xl_row, wl_closed_in_30_col).Value 			= ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry)
+
+		' ObjDailyWorkListExcel.Cells(xl_row, wl_resolve_quest_intvw_col).Value 	= ALL_PENDING_CASES_ARRAY(intvw_quest_resolve, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_appt_notc_date_col).Value 		= ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_appt_date_col).Value 			= ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_nomi_date_col).Value 			= ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
 		ObjDailyWorkListExcel.Cells(xl_row, wl_day_30_col).Value 				= "=[@[Application Date]]+30"
 		' ObjDailyWorkListExcel.Cells(xl_row, wl_action_taken_col).Value 			=
+		ObjDailyWorkListExcel.Cells(xl_row, wl_action_taken_col).Value			= "FOLLOW UP NEEDED"
 		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" OR ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***" Then ObjDailyWorkListExcel.Cells(xl_row, wl_deny_col).Value = "TRUE"
 		If yesterday_worker = qi_member_on_ONDEMAND Then
 			ObjDailyWorkListExcel.Cells(xl_row, wl_work_notes_col).Value 			= ALL_PENDING_CASES_ARRAY(yesterday_action_taken, case_entry) & " - " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
@@ -2174,7 +2259,10 @@ ObjExcel.Cells(1, second_app_date_col) 	= "Second App Date"
 ObjExcel.Cells(1, rept_pnd2_days_col)	= "REPT/PND2 Days"
 ObjExcel.Cells(1, intvw_date_col)       = "Interview Date"
 ObjExcel.Cells(1, quest_intvw_date_col) = "Questionable Interview Date"
-ObjExcel.Cells(1, resolve_quest_intvw_col) = "Resolved?"
+
+ObjExcel.Cells(1, other_county_col)		= "Case was in Other Co."
+ObjExcel.Cells(1, closed_in_30_col)		= "Closed in Past 30 Days"
+' ObjExcel.Cells(1, resolve_quest_intvw_col) = "Resolved?"
 
 ObjExcel.Cells(1, appt_notc_date_col)   = "Appt Notice Sent"
 ObjExcel.Cells(1, appt_date_col)        = "Appointment Date"
@@ -2183,7 +2271,7 @@ ObjExcel.Cells(1, nomi_date_col)        = "NOMI Sent"
 ObjExcel.Cells(1, nomi_confirm_col)     = "Confirm"
 ObjExcel.Cells(1, need_deny_col)        = "Denial"
 ObjExcel.Cells(1, next_action_col)      = "Next Action"
-ObjExcel.Cells(1, correct_need_col)     = "Detail"
+ObjExcel.Cells(1, worker_notes_col)     = "Detail"
 
 ObjExcel.Cells(1, worker_name_one_col)  = "Worker Name - 1"
 ObjExcel.Cells(1, sup_name_one_col)     = "Supervisor - 1"
@@ -2361,8 +2449,13 @@ For case_removed = 0 to UBOUND(CASES_NO_LONGER_WORKING, 2)      'looping through
     ObjExcel.Cells(removed_row, nomi_confirm_col).Value         = CASES_NO_LONGER_WORKING(nomi_confirm, case_removed)
     ObjExcel.Cells(removed_row, next_action_col).Value          = CASES_NO_LONGER_WORKING(next_action_needed, case_removed)
 	ObjExcel.Cells(removed_row, quest_intvw_date_col).Value     = CASES_NO_LONGER_WORKING(questionable_intv, case_removed)
-    ObjExcel.Cells(removed_row, resolve_quest_intvw_col).Value	= CASES_NO_LONGER_WORKING(intvw_quest_resolve, case_removed)
-    ObjExcel.Cells(removed_row, correct_need_col).Value         = CASES_NO_LONGER_WORKING(error_notes, case_removed)
+
+	ObjExcel.Cells(removed_row, other_county_col).Value     	= CASES_NO_LONGER_WORKING(case_in_other_co, case_removed)
+	ObjExcel.Cells(removed_row, closed_in_30_col).Value     	= CASES_NO_LONGER_WORKING(case_closed_in_30, case_removed)
+
+    ' ObjExcel.Cells(removed_row, resolve_quest_intvw_col).Value	= CASES_NO_LONGER_WORKING(intvw_quest_resolve, case_removed)
+
+    ObjExcel.Cells(removed_row, worker_notes_col).Value         = CASES_NO_LONGER_WORKING(error_notes, case_removed)
 
     ObjExcel.Cells(removed_row, worker_name_one_col).Value  = CASES_NO_LONGER_WORKING(worker_name_one, case_removed)
     ObjExcel.Cells(removed_row, sup_name_one_col).Value     = CASES_NO_LONGER_WORKING(sup_name_one, case_removed)
@@ -2412,7 +2505,7 @@ ObjExcel.Cells(1, nomi_date_col)         = "NOMI Sent"
 ObjExcel.Cells(1, nomi_confirm_col)      = "Confirm"
 ObjExcel.Cells(1, need_deny_col)         = "Denial"
 ObjExcel.Cells(1, next_action_col)       = "Next Action"
-ObjExcel.Cells(1, correct_need_col)      = "Detail"
+ObjExcel.Cells(1, worker_notes_col)      = "Detail"
 ' ObjExcel.Cells(1, action_worker_col)    =
 ' ObjExcel.Cells(1, action_sup_col)       =
 ' ObjExcel.Cells(1, email_sent_col)       =
@@ -2436,19 +2529,24 @@ For action_case = 0 to UBOUND(ACTION_TODAY_CASES_ARRAY, 2)      'looping through
     ObjExcel.Cells(action_row, rept_pnd2_days_col)		= ACTION_TODAY_CASES_ARRAY(rept_pnd2_listed_days, action_case)
     ObjExcel.Cells(action_row, intvw_date_col)       	= ACTION_TODAY_CASES_ARRAY(interview_date, action_case)
 	ObjExcel.Cells(action_row, quest_intvw_date_col) 	= ACTION_TODAY_CASES_ARRAY(questionable_intv, action_case)
-    ObjExcel.Cells(action_row, resolve_quest_intvw_col)	= ACTION_TODAY_CASES_ARRAY(intvw_quest_resolve, action_case)
-    ObjExcel.Cells(action_row, appt_notc_date_col)   	= ACTION_TODAY_CASES_ARRAY(appt_notc_sent, action_case)
+
+	ObjExcel.Cells(action_row, other_county_col)		= ACTION_TODAY_CASES_ARRAY(case_in_other_co, action_case)
+	ObjExcel.Cells(action_row, closed_in_30_col)		= ACTION_TODAY_CASES_ARRAY(case_closed_in_30, action_case)
+
+	' ObjExcel.Cells(action_row, resolve_quest_intvw_col)	= ACTION_TODAY_CASES_ARRAY(intvw_quest_resolve, action_case)
+
+	ObjExcel.Cells(action_row, appt_notc_date_col)   	= ACTION_TODAY_CASES_ARRAY(appt_notc_sent, action_case)
     ObjExcel.Cells(action_row, appt_notc_confirm_col)	= ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, action_case)
     ObjExcel.Cells(action_row, appt_date_col)        	= ACTION_TODAY_CASES_ARRAY(appointment_date, action_case)
     ObjExcel.Cells(action_row, nomi_date_col)        	= ACTION_TODAY_CASES_ARRAY(nomi_sent, action_case)
     ObjExcel.Cells(action_row, nomi_confirm_col)     	= ACTION_TODAY_CASES_ARRAY(nomi_confirm, action_case)
     ObjExcel.Cells(action_row, need_deny_col)        	= ACTION_TODAY_CASES_ARRAY(deny_day30, action_case)
     ObjExcel.Cells(action_row, next_action_col)      	= ACTION_TODAY_CASES_ARRAY(next_action_needed, action_case)
-    ObjExcel.Cells(action_row, correct_need_col)     	= ACTION_TODAY_CASES_ARRAY(error_notes, action_case)
+    ObjExcel.Cells(action_row, worker_notes_col)     	= ACTION_TODAY_CASES_ARRAY(error_notes, action_case)
     action_row = action_row + 1     'go to the next row
 Next
 
-For col_to_autofit =1 to  correct_need_col      'formatting the sheet
+For col_to_autofit =1 to  worker_notes_col      'formatting the sheet
     ObjExcel.Columns(col_to_autofit).AutoFit()
 Next
 
