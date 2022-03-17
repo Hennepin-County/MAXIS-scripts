@@ -901,6 +901,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
             ALL_PENDING_CASES_ARRAY(client_name, case_entry) = last_name & ", " & first_name & " " & middle_initial     'this is how the BOBI lists names so we want them to match
         End If
 		If ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry) = "" Then
+			'POSSIBLE NEW FUNCTION TO ADD '
 			ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry) = False
 			EMWriteScreen "X", 4, 9
 			transmit
