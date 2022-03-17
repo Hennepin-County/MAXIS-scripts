@@ -485,7 +485,7 @@ If report_selection = "Pull Data and Create Worklist" Then
 					If line_info(0) = "DET ASSETS" 						Then ObjWORKExcel.Cells(work_excel_row, work_asset_col_const).Value = line_info(1)
 					If line_info(0) = "DET SHEL" 						Then ObjWORKExcel.Cells(work_excel_row, work_shelter_col_const).Value = line_info(1)
 					If line_info(0) = "DET HEST" 						Then ObjWORKExcel.Cells(work_excel_row, work_utilities_col_const).Value = line_info(1)
-					If line_info(0) = "SCRIPT RUN"                      Then ObjWORKExcel.Cells(work_excel_row, work_script_run_date_col_const).Value = line_info(1)
+					If line_info(0) = "DATE OF SCRIPT RUN"              Then ObjWORKExcel.Cells(work_excel_row, work_script_run_date_col_const).Value = line_info(1)
 
 				End If
 			End If
