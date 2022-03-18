@@ -300,7 +300,7 @@ If running_as_HSS = FALSE Then
 				  GroupBox 10, 15, 315, 190, ""
 				  Text 25, 35, 85, 10, "Case: XXXXXXX"
 				  Text 25, 50, 120, 10, "What kind of support do you need?"
-				  DropListBox 145, 45, 175, 45, "Select One..."+chr(9)+"Policy and Procedure Questions (Knowledge Now)"+chr(9)+"Request to APPL"+chr(9)+"Verifications"+chr(9)+"Imigration Review"+chr(9)+"Script Error"+chr(9)+"HSS Review/Approval"+chr(9)+"Fresh Eyes Request"+chr(9)+"Lost ApplyMN"+chr(9)+"DISQ Evaluation for Removal", hold_type
+				  DropListBox 145, 45, 175, 45, "Select One..."+chr(9)+"Policy and Procedure Questions (Knowledge Now)"+chr(9)+"Request to APPL"+chr(9)+"Verifications"+chr(9)+"Imigration Review"+chr(9)+"Script Error"+chr(9)+"HSS Review/Approval"+chr(9)+"Fresh Eyes Request"+chr(9)+"Lost Online application"+chr(9)+"DISQ Evaluation for Removal", hold_type
 
 				  If hold_type = "Policy and Procedure Questions (Knowledge Now)" Then
 					  Text 25, 65, 105, 10, "Programs you need support on:"
@@ -351,7 +351,7 @@ If running_as_HSS = FALSE Then
 				  If hold_type = "Fresh Eyes Request" Then
 
 				  End If
-				  If hold_type = "Lost ApplyMN" Then
+				  If hold_type = "Lost Online Application" Then
 
 				  End If
 				  If hold_type = "DISQ Evaluation for Removal" Then
