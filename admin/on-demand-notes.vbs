@@ -482,11 +482,8 @@ IF case_status = "Case was not pended timely" THEN
     CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & NOMI_date)
     CALL write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it, because the case was not pended timely a NOMI still needs to be sent and adequate time provided to the client to comply. Denial can be done after " & denial_date)
 ELSEIF case_status = "Client completed application interview" THEN
-	IF confirm_update_prog = "YES" THEN
-		CALL write_variable_in_CASE_NOTE("~ " & case_status & " on "  & interview_date & " updated PROG ~")
-	ELSE
-		CALL write_variable_in_CASE_NOTE("~ " & case_status & " on "  & interview_date & " PROG updated previously ~")
-	END IF
+	IF confirm_update_prog = "YES" THEN	CALL write_variable_in_CASE_NOTE("~ " & case_status & " on "  & interview_date & " updated PROG ~")
+	IF confirm_update_prog = "NO" THEN CALL write_variable_in_CASE_NOTE("~ " & case_status & " on "  & interview_date & " PROG updated previously ~")
 	CALL write_variable_in_CASE_NOTE("* Completed by previous worker per case note dated: " & case_note_date)
 ELSEIF case_status = "Client has not completed application interview" THEN
 	CALL write_variable_in_CASE_NOTE("~ " & case_status  & " ~")
