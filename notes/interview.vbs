@@ -8886,6 +8886,10 @@ If vars_filled = False Then
 		If cash_revw = True Then
 			MAXIS_footer_month = next_cash_revw_mo
 			MAXIS_footer_year = next_cash_revw_yr
+            If next_cash_revw_mo = CM_plus_2_mo AND next_cash_revw_yr = CM_plus_2_yr Then
+                MAXIS_footer_month = CM_plus_1_mo
+                MAXIS_footer_year = CM_plus_1_yr
+            End If
 			call back_to_SELF
 			Call navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen CAF_datestamp, 8, 13, 37
@@ -8895,6 +8899,10 @@ If vars_filled = False Then
 		If snap_revw = True Then
 			MAXIS_footer_month = next_snap_revw_mo
 			MAXIS_footer_year = next_snap_revw_yr
+            If next_snap_revw_mo = CM_plus_2_mo AND next_snap_revw_yr = CM_plus_2_yr Then
+                MAXIS_footer_month = CM_plus_1_mo
+                MAXIS_footer_year = CM_plus_1_yr
+            End If
 			call back_to_SELF
 			Call navigate_to_MAXIS_screen("STAT", "REVW")
 			EMReadScreen CAF_datestamp, 8, 13, 37
