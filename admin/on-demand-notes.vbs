@@ -153,16 +153,16 @@ If row <> 0 Then
 End If
 
 active_programs = ""        'Creates a variable that lists all the active programs on the case.
-If ga_status = "ACTIVE" Then active_programs = active_programs & "GA, "
-If msa_status = "ACTIVE" Then active_programs = active_programs & "MSA, "
-If mfip_status = "ACTIVE" Then active_programs = active_programs & "MFIP, "
-If dwp_status = "ACTIVE" Then active_programs = active_programs & "DWP, "
+If ga_status = "ACTIVE" or ga_status = "APP OPEN" or ga_status = "APP CLOSE" Then active_programs = active_programs & "GA, "
+If msa_status = "ACTIVE" or msa_status = "APP OPEN" or msa_status = "APP CLOSE" Then active_programs = active_programs & "MSA, "
+If mfip_status = "ACTIVE" or mfip_status = "APP OPEN" or mfip_status = "APP CLOSE" Then active_programs = active_programs & "MFIP, "
+If dwp_status = "ACTIVE" or dwp_status = "APP OPEN" or dwp_status = "APP CLOSE" Then active_programs = active_programs & "DWP, "
 If ive_status = "ACTIVE" Then active_programs = active_programs & "IV-E, "
-If grh_status = "ACTIVE" Then active_programs = active_programs & "GRH, "
-If snap_status = "ACTIVE" Then active_programs = active_programs & "SNAP, "
-If emer_status = "ACTIVE" Then active_programs = active_programs & emer_type & ", "
+If grh_status = "ACTIVE" or grh_status = "APP OPEN" or grh_status = "APP CLOSE" Then active_programs = active_programs & "GRH, "
+If snap_status = "ACTIVE" or snap_status = "APP OPEN" or snap_status = "APP CLOSE" Then active_programs = active_programs & "SNAP, "
+If emer_status = "ACTIVE" or emer_status = "APP OPEN" or emer_status = "APP CLOSE" Then active_programs = active_programs & emer_type & ", "
 If cca_status = "ACTIVE" Then active_programs = active_programs & "CCA, "
-If ma_status = "ACTIVE" OR msp_status = "ACTIVE" Then active_programs = active_programs & "HC, "
+If ma_status = "ACTIVE" or ma_status = "APP OPEN" or ma_status = "APP CLOSE" OR msp_status = "ACTIVE" or msp_status = "APP OPEN" or msp_status = "APP CLOSE" Then active_programs = active_programs & "HC, "
 
 active_programs = trim(active_programs)  'trims excess spaces of active_programs
 If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
