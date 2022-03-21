@@ -127,13 +127,11 @@ MAXIS_background_check      'Making sure we are out of background.
 
 'Grabbing case and program status information from MAXIS.
 'For tis script to work correctly, these must be correct BEFORE running the script.
-Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, pnd2_case_status)
 EMReadScreen program_status, 15, 8, 9                  'Now we are reading the CASE STATUS string from the panel - we want to make sure this does NOT read CAF1 PENDING
 EMReadScreen pnd2_appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
 ive_status = "INACTIVE"                             'There are some programs that are NOT read from the function and are pretty specific to this script/functionality
 cca_status = "INACTIVE"                             'defaulting these statuses to 'INACTIVE' until they are read from the panel
-ega_status = "INACTIVE"
-ea_status = "INACTIVE"
 '\This functionality is how the above function reads for program information - just pulled out for these specific programs
 row = 1                                             'Looking for IV-E information
 col = 1
@@ -153,24 +151,6 @@ If row <> 0 Then
     If cca_status = "ACTIVE" or cca_status = "APP CLOSE" or cca_status = "APP OPEN" Then cca_status = "ACTIVE"
     If cca_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
 End If
-row = 1                                             'Looking for EGA information
-col = 1
-EMSearch "EGA", row, col
-If row <> 0 Then
-    EMReadScreen ega_status, 9, row, col + 6
-    ega_status = trim(ega_status)
-    If ega_status = "ACTIVE" or ega_status = "APP CLOSE" or ega_status = "APP OPEN" Then ega_status = "ACTIVE"
-    If ega_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
-End If
-row = 1                                             'Looking for EA information
-col = 1
-EMSearch "EA: ", row, col
-If row <> 0 Then
-    EMReadScreen ea_status, 9, row, col + 5
-    ea_status = trim(ea_status)
-    If ea_status = "ACTIVE" or ea_status = "APP CLOSE" or ea_status = "APP OPEN" Then ea_status = "ACTIVE"
-    If ea_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
-End If
 
 active_programs = ""        'Creates a variable that lists all the active programs on the case.
 If ga_status = "ACTIVE" Then active_programs = active_programs & "GA, "
@@ -180,8 +160,7 @@ If dwp_status = "ACTIVE" Then active_programs = active_programs & "DWP, "
 If ive_status = "ACTIVE" Then active_programs = active_programs & "IV-E, "
 If grh_status = "ACTIVE" Then active_programs = active_programs & "GRH, "
 If snap_status = "ACTIVE" Then active_programs = active_programs & "SNAP, "
-If ega_status = "ACTIVE" Then active_programs = active_programs & "EGA, "
-If ea_status = "ACTIVE" Then active_programs = active_programs & "EA, "
+If emer_status = "ACTIVE" Then active_programs = active_programs & emer_type & ", "
 If cca_status = "ACTIVE" Then active_programs = active_programs & "CCA, "
 If ma_status = "ACTIVE" OR msp_status = "ACTIVE" Then active_programs = active_programs & "HC, "
 
@@ -197,8 +176,7 @@ If dwp_status = "PENDING" Then pending_programs = pending_programs & "DWP, "
 If ive_status = "PENDING" Then pending_programs = pending_programs & "IV-E, "
 If grh_status = "PENDING" Then pending_programs = pending_programs & "GRH, "
 If snap_status = "PENDING" Then pending_programs = pending_programs & "SNAP, "
-If ega_status = "PENDING" Then pending_programs = pending_programs & "EGA, "
-If ea_status = "PENDING" Then pending_programs = pending_programs & "EA, "
+If emer_status = "PENDING" Then active_programs = active_programs & emer_type & ", "
 If cca_status = "PENDING" Then pending_programs = pending_programs & "CCA, "
 If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True Then pending_programs = pending_programs & "HC, "
 
