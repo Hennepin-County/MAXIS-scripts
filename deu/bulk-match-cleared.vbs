@@ -164,8 +164,6 @@ const excel_col_other_note				 = 22 'V
 excel_row = 2 're-establishing the row to start based on when picking up the information
 entry_record = 0 'incrementor for the array and count
 
-'??? I try to keep all my MAXIS stuff together if possible, then excel, the all the array stuff. It's easier for building and review.
-
 'Establishing array
 DIM match_based_array()  'Declaring the array this is what this list is
 ReDim match_based_array(other_notes_const, 0)  'Resizing the array 'that ,list is going to have 20 parameter but to start with there is only one paparmeter it gets complicated - grid'
@@ -206,8 +204,11 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	MAXIS_case_number = trim(MAXIS_case_number)
     IF MAXIS_case_number = "" THEN EXIT DO
 
-	IF trim(objExcel.cells(excel_row, excel_col_period).Value) <> "" THEN add_to_array = TRUE      '???? are the conditions tied together or independent?
-	IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) <> "" THEN add_to_array = TRUE
+	IF trim(objExcel.cells(excel_row, excel_col_period).Value) <> "" THEN
+        IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) <> "" THEN
+        add_to_array = TRUE
+    End if
+
 	'MsgBox MAXIS_case_number & " " & client_SSN & " " & add_to_array
 
     'excel listed amount
@@ -232,7 +233,6 @@ Do 'purpose is to read each excel row and to add into each excel array '
         match_based_array(other_notes_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_other_note).Value)
 	   	match_based_array(excel_row_const, entry_record) = excel_row
       	entry_record = entry_record + 1			'This increments to the next entry in the array
-      	stats_counter = stats_counter + 1 'Increment for stats counter   '??? - review placement of this incrementer. Is each case taking 180 or only the ones we're clearing?
 	   	excel_row = excel_row + 1
 	END IF
 Loop
@@ -272,14 +272,13 @@ For item = 0 to UBound(match_based_array, 2)
 	            	IF IsNumeric(days_pending) = TRUE THEN
 	           	   		CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
                     	'----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
-	                    EMReadScreen Active_Programs, 1, 6, 68 'only reading one becasue I trimmed out extra in the beginning      '??? - Is this needed?
 	                    IF match_type = "WAGE" THEN
 	                    	EMReadScreen income_line, 44, 8, 37 'should be to the right of employer and the left of amount
 	                    	income_line = trim(income_line)
 	                    	income_amount = right(income_line, 8)
 	                    	IF instr(income_line, " AMOUNT: $") THEN position = InStr(income_line, " AMOUNT: $")          'sets the position at the deliminator
 	                    	IF instr(income_line, " AMT: $") THEN position = InStr(income_line, " AMT: $")    		      'sets the position at the deliminator
-	                    	income_source = Left(income_line, position)  'establishes employer as being before the deliminator '??? - This variable is used again below, rename this varaible.
+	                    	income_source = Left(income_line, position)  'establishes employer as being before the deliminator '??? - This variable is used again below, rename this varaible. TODO: Compare employer name.
 	                    	income_amount = replace(income_amount, "$", "")
 	                    	income_amount = replace(income_amount, ",", "")
 	                    	income_amount = trim(income_amount)
@@ -290,7 +289,7 @@ For item = 0 to UBound(match_based_array, 2)
 	                    	income_amount = right(income_line, 8)
 	                    	IF instr(income_line, " AMOUNT: $") THEN	position = InStr(income_line, " AMOUNT: $")    	  'sets the position at the deliminator
 	                    	IF instr(income_line, " AMT: $") THEN position = InStr(income_line, " AMT: $")    		      'sets the position at the deliminator
-	                    	income_source = Left(income_line, position)  'establishes employer as being before the deliminator '??? - This variable is used again below, rename this varaible.
+	                    	income_source = Left(income_line, position)  'establishes employer as being before the deliminator '??? - This variable is used again below, rename this varaible.TODO: Compare employer name.
 	                    	income_amount = replace(income_amount, "$", "")
 	                    	income_amount = replace(income_amount, ",", "")
 	                    	income_amount = trim(income_amount)
@@ -311,21 +310,20 @@ For item = 0 to UBound(match_based_array, 2)
                         exit do
 	    			END IF
 	            Else
-                    Call INFC_looping   '??? - I made a local function instead of having duplicative code - NOT TESTED
+                    Call INFC_looping
 	    	    END IF
-                Call INFC_looping       '??? - I made a local function instead of having duplicative code - NOT TESTED
-	        END IF '??? - Consider putting notes on your end ifs and else ifs for when you're setting up and reviewing your logic.
-			match_based_array(other_notes_const, item) = "CLEARED" '??? Is this identifying the match as already have been cleared or that this is a cleared match. For the later, I would identify this once the match has been cleared.
+                Call INFC_looping
+	        END IF
+			match_based_array(other_notes_const, item) = "CLEARED" 'identifying previously cleared matches. Not cleared with BULK script.
 		LOOP UNTIL trim(IEVS_period) = "" 'two ways to leave a loop
 	ELSE
         'Unable to confirm case was in the IVEP panel
 		EMReadScreen MISC_error_check,  74, 24, 02
     	match_based_array(comments_const, item) = trim(MISC_error_check)
 	END IF
-
     'msgbox "exited loop"
     '---------------------------------------------------------------------Reading potential errors for out-of-county cases
-    IF trim(match_based_array(comments_const, item)) = ""           '??? - I changed this to not use match cleared True/False, but to only continue is no inhibiting notes/process hasn't been hit. All other inhibiting processes should have been kicked out with notes at this point.
+    IF trim(match_based_array(comments_const, item)) = ""
 	    '--------------------------------------------------------------------IULA
 		'msgbox " I think I shall go update "
      	IF match_type = "WAGE" THEN
@@ -470,12 +468,13 @@ For item = 0 to UBound(match_based_array, 2)
 			ELSE
 				match_based_array(match_cleared_const, item) = TRUE 'match has now changed from match cleared False to True
 				match_based_array(date_cleared_const, item) = date
+                stats_counter = stats_counter + 1 'Increment for stats counter
 			END IF
 			' MsgBox "Cleared? " & match_based_array(match_cleared_const, item)
    		END IF
     End if
 
-    If match_based_array(match_cleared_const, item) = TRUE  '??? I'm putting a condition in here to only case note & claim referral if the match cleared is True. Would there be an instance where the match wasn't cleared and the claim referral is needed in this process? If so, enter this link of code before the case note.
+    If match_based_array(match_cleared_const, item) = TRUE
 	  	'------------------------------------------------------------------STAT/MISC for claim referral tracking
 		'Going to the MISC panel to add claim referral tracking information
 	    IF claim_referral_tracking_dropdown <> "Not Needed" THEN
@@ -553,7 +552,6 @@ For item = 0 to UBound(match_based_array, 2)
             IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
             Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
-            '??? - I removed the active_programs incremental variable coding as it seemed duplicative of this.
 		    'EMReadScreen MAXIS_case_name, 27, 21, 40 'not always the same as the match name'
 		    programs = ""
 		    IF instr(match_based_array(program_const, item) , "D") THEN programs = programs & "DWP, "
@@ -574,7 +572,7 @@ For item = 0 to UBound(match_based_array, 2)
                 match_type = "BNDX" THEN CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
             Else
                 'BEER, UNVI and UBEN messages all cleared the same way
-            IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+                CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
     	    End if
     	    CALL write_bullet_and_variable_in_case_note("Period", match_based_array(period_const, item))
     	    CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
@@ -604,7 +602,6 @@ For item = 0 to UBound(match_based_array, 2)
 	END IF
 NEXT
 
-'??? - are all the headers already here? Do we need to write them again?
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value     = "DATE POSTED" 		'A Date Posted to Maxis'
 objExcel.Cells(1, 2).Value     = "BASKET" 			'B Worker #
