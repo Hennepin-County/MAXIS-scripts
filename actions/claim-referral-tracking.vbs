@@ -59,8 +59,6 @@ function claim_referral_tracking(action_taken, action_date)
 '--- This function tracks the date a worker first suspects there may be a SNAP or MFIP claim. It also helps to track the discovery date and the established date of a claim. This will create or update the MISC panel and case note the referral.
 '~~~~~ action_taken: 4 options exist for clearing claim referral "Sent Verification Request", "Determination-OP Entered","Determination-Non-Collect", "No Savings/Overpayment" each has different handling
 '===== Keywords: MAXIS, Claim, MISC, CCOL, overpayment
-
-    EMConnect ""                                        'Connecting to BlueZone
     CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
     CALL MAXIS_footer_month_confirmation()
     CALL Check_for_MAXIS(false)                         'Ensuring we are not passworded out
@@ -228,6 +226,10 @@ function claim_referral_tracking(action_taken, action_date)
     END IF
     Call script_end_procedure_with_error_report(end_msg)
 END FUNCTION
+
+'----------------------------------------------------------------------------------------------------The script :)
+EMConnect ""                                        'Connecting to BlueZone
+Call claim_referral_tracking(action_taken, action_date)
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
