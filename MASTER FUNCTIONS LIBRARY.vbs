@@ -5733,7 +5733,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
     col = 1
     EMSearch "Case:", row, col
     If row <> 0 Then
-        EMReadScreen case_status, 9, row, col + 6
+        EMReadScreen case_status, 15, row, col + 6
         case_status = trim(case_status)
     End If
     row = 1                                                 'looking for SNAP information
