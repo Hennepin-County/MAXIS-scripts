@@ -5686,16 +5686,22 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 '~~~~~ snap_case: Outputs BOOLEAN of if the case is active or pending SNAP
 '~~~~~ ma_case: Outputs BOOLEAN of if the case is active or pending MA
 '~~~~~ msp_case: Outputs BOOLEAN of if the case is active or pending any MSP
+'~~~~~ emer_case: Outputs BOOLEAN of if the case is active or pending any Emergency Assistance
 '~~~~~ unknown_cash_pending: BOOLEAN of if the case has a general 'CASH' program pending but it has not been defined
 '~~~~~ unknown_hc_pending: BOOLEAN of if the case has a general 'HC' program pending but it has not been defined
-'~~~~~ ga_status: Outputs the program status for GA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-'~~~~~ msa_status: Outputs the program status for MSA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-'~~~~~ mfip_status: Outputs the program status for MFIP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-'~~~~~ dwp_status: Outputs the program status for DWP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-'~~~~~ grh_status: Outputs the program status for GRH - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-'~~~~~ snap_status: Outputs the program status for SNAP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-'~~~~~ ma_status: Outputs the program status for MA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-'~~~~~ msp_status: Outputs the program status for MSP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
+'~~~~~ ga_status: Outputs the program status for GA - will be one of these options (ACTIVE, APP OPEN, APP CLOSE, INACTIVE, PENDING, REIN)
+'~~~~~ msa_status: Outputs the program status for MSA - will be one of these options (ACTIVE, APP OPEN, APP CLOSE, INACTIVE, PENDING, REIN)
+'~~~~~ mfip_status: Outputs the program status for MFIP - will be one of these options (ACTIVE, APP OPEN, APP CLOSE, INACTIVE, PENDING, REIN)
+'~~~~~ dwp_status: Outputs the program status for DWP - will be one of these options (ACTIVE, APP OPEN, APP CLOSE, INACTIVE, PENDING, REIN)
+'~~~~~ grh_status: Outputs the program status for GRH - will be one of these options (ACTIVE, APP OPEN, APP CLOSE, INACTIVE, PENDING, REIN)
+'~~~~~ snap_status: Outputs the program status for SNAP - will be one of these options (ACTIVE, APP OPEN, APP CLOSE, INACTIVE, PENDING, REIN)
+'~~~~~ ma_status: Outputs the program status for MA - will be one of these options (ACTIVE, APP OPEN, APP CLOSE, INACTIVE, PENDING, REIN)
+'~~~~~ msp_status: Outputs the program status for MSP - will be one of these options (ACTIVE, APP OPEN, APP CLOSE, INACTIVE, PENDING, REIN)
+'~~~~~ emer_status: Outputs the program status for EA/EGA - will be one of these options (ACTIVE, APP OPEN, APP CLOSE, INACTIVE, PENDING, REIN)
+'~~~~~ msp_type: string of which MSP is active (QMB, SLMB, QI1)
+'~~~~~ emer_type: string of which Emergency Assistance program is pending/issued (EA/EGA)
+'~~~~~ list_active_programs: string of all the programs that appear active, app open, or app close
+'~~~~~ list_pending_programs: string of all the programs that appear pending
 '===== Keywords: MAXIS, case status, output, status
     Call navigate_to_MAXIS_screen("CASE", "CURR")           'First the function will navigate to CASE/CURR so the inofrmation discovered is based on current status
     family_cash_case = FALSE                                'defaulting all of the booleans
@@ -6048,7 +6054,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             dwp_case = TRUE
             emer_case = TRUE
             case_pending = TRUE
-			list_pending_programs = list_pending_programs & "EA, "
+			list_pending_programs = list_pending_programs & "EGA, "
         ENd If
 		If left(ega_status, 4) = "REIN" Then
 			emer_case = TRUE
@@ -6064,7 +6070,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 		If ea_status = "ACTIVE" or ea_status = "APP CLOSE" or ea_status = "APP OPEN" Then
 			emer_case = TRUE
 			case_active = TRUE
-			list_active_programs = list_active_programs & "EGA, "
+			list_active_programs = list_active_programs & "EA, "
 		End If
 		If ea_status = "PENDING" Then
 			emer_case = TRUE
@@ -6097,6 +6103,8 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 		If ega_status = "REIN" Then emer_type = "EGA"
 		If ea_status = "REIN" Then emer_type = "EA"
 	End If
+
+	'formatting the string of the list of active programs and pending programs
 	list_active_programs = trim(list_active_programs)  'trims excess spaces of list_active_programs
 	If right(list_active_programs, 1) = "," THEN list_active_programs = left(list_active_programs, len(list_active_programs) - 1)
 
