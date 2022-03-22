@@ -112,49 +112,14 @@ function claim_referral_tracking(action_taken, action_date)
 
     'Grabbing case and program status information from MAXIS.
     'For tis script to work correctly, these must be correct BEFORE running the script.
-    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-    EMReadScreen case_status, 15, 8, 9                  'Now we are reading the CASE STATUS string from the panel - we want to make sure this does NOT read CAF1 PENDING
+    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, active_programs, pending_programs)
     EMReadScreen appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
-
-    case_status = trim(case_status)     'cutting off any excess space from the case_status read from CASE/CURR above
-    active_programs = ""        'Creates a variable that lists all the active programs on the case.
-    If ga_status = "ACTIVE" Then active_programs = active_programs & "GA, "
-    If msa_status = "ACTIVE" Then active_programs = active_programs & "MSA, "
-    If mfip_status = "ACTIVE" Then active_programs = active_programs & "MFIP, "
-    If dwp_status = "ACTIVE" Then active_programs = active_programs & "DWP, "
-    If ive_status = "ACTIVE" Then active_programs = active_programs & "IV-E, "
-    If grh_status = "ACTIVE" Then active_programs = active_programs & "GRH, "
-    If snap_status = "ACTIVE" Then active_programs = active_programs & "SNAP, "
-    If ega_status = "ACTIVE" Then active_programs = active_programs & "EGA, "
-    If ea_status = "ACTIVE" Then active_programs = active_programs & "EA, "
-    If cca_status = "ACTIVE" Then active_programs = active_programs & "CCA, "
-    If ma_status = "ACTIVE" OR msp_status = "ACTIVE" Then active_programs = active_programs & "HC, "
-
-    active_programs = trim(active_programs)  'trims excess spaces of active_programs
-    If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
-
-    pending_programs = ""        'Creates a variable that lists all the pending programs on the case.
-    If unknown_cash_pending = True Then pending_programs = pending_programs & "Cash, "
-    If ga_status = "PENDING" Then pending_programs = pending_programs & "GA, "
-    If msa_status = "PENDING" Then pending_programs = pending_programs & "MSA, "
-    If mfip_status = "PENDING" Then pending_programs = pending_programs & "MFIP, "
-    If dwp_status = "PENDING" Then pending_programs = pending_programs & "DWP, "
-    If ive_status = "PENDING" Then pending_programs = pending_programs & "IV-E, "
-    If grh_status = "PENDING" Then pending_programs = pending_programs & "GRH, "
-    If snap_status = "PENDING" Then pending_programs = pending_programs & "SNAP, "
-    If ega_status = "PENDING" Then pending_programs = pending_programs & "EGA, "
-    If ea_status = "PENDING" Then pending_programs = pending_programs & "EA, "
-    If cca_status = "PENDING" Then pending_programs = pending_programs & "CCA, "
-    If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True Then pending_programs = pending_programs & "HC, "
-
-    pending_programs = trim(pending_programs)  'trims excess spaces of pending_programs
-    If right(pending_programs, 1) = "," THEN pending_programs = left(pending_programs, len(pending_programs) - 1)
 
     Call back_to_SELF
 
     claim_referral = False
-    If (snap_status = "ACTIVE" or snap_status = "REIN" or snap_status = "PENDING") then claim_referral = True
-    If (mfip_status = "ACTIVE" or mfip_status = "REIN" or mfip_status = "PENDING") then claim_referral = True
+    If snap_case = True Then claim_referral = True
+    If mfip_case = True Then claim_referral = True
 
     IF claim_referral = False then
         PROG_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "This case does not appear to have snap or cash active."  & vbNewLine & "Continue to case note only?" & vbNewLine, vbYesNo + vbQuestion, "No cash or snap programs")
