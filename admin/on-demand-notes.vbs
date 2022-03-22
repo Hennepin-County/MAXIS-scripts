@@ -127,61 +127,7 @@ MAXIS_background_check      'Making sure we are out of background.
 
 'Grabbing case and program status information from MAXIS.
 'For tis script to work correctly, these must be correct BEFORE running the script.
-Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, pnd2_case_status)
-EMReadScreen program_status, 15, 8, 9                  'Now we are reading the CASE STATUS string from the panel - we want to make sure this does NOT read CAF1 PENDING
-EMReadScreen pnd2_appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
-ive_status = "INACTIVE"                             'There are some programs that are NOT read from the function and are pretty specific to this script/functionality
-cca_status = "INACTIVE"                             'defaulting these statuses to 'INACTIVE' until they are read from the panel
-'\This functionality is how the above function reads for program information - just pulled out for these specific programs
-row = 1                                             'Looking for IV-E information
-col = 1
-EMSearch "IV-E:", row, col
-If row <> 0 Then
-    EMReadScreen ive_status, 9, row, col + 6
-    ive_status = trim(ive_status)
-    If ive_status = "ACTIVE" or ive_status = "APP CLOSE" or ive_status = "APP OPEN" Then ive_status = "ACTIVE"
-    If ive_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
-End If
-row = 1                                             'Looking for CCAP information
-col = 1
-EMSearch "CCAP", row, col
-If row <> 0 Then
-    EMReadScreen cca_status, 9, row, col + 6
-    cca_status = trim(cca_status)
-    If cca_status = "ACTIVE" or cca_status = "APP CLOSE" or cca_status = "APP OPEN" Then cca_status = "ACTIVE"
-    If cca_status = "PENDING" Then case_pending = True      'Updating the case_pending variable from the function
-End If
-
-active_programs = ""        'Creates a variable that lists all the active programs on the case.
-If ga_status = "ACTIVE" or ga_status = "APP OPEN" or ga_status = "APP CLOSE" Then active_programs = active_programs & "GA, "
-If msa_status = "ACTIVE" or msa_status = "APP OPEN" or msa_status = "APP CLOSE" Then active_programs = active_programs & "MSA, "
-If mfip_status = "ACTIVE" or mfip_status = "APP OPEN" or mfip_status = "APP CLOSE" Then active_programs = active_programs & "MFIP, "
-If dwp_status = "ACTIVE" or dwp_status = "APP OPEN" or dwp_status = "APP CLOSE" Then active_programs = active_programs & "DWP, "
-If ive_status = "ACTIVE" Then active_programs = active_programs & "IV-E, "
-If grh_status = "ACTIVE" or grh_status = "APP OPEN" or grh_status = "APP CLOSE" Then active_programs = active_programs & "GRH, "
-If snap_status = "ACTIVE" or snap_status = "APP OPEN" or snap_status = "APP CLOSE" Then active_programs = active_programs & "SNAP, "
-If emer_status = "ACTIVE" or emer_status = "APP OPEN" or emer_status = "APP CLOSE" Then active_programs = active_programs & emer_type & ", "
-If cca_status = "ACTIVE" Then active_programs = active_programs & "CCA, "
-If ma_status = "ACTIVE" or ma_status = "APP OPEN" or ma_status = "APP CLOSE" OR msp_status = "ACTIVE" or msp_status = "APP OPEN" or msp_status = "APP CLOSE" Then active_programs = active_programs & "HC, "
-
-active_programs = trim(active_programs)  'trims excess spaces of active_programs
-If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
-
-pending_programs = ""        'Creates a variable that lists all the pending programs on the case.
-If unknown_cash_pending = True Then pending_programs = pending_programs & "Cash, "
-If ga_status = "PENDING" Then pending_programs = pending_programs & "GA, "
-If msa_status = "PENDING" Then pending_programs = pending_programs & "MSA, "
-If mfip_status = "PENDING" Then pending_programs = pending_programs & "MFIP, "
-If dwp_status = "PENDING" Then pending_programs = pending_programs & "DWP, "
-If ive_status = "PENDING" Then pending_programs = pending_programs & "IV-E, "
-If grh_status = "PENDING" Then pending_programs = pending_programs & "GRH, "
-If snap_status = "PENDING" Then pending_programs = pending_programs & "SNAP, "
-If emer_status = "PENDING" Then active_programs = active_programs & emer_type & ", "
-If cca_status = "PENDING" Then pending_programs = pending_programs & "CCA, "
-If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True Then pending_programs = pending_programs & "HC, "
-
-pending_programs = trim(pending_programs)  'trims excess spaces of pending_programs
-If right(pending_programs, 1) = "," THEN pending_programs = left(pending_programs, len(pending_programs) - 1)
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, pnd2_case_status, active_programs, pending_programs)
 
 IF pended_checkbox = CHECKED THEN
 	case_status = "Case was not pended timely"
@@ -490,7 +436,7 @@ ELSEIF case_status = "Subsequent application received" THEN
     CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", pending_programs)
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
-    CALL write_bullet_and_variable_in_CASE_NOTE ("Pending Programs:", pending_programs)
+    CALL write_bullet_and_variable_in_CASE_NOTE ("Pending Programs", pending_programs)
     CALL write_variable_in_CASE_NOTE("* Aligned dates on STAT/PROG to match current pending program(s) per CM 0005.09.12 - APPLICATION - PENDING CASES")
 END IF
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
