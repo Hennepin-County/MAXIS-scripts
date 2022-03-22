@@ -325,22 +325,8 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 	END IF
 
     IF ADDR_actions = "no response received" THEN
-		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-		active_programs = ""        'Creates a variable that lists all the active.
-		IF ga_case = TRUE THEN active_programs = active_programs & "GA, "
-		IF msa_case = TRUE THEN active_programs = active_programs & "MFIP, "
-		IF mfip_case = TRUE THEN active_programs = active_programs & "MFIP, "
-		IF dwp_case = TRUE THEN active_programs = active_programs & "DWP, "
-		IF grh_case = TRUE THEN active_programs = active_programs & "GRH, "
-		IF snap_case = TRUE THEN active_programs = active_programs & "SNAP, "
-		IF ma_case = TRUE THEN active_programs = active_programs & "HC, "
-		IF msp_case = TRUE THEN active_programs = active_programs & "MSP, "
-		IF unknown_cash_pending = TRUE THEN active_programs = active_programs & "unknown pending, "
-		'IF case_active = TRUE THEN
+		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, active_programs, pending_programs)
 		'IF case_pending = TRUE THEN 'TODO if both cash one and cash two are active the pact panel will need to be updated manually
-
-        active_programs = trim(active_programs)  'trims excess spaces of active_programs
-        If right(active_programs, 1) = "," THEN active_programs = left(active_programs, len(active_programs) - 1)
 
         '-------------------------------------------------------------------------------------------------DIALOG
         Dialog1 = "" 'Blanking out previous dialog detail
@@ -374,8 +360,6 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
         	LOOP UNTIL err_msg = ""
         	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to      password back into MAXIS
         LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-
-		IF family_cash_case = TRUE OR adult_cash_case = TRUE OR ga_case = TRUE OR msa_case = TRUE OR mfip_case = TRUE OR dwp_case = TRUE OR	grh_case = TRUE OR snap_case = TRUE THEN case_active = TRUE
 
         'per POLI/TEMP this only pertains to active cash and snap '
         IF case_active = TRUE THEN
