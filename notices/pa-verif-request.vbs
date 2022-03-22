@@ -694,12 +694,23 @@ If contact_type = "Resident in Person (or AREP)" Then clt_in_person = True		'set
 Call generate_client_list(select_a_client, "Select or Type")					'Making a list for the ComboBox of the HH Members
 
 'Reading what is happening in the case
-Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
 'saving information for error output email
 script_run_lowdown = script_run_lowdown & vbCr & "Case information:"
 script_run_lowdown = script_run_lowdown & vbCr & "case_active - " & case_active  & vbCr & "case_pending - " & case_pending & vbCr & "case_rein - " & case_rein
 script_run_lowdown = script_run_lowdown & vbCr & "family_cash_case - " & family_cash_case & vbCr & "mfip_case - " & mfip_case & vbCr & "dwp_case - " & dwp_case & vbCr & "adult_cash_case - " & adult_cash_case & vbCr & "ga_case - " & ga_case & vbCr & "msa_case - " & msa_case & vbCr & "grh_case - " & grh_case & vbCr & "snap_case - " & snap_case  & vbCr & "ma_case - " & ma_case & vbCr & "msp_case - " & msp_case
 script_run_lowdown = script_run_lowdown & vbCr & "unknown_cash_pending - " & unknown_cash_pending & vbCr & "unknown_hc_pending - " & unknown_hc_pending & vbCr & "ga_status - " & ga_status & vbCr & "msa_status - " & msa_status & vbCr & "mfip_status - " & mfip_status & vbCr & "dwp_status - " & dwp_status  & vbCr & "grh_status - " & grh_status & vbCr & "snap_status - " & snap_status  & vbCr & "ma_status - " & ma_status & vbCr & "msp_status - " & msp_status
+
+'setting programs reading as 'APP OPEN' or 'APP CLOSE' to be treated as 'ACTIVE'
+If ga_status = "APP OPEN" or ga_status = "APP CLOSE" Then ga_status = "ACTIVE"
+If msa_status = "APP OPEN" or msa_status = "APP CLOSE" Then msa_status = "ACTIVE"
+If mfip_status = "APP OPEN" or mfip_status = "APP CLOSE" Then mfip_status = "ACTIVE"
+If dwp_status = "APP OPEN" or dwp_status = "APP CLOSE" Then dwp_status = "ACTIVE"
+If grh_status = "APP OPEN" or grh_status = "APP CLOSE" Then grh_status = "ACTIVE"
+If snap_status = "APP OPEN" or snap_status = "APP CLOSE" Then snap_status = "ACTIVE"
+If ma_status = "APP OPEN" or ma_status = "APP CLOSE" Then ma_status = "ACTIVE"
+If msp_status = "APP OPEN" or msp_status = "APP CLOSE" Then msp_status = "ACTIVE"
 
 'If these selection is resending the TAX Notices for a case, this functionality will run to determin which notice(s) should be sent.
 'With this option, only the Tax notice can be resent, other WCOMs or MEMOs will not be an option to select.
