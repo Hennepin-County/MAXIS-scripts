@@ -5671,7 +5671,7 @@ function date_array_generator(initial_month, initial_year, date_array)
 	date_array = split(date_list, "|")
 end function
 
-function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status)
+function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 '--- Function used to return booleans on case and program status based on CASE CURR information. There is no input informat but MAXIS_case_number needs to be defined.
 '~~~~~ case_active: Outputs BOOLEAN of if the case is active in any MAXIS program
 '~~~~~ case_pending: Outputs BOOLEAN of if the case is pending for any MAXIS Program
@@ -5724,6 +5724,8 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 	msp_status = "INACTIVE"
 	emer_status = "INACTIVE"
 	case_status = "INACTIVE"
+	list_active_programs = ""
+	list_pending_programs = ""
 
     'The function will use the same functionality for each program and search CASE:CURR to find the program deader for detail about the status.
     'If 'ACTIVE', 'APP CLOSE', 'APP OPEN', or 'PENDING' is listed after the header the function will mark the boolean for that program as 'TRUE'
@@ -5746,10 +5748,12 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If fs_status = "ACTIVE" or fs_status = "APP CLOSE" or fs_status = "APP OPEN" Then
             snap_case = TRUE
             case_active = TRUE
+			list_active_programs = list_active_programs & "SNAP, "
         End If
         If fs_status = "PENDING" Then
             snap_case = TRUE
             case_pending = TRUE
+			list_pending_programs = list_pending_programs & "SNAP, "
         End If
 		If left(fs_status, 4) = "REIN" Then
 			snap_case = TRUE
@@ -5765,10 +5769,12 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If grh_status = "ACTIVE" or grh_status = "APP CLOSE" or grh_status = "APP OPEN" Then
             grh_case = TRUE
             case_active = TRUE
+			list_active_programs = list_active_programs & "GRH, "
         End If
         If grh_status = "PENDING" Then
             grh_case = TRUE
             case_pending = TRUE
+			list_pending_programs = list_pending_programs & "GRH, "
         ENd If
 		If left(grh_status, 4) = "REIN" Then
 			grh_case = TRUE
@@ -5786,11 +5792,13 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             msa_case = TRUE
             adult_cash_case = TRUE
             case_active = TRUE
+			list_active_programs = list_active_programs & "MSA, "
         End If
         If ms_status = "PENDING" Then
             msa_case = TRUE
             adult_cash_case = TRUE
             case_pending = TRUE
+			list_pending_programs = list_pending_programs & "MSA, "
         ENd If
 		If left(ms_status, 4) = "REIN" Then
 			msa_case = TRUE
@@ -5808,11 +5816,13 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             ga_case = TRUE
             adult_cash_case = TRUE
             case_active = TRUE
+			list_active_programs = list_active_programs & "GA, "
         End If
         If ga_status = "PENDING" Then
             ga_case = TRUE
             adult_cash_case = TRUE
             case_pending = TRUE
+			list_pending_programs = list_pending_programs & "GA, "
         ENd If
 		If left(ga_status, 4) = "REIN" Then
 			ga_case = TRUE
@@ -5831,11 +5841,13 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             dwp_case = TRUE
             family_cash_case = TRUE
             case_active = TRUE
+			list_active_programs = list_active_programs & "DWP, "
         End If
         If dw_status = "PENDING" Then
             dwp_case = TRUE
             family_cash_case = TRUE
             case_pending = TRUE
+			list_pending_programs = list_pending_programs & "DWP, "
         ENd If
 		If left(dw_status, 4) = "REIN" Then
 			dwp_case = TRUE
@@ -5854,11 +5866,13 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
             mfip_case = TRUE
             family_cash_case = TRUE
             case_active = TRUE
+			list_active_programs = list_active_programs & "MFIP, "
         End If
         If mf_status = "PENDING" Then
             mfip_case = TRUE
             family_cash_case = TRUE
             case_pending = TRUE
+			list_pending_programs = list_pending_programs & "MFIP, "
         ENd If
 		If left(mf_status, 4) = "REIN" Then
 			mfip_case = TRUE
@@ -5875,8 +5889,27 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If cash_status = "PENDING" Then
             unknown_cash_pending = TRUE
             case_pending = TRUE
+			list_pending_programs = list_pending_programs & "CASH, "
         ENd If
     End If
+	row = 1                                             'Looking for IV-E information
+	col = 1
+	EMSearch "IV-E:", row, col
+	If row <> 0 Then
+	    EMReadScreen ive_status, 9, row, col + 6
+	    ive_status = trim(ive_status)
+	    If ive_status = "ACTIVE" or ive_status = "APP CLOSE" or ive_status = "APP OPEN" Then list_active_programs = list_active_programs & "IV-E, "
+	    If ive_status = "PENDING" Then list_pending_programs = list_pending_programs & "IV-E, "
+	End If
+	row = 1                                             'Looking for CCAP information
+	col = 1
+	EMSearch "CCAP", row, col
+	If row <> 0 Then
+	    EMReadScreen cca_status, 9, row, col + 6
+	    cca_status = trim(cca_status)
+	    If cca_status = "ACTIVE" or cca_status = "APP CLOSE" or cca_status = "APP OPEN" Then list_active_programs = list_active_programs & "CCAP, "
+	    If cca_status = "PENDING" Then list_pending_programs = list_pending_programs & "CCAP, "
+	End If
 	row = 1                                                 'Looking for a general 'Cash' header which means any kind of cash could be pending
     col = 1
     EMSearch "HC:", row, col
@@ -5886,6 +5919,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If hc_status = "PENDING" Then
             unknown_hc_pending = TRUE
             case_pending = TRUE
+			list_pending_programs = list_pending_programs & "HC, "
         ENd If
     End If
     row = 1                                             'Looking for MA information
@@ -5897,10 +5931,12 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If ma_status = "ACTIVE" or ma_status = "APP CLOSE" or ma_status = "APP OPEN" Then
             ma_case = TRUE
             case_active = TRUE
+			If InStr(list_active_programs, "HC") = 0 Then list_active_programs = list_active_programs & "HC, "
         End If
         If ma_status = "PENDING" Then
             ma_case = TRUE
             case_pending = TRUE
+			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(ma_status, 4) = "REIN" Then
 			ma_case = TRUE
@@ -5917,10 +5953,12 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If qm_status = "ACTIVE" or qm_status = "APP CLOSE" or qm_status = "APP OPEN" Then
             msp_case = TRUE
             case_active = TRUE
+			If InStr(list_active_programs, "HC") = 0 Then list_active_programs = list_active_programs & "HC, "
         End If
         If qm_status = "PENDING" Then
             msp_case = TRUE
             case_pending = TRUE
+			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(qm_status, 4) = "REIN" Then
 			msp_case = TRUE
@@ -5936,10 +5974,12 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If sl_status = "ACTIVE" or sl_status = "APP CLOSE" or sl_status = "APP OPEN" Then
             msp_case = TRUE
             case_active = TRUE
+			If InStr(list_active_programs, "HC") = 0 Then list_active_programs = list_active_programs & "HC, "
         End If
         If sl_status = "PENDING" Then
             msp_case = TRUE
             case_pending = TRUE
+			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(sl_status, 4) = "REIN" Then
 			msp_case = TRUE
@@ -5955,10 +5995,12 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If qi_status = "ACTIVE" or qi_status = "APP CLOSE" or qi_status = "APP OPEN" Then
             msp_case = TRUE
             case_active = TRUE
+			If InStr(list_active_programs, "HC") = 0 Then list_active_programs = list_active_programs & "HC, "
         End If
         If qi_status = "PENDING" Then
             msp_case = TRUE
             case_pending = TRUE
+			If InStr(list_pending_programs, "HC") = 0 Then list_pending_programs = list_pending_programs & "HC, "
         End If
 		If left(qi_status, 4) = "REIN" Then
 			msp_case = TRUE
@@ -6000,11 +6042,13 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
         If ega_status = "ACTIVE" or ega_status = "APP CLOSE" or ega_status = "APP OPEN" Then
             emer_case = TRUE
             case_active = TRUE
+			list_active_programs = list_active_programs & "EGA, "
         End If
         If ega_status = "PENDING" Then
             dwp_case = TRUE
             emer_case = TRUE
             case_pending = TRUE
+			list_pending_programs = list_pending_programs & "EA, "
         ENd If
 		If left(ega_status, 4) = "REIN" Then
 			emer_case = TRUE
@@ -6020,10 +6064,12 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 		If ea_status = "ACTIVE" or ea_status = "APP CLOSE" or ea_status = "APP OPEN" Then
 			emer_case = TRUE
 			case_active = TRUE
+			list_active_programs = list_active_programs & "EGA, "
 		End If
 		If ea_status = "PENDING" Then
 			emer_case = TRUE
 			case_pending = TRUE
+			list_pending_programs = list_pending_programs & "EA, "
 		ENd If
 		If left(ea_status, 4) = "REIN" Then
 			emer_case = TRUE
@@ -6051,6 +6097,11 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 		If ega_status = "REIN" Then emer_type = "EGA"
 		If ea_status = "REIN" Then emer_type = "EA"
 	End If
+	list_active_programs = trim(list_active_programs)  'trims excess spaces of list_active_programs
+	If right(list_active_programs, 1) = "," THEN list_active_programs = left(list_active_programs, len(list_active_programs) - 1)
+
+	list_pending_programs = trim(list_pending_programs)  'trims excess spaces of list_pending_programs
+	If right(list_pending_programs, 1) = "," THEN list_pending_programs = left(list_pending_programs, len(list_pending_programs) - 1)
 End Function
 
 function display_ADDR_information(update_addr, notes_on_address, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, reservation_name, addr_living_sit, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, address_change_date, update_information_btn, save_information_btn, clear_mail_addr_btn, clear_phone_one_btn, clear_phone_two_btn, clear_phone_three_btn)
