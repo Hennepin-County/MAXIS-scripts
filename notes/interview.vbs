@@ -8162,10 +8162,14 @@ vars_filled = FALSE
 
 Call back_to_SELF
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
-
-Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-EMReadScreen emer_status, 7, 19, 42
-emer_status = trim(emer_status)
+MsgBox "New"
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+If snap_status = "APP OPEN" or snap_status = "APP CLOSE" Then snap_status = "ACTIVE"
+If grh_status = "APP OPEN" or grh_status = "APP CLOSE" Then grh_status = "ACTIVE"
+If mfip_status = "APP OPEN" or mfip_status = "APP CLOSE" Then mfip_status = "ACTIVE"
+If dwp_status = "APP OPEN" or dwp_status = "APP CLOSE" Then dwp_status = "ACTIVE"
+If ga_status = "APP OPEN" or ga_status = "APP CLOSE" Then ga_status = "ACTIVE"
+If msa_status = "APP OPEN" or msa_status = "APP CLOSE" Then msa_status = "ACTIVE"
 If vars_filled = False Then
 	If adult_cash_case = True Then type_of_cash = "Adult"
 	If family_cash_case = True Then type_of_cash = "Family"
