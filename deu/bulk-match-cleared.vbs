@@ -159,17 +159,18 @@ function claim_referral_tracking(action_taken, action_date)
     END IF
 END FUNCTION
 
-Function INFC_looping()
+Function IEVP_looping(ievp_panel)
     row = row + 1
-    'msgbox "This means we are out of the loop & row " & row
     IF row = 17 THEN
         PF8
         row = 7
-        EMReadScreen INFC_panel_check, 4, 2, 45
-        IF INFC_panel_check = "INFC" THEN
+        EMReadScreen IVEP_panel_check, 4, 2, 52
+        IF IEVP_panel_check = "IEVP" THEN
+            IEVP_panel = True
+        Else
             EMReadScreen MISC_error_check,  74, 24, 02
             match_based_array(comments_const, item) = trim(MISC_error_check)
-            'EXIT DO invalid exit statement
+            IEVP_panel = False
         End IF
     End if
 End Function
@@ -195,10 +196,16 @@ EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
+IEVS_match_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\Copy of MiKayla 03-21-22 4th qtr 2021 HC Wage Matches 03-11-22.xlsx"
+match_type = "WAGE"
+action_taken = "No Savings/Overpayment"
+
 'This can only be run by Maureen Headbird DEU HSS = WF7329 and MiKayla Handley WFS395
 If user_ID_for_validation <> "WF7329" THEN
 	IF user_ID_for_validation <> "WFS395" THEN
-		script_end_procedure("This is restricted to use by HSS only. Please contact your supervisor to run.")
+        IF user_ID_for_validation <> "ILFE001" THEN
+		    script_end_procedure("This is restricted to use by HSS only. Please contact your supervisor to run.")
+        END IF
 	END IF
 END IF
 
@@ -248,10 +255,10 @@ Do
 		End If
 		If err_msg <> "" and err_msg <> "LOOP" Then MsgBox err_msg
 	LOOP UNTIL err_msg = ""
-    Call excel_open(IEVS_match_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
-	If err_msg <> "" Then MsgBox err_msg
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
+
+Call excel_open(IEVS_match_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
 
 'setting the footer month to make the updates in'
 back_to_self 'resetting MAXIS back to self before getting started
@@ -293,7 +300,7 @@ entry_record = 0 'incrementor for the array and count
 
 'Establishing array
 DIM match_based_array()  'Declaring the array this is what this list is
-ReDim match_based_array(other_notes_const, 0)  'Resizing the array 'that ,list is going to have 20 parameter but to start with there is only one paparmeter it gets complicated - grid'
+ReDim match_based_array(comments_const, 0)  'Resizing the array 'that ,list is going to have 20 parameter but to start with there is only one paparmeter it gets complicated - grid'
 'Creating constants to value the array elements this is why we create constants
 'for each row the column is going to be the same information type
 const date_posted_to_maxis_const	 		= 0 'Date Posted to Maxis
@@ -319,9 +326,9 @@ const atr_signed_const	                    = 19 'Date ATR on file
 const evf_rcvd_const	                    = 20 'Date EVF Received
 const priv_case_const      					= 21
 const out_of_county_const 					= 22
-const comments_const	                    = 23 'Comments
+const other_notes_const	                    = 23 'Comments
 const match_cleared_const				    = 24 'true/false
-const other_notes_const	                    = 25 'Other Notes
+const comments_const	                    = 25 'Other Notes
 
 'dialog and dialog DO...Loop
 Do 'purpose is to read each excel row and to add into each excel array '
@@ -340,9 +347,8 @@ Do 'purpose is to read each excel row and to add into each excel array '
     list_amount = replace(list_amount, "$", "")
     list_amount = replace(list_amount, ",", "")
 
-	'msgbox "being added: " & excel_row & " " & add_to_array & vbcr & " " & MAXIS_case_number & " " & client_SSN
 	IF add_to_array = TRUE THEN   'Adding client information to the array - this is for READING FROM the excel
-     	ReDim Preserve match_based_array(other_notes_const, entry_record)	'This resizes the array based on the number of cases
+     	ReDim Preserve match_based_array(comments_const, entry_record)	'This resizes the array based on the number of cases
 	   	match_based_array(maxis_case_number_const,  entry_record)	 = MAXIS_case_number
 	   	match_based_array(client_ssn_const, 		entry_record)	 = trim(replace(objExcel.cells(excel_row, excel_col_client_ssn), "-", ""))
 		match_based_array(program_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_program).Value)
@@ -374,6 +380,8 @@ For item = 0 to UBound(match_based_array, 2)
 	    	EMReadScreen IEVS_period, 11, row, 47
 	    	IEVS_period = replace(IEVS_period, "-", "/")
 	    	EMReadScreen ievp_match_type, 3, row, 41 'read the match type
+            ievp_match_type = trim(ievp_match_type)
+
 			IF ievp_match_type = "A30" THEN match_type = "BNDX"
 			IF ievp_match_type = "A40" THEN match_type = "SDXS/I"
 			IF ievp_match_type = "A70" THEN match_type = "BEER"
@@ -388,51 +396,81 @@ For item = 0 to UBound(match_based_array, 2)
 			days_pending = replace(days_pending, "(", "")
 			days_pending = replace(days_pending, ")", "")
 			IF IsNumeric(days_pending) = TRUE THEN
-	    		IF trim(ievp_match_type) = trim(match_based_array(numb_match_type_const, item)) THEN
+                'msgbox "1. IsNumeric(days_pending): " & IsNumeric(days_pending)
+                msgbox ievp_match_type & vbcr & "row: " & row
+                If ievp_match_type = "" THEN
+                    match_based_array(comments_const, item) = "Unable to match the IEVS types."
+                    msgbox "no match"
+                    exit do
+                Elseif trim(ievp_match_type) = trim(match_based_array(numb_match_type_const, item)) THEN
+                    msgbox trim(ievp_match_type) = trim(match_based_array(numb_match_type_const, item)) & " 2."
 	    			IF trim(match_based_array(period_const, item)) = trim(IEVS_period) THEN
-    	    			'msgbox " ~" & ievp_match_type & "~" & match_based_array(numb_match_type_const, item)  &  "~" & match_type &  "~" & match_based_array(period_const, item) &  "~" & IEVS_period &  "~" & days_pending
-	            			msgbox match_based_array(match_cleared_const, item) & " where are we?"
-	           	   			CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
-							'----------------------------------------------------------------------------------------------------Employer info & difference notice info
-						    IF match_type = "UBEN" THEN income_source = "Unemployment"
-						    IF match_type = "UNVI" THEN income_source = "NON-WAGE"
-	                        IF match_type = "WAGE" THEN	EMReadScreen income_line, 44, 8, 37 'should be to the right of employer and the left of amount
-	                 	    IF match_type = "BEER" THEN EMReadScreen income_line, 44, 8, 28
+                        msgbox "3. trim(match_based_array(period_const, item)) = trim(IEVS_period): " & trim(match_based_array(period_const, item)) = trim(IEVS_period)
+	           	   		CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+						'----------------------------------------------------------------------------------------------------Employer info & difference notice info
+						   IF match_type = "UBEN" THEN income_source = "Unemployment"
+						   IF match_type = "UNVI" THEN income_source = "NON-WAGE"
+	                       IF match_type = "WAGE" THEN	EMReadScreen income_line, 44, 8, 37 'should be to the right of employer and the left of amount
+	                 	   IF match_type = "BEER" THEN EMReadScreen income_line, 44, 8, 28
 
-	                        income_line = trim(income_line)
-	                        income_amount = right(income_line, 8)
-	                        IF instr(income_line, " AMOUNT: $") THEN position = InStr(income_line, " AMOUNT: $")    	  'sets the position at the deliminator
-	                        IF instr(income_line, " AMT: $") THEN position = InStr(income_line, " AMT: $")    		      'sets the position at the deliminator
-	                        income_source = Left(income_line, position)  'establishes employer as being before the deliminator
-					 	    income_source = trim(income_source)
-	                        income_amount = replace(income_amount, "$", "")
-	                        income_amount = replace(income_amount, ",", "") '*** review Ilse does this look cleaned up?'
-	                   	    IF income_source = match_based_array(income_source_const, item) THEN
-						    	IF income_amount = match_based_array(amount_const, item) THEN
-                                	msgbox  income_amount & " ~ " &  match_based_array(amount_const, item) & " true - exit do"
-	    				    		match_based_array(match_cleared_const, item) = TRUE
-                                	EXIT DO
-	    				    	ELSE
-									match_based_array(other_notes_const, item) = "No match could be made"
-									EXIT DO
-								END IF
-						    END IF
+	                       income_line = trim(income_line)
+	                       income_amount = right(income_line, 8)
+	                       IF instr(income_line, " AMOUNT: $") THEN position = InStr(income_line, " AMOUNT: $")    	  'sets the position at the deliminator
+	                       IF instr(income_line, " AMT: $") THEN position = InStr(income_line, " AMT: $")    		      'sets the position at the deliminator
+	                       income_source = Left(income_line, position)  'establishes employer as being before the deliminator
+					 	   income_source = trim(income_source)
+	                       income_amount = replace(income_amount, "$", "")
+	                       income_amount = trim(replace(income_amount, ",", "")) '*** review Ilse does this look cleaned up?'
+
+                           msgbox "~" & income_amount & "~" & vbcr & "~" & income_source & "~" & vbcr & "~" & match_based_array(amount_const, item) & "~"
+                           msgbox "4. ~" & income_source & "~" & match_based_array(income_source_const, item) & "~"
+	                   	   IF income_source = match_based_array(income_source_const, item) THEN
+                            msgbox "5. ~" & income_source & "~" & match_based_array(income_source_const, item) & "~" & vbcr & "do they match: " & income_source = match_based_array(income_source_const, item)
+						   	IF income_amount = match_based_array(amount_const, item) THEN
+                                msgbox "6. ~" & income_amount & "~" & match_based_array(amount_const, item) & "~" & vbcr & "exit do 0" & vbcr & "do they match: " & income_amount = match_based_array(amount_const, item)
+                            	EXIT DO
+	    				   	ELSE
+								match_based_array(comments_const, item) = "No match could be found."
+                                PF3 ' to leave match
+                                msgbox "7. Exit do 1"
+								EXIT DO
+							END IF
+                        Else
+                            Call IEVP_looping(ievp_panel)
+                            If IEVP_panel = False then
+                                msgbox "8. Exit do 2"
+                                exit do
+                            End if
 						END IF
+                        Call IEVP_looping(ievp_panel)
+                        If IEVP_panel = False then
+                            exit do
+                            msgbox "9. Exit do 3"
+                        End if
 	    			END IF
+                    Call IEVP_looping(ievp_panel)
+                    If IEVP_panel = False then
+                        msgbox "10. Exit do 4"
+                        exit do
+                    End if
                 END IF
+                Call IEVP_looping(ievp_panel)
+                If IEVP_panel = False then
+                    msgbox "11. Exit do 4"
+                    exit do
+                End if
 	        ELSE
-				match_based_array(other_notes_const, item) = days_pending 'identifying previously cleared matches. Not cleared with BULK script.
+				match_based_array(comments_const, item) = days_pending 'identifying previously cleared matches. Not cleared with BULK script.
+                msgbox "12. Exit do 5"
 				EXIT DO
 			END IF
 		LOOP UNTIL trim(IEVS_period) = "" 'two ways to leave a loop
 	ELSE
-		'Unable to confirm case was in the IVEP panel
-		Call INFC_looping
 		EMReadScreen MISC_error_check,  74, 24, 02
     	match_based_array(comments_const, item) = trim(MISC_error_check)
 	END IF
 	'--------------------------------------------------------------------clearing the match IULA much of this is just for the case note
-    IF match_based_array(match_cleared_const, item) = TRUE THEN
+    IF trim(match_based_array(comments_const, item)) = "" then
      	IF match_type = "WAGE" THEN
     		EMReadScreen select_quarter, 1, 8, 14
     		EMReadScreen IEVS_year, 4, 8, 22
@@ -522,7 +560,6 @@ For item = 0 to UBound(match_based_array, 2)
 			notes_array = split(IULB_comment, " ")
 			For each word in notes_array
 				EMWriteScreen word & " ", iulb_row, iulb_col
-			 	'msgbox "Word - " & word & vbCr & "Row - " & iulb_row & "   Col - " & iulb_col & vbCr & "Add - " & iulb_col + len(word)
 				If iulb_col + len(word) > 77 Then
 					iulb_col = 6
 					iulb_row = iulb_row + 1
@@ -543,81 +580,85 @@ For item = 0 to UBound(match_based_array, 2)
                 stats_counter = stats_counter + 1 'Increment for stats counter this will only count if true
 			END IF
    		ELSE
-			match_based_array(match_cleared_const, item) = FALSE
+			match_based_array(comments_const, item) = "Did not clear on IULB."
 		END IF
 
-	 	'Going to the MISC panel to add claim referral tracking information
-	    Call claim_referral_tracking(action_taken, action_date)
-        '----------------------------------------------------------------------------------------------------CASE NOTE
-		CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
-		EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT
-		EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to  navigate'
-		case_invalid_error = trim(case_invalid_error)
-		IF priv_check = TRUE THEN  'PRIV cases
-		    EMReadscreen priv_worker, 26, 24, 46
-		    match_based_array(other_note_const, item) = "PRIV - Unable to case note "
-		ELSEIf county_code <> worker_county_code THEN
-		  	match_based_array(other_note_const, item) = "OUT OF COUNTY CASE. Unable to case note."
-		ELSEIF instr(case_invalid_error, "IS INVALID") THEN  'CASE xxxxxxxx IS INVALID FOR PERIOD 12/99
-		    match_based_array(other_note_const, item) = case_invalid_error & ". Unable to case note."
-		ELSE
-			'-------------------------------------------------------------------for the case note
-            IF match_type = "BEER" THEN match_type_letter = "B"
-            IF match_type = "UBEN" THEN match_type_letter = "U"
-            IF match_type = "UNVI" THEN match_type_letter = "U"
-            IF match_type = "WAGE" THEN
-               IF select_quarter = 1 THEN IEVS_quarter = "1ST"
-               IF select_quarter = 2 THEN IEVS_quarter = "2ND"
-               IF select_quarter = 3 THEN IEVS_quarter = "3RD"
-               IF select_quarter = 4 THEN IEVS_quarter = "4TH"
-            END IF
-            IF match_type <> "UBEN" THEN IEVS_period = trim(replace(IEVS_period, "/", " to "))
-            IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
+        If match_based_array(match_cleared_const, item) = TRUE then
+	 	    'Going to the MISC panel to add claim referral tracking information
+	        Call claim_referral_tracking(action_taken, action_date)
 
-			programs = ""
-		    IF instr(match_based_array(program_const, item), "D") THEN programs = programs & "DWP, "
-		    IF instr(match_based_array(program_const, item), "F") THEN programs = programs & "Food Support, "
-		    IF instr(match_based_array(program_const, item), "H") THEN programs = programs & "Health Care, "
-		    IF instr(match_based_array(program_const, item), "M") THEN programs = programs & "Medical Assistance, "
-		    IF instr(match_based_array(program_const, item), "S") THEN programs = programs & "MFIP, "
-		    'trims excess spaces of programs
-		    programs = trim(programs)
-		    'takes the last comma off of programs when autofilled into dialog
-		    IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
+            '----------------------------------------------------------------------------------------------------CASE NOTE
+		    CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+		    EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT
+		    EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to  navigate'
+		    case_invalid_error = trim(case_invalid_error)
+		    IF priv_check = TRUE THEN  'PRIV cases
+		        EMReadscreen priv_worker, 26, 24, 46
+		        match_based_array(other_note_const, item) = "PRIV - Unable to case note "
+		    ELSEIf county_code <> worker_county_code THEN
+		      	match_based_array(other_note_const, item) = "OUT OF COUNTY CASE. Unable to case note."
+		    ELSEIF instr(case_invalid_error, "IS INVALID") THEN  'CASE xxxxxxxx IS INVALID FOR PERIOD 12/99
+		        match_based_array(other_note_const, item) = case_invalid_error & ". Unable to case note."
+		    ELSE
+		    	'-------------------------------------------------------------------for the case note
+                IF match_type = "BEER" THEN match_type_letter = "B"
+                IF match_type = "UBEN" THEN match_type_letter = "U"
+                IF match_type = "UNVI" THEN match_type_letter = "U"
+                IF match_type = "WAGE" THEN
+                   IF select_quarter = 1 THEN IEVS_quarter = "1ST"
+                   IF select_quarter = 2 THEN IEVS_quarter = "2ND"
+                   IF select_quarter = 3 THEN IEVS_quarter = "3RD"
+                   IF select_quarter = 4 THEN IEVS_quarter = "4TH"
+                END IF
+                IF match_type <> "UBEN" THEN IEVS_period = trim(replace(IEVS_period, "/", " to "))
+                IF match_type = "UBEN" THEN IEVS_period = replace(IEVS_period, "-", "/")
 
-    	    PF9
-            'Case note header options based on the match type
-    	    IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
-            IF match_type = "BNDX" THEN
-				CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
-            ELSE
-            	CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
-    		END IF
-    	    CALL write_bullet_and_variable_in_case_note("Period", match_based_array(period_const, item))
-    	    CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
-    	    CALL write_bullet_and_variable_in_case_note("Source of income", match_based_array(income_source_const, item))
-    	    CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", match_based_array(notice_sent_date_const, item))
-    	    IF IULB_notes = "CB-Ovrpmt And Future Save" THEN CALL write_variable_in_case_note("* OP Claim entered and future savings.")
-    	    IF IULB_notes = "CF-Future Save" THEN CALL write_variable_in_case_note("* Future Savings.")
-    	    IF IULB_notes = "CA-Excess Assets" THEN CALL write_variable_in_case_note("* Excess Assets.")
-    	    IF IULB_notes = "CI-Benefit Increase" THEN CALL write_variable_in_case_note("* Benefit Increase.")
-    	    IF IULB_notes = "CP-Applicant Only Savings" THEN CALL write_variable_in_case_note("* Applicant Only Savings.")
-    	    IF IULB_notes = "BC-Case Closed" THEN CALL write_variable_in_case_note("* Case closed.")
-    	    IF IULB_notes = "BE-Child" THEN CALL write_variable_in_case_note("* Income is excluded for minor child in school.")
-    	    IF IULB_notes = "BE-No Change" THEN CALL write_variable_in_case_note("* No Overpayments or savings were found related to this match.")
-    	    IF IULB_notes = "BE-Overpayment Entered" THEN CALL write_variable_in_case_note("* Overpayments or savings were found related to this match.")
-    	    IF IULB_notes = "BE-NC-Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Client is still non-coop.")
-    	    IF IULB_notes = "BI-Interface Prob" THEN CALL write_variable_in_case_note("* Interface Problem.")
-    	    IF IULB_notes = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
-    	    IF IULB_notes = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
-    	    IF IULB_notes = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
-    	    IF IULB_notes = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
-    	    CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-    	    CALL write_variable_in_case_note("----- ----- ----- ----- -----")
-    	    CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-    	    PF3 'to save casenote'
-    		match_based_array(other_notes_const, item) = True
-		END IF
+		    	programs = ""
+		        IF instr(match_based_array(program_const, item), "D") THEN programs = programs & "DWP, "
+		        IF instr(match_based_array(program_const, item), "F") THEN programs = programs & "Food Support, "
+		        IF instr(match_based_array(program_const, item), "H") THEN programs = programs & "Health Care, "
+		        IF instr(match_based_array(program_const, item), "M") THEN programs = programs & "Medical Assistance, "
+		        IF instr(match_based_array(program_const, item), "S") THEN programs = programs & "MFIP, "
+		        'trims excess spaces of programs
+		        programs = trim(programs)
+		        'takes the last comma off of programs when autofilled into dialog
+		        IF right(programs, 1) = "," THEN programs = left(programs, len(programs) - 1)
+
+    	        PF9
+                'Case note header options based on the match type
+    	        IF match_type = "WAGE" THEN
+                    CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+                Elseif match_type = "BNDX" THEN
+		    		CALL write_variable_in_case_note("-----" & IEVS_period & " NON-WAGE MATCH(" & match_type & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+                ELSE
+                	CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
+    	    	END IF
+    	        CALL write_bullet_and_variable_in_case_note("Period", match_based_array(period_const, item))
+    	        CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
+    	        CALL write_bullet_and_variable_in_case_note("Source of income", match_based_array(income_source_const, item))
+    	        CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", match_based_array(notice_sent_date_const, item))
+    	        IF IULB_notes = "CB-Ovrpmt And Future Save" THEN CALL write_variable_in_case_note("* OP Claim entered and future savings.")
+    	        IF IULB_notes = "CF-Future Save" THEN CALL write_variable_in_case_note("* Future Savings.")
+    	        IF IULB_notes = "CA-Excess Assets" THEN CALL write_variable_in_case_note("* Excess Assets.")
+    	        IF IULB_notes = "CI-Benefit Increase" THEN CALL write_variable_in_case_note("* Benefit Increase.")
+    	        IF IULB_notes = "CP-Applicant Only Savings" THEN CALL write_variable_in_case_note("* Applicant Only Savings.")
+    	        IF IULB_notes = "BC-Case Closed" THEN CALL write_variable_in_case_note("* Case closed.")
+    	        IF IULB_notes = "BE-Child" THEN CALL write_variable_in_case_note("* Income is excluded for minor child in school.")
+    	        IF IULB_notes = "BE-No Change" THEN CALL write_variable_in_case_note("* No Overpayments or savings were found related to this match.")
+    	        IF IULB_notes = "BE-Overpayment Entered" THEN CALL write_variable_in_case_note("* Overpayments or savings were found related to this match.")
+    	        IF IULB_notes = "BE-NC-Non-collectible" THEN CALL write_variable_in_case_note("* No collectible overpayments or savings were found related to this match. Client is still non-coop.")
+    	        IF IULB_notes = "BI-Interface Prob" THEN CALL write_variable_in_case_note("* Interface Problem.")
+    	        IF IULB_notes = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
+    	        IF IULB_notes = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
+    	        IF IULB_notes = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
+    	        IF IULB_notes = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
+    	        CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+    	        CALL write_variable_in_case_note("----- ----- ----- ----- -----")
+    	        CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+    	        PF3 'to save casenote'
+    	    	match_based_array(comments_const, item) = "Match Cleared and Case Noted."
+		    END IF
+        END IF
 	END IF
 NEXT
 
@@ -647,7 +688,7 @@ objExcel.Cells(1, 22).Value    = "COMMENTS"		    'V Comments
 
 For item = 0 to UBound(match_based_array, 2)
  	excel_row = match_based_array(excel_row_const, item)
- 	objExcel.Cells(excel_row, excel_col_other_note).Value 	= match_based_array(other_notes_const, item)
+ 	objExcel.Cells(excel_row, excel_col_other_note).Value 	= match_based_array(comments_const, item)
 	objExcel.Cells(excel_row, excel_date_notice_sent).Value	= match_based_array(notice_sent_date_const, item)
 	objExcel.Cells(excel_row, excel_col_date_cleared).Value = match_based_array(date_cleared_const, item)
 Next
