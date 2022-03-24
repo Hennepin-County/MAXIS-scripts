@@ -372,16 +372,12 @@ For item = 0 to UBound(match_based_array, 2)
 			days_pending = replace(days_pending, "(", "")
 			days_pending = replace(days_pending, ")", "")
 			IF IsNumeric(days_pending) = TRUE THEN
-                'msgbox "1. IsNumeric(days_pending): " & IsNumeric(days_pending)
                 If ievp_match_type = "" THEN
                     match_based_array(comments_const, item) = "Unable to match the IEVS types."
-                    'msgbox "1 A - no match type"'
                     exit do
                 Elseif ievp_match_type = match_based_array(numb_match_type_const, item) THEN
-                    'msgbox "2." & ievp_match_type = match_based_array(numb_match_type_const, item)
 	    			IF trim(match_based_array(period_const, item)) = IEVS_period THEN
-                        'msgbox "3." & trim(match_based_array(period_const, item)) = IEVS_period  & trim(match_based_array(period_const, item)) = IEVS_period
-	           	   		CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
+                    	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 						'----------------------------------------------------------------------------------------------------Employer info & difference notice info
 						   IF match_type = "UBEN" THEN income_source = "Unemployment"
 						   IF match_type = "UNVI" THEN income_source = "NON-WAGE"
@@ -396,46 +392,36 @@ For item = 0 to UBound(match_based_array, 2)
 					 	   income_source = trim(income_source)
 	                       income_amount = replace(income_amount, "$", "")
 	                       income_amount = trim(replace(income_amount, ",", "")) '*** review Ilse does this look cleaned up?'
-
-                           'msgbox "~" & income_amount & "~" & vbcr & "~" & income_source & "~" & vbcr & "~" & match_based_array(amount_const, item) & "4. ~" & income_source & "~" & match_based_array(income_source_const, item) & "~"
 	                   	   IF income_source = match_based_array(income_source_const, item) THEN
-                            'msgbox "5. ~" & income_source & "~" & match_based_array(income_source_const, item) & "~" & vbcr & "do they match: " & income_source = match_based_array(income_source_const, item)
 						   	IF income_amount = match_based_array(amount_const, item) THEN
-                                'msgbox "6. ~" & income_amount & "~" & match_based_array(amount_const, item) & "~" & vbcr & "exit do 0" & vbcr & "do they match: " & income_amount = match_based_array(amount_const, item)
                             	EXIT DO
 	    				   	ELSE
 								match_based_array(comments_const, item) = "No match could be found."
                                 PF3 ' to leave match
-                                'msgbox "7. Exit do 1"
 								EXIT DO
 							END IF
                         Else
                             Call IEVP_looping(ievp_panel)
                             If IEVP_panel = False then
-                                'msgbox "8. Exit do 2"
                                 exit do
                             End if
 						END IF
                         Call IEVP_looping(ievp_panel)
                         If IEVP_panel = False then
                             exit do
-                            'msgbox "9. Exit do 3"
                         End if
 	    			END IF
                     Call IEVP_looping(ievp_panel)
                     If IEVP_panel = False then
-                        'msgbox "10. Exit do 4"
                         exit do
                     End if
                 END IF
                 Call IEVP_looping(ievp_panel)
                 If IEVP_panel = False then
-                    'msgbox "11. Exit do 4"
                     exit do
                 End if
 	        ELSE
 				match_based_array(comments_const, item) = days_pending 'identifying previously cleared matches. Not cleared with BULK script.
-                'msgbox "12. Exit do 5"
 				EXIT DO
 			END IF
 		LOOP UNTIL trim(IEVS_period) = "" 'two ways to leave a loop
@@ -661,7 +647,7 @@ objExcel.Cells(1, 19).Value    = "DATE ATR RCVD"	'S Date ATR on file
 objExcel.Cells(1, 20).Value    = "DATE EVF SIGNED"	'T Date EVF Received
 objExcel.Cells(1, 21).Value    = "OTHER NOTES"		'U Other Notes
 objExcel.Cells(1, 22).Value    = "COMMENTS"		    'V Comments
-MsgBox "Writing to excel!" 'this is working as a ready wait'
+MsgBox "Writing to excel- please dont touch the keyboard!" 'this is working as a ready wait'
 For item = 0 to UBound(match_based_array, 2)
  	excel_row = match_based_array(excel_row_const, item)
  	objExcel.Cells(excel_row, excel_col_comments).Value 	= match_based_array(comments_const, item)
