@@ -311,8 +311,14 @@ Do 'purpose is to read each excel row and to add into each excel array '
     IF MAXIS_case_number = "" THEN EXIT DO
 
 	IF trim(objExcel.cells(excel_row, excel_col_period).Value) <> "" THEN
-        IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) <> "" THEN add_to_array = TRUE
-    END IF
+        IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) <> "" THEN
+			add_to_array = TRUE
+
+	    ELSE
+			match_based_array(comments_const, item) = "No resolution status could be found."
+			excel_row = excel_row + 1
+		END IF
+	END IF
 
 	IF add_to_array = TRUE THEN   'Adding client information to the array - this is for READING FROM the excel
      	ReDim Preserve match_based_array(comments_const, entry_record)	'This resizes the array based on the number of cases
@@ -602,7 +608,9 @@ For item = 0 to UBound(match_based_array, 2)
                 	CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") CLEARED " & match_based_array(resolution_status_const,  item) & "-----")
     	    	END IF
     	        CALL write_bullet_and_variable_in_case_note("Period", match_based_array(period_const, item))
-    	        CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
+    	        CALL write_bullet_and_variable_in_case_note("Programs on Match", programs)
+				CALL write_bullet_and_variable_in_case_note("Active Programs", list_active_programs)
+				CALL write_bullet_and_variable_in_case_note("Pending Programs", list_pending_programs)
     	        CALL write_bullet_and_variable_in_case_note("Source of income", match_based_array(income_source_const, item))
     	        CALL write_bullet_and_variable_in_case_note("Date Diff notice sent", match_based_array(notice_sent_date_const, item))
     	        IF IULB_notes = "CB-Ovrpmt And Future Save" THEN CALL write_variable_in_case_note("* OP Claim entered and future savings.")
@@ -653,10 +661,9 @@ objExcel.Cells(1, 19).Value    = "DATE ATR RCVD"	'S Date ATR on file
 objExcel.Cells(1, 20).Value    = "DATE EVF SIGNED"	'T Date EVF Received
 objExcel.Cells(1, 21).Value    = "OTHER NOTES"		'U Other Notes
 objExcel.Cells(1, 22).Value    = "COMMENTS"		    'V Comments
-
+MsgBox "Writing to excel!" 'this is working as a ready wait'
 For item = 0 to UBound(match_based_array, 2)
  	excel_row = match_based_array(excel_row_const, item)
-	MsgBox "Writing to excel!"
  	objExcel.Cells(excel_row, excel_col_comments).Value 	= match_based_array(comments_const, item)
 	objExcel.Cells(excel_row, excel_date_notice_sent).Value	= match_based_array(notice_sent_date_const, item)
 	objExcel.Cells(excel_row, excel_col_date_cleared).Value = match_based_array(date_cleared_const, item)
