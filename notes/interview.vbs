@@ -2697,7 +2697,8 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		  Text 15, 125, 450, 20, "These questions will identify if these caregivers need an MFIP orientation. See CM 05.12.12.06   to see the reasons that a caregiver would not need an MFIP Orientation. The script will use this information to determine if the MFIP Orientation Functionality should be run."
 		  ButtonGroup ButtonPressed
 			OkButton 490, 125, 50, 15
-			PushButton 260, 123, 55, 10, "CM05.12.12.06", cm_05_12_12_06_btn
+			PushButton 420, 10, 120, 15, "MFIP Orientation Script Instructions", msg_mfip_orientation_btn
+            PushButton 260, 123, 55, 10, "CM05.12.12.06", cm_05_12_12_06_btn
 		  Text 10, 15, 170, 10, "Which Family Cash Program is this Application for?"
 		  Text 10, 35, 100, 10, "Notes on Program Selection:"
 		  GroupBox 10, 50, 530, 55, "Who are the Caregivers"
@@ -2726,7 +2727,8 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		If ButtonPressed <> -1 Then err_msg = "LOOP"
 		If err_msg <> "" And ButtonPressed = -1 Then MsgBox err_msg
 
-		If ButtonPressed = cm_05_12_12_06_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_0005121206"
+        If ButtonPressed = cm_05_12_12_06_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_0005121206"
+		If ButtonPressed = msg_mfip_orientation_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20MFIP%20ORIENTATION.docx"
 
 	Loop until err_msg = ""
 
