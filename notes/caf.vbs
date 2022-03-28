@@ -4838,6 +4838,12 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     		If determined_utilities = "" Then determined_utilities = 0
             If calculated_resources = "" Then calculated_resources = 0
             If calculated_expenses = "" Then calculated_expenses = 0
+            If IsNumeric(determined_income) = False Then determined_income = 0
+            If IsNumeric(determined_assets) = False Then determined_assets = 0
+            If IsNumeric(determined_shel) = False Then determined_shel = 0
+            If IsNumeric(determined_utilities) = False Then determined_utilities = 0
+            If IsNumeric(calculated_resources) = False Then calculated_resources = 0
+            If IsNumeric(calculated_expenses) = False Then calculated_expenses = 0
 
     		determined_income = FormatNumber(determined_income, 2, -1, 0, -1) & ""
     		determined_assets = FormatNumber(determined_assets, 2, -1, 0, -1) & ""
