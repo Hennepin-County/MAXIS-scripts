@@ -397,6 +397,8 @@ pdf_doc_path = ""
 
 calc_btn = 500
 snap_claculation_done_btn = 501
+assignment_instructions_btn = 505
+script_instructions_btn = 506
 
 cat_elig = True
 disa_household = False
@@ -424,11 +426,13 @@ back_to_self 'to ensure we are not in edit mode'
 Do
 	err_msg = ""
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 166, 100, "Case Number Dialog"
+	BeginDialog Dialog1, 0, 0, 166, 140, "Case Number Dialog"
 	  EditBox 90, 10, 70, 15, MAXIS_case_number
 	  ButtonGroup ButtonPressed
-	    OkButton 55, 80, 50, 15
-	    CancelButton 110, 80, 50, 15
+	    OkButton 55, 120, 50, 15
+	    CancelButton 110, 120, 50, 15
+	    PushButton 10, 80, 110, 15, "Assignment Instructions", assignment_instructions_btn
+	    PushButton 10, 95, 110, 15, "Script Instructions", script_instructions_btn
 	  Text 10, 15, 80, 10, "Enter the Case Number:"
 	  Text 10, 35, 150, 45, "This script is specific to the detailed review of the cases impacted by the Autoclose Pause that happened in 02/22 and does not take any MAXIS action or create CASE/NOTEs as this process is handled external from MAXIS."
 	EndDialog
@@ -439,6 +443,12 @@ Do
 	Call validate_MAXIS_case_number(err_msg, "*")
 
 	If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbCr & err_msg
+
+	If ButtonPressed = assignment_instructions_btn or ButtonPressed = script_instructions_btn Then
+		err_msg = "LOOP"
+		If ButtonPressed = assignment_instructions_btn Then Call word_doc_open(t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\Tier Two Auto-Close Review Instructions.docx", objWord, objDoc)
+		If ButtonPressed = script_instructions_btn Then Call word_doc_open(t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\Script - ADMIN - Track Autoclose Overpayments Instructions.docx", objWord, objDoc)
+	End If
  Loop until err_msg = ""
 
 'read for MFIP/SNAP in 02/22
