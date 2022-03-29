@@ -2248,6 +2248,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 
 		ObjWorkExcel.Cells(2, list_update_date_col).value = list_of_baskets_at_display_limit
 		ObjWorkExcel.Cells(3, list_update_date_col).value = cases_to_alert_BZST
+		objWorkWorkbook.Save
 	End If
 Next
 
