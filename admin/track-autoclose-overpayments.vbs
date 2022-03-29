@@ -457,7 +457,8 @@ If cash_2_stat = "ACTV" and cash_2_prog = "MF" Then MFIP_active = True
 If snap_stat = "ACTV" Then SNAP_active = True
 call back_to_self
 
-If MFIP_active = True Then Call script_end_procedure("MFIP cases are not able to be handled at this time.")
+If MFIP_active = True Then Call script_end_procedure("MFIP was active in 02/22. MFIP cases are not able to be handled at this time.")
+If SNAP_active = False Then Call script_end_procedure("This case does not appear to have been active SNAP in 02/22 and thes script cannot continue.")
 
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
@@ -1179,6 +1180,11 @@ Do
 				Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, output_type)
 
 			Loop until ButtonPressed = snap_claculation_done_btn
+			rent_mortgage_correct_amt = rent_mortgage_correct_amt * 1
+			tax_correct_amt = tax_correct_amt * 1
+			insurance_correct_amt = insurance_correct_amt * 1
+			other_cost_correct_amt = other_cost_correct_amt * 1
+			total_housing_cost_correct_amt = rent_mortgage_correct_amt + tax_correct_amt + insurance_correct_amt + other_cost_correct_amt
 		Else
 			snap_correct_amt = 0
 			monthly_snap_benefit_correct_amt = 0
@@ -1195,6 +1201,23 @@ Do
 			total_shelter_cost_correct_amt = ""
 			net_adj_income_correct_amt = ""
 			correct_hh_size = ""
+			earned_deduction_correct_amt = ""
+			standard_deduction_correct_amt = ""
+			medical_deduction_correct_amt = ""
+			dependent_care_deduction_correct_amt = ""
+			child_support_deduction_correct_amt = ""
+			rent_mortgage_correct_amt = ""
+			tax_correct_amt = ""
+			insurance_correct_amt = ""
+			utilities_budgeted_amt = ""
+			other_cost_correct_amt = ""
+			fifty_perc_net_income_correct_amt = ""
+			adj_shelter_cost_correct_amt = ""
+			max_shelter_cost_correct_amt = ""
+			counted_shelter_cost_correct_amt = ""
+			max_net_adj_income_correct_amt = 0
+			sanction_recoupment_correct_amt = ""
+
 		End If
 
 		SNAP_fed_correct_amt = snap_correct_amt * fed_percent
@@ -1208,60 +1231,68 @@ Do
 			SNAP_fed_supp = snap_supplement_amt * fed_percent
 			SNAP_state_supp = snap_supplement_amt * state_percent
 		End If
-		rent_mortgage_correct_amt = rent_mortgage_correct_amt * 1
-		tax_correct_amt = tax_correct_amt * 1
-		insurance_correct_amt = insurance_correct_amt * 1
-		other_cost_correct_amt = other_cost_correct_amt * 1
-		total_housing_cost_correct_amt = rent_mortgage_correct_amt + tax_correct_amt + insurance_correct_amt + other_cost_correct_amt
+
 
 	End If
 
 	' MsgBox "DONE"
-
+	SNAP_confirmation_answer = "Select One..."
 	'dialog with calculation and ready for confirmation
-	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 196, 165, "Confirm Budget Calculation"
-	  If SNAP_active = True Then
-		  GroupBox 5, 5, 185, 135, "SNAP"
-		  Text 20, 20, 85, 10, "Original SNAP Issuance:"
-		  Text 105, 20, 40, 10, "$ " & snap_issued_amt
-		  Text 115, 30, 40, 10, "$ " & fed_benefit_amt
-		  Text 155, 30, 30, 10, "Federal "
-		  Text 115, 40, 40, 10, "$ " & state_benefit_amt
-		  Text 155, 40, 20, 10, "State"
-		  Text 20, 55, 75, 10, "SNAP Recalculation:"
-		  If snap_overpayment_exists = True Then
-			  Text 35, 65, 60, 10, "Overpayment"
-			  Text 35, 75, 30, 10, "Amount:"
-			  Text 70, 75, 40, 10, "$ " & snap_overpayment_amt
-			  Text 80, 85, 40, 10, "$ " & SNAP_fed_op
-			  Text 120, 85, 30, 10, "Federal "
-			  Text 80, 95, 40, 10, "$ " & SNAP_state_op
-			  Text 120, 95, 20, 10, "State"
+	Do
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 206, 205, "Confirm Budget Calculation"
+		  If SNAP_active = True Then
+			  GroupBox 5, 5, 195, 135, "SNAP"
+			  Text 20, 20, 85, 10, "Original SNAP Issuance:"
+			  Text 105, 20, 40, 10, "$ " & snap_issued_amt
+			  Text 115, 30, 40, 10, "$ " & fed_benefit_amt
+			  Text 155, 30, 30, 10, "Federal "
+			  Text 115, 40, 40, 10, "$ " & state_benefit_amt
+			  Text 155, 40, 20, 10, "State"
+			  Text 20, 55, 75, 10, "SNAP Recalculation:"
+			  If snap_overpayment_exists = True Then
+				  Text 35, 65, 60, 10, "Overpayment"
+				  Text 35, 75, 30, 10, "Amount:"
+				  Text 70, 75, 40, 10, "$ " & snap_overpayment_amt
+				  Text 80, 85, 40, 10, "$ " & SNAP_fed_op
+				  Text 120, 85, 30, 10, "Federal "
+				  Text 80, 95, 40, 10, "$ " & SNAP_state_op
+				  Text 120, 95, 20, 10, "State"
+			  End If
+			  If snap_supplement_exists = True Then
+				  Text 35, 65, 60, 10, "Supplement"
+				  Text 35, 75, 30, 10, "Amount:"
+				  Text 70, 75, 40, 10, "$ " & snap_supplement_amt
+				  Text 80, 85, 40, 10, "$ " & SNAP_fed_supp
+				  Text 120, 85, 30, 10, "Federal "
+				  Text 80, 95, 40, 10, "$ " & SNAP_state_supp
+				  Text 120, 95, 20, 10, "State"
+			  End If
+			  If snap_overpayment_exists = False And snap_supplement_exists = False Then
+				  Text 35, 65, 100, 10, "02/22 Issuance was Correct"
+			  End If
+			  Text 15, 110, 90, 10, "Is this calculation Correct?"
+			  DropListBox 15, 120, 180, 45, "Select One..."+chr(9)+"Yes - this recalculation is correct"+chr(9)+"No - something needs to be updated", SNAP_confirmation_answer
+			  Text 5, 145, 193, 35, "Once this is confirmed, the script will update documentation. It will appear that nothing is happening. Leave the computer to process for a minute and the script will alert you once it is done. Do not multitask at this time."
 		  End If
-		  If snap_supplement_exists = True Then
-			  Text 35, 65, 60, 10, "Supplement"
-			  Text 35, 75, 30, 10, "Amount:"
-			  Text 70, 75, 40, 10, "$ " & snap_supplement_amt
-			  Text 80, 85, 40, 10, "$ " & SNAP_fed_supp
-			  Text 120, 85, 30, 10, "Federal "
-			  Text 80, 95, 40, 10, "$ " & SNAP_state_supp
-			  Text 120, 95, 20, 10, "State"
-		  End If
-		  If snap_overpayment_exists = False And snap_supplement_exists = False Then
-			  Text 35, 65, 100, 10, "02/22 Issuance was Correct"
-		  End If
-		  Text 15, 110, 90, 10, "Is this calculation Correct?"
-		  DropListBox 15, 120, 170, 45, "Select One..."+chr(9)+"Yes - this recalculation is correct"+chr(9)+"No - something needs to be updated", SNAP_confirmation_answer
-	  End If
-	  ButtonGroup ButtonPressed
-	    PushButton 5, 145, 185, 15, "Enter Calculation Information to Tracking Spreadsheet", Button3
-	EndDialog
+		  ButtonGroup ButtonPressed
+		    PushButton 5, 185, 195, 15, "Enter Calculation Information to Tracking Spreadsheet", Button3
+		EndDialog
 
-	dialog Dialog1
-	cancel_confirmation
+		dialog Dialog1
+		cancel_confirmation
+
+		If SNAP_confirmation_answer = "Select One..." Then Msgbox "Please Resolve to Continue:" & vbCr & vbCr & "* Please indicate if this calculation is correct or not."
+	Loop until SNAP_confirmation_answer <> "Select One..."
 
 	If SNAP_confirmation_answer = "Yes - this recalculation is correct" Then recalculation_confirmed = True
+	If SNAP_confirmation_answer = "No - something needs to be updated" Then
+		Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
+		Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
+		Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
+		Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
+		Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, "STRING")
+	End If
 
 	' LOOP UNTIL THIS IS CONFIRMED
 Loop until recalculation_confirmed = True
@@ -1279,6 +1310,10 @@ If snap_overpayment_exists = True Then
 	Set objDoc = objWord.Documents.Add()										'Start a new document
 	Set objSelection = objWord.Selection
 
+	objSelection.PageSetup.TopMargin = 36
+	objSelection.PageSetup.BottomMargin = 36
+	objSelection.ParagraphFormat.SpaceAfter = 0
+
 	objSelection.Font.Name = "Arial"											'Setting the font before typing
 	objSelection.Font.Size = "16"
 	objSelection.Font.Bold = TRUE
@@ -1287,10 +1322,48 @@ If snap_overpayment_exists = True Then
 	objSelection.Font.Size = "12"
 	objSelection.Font.Bold = FALSE
 
+	objSelection.TypeText "Details about the AutoClose Process that was Paused and Follow Up Review"
+	objSelection.TypeText vbCr
+
+	Set objRange = objSelection.Range					'range is needed to create tables
+	objDoc.Tables.Add objRange, 4, 4					'This sets the rows and columns needed row then column
+	'This table starts with 1 column - other columns are added after we split some of the cells
+	set process_info = objDoc.Tables(1)		'Creates the table with the specific index'
+
+	for row = 1 to 4
+		process_info.Cell(row, 1).SetHeight 15, 2			'setting the heights of the rows
+	Next
+	process_info.Columns(1).SetWidth 150, 2
+	process_info.Columns(2).SetWidth 75, 2
+	process_info.Columns(3).SetWidth 150, 2
+	process_info.Columns(4).SetWidth 75, 2
+
+	process_info.Cell(1, 1).Range.Text = "Process"
+	process_info.Cell(1, 2).Range.Text = feb_process
+	process_info.Cell(1, 3).Range.Text = "The " & feb_process & " was completed"
+	process_info.Cell(1, 4).Range.Text = process_complete
+	process_info.Cell(2, 1).Range.Text = "Form Received"
+	process_info.Cell(2, 2).Range.Text = form_received
+	If form_received <> "None Received" Then
+		process_info.Cell(2, 3).Range.Text = "Form Date"
+		process_info.Cell(2, 4).Range.Text = form_received_date
+	End If
+	process_info.Cell(3, 1).Range.Text = "Interview"
+	process_info.Cell(3, 2).Range.Text = interview_information
+	If interview_date <> "" Then
+		process_info.Cell(3, 3).Range.Text = "Interview Date"
+		process_info.Cell(3, 4).Range.Text = interview_date
+	End If
+	process_info.Cell(4, 1).Range.Text = "Verifications"
+	process_info.Cell(4, 2).Range.Text = verifs_received
+	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+	objSelection.TypeParagraph()
+
+
 	Set objRange = objSelection.Range					'range is needed to create tables
 	objDoc.Tables.Add objRange, 33, 1					'This sets the rows and columns needed row then column
 	'This table starts with 1 column - other columns are added after we split some of the cells
-	set snap_op_table = objDoc.Tables(1)		'Creates the table with the specific index'
+	set snap_op_table = objDoc.Tables(2)		'Creates the table with the specific index'
 	snap_op_table.AutoFormat(16)							'This adds the borders to the table and formats it
 
 	for row = 1 to 33
@@ -1358,7 +1431,7 @@ If snap_overpayment_exists = True Then
 	snap_op_table.Cell(18, 1).Range.Text = chr(9) & chr(9) & "House Insurance"
 	snap_op_table.Cell(18, 2).Range.Text = "$  " & insurance_correct_amt
 	snap_op_table.Cell(19, 1).Range.Text = chr(9) & chr(9) & "Utiities"
-	snap_op_table.Cell(19, 2).Range.Text = "$  " & utilities_budgeted_amt
+	snap_op_table.Cell(19, 2).Range.Text = "$  " & utilities_correct_amt
 	snap_op_table.Cell(20, 1).Range.Text = chr(9) & chr(9) & "Other " & other_cost_detail
 	snap_op_table.Cell(20, 2).Range.Text = "$  " & other_cost_correct_amt
 	snap_op_table.Cell(21, 1).Range.Text = chr(9) & "Total Shelter Costs"
@@ -1390,30 +1463,10 @@ If snap_overpayment_exists = True Then
 
 	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 
+	objSelection.TypeText vbCr
 	objSelection.TypeText "Overpayment calculation is being completed in response to the AutoClose process being paused in 02/22 for REVW and MONT panels in Hennepin County. These overpayments do not follow the typical process for responsibility and will not be entered in CCOL or CASE/NOTE."
 	objSelection.TypeText vbCr
-
-	objSelection.TypeText "Details about the AutoClose Process that was Paused and Follow Up Review"
-	objSelection.TypeText vbCr
-	objSelection.TypeText "Process: " & feb_process
-	objSelection.TypeText vbCr
-	objSelection.TypeText "The " & feb_process & " was completed: " & process_complete
-	objSelection.TypeText vbCr
-	objSelection.TypeText "Form Received: " & form_received
-	objSelection.TypeText vbCr
-	If form_received <> "None Received" Then
-		objSelection.TypeText "Form Date: " & form_received_date
-		objSelection.TypeText vbCr
-	End If
-	objSelection.TypeText "Interview: " & interview_information
-	objSelection.TypeText vbCr
-	If interview_date <> "" Then
-		objSelection.TypeText "Interview Date: " & interview_date
-		objSelection.TypeText vbCr
-	End If
-	objSelection.TypeText "Verifications: " & verifs_received
-	objSelection.TypeText vbCr
-
+	objSelection.TypeText "Calculation completed by: " & user_name
 
 	'Here we are creating the file path and saving the file
 	file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name so we change it to a -
@@ -1456,7 +1509,10 @@ If snap_overpayment_exists = True Then
 	ObjReportExcel.Application.Quit
 	ObjReportExcel.Quit
 End If
+EMWaitReady 1, 1
 ' MsgBox "Pause Here"
+
+
 
 'Open Excel and add information to the excel
 Call excel_open(excel_details_file_path, False, False, ObjDetailsExcel, objDetailWorkbook)
