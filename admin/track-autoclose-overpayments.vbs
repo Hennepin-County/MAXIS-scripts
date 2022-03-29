@@ -1345,9 +1345,9 @@ If snap_overpayment_exists = True Then
 		process_info.Cell(row, 1).SetHeight 15, 2			'setting the heights of the rows
 	Next
 	process_info.Columns(1).SetWidth 150, 2
-	process_info.Columns(2).SetWidth 75, 2
+	process_info.Columns(2).SetWidth 100, 2
 	process_info.Columns(3).SetWidth 150, 2
-	process_info.Columns(4).SetWidth 75, 2
+	process_info.Columns(4).SetWidth 100, 2
 
 	process_info.Cell(1, 1).Range.Text = "Process"
 	process_info.Cell(1, 2).Range.Text = feb_process
@@ -1441,7 +1441,7 @@ If snap_overpayment_exists = True Then
 	snap_op_table.Cell(17, 2).Range.Text = "$  " & tax_correct_amt
 	snap_op_table.Cell(18, 1).Range.Text = chr(9) & chr(9) & "House Insurance"
 	snap_op_table.Cell(18, 2).Range.Text = "$  " & insurance_correct_amt
-	snap_op_table.Cell(19, 1).Range.Text = chr(9) & chr(9) & "Utiities"
+	snap_op_table.Cell(19, 1).Range.Text = chr(9) & chr(9) & "Utilities"
 	snap_op_table.Cell(19, 2).Range.Text = "$  " & utilities_correct_amt
 	snap_op_table.Cell(20, 1).Range.Text = chr(9) & chr(9) & "Other " & other_cost_detail
 	snap_op_table.Cell(20, 2).Range.Text = "$  " & other_cost_correct_amt
