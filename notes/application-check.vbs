@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/29/2022", "Removed ApplyMN as application option.", "Ilse Ferris")
 call changelog_update("01/15/2021", "Added support for the pending Health Care application screening requirements.", "Ilse Ferris")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("12/17/2019", "Enhanced PND2 case pending case search.", "Ilse Ferris, Hennepin County")
@@ -619,7 +620,7 @@ If trim(attested_verifs) <> "" then verifs_rcvd = attested_verifs & "(**These ar
 
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog dialog1, 0, 0, 386, 185, "Application Check: "  & application_check
-  DropListBox 75, 15, 80, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
+  DropListBox 75, 15, 80, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Pop"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer", app_type
   EditBox 175, 20, 50, 15, application_date
   DropListBox 75, 45, 155, 15, "Select One:"+chr(9)+"Interview still needed"+chr(9)+"Requested verifications not received"+chr(9)+"Partial verfications received, more are needed"+chr(9)+"Case is ready to approve or deny"+chr(9)+"Other", application_status_droplist
   CheckBox 245, 45, 135, 15, "Check to have an outlook reminder set", Outlook_reminder_checkbox
