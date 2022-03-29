@@ -10305,12 +10305,8 @@ function script_end_procedure(closing_message)
 		Const adOpenStatic = 3
 		Const adLockOptimistic = 3
 
-        'Determining if the script was successful
-        If closing_message = "" or left(ucase(closing_message), 7) = "SUCCESS" THEN
-            SCRIPT_success = -1
-        else
-            SCRIPT_success = 0
-        end if
+        'Defaulting script success to successful
+        SCRIPT_success = -1
 
 		'Determines if the value of the MAXIS case number - BULK scripts will not have case number informaiton input into the database
 		IF left(name_of_script, 4) = "BULK" then MAXIS_CASE_NUMBER = ""
@@ -10374,12 +10370,8 @@ function script_end_procedure_with_error_report(closing_message)
 		Const adOpenStatic = 3
 		Const adLockOptimistic = 3
 
-        'Determining if the script was successful
-        If closing_message = "" or left(ucase(closing_message), 7) = "SUCCESS" THEN
-            SCRIPT_success = -1
-        else
-            SCRIPT_success = 0
-        end if
+        'Defaulting script success to successful
+        SCRIPT_success = -1
 
         'Determines if the value of the MAXIS case number - BULK scripts will not have case number informaiton input into the database
 		IF left(name_of_script, 4) = "BULK" then MAXIS_CASE_NUMBER = ""
