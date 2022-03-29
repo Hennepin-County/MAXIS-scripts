@@ -421,6 +421,7 @@ End If
 'Grabbing the case number
 call MAXIS_case_number_finder(MAXIS_case_number)
 back_to_self 'to ensure we are not in edit mode'
+EMWriteScreen MAXIS_case_number, 18, 43
 
 'case number dialog
 Do
