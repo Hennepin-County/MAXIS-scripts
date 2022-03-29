@@ -1340,7 +1340,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 	        End If
 
 	        ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = FALSE      'default this for all cases so that there is no carryover from the previous loop
-	        If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" AND ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = "" Then MsgBox "This case needs a NOMI but script cannot find an appointment date."    'This is for testing - it has never come up - may need a new 'Action needed' for the release
+	        If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" AND ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = "" Then PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI"
+			' MsgBox "This case needs a NOMI but script cannot find an appointment date."    'This is for testing - it has never come up - may need a new 'Action needed' for the release
 	        'If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" AND ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = "" Then ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Determine Appointment Date"
 
 	        'This logic will determine if we need to look for additional information - such as a case note that potentially indicates an interview has been done
