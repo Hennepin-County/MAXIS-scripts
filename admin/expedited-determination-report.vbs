@@ -145,24 +145,27 @@ If create_a_test_worklist = True Then EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
-'There is no EMConnect and no MAXIS checking because this script does not use MAXIS at all
 'Declaring the only dialog
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 246, 130, "Expedited Determination Report"
-  DropListBox 10, 55, 225, 45, "Pull Data and Create Worklist"+chr(9)+"Combine Worklists", report_selection
-  DropListBox 10, 110, 180, 45, "Yes - Keep the file open"+chr(9)+"No - Close the file", leave_excel_open
-  ButtonGroup ButtonPressed
-    OkButton 200, 110, 40, 15
-  Text 10, 10, 225, 30, "This script is used to pull reports around information gathered during the Expedited Determination script runs to provide insight in how we are handling Expedited SNAP in Hennepin County"
-  Text 10, 45, 155, 10, "Select which reporting option you need to run:"
-  Text 10, 75, 225, 10, "When the script is complete, the Excel will be saved."
-  Text 10, 90, 130, 20, "At the end of the script run, would you like the Excel file to remain open:"
-EndDialog
+Do
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 246, 130, "Expedited Determination Report"
+	  DropListBox 10, 55, 225, 45, "Pull Data and Create Worklist"+chr(9)+"Combine Worklists", report_selection
+	  DropListBox 10, 110, 180, 45, "Yes - Keep the file open"+chr(9)+"No - Close the file", leave_excel_open
+	  ButtonGroup ButtonPressed
+	    OkButton 200, 110, 40, 15
+	  Text 10, 10, 225, 30, "This script is used to pull reports around information gathered during the Expedited Determination script runs to provide insight in how we are handling Expedited SNAP in Hennepin County"
+	  Text 10, 45, 155, 10, "Select which reporting option you need to run:"
+	  Text 10, 75, 225, 10, "When the script is complete, the Excel will be saved."
+	  Text 10, 90, 130, 20, "At the end of the script run, would you like the Excel file to remain open:"
+	EndDialog
 
 
-'showing the dialog - there is no loop because there is nothing to manage and no password handling.
-dialog Dialog1
-cancel_confirmation
+	'showing the dialog - there is no loop because there is nothing to manage and no password handling.
+	dialog Dialog1
+	cancel_confirmation
+	If create_a_test_worklist = False Then CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	If create_a_test_worklist = False Then are_we_passworded_out = false					'loops until user passwords back in
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'defining the assignment folder
 exp_assignment_folder = t_drive & "\Eligibility Support\Assignments\Expedited Information"
