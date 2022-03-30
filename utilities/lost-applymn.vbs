@@ -68,8 +68,11 @@ function search_for_info_in_note(date_of_app, applymn_confirmation_number, name_
 
 			case_note_header = trim(case_note_header)							'reformat the case note
 			If case_note_date <> "        " Then case_note_date = DateAdd("d", 0, case_note_date)		'make the date a date
-
-			If case_note_header = "~ Application Received (ApplyMN)" or case_note_header = "~ Application Received (MNbenefi" Then		'If it finds an application received case note for an online application
+            'msgbox case_note_header
+            'If it finds an application received case note for an online application
+			If case_note_header = "~ Application Received (ApplyMN)" or _
+                UCASE(case_note_header) = "~ APPLICATION RECEIVED (MNBENEFI" or _
+                UCASE(case_note_header) = "~ APPLICATION RECEIVED (MN BENEF" then
 				EmWriteScreen "X", note_row, 3									'open the case note
 				transmit
 
