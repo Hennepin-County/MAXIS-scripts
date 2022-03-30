@@ -106,29 +106,30 @@ const last_name_const						= 1
 const first_name_const						= 2
 const age_const								= 3
 const full_name_const						= 4
-const earned_income_exists_const			= 5
-const unearned_income_exists_const			= 6
-const mfip_elig								= 7
-const earned_inc_budgeted_const				= 8
-const earned_inc_disregard_budgeted_const	= 9
-const avail_earned_inc_budgeted_const		= 10
-const allocation_budgeted_const				= 11
-const child_support_cost_budgeted_const		= 12
-const counted_earned_inc_budgeted_const		= 13
-const unearned_inc_budgeted_const			= 14
-const allocation_bal_budgeted_const			= 15
-const child_support_cost_bal_budgeted_const	= 16
-const counted_unearned_inc_budgeted_const	= 17
-const earned_inc_correct_const				= 18
-const earned_inc_disregard_correct_const	= 19
-const avail_earned_inc_correct_const		= 20
-const allocation_correct_const				= 21
-const child_support_cost_correct_const		= 22
-const counted_earned_inc_correct_const		= 23
-const unearned_inc_correct_const			= 24
-const allocation_bal_correct_const			= 25
-const child_support_cost_bal_correct_const	= 26
-const counted_unearned_inc_correct_const	= 27
+const memb_droplist_const					= 5
+const earned_income_exists_const			= 6
+const unearned_income_exists_const			= 7
+const mfip_elig								= 8
+const earned_inc_budgeted_const				= 9
+const earned_inc_disregard_budgeted_const	= 10
+const avail_earned_inc_budgeted_const		= 11
+const allocation_budgeted_const				= 12
+const child_support_cost_budgeted_const		= 13
+const counted_earned_inc_budgeted_const		= 14
+const unearned_inc_budgeted_const			= 15
+const allocation_bal_budgeted_const			= 16
+const child_support_cost_bal_budgeted_const	= 17
+const counted_unearned_inc_budgeted_const	= 18
+const earned_inc_correct_const				= 19
+const earned_inc_disregard_correct_const	= 20
+const avail_earned_inc_correct_const		= 21
+const allocation_correct_const				= 22
+const child_support_cost_correct_const		= 23
+const counted_earned_inc_correct_const		= 24
+const unearned_inc_correct_const			= 25
+const allocation_bal_correct_const			= 26
+const child_support_cost_bal_correct_const	= 27
+const counted_unearned_inc_correct_const	= 28
 const last_const 							= 40
 
 Dim HH_MEMB_ARRAY()
@@ -468,8 +469,9 @@ If cash_2_stat = "ACTV" and cash_2_prog = "MF" Then MFIP_active = True
 If snap_stat = "ACTV" Then SNAP_active = True
 call back_to_self
 
-If MFIP_active = True Then Call script_end_procedure("MFIP was active in 02/22. MFIP cases are not able to be handled at this time.")
-If SNAP_active = False Then Call script_end_procedure("This case does not appear to have been active SNAP in 02/22 and thes script cannot continue.")
+' If MFIP_active = True Then Call script_end_procedure("MFIP was active in 02/22. MFIP cases are not able to be handled at this time.")
+' If SNAP_active = False Then Call script_end_procedure("This case does not appear to have been active SNAP in 02/22 and thes script cannot continue.")
+If SNAP_active = False and MFIP_active = False Then script_end_procedure("This case does not appear to have been active SNAP or MFIP in 02/22 and thes script cannot continue.")
 
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
@@ -497,7 +499,9 @@ For each hh_clt in client_array
 
 	Call navigate_to_MAXIS_screen("STAT", "MEMB")		'===============================================================================================
 	EMWriteScreen HH_MEMB_ARRAY(ref_number, clt_count), 20, 76
+	MsgBox "1"
 	transmit
+	MsgBox "2"
 
 	EMReadscreen HH_MEMB_ARRAY(last_name_const, clt_count), 25, 6, 30
 	EMReadscreen HH_MEMB_ARRAY(first_name_const, clt_count), 12, 6, 63
@@ -512,10 +516,11 @@ For each hh_clt in client_array
 	HH_MEMB_ARRAY(first_name_const, clt_count) = trim(replace(HH_MEMB_ARRAY(first_name_const, clt_count), "_", ""))
 	HH_MEMB_ARRAY(full_name_const, clt_count) = HH_MEMB_ARRAY(last_name_const, clt_count) & ", " & HH_MEMB_ARRAY(first_name_const, clt_count)
 
-	HH_MEMB_ARRAY(earned_income_exists_const, hh_memb) = False
-	HH_MEMB_ARRAY(unearned_income_exists_const, hh_memb) = False
+	HH_MEMB_ARRAY(earned_income_exists_const, clt_count) = False
+	HH_MEMB_ARRAY(unearned_income_exists_const, clt_count) = False
+	HH_MEMB_ARRAY(memb_droplist_const, clt_count) = HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
 	memb_droplist = memb_droplist+chr(9)+HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
-
+	MsgBox HH_MEMB_ARRAY(full_name_const, clt_count)
 	If disa_household = False Then
 		Call navigate_to_MAXIS_screen("STAT", "DISA")
 		EMWriteScreen HH_MEMB_ARRAY(ref_number, clt_count), 20, 76
@@ -649,7 +654,7 @@ End If
 
 If MFIP_active = True Then
 	Call navigate_to_MAXIS_screen("ELIG", "MFIP")
-	EMWriteScreen "99", 20, 799
+	EMWriteScreen "99", 20, 79
 	transmit
 	elig_row = 7
 	version_numb = ""
@@ -664,7 +669,7 @@ If MFIP_active = True Then
 		elig_row = elig_row + 1
 	Loop until approval_status = "        "
 	transmit
-	EMWriteScreen version_numb, 19, 78
+	EMWriteScreen version_numb, 20, 79
 	transmit
 
 	For hh_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -689,7 +694,7 @@ If MFIP_active = True Then
 		Do
 			EMReadScreen elig_person, 40, 8, 28
 			elig_person = trim(elig_person)
-
+			MsgBox "ARRAY NAME - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & "Elig name - " & elig_person & vbCr & "EARNED"
 			If HH_MEMB_ARRAY(full_name_const, hh_memb) = elig_person Then
 				Call read_amount_from_MAXIS(HH_MEMB_ARRAY(earned_inc_budgeted_const, hh_memb), 9, 13, 54)
 				Call read_amount_from_MAXIS(disregard, 9, 16, 54)
@@ -708,7 +713,7 @@ If MFIP_active = True Then
 				HH_MEMB_ARRAY(allocation_correct_const, hh_memb) = HH_MEMB_ARRAY(allocation_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(child_support_cost_correct_const, hh_memb) = HH_MEMB_ARRAY(child_support_cost_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(counted_earned_inc_correct_const, hh_memb) = HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, hh_memb)
-
+				MsgBox "PERSON - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, hh_memb)
 				PF3
 				Exit Do
 			End If
@@ -721,6 +726,7 @@ If MFIP_active = True Then
 		Do
 			EMReadScreen elig_person, 29, 8, 34
 			elig_person = trim(elig_person)
+			MsgBox "ARRAY NAME - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & "Elig name - " & elig_person & vbCr & "UNEA"
 
 			If HH_MEMB_ARRAY(full_name_const, hh_memb) = elig_person Then
 				Call read_amount_from_MAXIS(HH_MEMB_ARRAY(unearned_inc_budgeted_const, hh_memb), 9, 11, 49)
@@ -733,7 +739,7 @@ If MFIP_active = True Then
 				HH_MEMB_ARRAY(allocation_bal_correct_const, hh_memb) = HH_MEMB_ARRAY(allocation_bal_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(child_support_cost_bal_correct_const, hh_memb) = HH_MEMB_ARRAY(child_support_cost_bal_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(counted_unearned_inc_correct_const, hh_memb) = HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, hh_memb)
-
+				MsgBox "PERSON - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, hh_memb)
 				PF3
 				Exit Do
 			End If
@@ -747,16 +753,30 @@ If MFIP_active = True Then
 
 	Next
 
-	mfip_total_issued_amt
-	mfip_MF_MF_issued_amt
-	mfip_MF_FS_F_issued_amt
-	mfip_MF_FS_S_issued_amt
-	mfip_MF_HG_issued_amt
+	Call read_amount_from_MAXIS(mfip_total_issued_amt, 10, 9, 71)
+
+	write_value_and_transmit "MFB2", 19, 70
+	Call read_amount_from_MAXIS(mfip_MF_MF_issued_amt, 10, 12, 32)
+
+	Call read_amount_from_MAXIS(mfip_MF_FS_issued_amt, 10, 7, 32)
+	Call read_amount_from_MAXIS(mfip_MF_FS_S_issued_amt, 10, 15, 45)
+	mfip_MF_FS_issued_amt = mfip_MF_FS_issued_amt*1
+	mfip_MF_FS_S_issued_amt = mfip_MF_FS_S_issued_amt*1
+	mfip_MF_FS_F_issued_amt = mfip_MF_FS_issued_amt - mfip_MF_FS_S_issued_amt
+
+	Call read_amount_from_MAXIS(mfip_MF_HG_issued_amt, 10, 17, 32)
+
+	write_value_and_transmit "MFSM", 19, 70
+
+	EMReadScreen mfip_budgeted_caregivers, 3, 7, 73
+	EMReadScreen mfip_budgeted_children, 3, 8, 73
+	mfip_budgeted_caregivers = trim(mfip_budgeted_caregivers)
+	mfip_budgeted_children = trim(mfip_budgeted_children)
+	' MsgBox "caregivers: " & mfip_budgeted_caregivers & vbCr & "children: " & mfip_budgeted_children
 
 	call back_to_self
 
-
-
+	selected_memb = 0
 End If
 
 ' START A LOOP HERE
@@ -813,17 +833,18 @@ Do
 	'dialog for OP calculation
 	If MFIP_active = True Then
 		If calculation_needed = True Then
+			income_selection_person = HH_MEMB_ARRAY(memb_droplist_const, 0)
 			Do
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 556, 385, "02/22 MFIP Incorrect Payment Calculation"
 				  'ISSUANCE
 				  GroupBox 10, 5, 200, 35, "Benefit Issued for 02/22"
 				  Text 15, 15, 30, 10, "MF-Cash:"
-				  Text 50, 15, 30, 10, "$ " & mf_cash_issued_amt
+				  Text 50, 15, 30, 10, "$ " & mfip_MF_MF_issued_amt
 				  Text 80, 15, 30, 10, "MF-Food:"
-				  Text 110, 15, 30, 10, "$ " & mf_food_issued_amt
+				  Text 110, 15, 30, 10, "$ " & mfip_MF_FS_issued_amt
 				  Text 145, 15, 25, 10, "MF-HG:"
-				  Text 170, 15, 30, 10, "$ " & mf_hg_issued_amt
+				  Text 170, 15, 30, 10, "$ " & mfip_MF_HG_issued_amt
 				  Text 25, 25, 25, 10, "SNAP:"
 				  Text 50, 25, 30, 10, "$ " & snap_issued_amt
 				  'Earned Income
@@ -865,46 +886,61 @@ Do
 				  ButtonGroup ButtonPressed
 				    PushButton 160, 270, 30, 10, "CALC", calc_btn
 				  'Unearned Income
-				  GroupBox 200, 40, 135, 245, "List of Income"
+				  grp_len = 205 + UBound(HH_MEMB_ARRAY, 2)*20
+				  GroupBox 200, 40, 135, grp_len, "List of Income"
 				  Text 205, 50, 55, 10, "Earned Income:"
 				  Text 210, 60, 55, 10, "Total Budgeted:"
-				  For hh_meb = 0 to UBOUND(HH_MEMB_ARRAY)
-
-				  Next
 				  Text 275, 60, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 75, 55, 10, "MEMB 01"
-				  Text 270, 75, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 85, 55, 10, "MEMB 01"
-				  Text 270, 85, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 95, 55, 10, "MEMB 01"
-				  Text 270, 95, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 215, 105, 55, 10, "Total Earned"
-				  Text 275, 105, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 205, 130, 65, 10, "Unearned Income:"
-				  Text 210, 140, 55, 10, "Total Budgeted:"
-				  Text 275, 140, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 155, 55, 10, "MEMB 01"
-				  Text 270, 155, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 165, 55, 10, "MEMB 01"
-				  Text 270, 165, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 175, 55, 10, "MEMB 01"
-				  Text 270, 175, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 215, 185, 55, 10, "Total Earned"
-				  Text 275, 185, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 205, 215, 65, 10, "Deemed Income:"
-				  Text 210, 230, 55, 10, "Total Budgeted:"
-				  Text 275, 230, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 220, 250, 45, 10, "Total Correct:"
-				  EditBox 275, 245, 50, 15, Edit1
+				  y_pos = 75
+				  For hh_memb = 0 to UBOUND(HH_MEMB_ARRAY, 2)
+					  Text 210, y_pos, 55, 10, "MEMB " & HH_MEMB_ARRAY(ref_number, hh_memb)
+					  Text 270, y_pos, 30, 10, "$ " & HH_MEMB_ARRAY(counted_earned_inc_correct_const, hh_memb)
+					  y_pos = y_pos + 10
+				  Next
+				  y_pos = y_pos + 10
+				  ' Text 210, 75, 55, 10, "MEMB 01"
+				  ' Text 210, 85, 55, 10, "MEMB 01"
+				  ' Text 270, 85, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 210, 95, 55, 10, "MEMB 01"
+				  ' Text 270, 95, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 215, 105, 55, 10, "Total Earned"
+				  ' Text 275, 105, 30, 10, "$ " & earned_income_budgeted_amt
+				  Text 205, y_pos, 65, 10, "Unearned Income:"
+				  y_pos = y_pos + 10
+				  Text 210, y_pos, 55, 10, "Total Budgeted:"
+				  Text 275, y_pos, 30, 10, "$ " & earned_income_budgeted_amt
+				  y_pos = y_pos + 10
+				  For hh_memb = 0 to UBOUND(HH_MEMB_ARRAY, 2)
+					  Text 210, y_pos, 55, 10, "MEMB " & HH_MEMB_ARRAY(ref_number, hh_memb)
+					  Text 270, y_pos, 30, 10, "$ " & HH_MEMB_ARRAY(counted_unearned_inc_correct_const, hh_memb)
+					  y_pos = y_pos + 10
+				  Next
+				  y_pos = y_pos + 10
+
+				  ' Text 210, 155, 55, 10, "MEMB 01"
+				  ' Text 270, 155, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 210, 165, 55, 10, "MEMB 01"
+				  ' Text 270, 165, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 210, 175, 55, 10, "MEMB 01"
+				  ' Text 270, 175, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 215, 185, 55, 10, "Total Earned"
+				  ' Text 275, 185, 30, 10, "$ " & earned_income_budgeted_amt
+				  Text 205, y_pos, 65, 10, "Deemed Income:"
+				  y_pos = y_pos + 10
+				  Text 210, y_pos, 55, 10, "Total Budgeted:"
+				  Text 275, y_pos, 30, 10, "$ " & earned_income_budgeted_amt
+				  y_pos = y_pos + 15
+				  Text 220, y_pos + 5, 45, 10, "Total Correct:"
+				  EditBox 275, y_pos, 50, 15, Edit1
 				  ButtonGroup ButtonPressed
 				    PushButton 295, 270, 30, 10, "CALC", calc_btn
 				  'HH Comp
 				  GroupBox 10, 285, 185, 70, "Household Composition"
 				  Text 15, 295, 95, 10, "Budgeted Assistance Unit:"
 				  Text 25, 310, 40, 10, "Caregivers:"
-				  Text 70, 310, 10, 10, "2"
+				  Text 70, 310, 10, 10, mfip_budgeted_caregivers
 				  Text 100, 310, 30, 10, "Children:"
-				  Text 135, 310, 10, 10, "2"
+				  Text 135, 310, 10, 10, mfip_budgeted_children
 				  Text 15, 325, 85, 10, "Correct Assistance Unit:"
 				  Text 25, 340, 40, 10, "Caregivers:"
 				  EditBox 70, 335, 20, 15, correct_caregiver
@@ -964,28 +1000,28 @@ Do
 				  Text 360, 275, 75, 10, "Correct Housing Grant:"
 				  Text 435, 275, 30, 10, "$ " & hold_var
 				  Text 400, 290, 75, 10, "MFIP Grant Received:"
-				  Text 480, 290, 30, 10, "$ " & hold_var
+				  Text 480, 290, 30, 10, "$ " & mfip_total_issued_amt
 				  Text 425, 300, 50, 10, "HG Received:"
-				  Text 480, 300, 30, 10, "$ " & hold_var
+				  Text 480, 300, 30, 10, "$ " & mfip_MF_HG_issued_amt
 				  If mfip_overpayment_exists = True Then
 					  Text 455, 315, 50, 10, "Overpayment:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_total_overpayment_amt
 					  Text 455, 325, 45, 10, "Cash Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_cash_overpayment_amt
 					  Text 455, 335, 50, 10, " Food Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_food_overpayment_amt
 					  Text 465, 345, 40, 10, "HG Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_hg_overpayment_amt
 				  End If
 				  If mfip_supplement_exists = True Then
 					  Text 455, 315, 50, 10, "Supplement:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_total_supplement_amt
 					  Text 455, 325, 45, 10, "Cash Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_cash_supplement_amt
 					  Text 455, 335, 50, 10, " Food Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_food_supplement_amt
 					  Text 465, 345, 40, 10, "HG Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_hg_supplement_amt
 				  End If
 				  If mfip_overpayment_exists = False And mfip_supplement_exists = False Then
 					 Text 400, 315, 100, 10, "02/22 Issuance was Correct"
@@ -1003,6 +1039,9 @@ Do
 				If ButtonPressed = mfip_claculation_done_btn Then output_type = "NUMBER"
 
 
+				For hh_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+					If income_selection_person = HH_MEMB_ARRAY(memb_droplist_const, hh_memb) Then selected_memb = hh_memb
+				Next
 			Loop until ButtonPressed = mfip_claculation_done_btn
 		End If
 	End If
