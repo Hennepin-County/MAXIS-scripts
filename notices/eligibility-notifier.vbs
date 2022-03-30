@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/18/2022", "Removed ApplyMN website, replaced it with MNbenefits website.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/25/2019", "Updated the verbiage in the notice to be more informative and clear.", "Casey Love, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -120,7 +121,7 @@ IF SNAP_checkbox = checked or CASH_checkbox = checked or HC_apply_method = "Appl
     IF MA_checkbox = checked AND HC_apply_method = "Apply in MAXIS" THEN these_progs = these_progs & "MA or "
     these_progs = left(these_progs,(len(these_progs) - "3"))
 
-    call write_variable_in_SPEC_MEMO("To apply for " & these_progs & "apply online at APPLYMN.ORG.")
+    call write_variable_in_SPEC_MEMO("To apply for " & these_progs & "apply online at mnbenefits.mn.gov")
     call write_variable_in_SPEC_MEMO("")
 End If
 call write_variable_in_SPEC_MEMO("You can always apply for any program by contacting Hennepin County at 612-596-1300 to request a paper application.") ', or complete an application at any of the Human Service Centers:"'

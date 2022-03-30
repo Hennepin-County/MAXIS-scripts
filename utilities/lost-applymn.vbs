@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/18/2022", "Update text from ApplyMN to online application.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/10/2020", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -67,8 +68,11 @@ function search_for_info_in_note(date_of_app, applymn_confirmation_number, name_
 
 			case_note_header = trim(case_note_header)							'reformat the case note
 			If case_note_date <> "        " Then case_note_date = DateAdd("d", 0, case_note_date)		'make the date a date
-
-			If case_note_header ="~ Application Received (ApplyMN)" Then		'If it finds an application received case note for an ApplyMN
+            'msgbox case_note_header
+            'If it finds an application received case note for an online application
+			If case_note_header = "~ Application Received (ApplyMN)" or _
+                UCASE(case_note_header) = "~ APPLICATION RECEIVED (MNBENEFI" or _
+                UCASE(case_note_header) = "~ APPLICATION RECEIVED (MN BENEF" then
 				EmWriteScreen "X", note_row, 3									'open the case note
 				transmit
 
@@ -109,42 +113,40 @@ DO
         err_msg = ""
 
 		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 331, 165, "ApplyMN not Found"
-		  EditBox 140, 35, 80, 15, MAXIS_case_number
-		  CheckBox 25, 55, 225, 10, "Check here if this is for a NEW request with no Case Number yet.", no_case_number_checkbox
-		  EditBox 80, 100, 50, 15, date_of_app
-		  EditBox 225, 100, 75, 15, applymn_confirmation_number
-		  EditBox 80, 120, 220, 15, name_of_applicant
-		  EditBox 65, 145, 115, 15, worker_name
-		  ButtonGroup ButtonPressed
-		    PushButton 165, 80, 135, 15, "Read ApplyMN Info from CASE:NOTE", collect_from_case_note_btn
-		    OkButton 215, 145, 50, 15
-		    CancelButton 270, 145, 50, 15
-		  Text 10, 10, 315, 20, "If a client is reporting they have submitted an ApplyMN application, and there is no coresponding application in ECF, this script can assist in sending the request to QI to find the ApplyMN."
-		  Text 15, 40, 120, 10, "Case Number with the lost ApplyMN:"
-		  GroupBox 10, 70, 310, 70, "ApplyMN Detail"
-		  Text 15, 105, 65, 10, "Date of Application:"
-		  Text 150, 105, 75, 10, "Confirmation Number:"
-		  Text 25, 125, 55, 10, "Applicant Name: "
-		  Text 10, 150, 55, 10, "Sign your Email"
-		  ButtonGroup ButtonPressed
-		    PushButton 300, 80, 15, 15, "?", read_note_question
-		    PushButton 300, 100, 15, 15, "?", confirmation_number_question
-		    PushButton 300, 120, 15, 15, "?", applicant_name_question
-		    PushButton 130, 100, 15, 15, "?", app_date_question
-		EndDialog
+            BeginDialog Dialog1, 0, 0, 331, 165, "Online Application Not Found"
+            EditBox 170, 35, 80, 15, MAXIS_case_number
+            CheckBox 25, 55, 225, 10, "Check here if this is for a NEW request with no Case Number yet.", no_case_number_checkbox
+            EditBox 80, 100, 50, 15, date_of_app
+            EditBox 225, 100, 75, 15, applymn_confirmation_number
+            EditBox 80, 120, 220, 15, name_of_applicant
+            EditBox 90, 145, 115, 15, worker_name
+            ButtonGroup ButtonPressed
+                PushButton 165, 80, 135, 15, "Read Application Info from CASE:NOTE", collect_from_case_note_btn
+                OkButton 215, 145, 50, 15
+                CancelButton 270, 145, 50, 15
+            Text 10, 5, 315, 25, "If a client is reporting they have submitted an online application, and there is no coresponding application in ECF, this script can assist in sending the request to QI to find the Online application."
+            Text 15, 40, 150, 10, "Case Number with the lost Online Application:"
+            GroupBox 10, 70, 310, 70, "Application Details"
+            Text 15, 105, 65, 10, "Date of Application:"
+            Text 150, 105, 75, 10, "Confirmation Number:"
+            Text 25, 125, 55, 10, "Applicant Name: "
+            Text 30, 150, 55, 10, "Sign your Email:"
+            ButtonGroup ButtonPressed
+                PushButton 300, 80, 15, 15, "?", read_note_question
+                PushButton 300, 100, 15, 15, "?", confirmation_number_question
+                PushButton 300, 120, 15, 15, "?", applicant_name_question
+                PushButton 130, 100, 15, 15, "?", app_date_question
+        EndDialog
 
         Dialog Dialog1
         cancel_without_confirmation
-
 		Call validate_MAXIS_case_number(err_msg, "*")
 		If no_case_number_checkbox = checked then err_msg = ""			'if the checkbox is check it will blank out the case number error messaging
-
 		If IsDate(date_of_app) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter the date of application as a valid date."
 		applymn_confirmation_number = trim(applymn_confirmation_number)
-		If applymn_confirmation_number = "" Then err_msg = err_msg & vbNewLine & "* Enter the confirmation number for the ApplyMN."
+		If applymn_confirmation_number = "" Then err_msg = err_msg & vbNewLine & "* Enter the confirmation number for the online application."
 		name_of_applicant = trim(name_of_applicant)
-		If name_of_applicant = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the person who submitted the ApplyMN."
+		If name_of_applicant = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the person who submitted the online application."
 		worker_name = trim(worker_name)
 		If worker_name = "" Then err_msg = err_msg & vbNewLine & "* Enter your name to sign your email."
 
@@ -155,11 +157,11 @@ DO
 
 		If ButtonPressed = read_note_question Then
 			err_msg = "LOOP" & err_msg
-			info_msg = MsgBox("When can you use the functionality to read ApplyMN Information from CASE:NOTE and what will it read?"& vbNewLine & vbNewLine & "*** THE NOTE THIS REFERS TO IS THE APPLICATION RECEIVED NOTE WITH APPLYMN INFORMATION. ****" & vbNewLine & vbNewLine & " - If the case was pended and the script NOTES - Application Received is used to capture the information then the details are listed in CASE:NOTE." & vbNewLine & " - What can be read:" & vbNewLine & "    *Application Date" & vbNewLine & "    *Confirmation Number" & vbNewLine & "    *Name of Applicant", vbInformation, "What can e read from CASE:OTE")
+			info_msg = MsgBox("When can you use the functionality to read online application Information from CASE:NOTE and what will it read?"& vbNewLine & vbNewLine & "*** THE NOTE THIS REFERS TO IS THE NOTES - APPLICATION RECEIVED NOTE WITH ONLINE APPLICATION INFORMATION. ****" & vbNewLine & vbNewLine & " - If the case was pended and the script NOTES - Application Received is used to capture the information then the details are listed in CASE:NOTE." & vbNewLine & " - What can be read:" & vbNewLine & "    *Application Date" & vbNewLine & "    *Confirmation Number" & vbNewLine & "    *Name of Applicant", vbInformation, "What can e read from CASE:OTE")
 		End If
 		If ButtonPressed = confirmation_number_question Then
 			err_msg = "LOOP" & err_msg
-			info_msg = MsgBox("The confirmation number is the primary means to search through the files of ApplyMNs submitted" & vbNewLine & vbNewLine & "There is no other information that allows us to search as quickly for ApplyMNs." & vbNewLine & vbNewLine & "--- What if the client does not know their Confirmation Number?" & vbNewLine & "Information from when the client submitted the application online can be found from logging back into their account for ApplyMN.", vbInformation, "Why do we need the confirmation number?")
+			info_msg = MsgBox("The confirmation number is the primary means to search through the files of ApplyMNs submitted" & vbNewLine & vbNewLine & "There is no other information that allows us to search as quickly for ApplyMNs." & vbNewLine & vbNewLine & "--- What if the client does not know their Confirmation Number?" & vbNewLine & "Information from when the client submitted the application online can be found from logging back into their account for online application.", vbInformation, "Why do we need the confirmation number?")
 		End If
 		If ButtonPressed = applicant_name_question Then
 			err_msg = "LOOP" & err_msg
@@ -167,7 +169,7 @@ DO
 		End If
 		If ButtonPressed = app_date_question Then
 			err_msg = "LOOP" & err_msg
-			info_msg = MsgBox("There are hundreds of ApplyMN applications submitted in any day. This number has increased more recently." & vbNewLine & vbNewLine & "*** The date needs to be the precise date the application was submitted ***" & vbNewLine & vbNewLine & "This is important because the appplications must be pulled by date before searching. Trying to pull either the wrong date or mutliple dates prevents us from finding this information." & vbNewLine & vbNewLine & "Information from when the client submitted the application online can be found from logging back into their account for ApplyMN.", vbInformation, "Why is the application date needed?")
+			info_msg = MsgBox("There are hundreds of online application applications submitted in any day. This number has increased more recently." & vbNewLine & vbNewLine & "*** The date needs to be the precise date the application was submitted ***" & vbNewLine & vbNewLine & "This is important because the appplications must be pulled by date before searching. Trying to pull either the wrong date or mutliple dates prevents us from finding this information." & vbNewLine & vbNewLine & "Information from when the client submitted the application online can be found from logging back into their account for online application.", vbInformation, "Why is the application date needed?")
 		End If
 		IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "Please resolve to continue: " & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
@@ -186,9 +188,9 @@ If no_case_number_checkbox = unchecked Then
 	If curr_row <> 0 Then case_appld = TRUE
 End If
 
-email_subject = "Request for Search for ApplyMN not in ECF"			'Setting the subject line
+email_subject = "Request for Search for Online Application not in ECF"			'Setting the subject line
 
-email_body = "Please recover the ApplyMN file that cannot be found." & vbCr & vbCr						'Fillin i nthe information for the body of the email
+email_body = "Please recover the Online Application file that cannot be found." & vbCr & vbCr						'Fillin i nthe information for the body of the email
 
 If no_case_number_checkbox = unchecked Then email_body = email_body & "Case Number: " & MAXIS_case_number & vbCr
 If no_case_number_checkbox = checked Then email_body = email_body & "No Case Number known at this time as case has not been pended." & vbCr
