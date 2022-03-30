@@ -142,6 +142,8 @@ create_a_test_worklist = True
 'If FALSE - the script WILL delete the files that fill in information
 '           The False option is run by Laurie weekly.
 If create_a_test_worklist = True Then EMConnect ""
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 
 'There is no EMConnect and no MAXIS checking because this script does not use MAXIS at all
 'Declaring the only dialog
