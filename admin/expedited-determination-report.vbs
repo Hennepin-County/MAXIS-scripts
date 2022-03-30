@@ -195,12 +195,12 @@ If report_selection = "Pull Data and Create Worklist" Then
 	' daily_discovery_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_header & " Worklist.xlsx"
 
 	If create_a_test_worklist = True Then
-		Call excel_open(worklist_template_file, True, True, ObjWORKExcel, objWORKWorkbook)  			'opens the selected excel file'
+		Call excel_open(worklist_template_file, False, False, ObjWORKExcel, objWORKWorkbook)  			'opens the selected excel file'
 		ObjWORKExcel.ActiveWorkbook.SaveAs current_worklist_path
 		ObjWORKExcel.worksheets("CASE LIST").Activate
 	End If
 
-	Call excel_open(report_out_file, True, True, ObjExcel, objWorkbook)  			'opens the selected excel file'
+	Call excel_open(report_out_file, False, False, ObjExcel, objWorkbook)  			'opens the selected excel file'
 	'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
 	' Call excel_open(discovery_template_file, True, True, ObjDISCExcel, objDISCWorkbook)  			'opens the selected excel file'
 
@@ -555,6 +555,8 @@ If report_selection = "Pull Data and Create Worklist" Then
 
 			ObjWORKExcel.Application.Quit
 			ObjWORKExcel.Quit
+		Else
+			ObjWORKExcel.Visible = True
 		End If
 	End If
 
@@ -596,15 +598,13 @@ If report_selection = "Pull Data and Create Worklist" Then
 	objWorkbook.Save()		'saving the excel
 	' objDISCWorkbook.Save()		'saving the excel		'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
 
-	If leave_excel_open = "No - Close the file" Then		'if the file should be closed - it does it here.
-		objExcel.ActiveWorkbook.Close
-		' ObjDISCExcel.ActiveWorkbook.Close					'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
+	objExcel.ActiveWorkbook.Close
+	' ObjDISCExcel.ActiveWorkbook.Close					'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
 
-		objExcel.Application.Quit
-		objExcel.Quit
-		' ObjDISCExcel.Application.Quit						'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
-		' ObjDISCExcel.Quit
-	End If
+	objExcel.Application.Quit
+	objExcel.Quit
+	' ObjDISCExcel.Application.Quit						'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
+	' ObjDISCExcel.Quit
 End If
 
 If report_selection = "Combine Worklists" Then
