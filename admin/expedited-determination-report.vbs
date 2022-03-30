@@ -163,9 +163,9 @@ Do
 	'showing the dialog - there is no loop because there is nothing to manage and no password handling.
 	dialog Dialog1
 	cancel_confirmation
-	If create_a_test_worklist = False Then CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	If create_a_test_worklist = False Then are_we_passworded_out = false					'loops until user passwords back in
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+	If create_a_test_worklist = True Then CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	If create_a_test_worklist = False Then are_we_passworded_out = False					'loops until user passwords back in
+Loop until are_we_passworded_out = False					'loops until user passwords back in
 
 'defining the assignment folder
 exp_assignment_folder = t_drive & "\Eligibility Support\Assignments\Expedited Information"
@@ -369,6 +369,7 @@ If report_selection = "Pull Data and Create Worklist" Then
 	        End If
 	    Next
 	    total_excel_row = total_excel_row + 1										'advance to the next row
+		objWorkbook.Save()		'saving the excel
 		If create_a_test_worklist = True Then
 			If exp_det = True AND approval_date_is_date = False Then save_to_worklist = True
 			If exp_det = True AND approval_date_is_date = True Then
@@ -491,10 +492,10 @@ If report_selection = "Pull Data and Create Worklist" Then
 					If line_info(0) = "DET SHEL" 						Then ObjWORKExcel.Cells(work_excel_row, work_shelter_col_const).Value = line_info(1)
 					If line_info(0) = "DET HEST" 						Then ObjWORKExcel.Cells(work_excel_row, work_utilities_col_const).Value = line_info(1)
 					If line_info(0) = "DATE OF SCRIPT RUN"              Then ObjWORKExcel.Cells(work_excel_row, work_script_run_date_col_const).Value = line_info(1)
-
 				End If
 			End If
 		Next
+		If save_to_worklist = True Then objWORKWorkbook.Save()		'saving the excel
 
 		' If create_a_test_worklist = False Then
 		'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
