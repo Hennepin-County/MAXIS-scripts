@@ -9633,7 +9633,7 @@ function provide_resources_information(case_number_known, create_case_note, note
 			If client_virtual_dropox_checkbox = checked Then
 				array_counter = array_counter + 4
 				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
-				MEMO_LINES_ARRAY(array_counter-3) = "You can submit documents Online at www.MNBenefits.org or"
+				MEMO_LINES_ARRAY(array_counter-3) = "You can submit documents Online at www.MNBenefits.mn.gov or"
 				MEMO_LINES_ARRAY(array_counter-2) = "Email with document attachment. EMAIL: hhsews@hennepin.us"
 				MEMO_LINES_ARRAY(array_counter-1) = " (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)"
 				MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
@@ -9812,7 +9812,7 @@ function provide_resources_information(case_number_known, create_case_note, note
 		    objSelection.Font.Size = "12"
 		    objSelection.Font.Bold = FALSE
 			If client_virtual_dropox_checkbox = checked Then
-				objSelection.TypeText "You can submit documents Online at www.MNBenefits.org or" & vbCr
+				objSelection.TypeText "You can submit documents Online at www.MNBenefits.mn.gov or" & vbCr
 				objSelection.TypeText "Email with document attachment. EMAIL: hhsews@hennepin.us" & vbCr
 				objSelection.TypeText " (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)" & vbCr
 				objSelection.TypeParagraph()
