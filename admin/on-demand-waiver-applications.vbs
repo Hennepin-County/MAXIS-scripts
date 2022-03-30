@@ -434,6 +434,9 @@ Dim ACTION_TODAY_CASES_ARRAY()
 ReDim ACTION_TODAY_CASES_ARRAY(error_notes, 0)
 todays_cases = 0        'incrementor for adding to this new array
 
+Dim YESTERDAYS_PENDING_CASES_ARRAY()
+ReDim YESTERDAYS_PENDING_CASES_ARRAY(error_notes, 0)
+
 list_of_baskets_at_display_limit = ""					'defaulting some variables that will be added to through the review of the cases
 cases_to_alert_BZST = ""
 
@@ -449,6 +452,23 @@ End If
 If trim(worker_signature) = "" Then
     worker_signature = InputBox("How would you like to sign you case notes:", "Worker Signature")
 End If
+
+'setting up information and variables for accessing yesterday's worklist
+previous_date = dateadd("d", -1, date)
+Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
+archive_folder = DatePart("yyyy", previous_date) & "-" & right("0" & DatePart("m", previous_date), 2)
+
+archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\" & archive_folder
+
+previous_date_month = DatePart("m", previous_date)
+previous_date_day = DatePart("d", previous_date)
+previous_date_year = DatePart("yyyy", previous_date)
+previous_date_header = previous_date_month & "-" & previous_date_day & "-" & previous_date_year
+
+previous_list_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & previous_date_header & " Worklist.xlsx"
+Call File_Exists(previous_list_file_selection_path, does_file_exist)
+previous_worksheet_header = "Work List for " & previous_date_month & "-" & previous_date_day & "-" & previous_date_year
+
 
 'Opens the working excel spreadsheet.
 'This file path is hard coded because it is always the same file
@@ -649,7 +669,7 @@ If date_working_excel_list_updated <> date Then
 	                ALL_PENDING_CASES_ARRAY(case_number, case_entry) = TODAYS_CASES_ARRAY(case_number, each_case)
 	                ALL_PENDING_CASES_ARRAY(excel_row, case_entry) = row
 	                ALL_PENDING_CASES_ARRAY(client_name, case_entry) 			= ObjWorkExcel.Cells(row, case_name_col)       'This is gathered from the Working Excel instead of the BOBI list because we may have populated a priv case with an actual name
-	                ALL_PENDING_CASES_ARRAY(application_date, case_entry) 		= ObjWorkExcel.Cells(row, app_date_col)
+	                ALL_PENDING_CASES_ARRAY(application_date, case_entry) 		= TODAYS_CASES_ARRAY(application_date, each_case)
 	                ALL_PENDING_CASES_ARRAY(interview_date, case_entry) 		= ObjWorkExcel.Cells(row, intvw_date_col)   'This is gathered from the Working Excel as we may have found an interview date that is NOT in PROG
 	                ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) 			= ObjWorkExcel.Cells(row, cash_stat_col)
 	                ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) 			= ObjWorkExcel.Cells(row, snap_stat_col)
@@ -782,11 +802,11 @@ If date_working_excel_list_updated <> date Then
 	        ALL_PENDING_CASES_ARRAY(next_action_needed, add_a_case) 	= ObjWorkExcel.Cells(row, next_action_col)
 	        ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) 		= ObjWorkExcel.Cells(row, quest_intvw_date_col)
 	        ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) 		= trim(ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case))
-			Call read_boolean_from_excel(ObjWorkExcel.Cells(row, other_county_col).Value, ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry))
-			Call read_boolean_from_excel(ObjWorkExcel.Cells(row, closed_in_30_col).Value, ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry))
+			Call read_boolean_from_excel(ObjWorkExcel.Cells(row, other_county_col).Value, ALL_PENDING_CASES_ARRAY(case_in_other_co, add_a_case))
+			Call read_boolean_from_excel(ObjWorkExcel.Cells(row, closed_in_30_col).Value, ALL_PENDING_CASES_ARRAY(case_closed_in_30, add_a_case))
 			ALL_PENDING_CASES_ARRAY(error_notes, add_a_case) 			= ObjWorkExcel.Cells(row, worker_notes_col)
-			ALL_PENDING_CASES_ARRAY(line_update_date, case_entry) 		= ObjWorkExcel.Cells(row, script_revw_date_col)
-			ALL_PENDING_CASES_ARRAY(line_update_date, case_entry) = dateAdd("d", 0, ALL_PENDING_CASES_ARRAY(line_update_date, case_entry))
+			ALL_PENDING_CASES_ARRAY(line_update_date, add_a_case) 		= ObjWorkExcel.Cells(row, script_revw_date_col)
+			ALL_PENDING_CASES_ARRAY(line_update_date, add_a_case) = dateAdd("d", 0, ALL_PENDING_CASES_ARRAY(line_update_date, add_a_case))
 			'ALL_PENDING_CASES_ARRAY(, add_a_case) = ObjWorkExcel.Cells(row, )
 	        'defaulting this variable as we will determine if it is true later
 	        ALL_PENDING_CASES_ARRAY(take_action_today, add_a_case) = FALSE
@@ -797,6 +817,88 @@ If date_working_excel_list_updated <> date Then
 	Next
 
 	ObjWorkExcel.Cells(1, list_update_date_col).value = date
+	ObjWorkExcel.Cells(2, list_update_date_col).value = ""
+	ObjWorkExcel.Cells(3, list_update_date_col).value = ""
+
+	yesterday_case_list = 0
+
+	If does_file_exist = True Then
+		'open the file
+		call excel_open(previous_list_file_selection_path, True, False, ObjYestExcel, objYestWorkbook)
+
+		objYestWorkbook.Worksheets("Statistics").visible = True
+		objYestWorkbook.worksheets("Statistics").Activate
+		yesterday_worker = ObjYestExcel.Cells(2, 2).Value
+
+		objYestWorkbook.worksheets(previous_worksheet_header).Activate
+
+		objYestWorkbook.Worksheets("Statistics").visible = False
+
+		'Pull info into a NEW array of prevvious day work.
+		xl_row = 2
+		Do
+			this_case = trim(ObjYestExcel.Cells(xl_row, case_nbr_col).Value)
+			If this_case <> "" Then
+				ReDim Preserve YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yesterday_case_list)
+
+				YESTERDAYS_PENDING_CASES_ARRAY(worker_ID, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, worker_id_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(case_number, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, case_nbr_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(client_name, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, case_name_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(SNAP_status, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, snap_stat_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(CASH_status, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, cash_stat_col).Value)
+				' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_rept_pnd2_days_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(application_date, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_app_date_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(interview_date, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_intvw_date_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(questionable_intv, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_quest_intvw_date_col).Value)
+
+				YESTERDAYS_PENDING_CASES_ARRAY(case_in_other_co, yesterday_case_list) = ObjWorkExcel.Cells(row, wl_other_county_col)
+				YESTERDAYS_PENDING_CASES_ARRAY(case_closed_in_30, yesterday_case_list) = ObjWorkExcel.Cells(row, wl_closed_in_30_col)
+
+				' YESTERDAYS_PENDING_CASES_ARRAY(intvw_quest_resolve, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_resolve_quest_intvw_col).Value)
+
+				YESTERDAYS_PENDING_CASES_ARRAY(appt_notc_sent, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_appt_notc_date_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(appointment_date, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_appt_date_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(nomi_sent, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_nomi_date_col).Value)
+				' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_day_30_col).Value)
+				' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_deny_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_action_taken_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_work_notes_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(worker_name_one, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_email_worker_col).Value)
+				YESTERDAYS_PENDING_CASES_ARRAY(issue_item_one, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_email_issue_col).Value)
+
+				yesterday_case_list = yesterday_case_list + 1
+				xl_row = xl_row + 1
+			End If
+		Loop until this_case = ""
+
+		'close the file
+		ObjYestExcel.ActiveWorkbook.Close
+		ObjYestExcel.Application.Quit
+		ObjYestExcel.Quit
+
+		For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
+
+			'CHECK THE LIST and compare it against the previous day work to capture any important details
+			For yest_entry = 0 to UBound(YESTERDAYS_PENDING_CASES_ARRAY, 2)
+				If ALL_PENDING_CASES_ARRAY(case_number, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(case_number, yest_entry) Then
+					ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(case_in_other_co, yest_entry)
+					ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(case_closed_in_30, yest_entry)
+					yesterdays_notes = YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yest_entry)
+					yesterdays_action_info = YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yest_entry)
+					If yesterday_worker = qi_member_on_ONDEMAND Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = yesterdays_action_info & " - " & yesterdays_notes
+					yesterdays_action_info = UCase(yesterdays_action_info)
+					If InStr(yesterdays_action_info, "FOLLOW UP NEEDED") <> 0 Then ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+
+					working_row = ALL_PENDING_CASES_ARRAY(excel_row, case_entry)
+					ObjWorkExcel.Cells(working_row, other_county_col).Value = ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry)
+					ObjWorkExcel.Cells(working_row, closed_in_30_col).Value = ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry)
+					ObjWorkExcel.Cells(working_row, worker_notes_col).Value = ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+					If ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = True Then ObjWorkExcel.Cells(working_row, script_notes_col).Value = ObjWorkExcel.Cells(working_row, script_notes_col).Value & "-ADD TO TODAY'S WORKLIST"
+				End If
+			Next
+		Next
+	End If
+
 Else
 	case_entry = 0      'incrementor to add a case to ALL_PENDING_CASES_ARRAY
 	row = 2             'Working Excel sheet starts with cases on row 2
@@ -847,93 +949,10 @@ Else
 	cases_to_alert_BZST = ObjWorkExcel.Cells(3, list_update_date_col).value
 End If
 
+ObjWorkExcel.Cells(1, list_update_date_col-1).value = "Date the list was assessed"
+ObjWorkExcel.Cells(2, list_update_date_col-1).value = "Baskets at display limit"
+ObjWorkExcel.Cells(3, list_update_date_col-1).value = "Cases to Alert BZST"
 
-previous_date = dateadd("d", -1, date)
-Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
-archive_folder = DatePart("yyyy", previous_date) & "-" & right("0" & DatePart("m", previous_date), 2)
-
-archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\" & archive_folder
-
-previous_date_month = DatePart("m", previous_date)
-previous_date_day = DatePart("d", previous_date)
-previous_date_year = DatePart("yyyy", previous_date)
-previous_date_header = previous_date_month & "-" & previous_date_day & "-" & previous_date_year
-
-previous_list_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & previous_date_header & " Worklist.xlsx"
-Call File_Exists(previous_list_file_selection_path, does_file_exist)
-previous_worksheet_header = "Work List for " & previous_date_month & "-" & previous_date_day & "-" & previous_date_year
-
-Dim YESTERDAYS_PENDING_CASES_ARRAY()
-ReDim YESTERDAYS_PENDING_CASES_ARRAY(error_notes, 0)
-yesterday_case_list = 0
-
-If does_file_exist = True Then
-	'open the file
-	call excel_open(previous_list_file_selection_path, True, False, ObjYestExcel, objYestWorkbook)
-
-	objYestWorkbook.Worksheets("Statistics").visible = True
-	objYestWorkbook.worksheets("Statistics").Activate
-	yesterday_worker = ObjYestExcel.Cells(2, 2).Value
-
-	objYestWorkbook.worksheets(previous_worksheet_header).Activate
-
-	objYestWorkbook.Worksheets("Statistics").visible = False
-
-	'Pull info into a NEW array of prevvious day work.
-	xl_row = 2
-	Do
-		this_case = trim(ObjYestExcel.Cells(xl_row, case_nbr_col).Value)
-		If this_case <> "" Then
-			ReDim Preserve YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yesterday_case_list)
-
-			YESTERDAYS_PENDING_CASES_ARRAY(worker_ID, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, worker_id_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(case_number, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, case_nbr_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(client_name, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, case_name_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(SNAP_status, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, snap_stat_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(CASH_status, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, cash_stat_col).Value)
-			' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_rept_pnd2_days_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(application_date, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_app_date_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(interview_date, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_intvw_date_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(questionable_intv, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_quest_intvw_date_col).Value)
-
-			YESTERDAYS_PENDING_CASES_ARRAY(case_in_other_co, yesterday_case_list) = ObjWorkExcel.Cells(row, wl_other_county_col)
-			YESTERDAYS_PENDING_CASES_ARRAY(case_closed_in_30, yesterday_case_list) = ObjWorkExcel.Cells(row, wl_closed_in_30_col)
-
-			' YESTERDAYS_PENDING_CASES_ARRAY(intvw_quest_resolve, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_resolve_quest_intvw_col).Value)
-
-			YESTERDAYS_PENDING_CASES_ARRAY(appt_notc_sent, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_appt_notc_date_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(appointment_date, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_appt_date_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(nomi_sent, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_nomi_date_col).Value)
-			' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_day_30_col).Value)
-			' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_deny_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_action_taken_col).Value)
-			' YESTERDAYS_PENDING_CASES_ARRAY(, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_work_notes_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(worker_name_one, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_email_worker_col).Value)
-			YESTERDAYS_PENDING_CASES_ARRAY(issue_item_one, yesterday_case_list) = trim(ObjYestExcel.Cells(xl_row, wl_email_issue_col).Value)
-
-			yesterday_case_list = yesterday_case_list + 1
-			xl_row = xl_row + 1
-		End If
-	Loop until this_case = ""
-
-	'close the file
-	ObjYestExcel.ActiveWorkbook.Close
-	ObjYestExcel.Application.Quit
-	ObjYestExcel.Quit
-End If
-
-For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
-
-	'CHECK THE LIST and compare it against the previous day work to capture any important details
-	For yest_entry = 0 to UBound(YESTERDAYS_PENDING_CASES_ARRAY, 2)
-		If ALL_PENDING_CASES_ARRAY(case_number, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(case_number, yest_entry) Then
-			If yesterday_worker = qi_member_on_ONDEMAND Then ALL_PENDING_CASES_ARRAY(yesterday_action_taken, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yest_entry)
-			yesterdays_action_info = YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yest_entry)
-			yesterdays_action_info = UCase(yesterdays_action_info)
-			If InStr(yesterdays_action_info, "FOLLOW UP NEEDED") <> 0 Then ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
-		End If
-	Next
-Next
 
 ' MsgBox "Step One - we have gathered the daily list and updated the Working Excel"
 For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
@@ -1250,7 +1269,14 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 					ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = False
 					Do
 						EMReadScreen note_worker, 4, note_row, 16
-						If note_worker <> "X127" Then ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = True
+						If note_worker <> "X127" and note_worker <> "MONY" Then ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = True
+						note_row = note_row + 1
+						IF note_row = 19 THEN
+							PF8
+							note_row = 5
+						END IF
+						EMReadScreen next_note_date, 8, note_row, 6
+						IF next_note_date = "        " then Exit Do
 					Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
 					IF ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = True THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
 					go_to_top_of_notes
@@ -2195,6 +2221,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 	    ObjWorkExcel.Cells(row, app_date_col).Value = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
 	    ObjWorkExcel.Cells(row, intvw_date_col).Value = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
 	    ObjWorkExcel.Cells(row, quest_intvw_date_col).Value = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+		ObjWorkExcel.Cells(row, other_county_col).Value = ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry)
+		ObjWorkExcel.Cells(row, closed_in_30_col).Value = ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry)
 	    ObjWorkExcel.Cells(row, appt_notc_date_col).Value = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
 	    ObjWorkExcel.Cells(row, appt_date_col).Value = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
 		ObjWorkExcel.Cells(row, second_app_date_col).Value = ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry)
@@ -2319,11 +2347,11 @@ For case_entry = 0 to UBound(ALL_PENDING_CASES_ARRAY, 2)
 		' ObjDailyWorkListExcel.Cells(xl_row, wl_action_taken_col).Value 			=
 		ObjDailyWorkListExcel.Cells(xl_row, wl_action_taken_col).Value			= "FOLLOW UP NEEDED"
 		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW DENIAL" OR ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "*** DENY ***" Then ObjDailyWorkListExcel.Cells(xl_row, wl_deny_col).Value = "TRUE"
-		If yesterday_worker = qi_member_on_ONDEMAND Then
-			ObjDailyWorkListExcel.Cells(xl_row, wl_work_notes_col).Value 			= ALL_PENDING_CASES_ARRAY(yesterday_action_taken, case_entry) & " - " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
-		Else
-			ObjDailyWorkListExcel.Cells(xl_row, wl_work_notes_col).Value 			= ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
-		End If
+		ObjDailyWorkListExcel.Cells(xl_row, wl_work_notes_col).Value 			= ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+		' If yesterday_worker = qi_member_on_ONDEMAND Then
+		' 	ObjDailyWorkListExcel.Cells(xl_row, wl_work_notes_col).Value 			= ALL_PENDING_CASES_ARRAY(yesterday_action_taken, case_entry) & " - " & ALL_PENDING_CASES_ARRAY(error_notes, case_entry)
+		' Else
+		' End If
 		' ObjDailyWorkListExcel.Cells(xl_row, wl_email_worker_col).Value 		= ALL_PENDING_CASES_ARRAY(email_worker_from_wl, case_entry)
 		' ObjDailyWorkListExcel.Cells(xl_row, wl_email_issue_col).Value 			= ALL_PENDING_CASES_ARRAY(email_issue_from_wl, case_entry)
 		' ObjDailyWorkListExcel.Cells(xl_row, COLUMN).Value = ALL_PENDING_CASES_ARRAY(CONSTANT, case_entry)
