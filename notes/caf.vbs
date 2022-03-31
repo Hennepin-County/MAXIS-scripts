@@ -792,7 +792,7 @@ Function determine_actions(case_assesment_text, next_steps_one, next_steps_two, 
 			next_steps_one = "We must strive to approve this case for the EXPEDITED package of " & expedited_package & " as soon as possible. Make every effort to complete the requirements of this delay and approve the case"
 
 			If do_we_have_applicant_id = False Then
-				add_msg = "Double check the case file for ANY document that can be used as an identity document.Advise resident to get us ANY form of ID they can, MNBenefits or the virtual dropbox may be quickest way to receive theis document."
+				add_msg = "Double check the case file for ANY document that can be used as an identity document.Advise resident to get us ANY form of ID they can, MNbenefits or the virtual dropbox may be quickest way to receive theis document."
 				If next_steps_two = "" then
 					next_steps_two = add_msg
 				ElseIf next_steps_three = "" Then
@@ -5447,7 +5447,7 @@ BeginDialog Dialog1, 0, 0, 281, 185, "CAF Script Case number dialog"
   CheckBox 10, 55, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 50, 55, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 90, 55, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 135, 55, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MN Benefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 135, 55, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   EditBox 40, 100, 220, 15, cash_other_req_detail
   EditBox 40, 120, 220, 15, snap_other_req_detail
   EditBox 40, 140, 220, 15, emer_other_req_detail
