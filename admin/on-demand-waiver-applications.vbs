@@ -802,6 +802,8 @@ If date_working_excel_list_updated <> date Then
 	        ALL_PENDING_CASES_ARRAY(next_action_needed, add_a_case) 	= ObjWorkExcel.Cells(row, next_action_col)
 	        ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) 		= ObjWorkExcel.Cells(row, quest_intvw_date_col)
 	        ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case) 		= trim(ALL_PENDING_CASES_ARRAY(questionable_intv, add_a_case))
+			ObjWorkExcel.Cells(row, other_county_col).Value = trim(ObjWorkExcel.Cells(row, other_county_col).Value)
+			ObjWorkExcel.Cells(row, closed_in_30_col).Value = trim(ObjWorkExcel.Cells(row, closed_in_30_col).Value)
 			Call read_boolean_from_excel(ObjWorkExcel.Cells(row, other_county_col).Value, ALL_PENDING_CASES_ARRAY(case_in_other_co, add_a_case))
 			Call read_boolean_from_excel(ObjWorkExcel.Cells(row, closed_in_30_col).Value, ALL_PENDING_CASES_ARRAY(case_closed_in_30, add_a_case))
 			ALL_PENDING_CASES_ARRAY(error_notes, add_a_case) 			= ObjWorkExcel.Cells(row, worker_notes_col)
@@ -2276,9 +2278,10 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 
 		ObjWorkExcel.Cells(2, list_update_date_col).value = list_of_baskets_at_display_limit
 		ObjWorkExcel.Cells(3, list_update_date_col).value = cases_to_alert_BZST
-		objWorkWorkbook.Save
+		' objWorkWorkbook.Save		'DO NOT SAVE EACH TIME - IT TAKES FOREVER'
 	End If
 Next
+objWorkWorkbook.Save
 
 ' MsgBox "Step Three - We are about to make the Worklist"
 date_month = DatePart("m", date)
