@@ -75,10 +75,17 @@ function search_for_info_in_note(date_of_app, confirmation_number, name_of_appli
                 UCASE(case_note_header) = "~ APPLICATION RECEIVED (MN BENEF" then
 				EmWriteScreen "X", note_row, 3									'open the case note
 				transmit
-
-				EMReadScreen date_of_app, 10, 4, 50								'read the app date and reformat
-				date_of_app = replace(date_of_app, "~", "")
-				date_of_app = trim(date_of_app)
+                'In CASE/NOTE, reading 1st row and determining what is the date of application
+                EMReadScreen case_note_header_row, 75, 4, 3
+                case_note_header_row = trim(case_note_header_row)                   'trimming the header row
+                IF instr(case_note_header_row, "for") THEN
+                	length = len(case_note_header_row)                              'establishing the length of the variable
+                	position = InStr(case_note_header_row, "for")                   'sets the position at the deliminator (in this case the 'for')
+                	date_of_app = Right(case_note_header_row, length-position -3)   'establishes app date as three spaces after the deliminator
+                    date_of_app = trim(replace(date_of_app, "~", ""))
+                Else
+                    date_of_app = ""                                                'defaulting to blank as a back-up
+                End if
 
 				the_row = 1														'search for the confirmation field
 				the_col = 1
