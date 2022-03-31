@@ -177,7 +177,7 @@ DO
 
 		If ButtonPressed = confirmation_number_question Then
 			err_msg = "LOOP" & err_msg
-			info_msg = MsgBox("The confirmation number is the primary means to search through the files of ApplyMNs submitted" & vbNewLine & vbNewLine & "There is no other information that allows us to search as quickly for ApplyMNs." & vbNewLine & vbNewLine & "--- What if the client does not know their Confirmation Number?" & vbNewLine & "Information from when the client submitted the application online can be found from logging back into their account for online application.", vbInformation, "Why do we need the confirmation number?")
+			info_msg = MsgBox("The confirmation number is the primary means to search through the files of MNbenefit applications submitted" & vbNewLine & vbNewLine & "There is no other information that allows us to search as quickly for MNbenefit applications." & vbNewLine & vbNewLine & "--- What if the client does not know their Confirmation Number?" & vbNewLine & "Information from when the client submitted the application online can be found from logging back into their account for online application.", vbInformation, "Why do we need the confirmation number?")
 		End If
 
 		If ButtonPressed = applicant_name_question Then
@@ -211,7 +211,7 @@ If case_pending = TRUE Then email_body = email_body & vbCr & "~~The case has bee
 If case_pending = FALSE Then email_body = email_body & vbCr & "~~This case is not pending and has not been APPL'd.~~" & vbCr
 
 email_body = email_body & vbCr & "Thank you, " & vbCr & worker_name
-Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", False)		'Send the Email
+Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", email_subject, email_body, "", True)		'Send the Email
 
 'Add a message with the email information for display
 end_msg = "Success!" & vbNewLine & vbNewLine
