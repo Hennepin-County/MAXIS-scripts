@@ -230,7 +230,7 @@ End If
 ' BeginDialog Dialog1, 0, 0, 266, 335, "Application Received for: & programs_applied_for & on & date"
 '   GroupBox 5, 5, 255, 120, "Application Information"
 '   DropListBox 85, 40, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
-'   DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"Mnbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
+'   DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
 '   EditBox 85, 85, 95, 15, confirmation_number
 '   DropListBox 85, 105, 170, 45, "", List2
 '   Text 15, 20, 65, 10, "Date of Application:"
@@ -278,7 +278,7 @@ Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
   GroupBox 5, 5, 255, 120, "Application Information"
   DropListBox 85, 40, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
-  DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"Mnbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
+  DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
   EditBox 85, 85, 95, 15, confirmation_number
   DropListBox 85, 105, 170, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
   Text 15, 25, 65, 10, "Date of Application:"
@@ -374,7 +374,7 @@ Do
 	    IF how_application_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
         'IF application_type = "N/A" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter in other notes what type of application was received to the agency."
 	    IF application_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-        IF application_type = "Mnbenefits" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a Mnbenefits app was received, you must enter the confirmation number and time received."
+        IF application_type = "MNbenefits" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MNbenefits app was received, you must enter the confirmation number and time received."
         If population_of_case = "Select One:" then err_msg = err_msg & vbNewLine & "* Please indicate the population or specialty of the case."
         If snap_status = "PENDING" Then
             If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
@@ -778,7 +778,7 @@ IF send_appt_ltr = TRUE THEN        'If we are supposed to be sending an applien
     Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
     Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
     Call write_variable_in_SPEC_MEMO(" ")
-    CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.mn.gov **")
+    CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
     CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
     CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
     CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
