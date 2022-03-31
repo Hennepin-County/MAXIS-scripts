@@ -445,7 +445,7 @@ Do
         ReDim array_of_msg_lines(0)
         ReDim WCOM_TO_WRITE_ARRAY (0)
 
-		If clt_virtual_dropbox_checkbox = checked Then CALL add_words_to_message("You can submit documents Online at www.MNBenefits.mn.gov or Email with documents attachment. EMAIL: hhsews@hennepin.us (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types).")
+		If clt_virtual_dropbox_checkbox = checked Then CALL add_words_to_message("You can submit documents Online at www.MNbenefits.mn.gov or Email with documents attachment. EMAIL: hhsews@hennepin.us (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types).")
 
         If july_cola_wcom = checked Then
             'code for the dialog for PACT closure (this dialog has the same name in each IF to prevent the over 7 dialog error)
