@@ -469,8 +469,8 @@ If cash_2_stat = "ACTV" and cash_2_prog = "MF" Then MFIP_active = True
 If snap_stat = "ACTV" Then SNAP_active = True
 call back_to_self
 
-' If MFIP_active = True Then Call script_end_procedure("MFIP was active in 02/22. MFIP cases are not able to be handled at this time.")
-' If SNAP_active = False Then Call script_end_procedure("This case does not appear to have been active SNAP in 02/22 and thes script cannot continue.")
+If MFIP_active = True Then Call script_end_procedure("MFIP was active in 02/22. MFIP cases are not able to be handled at this time.")
+If SNAP_active = False Then Call script_end_procedure("This case does not appear to have been active SNAP in 02/22 and thes script cannot continue.")
 If SNAP_active = False and MFIP_active = False Then script_end_procedure("This case does not appear to have been active SNAP or MFIP in 02/22 and thes script cannot continue.")
 
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
@@ -499,9 +499,9 @@ For each hh_clt in client_array
 
 	Call navigate_to_MAXIS_screen("STAT", "MEMB")		'===============================================================================================
 	EMWriteScreen HH_MEMB_ARRAY(ref_number, clt_count), 20, 76
-	MsgBox "1"
+	' MsgBox "1"
 	transmit
-	MsgBox "2"
+	' MsgBox "2"
 
 	EMReadscreen HH_MEMB_ARRAY(last_name_const, clt_count), 25, 6, 30
 	EMReadscreen HH_MEMB_ARRAY(first_name_const, clt_count), 12, 6, 63
@@ -520,7 +520,7 @@ For each hh_clt in client_array
 	HH_MEMB_ARRAY(unearned_income_exists_const, clt_count) = False
 	HH_MEMB_ARRAY(memb_droplist_const, clt_count) = HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
 	memb_droplist = memb_droplist+chr(9)+HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
-	MsgBox HH_MEMB_ARRAY(full_name_const, clt_count)
+	' MsgBox HH_MEMB_ARRAY(full_name_const, clt_count)
 	If disa_household = False Then
 		Call navigate_to_MAXIS_screen("STAT", "DISA")
 		EMWriteScreen HH_MEMB_ARRAY(ref_number, clt_count), 20, 76
@@ -784,6 +784,7 @@ recalculation_confirmed = False
 snap_overpayment_exists = False
 snap_supplement_exists = False
 calculation_needed = True
+snap_proration_date = "2/1/2022"
 Do
 	'Determine what happened with the review/mont process by dialog
 	Do
@@ -792,11 +793,11 @@ Do
 		BeginDialog Dialog1, 0, 0, 316, 105, "02/22 Report Process Information"
 		  DropListBox 180, 10, 60, 45, "Select One..."+chr(9)+"ER"+chr(9)+"SR"+chr(9)+"HRF", feb_process
 		  DropListBox 260, 25, 50, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", process_complete
-		  DropListBox 65, 45, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNBenefits"+chr(9)+"Combined AR", form_received
+		  DropListBox 65, 45, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNBenefits"+chr(9)+"CSR"+chr(9)+"Combined AR", form_received
 		  EditBox 260, 45, 50, 15, form_received_date
-		  DropListBox 65, 65, 90, 45, "Select One..."+chr(9)+"Not Required"+chr(9)+"Completed"+chr(9)+"Incomplete", interview_information
+		  DropListBox 65, 65, 90, 45, "Select One..."+chr(9)+"Not Required"+chr(9)+"Completed"+chr(9)+"Incomplete"+chr(9)+"N/A", interview_information
 		  EditBox 260, 65, 50, 15, interview_date
-		  DropListBox 65, 85, 60, 45, "Select One..."+chr(9)+"None Needed"+chr(9)+"Partial"+chr(9)+"Complete", verifs_received
+		  DropListBox 65, 85, 60, 45, "Select One..."+chr(9)+"None Needed"+chr(9)+"Partial"+chr(9)+"Complete"+chr(9)+"None Received"+chr(9)+"N/A", verifs_received
 		  ButtonGroup ButtonPressed
 		    OkButton 205, 85, 50, 15
 		    CancelButton 260, 85, 50, 15
@@ -814,10 +815,20 @@ Do
 		dialog Dialog1
 		cancel_confirmation
 
+		If form_received = "None Received" Then
+			interview_information = "N/A"
+			verifs_received = "N/A"
+			err_msg = "LOOP"
+		End If
+
 		If feb_process = "Select One..." Then err_msg = err_msg & vbCr & "* Select the process that was due for 02/22."
 		If process_complete = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the process was completed and case would have been able to be processedd and 'APP'd with the everything on file."
 		If form_received = "Select One..." Then err_msg = err_msg & vbCr & "* Select which form was submitted or indicate that no form was received."
-		If form_received <> "Select One..." and form_received <> "None Received" and IsDate(form_received_date) = False Then  err_msg = err_msg & vbCr & "* Since a form was received, enter a valid date for the date the form was received."
+		If form_received <> "Select One..." and form_received <> "None Received" Then
+			If IsDate(form_received_date) = False Then err_msg = err_msg & vbCr & "* Since a form was received, enter a valid date for the date the form was received."
+			If interview_information = "N/A" Then err_msg = err_msg & vbCr & "* Interview cannot be 'N/A' if the form was received, identify if the interview was complete, incomplete, or not reqquired."
+			If verifs_received = "N/A" Then err_msg = err_msg & vbCr & "* Verifications cannot be 'N/A' if the form was received, identify if verifications were complete, partial, none received, or not needed."
+		End If
 		If interview_information = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate hwat happened with the interview process."
 		If interview_information = "Completed" and IsDate(interview_date) = False Then  err_msg = err_msg & vbCr & "* Since the interview was completed, enter a valid date for the date the interview was completed."
 		If verifs_received = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate the status of the verifications for this case in the 02/22 report process."
@@ -825,7 +836,7 @@ Do
 		If process_complete = "Yes" and interview_information = "Incomplete" Then err_msg = err_msg & vbCr & "* If the process is complete, the interview should not be listed as 'Incomplete' - it should either be 'Not Required' or 'Completed'."
 		If process_complete = "Yes" and verifs_received = "Partial" Then err_msg = err_msg & vbCr & "* If the process is complete, verifications received should not be 'Partial' - they should either be 'Complete' or 'None Needed'."
 
-		If err_msg <> "" then MsgBox "Please resolve to continue:" & vbCr & err_msg
+		If err_msg <> "" and left(err_msg, 4) <> "LOOP" then MsgBox "Please resolve to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
 
 	If process_complete = "No" Then calculation_needed = False
@@ -1127,7 +1138,7 @@ Do
 				  ButtonGroup ButtonPressed
 				    PushButton 175, 360, 30, 10, "CALC", calc_btn
 
-				  GroupBox 215, 5, 120, 115, "HH Composition"
+				  GroupBox 215, 5, 120, 110, "HH Composition"
 				  Text 230, 20, 65, 10, "Budgeted HH Size:"
 				  Text 300, 20, 15, 10, budgeted_hh_size
 				  Text 240, 40, 55, 10, "Correct HH Size:"
@@ -1139,6 +1150,8 @@ Do
 				  Text 300, 85, 25, 10, "$ " & standard_deduction_budgeted_amt
 				  Text 270, 100, 30, 10, "Correct:"
 				  Text 300, 100, 25, 10, "$ " & standard_deduction_correct_amt
+				  Text 220, 125, 50, 10, "Proration Date:"
+				  EditBox 275, 120, 60, 15, snap_proration_date
 				  'BUTTON
 				  GroupBox 340, 5, 210, 345, "Corrected Budget"
 				  Text 360, 20, 55, 10, " Earned Income:"
