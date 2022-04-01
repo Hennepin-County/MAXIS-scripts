@@ -2707,7 +2707,7 @@ this_year = DatePart("yyyy", date)
 this_month = MonthName(Month(date))
 
 statistics_excel_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Applications Statistics\" & this_year & " Statistics Tracking.xlsx"
-call excel_open(statistics_excel_file_path, False,  False, ObjStatsExcel, objStatsWorkbook)
+call excel_open(statistics_excel_file_path, True,  True, ObjStatsExcel, objStatsWorkbook)
 
 'Now we need to open the right worksheet
 'Select Case MonthName(Month(#2/15/21#)) 'will need to be updated for future dates and tracking
