@@ -7842,7 +7842,7 @@ Function determine_actions(case_assesment_text, next_steps_one, next_steps_two, 
 			next_steps_one = "We must strive to approve this case for the EXPEDITED package of " & expedited_package & " as soon as possible. Make every effort to complete the requirements of this delay and approve the case"
 
 			If do_we_have_applicant_id = False Then
-				add_msg = "Double check the case file for ANY document that can be used as an identity document.Advise resident to get us ANY form of ID they can, MNBenefits or the virtual dropbox may be quickest way to receive theis document."
+				add_msg = "Double check the case file for ANY document that can be used as an identity document.Advise resident to get us ANY form of ID they can, MNbenefits or the virtual dropbox may be quickest way to receive this document."
 				If next_steps_two = "" then
 					next_steps_two = add_msg
 				ElseIf next_steps_three = "" Then
@@ -8737,7 +8737,7 @@ Do
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 371, 320, "Interview Script Case number dialog"
 		  EditBox 75, 45, 60, 15, MAXIS_case_number
-		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNBenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
+		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
 		  EditBox 75, 85, 145, 15, worker_signature
 		  DropListBox 20, 275, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
 		  ButtonGroup ButtonPressed
@@ -8801,7 +8801,7 @@ EMReadScreen case_pw, 7, 21, 17
 If CAF_form = "CAF (DHS-5223)" Then CAF_form_name = "Combined Application Form"
 If CAF_form = "HUF (DHS-8107)" Then CAF_form_name = "Household Update Form"
 If CAF_form = "SNAP App for Srs (DHS-5223F)" Then CAF_form_name = "SNAP Application for Seniors"
-If CAF_form = "MNBenefits" Then CAF_form_name = "MNBenefits Web Form"
+If CAF_form = "MNbenefits" Then CAF_form_name = "MNbenefits Web Form"
 If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then CAF_form_name = "Combined Annual Renewal"
 
 If CAF_form = "SNAP App for Srs (DHS-5223F)" OR CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
@@ -10395,7 +10395,7 @@ If left(confirm_program_information_read, 4) <> "YES!" Then
 			  GroupBox 10, 15, 530, 345, "Program Information for cash, food, and child care programs"
 			  Text 15, 25, 505, 10, "How do you apply for help?"
 			  Text 20, 35, 505, 10, "If you do not have enough money to meet your basic needs, you can apply to find out if you are eligible for these assistance programs."
-			  Text 25, 45, 505, 10, "Apply online at mnbenefits.mn.gov."
+			  Text 25, 45, 505, 10, "Apply online at MNbenefits.mn.gov."
 			  Text 25, 55, 505, 10, "Mail or bring your completed application to your county human services agency"
 			  Text 20, 65, 505, 10, "Food and cash programs require an interview with a worker. Most of the time this can be a phone interview. You will need to bring proof of:"
 			  Text 20, 75, 505, 10, "- Who you are   - Where you live   - What family members live with you   - What your income is   - What you own."
@@ -10993,7 +10993,7 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 			  y_pos = y_pos + 10
 			  Text 20, y_pos, 505, 10, "In person - Not Available Currently"
 			  y_pos = y_pos + 10
-			  Text 20, y_pos, 505, 10, "Online - MNBenefits or InfoKeep"
+			  Text 20, y_pos, 505, 10, "Online - MNbenefits or InfoKeep"
               y_pos = y_pos + 20
 
               Text 15, y_pos, 250, 10, "Summarize what is happening with this case:"
