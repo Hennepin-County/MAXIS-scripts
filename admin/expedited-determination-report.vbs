@@ -173,6 +173,7 @@ Set objFolder = objFSO.GetFolder(exp_assignment_folder)										'Creates an oje
 Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
 
 'Open an existing Excel for the year
+txt_file_archive_path = t_drive & "\Eligibility Support\Assignments\Expedited Information\Archive\"
 report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination Report Out.xlsx"
 discovery_template_worklist_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Jake's Discovery\"
 worklist_template_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Exp Det Worklists\"
@@ -300,6 +301,7 @@ If report_selection = "Pull Data and Create Worklist" Then
 		approval_date_is_date = False
 		case_nbr_hold = ""
 	    this_file_path = objFile.Path
+		this_file_name = objFile.Name
 	    'Setting the object to open the text file for reading the data already in the file
 	    Set objTextStream = objFSO.OpenTextFile(this_file_path, ForReading)
 
@@ -369,7 +371,6 @@ If report_selection = "Pull Data and Create Worklist" Then
 	        End If
 	    Next
 	    total_excel_row = total_excel_row + 1										'advance to the next row
-		objWorkbook.Save()		'saving the excel
 		If create_a_test_worklist = True Then
 			If exp_det = True AND approval_date_is_date = False Then save_to_worklist = True
 			If exp_det = True AND approval_date_is_date = True Then
@@ -495,7 +496,6 @@ If report_selection = "Pull Data and Create Worklist" Then
 				End If
 			End If
 		Next
-		If save_to_worklist = True Then objWORKWorkbook.Save()		'saving the excel
 
 		' If create_a_test_worklist = False Then
 		'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
@@ -550,7 +550,8 @@ If report_selection = "Pull Data and Create Worklist" Then
 		STATS_counter = STATS_counter + 1
 		If save_to_worklist = True Then work_excel_row = work_excel_row + 1
 		objTextStream.Close						'we are done with this file, so we must close the access
-	    objFSO.DeleteFile(this_file_path)		'deleting the TXT file because hgave the information
+		objFSO.MoveFile this_file_path , txt_file_archive_path & this_file_name & ".txt"    'moving each file to the archive file
+	    ' objFSO.DeleteFile(this_file_path)		'deleting the TXT file because hgave the information
 	Next
 
 	If create_a_test_worklist = True then
@@ -689,6 +690,8 @@ If report_selection = "Combine Worklists" Then
 	'turn the new sheet to a table
 	'save all files
 	MsgBox "Stop here"
+
+	'ONCE THIS IS ALL DONE ADD FUNCTIONALITY TO DELETE ALL THE FILES IN THE ARCHIVE FOLDER OLDER THAN THE CURRENT WEEK - Since we know those are recorded.'
 End If
 
 'SAVE EXCEL'
