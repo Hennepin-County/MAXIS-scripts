@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/01/2022", "The functionality for Waiving an Interview has been removed. We can no longer waive SNAP Recerfication Interviews.", "Casey Love, Hennepin County")
 call changelog_update("03/17/2022", "BUG FIX##~##There have been reports of some of the required CASE:NOTEs missing from the script run at the end. We have updated some of the background functionality in this script to keep this from happening. If you notice issues with CASE:NOTEs missing at the end of this script run, report them to the BlueZone Script Team.", "Casey Love, Hennepin County")
 call changelog_update("12/20/2021", "Removal of interview completed button. ", "MiKayla Handley")
 call changelog_update("10/04/2021", "The CAF script now has 'SAVE YOUR WORK' functionality in testing. If the script fails, run it again on the same case and information should be filled back in to the dialog.##~##", "Casey Love, Hennepin County")
