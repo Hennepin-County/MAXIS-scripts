@@ -43,8 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/18/2022", "Update text from ApplyMN to online application.", "Ilse Ferris, Hennepin County")
-call changelog_update("03/10/2020", "Initial version.", "MiKayla Handley, Hennepin County")
+call changelog_update("03/31/2022", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -64,11 +63,10 @@ function search_for_info_in_note(date_of_app, confirmation_number, name_of_appli
 		Do
 			EMReadScreen case_note_header, 32, note_row, 25						'read the header and the date of the note
 			EMReadScreen case_note_date, 8, note_row, 6
-			' MsgBox "~" & case_note_date & "~"
 
 			case_note_header = trim(case_note_header)							'reformat the case note
 			If case_note_date <> "        " Then case_note_date = DateAdd("d", 0, case_note_date)		'make the date a date
-            'msgbox case_note_header
+
             'If it finds an application received case note for an online application
 			If case_note_header = "~ Application Received (ApplyMN)" or _
                 UCASE(case_note_header) = "~ APPLICATION RECEIVED (MNBENEFI" or _
@@ -220,3 +218,43 @@ end_msg = end_msg & "--------------------------------------------------" & vbCr 
 end_msg = end_msg & email_body
 
 call script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/31/2022
+'--Tab orders reviewed & confirmed----------------------------------------------03/31/2022
+'--Mandatory fields all present & Reviewed--------------------------------------03/31/2022
+'--All variables in dialog match mandatory fields-------------------------------03/31/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------03/31/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------03/31/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/31/2022-------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/31/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------03/31/2022-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------03/31/2022-------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------03/31/2022-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/31/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------03/31/2022-------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------03/31/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------03/31/2022-------------------N/A
+'--Denomination reviewed -------------------------------------------------------03/31/2022
+'--Script name reviewed---------------------------------------------------------03/31/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------03/31/2022-------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------
+'--comment Code-----------------------------------------------------------------03/31/2022
+'--Update Changelog for release/update------------------------------------------03/31/2022
+'--Remove testing message boxes-------------------------------------------------03/31/2022
+'--Remove testing code/unnecessary code-----------------------------------------03/31/2022
+'--Review/update SharePoint instructions----------------------------------------04/01/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/01/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/01/2022
+'--Complete misc. documentation (if applicable)---------------------------------03/31/2022
+'--Update project team/issue contact (if applicable)----------------------------03/31/2022
