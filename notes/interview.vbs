@@ -13124,8 +13124,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
                 If IsDate(faci_release_date) = True Then faci_release_date_new_one = DateAdd("d", 0, faci_release_date)
 				objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date_new_one
 				objTextStream.WriteLine "FACI RELEASE IN 30 DAYS ^*^*^" & release_within_30_days_yn
-				objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
-                objTextStream.WriteLine "TIME OF SCRIPT RUN ^*^*^" & time
+				objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & now
                 objTextStream.WriteLine "SCRIPT RUN ^*^*^INTERVIEW"
 
 				'Close the object so it can be opened again shortly
