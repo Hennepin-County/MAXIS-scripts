@@ -108,7 +108,7 @@ end function
 'Connecting to BlueZone
 EMConnect ""
 
-Call find_user_name(worker_name)						'defaulting the name of the suer running the script
+Call find_user_name(worker_name)						'defaulting the name of the user running the script
 Call check_for_MAXIS(True)								'make sure we are in MAXIS
 CALL MAXIS_case_number_finder(MAXIS_case_number)		'try to find the case number
 
@@ -159,7 +159,7 @@ DO
 
 		If ButtonPressed = collect_from_case_note_btn Then
 			err_msg = "LOOP" & err_msg
-			Call search_for_info_in_note(date_of_app, confirmation_number, name_of_applicant)		'Ths will call the in script function to fill in some of the fields
+			Call search_for_info_in_note(date_of_app, confirmation_number, name_of_applicant)		'This will call the in script function to fill in some of the fields
 		End If
 
         'Opening Case Assignment SharePoint Online Page
@@ -248,7 +248,7 @@ call script_end_procedure_with_error_report(end_msg)
 '--BULK - remove 1 incrementor at end of script reviewed------------------------03/31/2022-------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------
+'--Confirm all GitHub tasks are complete-----------------------------------------
 '--comment Code-----------------------------------------------------------------03/31/2022
 '--Update Changelog for release/update------------------------------------------03/31/2022
 '--Remove testing message boxes-------------------------------------------------03/31/2022
