@@ -540,6 +540,20 @@ script_array(script_num).hot_topic_date			= #1/19/2021#
 script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/NOTES-%E2%80%93-APPLICATION-CHECK-enhancement.aspx"
 script_array(script_num).used_for_elig			= False
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name			= "Application Inquiry"													'Script name
+' script_array(script_num).description 			= "Sends an Email request to search for an ApplyMN that is not in ECF."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "Support", "Utility")
+script_array(script_num).dlg_keys               = array("Oe")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #04/01/2022#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
@@ -1794,6 +1808,7 @@ script_array(script_num).tags                   = array("Application", "Support"
 script_array(script_num).dlg_keys               = array("Oe")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #08/11/2020#
+script_array(script_num).retirement_date		= #04/01/2022#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 

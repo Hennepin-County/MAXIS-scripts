@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/02/2022", "Retired Script - UTILITIES - LOST APPLYMN. This has been replaced by UTILITIES - APPLICATION INQUIRY.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/02/2022", "Retired Script - UTILITIES - Complete Phone CAF##~## ##~##MNBenefits is now live and is the the recommended tool to use to complete an application form for the resident over the phone. The script option is no longer available.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/01/2021", "New script - Open Interview PDF.##~####~##This script is companion to the NOTES - Interview script and provides access to notes/document created by the script if it has not yet been added to ECF.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/13/2020", "The script 'Waived ER Interview Screening' is now retired. A screening or review is no longer necessary to waive the ER Interview. All ER cases are eligible to have the interview waived. Information is available on SIR.", "Casey Love, Hennepin County")
