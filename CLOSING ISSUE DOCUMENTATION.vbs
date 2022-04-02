@@ -27,7 +27,7 @@
 '--BULK - remove 1 incrementor at end of script reviewed------------------------
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------
+'--Confirm all GitHub tasks are complete-----------------------------------------
 '--comment Code-----------------------------------------------------------------
 '--Update Changelog for release/update------------------------------------------
 '--Remove testing message boxes-------------------------------------------------
