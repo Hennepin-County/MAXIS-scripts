@@ -85,8 +85,9 @@ const det_correct_utility_cost_col 		= 44
 const det_correct_total_shel_cost_col 	= 45
 const det_correct_net_adj_income_col 	= 46
 const det_correct_hh_size_col 			= 47
-const det_correct_snap_benefit_col 		= 48
-const det_pdf_link_col 					= 49
+const det_snap_proration_col			= 48
+const det_correct_snap_benefit_col 		= 49
+const det_pdf_link_col 					= 50
 
 
 const rept_case_numb_col 		= 1
@@ -322,7 +323,7 @@ function budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_a
 	End If
 end function
 
-function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, output_type)
+function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, output_type)
 	' cat_elig - True/Fals
 
 	Call ensure_variable_is_a_number(total_income_correct_amt, 2)
@@ -332,6 +333,42 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 	Call ensure_variable_is_a_number(max_snap_benefit, 2)
 	Call ensure_variable_is_a_number(snap_issued_amt, 2)
 	Call ensure_variable_is_a_number(sanction_recoupment_correct_amt, 2)
+	If IsDate(snap_proration_date) = False Then
+		snap_proration_date = #2/1/2022#
+	Else
+		snap_proration_date = DateAdd("d", 0, snap_proration_date)
+	End If
+
+	proration_day = DatePart("d", snap_proration_date)
+	proration_percentage = 1.00
+	If proration_day = 2 Then proration_percentage = .9643
+	If proration_day = 3 Then proration_percentage = .9286
+	If proration_day = 4 Then proration_percentage = .8929
+	If proration_day = 5 Then proration_percentage = .8571
+	If proration_day = 6 Then proration_percentage = .8214
+	If proration_day = 7 Then proration_percentage = .7857
+	If proration_day = 8 Then proration_percentage = .7500
+	If proration_day = 9 Then proration_percentage = .7143
+	If proration_day = 10 Then proration_percentage = .6786
+	If proration_day = 11 Then proration_percentage = .6429
+	If proration_day = 12 Then proration_percentage = .6071
+	If proration_day = 13 Then proration_percentage = .5714
+	If proration_day = 14 Then proration_percentage = .5357
+	If proration_day = 15 Then proration_percentage = .5000
+	If proration_day = 16 Then proration_percentage = .4643
+	If proration_day = 17 Then proration_percentage = .4286
+	If proration_day = 18 Then proration_percentage = .3929
+	If proration_day = 19 Then proration_percentage = .3571
+	If proration_day = 20 Then proration_percentage = .3214
+	If proration_day = 21 Then proration_percentage = .2857
+	If proration_day = 22 Then proration_percentage = .2500
+	If proration_day = 23 Then proration_percentage = .2143
+	If proration_day = 24 Then proration_percentage = .1786
+	If proration_day = 25 Then proration_percentage = .1429
+	If proration_day = 26 Then proration_percentage = .1071
+	If proration_day = 27 Then proration_percentage = .0714
+	If proration_day = 28 Then proration_percentage = .0357
+	snap_proration_date = snap_proration_date & ""
 
 	snap_overpayment_exists = False
 	snap_supplement_exists = False
@@ -351,6 +388,10 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 		thirty_perc_of_net_income = 0.3 * net_adj_income_correct_amt
 		monthly_snap_benefit_correct_amt = max_snap_benefit - thirty_perc_of_net_income
 		monthly_snap_benefit_correct_amt = Int(monthly_snap_benefit_correct_amt)
+
+		monthly_snap_benefit_correct_amt = monthly_snap_benefit_correct_amt * proration_percentage
+		monthly_snap_benefit_correct_amt = Int(monthly_snap_benefit_correct_amt)
+
 		Call ensure_variable_is_a_number(monthly_snap_benefit_correct_amt, 2)
 		monthly_snap_benefit_correct_amt = monthly_snap_benefit_correct_amt * 1
 		sanction_recoupment_correct_amt = sanction_recoupment_correct_amt * 1
@@ -387,6 +428,14 @@ end function
 ' function budget_calculate_mfip(, output_type)
 '
 ' end function
+function read_amount_from_MAXIS(variable_here, length, row, col)
+	EMReadScreen variable_here, length, row, col
+	variable_here = trim(variable_here)
+	If variable_here = "" Then variable_here = 0
+	If IsNumeric(variable_here) = False Then variable_here = 0
+	variable_here = FormatNumber(variable_here, decimal_places, -1, 0, 0)
+	' variable_here = variable_here *1
+end function
 
 'Connecting to MAXIS
 EMConnect ""
@@ -561,17 +610,7 @@ If SNAP_active = True Then
 	EMWriteScreen version_numb, 19, 78
 	transmit
 
-	function read_amount_from_MAXIS(variable_here, length, row, col)
-		EMReadScreen variable_here, length, row, col
-		variable_here = trim(variable_here)
-		If variable_here = "" Then variable_here = 0
-		If IsNumeric(variable_here) = False Then variable_here = 0
-		variable_here = FormatNumber(variable_here, decimal_places, -1, 0, 0)
-		' variable_here = variable_here *1
-	end function
-
 	write_value_and_transmit "FSCR", 19, 70
-
 
 	write_value_and_transmit "FSB1", 19, 70
 	Call read_amount_from_MAXIS(earned_income_budgeted_amt, 10, 8, 31)
@@ -617,6 +656,7 @@ If SNAP_active = True Then
 	snap_issued_amt = snap_issued_amt*1
 	fed_benefit_amt = fed_benefit_amt*1
 	state_benefit_amt = state_benefit_amt*1
+	If fed_benefit_amt = 0 AND state_benefit_amt = 0 Then fed_benefit_amt = snap_issued_amt
 
 	fed_percent = fed_benefit_amt/snap_issued_amt
 	state_percent = state_benefit_amt/snap_issued_amt
@@ -639,11 +679,6 @@ If SNAP_active = True Then
 	other_cost_correct_amt = other_cost_budgeted_amt
 	utilities_correct_amt = utilities_budgeted_amt
 
-	Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
-	Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
-	Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
-	Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
-	Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, "STRING")
 
 
 	' 978321
@@ -838,6 +873,13 @@ Do
 
 		If err_msg <> "" and left(err_msg, 4) <> "LOOP" then MsgBox "Please resolve to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
+
+	If IsDate(form_received_date) = True Then snap_proration_date = form_received_date
+	Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
+	Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
+	Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
+	Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
+	Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, "STRING")
 
 	If process_complete = "No" Then calculation_needed = False
 
@@ -1240,7 +1282,7 @@ Do
 				Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, output_type)
 				Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, output_type)
 				Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, output_type)
-				Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, output_type)
+				Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, output_type)
 
 			Loop until ButtonPressed = snap_claculation_done_btn
 			rent_mortgage_correct_amt = rent_mortgage_correct_amt * 1
@@ -1354,7 +1396,7 @@ Do
 		Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
 		Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
 		Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
-		Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, "STRING")
+		Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, "STRING")
 	End If
 
 	' LOOP UNTIL THIS IS CONFIRMED
@@ -1380,7 +1422,7 @@ If snap_overpayment_exists = True Then
 	objSelection.Font.Name = "Arial"											'Setting the font before typing
 	objSelection.Font.Size = "16"
 	objSelection.Font.Bold = TRUE
-	objSelection.TypeText "SNAP Overpayment"
+	objSelection.TypeText "SNAP Overpayment - Case # " & MAXIS_case_number
 	objSelection.TypeParagraph()
 	objSelection.Font.Size = "12"
 	objSelection.Font.Bold = FALSE
@@ -1419,6 +1461,9 @@ If snap_overpayment_exists = True Then
 	End If
 	process_info.Cell(4, 1).Range.Text = "Verifications"
 	process_info.Cell(4, 2).Range.Text = verifs_received
+	process_info.Cell(4, 3).Range.Text = "Proration Date"
+	process_info.Cell(4, 4).Range.Text = snap_proration_date
+
 	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 	objSelection.TypeParagraph()
 
@@ -1517,7 +1562,7 @@ If snap_overpayment_exists = True Then
 	snap_op_table.Cell(29, 2).Range.Text = "$  " & monthly_snap_benefit_correct_amt
 	snap_op_table.Cell(30, 1).Range.Text = chr(9) & "Drug felon sanction/Recoupment"
 	snap_op_table.Cell(30, 2).Range.Text = "$  " & sanction_recoupment_correct_amt
-	snap_op_table.Cell(31, 1).Range.Text = "Correct SNAP Benefit Smount"
+	snap_op_table.Cell(31, 1).Range.Text = "Correct SNAP Benefit Amount"
 	snap_op_table.Cell(31, 2).Range.Text = "$  " & snap_correct_amt
 	snap_op_table.Cell(32, 1).Range.Text = "Benefit Amount Issued"
 	snap_op_table.Cell(32, 2).Range.Text = "$  " & snap_issued_amt
@@ -1633,6 +1678,7 @@ ObjDetailsExcel.Cells(total_excel_row, det_correct_utility_cost_col).Value 		= u
 ObjDetailsExcel.Cells(total_excel_row, det_correct_total_shel_cost_col).Value 	= total_shelter_cost_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_correct_net_adj_income_col).Value 	= net_adj_income_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_correct_hh_size_col).Value 			= correct_hh_size
+ObjDetailsExcel.Cells(total_excel_row, det_snap_proration_col).Value 			= snap_proration_date
 ObjDetailsExcel.Cells(total_excel_row, det_correct_snap_benefit_col).Value 		= snap_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_pdf_link_col).Value					= ""
 If pdf_doc_path <> "" Then ObjDetailsExcel.Cells(total_excel_row, det_pdf_link_col).Value 				= "=HYPERLINK(" & chr(34) & pdf_doc_path & chr(34) & ", " & chr(34) & "AutoClose Pause OP Calculation - CASE " & MAXIS_case_number & ".pdf" & chr(34) & ")"
