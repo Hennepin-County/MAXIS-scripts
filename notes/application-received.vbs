@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("03/29/2022", "Removed APPLYMN as application option.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/11/2022", "Added randomizer functionality for Adults appplications that appear expedited. Caseloads suggested will be either EX1 or EX2", "Ilse Ferris, Hennepin County")
 call changelog_update("03/07/2022", "Updated METS retro contact from Team 601 to Team 603.", "Ilse Ferris, Hennepin County")
 call changelog_update("1/6/2022", "The script no longer allows you to change the Appointment Notice date if one is required based on the pending programs. This change is to ensure compliance with notification requirements of the On Demand Waiver.", "Casey Love, Hennepin County")
@@ -69,7 +70,7 @@ call changelog_update("12/18/2020", "Temporarily removed in person option for ho
 call changelog_update("12/18/2020", "Update to make confirmation number mandatory for MN Benefit application.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/15/2020", "Updated droplist to add virtual drop box option to how the application was received.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/13/2020", "Enhanced date evaluation functionality when which determining HEST standards to use.", "Ilse Ferris, Hennepin County")
-CALL changelog_update("08/24/2020", "Added MN Benefits application and removed SHIBA and apply MN options.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("08/24/2020", "Added Mnbenefits application and removed SHIBA and apply MN options.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/24/2020", "Added SHIBA application and combined CA and NOTES scripts.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/10/2020", "Email functionality removed for Triagers.", "MiKayla Handley, Hennepin County")
@@ -229,7 +230,7 @@ End If
 ' BeginDialog Dialog1, 0, 0, 266, 335, "Application Received for: & programs_applied_for & on & date"
 '   GroupBox 5, 5, 255, 120, "Application Information"
 '   DropListBox 85, 40, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
-'   DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
+'   DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
 '   EditBox 85, 85, 95, 15, confirmation_number
 '   DropListBox 85, 105, 170, 45, "", List2
 '   Text 15, 20, 65, 10, "Date of Application:"
@@ -277,7 +278,7 @@ Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
   GroupBox 5, 5, 255, 120, "Application Information"
   DropListBox 85, 40, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
-  DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"ApplyMN"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
+  DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
   EditBox 85, 85, 95, 15, confirmation_number
   DropListBox 85, 105, 170, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
   Text 15, 25, 65, 10, "Date of Application:"
@@ -373,8 +374,7 @@ Do
 	    IF how_application_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
         'IF application_type = "N/A" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter in other notes what type of application was received to the agency."
 	    IF application_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-        IF application_type = "ApplyMN" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If an ApplyMN app was received, you must enter the confirmation number and time received."
-        IF application_type = "MN Benefits" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MN Benefits app was received, you must enter the confirmation number and time received."
+        IF application_type = "MNbenefits" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MNbenefits app was received, you must enter the confirmation number and time received."
         If population_of_case = "Select One:" then err_msg = err_msg & vbNewLine & "* Please indicate the population or specialty of the case."
         If snap_status = "PENDING" Then
             If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
@@ -778,7 +778,7 @@ IF send_appt_ltr = TRUE THEN        'If we are supposed to be sending an applien
     Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
     Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
     Call write_variable_in_SPEC_MEMO(" ")
-    CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.mn.gov **")
+    CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
     CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
     CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
     CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")

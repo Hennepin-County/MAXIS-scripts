@@ -167,7 +167,7 @@ Call write_variable_in_SPEC_MEMO(" ")
 Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
 Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
 Call write_variable_in_SPEC_MEMO(" ")
-CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNBenefits.mn.gov **")
+CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
 CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
 CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
 CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")

@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/29/2022", "Removed ApplyMN as application type option.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/09/2022", "For MFIP Applications an MFIP Orientation to Financial Services is required and should be completed during the interview.##~## ##~##Currently, the script does not have functionality to support the details of the MFIP Orientation Requuirement. This functionality is in the process of being built and tested.##~## ##~##Until that update is complete and ready to be released, we have added a dialog with referece links to the policy requirements that will serve as a placeholder for when to complete the MFIP Orientation during the Interview.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/29/2021", "TESTING UPDATES##~##We made a couple changes.##~## ##~##Added a 'Worker Signature' box to the first dialog as that was missing.##~##Updated the look of the first dialog and added some guidance in pop-up boxes.##~##Changed the 'Error Message' handling in the dialog so if you have to 'BACK' to a question from the last page, it will let you.##~##Removed the 'Update PROG' functionality, since it is broken.##~## ##~##Another addition is a new tool in UTILITIES to open a PDF that was previously created. Go try it out!##~##", "Casey Love, Hennepin County")
 call changelog_update("07/02/2021", "Initial version.", "Casey Love, Hennepin County")
@@ -7841,7 +7842,7 @@ Function determine_actions(case_assesment_text, next_steps_one, next_steps_two, 
 			next_steps_one = "We must strive to approve this case for the EXPEDITED package of " & expedited_package & " as soon as possible. Make every effort to complete the requirements of this delay and approve the case"
 
 			If do_we_have_applicant_id = False Then
-				add_msg = "Double check the case file for ANY document that can be used as an identity document.Advise resident to get us ANY form of ID they can, MNBenefits or the virtual dropbox may be quickest way to receive theis document."
+				add_msg = "Double check the case file for ANY document that can be used as an identity document.Advise resident to get us ANY form of ID they can, MNbenefits or the virtual dropbox may be quickest way to receive this document."
 				If next_steps_two = "" then
 					next_steps_two = add_msg
 				ElseIf next_steps_three = "" Then
@@ -8736,7 +8737,7 @@ Do
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 371, 320, "Interview Script Case number dialog"
 		  EditBox 75, 45, 60, 15, MAXIS_case_number
-		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNBenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
+		  DropListBox 75, 65, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", CAF_form
 		  EditBox 75, 85, 145, 15, worker_signature
 		  DropListBox 20, 275, 335, 45, "Alert at the time you attempt to save each page of the dialog."+chr(9)+"Alert only once completing and leaving the final dialog.", select_err_msg_handling
 		  ButtonGroup ButtonPressed
@@ -8800,8 +8801,7 @@ EMReadScreen case_pw, 7, 21, 17
 If CAF_form = "CAF (DHS-5223)" Then CAF_form_name = "Combined Application Form"
 If CAF_form = "HUF (DHS-8107)" Then CAF_form_name = "Household Update Form"
 If CAF_form = "SNAP App for Srs (DHS-5223F)" Then CAF_form_name = "SNAP Application for Seniors"
-If CAF_form = "ApplyMN" Then CAF_form_name = "ApplyMN Web Form"
-If CAF_form = "MNBenefits" Then CAF_form_name = "MNBenefits Web Form"
+If CAF_form = "MNbenefits" Then CAF_form_name = "MNbenefits Web Form"
 If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then CAF_form_name = "Combined Annual Renewal"
 
 If CAF_form = "SNAP App for Srs (DHS-5223F)" OR CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
@@ -10395,7 +10395,7 @@ If left(confirm_program_information_read, 4) <> "YES!" Then
 			  GroupBox 10, 15, 530, 345, "Program Information for cash, food, and child care programs"
 			  Text 15, 25, 505, 10, "How do you apply for help?"
 			  Text 20, 35, 505, 10, "If you do not have enough money to meet your basic needs, you can apply to find out if you are eligible for these assistance programs."
-			  Text 25, 45, 505, 10, "Apply online at MNBenefits.org or www.applymn.dhs.mn.gov"
+			  Text 25, 45, 505, 10, "Apply online at MNbenefits.mn.gov."
 			  Text 25, 55, 505, 10, "Mail or bring your completed application to your county human services agency"
 			  Text 20, 65, 505, 10, "Food and cash programs require an interview with a worker. Most of the time this can be a phone interview. You will need to bring proof of:"
 			  Text 20, 75, 505, 10, "- Who you are   - Where you live   - What family members live with you   - What your income is   - What you own."
@@ -10658,7 +10658,7 @@ If family_cash_case_yn = "Yes" Then
 	If absent_parent_yn = "Yes" Then
 		'In cases where there is at least 1 non-custodial parent:
 			'Understanding Child Support - A Handbook for Parents (DHS-3393) (PDF).
-			'Referral to Support and Collections (DHS-3163B) (PDF). (This is in addition to the Combined Application Form or ApplyMN application, for EACH non-custodial parent). See 0012.21.03 (Support From Non-Custodial Parents).
+			'Referral to Support and Collections (DHS-3163B) (PDF). (This is in addition to the Combined Application Form, for EACH non-custodial parent). See 0012.21.03 (Support From Non-Custodial Parents).
 			'Cooperation with Child Support Enforcement (DHS-2338) (PDF). See 0012.21.06 (Child Support Good Cause Exemptions).
 		'If a non-parental caregiver applies,
 			'MFIP Child Only Assistance (DHS-5561) (PDF).
@@ -10993,7 +10993,7 @@ If left(confirm_recap_read, 4) <> "YES!" Then
 			  y_pos = y_pos + 10
 			  Text 20, y_pos, 505, 10, "In person - Not Available Currently"
 			  y_pos = y_pos + 10
-			  Text 20, y_pos, 505, 10, "Online - MNBenefits or InfoKeep"
+			  Text 20, y_pos, 505, 10, "Online - MNbenefits or InfoKeep"
               y_pos = y_pos + 20
 
               Text 15, y_pos, 250, 10, "Summarize what is happening with this case:"
@@ -13124,7 +13124,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
                 If IsDate(faci_release_date) = True Then faci_release_date_new_one = DateAdd("d", 0, faci_release_date)
 				objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date_new_one
 				objTextStream.WriteLine "FACI RELEASE IN 30 DAYS ^*^*^" & release_within_30_days_yn
-				objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
+				objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & now
                 objTextStream.WriteLine "SCRIPT RUN ^*^*^INTERVIEW"
 
 				'Close the object so it can be opened again shortly

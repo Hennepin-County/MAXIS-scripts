@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/01/2022", "The functionality for Waiving an Interview has been removed. We can no longer waive SNAP Recertification Interviews.", "Casey Love, Hennepin County")
 call changelog_update("03/17/2022", "BUG FIX##~##There have been reports of some of the required CASE:NOTEs missing from the script run at the end. We have updated some of the background functionality in this script to keep this from happening. If you notice issues with CASE:NOTEs missing at the end of this script run, report them to the BlueZone Script Team.", "Casey Love, Hennepin County")
 call changelog_update("12/20/2021", "Removal of interview completed button. ", "MiKayla Handley")
 call changelog_update("10/04/2021", "The CAF script now has 'SAVE YOUR WORK' functionality in testing. If the script fails, run it again on the same case and information should be filled back in to the dialog.##~##", "Casey Love, Hennepin County")
@@ -792,7 +793,7 @@ Function determine_actions(case_assesment_text, next_steps_one, next_steps_two, 
 			next_steps_one = "We must strive to approve this case for the EXPEDITED package of " & expedited_package & " as soon as possible. Make every effort to complete the requirements of this delay and approve the case"
 
 			If do_we_have_applicant_id = False Then
-				add_msg = "Double check the case file for ANY document that can be used as an identity document.Advise resident to get us ANY form of ID they can, MNBenefits or the virtual dropbox may be quickest way to receive theis document."
+				add_msg = "Double check the case file for ANY document that can be used as an identity document.Advise resident to get us ANY form of ID they can, MNbenefits or the virtual dropbox may be quickest way to receive this document."
 				If next_steps_two = "" then
 					next_steps_two = add_msg
 				ElseIf next_steps_three = "" Then
@@ -1009,10 +1010,8 @@ function save_your_work()
             objTextStream.WriteLine "CAF_datestamp" & "^~^~^~^~^~^~^" & CAF_datestamp
             objTextStream.WriteLine "interview_date" & "^~^~^~^~^~^~^" & interview_date
             objTextStream.WriteLine "SNAP_recert_is_likely_24_months" & "^~^~^~^~^~^~^" & SNAP_recert_is_likely_24_months
-            objTextStream.WriteLine "check_for_waived_interview" & "^~^~^~^~^~^~^" & check_for_waived_interview
             objTextStream.WriteLine "exp_screening_note_found" & "^~^~^~^~^~^~^" & exp_screening_note_found
             objTextStream.WriteLine "interview_required" & "^~^~^~^~^~^~^" & interview_required
-            objTextStream.WriteLine "interview_waived" & "^~^~^~^~^~^~^" & interview_waived
             objTextStream.WriteLine "xfs_screening" & "^~^~^~^~^~^~^" & xfs_screening
             objTextStream.WriteLine "xfs_screening_display" & "^~^~^~^~^~^~^" & xfs_screening_display
             objTextStream.WriteLine "caf_one_income" & "^~^~^~^~^~^~^" & caf_one_income
@@ -1380,10 +1379,8 @@ function save_your_work()
             script_run_lowdown = script_run_lowdown & vbCr & "CAF_datestamp" & ": " & CAF_datestamp
             script_run_lowdown = script_run_lowdown & vbCr & "interview_date" & ": " & interview_date
             script_run_lowdown = script_run_lowdown & vbCr & "SNAP_recert_is_likely_24_months" & ": " & SNAP_recert_is_likely_24_months
-            script_run_lowdown = script_run_lowdown & vbCr & "check_for_waived_interview" & ": " & check_for_waived_interview
             script_run_lowdown = script_run_lowdown & vbCr & "exp_screening_note_found" & ": " & exp_screening_note_found
             script_run_lowdown = script_run_lowdown & vbCr & "interview_required" & ": " & interview_required
-            script_run_lowdown = script_run_lowdown & vbCr & "interview_waived" & ": " & interview_waived
             script_run_lowdown = script_run_lowdown & vbCr & "xfs_screening" & ": " & xfs_screening
             script_run_lowdown = script_run_lowdown & vbCr & "xfs_screening_display" & ": " & xfs_screening_display
             script_run_lowdown = script_run_lowdown & vbCr & "caf_one_income" & ": " & caf_one_income
@@ -1843,18 +1840,12 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "SNAP_recert_is_likely_24_months" Then SNAP_recert_is_likely_24_months = line_info(1)
                         If UCase(SNAP_recert_is_likely_24_months) = "TRUE" Then SNAP_recert_is_likely_24_months = True
                         If UCase(SNAP_recert_is_likely_24_months) = "FALSE" Then SNAP_recert_is_likely_24_months = False
-                        If line_info(0) = "check_for_waived_interview" Then check_for_waived_interview = line_info(1)
-                        If UCase(check_for_waived_interview) = "TRUE" Then check_for_waived_interview = True
-                        If UCase(check_for_waived_interview) = "FALSE" Then check_for_waived_interview = False
                         If line_info(0) = "exp_screening_note_found" Then exp_screening_note_found = line_info(1)
                         If UCase(exp_screening_note_found) = "TRUE" Then exp_screening_note_found = True
                         If UCase(exp_screening_note_found) = "FALSE" Then exp_screening_note_found = False
                         If line_info(0) = "interview_required" Then interview_required = line_info(1)
                         If UCase(interview_required) = "TRUE" Then interview_required = True
                         If UCase(interview_required) = "FALSE" Then interview_required = False
-                        If line_info(0) = "interview_waived" Then interview_waived = line_info(1)
-                        If UCase(interview_waived) = "TRUE" Then interview_waived = True
-                        If UCase(interview_waived) = "FALSE" Then interview_waived = False
                         If line_info(0) = "xfs_screening" Then xfs_screening = line_info(1)
                         If line_info(0) = "xfs_screening_display" Then xfs_screening_display = line_info(1)
                         If line_info(0) = "caf_one_income" Then caf_one_income = line_info(1)
@@ -4838,6 +4829,12 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     		If determined_utilities = "" Then determined_utilities = 0
             If calculated_resources = "" Then calculated_resources = 0
             If calculated_expenses = "" Then calculated_expenses = 0
+            If IsNumeric(determined_income) = False Then determined_income = 0
+            If IsNumeric(determined_assets) = False Then determined_assets = 0
+            If IsNumeric(determined_shel) = False Then determined_shel = 0
+            If IsNumeric(determined_utilities) = False Then determined_utilities = 0
+            If IsNumeric(calculated_resources) = False Then calculated_resources = 0
+            If IsNumeric(calculated_expenses) = False Then calculated_expenses = 0
 
     		determined_income = FormatNumber(determined_income, 2, -1, 0, -1) & ""
     		determined_assets = FormatNumber(determined_assets, 2, -1, 0, -1) & ""
@@ -5374,8 +5371,8 @@ manual_amount_used = FALSE
 Dim row, col, number_verifs_checkbox, verifs_postponed_checkbox, notes_on_cses
 Dim MAXIS_footer_month, MAXIS_footer_year, CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox, cash_checkbox, SNAP_checkbox, EMER_checkbox, HC_checkbox, CAF_form, cash_other_req_detail
 Dim snap_other_req_detail, emer_other_req_detail, adult_cash, family_cash, the_process_for_cash, type_of_cash, cash_recert_mo, cash_recert_yr, the_process_for_snap, snap_recert_mo, snap_recert_yr
-Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, CAF_type, CAF_datestamp, interview_date, SNAP_recert_is_likely_24_months, check_for_waived_interview, exp_screening_note_found, interview_required
-Dim interview_waived, xfs_screening, xfs_screening_display, caf_one_income, caf_one_assets, caf_one_resources, caf_one_rent, caf_one_utilities, caf_one_expenses, exp_det_case_note_found
+Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, CAF_type, CAF_datestamp, interview_date, SNAP_recert_is_likely_24_months, exp_screening_note_found, interview_required
+Dim xfs_screening, xfs_screening_display, caf_one_income, caf_one_assets, caf_one_resources, caf_one_rent, caf_one_utilities, caf_one_expenses, exp_det_case_note_found
 Dim snap_exp_yn, snap_denial_date, interview_completed_case_note_found, interview_with, interview_type, verifications_requested_case_note_found, verifs_needed, caf_qualifying_questions_case_note_found
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five, appt_notc_sent_on
 Dim appt_date_in_note, addr_line_one, addr_line_two, city, state, zip, addr_county, homeless_yn, reservation_yn, addr_verif, living_situation, addr_eff_date, addr_future_date, mail_line_one
@@ -5441,7 +5438,7 @@ BeginDialog Dialog1, 0, 0, 281, 185, "CAF Script Case number dialog"
   CheckBox 10, 55, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 50, 55, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 90, 55, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 135, 55, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MN Benefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 135, 55, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   EditBox 40, 100, 220, 15, cash_other_req_detail
   EditBox 40, 120, 220, 15, snap_other_req_detail
   EditBox 40, 140, 220, 15, emer_other_req_detail
@@ -5828,23 +5825,10 @@ If vars_filled = False Then
     End If
 
     'THIS IS HANDLING SPECIFICALLY AROUND THE ALLOWANCE TO WAIVE INTERVIEWS FOR RENEWALS IN EFFECT STARTING FOR 04/21 REVW
-    check_for_waived_interview = FALSE
     exp_screening_note_found = False
-    interview_waived = FALSE
     interview_required = FALSE
 
-    If the_process_for_snap = "Recertification" Then check_for_waived_interview = TRUE
-    If the_process_for_cash = "Recertification" AND type_of_cash = "Family" Then check_for_waived_interview = TRUE
-
     If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
-
-    If check_for_waived_interview = TRUE AND interview_required = TRUE Then
-        interview_is_being_waived = MsgBox("Renewals can be processed without an interview per DHS." & vbNewLine & vbNewLine & " --- Are you waiving the interview? ---" & vbNewLine & vbNewLine & "clicking 'YES' will will prevent the script from requiring Interview Detail.", vbquestion + vbYesNo, "")
-        If interview_is_being_waived = vbYes Then
-            interview_required = FALSE
-            interview_waived = TRUE
-        End If
-    End If
 
     MAXIS_case_number = trim(MAXIS_case_number)
 
@@ -8560,7 +8544,7 @@ If CAF_type = "Application" Then        'Interview date is not on PROG for recer
 End If
 
 If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then
-    If interview_required = TRUE or interview_waived = TRUE Then
+    If interview_required = TRUE Then
         revw_panel_update_needed = FALSE
         Call Navigate_to_MAXIS_screen("STAT", "REVW")
         EMReadScreen STAT_REVW_caf_date, 8, 13, 37
@@ -8569,7 +8553,6 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
         If STAT_REVW_intvw_date = "__ __ __" Then revw_panel_update_needed = TRUE
 
         If revw_panel_update_needed = TRUE Then
-            If interview_waived = TRUE AND trim(interview_date) = "" Then interview_date = date
             EMReadScreen cash_stat_revw_status, 1, 7, 40
             EMReadScreen snap_stat_revw_status, 1, 7, 60
 
@@ -8584,7 +8567,6 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
               ButtonGroup ButtonPressed
                 OkButton 185, 145, 50, 15
               Text 20, 30, 50, 10, "Interview Date:"
-              If interview_is_being_waived = vbYes Then Text 125, 25, 105, 35, "THIS INTERVIEW WAS WAIVED. Today's date will be used."
               Text 35, 50, 35, 10, "CAF Date:"
               Text 20, 70, 175, 20, "If the REVW Status has not been updated already, it will be changed to an 'I' when the dates are entered."
               Text 20, 110, 220, 10, "Reason REVW should not be updated with the Interview/CAF Date:"
@@ -8641,8 +8623,6 @@ If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertifi
                     If revw_intv_date_updated = FALSE Then MsgBox fail_msg
                 End If
             End If
-
-            If interview_is_being_waived = vbYes AND interview_date = date Then interview_date = ""
         End If
     End If
 End If
@@ -9393,7 +9373,7 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
                 If IsDate(faci_release_date) = True Then faci_release_date = DateAdd("d", 0, faci_release_date)
         		objTextStream.WriteLine "FACI RELEASE DATE ^*^*^" & faci_release_date
         		objTextStream.WriteLine "FACI RELEASE IN 30 DAYS ^*^*^" & release_within_30_days_yn
-        		objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & date
+        		objTextStream.WriteLine "DATE OF SCRIPT RUN ^*^*^" & now
                 objTextStream.WriteLine "SCRIPT RUN ^*^*^CAF"
 
         		'Close the object so it can be opened again shortly
@@ -9641,33 +9621,6 @@ interview_note = FALSE
 'Interview Incomfation Detail Case Note
 'Navigates to case note, and checks to make sure we aren't in inquiry.
 ' If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then
-If interview_waived = False Then case_notes_information = case_notes_information & "No Interview Waived NOTE Attempted - interview waived is false %^% %^%"
-If interview_waived = TRUE Then
-    case_notes_information = case_notes_information & "Interview Waived NOTE Attempted %^%"
-    case_notes_information = case_notes_information & "Script Header - " & "Interview for the Renewal was WAIVED" & " %^%"
-    Call start_a_blank_CASE_NOTE
-
-    CALL write_variable_in_CASE_NOTE("Interview for the Renewal was WAIVED")
-    CALL write_variable_in_CASE_NOTE("---")
-    If the_process_for_snap = "Recertification" Then CALL write_variable_in_CASE_NOTE("Interview for the " & snap_recert_mo & "/" & snap_recert_yr & " SNAP RENEWAL has been waived.")
-    If the_process_for_cash = "Recertification" AND family_cash = TRUE Then CALL write_variable_in_CASE_NOTE("Interview for the " & cash_recert_mo & "/" &  cash_recert_yr & " MFIP RENEWAL has been waived.")
-    CALL write_variable_in_CASE_NOTE("---")
-    CALL write_variable_in_CASE_NOTE("***A Waiver has been granted allowing:")
-    CALL write_variable_in_CASE_NOTE("  - Processing of SNAP Annual Renewals to match the process of Six-Month")
-    CALL write_variable_in_CASE_NOTE("    Renewals, which do not require interviews.")
-    CALL write_variable_in_CASE_NOTE("  - Waiving of Interviews for MFIP cases in some situations.")
-    CALL write_variable_in_CASE_NOTE("-- THIS WAIVER CANNOT APPLY TO NEW PROGRAM APPLICATIONS --")
-    CALL write_variable_in_CASE_NOTE("Details can be seen in a SIR announcement on 4/14/2021")
-    CALL write_variable_in_CASE_NOTE("---")
-    CALL write_variable_in_CASE_NOTE(worker_signature)
-
-    PF3
-    EMReadScreen top_note_header, 55, 5, 25
-    case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
-    save_your_work
-
-    Call back_to_SELF
-End If
 
 If interview_required = False or interview_completed_case_note_found = True Then
     case_notes_information = case_notes_information & "No Interview Completed NOTE Attempted "
@@ -10236,7 +10189,6 @@ END IF
 
 end_msg = "Success! " & CAF_form & " has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
-If interview_waived = TRUE Then end_msg = "INTERVIEW WAIVED" & vbCR & vbCr & end_msg
 
 save_your_work
 
