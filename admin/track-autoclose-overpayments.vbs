@@ -1678,7 +1678,7 @@ ObjDetailsExcel.Cells(total_excel_row, det_correct_utility_cost_col).Value 		= u
 ObjDetailsExcel.Cells(total_excel_row, det_correct_total_shel_cost_col).Value 	= total_shelter_cost_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_correct_net_adj_income_col).Value 	= net_adj_income_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_correct_hh_size_col).Value 			= correct_hh_size
-ObjDetailsExcel.Cells(total_excel_row, det_snap_proration_col).Value 			= snap_proration_date
+If calculation_needed = True Then ObjDetailsExcel.Cells(total_excel_row, det_snap_proration_col).Value 			= snap_proration_date
 ObjDetailsExcel.Cells(total_excel_row, det_correct_snap_benefit_col).Value 		= snap_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_pdf_link_col).Value					= ""
 If pdf_doc_path <> "" Then ObjDetailsExcel.Cells(total_excel_row, det_pdf_link_col).Value 				= "=HYPERLINK(" & chr(34) & pdf_doc_path & chr(34) & ", " & chr(34) & "AutoClose Pause OP Calculation - CASE " & MAXIS_case_number & ".pdf" & chr(34) & ")"
