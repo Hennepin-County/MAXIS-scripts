@@ -828,7 +828,7 @@ Do
 		BeginDialog Dialog1, 0, 0, 316, 105, "02/22 Report Process Information"
 		  DropListBox 180, 10, 60, 45, "Select One..."+chr(9)+"ER"+chr(9)+"SR"+chr(9)+"HRF", feb_process
 		  DropListBox 260, 25, 50, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", process_complete
-		  DropListBox 65, 45, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNBenefits"+chr(9)+"CSR"+chr(9)+"Combined AR", form_received
+		  DropListBox 65, 45, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNbenefits"+chr(9)+"CSR"+chr(9)+"Combined AR", form_received
 		  EditBox 260, 45, 50, 15, form_received_date
 		  DropListBox 65, 65, 90, 45, "Select One..."+chr(9)+"Not Required"+chr(9)+"Completed"+chr(9)+"Incomplete"+chr(9)+"N/A", interview_information
 		  EditBox 260, 65, 50, 15, interview_date
