@@ -213,6 +213,15 @@ IF IsDate(application_date) = False THEN                   'If we could NOT find
     application_date = pnd2_appl_date
 End if
 
+Call navigate_to_MAXIS_screen("SPEC", "MEMO")
+PF5
+EMReadScreen recipient_type, 6, 5, 15
+PF3
+If recipient_type <> "CLIENT" Then
+    script_run_lowdown = script_run_lowdown & vbCr & "First MEMO Recipient was: " & recipient_type
+    Call script_end_procedure_with_error_report("This case appears to have an issue with the ADDR panel. Proper case actions cannot occur if the ADDR panel is missing, blank, or has another error.")
+End If
+
 Call back_to_SELF
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 EMReadscreen last_name, 25, 6, 30
