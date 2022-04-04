@@ -142,25 +142,30 @@ create_a_test_worklist = True
 'If FALSE - the script WILL delete the files that fill in information
 '           The False option is run by Laurie weekly.
 If create_a_test_worklist = True Then EMConnect ""
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 
-'There is no EMConnect and no MAXIS checking because this script does not use MAXIS at all
 'Declaring the only dialog
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 246, 130, "Expedited Determination Report"
-  DropListBox 10, 55, 225, 45, "Pull Data and Create Worklist"+chr(9)+"Combine Worklists", report_selection
-  DropListBox 10, 110, 180, 45, "Yes - Keep the file open"+chr(9)+"No - Close the file", leave_excel_open
-  ButtonGroup ButtonPressed
-    OkButton 200, 110, 40, 15
-  Text 10, 10, 225, 30, "This script is used to pull reports around information gathered during the Expedited Determination script runs to provide insight in how we are handling Expedited SNAP in Hennepin County"
-  Text 10, 45, 155, 10, "Select which reporting option you need to run:"
-  Text 10, 75, 225, 10, "When the script is complete, the Excel will be saved."
-  Text 10, 90, 130, 20, "At the end of the script run, would you like the Excel file to remain open:"
-EndDialog
+Do
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 246, 130, "Expedited Determination Report"
+	  DropListBox 10, 55, 225, 45, "Pull Data and Create Worklist"+chr(9)+"Combine Worklists", report_selection
+	  DropListBox 10, 110, 180, 45, "Yes - Keep the file open"+chr(9)+"No - Close the file", leave_excel_open
+	  ButtonGroup ButtonPressed
+	    OkButton 200, 110, 40, 15
+	  Text 10, 10, 225, 30, "This script is used to pull reports around information gathered during the Expedited Determination script runs to provide insight in how we are handling Expedited SNAP in Hennepin County"
+	  Text 10, 45, 155, 10, "Select which reporting option you need to run:"
+	  Text 10, 75, 225, 10, "When the script is complete, the Excel will be saved."
+	  Text 10, 90, 130, 20, "At the end of the script run, would you like the Excel file to remain open:"
+	EndDialog
 
 
-'showing the dialog - there is no loop because there is nothing to manage and no password handling.
-dialog Dialog1
-cancel_confirmation
+	'showing the dialog - there is no loop because there is nothing to manage and no password handling.
+	dialog Dialog1
+	cancel_confirmation
+	If create_a_test_worklist = True Then CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	If create_a_test_worklist = False Then are_we_passworded_out = False					'loops until user passwords back in
+Loop until are_we_passworded_out = False					'loops until user passwords back in
 
 'defining the assignment folder
 exp_assignment_folder = t_drive & "\Eligibility Support\Assignments\Expedited Information"
@@ -168,6 +173,7 @@ Set objFolder = objFSO.GetFolder(exp_assignment_folder)										'Creates an oje
 Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
 
 'Open an existing Excel for the year
+txt_file_archive_path = t_drive & "\Eligibility Support\Assignments\Expedited Information\Archive\"
 report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination Report Out.xlsx"
 discovery_template_worklist_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Jake's Discovery\"
 worklist_template_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Exp Det Worklists\"
@@ -195,12 +201,12 @@ If report_selection = "Pull Data and Create Worklist" Then
 	' daily_discovery_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & date_header & " Worklist.xlsx"
 
 	If create_a_test_worklist = True Then
-		Call excel_open(worklist_template_file, True, True, ObjWORKExcel, objWORKWorkbook)  			'opens the selected excel file'
+		Call excel_open(worklist_template_file, False, False, ObjWORKExcel, objWORKWorkbook)  			'opens the selected excel file'
 		ObjWORKExcel.ActiveWorkbook.SaveAs current_worklist_path
 		ObjWORKExcel.worksheets("CASE LIST").Activate
 	End If
 
-	Call excel_open(report_out_file, True, True, ObjExcel, objWorkbook)  			'opens the selected excel file'
+	Call excel_open(report_out_file, False, False, ObjExcel, objWorkbook)  			'opens the selected excel file'
 	'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
 	' Call excel_open(discovery_template_file, True, True, ObjDISCExcel, objDISCWorkbook)  			'opens the selected excel file'
 
@@ -295,6 +301,7 @@ If report_selection = "Pull Data and Create Worklist" Then
 		approval_date_is_date = False
 		case_nbr_hold = ""
 	    this_file_path = objFile.Path
+		this_file_name = objFile.Name
 	    'Setting the object to open the text file for reading the data already in the file
 	    Set objTextStream = objFSO.OpenTextFile(this_file_path, ForReading)
 
@@ -486,7 +493,6 @@ If report_selection = "Pull Data and Create Worklist" Then
 					If line_info(0) = "DET SHEL" 						Then ObjWORKExcel.Cells(work_excel_row, work_shelter_col_const).Value = line_info(1)
 					If line_info(0) = "DET HEST" 						Then ObjWORKExcel.Cells(work_excel_row, work_utilities_col_const).Value = line_info(1)
 					If line_info(0) = "DATE OF SCRIPT RUN"              Then ObjWORKExcel.Cells(work_excel_row, work_script_run_date_col_const).Value = line_info(1)
-
 				End If
 			End If
 		Next
@@ -544,7 +550,8 @@ If report_selection = "Pull Data and Create Worklist" Then
 		STATS_counter = STATS_counter + 1
 		If save_to_worklist = True Then work_excel_row = work_excel_row + 1
 		objTextStream.Close						'we are done with this file, so we must close the access
-	    objFSO.DeleteFile(this_file_path)		'deleting the TXT file because hgave the information
+		objFSO.MoveFile this_file_path , txt_file_archive_path & this_file_name & ".txt"    'moving each file to the archive file
+	    ' objFSO.DeleteFile(this_file_path)		'deleting the TXT file because hgave the information
 	Next
 
 	If create_a_test_worklist = True then
@@ -555,6 +562,8 @@ If report_selection = "Pull Data and Create Worklist" Then
 
 			ObjWORKExcel.Application.Quit
 			ObjWORKExcel.Quit
+		Else
+			ObjWORKExcel.Visible = True
 		End If
 	End If
 
@@ -596,15 +605,13 @@ If report_selection = "Pull Data and Create Worklist" Then
 	objWorkbook.Save()		'saving the excel
 	' objDISCWorkbook.Save()		'saving the excel		'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
 
-	If leave_excel_open = "No - Close the file" Then		'if the file should be closed - it does it here.
-		objExcel.ActiveWorkbook.Close
-		' ObjDISCExcel.ActiveWorkbook.Close					'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
+	objExcel.ActiveWorkbook.Close
+	' ObjDISCExcel.ActiveWorkbook.Close					'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
 
-		objExcel.Application.Quit
-		objExcel.Quit
-		' ObjDISCExcel.Application.Quit						'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
-		' ObjDISCExcel.Quit
-	End If
+	objExcel.Application.Quit
+	objExcel.Quit
+	' ObjDISCExcel.Application.Quit						'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
+	' ObjDISCExcel.Quit
 End If
 
 If report_selection = "Combine Worklists" Then
@@ -683,6 +690,8 @@ If report_selection = "Combine Worklists" Then
 	'turn the new sheet to a table
 	'save all files
 	MsgBox "Stop here"
+
+	'ONCE THIS IS ALL DONE ADD FUNCTIONALITY TO DELETE ALL THE FILES IN THE ARCHIVE FOLDER OLDER THAN THE CURRENT WEEK - Since we know those are recorded.'
 End If
 
 'SAVE EXCEL'

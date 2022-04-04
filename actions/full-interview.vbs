@@ -6898,7 +6898,7 @@ BeginDialog Dialog1, 0, 0, 281, 105, "INTERVIEW Case number dialog"
   CheckBox 10, 45, 30, 10, "CASH", CASH_on_CAF_checkbox
   CheckBox 50, 45, 35, 10, "SNAP", SNAP_on_CAF_checkbox
   CheckBox 90, 45, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 135, 45, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 135, 45, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   EditBox 60, 65, 45, 15, interview_date
   ComboBox 165, 65, 110, 45, "Type or Select"+chr(9)+"phone"+chr(9)+"office", interview_type
   ButtonGroup ButtonPressed

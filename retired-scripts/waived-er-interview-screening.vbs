@@ -1024,7 +1024,7 @@ grp_len = 65 + UBound(ALL_CLIENTS_ARRAY, 2) * 15
 
 BeginDialog Dialog1, 0, 0, 541, dlg_len, "Household Information"
   Text 10, 15, 160, 10, "Which Recertification Form has been submitted?"
-  DropListBox 175, 10, 150, 45, "Select One..."+chr(9)+"Combined Application Form (CAF)"+chr(9)+"ApplyMN"+chr(9)+"MN Benefits"+chr(9)+"Combined Annual Renewal (CAR)", form_type_received
+  DropListBox 175, 10, 150, 45, "Select One..."+chr(9)+"Combined Application Form (CAF)"+chr(9)+"MNbenefits"+chr(9)+"Combined Annual Renewal (CAR)", form_type_received
   Text 380, 5, 150, 10, "--- Open the Recertification Form from ECF ---"
   Text 380, 20, 150, 20, "The next questions require you to compare the form information with information from ECF."
   Text 380, 45, 150, 75, "The script will pull information from MAXIS to provide you an overview of information from the case as it is currently coded in MAXIS. While the script is running, you can still look into MAXIS directly to check for any information that the script does not pull into the dialogs. The script will also have a few questions about the information and the form to identify if there are changes reported in the ER form."

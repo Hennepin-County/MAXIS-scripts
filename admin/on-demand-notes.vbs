@@ -242,7 +242,7 @@ IF subsequent_app_checkbox = CHECKED THEN
 	  Text 120, 20, 60, 10, application_date
 	  EditBox 120, 35, 60, 15, subsequent_app_date
 	  DropListBox 85, 55, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
-	  DropListBox 85, 70, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MN Benefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
+	  DropListBox 85, 70, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
 	  EditBox 85, 85, 95, 15, confirmation_number
 	  GroupBox 5, 5, 180, 115, "Application Information"
 	  Text 10, 20, 65, 10, "Date of Application:"

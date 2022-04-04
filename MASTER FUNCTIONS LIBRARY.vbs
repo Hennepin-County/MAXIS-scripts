@@ -17,6 +17,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/02/2022", "Retired Script - UTILITIES - LOST APPLYMN. This has been replaced by UTILITIES - APPLICATION INQUIRY. Power pad also updated to reflect this change.", "Ilse Ferris, Hennepin County")
 Call changelog_update("03/15/2022", "DHS is reporting the MAXIS Background slowdown has been resolved. Cases should be coming through BGTX in a typical amount of time.##~## ##~##If you have any issues with MAXIS Background going forward, please contack MAXIS Help Desk.", "Casey Love, Hennepin County")
 Call changelog_update("03/15/2022", "************** ATTENTION *************##~## ##~##There appears to be slowdown in MAXIS Background Transaction (BGTX) and cases are getting stuck for an extended amount of time.##~## ##~##This is not an issue with any script but could become apparant during a script run where the script seems 'stuck' or could error out. As the issue is with MAXIS - we cannot handle for this with any script updates or fixes.##~## ##~##DHS is repporting they are aware of the problem.##~## ##~##If possible, ensure your case is through background before running any scripts to reduce the impact on your script runs.", "Casey Love, Hennepin County")
 Call changelog_update("09/24/2021", "************** ATTENTION *************##~## ##~##DHS HAS UPDATED THE LAYOUT OF THE ADDR PANEL##~## ##~##Effective in the Footer Month of 10/21 there are additional fields on ADDR and some of the information has moved.##~## ##~##This may cause some issues in the BlueZone Scripts as it may read incorrect information.##~## ##~##We are working on updating these script files as quickly as we can. However, we only had a few days notice on this change in MAXIS and these updates take time. (We have many scripts that read from the ADDR panel!)##~## ##~##Please send an email to HSPH.EWS.BlueZoneScripts@hennepin.us if you notice anything with a script running wrong or providing incorrect ADDR information. We will continue working on our list and you will see changes throughout the day.##~## ##~##THANK YOU!##~##", "Casey Love, Hennepin County")
@@ -9633,7 +9634,7 @@ function provide_resources_information(case_number_known, create_case_note, note
 			If client_virtual_dropox_checkbox = checked Then
 				array_counter = array_counter + 4
 				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
-				MEMO_LINES_ARRAY(array_counter-3) = "You can submit documents Online at www.MNBenefits.org or"
+				MEMO_LINES_ARRAY(array_counter-3) = "You can submit documents Online at www.MNbenefits.mn.gov or"
 				MEMO_LINES_ARRAY(array_counter-2) = "Email with document attachment. EMAIL: hhsews@hennepin.us"
 				MEMO_LINES_ARRAY(array_counter-1) = " (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)"
 				MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
@@ -9812,7 +9813,7 @@ function provide_resources_information(case_number_known, create_case_note, note
 		    objSelection.Font.Size = "12"
 		    objSelection.Font.Bold = FALSE
 			If client_virtual_dropox_checkbox = checked Then
-				objSelection.TypeText "You can submit documents Online at www.MNBenefits.org or" & vbCr
+				objSelection.TypeText "You can submit documents Online at www.MNbenefits.mn.gov or" & vbCr
 				objSelection.TypeText "Email with document attachment. EMAIL: hhsews@hennepin.us" & vbCr
 				objSelection.TypeText " (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)" & vbCr
 				objSelection.TypeParagraph()
@@ -10305,12 +10306,8 @@ function script_end_procedure(closing_message)
 		Const adOpenStatic = 3
 		Const adLockOptimistic = 3
 
-        'Determining if the script was successful
-        If closing_message = "" or left(ucase(closing_message), 7) = "SUCCESS" THEN
-            SCRIPT_success = -1
-        else
-            SCRIPT_success = 0
-        end if
+        'Defaulting script success to successful
+        SCRIPT_success = -1
 
 		'Determines if the value of the MAXIS case number - BULK scripts will not have case number informaiton input into the database
 		IF left(name_of_script, 4) = "BULK" then MAXIS_CASE_NUMBER = ""
@@ -10374,12 +10371,8 @@ function script_end_procedure_with_error_report(closing_message)
 		Const adOpenStatic = 3
 		Const adLockOptimistic = 3
 
-        'Determining if the script was successful
-        If closing_message = "" or left(ucase(closing_message), 7) = "SUCCESS" THEN
-            SCRIPT_success = -1
-        else
-            SCRIPT_success = 0
-        end if
+        'Defaulting script success to successful
+        SCRIPT_success = -1
 
         'Determines if the value of the MAXIS case number - BULK scripts will not have case number informaiton input into the database
 		IF left(name_of_script, 4) = "BULK" then MAXIS_CASE_NUMBER = ""
