@@ -851,9 +851,9 @@ Do
 		cancel_confirmation
 
 		If form_received = "None Received" Then
+			If interview_information <> "N/A" OR verifs_received <> "N/A" Then err_msg = "LOOP"
 			interview_information = "N/A"
 			verifs_received = "N/A"
-			err_msg = "LOOP"
 		End If
 
 		If feb_process = "Select One..." Then err_msg = err_msg & vbCr & "* Select the process that was due for 02/22."
