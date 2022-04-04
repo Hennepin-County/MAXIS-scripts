@@ -85,8 +85,9 @@ const det_correct_utility_cost_col 		= 44
 const det_correct_total_shel_cost_col 	= 45
 const det_correct_net_adj_income_col 	= 46
 const det_correct_hh_size_col 			= 47
-const det_correct_snap_benefit_col 		= 48
-const det_pdf_link_col 					= 49
+const det_snap_proration_col			= 48
+const det_correct_snap_benefit_col 		= 49
+const det_pdf_link_col 					= 50
 
 
 const rept_case_numb_col 		= 1
@@ -106,29 +107,30 @@ const last_name_const						= 1
 const first_name_const						= 2
 const age_const								= 3
 const full_name_const						= 4
-const earned_income_exists_const			= 5
-const unearned_income_exists_const			= 6
-const mfip_elig								= 7
-const earned_inc_budgeted_const				= 8
-const earned_inc_disregard_budgeted_const	= 9
-const avail_earned_inc_budgeted_const		= 10
-const allocation_budgeted_const				= 11
-const child_support_cost_budgeted_const		= 12
-const counted_earned_inc_budgeted_const		= 13
-const unearned_inc_budgeted_const			= 14
-const allocation_bal_budgeted_const			= 15
-const child_support_cost_bal_budgeted_const	= 16
-const counted_unearned_inc_budgeted_const	= 17
-const earned_inc_correct_const				= 18
-const earned_inc_disregard_correct_const	= 19
-const avail_earned_inc_correct_const		= 20
-const allocation_correct_const				= 21
-const child_support_cost_correct_const		= 22
-const counted_earned_inc_correct_const		= 23
-const unearned_inc_correct_const			= 24
-const allocation_bal_correct_const			= 25
-const child_support_cost_bal_correct_const	= 26
-const counted_unearned_inc_correct_const	= 27
+const memb_droplist_const					= 5
+const earned_income_exists_const			= 6
+const unearned_income_exists_const			= 7
+const mfip_elig								= 8
+const earned_inc_budgeted_const				= 9
+const earned_inc_disregard_budgeted_const	= 10
+const avail_earned_inc_budgeted_const		= 11
+const allocation_budgeted_const				= 12
+const child_support_cost_budgeted_const		= 13
+const counted_earned_inc_budgeted_const		= 14
+const unearned_inc_budgeted_const			= 15
+const allocation_bal_budgeted_const			= 16
+const child_support_cost_bal_budgeted_const	= 17
+const counted_unearned_inc_budgeted_const	= 18
+const earned_inc_correct_const				= 19
+const earned_inc_disregard_correct_const	= 20
+const avail_earned_inc_correct_const		= 21
+const allocation_correct_const				= 22
+const child_support_cost_correct_const		= 23
+const counted_earned_inc_correct_const		= 24
+const unearned_inc_correct_const			= 25
+const allocation_bal_correct_const			= 26
+const child_support_cost_bal_correct_const	= 27
+const counted_unearned_inc_correct_const	= 28
 const last_const 							= 40
 
 Dim HH_MEMB_ARRAY()
@@ -321,7 +323,7 @@ function budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_a
 	End If
 end function
 
-function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, output_type)
+function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, output_type)
 	' cat_elig - True/Fals
 
 	Call ensure_variable_is_a_number(total_income_correct_amt, 2)
@@ -331,6 +333,42 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 	Call ensure_variable_is_a_number(max_snap_benefit, 2)
 	Call ensure_variable_is_a_number(snap_issued_amt, 2)
 	Call ensure_variable_is_a_number(sanction_recoupment_correct_amt, 2)
+	If IsDate(snap_proration_date) = False Then
+		snap_proration_date = #2/1/2022#
+	Else
+		snap_proration_date = DateAdd("d", 0, snap_proration_date)
+	End If
+
+	proration_day = DatePart("d", snap_proration_date)
+	proration_percentage = 1.00
+	If proration_day = 2 Then proration_percentage = .9643
+	If proration_day = 3 Then proration_percentage = .9286
+	If proration_day = 4 Then proration_percentage = .8929
+	If proration_day = 5 Then proration_percentage = .8571
+	If proration_day = 6 Then proration_percentage = .8214
+	If proration_day = 7 Then proration_percentage = .7857
+	If proration_day = 8 Then proration_percentage = .7500
+	If proration_day = 9 Then proration_percentage = .7143
+	If proration_day = 10 Then proration_percentage = .6786
+	If proration_day = 11 Then proration_percentage = .6429
+	If proration_day = 12 Then proration_percentage = .6071
+	If proration_day = 13 Then proration_percentage = .5714
+	If proration_day = 14 Then proration_percentage = .5357
+	If proration_day = 15 Then proration_percentage = .5000
+	If proration_day = 16 Then proration_percentage = .4643
+	If proration_day = 17 Then proration_percentage = .4286
+	If proration_day = 18 Then proration_percentage = .3929
+	If proration_day = 19 Then proration_percentage = .3571
+	If proration_day = 20 Then proration_percentage = .3214
+	If proration_day = 21 Then proration_percentage = .2857
+	If proration_day = 22 Then proration_percentage = .2500
+	If proration_day = 23 Then proration_percentage = .2143
+	If proration_day = 24 Then proration_percentage = .1786
+	If proration_day = 25 Then proration_percentage = .1429
+	If proration_day = 26 Then proration_percentage = .1071
+	If proration_day = 27 Then proration_percentage = .0714
+	If proration_day = 28 Then proration_percentage = .0357
+	snap_proration_date = snap_proration_date & ""
 
 	snap_overpayment_exists = False
 	snap_supplement_exists = False
@@ -350,6 +388,10 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 		thirty_perc_of_net_income = 0.3 * net_adj_income_correct_amt
 		monthly_snap_benefit_correct_amt = max_snap_benefit - thirty_perc_of_net_income
 		monthly_snap_benefit_correct_amt = Int(monthly_snap_benefit_correct_amt)
+
+		monthly_snap_benefit_correct_amt = monthly_snap_benefit_correct_amt * proration_percentage
+		monthly_snap_benefit_correct_amt = Int(monthly_snap_benefit_correct_amt)
+
 		Call ensure_variable_is_a_number(monthly_snap_benefit_correct_amt, 2)
 		monthly_snap_benefit_correct_amt = monthly_snap_benefit_correct_amt * 1
 		sanction_recoupment_correct_amt = sanction_recoupment_correct_amt * 1
@@ -386,6 +428,14 @@ end function
 ' function budget_calculate_mfip(, output_type)
 '
 ' end function
+function read_amount_from_MAXIS(variable_here, length, row, col)
+	EMReadScreen variable_here, length, row, col
+	variable_here = trim(variable_here)
+	If variable_here = "" Then variable_here = 0
+	If IsNumeric(variable_here) = False Then variable_here = 0
+	variable_here = FormatNumber(variable_here, decimal_places, -1, 0, 0)
+	' variable_here = variable_here *1
+end function
 
 'Connecting to MAXIS
 EMConnect ""
@@ -470,6 +520,7 @@ call back_to_self
 
 If MFIP_active = True Then Call script_end_procedure("MFIP was active in 02/22. MFIP cases are not able to be handled at this time.")
 If SNAP_active = False Then Call script_end_procedure("This case does not appear to have been active SNAP in 02/22 and thes script cannot continue.")
+If SNAP_active = False and MFIP_active = False Then script_end_procedure("This case does not appear to have been active SNAP or MFIP in 02/22 and thes script cannot continue.")
 
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
@@ -497,7 +548,9 @@ For each hh_clt in client_array
 
 	Call navigate_to_MAXIS_screen("STAT", "MEMB")		'===============================================================================================
 	EMWriteScreen HH_MEMB_ARRAY(ref_number, clt_count), 20, 76
+	' MsgBox "1"
 	transmit
+	' MsgBox "2"
 
 	EMReadscreen HH_MEMB_ARRAY(last_name_const, clt_count), 25, 6, 30
 	EMReadscreen HH_MEMB_ARRAY(first_name_const, clt_count), 12, 6, 63
@@ -512,10 +565,11 @@ For each hh_clt in client_array
 	HH_MEMB_ARRAY(first_name_const, clt_count) = trim(replace(HH_MEMB_ARRAY(first_name_const, clt_count), "_", ""))
 	HH_MEMB_ARRAY(full_name_const, clt_count) = HH_MEMB_ARRAY(last_name_const, clt_count) & ", " & HH_MEMB_ARRAY(first_name_const, clt_count)
 
-	HH_MEMB_ARRAY(earned_income_exists_const, hh_memb) = False
-	HH_MEMB_ARRAY(unearned_income_exists_const, hh_memb) = False
+	HH_MEMB_ARRAY(earned_income_exists_const, clt_count) = False
+	HH_MEMB_ARRAY(unearned_income_exists_const, clt_count) = False
+	HH_MEMB_ARRAY(memb_droplist_const, clt_count) = HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
 	memb_droplist = memb_droplist+chr(9)+HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
-
+	' MsgBox HH_MEMB_ARRAY(full_name_const, clt_count)
 	If disa_household = False Then
 		Call navigate_to_MAXIS_screen("STAT", "DISA")
 		EMWriteScreen HH_MEMB_ARRAY(ref_number, clt_count), 20, 76
@@ -556,17 +610,7 @@ If SNAP_active = True Then
 	EMWriteScreen version_numb, 19, 78
 	transmit
 
-	function read_amount_from_MAXIS(variable_here, length, row, col)
-		EMReadScreen variable_here, length, row, col
-		variable_here = trim(variable_here)
-		If variable_here = "" Then variable_here = 0
-		If IsNumeric(variable_here) = False Then variable_here = 0
-		variable_here = FormatNumber(variable_here, decimal_places, -1, 0, 0)
-		' variable_here = variable_here *1
-	end function
-
 	write_value_and_transmit "FSCR", 19, 70
-
 
 	write_value_and_transmit "FSB1", 19, 70
 	Call read_amount_from_MAXIS(earned_income_budgeted_amt, 10, 8, 31)
@@ -612,6 +656,7 @@ If SNAP_active = True Then
 	snap_issued_amt = snap_issued_amt*1
 	fed_benefit_amt = fed_benefit_amt*1
 	state_benefit_amt = state_benefit_amt*1
+	If fed_benefit_amt = 0 AND state_benefit_amt = 0 Then fed_benefit_amt = snap_issued_amt
 
 	fed_percent = fed_benefit_amt/snap_issued_amt
 	state_percent = state_benefit_amt/snap_issued_amt
@@ -634,11 +679,6 @@ If SNAP_active = True Then
 	other_cost_correct_amt = other_cost_budgeted_amt
 	utilities_correct_amt = utilities_budgeted_amt
 
-	Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
-	Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
-	Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
-	Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
-	Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, "STRING")
 
 
 	' 978321
@@ -649,7 +689,7 @@ End If
 
 If MFIP_active = True Then
 	Call navigate_to_MAXIS_screen("ELIG", "MFIP")
-	EMWriteScreen "99", 20, 799
+	EMWriteScreen "99", 20, 79
 	transmit
 	elig_row = 7
 	version_numb = ""
@@ -664,7 +704,7 @@ If MFIP_active = True Then
 		elig_row = elig_row + 1
 	Loop until approval_status = "        "
 	transmit
-	EMWriteScreen version_numb, 19, 78
+	EMWriteScreen version_numb, 20, 79
 	transmit
 
 	For hh_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
@@ -689,7 +729,7 @@ If MFIP_active = True Then
 		Do
 			EMReadScreen elig_person, 40, 8, 28
 			elig_person = trim(elig_person)
-
+			MsgBox "ARRAY NAME - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & "Elig name - " & elig_person & vbCr & "EARNED"
 			If HH_MEMB_ARRAY(full_name_const, hh_memb) = elig_person Then
 				Call read_amount_from_MAXIS(HH_MEMB_ARRAY(earned_inc_budgeted_const, hh_memb), 9, 13, 54)
 				Call read_amount_from_MAXIS(disregard, 9, 16, 54)
@@ -708,7 +748,7 @@ If MFIP_active = True Then
 				HH_MEMB_ARRAY(allocation_correct_const, hh_memb) = HH_MEMB_ARRAY(allocation_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(child_support_cost_correct_const, hh_memb) = HH_MEMB_ARRAY(child_support_cost_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(counted_earned_inc_correct_const, hh_memb) = HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, hh_memb)
-
+				MsgBox "PERSON - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, hh_memb)
 				PF3
 				Exit Do
 			End If
@@ -721,6 +761,7 @@ If MFIP_active = True Then
 		Do
 			EMReadScreen elig_person, 29, 8, 34
 			elig_person = trim(elig_person)
+			MsgBox "ARRAY NAME - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & "Elig name - " & elig_person & vbCr & "UNEA"
 
 			If HH_MEMB_ARRAY(full_name_const, hh_memb) = elig_person Then
 				Call read_amount_from_MAXIS(HH_MEMB_ARRAY(unearned_inc_budgeted_const, hh_memb), 9, 11, 49)
@@ -733,7 +774,7 @@ If MFIP_active = True Then
 				HH_MEMB_ARRAY(allocation_bal_correct_const, hh_memb) = HH_MEMB_ARRAY(allocation_bal_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(child_support_cost_bal_correct_const, hh_memb) = HH_MEMB_ARRAY(child_support_cost_bal_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(counted_unearned_inc_correct_const, hh_memb) = HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, hh_memb)
-
+				MsgBox "PERSON - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, hh_memb)
 				PF3
 				Exit Do
 			End If
@@ -747,16 +788,30 @@ If MFIP_active = True Then
 
 	Next
 
-	mfip_total_issued_amt
-	mfip_MF_MF_issued_amt
-	mfip_MF_FS_F_issued_amt
-	mfip_MF_FS_S_issued_amt
-	mfip_MF_HG_issued_amt
+	Call read_amount_from_MAXIS(mfip_total_issued_amt, 10, 9, 71)
+
+	write_value_and_transmit "MFB2", 19, 70
+	Call read_amount_from_MAXIS(mfip_MF_MF_issued_amt, 10, 12, 32)
+
+	Call read_amount_from_MAXIS(mfip_MF_FS_issued_amt, 10, 7, 32)
+	Call read_amount_from_MAXIS(mfip_MF_FS_S_issued_amt, 10, 15, 45)
+	mfip_MF_FS_issued_amt = mfip_MF_FS_issued_amt*1
+	mfip_MF_FS_S_issued_amt = mfip_MF_FS_S_issued_amt*1
+	mfip_MF_FS_F_issued_amt = mfip_MF_FS_issued_amt - mfip_MF_FS_S_issued_amt
+
+	Call read_amount_from_MAXIS(mfip_MF_HG_issued_amt, 10, 17, 32)
+
+	write_value_and_transmit "MFSM", 19, 70
+
+	EMReadScreen mfip_budgeted_caregivers, 3, 7, 73
+	EMReadScreen mfip_budgeted_children, 3, 8, 73
+	mfip_budgeted_caregivers = trim(mfip_budgeted_caregivers)
+	mfip_budgeted_children = trim(mfip_budgeted_children)
+	' MsgBox "caregivers: " & mfip_budgeted_caregivers & vbCr & "children: " & mfip_budgeted_children
 
 	call back_to_self
 
-
-
+	selected_memb = 0
 End If
 
 ' START A LOOP HERE
@@ -764,6 +819,7 @@ recalculation_confirmed = False
 snap_overpayment_exists = False
 snap_supplement_exists = False
 calculation_needed = True
+snap_proration_date = "2/1/2022"
 Do
 	'Determine what happened with the review/mont process by dialog
 	Do
@@ -772,11 +828,11 @@ Do
 		BeginDialog Dialog1, 0, 0, 316, 105, "02/22 Report Process Information"
 		  DropListBox 180, 10, 60, 45, "Select One..."+chr(9)+"ER"+chr(9)+"SR"+chr(9)+"HRF", feb_process
 		  DropListBox 260, 25, 50, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", process_complete
-		  DropListBox 65, 45, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNbenefits"+chr(9)+"Combined AR", form_received
+		  DropListBox 65, 45, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNbenefits"+chr(9)+"CSR"+chr(9)+"Combined AR", form_received
 		  EditBox 260, 45, 50, 15, form_received_date
-		  DropListBox 65, 65, 90, 45, "Select One..."+chr(9)+"Not Required"+chr(9)+"Completed"+chr(9)+"Incomplete", interview_information
+		  DropListBox 65, 65, 90, 45, "Select One..."+chr(9)+"Not Required"+chr(9)+"Completed"+chr(9)+"Incomplete"+chr(9)+"N/A", interview_information
 		  EditBox 260, 65, 50, 15, interview_date
-		  DropListBox 65, 85, 60, 45, "Select One..."+chr(9)+"None Needed"+chr(9)+"Partial"+chr(9)+"Complete", verifs_received
+		  DropListBox 65, 85, 60, 45, "Select One..."+chr(9)+"None Needed"+chr(9)+"Partial"+chr(9)+"Complete"+chr(9)+"None Received"+chr(9)+"N/A", verifs_received
 		  ButtonGroup ButtonPressed
 		    OkButton 205, 85, 50, 15
 		    CancelButton 260, 85, 50, 15
@@ -794,10 +850,20 @@ Do
 		dialog Dialog1
 		cancel_confirmation
 
+		If form_received = "None Received" Then
+			interview_information = "N/A"
+			verifs_received = "N/A"
+			err_msg = "LOOP"
+		End If
+
 		If feb_process = "Select One..." Then err_msg = err_msg & vbCr & "* Select the process that was due for 02/22."
 		If process_complete = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the process was completed and case would have been able to be processedd and 'APP'd with the everything on file."
 		If form_received = "Select One..." Then err_msg = err_msg & vbCr & "* Select which form was submitted or indicate that no form was received."
-		If form_received <> "Select One..." and form_received <> "None Received" and IsDate(form_received_date) = False Then  err_msg = err_msg & vbCr & "* Since a form was received, enter a valid date for the date the form was received."
+		If form_received <> "Select One..." and form_received <> "None Received" Then
+			If IsDate(form_received_date) = False Then err_msg = err_msg & vbCr & "* Since a form was received, enter a valid date for the date the form was received."
+			If interview_information = "N/A" Then err_msg = err_msg & vbCr & "* Interview cannot be 'N/A' if the form was received, identify if the interview was complete, incomplete, or not reqquired."
+			If verifs_received = "N/A" Then err_msg = err_msg & vbCr & "* Verifications cannot be 'N/A' if the form was received, identify if verifications were complete, partial, none received, or not needed."
+		End If
 		If interview_information = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate hwat happened with the interview process."
 		If interview_information = "Completed" and IsDate(interview_date) = False Then  err_msg = err_msg & vbCr & "* Since the interview was completed, enter a valid date for the date the interview was completed."
 		If verifs_received = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate the status of the verifications for this case in the 02/22 report process."
@@ -805,25 +871,33 @@ Do
 		If process_complete = "Yes" and interview_information = "Incomplete" Then err_msg = err_msg & vbCr & "* If the process is complete, the interview should not be listed as 'Incomplete' - it should either be 'Not Required' or 'Completed'."
 		If process_complete = "Yes" and verifs_received = "Partial" Then err_msg = err_msg & vbCr & "* If the process is complete, verifications received should not be 'Partial' - they should either be 'Complete' or 'None Needed'."
 
-		If err_msg <> "" then MsgBox "Please resolve to continue:" & vbCr & err_msg
+		If err_msg <> "" and left(err_msg, 4) <> "LOOP" then MsgBox "Please resolve to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
+
+	If IsDate(form_received_date) = True Then snap_proration_date = form_received_date
+	Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
+	Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
+	Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
+	Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
+	Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, "STRING")
 
 	If process_complete = "No" Then calculation_needed = False
 
 	'dialog for OP calculation
 	If MFIP_active = True Then
 		If calculation_needed = True Then
+			income_selection_person = HH_MEMB_ARRAY(memb_droplist_const, 0)
 			Do
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 556, 385, "02/22 MFIP Incorrect Payment Calculation"
 				  'ISSUANCE
 				  GroupBox 10, 5, 200, 35, "Benefit Issued for 02/22"
 				  Text 15, 15, 30, 10, "MF-Cash:"
-				  Text 50, 15, 30, 10, "$ " & mf_cash_issued_amt
+				  Text 50, 15, 30, 10, "$ " & mfip_MF_MF_issued_amt
 				  Text 80, 15, 30, 10, "MF-Food:"
-				  Text 110, 15, 30, 10, "$ " & mf_food_issued_amt
+				  Text 110, 15, 30, 10, "$ " & mfip_MF_FS_issued_amt
 				  Text 145, 15, 25, 10, "MF-HG:"
-				  Text 170, 15, 30, 10, "$ " & mf_hg_issued_amt
+				  Text 170, 15, 30, 10, "$ " & mfip_MF_HG_issued_amt
 				  Text 25, 25, 25, 10, "SNAP:"
 				  Text 50, 25, 30, 10, "$ " & snap_issued_amt
 				  'Earned Income
@@ -865,46 +939,61 @@ Do
 				  ButtonGroup ButtonPressed
 				    PushButton 160, 270, 30, 10, "CALC", calc_btn
 				  'Unearned Income
-				  GroupBox 200, 40, 135, 245, "List of Income"
+				  grp_len = 205 + UBound(HH_MEMB_ARRAY, 2)*20
+				  GroupBox 200, 40, 135, grp_len, "List of Income"
 				  Text 205, 50, 55, 10, "Earned Income:"
 				  Text 210, 60, 55, 10, "Total Budgeted:"
-				  For hh_meb = 0 to UBOUND(HH_MEMB_ARRAY)
-
-				  Next
 				  Text 275, 60, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 75, 55, 10, "MEMB 01"
-				  Text 270, 75, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 85, 55, 10, "MEMB 01"
-				  Text 270, 85, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 95, 55, 10, "MEMB 01"
-				  Text 270, 95, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 215, 105, 55, 10, "Total Earned"
-				  Text 275, 105, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 205, 130, 65, 10, "Unearned Income:"
-				  Text 210, 140, 55, 10, "Total Budgeted:"
-				  Text 275, 140, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 155, 55, 10, "MEMB 01"
-				  Text 270, 155, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 165, 55, 10, "MEMB 01"
-				  Text 270, 165, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 210, 175, 55, 10, "MEMB 01"
-				  Text 270, 175, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 215, 185, 55, 10, "Total Earned"
-				  Text 275, 185, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 205, 215, 65, 10, "Deemed Income:"
-				  Text 210, 230, 55, 10, "Total Budgeted:"
-				  Text 275, 230, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 220, 250, 45, 10, "Total Correct:"
-				  EditBox 275, 245, 50, 15, Edit1
+				  y_pos = 75
+				  For hh_memb = 0 to UBOUND(HH_MEMB_ARRAY, 2)
+					  Text 210, y_pos, 55, 10, "MEMB " & HH_MEMB_ARRAY(ref_number, hh_memb)
+					  Text 270, y_pos, 30, 10, "$ " & HH_MEMB_ARRAY(counted_earned_inc_correct_const, hh_memb)
+					  y_pos = y_pos + 10
+				  Next
+				  y_pos = y_pos + 10
+				  ' Text 210, 75, 55, 10, "MEMB 01"
+				  ' Text 210, 85, 55, 10, "MEMB 01"
+				  ' Text 270, 85, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 210, 95, 55, 10, "MEMB 01"
+				  ' Text 270, 95, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 215, 105, 55, 10, "Total Earned"
+				  ' Text 275, 105, 30, 10, "$ " & earned_income_budgeted_amt
+				  Text 205, y_pos, 65, 10, "Unearned Income:"
+				  y_pos = y_pos + 10
+				  Text 210, y_pos, 55, 10, "Total Budgeted:"
+				  Text 275, y_pos, 30, 10, "$ " & earned_income_budgeted_amt
+				  y_pos = y_pos + 10
+				  For hh_memb = 0 to UBOUND(HH_MEMB_ARRAY, 2)
+					  Text 210, y_pos, 55, 10, "MEMB " & HH_MEMB_ARRAY(ref_number, hh_memb)
+					  Text 270, y_pos, 30, 10, "$ " & HH_MEMB_ARRAY(counted_unearned_inc_correct_const, hh_memb)
+					  y_pos = y_pos + 10
+				  Next
+				  y_pos = y_pos + 10
+
+				  ' Text 210, 155, 55, 10, "MEMB 01"
+				  ' Text 270, 155, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 210, 165, 55, 10, "MEMB 01"
+				  ' Text 270, 165, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 210, 175, 55, 10, "MEMB 01"
+				  ' Text 270, 175, 30, 10, "$ " & earned_income_budgeted_amt
+				  ' Text 215, 185, 55, 10, "Total Earned"
+				  ' Text 275, 185, 30, 10, "$ " & earned_income_budgeted_amt
+				  Text 205, y_pos, 65, 10, "Deemed Income:"
+				  y_pos = y_pos + 10
+				  Text 210, y_pos, 55, 10, "Total Budgeted:"
+				  Text 275, y_pos, 30, 10, "$ " & earned_income_budgeted_amt
+				  y_pos = y_pos + 15
+				  Text 220, y_pos + 5, 45, 10, "Total Correct:"
+				  EditBox 275, y_pos, 50, 15, Edit1
 				  ButtonGroup ButtonPressed
 				    PushButton 295, 270, 30, 10, "CALC", calc_btn
 				  'HH Comp
 				  GroupBox 10, 285, 185, 70, "Household Composition"
 				  Text 15, 295, 95, 10, "Budgeted Assistance Unit:"
 				  Text 25, 310, 40, 10, "Caregivers:"
-				  Text 70, 310, 10, 10, "2"
+				  Text 70, 310, 10, 10, mfip_budgeted_caregivers
 				  Text 100, 310, 30, 10, "Children:"
-				  Text 135, 310, 10, 10, "2"
+				  Text 135, 310, 10, 10, mfip_budgeted_children
 				  Text 15, 325, 85, 10, "Correct Assistance Unit:"
 				  Text 25, 340, 40, 10, "Caregivers:"
 				  EditBox 70, 335, 20, 15, correct_caregiver
@@ -964,28 +1053,28 @@ Do
 				  Text 360, 275, 75, 10, "Correct Housing Grant:"
 				  Text 435, 275, 30, 10, "$ " & hold_var
 				  Text 400, 290, 75, 10, "MFIP Grant Received:"
-				  Text 480, 290, 30, 10, "$ " & hold_var
+				  Text 480, 290, 30, 10, "$ " & mfip_total_issued_amt
 				  Text 425, 300, 50, 10, "HG Received:"
-				  Text 480, 300, 30, 10, "$ " & hold_var
+				  Text 480, 300, 30, 10, "$ " & mfip_MF_HG_issued_amt
 				  If mfip_overpayment_exists = True Then
 					  Text 455, 315, 50, 10, "Overpayment:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_total_overpayment_amt
 					  Text 455, 325, 45, 10, "Cash Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_cash_overpayment_amt
 					  Text 455, 335, 50, 10, " Food Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_food_overpayment_amt
 					  Text 465, 345, 40, 10, "HG Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_hg_overpayment_amt
 				  End If
 				  If mfip_supplement_exists = True Then
 					  Text 455, 315, 50, 10, "Supplement:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_total_supplement_amt
 					  Text 455, 325, 45, 10, "Cash Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_cash_supplement_amt
 					  Text 455, 335, 50, 10, " Food Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_food_supplement_amt
 					  Text 465, 345, 40, 10, "HG Portion:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 30, 10, "$ " & mfip_hg_supplement_amt
 				  End If
 				  If mfip_overpayment_exists = False And mfip_supplement_exists = False Then
 					 Text 400, 315, 100, 10, "02/22 Issuance was Correct"
@@ -1003,6 +1092,9 @@ Do
 				If ButtonPressed = mfip_claculation_done_btn Then output_type = "NUMBER"
 
 
+				For hh_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
+					If income_selection_person = HH_MEMB_ARRAY(memb_droplist_const, hh_memb) Then selected_memb = hh_memb
+				Next
 			Loop until ButtonPressed = mfip_claculation_done_btn
 		End If
 	End If
@@ -1088,7 +1180,7 @@ Do
 				  ButtonGroup ButtonPressed
 				    PushButton 175, 360, 30, 10, "CALC", calc_btn
 
-				  GroupBox 215, 5, 120, 115, "HH Composition"
+				  GroupBox 215, 5, 120, 110, "HH Composition"
 				  Text 230, 20, 65, 10, "Budgeted HH Size:"
 				  Text 300, 20, 15, 10, budgeted_hh_size
 				  Text 240, 40, 55, 10, "Correct HH Size:"
@@ -1100,6 +1192,8 @@ Do
 				  Text 300, 85, 25, 10, "$ " & standard_deduction_budgeted_amt
 				  Text 270, 100, 30, 10, "Correct:"
 				  Text 300, 100, 25, 10, "$ " & standard_deduction_correct_amt
+				  Text 220, 125, 50, 10, "Proration Date:"
+				  EditBox 275, 120, 60, 15, snap_proration_date
 				  'BUTTON
 				  GroupBox 340, 5, 210, 345, "Corrected Budget"
 				  Text 360, 20, 55, 10, " Earned Income:"
@@ -1188,7 +1282,7 @@ Do
 				Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, output_type)
 				Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, output_type)
 				Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, output_type)
-				Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, output_type)
+				Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, output_type)
 
 			Loop until ButtonPressed = snap_claculation_done_btn
 			rent_mortgage_correct_amt = rent_mortgage_correct_amt * 1
@@ -1302,7 +1396,7 @@ Do
 		Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
 		Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
 		Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
-		Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_overpayment_amt, snap_supplement_amt, "STRING")
+		Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, "STRING")
 	End If
 
 	' LOOP UNTIL THIS IS CONFIRMED
@@ -1328,7 +1422,7 @@ If snap_overpayment_exists = True Then
 	objSelection.Font.Name = "Arial"											'Setting the font before typing
 	objSelection.Font.Size = "16"
 	objSelection.Font.Bold = TRUE
-	objSelection.TypeText "SNAP Overpayment"
+	objSelection.TypeText "SNAP Overpayment - Case # " & MAXIS_case_number
 	objSelection.TypeParagraph()
 	objSelection.Font.Size = "12"
 	objSelection.Font.Bold = FALSE
@@ -1367,6 +1461,9 @@ If snap_overpayment_exists = True Then
 	End If
 	process_info.Cell(4, 1).Range.Text = "Verifications"
 	process_info.Cell(4, 2).Range.Text = verifs_received
+	process_info.Cell(4, 3).Range.Text = "Proration Date"
+	process_info.Cell(4, 4).Range.Text = snap_proration_date
+
 	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
 	objSelection.TypeParagraph()
 
@@ -1465,7 +1562,7 @@ If snap_overpayment_exists = True Then
 	snap_op_table.Cell(29, 2).Range.Text = "$  " & monthly_snap_benefit_correct_amt
 	snap_op_table.Cell(30, 1).Range.Text = chr(9) & "Drug felon sanction/Recoupment"
 	snap_op_table.Cell(30, 2).Range.Text = "$  " & sanction_recoupment_correct_amt
-	snap_op_table.Cell(31, 1).Range.Text = "Correct SNAP Benefit Smount"
+	snap_op_table.Cell(31, 1).Range.Text = "Correct SNAP Benefit Amount"
 	snap_op_table.Cell(31, 2).Range.Text = "$  " & snap_correct_amt
 	snap_op_table.Cell(32, 1).Range.Text = "Benefit Amount Issued"
 	snap_op_table.Cell(32, 2).Range.Text = "$  " & snap_issued_amt
@@ -1581,6 +1678,7 @@ ObjDetailsExcel.Cells(total_excel_row, det_correct_utility_cost_col).Value 		= u
 ObjDetailsExcel.Cells(total_excel_row, det_correct_total_shel_cost_col).Value 	= total_shelter_cost_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_correct_net_adj_income_col).Value 	= net_adj_income_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_correct_hh_size_col).Value 			= correct_hh_size
+If calculation_needed = True Then ObjDetailsExcel.Cells(total_excel_row, det_snap_proration_col).Value 			= snap_proration_date
 ObjDetailsExcel.Cells(total_excel_row, det_correct_snap_benefit_col).Value 		= snap_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_pdf_link_col).Value					= ""
 If pdf_doc_path <> "" Then ObjDetailsExcel.Cells(total_excel_row, det_pdf_link_col).Value 				= "=HYPERLINK(" & chr(34) & pdf_doc_path & chr(34) & ", " & chr(34) & "AutoClose Pause OP Calculation - CASE " & MAXIS_case_number & ".pdf" & chr(34) & ")"
