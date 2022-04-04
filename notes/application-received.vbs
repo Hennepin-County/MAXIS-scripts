@@ -388,6 +388,7 @@ Do
         err_msg = ""
         Dialog Dialog1
         cancel_confirmation
+        If application_type = "MNbenefits" AND how_application_rcvd = "Select One:" Then how_application_rcvd = "Online"
 	    IF how_application_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
         'IF application_type = "N/A" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter in other notes what type of application was received to the agency."
 	    IF application_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
@@ -706,7 +707,7 @@ If was_ccap_requested = "Yes - Child Care Requested" Then
 
     ccap_email_subject = "ES - CA - Financial Case " & MAXIS_case_number & " - " & case_name & " also requests CCAP"
     ccap_email_body = "MNbenefits Applicvation received requesting CCAP with other financial programs."
-    ccap_email_body = ccap_email_body & vbCr & "Confirmation Number: " & confirmation_number
+    If trim(confirmation_number) <> "" Then ccap_email_body = ccap_email_body & vbCr & "Confirmation Number: " & confirmation_number
     ccap_email_body = ccap_email_body & vbCr & vbCr & "MAXIS Case Number: " & MAXIS_case_number
     ccap_email_body = ccap_email_body & vbCr & "MAXIS Case Name: " & case_name
     ccap_email_body = ccap_email_body & vbCr & vbCr & "Application form can be found in the ECF case file for this case."
@@ -714,8 +715,7 @@ If was_ccap_requested = "Yes - Child Care Requested" Then
     ccap_email_body = ccap_email_body & vbCr & the_person_running_the_script
     If running_from_ca_menu = True Then ccap_email_body = ccap_email_body & vbCr & "Case Assignment Team"
 
-    ' Call create_outlook_email("HSPH.ResourcesCCAP@hennepin.us", "", ccap_email_subject, ccap_email_body, "", True)
-    Call create_outlook_email("Casey.love@hennepin.us", "", ccap_email_subject, ccap_email_body, "", True)
+    Call create_outlook_email("HSPH.ResourcesCCAP@hennepin.us", "", ccap_email_subject, ccap_email_body, "", True)
 End If
 
 IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
