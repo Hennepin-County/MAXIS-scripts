@@ -65,7 +65,7 @@ back_to_self                                        'added to ensure we have the
 
 EMReadScreen worker_number, 7, 22, 8                'reading the current workers number '
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
-msgbox worker_number
+
 closing_message = "Transfer case is complete."      'setting up closing_message variable for possible additions later based on conditions
 
 BeginDialog Dialog1, 0, 0, 201, 85, "Match Cleared"
@@ -116,12 +116,11 @@ call navigate_to_MAXIS_screen("REPT", "USER")
 EMWriteScreen transfer_to_worker, 21, 12
 TRANSMIT
 DO
-    EMReadScreen worker_found, 15, 24, 2
-    msgbox worker_found & " " &  inactive_worker
+    EMReadScreen error_message, 75, 24, 2
     EMReadScreen inactive_worker, 8, 7, 38
     IF inactive_worker = "INACTIVE" THEN MsgBox "The worker or agency selected is not active. Please try again."
-    IF worker_found = "NO WORKER FOUND" THEN MsgBox "The worker or agency selected does not exist. Please try again."
-LOOP UNTIL inactive_worker <> "INACTIVE" AND worker_found <> "NO WORKER FOUND"
+    msgbox error_message & " " &  inactive_worker
+LOOP UNTIL inactive_worker <> "INACTIVE"
 transfer_out_of_county = FALSE                                          'setting varible to false'
 IF left(transfer_to_worker, 4) <> "X127" THEN transfer_out_of_county = TRUE 'setting the out of county BOOLEAN'
 
@@ -135,18 +134,18 @@ IF worker_agency_name = "" THEN 						'If we are unable to find the alias for th
 	name_length = len(worker_agency_name)
 	comma_location = InStr(worker_agency_name, ",")
 	worker_agency_name = right(worker_agency_name, (name_length - comma_location)) & " " & left(worker_agency_name, (comma_location - 1)) 'this section will reorder the name of the worker since it is stored here as last, first. the comma_location - 1 removes the comma from the "last,"
-END IF
-EMReadScreen mail_addr_line_one, 43, 9, 27
-	mail_addr_line_one = trim(mail_addr_line_one)
-EMReadScreen mail_addr_line_two, 43, 10, 27
-	mail_addr_line_two = trim(mail_addr_line_two)
-EMReadScreen mail_addr_line_three, 43, 11, 27
-	mail_addr_line_three = trim(mail_addr_line_three)
-EMReadScreen mail_addr_line_four, 43, 12, 27
-	mail_addr_line_four = trim(mail_addr_line_four)
-EMReadScreen worker_agency_phone, 14, 13, 27
-EMReadScreen worker_county_code, 2, 15, 32
 
+    EMReadScreen mail_addr_line_one, 43, 9, 27
+    	mail_addr_line_one = trim(mail_addr_line_one)
+    EMReadScreen mail_addr_line_two, 43, 10, 27
+    	mail_addr_line_two = trim(mail_addr_line_two)
+    EMReadScreen mail_addr_line_three, 43, 11, 27
+    	mail_addr_line_three = trim(mail_addr_line_three)
+    EMReadScreen mail_addr_line_four, 43, 12, 27
+    	mail_addr_line_four = trim(mail_addr_line_four)
+    EMReadScreen worker_agency_phone, 14, 13, 27
+    EMReadScreen worker_county_code, 2, 15, 32
+END IF
 transfer_message = ""            'some defaults
 transfer_case = False
 action_completed = True
@@ -216,8 +215,8 @@ ELSE
      ButtonGroup ButtonPressed
      OkButton 235, 260, 50, 15
      CancelButton 290, 260, 50, 15
-     PushButton 135, 5, 65, 15, "SPEC/XFER", nav_SPEC_XFER_button
-     PushButton 205, 5, 65, 15, "POLI/ TEMP", nav_POLI_TEMP_button
+     PushButton 135, 5, 65, 15, "SPEC/XFER", XFER_button
+     PushButton 205, 5, 65, 15, "POLI/TEMP", POLI_TEMP_button
      PushButton 275, 5, 65, 15, "USEFORM", useform_xfer_button
      Text 5, 10, 60, 10, "Client Move Date"
      Text 5, 30, 55, 10, "Excluded time?"
@@ -243,6 +242,14 @@ ELSE
 			err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
+            If ButtonPressed = useform_xfer_button Then               'Pulling up the hsr page if the button was pressed.
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://aem.hennepin.us/DocumentManager/docm1649100617025/dad342433412ab721a67d46f95a3d1c1?type=YXBwbGljYXRpb24vcGRm"
+                err_msg = "LOOP"
+            Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
+    		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+            End If
+	        If ButtonPressed = POLI_TEMP_button then call navigate_to_MAXIS_screen("POLI", "TEMP")
+            Call MAXIS_dialog_navigation()
 	      	IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a reason for transfer."
             IF excluded_time_dropdown = "Yes" AND isdate(excluded_date) = False THEN MsgBox "Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
 			IF isdate(move_date) = False THEN MsgBox "Please enter a valid date for client move."
@@ -447,7 +454,7 @@ ELSE
 END IF ' the big one'
 
 IF end_msg <> "" Then
-    If transfer_case = True Then closing_message = closing_message & vbCr & vbCr & "Case transfer has been completed to x127" & transfer_to_worker
+    If transfer_case = True Then closing_message = closing_message & vbCr & vbCr & "Case transfer has been completed to: " & transfer_to_worker
 ELSE
     closing_message = closing_message & vbCr & vbCr & "FAILED CASE TRANSFER:" & vbCr & end_msg
 END IF
