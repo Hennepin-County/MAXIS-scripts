@@ -706,7 +706,7 @@ If was_ccap_requested = "Yes - Child Care Requested" Then
     Call find_user_name(the_person_running_the_script)
 
     ccap_email_subject = "ES - CA - Financial Case " & MAXIS_case_number & " - " & case_name & " also requests CCAP"
-    ccap_email_body = "MNbenefits Applicvation received requesting CCAP with other financial programs."
+    ccap_email_body = "MNbenefits Application received requesting CCAP with other financial programs."
     If trim(confirmation_number) <> "" Then ccap_email_body = ccap_email_body & vbCr & "Confirmation Number: " & confirmation_number
     ccap_email_body = ccap_email_body & vbCr & vbCr & "MAXIS Case Number: " & MAXIS_case_number
     ccap_email_body = ccap_email_body & vbCr & "MAXIS Case Name: " & case_name
