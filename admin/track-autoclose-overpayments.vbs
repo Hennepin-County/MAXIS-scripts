@@ -851,9 +851,9 @@ Do
 		cancel_confirmation
 
 		If form_received = "None Received" Then
-			If interview_information <> "N/A" OR verifs_received <> "N/A" Then err_msg = "LOOP"
 			interview_information = "N/A"
 			verifs_received = "N/A"
+			err_msg = "LOOP"
 		End If
 
 		If feb_process = "Select One..." Then err_msg = err_msg & vbCr & "* Select the process that was due for 02/22."
@@ -875,10 +875,6 @@ Do
 	Loop until err_msg = ""
 
 	If IsDate(form_received_date) = True Then snap_proration_date = form_received_date
-	If IsDate(snap_proration_date) = True Then
-		beg_of_feb = #2/1/2022#
-		If DateDiff("d", snap_proration_date, beg_of_feb) > 0 Then snap_proration_date = #2/1/22#
-	End If
 	Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
 	Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
 	Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
