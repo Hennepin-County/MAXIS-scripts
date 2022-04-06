@@ -248,9 +248,9 @@ ELSE
             Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
     		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
             End If
-	        If ButtonPressed = POLI_TEMP_button then call navigate_to_MAXIS_screen("POLI", "TEMP")
             Call MAXIS_dialog_navigation()
-	      	IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a reason for transfer."
+	        If ButtonPressed = POLI_TEMP_button then call navigate_to_MAXIS_screen("POLI", "TEMP")
+            IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a reason for transfer."
             IF excluded_time_dropdown = "Yes" AND isdate(excluded_date) = False THEN MsgBox "Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
 			IF isdate(move_date) = False THEN MsgBox "Please enter a valid date for client move."
 			IF ucase(left(servicing_worker, 4)) = ucase(transferring_worker_county_code) THEN MsgBox "You must use the ''Within the Agency'' script to transfer the case within the agency. The Worker/Agency you have selected indicates you are trying to transfer within your agency."
