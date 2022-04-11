@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/02/2022", "Resolved bug in reading the Case Number if more than one TIKL message on a case.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/21/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -184,7 +185,7 @@ For each worker in worker_array
 				dail_row = 6
 			End if
 
-            EMReadScreen maxis_case_number, 8, dail_row - 1, 73
+            EMReadScreen maxis_case_number, 8, 5, 73
             EMReadScreen dail_month, 8, dail_row, 11
             EmReadscreen dail_type, 4, dail_row, 6
 			EMReadScreen dail_msg, 61, dail_row, 20
