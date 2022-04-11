@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/11/2022", "Added additional handling for moving to another case load if no DAILs are present.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/18/2021", "Updated new server name.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/26/2021", "Removed emailing Todd Bennington per request.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/17/2021", "Added defaults for DAIL type selctions based on if before or on/after ten day cut off. DAIL types selected on/after ten day cut off are only TIKL messages.", "Ilse Ferris, Hennepin County")
@@ -283,8 +284,8 @@ For each worker in worker_array
 			EMReadScreen next_dail_check, 4, dail_row, 4
 			If trim(next_dail_check) = "" then
 				PF8
-				EMReadScreen last_page_check, 21, 24, 2
-				If last_page_check = "THIS IS THE LAST PAGE" then
+				EMReadScreen last_page_check, 17, 24, 2
+				If last_page_check = "THIS IS THE LAST " or last_page_check = "NO MESSAGES TYPES" then
 					all_done = true
 					exit do
 				Else
