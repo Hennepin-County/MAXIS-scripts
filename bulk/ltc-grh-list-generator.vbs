@@ -2,7 +2,7 @@
 name_of_script = "BULK - LTC-GRH LIST GENERATOR.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 80                      'manual run time in seconds
+STATS_manualtime = 90                      'manual run time in seconds
 STATS_denomination = "C"       						 'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -55,6 +55,7 @@ changelog_display
 
 'CONNECTS TO BlueZone
 EMConnect ""
+Call check_for_MAXIS(False)
 'grabbing current footer month/year
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
@@ -227,96 +228,98 @@ do until ObjExcel.Cells(excel_row, 1).Value = "" 'shuts down when there's no mor
 	MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
 	If MAXIS_case_number = "" then exit do
 	back_to_SELF
-	call navigate_to_MAXIS_screen("STAT", "FACI")
+    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "FACI", is_this_priv)
+    If is_this_priv = True then
+        ObjExcel.Cells(excel_row, 3).Value = "Privileged Case." 'overwriting the client name to indicate priv case.
+    Else
+	    'LOOKS FOR MULTIPLE STAT/FACI PANELS, GOES TO THE MOST RECENT ONE
+	    Do
+	    	EMReadScreen FACI_current_panel, 1, 2, 73
+	    	EMReadScreen FACI_total_check, 1, 2, 78
+	    	EMReadScreen in_year_check_01, 4, 14, 53
+	    	EMReadScreen in_year_check_02, 4, 15, 53
+	    	EMReadScreen in_year_check_03, 4, 16, 53
+	    	EMReadScreen in_year_check_04, 4, 17, 53
+	    	EMReadScreen in_year_check_05, 4, 18, 53
+	    	EMReadScreen out_year_check_01, 4, 14, 77
+	    	EMReadScreen out_year_check_02, 4, 15, 77
+	    	EMReadScreen out_year_check_03, 4, 16, 77
+	    	EMReadScreen out_year_check_04, 4, 17, 77
+	    	EMReadScreen out_year_check_05, 4, 18, 77
+	    	If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
+	    	(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
+	    		currently_in_FACI = True
+	    		exit do
+	    	Elseif FACI_current_panel = FACI_total_check then
+	    		currently_in_FACI = False
+	    		exit do
+	    	Else
+	    		transmit
+	    	End if
+	    Loop until FACI_current_panel = FACI_total_check
 
-	'LOOKS FOR MULTIPLE STAT/FACI PANELS, GOES TO THE MOST RECENT ONE
-	Do
-		EMReadScreen FACI_current_panel, 1, 2, 73
-		EMReadScreen FACI_total_check, 1, 2, 78
-		EMReadScreen in_year_check_01, 4, 14, 53
-		EMReadScreen in_year_check_02, 4, 15, 53
-		EMReadScreen in_year_check_03, 4, 16, 53
-		EMReadScreen in_year_check_04, 4, 17, 53
-		EMReadScreen in_year_check_05, 4, 18, 53
-		EMReadScreen out_year_check_01, 4, 14, 77
-		EMReadScreen out_year_check_02, 4, 15, 77
-		EMReadScreen out_year_check_03, 4, 16, 77
-		EMReadScreen out_year_check_04, 4, 17, 77
-		EMReadScreen out_year_check_05, 4, 18, 77
-		If (in_year_check_01 <> "____" and out_year_check_01 = "____") or (in_year_check_02 <> "____" and out_year_check_02 = "____") or _
-		(in_year_check_03 <> "____" and out_year_check_03 = "____") or (in_year_check_04 <> "____" and out_year_check_04 = "____") or (in_year_check_05 <> "____" and out_year_check_05 = "____") then
-			currently_in_FACI = True
-			exit do
-		Elseif FACI_current_panel = FACI_total_check then
-			currently_in_FACI = False
-			exit do
-		Else
-			transmit
-		End if
-	Loop until FACI_current_panel = FACI_total_check
+	    'GETS FACI NAME AND PUTS IT IN SPREADSHEET, IF CLIENT IS IN FACI.
+	    If currently_in_FACI = True then
+	    	EMReadScreen FACI_name, 30, 6, 43
+	    	EMReadScreen FACI_type, 2, 7, 43
+            EmReadscreen vendor_number, 8, 5, 43
+	    	'List of FACI types
+	    	IF FACI_type = "41" then FACI_type = "41: NF-I"
+	    	IF FACI_type = "42" then FACI_type = "42: NF-II"
+	    	IF FACI_type = "43" then FACI_type = "43: ICF-DD"
+	    	IF FACI_type = "44" then FACI_type = "44: Short stay in NF-I"
+	    	IF FACI_type = "45" then FACI_type = "45: Short stay in NF-II"
+	    	IF FACI_type = "46" then FACI_type = "46: Short stay in ICF-DD"
+	    	IF FACI_type = "47" then FACI_type = "47: RTC - Not IMD"
+	    	IF FACI_type = "48" then FACI_type = "48: Medical Hospital"
+	    	IF FACI_type = "49" then FACI_type = "49: MSOP"
+	    	IF FACI_type = "50" then FACI_type = "50: IMD/RTC"
+	    	IF FACI_type = "51" then FACI_type = "51: Rule 31 CD_IMD"
+	    	IF FACI_type = "52" then FACI_type = "52: Rule 36 MI-IMD"
+	    	IF FACI_type = "53" then FACI_type = "53: IMD Hospitals"
+	    	IF FACI_type = "55" then FACI_type = "55: Adult Foster Care/Rule 203"
+	    	IF FACI_type = "56" then FACI_type = "56: GRH (Not FC or Rule 36)"
+	    	IF FACI_type = "57" then FACI_type = "57: Rule 36 MI - Non-IMD"
+	    	IF FACI_type = "60" then FACI_type = "60: Non-GRH"
+	    	IF FACI_type = "61" then FACI_type = "61: Rule 31 CD - Non-IMD"
+	    	IF FACI_type = "67" then FACI_type = "67: Family Violence Shelter"
+	    	IF FACI_type = "68" then FACI_type = "68: County Correctional Facility"
+	    	IF FACI_type = "69" then FACI_type = "69: Non-Cty Adult Correctional"
 
-	'GETS FACI NAME AND PUTS IT IN SPREADSHEET, IF CLIENT IS IN FACI.
-	If currently_in_FACI = True then
-		EMReadScreen FACI_name, 30, 6, 43
-		EMReadScreen FACI_type, 2, 7, 43
-        EmReadscreen vendor_number, 8, 5, 43
+	    	EMReadScreen GRH_DOC, 8, 13, 45
+	    	ObjExcel.Cells(excel_row, 4).Value = trim(replace(FACI_name, "_", ""))
+            ObjExcel.Cells(excel_row, 5).Value = trim(replace(vendor_number, "_", ""))
+	    	If FACI_type_checkbox = 1  	then ObjExcel.Cells(excel_row, faci_type_col).Value = trim(replace(FACI_type, "_", ""))
+	    	If DOC_checkbox = 1 		then ObjExcel.Cells(excel_row, DOC_col).Value = trim(replace(GRH_DOC, "_", ""))
+	    End if
 
-		'List of FACI types
-		IF FACI_type = "41" then FACI_type = "41: NF-I"
-		IF FACI_type = "42" then FACI_type = "42: NF-II"
-		IF FACI_type = "43" then FACI_type = "43: ICF-DD"
-		IF FACI_type = "44" then FACI_type = "44: Short stay in NF-I"
-		IF FACI_type = "45" then FACI_type = "45: Short stay in NF-II"
-		IF FACI_type = "46" then FACI_type = "46: Short stay in ICF-DD"
-		IF FACI_type = "47" then FACI_type = "47: RTC - Not IMD"
-		IF FACI_type = "48" then FACI_type = "48: Medical Hospital"
-		IF FACI_type = "49" then FACI_type = "49: MSOP"
-		IF FACI_type = "50" then FACI_type = "50: IMD/RTC"
-		IF FACI_type = "51" then FACI_type = "51: Rule 31 CD_IMD"
-		IF FACI_type = "52" then FACI_type = "52: Rule 36 MI-IMD"
-		IF FACI_type = "53" then FACI_type = "53: IMD Hospitals"
-		IF FACI_type = "55" then FACI_type = "55: Adult Foster Care/Rule 203"
-		IF FACI_type = "56" then FACI_type = "56: GRH (Not FC or Rule 36)"
-		IF FACI_type = "57" then FACI_type = "57: Rule 36 MI - Non-IMD"
-		IF FACI_type = "60" then FACI_type = "60: Non-GRH"
-		IF FACI_type = "61" then FACI_type = "61: Rule 31 CD - Non-IMD"
-		IF FACI_type = "67" then FACI_type = "67: Family Violence Shelter"
-		IF FACI_type = "68" then FACI_type = "68: County Correctional Facility"
-		IF FACI_type = "69" then FACI_type = "69: Non-Cty Adult Correctional"
+	    IF AREP_checkbox = 1 then
+	    	'NAVIGATES TO AREP, READS THE NAME, AND ADDS TO SPREADSHEET
+	    	EMWriteScreen "AREP", 20, 71
+	    	transmit
+	    	EMReadScreen AREP_name, 37, 4, 32
+	    	AREP_name = replace(AREP_name, "_", "")
+	    	ObjExcel.Cells(excel_row, AREP_col).Value = AREP_name
+	    END IF
 
-		EMReadScreen GRH_DOC, 8, 13, 45
-		ObjExcel.Cells(excel_row, 4).Value = trim(replace(FACI_name, "_", ""))
-        ObjExcel.Cells(excel_row, 5).Value = trim(replace(vendor_number, "_", ""))
-		If FACI_type_checkbox = 1  	then ObjExcel.Cells(excel_row, faci_type_col).Value = trim(replace(FACI_type, "_", ""))
-		If DOC_checkbox = 1 		then ObjExcel.Cells(excel_row, DOC_col).Value = trim(replace(GRH_DOC, "_", ""))
-	End if
+	    If waiver_checkbox = 1 then
+	    	'Navigates to DISA and checks the waiver type
+	    	EMWriteScreen "DISA", 20, 71
+	    	transmit
+	    	EMReadScreen DISA_waiver_type, 1, 14, 59
+	    	If DISA_waiver_type = "_" then DISA_waiver_type = ""
+	    	ObjExcel.Cells(excel_row, waiver_col).Value = DISA_waiver_type
+	    END IF
 
-	IF AREP_checkbox = 1 then
-		'NAVIGATES TO AREP, READS THE NAME, AND ADDS TO SPREADSHEET
-		EMWriteScreen "AREP", 20, 71
-		transmit
-		EMReadScreen AREP_name, 37, 4, 32
-		AREP_name = replace(AREP_name, "_", "")
-		ObjExcel.Cells(excel_row, AREP_col).Value = AREP_name
-	END IF
-
-	If waiver_checkbox = 1 then
-		'Navigates to DISA and checks the waiver type
-		EMWriteScreen "DISA", 20, 71
-		transmit
-		EMReadScreen DISA_waiver_type, 1, 14, 59
-		If DISA_waiver_type = "_" then DISA_waiver_type = ""
-		ObjExcel.Cells(excel_row, waiver_col).Value = DISA_waiver_type
-	END IF
-
-	IF SWKR_checkbox = 1 then
-		'NAVIGATES TO STAT/SWKR and reads the SWKR name
-		EMWritescreen "SWKR", 20, 71
-		transmit
-		EMReadScreen SWKR_name, 34, 6, 32
-		swkr_name = replace(swkr_name, "_", "")
-		ObjExcel.Cells(excel_row, SWKR_col).Value = swkr_name
-	END IF
+	    IF SWKR_checkbox = 1 then
+	    	'NAVIGATES TO STAT/SWKR and reads the SWKR name
+	    	EMWritescreen "SWKR", 20, 71
+	    	transmit
+	    	EMReadScreen SWKR_name, 34, 6, 32
+	    	swkr_name = replace(swkr_name, "_", "")
+	    	ObjExcel.Cells(excel_row, SWKR_col).Value = swkr_name
+	    END IF
+    End if
 	excel_row = excel_row + 1 'setting up the script to check the next row.
 loop
 
@@ -326,4 +329,44 @@ FOR i = 1 to col_to_use
 NEXT
 
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success! Your list has been created.")
+script_end_procedure_with_error_report("Success! Your list has been created.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/12/2022
+'--Tab orders reviewed & confirmed----------------------------------------------04/12/2022
+'--Mandatory fields all present & Reviewed--------------------------------------04/12/2022
+'--All variables in dialog match mandatory fields-------------------------------04/12/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022--------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022--------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/12/2022--------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022--------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------04/12/2022
+'--Out-of-County handling reviewed----------------------------------------------04/12/2022--------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/12/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------04/12/2022--------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------04/12/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------04/12/2022
+'--Denomination reviewed -------------------------------------------------------04/12/2022
+'--Script name reviewed---------------------------------------------------------04/12/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------04/12/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------04/12/2022
+'--comment Code-----------------------------------------------------------------04/12/2022
+'--Update Changelog for release/update------------------------------------------04/12/2022
+'--Remove testing message boxes-------------------------------------------------04/12/2022
+'--Remove testing code/unnecessary code-----------------------------------------04/12/2022
+'--Review/update SharePoint instructions----------------------------------------04/12/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/12/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/12/2022
+'--Complete misc. documentation (if applicable)---------------------------------04/12/2022--------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------04/12/2022
