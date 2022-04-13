@@ -2,7 +2,7 @@
 name_of_script = "NOTES - SHELTER-SHELTER INTERVIEW.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 0         	'manual run time in seconds
+STATS_manualtime = 300         	'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -21,11 +21,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
-			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
-                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
-                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
-                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-            StopScript
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine & "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine & "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+		    StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
@@ -36,56 +33,95 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, grabbing case number
+'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
+CALL check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
+If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
+	Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+End If
+'Running the dialog for case number and client
+Do
+	err_msg = ""
+    Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 201, 90, "Shelter Interview"
+	  EditBox 55, 5, 45, 15, MAXIS_case_number
+	  DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
+	  EditBox 80, 45, 115, 15, worker_signature
+	  ButtonGroup ButtonPressed
+	    OkButton 100, 70, 45, 15
+	    CancelButton 150, 70, 45, 15
+	  Text 5, 10, 45, 10, "Case number:"
+	  Text 5, 30, 70, 10, "Household member:"
+	  Text 5, 50, 60, 10, "Worker signature:"
+	  ButtonGroup ButtonPressed
+	    PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
+	EndDialog
+
+	Dialog Dialog1
+	IF ButtonPressed = cancel Then StopScript
+	IF ButtonPressed = search_button Then
+		If MAXIS_case_number = "" Then
+			MsgBox "Cannot search without a case number, please try again."
+		Else
+			HH_Memb_DropDown = ""
+			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+			err_msg = err_msg & "Start Over"
+		End If
+	End If
+	IF MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "Please enter a valid case number."
+	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please select a client to update."
+	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Please enter your worker signature."
+	IF err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
+Loop until err_msg = ""
+
+CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+IF is_this_priv = TRUE THEN script_end_procedure("Please send a request for access to the case to Knowledge Now.")
+
+'redefine ref_numb'
+MEMB_number = left(clt_to_update, 2)	'Settin the reference number
+EMWriteScreen MEMB_number, 20, 76
+TRANSMIT
+EMReadScreen client_first_name, 12, 6, 63
+client_first_name = replace(client_first_name, "_", "")
+client_first_name = trim(client_first_name)
+EMReadScreen client_last_name, 25, 6, 30
+client_last_name = replace(client_last_name, "_", "")
+client_last_name = trim(client_last_name)
+EMReadscreen client_mid_initial, 1, 6, 79
+EMReadScreen client_DOB, 10, 8, 42
+EMReadscreen client_SSN, 11, 7, 42
+client_SSN = replace(client_SSN, " ", "")
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 311, 325, "Shelter Interview: Do no release funds, family in shelter."
-  EditBox 70, 10, 45, 15, MAXIS_case_number
-  DropListBox 210, 10, 90, 15, "Select one..."+chr(9)+"DWP"+chr(9)+"MFIP", cash_type
-  EditBox 240, 40, 60, 15, one_time_issuance
-  EditBox 95, 65, 205, 15, other_income
-  EditBox 95, 85, 205, 15, money_mismanagement
-  EditBox 95, 105, 205, 15, reason_homeless
-  EditBox 95, 125, 205, 15, barriers_housing
-  EditBox 95, 145, 205, 15, shelter_history
-  EditBox 95, 165, 205, 15, social_worker
-  EditBox 95, 185, 205, 15, referrals_made
-  EditBox 95, 205, 100, 15, other_notes
+BeginDialog Dialog1, 0, 0, 311, 145, "Shelter Interview"
+  EditBox 100, 5, 205, 15, barriers_housing
+  EditBox 100, 25, 205, 15, reason_homeless
+  EditBox 100, 45, 205, 15, other_income
+  EditBox 100, 65, 205, 15, shelter_history
+  EditBox 100, 85, 205, 15, referrals_made
+  EditBox 100, 105, 205, 15, other_notes
   ButtonGroup ButtonPressed
-    OkButton 200, 205, 50, 15
-    CancelButton 250, 205, 50, 15
-  Text 45, 70, 45, 10, "Other income:"
-  Text 10, 90, 80, 10, "Money mismanagement:"
-  Text 40, 170, 50, 10, "Social worker:"
-  Text 20, 130, 70, 10, "Barrier(s) to housing:"
-  Text 50, 210, 40, 10, "Other notes: "
-  Text 20, 260, 215, 15, "* Explained shelter policies and client options to shelter such as:   bus tickets, temporary housing, private shelters, etc."
-  Text 25, 285, 265, 15, "* Client given family social services number (348-4111) to discuss any family issues/barriers."
-  GroupBox 5, 230, 295, 75, "Additional text added to case note:"
-  Text 155, 15, 50, 10, "Cash program:"
-  Text 20, 15, 45, 10, "Case number:"
-  Text 30, 190, 60, 10, "Referrals made to:"
-  Text 35, 150, 55, 10, "Shelter history:"
-  Text 20, 245, 225, 10, "* 100% of cash benefit to be issued to HCEA shelter account #52871."
-  Text 5, 110, 90, 10, "Reason for homelessness:"
-  Text 15, 45, 225, 10, "Amt issued to EBT as one-time only (10%) for PN ($20 med co-pays):"
-  GroupBox 10, 30, 295, 30, "If MFIP recipient:"
+    OkButton 200, 125, 50, 15
+    CancelButton 255, 125, 50, 15
+  Text 5, 10, 70, 10, "Barrier(s) to housing:"
+  Text 5, 30, 90, 10, "Reason for homelessness:"
+  Text 5, 50, 45, 10, "Other income:"
+  Text 5, 70, 55, 10, "Shelter history:"
+  Text 5, 90, 60, 10, "Referrals made to:"
+  Text 5, 110, 40, 10, "Other notes: "
 EndDialog
+
 
 DO
 	DO
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If cash_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the family's cash program."
-        If cash_type = "MFIP" and one_time_issuance = "" then err_msg = err_msg & vbNewLine & "* Enter the amount to issue as a one-time only payment."
         If reason_homeless = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for family's homelessness."
 		If barriers_housing = "" then err_msg = err_msg & vbNewLine & "* Enter the family's barrier(s) to housing."
 		If referrals_made = "" then err_msg = err_msg & vbNewLine & "* Enter referals made for the family."
@@ -103,18 +139,10 @@ EMWriteScreen CM_yr, 20, 46
 
 'The case note'
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE(">>>DO NOT release " & cash_type & " funds, family in shelter<<<")
-Call write_variable_in_CASE_NOTE("* 100% of cash benefit to be issued to HCEA shelter account #52871.")
-If cash_type = "DWP" then
-    Call write_variable_in_CASE_NOTE("* DWP families are not eligible for the one-time only personal needs and medical co-pays")
-ELSE
-    Call write_variable_in_CASE_NOTE(" Except $" & one_time_issuance & " to EBT for one-time only (10%) for personal needs. $20 for medical co-pays.")
-END IF
-Call write_variable_in_CASE_NOTE("---")
+CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & "with M" &  MEMB_number & " ~")
 Call write_bullet_and_variable_in_CASE_NOTE("Other income", other_income)
-Call write_bullet_and_variable_in_CASE_NOTE("Money mismanagement", money_mismanagement)
-Call write_bullet_and_variable_in_CASE_NOTE("Reason for homelessness", reason_homeless)
 Call write_bullet_and_variable_in_CASE_NOTE("Barrier(s) to housing", barriers_housing)
+Call write_bullet_and_variable_in_CASE_NOTE("Reason for homelessness", reason_homeless)
 Call write_bullet_and_variable_in_CASE_NOTE("Shelter history", shelter_history)
 Call write_bullet_and_variable_in_CASE_NOTE("Social worker", social_worker)
 Call write_bullet_and_variable_in_CASE_NOTE("Referrals made to", referrals_made)
@@ -127,3 +155,45 @@ Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
 script_end_procedure("")
+
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/12/2022
+'--Tab orders reviewed & confirmed----------------------------------------------04/12/2022
+'--Mandatory fields all present & Reviewed--------------------------------------04/12/2022
+'--All variables in dialog match mandatory fields-------------------------------04/12/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022
+'--PRIV Case handling reviewed -------------------------------------------------04/12/2022
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/12/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------04/12/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------N/A
+'--Script name reviewed---------------------------------------------------------N/A
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------N/A
+'--comment Code-----------------------------------------------------------------N/A
+'--Update Changelog for release/update------------------------------------------N/A
+'--Remove testing message boxes-------------------------------------------------N/A
+'--Remove testing code/unnecessary code-----------------------------------------N/A
+'--Review/update SharePoint instructions----------------------------------------N/A
+'--Review Best Practices using BZS page ----------------------------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
