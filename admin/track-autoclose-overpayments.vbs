@@ -87,7 +87,49 @@ const det_correct_net_adj_income_col 	= 46
 const det_correct_hh_size_col 			= 47
 const det_snap_proration_col			= 48
 const det_correct_snap_benefit_col 		= 49
-const det_pdf_link_col 					= 50
+
+const det_orig_mf_caregivers_col 			= 50 'Orig Caregivers
+const det_orig_mf_children_col 				= 51 'Orig Children
+const det_orig_mf_earned_income_col 		= 52 'Orig MF Earned Income
+const det_orig_mf_ei_deductions_col 		= 53 'Orig EI Disregards/Deductions
+const det_orig_mf_net_ei_col 				= 54 'Orig Net Earned Income
+const det_orig_mf_family_wage_level_col 	= 55 'Orig Family Wage Level
+const det_orig_mf_difference_col 			= 56 'Orig Difference
+const det_orig_mf_transitional_stndrd_col 	= 57 'Orig Trasitional Standard
+const det_orig_mf_diff_or_trns_stndrd_col 	= 58 'Difference or Transitional Standard
+const det_orig_mf_unearned_income_col 		= 59 'Orig MF Unearned Income
+const det_orig_mf_unea_deductions_col 		= 60 'Orig Ded/Disrgd
+const det_orig_mf_deemed_income_col 		= 61 'Orig Deemed Income
+const det_orig_mf_cs_exclusion_col 			= 62 'Orig CS Exclusion
+const det_orig_mf_subsidy_col 				= 63 'Orig Subsidy
+const det_orig_mf_unmet_need_col 			= 64 'Orig Unmet Need
+const det_orig_mf_mf_amt_col 				= 65 'Orig MF-MF
+const det_orig_mf_fs_amt_col 				= 66 'Orig MF-FS
+const det_orig_mf_hg_amt_col 				= 67 'Orig MF-HG
+const det_correct_mf_caregivers_col 		= 68 'Correct Caregivers
+const det_correct_mf_children_col 			= 69 'Correct Children
+const det_correct_mf_earned_income_col 		= 70 'Correct MF Earned Income
+const det_correct_mf_ei_deductions_col 		= 71 'Correct EI Disregards/Deductions
+const det_correct_mf_net_ei_col 			= 72 'Correct Net Earned Income
+const det_correct_mf_family_wage_level_col 	= 73 'Correct Family Wage Level
+const det_correct_mf_difference_col 		= 74 'Correct Difference
+const det_correct_mf_transitional_stndrd_col = 75 'Correct Trasitional Standard
+const det_correct_mf_diff_or_trns_stndrd_col = 76 'Correct or Transitional Standard
+const det_correct_mf_unearned_income_col 	= 77 'Correct MF Unearned Income
+const det_correct_mf_unea_deductions_col 	= 78 'Correct Ded/Disrgd
+const det_correct_mf_deemed_income_col 		= 79 'Correct Deemed Income
+const det_correct_mf_cs_exclusion_col 		= 80 'Correct CS Exclusion
+const det_correct_mf_subsidy_col 			= 81 'Correct Subsidy
+const det_mf_proration_date_col 			= 82 'MFIP Proration Date
+const det_correct_mf_unmet_need_col 		= 83 'Correct Unmet Need
+const det_correct_mf_mf_amt_col 			= 84 'Correct MF-MF
+const det_correct_mf_fs_amt_col 			= 85 'Correct MF-FS
+const det_correct_mf_hg_amt_col 			= 86 'Correct MF-HG
+
+
+const det_snap_pdf_link_col 				= 87
+const det_mfip_pdf_link_col 				= 88
+
 
 
 const rept_case_numb_col 		= 1
@@ -323,6 +365,140 @@ function budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_a
 	End If
 end function
 
+function determine_proration_percentage(proration_date, proration_percentage)
+	proration_date = DateAdd("d", 0, proration_date)
+	proration_day = DatePart("d", proration_date)
+
+	'determine the days in a month'
+	month_var = DatePart("m", proration_date)
+	year_var = DatePart("yyyy", proration_date)
+	first_of_proration_month = month_var & "/1/" & year_var
+	first_of_proration_month = DateAdd("d", 0, first_of_proration_month)
+	month_after_proration_month = DateAdd("m", 1, first_of_proration_month)
+	last_day_of_proration_month = DateAdd("d", -1, month_after_proration_month)
+
+	proration_percentage = 1.00
+	If last_day_of_proration_month = 28 Then
+		If proration_day = 2 Then proration_percentage = .9643
+		If proration_day = 3 Then proration_percentage = .9286
+		If proration_day = 4 Then proration_percentage = .8929
+		If proration_day = 5 Then proration_percentage = .8571
+		If proration_day = 6 Then proration_percentage = .8214
+		If proration_day = 7 Then proration_percentage = .7857
+		If proration_day = 8 Then proration_percentage = .7500
+		If proration_day = 9 Then proration_percentage = .7143
+		If proration_day = 10 Then proration_percentage = .6786
+		If proration_day = 11 Then proration_percentage = .6429
+		If proration_day = 12 Then proration_percentage = .6071
+		If proration_day = 13 Then proration_percentage = .5714
+		If proration_day = 14 Then proration_percentage = .5357
+		If proration_day = 15 Then proration_percentage = .5000
+		If proration_day = 16 Then proration_percentage = .4643
+		If proration_day = 17 Then proration_percentage = .4286
+		If proration_day = 18 Then proration_percentage = .3929
+		If proration_day = 19 Then proration_percentage = .3571
+		If proration_day = 20 Then proration_percentage = .3214
+		If proration_day = 21 Then proration_percentage = .2857
+		If proration_day = 22 Then proration_percentage = .2500
+		If proration_day = 23 Then proration_percentage = .2143
+		If proration_day = 24 Then proration_percentage = .1786
+		If proration_day = 25 Then proration_percentage = .1429
+		If proration_day = 26 Then proration_percentage = .1071
+		If proration_day = 27 Then proration_percentage = .0714
+		If proration_day = 28 Then proration_percentage = .0357
+	ElseIf last_day_of_proration_month = 29 Then
+		If proration_day = 2 Then proration_percentage = .9655
+		If proration_day = 3 Then proration_percentage = .9310
+		If proration_day = 4 Then proration_percentage = .8966
+		If proration_day = 5 Then proration_percentage = .8621
+		If proration_day = 6 Then proration_percentage = .8276
+		If proration_day = 7 Then proration_percentage = .7931
+		If proration_day = 8 Then proration_percentage = .7586
+		If proration_day = 9 Then proration_percentage = .7241
+		If proration_day = 10 Then proration_percentage = .6897
+		If proration_day = 11 Then proration_percentage = .6552
+		If proration_day = 12 Then proration_percentage = .6207
+		If proration_day = 13 Then proration_percentage = .5862
+		If proration_day = 14 Then proration_percentage = .5517
+		If proration_day = 15 Then proration_percentage = .5172
+		If proration_day = 16 Then proration_percentage = .4828
+		If proration_day = 17 Then proration_percentage = .4483
+		If proration_day = 18 Then proration_percentage = .4138
+		If proration_day = 19 Then proration_percentage = .3793
+		If proration_day = 20 Then proration_percentage = .3448
+		If proration_day = 21 Then proration_percentage = .3103
+		If proration_day = 22 Then proration_percentage = .2759
+		If proration_day = 23 Then proration_percentage = .2414
+		If proration_day = 24 Then proration_percentage = .2069
+		If proration_day = 25 Then proration_percentage = .1724
+		If proration_day = 26 Then proration_percentage = .1379
+		If proration_day = 27 Then proration_percentage = .1034
+		If proration_day = 28 Then proration_percentage = .0690
+		If proration_day = 29 Then proration_percentage = .0357
+	ElseIf last_day_of_proration_month = 30 Then
+		If proration_day = 2 Then proration_percentage = .9667
+		If proration_day = 3 Then proration_percentage = .9333
+		If proration_day = 4 Then proration_percentage = .9000
+		If proration_day = 5 Then proration_percentage = .8667
+		If proration_day = 6 Then proration_percentage = .8333
+		If proration_day = 7 Then proration_percentage = .8000
+		If proration_day = 8 Then proration_percentage = .7667
+		If proration_day = 9 Then proration_percentage = .7333
+		If proration_day = 10 Then proration_percentage = .7000
+		If proration_day = 11 Then proration_percentage = .6667
+		If proration_day = 12 Then proration_percentage = .6333
+		If proration_day = 13 Then proration_percentage = .6000
+		If proration_day = 14 Then proration_percentage = .5667
+		If proration_day = 15 Then proration_percentage = .5333
+		If proration_day = 16 Then proration_percentage = .5000
+		If proration_day = 17 Then proration_percentage = .4667
+		If proration_day = 18 Then proration_percentage = .4333
+		If proration_day = 19 Then proration_percentage = .4000
+		If proration_day = 20 Then proration_percentage = .3667
+		If proration_day = 21 Then proration_percentage = .3333
+		If proration_day = 22 Then proration_percentage = .3000
+		If proration_day = 23 Then proration_percentage = .2667
+		If proration_day = 24 Then proration_percentage = .2333
+		If proration_day = 25 Then proration_percentage = .2000
+		If proration_day = 26 Then proration_percentage = .1667
+		If proration_day = 27 Then proration_percentage = .1333
+		If proration_day = 28 Then proration_percentage = .1000
+		If proration_day = 29 Then proration_percentage = .0667
+		If proration_day = 30 Then proration_percentage = .0333
+	ElseIf last_day_of_proration_month = 31 Then
+		If proration_day = 2 Then proration_percentage = .9677
+		If proration_day = 3 Then proration_percentage = .9355
+		If proration_day = 4 Then proration_percentage = .9032
+		If proration_day = 5 Then proration_percentage = .8710
+		If proration_day = 6 Then proration_percentage = .8387
+		If proration_day = 7 Then proration_percentage = .8065
+		If proration_day = 8 Then proration_percentage = .7742
+		If proration_day = 9 Then proration_percentage = .7419
+		If proration_day = 10 Then proration_percentage = .7097
+		If proration_day = 11 Then proration_percentage = .6774
+		If proration_day = 12 Then proration_percentage = .6452
+		If proration_day = 13 Then proration_percentage = .6129
+		If proration_day = 14 Then proration_percentage = .5806
+		If proration_day = 15 Then proration_percentage = .5484
+		If proration_day = 16 Then proration_percentage = .5161
+		If proration_day = 17 Then proration_percentage = .4839
+		If proration_day = 18 Then proration_percentage = .4516
+		If proration_day = 19 Then proration_percentage = .4194
+		If proration_day = 20 Then proration_percentage = .3871
+		If proration_day = 21 Then proration_percentage = .3548
+		If proration_day = 22 Then proration_percentage = .3226
+		If proration_day = 23 Then proration_percentage = .2903
+		If proration_day = 24 Then proration_percentage = .2581
+		If proration_day = 25 Then proration_percentage = .2258
+		If proration_day = 26 Then proration_percentage = .1935
+		If proration_day = 27 Then proration_percentage = .1613
+		If proration_day = 28 Then proration_percentage = .1290
+		If proration_day = 29 Then proration_percentage = .0968
+		If proration_day = 30 Then proration_percentage = .0645
+		If proration_day = 31 Then proration_percentage = .0323
+	End If
+end function
+
 function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, output_type)
 	' cat_elig - True/Fals
 
@@ -333,41 +509,10 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 	Call ensure_variable_is_a_number(max_snap_benefit, 2)
 	Call ensure_variable_is_a_number(snap_issued_amt, 2)
 	Call ensure_variable_is_a_number(sanction_recoupment_correct_amt, 2)
-	If IsDate(snap_proration_date) = False Then
-		snap_proration_date = #2/1/2022#
-	Else
-		snap_proration_date = DateAdd("d", 0, snap_proration_date)
-	End If
 
-	proration_day = DatePart("d", snap_proration_date)
-	proration_percentage = 1.00
-	If proration_day = 2 Then proration_percentage = .9643
-	If proration_day = 3 Then proration_percentage = .9286
-	If proration_day = 4 Then proration_percentage = .8929
-	If proration_day = 5 Then proration_percentage = .8571
-	If proration_day = 6 Then proration_percentage = .8214
-	If proration_day = 7 Then proration_percentage = .7857
-	If proration_day = 8 Then proration_percentage = .7500
-	If proration_day = 9 Then proration_percentage = .7143
-	If proration_day = 10 Then proration_percentage = .6786
-	If proration_day = 11 Then proration_percentage = .6429
-	If proration_day = 12 Then proration_percentage = .6071
-	If proration_day = 13 Then proration_percentage = .5714
-	If proration_day = 14 Then proration_percentage = .5357
-	If proration_day = 15 Then proration_percentage = .5000
-	If proration_day = 16 Then proration_percentage = .4643
-	If proration_day = 17 Then proration_percentage = .4286
-	If proration_day = 18 Then proration_percentage = .3929
-	If proration_day = 19 Then proration_percentage = .3571
-	If proration_day = 20 Then proration_percentage = .3214
-	If proration_day = 21 Then proration_percentage = .2857
-	If proration_day = 22 Then proration_percentage = .2500
-	If proration_day = 23 Then proration_percentage = .2143
-	If proration_day = 24 Then proration_percentage = .1786
-	If proration_day = 25 Then proration_percentage = .1429
-	If proration_day = 26 Then proration_percentage = .1071
-	If proration_day = 27 Then proration_percentage = .0714
-	If proration_day = 28 Then proration_percentage = .0357
+	If IsDate(snap_proration_date) = False Then snap_proration_date = #2/1/2022#
+	Call determine_proration_percentage(snap_proration_date, proration_percentage)
+
 	snap_proration_date = snap_proration_date & ""
 
 	snap_overpayment_exists = False
@@ -421,19 +566,411 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 
 end function
 
-' function budget_calculate_mfip(ARRAY_NAME, , output_type)
-'
-' end function
-'
-' function budget_calculate_mfip(, output_type)
-'
-' end function
+function determine_mfip_assistance_standards(familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, correct_caregiver, correct_children, output_type)
+	Call ensure_variable_is_a_number(correct_caregiver, 0)
+	Call ensure_variable_is_a_number(correct_children, 0)
+	total_mfip_members = correct_caregiver + correct_children
+
+	If total_mfip_members = 0 Then
+		familY_wage_level = 0
+		full_mfip_standard = 0
+		mfip_full_cash_portion = 0
+		mfip_full_food_portion = 0
+	ElseIf total_mfip_members = 1 Then
+		familY_wage_level = 619
+		full_mfip_standard = 563
+		mfip_full_cash_portion = 355
+		mfip_full_food_portion = 208
+	ElseIf total_mfip_members = 2 Then
+		familY_wage_level = 1019
+		full_mfip_standard = 926
+		mfip_full_cash_portion = 545
+		mfip_full_food_portion = 381
+	ElseIf total_mfip_members = 3 Then
+		familY_wage_level = 1308
+		full_mfip_standard = 1189
+		mfip_full_cash_portion = 641
+		mfip_full_food_portion = 548
+	ElseIf total_mfip_members = 4 Then
+		familY_wage_level = 1572
+		full_mfip_standard = 1429
+		mfip_full_cash_portion = 731
+		mfip_full_food_portion = 698
+	ElseIf total_mfip_members = 5 Then
+		familY_wage_level = 1814
+		full_mfip_standard = 1649
+		mfip_full_cash_portion = 808
+		mfip_full_food_portion = 841
+	ElseIf total_mfip_members = 6 Then
+		familY_wage_level = 2097
+		full_mfip_standard = 1906
+		mfip_full_cash_portion = 885
+		mfip_full_food_portion = 1021
+	ElseIf total_mfip_members = 7 Then
+		familY_wage_level = 2284
+		full_mfip_standard = 2076
+		mfip_full_cash_portion = 963
+		mfip_full_food_portion = 1113
+	ElseIf total_mfip_members = 8 Then
+		familY_wage_level = 2527
+		full_mfip_standard = 2297
+		mfip_full_cash_portion = 1030
+		mfip_full_food_portion = 1267
+	ElseIf total_mfip_members = 9 Then
+		familY_wage_level = 2768
+		full_mfip_standard = 2516
+		mfip_full_cash_portion = 1095
+		mfip_full_food_portion = 1421
+	ElseIf total_mfip_members = 10 Then
+		familY_wage_level = 3002
+		full_mfip_standard = 2729
+		mfip_full_cash_portion = 1151
+		mfip_full_food_portion = 1578
+	Else
+		familY_wage_level = 3002 + (total_mfip_members - 10)*233
+		full_mfip_standard = 2729 + (total_mfip_members - 10)*212
+		mfip_full_cash_portion = 1151 + (total_mfip_members - 10)*54
+		mfip_full_food_portion = 1578 + (total_mfip_members - 10)*158
+	End If
+
+	If UCase(output_type) = "STRING" Then
+		familY_wage_level = familY_wage_level & ""
+		full_mfip_standard = full_mfip_standard & ""
+		mfip_full_cash_portion = mfip_full_cash_portion & ""
+		mfip_full_food_portion = mfip_full_food_portion & ""
+		correct_caregiver = correct_caregiver & ""
+		correct_children = correct_children & ""
+	End If
+end function
+
+function budget_calculate_mfip_income(ARRAY_NAME, earned_inc_correct_const, earned_inc_disregard_correct_const, avail_earned_inc_correct_const, allocation_correct_const, child_support_cost_correct_const, counted_earned_inc_correct_const, unearned_inc_correct_const, allocation_bal_correct_const, child_support_cost_bal_correct_const, counted_unearned_inc_correct_const, total_correct_mfip_earned_deductions_and_disreagards, total_correct_mfip_earned_income, total_correct_mfip_net_earned_income, total_correct_mfip_unearned_deductions_and_disreagards, total_correct_mfip_unearned_income, total_correct_mfip_net_unearned_income, cses_income_correct_amt, correct_children, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, output_type)
+	Call ensure_variable_is_a_number(familY_wage_level, 2)
+	Call ensure_variable_is_a_number(full_mfip_standard, 2)
+	Call ensure_variable_is_a_number(mfip_full_cash_portion, 2)
+	Call ensure_variable_is_a_number(mfip_full_food_portion, 2)
+	Call ensure_variable_is_a_number(correct_mfip_deemed_amt, 2)
+	Call ensure_variable_is_a_number(cses_income_correct_amt, 2)
+	Call ensure_variable_is_a_number(correct_children, 2)
+
+	total_correct_mfip_earned_income = 0.00
+	total_correct_mfip_earned_deductions_and_disreagards = 0.00
+	total_correct_mfip_net_earned_income = 0.00
+	total_correct_mfip_unearned_income = 0.00
+	total_correct_mfip_unearned_deductions_and_disreagards = 0.00
+	total_correct_mfip_net_unearned_income = 0.00
+	correct_mfip_cses_exclusion = 0.00
+
+	' total_correct_mfip_
+	For hh_memb = 0 to UBound(ARRAY_NAME, 2)
+		Call ensure_variable_is_a_number(ARRAY_NAME(earned_inc_correct_const, hh_memb), 2)
+		Call ensure_variable_is_a_number(ARRAY_NAME(allocation_correct_const, hh_memb), 2)
+		Call ensure_variable_is_a_number(ARRAY_NAME(child_support_cost_correct_const, hh_memb), 2)
+		Call ensure_variable_is_a_number(ARRAY_NAME(unearned_inc_correct_const, hh_memb), 2)
+		' Call ensure_variable_is_a_number(total_income_correct_amt, 2)
+		' Call ensure_variable_is_a_number(total_income_correct_amt, 2)
+		total_correct_mfip_earned_income = total_correct_mfip_earned_income + ARRAY_NAME(earned_inc_correct_const, hh_memb)
+
+		half_of_remaining = ARRAY_NAME(earned_inc_correct_const, hh_memb) - 65
+		If half_of_remaining < 0 Then half_of_remaining = 0.00
+		half_of_remaining = half_of_remaining/2
+		ARRAY_NAME(earned_inc_disregard_correct_const, hh_memb) = half_of_remaining + 65
+		ARRAY_NAME(avail_earned_inc_correct_const, hh_memb) = half_of_remaining
+
+		If ARRAY_NAME(avail_earned_inc_correct_const, hh_memb) < ARRAY_NAME(allocation_correct_const, hh_memb) Then
+			ARRAY_NAME(allocation_bal_correct_const, hh_memb) = ARRAY_NAME(allocation_correct_const, hh_memb) - ARRAY_NAME(avail_earned_inc_correct_const, hh_memb)
+			balance_after_allocation_cost_deduction = 0.00
+		ElseIf ARRAY_NAME(allocation_correct_const, hh_memb) = 0.00 Then
+			balance_after_allocation_cost_deduction = ARRAY_NAME(avail_earned_inc_correct_const, hh_memb)
+			ARRAY_NAME(allocation_bal_correct_const, hh_memb) = 0.00
+		Else
+			balance_after_allocation_cost_deduction = ARRAY_NAME(avail_earned_inc_correct_const, hh_memb) - ARRAY_NAME(allocation_correct_const, hh_memb)
+			ARRAY_NAME(allocation_bal_correct_const, hh_memb) = 0.00
+		End If
+
+		If balance_after_allocation_cost_deduction < ARRAY_NAME(child_support_cost_correct_const, hh_memb) Then
+			ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb) = ARRAY_NAME(child_support_cost_correct_const, hh_memb) - balance_after_allocation_cost_deduction
+			ARRAY_NAME(counted_earned_inc_correct_const, hh_memb) = 0.00
+		ElseIf ARRAY_NAME(child_support_cost_correct_const, hh_memb) = 0.00 Then
+			ARRAY_NAME(counted_earned_inc_correct_const, hh_memb) = balance_after_allocation_cost_deduction
+			ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb) = 0.00
+		Else
+			ARRAY_NAME(counted_earned_inc_correct_const, hh_memb) = balance_after_allocation_cost_deduction - ARRAY_NAME(child_support_cost_correct_const, hh_memb)
+			ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb) = 0.00
+		End If
+		total_correct_mfip_net_earned_income = total_correct_mfip_net_earned_income + ARRAY_NAME(counted_earned_inc_correct_const, hh_memb)
+
+		total_correct_mfip_unearned_income = total_correct_mfip_unearned_income + ARRAY_NAME(unearned_inc_correct_const, hh_memb)
+		If ARRAY_NAME(unearned_inc_correct_const, hh_memb) < ARRAY_NAME(allocation_bal_correct_const, hh_memb) Then
+			balance_after_allocation_cost_deduction = 0.00
+		ElseIf ARRAY_NAME(allocation_bal_correct_const, hh_memb) = 0.00 Then
+			balance_after_allocation_cost_deduction = ARRAY_NAME(unearned_inc_correct_const, hh_memb)
+		Else
+			balance_after_allocation_cost_deduction = ARRAY_NAME(unearned_inc_correct_const, hh_memb) - ARRAY_NAME(allocation_bal_correct_const, hh_memb)
+		End If
+
+		If balance_after_allocation_cost_deduction < ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb) Then
+			ARRAY_NAME(counted_unearned_inc_correct_const, hh_memb) = 0.00
+		ElseIf ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb) = 0.00 Then
+			ARRAY_NAME(counted_unearned_inc_correct_const, hh_memb) = balance_after_allocation_cost_deduction
+		Else
+			ARRAY_NAME(counted_unearned_inc_correct_const, hh_memb) = balance_after_allocation_cost_deduction - ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb)
+		End If
+		total_correct_mfip_net_unearned_income = total_correct_mfip_net_unearned_income + ARRAY_NAME(counted_unearned_inc_correct_const, hh_memb)
+
+		If UCase(output_type) = "STRING" Then
+			ARRAY_NAME(earned_inc_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(earned_inc_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(earned_inc_correct_const, hh_memb) = ARRAY_NAME(earned_inc_correct_const, hh_memb) & ""
+			ARRAY_NAME(earned_inc_disregard_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(earned_inc_disregard_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(earned_inc_disregard_correct_const, hh_memb) = ARRAY_NAME(earned_inc_disregard_correct_const, hh_memb) & ""
+			ARRAY_NAME(avail_earned_inc_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(avail_earned_inc_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(avail_earned_inc_correct_const, hh_memb) = ARRAY_NAME(avail_earned_inc_correct_const, hh_memb) & ""
+			ARRAY_NAME(allocation_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(allocation_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(allocation_correct_const, hh_memb) = ARRAY_NAME(allocation_correct_const, hh_memb) & ""
+			ARRAY_NAME(child_support_cost_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(child_support_cost_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(child_support_cost_correct_const, hh_memb) = ARRAY_NAME(child_support_cost_correct_const, hh_memb) & ""
+			ARRAY_NAME(counted_earned_inc_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(counted_earned_inc_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(counted_earned_inc_correct_const, hh_memb) = ARRAY_NAME(counted_earned_inc_correct_const, hh_memb) & ""
+			ARRAY_NAME(unearned_inc_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(unearned_inc_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(unearned_inc_correct_const, hh_memb) = ARRAY_NAME(unearned_inc_correct_const, hh_memb) & ""
+			ARRAY_NAME(allocation_bal_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(allocation_bal_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(allocation_bal_correct_const, hh_memb) = ARRAY_NAME(allocation_bal_correct_const, hh_memb) & ""
+			ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb) = ARRAY_NAME(child_support_cost_bal_correct_const, hh_memb) & ""
+			ARRAY_NAME(counted_unearned_inc_correct_const, hh_memb) = FormatNumber(ARRAY_NAME(counted_unearned_inc_correct_const, hh_memb), 2, -1, 0, 0)
+			ARRAY_NAME(counted_unearned_inc_correct_const, hh_memb) = ARRAY_NAME(counted_unearned_inc_correct_const, hh_memb) & ""
+		End if
+	Next
+
+	' total_correct_mfip_earned_income = Int(total_correct_mfip_earned_income)
+	' total_correct_mfip_net_earned_income = Int(total_correct_mfip_net_earned_income)
+	' total_correct_mfip_unearned_income = Int(total_correct_mfip_unearned_income)
+	' total_correct_mfip_net_unearned_income = Int(total_correct_mfip_net_unearned_income)
+
+	total_correct_mfip_earned_deductions_and_disreagards = total_correct_mfip_earned_income - total_correct_mfip_net_earned_income
+	total_correct_mfip_unearned_deductions_and_disreagards = total_correct_mfip_unearned_income - total_correct_mfip_net_unearned_income
+
+	total_correct_mfip_earned_income = FormatNumber(total_correct_mfip_earned_income, 2, -1, 0, 0)
+	total_correct_mfip_net_earned_income = FormatNumber(total_correct_mfip_net_earned_income, 2, -1, 0, 0)
+	total_correct_mfip_unearned_income = FormatNumber(total_correct_mfip_unearned_income, 2, -1, 0, 0)
+	total_correct_mfip_net_unearned_income = FormatNumber(total_correct_mfip_net_unearned_income, 2, -1, 0, 0)
+	total_correct_mfip_earned_deductions_and_disreagards = FormatNumber(total_correct_mfip_earned_deductions_and_disreagards, 2, -1, 0, 0)
+	total_correct_mfip_unearned_deductions_and_disreagards = FormatNumber(total_correct_mfip_unearned_deductions_and_disreagards, 2, -1, 0, 0)
+
+	max_cs_excl = 0.00
+	If correct_children = 1 Then max_cs_excl = 100.00
+	If correct_children > 1 Then max_cs_excl = 200.00
+	If cses_income_correct_amt < max_cs_excl Then max_cs_excl = cses_income_correct_amt
+	correct_mfip_cses_exclusion = max_cs_excl
+	correct_mfip_cses_exclusion = FormatNumber(correct_mfip_cses_exclusion, 2, -1, 0, 0)
+	correct_mfip_deemed_amt = FormatNumber(correct_mfip_deemed_amt, 2, -1, 0, 0)
+
+	If UCase(output_type) = "STRING" Then
+		familY_wage_level = familY_wage_level & ""
+		full_mfip_standard = full_mfip_standard & ""
+		mfip_full_cash_portion = mfip_full_cash_portion & ""
+		mfip_full_food_portion = mfip_full_food_portion & ""
+		correct_mfip_deemed_amt = correct_mfip_deemed_amt & ""
+		cses_income_correct_amt = cses_income_correct_amt & ""
+		correct_children = correct_children & ""
+		total_correct_mfip_earned_income = total_correct_mfip_earned_income & ""
+		total_correct_mfip_earned_deductions_and_disreagards = total_correct_mfip_earned_deductions_and_disreagards & ""
+		total_correct_mfip_net_earned_income = total_correct_mfip_net_earned_income & ""
+		total_correct_mfip_unearned_income = total_correct_mfip_unearned_income & ""
+		total_correct_mfip_unearned_deductions_and_disreagards = total_correct_mfip_unearned_deductions_and_disreagards & ""
+		total_correct_mfip_net_unearned_income = total_correct_mfip_net_unearned_income & ""
+		correct_mfip_cses_exclusion = correct_mfip_cses_exclusion & ""
+	End If
+
+end function
+
+function budget_calculate_correct_mfip(total_correct_mfip_net_earned_income, total_correct_mfip_net_unearned_income, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, mfip_overpayment_exists, mfip_supplement_exists, mfip_MF_HG_issued_amt, wage_level_difference, difference_or_transitional, mfip_unmet_need, prorated_unmet_need, mfip_subsidy_tribal_amt, mfip_correct_cash_portion, mfip_correct_food_portion, mfip_correct_hg_portion, mfip_proration_date, mfip_proration_percentage, MF_fed_percent, MF_state_percent, mfip_total_overpayment_amt, mfip_cash_overpayment_amt, mfip_food_overpayment_amt, mfip_hg_overpayment_amt, mfip_total_supplement_amt, mfip_cash_supplement_amt, mfip_food_supplement_amt, mfip_hg_supplement_amt, mfip_correct_food_f_portion, mfip_correct_food_s_portion, mfip_food_f_overpayment, mfip_food_s_overpayment, mfip_food_f_supplement, mfip_food_s_supplement, output_type)
+	' Call ensure_variable_is_a_number(familY_wage_level, 0)
+	Call ensure_variable_is_a_number(total_correct_mfip_net_earned_income, 2)
+	Call ensure_variable_is_a_number(total_correct_mfip_net_unearned_income, 2)
+	Call ensure_variable_is_a_number(correct_mfip_cses_exclusion, 2)
+	Call ensure_variable_is_a_number(correct_mfip_deemed_amt, 2)
+	Call ensure_variable_is_a_number(familY_wage_level, 2)
+	Call ensure_variable_is_a_number(full_mfip_standard, 2)
+	Call ensure_variable_is_a_number(mfip_full_cash_portion, 2)
+	Call ensure_variable_is_a_number(mfip_full_food_portion, 2)
+	Call ensure_variable_is_a_number(mfip_MF_HG_issued_amt, 2)
+	Call ensure_variable_is_a_number(mfip_subsidy_tribal_amt, 2)
+
+	wage_level_difference = familY_wage_level - total_correct_mfip_net_earned_income
+	If wage_level_difference >= full_mfip_standard Then difference_or_transitional = full_mfip_standard
+	If wage_level_difference < full_mfip_standard Then difference_or_transitional = wage_level_difference
+	mfip_unmet_need = difference_or_transitional - total_correct_mfip_net_unearned_income - correct_mfip_deemed_amt + correct_mfip_cses_exclusion
+
+
+	If IsDate(mfip_proration_date) = False Then mfip_proration_date = #2/1/2022#
+	Call determine_proration_percentage(mfip_proration_date, mfip_proration_percentage)
+
+	mfip_unmet_need = Int(mfip_unmet_need)
+	If mfip_unmet_need < 0.00 Then mfip_unmet_need = 0.00
+	prorated_unmet_need = mfip_unmet_need * mfip_proration_percentage
+	prorated_unmet_need = Int(prorated_unmet_need)
+
+	' Call ensure_variable_is_a_number(prorated_unmet_need, 2)
+	' Call ensure_variable_is_a_number(mfip_unmet_need, 2)
+
+	' MsgBox "prorated_unmet_need - " & prorated_unmet_need & vbCr & "mfip_full_food_portion - " & mfip_full_food_portion
+
+	If prorated_unmet_need <= mfip_full_food_portion Then
+		' MsgBox "Were in 1"
+		mfip_correct_food_portion = prorated_unmet_need
+		mfip_correct_cash_portion = 0.00
+	Else
+		' MsgBox "Were in 2"
+		mfip_correct_food_portion = mfip_full_food_portion
+		mfip_correct_cash_portion = prorated_unmet_need - mfip_full_food_portion
+		If mfip_correct_cash_portion >= mfip_subsidy_tribal_amt Then
+			mfip_correct_cash_portion = mfip_correct_cash_portion - mfip_subsidy_tribal_amt
+			prorated_unmet_need = prorated_unmet_need - mfip_subsidy_tribal_amt
+		Else
+			mfip_subsidy_to_apply = mfip_correct_cash_portion
+			mfip_correct_cash_portion = mfip_correct_cash_portion - mfip_subsidy_to_apply
+			prorated_unmet_need = prorated_unmet_need - mfip_subsidy_to_apply
+		End If
+	End If
+	' mfip_correct_food_f_portion = MF_fed_percent * mfip_correct_food_portion
+	' mfip_correct_food_s_portion = MF_state_percent * mfip_correct_food_portion
+	' MsgBox "MF_fed_percent - " & MF_fed_percent & vbCr & "MF_state_percent - " & MF_state_percent
+	mfip_correct_hg_portion = mfip_MF_HG_issued_amt
+	If prorated_unmet_need = 0.00 Then mfip_correct_hg_portion = 0.00
+
+	mfip_unmet_need = mfip_unmet_need * 1
+	prorated_unmet_need = prorated_unmet_need * 1
+	mfip_full_food_portion = mfip_full_food_portion * 1
+	mfip_full_cash_portion = mfip_full_cash_portion * 1
+	mfip_subsidy_tribal_amt = mfip_subsidy_tribal_amt * 1
+	mfip_total_issued_amt = mfip_total_issued_amt * 1
+
+	mfip_overpayment_exists = False
+	mfip_supplement_exists = False
+	mfip_total_overpayment_amt = 0.00
+	mfip_cash_overpayment_amt = 0.00
+	mfip_food_overpayment_amt = 0.00
+	mfip_hg_overpayment_amt = 0.00
+	mfip_total_supplement_amt = 0.00
+	mfip_cash_supplement_amt = 0.00
+	mfip_food_supplement_amt = 0.00
+	mfip_hg_supplement_amt = 0.00
+
+	If prorated_unmet_need < mfip_total_issued_amt Then
+		mfip_overpayment_exists = True
+		mfip_total_overpayment_amt = (mfip_total_issued_amt + mfip_MF_HG_issued_amt) - (prorated_unmet_need + mfip_correct_hg_portion)
+		running_op_calc = mfip_total_overpayment_amt - mfip_correct_hg_portion
+		running_op_calc = running_op_calc * 1
+		mfip_MF_MF_issued_amt = mfip_MF_MF_issued_amt * 1
+		' MsgBox "OP Calc - " & running_op_calc & vbCr & "MF MF Issued - " & mfip_MF_MF_issued_amt
+		If running_op_calc <= mfip_MF_MF_issued_amt Then
+			' MsgBox "we are in one"
+			mfip_cash_overpayment_amt = running_op_calc
+		Else
+			' MsgBox "we are in two"
+			mfip_cash_overpayment_amt = mfip_MF_MF_issued_amt
+			mfip_food_overpayment_amt = running_op_calc -mfip_MF_MF_issued_amt
+		End If
+
+		mfip_food_f_overpayment = MF_fed_percent * mfip_food_overpayment_amt
+		mfip_food_s_overpayment = MF_state_percent * mfip_food_overpayment_amt
+		' mfip_cash_overpayment_amt = mfip_MF_MF_issued_amt - mfip_correct_cash_portion
+		' mfip_food_overpayment_amt = mfip_MF_FS_issued_amt - mfip_correct_food_portion
+		mfip_hg_overpayment_amt = mfip_MF_HG_issued_amt - mfip_correct_hg_portion
+
+		' MsgBox "mfip_total_overpayment_amt - " & mfip_total_overpayment_amt & vbCr & "mfip_cash_overpayment_amt - " & mfip_cash_overpayment_amt & vbCr &_
+		' "mfip_food_overpayment_amt - " & mfip_food_overpayment_amt & vbCr & "mfip_hg_overpayment_amt - " & mfip_hg_overpayment_amt
+	End If
+	If prorated_unmet_need > mfip_total_issued_amt Then
+		mfip_supplement_exists = True
+		mfip_total_supplement_amt = (prorated_unmet_need + mfip_correct_hg_portion) - (mfip_total_issued_amt + mfip_MF_HG_issued_amt)
+		mfip_cash_supplement_amt = mfip_correct_cash_portion - mfip_MF_MF_issued_amt
+		mfip_food_supplement_amt = mfip_correct_food_portion - mfip_MF_FS_issued_amt
+		mfip_hg_supplement_amt = mfip_correct_hg_portion - mfip_MF_HG_issued_amt
+		mfip_food_f_supplement = MF_fed_percent * mfip_food_supplement_amt
+		mfip_food_s_supplement = MF_state_percent * mfip_food_supplement_amt
+	End If
+
+	mfip_unmet_need = FormatNumber(mfip_unmet_need, 2, -1, 0, 0)
+	prorated_unmet_need = FormatNumber(prorated_unmet_need, 2, -1, 0, 0)
+	mfip_full_food_portion = FormatNumber(mfip_full_food_portion, 2, -1, 0, 0)
+	mfip_full_cash_portion = FormatNumber(mfip_full_cash_portion, 2, -1, 0, 0)
+	mfip_subsidy_tribal_amt = FormatNumber(mfip_subsidy_tribal_amt, 2, -1, 0, 0)
+
+	mfip_correct_cash_portion = FormatNumber(mfip_correct_cash_portion, 2, -1, 0, 0)
+	mfip_correct_food_portion = FormatNumber(mfip_correct_food_portion, 2, -1, 0, 0)
+	mfip_correct_hg_portion = FormatNumber(mfip_correct_hg_portion, 2, -1, 0, 0)
+	' mfip_total_issued_amt = FormatNumber(mfip_total_issued_amt, 2, -1, 0, 0)
+
+	mfip_total_issued_amt = FormatNumber(mfip_total_issued_amt, 2, -1, 0, 0)
+	mfip_MF_MF_issued_amt = FormatNumber(mfip_MF_MF_issued_amt, 2, -1, 0, 0)
+	mfip_MF_FS_issued_amt = FormatNumber(mfip_MF_FS_issued_amt, 2, -1, 0, 0)
+	mfip_MF_HG_issued_amt = FormatNumber(mfip_MF_HG_issued_amt, 2, -1, 0, 0)
+	mfip_correct_hg_portion = FormatNumber(mfip_correct_hg_portion, 2, -1, 0, 0)
+	correct_mfip_cses_exclusion = FormatNumber(correct_mfip_cses_exclusion, 2, -1, 0, 0)
+	' mfip_correct_cash_portion
+	' mfip_correct_food_portion
+	mfip_total_overpayment_amt = FormatNumber(mfip_total_overpayment_amt, 2, -1, 0, 0)
+	mfip_cash_overpayment_amt = FormatNumber(mfip_cash_overpayment_amt, 2, -1, 0, 0)
+	mfip_food_overpayment_amt = FormatNumber(mfip_food_overpayment_amt, 2, -1, 0, 0)
+	mfip_hg_overpayment_amt = FormatNumber(mfip_hg_overpayment_amt, 2, -1, 0, 0)
+	mfip_total_supplement_amt = FormatNumber(mfip_total_supplement_amt, 2, -1, 0, 0)
+	mfip_cash_supplement_amt = FormatNumber(mfip_cash_supplement_amt, 2, -1, 0, 0)
+	mfip_food_supplement_amt = FormatNumber(mfip_food_supplement_amt, 2, -1, 0, 0)
+	mfip_hg_supplement_amt = FormatNumber(mfip_hg_supplement_amt, 2, -1, 0, 0)
+
+	mfip_correct_food_f_portion = FormatNumber(mfip_correct_food_f_portion, 2, -1, 0, 0)
+	mfip_correct_food_s_portion = FormatNumber(mfip_correct_food_s_portion, 2, -1, 0, 0)
+	mfip_food_f_overpayment = FormatNumber(mfip_food_f_overpayment, 2, -1, 0, 0)
+	mfip_food_s_overpayment = FormatNumber(mfip_food_s_overpayment, 2, -1, 0, 0)
+	mfip_food_f_supplement = FormatNumber(mfip_food_f_supplement, 2, -1, 0, 0)
+	mfip_food_s_supplement = FormatNumber(mfip_food_s_supplement, 2, -1, 0, 0)
+
+	If UCase(output_type) = "STRING" Then
+		total_correct_mfip_net_earned_income = total_correct_mfip_net_earned_income & ""
+		total_correct_mfip_net_unearned_income = total_correct_mfip_net_unearned_income & ""
+		correct_mfip_cses_exclusion = correct_mfip_cses_exclusion & ""
+		correct_mfip_deemed_amt = correct_mfip_deemed_amt & ""
+		familY_wage_level = familY_wage_level & ""
+		full_mfip_standard = full_mfip_standard & ""
+		mfip_full_cash_portion = mfip_full_cash_portion & ""
+		mfip_full_food_portion = mfip_full_food_portion & ""
+
+		mfip_MF_HG_issued_amt = mfip_MF_HG_issued_amt & ""
+		wage_level_difference = wage_level_difference & ""
+		difference_or_transitional = difference_or_transitional & ""
+		mfip_unmet_need = mfip_unmet_need & ""
+		prorated_unmet_need = prorated_unmet_need & ""
+		mfip_correct_cash_portion = mfip_correct_cash_portion & ""
+		mfip_correct_food_portion = mfip_correct_food_portion & ""
+		mfip_correct_hg_portion = mfip_correct_hg_portion & ""
+		mfip_proration_date = mfip_proration_date & ""
+
+		mfip_total_overpayment_amt = mfip_total_overpayment_amt & ""
+		mfip_cash_overpayment_amt = mfip_cash_overpayment_amt & ""
+		mfip_food_overpayment_amt = mfip_food_overpayment_amt & ""
+		mfip_hg_overpayment_amt = mfip_hg_overpayment_amt & ""
+		mfip_total_supplement_amt = mfip_total_supplement_amt & ""
+		mfip_cash_supplement_amt = mfip_cash_supplement_amt & ""
+		mfip_food_supplement_amt = mfip_food_supplement_amt & ""
+		mfip_hg_supplement_amt = mfip_hg_supplement_amt & ""
+		mfip_subsidy_tribal_amt = mfip_subsidy_tribal_amt & ""
+
+		mfip_correct_food_f_portion = mfip_correct_food_f_portion & ""
+		mfip_correct_food_s_portion = mfip_correct_food_s_portion & ""
+		mfip_food_f_overpayment = mfip_food_f_overpayment & ""
+		mfip_food_s_overpayment = mfip_food_s_overpayment & ""
+		mfip_food_f_supplement = mfip_food_f_supplement & ""
+		mfip_food_s_supplement = mfip_food_s_supplement & ""
+	end If
+end function
+
 function read_amount_from_MAXIS(variable_here, length, row, col)
 	EMReadScreen variable_here, length, row, col
 	variable_here = trim(variable_here)
-	If variable_here = "" Then variable_here = 0
-	If IsNumeric(variable_here) = False Then variable_here = 0
-	variable_here = FormatNumber(variable_here, decimal_places, -1, 0, 0)
+	If variable_here = "" Then variable_here = 0.00
+	If IsNumeric(variable_here) = False Then variable_here = 0.00
+	variable_here = FormatNumber(variable_here, 2, -1, 0, 0)
 	' variable_here = variable_here *1
 end function
 
@@ -443,7 +980,8 @@ EMConnect ""
 MAXIS_footer_month = "02"
 MAXIS_footer_year = "22"
 
-pdf_doc_path = ""
+snap_pdf_file_save_path = ""
+mfip_pdf_file_save_path = ""
 
 calc_btn = 500
 snap_claculation_done_btn = 501
@@ -455,18 +993,23 @@ disa_household = False
 
 excel_details_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\AutoClose Pause Tier Two Tracking Details - Testing.xlsx"
 excel_report_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\AutoClose Pause Tier Two Overpayments Report - Testing.xlsx"
+pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\Overpayment Calculation Documents\Testing\"
 
 
 If user_ID_for_validation = "WFM207" Then
 	user_name = "Mandora Young"
 	excel_details_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\AutoClose Pause Tier Two Tracking Details - Mandora.xlsx"
 	excel_report_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\AutoClose Pause Tier Two Overpayments Report - Mandora.xlsx"
+	pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\Overpayment Calculation Documents\"
 End If
 If user_ID_for_validation = "YEYA001" Then
 	user_name = "Yeng Yang"
 	excel_details_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\AutoClose Pause Tier Two Tracking Details - Yeng.xlsx"
 	excel_report_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\AutoClose Pause Tier Two Overpayments Report - Yeng.xlsx"
+	pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\Overpayment Calculation Documents\"
 End If
+
+' MsgBox pdf_doc_path
 
 'Grabbing the case number
 call MAXIS_case_number_finder(MAXIS_case_number)
@@ -518,8 +1061,8 @@ If cash_2_stat = "ACTV" and cash_2_prog = "MF" Then MFIP_active = True
 If snap_stat = "ACTV" Then SNAP_active = True
 call back_to_self
 
-If MFIP_active = True Then Call script_end_procedure("MFIP was active in 02/22. MFIP cases are not able to be handled at this time.")
-If SNAP_active = False Then Call script_end_procedure("This case does not appear to have been active SNAP in 02/22 and thes script cannot continue.")
+' If MFIP_active = True Then Call script_end_procedure("MFIP was active in 02/22. MFIP cases are not able to be handled at this time.")
+' If SNAP_active = False Then Call script_end_procedure("This case does not appear to have been active SNAP in 02/22 and thes script cannot continue.")
 If SNAP_active = False and MFIP_active = False Then script_end_procedure("This case does not appear to have been active SNAP or MFIP in 02/22 and thes script cannot continue.")
 
 CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
@@ -568,7 +1111,7 @@ For each hh_clt in client_array
 	HH_MEMB_ARRAY(earned_income_exists_const, clt_count) = False
 	HH_MEMB_ARRAY(unearned_income_exists_const, clt_count) = False
 	HH_MEMB_ARRAY(memb_droplist_const, clt_count) = HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
-	memb_droplist = memb_droplist+chr(9)+HH_MEMB_ARRAY(ref_number, clt_count) & " - " & HH_MEMB_ARRAY(full_name_const, clt_count)
+	memb_droplist = memb_droplist+chr(9)+HH_MEMB_ARRAY(memb_droplist_const, clt_count)
 	' MsgBox HH_MEMB_ARRAY(full_name_const, clt_count)
 	If disa_household = False Then
 		Call navigate_to_MAXIS_screen("STAT", "DISA")
@@ -587,6 +1130,7 @@ For each hh_clt in client_array
 		If FS_disa_status = "13" Then disa_household = True
 		If FS_disa_status = "14" Then disa_household = True
 	End If
+	clt_count = clt_count + 1
 Next
 
 'Read ELIG for 02/22
@@ -658,9 +1202,9 @@ If SNAP_active = True Then
 	state_benefit_amt = state_benefit_amt*1
 	If fed_benefit_amt = 0 AND state_benefit_amt = 0 Then fed_benefit_amt = snap_issued_amt
 
-	fed_percent = fed_benefit_amt/snap_issued_amt
-	state_percent = state_benefit_amt/snap_issued_amt
-	' MsgBox "State Percent - " & fed_percent & vbCr & "Fed Percent - " & state_percent
+	FS_fed_percent = fed_benefit_amt/snap_issued_amt
+	FS_state_percent = state_benefit_amt/snap_issued_amt
+	' MsgBox "State Percent - " & FS_fed_percent & vbCr & "Fed Percent - " & FS_state_percent
 
 	write_value_and_transmit "FSSM", 20, 70
 
@@ -722,6 +1266,9 @@ If MFIP_active = True Then
 
 	EMWriteScreen "MFB1", 20, 71
 	transmit
+	mfip_orig_gross_total_earned_income = 0
+	mfip_orig_deductions_earned = 0
+	mfip_orig_deductions_unearned = 0
 
 	For hh_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
 		EMWriteScreen "X", 6, 3
@@ -729,7 +1276,7 @@ If MFIP_active = True Then
 		Do
 			EMReadScreen elig_person, 40, 8, 28
 			elig_person = trim(elig_person)
-			MsgBox "ARRAY NAME - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & "Elig name - " & elig_person & vbCr & "EARNED"
+			' MsgBox "ARRAY NAME - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & "Elig name - " & elig_person & vbCr & "EARNED"
 			If HH_MEMB_ARRAY(full_name_const, hh_memb) = elig_person Then
 				Call read_amount_from_MAXIS(HH_MEMB_ARRAY(earned_inc_budgeted_const, hh_memb), 9, 13, 54)
 				Call read_amount_from_MAXIS(disregard, 9, 16, 54)
@@ -741,6 +1288,10 @@ If MFIP_active = True Then
 
 				disregard = disregard * 1
 				HH_MEMB_ARRAY(earned_inc_disregard_budgeted_const, hh_memb) = disregard + 65
+				temp_earned = HH_MEMB_ARRAY(earned_inc_budgeted_const, hh_memb)*1
+				temp_net = HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, hh_memb)*1
+				mfip_orig_gross_total_earned_income = mfip_orig_gross_total_earned_income + temp_earned
+				mfip_orig_deductions_earned = mfip_orig_deductions_earned + (temp_earned - temp_net)
 
 				HH_MEMB_ARRAY(earned_inc_correct_const, hh_memb) = HH_MEMB_ARRAY(earned_inc_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(earned_inc_disregard_correct_const, hh_memb) = HH_MEMB_ARRAY(earned_inc_disregard_budgeted_const, hh_memb)
@@ -748,7 +1299,7 @@ If MFIP_active = True Then
 				HH_MEMB_ARRAY(allocation_correct_const, hh_memb) = HH_MEMB_ARRAY(allocation_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(child_support_cost_correct_const, hh_memb) = HH_MEMB_ARRAY(child_support_cost_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(counted_earned_inc_correct_const, hh_memb) = HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, hh_memb)
-				MsgBox "PERSON - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, hh_memb)
+				' MsgBox "PERSON - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, hh_memb)
 				PF3
 				Exit Do
 			End If
@@ -761,7 +1312,7 @@ If MFIP_active = True Then
 		Do
 			EMReadScreen elig_person, 29, 8, 34
 			elig_person = trim(elig_person)
-			MsgBox "ARRAY NAME - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & "Elig name - " & elig_person & vbCr & "UNEA"
+			' MsgBox "ARRAY NAME - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & "Elig name - " & elig_person & vbCr & "UNEA"
 
 			If HH_MEMB_ARRAY(full_name_const, hh_memb) = elig_person Then
 				Call read_amount_from_MAXIS(HH_MEMB_ARRAY(unearned_inc_budgeted_const, hh_memb), 9, 11, 49)
@@ -770,11 +1321,14 @@ If MFIP_active = True Then
 				Call read_amount_from_MAXIS(HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, hh_memb), 9, 14, 49)
 				If HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, hh_memb) <> "0.00" Then HH_MEMB_ARRAY(unearned_income_exists_const, hh_memb) = True
 
+				temp_ded_unearned = HH_MEMB_ARRAY(unearned_inc_budgeted_const, hh_memb)*1
+				mfip_orig_deductions_unearned = mfip_orig_deductions_unearned + temp_ded_unearned
+
 				HH_MEMB_ARRAY(unearned_inc_correct_const, hh_memb) = HH_MEMB_ARRAY(unearned_inc_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(allocation_bal_correct_const, hh_memb) = HH_MEMB_ARRAY(allocation_bal_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(child_support_cost_bal_correct_const, hh_memb) = HH_MEMB_ARRAY(child_support_cost_bal_budgeted_const, hh_memb)
 				HH_MEMB_ARRAY(counted_unearned_inc_correct_const, hh_memb) = HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, hh_memb)
-				MsgBox "PERSON - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, hh_memb)
+				' MsgBox "PERSON - " & HH_MEMB_ARRAY(full_name_const, hh_memb) & vbCr & HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, hh_memb)
 				PF3
 				Exit Do
 			End If
@@ -782,11 +1336,27 @@ If MFIP_active = True Then
 			EMReadScreen read_all_persons, 15, 6, 34
 		Loop until read_all_persons <> "Unearned Income"
 
-		call read_amount_from_MAXIS(deemed_inc_budgeted_amt, 10, 12, 32)
-		call read_amount_from_MAXIS(cses_exclusion_budgeted_amt, 10, 13, 32)
-
-
 	Next
+
+	Call read_amount_from_MAXIS(mfip_budgeted_earned_income, 10, 6, 32)
+	Call read_amount_from_MAXIS(mfip_budgeted_unearned_income, 10, 11, 32)
+	call read_amount_from_MAXIS(deemed_income_budgeted_amt, 10, 12, 32)
+	call read_amount_from_MAXIS(cses_exclusion_budgeted_amt, 10, 13, 32)
+	call read_amount_from_MAXIS(mfip_subsidy_tribal_amt, 10, 18, 32)
+
+	Call read_amount_from_MAXIS(mf_orig_fwl, 10, 5, 32)
+	Call read_amount_from_MAXIS(mf_orig_fwl_diff, 10, 7, 32)
+	Call read_amount_from_MAXIS(mf_orig_ts, 10, 9, 32)
+	Call read_amount_from_MAXIS(mf_orig_diff_or_ts, 10, 10, 32)
+
+	' MsgBox "Pause"
+	Call write_value_and_transmit("X", 13, 3)
+	call read_amount_from_MAXIS(cses_income_budgeted_amt, 10, 9, 53)
+	' MsgBox cses_income_budgeted_amt
+	transmit
+	correct_mfip_cses_exclusion = cses_exclusion_budgeted_amt
+	correct_mfip_deemed_amt = deemed_income_budgeted_amt
+	cses_income_correct_amt = cses_income_budgeted_amt
 
 	Call read_amount_from_MAXIS(mfip_total_issued_amt, 10, 9, 71)
 
@@ -798,6 +1368,23 @@ If MFIP_active = True Then
 	mfip_MF_FS_issued_amt = mfip_MF_FS_issued_amt*1
 	mfip_MF_FS_S_issued_amt = mfip_MF_FS_S_issued_amt*1
 	mfip_MF_FS_F_issued_amt = mfip_MF_FS_issued_amt - mfip_MF_FS_S_issued_amt
+	MF_fed_percent = mfip_MF_FS_F_issued_amt/mfip_MF_FS_issued_amt
+	MF_state_percent = mfip_MF_FS_S_issued_amt/mfip_MF_FS_issued_amt
+	' MsgBox "mfip_MF_FS_F_issued_amt - " & mfip_MF_FS_F_issued_amt & vbCr &_
+	' 	   "mfip_MF_FS_S_issued_amt - " & mfip_MF_FS_S_issued_amt & vbCr &_
+	' 	   "mfip_MF_FS_issued_amt - " & mfip_MF_FS_issued_amt & vbCr &_
+	' 	   "MF_fed_percent - " & MF_fed_percent & vbCr &_
+	' 	   "MF_state_percent - " & MF_state_percent & vbCr & "THIS IS THE FIRST ONE"
+	mfip_MF_FS_S_issued_amt = FormatNumber(mfip_MF_FS_S_issued_amt, 2, -1, 0, 0)
+	mfip_MF_FS_F_issued_amt = FormatNumber(mfip_MF_FS_F_issued_amt, 2, -1, 0, 0)
+	MF_fed_percent = FormatNumber(MF_fed_percent, 4, -1, 0, 0)
+	MF_state_percent = FormatNumber(MF_state_percent, 4, -1, 0, 0)
+	' FormatNumber(variable_here, decimal_places, -1, 0, 0)
+	' MsgBox "mfip_MF_FS_F_issued_amt - " & mfip_MF_FS_F_issued_amt & vbCr &_
+	' 	   "mfip_MF_FS_S_issued_amt - " & mfip_MF_FS_S_issued_amt & vbCr &_
+	' 	   "mfip_MF_FS_issued_amt - " & mfip_MF_FS_issued_amt & vbCr &_
+	' 	   "MF_fed_percent - " & MF_fed_percent & vbCr &_
+	' 	   "MF_state_percent - " & MF_state_percent & vbCr & "THIS IS THE FIRST TWO"
 
 	Call read_amount_from_MAXIS(mfip_MF_HG_issued_amt, 10, 17, 32)
 
@@ -807,20 +1394,26 @@ If MFIP_active = True Then
 	EMReadScreen mfip_budgeted_children, 3, 8, 73
 	mfip_budgeted_caregivers = trim(mfip_budgeted_caregivers)
 	mfip_budgeted_children = trim(mfip_budgeted_children)
+	' total_MFIP_budgeted_HH_size = trim()
+	correct_caregiver = mfip_budgeted_caregivers
+	correct_children =mfip_budgeted_children
 	' MsgBox "caregivers: " & mfip_budgeted_caregivers & vbCr & "children: " & mfip_budgeted_children
 
 	call back_to_self
 
 	selected_memb = 0
+	income_selection_person = HH_MEMB_ARRAY(memb_droplist_const, 0)
 End If
 
 ' START A LOOP HERE
 recalculation_confirmed = False
-snap_overpayment_exists = False
-snap_supplement_exists = False
-calculation_needed = True
 snap_proration_date = "2/1/2022"
+original_mfip_subsidy_tribal_amt = mfip_subsidy_tribal_amt
 Do
+	calculation_needed = True
+	snap_overpayment_exists = False
+	snap_supplement_exists = False
+	mfip_subsidy_tribal_amt = original_mfip_subsidy_tribal_amt
 	'Determine what happened with the review/mont process by dialog
 	Do
 		err_msg = ""
@@ -851,7 +1444,7 @@ Do
 		cancel_confirmation
 
 		If form_received = "None Received" Then
-			If interview_information <> "N/A" OR verifs_received <> "N/A" Then err_msg = "LOOP"
+			If interview_information <> "N/A" or verifs_received <> "N/A" Then err_msg = "LOOP"
 			interview_information = "N/A"
 			verifs_received = "N/A"
 		End If
@@ -874,28 +1467,35 @@ Do
 		If err_msg <> "" and left(err_msg, 4) <> "LOOP" then MsgBox "Please resolve to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
 
-	If IsDate(form_received_date) = True Then snap_proration_date = form_received_date
-	If IsDate(snap_proration_date) = True Then
-		beg_of_feb = #2/1/2022#
-		If DateDiff("d", snap_proration_date, beg_of_feb) > 0 Then snap_proration_date = #2/1/22#
-	End If
-	Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
-	Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
-	Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
-	Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
-	Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, "STRING")
-
 	If process_complete = "No" Then calculation_needed = False
+
+	If SNAP_active = True and calculation_needed = True Then
+		If IsDate(form_received_date) = True Then snap_proration_date = form_received_date
+		If IsDate(snap_proration_date) = True Then
+			beg_of_feb = #2/1/2022#
+			If DateDiff("d", snap_proration_date, beg_of_feb) > 0 Then snap_proration_date = #2/1/22#
+		End If
+		Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
+		Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
+		Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
+		Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
+		Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, "STRING")
+	End If
+	If MFIP_active = True and calculation_needed = True Then
+		Call determine_mfip_assistance_standards(familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, correct_caregiver, correct_children, "STRING")
+		Call budget_calculate_mfip_income(HH_MEMB_ARRAY, earned_inc_correct_const, earned_inc_disregard_correct_const, avail_earned_inc_correct_const, allocation_correct_const, child_support_cost_correct_const, counted_earned_inc_correct_const, unearned_inc_correct_const, allocation_bal_correct_const, child_support_cost_bal_correct_const, counted_unearned_inc_correct_const, total_correct_mfip_earned_deductions_and_disreagards, total_correct_mfip_earned_income, total_correct_mfip_net_earned_income, total_correct_mfip_unearned_deductions_and_disreagards, total_correct_mfip_unearned_income, total_correct_mfip_net_unearned_income, cses_income_correct_amt, correct_children, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, "STRING")
+		Call budget_calculate_correct_mfip(total_correct_mfip_net_earned_income, total_correct_mfip_net_unearned_income, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, mfip_overpayment_exists, mfip_supplement_exists, mfip_MF_HG_issued_amt, wage_level_difference, difference_or_transitional, mfip_unmet_need, prorated_unmet_need, mfip_subsidy_tribal_amt, mfip_correct_cash_portion, mfip_correct_food_portion, mfip_correct_hg_portion, mfip_proration_date, mfip_proration_percentage, MF_fed_percent, MF_state_percent, mfip_total_overpayment_amt, mfip_cash_overpayment_amt, mfip_food_overpayment_amt, mfip_hg_overpayment_amt, mfip_total_supplement_amt, mfip_cash_supplement_amt, mfip_food_supplement_amt, mfip_hg_supplement_amt, mfip_correct_food_f_portion, mfip_correct_food_s_portion, mfip_food_f_overpayment, mfip_food_s_overpayment, mfip_food_f_supplement, mfip_food_s_supplement, "STRING")
+	End If
 
 	'dialog for OP calculation
 	If MFIP_active = True Then
 		If calculation_needed = True Then
-			income_selection_person = HH_MEMB_ARRAY(memb_droplist_const, 0)
+			' income_selection_person = HH_MEMB_ARRAY(memb_droplist_const, 0)
 			Do
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 556, 385, "02/22 MFIP Incorrect Payment Calculation"
 				  'ISSUANCE
-				  GroupBox 10, 5, 200, 35, "Benefit Issued for 02/22"
+				  GroupBox 10, 5, 190, 35, "Benefit Issued for 02/22"
 				  Text 15, 15, 30, 10, "MF-Cash:"
 				  Text 50, 15, 30, 10, "$ " & mfip_MF_MF_issued_amt
 				  Text 80, 15, 30, 10, "MF-Food:"
@@ -905,56 +1505,81 @@ Do
 				  Text 25, 25, 25, 10, "SNAP:"
 				  Text 50, 25, 30, 10, "$ " & snap_issued_amt
 				  'Earned Income
-				  GroupBox 10, 40, 185, 245, "Person Based Income Calculation"
+				  GroupBox 10, 40, 185, 198, "Person Based Income Calculation"
 				  Text 30, 60, 30, 10, "Person:"
 				  DropListBox 65, 55, 125, 45, memb_droplist, income_selection_person
 				  Text 30, 80, 55, 10, "Earned Income:"
-				  Text 90, 80, 30, 10, "$ " & HH_MEMB_ARRAY(earned_inc_budgeted_const, selected_memb)
-				  EditBox 140, 75, 50, 15, HH_MEMB_ARRAY(earned_inc_correct_const, selected_memb)
-				  Text 35, 100, 45, 10, "EI Disregard:"
-				  Text 90, 100, 30, 10, "$ " & HH_MEMB_ARRAY(earned_inc_disregard_budgeted_const, selected_memb)
-				  Text 140, 100, 30, 10, "$ " & HH_MEMB_ARRAY(earned_inc_disregard_correct_const, selected_memb)
-				  Text 15, 115, 70, 10, "Available Earned Inc:"
-				  Text 90, 115, 30, 10, "$ " & HH_MEMB_ARRAY(avail_earned_inc_budgeted_const, selected_memb)
-				  Text 140, 115, 30, 10, "$ " & HH_MEMB_ARRAY(avail_earned_inc_correct_const, selected_memb)
-				  Text 45, 135, 40, 10, "Allocation:"
-				  Text 90, 135, 30, 10, "$ " & HH_MEMB_ARRAY(allocation_budgeted_const, selected_memb)
-				  EditBox 140, 130, 50, 15, HH_MEMB_ARRAY(allocation_correct_const, selected_memb)
-				  Text 20, 155, 65, 10, "Child Support Cost:"
-				  Text 90, 155, 30, 10, "$ " & HH_MEMB_ARRAY(child_support_cost_budgeted_const, selected_memb)
-				  EditBox 140, 150, 50, 15, HH_MEMB_ARRAY(child_support_cost_correct_const, selected_memb)
-				  GroupBox 10, 250, 185, 15, ""
-				  Text 15, 175, 65, 10, "Counted Earned Inc:"
-				  Text 90, 175, 30, 10, "$ " & HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, selected_memb)
-				  Text 140, 175, 30, 10, "$ " & HH_MEMB_ARRAY(counted_earned_inc_correct_const, selected_memb)
-				  Text 25, 200, 60, 10, "Unearned Income:"
-				  Text 90, 200, 30, 10, "$ " & HH_MEMB_ARRAY(unearned_inc_budgeted_const, selected_memb)
-				  EditBox 140, 195, 50, 15, HH_MEMB_ARRAY(unearned_inc_correct_const, selected_memb)
-				  Text 35, 220, 50, 10, "Allocation Bal:"
-				  Text 90, 220, 30, 10, "$ " & HH_MEMB_ARRAY(allocation_bal_budgeted_const, selected_memb)
-				  Text 140, 220, 30, 10, "$ " & HH_MEMB_ARRAY(allocation_bal_correct_const, selected_memb)
-				  Text 20, 235, 60, 10, "Child Support Bal:"
-				  Text 90, 235, 30, 10, "$ " & HH_MEMB_ARRAY(child_support_cost_bal_budgeted_const, selected_memb)
-				  Text 140, 235, 30, 10, "$ " & HH_MEMB_ARRAY(child_support_cost_bal_correct_const, selected_memb)
-				  GroupBox 10, 170, 185, 15, ""
-				  Text 30, 255, 55, 10, "Counted UNEA:"
-				  Text 90, 255, 30, 10, "$ " & HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, selected_memb)
-				  Text 140, 255, 30, 10, "$ " & HH_MEMB_ARRAY(counted_unearned_inc_correct_const, selected_memb)
+				  Text 90, 80, 35, 10, "$ " & HH_MEMB_ARRAY(earned_inc_budgeted_const, selected_memb)
+				  Text 140, 80, 7, 10, "$"
+				  EditBox 145, 75, 45, 15, HH_MEMB_ARRAY(earned_inc_correct_const, selected_memb)
+				  Text 35, 90, 45, 10, "EI Disregard:"
+				  Text 90, 90, 35, 10, "$ " & HH_MEMB_ARRAY(earned_inc_disregard_budgeted_const, selected_memb)
+				  Text 140, 90, 35, 10, "$ " & HH_MEMB_ARRAY(earned_inc_disregard_correct_const, selected_memb)
+				  Text 15, 105, 70, 10, "Available Earned Inc:"
+				  Text 90, 105, 35, 10, "$ " & HH_MEMB_ARRAY(avail_earned_inc_budgeted_const, selected_memb)
+				  Text 140, 105, 35, 10, "$ " & HH_MEMB_ARRAY(avail_earned_inc_correct_const, selected_memb)
+				  Text 45, 120, 40, 10, "Allocation:"
+				  Text 90, 120, 35, 10, "$ " & HH_MEMB_ARRAY(allocation_budgeted_const, selected_memb)
+				  Text 140, 120, 7, 10, "$"
+				  EditBox 145, 115, 45, 15, HH_MEMB_ARRAY(allocation_correct_const, selected_memb)
+				  Text 20, 140, 65, 10, "Child Support Cost:"
+				  Text 90, 140, 35, 10, "$ " & HH_MEMB_ARRAY(child_support_cost_budgeted_const, selected_memb)
+				  Text 140, 140, 7, 10, "$"
+				  EditBox 145, 135, 45, 15, HH_MEMB_ARRAY(child_support_cost_correct_const, selected_memb)
+				  GroupBox 10, 153, 185, 20, ""
+				  Text 15, 160, 75, 10, "Counted Earned Inc:"
+				  Text 90, 160, 35, 10, "$ " & HH_MEMB_ARRAY(counted_earned_inc_budgeted_const, selected_memb)
+				  Text 140, 160, 35, 10, "$ " & HH_MEMB_ARRAY(counted_earned_inc_correct_const, selected_memb)
+				  Text 25, 180, 60, 10, "Unearned Income:"
+				  Text 90, 180, 35, 10, "$ " & HH_MEMB_ARRAY(unearned_inc_budgeted_const, selected_memb)
+				  Text 140, 180, 7, 10, "$"
+				  EditBox 145, 175, 45, 15, HH_MEMB_ARRAY(unearned_inc_correct_const, selected_memb)
+				  Text 35, 195, 50, 10, "Allocation Bal:"
+				  Text 90, 195, 35, 10, "$ " & HH_MEMB_ARRAY(allocation_bal_budgeted_const, selected_memb)
+				  Text 140, 195, 35, 10, "$ " & HH_MEMB_ARRAY(allocation_bal_correct_const, selected_memb)
+				  Text 20, 210, 60, 10, "Child Support Bal:"
+				  Text 90, 210, 35, 10, "$ " & HH_MEMB_ARRAY(child_support_cost_bal_budgeted_const, selected_memb)
+				  Text 140, 210, 35, 10, "$ " & HH_MEMB_ARRAY(child_support_cost_bal_correct_const, selected_memb)
+				  GroupBox 10, 218, 185, 20, ""
+				  Text 30, 225, 55, 10, "Counted UNEA:"
+				  Text 90, 225, 35, 10, "$ " & HH_MEMB_ARRAY(counted_unearned_inc_budgeted_const, selected_memb)
+				  Text 140, 225, 35, 10, "$ " & HH_MEMB_ARRAY(counted_unearned_inc_correct_const, selected_memb)
 				  ButtonGroup ButtonPressed
-				    PushButton 160, 270, 30, 10, "CALC", calc_btn
+				    PushButton 125, 240, 65, 13, "CALCULATE", calc_btn
+				  'HH Comp
+				  GroupBox 10, 260, 185, 65, "Household Composition"
+				  Text 15, 270, 95, 10, "Budgeted Assistance Unit:"
+				  Text 25, 280, 40, 10, "Caregivers:"
+				  Text 70, 280, 10, 10, mfip_budgeted_caregivers
+				  Text 100, 280, 30, 10, "Children:"
+				  Text 135, 280, 10, 10, mfip_budgeted_children
+				  Text 15, 295, 85, 10, "Correct Assistance Unit:"
+				  Text 25, 310, 40, 10, "Caregivers:"
+				  EditBox 70, 305, 20, 15, correct_caregiver
+				  Text 100, 310, 30, 10, "Children:"
+				  EditBox 135, 305, 20, 15, correct_children
+				  ButtonGroup ButtonPressed
+				    PushButton 160, 307, 30, 13, "CALC", Button3
+				  Text 15, 335, 50, 10, "Proration Date:"
+				  EditBox 70, 330, 60, 15, mfip_proration_date
+				  ' Text 220, 125, 50, 10, "Proration Date:"
+				  ' EditBox 275, 120, 60, 15, snap_proration_date
 				  'Unearned Income
-				  grp_len = 205 + UBound(HH_MEMB_ARRAY, 2)*20
-				  GroupBox 200, 40, 135, grp_len, "List of Income"
-				  Text 205, 50, 55, 10, "Earned Income:"
-				  Text 210, 60, 55, 10, "Total Budgeted:"
-				  Text 275, 60, 30, 10, "$ " & earned_income_budgeted_amt
-				  y_pos = 75
+				  grp_len = 227 + UBound(HH_MEMB_ARRAY, 2)*20
+				  sm_grp_len = 50 + UBound(HH_MEMB_ARRAY, 2)*10
+				  GroupBox 200, 5, 135, grp_len, "List of Income"
+				  GroupBox 200, 15, 135, sm_grp_len, "Earned Income:"
+				  Text 210, 25, 55, 10, "Total Budgeted:"
+				  Text 275, 25, 35, 10, "$ " & mfip_budgeted_earned_income
+				  y_pos = 40
 				  For hh_memb = 0 to UBOUND(HH_MEMB_ARRAY, 2)
 					  Text 210, y_pos, 55, 10, "MEMB " & HH_MEMB_ARRAY(ref_number, hh_memb)
-					  Text 270, y_pos, 30, 10, "$ " & HH_MEMB_ARRAY(counted_earned_inc_correct_const, hh_memb)
+					  Text 270, y_pos, 35, 10, "$ " & HH_MEMB_ARRAY(counted_earned_inc_correct_const, hh_memb)
 					  y_pos = y_pos + 10
 				  Next
-				  y_pos = y_pos + 10
+				  Text 210, y_pos, 55, 10, "Total Correct:"
+				  Text 275, y_pos, 35, 10, "$ " & total_correct_mfip_earned_income
+				  y_pos = y_pos + 20
 				  ' Text 210, 75, 55, 10, "MEMB 01"
 				  ' Text 210, 85, 55, 10, "MEMB 01"
 				  ' Text 270, 85, 30, 10, "$ " & earned_income_budgeted_amt
@@ -962,17 +1587,19 @@ Do
 				  ' Text 270, 95, 30, 10, "$ " & earned_income_budgeted_amt
 				  ' Text 215, 105, 55, 10, "Total Earned"
 				  ' Text 275, 105, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 205, y_pos, 65, 10, "Unearned Income:"
+				  GroupBox 200, y_pos, 135, sm_grp_len, "Unearned Income:"
 				  y_pos = y_pos + 10
 				  Text 210, y_pos, 55, 10, "Total Budgeted:"
-				  Text 275, y_pos, 30, 10, "$ " & earned_income_budgeted_amt
-				  y_pos = y_pos + 10
+				  Text 275, y_pos, 35, 10, "$ " & mfip_budgeted_unearned_income
+				  y_pos = y_pos + 15
 				  For hh_memb = 0 to UBOUND(HH_MEMB_ARRAY, 2)
 					  Text 210, y_pos, 55, 10, "MEMB " & HH_MEMB_ARRAY(ref_number, hh_memb)
-					  Text 270, y_pos, 30, 10, "$ " & HH_MEMB_ARRAY(counted_unearned_inc_correct_const, hh_memb)
+					  Text 270, y_pos, 35, 10, "$ " & HH_MEMB_ARRAY(counted_unearned_inc_correct_const, hh_memb)
 					  y_pos = y_pos + 10
 				  Next
-				  y_pos = y_pos + 10
+				  Text 210, y_pos, 55, 10, "Total Correct:"
+				  Text 275, y_pos, 35, 10, "$ " & total_correct_mfip_unearned_income
+				  y_pos = y_pos + 20
 
 				  ' Text 210, 155, 55, 10, "MEMB 01"
 				  ' Text 270, 155, 30, 10, "$ " & earned_income_budgeted_amt
@@ -982,106 +1609,120 @@ Do
 				  ' Text 270, 175, 30, 10, "$ " & earned_income_budgeted_amt
 				  ' Text 215, 185, 55, 10, "Total Earned"
 				  ' Text 275, 185, 30, 10, "$ " & earned_income_budgeted_amt
-				  Text 205, y_pos, 65, 10, "Deemed Income:"
+				  GroupBox 200, y_pos, 135, 40, "Deemed Income:"
 				  y_pos = y_pos + 10
 				  Text 210, y_pos, 55, 10, "Total Budgeted:"
-				  Text 275, y_pos, 30, 10, "$ " & earned_income_budgeted_amt
+				  Text 275, y_pos, 30, 10, "$ " & deemed_income_budgeted_amt
+				  y_pos = y_pos + 10
+				  Text 220, y_pos + 5, 45, 10, "Total Correct:"
+				  Text 275, y_pos + 5, 7, 10, "$"
+				  EditBox 280, y_pos, 50, 15, correct_mfip_deemed_amt
+				  y_pos = y_pos + 25
+
+				  GroupBox 200, y_pos, 135, 62, "Child Support Income:"
+				  y_pos = y_pos + 10
+				  Text 210, y_pos, 55, 10, "Total Budgeted:"
+				  Text 275, y_pos, 30, 10, "$ " & cses_income_budgeted_amt
+				  y_pos = y_pos + 10
+				  Text 210, y_pos, 55, 10, "CS Exclusion:"
+				  Text 275, y_pos, 30, 10, "$ " & cses_exclusion_budgeted_amt
 				  y_pos = y_pos + 15
 				  Text 220, y_pos + 5, 45, 10, "Total Correct:"
-				  EditBox 275, y_pos, 50, 15, Edit1
+				  Text 275, y_pos + 5, 7, 10, "$"
+				  EditBox 280, y_pos, 50, 15, cses_income_correct_amt
+				  y_pos = y_pos + 15
+				  Text 220, y_pos, 45, 10, "CS Exclusion:"
+				  Text 275, y_pos, 50, 10, "$ " & correct_mfip_cses_exclusion
+				  y_pos = y_pos + 15
+
 				  ButtonGroup ButtonPressed
-				    PushButton 295, 270, 30, 10, "CALC", calc_btn
-				  'HH Comp
-				  GroupBox 10, 285, 185, 70, "Household Composition"
-				  Text 15, 295, 95, 10, "Budgeted Assistance Unit:"
-				  Text 25, 310, 40, 10, "Caregivers:"
-				  Text 70, 310, 10, 10, mfip_budgeted_caregivers
-				  Text 100, 310, 30, 10, "Children:"
-				  Text 135, 310, 10, 10, mfip_budgeted_children
-				  Text 15, 325, 85, 10, "Correct Assistance Unit:"
-				  Text 25, 340, 40, 10, "Caregivers:"
-				  EditBox 70, 335, 20, 15, correct_caregiver
-				  Text 100, 340, 30, 10, "Children:"
-				  EditBox 135, 335, 20, 15, correct_children
-				  ButtonGroup ButtonPressed
-				    PushButton 160, 340, 30, 10, "CALC", Button3
+				    ' PushButton 295, y_pos, 30, 10, "CALC", calc_btn
+					PushButton 265, y_pos, 65, 13, "CALCULATE", calc_btn
+
 				  'Budget
-				  GroupBox 340, 5, 210, 355, "Corrected Budget"
-				  Text 375, 15, 55, 10, "Earned Income:"
-				  Text 435, 15, 30, 10, "$ " & hold_var
-				  Text 355, 25, 75, 10, "Earned Inc Disregard:"
-				  Text 445, 25, 30, 10, "- $ " & hold_var
-				  Text 365, 35, 65, 10, "Child Support Ded:"
-				  Text 445, 35, 30, 10, "- $ " & hold_var
+				  GroupBox 340, 5, 210, 315, "Corrected Budget"
+				  Text 375, 20, 55, 10, "Earned Income:"
+				  Text 435, 20, 40, 10, "$ " & total_correct_mfip_earned_income
+				  Text 355, 30, 75, 10, "Deductions/Disregards:"
+				  Text 445, 30, 40, 10, "- $ " & total_correct_mfip_earned_deductions_and_disreagards
+				  ' Text 365, 35, 65, 10, "Child Support Ded:"
+				  ' Text 445, 35, 30, 10, "- $ " & hold_var
 				  Text 365, 45, 65, 10, "Net Earned Income:"
-				  Text 445, 45, 30, 10, "$ " & hold_var
+				  Text 445, 45, 40, 10, "$ " & total_correct_mfip_net_earned_income
 				  Text 360, 60, 65, 10, "Family Wage Level:"
-				  Text 435, 60, 30, 10, "$ " & hold_var
+				  Text 435, 60, 40, 10, "$ " & familY_wage_level
 				  Text 365, 70, 65, 10, "Net Earned Income:"
-				  Text 445, 70, 30, 10, "- $ " & hold_var
+				  Text 445, 70, 40, 10, "- $ " & total_correct_mfip_net_earned_income
 				  Text 390, 80, 40, 10, "Difference:"
-				  Text 445, 80, 30, 10, "$ " & hold_var
-				  Text 355, 90, 75, 10, "Transitional Standard:"
-				  Text 435, 90, 30, 10, "$ " & hold_var
-				  GroupBox 340, 95, 210, 20, ""
-				  Text 355, 105, 120, 10, "Difference or Transitional Standard:"
-				  Text 475, 105, 30, 10, "$ " & hold_var
-				  Text 370, 120, 60, 10, "Unearned Income:"
-				  Text 435, 120, 30, 10, "$ " & hold_var
-				  Text 370, 130, 65, 10, "Child Support Ded:"
-				  Text 445, 130, 30, 10, "- $ " & hold_var
-				  Text 350, 140, 80, 10, "Child Support Exclusion:"
-				  Text 445, 140, 30, 10, "- $ " & hold_var
+				  Text 445, 80, 40, 10, "$ " & wage_level_difference
+				  Text 355, 95, 75, 10, "Transitional Standard:"
+				  Text 435, 95, 40, 10, "$ " & full_mfip_standard
+				  GroupBox 340, 102, 210, 20, ""
+				  Text 355, 110, 120, 10, "Difference or Transitional Standard:"
+				  Text 475, 110, 40, 10, "$ " & difference_or_transitional
+				  Text 370, 130, 60, 10, "Unearned Income:"
+				  Text 435, 130, 40, 10, "$ " & total_correct_mfip_unearned_income
+				  Text 355, 140, 75, 10, "Deductions/Disregards:"
+				  Text 445, 140, 40, 10, "- $ " & total_correct_mfip_unearned_deductions_and_disreagards
 				  Text 375, 150, 55, 10, "Deemed Income:"
-				  Text 435, 150, 30, 10, "$ " & hold_var
-				  Text 350, 165, 125, 10, "Net Difference Transitional Standard:"
-				  Text 475, 165, 30, 10, "$ " & hold_var
-				  Text 425, 175, 50, 10, " Cash Portion:"
-				  Text 475, 175, 30, 10, "$ " & hold_var
-				  Text 425, 185, 45, 10, "Food Portion:"
-				  Text 475, 185, 30, 10, "$ " & hold_var
-				  Text 380, 200, 50, 10, "Subsidy/Tribal:"
-				  Text 445, 200, 30, 10, "- $ " & hold_var
-				  Text 375, 210, 60, 10, "Net Cash Portion:"
-				  Text 435, 210, 30, 10, "$ " & hold_var
-				  Text 355, 220, 80, 10, "Tribal Counted Income:"
-				  Text 445, 220, 30, 10, "- $ " & hold_var
-				  Text 375, 230, 60, 10, "Net Food Portion:"
-				  Text 435, 230, 30, 10, "$ " & hold_var
-				  Text 380, 240, 95, 10, "Total Cash and Food Portion:"
-				  Text 475, 240, 30, 10, "$ " & hold_var
-				  Text 375, 250, 60, 10, "Sanction Amount:"
-				  Text 435, 250, 30, 10, "$ " & hold_var
-				  Text 370, 265, 65, 10, "Correct MFIP Grant:"
-				  Text 435, 265, 30, 10, "$ " & hold_var
-				  Text 360, 275, 75, 10, "Correct Housing Grant:"
-				  Text 435, 275, 30, 10, "$ " & hold_var
-				  Text 400, 290, 75, 10, "MFIP Grant Received:"
-				  Text 480, 290, 30, 10, "$ " & mfip_total_issued_amt
-				  Text 425, 300, 50, 10, "HG Received:"
-				  Text 480, 300, 30, 10, "$ " & mfip_MF_HG_issued_amt
+				  Text 445, 150, 40, 10, "- $ " & correct_mfip_deemed_amt
+				  Text 350, 160, 80, 10, "Child Support Exclusion:"
+				  Text 443, 160, 40, 10, "+ $ " & correct_mfip_cses_exclusion
+				  Text 355, 170, 80, 10, "Subsidy/Tribal Amount:"
+				  Text 445, 170, 40, 10, "- $ " & mfip_subsidy_tribal_amt
+
+				  ' "Unmet need:"
+
+				  ' total_correct_mfip_unmet_need
+				  Text 405, 185, 70, 10, "MFIP Unmet Need:"
+				  Text 475, 185, 40, 10, "$ " & mfip_unmet_need
+				  Text 425, 195, 50, 10, " Cash Portion:"
+				  Text 485, 195, 40, 10, "$ " & mfip_correct_cash_portion
+				  Text 425, 205, 45, 10, "Food Portion:"
+				  Text 485, 205, 40, 10, "$ " & mfip_correct_food_portion
+				  ' Text 380, 200, 50, 10, "Subsidy/Tribal:"
+				  ' Text 445, 200, 30, 10, "- $ " & hold_var
+				  ' Text 375, 210, 60, 10, "Net Cash Portion:"
+				  ' Text 435, 210, 30, 10, "$ " & hold_var
+				  ' Text 355, 220, 80, 10, "Tribal Counted Income:"
+				  ' Text 445, 220, 30, 10, "- $ " & hold_var
+				  ' Text 375, 230, 60, 10, "Net Food Portion:"
+				  ' Text 435, 230, 30, 10, "$ " & hold_var
+				  ' Text 380, 240, 95, 10, "Total Cash and Food Portion:"
+				  ' Text 475, 240, 30, 10, "$ " & prorated_unmet_need
+				  ' Text 375, 250, 60, 10, "Sanction Amount:"
+				  ' Text 435, 250, 30, 10, "$ " & hold_var
+				  Text 360, 220, 65, 10, "Correct MFIP Grant:"
+				  Text 435, 220, 40, 10, "$ " & prorated_unmet_need
+				  Text 350, 230, 75, 10, "Correct Housing Grant:"
+				  Text 435, 230, 40, 10, "$ " & mfip_correct_hg_portion
+				  Text 400, 245, 75, 10, "MFIP Grant Received:"
+				  Text 480, 245, 40, 10, "$ " & mfip_total_issued_amt
+				  Text 425, 255, 50, 10, "HG Received:"
+				  Text 480, 255, 40, 10, "$ " & mfip_MF_HG_issued_amt
+				  GroupBox 340, 265, 210, 55, "Grant Adjjustment Calculation"
 				  If mfip_overpayment_exists = True Then
-					  Text 455, 315, 50, 10, "Overpayment:"
-					  Text 510, 335, 30, 10, "$ " & mfip_total_overpayment_amt
-					  Text 455, 325, 45, 10, "Cash Portion:"
-					  Text 510, 335, 30, 10, "$ " & mfip_cash_overpayment_amt
-					  Text 455, 335, 50, 10, " Food Portion:"
-					  Text 510, 335, 30, 10, "$ " & mfip_food_overpayment_amt
-					  Text 465, 345, 40, 10, "HG Portion:"
-					  Text 510, 335, 30, 10, "$ " & mfip_hg_overpayment_amt
+					  Text 455, 275, 50, 10, "Overpayment:"
+					  Text 510, 275, 35, 10, "$ " & mfip_total_overpayment_amt
+					  Text 455, 285, 45, 10, "Cash Portion:"
+					  Text 510, 285, 35, 10, "$ " & mfip_cash_overpayment_amt
+					  Text 455, 295, 50, 10, " Food Portion:"
+					  Text 510, 295, 35, 10, "$ " & mfip_food_overpayment_amt
+					  Text 465, 305, 40, 10, "HG Portion:"
+					  Text 510, 305, 35, 10, "$ " & mfip_hg_overpayment_amt
 				  End If
 				  If mfip_supplement_exists = True Then
-					  Text 455, 315, 50, 10, "Supplement:"
-					  Text 510, 335, 30, 10, "$ " & mfip_total_supplement_amt
-					  Text 455, 325, 45, 10, "Cash Portion:"
-					  Text 510, 335, 30, 10, "$ " & mfip_cash_supplement_amt
-					  Text 455, 335, 50, 10, " Food Portion:"
-					  Text 510, 335, 30, 10, "$ " & mfip_food_supplement_amt
-					  Text 465, 345, 40, 10, "HG Portion:"
-					  Text 510, 335, 30, 10, "$ " & mfip_hg_supplement_amt
+					  Text 455, 275, 50, 10, "Supplement:"
+					  Text 510, 275, 35, 10, "$ " & mfip_total_supplement_amt
+					  Text 455, 285, 45, 10, "Cash Portion:"
+					  Text 510, 285, 35, 10, "$ " & mfip_cash_supplement_amt
+					  Text 455, 295, 50, 10, " Food Portion:"
+					  Text 510, 295, 35, 10, "$ " & mfip_food_supplement_amt
+					  Text 465, 305, 40, 10, "HG Portion:"
+					  Text 510, 305, 35, 10, "$ " & mfip_hg_supplement_amt
 				  End If
 				  If mfip_overpayment_exists = False And mfip_supplement_exists = False Then
-					 Text 400, 315, 100, 10, "02/22 Issuance was Correct"
+					 Text 400, 285, 100, 10, "02/22 Issuance was Correct"
 				  End If
 				  ButtonGroup ButtonPressed
 				    PushButton 385, 365, 165, 15, "MFIP Budget is Complete", mfip_claculation_done_btn
@@ -1095,11 +1736,42 @@ Do
 				output_type = "STRING"
 				If ButtonPressed = mfip_claculation_done_btn Then output_type = "NUMBER"
 
+				Call determine_mfip_assistance_standards(familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, correct_caregiver, correct_children, output_type)
+				Call budget_calculate_mfip_income(HH_MEMB_ARRAY, earned_inc_correct_const, earned_inc_disregard_correct_const, avail_earned_inc_correct_const, allocation_correct_const, child_support_cost_correct_const, counted_earned_inc_correct_const, unearned_inc_correct_const, allocation_bal_correct_const, child_support_cost_bal_correct_const, counted_unearned_inc_correct_const, total_correct_mfip_earned_deductions_and_disreagards, total_correct_mfip_earned_income, total_correct_mfip_net_earned_income, total_correct_mfip_unearned_deductions_and_disreagards, total_correct_mfip_unearned_income, total_correct_mfip_net_unearned_income, cses_income_correct_amt, correct_children, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, output_type)
+				Call budget_calculate_correct_mfip(total_correct_mfip_net_earned_income, total_correct_mfip_net_unearned_income, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, mfip_overpayment_exists, mfip_supplement_exists, mfip_MF_HG_issued_amt, wage_level_difference, difference_or_transitional, mfip_unmet_need, prorated_unmet_need, mfip_subsidy_tribal_amt, mfip_correct_cash_portion, mfip_correct_food_portion, mfip_correct_hg_portion, mfip_proration_date, mfip_proration_percentage, MF_fed_percent, MF_state_percent, mfip_total_overpayment_amt, mfip_cash_overpayment_amt, mfip_food_overpayment_amt, mfip_hg_overpayment_amt, mfip_total_supplement_amt, mfip_cash_supplement_amt, mfip_food_supplement_amt, mfip_hg_supplement_amt, mfip_correct_food_f_portion, mfip_correct_food_s_portion, mfip_food_f_overpayment, mfip_food_s_overpayment, mfip_food_f_supplement, mfip_food_s_supplement, output_type)
+
 
 				For hh_memb = 0 to UBound(HH_MEMB_ARRAY, 2)
 					If income_selection_person = HH_MEMB_ARRAY(memb_droplist_const, hh_memb) Then selected_memb = hh_memb
 				Next
 			Loop until ButtonPressed = mfip_claculation_done_btn
+		Else
+			mfip_overpayment_exists = True
+			mfip_supplement_exists = False
+			mfip_total_overpayment_amt = mfip_total_issued_amt
+			mfip_cash_overpayment_amt = mfip_MF_MF_issued_amt
+			mfip_hg_overpayment_amt = mfip_MF_HG_issued_amt
+			mfip_food_overpayment_amt = mfip_MF_FS_issued_amt
+			mfip_food_f_overpayment = mfip_MF_FS_F_issued_amt
+			mfip_food_s_overpayment = mfip_MF_FS_S_issued_amt
+
+			total_correct_mfip_earned_income = ""
+			total_correct_mfip_earned_deductions_and_disreagards = ""
+			total_correct_mfip_net_earned_income = ""
+			familY_wage_level = ""
+			wage_level_difference = ""
+			full_mfip_standard = ""
+			difference_or_transitional = ""
+			total_correct_mfip_unearned_income = ""
+			total_correct_mfip_unearned_deductions_and_disreagards = ""
+			correct_mfip_cses_exclusion = ""
+			correct_mfip_deemed_amt = ""
+			mfip_subsidy_tribal_amt = ""
+			prorated_unmet_need = ""
+			mfip_correct_cash_portion = 0.00
+			mfip_correct_food_portion = 0.00
+			mfip_correct_hg_portion = 0.00
+
 		End If
 	End If
 
@@ -1299,6 +1971,7 @@ Do
 			monthly_snap_benefit_correct_amt = 0
 			snap_overpayment_amt = snap_issued_amt
 			snap_overpayment_exists = True
+			snap_supplement_exists = False
 
 			earned_income_correct_amt = ""
 			unearned_correct_amt = ""
@@ -1329,16 +2002,16 @@ Do
 
 		End If
 
-		SNAP_fed_correct_amt = snap_correct_amt * fed_percent
-		SNAP_state_correct_amt = snap_correct_amt * state_percent
+		SNAP_fed_correct_amt = snap_correct_amt * FS_fed_percent
+		SNAP_state_correct_amt = snap_correct_amt * FS_state_percent
 		If snap_overpayment_exists = True Then
-			SNAP_fed_op = snap_overpayment_amt * fed_percent
-			SNAP_state_op = snap_overpayment_amt * state_percent
+			SNAP_fed_op = snap_overpayment_amt * FS_fed_percent
+			SNAP_state_op = snap_overpayment_amt * FS_state_percent
 		End If
 
 		If snap_supplement_exists = True Then
-			SNAP_fed_supp = snap_supplement_amt * fed_percent
-			SNAP_state_supp = snap_supplement_amt * state_percent
+			SNAP_fed_supp = snap_supplement_amt * FS_fed_percent
+			SNAP_state_supp = snap_supplement_amt * FS_state_percent
 		End If
 
 
@@ -1346,44 +2019,106 @@ Do
 
 	' MsgBox "DONE"
 	SNAP_confirmation_answer = "Select One..."
+	MFIP_confirmation_answer = "Select One..."
 	'dialog with calculation and ready for confirmation
 	Do
+		dialog_width = 205
+		If SNAP_active = True and MFIP_active = True Then dialog_width = 410
+		x_pos = 5
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 206, 205, "Confirm Budget Calculation"
+		BeginDialog Dialog1, 0, 0, dialog_width, 205, "Confirm Budget Calculation"
 		  If SNAP_active = True Then
-			  GroupBox 5, 5, 195, 135, "SNAP"
-			  Text 20, 20, 85, 10, "Original SNAP Issuance:"
-			  Text 105, 20, 40, 10, "$ " & snap_issued_amt
-			  Text 115, 30, 40, 10, "$ " & fed_benefit_amt
-			  Text 155, 30, 30, 10, "Federal "
-			  Text 115, 40, 40, 10, "$ " & state_benefit_amt
-			  Text 155, 40, 20, 10, "State"
-			  Text 20, 55, 75, 10, "SNAP Recalculation:"
+			  GroupBox x_pos, 5, 195, 135, "SNAP"
+			  Text x_pos+15, 20, 85, 10, "Original SNAP Issuance:"
+			  Text x_pos+100, 20, 40, 10, "$ " & snap_issued_amt
+			  Text x_pos+110, 30, 40, 10, "$ " & fed_benefit_amt
+			  Text x_pos+150, 30, 30, 10, "Federal "
+			  Text x_pos+110, 40, 40, 10, "$ " & state_benefit_amt
+			  Text x_pos+150, 40, 20, 10, "State"
+			  Text x_pos+15, 55, 75, 10, "SNAP Recalculation:"
 			  If snap_overpayment_exists = True Then
-				  Text 35, 65, 60, 10, "Overpayment"
-				  Text 35, 75, 30, 10, "Amount:"
-				  Text 70, 75, 40, 10, "$ " & snap_overpayment_amt
-				  Text 80, 85, 40, 10, "$ " & SNAP_fed_op
-				  Text 120, 85, 30, 10, "Federal "
-				  Text 80, 95, 40, 10, "$ " & SNAP_state_op
-				  Text 120, 95, 20, 10, "State"
+				  Text x_pos+30, 65, 60, 10, "Overpayment"
+				  Text x_pos+30, 75, 30, 10, "Amount:"
+				  Text x_pos+65, 75, 40, 10, "$ " & snap_overpayment_amt
+				  Text x_pos+75, 85, 40, 10, "$ " & SNAP_fed_op
+				  Text x_pos+115, 85, 30, 10, "Federal "
+				  Text x_pos+75, 95, 40, 10, "$ " & SNAP_state_op
+				  Text x_pos+115, 95, 20, 10, "State"
 			  End If
 			  If snap_supplement_exists = True Then
-				  Text 35, 65, 60, 10, "Supplement"
-				  Text 35, 75, 30, 10, "Amount:"
-				  Text 70, 75, 40, 10, "$ " & snap_supplement_amt
-				  Text 80, 85, 40, 10, "$ " & SNAP_fed_supp
-				  Text 120, 85, 30, 10, "Federal "
-				  Text 80, 95, 40, 10, "$ " & SNAP_state_supp
-				  Text 120, 95, 20, 10, "State"
+				  Text x_pos+30, 65, 60, 10, "Supplement"
+				  Text x_pos+30, 75, 30, 10, "Amount:"
+				  Text x_pos+65, 75, 40, 10, "$ " & snap_supplement_amt
+				  Text x_pos+75, 85, 40, 10, "$ " & SNAP_fed_supp
+				  Text x_pos+115, 85, 30, 10, "Federal "
+				  Text x_pos+75, 95, 40, 10, "$ " & SNAP_state_supp
+				  Text x_pos+115, 95, 20, 10, "State"
 			  End If
 			  If snap_overpayment_exists = False And snap_supplement_exists = False Then
-				  Text 35, 65, 100, 10, "02/22 Issuance was Correct"
+				  Text x_pos+30, 65, 100, 10, "02/22 Issuance was Correct"
 			  End If
-			  Text 15, 110, 90, 10, "Is this calculation Correct?"
-			  DropListBox 15, 120, 180, 45, "Select One..."+chr(9)+"Yes - this recalculation is correct"+chr(9)+"No - something needs to be updated", SNAP_confirmation_answer
-			  Text 5, 145, 193, 35, "Once this is confirmed, the script will update documentation. It will appear that nothing is happening. Leave the computer to process for a minute and the script will alert you once it is done. Do not multitask at this time."
+			  Text x_pos+10, 110, 90, 10, "Is this calculation Correct?"
+			  DropListBox x_pos+10, 120, 180, 45, "Select One..."+chr(9)+"Yes - SNAP recalculation is correct"+chr(9)+"No - something needs to be updated", SNAP_confirmation_answer
+			  x_pos = 210
 		  End If
+		  Text 5, 145, 193, 35, "Once this is confirmed, the script will update documentation. It will appear that nothing is happening. Leave the computer to process for a minute and the script will alert you once it is done. Do not multitask at this time."
+		  If MFIP_active = True Then
+			  GroupBox x_pos, 5, 195, 135, "MFIP"
+			  Text x_pos+10, 15, 80, 10, "Original MFIP Issuance:"
+			  Text x_pos+95, 15, 35, 10, "$ " & mfip_total_issued_amt
+			  Text x_pos+25, 30, 30, 10, "$ " & mfip_MF_MF_issued_amt
+			  Text x_pos+65, 30, 40, 10, "MF-MF:"
+			  Text x_pos+25, 40, 30, 10, "$ " & mfip_MF_HG_issued_amt
+			  Text x_pos+65, 40, 40, 10, "MF-HG:"
+			  Text x_pos+110, 30, 35, 10, "$ " & mfip_MF_FS_F_issued_amt
+			  Text x_pos+145, 30, 40, 10, "MF-FS Fed"
+			  Text x_pos+110, 40, 35, 10, "$ " & mfip_MF_FS_S_issued_amt
+			  Text x_pos+145, 40, 40, 10, "MF-FS St"
+			  Text x_pos+10, 55, 70, 10, "MFIP Recalculation:"
+			  If mfip_overpayment_exists = True Then
+				  Text x_pos+20, 65, 60, 10, "Overpayment"
+				  Text x_pos+20, 75, 30, 10, "Amount:"
+				  Text x_pos+70, 75, 40, 10, "$ " & mfip_total_overpayment_amt
+				  Text x_pos+25, 85, 35, 10, "$  " & mfip_cash_overpayment_amt
+				  Text x_pos+65, 85, 40, 10, "MF-MF"
+				  Text x_pos+110, 85, 35, 10, "$  " & mfip_food_f_overpayment
+				  Text x_pos+145, 85, 40, 10, "MF-FS Fed"
+				  Text x_pos+25, 95, 35, 10, "$  " & mfip_hg_overpayment_amt
+				  Text x_pos+65, 95, 35, 10, "MF-HG"
+				  Text x_pos+110, 95, 35, 10, "$  " & mfip_food_s_overpayment
+				  Text x_pos+145, 95, 35, 10, "MF-FS St"
+			  End If
+			  If mfip_supplement_exists = True Then
+				  Text x_pos+20, 65, 60, 10, "Supplement"
+				  Text x_pos+20, 75, 30, 10, "Amount:"
+				  Text x_pos+70, 75, 40, 10, "$ " & mfip_total_supplement_amt
+				  Text x_pos+25, 85, 35, 10, "$ " & mfip_cash_supplement_amt
+				  Text x_pos+65, 85, 40, 10, "MF-MF"
+				  Text x_pos+110, 85, 35, 10, "$ " & mfip_food_f_supplement
+				  Text x_pos+145, 85, 40, 10, "MF-FS Fed"
+				  Text x_pos+25, 95, 35, 10, "$ " & mfip_hg_supplement_amt
+				  Text x_pos+65, 95, 35, 10, "MF-HG"
+				  Text x_pos+110, 95, 35, 10, "$ " & mfip_food_s_supplement
+				  Text x_pos+145, 95, 35, 10, "MF-FS St"
+			  End If
+			  If mfip_overpayment_exists = False And mfip_supplement_exists = False Then
+				  Text x_pos+20, 65, 100, 10, "02/22 Issuance was Correct"
+			  End If
+			  ' Text 230, 65, 60, 10, "Overpayment"
+			  ' Text 230, 75, 30, 10, "Amount:"
+			  ' Text 280, 75, 40, 10, "$  & snap_overpayment_amt"
+			  ' Text 320, 85, 35, 10, "$  XXXX"
+			  ' Text 360, 85, 40, 10, "MF-FS Fed"
+			  ' Text 320, 95, 35, 10, "$  XXXX"
+			  ' Text 360, 95, 35, 10, "MF-FS St"
+			  ' Text 235, 85, 35, 10, "$  XXXX"
+			  ' Text 275, 85, 40, 10, "MF-MF"
+			  ' Text 235, 95, 35, 10, "$  XXXX"
+			  ' Text 275, 95, 35, 10, "MF-HG"
+			  Text x_pos+15, 110, 90, 10, "Is this calculation Correct?"
+			  DropListBox x_pos+10, 120, 180, 45, "Select One..."+chr(9)+"Yes - MFIP recalculation is correct"+chr(9)+"No - something needs to be updated", MFIP_confirmation_answer
+		  End If
+
 		  ButtonGroup ButtonPressed
 		    PushButton 5, 185, 195, 15, "Enter Calculation Information to Tracking Spreadsheet", Button3
 		EndDialog
@@ -1391,16 +2126,34 @@ Do
 		dialog Dialog1
 		cancel_confirmation
 
-		If SNAP_confirmation_answer = "Select One..." Then Msgbox "Please Resolve to Continue:" & vbCr & vbCr & "* Please indicate if this calculation is correct or not."
-	Loop until SNAP_confirmation_answer <> "Select One..."
+		err_msg = ""
 
-	If SNAP_confirmation_answer = "Yes - this recalculation is correct" Then recalculation_confirmed = True
-	If SNAP_confirmation_answer = "No - something needs to be updated" Then
-		Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
-		Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
-		Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
-		Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
-		Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, "STRING")
+		If SNAP_active = True and SNAP_confirmation_answer = "Select One..." Then err_msg = err_msg & vbCr & "* Please indicate if the SNAP calculation is correct or not."
+		If MFIP_active = True and MFIP_confirmation_answer = "Select One..." Then err_msg = err_msg & vbCr & "* Please indicate if the MFIP calculation is correct or not."
+
+		If err_msg <> "" Then MsgBox "Please Resolve to Continue:" & vbCr & err_msg
+	Loop until err_msg = ""
+
+	If SNAP_active = True Then
+		If SNAP_confirmation_answer = "Yes - SNAP recalculation is correct" Then recalculation_confirmed = True
+		If SNAP_confirmation_answer = "No - something needs to be updated" Then
+			recalculation_confirmed = False
+			Call budget_calculate_income(earned_income_correct_amt, unearned_correct_amt, earned_deduction_correct_amt, total_income_correct_amt, "STRING")
+			Call budget_calculate_household(correct_hh_size, disa_household, cat_elig, standard_deduction_correct_amt, max_shelter_cost_correct_amt, max_gross_income_correct_amt, max_net_adj_income_correct_amt, max_snap_benefit, "STRING")
+			Call budget_calculate_deductions(earned_deduction_correct_amt, medical_deduction_correct_amt, dependent_care_deduction_correct_amt, child_support_deduction_correct_amt, standard_deduction_correct_amt, total_deduction_correct_amt, total_income_correct_amt, net_income_correct_amt, fifty_perc_net_income_correct_amt, "STRING")
+			Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
+			Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, "STRING")
+		End If
+	End If
+
+	If MFIP_active = True Then
+		If MFIP_confirmation_answer = "Yes - MFIP recalculation is correct" Then recalculation_confirmed = True
+		If MFIP_confirmation_answer = "No - something needs to be updated" Then
+			recalculation_confirmed = False
+			Call determine_mfip_assistance_standards(familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, correct_caregiver, correct_children, "STRING")
+			Call budget_calculate_mfip_income(HH_MEMB_ARRAY, earned_inc_correct_const, earned_inc_disregard_correct_const, avail_earned_inc_correct_const, allocation_correct_const, child_support_cost_correct_const, counted_earned_inc_correct_const, unearned_inc_correct_const, allocation_bal_correct_const, child_support_cost_bal_correct_const, counted_unearned_inc_correct_const, total_correct_mfip_earned_deductions_and_disreagards, total_correct_mfip_earned_income, total_correct_mfip_net_earned_income, total_correct_mfip_unearned_deductions_and_disreagards, total_correct_mfip_unearned_income, total_correct_mfip_net_unearned_income, cses_income_correct_amt, correct_children, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, "STRING")
+			Call budget_calculate_correct_mfip(total_correct_mfip_net_earned_income, total_correct_mfip_net_unearned_income, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, mfip_overpayment_exists, mfip_supplement_exists, mfip_MF_HG_issued_amt, wage_level_difference, difference_or_transitional, mfip_unmet_need, prorated_unmet_need, mfip_subsidy_tribal_amt, mfip_correct_cash_portion, mfip_correct_food_portion, mfip_correct_hg_portion, mfip_proration_date, mfip_proration_percentage, MF_fed_percent, MF_state_percent, mfip_total_overpayment_amt, mfip_cash_overpayment_amt, mfip_food_overpayment_amt, mfip_hg_overpayment_amt, mfip_total_supplement_amt, mfip_cash_supplement_amt, mfip_food_supplement_amt, mfip_hg_supplement_amt, mfip_correct_food_f_portion, mfip_correct_food_s_portion, mfip_food_f_overpayment, mfip_food_s_overpayment, mfip_food_f_supplement, mfip_food_s_supplement, "STRING")
+		End If
 	End If
 
 	' LOOP UNTIL THIS IS CONFIRMED
@@ -1408,194 +2161,390 @@ Loop until recalculation_confirmed = True
 
 
 'Create PDF and save
-If snap_overpayment_exists = True Then
-	Set objWord = CreateObject("Word.Application")
+If snap_overpayment_exists = True OR mfip_overpayment_exists = True Then
+	If snap_overpayment_exists = True Then
+		Set objWord = CreateObject("Word.Application")
 
-	'Adding all of the information in the dialogs into a Word Document
-	objWord.Caption = "AutoClose Pause OP Calculation - CASE #" & MAXIS_case_number			'Title of the document
-	' objWord.Visible = True														'Let the worker see the document
-	objWord.Visible = False														'Let the worker see the document
+		'Adding all of the information in the dialogs into a Word Document
+		objWord.Caption = "AutoClose Pause SNAP OP Calculation - CASE #" & MAXIS_case_number			'Title of the document
+		' objWord.Visible = True														'Let the worker see the document
+		objWord.Visible = False														'Let the worker see the document
 
-	Set objDoc = objWord.Documents.Add()										'Start a new document
-	Set objSelection = objWord.Selection
+		Set objDoc = objWord.Documents.Add()										'Start a new document
+		Set objSelection = objWord.Selection
 
-	objSelection.PageSetup.TopMargin = 36
-	objSelection.PageSetup.BottomMargin = 36
-	objSelection.ParagraphFormat.SpaceAfter = 0
+		objSelection.PageSetup.TopMargin = 36
+		objSelection.PageSetup.BottomMargin = 36
+		objSelection.ParagraphFormat.SpaceAfter = 0
 
-	objSelection.Font.Name = "Arial"											'Setting the font before typing
-	objSelection.Font.Size = "16"
-	objSelection.Font.Bold = TRUE
-	objSelection.TypeText "SNAP Overpayment - Case # " & MAXIS_case_number
-	objSelection.TypeParagraph()
-	objSelection.Font.Size = "12"
-	objSelection.Font.Bold = FALSE
+		objSelection.Font.Name = "Arial"											'Setting the font before typing
+		objSelection.Font.Size = "16"
+		objSelection.Font.Bold = TRUE
+		objSelection.TypeText "SNAP Overpayment - Case # " & MAXIS_case_number
+		objSelection.TypeParagraph()
+		objSelection.Font.Size = "12"
+		objSelection.Font.Bold = FALSE
 
-	objSelection.TypeText "Details about the AutoClose Process that was Paused and Follow Up Review"
-	objSelection.TypeText vbCr
+		objSelection.TypeText "Details about the AutoClose Process that was Paused and Follow Up Review"
+		objSelection.TypeText vbCr
 
-	Set objRange = objSelection.Range					'range is needed to create tables
-	objDoc.Tables.Add objRange, 4, 4					'This sets the rows and columns needed row then column
-	'This table starts with 1 column - other columns are added after we split some of the cells
-	set process_info = objDoc.Tables(1)		'Creates the table with the specific index'
+		Set objRange = objSelection.Range					'range is needed to create tables
+		objDoc.Tables.Add objRange, 4, 4					'This sets the rows and columns needed row then column
+		'This table starts with 1 column - other columns are added after we split some of the cells
+		set process_info = objDoc.Tables(1)		'Creates the table with the specific index'
 
-	for row = 1 to 4
-		process_info.Cell(row, 1).SetHeight 15, 2			'setting the heights of the rows
-	Next
-	process_info.Columns(1).SetWidth 150, 2
-	process_info.Columns(2).SetWidth 100, 2
-	process_info.Columns(3).SetWidth 150, 2
-	process_info.Columns(4).SetWidth 100, 2
+		for row = 1 to 4
+			process_info.Cell(row, 1).SetHeight 15, 2			'setting the heights of the rows
+		Next
+		process_info.Columns(1).SetWidth 150, 2
+		process_info.Columns(2).SetWidth 100, 2
+		process_info.Columns(3).SetWidth 150, 2
+		process_info.Columns(4).SetWidth 100, 2
 
-	process_info.Cell(1, 1).Range.Text = "Process"
-	process_info.Cell(1, 2).Range.Text = feb_process
-	process_info.Cell(1, 3).Range.Text = "The " & feb_process & " was completed"
-	process_info.Cell(1, 4).Range.Text = process_complete
-	process_info.Cell(2, 1).Range.Text = "Form Received"
-	process_info.Cell(2, 2).Range.Text = form_received
-	If form_received <> "None Received" Then
-		process_info.Cell(2, 3).Range.Text = "Form Date"
-		process_info.Cell(2, 4).Range.Text = form_received_date
+		process_info.Cell(1, 1).Range.Text = "Process"
+		process_info.Cell(1, 2).Range.Text = feb_process
+		process_info.Cell(1, 3).Range.Text = "The " & feb_process & " was completed"
+		process_info.Cell(1, 4).Range.Text = process_complete
+		process_info.Cell(2, 1).Range.Text = "Form Received"
+		process_info.Cell(2, 2).Range.Text = form_received
+		If form_received <> "None Received" Then
+			process_info.Cell(2, 3).Range.Text = "Form Date"
+			process_info.Cell(2, 4).Range.Text = form_received_date
+		End If
+		process_info.Cell(3, 1).Range.Text = "Interview"
+		process_info.Cell(3, 2).Range.Text = interview_information
+		If interview_date <> "" Then
+			process_info.Cell(3, 3).Range.Text = "Interview Date"
+			process_info.Cell(3, 4).Range.Text = interview_date
+		End If
+		process_info.Cell(4, 1).Range.Text = "Verifications"
+		process_info.Cell(4, 2).Range.Text = verifs_received
+		process_info.Cell(4, 3).Range.Text = "Proration Date"
+		process_info.Cell(4, 4).Range.Text = snap_proration_date
+
+		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+		objSelection.TypeParagraph()
+
+
+		Set objRange = objSelection.Range					'range is needed to create tables
+		objDoc.Tables.Add objRange, 33, 1					'This sets the rows and columns needed row then column
+		'This table starts with 1 column - other columns are added after we split some of the cells
+		set snap_op_table = objDoc.Tables(2)		'Creates the table with the specific index'
+		snap_op_table.AutoFormat(16)							'This adds the borders to the table and formats it
+
+		for row = 1 to 33
+			snap_op_table.Cell(row, 1).SetHeight 15, 2			'setting the heights of the rows
+		Next
+
+		for row = 1 to 2
+			snap_op_table.Rows(row).Cells.Split 1, 2, TRUE
+			snap_op_table.Cell(row, 1).SetWidth 250, 2
+			snap_op_table.Cell(row, 2).SetWidth 85, 2
+		Next
+		snap_op_table.Cell(3, 1).SetWidth 335, 2
+		snap_op_table.Cell(3, 1).Range.Font.Bold = TRUE
+		for row = 4 to 6
+			snap_op_table.Rows(row).Cells.Split 1, 2, TRUE
+			snap_op_table.Cell(row, 1).SetWidth 250, 2
+			snap_op_table.Cell(row, 2).SetWidth 85, 2
+		Next
+		snap_op_table.Cell(7, 1).SetWidth 335, 2
+		snap_op_table.Cell(7, 1).Range.Font.Bold = TRUE
+		for row = 8 to 14
+			snap_op_table.Rows(row).Cells.Split 1, 2, TRUE
+			snap_op_table.Cell(row, 1).SetWidth 250, 2
+			snap_op_table.Cell(row, 2).SetWidth 85, 2
+		Next
+		snap_op_table.Cell(15, 1).SetWidth 335, 2
+		snap_op_table.Cell(15, 1).Range.Font.Bold = TRUE
+		for row = 16 to 33
+			snap_op_table.Rows(row).Cells.Split 1, 2, TRUE
+			snap_op_table.Cell(row, 1).SetWidth 250, 2
+			snap_op_table.Cell(row, 2).SetWidth 85, 2
+		Next
+
+		snap_op_table.Cell(1, 1).Range.Text = "Income Month/Year"
+		snap_op_table.Cell(1, 2).Range.Text = "02/22"
+		snap_op_table.Cell(2, 1).Range.Text = "Benefit Month/Year"
+		snap_op_table.Cell(2, 2).Range.Text = "02/22"
+		snap_op_table.Cell(3, 1).Range.Text = "Income"
+		snap_op_table.Cell(4, 1).Range.Text = chr(9) & chr(9) & "Earned Income"
+		snap_op_table.Cell(4, 2).Range.Text = "$  " & earned_income_correct_amt
+		snap_op_table.Cell(5, 1).Range.Text = chr(9) & chr(9) & "Unearned Income"
+		snap_op_table.Cell(5, 2).Range.Text = "$  " & unearned_correct_amt
+		snap_op_table.Cell(6, 1).Range.Text = chr(9) & "Total Income"
+		snap_op_table.Cell(6, 2).Range.Text = "$  " & total_income_correct_amt
+		snap_op_table.Cell(7, 1).Range.Text = "Deductions for SNAP"
+		snap_op_table.Cell(8, 1).Range.Text = chr(9) & chr(9) & "Earned income Deduction"
+		snap_op_table.Cell(8, 2).Range.Text = "$  " & earned_deduction_correct_amt
+		snap_op_table.Cell(9, 1).Range.Text = chr(9) & chr(9) & "Standard Deduction"
+		snap_op_table.Cell(9, 2).Range.Text = "$  " & standard_deduction_correct_amt
+		snap_op_table.Cell(10, 1).Range.Text = chr(9) & chr(9) & "Medical Deduction"
+		snap_op_table.Cell(10, 2).Range.Text = "$  " & medical_deduction_correct_amt
+		snap_op_table.Cell(11, 1).Range.Text = chr(9) & chr(9) & "Dependent Care Deduction"
+		snap_op_table.Cell(11, 2).Range.Text = "$  " & dependent_care_deduction_correct_amt
+		snap_op_table.Cell(12, 1).Range.Text = chr(9) & chr(9) & "Child Support"
+		snap_op_table.Cell(12, 2).Range.Text = "$  " & child_support_deduction_correct_amt
+		snap_op_table.Cell(13, 1).Range.Text = chr(9) & "Total Deductions"
+		snap_op_table.Cell(13, 2).Range.Text = "$  " & total_deduction_correct_amt
+		snap_op_table.Cell(14, 1).Range.Text = chr(9) & "Net Income"
+		snap_op_table.Cell(14, 2).Range.Text = "$  " & net_income_correct_amt
+		snap_op_table.Cell(15, 1).Range.Text = "Shelter Costs"
+		snap_op_table.Cell(16, 1).Range.Text = chr(9) & chr(9) & "Rent/Mortgage"
+		snap_op_table.Cell(16, 2).Range.Text = "$  " & rent_mortgage_correct_amt
+		snap_op_table.Cell(17, 1).Range.Text = chr(9) & chr(9) & "Property Tax"
+		snap_op_table.Cell(17, 2).Range.Text = "$  " & tax_correct_amt
+		snap_op_table.Cell(18, 1).Range.Text = chr(9) & chr(9) & "House Insurance"
+		snap_op_table.Cell(18, 2).Range.Text = "$  " & insurance_correct_amt
+		snap_op_table.Cell(19, 1).Range.Text = chr(9) & chr(9) & "Utilities"
+		snap_op_table.Cell(19, 2).Range.Text = "$  " & utilities_correct_amt
+		snap_op_table.Cell(20, 1).Range.Text = chr(9) & chr(9) & "Other " & other_cost_detail
+		snap_op_table.Cell(20, 2).Range.Text = "$  " & other_cost_correct_amt
+		snap_op_table.Cell(21, 1).Range.Text = chr(9) & "Total Shelter Costs"
+		snap_op_table.Cell(21, 2).Range.Text = "$  " & total_shelter_cost_correct_amt
+		snap_op_table.Cell(22, 1).Range.Text = chr(9) & chr(9) & "50% of Net Income"
+		snap_op_table.Cell(22, 2).Range.Text = "$  " & fifty_perc_net_income_correct_amt
+		snap_op_table.Cell(23, 1).Range.Text = chr(9) & chr(9) & "Adjusted Shelter Costs"
+		snap_op_table.Cell(23, 2).Range.Text = "$  " & adj_shelter_cost_correct_amt
+		snap_op_table.Cell(24, 1).Range.Text = chr(9) & chr(9) & "Max Allow Shelter"
+		snap_op_table.Cell(24, 2).Range.Text = "$  " & max_shelter_cost_correct_amt
+		snap_op_table.Cell(25, 1).Range.Text = chr(9) & "Shelter Expense"
+		snap_op_table.Cell(25, 2).Range.Text = "$  " & counted_shelter_cost_correct_amt
+		snap_op_table.Cell(26, 1).Range.Text = chr(9) & "Net Adusted Income"
+		snap_op_table.Cell(26, 2).Range.Text = "$  " & net_adj_income_correct_amt
+		snap_op_table.Cell(27, 1).Range.Text = chr(9) & "Household Size"
+		snap_op_table.Cell(27, 2).Range.Text = "   " & correct_hh_size
+		snap_op_table.Cell(28, 1).Range.Text = chr(9) & "Max Net Adjusted Income"
+		snap_op_table.Cell(28, 2).Range.Text = "$  " & max_net_adj_income_correct_amt
+		snap_op_table.Cell(29, 1).Range.Text = "Monthly SNAP Benefit"
+		snap_op_table.Cell(29, 2).Range.Text = "$  " & monthly_snap_benefit_correct_amt
+		snap_op_table.Cell(30, 1).Range.Text = chr(9) & "Drug felon sanction/Recoupment"
+		snap_op_table.Cell(30, 2).Range.Text = "$  " & sanction_recoupment_correct_amt
+		snap_op_table.Cell(31, 1).Range.Text = "Correct SNAP Benefit Amount"
+		snap_op_table.Cell(31, 2).Range.Text = "$  " & snap_correct_amt
+		snap_op_table.Cell(32, 1).Range.Text = "Benefit Amount Issued"
+		snap_op_table.Cell(32, 2).Range.Text = "$  " & snap_issued_amt
+		snap_op_table.Cell(33, 1).Range.Text = "Overpayment"
+		snap_op_table.Cell(33, 2).Range.Text = "$  " & snap_overpayment_amt
+
+		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+
+		objSelection.TypeText vbCr
+		objSelection.TypeText "Overpayment calculation is being completed in response to the AutoClose process being paused in 02/22 for REVW and MONT panels in Hennepin County. These overpayments do not follow the typical process for responsibility and will not be entered in CCOL or CASE/NOTE."
+		objSelection.TypeText vbCr
+		objSelection.TypeText "Calculation completed by: " & user_name
+
+		'Here we are creating the file path and saving the file
+		file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name so we change it to a -
+
+		'We set the file path and name based on case number and date. We can add other criteria if important.
+		'This MUST have the 'pdf' file extension to work
+		' pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\Overpayment Calculation Documents\"
+		pdf_snap_file_name = "AutoClose Pause SNAP OP Calculation - CASE " & MAXIS_case_number & ".pdf"
+		snap_pdf_file_save_path = pdf_doc_path & pdf_snap_file_name
+
+		' If developer_mode = True Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\Interview Notes for ECF\Archive\TRAINING REGION Interviews - NOT for ECF\Interview - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
+
+		'Now we save the document.
+		'MS Word allows us to save directly as a PDF instead of a DOC.
+		'the file path must be PDF
+		'The number '17' is a Word Ennumeration that defines this should be saved as a PDF.
+		objDoc.SaveAs snap_pdf_file_save_path, 17
+
+		objDoc.Close wdDoNotSaveChanges						'close Word Application instance we opened. (any other word instances will remain)
+		objWord.Quit
 	End If
-	process_info.Cell(3, 1).Range.Text = "Interview"
-	process_info.Cell(3, 2).Range.Text = interview_information
-	If interview_date <> "" Then
-		process_info.Cell(3, 3).Range.Text = "Interview Date"
-		process_info.Cell(3, 4).Range.Text = interview_date
+
+	If mfip_overpayment_exists = True Then
+		Set objWord = CreateObject("Word.Application")
+
+		'Adding all of the information in the dialogs into a Word Document
+		objWord.Caption = "AutoClose Pause MFIP OP Calculation - CASE #" & MAXIS_case_number			'Title of the document
+		' objWord.Visible = True														'Let the worker see the document
+		objWord.Visible = False														'Let the worker see the document
+
+		Set objDoc = objWord.Documents.Add()										'Start a new document
+		Set objSelection = objWord.Selection
+
+		objSelection.PageSetup.TopMargin = 36
+		objSelection.PageSetup.BottomMargin = 36
+		objSelection.ParagraphFormat.SpaceAfter = 0
+
+		objSelection.Font.Name = "Arial"											'Setting the font before typing
+		objSelection.Font.Size = "16"
+		objSelection.Font.Bold = TRUE
+		objSelection.TypeText "MFIP Overpayment - Case # " & MAXIS_case_number
+		objSelection.TypeParagraph()
+		objSelection.Font.Size = "12"
+		objSelection.Font.Bold = FALSE
+
+		objSelection.TypeText "Details about the AutoClose Process that was Paused and Follow Up Review"
+		objSelection.TypeText vbCr
+
+		Set objRange = objSelection.Range					'range is needed to create tables
+		objDoc.Tables.Add objRange, 4, 4					'This sets the rows and columns needed row then column
+		'This table starts with 1 column - other columns are added after we split some of the cells
+		set process_info = objDoc.Tables(1)		'Creates the table with the specific index'
+
+		for row = 1 to 4
+			process_info.Cell(row, 1).SetHeight 15, 2			'setting the heights of the rows
+		Next
+		process_info.Columns(1).SetWidth 150, 2
+		process_info.Columns(2).SetWidth 100, 2
+		process_info.Columns(3).SetWidth 150, 2
+		process_info.Columns(4).SetWidth 100, 2
+
+		process_info.Cell(1, 1).Range.Text = "Process"
+		process_info.Cell(1, 2).Range.Text = feb_process
+		process_info.Cell(1, 3).Range.Text = "The " & feb_process & " was completed"
+		process_info.Cell(1, 4).Range.Text = process_complete
+		process_info.Cell(2, 1).Range.Text = "Form Received"
+		process_info.Cell(2, 2).Range.Text = form_received
+		If form_received <> "None Received" Then
+			process_info.Cell(2, 3).Range.Text = "Form Date"
+			process_info.Cell(2, 4).Range.Text = form_received_date
+		End If
+		process_info.Cell(3, 1).Range.Text = "Interview"
+		process_info.Cell(3, 2).Range.Text = interview_information
+		If interview_date <> "" Then
+			process_info.Cell(3, 3).Range.Text = "Interview Date"
+			process_info.Cell(3, 4).Range.Text = interview_date
+		End If
+		process_info.Cell(4, 1).Range.Text = "Verifications"
+		process_info.Cell(4, 2).Range.Text = verifs_received
+		process_info.Cell(4, 3).Range.Text = "Proration Date"
+		process_info.Cell(4, 4).Range.Text = snap_proration_date
+
+		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+		objSelection.TypeParagraph()
+
+
+		Set objRange = objSelection.Range					'range is needed to create tables
+		objDoc.Tables.Add objRange, 30, 1					'This sets the rows and columns needed row then column
+		'This table starts with 1 column - other columns are added after we split some of the cells
+		set mfip_op_table = objDoc.Tables(2)		'Creates the table with the specific index'
+		mfip_op_table.AutoFormat(16)							'This adds the borders to the table and formats it
+
+		for row = 1 to 30
+			mfip_op_table.Cell(row, 1).SetHeight 15, 2			'setting the heights of the rows
+		Next
+
+		for row = 1 to 2
+			mfip_op_table.Rows(row).Cells.Split 1, 2, TRUE
+			mfip_op_table.Cell(row, 1).SetWidth 250, 2
+			mfip_op_table.Cell(row, 2).SetWidth 85, 2
+		Next
+		mfip_op_table.Cell(3, 1).SetWidth 335, 2
+		mfip_op_table.Cell(3, 1).Range.Font.Bold = TRUE
+		for row = 4 to 11
+			mfip_op_table.Rows(row).Cells.Split 1, 2, TRUE
+			mfip_op_table.Cell(row, 1).SetWidth 250, 2
+			mfip_op_table.Cell(row, 2).SetWidth 85, 2
+		Next
+		mfip_op_table.Cell(12, 1).SetWidth 335, 2
+		mfip_op_table.Cell(12, 1).Range.Font.Bold = TRUE
+		for row = 13 to 21
+			mfip_op_table.Rows(row).Cells.Split 1, 2, TRUE
+			mfip_op_table.Cell(row, 1).SetWidth 250, 2
+			mfip_op_table.Cell(row, 2).SetWidth 85, 2
+		Next
+		mfip_op_table.Cell(22, 1).SetWidth 335, 2
+		mfip_op_table.Cell(22, 1).Range.Font.Bold = TRUE
+		for row = 23 to 30
+			mfip_op_table.Rows(row).Cells.Split 1, 2, TRUE
+			mfip_op_table.Cell(row, 1).SetWidth 250, 2
+			mfip_op_table.Cell(row, 2).SetWidth 85, 2
+		Next
+
+		mfip_op_table.Cell(1, 1).Range.Text = "Income Month/Year"
+		mfip_op_table.Cell(1, 2).Range.Text = "12/21"
+		mfip_op_table.Cell(2, 1).Range.Text = "Benefit Month/Year"
+		mfip_op_table.Cell(2, 2).Range.Text = "02/22"
+
+		mfip_op_table.Cell(3, 1).Range.Text = "Earned Income Calculation"
+		mfip_op_table.Cell(4, 1).Range.Text = chr(9) & chr(9) & "Earned Income"
+		mfip_op_table.Cell(4, 2).Range.Text = "$  " & total_correct_mfip_earned_income
+		mfip_op_table.Cell(5, 1).Range.Text = chr(9) & chr(9) & "Ei Disregards/Deductions"
+		mfip_op_table.Cell(5, 2).Range.Text = "- $  " & total_correct_mfip_earned_deductions_and_disreagards
+		mfip_op_table.Cell(6, 1).Range.Text = chr(9) & "Net Earned Income"
+		mfip_op_table.Cell(6, 2).Range.Text = "$  " & total_correct_mfip_net_earned_income
+		mfip_op_table.Cell(7, 1).Range.Text = chr(9) & "Family Wage Level"
+		mfip_op_table.Cell(7, 2).Range.Text = "$  " & familY_wage_level
+		mfip_op_table.Cell(8, 1).Range.Text = chr(9) & chr(9) & "Deduct Net Earned Income"
+		mfip_op_table.Cell(8, 2).Range.Text = "- $  " & total_correct_mfip_net_earned_income
+		mfip_op_table.Cell(9, 1).Range.Text = chr(9) & chr(9) & "Difference"
+		mfip_op_table.Cell(9, 2).Range.Text = "$  " & wage_level_difference
+		mfip_op_table.Cell(10, 1).Range.Text = chr(9) & chr(9) & "Transitional Standard"
+		mfip_op_table.Cell(10, 2).Range.Text = "$  " & full_mfip_standard
+		mfip_op_table.Cell(11, 1).Range.Text = chr(9) & "Difference or Transitional Standard (whichever is less)"
+		mfip_op_table.Cell(11, 2).Range.Text = "$  " & difference_or_transitional
+
+		mfip_op_table.Cell(12, 1).Range.Text = "Unearned Income Calculation"
+		mfip_op_table.Cell(13, 1).Range.Text = chr(9) & "Unearned Income"
+		mfip_op_table.Cell(13, 2).Range.Text = "$  " & total_correct_mfip_unearned_income
+		mfip_op_table.Cell(14, 1).Range.Text = chr(9) & chr(9) & "Unearned Deductions/Disregards"
+		mfip_op_table.Cell(14, 2).Range.Text = "- $  " & total_correct_mfip_unearned_deductions_and_disreagards
+		mfip_op_table.Cell(15, 1).Range.Text = chr(9) & chr(9) & "Child Support Exclusions"
+		mfip_op_table.Cell(15, 2).Range.Text = "- $  " & correct_mfip_cses_exclusion
+		mfip_op_table.Cell(16, 1).Range.Text = chr(9) & chr(9) & "Deemed Income"
+		mfip_op_table.Cell(16, 2).Range.Text = "$  " & correct_mfip_deemed_amt
+		mfip_op_table.Cell(17, 1).Range.Text = chr(9) & chr(9) & "Subsidy"
+		mfip_op_table.Cell(17, 2).Range.Text = "$  " & mfip_subsidy_tribal_amt
+		mfip_op_table.Cell(18, 1).Range.Text = chr(9) & "MFIP Unmet Need"
+		mfip_op_table.Cell(18, 2).Range.Text = "$  " & prorated_unmet_need
+		mfip_op_table.Cell(19, 1).Range.Text = chr(9) & chr(9) & "Cash Portion"
+		mfip_op_table.Cell(19, 2).Range.Text = "$  " & mfip_correct_cash_portion
+		mfip_op_table.Cell(20, 1).Range.Text = chr(9) & chr(9) & "Food Portion "
+		mfip_op_table.Cell(20, 2).Range.Text = "$  " & mfip_correct_food_portion
+		mfip_op_table.Cell(21, 1).Range.Text = chr(9) & chr(9) & "Housing Grant"
+		mfip_op_table.Cell(21, 2).Range.Text = "$  " & mfip_correct_hg_portion
+
+		mfip_op_table.Cell(22, 1).Range.Text = "Overpayment Calculation"
+		mfip_op_table.Cell(23, 1).Range.Text = chr(9) & chr(9) & "MFIP Grant Received"
+		mfip_op_table.Cell(23, 2).Range.Text = "$  " & mfip_total_issued_amt
+		mfip_op_table.Cell(24, 1).Range.Text = chr(9) & chr(9) & "Correct MFIP Grant"
+		mfip_op_table.Cell(24, 2).Range.Text = "$  " & prorated_unmet_need
+		mfip_op_table.Cell(25, 1).Range.Text = chr(9) & "Overpayment Amount"
+		mfip_op_table.Cell(25, 2).Range.Text = "$  " & mfip_total_overpayment_amt
+		mfip_op_table.Cell(26, 1).Range.Text = chr(9) & chr(9) & "Cash portion Overpayment"
+		mfip_op_table.Cell(26, 2).Range.Text = "$  " & mfip_cash_overpayment_amt
+		mfip_op_table.Cell(27, 1).Range.Text = chr(9) & chr(9) & "Food Portion Overpayment"
+		mfip_op_table.Cell(27, 2).Range.Text = "$  " & mfip_food_overpayment_amt
+		mfip_op_table.Cell(28, 1).Range.Text = chr(9) & "Housing Grant Received"
+		mfip_op_table.Cell(28, 2).Range.Text = "$  " & mfip_MF_HG_issued_amt
+		mfip_op_table.Cell(29, 1).Range.Text = chr(9) & chr(9) & "Correct Housing Grant Received"
+		mfip_op_table.Cell(29, 2).Range.Text = "$  " & mfip_correct_hg_portion
+		mfip_op_table.Cell(30, 1).Range.Text = chr(9) & chr(9) & "Housing Grant Overpayment"
+		mfip_op_table.Cell(30, 2).Range.Text = "$  " & mfip_hg_overpayment_amt
+
+
+		objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
+
+		objSelection.TypeText vbCr
+		objSelection.TypeText "Overpayment calculation is being completed in response to the AutoClose process being paused in 02/22 for REVW and MONT panels in Hennepin County. These overpayments do not follow the typical process for responsibility and will not be entered in CCOL or CASE/NOTE."
+		objSelection.TypeText vbCr
+		objSelection.TypeText "Calculation completed by: " & user_name
+
+		'Here we are creating the file path and saving the file
+		file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name so we change it to a -
+
+		'We set the file path and name based on case number and date. We can add other criteria if important.
+		'This MUST have the 'pdf' file extension to work
+		' pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\Overpayment Calculation Documents\"
+		pdf_mfip_file_name = "AutoClose Pause MFIP OP Calculation - CASE " & MAXIS_case_number & ".pdf"
+		mfip_pdf_file_save_path = pdf_doc_path & pdf_mfip_file_name
+
+		' If developer_mode = True Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\Interview Notes for ECF\Archive\TRAINING REGION Interviews - NOT for ECF\Interview - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
+
+		'Now we save the document.
+		'MS Word allows us to save directly as a PDF instead of a DOC.
+		'the file path must be PDF
+		'The number '17' is a Word Ennumeration that defines this should be saved as a PDF.
+		objDoc.SaveAs mfip_pdf_file_save_path, 17
+
+		objDoc.Close wdDoNotSaveChanges						'close Word Application instance we opened. (any other word instances will remain)
+		objWord.Quit
 	End If
-	process_info.Cell(4, 1).Range.Text = "Verifications"
-	process_info.Cell(4, 2).Range.Text = verifs_received
-	process_info.Cell(4, 3).Range.Text = "Proration Date"
-	process_info.Cell(4, 4).Range.Text = snap_proration_date
-
-	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-	objSelection.TypeParagraph()
-
-
-	Set objRange = objSelection.Range					'range is needed to create tables
-	objDoc.Tables.Add objRange, 33, 1					'This sets the rows and columns needed row then column
-	'This table starts with 1 column - other columns are added after we split some of the cells
-	set snap_op_table = objDoc.Tables(2)		'Creates the table with the specific index'
-	snap_op_table.AutoFormat(16)							'This adds the borders to the table and formats it
-
-	for row = 1 to 33
-		snap_op_table.Cell(row, 1).SetHeight 15, 2			'setting the heights of the rows
-	Next
-
-	for row = 1 to 2
-		snap_op_table.Rows(row).Cells.Split 1, 2, TRUE
-		snap_op_table.Cell(row, 1).SetWidth 250, 2
-		snap_op_table.Cell(row, 2).SetWidth 85, 2
-	Next
-	snap_op_table.Cell(3, 1).SetWidth 335, 2
-	snap_op_table.Cell(3, 1).Range.Font.Bold = TRUE
-	for row = 4 to 6
-		snap_op_table.Rows(row).Cells.Split 1, 2, TRUE
-		snap_op_table.Cell(row, 1).SetWidth 250, 2
-		snap_op_table.Cell(row, 2).SetWidth 85, 2
-	Next
-	snap_op_table.Cell(7, 1).SetWidth 335, 2
-	snap_op_table.Cell(7, 1).Range.Font.Bold = TRUE
-	for row = 8 to 14
-		snap_op_table.Rows(row).Cells.Split 1, 2, TRUE
-		snap_op_table.Cell(row, 1).SetWidth 250, 2
-		snap_op_table.Cell(row, 2).SetWidth 85, 2
-	Next
-	snap_op_table.Cell(15, 1).SetWidth 335, 2
-	snap_op_table.Cell(15, 1).Range.Font.Bold = TRUE
-	for row = 16 to 33
-		snap_op_table.Rows(row).Cells.Split 1, 2, TRUE
-		snap_op_table.Cell(row, 1).SetWidth 250, 2
-		snap_op_table.Cell(row, 2).SetWidth 85, 2
-	Next
-
-	snap_op_table.Cell(1, 1).Range.Text = "Income Month/Year"
-	snap_op_table.Cell(1, 2).Range.Text = "02/22"
-	snap_op_table.Cell(2, 1).Range.Text = "Benefit Month/Year"
-	snap_op_table.Cell(2, 2).Range.Text = "02/22"
-	snap_op_table.Cell(3, 1).Range.Text = "Income"
-	snap_op_table.Cell(4, 1).Range.Text = chr(9) & chr(9) & "Earned Income"
-	snap_op_table.Cell(4, 2).Range.Text = "$  " & earned_income_correct_amt
-	snap_op_table.Cell(5, 1).Range.Text = chr(9) & chr(9) & "Unearned Income"
-	snap_op_table.Cell(5, 2).Range.Text = "$  " & unearned_correct_amt
-	snap_op_table.Cell(6, 1).Range.Text = chr(9) & "Total Income"
-	snap_op_table.Cell(6, 2).Range.Text = "$  " & total_income_correct_amt
-	snap_op_table.Cell(7, 1).Range.Text = "Deductions for SNAP"
-	snap_op_table.Cell(8, 1).Range.Text = chr(9) & chr(9) & "Earned income Deduction"
-	snap_op_table.Cell(8, 2).Range.Text = "$  " & earned_deduction_correct_amt
-	snap_op_table.Cell(9, 1).Range.Text = chr(9) & chr(9) & "Standard Deduction"
-	snap_op_table.Cell(9, 2).Range.Text = "$  " & standard_deduction_correct_amt
-	snap_op_table.Cell(10, 1).Range.Text = chr(9) & chr(9) & "Medical Deduction"
-	snap_op_table.Cell(10, 2).Range.Text = "$  " & medical_deduction_correct_amt
-	snap_op_table.Cell(11, 1).Range.Text = chr(9) & chr(9) & "Dependent Care Deduction"
-	snap_op_table.Cell(11, 2).Range.Text = "$  " & dependent_care_deduction_correct_amt
-	snap_op_table.Cell(12, 1).Range.Text = chr(9) & chr(9) & "Child Support"
-	snap_op_table.Cell(12, 2).Range.Text = "$  " & child_support_deduction_correct_amt
-	snap_op_table.Cell(13, 1).Range.Text = chr(9) & "Total Deductions"
-	snap_op_table.Cell(13, 2).Range.Text = "$  " & total_deduction_correct_amt
-	snap_op_table.Cell(14, 1).Range.Text = chr(9) & "Net Income"
-	snap_op_table.Cell(14, 2).Range.Text = "$  " & net_income_correct_amt
-	snap_op_table.Cell(15, 1).Range.Text = "Shelter Costs"
-	snap_op_table.Cell(16, 1).Range.Text = chr(9) & chr(9) & "Rent/Mortgage"
-	snap_op_table.Cell(16, 2).Range.Text = "$  " & rent_mortgage_correct_amt
-	snap_op_table.Cell(17, 1).Range.Text = chr(9) & chr(9) & "Property Tax"
-	snap_op_table.Cell(17, 2).Range.Text = "$  " & tax_correct_amt
-	snap_op_table.Cell(18, 1).Range.Text = chr(9) & chr(9) & "House Insurance"
-	snap_op_table.Cell(18, 2).Range.Text = "$  " & insurance_correct_amt
-	snap_op_table.Cell(19, 1).Range.Text = chr(9) & chr(9) & "Utilities"
-	snap_op_table.Cell(19, 2).Range.Text = "$  " & utilities_correct_amt
-	snap_op_table.Cell(20, 1).Range.Text = chr(9) & chr(9) & "Other " & other_cost_detail
-	snap_op_table.Cell(20, 2).Range.Text = "$  " & other_cost_correct_amt
-	snap_op_table.Cell(21, 1).Range.Text = chr(9) & "Total Shelter Costs"
-	snap_op_table.Cell(21, 2).Range.Text = "$  " & total_shelter_cost_correct_amt
-	snap_op_table.Cell(22, 1).Range.Text = chr(9) & chr(9) & "50% of Net Income"
-	snap_op_table.Cell(22, 2).Range.Text = "$  " & fifty_perc_net_income_correct_amt
-	snap_op_table.Cell(23, 1).Range.Text = chr(9) & chr(9) & "Adjusted Shelter Costs"
-	snap_op_table.Cell(23, 2).Range.Text = "$  " & adj_shelter_cost_correct_amt
-	snap_op_table.Cell(24, 1).Range.Text = chr(9) & chr(9) & "Max Allow Shelter"
-	snap_op_table.Cell(24, 2).Range.Text = "$  " & max_shelter_cost_correct_amt
-	snap_op_table.Cell(25, 1).Range.Text = chr(9) & "Shelter Expense"
-	snap_op_table.Cell(25, 2).Range.Text = "$  " & counted_shelter_cost_correct_amt
-	snap_op_table.Cell(26, 1).Range.Text = chr(9) & "Net Adusted Income"
-	snap_op_table.Cell(26, 2).Range.Text = "$  " & net_adj_income_correct_amt
-	snap_op_table.Cell(27, 1).Range.Text = chr(9) & "Household Size"
-	snap_op_table.Cell(27, 2).Range.Text = "   " & correct_hh_size
-	snap_op_table.Cell(28, 1).Range.Text = chr(9) & "Max Net Adjusted Income"
-	snap_op_table.Cell(28, 2).Range.Text = "$  " & max_net_adj_income_correct_amt
-	snap_op_table.Cell(29, 1).Range.Text = "Monthly SNAP Benefit"
-	snap_op_table.Cell(29, 2).Range.Text = "$  " & monthly_snap_benefit_correct_amt
-	snap_op_table.Cell(30, 1).Range.Text = chr(9) & "Drug felon sanction/Recoupment"
-	snap_op_table.Cell(30, 2).Range.Text = "$  " & sanction_recoupment_correct_amt
-	snap_op_table.Cell(31, 1).Range.Text = "Correct SNAP Benefit Amount"
-	snap_op_table.Cell(31, 2).Range.Text = "$  " & snap_correct_amt
-	snap_op_table.Cell(32, 1).Range.Text = "Benefit Amount Issued"
-	snap_op_table.Cell(32, 2).Range.Text = "$  " & snap_issued_amt
-	snap_op_table.Cell(33, 1).Range.Text = "Overpayment"
-	snap_op_table.Cell(33, 2).Range.Text = "$  " & snap_overpayment_amt
-
-	objSelection.EndKey end_of_doc						'this sets the cursor to the end of the document for more writing
-
-	objSelection.TypeText vbCr
-	objSelection.TypeText "Overpayment calculation is being completed in response to the AutoClose process being paused in 02/22 for REVW and MONT panels in Hennepin County. These overpayments do not follow the typical process for responsibility and will not be entered in CCOL or CASE/NOTE."
-	objSelection.TypeText vbCr
-	objSelection.TypeText "Calculation completed by: " & user_name
-
-	'Here we are creating the file path and saving the file
-	file_safe_date = replace(date, "/", "-")		'dates cannot have / for a file name so we change it to a -
-
-	'We set the file path and name based on case number and date. We can add other criteria if important.
-	'This MUST have the 'pdf' file extension to work
-	pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\Overpayment Calculation Documents" & "\AutoClose Pause OP Calculation - CASE " & MAXIS_case_number & ".pdf"
-	' If developer_mode = True Then pdf_doc_path = t_drive & "\Eligibility Support\Assignments\Interview Notes for ECF\Archive\TRAINING REGION Interviews - NOT for ECF\Interview - " & MAXIS_case_number & " on " & file_safe_date & ".pdf"
-
-	'Now we save the document.
-	'MS Word allows us to save directly as a PDF instead of a DOC.
-	'the file path must be PDF
-	'The number '17' is a Word Ennumeration that defines this should be saved as a PDF.
-	objDoc.SaveAs pdf_doc_path, 17
-
-	objDoc.Close wdDoNotSaveChanges
-	objWord.Quit						'close Word Application instance we opened. (any other word instances will remain)
 
 	Call excel_open(excel_report_file_path, False, False, ObjReportExcel, objReportWorkbook)
 	rept_excel_row = 1
@@ -1612,8 +2561,8 @@ If snap_overpayment_exists = True Then
 	ObjReportExcel.Cells(rept_excel_row, rept_issued_mf_fs_s_col).Value  	= mfip_MF_FS_S_issued_amt
 	ObjReportExcel.Cells(rept_excel_row, rept_op_fs_f_col).Value  			= SNAP_fed_op
 	ObjReportExcel.Cells(rept_excel_row, rept_op_fs_s_col).Value  			= SNAP_state_op
-	ObjReportExcel.Cells(rept_excel_row, rept_op_mf_fs_f_col).Value  		= ""
-	ObjReportExcel.Cells(rept_excel_row, rept_op_mf_fs_s_col).Value  		= ""
+	ObjReportExcel.Cells(rept_excel_row, rept_op_mf_fs_f_col).Value  		= mfip_food_f_overpayment
+	ObjReportExcel.Cells(rept_excel_row, rept_op_mf_fs_s_col).Value  		= mfip_food_s_overpayment
 
 	objReportWorkbook.Save()		'saving the excel
 	ObjReportExcel.ActiveWorkbook.Close
@@ -1651,16 +2600,16 @@ ObjDetailsExcel.Cells(total_excel_row, det_verifs_col).Value 				= verifs_receiv
 ObjDetailsExcel.Cells(total_excel_row, det_process_complete_col).Value 		= process_complete
 ObjDetailsExcel.Cells(total_excel_row, det_op_fs_f_col).Value 				= SNAP_fed_op
 ObjDetailsExcel.Cells(total_excel_row, det_op_fs_s_col).Value 				= SNAP_state_op
-ObjDetailsExcel.Cells(total_excel_row, det_op_mf_mf_col).Value 				= ""
-ObjDetailsExcel.Cells(total_excel_row, det_op_mf_fs_f_col).Value 			= ""
-ObjDetailsExcel.Cells(total_excel_row, det_op_mf_fs_s_col).Value 			= ""
-ObjDetailsExcel.Cells(total_excel_row, det_op_mf_hg_col).Value 				= ""
+ObjDetailsExcel.Cells(total_excel_row, det_op_mf_mf_col).Value 				= mfip_cash_overpayment_amt
+ObjDetailsExcel.Cells(total_excel_row, det_op_mf_fs_f_col).Value 			= mfip_food_f_overpayment
+ObjDetailsExcel.Cells(total_excel_row, det_op_mf_fs_s_col).Value 			= mfip_food_s_overpayment
+ObjDetailsExcel.Cells(total_excel_row, det_op_mf_hg_col).Value 				= mfip_hg_overpayment_amt
 ObjDetailsExcel.Cells(total_excel_row, det_supp_fs_f_col).Value 			= SNAP_fed_supp
 ObjDetailsExcel.Cells(total_excel_row, det_supp_fs_s_col).Value 			= SNAP_state_supp
-ObjDetailsExcel.Cells(total_excel_row, det_supp_mf_mf_col).Value 			= ""
-ObjDetailsExcel.Cells(total_excel_row, det_supp_mf_fs_f_col).Value 			= ""
-ObjDetailsExcel.Cells(total_excel_row, det_supp_mf_fs_s_col).Value 			= ""
-ObjDetailsExcel.Cells(total_excel_row, det_supp_mf_hg_col).Value 			= ""
+ObjDetailsExcel.Cells(total_excel_row, det_supp_mf_mf_col).Value 			= mfip_cash_supplement_amt
+ObjDetailsExcel.Cells(total_excel_row, det_supp_mf_fs_f_col).Value 			= mfip_food_f_supplement
+ObjDetailsExcel.Cells(total_excel_row, det_supp_mf_fs_s_col).Value 			= mfip_food_s_supplement
+ObjDetailsExcel.Cells(total_excel_row, det_supp_mf_hg_col).Value 			= mfip_hg_supplement_amt
 ObjDetailsExcel.Cells(total_excel_row, det_orig_earned_income_col).Value 	= earned_income_budgeted_amt
 ObjDetailsExcel.Cells(total_excel_row, det_orig_unearned_income_col).Value 	= unearned_budgeted_amt
 ObjDetailsExcel.Cells(total_excel_row, det_orig_total_income_col).Value 	= total_income_budgeted_amt
@@ -1682,10 +2631,53 @@ ObjDetailsExcel.Cells(total_excel_row, det_correct_utility_cost_col).Value 		= u
 ObjDetailsExcel.Cells(total_excel_row, det_correct_total_shel_cost_col).Value 	= total_shelter_cost_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_correct_net_adj_income_col).Value 	= net_adj_income_correct_amt
 ObjDetailsExcel.Cells(total_excel_row, det_correct_hh_size_col).Value 			= correct_hh_size
-If calculation_needed = True Then ObjDetailsExcel.Cells(total_excel_row, det_snap_proration_col).Value 			= snap_proration_date
+If calculation_needed = True and SNAP_active = True Then ObjDetailsExcel.Cells(total_excel_row, det_snap_proration_col).Value 			= snap_proration_date
 ObjDetailsExcel.Cells(total_excel_row, det_correct_snap_benefit_col).Value 		= snap_correct_amt
-ObjDetailsExcel.Cells(total_excel_row, det_pdf_link_col).Value					= ""
-If pdf_doc_path <> "" Then ObjDetailsExcel.Cells(total_excel_row, det_pdf_link_col).Value 				= "=HYPERLINK(" & chr(34) & pdf_doc_path & chr(34) & ", " & chr(34) & "AutoClose Pause OP Calculation - CASE " & MAXIS_case_number & ".pdf" & chr(34) & ")"
+
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_caregivers_col).Value 			= mfip_budgeted_caregivers 								'Orig Caregivers
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_children_col).Value 				= mfip_budgeted_children 								'Orig Children
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_earned_income_col).Value 		= mfip_orig_gross_total_earned_income 													'Orig MF Earned Income
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_ei_deductions_col).Value 		= mfip_orig_deductions_earned 													'Orig EI Disregards/Deductions
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_net_ei_col).Value 				= mfip_budgeted_earned_income 							'Orig Net Earned Income
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_family_wage_level_col).Value 	= mf_orig_fwl 											'Orig Family Wage Level
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_difference_col).Value 			= mf_orig_fwl_diff 										'Orig Difference
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_transitional_stndrd_col).Value 	= mf_orig_ts 											'Orig Trasitional Standard
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_diff_or_trns_stndrd_col).Value 	= mf_orig_diff_or_ts 									'Difference or Transitional Standard
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_unearned_income_col).Value 		= mfip_budgeted_unearned_income 						'Orig MF Unearned Income
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_unea_deductions_col).Value 		= mfip_orig_deductions_unearned 													'Orig Ded/Disrgd
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_deemed_income_col).Value 		= deemed_income_budgeted_amt 							'Orig Deemed Income
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_cs_exclusion_col).Value 			= cses_exclusion_budgeted_amt 							'Orig CS Exclusion
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_subsidy_col).Value 				= mfip_subsidy_tribal_amt 								'Orig Subsidy
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_unmet_need_col).Value 			= mfip_total_issued_amt 								'Orig Unmet Need
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_mf_amt_col).Value 				= mfip_MF_MF_issued_amt 								'Orig MF-MF
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_fs_amt_col).Value 				= mfip_MF_FS_issued_amt 								'Orig MF-FS
+ObjDetailsExcel.Cells(total_excel_row, det_orig_mf_hg_amt_col).Value 				= mfip_MF_HG_issued_amt 								'Orig MF-HG
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_caregivers_col).Value 		= correct_caregiver 									'Correct Caregivers
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_children_col).Value 			= correct_children 										'Correct Children
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_earned_income_col).Value 		= total_correct_mfip_earned_income 						'Correct MF Earned Income
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_ei_deductions_col).Value 		= total_correct_mfip_earned_deductions_and_disreagards 	'Correct EI Disregards/Deductions
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_net_ei_col).Value 			= total_correct_mfip_net_earned_income 					'Correct Net Earned Income
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_family_wage_level_col).Value 	= familY_wage_level 									'Correct Family Wage Level
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_difference_col).Value 		= wage_level_difference 								'Correct Difference
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_transitional_stndrd_col).Value = full_mfip_standard 									'Correct Trasitional Standard
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_diff_or_trns_stndrd_col).Value = difference_or_transitional 							'Correct or Transitional Standard
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_unearned_income_col).Value 	= total_correct_mfip_unearned_income 					'Correct MF Unearned Income
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_unea_deductions_col).Value 	= total_correct_mfip_unearned_deductions_and_disreagards 'Correct Ded/Disrgd
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_deemed_income_col).Value 		= correct_mfip_deemed_amt 								'Correct Deemed Income
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_cs_exclusion_col).Value 		= correct_mfip_cses_exclusion 							'Correct CS Exclusion
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_subsidy_col).Value 			= mfip_subsidy_tribal_amt 								'Correct Subsidy
+If calculation_needed = True and MFIP_active = True Then ObjDetailsExcel.Cells(total_excel_row, det_mf_proration_date_col).Value 			= mfip_proration_date 									'MFIP Proration Date
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_unmet_need_col).Value 		= prorated_unmet_need 									'Correct Unmet Need
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_mf_amt_col).Value 			= mfip_correct_cash_portion 							'Correct MF-MF
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_fs_amt_col).Value 			= mfip_correct_food_portion 							'Correct MF-FS
+ObjDetailsExcel.Cells(total_excel_row, det_correct_mf_hg_amt_col).Value 			= mfip_correct_hg_portion 								'Correct MF-HG
+
+ObjDetailsExcel.Cells(total_excel_row, det_snap_pdf_link_col).Value					= ""
+If snap_pdf_file_save_path <> "" Then ObjDetailsExcel.Cells(total_excel_row, det_snap_pdf_link_col).Value 				= "=HYPERLINK(" & chr(34) & snap_pdf_file_save_path & chr(34) & ", " & chr(34) & pdf_snap_file_name & chr(34) & ")"
+
+ObjDetailsExcel.Cells(total_excel_row, det_mfip_pdf_link_col).Value					= ""
+If mfip_pdf_file_save_path <> "" Then ObjDetailsExcel.Cells(total_excel_row, det_mfip_pdf_link_col).Value 				= "=HYPERLINK(" & chr(34) & mfip_pdf_file_save_path & chr(34) & ", " & chr(34) & pdf_mfip_file_name & chr(34) & ")"
+
 
 objDetailWorkbook.Save()		'saving the excel
 ObjDetailsExcel.ActiveWorkbook.Close
