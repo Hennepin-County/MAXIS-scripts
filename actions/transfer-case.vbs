@@ -51,7 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/28/2022", "Re-write version.", "MiKayla Handley, Hennepin County.")
+call changelog_update("03/28/2022", "Initial version.", "MiKayla Handley, Hennepin County.")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -67,8 +67,8 @@ EMReadScreen worker_number, 7, 22, 8                'reading the current workers
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
 closing_message = "Transfer case is complete."      'setting up closing_message variable for possible additions later based on conditions
-
-BeginDialog Dialog1, 0, 0, 201, 85, "Match Cleared"
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 201, 85, "Transfer Case"
   EditBox 80, 5, 45, 15, MAXIS_case_number
   EditBox 150, 25, 45, 15, transfer_to_worker
   EditBox 80, 45, 115, 15, worker_signature
@@ -82,48 +82,52 @@ BeginDialog Dialog1, 0, 0, 201, 85, "Match Cleared"
   Text 80, 30, 50, 10, "(transferring to)"
 EndDialog
 'Runs the first dialog - which confirms the case number
-Do
-	Do
-		err_msg = ""
-		Dialog Dialog1
-		cancel_without_confirmation
-        IF (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Please enter a valid MAXIS case number."
-        IF len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "Please enter the new servicing worker."
-        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Please enter your worker signature."
+DO
+    Do
+    	Do
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_without_confirmation
+            Call validate_MAXIS_case_number(err_msg, "*")
+            IF len(transfer_to_worker) <> 7 THEN err_msg = err_msg & vbNewLine & "* Please enter the new servicing worker."
+            IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+            If ButtonPressed = search_button Then               'Pulling up the hsr page if the button was pressed.
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/transfers.aspx?web=1"
+                err_msg = "LOOP"
+            Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
+    		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+            End If
+    	Loop until err_msg = ""
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-        If ButtonPressed = search_button Then               'Pulling up the hsr page if the button was pressed.
-            run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/transfers.aspx?web=1"
-            err_msg = "LOOP"
-        Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
-		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-        End If
-	Loop until err_msg = ""
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+    transfer_to_worker = trim(transfer_to_worker)                'formatting the information entered in the dialog
+    transfer_to_worker = Ucase(transfer_to_worker)               'making sure we are capital in all things'
+    worker_number = trim(worker_number)
+    worker_number = Ucase(worker_number)
+
+    '----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
+    'transfer_to_worker = ucase(transfer_to_worker)
+    call navigate_to_MAXIS_screen("REPT", "USER")
+    EMWriteScreen transfer_to_worker, 21, 12
+    TRANSMIT
+
+    EMReadScreen error_message, 75, 24, 2
+    EMReadScreen inactive_worker, 8, 7, 38
+    'IF inactive_worker = "INACTIVE" THEN MsgBox "The worker or agency selected is not active. Please try again."
+    If trim(error_message) = "NO WORKER FOUND WITH THIS ID" Then MsgBox error_message
+
+    'msgbox error_message & " " &  inactive_worker
+LOOP UNTIL inactive_worker <> "INACTIVE"
 
 CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need discovery on priv cases for xfer handling'
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
 
-transfer_to_worker = trim(transfer_to_worker)                'formatting the information entered in the dialog
-transfer_to_worker = Ucase(transfer_to_worker)               'making sure we are capital in all things'
-worker_number = trim(worker_number)
-worker_number = Ucase(worker_number)
-
 IF transfer_to_worker = "X127CCL" THEN script_end_procedure("This case is will be transferred via an automated script after being closed for 4 months, the script will now end.")
-'----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
-'transfer_to_worker = ucase(transfer_to_worker)
-call navigate_to_MAXIS_screen("REPT", "USER")
-EMWriteScreen transfer_to_worker, 21, 12
-TRANSMIT
-DO
-    EMReadScreen error_message, 75, 24, 2
-    EMReadScreen inactive_worker, 8, 7, 38
-    IF inactive_worker = "INACTIVE" THEN MsgBox "The worker or agency selected is not active. Please try again."
-    msgbox error_message & " " &  inactive_worker
-LOOP UNTIL inactive_worker <> "INACTIVE"
+
 transfer_out_of_county = FALSE                                          'setting varible to false'
 IF left(transfer_to_worker, 4) <> "X127" THEN transfer_out_of_county = TRUE 'setting the out of county BOOLEAN'
-
+'read the panel'
 EMWriteScreen "X", 7, 3 ' navigating to read the worker information'
 TRANSMIT
 EMReadScreen worker_agency_name, 43, 8, 27
@@ -134,21 +138,22 @@ IF worker_agency_name = "" THEN 						'If we are unable to find the alias for th
 	name_length = len(worker_agency_name)
 	comma_location = InStr(worker_agency_name, ",")
 	worker_agency_name = right(worker_agency_name, (name_length - comma_location)) & " " & left(worker_agency_name, (comma_location - 1)) 'this section will reorder the name of the worker since it is stored here as last, first. the comma_location - 1 removes the comma from the "last,"
-
-    EMReadScreen mail_addr_line_one, 43, 9, 27
-    	mail_addr_line_one = trim(mail_addr_line_one)
-    EMReadScreen mail_addr_line_two, 43, 10, 27
-    	mail_addr_line_two = trim(mail_addr_line_two)
-    EMReadScreen mail_addr_line_three, 43, 11, 27
-    	mail_addr_line_three = trim(mail_addr_line_three)
-    EMReadScreen mail_addr_line_four, 43, 12, 27
-    	mail_addr_line_four = trim(mail_addr_line_four)
-    EMReadScreen worker_agency_phone, 14, 13, 27
-    EMReadScreen worker_county_code, 2, 15, 32
 END IF
-transfer_message = ""            'some defaults
+EMReadScreen mail_addr_line_one, 43, 9, 27 ' really only need for out of county but read for all '
+	mail_addr_line_one = trim(mail_addr_line_one)
+EMReadScreen mail_addr_line_two, 43, 10, 27
+	mail_addr_line_two = trim(mail_addr_line_two)
+EMReadScreen mail_addr_line_three, 43, 11, 27
+	mail_addr_line_three = trim(mail_addr_line_three)
+EMReadScreen mail_addr_line_four, 43, 12, 27
+	mail_addr_line_four = trim(mail_addr_line_four)
+EMReadScreen worker_agency_phone, 14, 13, 27
+EMReadScreen worker_county_code, 2, 15, 32
+
 transfer_case = False
 action_completed = True
+
+IF servicing_worker = "X126ICT" THEN worker_agency_phone = "651-266-4444" 'Rasmey County '
 
 If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered - we are attempting the transfer
 	transfer_case = True
@@ -159,10 +164,8 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
     EMreadscreen primary_worker, 7, 21, 16                  'how does PW act differently than SW?'
 	EMreadscreen servicing_worker, 7, 18, 65               'checking to see if the transfer_to_worker is the same as the primary_worker (because then it won't transfer)
     EMreadscreen second_servicing_worker, 7, 18, 74        'checking to see if the transfer_to_worker is the same as the second_servicing_worker (because then it won't transfer)
-        IF second_servicing_worker <> "" THEN
-            call clear_line_of_text(18, 74)
-            TRANSMIT                                        'unclear of what is going to happen here discussed using a vb yes no
-        END IF
+    IF second_servicing_worker <> "_______" THEN CALL clear_line_of_text(18, 74)
+
     IF servicing_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
 		action_completed = False
         end_msg = "This case is already in the requested worker's number."
@@ -179,9 +182,9 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
             PF10 'backout
             PF3 'SPEC menu
             PF3 'SELF Menu'
-        Else                                               'if we are in the right place - read to see if the new worker is the transfer_to_worker
-            EMReadScreen primary_worker, 7, 21, 20
-            If primary_worker <> transfer_to_worker THEN           'if it is not the transfer_to_worker - the transfer failed.
+        Else                                                 'if we are in the right place - read to see if the new worker is the transfer_to_worker
+            EMReadScreen primary_worker, 7, 21, 16
+            If primary_worker <> transfer_to_worker THEN     'if it is not the transfer_to_worker - the transfer failed.
                 action_completed = False
                 end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
             End If
@@ -192,6 +195,7 @@ ELSE
     'CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR") ' need discovery on priv cases for xfer handling'
     'EMReadScreen addr_resi_county, 2, 9, 66
     '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = ""
     BeginDialog out_of_county_dlg, 0, 0, 346, 280, "Out of County Case Transfer"
      EditBox 80, 5, 45, 15, move_date
      DropListBox 80, 25, 45, 15, "No"+chr(9)+"Yes", excluded_time_dropdown
