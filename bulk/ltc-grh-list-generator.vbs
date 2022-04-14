@@ -87,9 +87,8 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		Cancel_without_confirmation
-		If worker_number = "" then err_msg = err_msg & vbnewline & "* Enter at least one worker number."
-		If isnumeric(MAXIS_footer_month) = false or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbnewline & "* Enter a valid 2-digit footer month."
-		If isnumeric(MAXIS_footer_year) = false or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbnewline & "* Enter a valid 2-digit footer year."
+		If trim(worker_number) = "" then err_msg = err_msg & vbnewline & "* Enter at least one worker number."
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
 Call check_for_password(are_we_passworded_out)
@@ -125,7 +124,7 @@ ObjExcel.Cells(1, 3).Value = "Client Name"
 ObjExcel.Cells(1, 4).Value = "Facility Name"
 ObjExcel.Cells(1, 5).Value = "Vendor #"
 
-col_to_use = 5 'Starting with 6 because cols 1-5 are already used
+col_to_use = 6 'Starting with 6 because cols 1-5 are already used
 
 If FACI_type_checkbox = 1 then
 	ObjExcel.Cells(1, col_to_use).Value = "FACI Type"
