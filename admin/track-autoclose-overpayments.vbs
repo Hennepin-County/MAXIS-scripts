@@ -376,6 +376,7 @@ function determine_proration_percentage(proration_date, proration_percentage)
 	first_of_proration_month = DateAdd("d", 0, first_of_proration_month)
 	month_after_proration_month = DateAdd("m", 1, first_of_proration_month)
 	last_day_of_proration_month = DateAdd("d", -1, month_after_proration_month)
+	last_day_of_proration_month = DatePart("d", last_day_of_proration_month)
 
 	proration_percentage = 1.00
 	If last_day_of_proration_month = 28 Then
