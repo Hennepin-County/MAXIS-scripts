@@ -56,7 +56,28 @@ call changelog_update("03/28/2022", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+function view_poli_temp(temp_one, temp_two, temp_three, temp_four)
+	call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
+	EMWriteScreen "TEMP", 5, 40     'Writes TEMP
 
+	'Writes the panel_title selection
+	Call write_value_and_transmit("TABLE", 21, 71)
+
+	If temp_one <> "" Then temp_one = right("00" & temp_one, 2)
+	If len(temp_two) = 1 Then temp_two = right("00" & temp_two, 2)
+	If len(temp_three) = 1 Then temp_three = right("00" & temp_three, 2)
+	If len(temp_four) = 1 Then temp_four = right("00" & temp_four, 2)
+
+	total_code = "TE" & temp_one & "." & temp_two
+	If temp_three <> "" Then total_code = total_code & "." & temp_three
+	If temp_four <> "" Then total_code = total_code & "." & temp_four
+
+	EMWriteScreen total_code, 3, 21
+	transmit
+
+	EMWriteScreen "X", 6, 4
+	transmit
+end function
 '--------------------------------------------------------------------------------The script
 EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
@@ -82,7 +103,9 @@ BeginDialog Dialog1, 0, 0, 201, 85, "Transfer Case"
   Text 80, 30, 50, 10, "(transferring to)"
 EndDialog
 'Runs the first dialog - which confirms the case number
+
 DO
+    active_worker_found = TRUE
     Do
     	Do
     		err_msg = ""
@@ -113,12 +136,17 @@ DO
     TRANSMIT
 
     EMReadScreen error_message, 75, 24, 2
+    error_message = trim(error_message)
     EMReadScreen inactive_worker, 8, 7, 38
-    'IF inactive_worker = "INACTIVE" THEN MsgBox "The worker or agency selected is not active. Please try again."
-    If trim(error_message) = "NO WORKER FOUND WITH THIS ID" Then MsgBox error_message
-
-    'msgbox error_message & " " &  inactive_worker
-LOOP UNTIL inactive_worker <> "INACTIVE"
+    IF inactive_worker = "INACTIVE" THEN
+        active_worker_found = false
+        MsgBox "Please review the worker and try again. " & error_message
+    END IF
+    IF error_message = "NO WORKER FOUND WITH THIS ID" THEN
+        active_worker_found = false
+        MsgBox "Please review the worker and try again. " & error_message
+    END IF
+LOOP UNTIL active_worker_found = TRUE
 
 CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need discovery on priv cases for xfer handling'
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
@@ -132,6 +160,7 @@ EMWriteScreen "X", 7, 3 ' navigating to read the worker information'
 TRANSMIT
 EMReadScreen worker_agency_name, 43, 8, 27
 worker_agency_name = trim(worker_agency_name)
+
 IF worker_agency_name = "" THEN 						'If we are unable to find the alias for the worker we will just use the worker name as it is what is used on notices anyway
 	EMReadScreen worker_agency_name, 43, 7, 27
 	worker_agency_name = trim(worker_agency_name)
@@ -139,7 +168,7 @@ IF worker_agency_name = "" THEN 						'If we are unable to find the alias for th
 	comma_location = InStr(worker_agency_name, ",")
 	worker_agency_name = right(worker_agency_name, (name_length - comma_location)) & " " & left(worker_agency_name, (comma_location - 1)) 'this section will reorder the name of the worker since it is stored here as last, first. the comma_location - 1 removes the comma from the "last,"
 END IF
-EMReadScreen mail_addr_line_one, 43, 9, 27 ' really only need for out of county but read for all '
+EMReadScreen mail_addr_line_one, 43, 9, 27              ' really only need for out of county but read for all '
 	mail_addr_line_one = trim(mail_addr_line_one)
 EMReadScreen mail_addr_line_two, 43, 10, 27
 	mail_addr_line_two = trim(mail_addr_line_two)
@@ -149,11 +178,13 @@ EMReadScreen mail_addr_line_four, 43, 12, 27
 	mail_addr_line_four = trim(mail_addr_line_four)
 EMReadScreen worker_agency_phone, 14, 13, 27
 EMReadScreen worker_county_code, 2, 15, 32
-
+county_financial_responsibilty = worker_county_code ' for updating the out of county'
 transfer_case = False
 action_completed = True
-
-IF servicing_worker = "X126ICT" THEN worker_agency_phone = "651-266-4444" 'Rasmey County '
+'MNPrairie Bank Support - MNPrairie Bank cases all go to Steele (county code 74)'s ICT transfer.
+'Agencies in the MNPrairie Bank are Dodge (county code 20), Steele (county code 74), and Waseca (county code 81)
+IF servicing_worker = "X120ICT" OR servicing_worker = "X181ICT" THEN servicing_worker = "X174ICT"
+IF servicing_worker = "X126ICT" THEN worker_agency_phone = "651-266-4444" 'Ramsey County has an individuals workers phone previously'
 
 If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered - we are attempting the transfer
 	transfer_case = True
@@ -191,17 +222,18 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
         End If
 	END IF
 ELSE
-    CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
-    'CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR") ' need discovery on priv cases for xfer handling'
-    'EMReadScreen addr_resi_county, 2, 9, 66
+    CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
+    hc_cfr_no_change_checkbox = CHECKED
+    cash_cfr_no_change_checkbox = CHECKED
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = ""
-    BeginDialog out_of_county_dlg, 0, 0, 346, 280, "Out of County Case Transfer"
-     EditBox 80, 5, 45, 15, move_date
+    BeginDialog Dialog1, 0, 0, 346, 280, "Out of County Case Transfer"
+     EditBox 80, 5, 45, 15, client_move_date
      DropListBox 80, 25, 45, 15, "No"+chr(9)+"Yes", excluded_time_dropdown
      EditBox 205, 25, 45, 15, excluded_date
      EditBox 80, 45, 45, 15, METS_case_number
-     DropListBox 205, 45, 45, 15, "Active"+chr(9)+"Inactive", mets_status_dropdown
+     DropListBox 205, 45, 45, 15, "Active"+chr(9)+"Inactive"+chr(9)+"N/A", mets_status_dropdown
      EditBox 80, 65, 260, 15, transfer_reason
      EditBox 80, 85, 260, 15, action_to_be_taken
      EditBox 145, 105, 195, 15, requested_verifs
@@ -253,19 +285,50 @@ ELSE
     		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
             End If
             Call MAXIS_dialog_navigation()
-	        If ButtonPressed = POLI_TEMP_button then call navigate_to_MAXIS_screen("POLI", "TEMP")
+            If ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("TE02", "08", "095") 'TE02.08.095' there is no forth variable
             IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a reason for transfer."
-            IF excluded_time_dropdown = "Yes" AND isdate(excluded_date) = False THEN MsgBox "Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
-			IF isdate(move_date) = False THEN MsgBox "Please enter a valid date for client move."
-			IF ucase(left(servicing_worker, 4)) = ucase(transferring_worker_county_code) THEN MsgBox "You must use the ''Within the Agency'' script to transfer the case within the agency. The Worker/Agency you have selected indicates you are trying to transfer within your agency."
-			IF (ma_status = "ACTIVE" AND excluded_time_dropdown = "No") THEN MsgBox "Please select whether the client is on excluded time."
-			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN MsgBox ("Please select whether the CFR for CASH is changing or not. Review input.")
-			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN MsgBOx ("Please select whether the CFR for HC is changing or not. Review input.")
+            IF excluded_time_dropdown = "Yes" AND isdate(excluded_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
+			IF isdate(client_move_date) = False THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid date for client move."
+			IF ucase(left(servicing_worker, 4)) = ucase(transferring_worker_county_code) THEN  err_msg = err_msg & vbNewLine & "* Please use the ''Within the Agency'' script to transfer the case within the agency. The Worker/Agency you have selected indicates you are trying to transfer within your agency."
+			IF (ma_status = "ACTIVE" AND excluded_time_dropdown = "No") THEN  err_msg = err_msg & vbNewLine & "* Please select whether the client is on excluded time."
+			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for CASH is changing or not. Review input.")
+			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for HC is changing or not. Review input.")
 			If mets_status_dropdown = "Active" and METS_case_number = "" then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+            If ButtonPressed = useform_xfer_button Then               'Pulling up the hsr page if the button was pressed.
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://aem.hennepin.us/DocumentManager/docm1649100617025/dad342433412ab721a67d46f95a3d1c1?type=YXBwbGljYXRpb24vcGRm"
+                err_msg = "LOOP"
+            Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
+                IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+            End If
 		Loop until err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = False					'loops until user passwords back in
+
+    'creating client move date'
+    cfr_date = dateadd("M", 1, client_move_date)
+    cfr_date = datepart("M", cfr_date) & "/01/" & datepart("YYYY", cfr_date)
+    cfr_date = dateadd("M", 2, cfr_date)
+    cfr_month = datepart("M", cfr_date)
+    IF len(cfr_month) <> 2 THEN cfr_month = "0" & cfr_month
+    cfr_year = datepart("YYYY", cfr_date)
+    cfr_year = right(cfr_year, 2)
+
+    'SENDING a SPEC/MEMO - this happens before the transfer and we overwrite the infrommation
+    '----------Sending the Client a SPEC/MEMO notifying them of the details of the transfer----------
+    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    		'Writes the appt letter into the MEMO.
+    Call write_variable_in_SPEC_MEMO("Your case has been transferred. Your new agency/worker is: " & worker_agency_name & "")
+    Call write_variable_in_SPEC_MEMO("If you have any questions, or to send in requested proofs,")
+    Call write_variable_in_SPEC_MEMO("please direct all communications to the agency listed.")
+    Call write_variable_in_SPEC_MEMO(worker_agency_name)
+    Call write_variable_in_SPEC_MEMO(mail_addr_line_one)
+    Call write_variable_in_SPEC_MEMO(mail_addr_line_two)
+    Call write_variable_in_SPEC_MEMO(mail_addr_line_three)
+    Call write_variable_in_SPEC_MEMO(mail_addr_line_four)
+    Call write_variable_in_SPEC_MEMO(worker_agency_phone)
+    Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
+    Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+    PF4 'this is to exit'
 
     'CASE NOTE'
     '----------The case note of the reason for the XFER----------
@@ -279,9 +342,8 @@ ELSE
     Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     IF mets_status_dropdown = "Active" THEN call write_variable_in_case_note("* Client is active on HC through METS case number:", METS_case_number)
     call write_bullet_and_variable_in_case_note("Client Move Date", Client_move_date)
-    crf_sent_date = date
-    call write_bullet_and_variable_in_case_note("Change Report Sent", crf_sent_date)
-    call write_bullet_and_variable_in_case_note("Case File Sent:", crf_sent_date)
+    call write_bullet_and_variable_in_case_note("Change Report Sent", date) 'defaulting information '
+    call write_bullet_and_variable_in_case_note("Case File Sent:", date) 'defaulting information '
     IF excluded_time = "Yes" THEN
         excluded_time = excluded_time & ", Begins " & excluded_date
         call write_bullet_and_variable_in_case_note("Excluded Time" , excluded_time)
@@ -293,7 +355,7 @@ ELSE
     END IF
     IF ma_status = "ACTIVE" THEN
         CALL write_bullet_and_variable_in_case_note("HC County of Financial Responsibility", hc_cfr)
-        IF hc_cfr_no_change_checkbox = 0 THEN
+        IF hc_cfr_no_change_checkbox = UNCHECKED THEN
             CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (cfr_month & "/" & cfr_year))
         ELSE
             CALL write_bullet_and_variable_in_case_note("HC CFR", "Not changing")
@@ -301,78 +363,19 @@ ELSE
     END IF
     IF cash_status = "ACTIVE" THEN
         CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", county_financial_responsibilty)
-        IF cash_cfr_no_change_checkbox = 0 THEN
+        IF cash_cfr_no_change_checkbox = UNCHECKED THEN
             CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cfr_month & "/" & cfr_year))
         ELSE
             CALL write_bullet_and_variable_in_case_note("CASH CFR", "Not changing")
         END IF
     END IF
-    'IF closure_date_checkbox = CHECKED THEN call write_variable_in_case_note("* Client has until " & closure_date & " to provide required proofs or the case will close.") suggest removal ??????
-    'If transfer_form_checkbox = CHECKED THEN call write_variable_in_case_note("* DHS 3195 Inter Agency Case Transfer Form completed and sent.") suggest removal ??????
+
     IF SPEC_MEMO_checkbox = CHECKED THEN call write_variable_in_case_note("* SPEC/MEMO sent to client with new worker information.")
     IF forms_to_arep = "Y" THEN call write_variable_in_case_note("* Copy of SPEC/MEMO sent to AREP.")
     IF forms_to_swkr = "Y" THEN call write_variable_in_case_note("* Copy of SPEC/MEMO sent to social worker.")
     Call write_variable_in_CASE_NOTE("---")
     CALL write_variable_in_CASE_NOTE (worker_signature)
     PF3
-    'SENDING a SPEC/MEMO - this happens before the transfer and we overwrite the infrommation
-    '----------Sending the Client a SPEC/MEMO notifying them of the details of the transfer----------
-    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    		'Writes the appt letter into the MEMO.
-    Call write_variable_in_SPEC_MEMO("Your case has been transferred. Your new agency/worker is: " & worker_agency_name & "")
-    Call write_variable_in_SPEC_MEMO("If you have any questions, or to send in requested proofs,")
-    Call write_variable_in_SPEC_MEMO("please direct all communications to the agency listed.")
-    Call write_variable_in_SPEC_MEMO(worker_agency_name)
-    Call write_variable_in_SPEC_MEMO(mail_addr_line_one)
-    Call write_variable_in_SPEC_MEMO(mail_addr_line_two)
-    Call write_variable_in_SPEC_MEMO(mail_addr_line_three)
-    Call write_variable_in_SPEC_MEMO(mail_addr_line_four)
-    Call write_variable_in_SPEC_MEMO(worker_agency_phone)
-	'IF closure_date_checkbox = CHECKED THEN '@ CASey or Ilse do we need to address this is elig'
-		'Call write_variable_in_SPEC_MEMO("If you fail to provide required proofs to your new worker")
-		'Call write_variable_in_SPEC_MEMO("or agency then your benefits will close on " & closure_date & ".")
-	'END IF
-    Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
-    Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
-	'Checking for an AREP. If there's an AREP it'll navigate to STAT/AREP, check to see if the forms go to the AREP. If they do, it'll write X's in those fields below.
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "ALTREP", row, col         'Row and col are variables which change from their above declarations if "ALTREP" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-	    arep_row = row                                          'Logs the row it found the ALTREP string as arep_row
-	    call navigate_to_MAXIS_screen("STAT", "AREP")           'Navigates to STAT/AREP to check and see if forms go to the AREP
-	    EMReadscreen forms_to_arep, 1, 10, 45                   'Reads for the "Forms to AREP?" Y/N response on the panel.
-	    call navigate_to_MAXIS_screen("SPEC", "MEMO")           'Navigates back to SPEC/MEMO
-	    PF5                                                     'PF5s again to initiate the new memo process
-	END IF
-	'Checking for SWKR
-	row = 4                             'Defining row and col for the search feature.
-	col = 1
-	EMSearch "SOCWKR", row, col         'Row and col are variables which change from their above declarations if "SOCWKR" string is found.
-	IF row > 4 THEN                     'If it isn't 4, that means it was found.
-	    swkr_row = row                                          'Logs the row it found the SOCWKR string as swkr_row
-	    call navigate_to_MAXIS_screen("STAT", "SWKR")         'Navigates to STAT/SWKR to check and see if forms go to the SWKR
-	    EMReadscreen forms_to_swkr, 1, 15, 63                'Reads for the "Forms to SWKR?" Y/N response on the panel.
-	    call navigate_to_MAXIS_screen("SPEC", "MEMO")         'Navigates back to SPEC/MEMO
-	    PF5                                           'PF5s again to initiate the new memo process
-	END IF
-	EMWriteScreen "x", 5, 10                                        'Initiates new memo to client
-	IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-	TRANSMIT                                       'TRANSMITs to start the memo writing process
-	PF4'save and exit
-    'MNPrairie Bank Support - MNPrairie Bank cases all go to Steele (county code 74)'s ICT transfer.
-    'Agencies in the MNPrairie Bank are Dodge (county code 20), Steele (county code 74), and Waseca (county code 81)
-    IF servicing_worker = "X120ICT" OR servicing_worker = "X181ICT" THEN servicing_worker = "X174ICT"
-
-    'Using move date to determine CRF change date. 'can we remove asking for this from the dialog??????'
-    cfr_date = dateadd("M", 1, move_date)
-    cfr_date = datepart("M", cfr_date) & "/01/" & datepart("YYYY", cfr_date)
-    cfr_date = dateadd("M", 2, cfr_date)
-    cfr_month = datepart("M", cfr_date)
-    IF len(cfr_month) <> 2 THEN cfr_month = "0" & cfr_month
-    cfr_year = datepart("YYYY", cfr_date)
-    cfr_year = right(cfr_year, 2)
-
     '----------------------------------------------------------OUT OF COUNTY TRANSFER actually happening
     transfer_case = True                                   'this appears to be a duplicate but the handling is different for out of county'
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
@@ -382,12 +385,9 @@ ELSE
        TRANSMIT
         PF9                                                    'putting the transfer in edit mode
         EMreadscreen servicing_worker, 7, 18, 65               'checking to see if the transfer_to_worker is the same as the current_worker (because then it won't transfer)
-        'servicing_worker = trim(Ucase(servicing_worker)) i shouldnt need to i am only reading 7
         call create_MAXIS_friendly_date(client_move_date, 0, 4, 28)    'Writing client move date
         call create_MAXIS_friendly_date(client_move_date, 0, 4, 61)    'this is the CRF date we dont need to ask because we dont do this'
-
         EMWriteScreen left(excluded_time_dropdown, 1), 5, 28            'Writes the excluded time info. Only need the left character (it's a dropdown)
-
         IF excluded_time_dropdown = "Yes" THEN                          'If there's excluded time, need to write the info
             call create_MAXIS_friendly_date(excluded_date, 0, 6, 28)
             EMWriteScreen hc_cfr, 15, 39
@@ -399,13 +399,13 @@ ELSE
             EMWriteScreen "__", 6, 34
         END IF
 
-        IF ma_status = "ACTIVE" AND hc_cfr_no_change_checkbox = 0 THEN
+        IF ma_status = "ACTIVE" AND hc_cfr_no_change_checkbox = UNCHECKED THEN
             EMWriteScreen hc_cfr, 14, 39
             EMWriteScreen hc_cfr_month, 14, 53
             EMWriteScreen hc_cfr_year, 14, 59
         END IF
 
-        IF cash_status = "ACTIVE" AND cash_cfr_no_change_checkbox = 0 THEN 'previously we read PROG for cah one nad cash two programs unsure if this is necessary'
+        IF cash_status = "ACTIVE" AND cash_cfr_no_change_checkbox = UNCHECKED THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
             EMWriteScreen cash_cfr, 11, 39
             EMWriteScreen cash_cfr_month, 11, 53
             EMWriteScreen cash_cfr_year, 11, 59
