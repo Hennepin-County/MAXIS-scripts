@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/11/2022", "Added additional handling for moving to another case load if no DAILs are present.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/18/2021", "Updated new server name.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/26/2021", "Removed emailing Todd Bennington per request.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/17/2021", "Added defaults for DAIL type selctions based on if before or on/after ten day cut off. DAIL types selected on/after ten day cut off are only TIKL messages.", "Ilse Ferris, Hennepin County")
@@ -55,7 +56,7 @@ changelog_display
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-
+Call check_for_MAXIS(False)
 'Defaulting these populations to checked per current process.
 FAD_checkbox = 1
 ADAD_checkbox = 1
@@ -283,8 +284,8 @@ For each worker in worker_array
 			EMReadScreen next_dail_check, 4, dail_row, 4
 			If trim(next_dail_check) = "" then
 				PF8
-				EMReadScreen last_page_check, 21, 24, 2
-				If last_page_check = "THIS IS THE LAST PAGE" then
+				EMReadScreen last_page_check, 17, 24, 2
+				If last_page_check = "THIS IS THE LAST " or last_page_check = "NO MESSAGES TYPES" then
 					all_done = true
 					exit do
 				Else
@@ -338,5 +339,45 @@ objConnection.Close
 
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 Call create_outlook_email("Laurie.Hennen@hennepin.us", "Ilse.Ferris@hennepin.us", "Task-Based DAIL Capture Complete. Actionable DAIL Count: " & DAIL_count & ". EOM.", "", "", True)
-
+stats_counter = stats_counter -1
 script_end_procedure("Success! Actionable DAIL's have been added to the database.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/12/2022
+'--Tab orders reviewed & confirmed----------------------------------------------04/12/2022
+'--Mandatory fields all present & Reviewed--------------------------------------04/12/2022
+'--All variables in dialog match mandatory fields-------------------------------04/12/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/12/2022-------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------04/12/2022-------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------04/12/2022-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/12/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------04/12/2022-------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------04/12/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------04/12/2022
+'--Denomination reviewed -------------------------------------------------------04/12/2022
+'--Script name reviewed---------------------------------------------------------04/12/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------04/12/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete-----------------------------------------04/12/2022
+'--comment Code-----------------------------------------------------------------04/12/2022
+'--Update Changelog for release/update------------------------------------------04/12/2022
+'--Remove testing message boxes-------------------------------------------------04/12/2022
+'--Remove testing code/unnecessary code-----------------------------------------04/12/2022
+'--Review/update SharePoint instructions----------------------------------------04/12/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/12/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/12/2022
+'--Complete misc. documentation (if applicable)---------------------------------04/12/2022
+'--Update project team/issue contact (if applicable)----------------------------04/12/2022
