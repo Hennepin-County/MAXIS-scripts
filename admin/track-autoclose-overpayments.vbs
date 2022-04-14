@@ -523,8 +523,8 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 	snap_overpayment_amt = 0
 	snap_supplement_amt = 0
 
-	MsgBox "total_income_correct_amt - " & total_income_correct_amt & vbCr & "net_adj_income_correct_amt - " & net_adj_income_correct_amt & vbCr &_
-	 	   "max_gross_income_correct_amt - " & max_gross_income_correct_amt & vbCr & "max_net_adj_income_correct_amt - " & max_net_adj_income_correct_amt
+	' MsgBox "total_income_correct_amt - " & total_income_correct_amt & vbCr & "net_adj_income_correct_amt - " & net_adj_income_correct_amt & vbCr &_
+	'  	   "max_gross_income_correct_amt - " & max_gross_income_correct_amt & vbCr & "max_net_adj_income_correct_amt - " & max_net_adj_income_correct_amt
 	If cat_elig = True Then
 		If total_income_correct_amt > max_gross_income_correct_amt Then income_exceeded = True
 	Else
