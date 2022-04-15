@@ -133,6 +133,27 @@ const work_shelter_col_const 			= 12
 const work_utilities_col_const 			= 13
 const work_script_run_date_col_const	= 14
 
+const exch_rept_id_col_const 				= 15 	' ID
+const exch_rept_faci_col_const 				= 16 	' FACI
+const exch_rept_out_of_state_col_const 		= 17 	' Out of State
+const exch_rept_prev_exp_col_const 			= 18 	' Previous EXP Not Verified
+const exch_rept_deu_disq_col_const 			= 19 	' DEU/DISQ
+const exch_rept_imig_col_const 				= 20 	' Immigration
+const exch_rept_new_hire_col_const 			= 21 	' New Hire
+const exch_rept_job_info_col_const 			= 22 	' Attested Income/STWK
+const exch_rept_other_info_col_const 		= 23 	' Other Attested Information
+const exch_rept_insuf_intvw_col_const 		= 24 	' Did not gather enough informat at interview
+const exch_rept_HSR_lacks_support_col_const = 25 	' Worker Lacks Support
+const exch_rept_insuf_case_note_col_const 	= 26 	' Was CASE/NOTE Sufficient
+const exch_rept_MAXIS_updated_col_const 	= 27 	' Was MAXIS Updated Correctly
+const exch_rept_HSR_knew_poli_col_const 	= 28 	' Worker Knew Policy
+const exch_rept_exchange_col_const 			= 29 	' Exchange Needed?
+const exch_rept_exch_date_time_col_const 	= 30 	' Date/Time of Exchange - When did you connect with the worker
+const exch_rept_exch_durr_col_const 		= 31 	' Durration of Exchange
+const exch_rept_unable_to_connect_col_const = 32 	' Unable to Connect
+const exch_rept_notes_col_const 			= 33 	' Notes
+const exch_worklist_date_time_col_const		= 34
+
 'END DECLARATIONS BLOCK ====================================================================================================
 'Manually set if you want to run the testing code for creating a worklist.
 'This option is only available to scriptwriters.
@@ -173,7 +194,7 @@ Set objFolder = objFSO.GetFolder(exp_assignment_folder)										'Creates an oje
 Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
 
 'Open an existing Excel for the year
-txt_file_archive_path = t_drive & "\Eligibility Support\Assignments\Expedited Information\Archive\"
+txt_file_archive_path = t_drive & "\Eligibility Support\Assignments\Expedited Information\Archive"
 report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination Report Out.xlsx"
 discovery_template_worklist_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Jake's Discovery\"
 worklist_template_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Exp Det Worklists\"
@@ -550,7 +571,7 @@ If report_selection = "Pull Data and Create Worklist" Then
 		STATS_counter = STATS_counter + 1
 		If save_to_worklist = True Then work_excel_row = work_excel_row + 1
 		objTextStream.Close						'we are done with this file, so we must close the access
-		objFSO.MoveFile this_file_path , txt_file_archive_path & this_file_name & ".txt"    'moving each file to the archive file
+		objFSO.MoveFile this_file_path , txt_file_archive_path & "\" & this_file_name & ".txt"    'moving each file to the archive file
 	    ' objFSO.DeleteFile(this_file_path)		'deleting the TXT file because hgave the information
 	Next
 
@@ -618,6 +639,8 @@ If report_selection = "Combine Worklists" Then
 
 	last_week = DateAdd("d", -7, date)
 	day_of_week = weekday(last_week)
+	' last_week = DateAdd("d", -14, date)
+	' day_of_week = weekday(last_week)
 	adjust_to_sunday = 1 - day_of_week
 	adjust_to_saturday = 7 - day_of_week
 
@@ -645,23 +668,26 @@ If report_selection = "Combine Worklists" Then
 
 	'create a sheet for last week'
 
-	'Add a sheet to the Excel with the report date
-	sheet_name = "Week of " & last_week_sunday
-	ObjReportExcel.Worksheets.Add().Name = sheet_name
-
-	For Each objWorkSheet In objReportWorkbook.Worksheets									'setting the worksheet to a variable so we can use it again
-	    If objWorkSheet.Name = sheet_name Then
-			set objTODAYWorkSheet = objWorkSheet
-			objTODAYWorkSheet.Activate
-	        Exit For
-	    End If
-	Next
-	excel_row = 2
+	' 'Add a sheet to the Excel with the report date
+	' sheet_name = "Week of " & last_week_sunday
+	' ObjReportExcel.Worksheets.Add().Name = sheet_name
+	'
+	' For Each objWorkSheet In objReportWorkbook.Worksheets									'setting the worksheet to a variable so we can use it again
+	'     If objWorkSheet.Name = sheet_name Then
+	' 		set objTODAYWorkSheet = objWorkSheet
+	' 		objTODAYWorkSheet.Activate
+	'         Exit For
+	'     End If
+	' Next
+	' excel_row = 2
 
 	'Add Column Headers
 	'
-
-
+	' Case lists for email
+	cases_unable_to_connect = "CASES in which QI was unable to connect for Expedited Exchange:"
+	cases_track_deu_disq = "CASES indicating issues with DEU/DISQ:"
+	cases_yes_on_imig = "CASES indicating IMIG delays:"
+	cases_need_to_be_appld = "CASES delayed for needing to be APPLd:"
 
 	Set objWorkFolder = objFSO.GetFolder(worklist_template_folder)										'Creates an oject of the whole my documents folder
 	Set colWorkFiles = objWorkFolder.Files																'Creates an array/collection of all the files in the folder
@@ -673,25 +699,127 @@ If report_selection = "Combine Worklists" Then
 
 		worklist_from_last_week = False
 		If this_file_created_date >= last_week_sunday and this_file_created_date <= last_week_saturday Then worklist_from_last_week = True
+		If this_file_type <> "Microsoft Excel Worksheet" Then worklist_from_last_week = False
 
 		If worklist_from_last_week = True Then
-			MsgBox "File name - " & this_file_name
+			' MsgBox "File name - " & this_file_name & vbCr & this_file_type
+
 			'Open the Excel file - not visible
-			'copy each line into the All Cases sheet
-			'copy each line into the sheet for the week
-			'close the file
+			Call excel_open(this_file_path, True, True, ObjWorkListTempExcel, objWorkListTempWorkbook)
+			worklist_excel_row = 2
 
-			' objFSO.MoveFile this_file_path , worklist_archive_path & "\" & this_file_name & ".xlsx"    'moving each file to the archive file
+			Do
+				'copy each line into the All Cases sheet
+				'copy each line into the sheet for the week
+				'close the file
+				If trim(ObjWorkListTempExcel.Cells(worklist_excel_row, work_case_nbr_col_const).Value) <> "" Then
+					ObjReportExcel.Cells(total_excel_row, work_case_nbr_col_const).Value				= ObjWorkListTempExcel.Cells(worklist_excel_row, work_case_nbr_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_worker_col_const).Value 					= ObjWorkListTempExcel.Cells(worklist_excel_row, work_worker_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_appl_date_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, work_appl_date_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_notc_date_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, work_notc_date_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_intv_date_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, work_intv_date_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_app_date_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, work_app_date_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_id_col_const).Value 						= ObjWorkListTempExcel.Cells(worklist_excel_row, work_id_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_app_delays_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, work_app_delays_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_exp_det_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, work_exp_det_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_income_col_const).Value 					= ObjWorkListTempExcel.Cells(worklist_excel_row, work_income_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_asset_col_const).Value 					= ObjWorkListTempExcel.Cells(worklist_excel_row, work_asset_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_shelter_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, work_shelter_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_utilities_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, work_utilities_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, work_script_run_date_col_const).Value			= ObjWorkListTempExcel.Cells(worklist_excel_row, work_script_run_date_col_const).Value
 
+					ObjReportExcel.Cells(total_excel_row, exch_rept_id_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_id_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_faci_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_faci_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_out_of_state_col_const).Value 		= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_out_of_state_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_prev_exp_col_const).Value			= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_prev_exp_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_deu_disq_col_const).Value 			= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_deu_disq_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_imig_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_imig_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_new_hire_col_const).Value 			= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_new_hire_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_job_info_col_const).Value 			= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_job_info_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_other_info_col_const).Value 		= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_other_info_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_insuf_intvw_col_const).Value 		= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_insuf_intvw_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_HSR_lacks_support_col_const).Value 	= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_HSR_lacks_support_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_insuf_case_note_col_const).Value	= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_insuf_case_note_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_MAXIS_updated_col_const).Value 		= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_MAXIS_updated_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_HSR_knew_poli_col_const).Value 		= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_HSR_knew_poli_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_exchange_col_const).Value 			= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_exchange_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_exch_date_time_col_const).Value 	= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_exch_date_time_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_exch_durr_col_const).Value 			= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_exch_durr_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_unable_to_connect_col_const).Value 	= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_unable_to_connect_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_rept_notes_col_const).Value 				= ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_notes_col_const).Value
+					ObjReportExcel.Cells(total_excel_row, exch_worklist_date_time_col_const).Value		= this_file_created_date
+
+					If trim(ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_unable_to_connect_col_const).Value) = "Yes - On Phones" OR trim(ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_unable_to_connect_col_const).Value) = "Yes - In a meeting" OR trim(ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_unable_to_connect_col_const).Value) = "Yes - No Reason Given" Then cases_unable_to_connect = cases_unable_to_connect & vbCr & chr(9) & trim(ObjWorkListTempExcel.Cells(worklist_excel_row, work_case_nbr_col_const).Value)
+
+					If trim(ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_deu_disq_col_const).Value) = "Track" Then cases_track_deu_disq = cases_track_deu_disq & vbCr & chr(9) & trim(ObjWorkListTempExcel.Cells(worklist_excel_row, work_case_nbr_col_const).Value)
+					If trim(ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_imig_col_const).Value) <> "" Then cases_yes_on_imig = cases_yes_on_imig & vbCr & chr(9) & trim(ObjWorkListTempExcel.Cells(worklist_excel_row, work_case_nbr_col_const).Value)
+					If trim(ObjWorkListTempExcel.Cells(worklist_excel_row, exch_rept_HSR_lacks_support_col_const).Value) = "Case needed to be APPLd" Then cases_need_to_be_appld = cases_need_to_be_appld & vbCr & chr(9) & trim(ObjWorkListTempExcel.Cells(worklist_excel_row, work_case_nbr_col_const).Value)
+
+					worklist_excel_row = worklist_excel_row + 1
+					total_excel_row = total_excel_row + 1
+				End If
+			Loop until trim(ObjWorkListTempExcel.Cells(worklist_excel_row, work_case_nbr_col_const).Value) = ""
+
+			ObjWorkListTempExcel.ActiveWorkbook.Close
+			' ObjDISCExcel.ActiveWorkbook.Close					'THIS IS FOR THE FILE - JAKE'S DISCOVERY WHICH IS NOT NEEDED RIGHT NOW
+
+			ObjWorkListTempExcel.Application.Quit
+			ObjWorkListTempExcel.Quit
+
+			' objFSO.MoveFile this_file_path, worklist_archive_path & "\" & this_file_name & ".xlsx"    'moving each file to the archive file
+			objFSO.MoveFile this_file_path, worklist_archive_path & "\" & this_file_name     'moving each file to the archive file
 		End If
-
 	Next
 
 	'turn the new sheet to a table
 	'save all files
-	MsgBox "Stop here"
+	objReportWorkbook.Save()		'saving the excel
+
+	If leave_excel_open = "No - Close the file" Then		'if the file should be closed - it does it here.
+		ObjReportExcel.ActiveWorkbook.Close
+
+		ObjReportExcel.Application.Quit
+		ObjReportExcel.Quit
+	Else
+
+	If cases_unable_to_connect <> "CASES in which QI was unable to connect for Expedited Exchange:" Then
+		jen_email_recip = "jennifer.frey@hennepin.us"
+		jen_email_recip_CC = "Jacob.Arco@hennepin.us; Casey.Love@hennepin.us; Ilse.Ferris@hennepin.us"
+		jen_email_subject = "Expedited Exchange Weekly Report - Cases Unable to connect - Week " & last_week_sunday & " to " & last_week_saturday
+		jen_email_body = "The weekly report has been run to review all worklists from " & last_week_sunday & " to " & last_week_saturday & "."
+		jen_email_body = jen_email_body & vbCr & "In review of these worklists, cases were found that indicated we were unable to connect when an Expedited Exchange was needed." & vbCr & vbCr & cases_unable_to_connect
+		jen_email_body = jen_email_body & vbCr & vbCr & "AUTOMATED EMAIL FROM SCRIPT. (ADMIN - Expedited Determination Report)"
+		Call create_outlook_email(jen_email_recip, jen_email_recip_CC, jen_email_subject, jen_email_body, "", True)
+	End If
+
+	If cases_track_deu_disq = "CASES indicating issues with DEU/DISQ:" Then cases_track_deu_disq = cases_track_deu_disq & vbCr & chr(9) & "NONE"
+	If cases_yes_on_imig = "CASES indicating IMIG delays:" Then cases_yes_on_imig = cases_yes_on_imig & vbCr & chr(9) & "NONE"
+	If cases_need_to_be_appld = "CASES delayed for needing to be APPLd:" Then cases_need_to_be_appld = cases_need_to_be_appld & vbCr & chr(9) & "NONE"
+	jake_email_recip = "Jacob.Arco@hennepin.us"
+	jake_email_recip_CC = "jennifer.frey@hennepin.us; Casey.Love@hennepin.us; Ilse.Ferris@hennepin.us"
+	jake_email_subject = "Expedited Exchange Weekly Report - Cases to be Reviewed and Tracked - Week " & last_week_sunday & " to " & last_week_saturday
+	jake_email_body = "The weekly report has been run to review all worklists from " & last_week_sunday & " to " & last_week_saturday & "."
+	jake_email_body = jake_email_body & vbCr & vbCr & "In review of these worklists, the script has pulled cases that were coded on the worklist to have issues related to DEU/DISQ, Immigration, and applications that were not APPLd at the time of interview."
+	jake_email_body = jake_email_body & vbCr & vbCR & cases_track_deu_disq
+	jake_email_body = jake_email_body & vbCr & vbCR & cases_yes_on_imig
+	jake_email_body = jake_email_body & vbCr & vbCR & cases_need_to_be_appld
+	jake_email_body = jake_email_body & vbCr & vbCr & "AUTOMATED EMAIL FROM SCRIPT. (ADMIN - Expedited Determination Report)"
+	Call create_outlook_email(jake_email_recip, jake_email_recip_CC, jake_email_subject, jake_email_body, "", True)
 
 	'ONCE THIS IS ALL DONE ADD FUNCTIONALITY TO DELETE ALL THE FILES IN THE ARCHIVE FOLDER OLDER THAN THE CURRENT WEEK - Since we know those are recorded.'
+	Set objTXTArchiveFolder = objFSO.GetFolder(txt_file_archive_path)										'Creates an oject of the whole my documents folder
+	Set colTXTArchiveFiles = objTXTArchiveFolder.Files																'Creates an array/collection of all the files in the folder
+
+	For Each objFile in colTXTArchiveFiles																'looping through each file
+		this_file_path = objFile.Path
+		this_file_name = objFile.Name
+		this_file_created_date = objFile.DateCreated											'Reading the date created
+
+		If DateDiff("d", this_file_created_date, last_week_saturday) >=0 Then
+			' MsgBox "DELETE " & vbCr & this_file_name & vbCr & this_file_created_date & vbCr & this_file_path
+			objFSO.DeleteFile(this_file_path)		'deleting the TXT file because hgave the information
+		End If
+	Next
 End If
 
 'SAVE EXCEL'
