@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("04/18/2022", "Added a checkbox if the application also requests Child Care Assistance. The script will send an email to the CCAP team alerting them to the request so that follow up can happen following CCAP process.", "Casey Love, Hennepin County")
 call changelog_update("03/29/2022", "Removed APPLYMN as application option.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/11/2022", "Added randomizer functionality for Adults appplications that appear expedited. Caseloads suggested will be either EX1 or EX2", "Ilse Ferris, Hennepin County")
 call changelog_update("03/07/2022", "Updated METS retro contact from Team 601 to Team 603.", "Ilse Ferris, Hennepin County")
