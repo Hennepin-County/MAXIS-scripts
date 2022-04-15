@@ -130,7 +130,12 @@ DO
     worker_number = Ucase(worker_number)
 
     '----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
-    'transfer_to_worker = ucase(transfer_to_worker)
+
+    CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need discovery on priv cases for xfer handling'
+    IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
+
+    IF transfer_to_worker = "X127CCL" THEN script_end_procedure("This case is will be transferred via an automated script after being closed for 4 months, the script will now end.")
+
     call navigate_to_MAXIS_screen("REPT", "USER")
     EMWriteScreen transfer_to_worker, 21, 12
     TRANSMIT
@@ -147,11 +152,6 @@ DO
         MsgBox "Please review the worker and try again. " & error_message
     END IF
 LOOP UNTIL active_worker_found = TRUE
-
-CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need discovery on priv cases for xfer handling'
-IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
-
-IF transfer_to_worker = "X127CCL" THEN script_end_procedure("This case is will be transferred via an automated script after being closed for 4 months, the script will now end.")
 
 transfer_out_of_county = FALSE                                          'setting varible to false'
 IF left(transfer_to_worker, 4) <> "X127" THEN transfer_out_of_county = TRUE 'setting the out of county BOOLEAN'
@@ -188,7 +188,7 @@ IF servicing_worker = "X126ICT" THEN worker_agency_phone = "651-266-4444" 'Ramse
 
 If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered - we are attempting the transfer
 	transfer_case = True
-	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
+	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER IN COUNTY
 	EMWriteScreen "x", 7, 16                               'transfer within county option
     TRANSMIT
     PF9                                                    'putting the transfer in edit mode
@@ -198,7 +198,7 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
     IF second_servicing_worker <> "_______" THEN CALL clear_line_of_text(18, 74)
 
     IF servicing_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
-		action_completed = False
+		transfer_case = False
         end_msg = "This case is already in the requested worker's number."
 		PF10 'backout
 		PF3 'SPEC menu
@@ -207,8 +207,9 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
 	    EMWriteScreen transfer_to_worker, 18, 61            'entering the worker information
 	    TRANSMIT                                           'saving - this should then take us to the transfer menu
         EMReadScreen panel_check, 4, 2, 55                 'reading to see if we made it to the right place
+        MsgBOx panel_check
         If panel_check = "XWKR" THEN
-            action_completed = False                       'this is not the right place
+            transfer_case = False                       'this is not the right place
             end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
             PF10 'backout
             PF3 'SPEC menu
@@ -216,61 +217,61 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
         Else                                                 'if we are in the right place - read to see if the new worker is the transfer_to_worker
             EMReadScreen primary_worker, 7, 21, 16
             If primary_worker <> transfer_to_worker THEN     'if it is not the transfer_to_worker - the transfer failed.
-                action_completed = False
+                transfer_case = False
                 end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
             End If
         End If
 	END IF
-ELSE
+ELSE 'this means out of county is TRUE '
     CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-
     hc_cfr_no_change_checkbox = CHECKED
     cash_cfr_no_change_checkbox = CHECKED
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 346, 280, "Out of County Case Transfer"
-     EditBox 80, 5, 45, 15, client_move_date
-     DropListBox 80, 25, 45, 15, "No"+chr(9)+"Yes", excluded_time_dropdown
-     EditBox 205, 25, 45, 15, excluded_date
-     EditBox 80, 45, 45, 15, METS_case_number
-     DropListBox 205, 45, 45, 15, "Active"+chr(9)+"Inactive"+chr(9)+"N/A", mets_status_dropdown
-     EditBox 80, 65, 260, 15, transfer_reason
-     EditBox 80, 85, 260, 15, action_to_be_taken
-     EditBox 145, 105, 195, 15, requested_verifs
-     EditBox 80, 145, 260, 15, other_notes
-     CheckBox 10, 175, 145, 10, "Check here if CASH CFR is not changing.", cash_cfr_no_change_checkbox
-     CheckBox 20, 185, 220, 10, "Check here to manually set the CFR and change date for CASH.", manual_cfr_cash_checkbox
-     EditBox 70, 195, 20, 15, cash_cfr
-     EditBox 175, 195, 20, 15, cash_cfr_month
-     EditBox 200, 195, 20, 15, cash_cfr_year
-     CheckBox 10, 215, 150, 10, "Check here if the HC CFR is not changing.", hc_cfr_no_change_checkbox
-     CheckBox 20, 225, 205, 10, "Check here to manually set the CFR and change date for HC.", manual_cfr_hc_checkbox
-     EditBox 70, 235, 20, 15, hc_cfr
-     EditBox 180, 235, 20, 15, hc_cfr_month
-     EditBox 205, 235, 20, 15, hc_cfr_year
-     ButtonGroup ButtonPressed
-     OkButton 235, 260, 50, 15
-     CancelButton 290, 260, 50, 15
-     PushButton 135, 5, 65, 15, "SPEC/XFER", XFER_button
-     PushButton 205, 5, 65, 15, "POLI/TEMP", POLI_TEMP_button
-     PushButton 275, 5, 65, 15, "USEFORM", useform_xfer_button
-     Text 5, 10, 60, 10, "Client Move Date"
-     Text 5, 30, 55, 10, "Excluded time?"
-     Text 140, 30, 40, 10, "Begin Date:"
-     Text 5, 50, 75, 10, "METS Case Number:"
-     Text 140, 50, 65, 10, "METS Case Status:"
-     Text 5, 70, 70, 10, "Reason For Transfer:"
-     Text 5, 90, 70, 10, "Actions To Be Taken:"
-     Text 5, 110, 135, 10, "List All Requested/Pending Verifications:"
-     Text 5, 130, 195, 10, "Note any expected changes in household's circumstances:"
-     Text 5, 150, 45, 10, "Other Notes:"
-     GroupBox 5, 165, 335, 90, "Current Financial Responsibility County (CFR)"
-     Text 95, 240, 75, 10, "Change Date (MM YY)"
-     Text 20, 200, 45, 10, "Current CFR:"
-     Text 10, 285, 45, 10, "Current CFR:"
-     Text 85, 285, 75, 10, "Change Date (MM YY)"
-     Text 20, 240, 45, 10, "Current CFR:"
-     Text 95, 200, 75, 10, "Change Date (MM YY)"
+      EditBox 80, 5, 45, 15, client_move_date
+      DropListBox 80, 25, 45, 15, "No"+chr(9)+"Yes", excluded_time_dropdown
+      EditBox 205, 25, 45, 15, excluded_date
+      EditBox 80, 45, 45, 15, METS_case_number
+      DropListBox 205, 45, 45, 15, "Active"+chr(9)+"Inactive"+chr(9)+"N/A", mets_status_dropdown
+      EditBox 80, 65, 260, 15, transfer_reason
+      EditBox 80, 85, 260, 15, action_to_be_taken
+      EditBox 140, 105, 200, 15, requested_verifs
+      EditBox 200, 125, 140, 15, expected_changes
+      EditBox 50, 145, 290, 15, other_notes
+      CheckBox 10, 175, 145, 10, "Check here if CASH CFR is not changing.", cash_cfr_no_change_checkbox
+      CheckBox 20, 185, 220, 10, "Check here to manually set the CFR and change date for CASH.", manual_cfr_cash_checkbox
+      EditBox 70, 195, 20, 15, cash_cfr
+      EditBox 175, 195, 20, 15, cash_cfr_month
+      EditBox 200, 195, 20, 15, cash_cfr_year
+      CheckBox 10, 215, 150, 10, "Check here if the HC CFR is not changing.", hc_cfr_no_change_checkbox
+      CheckBox 20, 225, 205, 10, "Check here to manually set the CFR and change date for HC.", manual_cfr_hc_checkbox
+      EditBox 70, 235, 20, 15, hc_cfr
+      EditBox 180, 235, 20, 15, hc_cfr_month
+      EditBox 205, 235, 20, 15, hc_cfr_year
+      ButtonGroup ButtonPressed
+        OkButton 235, 260, 50, 15
+        CancelButton 290, 260, 50, 15
+        PushButton 135, 5, 65, 15, "SPEC/XFER", XFER_button
+        PushButton 205, 5, 65, 15, "POLI/TEMP", POLI_TEMP_button
+        PushButton 275, 5, 65, 15, "USEFORM", useform_xfer_button
+      Text 5, 10, 60, 10, "Client Move Date"
+      Text 5, 30, 55, 10, "Excluded time?"
+      Text 140, 30, 40, 10, "Begin Date:"
+      Text 5, 50, 75, 10, "METS Case Number:"
+      Text 140, 50, 65, 10, "METS Case Status:"
+      Text 5, 70, 70, 10, "Reason For Transfer:"
+      Text 5, 90, 70, 10, "Actions To Be Taken:"
+      Text 5, 110, 135, 10, "List All Requested/Pending Verifications:"
+      Text 5, 130, 195, 10, "Note any expected changes in household's circumstances:"
+      Text 5, 150, 45, 10, "Other Notes:"
+      GroupBox 5, 165, 335, 90, "Current Financial Responsibility County (CFR)"
+      Text 95, 240, 75, 10, "Change Date (MM YY)"
+      Text 20, 200, 45, 10, "Current CFR:"
+      Text 10, 285, 45, 10, "Current CFR:"
+      Text 85, 285, 75, 10, "Change Date (MM YY)"
+      Text 20, 240, 45, 10, "Current CFR:"
+      Text 95, 200, 75, 10, "Change Date (MM YY)"
     EndDialog
 
 	Do
@@ -278,44 +279,24 @@ ELSE
 			err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
-            If ButtonPressed = useform_xfer_button Then               'Pulling up the hsr page if the button was pressed.
-                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://aem.hennepin.us/DocumentManager/docm1649100617025/dad342433412ab721a67d46f95a3d1c1?type=YXBwbGljYXRpb24vcGRm"
-                err_msg = "LOOP"
-            Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
-    		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-            End If
-            Call MAXIS_dialog_navigation()
-            If ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("TE02", "08", "095") 'TE02.08.095' there is no forth variable
-            IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "Please enter a reason for transfer."
+            IF ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("TE02", "08", "095", "") 'TE02.08.095' there is no forth variable
+            IF ButtonPressed = XFER_button Then CALL MAXIS_dialog_navigation()
+            IF ButtonPressed = useform_xfer_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/transfers.aspx?web=1"  'Pulling up the hsr page if the button was pressed.
+            IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a reason for transfer."
             IF excluded_time_dropdown = "Yes" AND isdate(excluded_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
 			IF isdate(client_move_date) = False THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid date for client move."
-			IF ucase(left(servicing_worker, 4)) = ucase(transferring_worker_county_code) THEN  err_msg = err_msg & vbNewLine & "* Please use the ''Within the Agency'' script to transfer the case within the agency. The Worker/Agency you have selected indicates you are trying to transfer within your agency."
 			IF (ma_status = "ACTIVE" AND excluded_time_dropdown = "No") THEN  err_msg = err_msg & vbNewLine & "* Please select whether the client is on excluded time."
-			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for CASH is changing or not. Review input.")
-			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for HC is changing or not. Review input.")
-			If mets_status_dropdown = "Active" and METS_case_number = "" then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
+			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select whether the CFR for CASH is changing or not. Review input."
+			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for HC is changing or not. Review input."
+			IF (mets_status_dropdown = "Active" and METS_case_number = "") then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-            If ButtonPressed = useform_xfer_button Then               'Pulling up the hsr page if the button was pressed.
-                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://aem.hennepin.us/DocumentManager/docm1649100617025/dad342433412ab721a67d46f95a3d1c1?type=YXBwbGljYXRpb24vcGRm"
-                err_msg = "LOOP"
-            Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
-                IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-            End If
 		Loop until err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = False					'loops until user passwords back in
 
-    'creating client move date'
-    cfr_date = dateadd("M", 1, client_move_date)
-    cfr_date = datepart("M", cfr_date) & "/01/" & datepart("YYYY", cfr_date)
-    cfr_date = dateadd("M", 2, cfr_date)
-    cfr_month = datepart("M", cfr_date)
-    IF len(cfr_month) <> 2 THEN cfr_month = "0" & cfr_month
-    cfr_year = datepart("YYYY", cfr_date)
-    cfr_year = right(cfr_year, 2)
-
-    'SENDING a SPEC/MEMO - this happens before the transfer and we overwrite the infrommation
+    'SENDING a SPEC/MEMO - this happens before the case note, and transfer -  we overwrite the information
     '----------Sending the Client a SPEC/MEMO notifying them of the details of the transfer----------
+
     Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    		'Writes the appt letter into the MEMO.
     Call write_variable_in_SPEC_MEMO("Your case has been transferred. Your new agency/worker is: " & worker_agency_name & "")
     Call write_variable_in_SPEC_MEMO("If you have any questions, or to send in requested proofs,")
@@ -328,22 +309,26 @@ ELSE
     Call write_variable_in_SPEC_MEMO(worker_agency_phone)
     Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
     Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
-    PF4 'this is to exit'
 
-    'CASE NOTE'
+    IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+    IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+    TRANSMIT                                       'TRANSMITs to start the memo writing process
+    PF4'save and exit
+
     '----------The case note of the reason for the XFER----------
     start_a_blank_CASE_NOTE
-    Call write_variable_in_CASE_NOTE("~ Case transferred to " & servicing_worker & " ~")
+    Call write_variable_in_CASE_NOTE("~ Case transferred to " & transfer_to_worker & " ~")
     Call write_bullet_and_variable_in_CASE_NOTE("Active programs", list_active_programs)
     Call write_bullet_and_variable_in_CASE_NOTE("Pending programs", list_pend_programs)
     Call write_bullet_and_variable_in_CASE_NOTE("Reason case was transferred", transfer_reason)
     Call write_bullet_and_variable_in_CASE_NOTE("Actions to be taken", action_to_be_taken)
     Call write_bullet_and_variable_in_CASE_NOTE("Requested verifications", requested_verifs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Expected changes in household's circumstances:", expected_changes)
     Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-    IF mets_status_dropdown = "Active" THEN call write_variable_in_case_note("* Client is active on HC through METS case number:", METS_case_number)
-    call write_bullet_and_variable_in_case_note("Client Move Date", Client_move_date)
-    call write_bullet_and_variable_in_case_note("Change Report Sent", date) 'defaulting information '
-    call write_bullet_and_variable_in_case_note("Case File Sent:", date) 'defaulting information '
+    IF mets_status_dropdown = "Active" THEN Call write_bullet_and_variable_in_CASE_NOTE("* Client is active on HC through METS case number:", METS_case_number)
+    call write_bullet_and_variable_in_case_note("Client move date", client_move_date)
+    call write_bullet_and_variable_in_case_note("Change report sent", date) 'defaulting information '
+    call write_bullet_and_variable_in_case_note("Case file sent:", date) 'defaulting information '
     IF excluded_time = "Yes" THEN
         excluded_time = excluded_time & ", Begins " & excluded_date
         call write_bullet_and_variable_in_case_note("Excluded Time" , excluded_time)
@@ -363,28 +348,29 @@ ELSE
     END IF
     IF cash_status = "ACTIVE" THEN
         CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", county_financial_responsibilty)
-        IF cash_cfr_no_change_checkbox = UNCHECKED THEN
+        IF manual_cfr_cash_checkbox = CHECKED THEN
             CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cfr_month & "/" & cfr_year))
         ELSE
             CALL write_bullet_and_variable_in_case_note("CASH CFR", "Not changing")
         END IF
     END IF
-
-    IF SPEC_MEMO_checkbox = CHECKED THEN call write_variable_in_case_note("* SPEC/MEMO sent to client with new worker information.")
+    CALL write_variable_in_case_note("* SPEC/MEMO sent to client with new worker information.")
     IF forms_to_arep = "Y" THEN call write_variable_in_case_note("* Copy of SPEC/MEMO sent to AREP.")
     IF forms_to_swkr = "Y" THEN call write_variable_in_case_note("* Copy of SPEC/MEMO sent to social worker.")
     Call write_variable_in_CASE_NOTE("---")
     CALL write_variable_in_CASE_NOTE (worker_signature)
     PF3
+
     '----------------------------------------------------------OUT OF COUNTY TRANSFER actually happening
-    transfer_case = True                                   'this appears to be a duplicate but the handling is different for out of county'
+    'this appears to be a duplicate but the handling is different for out of county vs in county'
+    transfer_case = true
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
     EMWriteScreen "x", 9, 16                               'Transfer County To County
-    EMReadScreen panel_check, 4, 2, 55                     'reading to see if we made it to the right place
-    IF panel_check = "XWKR" Then
-       TRANSMIT
+    TRANSMIT
+    EMReadScreen panel_check, 4, 2, 54                        'reading to see if we made it to the right place
+    'EMReadScreen error_message, 75, 24, 2                   ' YOU ARE NOT AUTHORIZED TO TRANSFER THIS CASE OR 'LAST XFER ACTION WAS DONE AT 09:23 ON 09/23/21 BY X127L1S'
+    IF panel_check = "XCTY" Then
         PF9                                                    'putting the transfer in edit mode
-        EMreadscreen servicing_worker, 7, 18, 65               'checking to see if the transfer_to_worker is the same as the current_worker (because then it won't transfer)
         call create_MAXIS_friendly_date(client_move_date, 0, 4, 28)    'Writing client move date
         call create_MAXIS_friendly_date(client_move_date, 0, 4, 61)    'this is the CRF date we dont need to ask because we dont do this'
         EMWriteScreen left(excluded_time_dropdown, 1), 5, 28            'Writes the excluded time info. Only need the left character (it's a dropdown)
@@ -399,13 +385,13 @@ ELSE
             EMWriteScreen "__", 6, 34
         END IF
 
-        IF ma_status = "ACTIVE" AND hc_cfr_no_change_checkbox = UNCHECKED THEN
+        IF ma_status = "ACTIVE" AND manual_cfr_hc_checkbox = CHECKED THEN
             EMWriteScreen hc_cfr, 14, 39
             EMWriteScreen hc_cfr_month, 14, 53
             EMWriteScreen hc_cfr_year, 14, 59
         END IF
 
-        IF cash_status = "ACTIVE" AND cash_cfr_no_change_checkbox = UNCHECKED THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
+        IF cash_status = "ACTIVE" AND manual_cfr_cash_checkbox = CHECKED THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
             EMWriteScreen cash_cfr, 11, 39
             EMWriteScreen cash_cfr_month, 11, 53
             EMWriteScreen cash_cfr_year, 11, 59
@@ -419,48 +405,28 @@ ELSE
 
         EMWriteScreen worker_number, 18, 28
         EMWriteScreen transfer_to_worker, 18, 61
-        'check for confirmation'
-
-        If panel_check = "XWKR" Then
-           TRANSMIT
-            PF9                                                    'putting the transfer in edit mode
-            EMreadscreen servicing_worker, 7, 18, 65               'checking to see if the transfer_to_worker is the same as the current_worker (because then it won't transfer)
-            'servicing_worker = trim(Ucase(servicing_worker)) i shouldnt need to i am only reading 7
-            IF servicing_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
-                action_completed = False
-                end_msg = "This case is already in the requested worker's number."
-                PF10 'backout
-                PF3 'SPEC menu
-                PF3 'SELF Menu'
-            ELSE                                                   'otherwise we are going for the transfer
-                EMWriteScreen transfer_to_worker, 18, 61           'entering the worker information
-                TRANSMIT                                           'saving - this should then take us to the transfer menu
-                EMReadScreen panel_check, 4, 2, 55                 'reading to see if we made it to the right place
-                If panel_check = "XWKR" Then
-                    action_completed = False                       'this is not the right place
-                    end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
-                    PF10 'backout
-                    PF3 'SPEC menu
-                    PF3 'SELF Menu'
-                Else                                               'if we are in the right place - read to see if the new worker is the transfer_to_worker
-                    EMReadScreen new_primary_worker, 3, 21, 20
-                    MsgBox new_primary_worker & " " & transfer_to_worker
-                    If new_primary_worker <> transfer_to_worker Then           'if it is not the transfer_to_worker - the transfer failed.
-                        action_completed = False
-                        end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
-                    End If
-                END IF
-            END IF
-        ELSE
-            end_msg = "Transfer of this case to " & transfer_to_worker & " unable to reach SPEC/XWKR."
+        TRANSMIT                                           'saving - this should then take us to the transfer menu
+        EMReadScreen panel_check, 4, 2, 49                 'reading to see if we made it to the right place we shou.d be back on   Transfer Selection (XFER)
+        If panel_check <> "XFER" Then
+            transfer_case = False                       'this is not the right place
+            end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
+            PF10 'backout
+            PF3 'SPEC menu
+            PF3 'SELF Menu'
+        Else                                               'if we are in the right place - read to see if the new worker is the transfer_to_worker
+            EMReadScreen new_primary_worker, 7, 21, 16
+            IF new_primary_worker <> transfer_to_worker Then           'if it is not the transfer_to_worker - the transfer failed.
+                transfer_case = False
+                end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
+            End If
         END IF
     END IF ' confirming the xfer worked and we left the panel'
 END IF ' the big one'
 
 IF end_msg <> "" Then
-    If transfer_case = True Then closing_message = closing_message & vbCr & vbCr & "Case transfer has been completed to: " & transfer_to_worker
+    If transfer_case = False Then closing_message = closing_message & vbCr & vbCr & "Case did not appear to transfer:" & vbCr & end_msg
 ELSE
-    closing_message = closing_message & vbCr & vbCr & "FAILED CASE TRANSFER:" & vbCr & end_msg
+    closing_message = closing_message & vbCr & vbCr & "Case transfer has been completed to: " & transfer_to_worker
 END IF
 Call script_end_procedure_with_error_report(closing_message)
 
@@ -469,39 +435,39 @@ Call script_end_procedure_with_error_report(closing_message)
 '------Task/Step----------------------------------------------------------------Date completed-------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/14/22
+'--Tab orders reviewed & confirmed----------------------------------------------04/14/22
+'--Mandatory fields all present & Reviewed--------------------------------------04/14/22
+'--All variables in dialog match mandatory fields-------------------------------04/14/22
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/14/22
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/14/22 cant do this
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/14/22
+'--PRIV Case handling reviewed -------------------------------------------------04/14/22
+'--Out-of-County handling reviewed----------------------------------------------:)
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/14/22
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------04/14/22
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------N/A
+'--Script name reviewed---------------------------------------------------------04/14/22
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
-'--Remove testing message boxes-------------------------------------------------
-'--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
-'--Review Best Practices using BZS page ----------------------------------------
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
-'--Complete misc. documentation (if applicable)---------------------------------
-'--Update project team/issue contact (if applicable)----------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------04/14/22 and then some
+'--comment code-----------------------------------------------------------------04/14/22
+'--Update Changelog for release/update------------------------------------------04/14/22
+'--Remove testing message boxes-------------------------------------------------04/14/22
+'--Remove testing code/unnecessary code-----------------------------------------04/14/22
+'--Review/update SharePoint instructions----------------------------------------04/14/22
+'--Review Best Practices using BZS page ----------------------------------------04/14/22
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/14/22
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------n/A
