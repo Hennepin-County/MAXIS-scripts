@@ -13441,15 +13441,19 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	call write_interview_CASE_NOTE
 
 	'setting the end message
-	end_msg = "Success! The information you have provided about the interview and all of the notes have been saved in a PDF. This PDF will be uploaded to ECF by SSR staff for Case # " & MAXIS_case_number & " and will remain in the CASE RECORD. CASE:NOTES have also been entered with the full interview detail."
+	end_msg = "Success! The information you have provided about the interview and all of the notes have been saved in a PDF. This PDF will be uploaded to ECF by the ES Support Team for Case # " & MAXIS_case_number & " and will remain in the CASE RECORD. CASE:NOTES have also been entered with the full interview detail."
 	o2Exec.Terminate()
 	'Now we ask if the worker would like the PDF to be opened by the script before the script closes
 	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
 	reopen_pdf_doc_msg = MsgBox("The information gathered in the interview has been saved as a PDF and will be added to ECF as a separate 'Interview Notes' document." & vbCr & vbCr & "This document will take the place of your CAF INTERVIEW ANNOTATIONS, with the exception of the AGENCY SIGNATURE on the " & CAF_form & ", be sure to add that manually." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
 	If reopen_pdf_doc_msg = vbYes Then
-		run_path = chr(34) & pdf_doc_path & chr(34)
-		wshshell.Run run_path
-		end_msg = end_msg & vbCr & vbCr & "The PDF has been opened for you to view the information that has been saved."
+        If objFSO.FileExists(pdf_doc_path) = TRUE Then
+    		run_path = chr(34) & pdf_doc_path & chr(34)
+    		wshshell.Run run_path
+    		end_msg = end_msg & vbCr & vbCr & "The PDF has been opened for you to view the information that has been saved."
+        Else
+            end_msg = end_msg & vbCr & vbCr & "The script could not open the PDF document because the file could not be found." & vbCr & "This may be because the file is already being worked on by ES Support Team, or there could be a slight network connection slowdown. If you still need the PDF opened, you can try UTILITIES - Open Interview PDF to attempt to open the file, or check ECF to see if the document has already been added."
+        End If
 	End If
 Else
 	o2Exec.Terminate()
