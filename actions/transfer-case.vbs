@@ -207,7 +207,7 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
 	    EMWriteScreen transfer_to_worker, 18, 61            'entering the worker information
 	    TRANSMIT                                           'saving - this should then take us to the transfer menu
         EMReadScreen panel_check, 4, 2, 55                 'reading to see if we made it to the right place
-        MsgBOx panel_check
+
         If panel_check = "XWKR" THEN
             transfer_case = False                       'this is not the right place
             end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
@@ -441,7 +441,7 @@ Call script_end_procedure_with_error_report(closing_message)
 '--All variables in dialog match mandatory fields-------------------------------04/14/22
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/14/22
 '--CASE:NOTE Header doesn't look funky------------------------------------------04/14/22
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/14/22 cant do this
 '-----General Supports-------------------------------------------------------------------------------------------------------------
