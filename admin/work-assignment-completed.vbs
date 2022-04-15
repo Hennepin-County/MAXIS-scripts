@@ -200,7 +200,7 @@ Select Case type_of_work_assignment                                             
 		orig_oda_number_prog_updated = 0
 		orig_oda_number_of_appt_notc = 0
 		orig_oda_number_of_nomis = 0
-		orig_oda_number_correction_emails = 0
+		' orig_oda_number_correction_emails = 0
 		orig_oda_number_of_case_notes = 0
 		orig_oda_ecf_docs_accepted = 0
 
@@ -214,13 +214,13 @@ Select Case type_of_work_assignment                                             
 		Do
 			MAXIS_case_number = ""
 			MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
-			If trim(ObjExcel.Cells(excel_row, 8).Value) = "Yes" Then orig_oda_ecf_docs_accepted = orig_oda_ecf_docs_accepted + 1					'ecf documents accepted column'
-			If trim(ObjExcel.Cells(excel_row, 8).Value) = "Complete Tomorrow" Then oda_ecf_docs_still_need_to_be_accepted = oda_ecf_docs_still_need_to_be_accepted + 1						'second app column'
-			If trim(ObjExcel.Cells(excel_row, 18).Value) <> "" Then orig_oda_number_of_cases_reviewed = orig_oda_number_of_cases_reviewed + 1		'action taken column'
-			If InStr(UCase(ObjExcel.Cells(excel_row, 18).Value), "UPDATED PROG") <> 0 Then orig_oda_number_prog_updated = orig_oda_number_prog_updated + 1		'action taken column'
-			If trim(ObjExcel.Cells(excel_row, 20).Value) <> "" Then orig_oda_number_correction_emails = orig_oda_number_correction_emails + 1		'email correction worker column'
+			If trim(ObjExcel.Cells(excel_row, 18).Value) = "Yes" Then orig_oda_ecf_docs_accepted = orig_oda_ecf_docs_accepted + 1					'ecf documents accepted column'
+			If trim(ObjExcel.Cells(excel_row, 18).Value) = "Complete Tomorrow" Then oda_ecf_docs_still_need_to_be_accepted = oda_ecf_docs_still_need_to_be_accepted + 1						'second app column'
+			If InStr(UCase(ObjExcel.Cells(excel_row, 19).Value), "FOLLOW UP NEEDED") <> 0 Then orig_oda_number_of_cases_reviewed = orig_oda_number_of_cases_reviewed + 1		'action taken column'
+			If InStr(UCase(ObjExcel.Cells(excel_row, 19).Value), "UPDATED PROG") <> 0 Then orig_oda_number_prog_updated = orig_oda_number_prog_updated + 1		'action taken column'
+			' If trim(ObjExcel.Cells(excel_row, 20).Value) <> "" Then orig_oda_number_correction_emails = orig_oda_number_correction_emails + 1		'email correction worker column'
 
-			If trim(ObjExcel.Cells(excel_row, 8).Value) = "Yes" Then oda_second_app_date = oda_second_app_date + 1						'second app column'
+			If trim(ObjExcel.Cells(excel_row, 8).Value) <> "" Then oda_second_app_date = oda_second_app_date + 1						'second app column'
 
 			Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
 			If is_this_priv = True Then
@@ -303,7 +303,7 @@ Select Case type_of_work_assignment                                             
 		oda_number_prog_updated 				= orig_oda_number_prog_updated & ""
 		oda_number_of_appt_notc 				= orig_oda_number_of_appt_notc & ""
 		oda_number_of_nomis 					= orig_oda_number_of_nomis & ""
-		oda_number_correction_emails 			= orig_oda_number_correction_emails & ""
+		' oda_number_correction_emails 			= orig_oda_number_correction_emails & ""
 		oda_number_of_case_notes				= orig_oda_number_of_case_notes & ""
 		oda_ecf_docs_accepted 					= orig_oda_ecf_docs_accepted & ""
 
@@ -313,7 +313,7 @@ Select Case type_of_work_assignment                                             
 		  EditBox 125, 60, 30, 15, oda_number_of_cases_denied_no_interview
 		  EditBox 130, 80, 30, 15, oda_number_of_appt_notc
 		  EditBox 115, 100, 30, 15, oda_number_of_nomis
-		  EditBox 135, 120, 30, 15, oda_number_correction_emails
+		  ' EditBox 135, 120, 30, 15, oda_number_correction_emails
 		  EditBox 165, 140, 30, 15, oda_number_prog_updated
 		  EditBox 125, 160, 30, 15, oda_number_of_case_notes
 		  EditBox 140, 180, 30, 15, oda_ecf_docs_accepted
@@ -332,7 +332,7 @@ Select Case type_of_work_assignment                                             
 		  Text 20, 65, 100, 10, "... you denied for no interview:"
 		  Text 20, 85, 110, 10, "... you sent a manual APPT NOTC:"
 		  Text 20, 105, 90, 10, "... you sent a manual NOMI:"
-		  Text 20, 125, 110, 10, "... you sent a correction email on:"
+		  ' Text 20, 125, 110, 10, "... you sent a correction email on:"
 		  Text 20, 145, 145, 10, "... you updated PROG with an interview date:"
 		  Text 20, 165, 105, 10, "... you added a CASE:NOTE on:"
 		  Text 20, 185, 115, 10, "... you accepted ECF Document(s):"
@@ -353,13 +353,13 @@ Select Case type_of_work_assignment                                             
 				dialog Dialog1
 				cancel_confirmation
 
-				If IsNumeric(oda_number_of_cases_reviewed) = FALSE OR IsNumeric(oda_number_of_cases_denied_no_interview) = FALSE OR IsNumeric(oda_number_of_appt_notc) = FALSE OR IsNumeric(oda_number_of_nomis) = FALSE OR IsNumeric(oda_number_correction_emails) = FALSE OR IsNumeric(oda_number_prog_updated) = FALSE OR IsNumeric(oda_number_of_case_notes) = FALSE Then
+				If IsNumeric(oda_number_of_cases_reviewed) = FALSE OR IsNumeric(oda_number_of_cases_denied_no_interview) = FALSE OR IsNumeric(oda_number_of_appt_notc) = FALSE OR IsNumeric(oda_number_of_nomis) = FALSE OR IsNumeric(oda_number_prog_updated) = FALSE OR IsNumeric(oda_number_of_case_notes) = FALSE Then
 					err_msg = err_msg & vbNewLine & "* Count needed. Enter the number of cases that meet the following criteria: "
 					If IsNumeric(oda_number_of_cases_reviewed) = FALSE Then err_msg = err_msg & vbNewLine & "  - total you reviewed (1st)"
 					If IsNumeric(oda_number_of_cases_denied_no_interview) = FALSE Then err_msg = err_msg & vbNewLine & "  - you denied for no interview (2nd)"
 					If IsNumeric(oda_number_of_appt_notc) = FALSE Then err_msg = err_msg & vbNewLine & "  - you sent a manual appoinntment notice (3rd)"
 					If IsNumeric(oda_number_of_nomis) = FALSE Then err_msg = err_msg & vbNewLine & "  - you sent a manual nomi (4th)"
-					If IsNumeric(oda_number_correction_emails) = FALSE Then err_msg = err_msg & vbNewLine & "  - you sent a correction email (5th)"
+					' If IsNumeric(oda_number_correction_emails) = FALSE Then err_msg = err_msg & vbNewLine & "  - you sent a correction email (5th)"
 					If IsNumeric(oda_number_prog_updated) = FALSE Then err_msg = err_msg & vbNewLine & "  - you updated PROG with the interview date (6th)"
 					If IsNumeric(oda_number_of_case_notes) = FALSE Then err_msg = err_msg & vbNewLine & "  - you entered a CASE:NOTE (7th)"
 					err_msg = err_msg & vbNewLine & "  These counts are crucial to tracking our progress and advancement in our work assignment efforts." & vbNewLine
@@ -392,7 +392,7 @@ Select Case type_of_work_assignment                                             
 		ObjExcel.Cells(7, 5).Value = oda_number_prog_updated
 		ObjExcel.Cells(8, 5).Value = oda_number_of_appt_notc
 		ObjExcel.Cells(9, 5).Value = oda_number_of_nomis
-		ObjExcel.Cells(10, 5).Value = oda_number_correction_emails
+		' ObjExcel.Cells(10, 5).Value = oda_number_correction_emails
 		ObjExcel.Cells(11, 5).Value = oda_number_of_case_notes
 		ObjExcel.Cells(12, 5).Value = oda_ecf_docs_accepted
 		ObjExcel.Cells(13, 5).Value = assignment_time
@@ -406,7 +406,7 @@ Select Case type_of_work_assignment                                             
 		ObjExcel.Cells(4, 8).Value = orig_oda_number_prog_updated
 		ObjExcel.Cells(5, 8).Value = orig_oda_number_of_appt_notc
 		ObjExcel.Cells(6, 8).Value = orig_oda_number_of_nomis
-		ObjExcel.Cells(7, 8).Value = orig_oda_number_correction_emails
+		' ObjExcel.Cells(7, 8).Value = orig_oda_number_correction_emails
 		ObjExcel.Cells(8, 8).Value = orig_oda_number_of_case_notes
 		ObjExcel.Cells(9, 8).Value = orig_oda_ecf_docs_accepted
 
@@ -442,7 +442,7 @@ Select Case type_of_work_assignment                                             
 		ObjReportExcel.Cells(excel_row, 8).Value = oda_number_prog_updated
 		ObjReportExcel.Cells(excel_row, 9).Value = oda_number_of_appt_notc
 		ObjReportExcel.Cells(excel_row, 10).Value = oda_number_of_nomis
-		ObjReportExcel.Cells(excel_row, 11).Value = oda_number_correction_emails
+		' ObjReportExcel.Cells(excel_row, 11).Value = oda_number_correction_emails
 		ObjReportExcel.Cells(excel_row, 12).Value = oda_number_of_case_notes
 		ObjReportExcel.Cells(excel_row, 13).Value = oda_ecf_docs_accepted
 
@@ -451,7 +451,7 @@ Select Case type_of_work_assignment                                             
 		ObjReportExcel.Cells(excel_row, 16).Value = orig_oda_number_prog_updated
 		ObjReportExcel.Cells(excel_row, 17).Value = orig_oda_number_of_appt_notc
 		ObjReportExcel.Cells(excel_row, 18).Value = orig_oda_number_of_nomis
-		ObjReportExcel.Cells(excel_row, 19).Value = orig_oda_number_correction_emails
+		' ObjReportExcel.Cells(excel_row, 19).Value = orig_oda_number_correction_emails
 		ObjReportExcel.Cells(excel_row, 20).Value = orig_oda_number_of_case_notes
 		ObjReportExcel.Cells(excel_row, 21).Value = orig_oda_ecf_docs_accepted
 
