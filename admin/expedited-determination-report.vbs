@@ -780,7 +780,7 @@ If report_selection = "Combine Worklists" Then
 
 		ObjReportExcel.Application.Quit
 		ObjReportExcel.Quit
-	Else
+	End If 
 
 	If cases_unable_to_connect <> "CASES in which QI was unable to connect for Expedited Exchange:" Then
 		jen_email_recip = "jennifer.frey@hennepin.us"
