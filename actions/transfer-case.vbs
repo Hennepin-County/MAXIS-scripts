@@ -442,7 +442,7 @@ Call script_end_procedure_with_error_report(closing_message)
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
 '--MAXIS_background_check reviewed (if applicable)------------------------------04/14/22
 '--PRIV Case handling reviewed -------------------------------------------------04/14/22
-'--Out-of-County handling reviewed----------------------------------------------:)
+'--Out-of-County handling reviewed----------------------------------------------04/19/22
 '--script_end_procedures (w/ or w/o error messaging)----------------------------04/14/22
 '--BULK - review output of statistics and run time/count (if applicable)--------N/A
 '
