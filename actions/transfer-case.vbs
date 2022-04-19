@@ -148,12 +148,10 @@ DO
     EMReadScreen inactive_worker, 8, 7, 38
     IF inactive_worker = "INACTIVE" THEN
         active_worker_found = false
-        MsgBox "Please review the worker and try again. " & error_message
+        error_message = "THIS WORKER DOES NOT APPEAR TO BE ACTIVE PLEASE REVIEW THE WORKER NUMBER AND TRY AGAIN."
     END IF
-    IF error_message = "NO WORKER FOUND WITH THIS ID" THEN
-        active_worker_found = false
-        MsgBox "Please review the worker and try again. " & error_message
-    END IF
+    IF error_message =  "NO WORKER FOUND WITH THIS ID" THEN active_worker_found = false
+    IF active_worker_found = FALSE THEN MsgBox "ATTENTION - " & error_message
 LOOP UNTIL active_worker_found = TRUE
 
 transfer_out_of_county = FALSE                                          'setting varible to false'
@@ -182,7 +180,6 @@ EMReadScreen mail_addr_line_four, 43, 12, 27
 EMReadScreen worker_agency_phone, 14, 13, 27
 EMReadScreen worker_county_code, 2, 15, 32
 county_financial_responsibilty = worker_county_code ' for updating the out of county'
-transfer_case = False
 action_completed = True 'leaving REPT USER now'
 
 CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need discovery on priv cases for xfer handling'
@@ -193,7 +190,6 @@ IF servicing_worker = "X120ICT" OR servicing_worker = "X181ICT" THEN servicing_w
 IF servicing_worker = "X126ICT" THEN worker_agency_phone = "651-266-4444" 'Ramsey County has an individuals workers phone previously'
 
 If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered - we are attempting the transfer
-	transfer_case = True
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER IN COUNTY
 	EMWriteScreen "x", 7, 16                               'transfer within county option
     TRANSMIT
@@ -204,7 +200,6 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
     IF second_servicing_worker <> "_______" THEN CALL clear_line_of_text(18, 74)
 
     IF servicing_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
-		transfer_case = False
         end_msg = "This case is already in the requested worker's number."
 		PF10 'backout
 		PF3 'SPEC menu
@@ -214,8 +209,7 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
 	    TRANSMIT                                           'saving - this should then take us to the transfer menu
         EMReadScreen panel_check, 4, 2, 55                 'reading to see if we made it to the right place
 
-        If panel_check = "XWKR" THEN
-            transfer_case = False                       'this is not the right place
+        If panel_check = "XWKR" THEN                       'this is not the right place
             end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
             PF10 'backout
             PF3 'SPEC menu
@@ -223,7 +217,6 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
         Else                                                 'if we are in the right place - read to see if the new worker is the transfer_to_worker
             EMReadScreen primary_worker, 7, 21, 16
             If primary_worker <> transfer_to_worker THEN     'if it is not the transfer_to_worker - the transfer failed.
-                transfer_case = False
                 end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
             End If
         End If
@@ -285,9 +278,6 @@ ELSE 'this means out of county is TRUE '
 			err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
-            IF ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("TE02", "08", "095", "") 'TE02.08.095' there is no forth variable
-            IF ButtonPressed = XFER_button Then CALL MAXIS_dialog_navigation()
-            IF ButtonPressed = useform_xfer_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/transfers.aspx?web=1"  'Pulling up the hsr page if the button was pressed.
             IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a reason for transfer."
             IF excluded_time_dropdown = "Yes" AND isdate(excluded_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
 			IF isdate(client_move_date) = False THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid date for client move."
@@ -295,8 +285,17 @@ ELSE 'this means out of county is TRUE '
 			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select whether the CFR for CASH is changing or not. Review input."
 			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for HC is changing or not. Review input."
 			IF (mets_status_dropdown = "Active" and METS_case_number = "") then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-		Loop until err_msg = ""
+            IF ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("TE02", "08", "095", "") 'TE02.08.095' there is no forth variable
+            IF ButtonPressed = XFER_button THEN CALL MAXIS_dialog_navigation()
+            IF ButtonPressed = useform_xfer_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/transfers.aspx?web=1"
+
+            IF ButtonPressed = useform_xfer_button or ButtonPressed = XFER_button or ButtonPressed = POLI_TEMP_button THEN
+                err_msg = "LOOP"
+            Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
+                IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+            End If
+        Loop until err_msg = ""
+        call back_to_self ' this is for if the worker has used the POLI/TEMP navigation'
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = False					'loops until user passwords back in
 
@@ -315,17 +314,13 @@ ELSE 'this means out of county is TRUE '
     Call write_variable_in_SPEC_MEMO(worker_agency_phone)
     Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
     Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
-
-    IF forms_to_arep = "Y" THEN EMWriteScreen "x", arep_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-    IF forms_to_swkr = "Y" THEN EMWriteScreen "x", swkr_row, 10     'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-    TRANSMIT                                       'TRANSMITs to start the memo writing process
     PF4'save and exit
 
     '----------The case note of the reason for the XFER----------
     start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE("~ Case transferred to " & transfer_to_worker & " ~")
     Call write_bullet_and_variable_in_CASE_NOTE("Active programs", list_active_programs)
-    Call write_bullet_and_variable_in_CASE_NOTE("Pending programs", list_pend_programs)
+    Call write_bullet_and_variable_in_CASE_NOTE("Pending programs", list_pending_programs)
     Call write_bullet_and_variable_in_CASE_NOTE("Reason case was transferred", transfer_reason)
     Call write_bullet_and_variable_in_CASE_NOTE("Actions to be taken", action_to_be_taken)
     Call write_bullet_and_variable_in_CASE_NOTE("Requested verifications", requested_verifs)
@@ -365,7 +360,6 @@ ELSE 'this means out of county is TRUE '
 
     '----------------------------------------------------------OUT OF COUNTY TRANSFER actually happening
     'this appears to be a duplicate but the handling is different for out of county vs in county'
-    transfer_case = true
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
     EMWriteScreen "x", 9, 16                               'Transfer County To County
     TRANSMIT
@@ -409,8 +403,7 @@ ELSE 'this means out of county is TRUE '
         EMWriteScreen transfer_to_worker, 18, 61
         TRANSMIT                                           'saving - this should then take us to the transfer menu
         EMReadScreen panel_check, 4, 2, 49                 'reading to see if we made it to the right place we shou.d be back on   Transfer Selection (XFER)
-        If panel_check <> "XFER" Then
-            transfer_case = False                       'this is not the right place
+        If panel_check <> "XFER" Then 'this is not the right place
             end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
             PF10 'backout
             PF3 'SPEC menu
@@ -418,7 +411,6 @@ ELSE 'this means out of county is TRUE '
         Else                                               'if we are in the right place - read to see if the new worker is the transfer_to_worker
             EMReadScreen new_primary_worker, 7, 21, 16
             IF new_primary_worker <> transfer_to_worker Then           'if it is not the transfer_to_worker - the transfer failed.
-                transfer_case = False
                 end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
             End If
         END IF
@@ -426,7 +418,7 @@ ELSE 'this means out of county is TRUE '
 END IF ' the big one'
 
 IF end_msg <> "" Then
-    If transfer_case = False Then closing_message = closing_message & vbCr & vbCr & "Case did not appear to transfer:" & vbCr & end_msg
+    closing_message = closing_message & vbCr & vbCr & "Case did not appear to transfer:" & vbCr & end_msg
 ELSE
     closing_message = closing_message & vbCr & vbCr & "Case transfer has been completed to: " & transfer_to_worker
 END IF
