@@ -51,8 +51,15 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/28/2022", "Initial version.", "MiKayla Handley, Hennepin County.")
-
+call changelog_update("03/28/2022", "Multiple updates made ensuring that the transfer is complete and removing the case from in-county transfers.", "MiKayla Handley, Hennepin County.")
+CALL changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("11/09/2020", "No issues with SPEC/MEMO for out-of-county cases. SIR Announcement from 11/05/20 stated an issue was identified. Hennepin County's script project is seperate from DHS's script project. We are not experiencing the reported issue. Thank you!", "Ilse Ferris, Hennepin County")
+CALL changelog_update("10/20/2020", "Updated link for out-of-county use form.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("10/16/2020", "Added closing message box with information if a case is identified as being transferred to the MNPrairie Bank of counties.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("04/20/2020", "Rewrite.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("03/19/2019", "Added an error reporting option at the end of the script run.", "Casey Love, Hennepin County")
+CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
+call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
@@ -130,10 +137,6 @@ DO
     worker_number = Ucase(worker_number)
 
     '----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
-
-    CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need discovery on priv cases for xfer handling'
-    IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
-
     IF transfer_to_worker = "X127CCL" THEN script_end_procedure("This case is will be transferred via an automated script after being closed for 4 months, the script will now end.")
 
     call navigate_to_MAXIS_screen("REPT", "USER")
@@ -180,7 +183,10 @@ EMReadScreen worker_agency_phone, 14, 13, 27
 EMReadScreen worker_county_code, 2, 15, 32
 county_financial_responsibilty = worker_county_code ' for updating the out of county'
 transfer_case = False
-action_completed = True
+action_completed = True 'leaving REPT USER now'
+
+CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need discovery on priv cases for xfer handling'
+IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
 'MNPrairie Bank Support - MNPrairie Bank cases all go to Steele (county code 74)'s ICT transfer.
 'Agencies in the MNPrairie Bank are Dodge (county code 20), Steele (county code 74), and Waseca (county code 81)
 IF servicing_worker = "X120ICT" OR servicing_worker = "X181ICT" THEN servicing_worker = "X174ICT"
@@ -329,14 +335,10 @@ ELSE 'this means out of county is TRUE '
     call write_bullet_and_variable_in_case_note("Client move date", client_move_date)
     call write_bullet_and_variable_in_case_note("Change report sent", date) 'defaulting information '
     call write_bullet_and_variable_in_case_note("Case file sent:", date) 'defaulting information '
-    IF excluded_time = "Yes" THEN
-        excluded_time = excluded_time & ", Begins " & excluded_date
-        call write_bullet_and_variable_in_case_note("Excluded Time" , excluded_time)
-        excluded_time = "Yes"
-    ELSEIF excluded_time = "No" THEN
-        call write_bullet_and_variable_in_case_note("Excluded Time", excluded_time)
-    ELSEIF excluded_time = "" THEN
-        call write_variable_in_case_note("* Excluded Time: N/A")
+    IF excluded_time_dropdown = "Yes" THEN
+        call write_bullet_and_variable_in_case_note("Excluded Time" , "Yes, Begins " & excluded_date)
+    ELSEIF excluded_time_dropdown = "No" THEN
+        call write_bullet_and_variable_in_case_note("Excluded Time", excluded_time_dropdown)
     END IF
     IF ma_status = "ACTIVE" THEN
         CALL write_bullet_and_variable_in_case_note("HC County of Financial Responsibility", hc_cfr)
