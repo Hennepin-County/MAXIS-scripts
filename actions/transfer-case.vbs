@@ -223,6 +223,7 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
 	END IF
 ELSE 'this means out of county is TRUE '
     CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
     hc_cfr_no_change_checkbox = CHECKED
     cash_cfr_no_change_checkbox = CHECKED
     '-------------------------------------------------------------------------------------------------DIALOG
@@ -285,7 +286,7 @@ ELSE 'this means out of county is TRUE '
 			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select whether the CFR for CASH is changing or not. Review input."
 			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for HC is changing or not. Review input."
 			IF (mets_status_dropdown = "Active" and METS_case_number = "") then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
-            IF ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("TE02", "08", "095", "") 'TE02.08.095' there is no forth variable
+            IF ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "095", "") 'TE02.08.095' there is no forth variable
             IF ButtonPressed = XFER_button THEN CALL MAXIS_dialog_navigation()
             IF ButtonPressed = useform_xfer_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/transfers.aspx?web=1"
 
@@ -343,7 +344,7 @@ ELSE 'this means out of county is TRUE '
             CALL write_bullet_and_variable_in_case_note("HC CFR", "Not changing")
         END IF
     END IF
-    IF cash_status = "ACTIVE" THEN
+    IF ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE THEN
         CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", county_financial_responsibilty)
         IF manual_cfr_cash_checkbox = CHECKED THEN
             CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cfr_month & "/" & cfr_year))
@@ -387,7 +388,7 @@ ELSE 'this means out of county is TRUE '
             EMWriteScreen hc_cfr_year, 14, 59
         END IF
 
-        IF cash_status = "ACTIVE" AND manual_cfr_cash_checkbox = CHECKED THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
+        IF ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE and manual_cfr_cash_checkbox = CHECKED THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
             EMWriteScreen cash_cfr, 11, 39
             EMWriteScreen cash_cfr_month, 11, 53
             EMWriteScreen cash_cfr_year, 11, 59
