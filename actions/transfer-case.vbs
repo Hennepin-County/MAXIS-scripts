@@ -179,7 +179,9 @@ EMReadScreen mail_addr_line_four, 43, 12, 27
 	mail_addr_line_four = trim(mail_addr_line_four)
 EMReadScreen worker_agency_phone, 14, 13, 27
 EMReadScreen worker_county_code, 2, 15, 32
-county_financial_responsibilty = worker_county_code ' for updating the out of county'
+
+cash_cfr = worker_county_code ' for updating the out of county'
+hc_cfr = worker_county_code
 action_completed = True 'leaving REPT USER now'
 
 CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need discovery on priv cases for xfer handling'
@@ -339,15 +341,15 @@ ELSE 'this means out of county is TRUE '
     IF ma_case = True THEN
         CALL write_bullet_and_variable_in_case_note("HC County of Financial Responsibility", hc_cfr)
         IF hc_cfr_no_change_checkbox = UNCHECKED THEN
-            CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (cfr_month & "/" & cfr_year))
+            CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (hc_cfr_month & "/" & hc_cfr_year))
         ELSE
             CALL write_bullet_and_variable_in_case_note("HC CFR", "Not changing")
         END IF
     END IF
     IF ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE THEN
-        CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", county_financial_responsibilty)
+        CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", cash_cfr)
         IF manual_cfr_cash_checkbox = CHECKED THEN
-            CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cfr_month & "/" & cfr_year))
+            CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cash_cfr_month & "/" & cash_cfr_year))
         ELSE
             CALL write_bullet_and_variable_in_case_note("CASH CFR", "Not changing")
         END IF
