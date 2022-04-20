@@ -343,7 +343,7 @@ ELSE 'this means out of county is TRUE '
         IF hc_cfr_no_change_checkbox = UNCHECKED THEN
             CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (hc_cfr_month & "/" & hc_cfr_year))
         ELSE
-            CALL write_bullet_and_variable_in_case_note("HC CFR", "Not changing")
+            CALL write_variable_in_CASE_NOTE("* HC CFR" & "Not changing")
         END IF
     END IF
     IF ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE THEN
