@@ -282,7 +282,7 @@ ELSE 'this means out of county is TRUE '
             IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a reason for transfer."
             IF excluded_time_dropdown = "Yes" AND isdate(excluded_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
 			IF isdate(client_move_date) = False THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid date for client move."
-			IF (ma_status = "ACTIVE" AND excluded_time_dropdown = "No") THEN  err_msg = err_msg & vbNewLine & "* Please select whether the client is on excluded time."
+			IF (ma_case = True AND excluded_time_dropdown = "No") THEN  err_msg = err_msg & vbNewLine & "* Please select whether the client is on excluded time."
 			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select whether the CFR for CASH is changing or not. Review input."
 			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for HC is changing or not. Review input."
 			IF (mets_status_dropdown = "Active" and METS_case_number = "") then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
@@ -336,7 +336,7 @@ ELSE 'this means out of county is TRUE '
     ELSEIF excluded_time_dropdown = "No" THEN
         call write_bullet_and_variable_in_case_note("Excluded Time", excluded_time_dropdown)
     END IF
-    IF ma_status = "ACTIVE" THEN
+    IF ma_case = True THEN
         CALL write_bullet_and_variable_in_case_note("HC County of Financial Responsibility", hc_cfr)
         IF hc_cfr_no_change_checkbox = UNCHECKED THEN
             CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (cfr_month & "/" & cfr_year))
@@ -382,7 +382,7 @@ ELSE 'this means out of county is TRUE '
             EMWriteScreen "__", 6, 34
         END IF
 
-        IF ma_status = "ACTIVE" AND manual_cfr_hc_checkbox = CHECKED THEN
+        IF ma_case = True AND manual_cfr_hc_checkbox = CHECKED THEN
             EMWriteScreen hc_cfr, 14, 39
             EMWriteScreen hc_cfr_month, 14, 53
             EMWriteScreen hc_cfr_year, 14, 59
