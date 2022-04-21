@@ -94,7 +94,7 @@ back_to_self                                        'added to ensure we have the
 EMReadScreen worker_number, 7, 22, 8                'reading the current workers number '
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
-closing_message = "Transfer case is complete."      'setting up closing_message variable for possible additions later based on conditions
+closing_message = "Transfer case script is complete."      'setting up closing_message variable for possible additions later based on conditions letting us know that is made it to the end of the script
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 201, 85, "Transfer Case"
   EditBox 80, 5, 45, 15, MAXIS_case_number
@@ -201,7 +201,7 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
     EMreadscreen second_servicing_worker, 7, 18, 74        'checking to see if the transfer_to_worker is the same as the second_servicing_worker (because then it won't transfer)
     IF second_servicing_worker <> "_______" THEN CALL clear_line_of_text(18, 74)
 
-    IF servicing_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
+    IF primary_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
         end_msg = "This case is already in the requested worker's number."
 		PF10 'backout
 		PF3 'SPEC menu
@@ -284,7 +284,6 @@ ELSE 'this means out of county is TRUE '
             IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a reason for transfer."
             IF excluded_time_dropdown = "Yes" AND isdate(excluded_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
 			IF isdate(client_move_date) = False THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid date for client move."
-			IF (ma_case = True AND excluded_time_dropdown = "No") THEN  err_msg = err_msg & vbNewLine & "* Please select whether the client is on excluded time."
 			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select whether the CFR for CASH is changing or not. Review input."
 			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for HC is changing or not. Review input."
 			IF (mets_status_dropdown = "Active" and METS_case_number = "") then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
@@ -302,9 +301,17 @@ ELSE 'this means out of county is TRUE '
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	LOOP UNTIL are_we_passworded_out = False					'loops until user passwords back in
 
+    'Using move date to determine CRF change date.
+     cfr_date = dateadd("M", 1, client_move_date)
+     cfr_date = datepart("M", cfr_date) & "/01/" & datepart("YYYY", cfr_date)
+     cfr_date = dateadd("M", 2, cfr_date)
+     cfr_month = datepart("M", cfr_date)
+     IF len(cfr_month) <> 2 THEN cfr_month = "0" & cfr_month
+     cfr_year = datepart("YYYY", cfr_date)
+     cfr_year = right(cfr_year, 2)
+
     'SENDING a SPEC/MEMO - this happens before the case note, and transfer -  we overwrite the information
     '----------Sending the Client a SPEC/MEMO notifying them of the details of the transfer----------
-
     Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    		'Writes the appt letter into the MEMO.
     Call write_variable_in_SPEC_MEMO("Your case has been transferred. Your new agency/worker is: " & worker_agency_name & "")
     Call write_variable_in_SPEC_MEMO("If you have any questions, or to send in requested proofs,")
@@ -340,18 +347,18 @@ ELSE 'this means out of county is TRUE '
     END IF
     IF ma_case = True THEN
         CALL write_bullet_and_variable_in_case_note("HC County of Financial Responsibility", hc_cfr)
-        IF hc_cfr_no_change_checkbox = UNCHECKED THEN
+        IF hc_cfr_no_change_checkbox = CHECKED THEN
             CALL write_bullet_and_variable_in_case_note("HC CFR Change Date", (hc_cfr_month & "/" & hc_cfr_year))
         ELSE
             CALL write_variable_in_CASE_NOTE("* HC CFR" & "Not changing")
         END IF
     END IF
-    IF ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE THEN
-        CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", cash_cfr)
+    IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE) THEN
+        CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", cash_cfr) 'county_financial_responsibility'
         IF manual_cfr_cash_checkbox = CHECKED THEN
             CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cash_cfr_month & "/" & cash_cfr_year))
         ELSE
-            CALL write_bullet_and_variable_in_case_note("CASH CFR", "Not changing")
+            CALL write_variable_in_CASE_NOTE("CASH CFR Not changing")
         END IF
     END IF
     CALL write_variable_in_case_note("* SPEC/MEMO sent to client with new worker information.")
@@ -360,9 +367,7 @@ ELSE 'this means out of county is TRUE '
     Call write_variable_in_CASE_NOTE("---")
     CALL write_variable_in_CASE_NOTE (worker_signature)
     PF3
-
     '----------------------------------------------------------OUT OF COUNTY TRANSFER actually happening
-    'this appears to be a duplicate but the handling is different for out of county vs in county'
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
     EMWriteScreen "x", 9, 16                               'Transfer County To County
     TRANSMIT
@@ -377,28 +382,44 @@ ELSE 'this means out of county is TRUE '
             call create_MAXIS_friendly_date(excluded_date, 0, 6, 28)
             EMWriteScreen hc_cfr, 15, 39
         END IF
-
         IF excluded_date = "" AND excluded_time_dropdown = "No" THEN
             EMWriteScreen "__", 6, 28
             EMWriteScreen "__", 6, 31
             EMWriteScreen "__", 6, 34
         END IF
-
-        IF ma_case = True AND manual_cfr_hc_checkbox = CHECKED THEN
+        IF manual_cfr_hc_checkbox = CHECKED THEN
             EMWriteScreen hc_cfr, 14, 39
             EMWriteScreen hc_cfr_month, 14, 53
             EMWriteScreen hc_cfr_year, 14, 59
+        ELSE
+            IF ma_case = True THEN
+                EMWriteScreen hc_cfr, 14, 39
+                EMWriteScreen cfr_month, 14, 53
+                EMWriteScreen cfr_year, 14, 59
+            END IF
         END IF
 
-        IF ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE and manual_cfr_cash_checkbox = CHECKED THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
-            EMWriteScreen cash_cfr, 11, 39
+        IF manual_cfr_cash_checkbox = CHECKED THEN
             EMWriteScreen cash_cfr_month, 11, 53
+            EMWriteScreen cash_cfr, 11, 39
             EMWriteScreen cash_cfr_year, 11, 59
             EMReadScreen cash_cfr_two, 2, 12, 39
             IF cash_cfr_two <> "__" THEN
                EMWriteScreen cash_cfr, 12, 39
-               EMWriteScreen cash_cfr_month, 12, 53
-               EMWriteScreen cash_cfr_year, 12, 59
+               EMWriteScreen cash_cfr_month, 11, 53
+               EMWriteScreen cash_cfr_year, 11, 59
+            END IF
+        ELSE
+            IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE) THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
+                EMWriteScreen cash_cfr, 11, 39
+                EMWriteScreen cfr_month, 11, 53
+    		    EMWriteScreen cfr_year, 11, 59
+                EMReadScreen cash_cfr_two, 2, 12, 39
+                IF cash_cfr_two <> "__" THEN
+                   EMWriteScreen cash_cfr, 12, 39
+                   EMWriteScreen cfr_month, 11, 53
+                   EMWriteScreen cfr_year, 11, 59
+                END IF
             END IF
         END IF
 
