@@ -1206,15 +1206,17 @@ If SNAP_active = True Then
 	Call read_amount_from_MAXIS(total_shelter_cost_budgeted_amt, 10, 14, 27)
 
 	Call read_amount_from_MAXIS(snap_issued_amt, 10, 10, 71)
+	Call read_amount_from_MAXIS(snap_issued_after_recoup_amt, 10, 16, 71)
 	Call read_amount_from_MAXIS(state_benefit_amt, 10, 17, 71)
 	Call read_amount_from_MAXIS(fed_benefit_amt, 10, 18, 71)
 	snap_issued_amt = snap_issued_amt*1
+	snap_issued_after_recoup_amt = snap_issued_after_recoup_amt*1
 	fed_benefit_amt = fed_benefit_amt*1
 	state_benefit_amt = state_benefit_amt*1
 	If fed_benefit_amt = 0 AND state_benefit_amt = 0 Then fed_benefit_amt = snap_issued_amt
 
-	FS_fed_percent = fed_benefit_amt/snap_issued_amt
-	FS_state_percent = state_benefit_amt/snap_issued_amt
+	FS_fed_percent = fed_benefit_amt/snap_issued_after_recoup_amt
+	FS_state_percent = state_benefit_amt/snap_issued_after_recoup_amt
 	' MsgBox "State Percent - " & FS_fed_percent & vbCr & "Fed Percent - " & FS_state_percent
 
 	write_value_and_transmit "FSSM", 20, 70
@@ -1806,13 +1808,13 @@ Do
 				  Text 90, 40, 35, 10, "Budgeted"
 				  Text 140, 40, 35, 10, "Correct"
 				  Text 30, 60, 55, 10, "Earned Income:"
-				  Text 90, 60, 30, 10, "$ " & earned_income_budgeted_amt
+				  Text 90, 60, 35, 10, "$ " & earned_income_budgeted_amt
 				  EditBox 140, 55, 50, 15, earned_income_correct_amt
 				  Text 20, 80, 65, 10, "Unearned Income:"
-				  Text 90, 80, 30, 10, "$ " & unearned_budgeted_amt
+				  Text 90, 80, 35, 10, "$ " & unearned_budgeted_amt
 				  EditBox 140, 75, 50, 15, unearned_correct_amt
 				  Text 60, 100, 20, 10, "Total:"
-				  Text 90, 100, 30, 10, "$ " & total_income_budgeted_amt
+				  Text 90, 100, 35, 10, "$ " & total_income_budgeted_amt
 				  Text 140, 100, 30, 10, "$ " & total_income_correct_amt
 				  ButtonGroup ButtonPressed
 				    PushButton 175, 100, 30, 10, "CALC", calc_btn
@@ -1821,23 +1823,23 @@ Do
 				  Text 90, 120, 35, 10, "Budgeted"
 				  Text 140, 120, 35, 10, "Correct"
 				  Text 35, 140, 50, 10, "Standard Ded:"
-				  Text 90, 140, 30, 10, "$ " & standard_deduction_budgeted_amt
-				  Text 140, 140, 30, 15, "$ " & standard_deduction_correct_amt
+				  Text 90, 140, 35, 10, "$ " & standard_deduction_budgeted_amt
+				  Text 140, 140, 35, 15, "$ " & standard_deduction_correct_amt
 				  Text 15, 150, 70, 10, "Earned Income Ded:"
-				  Text 90, 150, 30, 10, "$ " & earned_deduction_budgeted_amt
-				  Text 140, 150, 30, 15, "$ " & earned_deduction_correct_amt
+				  Text 90, 150, 35, 10, "$ " & earned_deduction_budgeted_amt
+				  Text 140, 150, 35, 15, "$ " & earned_deduction_correct_amt
 				  Text 40, 165, 50, 10, "Medical Ded:"
-				  Text 90, 165, 30, 10, "$ " & medical_deduction_budgeted_amt
+				  Text 90, 165, 35, 10, "$ " & medical_deduction_budgeted_amt
 				  EditBox 140, 160, 50, 15, medical_deduction_correct_amt
 				  Text 15, 185, 70, 10, "Dependent Care Ded:"
-				  Text 90, 185, 30, 10, "$ " & dependent_care_deduction_budgeted_amt
+				  Text 90, 185, 35, 10, "$ " & dependent_care_deduction_budgeted_amt
 				  EditBox 140, 180, 50, 15, dependent_care_deduction_correct_amt
 				  Text 37, 205, 50, 10, "Child Support:"
-				  Text 90, 205, 30, 10, "$ " & child_support_deduction_budgeted_amt
+				  Text 90, 205, 35, 10, "$ " & child_support_deduction_budgeted_amt
 				  EditBox 140, 200, 50, 15, child_support_deduction_correct_amt
 				  Text 35, 220, 20, 10, "Total:"
-				  Text 90, 220, 30, 10, "$ " & total_deduction_budgeted_amt
-				  Text 140, 220, 30, 10, "$ " & total_deduction_correct_amt
+				  Text 90, 220, 35, 10, "$ " & total_deduction_budgeted_amt
+				  Text 140, 220, 35, 10, "$ " & total_deduction_correct_amt
 				  ButtonGroup ButtonPressed
 				    PushButton 175, 220, 30, 10, "CALC", calc_btn
 
@@ -1846,24 +1848,24 @@ Do
 				  Text 90, 240, 35, 10, "Budgeted"
 				  Text 140, 240, 35, 10, "Correct"
 				  Text 30, 260, 55, 10, "Rent/Mortgage:"
-				  Text 90, 260, 30, 10, "$ " & rent_mortgage_budgeted_amt
+				  Text 90, 260, 35, 10, "$ " & rent_mortgage_budgeted_amt
 				  EditBox 140, 255, 50, 15, rent_mortgage_correct_amt
 				  Text 35, 280, 45, 10, "Property Tax:"
-				  Text 90, 280, 30, 10, "$ " & tax_budgeted_amt
+				  Text 90, 280, 35, 10, "$ " & tax_budgeted_amt
 				  EditBox 140, 275, 50, 15, tax_correct_amt
 				  Text 25, 300, 60, 10, "Home Insurance:"
-				  Text 90, 300, 30, 10, "$ " & insurance_budgeted_amt
+				  Text 90, 300, 35, 10, "$ " & insurance_budgeted_amt
 				  EditBox 140, 295, 50, 15, insurance_correct_amt
 				  Text 15, 320, 20, 10, "Other:"
 				  EditBox 40, 315, 45, 15, other_cost_detail
-				  Text 90, 320, 30, 10, "$ " & other_cost_budgeted_amt
+				  Text 90, 320, 35, 10, "$ " & other_cost_budgeted_amt
 				  EditBox 140, 315, 50, 15, other_cost_correct_amt
 				  Text 55, 340, 30, 10, "Utilities:"
-				  Text 90, 340, 30, 10, "$ " & utilities_budgeted_amt
+				  Text 90, 340, 35, 10, "$ " & utilities_budgeted_amt
 				  DropListBox 140, 335, 50, 15, ""+chr(9)+"488"+chr(9)+"205"+chr(9)+"149"+chr(9)+"56"+chr(9)+"0", utilities_correct_amt
 				  Text 60, 360, 20, 10, "Total:"
-				  Text 90, 360, 30, 10, "$ " & total_shelter_cost_budgeted_amt
-				  Text 140, 360, 30, 10, "$ " & total_shelter_cost_correct_amt
+				  Text 90, 360, 35, 10, "$ " & total_shelter_cost_budgeted_amt
+				  Text 140, 360, 35, 10, "$ " & total_shelter_cost_correct_amt
 				  ButtonGroup ButtonPressed
 				    PushButton 175, 360, 30, 10, "CALC", calc_btn
 
@@ -1884,70 +1886,70 @@ Do
 				  'BUTTON
 				  GroupBox 340, 5, 210, 345, "Corrected Budget"
 				  Text 360, 20, 55, 10, " Earned Income:"
-				  Text 425, 20, 30, 10, "$ " & earned_income_correct_amt
+				  Text 425, 20, 35, 10, "$ " & earned_income_correct_amt
 				  Text 355, 30, 60, 10, "Unearned Income:"
-				  Text 425, 30, 30, 10, "$ " & unearned_correct_amt
+				  Text 425, 30, 35, 10, "$ " & unearned_correct_amt
 				  Text 385, 40, 50, 10, " Total Income:"
-				  Text 440, 40, 30, 10, "$ " & total_income_correct_amt
+				  Text 440, 40, 35, 10, "$ " & total_income_correct_amt
 
 				  Text 350, 55, 70, 10, " Earned Income Ded:"
-				  Text 425, 55, 30, 10, "$ " & earned_deduction_correct_amt
+				  Text 425, 55, 35, 10, "$ " & earned_deduction_correct_amt
 				  Text 370, 65, 50, 10, " Standard Ded:"
-				  Text 425, 65, 30, 10, "$ " & standard_deduction_correct_amt
+				  Text 425, 65, 35, 10, "$ " & standard_deduction_correct_amt
 				  Text 375, 75, 45, 10, "Medical Ded:"
-				  Text 425, 75, 30, 10, "$ " & medical_deduction_correct_amt
+				  Text 425, 75, 35, 10, "$ " & medical_deduction_correct_amt
 				  Text 350, 85, 70, 10, "Dependent Care Ded:"
-				  Text 425, 85, 30, 10, "$ " & dependent_care_deduction_correct_amt
+				  Text 425, 85, 35, 10, "$ " & dependent_care_deduction_correct_amt
 				  Text 375, 95, 50, 10, "Child Support:"
-				  Text 425, 95, 30, 10, "$ " & child_support_deduction_correct_amt
+				  Text 425, 95, 35, 10, "$ " & child_support_deduction_correct_amt
 				  Text 375, 105, 60, 10, " Total Deductions:"
-				  Text 440, 105, 30, 10, "$ " & total_deduction_correct_amt
+				  Text 440, 105, 35, 10, "$ " & total_deduction_correct_amt
 
 				  Text 390, 120, 40, 10, "Net Income:"
-				  Text 440, 120, 30, 10, "$ " & net_income_correct_amt
+				  Text 440, 120, 35, 10, "$ " & net_income_correct_amt
 
 				  Text 370, 135, 50, 10, "Rent/Mortgage:"
-				  Text 425, 135, 30, 10, "$ " & rent_mortgage_correct_amt
+				  Text 425, 135, 35, 10, "$ " & rent_mortgage_correct_amt
 				  Text 375, 145, 45, 10, "Property Tax:"
-				  Text 425, 145, 30, 10, "$ " & tax_correct_amt
+				  Text 425, 145, 35, 10, "$ " & tax_correct_amt
 				  Text 360, 155, 60, 10, " House Insurance:"
-				  Text 425, 155, 30, 10, "$ " & insurance_correct_amt
+				  Text 425, 155, 35, 10, "$ " & insurance_correct_amt
 				  Text 390, 165, 30, 10, " Utilities:"
-				  Text 425, 165, 30, 10, "$ " & utilities_correct_amt
+				  Text 425, 165, 35, 10, "$ " & utilities_correct_amt
 				  Text 355, 175, 70, 10, "Other (" & other_cost_detail & "):"
-				  Text 425, 175, 30, 10, "$ " & other_cost_correct_amt
+				  Text 425, 175, 35, 10, "$ " & other_cost_correct_amt
 				  Text 365, 185, 70, 10, " Total Shelter Costs:"
-				  Text 440, 185, 30, 10, "$ " & total_shelter_cost_correct_amt
+				  Text 440, 185, 35, 10, "$ " & total_shelter_cost_correct_amt
 
 				  Text 360, 200, 65, 10, "50% of Net Income:"
-				  Text 425, 200, 30, 10, "$ " & fifty_perc_net_income_correct_amt
+				  Text 425, 200, 35, 10, "$ " & fifty_perc_net_income_correct_amt
 				  Text 345, 210, 80, 10, "Adjusted Shelter Costs:"
-				  Text 425, 210, 30, 10, "$ " & adj_shelter_cost_correct_amt
+				  Text 425, 210, 35, 10, "$ " & adj_shelter_cost_correct_amt
 				  Text 360, 220, 65, 10, " Max Allow Shelter:"
-				  Text 425, 220, 30, 10, "$ " & max_shelter_cost_correct_amt
+				  Text 425, 220, 35, 10, "$ " & max_shelter_cost_correct_amt
 				  Text 345, 230, 90, 10, " Counted Shelter Expense:"
-				  Text 440, 230, 30, 10, "$ " & counted_shelter_cost_correct_amt
+				  Text 440, 230, 35, 10, "$ " & counted_shelter_cost_correct_amt
 				  Text 350, 245, 70, 10, "Net Adjusted Income:"
-				  Text 425, 245, 30, 10, "$ " & net_adj_income_correct_amt
+				  Text 425, 245, 35, 10, "$ " & net_adj_income_correct_amt
 				  Text 365, 255, 55, 10, "Household Size:"
-				  Text 425, 255, 30, 10, correct_hh_size
+				  Text 425, 255, 35, 10, correct_hh_size
 				  Text 350, 265, 70, 10, " Max Net Adj Income:"
-				  Text 425, 265, 30, 10, "$ " & max_net_adj_income_correct_amt
+				  Text 425, 265, 35, 10, "$ " & max_net_adj_income_correct_amt
 				  Text 360, 275, 75, 10, "Monthly SNAP benefit:"
-				  Text 440, 275, 30, 10, "$ " & monthly_snap_benefit_correct_amt
+				  Text 440, 275, 35, 10, "$ " & monthly_snap_benefit_correct_amt
 				  Text 360, 285, 75, 10, "Sanction/Recoupment:"
-				  Text 440, 285, 30, 10, "$ " & sanction_recoupment_correct_amt
+				  Text 440, 285, 35, 10, "$ " & sanction_recoupment_correct_amt
 				  Text 405, 305, 100, 10, "Correct SNAP Benefit Amount:"
-				  Text 510, 305, 30, 10, "$ " & snap_correct_amt
+				  Text 510, 305, 35, 10, "$ " & snap_correct_amt
 				  Text 425, 320, 80, 10, "Benefit amount issued:"
-				  Text 510, 320, 30, 10, "$ " & snap_issued_amt
+				  Text 510, 320, 35, 10, "$ " & snap_issued_amt
 				  If snap_overpayment_exists = True Then
 					  Text 455, 335, 50, 10, "Overpayment:"
-					  Text 510, 335, 30, 10, "$ " & snap_overpayment_amt
+					  Text 510, 335, 35, 10, "$ " & snap_overpayment_amt
 				  End If
 				  If snap_supplement_exists = True Then
 					  Text 455, 335, 50, 10, "Supplement:"
-					  Text 510, 335, 30, 10, "$ " & snap_supplement_amt
+					  Text 510, 335, 35, 10, "$ " & snap_supplement_amt
 				  End If
 				  If snap_overpayment_exists = False And snap_supplement_exists = False Then
 				  	  Text 400, 335, 100, 10, "02/22 Issuance was Correct"
@@ -2036,6 +2038,7 @@ Do
 		dialog_width = 205
 		If SNAP_active = True and MFIP_active = True Then dialog_width = 410
 		x_pos = 5
+		MsgBox SNAP_fed_op
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, dialog_width, 205, "Confirm Budget Calculation"
 		  If SNAP_active = True Then
@@ -2050,19 +2053,19 @@ Do
 			  If snap_overpayment_exists = True Then
 				  Text x_pos+30, 65, 60, 10, "Overpayment"
 				  Text x_pos+30, 75, 30, 10, "Amount:"
-				  Text x_pos+65, 75, 40, 10, "$ " & snap_overpayment_amt
-				  Text x_pos+75, 85, 40, 10, "$ " & SNAP_fed_op
+				  Text x_pos+65, 75, 50, 10, "$ " & snap_overpayment_amt
+				  Text x_pos+75, 85, 50, 10, "$ " & SNAP_fed_op
 				  Text x_pos+115, 85, 30, 10, "Federal "
-				  Text x_pos+75, 95, 40, 10, "$ " & SNAP_state_op
+				  Text x_pos+75, 95, 50, 10, "$ " & SNAP_state_op
 				  Text x_pos+115, 95, 20, 10, "State"
 			  End If
 			  If snap_supplement_exists = True Then
 				  Text x_pos+30, 65, 60, 10, "Supplement"
 				  Text x_pos+30, 75, 30, 10, "Amount:"
-				  Text x_pos+65, 75, 40, 10, "$ " & snap_supplement_amt
-				  Text x_pos+75, 85, 40, 10, "$ " & SNAP_fed_supp
+				  Text x_pos+65, 75, 50, 10, "$ " & snap_supplement_amt
+				  Text x_pos+75, 85, 50, 10, "$ " & SNAP_fed_supp
 				  Text x_pos+115, 85, 30, 10, "Federal "
-				  Text x_pos+75, 95, 40, 10, "$ " & SNAP_state_supp
+				  Text x_pos+75, 95, 50, 10, "$ " & SNAP_state_supp
 				  Text x_pos+115, 95, 20, 10, "State"
 			  End If
 			  If snap_overpayment_exists = False And snap_supplement_exists = False Then
