@@ -2017,14 +2017,20 @@ Do
 
 		SNAP_fed_correct_amt = snap_correct_amt * FS_fed_percent
 		SNAP_state_correct_amt = snap_correct_amt * FS_state_percent
+		SNAP_fed_correct_amt = FormatNumber(SNAP_fed_correct_amt, 2, -1, 0, 0)
+		SNAP_state_correct_amt = FormatNumber(SNAP_state_correct_amt, 2, -1, 0, 0)
 		If snap_overpayment_exists = True Then
 			SNAP_fed_op = snap_overpayment_amt * FS_fed_percent
 			SNAP_state_op = snap_overpayment_amt * FS_state_percent
+			SNAP_fed_op = FormatNumber(SNAP_fed_op, 2, -1, 0, 0)
+			SNAP_state_op = FormatNumber(SNAP_state_op, 2, -1, 0, 0)
 		End If
 
 		If snap_supplement_exists = True Then
 			SNAP_fed_supp = snap_supplement_amt * FS_fed_percent
 			SNAP_state_supp = snap_supplement_amt * FS_state_percent
+			SNAP_fed_supp = FormatNumber(SNAP_fed_supp, 2, -1, 0, 0)
+			SNAP_state_supp = FormatNumber(SNAP_state_supp, 2, -1, 0, 0)
 		End If
 
 
