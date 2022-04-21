@@ -153,6 +153,9 @@ const exch_rept_exch_durr_col_const 		= 31 	' Durration of Exchange
 const exch_rept_unable_to_connect_col_const = 32 	' Unable to Connect
 const exch_rept_notes_col_const 			= 33 	' Notes
 const exch_worklist_date_time_col_const		= 34
+const exch_app_date_time_col				= 35
+const exch_app_status_col 					= 36
+const exch_app_exp_status_col 				= 37
 
 'END DECLARATIONS BLOCK ====================================================================================================
 'Manually set if you want to run the testing code for creating a worklist.
@@ -775,13 +778,6 @@ If report_selection = "Combine Worklists" Then
 	'save all files
 	objReportWorkbook.Save()		'saving the excel
 
-	If leave_excel_open = "No - Close the file" Then		'if the file should be closed - it does it here.
-		ObjReportExcel.ActiveWorkbook.Close
-
-		ObjReportExcel.Application.Quit
-		ObjReportExcel.Quit
-	End If 
-
 	If cases_unable_to_connect <> "CASES in which QI was unable to connect for Expedited Exchange:" Then
 		jen_email_recip = "jennifer.frey@hennepin.us"
 		jen_email_recip_CC = "Jacob.Arco@hennepin.us; Casey.Love@hennepin.us; Ilse.Ferris@hennepin.us"
@@ -805,6 +801,135 @@ If report_selection = "Combine Worklists" Then
 	jake_email_body = jake_email_body & vbCr & vbCR & cases_need_to_be_appld
 	jake_email_body = jake_email_body & vbCr & vbCr & "AUTOMATED EMAIL FROM SCRIPT. (ADMIN - Expedited Determination Report)"
 	Call create_outlook_email(jake_email_recip, jake_email_recip_CC, jake_email_subject, jake_email_body, "", True)
+
+	total_excel_row = 2
+	Do
+		version_number = ""
+		process_date = ""
+		elig_result = ""
+		approval_status = ""
+		note_time = ""
+		If ObjReportExcel.Cells(total_excel_row, exch_app_date_time_col).Value = "" Then
+
+			MAXIS_case_number = trim(ObjReportExcel.Cells(total_excel_row, work_case_nbr_col_const).Value)
+			date_of_application = ObjReportExcel.Cells(total_excel_row, work_appl_date_col_const).Value
+			Call convert_date_into_MAXIS_footer_month(date_of_application, MAXIS_footer_month, MAXIS_footer_year)
+			date_of_application = DateAdd("d", 0, date_of_application)
+
+
+			Call back_to_SELF
+			Call navigate_to_MAXIS_screen("ELIG", "FS  ")
+			EMWriteScreen "99", 19, 78
+			transmit
+
+			approved_version_found = False
+			elig_row = 17
+			Do
+				EMReadScreen version_number, 2, elig_row, 22
+				EMReadScreen process_date, 8, elig_row, 26
+				EMReadScreen elig_result, 11, elig_row, 37
+				EMReadScreen approval_status, 10, elig_row, 50
+				' MsgBox process_date
+				version_number = trim(version_number)
+				elig_result = trim(elig_result)
+				approval_status = trim(approval_status)
+				If approval_status = "APPROVED" Then
+					process_date = DateAdd("d", 0, process_date)
+					' MsgBox "date_of_application - " & date_of_application & vbCr & "process_date - " & process_date & vbCr & "date diff - " & DateDiff("d", date_of_application, process_date)
+					If DateDiff("d", date_of_application, process_date) >=0 Then
+						approved_version_found = True
+
+						version_number = version_number & "  "
+						EMWriteScreen version_number, 18, 54
+						' MsgBox "Pause"
+						transmit
+
+						EMReadScreen auto_close_warning, 11, 11, 43
+						If auto_close_warning = "Auto-Closed" Then
+							approved_version_found = False
+							transmit
+							Call navigate_to_MAXIS_screen("ELIG", "FS  ")
+							EMWriteScreen "99", 19, 78
+							transmit
+						Else
+							exit Do
+						End If
+					End If
+				End If
+
+				elig_row = elig_row - 1
+			Loop until elig_row = 6
+
+			If approved_version_found = True Then
+				EMReadScreen approved_date, 8, 3, 14
+				' MsgBox approved_date
+				approved_date = DateAdd("d", 0, approved_date)
+
+				Call write_value_and_transmit("FSCR", 19, 70)
+				EMReadScreen expedited_status, 9, 4, 3
+				expedited_status = trim(expedited_status)
+
+				Call write_value_and_transmit("FSSM", 19, 70)
+				EMReadScreen elig_status, 10, 7, 31
+				elig_status = trim(elig_status)
+
+				Call navigate_to_MAXIS_screen("CASE", "NOTE")
+				too_old_date = DateAdd("d", -1, approved_date)
+				note_row = 5
+				Do
+					EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+					EMReadScreen part_note_title, 11, note_row, 25               'reading the note header
+					EMReadScreen full_note_title, 55, note_row, 25               'reading the note header
+					note_date = DateAdd("d", 0, note_date)
+
+					If DateDiff("d", note_date, approved_date) = 0 Then
+						If (part_note_title = "---Approved" or part_note_title = "----Denied ") and InStr(full_note_title, "SNAP") <> 0 Then
+							Call write_value_and_transmit("V", note_row, 3)
+							EMReadScreen note_time, 5, 9, 30
+							' MsgBox note_time
+							Do
+								PF3
+								EMReadScreen still_in_dump, 4, 1, 48
+							Loop until still_in_dump <> "DUMP"
+						End If
+					End If
+					note_row = note_row + 1
+					if note_row = 19 then
+						note_row = 5
+						PF8
+						EMReadScreen check_for_last_page, 9, 24, 14
+						If check_for_last_page = "LAST PAGE" Then Exit Do
+					End If
+					EMReadScreen next_note_date, 8, note_row, 6
+					if next_note_date = "        " then Exit Do
+					' MsgBox next_note_date
+					next_note_date = DateAdd("d", 0, next_note_date)
+					' MsgBox "approved_date - " & approved_date & vbCr &  "too_old_date - " & too_old_date & vbCr & "next_note_date - " & next_note_date
+				Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+
+				approval_date_and_time = approved_date & " " & note_time
+				approval_date_and_time = trim(approval_date_and_time)
+				approval_date_and_time = DateAdd("d", 0, approval_date_and_time)
+
+				ObjReportExcel.Cells(total_excel_row, exch_app_date_time_col).Value = approval_date_and_time
+				ObjReportExcel.Cells(total_excel_row, exch_app_status_col).Value = elig_status
+				If expedited_status = "" Then ObjReportExcel.Cells(total_excel_row, exch_app_exp_status_col).Value = "False"
+				If expedited_status = "EXPEDITED" Then ObjReportExcel.Cells(total_excel_row, exch_app_exp_status_col).Value = "True"
+			End If
+		End If
+
+		total_excel_row = total_excel_row + 1
+		MAXIS_case_number = trim(ObjReportExcel.Cells(total_excel_row, work_case_nbr_col_const).Value)
+	Loop until MAXIS_case_number = ""
+	Call back_to_SELF
+	objReportWorkbook.Save()		'saving the excel
+
+	If leave_excel_open = "No - Close the file" Then		'if the file should be closed - it does it here.
+		ObjReportExcel.ActiveWorkbook.Close
+
+		ObjReportExcel.Application.Quit
+		ObjReportExcel.Quit
+	End If
 
 	'ONCE THIS IS ALL DONE ADD FUNCTIONALITY TO DELETE ALL THE FILES IN THE ARCHIVE FOLDER OLDER THAN THE CURRENT WEEK - Since we know those are recorded.'
 	Set objTXTArchiveFolder = objFSO.GetFolder(txt_file_archive_path)										'Creates an oject of the whole my documents folder
