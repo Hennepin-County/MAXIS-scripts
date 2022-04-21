@@ -35,6 +35,8 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+closing_message = "Interview case note entered please follow all next steps to assist the resident."
+
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
 CALL check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
@@ -44,39 +46,40 @@ If MAXIS_case_number <> "" Then 		'If a case number is found the script will get
 	Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 End If
 'Running the dialog for case number and client
-Do
-	err_msg = ""
-    Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 201, 90, "Shelter Interview"
-	  EditBox 55, 5, 45, 15, MAXIS_case_number
-	  DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
-	  EditBox 80, 45, 115, 15, worker_signature
-	  ButtonGroup ButtonPressed
-	    OkButton 100, 70, 45, 15
-	    CancelButton 150, 70, 45, 15
-	  Text 5, 10, 45, 10, "Case number:"
-	  Text 5, 30, 70, 10, "Household member:"
-	  Text 5, 50, 60, 10, "Worker signature:"
-	  ButtonGroup ButtonPressed
-	    PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
-	EndDialog
+DO
+    Do
+    	err_msg = ""
+        Dialog1 = "" 'Blanking out previous dialog detail
+    	BeginDialog Dialog1, 0, 0, 201, 90, "Shelter Interview"
+    	  EditBox 55, 5, 45, 15, MAXIS_case_number
+    	  DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
+    	  EditBox 80, 45, 115, 15, worker_signature
+    	  ButtonGroup ButtonPressed
+    	    OkButton 100, 70, 45, 15
+    	    CancelButton 150, 70, 45, 15
+    	  Text 5, 10, 45, 10, "Case number:"
+    	  Text 5, 30, 70, 10, "Household member:"
+    	  Text 5, 50, 60, 10, "Worker signature:"
+    	  ButtonGroup ButtonPressed
+    	    PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
+    	EndDialog
 
-	Dialog Dialog1
-	IF ButtonPressed = cancel Then StopScript
-	IF ButtonPressed = search_button Then
-		If MAXIS_case_number = "" Then
-			MsgBox "Cannot search without a case number, please try again."
-		Else
-			HH_Memb_DropDown = ""
-			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
-			err_msg = err_msg & "Start Over"
-		End If
-	End If
-	Call validate_MAXIS_case_number(err_msg, "*")
-	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "* Please select a client to update."
-    IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
-Loop until err_msg = ""
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    	Dialog Dialog1
+    	IF ButtonPressed = cancel Then StopScript
+    	IF ButtonPressed = search_button Then
+    		If MAXIS_case_number = "" Then
+    			MsgBox "Cannot search without a case number, please try again."
+    		Else
+    			HH_Memb_DropDown = ""
+    			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+    			err_msg = err_msg & "Start Over"
+    		End If
+    	End If
+    	Call validate_MAXIS_case_number(err_msg, "*")
+    	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "* Please select a client to update."
+        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+    LOOP UNTIL err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 
@@ -100,36 +103,36 @@ client_SSN = replace(client_SSN, " ", "")
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 316, 255, "Shelter Interview"
+BeginDialog Dialog1, 0, 0, 316, 260, "Shelter Interview"
   EditBox 100, 5, 205, 15, barriers_housing
   EditBox 100, 25, 205, 15, shelter_history
-  EditBox 105, 50, 200, 15, reason_homeless
-  EditBox 105, 70, 200, 15, other_income
-  EditBox 105, 90, 70, 15, address_verf
-  EditBox 255, 90, 50, 15, phone_number
-  EditBox 105, 110, 200, 15, comments_notes
-  EditBox 105, 135, 200, 15, referrals_made
-  EditBox 105, 155, 200, 15, social_worker
-  EditBox 105, 175, 200, 15, other_income
-  EditBox 105, 195, 200, 15, other_notes
-  DropListBox 240, 215, 65, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", screening_questions_dropdown
+  EditBox 105, 55, 200, 15, reason_homeless
+  EditBox 105, 75, 200, 15, other_income
+  EditBox 105, 95, 70, 15, address_verf
+  EditBox 255, 95, 50, 15, phone_number
+  EditBox 105, 115, 200, 15, comments_notes
+  EditBox 105, 140, 200, 15, referrals_made
+  EditBox 105, 160, 200, 15, social_worker
+  EditBox 105, 180, 200, 15, other_income
+  EditBox 105, 200, 200, 15, other_notes
+  DropListBox 240, 220, 65, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", screening_questions_dropdown
   ButtonGroup ButtonPressed
-    OkButton 200, 235, 50, 15
-    CancelButton 255, 235, 50, 15
-	PushButton 10, 235, 65, 15, "SHELTER ", shelter_button
-  Text 35, 25, 55, 10, "Shelter history:"
-  Text 10, 55, 90, 10, "Reason for homelessness:"
-  Text 75, 75, 25, 10, "Name:"
-  Text 70, 95, 30, 10, "Address:"
-  Text 195, 95, 50, 10, "Phone number: "
-  Text 60, 115, 40, 10, "Comments: "
-  Text 35, 140, 60, 10, "Referrals made to:"
-  Text 50, 180, 45, 10, "Other income:"
-  Text 55, 200, 40, 10, "Other notes:"
+    OkButton 200, 240, 50, 15
+    CancelButton 255, 240, 50, 15
+    PushButton 5, 240, 65, 15, "SHELTER ", shelter_button
+  Text 35, 30, 55, 10, "Shelter history:"
+  Text 10, 60, 90, 10, "Reason for homelessness:"
+  Text 75, 80, 25, 10, "Name:"
+  Text 70, 100, 30, 10, "Address:"
+  Text 200, 100, 50, 10, "Phone number: "
+  Text 65, 120, 40, 10, "Comments: "
+  Text 35, 145, 60, 10, "Referrals made to:"
+  Text 50, 185, 45, 10, "Other income:"
+  Text 55, 205, 40, 10, "Other notes:"
   Text 15, 10, 70, 10, "Barrier(s) to housing:"
-  Text 105, 220, 130, 10, "Health screening questions answered:"
-  GroupBox 5, 40, 305, 90, "Homelessness verified:"
-  Text 50, 160, 50, 10, "Social worker:"
+  Text 105, 225, 130, 10, "Health screening questions answered:"
+  GroupBox 5, 45, 305, 90, "Homelessness Verified"
+  Text 50, 165, 50, 10, "Social worker:"
 EndDialog
 
 DO
@@ -189,11 +192,8 @@ Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-IF end_msg <> "" Then
-    closing_message = closing_message & vbCr & vbCr & "" & vbCr & end_msg
-ELSE
-    closing_message = closing_message & vbCr & vbCr & " " &
-END IF
+IF end_msg <> "" Then closing_message = closing_message & vbCr & end_msg 'this is for when we create a mor work flow like system'
+
 Call script_end_procedure_with_error_report(closing_message)
 
 
