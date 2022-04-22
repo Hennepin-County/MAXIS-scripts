@@ -2993,11 +2993,10 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 						CALL write_variable_in_SPEC_MEMO("")
 						If renewal_guidance_needed = False Then CALL write_variable_in_SPEC_MEMO("If you have questions about the type of verifications needed, call 612-596-1300 and someone will assist you.")
 						If renewal_guidance_needed = True Then
-							CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
-							CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
-							CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
-							CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
-							CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
+							CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+							CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+							CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+							CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
 							CALL write_variable_in_SPEC_MEMO("")
 							CALL write_variable_in_SPEC_MEMO("Once we receive and process your renewal paperwork, you will receive information BY MAIL with possible follow up or actions taken on your case. Call 612-596-1300 if you have additional questions.")
 						End If
