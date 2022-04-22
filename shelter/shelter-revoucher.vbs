@@ -67,8 +67,8 @@ DO
 		err_msg = ""
 		Dialog Dialog1
         cancel_without_confirmation
-		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF revoucher_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a revoucher option."
+		Call validate_MAXIS_case_number(err_msg, "*")
+		IF revoucher_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select a revoucher option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
@@ -77,7 +77,7 @@ LOOP UNTIL check_for_password(are_we_passworded_out) = False
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 336, 95, "Family revoucher"
-  DropListBox 55, 10, 60, 15, "Select one..."+chr(9)+"ACF"+chr(9)+"EA"+chr(9)+"Self pay", voucher_type
+  DropListBox 55, 10, 60, 15, "Select one..."+chr(9)+"ACF"+chr(9)+"EA", voucher_type
   EditBox 195, 10, 55, 15, revoucher_date
   EditBox 305, 10, 25, 15, num_nights
   DropListBox 55, 35, 115, 15, "Select one..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
@@ -103,13 +103,13 @@ If revoucher_option = "Family" then
 			err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
-			IF voucher_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a voucher type."
-			If isDate(revoucher_date) = False then err_msg = err_msg & vbNewLine & "* Enter the revoucher date."
-			If IsNumeric(num_nights) = False then err_msg = err_msg & vbNewLine & "* Enter the number of nights issued."
-			If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Choose a shelter name."
-			If IsNumeric(children) = False then err_msg = err_msg & vbNewLine & "* Enter the number of children."
-			If IsNumeric(adults) = False then err_msg = err_msg & vbNewLine & "* Enter the number of adults."
-			If bus_issued = "" then err_msg = err_msg & vbNewLine & "* Enter information about bus cards/tokens issued."
+			IF voucher_type = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select a voucher type."
+			If isDate(revoucher_date) = False then err_msg = err_msg & vbNewLine & "* Please enter the revoucher date."
+			If IsNumeric(num_nights) = False then err_msg = err_msg & vbNewLine & "* Please enter the number of nights issued."
+			If shelter_droplist = "Select one..." then err_msg = err_msg & vbNewLine & "* Please choose a shelter name."
+			If IsNumeric(children) = False then err_msg = err_msg & vbNewLine & "* Please enter the number of children."
+			If IsNumeric(adults) = False then err_msg = err_msg & vbNewLine & "* Please enter the number of adults."
+			If bus_issued = "" then err_msg = err_msg & vbNewLine & "* Please enter information about bus cards/tokens issued."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
  	Call check_for_password(are_we_passworded_out)
@@ -209,11 +209,7 @@ header_date = revoucher_date & " - " & exit_date
 
 'The case note--------------------------------------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-IF voucher_type = "Self pay" then
-	Call write_variable_in_CASE_NOTE("### " & voucher_type & " for " & header_date & " at " & shelter_droplist & " for " & num_nights & " nights###")
-Else
-	Call write_variable_in_CASE_NOTE("### " & voucher_type & " " & revoucher_option & " Voucher " & header_date & " at " & shelter_droplist & " for " & num_nights & " nights###")
-End if
+Call write_variable_in_CASE_NOTE("### " & voucher_type & " " & revoucher_option & " voucher " & header_date & " at " & shelter_droplist & " for " & num_nights & " nights ###")
 IF revoucher_option = "Family" then Call write_variable_in_CASE_NOTE("* HH comp: " & adults & "A," & children & "C")
 Call write_bullet_and_variable_in_CASE_NOTE("Bus tokens/cards issued", bus_issued)
 

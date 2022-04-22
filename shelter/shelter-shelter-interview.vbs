@@ -168,7 +168,7 @@ IF name_verf <> "" THEN homeless_verified = "YES"
 
 'The case note'
 start_a_blank_CASE_NOTE
-CALL write_variable_in_CASE_NOTE("~ Family in Shelter Interview with M" &  MEMB_number & " ~")
+CALL write_variable_in_CASE_NOTE("### Family in Shelter Interview with M" &  MEMB_number & " ####")
 Call write_bullet_and_variable_in_CASE_NOTE("Active programs", list_active_programs)
 Call write_bullet_and_variable_in_CASE_NOTE("Pending programs", list_pending_programs)
 CALL write_bullet_and_variable_in_CASE_NOTE("Date:", when_contact_was_made)
