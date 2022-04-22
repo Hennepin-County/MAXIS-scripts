@@ -1462,7 +1462,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 
         If living_sit_line = "__" Then living_situation = "Blank"				'Adding detail to the living situation code
-        If living_sit_line = "01" Then living_situation = "01 - Own home, lease or roomate"
+        If living_sit_line = "01" Then living_situation = "01 - Own home, lease or roommate"
         If living_sit_line = "02" Then living_situation = "02 - Family/Friends - economic hardship"
         If living_sit_line = "03" Then living_situation = "03 -  servc prvdr- foster/group home"
         If living_sit_line = "04" Then living_situation = "04 - Hospital/Treatment/Detox/Nursing Home"
