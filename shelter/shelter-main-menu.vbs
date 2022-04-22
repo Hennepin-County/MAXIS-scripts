@@ -210,7 +210,7 @@ script_array_p_to_z(script_num).description 			= "Notice script that sends a Man
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Money Mismanagement "																	'Script name
+script_array_p_to_z(script_num).script_name 			= " Money Mismanagement "																	'Script name
 script_array_p_to_z(script_num).file_name 				= "shelter-money-mismanagement.vbs"															'Script URL
 script_array_p_to_z(script_num).description 			= "Case note template for details for money mismanagement information."
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
@@ -218,7 +218,7 @@ ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one mo
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
 Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "NSPOW Checked "																			'Script name
+script_array_p_to_z(script_num).script_name 			= " NSPOW Checked "																			'Script name
 script_array_p_to_z(script_num).file_name 				= "shelter-nspow-checked.vbs"																'Script URL
 script_array_p_to_z(script_num).description 			= "Case note template for details for NSPOW information."
 
