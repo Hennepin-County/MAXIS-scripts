@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/01/2022", "There is no longer a case note for in-county transfers based on guidance provided by CASE NOTE III: CLAIMS/SYSTEMS/TRANSFERS TE02.08.095.", "MiKayla Handley, Hennepin County.")
 call changelog_update("03/28/2022", "Multiple updates made ensuring that the transfer is complete and removing the case from in-county transfers.", "MiKayla Handley, Hennepin County.")
 CALL changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/09/2020", "No issues with SPEC/MEMO for out-of-county cases. SIR Announcement from 11/05/20 stated an issue was identified. Hennepin County's script project is seperate from DHS's script project. We are not experiencing the reported issue. Thank you!", "Ilse Ferris, Hennepin County")
@@ -226,8 +227,6 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
 ELSE 'this means out of county is TRUE '
     CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
-    hc_cfr_no_change_checkbox = CHECKED
-    cash_cfr_no_change_checkbox = CHECKED
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 346, 280, "Out of County Case Transfer"
@@ -241,12 +240,10 @@ ELSE 'this means out of county is TRUE '
       EditBox 140, 105, 200, 15, requested_verifs
       EditBox 200, 125, 140, 15, expected_changes
       EditBox 50, 145, 290, 15, other_notes
-      CheckBox 10, 175, 145, 10, "Check here if CASH CFR is not changing.", cash_cfr_no_change_checkbox
       CheckBox 20, 185, 220, 10, "Check here to manually set the CFR and change date for CASH.", manual_cfr_cash_checkbox
       EditBox 70, 195, 20, 15, cash_cfr
       EditBox 175, 195, 20, 15, cash_cfr_month
       EditBox 200, 195, 20, 15, cash_cfr_year
-      CheckBox 10, 215, 150, 10, "Check here if the HC CFR is not changing.", hc_cfr_no_change_checkbox
       CheckBox 20, 225, 205, 10, "Check here to manually set the CFR and change date for HC.", manual_cfr_hc_checkbox
       EditBox 70, 235, 20, 15, hc_cfr
       EditBox 180, 235, 20, 15, hc_cfr_month
@@ -284,8 +281,6 @@ ELSE 'this means out of county is TRUE '
             IF transfer_reason = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a reason for transfer."
             IF excluded_time_dropdown = "Yes" AND isdate(excluded_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
 			IF isdate(client_move_date) = False THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid date for client move."
-			IF manual_cfr_cash_checkbox = CHECKED AND cash_cfr_no_change_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select whether the CFR for CASH is changing or not. Review input."
-			IF manual_cfr_hc_checkbox = CHECKED AND hc_cfr_no_change_checkbox = CHECKED THEN  err_msg = err_msg & vbNewLine & "* Please select whether the CFR for HC is changing or not. Review input."
 			IF (mets_status_dropdown = "Active" and METS_case_number = "") then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
             IF ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "095", "") 'TE02.08.095' there is no forth variable
             IF ButtonPressed = XFER_button THEN CALL MAXIS_dialog_navigation()
