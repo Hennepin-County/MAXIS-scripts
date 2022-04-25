@@ -1214,9 +1214,13 @@ If SNAP_active = True Then
 	fed_benefit_amt = fed_benefit_amt*1
 	state_benefit_amt = state_benefit_amt*1
 	If fed_benefit_amt = 0 AND state_benefit_amt = 0 Then fed_benefit_amt = snap_issued_amt
-
-	FS_fed_percent = fed_benefit_amt/snap_issued_after_recoup_amt
-	FS_state_percent = state_benefit_amt/snap_issued_after_recoup_amt
+	If snap_issued_after_recoup_amt = 0 Then
+		FS_fed_percent = 1
+		FS_state_percent = 0
+	Else
+		FS_fed_percent = fed_benefit_amt/snap_issued_after_recoup_amt
+		FS_state_percent = state_benefit_amt/snap_issued_after_recoup_amt
+	End If
 	' MsgBox "State Percent - " & FS_fed_percent & vbCr & "Fed Percent - " & FS_state_percent
 
 	write_value_and_transmit "FSSM", 20, 70
