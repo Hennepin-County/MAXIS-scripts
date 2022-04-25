@@ -103,7 +103,7 @@ IF appeal_actions = "Received" THEN
 
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 286, 210, "Received - App pend: "  & list_pending_programs " Active on: "  & list_active_programs
+    BeginDialog Dialog1, 0, 0, 286, 210, "Received - App pend: "  & list_pending_programs & " Active on: "  & list_active_programs
       DropListBox 60, 5, 85, 15, "Select One:"+chr(9)+"ECF"+chr(9)+"DHS"+chr(9)+"Phone-Verbal Request", how_appeal_rcvd_dropdown
       EditBox 235, 5, 45, 15, client_request_date
       EditBox 140, 25, 45, 15, effective_date
@@ -158,7 +158,6 @@ IF appeal_actions = "Received" THEN
             IF proofs_attachments = "" then err_msg = err_msg & vbNewLine & "* Please advise what proofs or information has been provided."
             If ot_appeal_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please advise what other program  or decision is being appealed."
             IF cash_appeal_checkbox = UNCHECKED AND snap_appeal_checkbox = UNCHECKED AND grh_appeal_checkbox = UNCHECKED AND hc_appeal_checkbox = UNCHECKED AND emer_appeal_checkbox = UNCHECKED AND ot_appeal_checkbox = UNCHECKED AND ca_appeal_checkbox  = UNCHECKED AND ive_appeal_checkbox = UNCHECKED AND BURIAL_ASSIST_checkbox = UNCHECKED AND REVENUE_RECAP_checkbox = UNCHECKED AND SANCTION_checkbox = UNCHECKED AND TRANSPORT_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* Please select the appealed program or decision."
-            IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
     	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     	LOOP UNTIL err_msg = ""
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -184,6 +183,7 @@ IF appeal_actions = "Received" THEN
     CALL write_variable_in_CASE_NOTE("-----Appeal " & appeal_actions & "-----")
     CALL write_bullet_and_variable_in_CASE_NOTE("Docket Number", docket_number)
     CALL write_bullet_and_variable_in_CASE_NOTE("Date appeal request received", client_request_date)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Claim(s) Number", claim_number)
     CALL write_bullet_and_variable_in_CASE_NOTE("How appeal request received", how_appeal_rcvd_dropdown)
     CALL write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed", effective_date)
     CALL write_bullet_and_variable_in_CASE_NOTE("Action client is appealing", appeal_action_dropdown)
@@ -277,6 +277,7 @@ IF appeal_actions = "Summary Completed"  THEN
     Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received", date_appeal_rcvd)
     Call write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed", effective_date)
     Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing", action_client_is_appealing)
+    Call write_variable_in_CASE_NOTE ("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
 END IF
 
@@ -348,7 +349,6 @@ IF appeal_actions = "Hearing Information" THEN
       Text 5, 70, 45, 10, "Other Notes:"
     EndDialog
 
-
     DO
         Do
             err_msg = ""
@@ -358,7 +358,6 @@ IF appeal_actions = "Hearing Information" THEN
             If appeal_attendence = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select if the client attended appeal, or if appeal was held by phone"
             IF hearing_details = "" THEN err_msg = err_msg & vbNewLine & "* Please enter hearing details"
             IF isdate(anticipated_date_result) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the anticipated date of appeal decision"
-            IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
@@ -395,8 +394,6 @@ IF appeal_actions = "Decision Received" THEN
       Text 5, 70, 115, 10, "SNAP compliance form completed:"
     EndDialog
 
-
-
     'Shows dialog and creates and displays an error message if worker completes things incorrectly.
     Do
         Do
@@ -426,20 +423,20 @@ END IF
 IF appeal_actions = "Resolution" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 231, 215, "Appeal Resolution"
-      DropListBox 180, 15, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Further_Action_Required_dropdown
-      DropListBox 180, 30, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Overpayments_Required_dropdown
+    BeginDialog Dialog1, 0, 0, 231, 195, "Appeal Resolution"
+      DropListBox 180, 15, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Further_Action_Required_dropdown
+      DropListBox 180, 30, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Overpayments_Required_dropdown
       EditBox 95, 45, 40, 15, claim_number
       EditBox 180, 45, 40, 15, overpayment_amount
-      DropListBox 180, 65, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Confirmed_Resolution_dropdown
-      DropListBox 180, 80, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Withdrawn_with_appellant_dropdown
-      DropListBox 180, 95, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Notified_EWS_Withdraw_dropdown
-      DropListBox 180, 110, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", Referred_Appellant_dropdown
+      DropListBox 180, 65, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Confirmed_Resolution_dropdown
+      DropListBox 180, 80, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Withdrawn_with_appellant_dropdown
+      DropListBox 180, 95, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Notified_EWS_Withdraw_dropdown
+      DropListBox 180, 110, 40, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", Referred_Appellant_dropdown
       EditBox 95, 135, 130, 15, actions_taken_required
       EditBox 50, 155, 175, 15, other_notes
       ButtonGroup ButtonPressed
-        OkButton 130, 195, 45, 15
-        CancelButton 180, 195, 45, 15
+        OkButton 130, 175, 45, 15
+        CancelButton 180, 175, 45, 15
       Text 10, 85, 85, 10, "Withdrawn with Appellant:"
       Text 10, 100, 125, 10, "Notified Hennepin EWS of Withdrawal:"
       Text 10, 115, 170, 10, "Referred Appellant to DHS Appeals 651-431-3600:"
@@ -452,7 +449,6 @@ IF appeal_actions = "Resolution" THEN
       Text 10, 70, 80, 10, "Confirmed Resolution:"
       Text 35, 50, 60, 10, "Claim(s) Number:"
     EndDialog
-
     Do
         DO
             err_msg = ""
@@ -464,8 +460,8 @@ IF appeal_actions = "Resolution" THEN
             IF Withdrawn_with_appellant_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if the withdrawl was done with the appellant."
             IF Notified_EWS_Withdraw_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if ES has been notified."
             IF Referred_Appellant_dropdown = "Select:" THEN err_msg = err_msg & vbNewLine & "* Please select YES or NO if appellant has been referred."
-            IF Further_Action_Required_dropdown = "YES" and actions_taken_required = "" THEN err_msg = err_msg & vbNewLine & "Please enter what action is needed by caseworker."
-            IF Overpayments_Required_dropdown = "YES" and overpayment_amount = "" THEN err_msg = err_msg & vbNewLine & "Please enter the amount of the overpayment, if unknown enter N/A."
+            IF Further_Action_Required_dropdown = "YES" and actions_taken_required = "" THEN err_msg = err_msg & vbNewLine & "* Please enter what action is needed by caseworker."
+            IF Overpayments_Required_dropdown = "YES" and overpayment_amount = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the amount of the overpayment, if unknown enter N/A."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
@@ -477,11 +473,14 @@ IF appeal_actions = "Resolution" THEN
         Call write_variable_in_CASE_NOTE("* Overpayments Required")
         CALL write_bullet_and_variable_in_CASE_NOTE("Claim(s) Number", claim_number)
         Call write_bullet_and_variable_in_CASE_NOTE("Overpayment Amount", overpayment_amount)
+    ELSE
+        Call write_variable_in_CASE_NOTE("* No Overpayments Established")
     END IF
     Call write_bullet_and_variable_in_CASE_NOTE("Confirmed Resolution", Confirmed_Resolution_dropdown)
     Call write_bullet_and_variable_in_CASE_NOTE("Withdrawn with Appellant", Withdrawn_with_appellant_dropdown)
     Call write_bullet_and_variable_in_CASE_NOTE("Notified Hennepin EWS of Withdrawal", Notified_EWS_Withdraw_dropdown )
     Call write_bullet_and_variable_in_CASE_NOTE("Referred Appellant to DHS Appeals 651-431-3600", Referred_Appellant_dropdown)
+    Call write_bullet_and_variable_in_CASE_NOTE("Action is needed by caseworker.", Further_Action_Required_dropdown)
     Call write_bullet_and_variable_in_CASE_NOTE("Actions Taken/Required", actions_taken_required)
     Call write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
     Call write_variable_in_CASE_NOTE ("---")
