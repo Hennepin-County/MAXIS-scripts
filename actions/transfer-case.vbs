@@ -189,8 +189,8 @@ CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need d
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
 'MNPrairie Bank Support - MNPrairie Bank cases all go to Steele (county code 74)'s ICT transfer.
 'Agencies in the MNPrairie Bank are Dodge (county code 20), Steele (county code 74), and Waseca (county code 81)
-IF servicing_worker = "X120ICT" OR servicing_worker = "X181ICT" THEN servicing_worker = "X174ICT"
-IF servicing_worker = "X162ICT" THEN worker_agency_phone = "651-266-4444" 'Ramsey County has an individuals workers phone previously'
+IF transfer_to_worker = "X120ICT" OR transfer_to_worker = "X181ICT" THEN transfer_to_worker = "X174ICT"
+IF transfer_to_worker = "X162ICT" THEN worker_agency_phone = "651-266-4444" 'Ramsey County has an individuals workers phone previously'
 
 If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered - we are attempting the transfer
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER IN COUNTY
