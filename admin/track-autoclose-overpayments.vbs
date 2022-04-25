@@ -1381,8 +1381,13 @@ If MFIP_active = True Then
 	mfip_MF_FS_issued_amt = mfip_MF_FS_issued_amt*1
 	mfip_MF_FS_S_issued_amt = mfip_MF_FS_S_issued_amt*1
 	mfip_MF_FS_F_issued_amt = mfip_MF_FS_issued_amt - mfip_MF_FS_S_issued_amt
-	MF_fed_percent = mfip_MF_FS_F_issued_amt/mfip_MF_FS_issued_amt
-	MF_state_percent = mfip_MF_FS_S_issued_amt/mfip_MF_FS_issued_amt
+	If mfip_MF_FS_issued_amt = 0 Then
+		MF_fed_percent = 1
+		MF_state_percent = 0
+	Else
+		MF_fed_percent = mfip_MF_FS_F_issued_amt/mfip_MF_FS_issued_amt
+		MF_state_percent = mfip_MF_FS_S_issued_amt/mfip_MF_FS_issued_amt
+	End If
 	' MsgBox "mfip_MF_FS_F_issued_amt - " & mfip_MF_FS_F_issued_amt & vbCr &_
 	' 	   "mfip_MF_FS_S_issued_amt - " & mfip_MF_FS_S_issued_amt & vbCr &_
 	' 	   "mfip_MF_FS_issued_amt - " & mfip_MF_FS_issued_amt & vbCr &_
