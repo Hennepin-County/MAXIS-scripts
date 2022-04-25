@@ -2925,8 +2925,13 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 						Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
 						Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
 						CALL write_variable_in_SPEC_MEMO("")
-						If len(programs) < 11 Then  CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless  **")
-						If len(programs) > 10 Then  CALL write_variable_in_SPEC_MEMO("* Your " & programs & " case will close on " & last_day_of_recert & " unless *")
+						If len(programs) < 11 Then
+							CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless  **")
+						ElseIf len(programs) > 14 Then
+							CALL write_variable_in_SPEC_MEMO("*Your " & programs & " case will close on " & last_day_of_recert & " unless*")
+						ElseIf len(programs) > 10 Then
+							CALL write_variable_in_SPEC_MEMO("* Your " & programs & " case will close on " & last_day_of_recert & " unless *")
+						End If
 						CALL write_variable_in_SPEC_MEMO("** we receive your paperwork and complete the interview. **")
 						CALL write_variable_in_SPEC_MEMO("")
 						CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
