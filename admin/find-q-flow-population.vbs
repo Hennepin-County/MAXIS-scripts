@@ -2,7 +2,7 @@
 name_of_script = "ADMIN - FIND Q FLOW POPULATION.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 150          'manual run time in seconds
+STATS_manualtime = 90          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -63,6 +63,7 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
 EMConnect ""
+Call Check_for_MAXIS(False)
 'CALL MAXIS_case_number_finder(MAXIS_case_number)
 end_msg = "Case Numbers reviewed: "
 
@@ -255,3 +256,43 @@ If right(end_msg, 1) = "," THEN end_msg = left(end_msg, len(end_msg) - 1)
 
 stats_counter = stats_counter - 1 'removing extra count
 script_end_procedure(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/26/2022
+'--Tab orders reviewed & confirmed----------------------------------------------04/26/2022
+'--Mandatory fields all present & Reviewed--------------------------------------04/26/2022
+'--All variables in dialog match mandatory fields-------------------------------04/26/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/26/2022---------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/26/2022---------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/26/2022---------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/26/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/26/2022---------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------04/26/2022
+'--Out-of-County handling reviewed----------------------------------------------04/26/2022---------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/26/2022---------------------N/A
+'--BULK - review output of statistics and run time/count (if applicable)--------04/26/2022---------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------04/26/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------04/26/2022
+'--Denomination reviewed -------------------------------------------------------04/26/2022
+'--Script name reviewed---------------------------------------------------------04/26/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------04/26/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete-----------------------------------------04/26/2022
+'--comment Code-----------------------------------------------------------------04/26/2022
+'--Update Changelog for release/update------------------------------------------04/26/2022
+'--Remove testing message boxes-------------------------------------------------04/26/2022
+'--Remove testing code/unnecessary code-----------------------------------------04/26/2022
+'--Review/update SharePoint instructions----------------------------------------04/26/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/26/2022---------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/26/2022
+'--Complete misc. documentation (if applicable)---------------------------------04/26/2022
+'--Update project team/issue contact (if applicable)----------------------------04/26/2022
