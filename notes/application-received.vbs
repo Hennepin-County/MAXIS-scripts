@@ -53,7 +53,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
-call changelog_update("04/18/2022", "Added a checkbox if the application also requests Child Care Assistance. The script will send an email to the CCAP team alerting them to the request so that follow up can happen following CCAP process.", "Casey Love, Hennepin County")
+' READY FOR WHEN WE CAN PUT IN CCAP INFO - ADD DATE call changelog_update("", "Added a checkbox if the application also requests Child Care Assistance. The script will send an email to the CCAP team alerting them to the request so that follow up can happen following CCAP process.", "Casey Love, Hennepin County")
+call changelog_update("04/27/2022", "The Application Received script is updated to check cases to find if the ADDR panel is missing or has an error. The script will stop if it discovers a possible issue with an ADDR panel as that is a mandatory panel for all cases.", "Casey Love, Hennepin County")
 call changelog_update("03/29/2022", "Removed APPLYMN as application option.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/11/2022", "Added randomizer functionality for Adults appplications that appear expedited. Caseloads suggested will be either EX1 or EX2", "Ilse Ferris, Hennepin County")
 call changelog_update("03/07/2022", "Updated METS retro contact from Team 601 to Team 603.", "Ilse Ferris, Hennepin County")
@@ -297,7 +298,7 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs
   DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
   EditBox 85, 85, 95, 15, confirmation_number
   DropListBox 85, 105, 170, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
-  DropListBox 85, 125, 95, 45, "No - Only ES Programs"+chr(9)+"Yes - Child Care Requested", was_ccap_requested
+  ' DropListBox 85, 125, 95, 45, "No - Only ES Programs"+chr(9)+"Yes - Child Care Requested", was_ccap_requested
   Text 15, 25, 65, 10, "Date of Application:"
   Text 85, 25, 60, 10, application_date
   Text 185, 20, 65, 10, "Pending Programs:"
@@ -350,7 +351,7 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs
   Text 15, 65, 65, 10, "Type of Application:"
   Text 85, 75, 50, 10, "Confirmation #:"
   Text 10, 110, 70, 10, "Population/Specialty"
-  Text 7, 130, 75, 10, "Was CCAP Reuested?"
+  ' Text 7, 130, 75, 10, "Was CCAP Reuested?"
   y_pos = 150
   If snap_status = "PENDING" Then
       GroupBox 5, 150, 255, 105, "Expedited Screening"
