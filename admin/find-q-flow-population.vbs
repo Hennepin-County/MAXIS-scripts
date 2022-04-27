@@ -2,7 +2,7 @@
 name_of_script = "ADMIN - FIND Q FLOW POPULATION.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 150          'manual run time in seconds
+STATS_manualtime = 90          'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -63,6 +63,7 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------
 'CONNECTING TO MAXIS & GRABBING THE CASE NUMBER
 EMConnect ""
+Call Check_for_MAXIS(False)
 'CALL MAXIS_case_number_finder(MAXIS_case_number)
 end_msg = "Case Numbers reviewed: "
 
@@ -102,28 +103,6 @@ Do
     If basket_number = "X127EF9" then suggested_population = "1800"
     If basket_number = "X127EG9" then suggested_population = "1800"
     If basket_number = "X127EG0" then suggested_population = "1800"
-
-    'If basket_number = "X127EH1" then suggested_population = "ADS"
-    'If basket_number = "X127EH4" then suggested_population = "ADS"
-    'If basket_number = "X127EH5" then suggested_population = "ADS"
-    'If basket_number = "X127EH6" then suggested_population = "ADS"
-    'If basket_number = "X127EH7" then suggested_population = "ADS"
-    'If basket_number = "X127EK3" then suggested_population = "ADS"
-    'If basket_number = "X127EK7" then suggested_population = "ADS"
-    'If basket_number = "X127EK8" then suggested_population = "ADS"
-    'If basket_number = "X127EP3" then suggested_population = "ADS"
-    'If basket_number = "X127F3U" then suggested_population = "ADS"
-    'If basket_number = "X127F3V" then suggested_population = "ADS"
-
-    'Contacted Case Mgt
-    'If basket_number = "X127FG6" then suggested_population = "ADS"           '"Kristen Kasem"
-    'If basket_number = "X127FG7" then suggested_population = "ADS"           '"Kristen Kasem"
-    'If basket_number = "X127EM3" then suggested_population = "ADS"           '"True L. or Gina G."
-    'If basket_number = "X127EM4" then suggested_population = "ADS"            '"True L. or Gina G."
-    'If basket_number = "X127EW7" then suggested_population = "ADS"            '"Kimberly Hill"
-    'If basket_number = "X127EW8" then suggested_population = "ADS"            '"Kimberly Hill"
-    'If basket_number = "X127FF4" then suggested_population = "ADS"            '"Alyssa Taylor"
-    'If basket_number = "X127FF5" then suggested_population = "ADS"            '"Alyssa Taylor"
 
     If basket_number = "X127ED8" then suggested_population = "Adults"
     If basket_number = "X127EE1" then suggested_population = "Adults"
@@ -216,13 +195,21 @@ Do
     If basket_number = "X127EM8" then suggested_population = "Housing Supports"
     If basket_number = "X127EP4" then suggested_population = "Housing Supports"
 
+    If basket_number = "X127EH1" then suggested_population = "LTC+"
     If basket_number = "X127EH3" then suggested_population = "LTC+"
+    If basket_number = "X127EH4" then suggested_population = "LTC+"
+    If basket_number = "X127EH5" then suggested_population = "LTC+"
+    If basket_number = "X127EH6" then suggested_population = "LTC+"
+    If basket_number = "X127EH7" then suggested_population = "LTC+"
     If basket_number = "X127EJ4" then suggested_population = "LTC+"
     If basket_number = "X127EJ8" then suggested_population = "LTC+"
     If basket_number = "X127EK1" then suggested_population = "LTC+"
     If basket_number = "X127EK2" then suggested_population = "LTC+"
+    If basket_number = "X127EK3" then suggested_population = "LTC+"
     If basket_number = "X127EK4" then suggested_population = "LTC+"
     If basket_number = "X127EK6" then suggested_population = "LTC+"
+    If basket_number = "X127EK7" then suggested_population = "LTC+"
+    If basket_number = "X127EK8" then suggested_population = "LTC+"
     If basket_number = "X127EK9" then suggested_population = "LTC+"
     If basket_number = "X127EM9" then suggested_population = "LTC+"
     If basket_number = "X127EN6" then suggested_population = "LTC+"
@@ -235,6 +222,15 @@ Do
     If basket_number = "X127FH5" then suggested_population = "LTC+"
     If basket_number = "X127FI2" then suggested_population = "LTC+"
     If basket_number = "X127FI7" then suggested_population = "LTC+"
+    'Contacted Case Mgt
+    If basket_number = "X127FG6" then suggested_population = "LTC+"           '"Kristen Kasem"
+    If basket_number = "X127FG7" then suggested_population = "LTC+"           '"Kristen Kasem"
+    If basket_number = "X127EM3" then suggested_population = "LTC+"           '"True L. or Gina G."
+    If basket_number = "X127EM4" then suggested_population = "LTC+"            '"True L. or Gina G."
+    If basket_number = "X127EW7" then suggested_population = "LTC+"            '"Kimberly Hill"
+    If basket_number = "X127EW8" then suggested_population = "LTC+"            '"Kimberly Hill"
+    If basket_number = "X127FF4" then suggested_population = "LTC+"            '"Alyssa Taylor"
+    If basket_number = "X127FF5" then suggested_population = "LTC+"            '"Alyssa Taylor"
 
     If basket_number = "X127EH9" then suggested_population = "LTH"
     If basket_number = "X127EJ1" then suggested_population = "LTH"
@@ -260,3 +256,43 @@ If right(end_msg, 1) = "," THEN end_msg = left(end_msg, len(end_msg) - 1)
 
 stats_counter = stats_counter - 1 'removing extra count
 script_end_procedure(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/26/2022
+'--Tab orders reviewed & confirmed----------------------------------------------04/26/2022
+'--Mandatory fields all present & Reviewed--------------------------------------04/26/2022
+'--All variables in dialog match mandatory fields-------------------------------04/26/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/26/2022---------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/26/2022---------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/26/2022---------------------N/A
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/26/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/26/2022---------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------04/26/2022
+'--Out-of-County handling reviewed----------------------------------------------04/26/2022---------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/26/2022---------------------N/A
+'--BULK - review output of statistics and run time/count (if applicable)--------04/26/2022---------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------04/26/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------04/26/2022
+'--Denomination reviewed -------------------------------------------------------04/26/2022
+'--Script name reviewed---------------------------------------------------------04/26/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------04/26/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete-----------------------------------------04/26/2022
+'--comment Code-----------------------------------------------------------------04/26/2022
+'--Update Changelog for release/update------------------------------------------04/26/2022
+'--Remove testing message boxes-------------------------------------------------04/26/2022
+'--Remove testing code/unnecessary code-----------------------------------------04/26/2022
+'--Review/update SharePoint instructions----------------------------------------04/26/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/26/2022---------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/26/2022
+'--Complete misc. documentation (if applicable)---------------------------------04/26/2022
+'--Update project team/issue contact (if applicable)----------------------------04/26/2022

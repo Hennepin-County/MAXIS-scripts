@@ -118,34 +118,13 @@ DO
 
     EMReadScreen basket, 7, 21, 14
 	ObjExcel.Cells(excel_row, basket_col).Value = basket
+    suggested_population = ""                'Blanking this out. Will default to no suggestions if x number is not in this this.
 
     '----------------------------------------------------------------------------------------------------ADS
     If basket_number = "X127EF8" then suggested_population = "1800"
     If basket_number = "X127EF9" then suggested_population = "1800"
     If basket_number = "X127EG9" then suggested_population = "1800"
     If basket_number = "X127EG0" then suggested_population = "1800"
-
-    'If basket_number = "X127EH1" then suggested_population = "ADS"
-    'If basket_number = "X127EH4" then suggested_population = "ADS"
-    'If basket_number = "X127EH5" then suggested_population = "ADS"
-    'If basket_number = "X127EH6" then suggested_population = "ADS"
-    'If basket_number = "X127EH7" then suggested_population = "ADS"
-    'If basket_number = "X127EK3" then suggested_population = "ADS"
-    'If basket_number = "X127EK7" then suggested_population = "ADS"
-    'If basket_number = "X127EK8" then suggested_population = "ADS"
-    'If basket_number = "X127EP3" then suggested_population = "ADS"
-    'If basket_number = "X127F3U" then suggested_population = "ADS"
-    'If basket_number = "X127F3V" then suggested_population = "ADS"
-
-    'Contacted Case Mgt
-    'If basket_number = "X127FG6" then suggested_population = "ADS"           '"Kristen Kasem"
-    'If basket_number = "X127FG7" then suggested_population = "ADS"           '"Kristen Kasem"
-    'If basket_number = "X127EM3" then suggested_population = "ADS"           '"True L. or Gina G."
-    'If basket_number = "X127EM4" then suggested_population = "ADS"            '"True L. or Gina G."
-    'If basket_number = "X127EW7" then suggested_population = "ADS"            '"Kimberly Hill"
-    'If basket_number = "X127EW8" then suggested_population = "ADS"            '"Kimberly Hill"
-    'If basket_number = "X127FF4" then suggested_population = "ADS"            '"Alyssa Taylor"
-    'If basket_number = "X127FF5" then suggested_population = "ADS"            '"Alyssa Taylor"
 
     If basket_number = "X127ED8" then suggested_population = "Adults"
     If basket_number = "X127EE1" then suggested_population = "Adults"
@@ -238,13 +217,21 @@ DO
     If basket_number = "X127EM8" then suggested_population = "Housing Supports"
     If basket_number = "X127EP4" then suggested_population = "Housing Supports"
 
+    If basket_number = "X127EH1" then suggested_population = "LTC+"
     If basket_number = "X127EH3" then suggested_population = "LTC+"
+    If basket_number = "X127EH4" then suggested_population = "LTC+"
+    If basket_number = "X127EH5" then suggested_population = "LTC+"
+    If basket_number = "X127EH6" then suggested_population = "LTC+"
+    If basket_number = "X127EH7" then suggested_population = "LTC+"
     If basket_number = "X127EJ4" then suggested_population = "LTC+"
     If basket_number = "X127EJ8" then suggested_population = "LTC+"
     If basket_number = "X127EK1" then suggested_population = "LTC+"
     If basket_number = "X127EK2" then suggested_population = "LTC+"
+    If basket_number = "X127EK3" then suggested_population = "LTC+"
     If basket_number = "X127EK4" then suggested_population = "LTC+"
     If basket_number = "X127EK6" then suggested_population = "LTC+"
+    If basket_number = "X127EK7" then suggested_population = "LTC+"
+    If basket_number = "X127EK8" then suggested_population = "LTC+"
     If basket_number = "X127EK9" then suggested_population = "LTC+"
     If basket_number = "X127EM9" then suggested_population = "LTC+"
     If basket_number = "X127EN6" then suggested_population = "LTC+"
@@ -257,6 +244,15 @@ DO
     If basket_number = "X127FH5" then suggested_population = "LTC+"
     If basket_number = "X127FI2" then suggested_population = "LTC+"
     If basket_number = "X127FI7" then suggested_population = "LTC+"
+    'Contacted Case Mgt
+    If basket_number = "X127FG6" then suggested_population = "LTC+"           '"Kristen Kasem"
+    If basket_number = "X127FG7" then suggested_population = "LTC+"           '"Kristen Kasem"
+    If basket_number = "X127EM3" then suggested_population = "LTC+"           '"True L. or Gina G."
+    If basket_number = "X127EM4" then suggested_population = "LTC+"            '"True L. or Gina G."
+    If basket_number = "X127EW7" then suggested_population = "LTC+"            '"Kimberly Hill"
+    If basket_number = "X127EW8" then suggested_population = "LTC+"            '"Kimberly Hill"
+    If basket_number = "X127FF4" then suggested_population = "LTC+"            '"Alyssa Taylor"
+    If basket_number = "X127FF5" then suggested_population = "LTC+"            '"Alyssa Taylor"
 
     If basket_number = "X127EH9" then suggested_population = "LTH"
     If basket_number = "X127EJ1" then suggested_population = "LTH"
@@ -269,6 +265,8 @@ DO
     If basket_number = "X127FA8" then suggested_population = "YET"
     If basket_number = "X127FB1" then suggested_population = "YET"
     If basket_number = "X127FA9" then suggested_population = "YET"
+
+    If suggested_population = "" then suggested_population = "No suggestions available"
 
     ObjExcel.Cells(excel_row, pop_col).Value = suggested_population
 
