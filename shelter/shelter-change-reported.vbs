@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/12/2022", "Elimination of Self-Pay: Removal of mention from scripts.", "MiKayla Handley, Hennepin County")
 call changelog_update("03/13/2020", "Updated TIKL Functionality and updates to script to pull a list of contacts for emails outside of the script.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated dialog boxes to prepare for enhancements to script.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -217,52 +218,48 @@ IF nature_change = "Baby Born" or nature_change = "HHLD Comp" THEN
 ELSE
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Received"
-        EditBox 60, 5, 40, 15, MAXIS_case_number
-        EditBox 160, 5, 45, 15, effective_date
-        EditBox 320, 5, 45, 15, date_received
-        EditBox 50, 35, 315, 15, address_notes
-        EditBox 50, 55, 315, 15, household_notes
-        EditBox 115, 75, 250, 15, asset_notes
-        EditBox 50, 95, 315, 15, vehicles_notes
-        EditBox 50, 115, 315, 15, income_notes
-        EditBox 50, 135, 315, 15, shelter_notes
-        EditBox 50, 155, 315, 15, other_change_notes
-        EditBox 70, 180, 295, 15, actions_taken
-        EditBox 70, 200, 295, 15, other_notes
-        EditBox 70, 220, 295, 15, verifs_requested
-        CheckBox 5, 245, 125, 10, "Check if the change is temporary", temporary_change_checkbox
-        CheckBox 5, 255, 130, 10, "Check here to navigate to set a TIKL", tikl_nav_check
-        CheckBox 5, 265, 155, 10, "Create email to the team -  reporting change", send_email_checkbox
-        EditBox 280, 240, 85, 15, worker_signature
-        ButtonGroup ButtonPressed
-    OkButton 260, 260, 50, 15
-    CancelButton 315, 260, 50, 15
-        Text 215, 245, 60, 10, "Worker Signature:"
-        Text 15, 40, 30, 10, "Address:"
-        Text 15, 60, 35, 10, "HH Comp:"
-        GroupBox 5, 25, 365, 150, "Changes Reported:"
-        Text 15, 80, 95, 10, "Assets (savings or property):"
-        Text 15, 100, 30, 10, "Vehicles:"
-        Text 15, 120, 30, 10, "Income:"
-        Text 15, 140, 25, 10, "Shelter:"
-        Text 15, 160, 20, 10, "Other:"
-        Text 20, 185, 45, 10, "Action Taken:"
-        Text 25, 205, 45, 10, "Other Notes:"
-        Text 10, 225, 60, 10, "Verifs Requested:"
-        Text 210, 10, 110, 10, "Date Change Reported/Received:"
-        Text 110, 10, 50, 10, "Effective Date:"
-        Text 5, 10, 50, 10, "Case Number:"
-    EndDialog
+   	BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Received"
+     EditBox 55, 5, 45, 15, effective_date
+     EditBox 320, 5, 45, 15, date_received
+     EditBox 50, 35, 315, 15, address_notes
+     EditBox 50, 55, 315, 15, household_notes
+     EditBox 115, 75, 250, 15, asset_notes
+     EditBox 50, 95, 315, 15, vehicles_notes
+     EditBox 50, 115, 315, 15, income_notes
+     EditBox 50, 135, 315, 15, shelter_notes
+     EditBox 50, 155, 315, 15, other_change_notes
+     EditBox 70, 180, 295, 15, actions_taken
+     EditBox 70, 200, 295, 15, other_notes
+     EditBox 70, 220, 295, 15, verifs_requested
+     CheckBox 5, 240, 125, 10, "Check if the change is temporary", temporary_change_checkbox
+     CheckBox 235, 240, 130, 10, "Check here to navigate to set a TIKL", tikl_nav_check
+     CheckBox 5, 255, 155, 10, "Create email to the team -  reporting change", send_email_checkbox
+     ButtonGroup ButtonPressed
+       OkButton 260, 255, 50, 15
+       CancelButton 315, 255, 50, 15
+     Text 15, 40, 30, 10, "Address:"
+     Text 15, 60, 35, 10, "HH Comp:"
+     GroupBox 5, 25, 365, 150, "Changes Reported:"
+     Text 15, 80, 95, 10, "Assets (savings or property):"
+     Text 15, 100, 30, 10, "Vehicles:"
+     Text 15, 120, 30, 10, "Income:"
+     Text 15, 140, 25, 10, "Shelter:"
+     Text 15, 160, 20, 10, "Other:"
+     Text 10, 185, 45, 10, "Action Taken:"
+     Text 10, 205, 45, 10, "Other Notes:"
+     Text 10, 225, 60, 10, "Verifs Requested:"
+     Text 205, 10, 110, 10, "Date Change Reported/Received:"
+     Text 5, 10, 50, 10, "Effective Date:"
+   EndDialog
 
 	DO
-        DO 
+        DO
             err_msg = ""
 		    DIALOG Dialog1
+			IF effective_date = "" then err_msg = err_msg & vbNewLine & "* Please enter the effective date of the change."
+			IF date_received = "" then err_msg = err_msg & vbNewLine & "* Please enter the date reported or received."
 		    cancel_without_confirmation
-		    IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Please enter a valid case number."
-            If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Sign your case note."
-            IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
+		    IF err_msg <> "" THEN msgbox "*** Notice!!! ***" & vbNewLine & err_msg
         Loop Until err_msg = ""
         CALL check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 	LOOP UNTIL are_we_passworded_out = false
@@ -621,9 +618,48 @@ IF send_email_checkbox = CHECKED THEN
 			End If
 		End If
 	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
-    
+
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	CALL create_outlook_email(email_address, "","Change Reported For #" &  MAXIS_case_number & " Member # " & memb_number & " Date Change Reported " & date_received, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 
-script_end_procedure ("The case note has been created please be sure to send verifications to ECF and/or case note how the information was received.")
+script_end_procedure("The case note has been created please be sure to send verifications to ECF and/or case note how the information was received.")
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/29/2022
+'--Tab orders reviewed & confirmed----------------------------------------------04/29/2022
+'--Mandatory fields all present & Reviewed--------------------------------------04/29/2022
+'--All variables in dialog match mandatory fields-------------------------------04/29/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/29/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/29/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/29/2022
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------n/a
+'--MAXIS_background_check reviewed (if applicable)------------------------------n/a
+'--PRIV Case handling reviewed -------------------------------------------------n/a
+'--Out-of-County handling reviewed----------------------------------------------n/a
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/29/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------n/a
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------n/a
+'--Incrementors reviewed (if necessary)-----------------------------------------04/29/2022
+'--Denomination reviewed -------------------------------------------------------04/29/2022
+'--Script name reviewed---------------------------------------------------------04/29/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------n/a
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------04/29/2022
+'--comment Code-----------------------------------------------------------------n/a
+'--Update Changelog for release/update------------------------------------------04/29/2022
+'--Remove testing message boxes-------------------------------------------------04/29/2022
+'--Remove testing code/unnecessary code-----------------------------------------04/29/2022
+'--Review/update SharePoint instructions----------------------------------------04/29/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/29/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------n/a
+'--Complete misc. documentation (if applicable)---------------------------------04/29/2022
+'--Update project team/issue contact (if applicable)----------------------------04/29/2022

@@ -2,7 +2,7 @@
 name_of_script = "NOTES - SHELTER-SHELTER INTERVIEW.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 300         	'manual run time in seconds
+STATS_manualtime = 600        	'manual run time in seconds was told 1800
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -33,9 +33,20 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
+'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/12/2022", "Elimination of Self-Pay: Removal of mention from scripts.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("12/11/2016", "Initial version.", "Ilse Ferris, Hennepin County")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-closing_message = "Interview case note entered please follow all next steps to assist the resident."
 
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
@@ -82,7 +93,6 @@ DO
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-
 CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
 IF is_this_priv = TRUE THEN script_end_procedure("Please send a request for access to the case to Knowledge Now.")
 
@@ -107,7 +117,7 @@ BeginDialog Dialog1, 0, 0, 316, 260, "Shelter Interview"
   EditBox 100, 5, 205, 15, barriers_housing
   EditBox 100, 25, 205, 15, shelter_history
   EditBox 105, 55, 200, 15, reason_homeless
-  EditBox 105, 75, 200, 15, other_income
+  EditBox 105, 75, 200, 15, name_verified
   EditBox 105, 95, 70, 15, address_verf
   EditBox 255, 95, 50, 15, phone_number
   EditBox 105, 115, 200, 15, comments_notes
@@ -143,9 +153,9 @@ DO
         If reason_homeless = "" then err_msg = err_msg & vbNewLine & "* Please enter the reason for family's homelessness."
 		If barriers_housing = "" then err_msg = err_msg & vbNewLine & "* Please enter the family's barrier(s) to housing."
 		If referrals_made = "" then err_msg = err_msg & vbNewLine & "* Please enter referrals made for the family."
-
+		IF screening_questions_dropdown =  "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please enter if health screening questions was answered."
 		If ButtonPressed = shelter_button Then               'Pulling up the hsr page if the button was pressed.
-			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Shelter_Team.aspx?xsdata=MDV8MDF8fGM0ZjRlYmM5ZWY4NzQyNjBiNTZhMDhkYTIzMWFmNTMwfDhhZWZkZjlmODc4MDQ2YmY4ZmI3NGM5MjQ2NTNhOGJlfDB8MHw2Mzc4NjA4OTU5MTYwNzg0NDJ8R29vZHxWR1ZoYlhOVFpXTjFjbWwwZVZObGNuWnBZMlY4ZXlKV0lqb2lNQzR3TGpBd01EQWlMQ0pRSWpvaVYybHVNeklpTENKQlRpSTZJazkwYUdWeUlpd2lWMVFpT2pFeGZRPT18MXxNVGs2WkdVeE1qUTVPREV0TURaaFlpMDBOMkprTFRneE16a3RPV0V4TXpnME1tWmlNREU0WDJZeE1EZGpOemxpTFRFeE5qTXROREF3TWkxaU56WTNMV1V4WmpabFptSXlabVZrTVVCMWJuRXVaMkpzTG5Od1lXTmxjdz09fHw%3D&sdata=ckFaYmY4T0dXMmlUVGZpcmhHRDNUNUY0ZmhtblBidmROcHlHVTBOWnJBTT0%3D&ovuser=8aefdf9f-8780-46bf-8fb7-4c924653a8be%2CMikayla.Handley%40hennepin.us&OR=Teams-HL&CT=1650492794967&params=eyJBcHBOYW1lIjoiVGVhbXMtRGVza3RvcCIsIkFwcFZlcnNpb24iOiIyNy8yMjAzMDcwMTYxMCJ9"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Shelter_Team.aspx"
 			err_msg = "LOOP"
 		Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -164,22 +174,25 @@ EMWriteScreen CM_yr, 20, 46
 CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
 when_contact_was_made = date & ", " & time
-IF name_verf <> "" THEN homeless_verified = "YES"
 
 'The case note'
 start_a_blank_CASE_NOTE
-CALL write_variable_in_CASE_NOTE("### Family in Shelter Interview with M" &  MEMB_number & " ####")
+CALL write_variable_in_CASE_NOTE("### Household in Shelter - Interview with M" &  MEMB_number & " ####")
 Call write_bullet_and_variable_in_CASE_NOTE("Active programs", list_active_programs)
 Call write_bullet_and_variable_in_CASE_NOTE("Pending programs", list_pending_programs)
 CALL write_bullet_and_variable_in_CASE_NOTE("Date:", when_contact_was_made)
 Call write_bullet_and_variable_in_CASE_NOTE("Barrier(s) to housing", barriers_housing)
-Call write_bullet_and_variable_in_CASE_NOTE("Reason for homelessness", reason_homeless)
-Call write_bullet_and_variable_in_CASE_NOTE("Homelessness verified", homeless_verified)
-CALL write_variable_in_CASE_NOTE("Name: " & name_verf)
-CALL write_variable_in_CASE_NOTE("Phone number: " & phone_number)
-CALL write_variable_in_CASE_NOTE("Address: " & address_verf)
-CALL write_variable_in_CASE_NOTE("Comments: " & comments_notes)
 Call write_bullet_and_variable_in_CASE_NOTE("Shelter history", shelter_history)
+Call write_bullet_and_variable_in_CASE_NOTE("Reason for homelessness", reason_homeless)
+IF name_verified <> "" THEN
+	CALL write_variable_in_CASE_NOTE("* Homelessness verified")
+    CALL write_variable_in_CASE_NOTE("   Name: " & name_verified)
+    CALL write_variable_in_CASE_NOTE("   Phone number: " & phone_number)
+    CALL write_variable_in_CASE_NOTE("   Address: " & address_verf)
+ELSE
+ 	CALL write_variable_in_CASE_NOTE("Homelessness not verified")
+END IF
+CALL write_variable_in_CASE_NOTE("* Comments: " & comments_notes)
 Call write_bullet_and_variable_in_CASE_NOTE("Social worker", social_worker)
 Call write_bullet_and_variable_in_CASE_NOTE("Referrals made to", referrals_made)
 Call write_bullet_and_variable_in_CASE_NOTE("Other income", other_income)
@@ -191,8 +204,8 @@ Call write_variable_in_CASE_NOTE("* Client given family social services number (
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
-
-IF end_msg <> "" Then closing_message = closing_message & vbCr & end_msg 'this is for when we create a mor work flow like system'
+PF3
+IF end_msg <> "" Then closing_message = closing_message & vbCr & end_msg 'this is for when we create a more work flow like system'
 
 Call script_end_procedure_with_error_report(closing_message)
 

@@ -2,7 +2,7 @@
 name_of_script = "NOTES - SHELTER-REVOUCHER.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
-STATS_manualtime = 0         	'manual run time in seconds
+STATS_manualtime = 300         	'manual run time in seconds
 STATS_denomination = "C"        'C is for each case
 'END OF stats block=========================================================================================================
 
@@ -37,11 +37,22 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("04/12/2022", "Elimination of Self-Pay: Removal of mention from scripts.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("12/11/2016", "Initial version.", "Ilse Ferris, Hennepin County")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+closing_message = "Revoucher case note entered please follow all next steps to assist the resident."
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-
 'autofilling the date to the current Date
 revoucher_date = date & ""
 
@@ -97,6 +108,7 @@ BeginDialog Dialog1, 0, 0, 336, 95, "Family revoucher"
   Text 5, 60, 85, 10, "Bus tokens/cards issued:"
   Text 265, 40, 40, 10, "# of Adults:"
 EndDialog
+
 If revoucher_option = "Family" then
 	DO
 		DO
@@ -138,6 +150,7 @@ BeginDialog Dialog1, 0, 0, 341, 115, "Single revoucher"
   Text 5, 60, 85, 10, "Bus tokens/cards issued:"
   Text 260, 15, 40, 10, "# of nights:"
 EndDialog
+
 If revoucher_option = "Single" then
 	DO
 		DO
@@ -166,7 +179,7 @@ If goals_accomplished <> "" then
     goals_number = 1
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-    BEGINDIALOG goals_dialog, 0, 0, 315, (120 + (goals_accomplished * 10)), "Goals accomplished for voucher"   'Creates the dynamic dialog. The height will change based on the number of goals it finds.
+    BEGINDIALOG Dialog1, 0, 0, 315, (120 + (goals_accomplished * 10)), "Goals accomplished for voucher"   'Creates the dynamic dialog. The height will change based on the number of goals it finds.
       'GroupBox 5, 5, 330, (10 + (i * 20), "Goals accomplished"
       For i = 0 to goals_accomplished - 1
         Text 5, (10 + (i * 20)), 10, 10, goals_number & ":"
@@ -178,8 +191,8 @@ If goals_accomplished <> "" then
       CancelButton 255, (10 + (i * 20)), 50, 15
     ENDDIALOG
 
-    dialog goals_dialog
-    If buttonpressed = 0 then stopscript
+    dialog Dialog1
+    If buttonpressed = 0 then script_end_procedure("You have selected to end this script.")
 End if
 
 If next_goals <> "" then
@@ -200,7 +213,7 @@ If next_goals <> "" then
     ENDDIALOG
 
     dialog next_goal_dialog
-    If buttonpressed = 0 then stopscript
+    If buttonpressed = 0 then script_end_procedure("You have selected to end this script.")
 End if
 
 'Variables for the case note----------------------------------------------------------------------------------------------------
@@ -212,7 +225,7 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 Call write_variable_in_CASE_NOTE("### " & voucher_type & " " & revoucher_option & " voucher " & header_date & " at " & shelter_droplist & " for " & num_nights & " nights ###")
 IF revoucher_option = "Family" then Call write_variable_in_CASE_NOTE("* HH comp: " & adults & "A," & children & "C")
 Call write_bullet_and_variable_in_CASE_NOTE("Bus tokens/cards issued", bus_issued)
-
+Call write_bullet_and_variable_in_CASE_NOTE("Dates shelter issued for:", shelter_dates)
 'Dynamic information for goals and next goals
 If goals_accomplished <> "" then
     Call write_variable_in_CASE_NOTE("--Goals Accomplished--")
@@ -236,4 +249,43 @@ Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-script_end_procedure("")
+Call script_end_procedure_with_error_report(closing_message)
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/29/2022
+'--Tab orders reviewed & confirmed----------------------------------------------04/29/2022
+'--Mandatory fields all present & Reviewed--------------------------------------04/29/2022
+'--All variables in dialog match mandatory fields-------------------------------04/29/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/29/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/29/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/29/2022
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------n/a
+'--MAXIS_background_check reviewed (if applicable)------------------------------n/a
+'--PRIV Case handling reviewed -------------------------------------------------n/a
+'--Out-of-County handling reviewed----------------------------------------------n/a
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/29/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------n/a
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------n/a time studies are really hard
+'--Incrementors reviewed (if necessary)-----------------------------------------04/29/2022
+'--Denomination reviewed -------------------------------------------------------04/29/2022
+'--Script name reviewed---------------------------------------------------------04/29/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------n/a
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub taks are complete-----------------------------------------04/29/2022
+'--comment Code-----------------------------------------------------------------n/a
+'--Update Changelog for release/update------------------------------------------04/29/2022
+'--Remove testing message boxes-------------------------------------------------04/29/2022
+'--Remove testing code/unnecessary code-----------------------------------------04/29/2022
+'--Review/update SharePoint instructions----------------------------------------04/29/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/29/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------n/a
+'--Complete misc. documentation (if applicable)---------------------------------n/a
+'--Update project team/issue contact (if applicable)----------------------------04/29/2022
