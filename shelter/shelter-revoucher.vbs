@@ -172,7 +172,7 @@ If revoucher_option = "Single" then
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+	LOOP UNTIL are_we_passworded_out = False
 END IF
 
 If goals_accomplished = "0" then goals_accomplished = ""
