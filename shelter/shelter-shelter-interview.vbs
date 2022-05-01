@@ -109,6 +109,7 @@ DO
 		If barriers_housing = "" then err_msg = err_msg & vbNewLine & "* Please enter the family's barrier(s) to housing."
 		If referrals_made = "" then err_msg = err_msg & vbNewLine & "* Please enter referrals made for the family."
 		IF screening_questions_dropdown =  "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please enter if health screening questions was answered."
+		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
 		If ButtonPressed = shelter_button Then               'Pulling up the hsr page if the button was pressed.
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Shelter_Team.aspx"
 			err_msg = "LOOP"
@@ -143,7 +144,7 @@ CALL write_variable_in_CASE_NOTE("* Comments: " & comments_notes)
 Call write_bullet_and_variable_in_CASE_NOTE("Social worker", social_worker)
 Call write_bullet_and_variable_in_CASE_NOTE("Referrals made to", referrals_made)
 Call write_bullet_and_variable_in_CASE_NOTE("Other income", other_income)
-Call write_bullet_and_variable_in_CASE_NOTE("Health screening questions answered", screening_questions_dropdown)
+Call write_bullet_and_variable_in_CASE_NOTE("Health screening questions answered", screening_questions_dropdown) 'not provided these questions unclear if this is a barrier '
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE("* Explained shelter policies and client options to shelter such as bus tickets, temporary housing, private shelters, etc.")
@@ -161,7 +162,7 @@ Call script_end_procedure_with_error_report("Shelter Interview Note Entered.")
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------04/12/2022
 '--Tab orders reviewed & confirmed----------------------------------------------04/12/2022
-'--Mandatory fields all present & Reviewed--------------------------------------04/12/2022
+'--Mandatory fields all present & Reviewed--------------------------------------04/12/2022				It is very unclear about what the script is case noting here
 '--All variables in dialog match mandatory fields-------------------------------04/12/2022
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
