@@ -48,7 +48,7 @@ CALL changelog_update("12/11/2016", "Initial version.", "Ilse Ferris, Hennepin C
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-closing_message = "Revoucher case note entered please follow all next steps to assist the resident."
+
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -58,18 +58,20 @@ revoucher_date = date & ""
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 146, 110, "Select a revoucher option"
+BeginDialog Dialog1, 0, 0, 146, 145, "Select a revoucher option"
   EditBox 80, 10, 60, 15, MAXIS_case_number
   DropListBox 80, 30, 60, 10, "Select one..."+chr(9)+"Family"+chr(9)+"Single", revoucher_option
   EditBox 125, 50, 15, 15, goals_accomplished
   EditBox 125, 70, 15, 15, next_goals
+  EditBox 5, 100, 135, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 35, 90, 50, 15
-    CancelButton 90, 90, 50, 15
+    OkButton 35, 125, 50, 15
+    CancelButton 90, 125, 50, 15
+  Text 30, 15, 45, 10, "Case number:"
   Text 15, 35, 60, 10, "Revoucher option:"
   Text 20, 55, 105, 10, "How many goals accomplished:"
-  Text 35, 15, 45, 10, "Case number:"
   Text 35, 75, 90, 10, "Goals for the next voucher:"
+  Text 5, 90, 65, 10, "Worker Signature:"
 EndDialog
 
 'Running the initial dialog
@@ -80,36 +82,40 @@ DO
         cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
 		IF revoucher_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select a revoucher option."
+		If goals_accomplished <> "" AND IsNumeric(goals_accomplished) = False Then err_msg = err_msg & vbNewLine & "* Goals accomplished must be entered as a number, to indicate the number of goals accomplished."
+		If next_goals <> "" AND IsNumeric(next_goals) = False Then err_msg = err_msg & vbNewLine & "* Next goals must be entered as a number, to indicate the number of goals set."
+		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
- Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
+	Call check_for_password(are_we_passworded_out)
+LOOP UNTIL are_we_passworded_out = False
 
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 336, 95, "Family revoucher"
-  DropListBox 55, 10, 60, 15, "Select one..."+chr(9)+"ACF"+chr(9)+"EA", voucher_type
-  EditBox 195, 10, 55, 15, revoucher_date
-  EditBox 305, 10, 25, 15, num_nights
-  DropListBox 55, 35, 115, 15, "Select one..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
-  EditBox 225, 35, 25, 15, children
-  EditBox 305, 35, 25, 15, adults
-  EditBox 90, 55, 240, 15, bus_issued
-  EditBox 45, 75, 175, 15, other_notes
-  ButtonGroup ButtonPressed
-    OkButton 225, 75, 50, 15
-    CancelButton 280, 75, 50, 15
-  Text 5, 80, 40, 10, "Comments: "
-  Text 180, 40, 45, 10, "# of Children:"
-  Text 5, 15, 45, 10, "Voucher type:"
-  Text 265, 15, 40, 10, "# of nights:"
-  Text 130, 15, 60, 10, "Date of revoucher:"
-  Text 5, 40, 45, 10, "Shelter name:"
-  Text 5, 60, 85, 10, "Bus tokens/cards issued:"
-  Text 265, 40, 40, 10, "# of Adults:"
-EndDialog
 
 If revoucher_option = "Family" then
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 336, 95, "Family revoucher"
+	  DropListBox 55, 10, 60, 15, "Select one..."+chr(9)+"ACF"+chr(9)+"EA", voucher_type
+	  EditBox 195, 10, 55, 15, revoucher_date
+	  EditBox 305, 10, 25, 15, num_nights
+	  DropListBox 55, 35, 115, 15, "Select one..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
+	  EditBox 225, 35, 25, 15, children
+	  EditBox 305, 35, 25, 15, adults
+	  EditBox 90, 55, 240, 15, bus_issued
+	  EditBox 45, 75, 175, 15, other_notes
+	  ButtonGroup ButtonPressed
+	    OkButton 225, 75, 50, 15
+	    CancelButton 280, 75, 50, 15
+	  Text 5, 80, 40, 10, "Comments: "
+	  Text 180, 40, 45, 10, "# of Children:"
+	  Text 5, 15, 45, 10, "Voucher type:"
+	  Text 265, 15, 40, 10, "# of nights:"
+	  Text 130, 15, 60, 10, "Date of revoucher:"
+	  Text 5, 40, 45, 10, "Shelter name:"
+	  Text 5, 60, 85, 10, "Bus tokens/cards issued:"
+	  Text 265, 40, 40, 10, "# of Adults:"
+	EndDialog
+
 	DO
 		DO
 			err_msg = ""
@@ -124,34 +130,34 @@ If revoucher_option = "Family" then
 			If bus_issued = "" then err_msg = err_msg & vbNewLine & "* Please enter information about bus cards/tokens issued."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
- 	Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+ 		Call check_for_password(are_we_passworded_out)
+	LOOP UNTIL are_we_passworded_out = False
 END IF
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 341, 115, "Single revoucher"
-  DropListBox 55, 10, 60, 15, "Select one..."+chr(9)+"GA/GRH"+chr(9)+"O/C", voucher_type
-  EditBox 195, 10, 55, 15, revoucher_date
-  EditBox 300, 10, 30, 15, num_nights
-  DropListBox 55, 35, 60, 15, "Select one..."+chr(9)+"PSP"+chr(9)+"SA-HL", shelter_droplist
-  EditBox 210, 35, 120, 15, shelter_dates
-  EditBox 90, 55, 240, 15, bus_issued
-  EditBox 90, 75, 240, 15, other_notes
-  EditBox 90, 95, 130, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 225, 95, 50, 15
-    CancelButton 280, 95, 50, 15
-  Text 45, 80, 40, 10, "Other notes: "
-  Text 125, 40, 85, 10, "Dates shelter issued for:"
-  Text 5, 15, 45, 10, "Voucher type:"
-  Text 25, 100, 60, 10, "Worker signature: "
-  Text 130, 15, 60, 10, "Date of revoucher:"
-  Text 5, 40, 45, 10, "Shelter type:"
-  Text 5, 60, 85, 10, "Bus tokens/cards issued:"
-  Text 260, 15, 40, 10, "# of nights:"
-EndDialog
 
 If revoucher_option = "Single" then
+
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 341, 115, "Single revoucher"
+	  DropListBox 55, 10, 60, 15, "Select one..."+chr(9)+"GA/GRH"+chr(9)+"O/C", voucher_type
+	  EditBox 195, 10, 55, 15, revoucher_date
+	  EditBox 300, 10, 30, 15, num_nights
+	  DropListBox 55, 35, 60, 15, "Select one..."+chr(9)+"PSP"+chr(9)+"SA-HL", shelter_droplist
+	  EditBox 210, 35, 120, 15, shelter_dates
+	  EditBox 90, 55, 240, 15, bus_issued
+	  EditBox 90, 75, 240, 15, other_notes
+	  ButtonGroup ButtonPressed
+	    OkButton 225, 95, 50, 15
+	    CancelButton 280, 95, 50, 15
+	  Text 45, 80, 40, 10, "Other notes: "
+	  Text 125, 40, 85, 10, "Dates shelter issued for:"
+	  Text 5, 15, 45, 10, "Voucher type:"
+	  Text 130, 15, 60, 10, "Date of revoucher:"
+	  Text 5, 40, 45, 10, "Shelter type:"
+	  Text 5, 60, 85, 10, "Bus tokens/cards issued:"
+	  Text 260, 15, 40, 10, "# of nights:"
+	EndDialog
+
 	DO
 		DO
 			err_msg = ""
@@ -249,7 +255,7 @@ Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-Call script_end_procedure_with_error_report(closing_message)
+Call script_end_procedure_with_error_report("Revoucher case note entered please follow all next steps to assist the resident.")
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
