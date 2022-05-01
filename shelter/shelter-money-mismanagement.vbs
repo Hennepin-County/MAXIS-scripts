@@ -64,35 +64,36 @@ BeginDialog Dialog1, 0, 0, 246, 235, "Money Mismanagement"
   EditBox 150, 5, 70, 15, phone_number
   ComboBox 60, 25, 55, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
   DropListBox 120, 25, 25, 15, "to"+chr(9)+"from", contact_direction
-  ComboBox 150, 25, 65, 15, "client"+chr(9)+"Other HH Memb"+chr(9)+"AREP", who_contacted
-  EditBox 60, 45, 50, 15, when_contact_was_made
-  EditBox 80, 65, 45, 15, date_requested
+  ComboBox 155, 25, 65, 15, "client"+chr(9)+"Other HH Memb"+chr(9)+"AREP", who_contacted
+  EditBox 80, 45, 45, 15, date_requested
+  EditBox 80, 65, 45, 15, when_contact_was_made
   DropListBox 60, 100, 80, 15, "Select One:"+chr(9)+"1st Instance"+chr(9)+"2nd Instance"+chr(9)+"Grant Management", occurrence_droplist
   EditBox 180, 115, 25, 15, first_occurrence_mm
   EditBox 180, 135, 25, 15, second_occurrence_mm
-  DropListBox 125, 155, 60, 45, "Select One:"+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", first_month_of_grant_reduction
-  EditBox 125, 170, 30, 15, grant_reduction_amount
+  DropListBox 180, 155, 55, 45, "Select One:"+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", first_month_of_grant_reduction
+  EditBox 180, 170, 30, 15, grant_reduction_amount
   EditBox 50, 195, 190, 15, comments_notes
+  EditBox 50, 215, 80, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 135, 215, 50, 15
     CancelButton 190, 215, 50, 15
-  Text 5, 10, 50, 10, "Case Number:"
   Text 120, 10, 25, 10, "Phone:"
   Text 5, 30, 50, 10, "Contact Type:"
-  Text 5, 50, 50, 10, "Contact Date:"
-  Text 5, 70, 75, 10, "Shelter requested on: "
+  Text 5, 70, 50, 10, "Contact date:"
+  Text 5, 50, 75, 10, "Shelter requested on: "
   GroupBox 5, 85, 235, 105, "Money Mismanagement"
   Text 15, 105, 40, 10, "Occurrence:"
-  Text 25, 120, 145, 10, "First occurrence of money mismanagement: "
+  Text 15, 120, 145, 10, "First occurrence of money mismanagement: "
   Text 210, 120, 25, 10, "MM/YY"
-  Text 25, 140, 155, 10, "Second occurrence of money mismanagement:"
+  Text 15, 140, 155, 10, "Second occurrence of money mismanagement:"
   Text 210, 140, 25, 10, "MM/YY"
   Text 15, 160, 55, 10, "Grant Reduction:"
-  Text 75, 160, 45, 10, "Initial Month:"
-  Text 75, 175, 50, 10, "Reduced to: $"
+  Text 125, 160, 45, 10, "Initial Month:"
+  Text 125, 175, 50, 10, "Reduced to: $"
   Text 5, 200, 40, 10, "Comments:"
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 220, 40, 10, "Worker Sig:"
 EndDialog
-
 
 DO
 	Do
@@ -128,6 +129,7 @@ DO
 			If first_month_of_grant_reduction = "Select One:" Then err_msg = err_msg & vbNewLine & "* Indicate which month will first have a grant reduction to follow the 'Grant Management' process."
 			If grant_reduction_amount = "" Then err_msg = err_msg & vbNewLine & "* Indicate the amount the grant will be reduced to for the 'Grant Management' process."
 		End If
+		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
 		If err_msg <> "" Then MsgBox "******  NOTICE  ******" & vbNewLine & "Resolve to continue:" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
