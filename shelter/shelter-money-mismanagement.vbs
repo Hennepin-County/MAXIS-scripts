@@ -155,7 +155,7 @@ IF first_month_of_grant_reduction = "December" THEN months_variable = "December,
 '----------------------------------------------------------------------------------------------------CASENOTE
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE("### Money Mismanagement: " & occurrence_droplist & " ###")
-CALL write_variable_in_CASE_NOTE("* Contacted " & who_contacted & "on " & when_contact_was_made & " by " & contact_type & " " & contact_direction & " "& phone_number & " ")
+CALL write_variable_in_CASE_NOTE("* Contacted " & who_contacted & " on " & when_contact_was_made & " by " & contact_type & " " & contact_direction & " "& phone_number & " ")
 CALL write_variable_in_CASE_NOTE("* Client requested shelter on " & date_requested & " and all GA/SSI is gone." )
 IF occurrence_droplist = "Grant Management" THEN
     CALL write_variable_in_CASE_NOTE("*** Grant reduction 3 MONTHS/Grant Management/even if client is no longer in shelter ***")
