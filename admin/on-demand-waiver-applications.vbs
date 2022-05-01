@@ -1521,6 +1521,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 			Call navigate_to_MAXIS_screen("STAT", "MEMB")
 			EMReadScreen language_code, 2, 13, 42
 			ALL_PENDING_CASES_ARRAY(written_lang, case_entry) = language_code
+			ALL_PENDING_CASES_ARRAY(written_lang, case_entry) = "99"
 
 			' Select Case language_code
 			'
@@ -1723,28 +1724,21 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 							Call write_variable_in_SPEC_MEMO(" ")
 							Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
 							Call write_variable_in_SPEC_MEMO(" ")
-							CALL write_variable_in_SPEC_MEMO("** You can submit documents Online at www.MNbenefits.mn.gov **")
-							CALL write_variable_in_SPEC_MEMO("Other options for submitting documents to Hennepin County:")
-							CALL write_variable_in_SPEC_MEMO(" - Mail, Fax, or Drop Boxes at service centers")
-							CALL write_variable_in_SPEC_MEMO(" - Email with document attachment.EMAIL: hhsews@hennepin.us")
-							CALL write_variable_in_SPEC_MEMO("   (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)")
-							' CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us")
-							' Call write_variable_in_SPEC_MEMO(" ")					'removal of in person verbiage during the COVID-19 PEACETIME STATE OF EMERGENCY
-							' Call write_variable_in_SPEC_MEMO("If you wish to schedule an interview, call 612-596-1300. You may also come to any of the six offices below for an in-person interview between 8 and 4:30, Monday thru Friday.")
-							' Call write_variable_in_SPEC_MEMO("- 7051 Brooklyn Blvd Brooklyn Center 55429")
-							' Call write_variable_in_SPEC_MEMO("- 1011 1st St S Hopkins 55343")
-							' Call write_variable_in_SPEC_MEMO("- 9600 Aldrich Ave S Bloomington 55420 Th hrs: 8:30-6:30 ")
-							' Call write_variable_in_SPEC_MEMO("- 1001 Plymouth Ave N Minneapolis 55411")
-							' Call write_variable_in_SPEC_MEMO("- 525 Portland Ave S Minneapolis 55415")
-							' Call write_variable_in_SPEC_MEMO("- 2215 East Lake Street Minneapolis 55407")
-							' Call write_variable_in_SPEC_MEMO("(Hours are M - F 8-4:30 unless otherwise noted)")
-							Call write_variable_in_SPEC_MEMO(" ")
 							Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
 							Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **")
-							' Call write_variable_in_SPEC_MEMO("If you are applying for a cash program for pregnant women or minor children, you may need a face-to-face interview.")
 							Call write_variable_in_SPEC_MEMO(" ")
-							Call write_variable_in_SPEC_MEMO("Domestic violence brochures are available at https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG.")
-							Call write_variable_in_SPEC_MEMO("You can also request a paper copy.  Auth: 7CFR 273.2(e)(3).")
+							CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
+							CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+							CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
+							CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+							CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+							CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+							CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+							CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+							CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+							CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
+							Call write_variable_in_SPEC_MEMO(" ")
+							CALL write_variable_in_SPEC_MEMO("Domestic violence brochures are available at this website: https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3477-ENG. You can always request a paper copy via phone.")
 							'MsgBox "English"
 					End Select
 					ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = date
