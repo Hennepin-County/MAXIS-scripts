@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/22/2022", "Retired SELF PAY and CASH CUTOFF scripts and removed all other mention of self pay from other scripts.", "MiKayla Handley, Hennepin County")
 call changelog_update("06/04/2021", "Retired GRH APPROVAL and SINGLE CLIENT INTERVIEW scripts.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/05/2018", "Updates to add scripts per shelter team request..", "MiKayla Handley")
 call changelog_update("01/05/2018", "Updates to CES-Screening Appt per shelter team request..", "MiKayla Handley")
@@ -132,13 +133,6 @@ Set script_array_a_to_n(script_num) = new script		'Set this array element to be 
 script_array_a_to_n(script_num).script_name 			= "Bus Ticket Issued"																		'Script name
 script_array_a_to_n(script_num).file_name 				= "shelter-bus-ticket-issued.vbs"															'Script URL
 script_array_a_to_n(script_num).description 			= "Case note template for documenting details for issuing bus tickets."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "Cash Cut-off"																			'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-cash-cut-off.vbs"																'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details for cash cut-off."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
@@ -270,12 +264,6 @@ script_array_p_to_z(script_num).script_name 			= "Revoucher"																				
 script_array_p_to_z(script_num).file_name				= "shelter-revoucher.vbs"																	'Script URL
 script_array_p_to_z(script_num).description 			= "Case note template for documenting details for the revoucher process."
 
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Self Pay"																				'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-selfpay.vbs"																		'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting details for shelter self pay ."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
