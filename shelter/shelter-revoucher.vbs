@@ -84,7 +84,7 @@ DO
 		IF revoucher_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select a revoucher option."
 		If goals_accomplished <> "" AND IsNumeric(goals_accomplished) = False Then err_msg = err_msg & vbNewLine & "* Goals accomplished must be entered as a number, to indicate the number of goals accomplished."
 		If next_goals <> "" AND IsNumeric(next_goals) = False Then err_msg = err_msg & vbNewLine & "* Next goals must be entered as a number, to indicate the number of goals set."
-		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
+		If worker_signature = "" Then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	Call check_for_password(are_we_passworded_out)
