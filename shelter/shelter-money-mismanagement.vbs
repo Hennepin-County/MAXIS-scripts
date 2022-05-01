@@ -51,55 +51,84 @@ call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '--------------------------------------------------------------------------------------------------THE SCRIPT
-closing_message = "Money mismanagement case note entered please follow all next steps to assist the resident."
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-when_contact_was_made = date
+when_contact_was_made = date & ""
 date_requested = date & ""
 income_checkbox = checked
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 241, 205, " Money Mismanagement "
+BeginDialog Dialog1, 0, 0, 246, 235, "Money Mismanagement"
   EditBox 60, 5, 45, 15, maxis_case_number
-  EditBox 145, 5, 70, 15, phone_number
-  ComboBox 60, 25, 45, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
-  DropListBox 115, 25, 20, 12, "to"+chr(9)+"from", contact_direction
-  ComboBox 145, 25, 65, 15, "client"+chr(9)+"Other HH Memb"+chr(9)+"AREP", who_contacted
-  EditBox 80, 45, 45, 15, date_requested
-  DropListBox 60, 85, 70, 15, "Select One:"+chr(9)+"1st Instance"+chr(9)+"2nd Instance"+chr(9)+"Grant Management", occurrence_droplist
-  EditBox 175, 100, 20, 15, first_month_grant_reduction
-  EditBox 175, 120, 20, 15, first_occurrence_mm
-  EditBox 175, 140, 20, 15, second_occurrence_mm
-  EditBox 50, 165, 185, 15, comments_notes
+  EditBox 150, 5, 70, 15, phone_number
+  ComboBox 60, 25, 55, 15, "Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Office visit"+chr(9)+"Letter", contact_type
+  DropListBox 120, 25, 25, 15, "to"+chr(9)+"from", contact_direction
+  ComboBox 150, 25, 65, 15, "client"+chr(9)+"Other HH Memb"+chr(9)+"AREP", who_contacted
+  EditBox 60, 45, 50, 15, when_contact_was_made
+  EditBox 80, 65, 45, 15, date_requested
+  DropListBox 60, 100, 80, 15, "Select One:"+chr(9)+"1st Instance"+chr(9)+"2nd Instance"+chr(9)+"Grant Management", occurrence_droplist
+  EditBox 180, 115, 25, 15, first_occurrence_mm
+  EditBox 180, 135, 25, 15, second_occurrence_mm
+  DropListBox 125, 155, 60, 45, "Select One:"+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", first_month_of_grant_reduction
+  EditBox 125, 170, 30, 15, grant_reduction_amount
+  EditBox 50, 195, 190, 15, comments_notes
   ButtonGroup ButtonPressed
-    OkButton 130, 185, 50, 15
-    CancelButton 185, 185, 50, 15
+    OkButton 135, 215, 50, 15
+    CancelButton 190, 215, 50, 15
   Text 5, 10, 50, 10, "Case Number:"
-  Text 115, 10, 25, 10, "Phone:"
+  Text 120, 10, 25, 10, "Phone:"
   Text 5, 30, 50, 10, "Contact Type:"
-  Text 5, 50, 75, 10, "Shelter requested on: "
-  GroupBox 5, 70, 230, 90, "Money Mismanagement"
-  Text 15, 90, 40, 10, "Occurrence:"
-  Text 15, 105, 100, 10, "First month of grant reduction: "
-  Text 15, 125, 145, 10, "First occurrence of money mismanagement: "
-  Text 15, 145, 155, 10, "Second occurrence of money mismanagement:"
-  Text 5, 170, 40, 10, "Comments:"
-  Text 200, 105, 25, 10, "MM"
-  Text 200, 125, 25, 10, "MM/YY"
-  Text 200, 145, 25, 10, "MM/YY"
+  Text 5, 50, 50, 10, "Contact Date:"
+  Text 5, 70, 75, 10, "Shelter requested on: "
+  GroupBox 5, 85, 235, 105, "Money Mismanagement"
+  Text 15, 105, 40, 10, "Occurrence:"
+  Text 25, 120, 145, 10, "First occurrence of money mismanagement: "
+  Text 210, 120, 25, 10, "MM/YY"
+  Text 25, 140, 155, 10, "Second occurrence of money mismanagement:"
+  Text 210, 140, 25, 10, "MM/YY"
+  Text 15, 160, 55, 10, "Grant Reduction:"
+  Text 75, 160, 45, 10, "Initial Month:"
+  Text 75, 175, 50, 10, "Reduced to: $"
+  Text 5, 200, 40, 10, "Comments:"
 EndDialog
+
 
 DO
 	Do
+		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
+
+		phone_number = trim(phone_number)
+		first_occurrence_mm = trim(first_occurrence_mm)
+		second_occurrence_mm = trim(second_occurrence_mm)
+		grant_reduction_amount = trim(grant_reduction_amount)
+		comments_notes = trim(comments_notes)
+
 		Call validate_MAXIS_case_number(err_msg, "*")
 		IF phone_number = "" then err_msg = err_msg & vbNewLine & "* Please enter the phone number."
+		IF isdate(when_contact_was_made) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the date contact was made."
 		IF isdate(date_requested) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the date shelter was requested."
-		IF occurrence_droplist = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the occurrence of money mismanagement."
-		IF first_month_grant_reduction = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the first month of grant reduction(MM)."
-		IF first_occurrence_mm = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the first occurrence of money mismanagement (MM/YY)."
+		IF occurrence_droplist = "Select One:" THEN
+			err_msg = err_msg & vbNewLine & "* Please select the occurrence of money mismanagement."
+		ElseIf occurrence_droplist = "1st Instance" Then
+			IF first_occurrence_mm = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the month and year of the first instance of money mismanagement."
+			If second_occurrence_mm <> "" Then err_msg = err_msg & vbNewLine & "* Since this is only the first month of grant mismanagment, no month should be listed in the second instance of grant mismanagement."
+			If first_month_of_grant_reduction <> "Select One:" Then err_msg = err_msg & vbNewLine & "* Since this is not a 'Grant Management' action, a month for grant reduction should not be entered."
+			If grant_reduction_amount <> "" Then err_msg = err_msg & vbNewLine & "* Since this is not a 'Grant Management' action, a grant reduction amount should not be entered."
+		ElseIf occurrence_droplist = "2nd Instance" Then
+			IF first_occurrence_mm = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the month and year of the first instance of money mismanagement."
+			If second_occurrence_mm = "" Then err_msg = err_msg & vbNewLine & "* Please enter the month and year of the second instance of money mismanagement."
+			If first_month_of_grant_reduction <> "Select One:" Then err_msg = err_msg & vbNewLine & "* Since this is not a 'Grant Management' action, a month for grant reduction should not be entered."
+			If grant_reduction_amount <> "" Then err_msg = err_msg & vbNewLine & "* Since this is not a 'Grant Management' action, a grant reduction amount should not be entered."
+		ElseIf occurrence_droplist = "Grant Management" Then
+			IF first_occurrence_mm = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the month and year of the first instance of money mismanagement."
+			If second_occurrence_mm = "" Then err_msg = err_msg & vbNewLine & "* Please enter the month and year of the second instance of money mismanagement."
+			If first_month_of_grant_reduction = "Select One:" Then err_msg = err_msg & vbNewLine & "* Indicate which month will first have a grant reduction to follow the 'Grant Management' process."
+			If grant_reduction_amount = "" Then err_msg = err_msg & vbNewLine & "* Indicate the amount the grant will be reduced to for the 'Grant Management' process."
+		End If
+		If err_msg <> "" Then MsgBox "******  NOTICE  ******" & vbNewLine & "Resolve to continue:" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
@@ -108,46 +137,40 @@ LOOP UNTIL are_we_passworded_out = false
 '2nd Instance of Money Mismanagement = occurrence_MM2
 'Grant Management = occurrence_MM3
 
-back_to_self
-EMWriteScreen "________", 18, 43
-EMWriteScreen MAXIS_case_number, 18, 43
-EMWriteScreen CM_mo, 20, 43	'entering current footer month/year
-EMWriteScreen CM_yr, 20, 46
-
-months_variable = CM_mo 'this is only use when they are on their last instance'
-IF CM_MO = "01" THEN months_variable = "January, February, March"
-IF CM_MO = "02" THEN months_variable = "February, March, April"
-IF CM_MO = "03" THEN months_variable = "March, April, May"
-IF CM_MO = "04" THEN months_variable = "April, May, June"
-IF CM_MO = "05" THEN months_variable = "May, June, July"
-IF CM_MO = "06" THEN months_variable = "June, July, August"
-IF CM_MO = "07" THEN months_variable = "July, August, September"
-IF CM_MO = "08" THEN months_variable = "August, September, October"
-IF CM_MO = "09" THEN months_variable = "September, October, November"
-IF CM_MO = "10" THEN months_variable = "October, November, December"
-IF CM_MO = "11" THEN months_variable = "November, December, January"
-IF CM_MO = "12" THEN months_variable = "December, January, February"
+IF first_month_of_grant_reduction = "January" THEN months_variable = "January, February, March"
+IF first_month_of_grant_reduction = "February" THEN months_variable = "February, March, April"
+IF first_month_of_grant_reduction = "March" THEN months_variable = "March, April, May"
+IF first_month_of_grant_reduction = "April" THEN months_variable = "April, May, June"
+IF first_month_of_grant_reduction = "May" THEN months_variable = "May, June, July"
+IF first_month_of_grant_reduction = "June" THEN months_variable = "June, July, August"
+IF first_month_of_grant_reduction = "July" THEN months_variable = "July, August, September"
+IF first_month_of_grant_reduction = "August" THEN months_variable = "August, September, October"
+IF first_month_of_grant_reduction = "September" THEN months_variable = "September, October, November"
+IF first_month_of_grant_reduction = "October" THEN months_variable = "October, November, December"
+IF first_month_of_grant_reduction = "November" THEN months_variable = "November, December, January"
+IF first_month_of_grant_reduction = "December" THEN months_variable = "December, January, February"
 
 '----------------------------------------------------------------------------------------------------CASENOTE
 start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE("### Grant reduction - " & Occurrence_droplist & " ###")
+CALL write_variable_in_CASE_NOTE("### Money Mismanagement: " & occurrence_droplist & " ###")
 CALL write_variable_in_CASE_NOTE("* Contacted " & who_contacted & "on " & when_contact_was_made & " by " & contact_type & " " & contact_direction & " "& phone_number & " ")
 CALL write_variable_in_CASE_NOTE("* Client requested shelter on " & date_requested & " and all GA/SSI is gone." )
-CALL write_variable_in_CASE_NOTE("* 1st month of grant reduction: " & first_month_grant_reduction)
-Call write_bullet_and_variable_in_CASE_NOTE("Comments", Comments_notes)
-IF Occurrence_droplist = "2nd Instance" THEN CALL write_variable_in_CASE_NOTE("* 1st money mismanagement was " & first_occurrence_mm)
-IF Occurrence_droplist = "Grant Management" THEN
+IF occurrence_droplist = "Grant Management" THEN
     CALL write_variable_in_CASE_NOTE("*** Grant reduction 3 MONTHS/Grant Management/even if client is no longer in shelter ***")
     CALL write_variable_in_CASE_NOTE("* 1st money mismanagement was: " & first_occurrence_mm )
     CALL write_variable_in_CASE_NOTE("* Second money mismanagement was: " & second_occurrence_mm)
-    CALL write_variable_in_CASE_NOTE("* No matter where client lives the grant will be $97.00 for three months. ")
-    CALL write_variable_in_CASE_NOTE("* Grant reduced to $97.00 effective: " & months_variable)
+    CALL write_variable_in_CASE_NOTE("* No matter where client lives the grant will be $" & grant_reduction_amount & " for three months.")
+    CALL write_variable_in_CASE_NOTE("* Grant reduced to $" & grant_reduction_amount & " effective: " & months_variable)
+ELSE
+	If first_occurrence_mm <> "" Then CALL write_variable_in_CASE_NOTE("* 1st money mismanagement was: " & first_occurrence_mm )
+	If second_occurrence_mm <> "" Then CALL write_variable_in_CASE_NOTE("* Second money mismanagement was: " & second_occurrence_mm)
 END IF
+Call write_bullet_and_variable_in_CASE_NOTE("Comments", Comments_notes)
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
 Call write_variable_in_CASE_NOTE("Hennepin County Shelter Team")
 
-Call script_end_procedure_with_error_report(closing_message)
+Call script_end_procedure_with_error_report("Money mismanagement case note entered please follow all next steps to assist the resident.")
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
