@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("05/01/2022", "Updated the Appointment Notice to have information for residents about in person support.", "Casey Love, Hennepin County")
 ' READY FOR WHEN WE CAN PUT IN CCAP INFO - ADD DATE call changelog_update("", "Added a checkbox if the application also requests Child Care Assistance. The script will send an email to the CCAP team alerting them to the request so that follow up can happen following CCAP process.", "Casey Love, Hennepin County")
 call changelog_update("04/27/2022", "The Application Received script is updated to check cases to find if the ADDR panel is missing or has an error. The script will stop if it discovers a possible issue with an ADDR panel as that is a mandatory panel for all cases.", "Casey Love, Hennepin County")
 call changelog_update("03/29/2022", "Removed APPLYMN as application option.", "Ilse Ferris, Hennepin County")
@@ -905,7 +906,7 @@ Call script_end_procedure_with_error_report(end_msg)
 '--comment Code-----------------------------------------------------------------09/13/2021
 '--Update Changelog for release/update------------------------------------------09/10/2021
 '--Remove testing message boxes-------------------------------------------------09/10/2021
-'--Remove testing code/unnecessary code-----------------------------------------09/10/2021
+'--Remove testing code/unnecessary code-----------------------------------------05/01/2022                  We were holding old NOTICE details for in person return. Removed as this detail is drastically different.
 '--Review/update SharePoint instructions----------------------------------------09/13/2021
 '--Review Best Practices using BZS page ----------------------------------------N/A
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
