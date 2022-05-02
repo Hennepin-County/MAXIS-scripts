@@ -43,7 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("04/12/2022", "Elimination of Self-Pay: Removal of mention from scripts.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("04/12/2022", "Elimination of Self-Pay: removal of mention from scripts.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/11/2016", "Initial version.", "Ilse Ferris, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -121,7 +121,7 @@ DO
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-
+CALL back_to_self 'to ensure no funky business happens before the case note'
 'The case note'
 start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE("### Household in Shelter - Interview ####")
@@ -168,7 +168,7 @@ Call script_end_procedure_with_error_report("Shelter Interview Note Entered.")
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022
 '--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/02/2022
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
 '--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022
@@ -178,7 +178,7 @@ Call script_end_procedure_with_error_report("Shelter Interview Note Entered.")
 '--BULK - review output of statistics and run time/count (if applicable)--------N/A
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------04/12/2022
+'--Manual time study reviewed --------------------------------------------------04/12/2022 					I was told an interview takes 30-60 minutes but this script does not reflect that
 '--Incrementors reviewed (if necessary)-----------------------------------------N/A
 '--Denomination reviewed -------------------------------------------------------N/A
 '--Script name reviewed---------------------------------------------------------N/A
