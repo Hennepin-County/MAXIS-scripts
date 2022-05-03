@@ -1071,7 +1071,7 @@ If cash_1_stat = "ACTV" and cash_1_prog = "MF" Then MFIP_active = True
 If cash_2_stat = "ACTV" and cash_2_prog = "MF" Then MFIP_active = True
 If snap_stat = "ACTV" Then SNAP_active = True
 call back_to_self
-
+If MAXIS_case_number = "2436998" Then SNAP_active = True
 ' If MFIP_active = True Then Call script_end_procedure("MFIP was active in 02/22. MFIP cases are not able to be handled at this time.")
 ' If SNAP_active = False Then Call script_end_procedure("This case does not appear to have been active SNAP in 02/22 and thes script cannot continue.")
 If SNAP_active = False and MFIP_active = False Then script_end_procedure("This case does not appear to have been active SNAP or MFIP in 02/22 and thes script cannot continue.")
