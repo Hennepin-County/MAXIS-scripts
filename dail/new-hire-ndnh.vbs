@@ -267,6 +267,10 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 	If create_JOBS_checkbox = checked then
     	EMWriteScreen "nn", 20, 79				'Creates new panel
     	transmit
+
+        EmReadscreen closed_case_msg, 27, 20, 79    '??? Not sure if this is how we want to handle these.
+        If EmReadscreen = "MAXIS PROGRAMS ARE INACTIVE" then script_end_procedure_with_error_report("This case is inactive. The script will now end.")
+
     	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
     	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
     	EMWriteScreen "w", 5, 34				'Wage income is the type
