@@ -91,16 +91,10 @@ msgbox "SSN_present: " & SSN_present
 EMSendKey "x"
 transmit
 
+'Reading information fom the HIRE pop-up
 EmReadscreen MAXIS_case_number, 8, 6, 57
 MAXIS_case_number = Trim(MAXIS_case_number)
-
-'row = 1
-'col = 1
-'EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
-
-If row = 0 then script_end_procedure_with_error_report("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-'Reading information fom the HIRE pop-up
-'Date HIred and Employer Name
+'Date Hired and Employer Name
 EMReadScreen new_hire_second_line, 61, 10, 5
 new_hire_second_line = trim(new_hire_second_line)
 'MAXIS Name
@@ -123,7 +117,6 @@ If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then
 Else
     Call ONLY_create_MAXIS_friendly_date(date_hired)
 End if
-'msgbox date_hired
 
 EMSearch "EMPLOYER:", row, col
 EMReadScreen employer, 25, row, col + 10
@@ -228,7 +221,6 @@ LOOP UNTIL are_we_passworded_out = false
 EMWriteScreen "jobs", 20, 71
 EMWriteScreen HH_memb, 20, 76
 transmit
-msgbox HH_memb
 
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
 EMReadScreen jobs_total_panel_count, 1, 2, 78
