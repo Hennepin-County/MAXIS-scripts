@@ -197,10 +197,8 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 	EMWriteScreen "jobs", 20, 71
 	EMWriteScreen HH_memb, 20, 76
 	transmit
-'MFIP cases need to manually add the JOBS panel for ES purposes. '??? why is this here?
-	If MFIP_case = False then create_JOBS_checkbox = checked
-	'Setting the variable for the following do...loop
-	HH_memb_row = 5
+
+	create_JOBS_checkbox = checked 'defaulting to checked
 
     'This is a dialog asking if the job is known to the agency.
     Dialog1 = ""
