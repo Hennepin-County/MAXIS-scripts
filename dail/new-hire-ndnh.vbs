@@ -336,10 +336,29 @@ END IF
 
 IF match_answer_droplist = "YES-INFC clear match" THEN
 	'naviagting into INFC'
+    If SSN_present = False then
+        EMSendKey "S"
+	    transmit
+	    EMReadScreen stat_check, 4, 20, 21
+	    If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+	    'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
+        EMWriteScreen "MEMB", 20, 71
+        Call write_value_and_transmit(member_number, 20, 76)
+        EmReadscreen client_SSN, 11, 7, 42
+        client_SSN = replace(client_SSN, " ", "")
+        PF3 'back to the DAIL
+    End if
+
+    'navigating to the INFC screens
 	EMSendKey "I"
 	transmit
-	EMWriteScreen "HIRE", 20, 71
-	transmit
+    If SSN_present = False then EmWriteScreen client_SSN, 3, 63
+    Call write_value_and_transmit("HIRE", 20, 71)
+
+    'checking for IRS non-disclosure agreement.
+    EMReadScreen agreement_check, 9, 2, 24
+    IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+
 	row = 9
 	DO
         EMReadScreen case_number, 8, row, 5
@@ -347,7 +366,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
         IF case_number = MAXIS_case_number THEN
     		EMReadScreen employer_match, 20, row, 36
     		employer_match = trim(employer_match)
-    		IF trim(employer_match) = "" THEN script_end_procedure("An employer match for the could not be found. The script will now end.")
+    		IF trim(employer_match) = "" THEN script_end_procedure("An employer match could not be found. The script will now end.")
     	  	IF employer_match = employer THEN
     	   		EMReadScreen cleared_value, 1, row, 61
     			IF cleared_value = " " THEN
