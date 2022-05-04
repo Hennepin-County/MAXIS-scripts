@@ -77,11 +77,11 @@ transmit
 EMReadScreen HIRE_check, 11, 6, 37
 If HIRE_check = "JOB DETAILS" then
     SSN_present = True
-Elseif left(HIRE_check, 4) = "NDNH" then
+Else
+    EmReadscreen fed_match, 4, 6, 20
+    If left(fed_match, 4) = "NDNH" then SSN_present = False
     SSN_present = False
 End if
-
-msgbox "SSN_present: " & SSN_present
 
 'DIALOGS----------------------------------------------------------------------------------------------
 Dialog1 = ""
@@ -109,23 +109,19 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 EMSendKey "x"
 transmit
 
+'Reading information fom the HIRE pop-up
 EmReadscreen MAXIS_case_number, 8, 6, 57
 MAXIS_case_number = Trim(MAXIS_case_number)
 
-row = 1
-col = 1
-EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
-
-If row = 0 then script_end_procedure_with_error_report("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-'Reading information fom the HIRE pop-up
-EMReadScreen new_hire_second_line, 61, row + 1, col -15
+'Date Hired and Employer Name
+EMReadScreen new_hire_second_line, 61, 10, 5
 new_hire_second_line = trim(new_hire_second_line)
-
-EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
+'MAXIS Name
+EMReadScreen new_hire_third_line, 61, 11, 5
 new_hire_third_line = trim(new_hire_third_line)
 new_hire_third_line = replace(new_hire_third_line, ",", ", ")
-
-EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
+'New Hire Name
+EMReadScreen new_hire_fourth_line, 61, 12, 5
 new_hire_fourth_line = trim(new_hire_fourth_line)
 new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
 
@@ -140,7 +136,6 @@ If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then
 Else
     Call ONLY_create_MAXIS_friendly_date(date_hired)
 End if
-'msgbox date_hired
 
 EMSearch "EMPLOYER:", row, col
 EMReadScreen employer, 25, row, col + 10
@@ -148,7 +143,7 @@ employer = TRIM(employer)
 If SSN_present = True then
     EMReadScreen new_HIRE_SSN, 9, 9, 5
 Else
-    EmReadScreen HH_memb, 2, 9, 11  'SSN_present = False information here - test for correctness
+    EmReadScreen HH_memb, 2, 9, 15
 End if
 
 PF3
@@ -250,7 +245,6 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     EMWriteScreen "jobs", 20, 71
 	EMWriteScreen HH_memb, 20, 76
 	transmit
-    msgbox HH_memb
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
 	EMReadScreen jobs_total_panel_count, 1, 2, 78
 	IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure_with_error_report("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
@@ -264,7 +258,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     	transmit
 
         EmReadscreen closed_case_msg, 27, 20, 79    '??? Not sure if this is how we want to handle these.
-        If EmReadscreen = "MAXIS PROGRAMS ARE INACTIVE" then script_end_procedure_with_error_report("This case is inactive. The script will now end.")
+        If closed_case_msg = "MAXIS PROGRAMS ARE INACTIVE" then script_end_procedure_with_error_report("This case is inactive. The script will now end.")
 
     	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
     	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
@@ -279,7 +273,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
       	ELSE
             EmWriteScreen MAXIS_footer_month, 12, 54
       		EMWriteScreen "01", 12, 57		'Puts the first in as the day on prospective side
-            EmWriteScreen MAXIS_footer_month, 12, 60
+            EmWriteScreen MAXIS_footer_year, 12, 60
       	END IF
 
       	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
