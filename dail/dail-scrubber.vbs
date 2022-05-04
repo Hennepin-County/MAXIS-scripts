@@ -85,7 +85,7 @@ If scrubber_starting_dail_cursor_row <> dail_row Then dail_row = 6 + dails_befor
 If dails_before_this_dail_for_this_case = 0 Then dail_row = 6
 
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "t"
+EMSendKey "T"
 TRANSMIT
 
 'The following reads the message in full for the end part (which tells the worker which message was selected)
@@ -255,14 +255,12 @@ If paperless_check = "%^% SENT" then
 End If
 
 'SSI info received by agency (loads SDX INFO HAS BEEN STORED)
-
 If instr(full_message, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") then
     match_found = TRUE
 	call run_from_GitHub(script_repository & "dail/sdx-info-has-been-stored.vbs")
 END IF
 
 'SSA info received by agency (loads TPQY RESPONSE)
-
 If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") then
     match_found = TRUE
     call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
