@@ -70,7 +70,7 @@ EMConnect ""
 EMReadscreen dail_check, 4, 2, 48
 If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. This script will stop.")
 'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "t"
+EMSendKey "T"
 transmit
 
 'determining if the old message with the SSN functionality will be needed or not.
@@ -106,7 +106,7 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
-EMSendKey "x"
+EMSendKey "X"
 transmit
 
 'Reading information fom the HIRE pop-up
@@ -145,56 +145,41 @@ If SSN_present = True then
 Else
     EmReadScreen HH_memb, 2, 9, 15
 End if
+PF3 ' to exit pop=up
 
-PF3
+'----------------------------------------------------------------------------------------------------STAT Information
+EMSendKey "S"  	'GOING TO STAT
+transmit
+EMReadScreen stat_check, 4, 20, 21
+If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
+Call write_value_and_transmit("MEMB", 20, 71)
 
-IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
-    EMWriteScreen "h", 6, 3
-	transmit
-	row = 1
-	col = 1
-	EMSearch "FS: ", row, col
-	If row <> 0 then FS_case = True
-	If row = 0 then FS_case = False
-	row = 1
-	col = 1
-	EMSearch "MFIP: ", row, col
-	If row <> 0 then MFIP_case = True
-	If row = 0 then MFIP_case = False
-	PF3
+If SSN_present = True then
+    Do
+    	EMReadScreen MEMB_current, 1, 2, 73
+    	EMReadScreen MEMB_total, 1, 2, 78
+    	EMReadScreen MEMB_SSN, 11, 7, 42
+    	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
+            exit do
+        Else
+    		transmit
+        End if
+    LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
+    EMReadScreen HH_memb, 2, 4, 33
+Else
+    Call write_value_and_transmit(HH_memb, 20, 76) 'SSN_present = False information here
+    EmReadscreen MEMB_SSN, 11, 7, 42    'gathering the SSN
+    MEMB_SSN = replace(MEMB_SSN, " ", "")
+End if
 
-    If dail_row <> 6 Then Call write_value_and_transmit("t", dail_row, 3)       'bringing the correct message back to the top'
-
-	'GOING TO STAT
-	EMSendKey "s"
-	transmit
-	EMReadScreen stat_check, 4, 20, 21
-	If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
-	'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
-    EMWriteScreen "memb", 20, 71
-	transmit
-
-    If SSN_present = True then
-	    Do
-	    	EMReadScreen MEMB_current, 1, 2, 73
-	    	EMReadScreen MEMB_total, 1, 2, 78
-	    	EMReadScreen MEMB_SSN, 11, 7, 42
-	    	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
-                exit do
-            Else
-	    		transmit
-            End if
-	    LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
-        EMReadScreen HH_memb, 2, 4, 33
-    Else
-        Call write_value_and_transmit(HH_memb, 20, 76) 'SSN_present = False information here
-    End if
-
+'----------------------------------------------------------------------------------------------------NEW HIRE PORTION
+IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     EMReadScreen memb_age, 2, 8, 76
     If cint(memb_age) < 19 then MsgBox "This client is under 19. See CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20 for specific program information about budgeting."
 
 	'GOING TO JOBS
-	EMWriteScreen "jobs", 20, 71
+	EMWriteScreen "JOBS", 20, 71
 	EMWriteScreen HH_memb, 20, 76
 	transmit
 
@@ -240,7 +225,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 	    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
     LOOP UNTIL are_we_passworded_out = false
 
-    EMWriteScreen "jobs", 20, 71
+    EMWriteScreen "JOBS", 20, 71    'Ensuring we're on JOBS for the right member still post dialog
 	EMWriteScreen HH_memb, 20, 76
 	transmit
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
@@ -252,7 +237,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 
 'Now it will create a new JOBS panel for this case.
 	If create_JOBS_checkbox = checked then
-    	EMWriteScreen "nn", 20, 79				'Creates new panel
+    	EMWriteScreen "NN", 20, 79				'Creates new panel
     	transmit
 
         EmReadscreen closed_case_msg, 27, 20, 79    '??? Not sure if this is how we want to handle these.
@@ -260,8 +245,8 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
 
     	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
     	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
-    	EMWriteScreen "w", 5, 34				'Wage income is the type
-    	EMWriteScreen "n", 6, 34				'No proof has been provided
+    	EMWriteScreen "W", 5, 34				'Wage income is the type
+    	EMWriteScreen "N", 6, 34				'No proof has been provided
     	EMWriteScreen employer, 7, 42			'Adds employer info
 
         Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
@@ -278,7 +263,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
       	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
 
       	If FS_case = True then 					'If case is SNAP, it creates a PIC
-      		EMWriteScreen "x", 19, 38
+      		EMWriteScreen "X", 19, 38
       		transmit
 
             IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
@@ -300,7 +285,6 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
       	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 	END IF
     PF3 'back to DAIL
-    'transmit
 
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
@@ -332,25 +316,13 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN 'CHECKING CASE CURR. MFIP AND 
     script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form should now be sent. The job is at " & employer & ".")
 END IF
 
+'----------------------------------------------------------------------------------------------------INFC Portion
 IF match_answer_droplist = "YES-INFC clear match" THEN
-	'naviagting into INFC'
-    If SSN_present = False then
-        EMSendKey "S"
-	    transmit
-	    EMReadScreen stat_check, 4, 20, 21
-	    If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
-	    'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
-        EMWriteScreen "MEMB", 20, 71
-        Call write_value_and_transmit(member_number, 20, 76)
-        EmReadscreen client_SSN, 11, 7, 42
-        client_SSN = replace(client_SSN, " ", "")
-        PF3 'back to the DAIL
-    End if
-
+    PF3 'back to DAIL from MEMB
     'navigating to the INFC screens
 	EMSendKey "I"
 	transmit
-    If SSN_present = False then EmWriteScreen client_SSN, 3, 63
+    If SSN_present = False then EmWriteScreen MEMB_SSN, 3, 63
     Call write_value_and_transmit("HIRE", 20, 71)
 
     'checking for IRS non-disclosure agreement.
