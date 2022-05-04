@@ -8638,7 +8638,7 @@ Do
           DropListBox 220, 80, 35, 45, "No"+chr(9)+"Yes", qual_question_two
           ComboBox 330, 80, 115, 45, verification_memb_list, qual_memb_two
           DropListBox 220, 110, 35, 45, "No"+chr(9)+"Yes", qual_question_three
-          ComboBox 330, 110, 115, 45, verification_memb_list, qual_memb_there
+          ComboBox 330, 110, 115, 45, verification_memb_list, qual_memb_three
           DropListBox 220, 140, 35, 45, "No"+chr(9)+"Yes", qual_question_four
           ComboBox 330, 140, 115, 45, verification_memb_list, qual_memb_four
           DropListBox 220, 160, 35, 45, "No"+chr(9)+"Yes", qual_question_five
