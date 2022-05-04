@@ -80,8 +80,9 @@ transmit
 EMReadScreen HIRE_check, 11, 6, 24
 If HIRE_check = "JOB DETAILS" then
     SSN_present = True
-Elseif left(HIRE_check, 4) = "SDNH" then
-    SSN_present = False
+Else
+    EmReadscreen state_match, 4, 6, 20
+    If left(state_match, 4) = "SDNH" then SSN_present = False
 End if
 
 msgbox "SSN_present: " & SSN_present
@@ -93,20 +94,21 @@ transmit
 EmReadscreen MAXIS_case_number, 8, 6, 57
 MAXIS_case_number = Trim(MAXIS_case_number)
 
-row = 1
-col = 1
-EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
+'row = 1
+'col = 1
+'EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
 
 If row = 0 then script_end_procedure_with_error_report("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
 'Reading information fom the HIRE pop-up
-EMReadScreen new_hire_second_line, 61, row + 1, col
+'Date HIred and Employer Name
+EMReadScreen new_hire_second_line, 61, 10, 5
 new_hire_second_line = trim(new_hire_second_line)
-
-EMReadScreen new_hire_third_line, 61, row + 2, col 'maxis name'
+'MAXIS Name
+EMReadScreen new_hire_third_line, 61, 11, 5
 new_hire_third_line = trim(new_hire_third_line)
 new_hire_third_line = replace(new_hire_third_line, ",", ", ")
-
-EMReadScreen new_hire_fourth_line, 61, row + 3, col 'new hire name'
+'New Hire Name
+EMReadScreen new_hire_fourth_line, 61, 12, 5
 new_hire_fourth_line = trim(new_hire_fourth_line)
 new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
 
@@ -130,7 +132,7 @@ If SSN_present = True then
     EMReadScreen new_HIRE_SSN, 11, 9, 30
     new_HIRE_SSN = replace(new_HIRE_SSN, "-", "")
 Else
-    EmReadScreen HH_memb, 2, 9, 11  'SSN_present = False information here - test for correctness
+    EmReadScreen HH_memb, 2, 9, 35
 End if
 PF3
 
@@ -241,7 +243,7 @@ If create_JOBS_checkbox = checked then
 	transmit
 
     EmReadscreen closed_case_msg, 27, 20, 79    '??? Not sure if this is how we want to handle these.
-    If EmReadscreen = "MAXIS PROGRAMS ARE INACTIVE" then script_end_procedure_with_error_report("This case is inactive. The script will now end.")
+    If closed_case_msg = "MAXIS PROGRAMS ARE INACTIVE" then script_end_procedure_with_error_report("This case is inactive. The script will now end.")
 
 	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
 	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
@@ -256,7 +258,7 @@ If create_JOBS_checkbox = checked then
   	ELSE
         EmWriteScreen MAXIS_footer_month, 12, 54
   		EMWriteScreen "01", 12, 57		'Puts the first in as the day on prospective side
-        EmWriteScreen MAXIS_footer_month, 12, 60
+        EmWriteScreen MAXIS_footer_year, 12, 60
   	END IF
 
   	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
