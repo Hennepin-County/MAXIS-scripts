@@ -119,18 +119,15 @@ EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while 
 If row = 0 then script_end_procedure_with_error_report("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
 'Reading information fom the HIRE pop-up
 EMReadScreen new_hire_second_line, 61, row + 1, col -15
-	new_hire_second_line = trim(new_hire_second_line)
-EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
-	new_hire_third_line = trim(new_hire_third_line)
-	new_hire_third_line = replace(new_hire_third_line, ",", ", ")
-EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
-	new_hire_fourth_line = trim(new_hire_fourth_line)
-	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
+new_hire_second_line = trim(new_hire_second_line)
 
-'IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
-'	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
-'	If warning_box = vbCancel then script_end_procedure("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
-'END IF
+EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
+new_hire_third_line = trim(new_hire_third_line)
+new_hire_third_line = replace(new_hire_third_line, ",", ", ")
+
+EMReadScreen new_hire_fourth_line, 61, row + 3, col -15'new hire name'
+new_hire_fourth_line = trim(new_hire_fourth_line)
+new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
 
 row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
