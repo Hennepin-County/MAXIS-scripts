@@ -117,9 +117,7 @@ col = 1
 EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
 
 If row = 0 then script_end_procedure_with_error_report("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-EMReadScreen new_hire_first_line, 61, row, col - 7 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
-	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-	new_hire_first_line = trim(new_hire_first_line)
+'Reading information fom the HIRE pop-up
 EMReadScreen new_hire_second_line, 61, row + 1, col -15
 	new_hire_second_line = trim(new_hire_second_line)
 EMReadScreen new_hire_third_line, 61, row + 2, col -15 'maxis name'
@@ -482,12 +480,10 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    Call write_variable_in_case_note(worker_signature)
 	END IF
 
-	new_hire_first_line = replace(new_hire_first_line, new_HIRE_SSN, "")
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     PF9 ' edit mode
 	IF Emp_known_droplist = "YES-No Further Action" THEN
 		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared reported to agency-")
-		'CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared reported to agency-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 		CALL write_variable_in_case_note("EMPLOYER: " & employer)
 		CALL write_variable_in_case_note(new_hire_third_line)
@@ -501,7 +497,6 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 
 	ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
 		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared unreported to agency-")
-		'CALL write_variable_in_case_note("-NDNH " & new_hire_first_line & " INFC cleared unreported to agency-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 		CALL write_variable_in_case_note("EMPLOYER: " & employer)
 		CALL write_variable_in_case_note(new_hire_third_line)
