@@ -94,7 +94,7 @@ full_message = trim(full_message)
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
 
-EMReadScreen extra_info, 1, 6, 80
+EMReadScreen extra_info, 1, 6, 80       '???why is this code in here
 IF extra_info = "+" or extra_info = "&" THEN
 	EMSendKey "X"
 	TRANSMIT
@@ -152,8 +152,8 @@ If Instr(full_message, "AN UPDATED DHS-7823 - AVS AUTH FORM(S) HAS BEEN REQUESTE
  End if
 
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
-EMReadScreen BENDEX_check, 47, 6, 30
-If BENDEX_check = "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC" then
+
+If instr(full_message, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") then
     match_found = TRUE
     call run_from_GitHub(script_repository & "dail/bndx-scrubber.vbs")
 END IF
@@ -221,16 +221,15 @@ If remedial_care_check = "REF 01 PERSON HAS REMEDIAL CARE DEDUCTION" then
 END IF
 'New HIRE messages, client started a new job (loads NEW HIRE)
 EMReadScreen HIRE_check, 15, 6, 20
-If HIRE_check = "NEW JOB DETAILS" then
+If HIRE_check = "NEW JOB DETAILS" or left(HIRE_check, 4) = "SDNH" then
     match_found = TRUE
-	SDNH_match_type = TRUE
 	call run_from_GitHub(script_repository & "dail/new-hire.vbs")
 END IF
 'New HIRE messages, client started a new job (loads NEW HIRE)
 EMReadScreen HIRE_check, 11, 6, 37
-If HIRE_check = "JOB DETAILS" then
+EmReadscreen fed_match, 4, 6, 20        'SDNH can use the same string to review, NDNH cannot (of course)
+If HIRE_check = "JOB DETAILS" or left(fed_match, 4) = "NDNH" then
 	match_found = TRUE
-	NDNH_match_type = TRUE
     call run_from_GitHub(script_repository & "dail/new-hire-ndnh.vbs")
 END IF
 'federal prisoner register support messages
@@ -256,15 +255,15 @@ If paperless_check = "%^% SENT" then
 End If
 
 'SSI info received by agency (loads SDX INFO HAS BEEN STORED)
-EMReadScreen SDX_check, 44, 6, 30
-If SDX_check = "SDX INFORMATION HAS BEEN STORED - CHECK INFC" then
+
+If instr(full_message, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") then
     match_found = TRUE
 	call run_from_GitHub(script_repository & "dail/sdx-info-has-been-stored.vbs")
 END IF
 
 'SSA info received by agency (loads TPQY RESPONSE)
-EMReadScreen TPQY_check, 31, 6, 30
-If TPQY_check = "TPQY RESPONSE RECEIVED FROM SSA" then
+
+If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") then
     match_found = TRUE
     call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
 END IF

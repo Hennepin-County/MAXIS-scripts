@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -53,20 +54,34 @@ changelog_display
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 'THE SCRIPT----------------------------------------------------------------------------------------------------
+EMConnect ""   'Connects to BlueZone
 
-'Connects to BlueZone
-EMConnect ""
+'determining if the old message with the SSN functionality will be needed or not.
+EMReadScreen MEMB_check, 7, 6, 20
+If left(MEMB_check, 4) = "MEMB" then
+    member_number = right(MEMB_check, 2)
+    SSN_present = False
+Else
+    SSN_present = True
+End if
 
-'Navigates to INFC
-EMSendKey "i"
-transmit
+If SSN_present = True then
+    EMSendKey "I"   'Navigates to INFC
+    transmit
+    Call write_value_and_transmit("SVES", 20, 71)    'Navigates to SVES
+    Call write_value_and_transmit("TPQY", 20, 70)    'Navigates to TPQY
+Else
+    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+    If is_this_priv = True then script_end_procedure("This is a privileged case. Cannot access. The script will now end.")
 
-'Navigates to SVES
-EMWriteScreen "sves", 20, 71
-transmit
+    Call write_value_and_transmit(member_number, 20, 76)
+    EmReadscreen client_SSN, 11, 7, 42
+    client_SSN = replace(client_SSN, " ", "")
 
-'Navigates to TPQY
-EMWriteScreen "tpqy", 20, 70
-transmit
+    'Going to the SVES Response
+    Call navigate_to_MAXIS_screen("INFC", "SVES")
+    EmWriteScreen client_SSN, 4, 68
+    Call write_value_and_transmit("TPQY", 20, 70)
+End if
 
 script_end_procedure("")
