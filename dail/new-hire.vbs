@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("12/17/2019", "Updated navigation to case note from DAIL.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/26/2019", "Updated message box regarding children under 19, added policy reference for SNAP/CASH programs.", "Ilse Ferris, Hennepin County")
@@ -64,10 +65,10 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'----------------------------------------------------------------------------------------------------------Script
+EMConnect ""
 still_on_dail = True
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------------
-EMConnect ""
 'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 EMReadscreen dail_check, 4, 2, 48
 If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. This script will stop.")
@@ -75,12 +76,16 @@ If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. Thi
 EMSendKey "t"
 transmit
 
-'The script needs to determine what the day is in a MAXIS friendly format. The following does that.
-current_month = CM_mo
-If len(current_month) = 1 then current_month = "0" & current_month
-current_day = datepart("d", date)
-If len(current_day) = 1 then current_day = "0" & current_day
-current_year = CM_yr
+'determining if the old message with the SSN functionality will be needed or not.
+EMReadScreen HIRE_check, 11, 6, 24
+If HIRE_check = "JOB DETAILS" then
+    SSN_present = True
+Elseif left(HIRE_check, 4) = "SDNH" then
+    SSN_present = False
+End if
+
+msgbox "SSN_present: " & SSN_present
+
 'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
 EMSendKey "x"
 transmit
@@ -90,62 +95,43 @@ MAXIS_case_number = Trim(MAXIS_case_number)
 
 row = 1
 col = 1
-EMSearch "NEW JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
+EMSearch "JOB DETAILS", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
+
 If row = 0 then script_end_procedure_with_error_report("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-EMReadScreen new_hire_first_line, 61, row, col'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
-	new_hire_first_line = replace(new_hire_first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-	new_hire_first_line = trim(new_hire_first_line)
+'Reading information fom the HIRE pop-up
 EMReadScreen new_hire_second_line, 61, row + 1, col
-	new_hire_second_line = trim(new_hire_second_line)
+new_hire_second_line = trim(new_hire_second_line)
+
 EMReadScreen new_hire_third_line, 61, row + 2, col 'maxis name'
-	new_hire_third_line = trim(new_hire_third_line)
-	new_hire_third_line = replace(new_hire_third_line, ",", ", ")
-EMReadScreen new_hire_fourth_line, 61, row + 3, col'new hire name'
-	new_hire_fourth_line = trim(new_hire_fourth_line)
-	new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
-IF right(new_hire_third_line, 46) <> right(new_hire_fourth_line, 46) then 				'script was being run on cases where the names did not match but SSN did. This will allow users to review.
-	warning_box = MsgBox("The names found on the NEW HIRE message do not match exactly." & vbcr & new_hire_third_line & vbcr & new_hire_fourth_line & vbcr & "Please review and click OK if you wish to continue and CANCEL if the name is incorrect.", vbOKCancel)
-	If warning_box = vbCancel then script_end_procedure_with_error_report("The script has ended. Please review the new hire as you indicated that the name read from the NEW HIRE and the MAXIS name did not match.")
-END IF
+new_hire_third_line = trim(new_hire_third_line)
+new_hire_third_line = replace(new_hire_third_line, ",", ", ")
+
+EMReadScreen new_hire_fourth_line, 61, row + 3, col 'new hire name'
+new_hire_fourth_line = trim(new_hire_fourth_line)
+new_hire_fourth_line = replace(new_hire_fourth_line, ",", ", ")
+
 row = 1 						'Now it's searching for info on the hire date as well as employer
 col = 1
 'Now it's searching for info on the hire date as well as employer
-EMSearch "DATE HIRED:", row, col
+EMSearch "DATE HIRED", row, col
 EMReadScreen date_hired, 10, row, col + 12
-If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then date_hired = current_month & "-" & current_day & "-" & current_year
 date_hired = trim(date_hired)
-'date_hired = CDate(date_hired)'
-month_hired = Datepart("m", date_hired)
-If len(month_hired) = 1 then month_hired = "0" & month_hired
-day_hired = Datepart("d", date_hired)
-If len(day_hired) = 1 then day_hired = "0" & day_hired
-year_hired = Datepart("yyyy", date_hired)
-year_hired = year_hired - 2000
+If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then
+    date_hired = CM_mo & "-" & current_day & "-" & CM_yr '??? Why is this code necessary?
+Else
+    Call ONLY_create_MAXIS_friendly_date(date_hired)
+End if
+'msgbox date_hired
+
 EMSearch "EMPLOYER:", row, col
 EMReadScreen employer, 25, row, col + 10
 employer = TRIM(employer)
-
-row = 1 						'Now it's searching for the SSN
-col = 1
-EMSearch "SSN #", row, col
-EMReadScreen new_HIRE_SSN, 11, row, col + 5
-new_HIRE_SSN = TRIM(new_HIRE_SSN)
-new_HIRE_SSN = replace(new_HIRE_SSN, "-", "") '01/10/19 it has the dashes in the match now'
-PF3
-
-'CHECKING CASE CURR. MFIP AND SNAP HAVE DIFFERENT RULES.
-EMWriteScreen "h", 6, 3
-transmit
-row = 1
-col = 1
-EMSearch "FS: ", row, col
-If row <> 0 then FS_case = True
-If row = 0 then FS_case = False
-row = 1
-col = 1
-EMSearch "MFIP: ", row, col
-If row <> 0 then MFIP_case = True
-If row = 0 then MFIP_case = False
+If SSN_present = True then
+    EMReadScreen new_HIRE_SSN, 11, 9, 30
+    new_HIRE_SSN = replace(new_HIRE_SSN, "-", "")
+Else
+    EmReadScreen HH_memb, 2, 9, 11  'SSN_present = False information here - test for correctness
+End if
 PF3
 
 If dail_row <> 6 Then Call write_value_and_transmit("t", dail_row, 3)       'bringing the correct message back to the top'
@@ -155,6 +141,7 @@ EMSendKey "s"
 transmit
 EMReadScreen stat_check, 4, 20, 21
 If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+
 EMReadScreen stat_case_number, 8, 20, 37
 stat_case_number = replace(stat_case_number, "_", "")
 If stat_case_number <> MAXIS_case_number Then
@@ -162,25 +149,36 @@ If stat_case_number <> MAXIS_case_number Then
 	Call back_to_SELF
 	Call navigate_to_MAXIS_screen("STAT", "SUMM")
 End If
+
 'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
 EMWriteScreen "memb", 20, 71
 transmit
-Do
-	EMReadScreen MEMB_current, 1, 2, 73
-	EMReadScreen MEMB_total, 1, 2, 78
-	EMReadScreen MEMB_SSN, 11, 7, 42
-	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
-		EMReadScreen HH_memb, 2, 4, 33
-		EMReadScreen memb_age, 2, 8, 76
-		If cint(memb_age) < 19 then MsgBox "This client is under 19. See CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20 for specific program information about budgeting."
-	End if
-	transmit
-LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
+
+If SSN_present = True then
+    Do
+    	EMReadScreen MEMB_current, 1, 2, 73
+    	EMReadScreen MEMB_total, 1, 2, 78
+    	EMReadScreen MEMB_SSN, 11, 7, 42
+    	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
+            exit do
+        Else
+    		transmit
+        End if
+    LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
+    EMReadScreen HH_memb, 2, 4, 33
+Else
+    Call write_value_and_transmit(HH_memb, 20, 76) 'SSN_present = False information here
+End if
+
+EMReadScreen memb_age, 2, 8, 76
+If cint(memb_age) < 19 then MsgBox "This client is under 19. See CM 0017.15.15 - INCOME OF MINOR CHILD/CAREGIVER UNDER 20 for specific program information about budgeting."
+
 'GOING TO JOBS
 EMWriteScreen "jobs", 20, 71
 EMWriteScreen HH_memb, 20, 76
 transmit
-'MFIP cases need to manually add the JOBS panel for ES purposes.
+
+'MFIP cases need to manually add the JOBS panel for ES purposes. '??? why is this here?
 If MFIP_case = False then create_JOBS_checkbox = checked
 'Setting the variable for the following do...loop
 HH_memb_row = 5
@@ -217,17 +215,19 @@ EndDialog
 
 'Show dialog
 DO
-	DO
-	   	Dialog dialog1
-		cancel_confirmation
-		MAXIS_dialog_navigation
-	LOOP UNTIL ButtonPressed = -1
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    DO
+    	Dialog dialog1
+    	cancel_confirmation
+    	MAXIS_dialog_navigation
+    LOOP UNTIL ButtonPressed = -1
+    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
 EMWriteScreen "jobs", 20, 71
 EMWriteScreen HH_memb, 20, 76
 transmit
+msgbox HH_memb
+
 'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
 EMReadScreen jobs_total_panel_count, 1, 2, 78
 IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure_with_error_report("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
@@ -239,46 +239,52 @@ If job_known_checkbox = checked then script_end_procedure("The script will stop 
 If create_JOBS_checkbox = checked then
 	EMWriteScreen "nn", 20, 79				'Creates new panel
 	transmit
+
+    EmReadscreen closed_case_msg, 27, 20, 79    '??? Not sure if this is how we want to handle these.
+    If EmReadscreen = "MAXIS PROGRAMS ARE INACTIVE" then script_end_procedure_with_error_report("This case is inactive. The script will now end.")
+
 	EMReadScreen MAXIS_footer_month, 2, 20, 55	'Reads footer month for updating the panel
 	EMReadScreen MAXIS_footer_year, 2, 20, 58		'Reads footer year
 	EMWriteScreen "w", 5, 34				'Wage income is the type
 	EMWriteScreen "n", 6, 34				'No proof has been provided
 	EMWriteScreen employer, 7, 42			'Adds employer info
-	EMWriteScreen month_hired, 9, 35		'Adds month hired to start date (this is actually the day income was received)
-	EMWriteScreen day_hired, 9, 38			'Adds day hired
-	EMWriteScreen year_hired, 9, 41			'Adds year hired
-	EMWriteScreen MAXIS_footer_month, 12, 54		'Puts footer month in as the month on prospective side of panel
+
+    Call create_MAXIS_friendly_date(date_hired, 0, 9, 35)
+
   	IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-  		EMWriteScreen day_hired, 12, 57			'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
+        Call create_MAXIS_friendly_date(date_hired, 0, 12, 57) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
   	ELSE
+        EmWriteScreen MAXIS_footer_month, 12, 54
   		EMWriteScreen "01", 12, 57		'Puts the first in as the day on prospective side
+        EmWriteScreen MAXIS_footer_month, 12, 60
   	END IF
-  	EMWriteScreen MAXIS_footer_year, 12, 60		'Puts footer year in on prospective side
-	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
-	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
-	If FS_case = True then 					'If case is SNAP, it creates a PIC
-		EMWriteScreen "x", 19, 38
-		transmit
-  		IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-	  		EMWriteScreen month_hired, 5, 34
-	  		EMWriteScreen day_hired, 5, 37
-	  		EMWriteScreen year_hired, 5, 40
-	  	ELSE
-			EMWriteScreen current_month, 5, 34
-			EMWriteScreen current_day, 5, 37
-			EMWriteScreen current_year, 5, 40
-	  	END IF
-			EMWriteScreen "1", 5, 64
-			EMWriteScreen "0", 8, 64
-			EMWriteScreen "0", 9, 66
-			transmit
-			transmit
-			transmit
+
+  	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
+  	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
+
+  	If FS_case = True then 					'If case is SNAP, it creates a PIC
+  		EMWriteScreen "x", 19, 38
+  		transmit
+
+        IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
+            Call create_MAXIS_friendly_date(date_hired, 0, 5, 34) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
+      	ELSE
+            Call create_MAXIS_friendly_date(date, 0, 5, 34) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
+      	END IF
+
+        'Entering PIC information
+  		EMWriteScreen "1", 5, 64
+  		EMWriteScreen "0", 8, 64
+  		EMWriteScreen "0", 9, 66
+  		transmit
+  		transmit
+  		transmit
 	END IF
 	transmit						'Transmits to submit the panel
-	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
-	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
+  	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
+  	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
 END IF
+
 If still_on_dail = FALSE Then
 	Call back_to_SELF
 Else
