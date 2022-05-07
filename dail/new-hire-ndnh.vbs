@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/07/2022", "Fixed bug for NDNH new HIRE DAIL's with SSN's in message. There is still a MAXIS system issue that is prohibiting NDNH messages without SSN's to be cleared in INFC. DHS has not provided an update to date.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("01/06/2020", "Updated TIKL functionality for TIKL'ing after 10 day cut off.", "Ilse Ferris, Hennepin County")
@@ -145,32 +146,44 @@ If SSN_present = True then
 Else
     EmReadScreen HH_memb, 2, 9, 15
 End if
-PF3 ' to exit pop=up
+PF3 ' to exit pop-up
+
+'If the SSN is present and we are just clearing the INFC portion, we don't need to go to STAT. This applies to old NDNH messages that we clearing in INFC.
+go_to_STAT = True
+msgbox go_to_STAT
+If SSN_present = True then
+    If match_answer_droplist = "YES-INFC clear match" then
+        go_to_STAT = False
+    End if
+End if
 
 '----------------------------------------------------------------------------------------------------STAT Information
-EMSendKey "S"  	'GOING TO STAT
-transmit
-EMReadScreen stat_check, 4, 20, 21
-If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
-'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
-Call write_value_and_transmit("MEMB", 20, 71)
+If go_to_STAT = True then
+    EMSendKey "S"  	'GOING TO STAT
+    transmit
+    EMReadScreen stat_check, 4, 20, 21
+    If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+    'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
+    Call write_value_and_transmit("MEMB", 20, 71)
 
-If SSN_present = True then
-    Do
-    	EMReadScreen MEMB_current, 1, 2, 73
-    	EMReadScreen MEMB_total, 1, 2, 78
-    	EMReadScreen MEMB_SSN, 11, 7, 42
-    	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
-            exit do
-        Else
-    		transmit
-        End if
-    LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
-    EMReadScreen HH_memb, 2, 4, 33
-Else
-    Call write_value_and_transmit(HH_memb, 20, 76) 'SSN_present = False information here
-    EmReadscreen MEMB_SSN, 11, 7, 42    'gathering the SSN
-    MEMB_SSN = replace(MEMB_SSN, " ", "")
+    If SSN_present = True then
+        Do
+        	EMReadScreen MEMB_current, 1, 2, 73
+        	EMReadScreen MEMB_total, 1, 2, 78
+        	EMReadScreen MEMB_SSN, 11, 7, 42
+        	If new_HIRE_SSN = replace(MEMB_SSN, " ", "") then
+                exit do
+            Else
+        		transmit
+            End if
+        LOOP UNTIL (MEMB_current = MEMB_total) or (new_HIRE_SSN = replace(MEMB_SSN, " ", ""))
+        EMReadScreen HH_memb, 2, 4, 33
+    Else
+        Call write_value_and_transmit(HH_memb, 20, 76) 'SSN_present = False information here
+        EmReadscreen MEMB_SSN, 11, 7, 42    'gathering the SSN
+        MEMB_SSN = replace(MEMB_SSN, " ", "")
+        If match_answer_droplist = "YES-INFC clear match" then PF3 'back to DAIL
+    End if
 End if
 
 '----------------------------------------------------------------------------------------------------NEW HIRE PORTION
@@ -318,7 +331,6 @@ END IF
 
 '----------------------------------------------------------------------------------------------------INFC Portion
 IF match_answer_droplist = "YES-INFC clear match" THEN
-    PF3 'back to DAIL from MEMB
     'navigating to the INFC screens
 	EMSendKey "I"
 	transmit
@@ -361,7 +373,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 			row = 9
 		END IF
 	LOOP UNTIL case_number = ""
-	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found. Please review NEW HIRE.")
+	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found for: " & employer & "." & vbcr & "Please review case for potential manual updates.")
 
     'This is a dialog asking if the job is known to the agency.
         Dialog1 = ""
