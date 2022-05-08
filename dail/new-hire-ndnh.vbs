@@ -150,7 +150,6 @@ PF3 ' to exit pop-up
 
 'If the SSN is present and we are just clearing the INFC portion, we don't need to go to STAT. This applies to old NDNH messages that we clearing in INFC.
 go_to_STAT = True
-msgbox go_to_STAT
 If SSN_present = True then
     If match_answer_droplist = "YES-INFC clear match" then
         go_to_STAT = False
