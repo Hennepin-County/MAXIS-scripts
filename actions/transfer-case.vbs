@@ -362,6 +362,10 @@ ELSE 'this means out of county is TRUE '
     Call write_variable_in_CASE_NOTE("---")
     CALL write_variable_in_CASE_NOTE (worker_signature)
     PF3
+
+    Call back_to_SELF 'this should ensure we are not "stuck"'
+    Call MAXIS_background_check  'this should ensure we are not stuck in background specifically'
+
     '----------------------------------------------------------OUT OF COUNTY TRANSFER actually happening
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
     EMWriteScreen "x", 9, 16                               'Transfer County To County
