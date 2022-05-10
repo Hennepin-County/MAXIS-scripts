@@ -136,6 +136,7 @@ If date_hired = "  -  -  EM" OR date_hired = "UNKNOWN  E" then
     date_hired = CM_mo & "-" & current_day & "-" & CM_yr '??? Why is this code necessary?
 Else
     Call ONLY_create_MAXIS_friendly_date(date_hired)
+    month_hired = left(date_hired, 2)       'will be used to determine what dates to use on the JOBS panel
 End if
 
 EMSearch "EMPLOYER:", row, col
@@ -158,8 +159,7 @@ End if
 
 '----------------------------------------------------------------------------------------------------STAT Information
 If go_to_STAT = True then
-    EMSendKey "S"  	'GOING TO STAT
-    transmit
+    Call write_value_and_transmit("S", 6, 3)
     EMReadScreen stat_check, 4, 20, 21
     If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
     'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
@@ -238,19 +238,18 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     LOOP UNTIL are_we_passworded_out = false
 
     EMWriteScreen "JOBS", 20, 71    'Ensuring we're on JOBS for the right member still post dialog
-	EMWriteScreen HH_memb, 20, 76
-	transmit
-'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
+	Call write_value_and_transmit(HH_memb, 20, 76)
+
+    'Checking to see if 5 jobs already exist. If so worker will need to manually delete one first.
 	EMReadScreen jobs_total_panel_count, 1, 2, 78
 	IF create_JOBS_checkbox = checked AND jobs_total_panel_count = "5" THEN script_end_procedure_with_error_report("This client has 5 jobs panels already. Please review and delete and unneeded panels if you want the script to add a new one.")
 
-'If new job is known, script ends.
-	If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")
+    'If new job is known, script ends.
+	If job_known_checkbox = checked then script_end_procedure("The script will stop as this job is known.")    '??? Should be case noting if the job is known?
 
-'Now it will create a new JOBS panel for this case.
+    'Now it will create a new JOBS panel for this case.
 	If create_JOBS_checkbox = checked then
-    	EMWriteScreen "NN", 20, 79				'Creates new panel
-    	transmit
+    	Call write_value_and_transmit("NN", 20, 79)				'Creates new panel
 
         EmReadscreen closed_case_msg, 27, 20, 79    '??? Not sure if this is how we want to handle these.
         If closed_case_msg = "MAXIS PROGRAMS ARE INACTIVE" then script_end_procedure_with_error_report("This case is inactive. The script will now end.")
@@ -274,29 +273,29 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
       	EMWriteScreen "0", 12, 67				'Puts $0 in as the received income amt
       	EMWriteScreen "0", 18, 72				'Puts 0 hours in as the worked hours
 
-      	If FS_case = True then 					'If case is SNAP, it creates a PIC
-      		EMWriteScreen "X", 19, 38
-      		transmit
+      	Call write_value_and_transmit("X", 19, 38)
+        IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
+            Call create_MAXIS_friendly_date(date_hired, 0, 5, 34) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
+        ELSE
+            Call create_MAXIS_friendly_date(date, 0, 5, 34) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
+        END IF
 
-            IF month_hired = MAXIS_footer_month THEN     'This accounts for rare cases when new hire footer month is the same as the hire date.
-                Call create_MAXIS_friendly_date(date_hired, 0, 5, 34) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
-          	ELSE
-                Call create_MAXIS_friendly_date(date, 0, 5, 34) 'Puts date hired if message is from same month as hire ex 01/16 new hire for 1/17/16 start date.
-          	END IF
-
-            'Entering PIC information
-      		EMWriteScreen "1", 5, 64
-      		EMWriteScreen "0", 8, 64
-      		EMWriteScreen "0", 9, 66
-      		transmit
-      		transmit
-      		transmit
-    	END IF
-    	transmit						'Transmits to submit the panel
-      	EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
-      	If expired_check = "EXPIRE" THEN Msgbox "Check next footer month to make sure the JOBS panel carried over"
+        'Entering PIC information - PIC will update no matter is SNAP is active or not. Following steps for coding from POLI TEMP TE02.05.108 Denying/Closing SNAP for No Income Verif
+      	EMWriteScreen "1", 5, 64
+      	EMWriteScreen "0", 8, 64
+      	EMWriteScreen "0", 9, 66
+        transmit
+        EmReadScreen PIC_warning, 7, 20, 6
+        IF PIC_warning = "WARNING" then transmit 'to clear message
+        transmit 'back to JOBS panel
+        transmit 'to save JOBS panel
+        'Adding additional follow up information to the closing message if the data is not likely to carry over to the next footer month.
+        EMReadScreen expired_check, 6, 24, 17 'Checks to see if the jobs panel will carry over by looking for the "This information will expire" at the bottom of the page
+        closing_message = "Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form should now be sent. The job is at " & employer & "."
+        If expired_check = "EXPIRE" THEN closing_message = closing_message & vbcr & vbcr & "Check next footer month to make sure the JOBS panel carried over correctly."
 	END IF
-    PF3 'back to DAIL
+
+    Call back_to_SELF
 
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
@@ -325,7 +324,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
     If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire received for " & MAXIS_case_number, "", "", TRUE, 5, "")
 
-    script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and a TIKL has been sent for 10 days from now. An Employment Verification and Verif Req Form should now be sent. The job is at " & employer & ".")
+    script_end_procedure_with_error_report(closing_message)
 END IF
 
 '----------------------------------------------------------------------------------------------------INFC Portion
