@@ -93,6 +93,7 @@ call Check_for_MAXIS(false)                         'Ensuring we are not passwor
 back_to_self                                        'added to ensure we have the time to update and send the case in the background
 
 EMReadScreen worker_number, 7, 22, 8                'reading the current workers number '
+
 EMWriteScreen MAXIS_case_number, 18, 43             'writing in the case number so that if cancelled, the worker doesn't lose the case number.
 
 closing_message = "Transfer case script is complete."      'setting up closing_message variable for possible additions later based on conditions letting us know that is made it to the end of the script
@@ -139,8 +140,12 @@ DO
 
     '----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
     IF transfer_to_worker = "X127CCL" THEN script_end_procedure("This case is will be transferred via an automated script after being closed for 4 months, the script will now end.")
-
+    IF worker_number = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
+        end_msg = "This case is already in the requested worker's number."
+        script_end_procedure("This case is already in the requested worker's number.")
+    END IF
     call navigate_to_MAXIS_screen("REPT", "USER")
+
     EMWriteScreen transfer_to_worker, 21, 12
     TRANSMIT
 
@@ -202,26 +207,20 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
     EMreadscreen second_servicing_worker, 7, 18, 74        'checking to see if the transfer_to_worker is the same as the second_servicing_worker (because then it won't transfer)
     IF second_servicing_worker <> "_______" THEN CALL clear_line_of_text(18, 74)
 
-    IF primary_worker = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
-        end_msg = "This case is already in the requested worker's number."
-		PF10 'backout
-		PF3 'SPEC menu
-		PF3 'SELF Menu'
-	ELSE                                                   'otherwise we are going for the transfer
-	    EMWriteScreen transfer_to_worker, 18, 61            'entering the worker information
-	    TRANSMIT                                           'saving - this should then take us to the transfer menu
-        EMReadScreen panel_check, 4, 2, 55                 'reading to see if we made it to the right place
+    'going for the transfer
+	EMWriteScreen transfer_to_worker, 18, 61            'entering the worker information
+	TRANSMIT                                           'saving - this should then take us to the transfer menu
+    EMReadScreen panel_check, 4, 2, 55                 'reading to see if we made it to the right place
 
-        If panel_check = "XWKR" THEN                       'this is not the right place
+    If panel_check = "XWKR" THEN                       'this is not the right place
+        end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
+        PF10 'backout
+        PF3 'SPEC menu
+        PF3 'SELF Menu'
+    Else                                                 'if we are in the right place - read to see if the new worker is the transfer_to_worker
+        EMReadScreen primary_worker, 7, 21, 16
+        If primary_worker <> transfer_to_worker THEN     'if it is not the transfer_to_worker - the transfer failed.
             end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
-            PF10 'backout
-            PF3 'SPEC menu
-            PF3 'SELF Menu'
-        Else                                                 'if we are in the right place - read to see if the new worker is the transfer_to_worker
-            EMReadScreen primary_worker, 7, 21, 16
-            If primary_worker <> transfer_to_worker THEN     'if it is not the transfer_to_worker - the transfer failed.
-                end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
-            End If
         End If
 	END IF
 ELSE 'this means out of county is TRUE '
