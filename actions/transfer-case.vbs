@@ -140,11 +140,8 @@ DO
 
     '----------Checks that the worker or agency is valid---------- 'must find user information before transferring to account for privileged cases.
     IF transfer_to_worker = "X127CCL" THEN script_end_procedure("This case is will be transferred via an automated script after being closed for 4 months, the script will now end.")
-    IF worker_number = transfer_to_worker THEN          'If they match, cancel the transfer and save the information about the 'failure'
-        end_msg = "This case is already in the requested worker's number."
-        script_end_procedure("This case is already in the requested worker's number.")
-    END IF
-    call navigate_to_MAXIS_screen("REPT", "USER")
+    IF worker_number = transfer_to_worker THEN script_end_procedure("This case is already in the requested worker's number.")        'If they match, cancel the transfer and save the information about the 'failure'
+    CALL navigate_to_MAXIS_screen("REPT", "USER")
 
     EMWriteScreen transfer_to_worker, 21, 12
     TRANSMIT
