@@ -5705,8 +5705,22 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 '~~~~~ list_active_programs: string of all the programs that appear active, app open, or app close
 '~~~~~ list_pending_programs: string of all the programs that appear pending
 '===== Keywords: MAXIS, case status, output, status
-    Call navigate_to_MAXIS_screen("CASE", "CURR")           'First the function will navigate to CASE/CURR so the inofrmation discovered is based on current status
-    family_cash_case = FALSE                                'defaulting all of the booleans
+	EMReadScreen on_DAIL_check, 4, 2, 48 										'Read the top of the page to see if we are on DAIL DAIL - this will have different navigation to get to CASE CURR if we are on the DAIL
+	EMReadScreen no_pop_up_on_DAIL, 9, 4, 24 									'Ensuring that there isn't a DAIL open on the page - which would inhibit direct navigating
+	EMGetCursor dail_row, dail_col												'Navigating using the DAIL requires that the cursor has been set on the correct DAIL message, this will check to be sure the cursor is set to what is likely to be a DAIL navigation line
+	'The function will try to use commands from DAIL to navigate to CASE/CURR
+	'It makes sure on_DAIL is 'DAIL' and the Selection option is visible
+	'The command line function is always in column 3 and betweet row 6 and 18
+	If on_DAIL_check = "DAIL" and no_pop_up_on_DAIL = "Selection" and dail_col = 3 and dail_row > 5 and dail_row < 19 Then
+		'IF USING THIS FUNCTION IN A DAIL SCRUBBER SCRIPT - BE SURE TO ENTER A SetCursor BEFORE CALLING THE FUNCTION - OR OTHERWISE ENSURE THE CURSOR IS ON THE DAIL
+		EMSendKey "H"		'H is the command for CASE/CURR
+		TRANSMIT
+	Else
+		'If the DAIL conditions weren't met, the script will use the navigate function to get to CASE/CURR - this will lose the tie to the DAIL if called in a DAIL scrubber
+    	Call navigate_to_MAXIS_screen("CASE", "CURR")           				'First the function will navigate to CASE/CURR so the inofrmation discovered is based on current status
+	End If
+
+    family_cash_case = FALSE                                					'defaulting all of the booleans
     adult_cash_case = FALSE
     ga_case = FALSE
     msa_case = FALSE
