@@ -86,6 +86,7 @@ function view_poli_temp(temp_one, temp_two, temp_three, temp_four)
 	EMWriteScreen "X", 6, 4
 	transmit
 end function
+
 '--------------------------------------------------------------------------------The script
 EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
@@ -421,6 +422,7 @@ ELSE 'this means out of county is TRUE '
         EMWriteScreen worker_number, 18, 28
         EMWriteScreen transfer_to_worker, 18, 61
         TRANSMIT                                           'saving - this should then take us to the transfer menu
+        EMReadScreen error_message, 74, 24, 02              'looking for what could be happeing to stop the transfer'
         EMReadScreen panel_check, 4, 2, 49                 'reading to see if we made it to the right place we shou.d be back on   Transfer Selection (XFER)
         If panel_check <> "XFER" Then 'this is not the right place
             end_msg = "Transfer of this case to " & transfer_to_worker & " has failed."
@@ -435,7 +437,7 @@ ELSE 'this means out of county is TRUE '
         END IF
     END IF ' confirming the xfer worked and we left the panel'
 END IF ' the big one'
-
+script_run_lowdown = script_run_lowdown & vbCr & " Message: " & vbCr & error_message
 IF end_msg <> "" Then
     closing_message = closing_message & vbCr & vbCr & "Case did not appear to transfer:" & vbCr & end_msg
 ELSE
