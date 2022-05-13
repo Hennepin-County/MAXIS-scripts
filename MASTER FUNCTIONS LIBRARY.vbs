@@ -3349,6 +3349,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
         If ABPS_current = "________________________  First: ____________" then ABPS_current = "Parent unknown"
         ABPS_current = replace(ABPS_current, "  First:", ",")
         ABPS_current = replace(ABPS_current, "_", "")
+		ABPS_current = trim(ABPS_current)
         ABPS_current = split(ABPS_current)
         For each ABPS_part in ABPS_current
           first_letter = ucase(left(ABPS_part, 1))
