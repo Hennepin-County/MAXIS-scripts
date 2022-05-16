@@ -9034,57 +9034,80 @@ function navigate_to_MAXIS_screen(function_to_go_to, command_to_go_to)
 '~~~~~ function_to_go_to: needs to be MAXIS function like "STAT" or "REPT"
 '~~~~~ command_to_go_to: needs to be MAXIS function like "WREG" or "ACTV"
 '===== Keywords: MAXIS, navigate
-  EMSendKey "<enter>"
-  EMWaitReady 0, 0
-  EMReadScreen MAXIS_check, 5, 1, 39
-  If MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " then
-    EMReadScreen locked_panel, 23, 2, 30
-    IF locked_panel = "Program History Display" then
-	PF3 'Checks to see if on Program History panel - which does not allow the Command line to be updated
-    END IF
-    row = 1
-    col = 1
-    EMSearch "Function: ", row, col
-    If row <> 0 then
-      EMReadScreen MAXIS_function, 4, row, col + 10
-      EMReadScreen STAT_note_check, 4, 2, 45
-      row = 1
-      col = 1
-      EMSearch "Case Nbr: ", row, col
-      EMReadScreen current_case_number, 8, row, col + 10
-      current_case_number = replace(current_case_number, "_", "")
-      current_case_number = trim(current_case_number)
-    End if
-    If current_case_number = MAXIS_case_number and MAXIS_function = ucase(function_to_go_to) and STAT_note_check <> "NOTE" then
-      row = 1
-      col = 1
-      EMSearch "Command: ", row, col
-      EMWriteScreen command_to_go_to, row, col + 9
-      EMSendKey "<enter>"
-      EMWaitReady 0, 0
-    Else
-      Do
-        EMSendKey "<PF3>"
-        EMWaitReady 0, 0
-        EMReadScreen SELF_check, 4, 2, 50
-      Loop until SELF_check = "SELF"
-      EMWriteScreen function_to_go_to, 16, 43
-      EMWriteScreen "________", 18, 43
-      EMWriteScreen MAXIS_case_number, 18, 43
-      EMWriteScreen MAXIS_footer_month, 20, 43
-      EMWriteScreen MAXIS_footer_year, 20, 46
-      EMWriteScreen command_to_go_to, 21, 70
-      EMSendKey "<enter>"
-      EMWaitReady 0, 0
-      EMReadScreen abended_check, 7, 9, 27
-      If abended_check = "abended" then
-        EMSendKey "<enter>"
-        EMWaitReady 0, 0
-      End if
-	  EMReadScreen ERRR_check, 4, 2, 52			'Checking for the ERRR screen
-	  If ERRR_check = "ERRR" then transmit		'If the ERRR screen is found, it transmits
-    End if
-  End if
+	EMSendKey "<enter>"
+	EMWaitReady 0, 0
+	EMReadScreen MAXIS_check, 5, 1, 39
+	If MAXIS_check = "MAXIS" or MAXIS_check = "AXIS " then
+		already_at_the_correct_screen = False
+		review_footer_month = False
+		at_correct_footer_month = False
+
+		EMReadScreen locked_panel, 23, 2, 30
+		IF locked_panel = "Program History Display" then
+			PF3 'Checks to see if on Program History panel - which does not allow the Command line to be updated
+		END IF
+		row = 1
+		col = 1
+		EMSearch "Function: ", row, col
+		If row <> 0 then
+			EMReadScreen MAXIS_function, 4, row, col + 10
+			EMReadScreen STAT_note_check, 4, 2, 45
+			row = 1
+			col = 1
+			EMSearch "Case Nbr: ", row, col
+			EMReadScreen current_case_number, 8, row, col + 10
+			current_case_number = replace(current_case_number, "_", "")
+			current_case_number = trim(current_case_number)
+			EMReadScreen all_of_function_row, 80, row, 1
+			footer_month_location = InStr(all_of_function_row, "Month")
+			footer_month_location = footer_month_location + 7
+			If function_to_go_to = "STAT" Then review_footer_month = True
+			If function_to_go_to = "ELIG" Then review_footer_month = True
+			If MAXIS_footer_month = "" OR MAXIS_footer_year = "" Then review_footer_month = False
+			EMReadScreen current_footer_month, 2, row, footer_month_location
+			EMReadScreen current_footer_year, 2, row, footer_month_location+3
+			If review_footer_month = True Then
+				If current_footer_month = MAXIS_footer_month AND current_footer_year = MAXIS_footer_year Then at_correct_footer_month = True
+			Else
+				at_correct_footer_month = True
+			End If
+
+			EMReadScreen all_of_row_two, 80, 2, 1
+			If current_case_number = MAXIS_case_number and MAXIS_function = function_to_go_to AND InStr(all_of_row_two, command_to_go_to) <> 0 AND at_correct_footer_month = True Then already_at_the_correct_screen = True
+		End if
+
+		If already_at_the_correct_screen = False Then
+			If current_case_number = MAXIS_case_number and MAXIS_function = ucase(function_to_go_to) and STAT_note_check <> "NOTE" and at_correct_footer_month = True then
+				row = 1
+				col = 1
+				EMSearch "Command: ", row, col
+				EMWriteScreen command_to_go_to, row, col + 9
+				EMSendKey "<enter>"
+				EMWaitReady 0, 0
+			Else
+				Do
+					EMSendKey "<PF3>"
+					EMWaitReady 0, 0
+					EMReadScreen SELF_check, 4, 2, 50
+				Loop until SELF_check = "SELF"
+				EMWriteScreen function_to_go_to, 16, 43
+				EMWriteScreen "________", 18, 43
+				EMWriteScreen MAXIS_case_number, 18, 43
+				EMWriteScreen MAXIS_footer_month, 20, 43
+				EMWriteScreen MAXIS_footer_year, 20, 46
+				EMWriteScreen command_to_go_to, 21, 70
+				EMSendKey "<enter>"
+				EMWaitReady 0, 0
+				EMReadScreen abended_check, 7, 9, 27
+				If abended_check = "abended" then
+					EMSendKey "<enter>"
+					EMWaitReady 0, 0
+				End if
+				EMReadScreen ERRR_check, 4, 2, 52			'Checking for the ERRR screen
+				If ERRR_check = "ERRR" then transmit		'If the ERRR screen is found, it transmits
+			End if
+		End If
+	End if
 end function
 
 function navigate_to_MMIS_region(group_security_selection)
