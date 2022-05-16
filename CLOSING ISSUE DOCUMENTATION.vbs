@@ -11,6 +11,7 @@
 '--All variables are CASE:NOTEing (if required)---------------------------------
 '--CASE:NOTE Header doesn't look funky------------------------------------------
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
 '--MAXIS_background_check reviewed (if applicable)------------------------------
@@ -18,6 +19,7 @@
 '--Out-of-County handling reviewed----------------------------------------------
 '--script_end_procedures (w/ or w/o error messaging)----------------------------
 '--BULK - review output of statistics and run time/count (if applicable)--------
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------
@@ -27,7 +29,7 @@
 '--BULK - remove 1 incrementor at end of script reviewed------------------------
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete-----------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------
 '--comment Code-----------------------------------------------------------------
 '--Update Changelog for release/update------------------------------------------
 '--Remove testing message boxes-------------------------------------------------
