@@ -9034,6 +9034,8 @@ function navigate_to_MAXIS_screen(function_to_go_to, command_to_go_to)
 '~~~~~ function_to_go_to: needs to be MAXIS function like "STAT" or "REPT"
 '~~~~~ command_to_go_to: needs to be MAXIS function like "WREG" or "ACTV"
 '===== Keywords: MAXIS, navigate
+	function_to_go_to = UCase(function_to_go_to)
+	command_to_go_to = UCase(command_to_go_to)
 	EMSendKey "<enter>"
 	EMWaitReady 0, 0
 	EMReadScreen MAXIS_check, 5, 1, 39
@@ -9077,7 +9079,7 @@ function navigate_to_MAXIS_screen(function_to_go_to, command_to_go_to)
 		End if
 
 		If already_at_the_correct_screen = False Then
-			If current_case_number = MAXIS_case_number and MAXIS_function = ucase(function_to_go_to) and STAT_note_check <> "NOTE" and at_correct_footer_month = True then
+			If current_case_number = MAXIS_case_number and MAXIS_function = function_to_go_to and STAT_note_check <> "NOTE" and at_correct_footer_month = True then
 				row = 1
 				col = 1
 				EMSearch "Command: ", row, col
