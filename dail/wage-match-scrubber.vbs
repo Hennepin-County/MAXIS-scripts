@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/16/2022", "Added fix for WAGE match scrubber while DHS interface with SSN is being repaired.", "05/16/2022, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -330,7 +331,7 @@ FUNCTION income_matrix(income_matrix_array, match_name, match_employer, quarter,
 	NEXT
 
 	dlg_height = 150 + (num_of_income_panels * 15)
-    
+
     Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 510, dlg_height, "Wage Information"
 		ButtonGroup ButtonPressed
@@ -411,11 +412,24 @@ transmit
 EMReadScreen wage, 4, 6, 6
 IF wage <> "WAGE" THEN script_end_procedure("Your cursor is not set on a WAGE message type. Please select an appropriate DAIL message and try again.")
 
+'Grabbibng the SSN for the member
+EmReadscreen member_number, 2, 6, 25
+CALL write_value_and_transmit("S", 6, 3)
+EMWriteScreen "MEMB", 20, 71
+EMWriteScreen member_number, 20, 76
+Call write_value_and_transmit("01", 20, 79)
+EmReadscreen client_SSN, 11, 7, 42
+client_SSN = replace(client_SSN, " ", "")
+
+PF3 ' back to the DAIL
+
 'Navigating deeper into the match interface
 CALL write_value_and_transmit("I", 6, 3)
 EMReadScreen MAXIS_case_number, 8, 20, 38
 MAXIS_case_number = trim(MAXIS_case_number)
 MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+EMWriteScreen client_SSN, 3, 63
+
 CALL write_value_and_transmit("IEVP", 20, 71)
 EMSendKey "D"
 transmit
