@@ -62,6 +62,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/16/2022", "Updated script functionality to support IEVS/INFO message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -73,34 +74,43 @@ FUNCTION abended_function
 	IF case_abended = "abended" THEN transmit
 END FUNCTION
 
-
-
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 EMConnect ""
 
-EMReadScreen on_dail, 4, 2, 48
-IF on_dail <> "DAIL" THEN script_end_procedure("You are not in DAIL. Please navigate to DAIL and run the script again.")
+EMReadScreen MEMB_check, 7, 6, 20
+If left(MEMB_check, 4) = "MEMB" then
+    member_number = right(MEMB_check, 2)
+    SSN_present = False
+    'Grabbibng the SSN for the member
+    EmReadscreen member_number, 2, 6, 25
+    CALL write_value_and_transmit("S", 6, 3)
+    EMWriteScreen "MEMB", 20, 71
+    EMWriteScreen member_number, 20, 76
+    Call write_value_and_transmit("01", 20, 79)
+    EmReadscreen client_SSN, 11, 7, 42
+    trimmed_client_SSN = replace(client_SSN, " ", "")
 
-EMGetCursor read_row, read_column
+    PF3 ' back to the DAIL
+Else
+    SSN_present = True
+    EMReadScreen cl_ssn, 9, 6, 20
+    ssn_first = left(cl_ssn, 3)
+    ssn_first = ssn_first & " "
+    ssn_mid = right(left(cl_ssn, 5), 2)
+    ssn_mid = ssn_mid & " "
+    ssn_end = right(cl_ssn, 4)
+    client_SSN = ssn_first & ssn_mid & ssn_end
+End if
 
-EMReadScreen is_right_line, 34, read_row, 30
-IF is_right_line <> "BENDEX INFORMATION HAS BEEN STORED" THEN script_end_procedure("You are not on the correct line. Please select a BNDX message on your DAIL.")
-EMReadScreen original_bndx_dail, 30, read_row, 6
+'Navigating deeper into the match interface
+CALL write_value_and_transmit("I", 6, 3)
+EMReadScreen MAXIS_case_number, 8, 20, 38
+MAXIS_case_number = trim(MAXIS_case_number)
+MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+EMWriteScreen trimmed_client_SSN, 3, 63
 
-EMReadScreen cl_ssn, 9, read_row, 20
-	ssn_first = left(cl_ssn, 3)
-	ssn_first = ssn_first & " "
-	ssn_mid = right(left(cl_ssn, 5), 2)
-	ssn_mid = ssn_mid & " "
-	ssn_end = right(cl_ssn, 4)
-	use_ssn = ssn_first & ssn_mid & ssn_end
-search_row = read_row
-
-EMWriteScreen "I", read_row, 3
-transmit
-EMWriteScreen "BNDX", 20, 71
-transmit
+CALL write_value_and_transmit("BNDX", 20, 71)
 
 'checking for IRS non-disclosure agreement.
 EMReadScreen agreement_check, 9, 2, 24
@@ -168,12 +178,12 @@ transmit
 
 DO
 	EMReadScreen memb_ssn, 11, 7, 42
-	IF use_ssn = memb_ssn THEN
+	IF client_SSN = memb_ssn THEN
 		EMReadScreen reference_number, 2, 4, 33
 	ELSE
 		transmit
 	END IF
-LOOP UNTIL use_ssn = memb_ssn
+LOOP UNTIL client_SSN = memb_ssn
 
 FOR i = 0 TO num_of_rsdi
 	end_of_unea = ""
