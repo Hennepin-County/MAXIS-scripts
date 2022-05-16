@@ -5715,10 +5715,9 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 		'IF USING THIS FUNCTION IN A DAIL SCRUBBER SCRIPT - BE SURE TO ENTER A SetCursor BEFORE CALLING THE FUNCTION - OR OTHERWISE ENSURE THE CURSOR IS ON THE DAIL
 		EMSendKey "H"		'H is the command for CASE/CURR
 		TRANSMIT
-	Else
-		'If the DAIL conditions weren't met, the script will use the navigate function to get to CASE/CURR - this will lose the tie to the DAIL if called in a DAIL scrubber
-    	Call navigate_to_MAXIS_screen("CASE", "CURR")           				'First the function will navigate to CASE/CURR so the inofrmation discovered is based on current status
 	End If
+	'Now navigate to CASE CURR - if we are already there (by using the DAIL) this won't move as the function now checks to see if we are already at the screen 
+	Call navigate_to_MAXIS_screen("CASE", "CURR")           				'First the function will navigate to CASE/CURR so the inofrmation discovered is based on current status
 
     family_cash_case = FALSE                                					'defaulting all of the booleans
     adult_cash_case = FALSE
