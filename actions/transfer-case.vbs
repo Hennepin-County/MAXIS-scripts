@@ -197,7 +197,7 @@ IF transfer_to_worker = "X162ICT" THEN worker_agency_phone = "651-266-4444" 'Ram
 
 If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered - we are attempting the transfer
 	CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER IN COUNTY
-	EMWriteScreen "x", 7, 16                               'transfer within county option
+	EMWriteScreen "X", 7, 16                               'transfer within county option
     TRANSMIT
     PF9                                                    'putting the transfer in edit mode
     EMreadscreen primary_worker, 7, 21, 16                  'how does PW act differently than SW?'
@@ -367,7 +367,7 @@ ELSE 'this means out of county is TRUE '
 
     '----------------------------------------------------------OUT OF COUNTY TRANSFER actually happening
     CALL navigate_to_MAXIS_screen ("SPEC", "XFER")         'go to SPEC/XFER
-    EMWriteScreen "x", 9, 16                               'Transfer County To County
+    EMWriteScreen "X", 9, 16                               'Transfer County To County
     TRANSMIT
     EMReadScreen panel_check, 4, 2, 54                        'reading to see if we made it to the right place
     'EMReadScreen error_message, 75, 24, 2                   ' YOU ARE NOT AUTHORIZED TO TRANSFER THIS CASE OR 'LAST XFER ACTION WAS DONE AT 09:23 ON 09/23/21 BY X127L1S'
@@ -448,44 +448,42 @@ ELSE
 END IF
 Call script_end_procedure_with_error_report(closing_message)
 
-
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
-'------Task/Step----------------------------------------------------------------Date completed-------------Notes-----------------------
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------04/14/22
-'--Tab orders reviewed & confirmed----------------------------------------------04/14/22
-'--Mandatory fields all present & Reviewed--------------------------------------04/14/22
-'--All variables in dialog match mandatory fields-------------------------------04/14/22
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/12/2022
+'--Tab orders reviewed & confirmed----------------------------------------------04/12/2022
+'--Mandatory fields all present & Reviewed--------------------------------------04/12/2022
+'--All variables in dialog match mandatory fields-------------------------------04/12/2022
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------04/14/22
-'--CASE:NOTE Header doesn't look funky------------------------------------------04/14/22
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------Needs to PF3
+'--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
-'--MAXIS_background_check reviewed (if applicable)------------------------------04/14/22
-'--PRIV Case handling reviewed -------------------------------------------------04/14/22
-'--Out-of-County handling reviewed----------------------------------------------04/19/22
-'--script_end_procedures (w/ or w/o error messaging)----------------------------04/14/22
-'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022
+'--PRIV Case handling reviewed -------------------------------------------------04/12/2022
+'--Out-of-County handling reviewed----------------------------------------------04/12/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/12/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------04/12/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------04/14/22
-'--Incrementors reviewed (if necessary)-----------------------------------------N/A
-'--Denomination reviewed -------------------------------------------------------N/A
-'--Script name reviewed---------------------------------------------------------04/14/22
-'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+'--Manual time study reviewed --------------------------------------------------
+'--Incrementors reviewed (if necessary)-----------------------------------------04/12/2022
+'--Denomination reviewed -------------------------------------------------------04/12/2022
+'--Script name reviewed---------------------------------------------------------04/12/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------04/12/2022
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------04/14/22
-'--comment code-----------------------------------------------------------------04/14/22
-'--Update Changelog for release/update------------------------------------------04/14/22
-'--Remove testing message boxes-------------------------------------------------04/14/22
-'--Remove testing code/unnecessary code-----------------------------------------04/14/22
-'--Review/update SharePoint instructions----------------------------------------04/14/22
-'--Review Best Practices using BZS page ----------------------------------------04/14/22
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/14/22
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
-'--Complete misc. documentation (if applicable)---------------------------------N/A
-'--Update project team/issue contact (if applicable)----------------------------n/A
+'--Confirm all GitHub tasks are complete----------------------------------------04/12/2022
+'--comment Code-----------------------------------------------------------------04/12/2022
+'--Update Changelog for release/update------------------------------------------04/12/2022
+'--Remove testing message boxes-------------------------------------------------04/12/2022
+'--Remove testing code/unnecessary code-----------------------------------------04/12/2022
+'--Review/update SharePoint instructions----------------------------------------04/12/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/12/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/12/2022
+'--Complete misc. documentation (if applicable)---------------------------------04/12/2022
+'--Update project team/issue contact (if applicable)----------------------------04/12/2022
