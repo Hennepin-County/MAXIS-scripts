@@ -546,6 +546,7 @@ For all_elig_results = 0 to UBound (BENE_AMOUNT_ARRAY,2)
 			End If
 		END IF
 	END IF
+    Call back_to_SELF
 Next
 
 'Case notes----------------------------------------------------------------------------------------------------
