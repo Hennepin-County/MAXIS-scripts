@@ -2957,8 +2957,9 @@ End Function
 'This also determines the members that are including in gathering information.
 function HH_comp_dialog(HH_member_array)
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+    EMWriteScreen "01", 20, 76
+    transmit
 
-    Call Navigate_to_MAXIS_screen("STAT", "MEMB")
 	EMReadScreen id_ver_code, 2, 9, 68
 	If id_ver_code <> "__" AND id_ver_code <> "NO" Then applicant_id_on_file_yn = "Yes"
 	If id_ver_code = "__" OR id_ver_code = "NO" Then applicant_id_on_file_yn = "No"
