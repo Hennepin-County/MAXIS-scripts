@@ -5716,7 +5716,7 @@ function determine_program_and_case_status_from_CASE_CURR(case_active, case_pend
 		EMSendKey "H"		'H is the command for CASE/CURR
 		TRANSMIT
 	End If
-	'Now navigate to CASE CURR - if we are already there (by using the DAIL) this won't move as the function now checks to see if we are already at the screen 
+	'Now navigate to CASE CURR - if we are already there (by using the DAIL) this won't move as the function now checks to see if we are already at the screen
 	Call navigate_to_MAXIS_screen("CASE", "CURR")           				'First the function will navigate to CASE/CURR so the inofrmation discovered is based on current status
 
     family_cash_case = FALSE                                					'defaulting all of the booleans
@@ -7784,6 +7784,8 @@ function HH_member_custom_dialog(HH_member_array)
 '~~~~~ HH_member_array: should be HH_member_array for function to work
 '===== Keywords: MAXIS, member, array, dialog
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+	EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
+    transmit
 
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 		EMReadscreen ref_nbr, 3, 4, 33
