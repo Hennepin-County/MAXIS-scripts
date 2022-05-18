@@ -9134,7 +9134,9 @@ If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 
 
 	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-	EMReadScreen id_ver_code, 2, 9, 68
+    EMWriteScreen "01", 20, 76
+    transmit
+    EMReadScreen id_ver_code, 2, 9, 68
 	If id_ver_code <> "__" AND id_ver_code <> "NO" Then applicant_id_on_file_yn = "Yes"
 	If id_ver_code = "__" OR id_ver_code = "NO" Then applicant_id_on_file_yn = "No"
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
