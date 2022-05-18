@@ -96,6 +96,7 @@ Function updated_panel_member_array(stat_panel, output_variable)
 	If HH_member_array <> "" then panels_updated = panels_updated & stat_panel & ","
     HH_member_array = Split(HH_member_array, " ") 	'declaring & splitting the array
 
+	call navigate_to_MAXIS_screen("STAT", "SUMM")
 	call autofill_editbox_from_MAXIS(HH_member_array, stat_panel, output_variable)
 End Function
 
