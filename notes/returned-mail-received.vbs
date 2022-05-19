@@ -103,6 +103,8 @@ IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the s
 Call access_ADDR_panel("READ", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_county, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city_line, mail_state_line, mail_zip_line, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
 EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to navigate'
+case_invalid_error = trim(case_invalid_error)
+If case_invalid_error = "ENTER A VALID COMMAND OR PF-KEY" Then case_invalid_error = ""			'this message is for if you press transmit on a single instance panel and does not indicate an error. Ignoring it
 IF trim(case_invalid_error) <> "" THEN script_end_procedure("*** NOTICE!!! ***" & vbCr & case_invalid_error & vbCr & "Please resolve for the script to continue.")
 '-------------------------------------------------------------------------------------------------DIALOG
 mailing_address_confirmed = "NO"
