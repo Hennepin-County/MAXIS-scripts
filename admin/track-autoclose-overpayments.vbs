@@ -280,7 +280,6 @@ function budget_calculate_household(correct_hh_size, disa_household, cat_elig, s
 	If disa_household = True Then max_shelter_cost_correct_amt = 0
 	If disa_household = False Then max_shelter_cost_correct_amt = 597
 
-
 	standard_deduction_correct_amt = FormatNumber(standard_deduction_correct_amt, 2, -1, 0, -1)
 	max_shelter_cost_correct_amt = FormatNumber(max_shelter_cost_correct_amt, 2, -1, 0, -1)
 	max_gross_income_correct_amt = FormatNumber(max_gross_income_correct_amt, 2, -1, 0, -1)
@@ -335,15 +334,28 @@ function budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_a
 	Call ensure_variable_is_a_number(fifty_perc_net_income_correct_amt, 2)
 	Call ensure_variable_is_a_number(max_shelter_cost_correct_amt, 2)
 	Call ensure_variable_is_a_number(net_income_correct_amt, 2)
+	' MsgBox "max_shelter_cost_correct_amt - " & max_shelter_cost_correct_amt
 
 	total_shelter_cost_correct_amt = rent_mortgage_correct_amt + tax_correct_amt + insurance_correct_amt + other_cost_correct_amt + utilities_correct_amt
 	adj_shelter_cost_correct_amt = total_shelter_cost_correct_amt - fifty_perc_net_income_correct_amt
 	If adj_shelter_cost_correct_amt < 0 Then adj_shelter_cost_correct_amt = 0
-	If max_shelter_cost_correct_amt = 0 Then max_shelter_cost_correct_amt = adj_shelter_cost_correct_amt
-	If adj_shelter_cost_correct_amt > max_shelter_cost_correct_amt Then
+	If max_shelter_cost_correct_amt = 0 Then
+		If adj_shelter_cost_correct_amt > 597 Then
+			max_shelter_cost_correct_amt = adj_shelter_cost_correct_amt
+		Else
+			max_shelter_cost_correct_amt = 597
+		End If
 		counted_shelter_cost_correct_amt = max_shelter_cost_correct_amt
 	Else
-		counted_shelter_cost_correct_amt = adj_shelter_cost_correct_amt
+		If adj_shelter_cost_correct_amt >= max_shelter_cost_correct_amt Then
+			counted_shelter_cost_correct_amt = max_shelter_cost_correct_amt
+		Else
+			counted_shelter_cost_correct_amt = adj_shelter_cost_correct_amt
+		End If
+		If MFIP_active = True Then
+			max_shelter_cost_correct_amt = 597
+			counted_shelter_cost_correct_amt = 597
+		End If
 	End If
 	net_adj_income_correct_amt = net_income_correct_amt - counted_shelter_cost_correct_amt
 	If net_adj_income_correct_amt < 0 Then net_adj_income_correct_amt = 0
@@ -518,8 +530,8 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 
 	snap_overpayment_exists = False
 	snap_supplement_exists = False
-	mfip_overpayment_exists = False
-	mfip_supplement_exists = False
+	' mfip_overpayment_exists = False
+	' mfip_supplement_exists = False
 	income_exceeded = False
 	snap_overpayment_amt = 0
 	snap_supplement_amt = 0
@@ -546,6 +558,13 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 
 		If correct_hh_size < 3 and monthly_snap_benefit_correct_amt < 20 Then monthly_snap_benefit_correct_amt = 20
 		If correct_hh_size > 2 and monthly_snap_benefit_correct_amt < 0 Then monthly_snap_benefit_correct_amt = 0
+		If MFIP_active = True Then 			'TODO  for future need handling for UHFS calculation
+			If monthly_snap_benefit_correct_amt > 0 Then
+				monthly_snap_benefit_correct_amt = .75*monthly_snap_benefit_correct_amt
+				monthly_snap_benefit_correct_amt = Int(monthly_snap_benefit_correct_amt)
+				If monthly_snap_benefit_correct_amt < 20 Then monthly_snap_benefit_correct_amt = 20
+			End If
+		End If
 		snap_correct_amt = monthly_snap_benefit_correct_amt - sanction_recoupment_correct_amt
 		If snap_correct_amt < 0 Then snap_correct_amt = 0
 	End If
@@ -1143,6 +1162,7 @@ For each hh_clt in client_array
 	End If
 	clt_count = clt_count + 1
 Next
+' MsgBox "disa_household - " & disa_household
 
 'Read ELIG for 02/22
 If SNAP_active = True Then
@@ -1429,10 +1449,15 @@ End If
 
 ' START A LOOP HERE
 recalculation_confirmed = False
+snap_calculation_needed = False
+mfip_calculation_needed = False
 snap_proration_date = "2/1/2022"
 original_mfip_subsidy_tribal_amt = mfip_subsidy_tribal_amt
+process_complete = ""
 Do
 	calculation_needed = True
+	If SNAP_active = True Then snap_calculation_needed = True
+	If MFIP_active = True Then mfip_calculation_needed = True
 	snap_overpayment_exists = False
 	snap_supplement_exists = False
 	mfip_subsidy_tribal_amt = original_mfip_subsidy_tribal_amt
@@ -1440,58 +1465,171 @@ Do
 	Do
 		err_msg = ""
 		Dialog1 = ""
-		BeginDialog Dialog1, 0, 0, 316, 105, "02/22 Report Process Information"
-		  DropListBox 180, 10, 60, 45, "Select One..."+chr(9)+"ER"+chr(9)+"SR"+chr(9)+"HRF", feb_process
-		  DropListBox 260, 25, 50, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", process_complete
-		  DropListBox 65, 45, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNbenefits"+chr(9)+"CSR"+chr(9)+"Combined AR", form_received
-		  EditBox 260, 45, 50, 15, form_received_date
-		  DropListBox 65, 65, 90, 45, "Select One..."+chr(9)+"Not Required"+chr(9)+"Completed"+chr(9)+"Incomplete"+chr(9)+"N/A", interview_information
-		  EditBox 260, 65, 50, 15, interview_date
-		  DropListBox 65, 85, 60, 45, "Select One..."+chr(9)+"None Needed"+chr(9)+"Partial"+chr(9)+"Complete"+chr(9)+"None Received"+chr(9)+"N/A", verifs_received
-		  ButtonGroup ButtonPressed
-		    OkButton 205, 85, 50, 15
-		    CancelButton 260, 85, 50, 15
-		  Text 15, 15, 50, 10, "Case Number:"
-		  Text 70, 15, 50, 10, MAXIS_case_number
-		  Text 125, 15, 55, 10, "02/22 Process:"
-		  Text 15, 30, 245, 10, "Was the MONT/REVW completed, with all required forms and verifications?"
-		  Text 10, 50, 55, 10, "Form Received:"
-		  Text 185, 50, 70, 10, "Date Form Recieved:"
-		  Text 30, 70, 35, 10, "Interview:"
-		  Text 205, 70, 50, 10, "Interview Date:"
-		  Text 20, 90, 45, 10, "Verifications:"
-		EndDialog
+
+		If SNAP_active = True and MFIP_active = True Then
+			BeginDialog Dialog1, 0, 0, 321, 235, "02/22 Report Process Information"
+			  DropListBox 180, 10, 60, 45, "Select One..."+chr(9)+"ER"+chr(9)+"SR"+chr(9)+"HRF", feb_process
+
+			  DropListBox 260, 35, 50, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", process_complete_snap
+			  DropListBox 65, 55, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNbenefits"+chr(9)+"CSR"+chr(9)+"Combined AR", form_received_snap
+			  EditBox 260, 55, 50, 15, form_received_date_snap
+			  DropListBox 65, 75, 90, 45, "Select One..."+chr(9)+"Not Required"+chr(9)+"Completed"+chr(9)+"Incomplete"+chr(9)+"N/A", interview_information_snap
+			  EditBox 260, 75, 50, 15, interview_date_snap
+			  DropListBox 65, 95, 60, 45, "Select One..."+chr(9)+"None Needed"+chr(9)+"Partial"+chr(9)+"Complete"+chr(9)+"None Received"+chr(9)+"N/A", verifs_received_snap
+			  CheckBox 170, 95, 135, 10, "Check Here if SNAP and MFIP Process", snap_mfip_process_match_checkbox
+			  Text 180, 105, 75, 10, "Details are the same"
+
+
+			  DropListBox 260, 130, 50, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", process_complete_mfip
+			  DropListBox 65, 150, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNbenefits"+chr(9)+"CSR"+chr(9)+"Combined AR", form_received_mfip
+			  EditBox 260, 150, 50, 15, form_received_date_mfip
+			  DropListBox 65, 170, 90, 45, "Select One..."+chr(9)+"Not Required"+chr(9)+"Completed"+chr(9)+"Incomplete"+chr(9)+"N/A", interview_information_mfip
+			  EditBox 260, 170, 50, 15, interview_date_mfip
+			  DropListBox 65, 190, 60, 45, "Select One..."+chr(9)+"None Needed"+chr(9)+"Partial"+chr(9)+"Complete"+chr(9)+"None Received"+chr(9)+"N/A", verifs_received_mfip
+
+			  Text 15, 15, 50, 10, "Case Number:"
+			  Text 70, 15, 50, 10, MAXIS_case_number
+			  Text 125, 15, 55, 10, "02/22 Process:"
+			  Text 15, 40, 245, 10, "Was the MONT/REVW completed, with all required forms and verifications?"
+			  Text 10, 60, 55, 10, "Form Received:"
+			  Text 185, 60, 70, 10, "Date Form Recieved:"
+			  Text 30, 80, 35, 10, "Interview:"
+			  Text 205, 80, 50, 10, "Interview Date:"
+			  Text 20, 100, 45, 10, "Verifications:"
+			  Text 15, 135, 245, 10, "Was the MONT/REVW completed, with all required forms and verifications?"
+			  Text 10, 155, 55, 10, "Form Received:"
+			  Text 185, 155, 70, 10, "Date Form Recieved:"
+			  Text 30, 175, 35, 10, "Interview:"
+			  Text 205, 175, 50, 10, "Interview Date:"
+			  Text 20, 195, 45, 10, "Verifications:"
+			  GroupBox 5, 25, 310, 90, "SNAP"
+			  GroupBox 5, 120, 310, 90, "MFIP"
+			  ButtonGroup ButtonPressed
+			    OkButton 210, 215, 50, 15
+			    CancelButton 265, 215, 50, 15
+			EndDialog
+		Else
+			BeginDialog Dialog1, 0, 0, 316, 105, "02/22 Report Process Information"
+			  DropListBox 180, 10, 60, 45, "Select One..."+chr(9)+"ER"+chr(9)+"SR"+chr(9)+"HRF", feb_process
+			  DropListBox 260, 25, 50, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", process_complete
+			  DropListBox 65, 45, 90, 45, "Select One..."+chr(9)+"None Received"+chr(9)+"CAF"+chr(9)+"HRF"+chr(9)+"HUF"+chr(9)+"MNbenefits"+chr(9)+"CSR"+chr(9)+"Combined AR", form_received
+			  EditBox 260, 45, 50, 15, form_received_date
+			  DropListBox 65, 65, 90, 45, "Select One..."+chr(9)+"Not Required"+chr(9)+"Completed"+chr(9)+"Incomplete"+chr(9)+"N/A", interview_information
+			  EditBox 260, 65, 50, 15, interview_date
+			  DropListBox 65, 85, 60, 45, "Select One..."+chr(9)+"None Needed"+chr(9)+"Partial"+chr(9)+"Complete"+chr(9)+"None Received"+chr(9)+"N/A", verifs_received
+			  ButtonGroup ButtonPressed
+				OkButton 205, 85, 50, 15
+				CancelButton 260, 85, 50, 15
+			  Text 15, 15, 50, 10, "Case Number:"
+			  Text 70, 15, 50, 10, MAXIS_case_number
+			  Text 125, 15, 55, 10, "02/22 Process:"
+			  Text 15, 30, 245, 10, "Was the MONT/REVW completed, with all required forms and verifications?"
+			  Text 10, 50, 55, 10, "Form Received:"
+			  Text 185, 50, 70, 10, "Date Form Recieved:"
+			  Text 30, 70, 35, 10, "Interview:"
+			  Text 205, 70, 50, 10, "Interview Date:"
+			  Text 20, 90, 45, 10, "Verifications:"
+			EndDialog
+		End If
 
 		dialog Dialog1
 		cancel_confirmation
 
-		If form_received = "None Received" Then
-			If interview_information <> "N/A" or verifs_received <> "N/A" Then err_msg = "LOOP"
-			interview_information = "N/A"
-			verifs_received = "N/A"
-		End If
-
 		If feb_process = "Select One..." Then err_msg = err_msg & vbCr & "* Select the process that was due for 02/22."
-		If process_complete = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the process was completed and case would have been able to be processedd and 'APP'd with the everything on file."
-		If form_received = "Select One..." Then err_msg = err_msg & vbCr & "* Select which form was submitted or indicate that no form was received."
-		If form_received <> "Select One..." and form_received <> "None Received" Then
-			If IsDate(form_received_date) = False Then err_msg = err_msg & vbCr & "* Since a form was received, enter a valid date for the date the form was received."
-			If interview_information = "N/A" Then err_msg = err_msg & vbCr & "* Interview cannot be 'N/A' if the form was received, identify if the interview was complete, incomplete, or not reqquired."
-			If verifs_received = "N/A" Then err_msg = err_msg & vbCr & "* Verifications cannot be 'N/A' if the form was received, identify if verifications were complete, partial, none received, or not needed."
+
+		If SNAP_active = True and MFIP_active = True Then
+			If snap_mfip_process_match_checkbox = checked Then
+				process_complete_mfip = process_complete_snap
+				form_received_mfip = form_received_snap
+				form_received_date_mfip = form_received_date_snap
+				interview_information_mfip = interview_information_snap
+				interview_date_mfip = interview_date_snap
+				verifs_received_mfip = verifs_received_snap
+			End If
+
+			If form_received_snap = "None Received" Then
+				If interview_information_snap <> "N/A" or verifs_received_snap <> "N/A" Then err_msg = "LOOP"
+				interview_information_snap = "N/A"
+				verifs_received_snap = "N/A"
+			End If
+			If form_received_mfip = "None Received" Then
+				If interview_information_mfip <> "N/A" or verifs_received_mfip <> "N/A" Then err_msg = "LOOP"
+				interview_information_mfip = "N/A"
+				verifs_received_mfip = "N/A"
+			End If
+
+
+			If process_complete_snap = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the process was completed and case would have been able to be processedd and 'APP'd with the everything on file."
+			If form_received_snap = "Select One..." Then err_msg = err_msg & vbCr & "* Select which form was submitted or indicate that no form was received."
+			If form_received_snap <> "Select One..." and form_received_snap <> "None Received" Then
+				If IsDate(form_received_date_snap) = False Then err_msg = err_msg & vbCr & "* Since a form was received, enter a valid date for the date the form was received."
+				If interview_information_snap = "N/A" Then err_msg = err_msg & vbCr & "* Interview cannot be 'N/A' if the form was received, identify if the interview was complete, incomplete, or not reqquired."
+				If verifs_received_snap = "N/A" Then err_msg = err_msg & vbCr & "* Verifications cannot be 'N/A' if the form was received, identify if verifications were complete, partial, none received, or not needed."
+			End If
+			If interview_information_snap = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate hwat happened with the interview process."
+			If interview_information_snap = "Completed" and IsDate(interview_date_snap) = False Then  err_msg = err_msg & vbCr & "* Since the interview was completed, enter a valid date for the date the interview was completed."
+			If verifs_received_snap = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate the status of the verifications for this case in the 02/22 report process."
+			If process_complete_snap = "Yes" and form_received_snap = "None Received" Then err_msg = err_msg & vbCr & "* If the process is complete, The form received should not be 'None Received' - enter the form name."
+			If process_complete_snap = "Yes" and interview_information_snap = "Incomplete" Then err_msg = err_msg & vbCr & "* If the process is complete, the interview should not be listed as 'Incomplete' - it should either be 'Not Required' or 'Completed'."
+			If process_complete_snap = "Yes" and verifs_received_snap = "Partial" Then err_msg = err_msg & vbCr & "* If the process is complete, verifications received should not be 'Partial' - they should either be 'Complete' or 'None Needed'."
+
+			If process_complete_mfip = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the process was completed and case would have been able to be processedd and 'APP'd with the everything on file."
+			If form_received_mfip = "Select One..." Then err_msg = err_msg & vbCr & "* Select which form was submitted or indicate that no form was received."
+			If form_received_mfip <> "Select One..." and form_received_mfip <> "None Received" Then
+				If IsDate(form_received_date_mfip) = False Then err_msg = err_msg & vbCr & "* Since a form was received, enter a valid date for the date the form was received."
+				If interview_information_mfip = "N/A" Then err_msg = err_msg & vbCr & "* Interview cannot be 'N/A' if the form was received, identify if the interview was complete, incomplete, or not reqquired."
+				If verifs_received_mfip = "N/A" Then err_msg = err_msg & vbCr & "* Verifications cannot be 'N/A' if the form was received, identify if verifications were complete, partial, none received, or not needed."
+			End If
+			If interview_information_mfip = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate hwat happened with the interview process."
+			If interview_information_mfip = "Completed" and IsDate(interview_date_mfip) = False Then  err_msg = err_msg & vbCr & "* Since the interview was completed, enter a valid date for the date the interview was completed."
+			If verifs_received_mfip = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate the status of the verifications for this case in the 02/22 report process."
+			If process_complete_mfip = "Yes" and form_received_mfip = "None Received" Then err_msg = err_msg & vbCr & "* If the process is complete, The form received should not be 'None Received' - enter the form name."
+			If process_complete_mfip = "Yes" and interview_information_mfip = "Incomplete" Then err_msg = err_msg & vbCr & "* If the process is complete, the interview should not be listed as 'Incomplete' - it should either be 'Not Required' or 'Completed'."
+			If process_complete_mfip = "Yes" and verifs_received_mfip = "Partial" Then err_msg = err_msg & vbCr & "* If the process is complete, verifications received should not be 'Partial' - they should either be 'Complete' or 'None Needed'."
+
+		Else
+
+			If form_received = "None Received" Then
+				If interview_information <> "N/A" or verifs_received <> "N/A" Then err_msg = "LOOP"
+				interview_information = "N/A"
+				verifs_received = "N/A"
+			End If
+			If process_complete = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if the process was completed and case would have been able to be processedd and 'APP'd with the everything on file."
+			If form_received = "Select One..." Then err_msg = err_msg & vbCr & "* Select which form was submitted or indicate that no form was received."
+			If form_received <> "Select One..." and form_received <> "None Received" Then
+				If IsDate(form_received_date) = False Then err_msg = err_msg & vbCr & "* Since a form was received, enter a valid date for the date the form was received."
+				If interview_information = "N/A" Then err_msg = err_msg & vbCr & "* Interview cannot be 'N/A' if the form was received, identify if the interview was complete, incomplete, or not reqquired."
+				If verifs_received = "N/A" Then err_msg = err_msg & vbCr & "* Verifications cannot be 'N/A' if the form was received, identify if verifications were complete, partial, none received, or not needed."
+			End If
+			If interview_information = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate hwat happened with the interview process."
+			If interview_information = "Completed" and IsDate(interview_date) = False Then  err_msg = err_msg & vbCr & "* Since the interview was completed, enter a valid date for the date the interview was completed."
+			If verifs_received = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate the status of the verifications for this case in the 02/22 report process."
+			If process_complete = "Yes" and form_received = "None Received" Then err_msg = err_msg & vbCr & "* If the process is complete, The form received should not be 'None Received' - enter the form name."
+			If process_complete = "Yes" and interview_information = "Incomplete" Then err_msg = err_msg & vbCr & "* If the process is complete, the interview should not be listed as 'Incomplete' - it should either be 'Not Required' or 'Completed'."
+			If process_complete = "Yes" and verifs_received = "Partial" Then err_msg = err_msg & vbCr & "* If the process is complete, verifications received should not be 'Partial' - they should either be 'Complete' or 'None Needed'."
+
 		End If
-		If interview_information = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate hwat happened with the interview process."
-		If interview_information = "Completed" and IsDate(interview_date) = False Then  err_msg = err_msg & vbCr & "* Since the interview was completed, enter a valid date for the date the interview was completed."
-		If verifs_received = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate the status of the verifications for this case in the 02/22 report process."
-		If process_complete = "Yes" and form_received = "None Received" Then err_msg = err_msg & vbCr & "* If the process is complete, The form received should not be 'None Received' - enter the form name."
-		If process_complete = "Yes" and interview_information = "Incomplete" Then err_msg = err_msg & vbCr & "* If the process is complete, the interview should not be listed as 'Incomplete' - it should either be 'Not Required' or 'Completed'."
-		If process_complete = "Yes" and verifs_received = "Partial" Then err_msg = err_msg & vbCr & "* If the process is complete, verifications received should not be 'Partial' - they should either be 'Complete' or 'None Needed'."
 
 		If err_msg <> "" and left(err_msg, 4) <> "LOOP" then MsgBox "Please resolve to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
 
-	If process_complete = "No" Then calculation_needed = False
+	If process_complete_mfip = process_complete_snap And form_received_mfip = form_received_snap And form_received_date_mfip = form_received_date_snap And interview_information_mfip = interview_information_snap And interview_date_mfip = interview_date_snap And verifs_received_mfip = verifs_received_snap Then
+		process_complete = process_complete_snap
+		form_received = form_received_snap
+		form_received_date = form_received_date_snap
+		interview_information = interview_information_snap
+		interview_date = interview_date_snap
+		verifs_received = verifs_received_snap
+	End If
 
-	If SNAP_active = True and calculation_needed = True Then
+	If process_complete = "No" Then calculation_needed = False
+	If process_complete = "" Then
+		calculation_needed = False
+		If process_complete_mfip = "No" Then mfip_calculation_needed = False
+		If process_complete_snap = "No" Then snap_calculation_needed = False
+	End If
+
+	If SNAP_active = True and (calculation_needed = True or snap_calculation_needed = True) Then
 		If IsDate(form_received_date) = True Then snap_proration_date = form_received_date
 		If IsDate(snap_proration_date) = True Then
 			beg_of_feb = #2/1/2022#
@@ -1503,15 +1641,17 @@ Do
 		Call budget_calculate_shelter_costs(rent_mortgage_correct_amt, tax_correct_amt, insurance_correct_amt, other_cost_correct_amt, utilities_correct_amt, total_shelter_cost_correct_amt, adj_shelter_cost_correct_amt, max_shelter_cost_correct_amt, counted_shelter_cost_correct_amt, fifty_perc_net_income_correct_amt, net_income_correct_amt, net_adj_income_correct_amt, "STRING")
 		Call budget_calculate_benefit_details(cat_elig, total_income_correct_amt, net_adj_income_correct_amt, max_net_adj_income_correct_amt, max_gross_income_correct_amt, max_snap_benefit, monthly_snap_benefit_correct_amt, sanction_recoupment_correct_amt, snap_correct_amt, snap_issued_amt, snap_overpayment_exists, snap_supplement_exists, snap_proration_date, snap_overpayment_amt, snap_supplement_amt, correct_hh_size, "STRING")
 	End If
-	If MFIP_active = True and calculation_needed = True Then
+	If MFIP_active = True and (calculation_needed = True or mfip_calculation_needed = True) Then
 		Call determine_mfip_assistance_standards(familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, correct_caregiver, correct_children, "STRING")
 		Call budget_calculate_mfip_income(HH_MEMB_ARRAY, earned_inc_correct_const, earned_inc_disregard_correct_const, avail_earned_inc_correct_const, allocation_correct_const, child_support_cost_correct_const, counted_earned_inc_correct_const, unearned_inc_correct_const, allocation_bal_correct_const, child_support_cost_bal_correct_const, counted_unearned_inc_correct_const, total_correct_mfip_earned_deductions_and_disreagards, total_correct_mfip_earned_income, total_correct_mfip_net_earned_income, total_correct_mfip_unearned_deductions_and_disreagards, total_correct_mfip_unearned_income, total_correct_mfip_net_unearned_income, cses_income_correct_amt, correct_children, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, "STRING")
 		Call budget_calculate_correct_mfip(total_correct_mfip_net_earned_income, total_correct_mfip_net_unearned_income, correct_mfip_cses_exclusion, correct_mfip_deemed_amt, familY_wage_level, full_mfip_standard, mfip_full_cash_portion, mfip_full_food_portion, mfip_overpayment_exists, mfip_supplement_exists, mfip_MF_HG_issued_amt, wage_level_difference, difference_or_transitional, mfip_unmet_need, prorated_unmet_need, mfip_subsidy_tribal_amt, mfip_correct_cash_portion, mfip_correct_food_portion, mfip_correct_hg_portion, mfip_proration_date, mfip_proration_percentage, MF_fed_percent, MF_state_percent, mfip_total_overpayment_amt, mfip_cash_overpayment_amt, mfip_food_overpayment_amt, mfip_hg_overpayment_amt, mfip_total_supplement_amt, mfip_cash_supplement_amt, mfip_food_supplement_amt, mfip_hg_supplement_amt, mfip_correct_food_f_portion, mfip_correct_food_s_portion, mfip_food_f_overpayment, mfip_food_s_overpayment, mfip_food_f_supplement, mfip_food_s_supplement, "STRING")
 	End If
 
+	' MsgBox "calculation_needed - " & calculation_needed & vbCr & "mfip_calculation_needed - " & mfip_calculation_needed & vbCr & "snap_calculation_needed - " & snap_calculation_needed
+
 	'dialog for OP calculation
 	If MFIP_active = True Then
-		If calculation_needed = True Then
+		If calculation_needed = True or mfip_calculation_needed = True Then
 			' income_selection_person = HH_MEMB_ARRAY(memb_droplist_const, 0)
 			Do
 				Dialog1 = ""
@@ -1769,6 +1909,7 @@ Do
 			Loop until ButtonPressed = mfip_claculation_done_btn
 		Else
 			mfip_overpayment_exists = True
+			MsgBox "1 - mfip_overpayment_exists - " & mfip_overpayment_exists
 			mfip_supplement_exists = False
 			mfip_total_overpayment_amt = mfip_total_issued_amt
 			mfip_cash_overpayment_amt = mfip_MF_MF_issued_amt
@@ -1798,7 +1939,7 @@ Do
 	End If
 
 	If SNAP_active = True Then
-		If calculation_needed = True Then
+		If calculation_needed = True or snap_calculation_needed = True Then
 			Do
 				Dialog1 = ""
 				BeginDialog Dialog1, 0, 0, 556, 385, "02/22 SNAP Incorrect Payment Calculation"
@@ -2053,7 +2194,7 @@ Do
 		dialog_width = 205
 		If SNAP_active = True and MFIP_active = True Then dialog_width = 410
 		x_pos = 5
-		MsgBox SNAP_fed_op
+		' MsgBox SNAP_fed_op
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, dialog_width, 205, "Confirm Budget Calculation"
 		  If SNAP_active = True Then
@@ -2621,12 +2762,21 @@ ObjDetailsExcel.Cells(total_excel_row, det_issued_mf_mf_col).Value 			= mfip_MF_
 ObjDetailsExcel.Cells(total_excel_row, det_issued_mf_fs_f_col).Value 		= mfip_MF_FS_F_issued_amt
 ObjDetailsExcel.Cells(total_excel_row, det_issued_mf_fs_s_col).Value 		= mfip_MF_FS_S_issued_amt
 ObjDetailsExcel.Cells(total_excel_row, det_issued_mf_hg_col).Value 			= mfip_MF_HG_issued_amt
-ObjDetailsExcel.Cells(total_excel_row, det_form_col).Value 					= form_received
-ObjDetailsExcel.Cells(total_excel_row, det_form_date_col).Value 			= form_received_date
-ObjDetailsExcel.Cells(total_excel_row, det_intv_col).Value 					= interview_information
-ObjDetailsExcel.Cells(total_excel_row, det_intv_date_col).Value 			= interview_date
-ObjDetailsExcel.Cells(total_excel_row, det_verifs_col).Value 				= verifs_received
-ObjDetailsExcel.Cells(total_excel_row, det_process_complete_col).Value 		= process_complete
+If process_complete = "" Then
+	ObjDetailsExcel.Cells(total_excel_row, det_form_col).Value 					= "MFIP: " & form_received_mfip & " --- SNAP: " & form_received_snap
+	ObjDetailsExcel.Cells(total_excel_row, det_form_date_col).Value 			= "MFIP: " & form_received_date_mfip & " --- SNAP: " & form_received_date_snap
+	ObjDetailsExcel.Cells(total_excel_row, det_intv_col).Value 					= "MFIP: " & interview_information_mfip & " --- SNAP: " & interview_information_snap
+	ObjDetailsExcel.Cells(total_excel_row, det_intv_date_col).Value 			= "MFIP: " & interview_date_mfip & " --- SNAP: " & interview_date_snap
+	ObjDetailsExcel.Cells(total_excel_row, det_verifs_col).Value 				= "MFIP: " & verifs_received_mfip & " --- SNAP: " & verifs_received_snap
+	ObjDetailsExcel.Cells(total_excel_row, det_process_complete_col).Value 		= "MFIP: " & process_complete_mfip & " --- SNAP: " & process_complete_snap
+Else
+	ObjDetailsExcel.Cells(total_excel_row, det_form_col).Value 					= form_received
+	ObjDetailsExcel.Cells(total_excel_row, det_form_date_col).Value 			= form_received_date
+	ObjDetailsExcel.Cells(total_excel_row, det_intv_col).Value 					= interview_information
+	ObjDetailsExcel.Cells(total_excel_row, det_intv_date_col).Value 			= interview_date
+	ObjDetailsExcel.Cells(total_excel_row, det_verifs_col).Value 				= verifs_received
+	ObjDetailsExcel.Cells(total_excel_row, det_process_complete_col).Value 		= process_complete
+End If
 ObjDetailsExcel.Cells(total_excel_row, det_op_fs_f_col).Value 				= SNAP_fed_op
 ObjDetailsExcel.Cells(total_excel_row, det_op_fs_s_col).Value 				= SNAP_state_op
 ObjDetailsExcel.Cells(total_excel_row, det_op_mf_mf_col).Value 				= mfip_cash_overpayment_amt
