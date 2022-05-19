@@ -59,7 +59,6 @@ changelog_display
 
 'Grabs the case number
 EMConnect ""
-Call get_county_code
 CALL check_for_MAXIS(False)
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 closing_message = "Request for Unemployment Insurance Verification email has been sent." 'setting up closing_message UCriable for possible additions later based on conditions
@@ -102,26 +101,17 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 'Determinging MAXIS Region and giving the user the option to send script if in inquiry
 Call back_to_SELF
+
+send_email = True
 EMReadScreen MX_region, 10, 22, 48
 MX_region = trim(MX_region)
-If MX_region = "INQUIRY DB" Then
-	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
-	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT: user pressed cancel")
-End If
-
-'Will default to sending email, but not if region is in training region.
-send_email = True
-IF MX_region = "TRAINING" THEN send_email = False
+IF MX_region = "TRAINING" THEN send_email = False    'Will default to sending email, but not if region is in training region.
 
 Call MAXIS_background_check
 
 'PRIV handling
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 'navigating to stat memb to gather the ref number and name.
 IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
-
-'out of county handling
-EMReadscreen current_county, 4, 21, 21
-IF UCASE(current_county) <> UCASE(worker_county_code) THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
 
 'Selecting the HH member
 DO
