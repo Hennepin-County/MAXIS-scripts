@@ -113,6 +113,8 @@ End If
 send_email = True
 IF MX_region = "TRAINING" THEN send_email = False
 
+Call MAXIS_background_check
+
 'PRIV handling
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 'navigating to stat memb to gather the ref number and name.
 IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
@@ -244,40 +246,40 @@ script_end_procedure_with_error_report(closing_message)
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------08/30/2021
-'--Tab orders reviewed & confirmed----------------------------------------------08/30/2021
-'--Mandatory fields all present & Reviewed--------------------------------------08/30/2021
-'--All variables in dialog match mandatory fields-------------------------------08/30/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/19/2022
+'--Tab orders reviewed & confirmed----------------------------------------------05/19/2022
+'--Mandatory fields all present & Reviewed--------------------------------------05/19/2022
+'--All variables in dialog match mandatory fields-------------------------------05/19/2022
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------09/09/21
-'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--All variables are CASE:NOTEing (if required)---------------------------------05/19/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/19/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/19/2022-------------------N/A
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
-'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------08/30/2021
-'--Out-of-County handling reviewed----------------------------------------------08/30/2021
-'--script_end_procedures (w/ or w/o error messaging)----------------------------09/09/21
-'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/19/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/19/2022
+'--PRIV Case handling reviewed -------------------------------------------------05/19/2022
+'--Out-of-County handling reviewed----------------------------------------------05/19/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/19/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------05/19/2022-------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/19/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------N/A
-'--Incrementors reviewed (if necessary)-----------------------------------------09/09/21
-'--Denomination reviewed -------------------------------------------------------N/A
-'--Script name reviewed---------------------------------------------------------08/30/2021
-'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+'--Manual time study reviewed --------------------------------------------------05/19/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/19/2022
+'--Denomination reviewed -------------------------------------------------------05/19/2022
+'--Script name reviewed---------------------------------------------------------05/19/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/19/2022-------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------08/30/2021
-'--Comment Code-----------------------------------------------------------------09/09/21
-'--Update Changelog for release/update------------------------------------------09/09/21
-'--Remove testing message boxes-------------------------------------------------09/09/21
-'--Remove testing code/unnecessary code-----------------------------------------09/09/21
-'--Review/update SharePoint instructions----------------------------------------09/09/21
-'--Review Best Practices using BZS page ----------------------------------------09/09/21
-'--Review script information on SharePoint BZ Script List-----------------------09/09/21
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/09/21
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/09/21
-'--Complete misc. documentation (if applicable)---------------------------------09/09/21
-'--Update project team/issue contact (if applicable)----------------------------09/09/21
+'--Confirm all GitHub tasks are complete----------------------------------------05/19/2022
+'--comment Code-----------------------------------------------------------------05/19/2022
+'--Update Changelog for release/update------------------------------------------05/19/2022
+'--Remove testing message boxes-------------------------------------------------05/19/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/19/2022
+'--Review/update SharePoint instructions----------------------------------------05/19/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/19/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/19/2022
+'--Complete misc. documentation (if applicable)---------------------------------05/19/2022
+'--Update project team/issue contact (if applicable)----------------------------05/19/2022
