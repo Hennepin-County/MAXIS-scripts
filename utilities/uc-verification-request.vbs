@@ -67,19 +67,18 @@ initial_help_text = "*** Unemployment Compensation ***" & vbNewLine & vbNewLine 
 
 '---------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 296, 100, "Request for Unemployment Insurance"
-  ButtonGroup ButtonPressed
-    OkButton 195, 80, 45, 15
-    CancelButton 245, 80, 45, 15
+BeginDialog Dialog1, 0, 0, 301, 95, "Request for Unemployment Insurance"
   EditBox 85, 5, 50, 15, MAXIS_case_number
+  CheckBox 10, 55, 25, 10, "CCA", cca_checkbox
+  CheckBox 45, 55, 85, 10, "Other (please specify):", other_checkbox
+  EditBox 130, 50, 160, 15, other_check_editbox
   ButtonGroup ButtonPressed
+    OkButton 195, 75, 45, 15
+    CancelButton 245, 75, 45, 15
     PushButton 165, 5, 15, 15, "!", initial_help_button
     PushButton 185, 5, 105, 15, "Unemployment Insurance", HSR_manual_button
-  CheckBox 10, 60, 25, 10, "CCA", cca_checkbox
-  CheckBox 45, 60, 85, 10, "Other (please specify):", other_checkbox
-  EditBox 130, 55, 160, 15, other_check_editbox
   Text 35, 10, 50, 10, "Case Number:"
-  GroupBox 5, 45, 290, 30, "Department (if outside ES)"
+  GroupBox 5, 40, 290, 30, "Department (if outside ES)"
   Text 5, 25, 295, 10, "FYI: Overpaypayment, tax, child/spousal support deductions will be reviewed for this case."
 EndDialog
 
