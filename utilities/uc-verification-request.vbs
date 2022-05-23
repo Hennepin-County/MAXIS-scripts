@@ -226,8 +226,15 @@ IF other_checkbox = CHECKED and other_check_editbox <> "" THEN member_info = "Ot
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
 
+'Creates message box with email information if using the training region.
+email_information = "Email Information:" & vbcr & vbcr & "UC Request for Case #" & MAXIS_case_number & _
+vbcr & vbcr & "Member Info: " & member_info & _
+vbcr & vbcr & "Submitted By: " & the_person_running_the_script
+
 'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment,send_email)
 IF send_email = TRUE THEN Call create_outlook_email("HSPH.ES.DEED@Hennepin.us", "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", True)   'will create email, will send.
+
+IF MX_region = "TRAINING" then msgbox email_information
 
 script_end_procedure_with_error_report(closing_message)
 
