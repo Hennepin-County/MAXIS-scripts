@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("04/17/2020", "Added DAIL Scrubber support for SVES covered quarters DAIL messages.", "Ilse Ferris, Hennepin County")
 Call changelog_update("04/17/2020", "DAILs for COLA - Review and Approve can now call Approved Programs or Closed Programs if the approval is not for Health Care.", "Casey Love, Hennepin County")
 Call changelog_update("06/13/2019", "Added support for the following COLA message: CLAIM NUMBER XXXXXXXXXX NOT MATCHED - REVIEW CLAIM NUMBER AND CORRECT UNEA", "Ilse Ferris, Hennepin County")
 Call changelog_update("06/13/2019", "Added DAIL messages for JULY COLA to run the COLA Review and Approve option. See instructions for full detail of messages now handled.", "Casey Love, Hennepin County")
@@ -261,7 +262,7 @@ If instr(full_message, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") then
 END IF
 
 'SSA info received by agency (loads TPQY RESPONSE)
-If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") then
+If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") or instr(full_message, "COVERED QTRS RESPONSE RECEIVED FROM SSA") then
     match_found = TRUE
     call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
 END IF
