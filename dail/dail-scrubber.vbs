@@ -95,32 +95,6 @@ full_message = trim(full_message)
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
 
-EMReadScreen extra_info, 1, 6, 80       '???why is this code in here
-IF extra_info = "+" or extra_info = "&" THEN
-	EMSendKey "X"
-	TRANSMIT
-	'THE ENTIRE MESSAGE TEXT IS DISPLAYED'
-	EmReadScreen error_msg, 37, 24, 02
-	row = 1
-	col = 1
-	EMSearch "Case Number", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
-	'If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-	EMReadScreen first_line, 61, row + 3, col - 40 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
-		'first_line = replace(first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-		first_line = trim(first_line)
-	EMReadScreen second_line, 61, row + 4, col - 40
-		second_line = trim(second_line)
-	EMReadScreen third_line, 61, row + 5, col - 40 'maxis name'
-		third_line = trim(third_line)
-		'third_line = replace(third_line, ",", ", ")
-	EMReadScreen fourth_line, 61, row + 6, col - 40'new hire name'
-		fourth_line = trim(fourth_line)
-		'fourth_line = replace(fourth_line, ",", ", ")
-	EMReadScreen fifth_line, 61, row + 7, col - 40'new hire name'
-		fifth_line = trim(fifth_line)
-	TRANSMIT
-END IF
-
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 
 'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP) OR XFS Closed for Postponed Verifications (loads POSTPONTED XFS VERIFICATIONS)
