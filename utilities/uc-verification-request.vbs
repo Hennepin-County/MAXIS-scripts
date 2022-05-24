@@ -67,19 +67,18 @@ initial_help_text = "*** Unemployment Compensation ***" & vbNewLine & vbNewLine 
 
 '---------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 296, 100, "Request for Unemployment Insurance"
-  ButtonGroup ButtonPressed
-    OkButton 195, 80, 45, 15
-    CancelButton 245, 80, 45, 15
+BeginDialog Dialog1, 0, 0, 301, 95, "Request for Unemployment Insurance"
   EditBox 85, 5, 50, 15, MAXIS_case_number
+  CheckBox 10, 55, 25, 10, "CCA", cca_checkbox
+  CheckBox 45, 55, 85, 10, "Other (please specify):", other_checkbox
+  EditBox 130, 50, 160, 15, other_check_editbox
   ButtonGroup ButtonPressed
+    OkButton 195, 75, 45, 15
+    CancelButton 245, 75, 45, 15
     PushButton 165, 5, 15, 15, "!", initial_help_button
     PushButton 185, 5, 105, 15, "Unemployment Insurance", HSR_manual_button
-  CheckBox 10, 60, 25, 10, "CCA", cca_checkbox
-  CheckBox 45, 60, 85, 10, "Other (please specify):", other_checkbox
-  EditBox 130, 55, 160, 15, other_check_editbox
   Text 35, 10, 50, 10, "Case Number:"
-  GroupBox 5, 45, 290, 30, "Department (if outside ES)"
+  GroupBox 5, 40, 290, 30, "Department (if outside ES)"
   Text 5, 25, 295, 10, "FYI: Overpaypayment, tax, child/spousal support deductions will be reviewed for this case."
 EndDialog
 
@@ -227,8 +226,15 @@ IF other_checkbox = CHECKED and other_check_editbox <> "" THEN member_info = "Ot
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
 
+'Creates message box with email information if using the training region.
+email_information = "Email Information:" & vbcr & vbcr & "UC Request for Case #" & MAXIS_case_number & _
+vbcr & vbcr & "Member Info: " & member_info & _
+vbcr & vbcr & "Submitted By: " & the_person_running_the_script
+
 'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment,send_email)
 IF send_email = TRUE THEN Call create_outlook_email("HSPH.ES.DEED@Hennepin.us", "", "UC Request for Case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", True)   'will create email, will send.
+
+IF MX_region = "TRAINING" then msgbox email_information
 
 script_end_procedure_with_error_report(closing_message)
 
