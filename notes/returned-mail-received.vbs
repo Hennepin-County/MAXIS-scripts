@@ -83,8 +83,11 @@ DO
     	DIALOG Dialog1
     	cancel_confirmation
     	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "Please enter a valid case number."
-		IF isdate(date_received) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the date."
-		IF Cdate(date_received) > cdate(date) = TRUE THEN err_msg = err_msg & vbnewline & "You must enter an actual date that is not in the future and is in the footer month that you are working in."
+		IF isdate(date_received) = FALSE THEN
+			err_msg = err_msg & vbnewline & "Please enter the date."
+		Else
+			IF Cdate(date_received) > cdate(date) = TRUE THEN err_msg = err_msg & vbnewline & "You must enter an actual date that is not in the future and is in the footer month that you are working in."
+		End If
 		IF ADDR_actions = "Select One:" THEN err_msg = err_msg & vbCr & "Please chose an action for the returned mail."
     	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
@@ -107,7 +110,11 @@ case_invalid_error = trim(case_invalid_error)
 If case_invalid_error = "ENTER A VALID COMMAND OR PF-KEY" Then case_invalid_error = ""			'this message is for if you press transmit on a single instance panel and does not indicate an error. Ignoring it
 IF trim(case_invalid_error) <> "" THEN script_end_procedure("*** NOTICE!!! ***" & vbCr & case_invalid_error & vbCr & "Please resolve for the script to continue.")
 '-------------------------------------------------------------------------------------------------DIALOG
-mailing_address_confirmed = "NO"
+residential_address_confirmed = "YES"
+If mail_street_full <> "" Then
+	residential_address_confirmed = "NO"
+	mailing_address_confirmed = "YES"
+End If
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 566, 105, "Returned Mail Information"
   DropListBox 220, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", residential_address_confirmed
@@ -207,58 +214,51 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
 	IF ADDR_actions = "forwarding address in MN" or ADDR_actions = "forwarding address outside MN" THEN
-        BeginDialog Dialog1, 0, 0, 206, 305, "Mail has been returned with forwarding address"
-          CheckBox 10, 15, 75, 10, "Returned Mail/Other", return_mail_checkbox
-          CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
-          CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
-          CheckBox 100, 25, 100, 10, "Change Report (DHS-2402)", CRF_checkbox
-          DropListBox 40, 60, 155, 15, "Select:"+chr(9)+"01 - Own home, lease or roomate"+chr(9)+"02 - Family/Friends - economic hardship"+chr(9)+"03 -  servc prvdr- foster/group home"+chr(9)+"04 - Hospital/Treatment/Detox/Nursing Home"+chr(9)+"05 - Jail/Prison//Juvenile Det."+chr(9)+"06 - Hotel/Motel"+chr(9)+"07 - Emergency Shelter"+chr(9)+"08 - Place not meant for Housing"+chr(9)+"09 - Declined"+chr(9)+"10 - Unknown", living_situation
-          EditBox 40, 80, 155, 15, new_addr_line_one
-          EditBox 40, 100, 155, 15, new_addr_line_two
-          EditBox 40, 120, 155, 15, new_addr_city
-          EditBox 40, 140, 20, 15, new_addr_state
-          EditBox 155, 140, 40, 15, new_addr_zip
-          DropListBox 55, 165, 40, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", homeless_addr
-          DropListBox 55, 185, 40, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", reservation_addr
-          DropListBox 130, 165, 65, 15, "Select:"+chr(9)+ county_list, county_code
-          DropListBox 55, 205, 140, 15, "Select:"+chr(9)+"N/A"+chr(9)+"Bois Forte-Nett Lake"+chr(9)+"Bois Forte-Vermillion Lk"+chr(9)+"Fond du Lac"+chr(9)+"Grand Portage"+chr(9)+"Leach Lake"+chr(9)+"Lower Sioux"+chr(9)+"Mille Lacs"+chr(9)+"Prairie Island Community"+chr(9)+"Red Lake"+chr(9)+"Shakopee Mdewakanton"+chr(9)+"Upper Sioux"+chr(9)+"White Earth", reservation_name
-          DropListBox 140, 230, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr_correspondence
-          EditBox 140, 245, 55, 15, mets_case_number
-          EditBox 55, 265, 140, 15, other_notes
-          ButtonGroup ButtonPressed
-        	OkButton 85, 285, 50, 15
-        	CancelButton 145, 285, 50, 15
-          GroupBox 5, 5, 195, 35, "Verification Received:"
-          GroupBox 5, 40, 195, 185, "New Address:"
-          Text 10, 85, 25, 10, "Street:"
-          Text 20, 125, 15, 10, "City:"
-          Text 20, 145, 20, 10, "State:"
-          Text 120, 145, 30, 10, "Zip code:"
-          Text 100, 170, 25, 10, "County:"
-          Text 15, 170, 35, 10, "Homeless:"
-          Text 10, 50, 55, 10, "Living Situation:"
-          Text 10, 190, 45, 10, "Reservation:"
-          Text 10, 210, 25, 10, "Name:"
-          Text 10, 235, 95, 10, "METS correspondence sent:"
-          Text 10, 250, 70, 10, "METS case number:"
-          Text 10, 270, 40, 10, "Other notes:"
-        EndDialog
+		BeginDialog Dialog1, 0, 0, 206, 245, "Mail has been returned with forwarding address"
+		  CheckBox 10, 15, 75, 10, "Returned Mail/Other", return_mail_checkbox
+		  CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
+		  CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
+		  CheckBox 100, 25, 100, 10, "Change Report (DHS-2402)", CRF_checkbox
+		  EditBox 40, 55, 155, 15, new_addr_line_one
+		  EditBox 40, 75, 155, 15, new_addr_line_two
+		  EditBox 40, 95, 155, 15, new_addr_city
+		  EditBox 40, 115, 20, 15, new_addr_state
+		  EditBox 155, 115, 40, 15, new_addr_zip
+		  DropListBox 130, 140, 65, 15, "Select:"+chr(9)+county_list, county_code
+		  DropListBox 140, 165, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr_correspondence
+		  EditBox 140, 180, 55, 15, mets_case_number
+		  EditBox 55, 200, 140, 15, other_notes
+		  ButtonGroup ButtonPressed
+		    OkButton 85, 220, 50, 15
+		    CancelButton 145, 220, 50, 15
+		  GroupBox 5, 5, 195, 35, "Verification Request Includes:"
+		  GroupBox 5, 40, 195, 120, "Forwarding Address:"
+		  Text 10, 60, 25, 10, "Street:"
+		  Text 20, 100, 15, 10, "City:"
+		  Text 20, 120, 20, 10, "State:"
+		  Text 120, 120, 30, 10, "Zip code:"
+		  Text 100, 145, 25, 10, "County:"
+		  Text 10, 170, 95, 10, "METS correspondence sent:"
+		  Text 10, 185, 70, 10, "METS case number:"
+		  Text 10, 205, 40, 10, "Other notes:"
+		EndDialog
 
     	DO
     		DO
     			err_msg = ""
     			DIALOG Dialog1
     			cancel_without_confirmation
+
+				new_addr_line_one = trim(new_addr_line_one)
+				new_addr_line_two = trim(new_addr_line_two)
+				new_addr_city = trim(new_addr_city)
+				new_addr_state = trim(new_addr_state)
+				new_addr_zip = trim(new_addr_zip)
+
     			IF new_addr_line_one = "" THEN err_msg = err_msg & vbCr & "Please complete the street address the client in now living at."
     			IF new_addr_city = "" THEN err_msg = err_msg & vbCr & "Please complete the city in which the client in now living."
     			IF new_addr_state = "" THEN err_msg = err_msg & vbCr & "Please complete the state in which the client in now living."
     			IF new_addr_zip = "" OR (new_addr_zip <> "" AND len(new_addr_zip) > 5) THEN err_msg = err_msg & vbNewLine & "Please only enter a 5 digit zip code."     'Makes sure there is a numeric zip
-    			IF homeless_addr = "Select:" THEN err_msg = err_msg & vbCr & "Please advise whether the client has reported homelessness."
-    			IF living_situation = "Select:" THEN err_msg = err_msg & vbCr & "Please select the client's living situation - Unknown should not if it is avoidable."
-    			IF reservation_addr = "Select:" THEN err_msg = err_msg & vbCr & "Please select if client is living on the reservation."
-    			IF reservation_addr = "Yes" THEN
-    				IF reservation_name = "Select:" THEN err_msg = err_msg & vbCr & "Please select the name of the reservation the client is living on."
-    			END IF
     			IF mets_addr_correspondence = "Select:" THEN err_msg = err_msg & vbCr & "Please select if correspondence has been sent to METS."
     			IF mets_addr_correspondence = "YES" THEN
     				IF METS_case_number = "" OR (METS_case_number <> "" AND len(METS_case_number) > 10) OR (METS_case_number <> "" AND IsNumeric(METS_case_number) = False) THEN err_msg = err_msg & vbCr & "Please enter a valid case number."
@@ -268,62 +268,12 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
     		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to password back into MAXIS
     	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-    	new_addr_line_one = trim(new_addr_line_one)
-        new_addr_line_two = trim(new_addr_line_two)
-        new_addr_city = trim(new_addr_city)
-        new_addr_state = trim(new_addr_state)
-        new_addr_zip = trim(new_addr_zip)
+		new_addr_street_full = ""
 
-		living_situation_code = left(living_situation, 2)
-
-		IF reservation_name = "Bois Forte-Deer Creek" THEN reservation_code = "BD"
-		IF reservation_name = "Bois Forte-Nett Lake" THEN reservation_code = "BN"
-		IF reservation_name = "Bois Forte-Vermillion Lk" THEN reservation_code = "BV"
-		IF reservation_name = "Fond du Lac" THEN reservation_code = "FL"
-		IF reservation_name = "Grand Portage" THEN reservation_code = "GP"
-		IF reservation_name = "Leach Lake" THEN reservation_code = "LL"
-		IF reservation_name = "Lower Sioux" THEN reservation_code = "LS"
-		IF reservation_name = "Mille Lacs" THEN reservation_code = "ML"
-		IF reservation_name = "Prairie Island Community" THEN reservation_code = "PL"
-		IF reservation_name = "Red Lake" THEN reservation_code = "RL"
-		IF reservation_name = "Shakopee Mdewakanton" THEN reservation_code = "SM"
-		IF reservation_name = "Upper Sioux" THEN reservation_code = "US"
-		IF reservation_name = "White Earth" THEN reservation_code = "WE"
-
-       'Go to ADDR to update
-		IF residential_address_confirmed = "YES" THEN
-			original_resi_addr_line_one = resi_addr_line_one
-			original_resi_addr_line_two = resi_addr_line_two
-			original_resi_addr_city = resi_addr_city
-			original_resi_addr_state = resi_addr_state
-			original_resi_addr_zip = resi_addr_zip
-
-			resi_addr_line_one = new_addr_line_one
-			resi_addr_line_two = new_addr_line_two
-			resi_addr_city = new_addr_city
-			resi_addr_state = new_addr_state
-			resi_addr_zip = new_addr_zip
-		End If
-		IF mailing_address_confirmed = "YES" THEN
-			original_mail_line_one = mail_line_one
-			original_mail_line_two = mail_line_two
-			original_mail_city_line = mail_city_line
-			original_mail_state_line = mail_state_line
-			original_mail_zip_line = mail_zip_line
-
-			mail_line_one = new_addr_line_one
-			mail_line_two = new_addr_line_two
-			mail_city_line = new_addr_city
-			mail_state_line = new_addr_state
-			mail_zip_line = new_addr_zip
-		End If
-
-		IF residential_address_confirmed = "YES" OR mailing_address_confirmed = "YES" THEN
-			begining_of_footer_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
-			begining_of_footer_month = DateAdd("d", 0, begining_of_footer_month)
-			If DateDiff("d", begining_of_footer_month, addr_eff_date) > 0 Then begining_of_footer_month = addr_eff_date
-			Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city_line, mail_state_line, mail_zip_line, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-		End If
+		begining_of_footer_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
+		begining_of_footer_month = DateAdd("d", 0, begining_of_footer_month)
+		If DateDiff("d", begining_of_footer_month, addr_eff_date) > 0 Then begining_of_footer_month = addr_eff_date
+		Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 	END IF
 
     IF ADDR_actions = "no response received" THEN
@@ -428,42 +378,38 @@ IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len
 '----------------------------------------------------------------------------------------------------TIKL
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
 IF ADDR_actions <> "no response recieved" THEN Call create_TIKL("Returned mail rec'd contact from the client should have occurred regarding address change. If no response-verbal or written, please take appropriate action.", 10, date, True, TIKL_note_text)
-IF mailing_addr_line_two <> "" THEN mailing_addr_line_two = mailing_addr_line_two & " "
-IF resi_addr_line_two <> "" THEN resi_addr_line_two = resi_addr_line_two & " "
 'starts a blank case note
 CALL start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE("Returned mail received " & ADDR_actions)
 CALL write_bullet_and_variable_in_CASE_NOTE("Received on", date_received)
  'Address Detail
  IF mailing_address_confirmed = "YES" THEN
- 	Call write_variable_in_CASE_NOTE("* The address on ADDR was reviewed and is correct.")
-	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & original_mail_line_one)
-	CALL write_variable_in_CASE_NOTE("                             " & original_mail_line_two & original_mail_city_line & ", " & original_mail_state_line & " " &   original_mail_zip_line)
- ELSE
-	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & original_resi_addr_line_one)
-	CALL write_variable_in_CASE_NOTE("                               " & original_resi_addr_line_two & original_resi_addr_city & ", " & original_resi_addr_state & " " & original_resi_addr_zip)
+ 	' Call write_variable_in_CASE_NOTE("* The address on ADDR was reviewed and is correct.")
+	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & mail_line_one)
+	If mail_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                             " & mail_line_two)
+	CALL write_variable_in_CASE_NOTE("                             " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
+END IF
+IF residential_address_confirmed = "YES" THEN
+	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & resi_addr_line_one)
+	If resi_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                               " & resi_addr_line_two)
+	CALL write_variable_in_CASE_NOTE("                               " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
 END IF
 IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household is homeless")
-Call write_variable_in_CASE_NOTE("* Mail received reports living in: " & county_code & " County and CM 0008.06.21 - was reviewed if applicable")
 IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
 Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
-IF ADDR_actions <> "no response recieved"  THEN
-	CALL write_bullet_and_variable_in_case_note("Verification(s) Received", pending_verifs)
-	IF mailing_address_confirmed = "YES" THEN
-		CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
-    	CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
-	END IF
- 	IF residential_address_confirmed = "YES" THEN
-		CALL write_variable_in_CASE_NOTE("* Residential address updated:  " & new_addr_line_one)
-		CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
-	END IF
-ELSE
-	CALL write_bullet_and_variable_in_case_note("Verification(s) requested", pending_verifs)
+CALL write_variable_in_CASE_NOTE ("---")
+IF ADDR_actions = "forwarding address in MN" or ADDR_actions = "forwarding address outside MN" THEN
+	CALL write_variable_in_CASE_NOTE("Forwarding address was on return mail.")
+	CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
+	If new_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two)
+	CALL write_variable_in_CASE_NOTE("                            " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
+ELSEIF ADDR_actions = "no response recieved" THEN
 	CALL write_bullet_and_variable_in_case_note("Verification(s) request date", date_requested)
 	IF ECF_review_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE ("* ECF reviewed for requested verifications")
 	CALL write_variable_in_CASE_NOTE ("* PACT panel entered per POLI/TEMP TE02.13.10")
 END IF
+CALL write_bullet_and_variable_in_case_note("Verification(s) Received", pending_verifs)
 IF mets_addr_correspondence <> "Select:" THEN CALL write_bullet_and_variable_in_CASE_NOTE("METS correspondence sent", mets_addr_correspondence)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", METS_case_number)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
