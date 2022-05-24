@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("05/23/2022", "Added DAIL Scrubber support for SVES covered quarters DAIL messages.", "Ilse Ferris, Hennepin County")
 Call changelog_update("04/17/2020", "DAILs for COLA - Review and Approve can now call Approved Programs or Closed Programs if the approval is not for Health Care.", "Casey Love, Hennepin County")
 Call changelog_update("06/13/2019", "Added support for the following COLA message: CLAIM NUMBER XXXXXXXXXX NOT MATCHED - REVIEW CLAIM NUMBER AND CORRECT UNEA", "Ilse Ferris, Hennepin County")
 Call changelog_update("06/13/2019", "Added DAIL messages for JULY COLA to run the COLA Review and Approve option. See instructions for full detail of messages now handled.", "Casey Love, Hennepin County")
@@ -94,32 +95,6 @@ full_message = trim(full_message)
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
 
-EMReadScreen extra_info, 1, 6, 80       '???why is this code in here
-IF extra_info = "+" or extra_info = "&" THEN
-	EMSendKey "X"
-	TRANSMIT
-	'THE ENTIRE MESSAGE TEXT IS DISPLAYED'
-	EmReadScreen error_msg, 37, 24, 02
-	row = 1
-	col = 1
-	EMSearch "Case Number", row, col 	'Has to search, because every once in a while the rows and columns can slide one or two positions.
-	'If row = 0 then script_end_procedure("MAXIS may be busy: the script appears to have errored out. This should be temporary. Try again in a moment. If it happens repeatedly contact the alpha user for your agency.")
-	EMReadScreen first_line, 61, row + 3, col - 40 'JOB DETAIL Reads each line for the case note. COL needs to be subtracted from because of NDNH message format differs from original new hire format.
-		'first_line = replace(first_line, "FOR  ", "FOR ")	'need to replaces 2 blank spaces'
-		first_line = trim(first_line)
-	EMReadScreen second_line, 61, row + 4, col - 40
-		second_line = trim(second_line)
-	EMReadScreen third_line, 61, row + 5, col - 40 'maxis name'
-		third_line = trim(third_line)
-		'third_line = replace(third_line, ",", ", ")
-	EMReadScreen fourth_line, 61, row + 6, col - 40'new hire name'
-		fourth_line = trim(fourth_line)
-		'fourth_line = replace(fourth_line, ",", ", ")
-	EMReadScreen fifth_line, 61, row + 7, col - 40'new hire name'
-		fifth_line = trim(fifth_line)
-	TRANSMIT
-END IF
-
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 
 'Random messages generated from an affiliated case (loads AFFILIATED CASE LOOKUP) OR XFS Closed for Postponed Verifications (loads POSTPONTED XFS VERIFICATIONS)
@@ -152,7 +127,6 @@ If Instr(full_message, "AN UPDATED DHS-7823 - AVS AUTH FORM(S) HAS BEEN REQUESTE
  End if
 
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
-
 If instr(full_message, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") then
     match_found = TRUE
     call run_from_GitHub(script_repository & "dail/bndx-scrubber.vbs")
@@ -261,7 +235,7 @@ If instr(full_message, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") then
 END IF
 
 'SSA info received by agency (loads TPQY RESPONSE)
-If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") then
+If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") or instr(full_message, "COVERED QTRS RESPONSE RECEIVED FROM SSA") then
     match_found = TRUE
     call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
 END IF
@@ -297,3 +271,45 @@ END IF
 
 'NOW IF NO SCRIPT HAS BEEN WRITTEN FOR IT, THE DAIL SCRUBBER STOPS AND GENERATES A MESSAGE TO THE WORKER.----------------------------------------------------------------------------------------------------
 script_end_procedure_with_error_report("You are not on a supported DAIL message. The script will now stop. " & vbNewLine & vbNewLine & "The message reads: " & full_message & vbNewLine & "Please send an error report if you would you like this DAIL to be supported.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/23/2022------------------N/A
+'--Tab orders reviewed & confirmed----------------------------------------------05/23/2022------------------N/A
+'--Mandatory fields all present & Reviewed--------------------------------------05/23/2022------------------N/A
+'--All variables in dialog match mandatory fields-------------------------------05/23/2022------------------N/A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/23/2022------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/23/2022------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/23/2022------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/23/2022------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/23/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/23/2022
+'--Out-of-County handling reviewed----------------------------------------------05/23/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/23/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------05/23/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/23/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/23/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/23/2022
+'--Denomination reviewed -------------------------------------------------------05/23/2022
+'--Script name reviewed---------------------------------------------------------05/23/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/23/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/23/2022
+'--comment Code-----------------------------------------------------------------05/23/2022
+'--Update Changelog for release/update------------------------------------------05/23/2022------------------N/A
+'--Remove testing message boxes-------------------------------------------------05/23/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/23/2022
+'--Review/update SharePoint instructions----------------------------------------05/23/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/23/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/23/2022
+'--Complete misc. documentation (if applicable)---------------------------------05/23/2022
+'--Update project team/issue contact (if applicable)----------------------------05/23/2022

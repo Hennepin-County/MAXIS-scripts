@@ -2,7 +2,7 @@
 name_of_script = "DAIL - TPQY RESPONSE.vbs"
 start_time = timer
 STATS_counter = 1              'sets the stats counter at one
-STATS_manualtime = 10          'manual run time in seconds
+STATS_manualtime = 30          'manual run time in seconds
 STATS_denomination = "C"       'C is for case
 'END OF stats block==============================================================================================
 
@@ -85,3 +85,45 @@ Else
 End if
 
 script_end_procedure("")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/23/2022------------------N/A
+'--Tab orders reviewed & confirmed----------------------------------------------05/23/2022------------------N/A
+'--Mandatory fields all present & Reviewed--------------------------------------05/23/2022------------------N/A
+'--All variables in dialog match mandatory fields-------------------------------05/23/2022------------------N/A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/23/2022------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/23/2022------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/23/2022------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/23/2022------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/23/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/23/2022
+'--Out-of-County handling reviewed----------------------------------------------05/23/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/23/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------05/23/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/23/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/23/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/23/2022
+'--Denomination reviewed -------------------------------------------------------05/23/2022
+'--Script name reviewed---------------------------------------------------------05/23/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/23/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/23/2022
+'--comment Code-----------------------------------------------------------------05/23/2022
+'--Update Changelog for release/update------------------------------------------05/23/2022------------------N/A
+'--Remove testing message boxes-------------------------------------------------05/23/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/23/2022
+'--Review/update SharePoint instructions----------------------------------------05/23/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/23/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/23/2022
+'--Complete misc. documentation (if applicable)---------------------------------05/23/2022
+'--Update project team/issue contact (if applicable)----------------------------05/23/2022
