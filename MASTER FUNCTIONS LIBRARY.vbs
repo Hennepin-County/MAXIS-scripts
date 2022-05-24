@@ -11071,6 +11071,35 @@ function validate_MAXIS_case_number(err_msg_variable, list_delimiter)
     End If
 end function
 
+function view_poli_temp(temp_one, temp_two, temp_three, temp_four)
+'--- This function enters a specific POLI TEMP reference and navigates to it.
+'~~~~~ temp one:    1st portion of TE reference. Do not add period. If blank, leave blank string ("").
+'~~~~~ temp two:    2nd portion of TE reference. Do not add period. If blank, leave blank string ("").
+'~~~~~ temp three:  3rd portion of TE reference. Do not add period. If blank, leave blank string ("").
+'~~~~~ temp four:   4th portion of TE reference. Do not add period. If blank, leave blank string ("").
+'===== Keywords: MAXIS, dialogs, procedure, POLI TEMP
+	Call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
+	EMWriteScreen "TEMP", 5, 40     'Writes TEMP
+
+	'Writes the panel_title selection
+	Call write_value_and_transmit("TABLE", 21, 71)
+
+    'updates the length of POLI TEMP reference to minimum of 2
+	If temp_one <> "" Then temp_one = right("00" & temp_one, 2)
+	If len(temp_two) = 1 Then temp_two = right("00" & temp_two, 2)
+	If len(temp_three) = 1 Then temp_three = right("00" & temp_three, 2)
+	If len(temp_four) = 1 Then temp_four = right("00" & temp_four, 2)
+
+    'creating the temp reference including TE at begining and periods as delimeter
+	total_code = "TE" & temp_one & "." & temp_two
+	If temp_three <> "" Then total_code = total_code & "." & temp_three
+	If temp_four <> "" Then total_code = total_code & "." & temp_four
+
+    'Enters the full TE reference and transmit to complete navigation
+	Call write_value_and_transmit(total_code, 3, 21) '
+    Call write_value_and_transmit("X", 6, 4)
+end function
+
 function word_doc_open(doc_location, objWord, objDoc)
 '--- This function opens a specific word document.
 '~~~~~ doc_location: location of word document
