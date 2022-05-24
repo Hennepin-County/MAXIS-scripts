@@ -2867,30 +2867,6 @@ function send_support_email_to_KN()
 	' create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 end function
 
-function view_poli_temp(temp_one, temp_two, temp_three, temp_four)
-	call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
-	EMWriteScreen "TEMP", 5, 40     'Writes TEMP
-
-	'Writes the panel_title selection
-	Call write_value_and_transmit("TABLE", 21, 71)
-
-	If temp_one <> "" Then temp_one = right("00" & temp_one, 2)
-	If len(temp_two) = 1 Then temp_two = right("00" & temp_two, 2)
-	If len(temp_three) = 1 Then temp_three = right("00" & temp_three, 2)
-	If len(temp_four) = 1 Then temp_four = right("00" & temp_four, 2)
-
-	total_code = "TE" & temp_one & "." & temp_two
-	If temp_three <> "" Then total_code = total_code & "." & temp_three
-	If temp_four <> "" Then total_code = total_code & "." & temp_four
-
-	EMWriteScreen total_code, 3, 21
-	transmit
-
-	EMWriteScreen "X", 6, 4
-	transmit
-end function
-
-
 'FUNCTIONS =================================================================================================================
 'This function will message box the err_msg from this script, outlining it by dialog and adding the headers.
 'This function should be added to the end of the dialogs after the review button and at the end of dialog 8 after the error message collection.
