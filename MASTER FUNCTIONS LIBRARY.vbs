@@ -1694,10 +1694,10 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			'Now we write all the information
 	        Call create_mainframe_friendly_date(addr_eff_date, 4, 43, "YY")
 
-			If resi_street_full <> "" AND resi_line_one = "" Then resi_line_one = resi_street_full
-			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
-	        If len(resi_line_one) > 22 Then
-	            resi_words = split(resi_line_one, " ")
+			resi_street_full = trim(trim(resi_line_one) & " " & trim(resi_line_two))
+			If len(resi_line_one) > 22 or len(resi_line_two) > 22 Then
+				'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
+	            resi_words = split(resi_street_full, " ")
 	            write_resi_line_one = ""
 	            write_resi_line_two = ""
 	            For each word in resi_words
@@ -1715,6 +1715,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	            Next
 	        Else
 	            write_resi_line_one = resi_line_one
+				write_resi_line_two = resi_line_two
 	        End If
 	        EMWriteScreen write_resi_line_one, 6, 43
 	        EMWriteScreen write_resi_line_two, 7, 43
@@ -1729,10 +1730,10 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
 	        EMWriteScreen left(addr_verif, 2), 9, 74
 
-			If mail_street_full <> "" AND mail_line_one = "" Then mail_line_one = mail_street_full
-			'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
-	        If len(mail_line_one) > 22 Then
-	            mail_words = split(mail_line_one, " ")
+			mail_street_full = trim(trim(mail_line_one) & " " & trim(mail_line_two))
+			If len(mail_line_one) > 22 or len(mail_line_two) > 22 Then
+				'This functionality will write the address word by word so that if it needs to word wrap to the second line, it can move the words to the next line
+	            mail_words = split(mail_street_full, " ")
 	            write_mail_line_one = ""
 	            write_mail_line_two = ""
 	            For each word in mail_words
@@ -1750,7 +1751,9 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 	            Next
 	        Else
 	            write_mail_line_one = mail_line_one
+				write_mail_line_two = mail_line_two
 	        End If
+
 
 			If new_version = False then
 				EMWriteScreen write_mail_line_one, 13, 43
