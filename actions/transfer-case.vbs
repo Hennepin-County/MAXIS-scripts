@@ -64,28 +64,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-function view_poli_temp(temp_one, temp_two, temp_three, temp_four)
-	call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
-	EMWriteScreen "TEMP", 5, 40     'Writes TEMP
-
-	'Writes the panel_title selection
-	Call write_value_and_transmit("TABLE", 21, 71)
-
-	If temp_one <> "" Then temp_one = right("00" & temp_one, 2)
-	If len(temp_two) = 1 Then temp_two = right("00" & temp_two, 2)
-	If len(temp_three) = 1 Then temp_three = right("00" & temp_three, 2)
-	If len(temp_four) = 1 Then temp_four = right("00" & temp_four, 2)
-
-	total_code = "TE" & temp_one & "." & temp_two
-	If temp_three <> "" Then total_code = total_code & "." & temp_three
-	If temp_four <> "" Then total_code = total_code & "." & temp_four
-
-	EMWriteScreen total_code, 3, 21
-	transmit
-
-	EMWriteScreen "X", 6, 4
-	transmit
-end function
 
 '--------------------------------------------------------------------------------The script
 EMConnect ""                                        'Connecting to BlueZone
@@ -460,7 +438,7 @@ Call script_end_procedure_with_error_report(closing_message)
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022
 '--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/24/2022-------------------N/A
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
 '--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022
@@ -475,7 +453,8 @@ Call script_end_procedure_with_error_report(closing_message)
 '--Denomination reviewed -------------------------------------------------------04/12/2022
 '--Script name reviewed---------------------------------------------------------04/12/2022
 '--BULK - remove 1 incrementor at end of script reviewed------------------------04/12/2022
-
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/24/2022
+'
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------04/12/2022
 '--comment Code-----------------------------------------------------------------04/12/2022
