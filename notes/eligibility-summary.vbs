@@ -240,6 +240,7 @@ class snap_eligibility_detail
 	' public snap_elig_membs
 
 	public snap_expedited
+	public snap_uhfs
 	public snap_exp_package_includes_month_one
 	public snap_exp_package_includes_month_two
 	public snap_prorated
@@ -354,6 +355,7 @@ class snap_eligibility_detail
 
 	public sub read_elig()
 		snap_expedited = False
+		snap_uhfs = False
 		snap_exp_package_includes_month_one = False
 		snap_exp_package_includes_month_two = False
 		snap_prorated = False
@@ -508,6 +510,8 @@ class snap_eligibility_detail
 		transmit 		'FSCR
 		EmReadScreen case_expedited_indicator, 9, 4, 3
 		If case_expedited_indicator = "EXPEDITED" Then snap_expedited = True
+		EMReadScreen case_uhfs_indicator, 11, 5, 4
+		If case_uhfs_indicator = "UNCLE HARRY" Then snap_uhfs = True
 
 		EMReadScreen snap_case_appl_withdrawn_test, 	6, 7, 9
 		EMReadScreen snap_case_applct_elig_test, 		6, 8, 9
