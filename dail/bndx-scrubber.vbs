@@ -69,11 +69,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-FUNCTION abended_function
-	EMReadScreen case_abended, 7, 9, 27
-	IF case_abended = "abended" THEN transmit
-END FUNCTION
-
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 EMConnect ""
@@ -85,6 +80,9 @@ If left(MEMB_check, 4) = "MEMB" then
     'Grabbibng the SSN for the member
     EmReadscreen member_number, 2, 6, 25
     CALL write_value_and_transmit("S", 6, 3)
+    'PRIV Handling
+    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
     EMWriteScreen "MEMB", 20, 71
     EMWriteScreen member_number, 20, 76
     Call write_value_and_transmit("01", 20, 79)
@@ -93,6 +91,7 @@ If left(MEMB_check, 4) = "MEMB" then
 
     PF3 ' back to the DAIL
 Else
+    'DAIL messages that have the SSN already present don't need to enter the MEMB panel to gather the SSN
     SSN_present = True
     EMReadScreen cl_ssn, 9, 6, 20
     ssn_first = left(cl_ssn, 3)
@@ -105,6 +104,9 @@ End if
 
 'Navigating deeper into the match interface
 CALL write_value_and_transmit("I", 6, 3)
+'PRIV Handling
+EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
 EMReadScreen MAXIS_case_number, 8, 20, 38
 MAXIS_case_number = trim(MAXIS_case_number)
 MAXIS_case_number = replace(MAXIS_case_number, "_", "")
@@ -152,29 +154,14 @@ END IF
 
 '========== Goes back to STAT/PROG to determine which programs are active. ==========
 back_to_SELF
-EMWriteScreen "STAT", 16, 43
-EMWriteScreen maxis_case_number, 18, 43
-EMWriteScreen "PROG", 21, 70
-transmit
-EMReadScreen abended_check, 7, 9, 27
-IF abended_check = "abended" THEN transmit
-EMReadScreen errr_check, 4, 2, 52
-IF errr_check = "ERRR" THEN transmit
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
-EMReadScreen cash_one_status, 4, 6, 74
-EMReadScreen cash_two_status, 4, 7, 74
-EMReadScreen grh_status, 4, 9, 74
-EMReadScreen fs_status, 4, 10, 74
-EMReadScreen ive_status, 4, 11, 74
-EMReadScreen hc_status, 4, 12, 74
-
-IF cash_one_status <> "ACTV" AND cash_two_status <> "ACTV" AND grh_status <> "ACTV" AND fs_status <> "ACTV" AND ive_status <> "ACTV" AND hc_status <> "ACTV" THEN
-  IF cash_one_status <> "PEND" AND cash_two_status <> "PEND" AND grh_status <> "PEND" AND fs_status <> "PEND" AND ive_status <> "PEND" AND hc_status <> "PEND" THEN script_end_procedure("The client does not have any active or pending MAXIS cases.")
-END IF
+If case_active = False then
+    If case_pending = False then script_end_procedure("This case does not have any active or pending MAXIS cases.")
+End if
 
 '========== Navigates to MEMB to grab the member number for cases in which there are mulitple persons on the case with a BNDX message. ==========
-EMWriteScreen "MEMB", 20, 71
-transmit
+Call navigate_to_MAXIS_screen("STAT", "MEMB")
 
 DO
 	EMReadScreen memb_ssn, 11, 7, 42
@@ -188,14 +175,13 @@ LOOP UNTIL client_SSN = memb_ssn
 FOR i = 0 TO num_of_rsdi
 	end_of_unea = ""
 	'========== Goes to STAT/UNEA ==========
-	EMWriteScreen "UNEA", 20, 71
+	Call navigate_to_MAXIS_screen("STAT", "UNEA")
 	EMWriteScreen reference_number, 20, 76
-	EMWriteScreen "01", 20, 79
-	transmit
+	Call write_value_and_transmit("01", 20, 79)
 
 	EMReadScreen number_of_unea_panels, 1, 2, 78
 	IF number_of_unea_panels = "0" THEN
-		script_end_procedure("Client is not showing any UNEA panels.")
+		script_end_procedure("Resident is not showing any UNEA panels.")
 	ELSEIF number_of_unea_panels = "1" THEN
 		EMReadScreen unea_type, 4, 5, 40
 		IF unea_type = "RSDI" THEN
@@ -291,10 +277,7 @@ FOR i = 0 TO num_of_rsdi
 NEXT
 
 back_to_SELF
-EMWriteScreen "DAIL", 16, 43
-EMWriteScreen maxis_case_number, 18, 43
-EMWriteScreen "DAIL", 21, 70
-transmit
+Call navigate_to_MAXIS_screen("DAIL", "DAIL")
 
 '========== The bit about the MSGBox is used only as a safeguard for Beta Testing.
 IF error_message = "" THEN
