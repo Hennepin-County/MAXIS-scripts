@@ -352,7 +352,7 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs
   Text 15, 65, 65, 10, "Type of Application:"
   Text 85, 75, 50, 10, "Confirmation #:"
   Text 10, 110, 70, 10, "Population/Specialty"
-  Text 7, 130, 75, 10, "Was CCAP Reuested?"
+  Text 7, 130, 75, 10, "Was CCAP Requested?"
   y_pos = 150
   If snap_status = "PENDING" Then
       GroupBox 5, 150, 255, 105, "Expedited Screening"
