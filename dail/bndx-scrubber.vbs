@@ -62,7 +62,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("05/16/2022", "Updated script functionality to support IEVS/INFO message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County")
+call changelog_update("05/16/2022", "Updated script functionality to support IEVS/INFO message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County") ''#814
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -72,6 +72,13 @@ changelog_display
 '------------------THIS SCRIPT IS DESIGNED TO BE RUN FROM THE DAIL SCRUBBER.
 '------------------As such, it does NOT include protections to be ran independently.
 EMConnect ""
+
+EMReadScreen MAXIS_case_number, 8, 5, 73
+MAXIS_case_number = trim(MAXIS_case_number)
+MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+
+EmReadscreen MAXIS_footer_month, 2, 6, 11   'reading footer month in case there are more DAIL's then just the one for INFC.
+EmReadscreen MAXIS_footer_year, 2, 6, 14
 
 EMReadScreen MEMB_check, 7, 6, 20
 If left(MEMB_check, 4) = "MEMB" then
@@ -84,11 +91,9 @@ If left(MEMB_check, 4) = "MEMB" then
     EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
     If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
     EMWriteScreen "MEMB", 20, 71
-    EMWriteScreen member_number, 20, 76
-    Call write_value_and_transmit("01", 20, 79)
+    Call write_value_and_transmit(member_number, 20, 76)
     EmReadscreen client_SSN, 11, 7, 42
     trimmed_client_SSN = replace(client_SSN, " ", "")
-
     PF3 ' back to the DAIL
 Else
     'DAIL messages that have the SSN already present don't need to enter the MEMB panel to gather the SSN
@@ -107,13 +112,16 @@ CALL write_value_and_transmit("I", 6, 3)
 'PRIV Handling
 EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
 If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
-EMReadScreen MAXIS_case_number, 8, 20, 38
-MAXIS_case_number = trim(MAXIS_case_number)
-MAXIS_case_number = replace(MAXIS_case_number, "_", "")
 EMWriteScreen trimmed_client_SSN, 3, 63
 
-CALL write_value_and_transmit("BNDX", 20, 71)
+'Ensuring that we're on the right footer month/year as the DAIL message. Otherwise errors can occur.
+EmReadscreen bndx_month, 2, 20, 55
+EmReadscreen bndx_year, 2, 20, 58
 
+If bndx_month <> MAXIS_footer_month then EmWriteScreen MAXIS_footer_month, 20, 55
+If bndx_year <> MAXIS_footer_year then EmWriteScreen MAXIS_footer_year, 20, 58
+
+CALL write_value_and_transmit("BNDX", 20, 71)
 'checking for IRS non-disclosure agreement.
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
@@ -195,11 +203,12 @@ FOR i = 0 TO num_of_rsdi
 				right(bndx_array(i, 0), 1) = "M" OR _
 				right(bndx_array(i, 0), 1) = "T" OR _
 				right(bndx_array(i, 0), 1) = "W" THEN bndx_array(i, 2) = left(bndx_array(i, 2), 10)
+
 			IF bndx_array(i, 0) <> bndx_array(i, 2) THEN error_message = error_message & chr(13) & "Claim numbers do not match."
 			EMReadScreen unea_prospective_amt, 8, 18, 68
 			bndx_array(i, 3) = trim(unea_prospective_amt)
 			IF ((CDbl(bndx_array(i, 3)) - CDBl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 3)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The prospective amount in UNEA is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
-			IF fs_status = "ACTV" or fs_status = "PEND" THEN
+			IF snap_case = True then
 				EMWriteScreen "X", 10, 26
 				transmit
 				EMReadScreen unea_pic_amt, 8, 18, 56
@@ -209,7 +218,7 @@ FOR i = 0 TO num_of_rsdi
 			ELSE
 				bndx_array(i, 4) = ""
 			END IF
-			IF hc_status = "ACTV" or hc_status = "PEND" THEN
+			IF (ma_case = True or msa_case = True) then
 				EMWriteScreen "X", 6, 56
 				transmit
 				EMReadScreen unea_hc_inc_amt, 8, 9, 65
@@ -251,7 +260,7 @@ FOR i = 0 TO num_of_rsdi
 				EMReadScreen unea_prospective_amt, 8, 18, 68
 				bndx_array(i, 3) = trim(unea_prospective_amt)
 				IF ((CDbl(bndx_array(i, 3)) - CDBl(bndx_array(i, 1)) > county_bndx_variance_threshold) OR (CDbl(bndx_array(i, 1)) - CDbl(bndx_array(i, 3)) > county_bndx_variance_threshold)) THEN error_message = error_message & chr(13) & "The prospective amount in UNEA is significantly different from BNDX for BNDX claim " & (i + 1) & ", " & bndx_array(i, 0) & "."
-				IF fs_status = "ACTV" or fs_status = "PEND" THEN
+				IF snap_case = True then
 					EMWriteScreen "X", 10, 26
 					transmit
 					EMReadScreen unea_pic_amt, 8, 18, 56
@@ -261,7 +270,7 @@ FOR i = 0 TO num_of_rsdi
 				ELSE
 					bndx_array(i, 4) = ""
 				END IF
-				IF hc_status = "ACTV" or hc_status = "PEND" THEN
+				IF (ma_case = True or msa_case = True) then
 					EMWriteScreen "X", 6, 56
 					transmit
 					EMReadScreen unea_hc_inc_amt, 8, 9, 65
@@ -318,15 +327,6 @@ IF error_message = "" THEN
 ELSE
 	error_message = "*** NOTICE ***" & vbCr & "==========" & vbCr & error_message & vbCr & vbCr & "Review case and request RSDI information if necessary."
 	MSGBox error_message
-	'compare_message = "BNDX Conclusion" & vbCr & "============="
-	'FOR i = 0 to num_of_rsdi
-	'	compare_message = compare_message & vbCr & "BNDX Claim #: " & bndx_array(i, 0)
-	'	compare_message = compare_message & vbCr & "  BNDX Amt: " & bndx_array(i, 1)
-	'	compare_message = compare_message & vbCr & "  UNEA Prosp Amt: " & bndx_array(i, 3)
-	'	IF bndx_array(i, 4) <> "" THEN compare_message = compare_message & vbCr & "  SNAP PIC Amt: " & bndx_array(i, 4)
-	'	IF bndx_array(i, 5) <> "" THEN compare_message = compare_message & vbCr & "  HC Inc Est Amt: " & bndx_array(i, 5)
-	'NEXT
-	'MSGBox compare_message
 END IF
 
 script_end_procedure("")
