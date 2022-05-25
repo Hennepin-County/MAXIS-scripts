@@ -53,8 +53,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("05/24/2022", "CASE/NOTE format updated to exclude the 'How App Received' detail. This information is important for the script operation, but is not necessary to be included in the CASE/NOTE", "Casey Love, Hennepin County")   '#799
 call changelog_update("05/01/2022", "Updated the Appointment Notice to have information for residents about in person support.", "Casey Love, Hennepin County")
-' READY FOR WHEN WE CAN PUT IN CCAP INFO - ADD DATE call changelog_update("", "Added a checkbox if the application also requests Child Care Assistance. The script will send an email to the CCAP team alerting them to the request so that follow up can happen following CCAP process.", "Casey Love, Hennepin County")
 call changelog_update("04/27/2022", "The Application Received script is updated to check cases to find if the ADDR panel is missing or has an error. The script will stop if it discovers a possible issue with an ADDR panel as that is a mandatory panel for all cases.", "Casey Love, Hennepin County")
 call changelog_update("03/29/2022", "Removed APPLYMN as application option.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/11/2022", "Added randomizer functionality for Adults appplications that appear expedited. Caseloads suggested will be either EX1 or EX2", "Ilse Ferris, Hennepin County")
@@ -669,7 +669,7 @@ END IF
 'NOW WE START CASE NOTING - there are a few
 'Initial application CNOTE - all cases get these ones
 start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE ("~ Application Received (" &  application_type & ") via " & how_application_rcvd & " for " & application_date & " ~")
+CALL write_variable_in_CASE_NOTE ("~ Application Received (" &  application_type & ") for " & application_date & " ~")
 CALL write_bullet_and_variable_in_CASE_NOTE("Requesting HC for MEMBER(S) ", household_persons)
 CALL write_bullet_and_variable_in_CASE_NOTE("Request to APPL Form received on ", request_date)
 ' IF how_application_rcvd = "Request to APPL Form" THEN
@@ -883,8 +883,8 @@ Call script_end_procedure_with_error_report(end_msg)
 '--All variables in dialog match mandatory fields-------------------------------09/10/2021
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------09/10/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------09/10/2021
+'--All variables are CASE:NOTEing (if required)---------------------------------05/24/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/24/2022
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/10/2021
