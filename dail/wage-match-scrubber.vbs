@@ -133,6 +133,7 @@ FUNCTION income_matrix(income_matrix_array, match_name, match_employer, quarter,
 								IF jobs_end_date = "__/__/__" THEN
 									'Checking the JOBS panel if it has no end date
 									num_of_income_panels = num_of_income_panels + 1
+                                    STATS_counter = STATS_counter + 1
 									income_matrix_array(num_of_income_panels, 0) = ref_num & " " & cl_name
 									EMReadScreen jobs_num, 2, 2, 72
 									jobs_num = replace(jobs_num, " ", "0")
@@ -415,6 +416,9 @@ IF wage <> "WAGE" THEN script_end_procedure("Your cursor is not set on a WAGE me
 'Grabbibng the SSN for the member
 EmReadscreen member_number, 2, 6, 25
 CALL write_value_and_transmit("S", 6, 3)
+'PRIV Handling
+EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
 EMWriteScreen "MEMB", 20, 71
 EMWriteScreen member_number, 20, 76
 Call write_value_and_transmit("01", 20, 79)
@@ -456,4 +460,47 @@ CALL check_for_MAXIS(false)
 'Returning the user back to DAIL
 CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 
+STATS_counter = STATS_counter - 1 'for acuurate counts
 script_end_procedure("")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/25/2022
+'--Tab orders reviewed & confirmed----------------------------------------------05/25/2022
+'--Mandatory fields all present & Reviewed--------------------------------------05/25/2022
+'--All variables in dialog match mandatory fields-------------------------------05/25/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/25/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/25/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/25/2022-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/25/2022-------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/25/2022-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/25/2022
+'--Out-of-County handling reviewed----------------------------------------------05/25/2022-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/25/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------05/25/2022-------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/25/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/25/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/25/2022
+'--Denomination reviewed -------------------------------------------------------05/25/2022
+'--Script name reviewed---------------------------------------------------------05/25/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/25/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/25/2022
+'--comment Code-----------------------------------------------------------------05/25/2022
+'--Update Changelog for release/update------------------------------------------05/16/2022
+'--Remove testing message boxes-------------------------------------------------05/25/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/25/2022
+'--Review/update SharePoint instructions----------------------------------------05/25/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/25/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/25/2022
+'--Complete misc. documentation (if applicable)---------------------------------05/25/2022
+'--Update project team/issue contact (if applicable)----------------------------05/25/2022
