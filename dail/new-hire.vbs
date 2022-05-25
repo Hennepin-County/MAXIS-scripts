@@ -47,7 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County")
+call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County") ''#814
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("12/17/2019", "Updated navigation to case note from DAIL.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/26/2019", "Updated message box regarding children under 19, added policy reference for SNAP/CASH programs.", "Ilse Ferris, Hennepin County")
@@ -68,11 +68,7 @@ changelog_display
 '----------------------------------------------------------------------------------------------------------Script
 EMConnect ""
 
-'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
-EMReadscreen dail_check, 4, 2, 48
-If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. This script will stop.")
-'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "T"
+EMSendKey "T" 'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 transmit
 
 'determining if the old message with the SSN functionality will be needed or not.
@@ -130,6 +126,9 @@ PF3
 'GOING TO STAT
 Call write_value_and_transmit("S", 6, 3)
 EMReadScreen stat_check, 4, 20, 21
+'PRIV Handling
+EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
 If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
 
 'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
@@ -272,7 +271,7 @@ End if
 '-----------------------------------------------------------------------------------------CASENOTE
 Call navigate_to_MAXIS_screen("CASE", "NOTE")
 PF9 ' edit mode
-CALL write_variable_in_case_note("--NEW JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
+CALL write_variable_in_case_note("-SDNH Match for (M" & HH_memb & ") for " & trim(employer) & "-")
 CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 CALL write_variable_in_case_note("EMPLOYER: " & employer)
 CALL write_variable_in_case_note(new_hire_third_line)
@@ -290,3 +289,45 @@ CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
 script_end_procedure_with_error_report("Success! MAXIS updated for new HIRE message, a case note made, and TIKL has been set. An Employment Verification and Verification request form should now be sent. The job is at " & employer & ".")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/25/2022
+'--Tab orders reviewed & confirmed----------------------------------------------05/25/2022
+'--Mandatory fields all present & Reviewed--------------------------------------05/25/2022
+'--All variables in dialog match mandatory fields-------------------------------05/25/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/25/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/25/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/25/2022-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/25/2022-------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/25/2022-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/25/2022
+'--Out-of-County handling reviewed----------------------------------------------05/25/2022-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/25/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------05/25/2022-------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/25/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/25/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/25/2022
+'--Denomination reviewed -------------------------------------------------------05/25/2022
+'--Script name reviewed---------------------------------------------------------05/25/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/25/2022-------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/25/2022
+'--comment Code-----------------------------------------------------------------05/25/2022
+'--Update Changelog for release/update------------------------------------------05/03/2022
+'--Remove testing message boxes-------------------------------------------------05/25/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/25/2022
+'--Review/update SharePoint instructions----------------------------------------05/25/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/25/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/25/2022
+'--Complete misc. documentation (if applicable)---------------------------------05/25/2022
+'--Update project team/issue contact (if applicable)----------------------------05/25/2022
