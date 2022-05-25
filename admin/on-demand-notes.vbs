@@ -238,26 +238,24 @@ END IF
 IF subsequent_app_checkbox = CHECKED THEN
 	case_status = "Subsequent application received"
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 191, 225, "Application Received"
+	BeginDialog Dialog1, 0, 0, 191, 215, "Application Received"
 	  Text 120, 20, 60, 10, application_date
 	  EditBox 120, 35, 60, 15, subsequent_app_date
-	  DropListBox 85, 55, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
-	  DropListBox 85, 70, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
-	  EditBox 85, 85, 95, 15, confirmation_number
-	  GroupBox 5, 5, 180, 115, "Application Information"
+	  DropListBox 85, 55, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
+	  EditBox 85, 75, 95, 15, confirmation_number
+	  GroupBox 5, 5, 180, 105, "Application Information"
 	  Text 10, 20, 65, 10, "Date of Application:"
 	  Text 10, 40, 105, 10, "Subsequent application date:"
-	  Text 10, 60, 70, 10, "Application Received:"
-	  Text 10, 75, 65, 10, "Type of Application:"
-	  Text 10, 90, 50, 10, "Confirmation #:"
-	  Text 10, 105, 65, 10, "Pending Programs: "
-	    Text 85, 105, 60, 10, pending_programs
+	  Text 10, 60, 65, 10, "Type of Application:"
+	  Text 10, 80, 50, 10, "Confirmation #:"
+	  Text 10, 95, 65, 10, "Pending Programs: "
+	  Text 85, 95, 60, 10, pending_programs
 	  ButtonGroup ButtonPressed
-	    PushButton 50, 175, 95, 15, "Open CM 05.09.06", cm_05_09_06_btn
-	    OkButton 75, 125, 50, 15
-	    CancelButton 130, 125, 50, 15
-	  Text 10, 145, 170, 25, "Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date."
-	  Text 10, 195, 170, 30, "Please contact Knowledge Now or your Supervisor if you have questions about dates to enter in MAXIS for applications."
+	    PushButton 50, 165, 95, 15, "Open CM 05.09.06", cm_05_09_06_btn
+	    OkButton 75, 115, 50, 15
+	    CancelButton 130, 115, 50, 15
+	  Text 10, 135, 170, 25, "Per CM 0005.09.06 - if a case is pending and a new app is received you should use the original application date."
+	  Text 10, 185, 170, 30, "Please contact Knowledge Now or your Supervisor if you have questions about dates to enter in MAXIS for applications."
 	EndDialog
 
 	Do
@@ -429,7 +427,7 @@ ELSEIF case_status = "Other" THEN
 	CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
 	CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & NOMI_date)
 ELSEIF case_status = "Subsequent application received" THEN
-	CALL write_variable_in_CASE_NOTE ("~ Subsequent Application Received (" &  application_type & ") via " & how_application_rcvd & " for " & subsequent_app_date & " ~")
+	CALL write_variable_in_CASE_NOTE ("~ Subsequent Application Received (" &  application_type & ") for " & subsequent_app_date & " ~")
     CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", pending_programs)
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
@@ -453,7 +451,7 @@ script_end_procedure_with_error_report(closing_message)
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------10/01/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A					05/24/2022 - reviewed header for subsequent applications to match updates to App Recvd - Issue 799
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/01/2021
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
