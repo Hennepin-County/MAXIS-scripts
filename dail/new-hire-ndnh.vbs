@@ -160,6 +160,9 @@ End if
 '----------------------------------------------------------------------------------------------------STAT Information
 If go_to_STAT = True then
     Call write_value_and_transmit("S", 6, 3)
+    'PRIV Handling
+    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
     EMReadScreen stat_check, 4, 20, 21
     If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
     'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
@@ -303,7 +306,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
 	'-----------------------------------------------------------------------------------------CASENOTE
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     PF9 ' edit mode
-	CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
+	CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") for " & trim(employer) & "-")
     CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
     CALL write_variable_in_case_note("EMPLOYER: " & employer)
     CALL write_variable_in_case_note(new_hire_third_line)
@@ -332,6 +335,9 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
     'navigating to the INFC screens
 	EMSendKey "I"
 	transmit
+    'PRIV Handling
+    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
     If SSN_present = False then EmWriteScreen MEMB_SSN, 3, 63
     Call write_value_and_transmit("HIRE", 20, 71)
 
@@ -473,7 +479,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     PF9 ' edit mode
 	IF Emp_known_droplist = "YES-No Further Action" THEN
-		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared reported to agency-")
+		CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Reported-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 		CALL write_variable_in_case_note("EMPLOYER: " & employer)
 		CALL write_variable_in_case_note(new_hire_third_line)
@@ -486,7 +492,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		CALL write_variable_in_case_note(worker_signature)
 
 	ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
-		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared unreported to agency-")
+		CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Unreported-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 		CALL write_variable_in_case_note("EMPLOYER: " & employer)
 		CALL write_variable_in_case_note(new_hire_third_line)
@@ -504,3 +510,45 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
     IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
 	script_end_procedure_with_error_report("Success! The NDNH HIRE message has been cleared. Please start overpayment process if necessary.")
 END IF
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/25/2022
+'--Tab orders reviewed & confirmed----------------------------------------------05/25/2022
+'--Mandatory fields all present & Reviewed--------------------------------------05/25/2022
+'--All variables in dialog match mandatory fields-------------------------------05/25/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/25/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/25/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/25/2022-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/25/2022-------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/25/2022-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/25/2022
+'--Out-of-County handling reviewed----------------------------------------------05/25/2022-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/25/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------05/25/2022-------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/25/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/25/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/25/2022
+'--Denomination reviewed -------------------------------------------------------05/25/2022
+'--Script name reviewed---------------------------------------------------------05/25/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/25/2022-------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/25/2022
+'--comment Code-----------------------------------------------------------------05/25/2022
+'--Update Changelog for release/update------------------------------------------05/07/2022
+'--Remove testing message boxes-------------------------------------------------05/25/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/25/2022
+'--Review/update SharePoint instructions----------------------------------------05/25/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/25/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/25/2022
+'--Complete misc. documentation (if applicable)---------------------------------05/25/2022
+'--Update project team/issue contact (if applicable)----------------------------05/25/2022
