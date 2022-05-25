@@ -309,6 +309,7 @@ function budget_calculate_deductions(earned_deduction_correct_amt, medical_deduc
 
 	total_deduction_correct_amt = earned_deduction_correct_amt + medical_deduction_correct_amt + dependent_care_deduction_correct_amt + child_support_deduction_correct_amt + standard_deduction_correct_amt
 	net_income_correct_amt = total_income_correct_amt - total_deduction_correct_amt
+	If net_income_correct_amt < 0 Then net_income_correct_amt = 0
 	fifty_perc_net_income_correct_amt = net_income_correct_amt * 0.5
 	Call ensure_variable_is_a_number(fifty_perc_net_income_correct_amt, 2)
 
@@ -558,7 +559,7 @@ function budget_calculate_benefit_details(cat_elig, total_income_correct_amt, ne
 
 		If correct_hh_size < 3 and monthly_snap_benefit_correct_amt < 20 Then monthly_snap_benefit_correct_amt = 20
 		If correct_hh_size > 2 and monthly_snap_benefit_correct_amt < 0 Then monthly_snap_benefit_correct_amt = 0
-		If MFIP_active = True Then 			'TODO  for future need handling for UHFS calculation
+		If SNAP_is_UHFS = True Then 			'TODO  for future need handling for UHFS calculation
 			If monthly_snap_benefit_correct_amt > 0 Then
 				monthly_snap_benefit_correct_amt = .75*monthly_snap_benefit_correct_amt
 				monthly_snap_benefit_correct_amt = Int(monthly_snap_benefit_correct_amt)
@@ -1078,6 +1079,7 @@ Do
 'read for MFIP/SNAP in 02/22
 SNAP_active = False
 MFIP_active = False
+SNAP_is_UHFS = False
 Call navigate_to_MAXIS_screen("STAT", "PROG")
 EMReadScreen cash_1_prog, 2, 6, 67
 EMReadScreen cash_1_stat, 4, 6, 74
@@ -1186,6 +1188,8 @@ If SNAP_active = True Then
 	transmit
 
 	write_value_and_transmit "FSCR", 19, 70
+	EMReadScreen uhfs_indicator, 11, 5, 4
+	If uhfs_indicator = "UNCLE HARRY" Then SNAP_is_UHFS = True
 
 	write_value_and_transmit "FSB1", 19, 70
 	Call read_amount_from_MAXIS(earned_income_budgeted_amt, 10, 8, 31)
