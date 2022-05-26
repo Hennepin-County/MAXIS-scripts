@@ -329,6 +329,8 @@ Loop until are_we_passworded_out = FALSE
 
 MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
 MAXIS_footer_year = right("00"&MAXIS_footer_year, 2)
+Original_MAXIS_footer_month = MAXIS_footer_month
+Original_MAXIS_footer_year = MAXIS_footer_year
 
 Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going to look at jobs
 EMWriteScreen memb_number, 20, 76
@@ -375,6 +377,8 @@ Else
 End If
 
 If case_status = "Update" Then
+	MAXIS_footer_month = CM_plus_1_mo
+	MAXIS_footer_year = CM_plus_1_yr
     Call Navigate_to_MAXIS_screen("STAT", "JOBS")       'Going back to look at jobs
     EMWriteScreen memb_number, 20, 76
     EMWriteScreen "01", 20, 79
@@ -475,6 +479,8 @@ If case_status = "Update" Then
             counter = counter + 1
         End If
     Next
+	MAXIS_footer_month = Original_MAXIS_footer_month
+	MAXIS_footer_year = Original_MAXIS_footer_year
 End If
 
 If case_status = "Initial" Then
@@ -887,8 +893,8 @@ Do
     Do
         EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
         If inc_type = "__" Then Exit Do
-        'MsgBox "The job identifier is " & this_job & vbNewLine & "Budget Row: " & budg_row & vbNewLine & "Income Type is: " & inc_type
-        'MsgBox JOBS_ARRAY(employer, this_job) & vbNewLine & "The first check is for $" & JOBS_ARRAY(est_pop_up, this_job)
+        ' MsgBox "The job identifier is " & this_job & vbNewLine & "Budget Row: " & budg_row & vbNewLine & "Income Type is: " & inc_type
+        ' MsgBox JOBS_ARRAY(employer, this_job) & vbNewLine & "The first check is for $" & JOBS_ARRAY(est_pop_up, this_job)
         If JOBS_ARRAY(est_pop_up, this_job) <> 0.00 Then    ''
             If inc_type = "02" Then
                 EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
@@ -897,12 +903,14 @@ Do
                 'MsgBox JOBS_ARRAY(employer, this_job) & vbNewLine & "Month Total $" & month_total
                 month_total = month_total * 1
                 JOBS_ARRAY(six_month_total, this_job) = JOBS_ARRAY(six_month_total, this_job) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
+				' MsgBox "month_total - " & month_total & vbCr & "budg_row - " & budg_row & vbCr & "JOBS_ARRAY(six_month_total, this_job) - " & JOBS_ARRAY(six_month_total, this_job)
                 this_job = this_job + 1     'going to the next job in the array
             End If
             budg_row = budg_row + 1     'looking at the next budget row
         Else
             this_job = this_job + 1     'going to the next job in the array
         End If
+		' MsgBox "this_job - " & this_job & vbCr & "UBOUND(JOBS_ARRAY, 2) - " & UBOUND(JOBS_ARRAY, 2) & vbCr & "budg_row - " & budg_row
     Loop until this_job > UBOUND(JOBS_ARRAY, 2)
     transmit
 
