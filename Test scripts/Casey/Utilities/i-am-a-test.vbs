@@ -38,38 +38,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-Set objXl = GetObject(, "Excel.Application")
-On Error GoTo 0
-If Err Then
-    MsgBox "Excel NOT Running", vbInformation, "Excel Status"
-    WScript.Quit(-1)
-End If
-
-strName = InputBox("Enter Workbook Name:", "Required")
-If Len(strWBName) = 0 Then WScript.Quit(-2)
-
-bFound = False
-If objXL.Workbooks.Count > 0 Then
-    For Each wb In objXL.Workbooks
-        If wb.Name = strName Then
-            bFound = True
-            Exit For
-        End If
-    Next
-End If
-
-
-Set objXl = GetObject(, "Excel.Application")
-
-If Not TypeName(objXL) = "Empty" then
-    strMessage = "Excel Running"
-	MsgBox "Excel Running - " & objXL.ActiveWorkbook.Name & " is active"
-	objXl.Visible = True
-Else
-    strMessage = "Excel NOT Running"
-End If
-
-MsgBox strMessage, vbInformation, "Excel Status"
 
 MsgBox "STOP"
 
