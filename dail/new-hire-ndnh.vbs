@@ -67,11 +67,7 @@ changelog_display
 
 '----------------------------------------------------------------------------------------------------------Script
 EMConnect ""
-'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
-EMReadscreen dail_check, 4, 2, 48
-If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. This script will stop.")
-'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "T"
+EMSendKey "T"   'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 transmit
 
 'determining if the old message with the SSN functionality will be needed or not.
@@ -195,8 +191,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
 
 	'GOING TO JOBS
 	EMWriteScreen "JOBS", 20, 71
-	EMWriteScreen HH_memb, 20, 76
-	transmit
+	Call write_value_and_transmit(HH_memb, 20, 76)
 
 	create_JOBS_checkbox = checked 'defaulting to checked
 
@@ -298,14 +293,16 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
         If expired_check = "EXPIRE" THEN closing_message = closing_message & vbcr & vbcr & "Check next footer month to make sure the JOBS panel carried over correctly."
 	END IF
 
-    Call back_to_SELF
-
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
 
-	'-----------------------------------------------------------------------------------------CASENOTE
-    Call navigate_to_MAXIS_screen("CASE", "NOTE")
-    PF9 ' edit mode
+    reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
+    If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire received for " & MAXIS_case_number, "", "", TRUE, 5, "")
+
+    Call navigate_to_MAXIS_screen("DAIL", "DAIL")
+    '-----------------------------------------------------------------------------------------CASENOTE
+    Call write_value_and_transmit("N", 6, 3)
+    PF9
 	CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") for " & trim(employer) & "-")
     CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
     CALL write_variable_in_case_note("EMPLOYER: " & employer)
@@ -322,10 +319,6 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
-    PF3
-
-    reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
-    If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire received for " & MAXIS_case_number, "", "", TRUE, 5, "")
 
     script_end_procedure_with_error_report(closing_message)
 END IF
@@ -463,11 +456,9 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		IF Action_taken_droplist = "NA-No Action Taken" THEN MISC_action_taken = "Determination-No Savings"
 		IF Emp_known_droplist = "YES-No Further Action" THEN MISC_action_taken = "Determination-No Savings"
 	    EMWriteScreen MISC_action_taken, Row, 30
-	    EMWriteScreen date, Row, 66
-	    TRANSMIT
-	    'PF3
-        Call navigate_to_MAXIS_screen("CASE", "NOTE")
-        PF9 ' edit mode
+	    Call write_value_and_transmit(date, Row, 66)
+
+        Call start_a_blank_CASE_NOTE
 	    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
 		Call write_variable_in_case_note("* NDNH new hire information received - " & MISC_action_taken )
 	    Call write_bullet_and_variable_in_case_note("Action Date", date)
@@ -476,8 +467,9 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    Call write_variable_in_case_note(worker_signature)
 	END IF
 
-    Call navigate_to_MAXIS_screen("CASE", "NOTE")
-    PF9 ' edit mode
+    IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
+
+    Call start_a_blank_CASE_NOTE
 	IF Emp_known_droplist = "YES-No Further Action" THEN
 		CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Reported-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
@@ -487,10 +479,6 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		CALL write_variable_in_case_note("---")
 		CALL write_variable_in_case_note("* Reviewed ECF for requested verifications and MAXIS for correctly budgeted income.")
 		CALL write_variable_in_case_note("* Cleared match in INFC/HIRE - Previously reported to agency.")
-		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note(worker_signature)
-
 	ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
 		CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Unreported-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
@@ -503,11 +491,11 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		IF Action_taken_droplist = "BR-Benefits Reduced" THEN CALL write_variable_in_case_note("* Action taken: Benefits Reduced")
 		IF Action_taken_droplist = "CC-Case Closed" THEN CALL write_variable_in_case_note("* Action taken: Case Closed (allowing for 10 day cutoff if applicable)")
 		IF cost_savings <> "" THEN CALL write_variable_in_case_note("* First Month Cost Savings: $" & cost_savings)
-		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note(worker_signature)
-	END IF
-    IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
+    End IF
+	CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
+	CALL write_variable_in_case_note("---")
+	CALL write_variable_in_case_note(worker_signature)
+
 	script_end_procedure_with_error_report("Success! The NDNH HIRE message has been cleared. Please start overpayment process if necessary.")
 END IF
 
