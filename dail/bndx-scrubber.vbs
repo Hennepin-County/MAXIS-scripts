@@ -160,21 +160,24 @@ IF bndx_claim_three_amt <> "" THEN
 	bndx_array(2, 1) = bndx_claim_three_amt
 END IF
 
-'========== Goes back to STAT/PROG to determine which programs are active. ==========
-back_to_SELF
+PF3' back to DAIL
+
+'========== Navigates to CASE/CURR from the DAIL to determine which programs are active/pending. ==========
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
 If case_active = False then
-    If case_pending = False then script_end_procedure("This case does not have any active or pending MAXIS cases.")
+    If case_pending = False then script_end_procedure("This case does not have any active or pending MAXIS programs.")
 End if
 
+PF3 'back to DAIL from CASE/CURR
 '========== Navigates to MEMB to grab the member number for cases in which there are mulitple persons on the case with a BNDX message. ==========
-Call navigate_to_MAXIS_screen("STAT", "MEMB")
+Call write_value_and_transmit("S", 6, 3)
+Call write_value_and_transmit("MEMB", 20, 71)
 
 DO
 	EMReadScreen memb_ssn, 11, 7, 42
 	IF client_SSN = memb_ssn THEN
-		EMReadScreen reference_number, 2, 4, 33
+		EMReadScreen member_number, 2, 4, 33
 	ELSE
 		transmit
 	END IF
@@ -183,8 +186,8 @@ LOOP UNTIL client_SSN = memb_ssn
 FOR i = 0 TO num_of_rsdi
 	end_of_unea = ""
 	'========== Goes to STAT/UNEA ==========
-	Call navigate_to_MAXIS_screen("STAT", "UNEA")
-	EMWriteScreen reference_number, 20, 76
+	Call write_value_and_transmit("UNEA", 20, 71)
+	EMWriteScreen member_number, 20, 76
 	Call write_value_and_transmit("01", 20, 79)
 
 	EMReadScreen number_of_unea_panels, 1, 2, 78
@@ -218,7 +221,7 @@ FOR i = 0 TO num_of_rsdi
 			ELSE
 				bndx_array(i, 4) = ""
 			END IF
-			IF (ma_case = True or msa_case = True) then
+			IF (ma_case = True or msa_case = True or unknown_hc_pending = True) then
 				EMWriteScreen "X", 6, 56
 				transmit
 				EMReadScreen unea_hc_inc_amt, 8, 9, 65
@@ -270,7 +273,7 @@ FOR i = 0 TO num_of_rsdi
 				ELSE
 					bndx_array(i, 4) = ""
 				END IF
-				IF (ma_case = True or msa_case = True) then
+				IF (ma_case = True or msa_case = True or unknown_hc_pending = True) then
 					EMWriteScreen "X", 6, 56
 					transmit
 					EMReadScreen unea_hc_inc_amt, 8, 9, 65
@@ -307,7 +310,7 @@ IF error_message = "" THEN
       Text 30, 10, 65, 10, "Delete the DAIL??"
     EndDialog
 
-	DIALOG Dialog1
+DIALOG Dialog1
 		IF ButtonPressed = delete_button THEN
 			DO
 				dail_read_row = 6
