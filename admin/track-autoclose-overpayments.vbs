@@ -1617,21 +1617,31 @@ Do
 		If err_msg <> "" and left(err_msg, 4) <> "LOOP" then MsgBox "Please resolve to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
 
-	If process_complete_mfip = process_complete_snap And form_received_mfip = form_received_snap And form_received_date_mfip = form_received_date_snap And interview_information_mfip = interview_information_snap And interview_date_mfip = interview_date_snap And verifs_received_mfip = verifs_received_snap Then
-		process_complete = process_complete_snap
-		form_received = form_received_snap
-		form_received_date = form_received_date_snap
-		interview_information = interview_information_snap
-		interview_date = interview_date_snap
-		verifs_received = verifs_received_snap
+	If process_complete = "" Then
+		If process_complete_mfip = process_complete_snap And form_received_mfip = form_received_snap And form_received_date_mfip = form_received_date_snap And interview_information_mfip = interview_information_snap And interview_date_mfip = interview_date_snap And verifs_received_mfip = verifs_received_snap Then
+			process_complete = process_complete_snap
+			form_received = form_received_snap
+			form_received_date = form_received_date_snap
+			interview_information = interview_information_snap
+			interview_date = interview_date_snap
+			verifs_received = verifs_received_snap
+		End If
 	End If
 
-	If process_complete = "No" Then calculation_needed = False
+	If process_complete = "No" Then
+		calculation_needed = False
+		mfip_calculation_needed = False
+		snap_calculation_needed = False
+	End If
 	If process_complete = "" Then
 		calculation_needed = False
 		If process_complete_mfip = "No" Then mfip_calculation_needed = False
 		If process_complete_snap = "No" Then snap_calculation_needed = False
 	End If
+	' MsgBox "process_complete - " & process_complete & vbCr &_
+	' 	   "calculation_needed - " & calculation_needed & vbCr &_
+	' 	   "snap_calculation_needed - " & snap_calculation_needed & vbCr &_
+	' 	   "mfip_calculation_needed - " &  mfip_calculation_needed
 
 	If SNAP_active = True and (calculation_needed = True or snap_calculation_needed = True) Then
 		If IsDate(form_received_date) = True Then snap_proration_date = form_received_date
@@ -1913,7 +1923,7 @@ Do
 			Loop until ButtonPressed = mfip_claculation_done_btn
 		Else
 			mfip_overpayment_exists = True
-			MsgBox "1 - mfip_overpayment_exists - " & mfip_overpayment_exists
+			' MsgBox "1 - mfip_overpayment_exists - " & mfip_overpayment_exists
 			mfip_supplement_exists = False
 			mfip_total_overpayment_amt = mfip_total_issued_amt
 			mfip_cash_overpayment_amt = mfip_MF_MF_issued_amt
