@@ -848,7 +848,35 @@ class mfip_eligibility_detial
 	public mfip_elig_membs_es_status_code()
 	public mfip_elig_membs_es_status_info()
 
+	public mfip_cash_opt_out
+	public mfip_HG_opt_out
+
+	public mfip_case_test_appl_withdraw
+	public mfip_case_test_asset
+	public mfip_case_test_death_applicant
+	public mfip_case_test_dupl_assist
+	public mfip_case_test_elig_child
+	public mfip_case_test_fail_coop
+	public mfip_case_test_fail_file
+	public mfip_case_test_initial_income
+	public mfip_case_test_minor_liv_arrange
+	public mfip_case_test_monthly_income
+	public mfip_case_test_post_60_disq
+	public mfip_case_test_residence
+	public mfip_case_test_sanction_limit
+	public mfip_case_test_strike
+	public mfip_case_test_TANF_time_limit
+	public mfip_case_test_transfer_asset
+	public mfip_case_test_verif
+	public mfip_case_test_275_new_spouse_income
+	public mfip_fs_case_test_fail_coop_snap_qc
+	public mfip_fs_case_test_opt_out_cash
+	public mfip_fs_case_test_opt_out_housing_grant
+
 	public sub read_elig()
+		mfip_cash_opt_out = False
+		mfip_HG_opt_out = False
+
 		call navigate_to_MAXIS_screen("ELIG", "MFIP")
 		EMWriteScreen elig_footer_month, 20, 56
 		EMWriteScreen elig_footer_year, 20, 59
@@ -986,6 +1014,96 @@ class mfip_eligibility_detial
 			row = row + 1
 			EMReadScreen next_ref_numb, 2, row, 6
 		Loop until next_ref_numb = "  "
+
+		transmit			'MFCR
+
+		EMReadScreen mfip_case_test_appl_withdraw, 		6, 6, 7
+		EMReadScreen mfip_case_test_asset, 				6, 7, 7
+		EMReadScreen mfip_case_test_death_applicant, 	6, 8, 7
+		EMReadScreen mfip_case_test_dupl_assist, 		6, 9, 7
+		EMReadScreen mfip_case_test_elig_child, 		6, 10, 7
+		EMReadScreen mfip_case_test_fail_coop, 			6, 11, 7
+		EMReadScreen mfip_case_test_fail_file, 			6, 12, 7
+		EMReadScreen mfip_case_test_initial_income, 	6, 13, 7
+		EMReadScreen mfip_case_test_minor_liv_arrange, 	6, 14, 7
+
+		EMReadScreen mfip_case_test_monthly_income, 		6, 6, 46
+		EMReadScreen mfip_case_test_post_60_disq, 			6, 7, 46
+		EMReadScreen mfip_case_test_residence, 				6, 8, 46
+		EMReadScreen mfip_case_test_sanction_limit, 		6, 9, 46
+		EMReadScreen mfip_case_test_strike, 				6, 10, 46
+		EMReadScreen mfip_case_test_TANF_time_limit, 		6, 11, 46
+		EMReadScreen mfip_case_test_transfer_asset, 		6, 12, 46
+		EMReadScreen mfip_case_test_verif, 					6, 13, 46
+		EMReadScreen mfip_case_test_275_new_spouse_income, 	6, 14, 46
+
+		EMReadScreen mfip_fs_case_test_fail_coop_snap_qc, 		6, 17, 7
+		EMReadScreen mfip_fs_case_test_opt_out_cash, 			6, 17, 46
+		EMReadScreen mfip_fs_case_test_opt_out_housing_grant, 	6, 18, 46
+
+		If mfip_fs_case_test_opt_out_cash = "FAILED" Then mfip_cash_opt_out = True
+		If mfip_fs_case_test_opt_out_housing_grant = "FAILED" Then mfip_HG_opt_out = True
+
+		mfip_case_test_appl_withdraw = trim(mfip_case_test_appl_withdraw)
+		mfip_case_test_asset = trim(mfip_case_test_asset)
+		mfip_case_test_death_applicant = trim(mfip_case_test_death_applicant)
+		mfip_case_test_dupl_assist = trim()
+		mfip_case_test_elig_child = trim()
+		mfip_case_test_fail_coop = trim()
+		mfip_case_test_fail_file = trim()
+		mfip_case_test_initial_income = trim()
+		mfip_case_test_minor_liv_arrange = trim()
+		mfip_case_test_monthly_income = trim()
+		mfip_case_test_post_60_disq = trim()
+		mfip_case_test_residence = trim()
+		mfip_case_test_sanction_limit = trim()
+		mfip_case_test_strike = trim()
+		mfip_case_test_TANF_time_limit = trim()
+		mfip_case_test_transfer_asset = trim()
+		mfip_case_test_verif = trim()
+		mfip_case_test_275_new_spouse_income = trim()
+		mfip_fs_case_test_fail_coop_snap_qc = trim()
+		mfip_fs_case_test_opt_out_cash = trim()
+		mfip_fs_case_test_opt_out_housing_grant = trim()
+
+		Call write_value_and_transmit("X", 7, 5)
+		EMReadScreen mfip_counted_asset_CASH, 10, 6, 47
+		EMReadScreen mfip_counted_asset_ACCT, 10, 7, 47
+		EMReadScreen mfip_counted_asset_SECU, 10, 8, 47
+		EMReadScreen mfip_counted_asset_CARS, 10, 9, 47
+		EMReadScreen mfip_counted_asset_SPON, 10, 10, 47
+		EMReadScreen mfip_counted_asset_total, 10, 12, 47
+		EMReadScreen mfip_counted_asset_max, 10, 13, 47
+		transmit
+
+		Call write_value_and_transmit("X", 13, 5)
+		EMReadScreen mfip_initial_income_earned, 			10, 8, 51
+		EMReadScreen mfip_initial_income_deoendant_care, 	10, 8, 51
+		EMReadScreen mfip_initial_income_unearned, 			10, 8, 51
+		EMReadScreen mfip_initial_income_deemed, 			10, 8, 51
+		EMReadScreen mfip_initial_income_cses_exclusion, 	10, 8, 51
+		EMReadScreen mfip_initial_income_total, 			10, 8, 51
+		EMReadScreen mfip_initial_income_family_wage_level, 10, 8, 51
+		PF3
+
+		Call write_value_and_transmit("X", 14, 44)
+
+		PF3
+
+		transmit			'MFBF
+
+
+
+
+		transmit			'MFB1
+
+
+
+		transmit			'MFB2
+
+
+		transmit			'MFSM
+
 	end sub
 
 end class
