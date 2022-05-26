@@ -66,19 +66,14 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-MAXIS_footer_month = CM_plus_1_mo
-MAXIS_footer_year = CM_plus_1_yr
-
-'VARIABLES WHICH NEED DECLARING------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-HH_memb_row = 5
-Dim row
-Dim col
-
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
+MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_year = CM_plus_1_yr
+Call check_for_MAXIS(False)
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
@@ -106,8 +101,8 @@ Do
 	DO
     	err_msg = ""
 		Dialog Dialog1
-		cancel_confirmation
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & "* You need to type a valid case number."
+		cancel_without_confirmation
+	    Call validate_MAXIS_case_number(err_msg, "*")
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
@@ -123,19 +118,17 @@ If paperless_checkbox = 1 then
 End If
 
 'Navigating to STAT/REVW, checking for error prone cases
-call navigate_to_MAXIS_screen("stat", "revw")
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)
+If is_this_priv = True then script_end_procedure("This case is privileged. The script will now end.")
+
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
 'Grabbing SHEL/HEST first, and putting them in this special order that everyone seems to like
 call autofill_editbox_from_MAXIS(HH_member_array, "SHEL", SHEL_HEST)
-'If SHEL_HEST <> "" then SHEL_HEST = SHEL_HEST & "; "		'this is a temporary fix to resolve issues where a variable is "autofilled" by multiple functions in the same script
 call autofill_editbox_from_MAXIS(HH_member_array, "HEST", SHEL_HEST)
-'Autofilling HH comp
 call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
-'Autofilling WREG status
 call autofill_editbox_from_MAXIS(HH_member_array, "WREG", notes_on_abawd)
-
 'Autofilling assets
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "CARS", assets)
@@ -268,10 +261,10 @@ DO
 				Loop until ButtonPressed <> no_cancel_button
                 MAXIS_dialog_navigation
 			LOOP until ButtonPressed = next_button
-			IF CSR_datestamp = "" THEN 					err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
-			IF CSR_status = "Select one..." THEN 				err_msg = err_msg & vbCr & "* Please select the status of the CSR."
-			IF HH_comp = "" THEN 						err_msg = err_msg & vbCr & "* Please enter household composition information."
-			IF (earned_income <> "" AND notes_on_income = "") OR (unearned_income <> "" AND notes_on_income = "") THEN 					err_msg = err_msg & vbCr & "* You must provide some information about income. Please complete the 'Notes on Income' field."
+			IF isdate(CSR_datestamp) = False THEN err_msg = err_msg & vbCr & "* Please enter the date the CSR was received."
+			IF CSR_status = "Select one..." THEN err_msg = err_msg & vbCr & "* Please select the status of the CSR."
+			IF trim(HH_comp) = "" THEN err_msg = err_msg & vbCr & "* Please enter household composition information."
+			IF (earned_income <> "" AND notes_on_income = "") OR (unearned_income <> "" AND notes_on_income = "") THEN err_msg = err_msg & vbCr & "* You must provide some information about income. Please complete the 'Notes on Income' field."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		Loop until err_msg = ""
 
@@ -337,7 +330,7 @@ DO
 				MAXIS_dialog_navigation
 			LOOP UNTIL ButtonPressed = -1 OR ButtonPressed = previous_button
 			err_msg = ""
-			IF actions_taken = "" THEN 		err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
+			IF trim(actions_taken) = "" THEN err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
 			IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		LOOP UNTIL err_msg = "" OR ButtonPressed = previous_button
 	LOOP WHILE ButtonPressed = previous_button
@@ -346,11 +339,9 @@ LOOP UNTIL are_we_passworded_out = false
 
 IF grab_FS_info_checkbox = 1 THEN
 	'grabbing information about elig/fs
-	call navigate_to_MAXIS_screen("elig", "fs")
+	call navigate_to_MAXIS_screen("ELIG", "FS")
 	EMReadScreen FSPR_check, 4, 3, 48
-	If FSPR_check <> "FSPR" then
-		MsgBox "The script couldn't find ELIG/FS. It will now jump to case note."
-	Else
+	If FSPR_check = "FSPR" then
 		EMWriteScreen "FSSM", 19, 70
 		transmit
 		EMReadScreen FSSM_line_01, 37, 13, 44
@@ -401,3 +392,45 @@ If paperless_checkbox = unchecked then
 else
     script_end_procedure("")
 End if
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/26/2022
+'--Tab orders reviewed & confirmed----------------------------------------------05/26/2022
+'--Mandatory fields all present & Reviewed--------------------------------------05/26/2022
+'--All variables in dialog match mandatory fields-------------------------------05/26/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/26/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/26/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/26/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/26/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/26/2022
+'--PRIV Case handling reviewed -------------------------------------------------05/26/2022
+'--Out-of-County handling reviewed----------------------------------------------05/26/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/26/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------05/26/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/26/2022------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/26/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/26/2022
+'--Denomination reviewed -------------------------------------------------------05/26/2022
+'--Script name reviewed---------------------------------------------------------05/26/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/26/2022------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/26/2022
+'--comment Code-----------------------------------------------------------------05/26/2022
+'--Update Changelog for release/update------------------------------------------05/26/2022
+'--Remove testing message boxes-------------------------------------------------05/26/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/26/2022
+'--Review/update SharePoint instructions----------------------------------------05/26/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/26/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/26/2022
+'--Complete misc. documentation (if applicable)---------------------------------05/26/2022
+'--Update project team/issue contact (if applicable)----------------------------05/26/2022
