@@ -70,7 +70,7 @@ EndDialog
 Do
 	dialog Dialog1					''showing the dialog
 	cancel_without_confirmation
-	If ButtonPressed = instructions_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://edocs.dhs.state.mn.us/lfserver/Public/DHS-3315A-ENG"
+	If ButtonPressed = instructions_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ADMIN/ADMIN%20-%20FIND%20HIDDEN%20EXCEL.docx"
 Loop until ButtonPressed = -1
 
 On Error Resume Next			'this is needed because an error indicates that no excel files have been found. Instead of throwing an error, the script is coded to script_end when the error hits
