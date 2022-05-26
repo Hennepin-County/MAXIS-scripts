@@ -93,3 +93,45 @@ Do
 Loop				'There is no end condition on this loop because we will always hit a script end procedure
 
 Call script_end_procedure("All Excel Files found.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/26/2022
+'--Tab orders reviewed & confirmed----------------------------------------------N/A
+'--Mandatory fields all present & Reviewed--------------------------------------N/A
+'--All variables in dialog match mandatory fields-------------------------------N/A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/26/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/26/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/26/2022
+'--Denomination reviewed -------------------------------------------------------05/26/2022
+'--Script name reviewed---------------------------------------------------------05/26/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/26/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/26/2022
+'--comment Code-----------------------------------------------------------------05/26/2022
+'--Update Changelog for release/update------------------------------------------05/26/2022
+'--Remove testing message boxes-------------------------------------------------05/26/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/26/2022
+'--Review/update SharePoint instructions----------------------------------------05/26/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/26/2022
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------05/26/2022
