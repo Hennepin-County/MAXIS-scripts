@@ -332,6 +332,7 @@ Loop until are_we_passworded_out = FALSE
 
 MAXIS_footer_month = right("00"&MAXIS_footer_month, 2)
 MAXIS_footer_year = right("00"&MAXIS_footer_year, 2)
+script_run_lowdown = script_run_lowdown & vbCr & "Footer Month - " & MAXIS_footer_month & vbCr & "Footer Year - " & MAXIS_footer_year
 Original_MAXIS_footer_month = MAXIS_footer_month
 Original_MAXIS_footer_year = MAXIS_footer_year
 
