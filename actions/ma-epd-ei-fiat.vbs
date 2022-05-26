@@ -308,18 +308,21 @@ End If
 
 'Getting the footer month
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 191, 50, "Dialog"
+BeginDialog Dialog1, 0, 0, 196, 100, "Select Beginning of the Budget"
   EditBox 140, 5, 15, 15, MAXIS_footer_month
   EditBox 160, 5, 15, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 130, 30, 50, 15
+    OkButton 135, 75, 50, 15
   Text 5, 10, 120, 10, "Beginning month of MA-EPD budget"
+  Text 5, 30, 185, 20, "Review the footer month listed here. This should be the first month of the budget period that you need to FIAT."
+  Text 5, 55, 145, 20, "CRITICAL REVIEW - With the REVW Waiver for HC this date may be wrong."
 EndDialog
 
 Do
     Do
         err_msg = ""
         Dialog Dialog1
+		cancel_without_confirmation
 
         If trim(MAXIS_footer_month) = "" or trim(MAXIS_footer_year) = "" Then err_msg = err_msg & vbNewLine & "* Enter the footer month and year."
         If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
