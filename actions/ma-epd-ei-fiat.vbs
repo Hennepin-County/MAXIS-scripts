@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/25/2022", "Updated the handling of the Footer Month for more stable script operation. For active MA EPD cases (the Update process) the script will read JOBS and UNEA informaiton from Current Month plus One as that is the most recent information available.", "Casey Love, Hennepin County")
 call changelog_update("06/25/2020", "Added handling to stop the script run if the income information is not updated fully or does not meet requiements for needing an MA-EPD FIAT.##~## If you have questions about use of the FIAT or necessary updates to JOBS and UNEA panels, please contact the BlueZone Script Team and we will direct you to the best resources.", "Casey Love, Hennepin County")
 call changelog_update("06/04/2020", "BUG FIX - Script was failing with the new functionality trying to correctly navigate to UNEA panels. It was causing an error on some cases that prevented the script from continuing. Bug should now be resolved.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/22/2020", "Added functionality so the script can FIAT income from Unemployment as well as JOBS income. As UI income is received weekly, it can cause the premium to vary from month to month. This income also requires a FIAT to be balanced across the budget.##~## ##~## The functionality for UNEA panels coded with UI income works at the same time and in the same manner as the JOBS functionality.", "Casey Love, Hennepin County")
@@ -99,9 +100,9 @@ function get_average_pay(job_frequency, job_income)
 
     EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
     IF HC_income_est_check = "Est" Then 'this is the old position
-      EMWriteScreen "x", 19, 54
+      EMWriteScreen "X", 19, 54
     ELSE								'this is the new position
-      EMWriteScreen "x", 19, 48
+      EMWriteScreen "X", 19, 48
     END IF
     transmit                            'opening the HC Inc Estimate pop-up
     EMReadScreen hc_inc_est, 8, 11, 63  'Reading the income on this field.'
@@ -142,27 +143,9 @@ end function
 
 'END FUNCTIONS==============================================================================================================
 
-'DATE CALCULATIONS----------------------------------------------------------------------------------------------------
-' current_month_plus_one = dateadd("m", 1, date)
-'
-' MAXIS_footer_month = datepart("m", current_month_plus_one)
-' If len(MAXIS_footer_month) = 1 then MAXIS_footer_month = "0" & MAXIS_footer_month
-'
-' MAXIS_footer_year = datepart("yyyy", current_month_plus_one)
-' MAXIS_footer_year = MAXIS_footer_year - 2000
-'
-' current_month = datepart("m", date)
-' If len(current_month) = 1 then current_month = "0" & current_month
-'
-' current_year = datepart("yyyy", date)
-' current_year = current_year - 2000
-'
-' current_month_and_year = current_month & "/" & current_year
-' next_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
-
 'THE SCRIPT--------------------------------
 EMConnect ""
-
+Call check_for_MAXIS(False)
 'Autofilling information
 call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
@@ -177,12 +160,15 @@ If MAXIS_case_number <> "" Then
     EMSearch "MA:", row, col        'Searhing for the MA line because it moves
     If row <> 0 Then                'If the script finds an MA line, it will read the status (pending or active)'
         EMReadScreen ma_status, 7, row, col+4   'Reading the status'
-        'MsgBox ma_status
         ma_status = trim(ma_status)             'cutting blank
         If ma_status = "ACTIVE" Then case_status = "Update"    'If a case is alread active, it is often at review'
         If ma_status = "PENDING" Then case_status = "Initial"       'If a case is pending then it is usually at Initial
     End If
 End If
+
+Call back_to_SELF
+EMReadScreen MX_environment, 7, 22, 48
+If MX_environment = "INQUIRY" Then script_end_procedure("FIATER scripts do not work in Inquiry. This is currently in inuiry, the script will now end. Switch to production and run the script again.")
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 161, 85, "Case number"
@@ -242,6 +228,11 @@ ReDim JOBS_ARRAY(verif_code, 0)
 
 Dim UNEA_ARRAY()
 ReDim UNEA_ARRAY(verif_code, 0)
+
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
+If is_this_priv = True Then script_end_procedure("This case is privileged and the script cannot access the CASE. Reqquest access to the case and rerun the script.")
+EMReadScreen pw_county_code, 2, 21, 19
+If pw_county_code <> "27" Then script_end_procedure("This case is not in Hennepin County and cannot be updated. The script will now end.")
 
 'Cases at Update have a different information to look at
 If case_status = "Update" Then
@@ -418,9 +409,9 @@ If case_status = "Update" Then
         'Looking at the pop-up for income information
         EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
         IF HC_income_est_check = "Est" Then 'this is the old position
-          EMWriteScreen "x", 19, 54
+          EMWriteScreen "X", 19, 54
         ELSE								'this is the new position
-          EMWriteScreen "x", 19, 48
+          EMWriteScreen "X", 19, 48
         END IF
         transmit
         EMReadScreen hc_inc_est, 8, 11, 63
@@ -467,7 +458,7 @@ If case_status = "Update" Then
             pay_date = replace(pay_date, " ", "/")
 
             'Looking at the pop-up for income information
-            EMWriteScreen "x", 6, 56
+            EMWriteScreen "X", 6, 56
             transmit
             EMReadScreen hc_inc_est, 8, 9, 65
             hc_inc_est = trim(replace(hc_inc_est, "_", ""))
@@ -551,7 +542,6 @@ If case_status = "Initial" Then
 
         JOBS_ARRAY(pay_average, each_job-1) = total_pay / divider       'Finding the average of all of the paychecks listed
         JOBS_ARRAY(six_month_total, each_job-1) = 0                     'setting this equal to 0 as we will be adding to it later
-        'MsgBox "Average - " & JOBS_ARRAY(pay_average, each_job-1)
         day_validation_needed = FALSE       'default for this variable
         If JOBS_ARRAY(job_frequency, each_job-1) = "3" OR JOBS_ARRAY(job_frequency, each_job-1) = "4" Then  'if this JOB is paid weekly or biweekly
             JOBS_ARRAY(pay_weekday, each_job-1) = WeekDayName(WeekDay(JOBS_ARRAY(check_date_one, each_job-1)))  'finding the day of the week of the first paycheck
@@ -592,26 +582,6 @@ If case_status = "Initial" Then
         total_pay = FormatNumber(total_pay, 2)
         JOBS_ARRAY(est_pop_up, each_job-1) = total_pay
 
-        'This is commented out but can be used in testing to see all of the information gathered about each job
-        ' Dialog1 = ""
-        ' BeginDialog Dialog1, 0, 0, 200, 205, "JOBS"
-        '   Text 10, 10, 190, 10, "JOBS for MEMB " & member_number & "- Instance " & JOBS_ARRAY(instance, each_job-1)
-        '   Text 15, 30, 150, 10, "Checks - Verif " & JOBS_ARRAY(verif_code, each_job-1)
-        '   Text 55, 50, 120, 10, JOBS_ARRAY(check_date_one, each_job-1) & " - $" & JOBS_ARRAY(check_amt_one, each_job-1)
-        '   Text 55, 65, 120, 10, JOBS_ARRAY(check_date_two, each_job-1) & " - $" & JOBS_ARRAY(check_amt_two, each_job-1)
-        '   Text 55, 80, 120, 10, JOBS_ARRAY(check_date_three, each_job-1) & " - $" & JOBS_ARRAY(check_amt_three, each_job-1)
-        '   Text 55, 95, 120, 10, JOBS_ARRAY(check_date_four, each_job-1) & " - $" & JOBS_ARRAY(check_amt_four, each_job-1)
-        '   Text 55, 110, 120, 10, JOBS_ARRAY(check_date_five, each_job-1) & " - $" & JOBS_ARRAY(check_amt_five, each_job-1)
-        '   Text 55, 125, 120, 10, "Total - $" & total_pay
-        '   Text 10, 140, 120, 10, "Frequency - " & JOBS_ARRAY(job_frequency, each_job-1)
-        '   Text 10, 155, 120, 10, "Payday is on " & JOBS_ARRAY(pay_weekday, each_job-1)
-        '   Text 10, 170, 120, 10, "Average - $" & JOBS_ARRAY(pay_average, each_job-1)
-        '   ButtonGroup ButtonPressed
-        '     OkButton 10, 185, 50, 15
-        ' EndDialog
-        '
-        ' Dialog Dialog1
-
         transmit    'Giong to the next JOBS panel
     Next
 
@@ -636,7 +606,7 @@ If case_status = "Initial" Then
 	            UNEA_ARRAY(unea_type, counter) = "Unemployment Insurance"
 
 	            'Looking at the pop-up for income information
-	            EMWriteScreen "x", 6, 56
+	            EMWriteScreen "X", 6, 56
 	            transmit
 	            EMReadScreen hc_inc_est, 8, 9, 65
 	            hc_inc_est = trim(replace(hc_inc_est, "_", ""))
@@ -693,7 +663,6 @@ If case_status = "Initial" Then
 
 	            UNEA_ARRAY(pay_average, counter) = total_pay / divider       'Finding the average of all of the paychecks listed
 	            UNEA_ARRAY(six_month_total, counter) = 0                     'setting this equal to 0 as we will be adding to it later
-	            'MsgBox "Average - " & UNEA_ARRAY(pay_average, counter)
 	            day_validation_needed = FALSE       'default for this variable
 	            If UNEA_ARRAY(job_frequency, counter) = "3" OR UNEA_ARRAY(job_frequency, counter) = "4" Then  'if this JOB is paid weekly or biweekly
 	                UNEA_ARRAY(pay_weekday, counter) = WeekDayName(WeekDay(UNEA_ARRAY(check_date_one, counter)))  'finding the day of the week of the first paycheck
@@ -742,7 +711,6 @@ If case_status = "Initial" Then
     app_year = MAXIS_footer_year
 
     first_of_this_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year    'setting to a date so we can use date functionality
-    'MsgBox "FIRST - " &first_of_this_month
     next_month = DateAdd("m", 1, first_of_this_month)       'going to the next month
 
     Do
@@ -752,21 +720,14 @@ If case_status = "Initial" Then
         next_month_yr = right(next_month_yr, 2)
 
         list_of_months = list_of_months & "~" & next_month_mo & "/" & next_month_yr     'creating a list of month/years that need to be looked at
-        'MsgBox "List " & list_of_months
 
         first_of_this_month = next_month_mo & "/1/" & next_month_yr     'and to the next month
         next_month = DateAdd("m", 1, first_of_this_month)
-
-        'MsgBox "Start month and year - " & next_month & vbNewLine & "DIFF " & DateDiff("d", date, next_month)
     Loop until DateDiff("d", date, next_month) > 0      'doing this until the next month variable is after the current date
 
-    'MsgBox "Complete List " & list_of_months
     list_of_months = right(list_of_months, len(list_of_months)-1)   'creating an array of all the months to check
     month_array = split(list_of_months, "~")
 
-    ' For each thingy in month_array
-    '     MsgBox thingy
-    ' Next
     paychecks_align_with_weekday = TRUE             'setting the default of this variable
     For each footer in month_array                  'we are going to each month
         Call back_to_SELF                           'need to back out to SELF so we can change months
@@ -862,7 +823,7 @@ EMSearch memb_number & " ", row, col 'finding the member number
 If row = 0 then script_end_procedure("Member number not found. You may have entered an incorrect member number on the first screen. Try the script again.")
 
 'Opening the eligibility span of the client
-EMWriteScreen "x", row, 26
+EMWriteScreen "X", row, 26
 transmit
 
 'Reading the elig type of all the months. They should be DP because that is MA-EPD
@@ -887,9 +848,9 @@ If col = 0 Then script_end_procedure(end_msg)
 'Now looking at each month in ELIG
 number_of_months = 0        'setting this at - it will count the number of months to be FIATed
 Do
-    EMWriteScreen "x", 9, col + 2       'opening the Budget for the month
+    EMWriteScreen "X", 9, col + 2       'opening the Budget for the month
     transmit
-    EMWriteScreen "x", 13, 03           'opening the earned income pop-up
+    EMWriteScreen "X", 13, 03           'opening the earned income pop-up
     transmit
 
     this_job = 0                        'setting to loop through the rows and jobs
@@ -897,28 +858,23 @@ Do
     Do
         EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
         If inc_type = "__" Then Exit Do
-        ' MsgBox "The job identifier is " & this_job & vbNewLine & "Budget Row: " & budg_row & vbNewLine & "Income Type is: " & inc_type
-        ' MsgBox JOBS_ARRAY(employer, this_job) & vbNewLine & "The first check is for $" & JOBS_ARRAY(est_pop_up, this_job)
         If JOBS_ARRAY(est_pop_up, this_job) <> 0.00 Then    ''
             If inc_type = "02" Then
                 EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
                 month_total = replace(month_total, "_", "")
                 month_total = trim(month_total)
-                'MsgBox JOBS_ARRAY(employer, this_job) & vbNewLine & "Month Total $" & month_total
                 month_total = month_total * 1
                 JOBS_ARRAY(six_month_total, this_job) = JOBS_ARRAY(six_month_total, this_job) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
-				' MsgBox "month_total - " & month_total & vbCr & "budg_row - " & budg_row & vbCr & "JOBS_ARRAY(six_month_total, this_job) - " & JOBS_ARRAY(six_month_total, this_job)
                 this_job = this_job + 1     'going to the next job in the array
             End If
             budg_row = budg_row + 1     'looking at the next budget row
         Else
             this_job = this_job + 1     'going to the next job in the array
         End If
-		' MsgBox "this_job - " & this_job & vbCr & "UBOUND(JOBS_ARRAY, 2) - " & UBOUND(JOBS_ARRAY, 2) & vbCr & "budg_row - " & budg_row
     Loop until this_job > UBOUND(JOBS_ARRAY, 2)
     transmit
 
-    EMWriteScreen "x", 9, 03           'opening the unearned income pop-up
+    EMWriteScreen "X", 9, 03           'opening the unearned income pop-up
     transmit
 
     this_unea = 0                        'setting to loop through the rows and jobs
@@ -931,7 +887,6 @@ Do
                 EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
                 month_total = replace(month_total, "_", "")
                 month_total = trim(month_total)
-                'MsgBox JOBS_ARRAY(employer, this_unea) & vbNewLine & "Month Total $" & month_total
                 month_total = month_total * 1
                 UNEA_ARRAY(six_month_total, this_unea) = UNEA_ARRAY(six_month_total, this_unea) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
                 this_unea = this_unea + 1     'going to the next job in the array
@@ -949,9 +904,6 @@ Do
     ' transmit
 loop until col > 76
 
-' For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
-'     MsgBox "The total income for 6 months for this job is $" & JOBS_ARRAY(six_month_total, the_job) & vbNewLine & "Number of months is " & number_of_months
-' Next
 job_msg = ""
 continue_fiat = FALSE
 jobs_to_fiat = FALSE
@@ -988,7 +940,6 @@ If jobs_to_fiat = FALSE AND unea_to_fiat = FALSE Then continue_fiat = FALSE
 If jobs_to_fiat = FALSE Then fail_message = fail_message & vbNewLine & "There are no JOBS to FIAT."
 fail_message = "Script ended because FIAT could not continue due to:" & vbNewLine & fail_message
 if continue_fiat = FALSE Then script_end_procedure_with_error_report(fail_message)
-'MsgBox job_msg
 
 'Dynamic dialog to have the worker confirm the average income
 Dialog1 = ""
@@ -1085,7 +1036,7 @@ col = 1
 EMSearch memb_number & " ", row, col 'finding the member number
 If row = 0 then script_end_procedure("Member number not found. You may have entered an incorrect member number on the first screen. Try the script again.")
 
-EMWriteScreen "x", row, 26
+EMWriteScreen "X", row, 26
 transmit
 
 row = 6
@@ -1104,9 +1055,9 @@ If FIAT_check <> "FIAT" then
 End if
 
 Do
-    EMWriteScreen "x", 9, col + 2       'opening the budget
+    EMWriteScreen "X", 9, col + 2       'opening the budget
     transmit
-    EMWriteScreen "x", 13, 03           'opening the Earned Income line
+    EMWriteScreen "X", 13, 03           'opening the Earned Income line
     transmit
 
     budg_row = 8                        'reading each row to enter the information for each job
@@ -1123,7 +1074,7 @@ Do
     If update_made = TRUE Then transmit            'saving the earned income amount
     transmit            'closing the earned income pop-up
 
-    EMWriteScreen "x", 9, 03           'opening the unearned income pop-up
+    EMWriteScreen "X", 9, 03           'opening the unearned income pop-up
     transmit
 
     budg_row  = 8
@@ -1138,7 +1089,6 @@ Do
                     EmWriteScreen UNEA_ARRAY(average_monthly_inc, the_unea), budg_row, 43        'writing in the new averaged amount
                     budg_row = budg_row + 1
                     update_made = TRUE
-                    ' MsgBox "Updated the line"
                 End If
             Else
                 budg_row = budg_row + 1
@@ -1148,9 +1098,50 @@ Do
     If update_made = TRUE Then transmit            'saving the earned income amount
     transmit            'closing the earned income pop-up
 
-    ' MsgBox ("Budget updated.")
     col = col + 11      'going to next month
     transmit            'closing the budget pop-up
 loop until col > 76
 
 script_end_procedure_with_error_report("Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/25/2022
+'--Tab orders reviewed & confirmed----------------------------------------------05/25/2022
+'--Mandatory fields all present & Reviewed--------------------------------------05/25/2022
+'--All variables in dialog match mandatory fields-------------------------------05/25/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/25/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/25/2022
+'--Out-of-County handling reviewed----------------------------------------------05/25/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/25/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/25/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/25/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/25/2022
+'--Denomination reviewed -------------------------------------------------------05/25/2022
+'--Script name reviewed---------------------------------------------------------05/25/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/25/2022
+'--comment Code-----------------------------------------------------------------N/A
+'--Update Changelog for release/update------------------------------------------05/25/2022
+'--Remove testing message boxes-------------------------------------------------05/25/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/25/2022
+'--Review/update SharePoint instructions----------------------------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
