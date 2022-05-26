@@ -365,7 +365,7 @@ Next
 
 'If no jobs, there is no income to FIAT and script will end.
 If number_of_jobs = 0 AND list_of_unea_income_to_fiat = "" Then
-    end_msg = "Household Member " & member_number & " on this case has no JOBS panel and no UNEA panel. Please check the case, update JOBS if required and run the script again."
+    end_msg = "Household Member " & member_number & " on this case has no JOBS panel and no UI UNEA panel. Please check the case, update JOBS if required and run the script again."
     script_end_procedure(end_msg)
 End If
 
