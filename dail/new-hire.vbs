@@ -257,8 +257,6 @@ If create_JOBS_checkbox = checked then
     If expired_check = "EXPIRE" THEN closing_message = closing_message & vbcr & vbcr & "Check next footer month to make sure the JOBS panel carried over correctly."
 END IF
 
-Call back_to_SELF
-
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
 Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
 
@@ -268,9 +266,10 @@ If Outlook_reminder_checkbox = CHECKED THEN
 	CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire received " & " for " & MAXIS_case_number, "", "", TRUE, 5, "")
 End if
 
+Call navigate_to_MAXIS_screen("DAIL", "DAIL")
 '-----------------------------------------------------------------------------------------CASENOTE
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
-PF9 ' edit mode
+Call write_value_and_transmit("N", 6, 3)
+PF9
 CALL write_variable_in_case_note("-SDNH Match for (M" & HH_memb & ") for " & trim(employer) & "-")
 CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 CALL write_variable_in_case_note("EMPLOYER: " & employer)
