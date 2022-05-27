@@ -67,11 +67,7 @@ changelog_display
 
 '----------------------------------------------------------------------------------------------------------Script
 EMConnect ""
-'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
-EMReadscreen dail_check, 4, 2, 48
-If dail_check <> "DAIL" then script_end_procedure("You are not in your DAIL. This script will stop.")
-'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "T"
+EMSendKey "T"   'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 transmit
 
 'determining if the old message with the SSN functionality will be needed or not.
@@ -160,6 +156,9 @@ End if
 '----------------------------------------------------------------------------------------------------STAT Information
 If go_to_STAT = True then
     Call write_value_and_transmit("S", 6, 3)
+    'PRIV Handling
+    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
     EMReadScreen stat_check, 4, 20, 21
     If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
     'GOING TO MEMB, NEED TO CHECK THE HH MEMBER
@@ -192,8 +191,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
 
 	'GOING TO JOBS
 	EMWriteScreen "JOBS", 20, 71
-	EMWriteScreen HH_memb, 20, 76
-	transmit
+	Call write_value_and_transmit(HH_memb, 20, 76)
 
 	create_JOBS_checkbox = checked 'defaulting to checked
 
@@ -295,15 +293,17 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
         If expired_check = "EXPIRE" THEN closing_message = closing_message & vbcr & vbcr & "Check next footer month to make sure the JOBS panel carried over correctly."
 	END IF
 
-    Call back_to_SELF
-
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     Call create_TIKL("Verification of " & employer & "job via NEW HIRE should have returned by now. If not received and processed, take appropriate action. For all federal matches INFC/HIRE must be cleared please see HSR manual.", 10, date, True, TIKL_note_text)
 
-	'-----------------------------------------------------------------------------------------CASENOTE
-    Call navigate_to_MAXIS_screen("CASE", "NOTE")
-    PF9 ' edit mode
-	CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") unreported to agency-")
+    reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
+    If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire received for " & MAXIS_case_number, "", "", TRUE, 5, "")
+
+    Call navigate_to_MAXIS_screen("DAIL", "DAIL")
+    '-----------------------------------------------------------------------------------------CASENOTE
+    Call write_value_and_transmit("N", 6, 3)
+    PF9
+	CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") for " & trim(employer) & "-")
     CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
     CALL write_variable_in_case_note("EMPLOYER: " & employer)
     CALL write_variable_in_case_note(new_hire_third_line)
@@ -319,10 +319,6 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
     CALL write_variable_in_case_note("---")
     CALL write_variable_in_case_note(worker_signature)
-    PF3
-
-    reminder_date = dateadd("d", 10, date)  'Setting out for 10 days reminder
-    If Outlook_reminder_checkbox = CHECKED THEN CALL create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "New Hire received for " & MAXIS_case_number, "", "", TRUE, 5, "")
 
     script_end_procedure_with_error_report(closing_message)
 END IF
@@ -332,6 +328,9 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
     'navigating to the INFC screens
 	EMSendKey "I"
 	transmit
+    'PRIV Handling
+    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
     If SSN_present = False then EmWriteScreen MEMB_SSN, 3, 63
     Call write_value_and_transmit("HIRE", 20, 71)
 
@@ -457,11 +456,9 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		IF Action_taken_droplist = "NA-No Action Taken" THEN MISC_action_taken = "Determination-No Savings"
 		IF Emp_known_droplist = "YES-No Further Action" THEN MISC_action_taken = "Determination-No Savings"
 	    EMWriteScreen MISC_action_taken, Row, 30
-	    EMWriteScreen date, Row, 66
-	    TRANSMIT
-	    'PF3
-        Call navigate_to_MAXIS_screen("CASE", "NOTE")
-        PF9 ' edit mode
+	    Call write_value_and_transmit(date, Row, 66)
+
+        Call start_a_blank_CASE_NOTE
 	    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
 		Call write_variable_in_case_note("* NDNH new hire information received - " & MISC_action_taken )
 	    Call write_bullet_and_variable_in_case_note("Action Date", date)
@@ -470,10 +467,11 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    Call write_variable_in_case_note(worker_signature)
 	END IF
 
-    Call navigate_to_MAXIS_screen("CASE", "NOTE")
-    PF9 ' edit mode
+    IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
+
+    Call start_a_blank_CASE_NOTE
 	IF Emp_known_droplist = "YES-No Further Action" THEN
-		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared reported to agency-")
+		CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Reported-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 		CALL write_variable_in_case_note("EMPLOYER: " & employer)
 		CALL write_variable_in_case_note(new_hire_third_line)
@@ -481,12 +479,8 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		CALL write_variable_in_case_note("---")
 		CALL write_variable_in_case_note("* Reviewed ECF for requested verifications and MAXIS for correctly budgeted income.")
 		CALL write_variable_in_case_note("* Cleared match in INFC/HIRE - Previously reported to agency.")
-		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note(worker_signature)
-
 	ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
-		CALL write_variable_in_case_note("-NDNH JOB DETAILS FOR (M" & HH_memb & ") INFC cleared unreported to agency-")
+		CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Unreported-")
 		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
 		CALL write_variable_in_case_note("EMPLOYER: " & employer)
 		CALL write_variable_in_case_note(new_hire_third_line)
@@ -497,10 +491,52 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 		IF Action_taken_droplist = "BR-Benefits Reduced" THEN CALL write_variable_in_case_note("* Action taken: Benefits Reduced")
 		IF Action_taken_droplist = "CC-Case Closed" THEN CALL write_variable_in_case_note("* Action taken: Case Closed (allowing for 10 day cutoff if applicable)")
 		IF cost_savings <> "" THEN CALL write_variable_in_case_note("* First Month Cost Savings: $" & cost_savings)
-		CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note(worker_signature)
-	END IF
-    IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
+    End IF
+	CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
+	CALL write_variable_in_case_note("---")
+	CALL write_variable_in_case_note(worker_signature)
+
 	script_end_procedure_with_error_report("Success! The NDNH HIRE message has been cleared. Please start overpayment process if necessary.")
 END IF
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/25/2022
+'--Tab orders reviewed & confirmed----------------------------------------------05/25/2022
+'--Mandatory fields all present & Reviewed--------------------------------------05/25/2022
+'--All variables in dialog match mandatory fields-------------------------------05/25/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/25/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/25/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/25/2022-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/25/2022-------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/25/2022-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/25/2022
+'--Out-of-County handling reviewed----------------------------------------------05/25/2022-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/25/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------05/25/2022-------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/25/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------05/25/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------05/25/2022
+'--Denomination reviewed -------------------------------------------------------05/25/2022
+'--Script name reviewed---------------------------------------------------------05/25/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/25/2022-------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/25/2022
+'--comment Code-----------------------------------------------------------------05/25/2022
+'--Update Changelog for release/update------------------------------------------05/07/2022
+'--Remove testing message boxes-------------------------------------------------05/25/2022
+'--Remove testing code/unnecessary code-----------------------------------------05/25/2022
+'--Review/update SharePoint instructions----------------------------------------05/25/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/25/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/25/2022
+'--Complete misc. documentation (if applicable)---------------------------------05/25/2022
+'--Update project team/issue contact (if applicable)----------------------------05/25/2022
