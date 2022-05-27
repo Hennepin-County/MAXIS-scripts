@@ -848,6 +848,18 @@ class mfip_eligibility_detial
 	public mfip_elig_membs_es_status_code()
 	public mfip_elig_membs_es_status_info()
 
+	public mfip_memb_cash_portion_code()
+	public mfip_memb_food_portion_code()
+	public mfip_memb_state_food_code()
+	public mfip_memb_sanction_yn()
+	public mfip_memb_sanction_child_support_test()
+	public mfip_memb_sanction_drug_felon_test()
+	public mfip_memb_sanction_emp_services_test()
+	public mfip_memb_sanction_fin_orient_test()
+	public mfip_memb_sanction_occurence()
+	public mfip_memb_sanction_begin_date()
+	public mfip_memb_sanction_last_sanc_month()
+
 	public mfip_cash_opt_out
 	public mfip_HG_opt_out
 
@@ -872,6 +884,95 @@ class mfip_eligibility_detial
 	public mfip_fs_case_test_fail_coop_snap_qc
 	public mfip_fs_case_test_opt_out_cash
 	public mfip_fs_case_test_opt_out_housing_grant
+
+	public mfip_counted_asset_CASH
+	public mfip_counted_asset_ACCT
+	public mfip_counted_asset_SECU
+	public mfip_counted_asset_CARS
+	public mfip_counted_asset_SPON
+	public mfip_counted_asset_total
+	public mfip_counted_asset_max
+
+	public mfip_initial_income_earned
+	public mfip_initial_income_deoendant_care
+	public mfip_initial_income_unearned
+	public mfip_initial_income_deemed
+	public mfip_initial_income_cses_exclusion
+	public mfip_initial_income_total
+	public mfip_initial_income_family_wage_level
+
+	public mfip_12_month_start_date
+	public mfip_designated_spouse_ref_numb
+	public mfip_new_spouse_inc_earned
+	public mfip_new_spouse_inc_unearned
+	public mfip_new_spouse_inc_deemed_earned
+	public mfip_new_spouse_inc_deemed_unearned
+	public mfip_new_spouse_inc_total
+	public mfip_275_fpg_amt
+	public mfip_hh_size_fornew_spouse_calc
+
+	public mfip_case_sanction_percent
+	public mfip_case_sanction_vendor_yn
+	public mfip_case_sanction_last_vendor_month
+
+	public mfip_case_budg_family_wage_level
+	public mfip_case_budg_monthly_earned_income
+	public mfip_case_budg_wage_level_earned_inc_difference
+	public mfip_case_budg_transitional_standard
+	public mfip_case_budg_monthly_need
+	public mfip_case_budg_unearned_income
+	public mfip_case_budg_deemed_income
+	public mfip_case_budg_cses_exclusion
+	public mfip_case_budg_unmet_need
+	public mfip_case_budg_unmet_need_food_potion
+	public mfip_case_budg_tribal_counted_income
+	public mfip_case_budg_unmet_need_cash_portion
+	public mfip_case_budg_deduction_subsidy_tribal_cses
+
+	public mfip_case_budg_net_food_portion
+	public mfip_case_budg_net_cash_portion
+	public mfip_case_budg_net_unmet_need
+	public mfip_case_budg_deduction_sanction_vendor
+	public mfip_case_budg_unmet_neet_subtotal
+	public mfip_case_budg_subtotal_food_portion
+	public mfip_case_budg_food_portion_deduction
+	public mfip_case_budg_entitlement_food_portion
+	public mfip_case_budg_entitlement_housing_grant
+
+	public mfip_budg_cses_excln_cses_income
+	public mfip_budg_cses_excln_child_count
+	public mfip_budg_cses_excln_total
+
+	public mfip_case_budg_10_perc_sanc
+	public mfip_case_budg_unmet_need_after_pre_vndr_sanc
+	public mfip_case_budg_sanc_calc_food_portion
+	public mfip_case_budg_sanc_calc_cash_portion
+	public mfip_case_budg_pot_mand_vndr_pymts
+	public mfip_case_budg_30_perc_sanc
+
+	public mfip_case_budg_non_citzn_fs_inelig_pers_count
+	public mfip_case_budg_non_citzn_fs_inelig_amt
+	public mfip_case_budg_other_fs_inelig_pers_count
+	public mfip_case_budg_other_fs_inelig_amt
+
+	public mfip_case_budg_prorate_date
+	public mfip_case_budg_fed_food_benefit
+	public mfip_case_budg_food_prorated_amt
+	public mfip_case_budg_entitlement_cash_portion
+	public mfip_case_budg_mand_sanc_vendor
+	public mfip_case_budg_net_cash_portion
+	public mfip_case_budg_cash_prorated_amt
+	public mfip_case_budg_state_food_benefit
+	public mfip_case_budg_state_food_prorated_amt
+	public mfip_case_budg_grant_amount
+	public mfip_case_budg_amt_already_issued
+	public mfip_case_budg_supplement_due
+	public mfip_case_budg_overpayment
+	public mfip_case_budg_adjusted_grant_amt
+	public mfip_case_budg_recoupment
+	public mfip_case_budg_total_food_issuance
+	public mfip_case_budg_total_cash_issuance
+	public mfip_case_budg_total_housing_grant_issuance
 
 	public sub read_elig()
 		mfip_cash_opt_out = False
@@ -908,6 +1009,17 @@ class mfip_eligibility_detial
 		ReDim mfip_elig_membs_fs_recvd(0)
 		ReDim mfip_elig_membs_es_status_code(0)
 		ReDim mfip_elig_membs_es_status_info(0)
+		ReDim mfip_memb_cash_portion_code(0)
+		ReDim mfip_memb_food_portion_code(0)
+		ReDim mfip_memb_state_food_code(0)
+		ReDim mfip_memb_sanction_yn(0)
+		ReDim mfip_memb_sanction_child_support_test(0)
+		ReDim mfip_memb_sanction_drug_felon_test(0)
+		ReDim mfip_memb_sanction_emp_services_test(0)
+		ReDim mfip_memb_sanction_fin_orient_test(0)
+		ReDim mfip_memb_sanction_occurence(0)
+		ReDim mfip_memb_sanction_begin_date(0)
+		ReDim mfip_memb_sanction_last_sanc_month(0)
 
 		row = 7
 		elig_memb_count = 0
@@ -940,6 +1052,17 @@ class mfip_eligibility_detial
 			ReDim preserve mfip_elig_membs_fs_recvd(elig_memb_count)
 			ReDim preserve mfip_elig_membs_es_status_code(elig_memb_count)
 			ReDim preserve mfip_elig_membs_es_status_info(elig_memb_count)
+			ReDim preserve mfip_memb_cash_portion_code(elig_memb_count)
+			ReDim preserve mfip_memb_food_portion_code(elig_memb_count)
+			ReDim preserve mfip_memb_state_food_code(elig_memb_count)
+			ReDim preserve mfip_memb_sanction_yn(elig_memb_count)
+			ReDim preserve mfip_memb_sanction_child_support_test(elig_memb_count)
+			ReDim preserve mfip_memb_sanction_drug_felon_test()
+			ReDim preserve mfip_memb_sanction_emp_services_test(elig_memb_count)
+			ReDim preserve mfip_memb_sanction_fin_orient_test(elig_memb_count)
+			ReDim preserve mfip_memb_sanction_occurence(elig_memb_count)
+			ReDim preserve mfip_memb_sanction_begin_date(elig_memb_count)
+			ReDim preserve mfip_memb_sanction_last_sanc_month(elig_memb_count)
 
 			mfip_elig_ref_numbs(elig_memb_count) = ref_numb
 			EMReadScreen mfip_elig_membs_request_yn(elig_memb_count), 1, row, 32
@@ -1047,59 +1170,274 @@ class mfip_eligibility_detial
 		mfip_case_test_appl_withdraw = trim(mfip_case_test_appl_withdraw)
 		mfip_case_test_asset = trim(mfip_case_test_asset)
 		mfip_case_test_death_applicant = trim(mfip_case_test_death_applicant)
-		mfip_case_test_dupl_assist = trim()
-		mfip_case_test_elig_child = trim()
-		mfip_case_test_fail_coop = trim()
-		mfip_case_test_fail_file = trim()
-		mfip_case_test_initial_income = trim()
-		mfip_case_test_minor_liv_arrange = trim()
-		mfip_case_test_monthly_income = trim()
-		mfip_case_test_post_60_disq = trim()
-		mfip_case_test_residence = trim()
-		mfip_case_test_sanction_limit = trim()
-		mfip_case_test_strike = trim()
-		mfip_case_test_TANF_time_limit = trim()
-		mfip_case_test_transfer_asset = trim()
-		mfip_case_test_verif = trim()
-		mfip_case_test_275_new_spouse_income = trim()
-		mfip_fs_case_test_fail_coop_snap_qc = trim()
-		mfip_fs_case_test_opt_out_cash = trim()
-		mfip_fs_case_test_opt_out_housing_grant = trim()
+		mfip_case_test_dupl_assist = trim(mfip_case_test_dupl_assist)
+		mfip_case_test_elig_child = trim(mfip_case_test_elig_child)
+		mfip_case_test_fail_coop = trim(mfip_case_test_fail_coop)
+		mfip_case_test_fail_file = trim(mfip_case_test_fail_file)
+		mfip_case_test_initial_income = trim(mfip_case_test_initial_income)
+		mfip_case_test_minor_liv_arrange = trim(mfip_case_test_minor_liv_arrange)
+		mfip_case_test_monthly_income = trim(mfip_case_test_monthly_income)
+		mfip_case_test_post_60_disq = trim(mfip_case_test_post_60_disq)
+		mfip_case_test_residence = trim(mfip_case_test_residence)
+		mfip_case_test_sanction_limit = trim(mfip_case_test_sanction_limit)
+		mfip_case_test_strike = trim(mfip_case_test_strike)
+		mfip_case_test_TANF_time_limit = trim(mfip_case_test_TANF_time_limit)
+		mfip_case_test_transfer_asset = trim(mfip_case_test_transfer_asset)
+		mfip_case_test_verif = trim(mfip_case_test_verif)
+		mfip_case_test_275_new_spouse_income = trim(mfip_case_test_275_new_spouse_income)
+		mfip_fs_case_test_fail_coop_snap_qc = trim(mfip_fs_case_test_fail_coop_snap_qc)
+		mfip_fs_case_test_opt_out_cash = trim(mfip_fs_case_test_opt_out_cash)
+		mfip_fs_case_test_opt_out_housing_grant = trim(mfip_fs_case_test_opt_out_housing_grant)
 
-		Call write_value_and_transmit("X", 7, 5)
-		EMReadScreen mfip_counted_asset_CASH, 10, 6, 47
-		EMReadScreen mfip_counted_asset_ACCT, 10, 7, 47
-		EMReadScreen mfip_counted_asset_SECU, 10, 8, 47
-		EMReadScreen mfip_counted_asset_CARS, 10, 9, 47
-		EMReadScreen mfip_counted_asset_SPON, 10, 10, 47
-		EMReadScreen mfip_counted_asset_total, 10, 12, 47
-		EMReadScreen mfip_counted_asset_max, 10, 13, 47
+		Call write_value_and_transmit("X", 7, 5)						'ASSETS
+		EMReadScreen mfip_counted_asset_CASH, 	10, 6, 47
+		EMReadScreen mfip_counted_asset_ACCT, 	10, 7, 47
+		EMReadScreen mfip_counted_asset_SECU, 	10, 8, 47
+		EMReadScreen mfip_counted_asset_CARS, 	10, 9, 47
+		EMReadScreen mfip_counted_asset_SPON, 	10, 10, 47
+		EMReadScreen mfip_counted_asset_total, 	10, 12, 47
+		EMReadScreen mfip_counted_asset_max, 	10, 13, 47
+
+		mfip_counted_asset_CASH = trim(mfip_counted_asset_CASH)
+		mfip_counted_asset_ACCT = trim(mfip_counted_asset_ACCT)
+		mfip_counted_asset_SECU = trim(mfip_counted_asset_SECU)
+		mfip_counted_asset_CARS = trim(mfip_counted_asset_CARS)
+		mfip_counted_asset_SPON = trim(mfip_counted_asset_SPON)
+		mfip_counted_asset_total = trim(mfip_counted_asset_total)
+		mfip_counted_asset_max = trim(mfip_counted_asset_max)
+
 		transmit
 
-		Call write_value_and_transmit("X", 13, 5)
+		Call write_value_and_transmit("X", 13, 5)						'INITIAL INCOME
 		EMReadScreen mfip_initial_income_earned, 			10, 8, 51
-		EMReadScreen mfip_initial_income_deoendant_care, 	10, 8, 51
-		EMReadScreen mfip_initial_income_unearned, 			10, 8, 51
-		EMReadScreen mfip_initial_income_deemed, 			10, 8, 51
-		EMReadScreen mfip_initial_income_cses_exclusion, 	10, 8, 51
-		EMReadScreen mfip_initial_income_total, 			10, 8, 51
-		EMReadScreen mfip_initial_income_family_wage_level, 10, 8, 51
+		EMReadScreen mfip_initial_income_deoendant_care, 	10, 9, 51
+		EMReadScreen mfip_initial_income_unearned, 			10, 10, 51
+		EMReadScreen mfip_initial_income_deemed, 			10, 11, 51
+		EMReadScreen mfip_initial_income_cses_exclusion, 	10, 12, 51
+		EMReadScreen mfip_initial_income_total, 			10, 13, 51
+		EMReadScreen mfip_initial_income_family_wage_level, 10, 15, 51
+
+		mfip_initial_income_earned = trim(mfip_initial_income_earned)
+		mfip_initial_income_deoendant_care = trim(mfip_initial_income_deoendant_care)
+		mfip_initial_income_unearned = trim(mfip_initial_income_unearned)
+		mfip_initial_income_deemed = trim(mfip_initial_income_deemed)
+		mfip_initial_income_cses_exclusion = trim(mfip_initial_income_cses_exclusion)
+		mfip_initial_income_total = trim(mfip_initial_income_total)
+		mfip_initial_income_family_wage_level = trim(mfip_initial_income_family_wage_level)
+
+		'TODO - Read each person's information in the pop-ups
+
 		PF3
 
-		Call write_value_and_transmit("X", 14, 44)
+		Call write_value_and_transmit("X", 14, 44)						'NEW SPOUSE 275% INCOME
+
+		EMReadScreen mfip_12_month_start_date, 				8, 6, 46
+		EMReadScreen mfip_designated_spouse_ref_numb, 		2, 7, 46
+		EMReadScreen mfip_new_spouse_inc_earned, 			10, 11, 57
+		EMReadScreen mfip_new_spouse_inc_unearned, 			10, 12, 57
+		EMReadScreen mfip_new_spouse_inc_deemed_earned, 	10, 13, 57
+		EMReadScreen mfip_new_spouse_inc_deemed_unearned, 	10, 14, 57
+		EMReadScreen mfip_new_spouse_inc_total, 			10, 16, 57
+		EMReadScreen mfip_275_fpg_amt, 						10, 18, 57
+		EMReadScreen mfip_hh_size_fornew_spouse_calc, 		2, 18, 51
+
+		mfip_12_month_start_date = trim(mfip_12_month_start_date)
+		mfip_designated_spouse_ref_numb = trim(mfip_designated_spouse_ref_numb)
+		mfip_new_spouse_inc_earned = trim(mfip_new_spouse_inc_earned)
+		mfip_new_spouse_inc_unearned = trim(mfip_new_spouse_inc_unearned)
+		mfip_new_spouse_inc_deemed_earned = trim(mfip_new_spouse_inc_deemed_earned)
+		mfip_new_spouse_inc_deemed_unearned = trim(mfip_new_spouse_inc_deemed_unearned)
+		mfip_new_spouse_inc_total = trim(mfip_new_spouse_inc_total)
+		mfip_275_fpg_amt = trim(mfip_275_fpg_amt)
+		mfip_hh_size_fornew_spouse_calc = trim(mfip_hh_size_fornew_spouse_calc)
+
+		'TODO - Read each person's information in the pop-ups
 
 		PF3
 
 		transmit			'MFBF
+		mfbf_row = 7
+		Do
+			EMReadScreen ref_numb, 2, mfbf_row, 3
 
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If ref_numb = mfip_elig_ref_numbs(case_memb) Then
+					EMReadScreen mfip_memb_cash_portion_code(case_memb), 	1, mfbf_row, 37
+					EMReadScreen mfip_memb_food_portion_code(case_memb), 	1, mfbf_row, 45
+					EMReadScreen mfip_memb_state_food_code(case_memb), 		1, mfbf_row, 54
+					EMReadScreen mfip_memb_sanction_yn(case_memb), 			1, mfbf_row, 68
 
+					Call write_value_and_transmit("X", mfbf_row, 62)
+					EMReadScreen mfip_memb_sanction_child_support_test(case_memb),	6, 7, 12
+					EMReadScreen mfip_memb_sanction_drug_felon_test(case_memb), 	6, 7, 12
+					EMReadScreen mfip_memb_sanction_emp_services_test(case_memb), 	6, 7, 12
+					EMReadScreen mfip_memb_sanction_fin_orient_test(case_memb), 	6, 7, 12
 
+					EMReadScreen mfip_memb_sanction_occurence(case_memb), 1, 12, 21
+					EMReadScreen mfip_memb_sanction_begin_date(case_memb), 7, 12, 40
+					EMReadScreen mfip_memb_sanction_last_sanc_month(case_memb), 55, 12, 62
+					transmit
+				End If
+			Next
+
+			mfbf_row = mfbf_row + 1
+			EMReadScreen next_ref_numb, 2, mfbf_row, 3
+		Loop until next_ref_numb = "  "
+
+		EMReadScreen mfip_case_sanction_percent, 3, 18, 28
+		EMReadScreen mfip_case_sanction_vendor_yn, 1, 18, 48
+		EMReadScreen mfip_case_sanction_last_vendor_month, 7, 18, 68
+
+		mfip_case_sanction_percent = trim(mfip_case_sanction_percent)
+		mfip_case_sanction_vendor_yn = trim(mfip_case_sanction_vendor_yn)
+		mfip_case_sanction_last_vendor_month = trim(mfip_case_sanction_last_vendor_month)
 
 		transmit			'MFB1
 
+		EMReadScreen mfip_case_budg_family_wage_level, 				10, 5, 32
+		EMReadScreen mfip_case_budg_monthly_earned_income, 			10, 5, 32
+		EMReadScreen mfip_case_budg_wage_level_earned_inc_difference, 10, 5, 32
+		EMReadScreen mfip_case_budg_transitional_standard, 			10, 5, 32
+		EMReadScreen mfip_case_budg_monthly_need, 					10, 5, 32
+		EMReadScreen mfip_case_budg_unearned_income, 				10, 5, 32
+		EMReadScreen mfip_case_budg_deemed_income, 					10, 5, 32
+		EMReadScreen mfip_case_budg_cses_exclusion, 				10, 5, 32
+		EMReadScreen mfip_case_budg_unmet_need, 					10, 5, 32
+		EMReadScreen mfip_case_budg_unmet_need_food_potion, 		10, 5, 32
+		EMReadScreen mfip_case_budg_tribal_counted_income, 			10, 5, 32
+		EMReadScreen mfip_case_budg_unmet_need_cash_portion, 		10, 5, 32
+		EMReadScreen mfip_case_budg_deduction_subsidy_tribal_cses, 	10, 5, 32
 
+
+		EMReadScreen mfip_case_budg_net_food_portion, 			10, 5, 71
+		EMReadScreen mfip_case_budg_net_cash_portion, 			10, 5, 71
+		EMReadScreen mfip_case_budg_net_unmet_need, 			10, 5, 71
+		EMReadScreen mfip_case_budg_deduction_sanction_vendor, 	10, 5, 71
+		EMReadScreen mfip_case_budg_unmet_neet_subtotal, 		10, 5, 71
+		EMReadScreen mfip_case_budg_subtotal_food_portion, 		10, 5, 71
+		EMReadScreen mfip_case_budg_food_portion_deduction, 	10, 5, 71
+		EMReadScreen mfip_case_budg_entitlement_food_portion, 	10, 5, 71
+		EMReadScreen mfip_case_budg_entitlement_housing_grant, 	10, 5, 71
+
+		mfip_case_budg_family_wage_level = trim(mfip_case_budg_family_wage_level)
+		mfip_case_budg_monthly_earned_income = trim(mfip_case_budg_monthly_earned_income)
+		mfip_case_budg_wage_level_earned_inc_difference = trim(mfip_case_budg_wage_level_earned_inc_difference)
+		mfip_case_budg_transitional_standard = trim(mfip_case_budg_transitional_standard)
+		mfip_case_budg_monthly_need = trim(mfip_case_budg_monthly_need)
+		mfip_case_budg_unearned_income = trim(mfip_case_budg_unearned_income)
+		mfip_case_budg_deemed_income = trim(mfip_case_budg_deemed_income)
+		mfip_case_budg_cses_exclusion = trim(mfip_case_budg_cses_exclusion)
+		mfip_case_budg_unmet_need = trim(mfip_case_budg_unmet_need)
+		mfip_case_budg_unmet_need_food_potion = trim(mfip_case_budg_unmet_need_food_potion)
+		mfip_case_budg_tribal_counted_income = trim(mfip_case_budg_tribal_counted_income)
+		mfip_case_budg_unmet_need_cash_portion = trim(mfip_case_budg_unmet_need_cash_portion)
+		mfip_case_budg_deduction_subsidy_tribal_cses = trim(mfip_case_budg_deduction_subsidy_tribal_cses)
+
+		mfip_case_budg_net_food_portion = trim(mfip_case_budg_net_food_portion)
+		mfip_case_budg_net_cash_portion = trim(mfip_case_budg_net_cash_portion)
+		mfip_case_budg_net_unmet_need = trim(mfip_case_budg_net_unmet_need)
+		mfip_case_budg_deduction_sanction_vendor = trim(mfip_case_budg_deduction_sanction_vendor)
+		mfip_case_budg_unmet_neet_subtotal = trim(mfip_case_budg_unmet_neet_subtotal)
+		mfip_case_budg_subtotal_food_portion = trim(mfip_case_budg_subtotal_food_portion)
+		mfip_case_budg_food_portion_deduction = trim(mfip_case_budg_food_portion_deduction)
+		mfip_case_budg_entitlement_food_portion = trim(mfip_case_budg_entitlement_food_portion)
+		mfip_case_budg_entitlement_housing_grant = trim(mfip_case_budg_entitlement_housing_grant)
+
+		' Call write_value_and_transmit("X", 6, 3)		'TODO member specific EARNED INCOME
+		' Call write_value_and_transmit("X", 11, 3)		'TODO member specific UNEARNED INCOME
+		' Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
+
+		Call write_value_and_transmit("X", 13, 3)		'Child Support Exclusion'
+		EMReadScreen mfip_budg_cses_excln_cses_income, 10, 9, 52
+		EMReadScreen mfip_budg_cses_excln_child_count, 2, 11, 37
+		EMReadScreen mfip_budg_cses_excln_total, 10, 13, 52
+
+		mfip_budg_cses_excln_cses_income = trim(mfip_budg_cses_excln_cses_income)
+		mfip_budg_cses_excln_child_count = trim(mfip_budg_cses_excln_child_count)
+		mfip_budg_cses_excln_total = trim(mfip_budg_cses_excln_total)
+
+		transmit
+
+		' Call write_value_and_transmit("X", 16, 5)		'TODO member specific TRIBAL INCOME
+		' Call write_value_and_transmit("X", 18, 5)		'TODO member specific SUBSIDY
+
+		Call write_value_and_transmit("X", 8, 44)		'Sanction and Vendor
+		EMReadScreen mfip_case_budg_10_perc_sanc, 					10, 7, 55
+		EMReadScreen mfip_case_budg_unmet_need_after_pre_vndr_sanc, 10, 7, 55
+		EMReadScreen mfip_case_budg_sanc_calc_food_portion, 		10, 7, 55
+		EMReadScreen mfip_case_budg_sanc_calc_cash_portion, 		10, 7, 55
+		EMReadScreen mfip_case_budg_pot_mand_vndr_pymts, 			10, 7, 55
+		EMReadScreen mfip_case_budg_30_perc_sanc, 					10, 7, 55
+
+		mfip_case_budg_10_perc_sanc = trim(mfip_case_budg_10_perc_sanc)
+		mfip_case_budg_unmet_need_after_pre_vndr_sanc = trim(mfip_case_budg_unmet_need_after_pre_vndr_sanc)
+		mfip_case_budg_sanc_calc_food_portion = trim(mfip_case_budg_sanc_calc_food_portion)
+		mfip_case_budg_sanc_calc_cash_portion = trim(mfip_case_budg_sanc_calc_cash_portion)
+		mfip_case_budg_pot_mand_vndr_pymts = trim(mfip_case_budg_pot_mand_vndr_pymts)
+		mfip_case_budg_30_perc_sanc = trim(mfip_case_budg_30_perc_sanc)
+		transmit
+
+		Call write_value_and_transmit("X", 12, 44)		'Food portion Deduction
+		EMReadScreen mfip_case_budg_non_citzn_fs_inelig_pers_count, 1, 10, 17
+		EMReadScreen mfip_case_budg_non_citzn_fs_inelig_amt, 		10, 10, 45
+		EMReadScreen mfip_case_budg_other_fs_inelig_pers_count, 	1, 12, 17
+		EMReadScreen mfip_case_budg_other_fs_inelig_amt, 			10, 12, 45
+
+		mfip_case_budg_non_citzn_fs_inelig_pers_count = trim(mfip_case_budg_non_citzn_fs_inelig_pers_count)
+		mfip_case_budg_non_citzn_fs_inelig_amt = trim(mfip_case_budg_non_citzn_fs_inelig_amt)
+		mfip_case_budg_other_fs_inelig_pers_count = trim(mfip_case_budg_other_fs_inelig_pers_count)
+		mfip_case_budg_other_fs_inelig_amt = trim(mfip_case_budg_other_fs_inelig_amt)
+		transmit
 
 		transmit			'MFB2
+		EmReadScreen mfip_case_budg_prorate_date, 8, 5, 19
+
+		EMReadScreen mfip_case_budg_fed_food_benefit, 10, 8, 32
+		EMReadScreen mfip_case_budg_food_prorated_amt, 10, 8, 32
+		EMReadScreen mfip_case_budg_entitlement_cash_portion, 10, 10, 32
+		EMReadScreen mfip_case_budg_mand_sanc_vendor, 10, 10, 32
+		EMReadScreen mfip_case_budg_net_cash_portion, 10, 10, 32
+		EMReadScreen mfip_case_budg_cash_prorated_amt, 10, 10, 32
+		EMReadScreen mfip_case_budg_state_food_benefit, 10, 10, 32
+		EMReadScreen mfip_case_budg_state_food_prorated_amt, 10, 10, 32
+		' EMReadScreen mfip_case_budg_entitlement_cash_portion, 10, 10, 32
+
+		EMReadScreen mfip_case_budg_grant_amount, 10, 5, 71
+		EMReadScreen mfip_case_budg_amt_already_issued, 10, 88, 71
+		EMReadScreen mfip_case_budg_supplement_due, 10, 88, 71
+		EMReadScreen mfip_case_budg_overpayment, 10, 88, 71
+		EMReadScreen mfip_case_budg_adjusted_grant_amt, 10, 88, 71
+		EMReadScreen mfip_case_budg_recoupment, 10, 88, 71
+		EMReadScreen mfip_case_budg_total_food_issuance, 10, 88, 71
+		EMReadScreen mfip_case_budg_total_cash_issuance, 10, 88, 71
+		EMReadScreen mfip_case_budg_total_housing_grant_issuance, 10, 88, 71
+
+		mfip_case_budg_prorate_date = trim(mfip_case_budg_prorate_date)
+		mfip_case_budg_fed_food_benefit = trim(mfip_case_budg_fed_food_benefit)
+		mfip_case_budg_food_prorated_amt = trim(mfip_case_budg_food_prorated_amt)
+		mfip_case_budg_entitlement_cash_portion = trim(mfip_case_budg_entitlement_cash_portion)
+		mfip_case_budg_mand_sanc_vendor = trim(mfip_case_budg_mand_sanc_vendor)
+		mfip_case_budg_net_cash_portion = trim(mfip_case_budg_net_cash_portion)
+		mfip_case_budg_cash_prorated_amt = trim(mfip_case_budg_cash_prorated_amt)
+		mfip_case_budg_state_food_benefit = trim(mfip_case_budg_state_food_benefit)
+		mfip_case_budg_state_food_prorated_amt = trim(mfip_case_budg_state_food_prorated_amt)
+		mfip_case_budg_grant_amount = trim(mfip_case_budg_grant_amount)
+		mfip_case_budg_amt_already_issued = trim(mfip_case_budg_amt_already_issued)
+		mfip_case_budg_supplement_due = trim(mfip_case_budg_supplement_due)
+		mfip_case_budg_overpayment = trim(mfip_case_budg_overpayment)
+		mfip_case_budg_adjusted_grant_amt = trim(mfip_case_budg_adjusted_grant_amt)
+		mfip_case_budg_recoupment = trim(mfip_case_budg_recoupment)
+		mfip_case_budg_total_food_issuance = trim(mfip_case_budg_total_food_issuance)
+		mfip_case_budg_total_cash_issuance = trim(mfip_case_budg_total_cash_issuance)
+		mfip_case_budg_total_housing_grant_issuance = trim(mfip_case_budg_total_housing_grant_issuance)
+
+		' Call write_value_and_transmit("X", 15, 3)			'State food benefit pop-up - I think this is duplicate
+		Call write_value_and_transmit("X", 9, 44)			'Supplement pop-up
+		' Call write_value_and_transmit("X", 10, 44)			'Overpayment pop-up - MAYBE WE DON"T NEED THIS?
+		Call write_value_and_transmit("X", 12, 44)			'Recoupment pop-up
+		Call write_value_and_transmit("X", 14, 44)			'Total Food issuance pop-up
+		Call write_value_and_transmit("X", 1, 44)			'Total Cash Issuance pop-up
+		Call write_value_and_transmit("X", 16, 44)			'MFIP Housing Grant Issuance pop-up
 
 
 		transmit			'MFSM
@@ -1123,34 +1461,37 @@ const ssn							= 9
 const ssn_verif						= 10
 const birthdate_verif				= 11
 
+const snap_elig_indicator			= 12
+const mfip_elig_indicator			= 13
 
-const fs_request_yn_const			= 12
-const fs_memb_code_const			= 13
-const fs_memb_status_info_const		= 14
-const fs_memb_counted_const			= 15
-const fs_memb_state_food_const		= 16
-const fs_memb_elig_status_const		= 17
-const fs_memb_begin_date_const		= 18
-const fs_memb_budg_cycle_const		= 19
-const fs_memb_abawd_const			= 20
-const fs_memb_absence_const			= 21
-const fs_memb_roomer_const			= 22
-const fs_memb_boarder_const			= 23
-const fs_memb_citizenship_const		= 24
-const fs_memb_citizenship_coop_const = 25
-const fs_memb_cmdty_const			= 26
-const fs_memb_disq_const			= 27
-const fs_memb_dupl_assist_const		= 28
-const fs_memb_fraud_const			= 29
-const fs_memb_eligible_student_const = 30
-const fs_memb_institution_const		= 31
-const fs_memb_mfip_elig_const		= 32
-const fs_memb_non_applcnt_const		= 33
-const fs_memb_residence_const		= 34
-const fs_memb_ssn_coop_const		= 35
-const fs_memb_unit_memb_const		= 36
-const fs_memb_work_reg_const		= 37
-const fs_memb_drug_felon_test_const	= 38
+
+' const fs_request_yn_const			= 12
+' const fs_memb_code_const			= 13
+' const fs_memb_status_info_const		= 14
+' const fs_memb_counted_const			= 15
+' const fs_memb_state_food_const		= 16
+' const fs_memb_elig_status_const		= 17
+' const fs_memb_begin_date_const		= 18
+' const fs_memb_budg_cycle_const		= 19
+' const fs_memb_abawd_const			= 20
+' const fs_memb_absence_const			= 21
+' const fs_memb_roomer_const			= 22
+' const fs_memb_boarder_const			= 23
+' const fs_memb_citizenship_const		= 24
+' const fs_memb_citizenship_coop_const = 25
+' const fs_memb_cmdty_const			= 26
+' const fs_memb_disq_const			= 27
+' const fs_memb_dupl_assist_const		= 28
+' const fs_memb_fraud_const			= 29
+' const fs_memb_eligible_student_const = 30
+' const fs_memb_institution_const		= 31
+' const fs_memb_mfip_elig_const		= 32
+' const fs_memb_non_applcnt_const		= 33
+' const fs_memb_residence_const		= 34
+' const fs_memb_ssn_coop_const		= 35
+' const fs_memb_unit_memb_const		= 36
+' const fs_memb_work_reg_const		= 37
+' const fs_memb_drug_felon_test_const	= 38
 
 const last_const = 50
 
