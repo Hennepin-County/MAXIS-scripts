@@ -993,7 +993,7 @@ Do
     ObjExcel.Cells(excel_row, assign_tier_two_process_col).Value = "MONT"
 
     For array_counter = 0 to UBound(TIER_TWO_REVIEW_DETAIL_ARRAY, 2)
-        If TIER_TWO_REVIEW_DETAIL_ARRAY(case_number_const, array_counter) = ObjAssignExcel.Cells(assign_row, assign_case_numb_col).Value Then
+        If trim(TIER_TWO_REVIEW_DETAIL_ARRAY(case_number_const, array_counter)) = trim(ObjAssignExcel.Cells(assign_row, assign_case_numb_col).Value) Then
 
             ObjExcel.Cells(excel_row, rept_case_numb_col).Value = TIER_TWO_REVIEW_DETAIL_ARRAY(case_number_const, array_counter)
             ObjExcel.Cells(excel_row, rept_process_col).Value = TIER_TWO_REVIEW_DETAIL_ARRAY(feb_process_const, array_counter)
