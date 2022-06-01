@@ -822,6 +822,7 @@ class mfip_eligibility_detial
 	public elig_version_result
 
 	public mfip_elig_ref_numbs()
+	public mfip_elig_membs_full_name()
 	public mfip_elig_membs_request_yn()
 	public mfip_elig_membs_code()
 	public mfip_elig_membs_status_info()
@@ -860,9 +861,21 @@ class mfip_eligibility_detial
 	public mfip_memb_sanction_begin_date()
 	public mfip_memb_sanction_last_sanc_month()
 
+	public mfip_elig_membs_initial_BUSI_inc_total()
+	public mfip_elig_membs_initial_JOBS_inc_total()
+	public mfip_elig_membs_initial_earned_inc_total()
+	public mfip_elig_membs_initial_stndrd_ei_disregard()
+	public mfip_elig_membs_initial_earned_inc_subtotal()
+	public mfip_elig_membs_initial_earned_inc_disregard()
+	public mfip_elig_membs_initial_avail_earned_inc()
+	public mfip_elig_membs_initial_allocation()
+	public mfip_elig_membs_initial_child_support()
+	public mfip_elig_membs_initial_counted_earned_inc_total()
+
 	public mfip_cash_opt_out
 	public mfip_HG_opt_out
 	public mfip_child_only
+	public mfip_case_in_sancttion
 
 	public mfip_case_test_appl_withdraw
 	public mfip_case_test_asset
@@ -1023,6 +1036,7 @@ class mfip_eligibility_detial
 		mfip_cash_opt_out = False
 		mfip_HG_opt_out = False
 		mfip_child_only = False
+		mfip_case_in_sancttion = False
 
 		call navigate_to_MAXIS_screen("ELIG", "MFIP")
 		EMWriteScreen elig_footer_month, 20, 56
@@ -1030,6 +1044,7 @@ class mfip_eligibility_detial
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result)
 
 		ReDim mfip_elig_ref_numbs(0)
+		ReDim mfip_elig_membs_full_name(0)
 		ReDim mfip_elig_membs_request_yn(0)
 		ReDim mfip_elig_membs_code(0)
 		ReDim mfip_elig_membs_status_info(0)
@@ -1066,6 +1081,16 @@ class mfip_eligibility_detial
 		ReDim mfip_memb_sanction_occurence(0)
 		ReDim mfip_memb_sanction_begin_date(0)
 		ReDim mfip_memb_sanction_last_sanc_month(0)
+		ReDim mfip_elig_membs_initial_BUSI_inc_total(0)
+		ReDim mfip_elig_membs_initial_JOBS_inc_total(0)
+		ReDim mfip_elig_membs_initial_earned_inc_total(0)
+		ReDim mfip_elig_membs_initial_stndrd_ei_disregard(0)
+		ReDim mfip_elig_membs_initial_earned_inc_subtotal(0)
+		ReDim mfip_elig_membs_initial_earned_inc_disregard(0)
+		ReDim mfip_elig_membs_initial_avail_earned_inc(0)
+		ReDim mfip_elig_membs_initial_allocation(0)
+		ReDim mfip_elig_membs_initial_child_support(0)
+		ReDim mfip_elig_membs_initial_counted_earned_inc_total(0)
 
 		row = 7
 		elig_memb_count = 0
@@ -1073,6 +1098,7 @@ class mfip_eligibility_detial
 			EMReadScreen ref_numb, 2, row, 6
 
 			ReDim preserve mfip_elig_ref_numbs(elig_memb_count)
+			ReDim preserve mfip_elig_membs_full_name(elig_memb_count)
 			ReDim preserve mfip_elig_membs_request_yn(elig_memb_count)
 			ReDim preserve mfip_elig_membs_code(elig_memb_count)
 			ReDim preserve mfip_elig_membs_status_info(elig_memb_count)
@@ -1109,8 +1135,25 @@ class mfip_eligibility_detial
 			ReDim preserve mfip_memb_sanction_occurence(elig_memb_count)
 			ReDim preserve mfip_memb_sanction_begin_date(elig_memb_count)
 			ReDim preserve mfip_memb_sanction_last_sanc_month(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_BUSI_inc_total(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_JOBS_inc_total(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_earned_inc_total(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_stndrd_ei_disregard(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_earned_inc_subtotal(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_earned_inc_disregard(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_avail_earned_inc(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_allocation(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_child_support(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_counted_earned_inc_total(elig_memb_count)
 
 			mfip_elig_ref_numbs(elig_memb_count) = ref_numb
+			EMReadScreen full_name_information, 20, row, 10
+			full_name_information = trim(full_name_information)
+			name_array = split(full_name_information, " ")
+			For each name_parts in name_array
+				If len(name_parts) <> 1 Then mfip_elig_membs_full_name(elig_memb_count) = mfip_elig_membs_full_name(elig_memb_count) & " " & name_parts
+			Next
+			mfip_elig_membs_full_name(elig_memb_count) = trim((mfip_elig_membs_full_name(elig_memb_count)))
 			EMReadScreen mfip_elig_membs_request_yn(elig_memb_count), 1, row, 32
 			EMReadScreen mfip_elig_membs_code(elig_memb_count), 1, row, 36
 			EMReadScreen mfip_elig_membs_counted(elig_memb_count), 11, row, 41
@@ -1272,7 +1315,45 @@ class mfip_eligibility_detial
 		mfip_initial_income_family_wage_level = trim(mfip_initial_income_family_wage_level)
 
 		'TODO - Read each person's information in the pop-ups
+		Call write_value_and_transmit("X", 8, 20)		'Member Initial Earned Income
+		Do
+			EMReadScreen pop_up_name, 40, 8, 28
+			pop_up_name - trim(pop_up_name)
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+					EMReadScreen mfip_elig_membs_initial_BUSI_inc_total(case_memb), 		10, 11, 54
+					EMReadScreen mfip_elig_membs_initial_JOBS_inc_total(case_memb), 		10, 12, 54
+					EMReadScreen mfip_elig_membs_initial_earned_inc_total(case_memb), 		10, 13, 54
+					EMReadScreen mfip_elig_membs_initial_stndrd_ei_disregard(case_memb), 	10, 14, 54
+					EMReadScreen mfip_elig_membs_initial_earned_inc_subtotal(case_memb), 	10, 15, 54
+					EMReadScreen mfip_elig_membs_initial_earned_inc_disregard(case_memb), 	10, 16, 54
+					EMReadScreen mfip_elig_membs_initial_avail_earned_inc(case_memb), 		10, 17, 54
+					EMReadScreen mfip_elig_membs_initial_allocation(case_memb), 			10, 18, 54
+					EMReadScreen mfip_elig_membs_initial_child_support(case_memb), 			10, 19, 54
+					EMReadScreen mfip_elig_membs_initial_counted_earned_inc_total(case_memb), 10, 20, 54
 
+					mfip_elig_membs_initial_BUSI_inc_total(case_memb) = trim(mfip_elig_membs_initial_BUSI_inc_total(case_memb))
+					mfip_elig_membs_initial_JOBS_inc_total(case_memb) = trim(mfip_elig_membs_initial_JOBS_inc_total(case_memb))
+					mfip_elig_membs_initial_earned_inc_total(case_memb) = trim(mfip_elig_membs_initial_earned_inc_total(case_memb))
+					mfip_elig_membs_initial_stndrd_ei_disregard(case_memb) = trim(mfip_elig_membs_initial_stndrd_ei_disregard(case_memb))
+					mfip_elig_membs_initial_earned_inc_subtotal(case_memb) = trim(mfip_elig_membs_initial_earned_inc_subtotal(case_memb))
+					mfip_elig_membs_initial_earned_inc_disregard(case_memb) = trim(mfip_elig_membs_initial_earned_inc_disregard(case_memb))
+					mfip_elig_membs_initial_avail_earned_inc(case_memb) = trim(mfip_elig_membs_initial_avail_earned_inc(case_memb))
+					mfip_elig_membs_initial_allocation(case_memb) = trim(mfip_elig_membs_initial_allocation(case_memb))
+					mfip_elig_membs_initial_child_support(case_memb) = trim(mfip_elig_membs_initial_child_support(case_memb))
+					mfip_elig_membs_initial_counted_earned_inc_total(case_memb) = trim(mfip_elig_membs_initial_counted_earned_inc_total(case_memb))
+
+					' If mfip_elig_membs_initial_BUSI_inc_total(case_memb) <> "0.00" Then 			'this will likely not be used - opening these pop ups do not provide details on different jobs
+					' 	Call write_value_and_transmit("X", 11, 20)
+					' End If
+					' If mfip_elig_membs_initial_JOBS_inc_total(case_memb) <> "0.00" Then
+					' 	Call write_value_and_transmit("X", 12, 20)
+					' End If
+				End If
+			Next
+			transmit
+			EMReadScreen back_to_menu, 14, 6, 29
+		Loop until back_to_menu = "Initial Income"
 		PF3
 
 		Call write_value_and_transmit("X", 14, 44)						'NEW SPOUSE 275% INCOME
@@ -1312,6 +1393,7 @@ class mfip_eligibility_detial
 					EMReadScreen mfip_memb_food_portion_code(case_memb), 	1, mfbf_row, 45
 					EMReadScreen mfip_memb_state_food_code(case_memb), 		1, mfbf_row, 54
 					EMReadScreen mfip_memb_sanction_yn(case_memb), 			1, mfbf_row, 68
+					If mfip_memb_sanction_yn = "Y" Then mfip_case_in_sancttion = True
 
 					Call write_value_and_transmit("X", mfbf_row, 62)
 					EMReadScreen mfip_memb_sanction_child_support_test(case_memb),	6, 7, 12
@@ -1582,6 +1664,10 @@ class mfip_eligibility_detial
 		mfip_case_summary_cash_portion = trim(mfip_case_summary_cash_portion)
 		mfip_case_summary_food_portion = trim(mfip_case_summary_food_portion)
 		mfip_case_summary_housing_grant = trim(mfip_case_summary_housing_grant)
+
+		If mfip_case_asst_unit_caregivers = "0" Then mfip_child_only = True
+
+		Call Back_to_SELF
 	end sub
 
 end class
