@@ -359,11 +359,18 @@ ELSE 'this means out of county is TRUE '
             call create_MAXIS_friendly_date(excluded_time_begin_date, 0, 6, 28)
             EMWriteScreen hc_cfr, 15, 39
         END IF
-        IF excluded_time_begin_date = "" AND excluded_time_dropdown = "NO" THEN
-            EMWriteScreen "__", 6, 28
-            EMWriteScreen "__", 6, 31
-            EMWriteScreen "__", 6, 34
+        IF excluded_time_dropdown = "NO" THEN
+            CALL clear_line_of_text(6, 28) 'clearing any old Excluded Time Begin Date __ __ __'
+            CALL clear_line_of_text(6, 31)
+            CALL clear_line_of_text(6, 34)
+            CALL clear_line_of_text(11, 39) 'Clearing Current Fin Resp County Cash I'
+            CALL clear_line_of_text(12, 39) 'Cash II'
+            CALL clear_line_of_text(13, 39) 'GRH'
+            CALL clear_line_of_text(14, 39) 'Health Care'
+            CALL clear_line_of_text(15, 39) 'MA Excluded Time'
+            CALL clear_line_of_text(16, 39) 'IV-E Foster Care
         END IF
+
         IF manual_cfr_hc_checkbox = CHECKED THEN
             EMWriteScreen hc_cfr, 14, 39
             EMWriteScreen hc_cfr_month, 14, 53
