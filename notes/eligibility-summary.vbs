@@ -862,6 +862,7 @@ class mfip_eligibility_detial
 
 	public mfip_cash_opt_out
 	public mfip_HG_opt_out
+	public mfip_child_only
 
 	public mfip_case_test_appl_withdraw
 	public mfip_case_test_asset
@@ -974,9 +975,54 @@ class mfip_eligibility_detial
 	public mfip_case_budg_total_cash_issuance
 	public mfip_case_budg_total_housing_grant_issuance
 
+	public mfip_case_budg_food_supplement
+	public mfip_case_budg_state_food_supplement
+	public mfip_case_budg_cash_supplement
+	public mfip_case_budg_housing_grant_supplement
+
+	public mfip_case_budg_cash_recoupment
+	public mfip_case_budg_state_food_recoupment
+	public mfip_case_budg_food_recoupment
+
+	public mfip_case_budg_fed_food_memb_count
+	public mfip_case_budg_fed_food_benefit_amt
+	public mfip_case_budg_state_food_memb_count
+	public mfip_case_budg_state_food_benefit_amt
+
+	public mfip_case_budg_tanf_cash_memb_count
+	public mfip_case_budg_tanf_cash_benefit_amt
+	public mfip_case_budg_state_cash_memb_count
+	public mfip_case_budg_state_cash_benefit_amt
+
+	public mfip_approved_date
+	public mfip_process_date
+	public mfip_prev_approval
+	public mfip_case_last_approval_date
+	public mfip_case_current_prog_status
+	public mfip_case_eligibility_result
+	public mfip_case_hrf_reporting
+	public mfip_case_source_of_info
+	public mfip_case_benefit_impact
+	public mfip_case_review_date
+	public mfip_case_budget_cycle
+	public mfip_case_vendor_reason_code
+	public mfip_case_vendor_reason_info
+	public mfip_case_responsible_county
+	public mfip_case_service_county
+	public mfip_case_asst_unit_caregivers
+	public mfip_case_asst_unit_children
+	public mfip_case_total_assets
+	public mfip_case_maximum_assets
+	public mfip_case_summary_grant_amount
+	public mfip_case_summary_net_grant_amount
+	public mfip_case_summary_cash_portion
+	public mfip_case_summary_food_portion
+	public mfip_case_summary_housing_grant
+
 	public sub read_elig()
 		mfip_cash_opt_out = False
 		mfip_HG_opt_out = False
+		mfip_child_only = False
 
 		call navigate_to_MAXIS_screen("ELIG", "MFIP")
 		EMWriteScreen elig_footer_month, 20, 56
@@ -1433,15 +1479,109 @@ class mfip_eligibility_detial
 
 		' Call write_value_and_transmit("X", 15, 3)			'State food benefit pop-up - I think this is duplicate
 		Call write_value_and_transmit("X", 9, 44)			'Supplement pop-up
+		EMReadScreen mfip_case_budg_food_supplement, 		10, 11, 32
+		EMReadScreen mfip_case_budg_state_food_supplement, 	10, 16, 32
+		EMReadScreen mfip_case_budg_cash_supplement, 		10, 11, 68
+		EMReadScreen mfip_case_budg_housing_grant_supplement, 10, 16, 68
+
+		mfip_case_budg_food_supplement = trim(mfip_case_budg_food_supplement)
+		mfip_case_budg_state_food_supplement = trim(mfip_case_budg_state_food_supplement)
+		mfip_case_budg_cash_supplement = trim()
+		mfip_case_budg_housing_grant_supplement = trim(mfip_case_budg_housing_grant_supplement)
+		transmit
+
 		' Call write_value_and_transmit("X", 10, 44)			'Overpayment pop-up - MAYBE WE DON"T NEED THIS?
 		Call write_value_and_transmit("X", 12, 44)			'Recoupment pop-up
+		EMReadScreen mfip_case_budg_cash_recoupment, 10, 7, 51
+		EMReadScreen mfip_case_budg_state_food_recoupment, 10, 7, 51
+		EMReadScreen mfip_case_budg_food_recoupment, 10, 7, 51
+
+		mfip_case_budg_cash_recoupment = trim(mfip_case_budg_cash_recoupment)
+		mfip_case_budg_state_food_recoupment = trim(mfip_case_budg_state_food_recoupment)
+		mfip_case_budg_food_recoupment = trim(mfip_case_budg_food_recoupment)
+		transmit
+
 		Call write_value_and_transmit("X", 14, 44)			'Total Food issuance pop-up
+		EMReadScreen mfip_case_budg_fed_food_memb_count, 1, 7, 17
+		EMReadScreen mfip_case_budg_fed_food_benefit_amt, 10, 7, 45
+		EMReadScreen mfip_case_budg_state_food_memb_count, 1, 9, 17
+		EMReadScreen mfip_case_budg_state_food_benefit_amt, 10, 9, 45
+
+		mfip_case_budg_fed_food_memb_count = trim(mfip_case_budg_fed_food_memb_count)
+		mfip_case_budg_fed_food_benefit_amt = trim(mfip_case_budg_fed_food_benefit_amt)
+		mfip_case_budg_state_food_memb_count = trim(mfip_case_budg_state_food_memb_count)
+		mfip_case_budg_state_food_benefit_amt = trim(mfip_case_budg_state_food_benefit_amt)
+		transmit
+
 		Call write_value_and_transmit("X", 1, 44)			'Total Cash Issuance pop-up
-		Call write_value_and_transmit("X", 16, 44)			'MFIP Housing Grant Issuance pop-up
+		EMReadScreen mfip_case_budg_tanf_cash_memb_count, 1, 8, 17
+		EMReadScreen mfip_case_budg_tanf_cash_benefit_amt, 10, 8, 45
+		EMReadScreen mfip_case_budg_state_cash_memb_count, 1, 10, 17
+		EMReadScreen mfip_case_budg_state_cash_benefit_amt, 10, 10, 45
 
+		mfip_case_budg_tanf_cash_memb_count = trim(mfip_case_budg_tanf_cash_memb_count)
+		mfip_case_budg_tanf_cash_benefit_amt = trim(mfip_case_budg_tanf_cash_benefit_amt)
+		mfip_case_budg_state_cash_memb_count = trim(mfip_case_budg_state_cash_memb_count)
+		mfip_case_budg_state_cash_benefit_amt = trim(mfip_case_budg_state_cash_benefit_amt)
+		transmit
 
+		' Call write_value_and_transmit("X", 16, 44)			'MFIP Housing Grant Issuance pop-up - there is not federal housing grant
 		transmit			'MFSM
 
+		EMReadScreen mfip_approved_date, 8, 3, 14
+		EMReadScreen mfip_process_date, 8, 2, 73
+		EMReadScreen mfip_prev_approval, 4, 3, 73
+
+		EMReadScreen mfip_case_last_approval_date, 8, 5, 31
+		EMReadScreen mfip_case_current_prog_status, 12, 6, 31
+		EMReadScreen mfip_case_eligibility_result, 12,  7, 31
+		EMReadScreen mfip_case_hrf_reporting, 12, 8, 31
+		EMReadScreen mfip_case_source_of_info, 4, 9, 31
+		EMReadScreen mfip_case_benefit_impact, 12, 10, 31
+		EMReadScreen mfip_case_review_date, 8, 11, 31
+		EMReadScreen mfip_case_budget_cycle, 12, 12, 31
+		EMReadScreen mfip_case_vendor_reason_code, 2, 13, 31
+
+		EMReadScreen mfip_case_responsible_county, 2, 5, 73
+		EMReadScreen mfip_case_service_county, 2, 6, 73
+		EMReadScreen mfip_case_asst_unit_caregivers, 1, 7, 73
+		EMReadScreen mfip_case_asst_unit_children, 2, 8, 73
+		EMReadScreen mfip_case_total_assets, 10, 9, 71
+		EMReadScreen mfip_case_maximum_assets, 10, 10, 71
+		EMReadScreen mfip_case_summary_grant_amount, 10, 11, 71
+		EMReadScreen mfip_case_summary_net_grant_amount, 10, 13, 71
+		EMReadScreen mfip_case_summary_cash_portion, 10, 14, 71
+		EMReadScreen mfip_case_summary_food_portion, 10, 15, 71
+		EMReadScreen mfip_case_summary_housing_grant, 10, 16, 71
+
+		If mfip_case_vendor_reason_code = "01" Then mfip_case_vendor_reason_info = "Client Request"
+		If mfip_case_vendor_reason_code = "05" Then mfip_case_vendor_reason_info = "Money Mismanagement"
+		If mfip_case_vendor_reason_code = "06" Then mfip_case_vendor_reason_info = "Social Service Non-Coop"
+		If mfip_case_vendor_reason_code = "07" Then mfip_case_vendor_reason_info = "Residing in a Facility"
+		If mfip_case_vendor_reason_code = "21" Then mfip_case_vendor_reason_info = "MFIP Sanction Related Vendor"
+		If mfip_case_vendor_reason_code = "22" Then mfip_case_vendor_reason_info = "Convicted Drug Felon in Household"
+
+		mfip_prev_approval = trim(mfip_prev_approval)
+		mfip_case_last_approval_date = trim(mfip_case_last_approval_date)
+
+		mfip_case_current_prog_status = trim(mfip_case_current_prog_status)
+		mfip_case_eligibility_result = trim(mfip_case_eligibility_result)
+		mfip_case_hrf_reporting = trim(mfip_case_hrf_reporting)
+		mfip_case_source_of_info = trim(mfip_case_source_of_info)
+		mfip_case_benefit_impact = trim(mfip_case_benefit_impact)
+
+		mfip_case_budget_cycle = trim(mfip_case_budget_cycle)
+		mfip_case_vendor_reason_code = trim(mfip_case_vendor_reason_code)
+
+		mfip_case_asst_unit_caregivers = trim(mfip_case_asst_unit_caregivers)
+		mfip_case_asst_unit_children = trim(mfip_case_asst_unit_children)
+		mfip_case_total_assets = trim(mfip_case_total_assets)
+		mfip_case_maximum_assets = trim(mfip_case_maximum_assets)
+		mfip_case_summary_grant_amount = trim(mfip_case_summary_grant_amount)
+		mfip_case_summary_net_grant_amount = trim(mfip_case_summary_net_grant_amount)
+		mfip_case_summary_cash_portion = trim(mfip_case_summary_cash_portion)
+		mfip_case_summary_food_portion = trim(mfip_case_summary_food_portion)
+		mfip_case_summary_housing_grant = trim(mfip_case_summary_housing_grant)
 	end sub
 
 end class
