@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/01/2022", "Removed Paperless IR and Health Care Programs selections during Public Health Emergency.", "Ilse Ferris, Hennepin County") '#863
 call changelog_update("05/26/2022", "Fixed bug that did not recognize CSR status as mandatory. Made background stability updates.", "Ilse Ferris, Hennepin County") '#863
 call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
@@ -76,14 +77,16 @@ Call check_for_MAXIS(False)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
+'BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
+BeginDialog Dialog1, 0, 0, 171, 140, "Case number"
+  Text 20, 10, 45, 10, "Case number:"
   EditBox 70, 5, 65, 15, MAXIS_case_number
   EditBox 70, 25, 30, 15, MAXIS_footer_month
   EditBox 105, 25, 30, 15, MAXIS_footer_year
   CheckBox 30, 60, 35, 10, "SNAP", SNAP_checkbox
   CheckBox 80, 60, 30, 10, "GRH", GRH_checkbox
-  CheckBox 130, 60, 25, 10, "HC", HC_checkbox
-  CheckBox 10, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
+  'CheckBox 130, 60, 25, 10, "HC", HC_checkbox
+  'CheckBox 10, 80, 90, 10, "Is this an exempt (*) IR?", paperless_checkbox
   EditBox 70, 95, 95, 15, Worker_signature
   ButtonGroup ButtonPressed
 	OkButton 60, 115, 50, 15
@@ -91,10 +94,10 @@ BeginDialog Dialog1, 0, 0, 171, 220, "Case number"
   Text 5, 30, 65, 10, "Footer month/year:"
   GroupBox 10, 45, 155, 30, "Programs recertifying"
   Text 10, 100, 60, 10, "Worker Signature"
-  GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
-  Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
-  Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
-  Text 20, 10, 45, 10, "Case number:"
+  'GroupBox 10, 140, 155, 75, "Exempt IR checkbox warning:"
+  'Text 15, 155, 145, 25, "If you select ''Is this an exempt IR'', the case note will only provide detail and information about the HC approval."
+  'Text 15, 190, 140, 20, " If you are processing a CSR with SNAP, you should NOT check that option."
+
 EndDialog
 'Showing the case number dialog
 Do
@@ -103,8 +106,10 @@ Do
 		Dialog Dialog1
 		cancel_without_confirmation
 	    Call validate_MAXIS_case_number(err_msg, "*")
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+        If SNAP_checkbox = 0 and GRH_checkbox = 0 then err_msg = err_msg & vbCr & "* Select at least one program."
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE***" & vbCr & err_msg & vbCr & vbCr & "Resolve the following items for the script to continue."
 	LOOP UNTIL err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
