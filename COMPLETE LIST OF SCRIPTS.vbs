@@ -2942,6 +2942,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #03/29/2022#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
+script_array(script_num).retirement_date		= #6/1/2022#
 
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
