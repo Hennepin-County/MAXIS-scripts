@@ -162,8 +162,8 @@ EMReadScreen mail_addr_line_four, 43, 12, 27
 EMReadScreen worker_agency_phone, 14, 13, 27
 EMReadScreen worker_county_code, 2, 15, 32
 
-cash_cfr = worker_county_code ' for updating the out of county'
-hc_cfr = worker_county_code
+cash_cfr = "27" ' for updating the out of county'
+hc_cfr = "27"
 action_completed = True 'leaving REPT USER now'
 
 CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv) ' need discovery on priv cases for xfer handling'
@@ -204,7 +204,7 @@ ELSE 'this means out of county is TRUE '
     IF grh_case = true then excluded_time_dropdown = "YES"
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 346, 280, "Out of County Case Transfer"
+    BeginDialog Dialog1, 0, 0, 346, 255, "Out of County Case Transfer"
       EditBox 80, 5, 45, 15, client_move_date
       DropListBox 80, 25, 45, 15, "NO"+chr(9)+"YES", excluded_time_dropdown
       EditBox 205, 25, 45, 15, excluded_time_begin_date
@@ -215,17 +215,15 @@ ELSE 'this means out of county is TRUE '
       EditBox 140, 105, 200, 15, requested_verifs
       EditBox 200, 125, 140, 15, expected_changes
       EditBox 50, 145, 290, 15, other_notes
-      CheckBox 20, 185, 220, 10, "Check here to manually set the CFR and change date for CASH.", manual_cfr_cash_checkbox
-      EditBox 70, 195, 20, 15, cash_cfr
-      EditBox 175, 195, 20, 15, cash_cfr_month
-      EditBox 200, 195, 20, 15, cash_cfr_year
-      CheckBox 20, 225, 205, 10, "Check here to manually set the CFR and change date for HC.", manual_cfr_hc_checkbox
-      EditBox 70, 235, 20, 15, hc_cfr
-      EditBox 180, 235, 20, 15, hc_cfr_month
-      EditBox 205, 235, 20, 15, hc_cfr_year
+      EditBox 55, 185, 20, 15, cash_cfr
+      EditBox 155, 185, 20, 15, cash_cfr_month
+      EditBox 180, 185, 20, 15, cash_cfr_year
+      EditBox 55, 220, 20, 15, hc_cfr
+      EditBox 155, 220, 20, 15, hc_cfr_month
+      EditBox 180, 220, 20, 15, hc_cfr_year
       ButtonGroup ButtonPressed
-        OkButton 235, 260, 50, 15
-        CancelButton 290, 260, 50, 15
+        OkButton 235, 235, 50, 15
+        CancelButton 290, 235, 50, 15
         PushButton 135, 5, 65, 15, "SPEC/XFER", XFER_button
         PushButton 205, 5, 65, 15, "POLI/TEMP", POLI_TEMP_button
         PushButton 275, 5, 65, 15, "USEFORM", useform_xfer_button
@@ -239,13 +237,14 @@ ELSE 'this means out of county is TRUE '
       Text 5, 110, 135, 10, "List All Requested/Pending Verifications:"
       Text 5, 130, 195, 10, "Note any expected changes in household's circumstances:"
       Text 5, 150, 45, 10, "Other Notes:"
-      GroupBox 5, 165, 335, 90, "Current Financial Responsibility County (CFR)"
-      Text 95, 240, 75, 10, "Change Date (MM YY)"
-      Text 20, 200, 45, 10, "Current CFR:"
+      Text 80, 225, 75, 10, "Change Date (MM YY)"
+      Text 10, 190, 45, 10, "Current CFR:"
       Text 10, 285, 45, 10, "Current CFR:"
       Text 85, 285, 75, 10, "Change Date (MM YY)"
-      Text 20, 240, 45, 10, "Current CFR:"
-      Text 95, 200, 75, 10, "Change Date (MM YY)"
+      Text 10, 225, 45, 10, "Current CFR:"
+      Text 80, 190, 75, 10, "Change Date (MM YY)"
+      Text 5, 170, 170, 10, "CASH Current Financial Responsibility County (CFR)"
+      Text 5, 210, 165, 10, "HC Current Financial Responsibility County (CFR)"
     EndDialog
 
 	Do
@@ -274,13 +273,13 @@ ELSE 'this means out of county is TRUE '
 	LOOP UNTIL are_we_passworded_out = False					'loops until user passwords back in
 
     'Using move date to determine CRF change date.
-     cfr_date = dateadd("M", 1, client_move_date)
-     cfr_date = datepart("M", cfr_date) & "/01/" & datepart("YYYY", cfr_date)
-     cfr_date = dateadd("M", 2, cfr_date)
-     cfr_month = datepart("M", cfr_date)
-     IF len(cfr_month) <> 2 THEN cfr_month = "0" & cfr_month
-     cfr_year = datepart("YYYY", cfr_date)
-     cfr_year = right(cfr_year, 2)
+    cfr_date = dateadd("M", 1, client_move_date)
+    cfr_date = datepart("M", cfr_date) & "/01/" & datepart("YYYY", cfr_date)
+    cfr_date = dateadd("M", 2, cfr_date)
+    cfr_month = datepart("M", cfr_date)
+    IF len(cfr_month) <> 2 THEN cfr_month = "0" & cfr_month
+    cfr_year = datepart("YYYY", cfr_date)
+    cfr_year = right(cfr_year, 2)
 
     'SENDING a SPEC/MEMO - this happens before the case note, and transfer -  we overwrite the information
     '----------Sending the Client a SPEC/MEMO notifying them of the details of the transfer----------
@@ -370,41 +369,19 @@ ELSE 'this means out of county is TRUE '
             CALL clear_line_of_text(15, 39) 'MA Excluded Time'
             CALL clear_line_of_text(16, 39) 'IV-E Foster Care
         END IF
-
-        IF manual_cfr_hc_checkbox = CHECKED THEN
-            EMWriteScreen hc_cfr, 14, 39
-            EMWriteScreen hc_cfr_month, 14, 53
-            EMWriteScreen hc_cfr_year, 14, 59
-        ELSE
-            IF ma_case = True THEN
-                EMWriteScreen hc_cfr, 14, 39
-                EMWriteScreen cfr_month, 14, 53
-                EMWriteScreen cfr_year, 14, 59
-            END IF
+        IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE) THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
+            EMWriteScreen cash_cfr, 11, 39
+            EMWriteScreen cfr_month, 11, 53
+		    EMWriteScreen cfr_year, 11, 59
+            EMWriteScreen cash_cfr, 12, 39 'cash II because I blank it out there is no need to read'
+            EMWriteScreen cfr_month, 11, 53
+            EMWriteScreen cfr_year, 11, 59
         END IF
 
-        IF manual_cfr_cash_checkbox = CHECKED THEN
-            EMWriteScreen cash_cfr_month, 11, 53
-            EMWriteScreen cash_cfr, 11, 39
-            EMWriteScreen cash_cfr_year, 11, 59
-            EMReadScreen cash_cfr_two, 2, 12, 39
-            IF cash_cfr_two <> "__" THEN
-               EMWriteScreen cash_cfr, 12, 39
-               EMWriteScreen cash_cfr_month, 11, 53
-               EMWriteScreen cash_cfr_year, 11, 59
-            END IF
-        ELSE
-            IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE) THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
-                EMWriteScreen cash_cfr, 11, 39
-                EMWriteScreen cfr_month, 11, 53
-    		    EMWriteScreen cfr_year, 11, 59
-                EMReadScreen cash_cfr_two, 2, 12, 39
-                IF cash_cfr_two <> "__" THEN
-                   EMWriteScreen cash_cfr, 12, 39
-                   EMWriteScreen cfr_month, 11, 53
-                   EMWriteScreen cfr_year, 11, 59
-                END IF
-            END IF
+        IF ma_case = TRUE THEN
+            EMWriteScreen hc_cfr, 14, 39
+            EMWriteScreen cfr_month, 14, 53
+            EMWriteScreen cfr_year, 14, 59
         END IF
 
         EMWriteScreen worker_number, 18, 28
