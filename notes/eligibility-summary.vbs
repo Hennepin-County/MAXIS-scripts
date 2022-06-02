@@ -871,6 +871,10 @@ class mfip_eligibility_detial
 	public mfip_elig_membs_initial_allocation()
 	public mfip_elig_membs_initial_child_support()
 	public mfip_elig_membs_initial_counted_earned_inc_total()
+	public mfip_elig_membs_initial_UNEA_inc_total()
+	public mfip_elig_membs_initial_allocation_balance()
+	public mfip_elig_membs_initial_child_support_balance()
+	public mfip_elig_membs_initial_counted_UNEA_inc_total()
 
 	public mfip_cash_opt_out
 	public mfip_HG_opt_out
@@ -912,6 +916,8 @@ class mfip_eligibility_detial
 	public mfip_initial_income_unearned
 	public mfip_initial_income_deemed
 	public mfip_initial_income_cses_exclusion
+	public mfip_initial_income_cses_income
+	public mfip_initial_income_cses_child_count
 	public mfip_initial_income_total
 	public mfip_initial_income_family_wage_level
 
@@ -1091,6 +1097,10 @@ class mfip_eligibility_detial
 		ReDim mfip_elig_membs_initial_allocation(0)
 		ReDim mfip_elig_membs_initial_child_support(0)
 		ReDim mfip_elig_membs_initial_counted_earned_inc_total(0)
+		ReDim mfip_elig_membs_initial_UNEA_inc_total(0)
+		ReDim mfip_elig_membs_initial_allocation_balance(0)
+		ReDim mfip_elig_membs_initial_child_support_balance(0)
+		ReDim mfip_elig_membs_initial_counted_UNEA_inc_total(0)
 
 		row = 7
 		elig_memb_count = 0
@@ -1145,6 +1155,10 @@ class mfip_eligibility_detial
 			ReDim preserve mfip_elig_membs_initial_allocation(elig_memb_count)
 			ReDim preserve mfip_elig_membs_initial_child_support(elig_memb_count)
 			ReDim preserve mfip_elig_membs_initial_counted_earned_inc_total(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_UNEA_inc_total(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_allocation_balance(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_child_support_balance(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_counted_UNEA_inc_total(elig_memb_count)
 
 			mfip_elig_ref_numbs(elig_memb_count) = ref_numb
 			EMReadScreen full_name_information, 20, row, 10
@@ -1354,7 +1368,54 @@ class mfip_eligibility_detial
 			transmit
 			EMReadScreen back_to_menu, 14, 6, 29
 		Loop until back_to_menu = "Initial Income"
-		PF3
+
+		If mfip_initial_income_deoendant_care <> "0.00" Then 			''Depended Care Initial Income calculation pop-up
+			Call write_value_and_transmit("X", 9, 20)
+		End If
+
+		Call write_value_and_transmit("X", 10, 20)		'Member Initial Earned Income
+		Do
+			EMReadScreen pop_up_name, 29 8, 34
+			pop_up_name - trim(pop_up_name)
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+					EMReadScreen mfip_elig_membs_initial_UNEA_inc_total(case_memb), 		10, 11, 49
+					EMReadScreen mfip_elig_membs_initial_allocation_balance(case_memb), 	10, 12, 49
+					EMReadScreen mfip_elig_membs_initial_child_support_balance(case_memb), 	10, 13, 49
+					EMReadScreen mfip_elig_membs_initial_counted_UNEA_inc_total(case_memb), 10, 14, 49
+
+					mfip_elig_membs_initial_UNEA_inc_total(case_memb) = trim( mfip_elig_membs_initial_UNEA_inc_total(case_memb))
+					mfip_elig_membs_initial_allocation_balance(case_memb) = trim( mfip_elig_membs_initial_allocation_balance(case_memb))
+					mfip_elig_membs_initial_child_support_balance(case_memb) = trim( mfip_elig_membs_initial_child_support_balance(case_memb))
+					 mfip_elig_membs_initial_counted_UNEA_inc_total(case_memb) = trim( mfip_elig_membs_initial_counted_UNEA_inc_total(case_memb))
+				End If
+			Next
+			transmit
+			EMReadScreen back_to_menu, 14, 6, 29
+		Loop until back_to_menu = "Initial Income"
+
+		If mfip_initial_income_deemed <> "0.00" Then 			'Deemed Initial Income calculation pop-up
+			Call write_value_and_transmit("X", 11, 20)
+		End If
+
+		Call write_value_and_transmit("X", 11, 20)				'CSES Exclusion Initiall Income calculation pop-up
+		EMReadScreen mfip_initial_income_cses_income, 10, 9, 52
+		EMReadScreen mfip_initial_income_cses_child_count, 2, 11, 37
+
+		mfip_initial_income_cses_income = trim(mfip_initial_income_cses_income)
+		mfip_initial_income_cses_child_count = trim(mfip_initial_income_cses_child_count)
+		
+		Call write_value_and_transmit("X", 9, 20)				'open cses initial income pop-up'
+
+
+
+		CASE - 313225
+
+
+		PF3			'back to CSES Exclusion caclulaiton
+		PF3			'back to initial income calculation
+
+		PF3			'back to main mf elig panel'
 
 		Call write_value_and_transmit("X", 14, 44)						'NEW SPOUSE 275% INCOME
 
