@@ -36,7 +36,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'END FUNCTIONS LIBRARY BLOCK=================================================================================================
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
@@ -44,7 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("03/12/2021", "GitHub Issue #309 Updated handling for current address confirmation.", "MiKayla Handley")
+call changelog_update("06/03/2021", "Updates for HC active/pending procedure.", "MiKayla Handley")
+call changelog_update("03/12/2021", "Updated handling for current address confirmation.", "MiKayla Handley")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("02/13/2020", "Updated the zip code to only allow for 5 characters.", "MiKayla Handley, Hennepin County")
 call changelog_update("06/06/2019", "Initial version. Re-written per POLI/TEMP.", "MiKayla Handley, Hennepin County")
@@ -55,28 +56,34 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
-'Connects to BLUEZONE
-EMConnect ""
-'Grabs the MAXIS case number
-CALL MAXIS_case_number_finder(MAXIS_case_number)
+
+EMConnect ""                                        'Connecting to BlueZone
+CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
+call Check_for_MAXIS(false)                         'Ensuring we are not passworded out
+back_to_self                                        'added to ensure we have the time to update and send the case in the background
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Running the initial dialog
-BeginDialog Dialog1, 0, 0, 211, 105, "Returned Mail"
+BeginDialog Dialog1, 0, 0, 221, 215, "RETURNED MAIL PROCESSING"
   EditBox 60, 5, 50, 15, MAXIS_case_number
   EditBox 60, 25, 50, 15, date_received
-  DropListBox 95, 45, 110, 15, "Select One:"+chr(9)+"forwarding address in MN"+chr(9)+"forwarding address outside MN"+chr(9)+"no forwarding address provided"+chr(9)+"no response received", ADDR_actions
-  EditBox 95, 65, 110, 15, worker_signature
+  DropListBox 105, 65, 110, 15, "Select One:"+chr(9)+"Forwarding address in MN"+chr(9)+"Forwarding address outside MN"+chr(9)+"No forwarding address provided"+chr(9)+"No response received", ADDR_actions
+  DropListBox 100, 150, 110, 15, "Select One:"+chr(9)+"YES "+chr(9)+"NO", client_contact_dropdown 'do we want more HERE'
+  EditBox 105, 175, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    PushButton 140, 5, 65, 15, "CASH TE02.08.011", CASH_POLI_TEMP_button
-    PushButton 140, 25, 65, 15, "SNAP TE02.08.012", SNAP_POLI_TEMP_button
-    PushButton 5, 85, 65, 15, "ONEsource", one_source_button
-    OkButton 100, 85, 50, 15
-    CancelButton 155, 85, 50, 15
+    OkButton 110, 195, 50, 15
+    CancelButton 165, 195, 50, 15
+    PushButton 135, 5, 80, 15, "SNAP TE02.08.012", SNAP_POLI_TEMP_button
+    PushButton 135, 25, 80, 15, "CASH TE02.08.011", CASH_POLI_TEMP_button
+    PushButton 135, 45, 80, 15, "ONEsource", one_source_button
   Text 5, 10, 50, 10, "Case Number:"
   Text 5, 30, 50, 10, "Date Received:"
-  Text 5, 50, 85, 10, "Mail Has Been Returned:"
-  Text 5, 70, 60, 10, "Worker Signature:"
+  Text 5, 70, 85, 10, "Mail Has Been Returned:"
+  GroupBox 5, 85, 210, 85, " Request for Contact"
+  Text 10, 100, 140, 10, "Please make an attempt to call the client."
+  Text 10, 115, 200, 35, "For SNAP verification of the new shelter costs is needed to continue to allow any shelter costs as a deduction. For CASH the address MUST be verified. For HC cases cannot be closed for address unknown currently."
+  Text 10, 155, 50, 10, "Client Contact:"
+  Text 5, 180, 60, 10, "Worker Signature:"
 EndDialog
 
 DO
@@ -84,6 +91,14 @@ DO
     	err_msg = ""
     	DIALOG Dialog1
     	cancel_confirmation
+		IF ButtonPressed = CASH_POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "011", "") 'TE02.08.011' RETURNED MAIL PROCESSING - CASH
+		IF ButtonPressed = SNAP_POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "012", "") 'TE02.08.012' RETURNED MAIL PROCESSING - SNAP
+		IF ButtonPressed = one_source_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/cs/login/login.htm"
+		IF ButtonPressed = one_source_button or ButtonPressed = SNAP_POLI_TEMP_button or ButtonPressed = CASH_POLI_TEMP_button THEN
+			err_msg = "LOOP"
+		Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+		End If
     	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "Please enter a valid case number."
 		IF isdate(date_received) = FALSE THEN
 			err_msg = err_msg & vbnewline & "Please enter the date."
@@ -91,16 +106,8 @@ DO
 			IF Cdate(date_received) > cdate(date) = TRUE THEN err_msg = err_msg & vbnewline & "You must enter an actual date that is not in the future and is in the footer month that you are working in."
 		End If
 		IF ADDR_actions = "Select One:" THEN err_msg = err_msg & vbCr & "Please chose an action for the returned mail."
+		IF client_contact_dropdown = "Select One:" THEN err_msg = err_msg & vbCr & "Please chose an action for the client contact."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
-		IF ButtonPressed = CASH_POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "11", "") 'TE02.08.011' RETURNED MAIL PROCESSING - CASH
-		IF ButtonPressed = SNAP_POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "12", "") 'TE02.08.012' RETURNED MAIL PROCESSING - SNAP
-		IF ButtonPressed = one_source_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/cs/login/login.htm"
-
-		IF ButtonPressed = one_source_button or ButtonPressed = POLI_TEMP_button THEN
-			err_msg = "LOOP"
-		Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-		End If
 	Loop until err_msg = ""
 	call back_to_self ' this is for if the worker has used the POLI/TEMP navigation'
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -126,7 +133,7 @@ IF trim(case_invalid_error) <> "" THEN script_end_procedure("*** NOTICE!!! ***" 
 
 CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
-snap_or_cash_case = False 'we need to establish if snap or cash are active, pedning, for how the case is handled'
+snap_or_cash_case = False 'we need to establish if snap or cash are active, pending, for how the case is handled'
 If family_cash_case = True Then snap_or_cash_case = True
 If mfip_case = True Then snap_or_cash_case = True
 If dwp_case = True Then snap_or_cash_case = True
@@ -143,7 +150,7 @@ If mail_street_full <> "" Then
 	mailing_address_confirmed = "YES"
 End If
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 566, 105, "Returned Mail Information"
+BeginDialog Dialog1, 0, 0, 566, 105, "RETURNED MAIL PROCESSING"
   DropListBox 220, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", residential_address_confirmed
   DropListBox 500, 15, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", mailing_address_confirmed
   EditBox 75, 85, 205, 15, notes_on_address
@@ -153,14 +160,14 @@ BeginDialog Dialog1, 0, 0, 566, 105, "Returned Mail Information"
     OkButton 445, 85, 55, 15
     CancelButton 505, 85, 55, 15
   Text 10, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
-  Text 15, 30, 200, 10, resi_street_full
-  Text 15, 40, 200, 10, resi_city &  ", "  & resi_addr_state & " "   & resi_zip
+  Text 15, 30, 200, 10, resi_addr_street_full
+  Text 15, 40, 200, 10, resi_addr_city &  ", "  & resi_addr_state & " "   & resi_addr_zip
   Text 10, 90, 65, 10, "Notes on Address:"
   GroupBox 285, 5, 275, 75, "Mailing Address"
   Text 290, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
   Text 295, 30, 200, 10, mail_line_one
   Text 295, 40, 200, 10, mail_street_full
-  If mail_city <> "_______________" Then Text 295, 50, 205, 10, mail_city & ", "  & mail_state &  " "  & mail_zip
+  If mail_city <> "_______________" Then Text 295, 50, 205, 10, mail_city_line & ", "  & mail_state_line &  " "  & mail_zip_line
   GroupBox 5, 5, 275, 75, "Residential Address in Maxis"
   Text 295, 65, 50, 10, "Effective Date:"
   Text 15, 65, 50, 10, "Future Date:"
@@ -190,8 +197,8 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    IF ADDR_actions = "no forwarding address provided" THEN
-        BeginDialog Dialog1, 0, 0, 186, 215, "no forwarding Address Provided"
+    IF ADDR_actions = "No forwarding address provided" THEN
+        BeginDialog Dialog1, 0, 0, 186, 215, "RETURNED MAIL PROCESSING NO FORWARDING ADDRESS PROVIDED"
           CheckBox 10, 95, 165, 10, "Verif Request (DHS-2919A) Request for Contact", verif_request_checkbox
           CheckBox 10, 105, 100, 10, "Change Report (DHS-2402)", CRF_checkbox
           CheckBox 10, 115, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
@@ -228,8 +235,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 	END IF
 
 	return_mail_checkbox = CHECKED ' it is implied in the title of the script'
-	IF ADDR_actions = "forwarding address outside MN" THEN county_code = "89 Out-of-State"
-	IF ADDR_actions = "forwarding address in MN"  THEN
+	IF ADDR_actions = "Forwarding address in MN"  THEN
 		new_addr_state = "MN"
 		reservation_addr = "No"
 		reservation_name = "N/A"
@@ -238,8 +244,8 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 	Call remove_dash_from_droplist(county_list)
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-	IF ADDR_actions = "forwarding address in MN" or ADDR_actions = "forwarding address outside MN" THEN
-		BeginDialog Dialog1, 0, 0, 206, 245, "Mail has been returned with forwarding address"
+	IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
+		BeginDialog Dialog1, 0, 0, 206, 245, "RETURNED MAIL PROCESSING"
 		  CheckBox 10, 15, 75, 10, "Returned Mail/Other", return_mail_checkbox
 		  CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
 		  CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
@@ -273,13 +279,11 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
     			err_msg = ""
     			DIALOG Dialog1
     			cancel_without_confirmation
-
 				new_addr_line_one = trim(new_addr_line_one)
 				new_addr_line_two = trim(new_addr_line_two)
 				new_addr_city = trim(new_addr_city)
 				new_addr_state = trim(new_addr_state)
 				new_addr_zip = trim(new_addr_zip)
-
     			IF new_addr_line_one = "" THEN err_msg = err_msg & vbCr & "Please complete the street address the client in now living at."
     			IF new_addr_city = "" THEN err_msg = err_msg & vbCr & "Please complete the city in which the client in now living."
     			IF new_addr_state = "" THEN err_msg = err_msg & vbCr & "Please complete the state in which the client in now living."
@@ -301,11 +305,11 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 		Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 	END IF
 
-    IF ADDR_actions = "no response received" THEN
+    IF ADDR_actions = "No response received" THEN
 
         '-------------------------------------------------------------------------------------------------DIALOG
         Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 361, 90, "Client Has Not Responded to Request/No Response Received"
+		BeginDialog Dialog1, 0, 0, 361, 90, "RETURNED MAIL PROCESSING - No Response Received"
 		  CheckBox 10, 15, 75, 10, "Returned Mail/Other", return_mail_checkbox
 		  CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
 		  CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
@@ -320,7 +324,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 		  Text 205, 15, 100, 10, "Date verification(s) requested:"
 		  Text 5, 50, 45, 10, "Other Notes:"
 		  Text 205, 30, 105, 10, "ECF reviewed for verifications?"
-		  Text 5, 70, 350, 20, "Allow the household 10 days to respond before proceeding with a termination notice and ensure that the action is appropriate for the active programs. See POLI/TEMP: TE02.08.012"
+		  Text 5, 70, 350, 20, "Allow the household 10 days to respond before proceeding with a termination notice and ensure that the action is appropriate for the active programs. See POLI/TEMP"
 		  GroupBox 5, 5, 195, 35, "Verification(s) Requested:"
 		EndDialog
 
@@ -349,16 +353,16 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
         	CALL navigate_to_MAXIS_screen("STAT", "PACT")
         	'Checking to see if the PACT panel is empty, if not it create a new panel'
 			Dialog1 = "" 'Running the initial dialog
-			BeginDialog Dialog1, 0, 0, 306, 120, "Returned Mail PACT panel entry"
-  			  GroupBox 5, 5, 295, 40, "SNAP "
-  			  Text 10, 15, 285, 30, "The script will use Code 4 when mail to the client has been returned to the agency and the agency has sent a Request for Contact to the client with no response.  Allow 10 days for the client to respond to the Verification Request before terminating SNAP benefits.  "
-  			  GroupBox 5, 50, 295, 40, "CASH"
-  			  Text 10, 60, 285, 25, "The script will use Code 4 when mail to the client has been returned to the agency and the agency has sent a Request for Contact to the client with no response.  Allow 10 days for the client to respond to the Verification Request before terminating SNAP benefits.  "
-  			  ButtonGroup ButtonPressed
-    			PushButton 5, 100, 65, 15, "PACT TE02.13.10", POLI_TEMP_button
-    			OkButton 195, 100, 50, 15
-    			CancelButton 250, 100, 50, 15
+			BeginDialog Dialog1, 0, 0, 351, 65, "Returned Mail Processing PACT panel entry"
+			  ButtonGroup ButtonPressed
+			    OkButton 240, 45, 50, 15
+			    CancelButton 295, 45, 50, 15
+			    PushButton 5, 45, 65, 15, "PACT TE02.13.10", POLI_TEMP_button
+			  Text 5, 5, 340, 20, "When mail to the client has been returned to the agency and the agency has sent a Request for Contact to the client with no response, for SNAP programs used code 4 will be used and code 3 for CASH."
+			  Text 5, 30, 305, 15, " Allow 10 days for the client to respond to the Verification Request before terminating benefits. "
 			EndDialog
+
+
         	EMReadScreen panel_number, 1, 02, 73
         	If panel_number = "0" then
         		EMWriteScreen "NN", 20,79 'cursor is automatically set to 06, 58'
@@ -378,34 +382,17 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
         	ELSE
         		PF9
         		EMReadScreen open_cash1, 2, 6, 43
-				MsgBox open_cash1
-        		EMReadScreen open_cash2, 2, 8, 43
-				MsgBox open_cash2
-        		EMReadScreen open_grh, 2, 10, 43
+				EMReadScreen open_cash2, 2, 8, 43
+				EMReadScreen open_grh, 2, 10, 43
         		EMReadScreen open_snap, 2, 12, 43
-				IF open_cash1  <> "" THEN EMWriteScreen "4", 6, 58
-        		IF open_cash2 <> "" THEN EMWriteScreen "4", 8, 58
-        		IF snap_case = TRUE THEN EMWriteScreen "4", 12, 58
-        		IF grh_active = TRUE THEN EMWriteScreen "4", 10, 58
-        		TRANSMIT
-        		EMReadScreen pop_upmsg, 7, 11, 08
-        		IF pop_upmsg = "WARNING" THEN
-        			EmWriteScreen "Y", 13, 64 ' this is a pop up box asking if the selection is correct per poli/temp SEE TEMP TE02.13.10'
-        			TRANSMIT
-        		END IF
-        	END IF
-
-        	IF case_note_only = FALSE THEN
 				IF open_cash1  <> "" THEN EMWriteScreen "3", 6, 58
-				MsgBox open_cash1
 				IF open_cash2 <> "" THEN EMWriteScreen "3", 8, 58
-				MsgBox open_cash1
         		IF SNAP_active  = TRUE THEN EMWriteScreen "4", 12, 58
         		IF grh_active = TRUE THEN EMWriteScreen "3", 10, 58
         		TRANSMIT
         		EMReadScreen pop_upmsg, 7, 11, 08
         		IF pop_upmsg = "WARNING" THEN
-        			EMWriteScreen "Y", 13, 64 ' this is a pop up box asking if the selection is correct per poli/temp SEE TEMP TE02.13.10'
+        			EmWriteScreen "Y", 13, 64 ' this is a pop up box asking if the selection is correct per poli/temp SEE TEMP TE02.13.10'
         			TRANSMIT
         		END IF
         	END IF
@@ -422,7 +409,7 @@ pending_verifs = trim(pending_verifs) 	'takes the last comma off of pending_veri
 IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 '----------------------------------------------------------------------------------------------------TIKL
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-IF ADDR_actions <> "no response recieved" THEN Call create_TIKL("Returned mail rec'd contact from the client should have occurred regarding address change. If no response-verbal or written, please take appropriate action.", 10, date, True, TIKL_note_text)
+IF ADDR_actions <> "No response recieved" THEN Call create_TIKL("Returned mail rec'd contact from the client should have occurred regarding address change. If no response-verbal or written, please take appropriate action.", 10, date, True, TIKL_note_text)
 'starts a blank case note
 CALL start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE("Returned mail received " & ADDR_actions)
@@ -443,13 +430,12 @@ IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household is h
 IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
 Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
-CALL write_variable_in_CASE_NOTE ("---")
-IF ADDR_actions = "forwarding address in MN" or ADDR_actions = "forwarding address outside MN" THEN
-	CALL write_variable_in_CASE_NOTE("Forwarding address was on return mail.")
+IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
+	CALL write_variable_in_CASE_NOTE("* Forwarding address was on return mail.")
 	CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
 	If new_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two)
 	CALL write_variable_in_CASE_NOTE("                            " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
-ELSEIF ADDR_actions = "no response recieved" THEN
+ELSEIF ADDR_actions = "No response recieved" THEN
 	CALL write_bullet_and_variable_in_case_note("Verification(s) request date", date_requested)
 	IF ECF_review_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE ("* ECF reviewed for requested verifications")
 	CALL write_variable_in_CASE_NOTE ("* PACT panel entered per POLI/TEMP TE02.13.10")
@@ -464,13 +450,17 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 'Checks if this is a METS case and pops up a message box with instructions if the ADDR is incorrect.
 IF METS_case_number <> "" and mets_addr_correspondence = "NO" THEN MsgBox "Please update the METS ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance Process)"
 
-IF ADDR_actions <> "no response received" THEN
+IF ADDR_actions <> "No response received" THEN
 	closing_message = closing_message & vbCr & vbCr & "Success! TIKL has been set for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. "  & vbCr & end_msg
 ELSE
     closing_message = closing_message & vbCr & vbCr & "Success! The PACT panel and case note have been entered, please approve ineligible results in ELIG & enter using NOTICES SPEC/WCOM adding worker comments." & vbCr & end_msg
 END IF
 Call script_end_procedure_with_error_report(closing_message)
 
+'REMEMBER :
+'3. Approve ineligible results in ELIG.
+'4. Enter a worker comment in SPEC/WCOM to add a detailed explanation of closure to the notice.  DHS suggested text for the SPEC/WCOM: Your mail has been returned to our agency.  On (___insert date__) you were sent a request for you to contact
+'this agency because of this returned mail.  You can avoid having your case closed if you contact this agency by (__insert the 10 date deadline___).
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
@@ -511,3 +501,5 @@ Call script_end_procedure_with_error_report(closing_message)
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
 '--Complete misc. documentation (if applicable)---------------------------------
 '--Update project team/issue contact (if applicable)----------------------------
+'--Other Note-------------------------------------------------------------------The reason we updated the residential instead of the mailing address is the inibaiting errors that occur when updating the panel
+'the last iteration this was discussed at length and the determinaition was made to leave the residential address and only update mailing although that has not been the best practive at Hennepin Co. I have sent 3 Pf11 about this clarification '
