@@ -204,61 +204,60 @@ ELSE 'this means out of county is TRUE '
     'Using move date to determine CRF change date.
 
     client_move_date = date 'this doesnt enter into the dialog and I am unsre why'
-    cfr_date = dateadd("M", 0, client_move_date)
-	cfr_date = datepart("M", cfr_date) & "/01/" & datepart("YYYY", cfr_date)
-	cfr_date = dateadd("M", 2, cfr_date)
-    cfr_month = datepart("M", cfr_date)
-	IF len(cfr_month) <> 2 THEN cfr_month = "0" & cfr_month
-	cfr_year = datepart("YYYY", cfr_date)
-	cfr_year = right(cfr_year, 2)
+    excluded_time_begin_date = date
+    cfr_month = CM_plus_2_mo
+	cfr_year = CM_yr
+
     hc_cfr_month = cfr_month' this variable may be changed by the worker
     hc_cfr_year = cfr_year 'incase the month falls in Dec and differs with cash'
-    '??? wont i need to do this again under the dialog so that if they change the date it does all the things'
+
+    client_move_date = client_move_date & ""
+    excluded_time_begin_date = excluded_time_begin_date & ""
     IF grh_case = true then excluded_time_dropdown = "YES"
     '-------------------------------------------------------------------------------------------------DIALOG
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 346, 255, "Out of County Case Transfer"
-          EditBox 80, 5, 45, 15, client_move_date
-          DropListBox 80, 25, 45, 15, "NO"+chr(9)+"YES", excluded_time_dropdown
-          EditBox 205, 25, 45, 15, excluded_time_begin_date
-          EditBox 80, 45, 45, 15, METS_case_number
-          DropListBox 205, 45, 45, 15, "Active"+chr(9)+"Inactive"+chr(9)+"N/A", mets_status_dropdown
-          EditBox 80, 65, 260, 15, transfer_reason
-          EditBox 80, 85, 260, 15, action_to_be_taken
-          EditBox 140, 105, 200, 15, requested_verifs
-          EditBox 200, 125, 140, 15, expected_changes
-          EditBox 50, 145, 290, 15, other_notes
-          EditBox 55, 185, 20, 15, cash_cfr
-          EditBox 155, 185, 20, 15, cfr_month
-          EditBox 180, 185, 20, 15, cfr_year
-          EditBox 55, 220, 20, 15, hc_cfr
-          EditBox 155, 220, 20, 15, hc_cfr_month
-          EditBox 180, 220, 20, 15, hc_cfr_year
-          ButtonGroup ButtonPressed
-            OkButton 235, 235, 50, 15
-            CancelButton 290, 235, 50, 15
-            PushButton 135, 5, 65, 15, "SPEC/XFER", XFER_button
-            PushButton 205, 5, 65, 15, "POLI/TEMP", POLI_TEMP_button
-            PushButton 275, 5, 65, 15, "USEFORM", useform_xfer_button
-          Text 5, 10, 60, 10, "Client Move Date"
-          Text 5, 30, 55, 10, "Excluded time?"
-          Text 140, 30, 40, 10, "Begin Date:"
-          Text 5, 50, 75, 10, "METS Case Number:"
-          Text 140, 50, 65, 10, "METS Case Status:"
-          Text 5, 70, 70, 10, "Reason For Transfer:"
-          Text 5, 90, 70, 10, "Actions To Be Taken:"
-          Text 5, 110, 135, 10, "List All Requested/Pending Verifications:"
-          Text 5, 130, 195, 10, "Note any expected changes in household's circumstances:"
-          Text 5, 150, 45, 10, "Other Notes:"
-          Text 80, 225, 75, 10, "Change Date (MM YY)"
-          Text 10, 190, 45, 10, "Current CFR:"
-          Text 10, 285, 45, 10, "Current CFR:"
-          Text 85, 285, 75, 10, "Change Date (MM YY)"
-          Text 10, 225, 45, 10, "Current CFR:"
-          Text 80, 190, 75, 10, "Change Date (MM YY)"
-          Text 5, 170, 170, 10, "CASH Current Financial Responsibility County (CFR)"
-          Text 5, 210, 165, 10, "HC Current Financial Responsibility County (CFR)"
-        EndDialog
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 346, 255, "Out of County Case Transfer"
+      EditBox 80, 5, 45, 15, client_move_date
+      DropListBox 80, 25, 45, 15, "NO"+chr(9)+"YES", excluded_time_dropdown
+      EditBox 205, 25, 45, 15, excluded_time_begin_date
+      EditBox 80, 45, 45, 15, METS_case_number
+      DropListBox 205, 45, 45, 15, "Active"+chr(9)+"Inactive"+chr(9)+"N/A", mets_status_dropdown
+      EditBox 80, 65, 260, 15, transfer_reason
+      EditBox 80, 85, 260, 15, action_to_be_taken
+      EditBox 140, 105, 200, 15, requested_verifs
+      EditBox 200, 125, 140, 15, expected_changes
+      EditBox 50, 145, 290, 15, other_notes
+      EditBox 55, 185, 20, 15, cash_cfr
+      EditBox 155, 185, 20, 15, cfr_month
+      EditBox 180, 185, 20, 15, cfr_year
+      EditBox 55, 220, 20, 15, hc_cfr
+      EditBox 155, 220, 20, 15, hc_cfr_month
+      EditBox 180, 220, 20, 15, hc_cfr_year
+      ButtonGroup ButtonPressed
+        OkButton 235, 235, 50, 15
+        CancelButton 290, 235, 50, 15
+        PushButton 135, 5, 65, 15, "SPEC/XFER", XFER_button
+        PushButton 205, 5, 65, 15, "POLI/TEMP", POLI_TEMP_button
+        PushButton 275, 5, 65, 15, "USEFORM", useform_xfer_button
+      Text 5, 10, 60, 10, "Client Move Date"
+      Text 5, 30, 55, 10, "Excluded time?"
+      Text 140, 30, 40, 10, "Begin Date:"
+      Text 5, 50, 75, 10, "METS Case Number:"
+      Text 140, 50, 65, 10, "METS Case Status:"
+      Text 5, 70, 70, 10, "Reason For Transfer:"
+      Text 5, 90, 70, 10, "Actions To Be Taken:"
+      Text 5, 110, 135, 10, "List All Requested/Pending Verifications:"
+      Text 5, 130, 195, 10, "Note any expected changes in household's circumstances:"
+      Text 5, 150, 45, 10, "Other Notes:"
+      Text 80, 225, 75, 10, "Change Date (MM YY)"
+      Text 10, 190, 45, 10, "Current CFR:"
+      Text 10, 285, 45, 10, "Current CFR:"
+      Text 85, 285, 75, 10, "Change Date (MM YY)"
+      Text 10, 225, 45, 10, "Current CFR:"
+      Text 80, 190, 75, 10, "Change Date (MM YY)"
+      Text 5, 170, 170, 10, "CASH Current Financial Responsibility County (CFR)"
+      Text 5, 210, 165, 10, "HC Current Financial Responsibility County (CFR)"
+    EndDialog
 
 	Do
 		Do
@@ -269,11 +268,16 @@ ELSE 'this means out of county is TRUE '
             IF excluded_time_dropdown = "YES" AND isdate(excluded_time_begin_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the start of excluded time or double check that the client's absense is due to excluded time."
 			IF isdate(client_move_date) = False THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid date for client move."
 			IF (mets_status_dropdown = "Active" and METS_case_number = "") then err_msg = err_msg & vbNewLine & "* Please enter a METS case number."
-            IF cash_cfr = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid CASH Current Financial Responsibility County (CFR) code."
-            IF cfr_month = "" THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid month for CASH Current Financial Responsibility County (CFR)."
-            IF cfr_year = "" THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid two digit year for CASH Current Financial Responsibility County (CFR)."
-            IF hc_cfr = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid HC Current Financial Responsibility County (CFR) code."
-            IF hc_cfr_month = "" THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid month for HC Current Financial Responsibility County (CFR)."
+            IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE) THEN
+                IF cash_cfr = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid CASH Current Financial Responsibility County (CFR) code."
+                IF cfr_month = "" THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid month for CASH Current Financial Responsibility County (CFR)."
+                IF cfr_year = "" THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid two digit year for CASH Current Financial Responsibility County (CFR)."
+            END IF
+            IF ma_case = True THEN
+                IF hc_cfr = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a valid HC Current Financial Responsibility County (CFR) code."
+                IF hc_cfr_month = "" THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid month for HC Current Financial Responsibility County (CFR)."
+                IF hc_cfr_year = "" THEN  err_msg = err_msg & vbNewLine & "* Please enter a valid two digit year for HC Current Financial Responsibility County (CFR)."
+            END IF
             IF ButtonPressed = POLI_TEMP_button THEN CALL view_poli_temp("02", "08", "095", "") 'TE02.08.095' there is no forth variable
             IF ButtonPressed = XFER_button THEN CALL MAXIS_dialog_navigation()
             IF ButtonPressed = useform_xfer_button THEN run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/transfers.aspx?web=1"
@@ -348,32 +352,53 @@ ELSE 'this means out of county is TRUE '
     EMWriteScreen "X", 9, 16                               'Transfer County To County
     TRANSMIT
     EMReadScreen panel_check, 4, 2, 54                        'reading to see if we made it to the right place
-    'EMReadScreen error_message, 75, 24, 2                   ' YOU ARE NOT AUTHORIZED TO TRANSFER THIS CASE OR 'LAST XFER ACTION WAS DONE AT 09:23 ON 09/23/21 BY X127L1S'
-    IF panel_check = "XCTY" Then
-        PF9                                                    'putting the transfer in edit mode
-        call create_MAXIS_friendly_date(client_move_date, 0, 4, 28)    'Writing client move date
-        call create_MAXIS_friendly_date(client_move_date, 0, 4, 61)    'this is the CRF date we dont need to ask because we dont do this'
+    IF panel_check = "XCTY" THEN
+        EMReadScreen low_down_Excluded_Time_Begin_Date, 11, 6, 28            'reading for script script_run_lowdown'
+        EMReadScreen Cash_I,  2, 11, 39                              'reading for script script_run_lowdown'
+        EMReadScreen Cash_II, 2, 12, 39                              'reading for script script_run_lowdown'
+        EMReadScreen GRH, 2, 13, 39                                  'reading for script script_run_lowdown'
+        EMReadScreen Health_Care, 2, 14, 39                          'reading for script script_run_lowdown'
+        EMReadScreen MA_Excluded_Time, 2, 15, 39                     'reading for script script_run_lowdown'
+        EMReadScreen IV-E_Foster_Care, 2, 16, 39                     'reading for script script_run_lowdown'
+        PF9                                                          'putting the transfer in edit mode
+        CALL clear_line_of_text(6, 28) 'clearing any old Excluded Time Begin Date __ __ __'
+        CALL clear_line_of_text(6, 31)
+        CALL clear_line_of_text(6, 34)
+        CALL clear_line_of_text(11, 39) 'Clearing Current Fin Resp County Cash I'
+        CALL clear_line_of_text(12, 39) 'Cash II'
+        CALL clear_line_of_text(13, 39) 'GRH'
+        CALL clear_line_of_text(14, 39) 'Health Care'
+        CALL clear_line_of_text(15, 39) 'MA Excluded Time'
+        CALL clear_line_of_text(16, 39) 'IV-E Foster Care
+
+        call create_MAXIS_friendly_date(client_move_date, 08, 4, 28)    'Writing client move date
+        call create_MAXIS_friendly_date(client_move_date, 08, 4, 61)    'this is the Change Report Sent date we dont need to ask because we dont do this'
+        call create_MAXIS_friendly_date(client_move_date, 08, 5, 61)    'this is the Case File Sent date we dont need to ask because we dont do this'
+
         EMWriteScreen left(excluded_time_dropdown, 1), 5, 28            'Writes the excluded time info. Only need the left character (it's a dropdown)
 
         IF excluded_time_dropdown = "YES" THEN                          'If there's excluded time, need to write the info
-            call create_MAXIS_friendly_date(excluded_time_begin_date, 0, 6, 28)
+            'MsgBox excluded_time_begin_date
+            call create_MAXIS_friendly_date(excluded_time_begin_date, 08, 6, 28)
             EMWriteScreen hc_cfr, 15, 39
         END IF
 
+        IF excluded_time_dropdown = "NO" THEN
+            CALL clear_line_of_text(6, 28) 'clearing any old Excluded Time Begin Date __ __ __'
+            CALL clear_line_of_text(6, 31)
+            CALL clear_line_of_text(6, 34)
+            CALL clear_line_of_text(11, 39) 'Clearing Current Fin Resp County Cash I'
+            CALL clear_line_of_text(12, 39) 'Cash II'
+            CALL clear_line_of_text(13, 39) 'GRH'
+            CALL clear_line_of_text(14, 39) 'Health Care'
+            CALL clear_line_of_text(15, 39) 'MA Excluded Time'
+            CALL clear_line_of_text(16, 39) 'IV-E Foster Care
+        END IF
+
         IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE) THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
-            IF excluded_time_dropdown = "NO" THEN
-                CALL clear_line_of_text(6, 28) 'clearing any old Excluded Time Begin Date __ __ __'
-                CALL clear_line_of_text(6, 31)
-                CALL clear_line_of_text(6, 34)
-                CALL clear_line_of_text(11, 39) 'Clearing Current Fin Resp County Cash I'
-                CALL clear_line_of_text(12, 39) 'Cash II'
-                CALL clear_line_of_text(13, 39) 'GRH'
-                CALL clear_line_of_text(14, 39) 'Health Care'
-                CALL clear_line_of_text(15, 39) 'MA Excluded Time'
-                CALL clear_line_of_text(16, 39) 'IV-E Foster Care
-            END IF
             EMWriteScreen cash_cfr, 11, 39
             EMWriteScreen cfr_month, 11, 53
+            EMWriteScreen cash_cfr, 13, 39 'for GRH'
 		    EMWriteScreen cfr_year, 11, 59
             EMWriteScreen cash_cfr, 12, 39 'cash II because I blank it out there is no need to read'
         END IF
@@ -402,7 +427,7 @@ ELSE 'this means out of county is TRUE '
         END IF
     END IF ' confirming the xfer worked and we left the panel'
 END IF ' the big one'
-script_run_lowdown = script_run_lowdown & vbCr & " Message: " & vbCr & error_message
+script_run_lowdown = script_run_lowdown & vbCr & excluded_time_dropdown & vbCr &  low_down_Excluded_Time_Begin_Date & vbCr &  Cash_I & vbCr &  Cash_II & vbCr & GRH & vbCr &  Health_Care & vbCr &  MA_Excluded_Time & vbCr &  IV-E_Foster_Care & vbCr & " Message: " & vbCr & error_message
 IF end_msg <> "" Then
     closing_message = closing_message & vbCr & vbCr & "Case did not appear to transfer:" & vbCr & end_msg
 ELSE
