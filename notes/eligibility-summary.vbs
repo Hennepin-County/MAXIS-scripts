@@ -875,6 +875,11 @@ class mfip_eligibility_detial
 	public mfip_elig_membs_initial_allocation_balance()
 	public mfip_elig_membs_initial_child_support_balance()
 	public mfip_elig_membs_initial_counted_UNEA_inc_total()
+	public mfip_elig_membs_initial_income_cses_retro_income()
+	public mfip_elig_membs_initial_income_cses_prosp_income()
+	public mfip_elig_membs_new_spouse_earned_income()
+	public mfip_elig_membs_new_spouse_unearned_income()
+	public mfip_elig_membs_new_spouse_total_income()
 
 	public mfip_cash_opt_out
 	public mfip_HG_opt_out
@@ -918,6 +923,7 @@ class mfip_eligibility_detial
 	public mfip_initial_income_cses_exclusion
 	public mfip_initial_income_cses_income
 	public mfip_initial_income_cses_child_count
+	public mfip_initial_income_net_cses_income
 	public mfip_initial_income_total
 	public mfip_initial_income_family_wage_level
 
@@ -1101,6 +1107,11 @@ class mfip_eligibility_detial
 		ReDim mfip_elig_membs_initial_allocation_balance(0)
 		ReDim mfip_elig_membs_initial_child_support_balance(0)
 		ReDim mfip_elig_membs_initial_counted_UNEA_inc_total(0)
+		ReDim mfip_elig_membs_initial_income_cses_retro_income(0)
+		ReDim mfip_elig_membs_initial_income_cses_prosp_income(0)
+		ReDim mfip_elig_membs_new_spouse_earned_income(0)
+		ReDim mfip_elig_membs_new_spouse_unearned_income(0)
+		ReDim mfip_elig_membs_new_spouse_total_income(0)
 
 		row = 7
 		elig_memb_count = 0
@@ -1159,6 +1170,11 @@ class mfip_eligibility_detial
 			ReDim preserve mfip_elig_membs_initial_allocation_balance(elig_memb_count)
 			ReDim preserve mfip_elig_membs_initial_child_support_balance(elig_memb_count)
 			ReDim preserve mfip_elig_membs_initial_counted_UNEA_inc_total(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_income_cses_retro_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_initial_income_cses_prosp_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_new_spouse_earned_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_new_spouse_unearned_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_new_spouse_total_income(elig_memb_count)
 
 			mfip_elig_ref_numbs(elig_memb_count) = ref_numb
 			EMReadScreen full_name_information, 20, row, 10
@@ -1332,7 +1348,7 @@ class mfip_eligibility_detial
 		Call write_value_and_transmit("X", 8, 20)		'Member Initial Earned Income
 		Do
 			EMReadScreen pop_up_name, 40, 8, 28
-			pop_up_name - trim(pop_up_name)
+			pop_up_name = trim(pop_up_name)
 			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
 				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
 					EMReadScreen mfip_elig_membs_initial_BUSI_inc_total(case_memb), 		10, 11, 54
@@ -1375,8 +1391,8 @@ class mfip_eligibility_detial
 
 		Call write_value_and_transmit("X", 10, 20)		'Member Initial Earned Income
 		Do
-			EMReadScreen pop_up_name, 29 8, 34
-			pop_up_name - trim(pop_up_name)
+			EMReadScreen pop_up_name, 40, 8, 28
+			pop_up_name = trim(pop_up_name)
 			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
 				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
 					EMReadScreen mfip_elig_membs_initial_UNEA_inc_total(case_memb), 		10, 11, 49
@@ -1404,13 +1420,28 @@ class mfip_eligibility_detial
 
 		mfip_initial_income_cses_income = trim(mfip_initial_income_cses_income)
 		mfip_initial_income_cses_child_count = trim(mfip_initial_income_cses_child_count)
-		
+
 		Call write_value_and_transmit("X", 9, 20)				'open cses initial income pop-up'
 
+		EMReadScreen mfip_initial_income_net_cses_income, 10, 19, 44
+		mfip_initial_income_net_cses_income = trim(mfip_initial_income_net_cses_income)
+		mfcr_row = 7
+		Do
+			EMReadScreen ref_numb, 2, mfcr_row, 7
 
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If ref_numb = mfip_elig_ref_numbs(case_memb) Then
+					EMReadScreen mfip_elig_membs_initial_income_cses_retro_income(case_memb), 10, mfcr_row, 41
+					EMReadScreen mfip_elig_membs_initial_income_cses_prosp_income(case_memb), 10, mfcr_row, 54
 
-		CASE - 313225
+					mfip_elig_membs_initial_income_cses_retro_income(case_memb) == trim(mfip_elig_membs_initial_income_cses_retro_income(case_memb))
+					mfip_elig_membs_initial_income_cses_prosp_income(case_memb) == trim(mfip_elig_membs_initial_income_cses_prosp_income(case_memb))
+				End If
+			Next
 
+			mfcr_row = mfcr_row + 1
+			EMReadScreen next_ref_numb, 2, mfcr_row, 3
+		Loop until next_ref_numb = "  "
 
 		PF3			'back to CSES Exclusion caclulaiton
 		PF3			'back to initial income calculation
@@ -1439,7 +1470,33 @@ class mfip_eligibility_detial
 		mfip_275_fpg_amt = trim(mfip_275_fpg_amt)
 		mfip_hh_size_fornew_spouse_calc = trim(mfip_hh_size_fornew_spouse_calc)
 
-		'TODO - Read each person's information in the pop-ups
+		Call write_value_and_transmit("X", 11, 20)		'Member earned and unearned for New Spouse calculation
+		Do
+			EMReadScreen pop_up_name, 35, 7, 25
+			pop_up_name = trim(pop_up_name)
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+
+					EMReadScreen mfip_elig_membs_new_spouse_earned_income(case_memb), 	10, 9, 48
+					EMReadScreen mfip_elig_membs_new_spouse_unearned_income(case_memb), 10, 10, 48
+					EMReadScreen mfip_elig_membs_new_spouse_total_income(case_memb), 	10, 11, 48
+
+					mfip_elig_membs_new_spouse_earned_income(case_memb) = trim( mfip_elig_membs_new_spouse_earned_income(case_memb))
+					mfip_elig_membs_new_spouse_unearned_income(case_memb) = trim( mfip_elig_membs_new_spouse_unearned_income(case_memb))
+					mfip_elig_membs_new_spouse_total_income(case_memb) = trim( mfip_elig_membs_new_spouse_total_income(case_memb))
+				End If
+			Next
+			transmit
+			EMReadScreen back_to_menu, 17, 7, 22
+		Loop until back_to_menu = "Designated Spouse"
+
+		'TODO - Read the deemed pop-ups
+		If mfip_new_spouse_inc_deemed_earned <> "0.00" Then
+			' Call write_value_and_transmit("X", 13, 20)		'Member deemed earned for New Spouse calculation
+		End If
+		If mfip_new_spouse_inc_deemed_unearned <> "0.00" Then
+			' Call write_value_and_transmit("X", 14, 20)		'Member deemed unearned for New Spouse calculation
+		End If
 
 		PF3
 
@@ -1532,7 +1589,22 @@ class mfip_eligibility_detial
 		mfip_case_budg_entitlement_food_portion = trim(mfip_case_budg_entitlement_food_portion)
 		mfip_case_budg_entitlement_housing_grant = trim(mfip_case_budg_entitlement_housing_grant)
 
-		' Call write_value_and_transmit("X", 6, 3)		'TODO member specific EARNED INCOME
+		Call write_value_and_transmit("X", 6, 3)		'TODO member specific EARNED INCOME
+		Do
+			EMReadScreen pop_up_name, 40, 8, 28
+			pop_up_name = trim(pop_up_name)
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+
+					EMReadScreen mfip_elig_membs_new_spouse_earned_income(case_memb), 	10, 9, 48
+
+					mfip_elig_membs_new_spouse_earned_income(case_memb) = trim( mfip_elig_membs_new_spouse_earned_income(case_memb))
+
+				End If
+			Next
+			transmit
+			EMReadScreen back_to_menu, 17, 7, 22
+		Loop until back_to_menu = "Designated Spouse"
 		' Call write_value_and_transmit("X", 11, 3)		'TODO member specific UNEARNED INCOME
 		' Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
 
