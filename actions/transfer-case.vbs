@@ -353,7 +353,7 @@ ELSE 'this means out of county is TRUE '
     TRANSMIT
     EMReadScreen panel_check, 4, 2, 54                        'reading to see if we made it to the right place
     IF panel_check = "XCTY" THEN
-        EMReadScreen low_down_Excluded_Time_Begin_Date, 11, 6, 28            'reading for script script_run_lowdown'
+        EMReadScreen low_down_Excluded_Time_Begin_Date, 11, 6, 28    'reading for script script_run_lowdown'
         EMReadScreen Cash_I,  2, 11, 39                              'reading for script script_run_lowdown'
         EMReadScreen Cash_II, 2, 12, 39                              'reading for script script_run_lowdown'
         EMReadScreen GRH, 2, 13, 39                                  'reading for script script_run_lowdown'
@@ -371,15 +371,14 @@ ELSE 'this means out of county is TRUE '
         CALL clear_line_of_text(15, 39) 'MA Excluded Time'
         CALL clear_line_of_text(16, 39) 'IV-E Foster Care
 
-        call create_MAXIS_friendly_date(client_move_date, 08, 4, 28)    'Writing client move date
-        call create_MAXIS_friendly_date(client_move_date, 08, 4, 61)    'this is the Change Report Sent date we dont need to ask because we dont do this'
-        call create_MAXIS_friendly_date(client_move_date, 08, 5, 61)    'this is the Case File Sent date we dont need to ask because we dont do this'
+        call create_MAXIS_friendly_date(client_move_date, 0, 4, 28)    'Writing client move date
+        call create_MAXIS_friendly_date(client_move_date, 0, 4, 61)    'this is the Change Report Sent date we dont need to ask because we dont do this'
+        call create_MAXIS_friendly_date(client_move_date, 0, 5, 61)    'this is the Case File Sent date we dont need to ask because we dont do this'
 
         EMWriteScreen left(excluded_time_dropdown, 1), 5, 28            'Writes the excluded time info. Only need the left character (it's a dropdown)
 
         IF excluded_time_dropdown = "YES" THEN                          'If there's excluded time, need to write the info
-            'MsgBox excluded_time_begin_date
-            call create_MAXIS_friendly_date(excluded_time_begin_date, 08, 6, 28)
+            call create_MAXIS_friendly_date(excluded_time_begin_date, 0, 6, 28)
             EMWriteScreen hc_cfr, 15, 39
         END IF
 
