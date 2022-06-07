@@ -43,7 +43,7 @@ function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, versi
 	row = 7
 	Do
 		EMReadScreen elig_version, 2, row, 22
-		EmReadScreen elig_date, 8, row, 26
+		EMReadScreen elig_date, 8, row, 26
 		EMReadScreen elig_result, 10, row, 37
 		EMReadScreen approval_status, 10, row, 50
 
@@ -508,7 +508,7 @@ class snap_eligibility_detail
 		Loop until next_ref_numb = "  "
 
 		transmit 		'FSCR
-		EmReadScreen case_expedited_indicator, 9, 4, 3
+		EMReadScreen case_expedited_indicator, 9, 4, 3
 		If case_expedited_indicator = "EXPEDITED" Then snap_expedited = True
 		EMReadScreen case_uhfs_indicator, 11, 5, 4
 		If case_uhfs_indicator = "UNCLE HARRY" Then snap_uhfs = True
@@ -881,6 +881,33 @@ class mfip_eligibility_detial
 	public mfip_elig_membs_new_spouse_unearned_income()
 	public mfip_elig_membs_new_spouse_total_income()
 
+	public mfip_elig_membs_self_emp_income()
+	public mfip_elig_membs_wages_income()
+	public mfip_elig_membs_total_earned_income()
+	public mfip_elig_membs_standard_EI_disregard()
+	public mfip_elig_membs_earned_income_subtotal()
+	public mfip_elig_membs_earned_income_50_perc_disregard()
+	public mfip_elig_membs_available_earned_income()
+	public mfip_elig_membs_allocation_deduction()
+	public mfip_elig_membs_child_support_deduction()
+	public mfip_elig_membs_counted_earned_income()
+
+	public mfip_elig_membs_total_unearned_income()
+	public mfip_elig_membs_allocation_balance()
+	public mfip_elig_membs_child_support_balance()
+	public mfip_elig_membs_counted_unearned_income()
+
+	public mfip_elig_membs_county_88_cses_income()
+	public mfip_elig_membs_county_88_gaming_income()
+	public mfip_elig_membs_county_88_200_perc_fpg()
+	public mfip_elig_membs_county_88_deemers_unmet_need()
+	public mfip_elig_membs_county_88_allocation()
+	public mfip_elig_membs_county_88_child_support()
+	public mfip_elig_membs_county_88_counted_gaming_income()
+
+	public mfip_elig_membs_retro_subsidy_amount()
+	public mfip_elig_membs_prosp_subsidy_amount()
+
 	public mfip_cash_opt_out
 	public mfip_HG_opt_out
 	public mfip_child_only
@@ -968,6 +995,14 @@ class mfip_eligibility_detial
 	public mfip_budg_cses_excln_cses_income
 	public mfip_budg_cses_excln_child_count
 	public mfip_budg_cses_excln_total
+	public mfip_budg_total_county_88_child_support_income
+	public mfip_budg_total_county_88_gaming_income
+	public mfip_budg_total_tribal_income_fs_portion_deduction
+	public mfip_budg_total_housing_subsidy_amount
+	public mfip_budg_total_tribal_child_support
+	public mfip_budg_total_subsidy_tribal_cash_portion_deduction
+	public mfip_elig_budg_total_countable_housing_subsidy
+	public mfip_elig_budg_housing_subsidy_exempt
 
 	public mfip_case_budg_10_perc_sanc
 	public mfip_case_budg_unmet_need_after_pre_vndr_sanc
@@ -986,7 +1021,7 @@ class mfip_eligibility_detial
 	public mfip_case_budg_food_prorated_amt
 	public mfip_case_budg_entitlement_cash_portion
 	public mfip_case_budg_mand_sanc_vendor
-	public mfip_case_budg_net_cash_portion
+	public mfip_case_budg_net_cash_after_sanc_portion
 	public mfip_case_budg_cash_prorated_amt
 	public mfip_case_budg_state_food_benefit
 	public mfip_case_budg_state_food_prorated_amt
@@ -1051,8 +1086,8 @@ class mfip_eligibility_detial
 		mfip_case_in_sancttion = False
 
 		call navigate_to_MAXIS_screen("ELIG", "MFIP")
-		EMWriteScreen elig_footer_month, 20, 56
-		EMWriteScreen elig_footer_year, 20, 59
+		EMWriteScreen elig_footer_month, 20, 55
+		EMWriteScreen elig_footer_year, 20, 58
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result)
 
 		ReDim mfip_elig_ref_numbs(0)
@@ -1112,6 +1147,29 @@ class mfip_eligibility_detial
 		ReDim mfip_elig_membs_new_spouse_earned_income(0)
 		ReDim mfip_elig_membs_new_spouse_unearned_income(0)
 		ReDim mfip_elig_membs_new_spouse_total_income(0)
+		ReDim mfip_elig_membs_self_emp_income(0)
+		ReDim mfip_elig_membs_wages_income(0)
+		ReDim mfip_elig_membs_total_earned_income(0)
+		ReDim mfip_elig_membs_standard_EI_disregard(0)
+		ReDim mfip_elig_membs_earned_income_subtotal(0)
+		ReDim mfip_elig_membs_earned_income_50_perc_disregard(0)
+		ReDim mfip_elig_membs_available_earned_income(0)
+		ReDim mfip_elig_membs_allocation_deduction(0)
+		ReDim mfip_elig_membs_child_support_deduction(0)
+		ReDim mfip_elig_membs_counted_earned_income(0)
+		ReDim mfip_elig_membs_total_unearned_income(0)
+		ReDim mfip_elig_membs_allocation_balance(0)
+		ReDim mfip_elig_membs_child_support_balance(0)
+		ReDim mfip_elig_membs_counted_unearned_income(0)
+		ReDim mfip_elig_membs_county_88_cses_income(0)
+		ReDim mfip_elig_membs_county_88_gaming_income(0)
+		ReDim mfip_elig_membs_county_88_200_perc_fpg(0)
+		ReDim mfip_elig_membs_county_88_deemers_unmet_need(0)
+		ReDim mfip_elig_membs_county_88_allocation(0)
+		ReDim mfip_elig_membs_county_88_child_support(0)
+		ReDim mfip_elig_membs_county_88_counted_gaming_income(0)
+		ReDim mfip_elig_membs_retro_subsidy_amount(0)
+		ReDim mfip_elig_membs_prosp_subsidy_amount(0)
 
 		row = 7
 		elig_memb_count = 0
@@ -1150,7 +1208,7 @@ class mfip_eligibility_detial
 			ReDim preserve mfip_memb_state_food_code(elig_memb_count)
 			ReDim preserve mfip_memb_sanction_yn(elig_memb_count)
 			ReDim preserve mfip_memb_sanction_child_support_test(elig_memb_count)
-			ReDim preserve mfip_memb_sanction_drug_felon_test()
+			ReDim preserve mfip_memb_sanction_drug_felon_test(elig_memb_count)
 			ReDim preserve mfip_memb_sanction_emp_services_test(elig_memb_count)
 			ReDim preserve mfip_memb_sanction_fin_orient_test(elig_memb_count)
 			ReDim preserve mfip_memb_sanction_occurence(elig_memb_count)
@@ -1175,6 +1233,29 @@ class mfip_eligibility_detial
 			ReDim preserve mfip_elig_membs_new_spouse_earned_income(elig_memb_count)
 			ReDim preserve mfip_elig_membs_new_spouse_unearned_income(elig_memb_count)
 			ReDim preserve mfip_elig_membs_new_spouse_total_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_self_emp_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_wages_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_total_earned_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_standard_EI_disregard(elig_memb_count)
+			ReDim preserve mfip_elig_membs_earned_income_subtotal(elig_memb_count)
+			ReDim preserve mfip_elig_membs_earned_income_50_perc_disregard(elig_memb_count)
+			ReDim preserve mfip_elig_membs_available_earned_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_allocation_deduction(elig_memb_count)
+			ReDim preserve mfip_elig_membs_child_support_deduction(elig_memb_count)
+			ReDim preserve mfip_elig_membs_counted_earned_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_total_unearned_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_allocation_balance(elig_memb_count)
+			ReDim preserve mfip_elig_membs_child_support_balance(elig_memb_count)
+			ReDim preserve mfip_elig_membs_counted_unearned_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_county_88_cses_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_county_88_gaming_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_county_88_200_perc_fpg(elig_memb_count)
+			ReDim preserve mfip_elig_membs_county_88_deemers_unmet_need(elig_memb_count)
+			ReDim preserve mfip_elig_membs_county_88_allocation(elig_memb_count)
+			ReDim preserve mfip_elig_membs_county_88_child_support(elig_memb_count)
+			ReDim preserve mfip_elig_membs_county_88_counted_gaming_income(elig_memb_count)
+			ReDim preserve mfip_elig_membs_retro_subsidy_amount(elig_memb_count)
+			ReDim preserve mfip_elig_membs_prosp_subsidy_amount(elig_memb_count)
 
 			mfip_elig_ref_numbs(elig_memb_count) = ref_numb
 			EMReadScreen full_name_information, 20, row, 10
@@ -1246,16 +1327,23 @@ class mfip_eligibility_detial
 			transmit
 
 			Call write_value_and_transmit("X", row, 64)
-			EMReadScreen mfip_elig_membs_es_status_code(elig_memb_count), 2, 9, 22
-			EMReadScreen mfip_elig_membs_es_status_info(elig_memb_count), 30, 9, 25
+			EMReadScreen emps_exists_for_memb, 19, 24, 2
+			If emps_exists_for_memb = "EMPS DOES NOT EXIST" Then
+				EMWriteScreen " ", row, 64
+			Else
+				EMReadScreen mfip_elig_membs_es_status_code(elig_memb_count), 2, 9, 22
+				EMReadScreen mfip_elig_membs_es_status_info(elig_memb_count), 30, 9, 25
+				mfip_elig_membs_es_status_code(elig_memb_count) = trim(mfip_elig_membs_es_status_code(elig_memb_count))
+				mfip_elig_membs_es_status_info(elig_memb_count) = trim(mfip_elig_membs_es_status_info(elig_memb_count))
+				transmit
+			End If
 
-			mfip_elig_membs_es_status_code(elig_memb_count) = trim(mfip_elig_membs_es_status_code(elig_memb_count))
-			mfip_elig_membs_es_status_info(elig_memb_count) = trim(mfip_elig_membs_es_status_info(elig_memb_count))
-			transmit
 
 			row = row + 1
 			EMReadScreen next_ref_numb, 2, row, 6
 		Loop until next_ref_numb = "  "
+
+		' MsgBox "Transmit to get to MFCR"
 
 		transmit			'MFCR
 
@@ -1326,6 +1414,8 @@ class mfip_eligibility_detial
 		mfip_counted_asset_max = trim(mfip_counted_asset_max)
 
 		transmit
+		' Pf3
+		' MsgBox "Transmit 1"
 
 		Call write_value_and_transmit("X", 13, 5)						'INITIAL INCOME
 		EMReadScreen mfip_initial_income_earned, 			10, 8, 51
@@ -1382,6 +1472,8 @@ class mfip_eligibility_detial
 				End If
 			Next
 			transmit
+			' MsgBox "Transmit 2 - loop"
+
 			EMReadScreen back_to_menu, 14, 6, 29
 		Loop until back_to_menu = "Initial Income"
 
@@ -1389,7 +1481,7 @@ class mfip_eligibility_detial
 			Call write_value_and_transmit("X", 9, 20)
 		End If
 
-		Call write_value_and_transmit("X", 10, 20)		'Member Initial Earned Income
+		Call write_value_and_transmit("X", 10, 20)		'Member Initial Unearned Income
 		Do
 			EMReadScreen pop_up_name, 40, 8, 28
 			pop_up_name = trim(pop_up_name)
@@ -1400,13 +1492,15 @@ class mfip_eligibility_detial
 					EMReadScreen mfip_elig_membs_initial_child_support_balance(case_memb), 	10, 13, 49
 					EMReadScreen mfip_elig_membs_initial_counted_UNEA_inc_total(case_memb), 10, 14, 49
 
-					mfip_elig_membs_initial_UNEA_inc_total(case_memb) = trim( mfip_elig_membs_initial_UNEA_inc_total(case_memb))
-					mfip_elig_membs_initial_allocation_balance(case_memb) = trim( mfip_elig_membs_initial_allocation_balance(case_memb))
-					mfip_elig_membs_initial_child_support_balance(case_memb) = trim( mfip_elig_membs_initial_child_support_balance(case_memb))
-					 mfip_elig_membs_initial_counted_UNEA_inc_total(case_memb) = trim( mfip_elig_membs_initial_counted_UNEA_inc_total(case_memb))
+					mfip_elig_membs_initial_UNEA_inc_total(case_memb) = trim(mfip_elig_membs_initial_UNEA_inc_total(case_memb))
+					mfip_elig_membs_initial_allocation_balance(case_memb) = trim(mfip_elig_membs_initial_allocation_balance(case_memb))
+					mfip_elig_membs_initial_child_support_balance(case_memb) = trim(mfip_elig_membs_initial_child_support_balance(case_memb))
+					 mfip_elig_membs_initial_counted_UNEA_inc_total(case_memb) = trim(mfip_elig_membs_initial_counted_UNEA_inc_total(case_memb))
 				End If
 			Next
 			transmit
+			' MsgBox "Transmit 3 - loop"
+
 			EMReadScreen back_to_menu, 14, 6, 29
 		Loop until back_to_menu = "Initial Income"
 
@@ -1414,7 +1508,7 @@ class mfip_eligibility_detial
 			Call write_value_and_transmit("X", 11, 20)
 		End If
 
-		Call write_value_and_transmit("X", 11, 20)				'CSES Exclusion Initiall Income calculation pop-up
+		Call write_value_and_transmit("X", 12, 20)				'CSES Exclusion Initiall Income calculation pop-up
 		EMReadScreen mfip_initial_income_cses_income, 10, 9, 52
 		EMReadScreen mfip_initial_income_cses_child_count, 2, 11, 37
 
@@ -1434,8 +1528,8 @@ class mfip_eligibility_detial
 					EMReadScreen mfip_elig_membs_initial_income_cses_retro_income(case_memb), 10, mfcr_row, 41
 					EMReadScreen mfip_elig_membs_initial_income_cses_prosp_income(case_memb), 10, mfcr_row, 54
 
-					mfip_elig_membs_initial_income_cses_retro_income(case_memb) == trim(mfip_elig_membs_initial_income_cses_retro_income(case_memb))
-					mfip_elig_membs_initial_income_cses_prosp_income(case_memb) == trim(mfip_elig_membs_initial_income_cses_prosp_income(case_memb))
+					mfip_elig_membs_initial_income_cses_retro_income(case_memb) = trim(mfip_elig_membs_initial_income_cses_retro_income(case_memb))
+					mfip_elig_membs_initial_income_cses_prosp_income(case_memb) = trim(mfip_elig_membs_initial_income_cses_prosp_income(case_memb))
 				End If
 			Next
 
@@ -1444,12 +1538,13 @@ class mfip_eligibility_detial
 		Loop until next_ref_numb = "  "
 
 		PF3			'back to CSES Exclusion caclulaiton
+		' MsgBox "Back to CSES Exclusion Calc"
 		PF3			'back to initial income calculation
-
+		' MsgBox "Back to Initial Inocme Calc"
 		PF3			'back to main mf elig panel'
-
+		' MsgBox "Back to main ELIG MF ELIG panel"
 		Call write_value_and_transmit("X", 14, 44)						'NEW SPOUSE 275% INCOME
-
+		' MsgBox "Open New Spouse Income"
 		EMReadScreen mfip_12_month_start_date, 				8, 6, 46
 		EMReadScreen mfip_designated_spouse_ref_numb, 		2, 7, 46
 		EMReadScreen mfip_new_spouse_inc_earned, 			10, 11, 57
@@ -1471,6 +1566,7 @@ class mfip_eligibility_detial
 		mfip_hh_size_fornew_spouse_calc = trim(mfip_hh_size_fornew_spouse_calc)
 
 		Call write_value_and_transmit("X", 11, 20)		'Member earned and unearned for New Spouse calculation
+		' MsgBox "person income budget pop up from spousal inocme"
 		Do
 			EMReadScreen pop_up_name, 35, 7, 25
 			pop_up_name = trim(pop_up_name)
@@ -1481,12 +1577,14 @@ class mfip_eligibility_detial
 					EMReadScreen mfip_elig_membs_new_spouse_unearned_income(case_memb), 10, 10, 48
 					EMReadScreen mfip_elig_membs_new_spouse_total_income(case_memb), 	10, 11, 48
 
-					mfip_elig_membs_new_spouse_earned_income(case_memb) = trim( mfip_elig_membs_new_spouse_earned_income(case_memb))
-					mfip_elig_membs_new_spouse_unearned_income(case_memb) = trim( mfip_elig_membs_new_spouse_unearned_income(case_memb))
-					mfip_elig_membs_new_spouse_total_income(case_memb) = trim( mfip_elig_membs_new_spouse_total_income(case_memb))
+					mfip_elig_membs_new_spouse_earned_income(case_memb) = trim(mfip_elig_membs_new_spouse_earned_income(case_memb))
+					mfip_elig_membs_new_spouse_unearned_income(case_memb) = trim(mfip_elig_membs_new_spouse_unearned_income(case_memb))
+					mfip_elig_membs_new_spouse_total_income(case_memb) = trim(mfip_elig_membs_new_spouse_total_income(case_memb))
 				End If
 			Next
 			transmit
+			' MsgBox "Transmit 4 - loop"
+
 			EMReadScreen back_to_menu, 17, 7, 22
 		Loop until back_to_menu = "Designated Spouse"
 
@@ -1500,6 +1598,8 @@ class mfip_eligibility_detial
 
 		PF3
 
+		' MsgBox "Transmit to get to MFBF"
+
 		transmit			'MFBF
 		mfbf_row = 7
 		Do
@@ -1511,7 +1611,7 @@ class mfip_eligibility_detial
 					EMReadScreen mfip_memb_food_portion_code(case_memb), 	1, mfbf_row, 45
 					EMReadScreen mfip_memb_state_food_code(case_memb), 		1, mfbf_row, 54
 					EMReadScreen mfip_memb_sanction_yn(case_memb), 			1, mfbf_row, 68
-					If mfip_memb_sanction_yn = "Y" Then mfip_case_in_sancttion = True
+					If mfip_memb_sanction_yn(case_memb) = "Y" Then mfip_case_in_sancttion = True
 
 					Call write_value_and_transmit("X", mfbf_row, 62)
 					EMReadScreen mfip_memb_sanction_child_support_test(case_memb),	6, 7, 12
@@ -1538,32 +1638,33 @@ class mfip_eligibility_detial
 		mfip_case_sanction_vendor_yn = trim(mfip_case_sanction_vendor_yn)
 		mfip_case_sanction_last_vendor_month = trim(mfip_case_sanction_last_vendor_month)
 
+		' MsgBox "Transmit to get to MFB1"
 		transmit			'MFB1
 
 		EMReadScreen mfip_case_budg_family_wage_level, 				10, 5, 32
-		EMReadScreen mfip_case_budg_monthly_earned_income, 			10, 5, 32
-		EMReadScreen mfip_case_budg_wage_level_earned_inc_difference, 10, 5, 32
-		EMReadScreen mfip_case_budg_transitional_standard, 			10, 5, 32
-		EMReadScreen mfip_case_budg_monthly_need, 					10, 5, 32
-		EMReadScreen mfip_case_budg_unearned_income, 				10, 5, 32
-		EMReadScreen mfip_case_budg_deemed_income, 					10, 5, 32
-		EMReadScreen mfip_case_budg_cses_exclusion, 				10, 5, 32
-		EMReadScreen mfip_case_budg_unmet_need, 					10, 5, 32
-		EMReadScreen mfip_case_budg_unmet_need_food_potion, 		10, 5, 32
-		EMReadScreen mfip_case_budg_tribal_counted_income, 			10, 5, 32
-		EMReadScreen mfip_case_budg_unmet_need_cash_portion, 		10, 5, 32
-		EMReadScreen mfip_case_budg_deduction_subsidy_tribal_cses, 	10, 5, 32
+		EMReadScreen mfip_case_budg_monthly_earned_income, 			10, 6, 32
+		EMReadScreen mfip_case_budg_wage_level_earned_inc_difference, 10, 7, 32
+		EMReadScreen mfip_case_budg_transitional_standard, 			10, 9, 32
+		EMReadScreen mfip_case_budg_monthly_need, 					10, 10, 32
+		EMReadScreen mfip_case_budg_unearned_income, 				10, 11, 32
+		EMReadScreen mfip_case_budg_deemed_income, 					10, 12, 32
+		EMReadScreen mfip_case_budg_cses_exclusion, 				10, 13, 32
+		EMReadScreen mfip_case_budg_unmet_need, 					10, 14, 32
+		EMReadScreen mfip_case_budg_unmet_need_food_potion, 		10, 15, 32
+		EMReadScreen mfip_case_budg_tribal_counted_income, 			10, 16, 32
+		EMReadScreen mfip_case_budg_unmet_need_cash_portion, 		10, 17, 32
+		EMReadScreen mfip_case_budg_deduction_subsidy_tribal_cses, 	10, 18, 32
 
 
 		EMReadScreen mfip_case_budg_net_food_portion, 			10, 5, 71
-		EMReadScreen mfip_case_budg_net_cash_portion, 			10, 5, 71
-		EMReadScreen mfip_case_budg_net_unmet_need, 			10, 5, 71
-		EMReadScreen mfip_case_budg_deduction_sanction_vendor, 	10, 5, 71
-		EMReadScreen mfip_case_budg_unmet_neet_subtotal, 		10, 5, 71
-		EMReadScreen mfip_case_budg_subtotal_food_portion, 		10, 5, 71
-		EMReadScreen mfip_case_budg_food_portion_deduction, 	10, 5, 71
-		EMReadScreen mfip_case_budg_entitlement_food_portion, 	10, 5, 71
-		EMReadScreen mfip_case_budg_entitlement_housing_grant, 	10, 5, 71
+		EMReadScreen mfip_case_budg_net_cash_portion, 			10, 6, 71
+		EMReadScreen mfip_case_budg_net_unmet_need, 			10, 7, 71
+		EMReadScreen mfip_case_budg_deduction_sanction_vendor, 	10, 8, 71
+		EMReadScreen mfip_case_budg_unmet_neet_subtotal, 		10, 9, 71
+		EMReadScreen mfip_case_budg_subtotal_food_portion, 		10, 11, 71
+		EMReadScreen mfip_case_budg_food_portion_deduction, 	10, 12, 71
+		EMReadScreen mfip_case_budg_entitlement_food_portion, 	10, 13, 71
+		EMReadScreen mfip_case_budg_entitlement_housing_grant, 	10, 15, 71
 
 		mfip_case_budg_family_wage_level = trim(mfip_case_budg_family_wage_level)
 		mfip_case_budg_monthly_earned_income = trim(mfip_case_budg_monthly_earned_income)
@@ -1589,26 +1690,72 @@ class mfip_eligibility_detial
 		mfip_case_budg_entitlement_food_portion = trim(mfip_case_budg_entitlement_food_portion)
 		mfip_case_budg_entitlement_housing_grant = trim(mfip_case_budg_entitlement_housing_grant)
 
-		Call write_value_and_transmit("X", 6, 3)		'TODO member specific EARNED INCOME
+		Call write_value_and_transmit("X", 6, 3)		' member specific EARNED INCOME
+		' MsgBox "Open specific earned income"
 		Do
 			EMReadScreen pop_up_name, 40, 8, 28
 			pop_up_name = trim(pop_up_name)
 			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
 				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
 
-					EMReadScreen mfip_elig_membs_new_spouse_earned_income(case_memb), 	10, 9, 48
+					EMReadScreen mfip_elig_membs_self_emp_income(case_memb), 				10, 11, 54
+					EMReadScreen mfip_elig_membs_wages_income(case_memb), 					10, 12, 54
+					EMReadScreen mfip_elig_membs_total_earned_income(case_memb), 			10, 13, 54
+					EMReadScreen mfip_elig_membs_standard_EI_disregard(case_memb), 			10, 14, 54
+					EMReadScreen mfip_elig_membs_earned_income_subtotal(case_memb), 		10, 15, 54
+					EMReadScreen mfip_elig_membs_earned_income_50_perc_disregard(case_memb), 10, 16, 54
+					EMReadScreen mfip_elig_membs_available_earned_income(case_memb), 		10, 17, 54
+					EMReadScreen mfip_elig_membs_allocation_deduction(case_memb), 			10, 18, 54
+					EMReadScreen mfip_elig_membs_child_support_deduction(case_memb), 		10, 19, 54
+					EMReadScreen mfip_elig_membs_counted_earned_income(case_memb), 			10, 20, 54
 
-					mfip_elig_membs_new_spouse_earned_income(case_memb) = trim( mfip_elig_membs_new_spouse_earned_income(case_memb))
+					mfip_elig_membs_self_emp_income(case_memb) = trim(mfip_elig_membs_self_emp_income(case_memb))
+					mfip_elig_membs_wages_income(case_memb) = trim(mfip_elig_membs_wages_income(case_memb))
+					mfip_elig_membs_total_earned_income(case_memb) = trim(mfip_elig_membs_total_earned_income(case_memb))
+					mfip_elig_membs_standard_EI_disregard(case_memb) = trim(mfip_elig_membs_standard_EI_disregard(case_memb))
+					mfip_elig_membs_earned_income_subtotal(case_memb) = trim(mfip_elig_membs_earned_income_subtotal(case_memb))
+					mfip_elig_membs_earned_income_50_perc_disregard(case_memb) = trim(mfip_elig_membs_earned_income_50_perc_disregard(case_memb))
+					mfip_elig_membs_available_earned_income(case_memb) = trim(mfip_elig_membs_available_earned_income(case_memb))
+					mfip_elig_membs_allocation_deduction(case_memb) = trim(mfip_elig_membs_allocation_deduction(case_memb))
+					mfip_elig_membs_child_support_deduction(case_memb) = trim(mfip_elig_membs_child_support_deduction(case_memb))
+					mfip_elig_membs_counted_earned_income(case_memb) = trim(mfip_elig_membs_counted_earned_income(case_memb))
 
 				End If
 			Next
 			transmit
-			EMReadScreen back_to_menu, 17, 7, 22
-		Loop until back_to_menu = "Designated Spouse"
-		' Call write_value_and_transmit("X", 11, 3)		'TODO member specific UNEARNED INCOME
+			EMReadScreen still_in_menu, 12, 5, 32
+		Loop until still_in_menu <> "Maxis Person"
+		' MsgBox "Back to MFB1"
+
+		Call write_value_and_transmit("X", 11, 3)		' member specific UNEARNED INCOME
+		' MsgBox "Open specific Unearned Income"
+		Do
+			EMReadScreen pop_up_name, 25, 8, 34
+			pop_up_name = trim(pop_up_name)
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+
+					EMReadScreen mfip_elig_membs_total_unearned_income(case_memb), 	10, 11, 54
+					EMReadScreen mfip_elig_membs_allocation_balance(case_memb), 	10, 12, 54
+					EMReadScreen mfip_elig_membs_child_support_balance(case_memb), 	10, 13, 54
+					EMReadScreen mfip_elig_membs_counted_unearned_income(case_memb), 10, 14, 54
+
+					mfip_elig_membs_total_unearned_income(case_memb) = trim(mfip_elig_membs_total_unearned_income(case_memb))
+					mfip_elig_membs_allocation_balance(case_memb) = trim(mfip_elig_membs_allocation_balance(case_memb))
+					mfip_elig_membs_child_support_balance(case_memb) = trim(mfip_elig_membs_child_support_balance(case_memb))
+					mfip_elig_membs_counted_unearned_income(case_memb) = trim(mfip_elig_membs_counted_unearned_income(case_memb))
+
+				End If
+			Next
+			transmit
+			EMReadScreen still_in_menu, 15, 6, 34
+		Loop until still_in_menu <> "Unearned Income"
+		' MsgBox "Back to MFB1 - 2"
+
 		' Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
 
 		Call write_value_and_transmit("X", 13, 3)		'Child Support Exclusion'
+		' MsgBox "Open CSES Exclusion"
 		EMReadScreen mfip_budg_cses_excln_cses_income, 10, 9, 52
 		EMReadScreen mfip_budg_cses_excln_child_count, 2, 11, 37
 		EMReadScreen mfip_budg_cses_excln_total, 10, 13, 52
@@ -1618,17 +1765,110 @@ class mfip_eligibility_detial
 		mfip_budg_cses_excln_total = trim(mfip_budg_cses_excln_total)
 
 		transmit
+		' MsgBox "Back to MFB1 - 3"
 
-		' Call write_value_and_transmit("X", 16, 5)		'TODO member specific TRIBAL INCOME
-		' Call write_value_and_transmit("X", 18, 5)		'TODO member specific SUBSIDY
+		Call write_value_and_transmit("X", 16, 5)		' member specific TRIBAL INCOME
+		' MsgBox "Open Tribal Income"
+		EMReadScreen mfip_budg_total_county_88_child_support_income, 	10, 6, 55
+		EMReadScreen mfip_budg_total_county_88_gaming_income, 			10, 7, 55
+		EMReadScreen mfip_budg_total_tribal_income_fs_portion_deduction, 10, 8, 55
+		mfip_budg_total_county_88_child_support_income = trim(mfip_budg_total_county_88_child_support_income)
+		mfip_budg_total_county_88_gaming__income = trim(mfip_budg_total_county_88_gaming__income)
+		mfip_budg_total_tribal_income_fs_portion_deduction = trim(mfip_budg_total_tribal_income_fs_portion_deduction)
+
+		Call write_value_and_transmit("X", 6, 12)		' member specific Tribal Child Support Income
+		Do
+			EMReadScreen pop_up_name, 25, 8, 34
+			pop_up_name = trim(pop_up_name)
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+
+					EMReadScreen mfip_elig_membs_county_88_cses_income(case_memb), 10, 11, 54
+
+					mfip_elig_membs_county_88_cses_income(case_memb) = trim(mfip_elig_membs_county_88_cses_income(case_memb))
+				End If
+			Next
+			transmit
+			EMReadScreen back_to_menu, 21, 4, 31
+		Loop until back_to_menu = "Tribal Counted Income"
+		' MsgBox "Backt o Tribal Income Menu"
+
+		Call write_value_and_transmit("X", 7, 12)		' member specific Tribal Gaming Income
+		' MsgBox "Open Tribal GAMING Income"
+		Do
+			EMReadScreen pop_up_name, 30, 7, 37
+			pop_up_name = trim(pop_up_name)
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+
+					EMReadScreen mfip_elig_membs_county_88_gaming_income(case_memb), 	10, 10, 61
+					EMReadScreen mfip_elig_membs_county_88_200_perc_fpg(case_memb), 	10, 11, 61
+					EMReadScreen mfip_elig_membs_county_88_deemers_unmet_need(case_memb), 10, 12, 61
+					EMReadScreen mfip_elig_membs_county_88_allocation(case_memb), 		10, 13, 61
+					EMReadScreen mfip_elig_membs_county_88_child_support(case_memb), 	10, 14, 61
+					EMReadScreen mfip_elig_membs_county_88_counted_gaming_income(case_memb), 10, 15, 61
+
+					mfip_elig_membs_county_88_gaming_income(case_memb) = trim(mfip_elig_membs_county_88_gaming_income(case_memb))
+					mfip_elig_membs_county_88_200_perc_fpg(case_memb) = trim(mfip_elig_membs_county_88_200_perc_fpg(case_memb))
+					mfip_elig_membs_county_88_deemers_unmet_need(case_memb) = trim(mfip_elig_membs_county_88_deemers_unmet_need(case_memb))
+					mfip_elig_membs_county_88_allocation(case_memb) = trim(mfip_elig_membs_county_88_allocation(case_memb))
+					mfip_elig_membs_county_88_child_support(case_memb) = trim(mfip_elig_membs_county_88_child_support(case_memb))
+					mfip_elig_membs_county_88_counted_gaming_income(case_memb) = trim(mfip_elig_membs_county_88_counted_gaming_income(case_memb))
+				End If
+			Next
+			transmit
+			EMReadScreen back_to_menu, 21, 4, 31
+		Loop until back_to_menu = "Tribal Counted Income"
+		transmit                  ''back to MFB1
+		' MsgBox "Back to MFB1 - 4"
+
+		Call write_value_and_transmit("X", 18, 5)		' member specific SUBSIDY
+		' MsgBox "Open Subsidy Income"
+		EMReadScreen mfip_budg_total_housing_subsidy_amount, 10, 8, 51
+		EMReadScreen mfip_budg_total_tribal_child_support, 10, 9, 51
+		EMReadScreen mfip_budg_total_subsidy_tribal_cash_portion_deduction, 10, 10, 51
+		mfip_budg_total_housing_subsidy_amount = trim(mfip_budg_total_housing_subsidy_amount)
+		mfip_budg_total_tribal_child_support = trim(mfip_budg_total_tribal_child_support)
+		mfip_budg_total_subsidy_tribal_cash_portion_deduction = trim(mfip_budg_total_subsidy_tribal_cash_portion_deduction)
+
+		Call write_value_and_transmit("X", 8, 13)		' member specific subsidy Income
+		' MsgBox "Open member subsidy information"
+		EMReadScreen mfip_elig_budg_total_countable_housing_subsidy, 10, 19, 48
+		EMReadScreen mfip_elig_budg_housing_subsidy_exempt, 1, 21, 47
+
+		mfip_elig_budg_total_countable_housing_subsidy = trim(mfip_elig_budg_total_countable_housing_subsidy)
+		mfip_elig_budg_housing_subsidy_exempt = trim(mfip_elig_budg_housing_subsidy_exempt)
+
+		Do
+			row = 8
+			EMReadScreen memb_ref_numb, 2, row, 6
+			For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+				If memb_ref_numb = mfip_elig_ref_numbs(case_memb) Then
+
+					EMReadScreen mfip_elig_membs_retro_subsidy_amount(case_memb), 10, row, 38
+					EMReadScreen mfip_elig_membs_prosp_subsidy_amount(case_memb), 10, row, 49
+
+					mfip_elig_membs_retro_subsidy_amount(case_memb) = trim(mfip_elig_membs_retro_subsidy_amount(case_memb))
+					mfip_elig_membs_prosp_subsidy_amount(case_memb) = trim(mfip_elig_membs_prosp_subsidy_amount(case_memb))
+				End If
+			Next
+			row = row + 1
+			EMReadScreen next_memb_ref_numb, 2, row, 6
+		Loop until next_memb_ref_numb = "  "
+		transmit 					'back to pop-up
+		' MsgBox "back to pop-up"
+
+		transmit                 	'back to MFB1
+		' MsgBox "Back to MFB1 - 5"
 
 		Call write_value_and_transmit("X", 8, 44)		'Sanction and Vendor
+		' MsgBox "Open Saction and Vendor"
 		EMReadScreen mfip_case_budg_10_perc_sanc, 					10, 7, 55
-		EMReadScreen mfip_case_budg_unmet_need_after_pre_vndr_sanc, 10, 7, 55
-		EMReadScreen mfip_case_budg_sanc_calc_food_portion, 		10, 7, 55
-		EMReadScreen mfip_case_budg_sanc_calc_cash_portion, 		10, 7, 55
-		EMReadScreen mfip_case_budg_pot_mand_vndr_pymts, 			10, 7, 55
-		EMReadScreen mfip_case_budg_30_perc_sanc, 					10, 7, 55
+		EMReadScreen mfip_case_budg_unmet_need_after_pre_vndr_sanc, 10, 8, 55
+		EMReadScreen mfip_case_budg_sanc_calc_food_portion, 		10, 9, 55
+		EMReadScreen mfip_case_budg_sanc_calc_cash_portion, 		10, 10, 55
+		EMReadScreen mfip_case_budg_pot_mand_vndr_pymts, 			10, 11, 55
+		EMReadScreen mfip_case_budg_30_perc_sanc, 					10, 12, 55
 
 		mfip_case_budg_10_perc_sanc = trim(mfip_case_budg_10_perc_sanc)
 		mfip_case_budg_unmet_need_after_pre_vndr_sanc = trim(mfip_case_budg_unmet_need_after_pre_vndr_sanc)
@@ -1637,8 +1877,10 @@ class mfip_eligibility_detial
 		mfip_case_budg_pot_mand_vndr_pymts = trim(mfip_case_budg_pot_mand_vndr_pymts)
 		mfip_case_budg_30_perc_sanc = trim(mfip_case_budg_30_perc_sanc)
 		transmit
+		' MsgBox "Back to MFB1 - 6"
 
 		Call write_value_and_transmit("X", 12, 44)		'Food portion Deduction
+		' MsgBox "Open Food Portion Deduction"
 		EMReadScreen mfip_case_budg_non_citzn_fs_inelig_pers_count, 1, 10, 17
 		EMReadScreen mfip_case_budg_non_citzn_fs_inelig_amt, 		10, 10, 45
 		EMReadScreen mfip_case_budg_other_fs_inelig_pers_count, 	1, 12, 17
@@ -1649,36 +1891,39 @@ class mfip_eligibility_detial
 		mfip_case_budg_other_fs_inelig_pers_count = trim(mfip_case_budg_other_fs_inelig_pers_count)
 		mfip_case_budg_other_fs_inelig_amt = trim(mfip_case_budg_other_fs_inelig_amt)
 		transmit
+		' MsgBox "Back to MFB1 - 7"
+
+		' MsgBox "Transmit to get to MFB2"
 
 		transmit			'MFB2
-		EmReadScreen mfip_case_budg_prorate_date, 8, 5, 19
+		EMReadScreen mfip_case_budg_prorate_date, 8, 5, 19
 
-		EMReadScreen mfip_case_budg_fed_food_benefit, 10, 8, 32
-		EMReadScreen mfip_case_budg_food_prorated_amt, 10, 8, 32
-		EMReadScreen mfip_case_budg_entitlement_cash_portion, 10, 10, 32
-		EMReadScreen mfip_case_budg_mand_sanc_vendor, 10, 10, 32
-		EMReadScreen mfip_case_budg_net_cash_portion, 10, 10, 32
-		EMReadScreen mfip_case_budg_cash_prorated_amt, 10, 10, 32
-		EMReadScreen mfip_case_budg_state_food_benefit, 10, 10, 32
-		EMReadScreen mfip_case_budg_state_food_prorated_amt, 10, 10, 32
+		EMReadScreen mfip_case_budg_fed_food_benefit, 			10, 7, 32
+		EMReadScreen mfip_case_budg_food_prorated_amt, 			10, 8, 32
+		EMReadScreen mfip_case_budg_entitlement_cash_portion, 	10, 10, 32
+		EMReadScreen mfip_case_budg_mand_sanc_vendor, 			10, 11, 32
+		EMReadScreen mfip_case_budg_net_cash_after_sanc_portion, 10, 12, 32
+		EMReadScreen mfip_case_budg_cash_prorated_amt, 			10, 13, 32
+		EMReadScreen mfip_case_budg_state_food_benefit, 		10, 15, 32
+		EMReadScreen mfip_case_budg_state_food_prorated_amt, 	10, 16, 32
 		' EMReadScreen mfip_case_budg_entitlement_cash_portion, 10, 10, 32
 
-		EMReadScreen mfip_case_budg_grant_amount, 10, 5, 71
-		EMReadScreen mfip_case_budg_amt_already_issued, 10, 88, 71
-		EMReadScreen mfip_case_budg_supplement_due, 10, 88, 71
-		EMReadScreen mfip_case_budg_overpayment, 10, 88, 71
-		EMReadScreen mfip_case_budg_adjusted_grant_amt, 10, 88, 71
-		EMReadScreen mfip_case_budg_recoupment, 10, 88, 71
-		EMReadScreen mfip_case_budg_total_food_issuance, 10, 88, 71
-		EMReadScreen mfip_case_budg_total_cash_issuance, 10, 88, 71
-		EMReadScreen mfip_case_budg_total_housing_grant_issuance, 10, 88, 71
+		EMReadScreen mfip_case_budg_grant_amount, 				10, 5, 71
+		EMReadScreen mfip_case_budg_amt_already_issued, 		10, 8, 71
+		EMReadScreen mfip_case_budg_supplement_due, 			10, 9, 71
+		EMReadScreen mfip_case_budg_overpayment, 				10, 10, 71
+		EMReadScreen mfip_case_budg_adjusted_grant_amt, 		10, 11, 71
+		EMReadScreen mfip_case_budg_recoupment, 				10, 12, 71
+		EMReadScreen mfip_case_budg_total_food_issuance, 		10, 14, 71
+		EMReadScreen mfip_case_budg_total_cash_issuance, 		10, 15, 71
+		EMReadScreen mfip_case_budg_total_housing_grant_issuance, 10, 16, 71
 
 		mfip_case_budg_prorate_date = trim(mfip_case_budg_prorate_date)
 		mfip_case_budg_fed_food_benefit = trim(mfip_case_budg_fed_food_benefit)
 		mfip_case_budg_food_prorated_amt = trim(mfip_case_budg_food_prorated_amt)
 		mfip_case_budg_entitlement_cash_portion = trim(mfip_case_budg_entitlement_cash_portion)
 		mfip_case_budg_mand_sanc_vendor = trim(mfip_case_budg_mand_sanc_vendor)
-		mfip_case_budg_net_cash_portion = trim(mfip_case_budg_net_cash_portion)
+		mfip_case_budg_net_cash_after_sanc_portion = trim(mfip_case_budg_net_cash_after_sanc_portion)
 		mfip_case_budg_cash_prorated_amt = trim(mfip_case_budg_cash_prorated_amt)
 		mfip_case_budg_state_food_benefit = trim(mfip_case_budg_state_food_benefit)
 		mfip_case_budg_state_food_prorated_amt = trim(mfip_case_budg_state_food_prorated_amt)
@@ -1701,15 +1946,15 @@ class mfip_eligibility_detial
 
 		mfip_case_budg_food_supplement = trim(mfip_case_budg_food_supplement)
 		mfip_case_budg_state_food_supplement = trim(mfip_case_budg_state_food_supplement)
-		mfip_case_budg_cash_supplement = trim()
+		mfip_case_budg_cash_supplement = trim(mfip_case_budg_cash_supplement)
 		mfip_case_budg_housing_grant_supplement = trim(mfip_case_budg_housing_grant_supplement)
 		transmit
 
 		' Call write_value_and_transmit("X", 10, 44)			'Overpayment pop-up - MAYBE WE DON"T NEED THIS?
 		Call write_value_and_transmit("X", 12, 44)			'Recoupment pop-up
 		EMReadScreen mfip_case_budg_cash_recoupment, 10, 7, 51
-		EMReadScreen mfip_case_budg_state_food_recoupment, 10, 7, 51
-		EMReadScreen mfip_case_budg_food_recoupment, 10, 7, 51
+		EMReadScreen mfip_case_budg_state_food_recoupment, 10, 8, 51
+		EMReadScreen mfip_case_budg_food_recoupment, 10, 9, 51
 
 		mfip_case_budg_cash_recoupment = trim(mfip_case_budg_cash_recoupment)
 		mfip_case_budg_state_food_recoupment = trim(mfip_case_budg_state_food_recoupment)
@@ -1728,7 +1973,7 @@ class mfip_eligibility_detial
 		mfip_case_budg_state_food_benefit_amt = trim(mfip_case_budg_state_food_benefit_amt)
 		transmit
 
-		Call write_value_and_transmit("X", 1, 44)			'Total Cash Issuance pop-up
+		Call write_value_and_transmit("X", 15, 44)			'Total Cash Issuance pop-up
 		EMReadScreen mfip_case_budg_tanf_cash_memb_count, 1, 8, 17
 		EMReadScreen mfip_case_budg_tanf_cash_benefit_amt, 10, 8, 45
 		EMReadScreen mfip_case_budg_state_cash_memb_count, 1, 10, 17
@@ -1739,7 +1984,7 @@ class mfip_eligibility_detial
 		mfip_case_budg_state_cash_memb_count = trim(mfip_case_budg_state_cash_memb_count)
 		mfip_case_budg_state_cash_benefit_amt = trim(mfip_case_budg_state_cash_benefit_amt)
 		transmit
-
+		' MsgBox "Transmit to get to MFSM"
 		' Call write_value_and_transmit("X", 16, 44)			'MFIP Housing Grant Issuance pop-up - there is not federal housing grant
 		transmit			'MFSM
 
@@ -1797,12 +2042,553 @@ class mfip_eligibility_detial
 		mfip_case_summary_cash_portion = trim(mfip_case_summary_cash_portion)
 		mfip_case_summary_food_portion = trim(mfip_case_summary_food_portion)
 		mfip_case_summary_housing_grant = trim(mfip_case_summary_housing_grant)
+		' Msgbox mfip_case_summary_net_grant_amount
 
 		If mfip_case_asst_unit_caregivers = "0" Then mfip_child_only = True
 
 		Call Back_to_SELF
 	end sub
 
+end class
+
+
+class ga_eligibility_detial
+	public elig_footer_month
+	public elig_footer_year
+	public elig_version_number
+	public elig_version_date
+	public elig_version_result
+
+	public ga_elig_case_status
+	public ga_elig_file_unit_type_code
+	public ga_elig_faci_file_unit_type_code
+	public ga_elig_file_unit_type_info
+	public ga_elig_faci_file_unit_type_info
+
+	public ga_elig_ref_numbs()
+	public ga_elig_membs_full_name()
+	public ga_elig_membs_relationship_code()
+	public ga_elig_membs_relationship_info()
+	public ga_elig_membs_code()
+	public ga_elig_membs_info()
+	public ga_elig_membs_elig_basis_code()
+	public ga_elig_membs_elig_basis_info()
+	public ga_elig_membs_elig_status()
+	public ga_elig_membs_budget_cycle()
+	public ga_elig_membs_elig_begin_date()
+	public ga_elig_membs_test_absence()
+	public ga_elig_membs_test_dupl_assistance()
+	public ga_elig_membs_test_ga_coop()
+	public ga_elig_membs_test_ive()
+	public ga_elig_membs_test_ssi()
+	public ga_elig_membs_test_lump_sum_payment()
+	public ga_elig_membs_test_unit_member()
+	public ga_elig_membs_test_imig_status_verif()
+	public ga_elig_membs_test_imig_status()
+	public ga_elig_membs_test_basis_of_elig()
+	public ga_elig_membs_test_elig_other_prgm()
+	public ga_elig_membs_test_ssn_coop()
+
+	public ga_elig_case_test_appl_withdrawn
+	public ga_elig_case_test_dupl_assistance
+	public ga_elig_case_test_fail_coop
+	public ga_elig_case_test_fail_file
+	public ga_elig_case_test_eligible_member
+	public ga_elig_case_test_prosp_net_income
+	public ga_elig_case_test_retro_net_income
+	public ga_elig_case_test_residence
+	public ga_elig_case_test_assets
+	public ga_elig_case_test_eligible_other_prgm
+	public ga_elig_case_test_verif
+	public ga_elig_case_test_lump_sum_payment
+
+	public ga_elig_case_budg_gross_wages
+	public ga_elig_case_budg_gross_self_emp
+	public ga_elig_case_budg_total_gross_income
+	public ga_elig_case_budg_standard_EI_disregard
+	public ga_elig_case_budg_earned_income_subtotal
+	public ga_elig_case_budg_earned_income_disregard_percent
+	public ga_elig_case_budg_earned_income_disregard_amount
+	public ga_elig_case_budg_total_deductions
+	public ga_elig_case_budg_net_earned_income
+	public ga_elig_case_budg_unearned_income
+	public ga_elig_case_budg_counted_school_income
+	public ga_elig_case_budg_total_deemed_income
+	public ga_elig_case_budg_total_countable_income
+
+	public ga_elig_case_budg_payment_standard
+	public ga_elig_case_budg_payment_subtotal
+	public ga_elig_case_budg_prorated_from
+	public ga_elig_case_budg_prorated_to
+	public ga_elig_case_budg_grant_subtotal
+	public ga_elig_case_budg_total_assets
+	public ga_elig_case_budg_ga_exclusion
+	public ga_elig_case_budg_countable_assets
+	public ga_elig_case_budg_maximum_assets
+	public ga_elig_case_budg_reason_ga_exclusion
+	public ga_elig_case_budg_pers_needs_payment_standard
+	public ga_elig_case_budg_pers_needs_payment_subtotal
+	public ga_elig_case_budg_pers_needs_prorated_from
+	public ga_elig_case_budg_pers_needs_prorated_to
+	public ga_elig_case_budg_pers_needs_grant_subtotal
+	public ga_elig_case_budg_total_ga_grant_amount
+
+	public ga_elig_summ_approved_date
+	public ga_elig_summ_process_date
+	public ga_elig_summ_date_last_approval
+	public ga_elig_summ_curr_prog_status
+	public ga_elig_summ_eligibility_result
+	public ga_elig_summ_hrf_reporting
+	public ga_elig_summ_source_of_info
+	public ga_elig_summ_eligibility_begin_date
+	public ga_elig_summ_eligiblity_review_date
+	public ga_elig_summ_budget_cycle
+	public ga_elig_summ_filing_unit_type_code
+	public ga_elig_summ_filing_unit_type_info
+	public ga_elig_summ_faci_unit_type_code
+	public ga_elig_summ_faci_unit_type_info
+	public ga_elig_summ_responsible_county
+	public ga_elig_summ_vendor_reason_code
+	public ga_elig_summ_vendor_reason_info
+	public ga_elig_summ_total_assets
+	public ga_elig_summ_client_faci_obligation
+	public ga_elig_summ_standards
+	public ga_elig_summ_counted_income
+	public ga_elig_summ_monthly_grant
+	public ga_elig_summ_amount_to_be_paid
+	public ga_elig_summ_action_code
+	public ga_elig_summ_action_info
+	public ga_elig_summ_reason_code
+	public ga_elig_summ_reason_info
+	public ga_elig_summ_worker_message
+
+	public sub read_elig()
+
+		call navigate_to_MAXIS_screen("ELIG", "GA  ")
+		EMWriteScreen elig_footer_month, 20, 54
+		EMWriteScreen elig_footer_year, 20, 57
+		Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result)
+
+ 		EMReadScreen ga_elig_case_status, 12, 18, 23
+		EMReadScreen ga_elig_file_unit_type_code, 1, 18, 52
+		EMReadScreen ga_elig_faci_file_unit_type_code, 1, 18, 77
+
+		ga_elig_case_status = trim(ga_elig_case_status)
+
+		If ga_elig_file_unit_type_code = "1" Then ga_elig_file_unit_type_info = "Single Adult"
+		If ga_elig_file_unit_type_code = "2" Then ga_elig_file_unit_type_info = "Single Adult living with Parents"
+		If ga_elig_file_unit_type_code = "3" Then ga_elig_file_unit_type_info = "Minor Child Outside the Home"
+		If ga_elig_file_unit_type_code = "6" Then ga_elig_file_unit_type_info = "Married Couple"
+		If ga_elig_file_unit_type_code = "9" Then ga_elig_file_unit_type_info = "Family State Food Program"
+
+		If ga_elig_faci_file_unit_type_code = "5" Then ga_elig_faci_file_unit_type_info = "Personal Needs"
+
+
+		ReDim ga_elig_ref_numbs(0)
+		ReDim ga_elig_membs_full_name(0)
+		ReDim ga_elig_membs_relationship_code(0)
+		ReDim ga_elig_membs_relationship_info(0)
+		ReDim ga_elig_membs_code(0)
+		ReDim ga_elig_membs_info(0)
+		ReDim ga_elig_membs_elig_basis_code(0)
+		ReDim ga_elig_membs_elig_basis_info(0)
+		ReDim ga_elig_membs_elig_status(0)
+		ReDim ga_elig_membs_budget_cycle(0)
+		ReDim ga_elig_membs_elig_begin_date(0)
+		ReDim ga_elig_membs_test_absence(0)
+		ReDim ga_elig_membs_test_dupl_assistance(0)
+		ReDim ga_elig_membs_test_ga_coop(0)
+		ReDim ga_elig_membs_test_ive(0)
+		ReDim ga_elig_membs_test_ssi(0)
+		ReDim ga_elig_membs_test_lump_sum_payment(0)
+		ReDim ga_elig_membs_test_unit_member(0)
+		ReDim ga_elig_membs_test_imig_status_verif(0)
+		ReDim ga_elig_membs_test_imig_status(0)
+		ReDim ga_elig_membs_test_basis_of_elig(0)
+		ReDim ga_elig_membs_test_elig_other_prgm(0)
+		ReDim ga_elig_membs_test_ssn_coop(0)
+
+		elig_memb_count = 0
+		ga_row = 8
+		Do
+			EMReadScreen ref_numb, 2, ga_row, 9
+
+			ReDim preserve ga_elig_ref_numbs(elig_memb_count)
+			ReDim preserve ga_elig_membs_full_name(elig_memb_count)
+			ReDim preserve ga_elig_membs_relationship_code(elig_memb_count)
+			ReDim preserve ga_elig_membs_relationship_info(elig_memb_count)
+			ReDim preserve ga_elig_membs_code(elig_memb_count)
+			ReDim preserve ga_elig_membs_info(elig_memb_count)
+			ReDim preserve ga_elig_membs_elig_basis_code(elig_memb_count)
+			ReDim preserve ga_elig_membs_elig_basis_info(elig_memb_count)
+			ReDim preserve ga_elig_membs_elig_status(elig_memb_count)
+			ReDim preserve ga_elig_membs_budget_cycle(elig_memb_count)
+			ReDim preserve ga_elig_membs_elig_begin_date(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_absence(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_dupl_assistance(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_ga_coop(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_ive(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_ssi(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_lump_sum_payment(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_unit_member(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_imig_status_verif(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_imig_status(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_basis_of_elig(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_elig_other_prgm(elig_memb_count)
+			ReDim preserve ga_elig_membs_test_ssn_coop(elig_memb_count)
+
+			ga_elig_ref_numbs(elig_memb_count) = ref_numb
+			EMReadScreen full_name_information, 20, ga_row, 12
+			full_name_information = trim(full_name_information)
+			name_array = split(full_name_information, " ")
+			For each name_parts in name_array
+				If len(name_parts) <> 1 Then ga_elig_membs_full_name(elig_memb_count) = ga_elig_membs_full_name(elig_memb_count) & " " & name_parts
+			Next
+			ga_elig_membs_full_name(elig_memb_count) = trim((ga_elig_membs_full_name(elig_memb_count)))
+			EMReadScreen ga_elig_membs_relationship_code(elig_memb_count), 2, ga_row, 33
+
+
+			If ga_elig_membs_relationship_code(elig_memb_count) = "01" Then ga_elig_membs_relationship_info(elig_memb_count) = "Applicant"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "02" Then ga_elig_membs_relationship_info(elig_memb_count) = "Spouse"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "03" Then ga_elig_membs_relationship_info(elig_memb_count) = "Child"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "04" Then ga_elig_membs_relationship_info(elig_memb_count) = "Parent"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "05" Then ga_elig_membs_relationship_info(elig_memb_count) = "Sibling"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "06" Then ga_elig_membs_relationship_info(elig_memb_count) = "Step Sibling"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "08" Then ga_elig_membs_relationship_info(elig_memb_count) = "Step Child"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "09" Then ga_elig_membs_relationship_info(elig_memb_count) = "Step Parent"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "10" Then ga_elig_membs_relationship_info(elig_memb_count) = "Aunt"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "11" Then ga_elig_membs_relationship_info(elig_memb_count) = "Uncle"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "12" Then ga_elig_membs_relationship_info(elig_memb_count) = "Niece"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "13" Then ga_elig_membs_relationship_info(elig_memb_count) = "Nephew"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "14" Then ga_elig_membs_relationship_info(elig_memb_count) = "Cousin"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "15" Then ga_elig_membs_relationship_info(elig_memb_count) = "Grandparent"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "16" Then ga_elig_membs_relationship_info(elig_memb_count) = "Grandchild"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "17" Then ga_elig_membs_relationship_info(elig_memb_count) = "Other Relative"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "18" Then ga_elig_membs_relationship_info(elig_memb_count) = "Legal Guardian"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "24" Then ga_elig_membs_relationship_info(elig_memb_count) = "Not Related"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "25" Then ga_elig_membs_relationship_info(elig_memb_count) = "Live-In Attendant"
+			If ga_elig_membs_relationship_code(elig_memb_count) = "27" Then ga_elig_membs_relationship_info(elig_memb_count) = "Unknown"
+
+			EMReadScreen ga_elig_membs_code(elig_memb_count), 1, ga_row, 48
+
+			If ga_elig_membs_code(elig_memb_count) = "A" Then ga_elig_membs_info(elig_memb_count) = "Assistance Unit Member"
+			If ga_elig_membs_code(elig_memb_count) = "C" Then ga_elig_membs_info(elig_memb_count) = "Deemer"
+			If ga_elig_membs_code(elig_memb_count) = "F" Then ga_elig_membs_info(elig_memb_count) = "Ineligible - Counted without Deductions"
+			If ga_elig_membs_code(elig_memb_count) = "S" Then ga_elig_membs_info(elig_memb_count) = "Ineligible - Counted with Deduction"
+			If ga_elig_membs_code(elig_memb_count) = "G" Then ga_elig_membs_info(elig_memb_count) = "Ineligible Affects Grant"
+			If ga_elig_membs_code(elig_memb_count) = "I" Then ga_elig_membs_info(elig_memb_count) = "Ineligible Par of Unit"
+			If ga_elig_membs_code(elig_memb_count) = "L" Then ga_elig_membs_info(elig_memb_count) = "Other Adult Applicant"
+			If ga_elig_membs_code(elig_memb_count) = "M" Then ga_elig_membs_info(elig_memb_count) = "Allocation Only"
+			If ga_elig_membs_code(elig_memb_count) = "N" Then ga_elig_membs_info(elig_memb_count) = "Not Counted"
+			If ga_elig_membs_code(elig_memb_count) = "U" Then ga_elig_membs_info(elig_memb_count) = "Unknown"
+
+			EMReadScreen ga_elig_membs_elig_basis_code(elig_memb_count), 2, row, 52
+
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "04" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Permanent Ill Or Incap"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "05" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Temporary Ill Or Incap"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "06" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Care Of Ill Or Incap Mbr"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "07" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Requires Services In Residence"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "09" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Mntl Ill Or Dev Disabled"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "10" then ga_elig_membs_elig_basis_info(elig_memb_count) = "SSI/RSDI Pend"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "11" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Appealing SSI/RSDI Denial"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "12" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Advanced Age"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "13" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Learning Disability"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "17" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Protect/Court Ordered"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "20" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Age 16 Or 17 SS Approval"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "25" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Emancipated Minor"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "28" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Unemployable"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "29" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Displaced Hmkr(Ft Student)"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "30" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Minor W/ Adult Unrelated"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "32" then ga_elig_membs_elig_basis_info(elig_memb_count) = "ESL, Adult/HS At Least Half Time, Adult"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "35" then ga_elig_membs_elig_basis_info(elig_memb_count) = "Drug/Alcohol Addiction(DAA)"
+			If ga_elig_membs_elig_basis_code(elig_memb_count) = "99" then ga_elig_membs_elig_basis_info(elig_memb_count) = "No Elig Basis"
+
+			EMReadScreen ga_elig_membs_elig_status(elig_memb_count), 4, row, 57
+
+			If ga_elig_membs_elig_status(elig_memb_count) = "ELIG" then ga_elig_membs_elig_status(elig_memb_count) = "ELIGIBLE"
+			If ga_elig_membs_elig_status(elig_memb_count) = "INEL" then ga_elig_membs_elig_status(elig_memb_count) = "INELIGIBLE"
+
+			EMReadScreen ga_elig_membs_budget_cycle(elig_memb_count), 1, row, 63
+
+			If ga_elig_membs_budget_cycle(elig_memb_count) = "P" then ga_elig_membs_budget_cycle(elig_memb_count) = "Prospective"
+			If ga_elig_membs_budget_cycle(elig_memb_count) = "R" then ga_elig_membs_budget_cycle(elig_memb_count) = "Retrospective"
+
+			EMReadScreen ga_elig_membs_elig_begin_date(elig_memb_count), 8, row, 66
+
+			Call write_value_and_transmit("X", row, 6)
+
+			EMReadScreen ga_elig_membs_test_absence(elig_memb_count), 			6, 11, 12
+			EMReadScreen ga_elig_membs_test_dupl_assistance(elig_memb_count), 	6, 12, 12
+			EMReadScreen ga_elig_membs_test_ga_coop(elig_memb_count), 			6, 13, 12
+			EMReadScreen ga_elig_membs_test_ive(elig_memb_count), 				6, 14, 12
+			EMReadScreen ga_elig_membs_test_ssi(elig_memb_count), 				6, 15, 12
+			EMReadScreen ga_elig_membs_test_lump_sum_payment(elig_memb_count), 	6, 16, 12
+
+
+			EMReadScreen ga_elig_membs_test_unit_member(elig_memb_count), 		6, 11, 42
+			EMReadScreen ga_elig_membs_test_imig_status_verif(elig_memb_count), 6, 12, 42
+			EMReadScreen ga_elig_membs_test_imig_status(elig_memb_count), 		6, 13, 42
+			EMReadScreen ga_elig_membs_test_basis_of_elig(elig_memb_count), 	6, 14, 42
+			EMReadScreen ga_elig_membs_test_elig_other_prgm(elig_memb_count), 	6, 15, 42
+			EMReadScreen ga_elig_membs_test_ssn_coop(elig_memb_count), 			6, 16, 42
+
+			ga_elig_membs_test_absence(elig_memb_count) = trim(ga_elig_membs_test_absence(elig_memb_count))
+			ga_elig_membs_test_dupl_assistance(elig_memb_count) = trim(ga_elig_membs_test_dupl_assistance(elig_memb_count))
+			ga_elig_membs_test_ga_coop(elig_memb_count) = trim(ga_elig_membs_test_ga_coop(elig_memb_count))
+			ga_elig_membs_test_ive(elig_memb_count) = trim(ga_elig_membs_test_ive(elig_memb_count))
+			ga_elig_membs_test_ssi(elig_memb_count) = trim(ga_elig_membs_test_ssi(elig_memb_count))
+			ga_elig_membs_test_lump_sum_payment(elig_memb_count) = trim(ga_elig_membs_test_lump_sum_payment(elig_memb_count))
+
+			ga_elig_membs_test_unit_member(elig_memb_count) = trim(ga_elig_membs_test_unit_member(elig_memb_count))
+			ga_elig_membs_test_imig_status_verif(elig_memb_count) = trim(ga_elig_membs_test_imig_status_verif(elig_memb_count))
+			ga_elig_membs_test_imig_status(elig_memb_count) = trim(ga_elig_membs_test_imig_status(elig_memb_count))
+			ga_elig_membs_test_basis_of_elig(elig_memb_count) = trim(ga_elig_membs_test_basis_of_elig(elig_memb_count))
+			ga_elig_membs_test_elig_other_prgm(elig_memb_count) = trim(ga_elig_membs_test_elig_other_prgm(elig_memb_count))
+			ga_elig_membs_test_ssn_coop(elig_memb_count) = trim(ga_elig_membs_test_ssn_coop(elig_memb_count))
+
+			transmit
+
+			ga_row = ga_row + 1
+			elig_memb_count = elig_memb_count + 1
+			EMReadScreen next_ref_numb, 2, ga_row, 9
+		Loop until next_ref_numb = "  "
+
+		transmit 		'going to the next panel - GACR
+
+		EMReadScreen ga_elig_case_test_appl_withdrawn, 		6, 8, 10
+		EMReadScreen ga_elig_case_test_dupl_assistance, 	6, 9, 10
+		EMReadScreen ga_elig_case_test_fail_coop, 			6, 10, 10
+		EMReadScreen ga_elig_case_test_fail_file, 			6, 11, 10
+		EMReadScreen ga_elig_case_test_eligible_member, 	6, 12, 10
+		EMReadScreen ga_elig_case_test_prosp_net_income, 	6, 13, 10
+
+		EMReadScreen ga_elig_case_test_retro_net_income, 	6, 8, 46
+		EMReadScreen ga_elig_case_test_residence, 			6, 9, 46
+		EMReadScreen ga_elig_case_test_assets, 				6, 10, 46
+		EMReadScreen ga_elig_case_test_eligible_other_prgm, 6, 11, 46
+		EMReadScreen ga_elig_case_test_verif, 				6, 12, 46
+		EMReadScreen ga_elig_case_test_lump_sum_payment, 	6, 13, 46
+
+		ga_elig_case_test_appl_withdrawn = trim(ga_elig_case_test_appl_withdrawn)
+		ga_elig_case_test_dupl_assistance = trim(ga_elig_case_test_dupl_assistance)
+		ga_elig_case_test_fail_coop = trim(ga_elig_case_test_fail_coop)
+		ga_elig_case_test_fail_file = trim(ga_elig_case_test_fail_file)
+		ga_elig_case_test_eligible_member = trim(ga_elig_case_test_eligible_member)
+		ga_elig_case_test_prosp_net_income = trim(ga_elig_case_test_prosp_net_income)
+
+		ga_elig_case_test_retro_net_income = trim(ga_elig_case_test_retro_net_income)
+		ga_elig_case_test_residence = trim(ga_elig_case_test_residence)
+		ga_elig_case_test_assets = trim(ga_elig_case_test_assets)
+		ga_elig_case_test_eligible_other_prgm = trim(ga_elig_case_test_eligible_other_prgm)
+		ga_elig_case_test_verif = trim(ga_elig_case_test_verif)
+		ga_elig_case_test_lump_sum_payment = trim(ga_elig_case_test_lump_sum_payment)
+
+		' Call write_value_and_transmit("X", 13, 4)		'This is the Prosp Net Income Pop-Up - this appears to match the information on GAb1 - so we are not reading it'
+
+		transmit 		'going to the next panel - GAB1
+
+		EMReadScreen ga_elig_case_budg_gross_wages, 					10, 6, 29
+		EMReadScreen ga_elig_case_budg_gross_self_emp, 					10, 7, 29
+		EMReadScreen ga_elig_case_budg_total_gross_income, 				10, 9, 29
+		EMReadScreen ga_elig_case_budg_standard_EI_disregard, 			10, 13, 29
+		EMReadScreen ga_elig_case_budg_earned_income_subtotal, 			10, 14, 29
+		EMReadScreen ga_elig_case_budg_earned_income_disregard_percent, 2, 15, 23
+		EMReadScreen ga_elig_case_budg_earned_income_disregard_amount, 	10, 15, 29
+		EMReadScreen ga_elig_case_budg_total_deductions, 				10, 17, 29
+
+		EMReadScreen ga_elig_case_budg_net_earned_income, 				10, 6, 71
+		EMReadScreen ga_elig_case_budg_unearned_income, 				10, 8, 71
+		EMReadScreen ga_elig_case_budg_counted_school_income, 			10, 10, 71
+		EMReadScreen ga_elig_case_budg_total_deemed_income, 			10, 14, 71
+		EMReadScreen ga_elig_case_budg_total_countable_income, 			10, 17, 71
+
+		ga_elig_case_budg_gross_wages = trim(ga_elig_case_budg_gross_wages)
+		ga_elig_case_budg_gross_self_emp = trim(ga_elig_case_budg_gross_self_emp)
+		ga_elig_case_budg_total_gross_income = trim(ga_elig_case_budg_total_gross_income)
+		ga_elig_case_budg_standard_EI_disregard = trim(ga_elig_case_budg_standard_EI_disregard)
+		ga_elig_case_budg_earned_income_subtotal = trim(ga_elig_case_budg_earned_income_subtotal)
+		ga_elig_case_budg_earned_income_disregard_percent = trim(ga_elig_case_budg_earned_income_disregard_percent)
+		ga_elig_case_budg_earned_income_disregard_amount = trim(ga_elig_case_budg_earned_income_disregard_amount)
+		ga_elig_case_budg_total_deductions = trim(ga_elig_case_budg_total_deductions)
+
+		ga_elig_case_budg_net_earned_income = trim(ga_elig_case_budg_net_earned_income)
+		ga_elig_case_budg_unearned_income = trim(ga_elig_case_budg_unearned_income)
+		ga_elig_case_budg_counted_school_income = trim(ga_elig_case_budg_counted_school_income)
+		ga_elig_case_budg_total_deemed_income = trim(ga_elig_case_budg_total_deemed_income)
+		ga_elig_case_budg_total_countable_income = trim(ga_elig_case_budg_total_countable_income)
+
+		transmit 		'going to the next panel - GAB2
+
+		EMReadScreen ga_elig_case_budg_payment_standard, 	10, 6, 34
+		' EMReadScreen ga_elig_case_budg_total_countable_income, 10, 7, 34
+		EMReadScreen ga_elig_case_budg_payment_subtotal, 	10, 8, 34
+		EMReadScreen ga_elig_case_budg_prorated_from, 		5, 10, 15
+		EMReadScreen ga_elig_case_budg_prorated_to, 		5, 10, 25
+		EMReadScreen ga_elig_case_budg_grant_subtotal, 		10, 11, 34
+		EMReadScreen ga_elig_case_budg_total_assets, 		10, 14, 34
+		EMReadScreen ga_elig_case_budg_ga_exclusion, 		10, 15, 34
+		EMReadScreen ga_elig_case_budg_countable_assets, 	10, 16, 34
+		EMReadScreen ga_elig_case_budg_maximum_assets, 		10, 17, 34
+		EMReadScreen ga_elig_case_budg_reason_ga_exclusion, 10, 18, 34
+
+		EMReadScreen ga_elig_case_budg_pers_needs_payment_standard, 10, 6, 72
+		' EMReadScreen ga_elig_case_budg_total_countable_income, 10, 7, 72
+		EMReadScreen ga_elig_case_budg_pers_needs_payment_subtotal, 10, 8, 72
+		EMReadScreen ga_elig_case_budg_pers_needs_prorated_from, 	5, 10, 58
+		EMReadScreen ga_elig_case_budg_pers_needs_prorated_to, 		5, 10, 68
+		EMReadScreen ga_elig_case_budg_pers_needs_grant_subtotal, 	10, 11, 72
+		EMReadScreen ga_elig_case_budg_total_ga_grant_amount, 		10, 13, 72
+
+		ga_elig_case_budg_payment_standard = trim(ga_elig_case_budg_payment_standard)
+		ga_elig_case_budg_payment_subtotal = trim(ga_elig_case_budg_payment_subtotal)
+		ga_elig_case_budg_prorated_from = trim(ga_elig_case_budg_prorated_from)
+		ga_elig_case_budg_prorated_to = trim(ga_elig_case_budg_prorated_to)
+		ga_elig_case_budg_grant_subtotal = trim(ga_elig_case_budg_grant_subtotal)
+		ga_elig_case_budg_total_assets = trim(ga_elig_case_budg_total_assets)
+		ga_elig_case_budg_ga_exclusion = trim(ga_elig_case_budg_ga_exclusion)
+		ga_elig_case_budg_countable_assets = trim(ga_elig_case_budg_countable_assets)
+		ga_elig_case_budg_maximum_assets = trim(ga_elig_case_budg_maximum_assets)
+		ga_elig_case_budg_reason_ga_exclusion = trim(ga_elig_case_budg_reason_ga_exclusion)
+
+		ga_elig_case_budg_pers_needs_payment_standard = trim(ga_elig_case_budg_pers_needs_payment_standard)
+		ga_elig_case_budg_pers_needs_payment_subtotal = trim(ga_elig_case_budg_pers_needs_payment_subtotal)
+		ga_elig_case_budg_pers_needs_prorated_from = trim(ga_elig_case_budg_pers_needs_prorated_from)
+		ga_elig_case_budg_pers_needs_prorated_to = trim(ga_elig_case_budg_pers_needs_prorated_to)
+		ga_elig_case_budg_pers_needs_grant_subtotal = trim(ga_elig_case_budg_pers_needs_grant_subtotal)
+		ga_elig_case_budg_total_ga_grant_amount = trim(ga_elig_case_budg_total_ga_grant_amount)
+
+		If ga_elig_case_budg_prorated_from <> "" Then
+			ga_elig_case_budg_prorated_from = replace(ga_elig_case_budg_prorated_from, " ", "/")
+			ga_elig_case_budg_prorated_from = ga_elig_case_budg_prorated_from & "/" & elig_footer_year
+		End If
+		If ga_elig_case_budg_prorated_to <> "" Then
+			ga_elig_case_budg_prorated_to = replace(ga_elig_case_budg_prorated_to, " ", "/")
+			ga_elig_case_budg_prorated_to = ga_elig_case_budg_prorated_to & "/" & elig_footer_year
+		End If
+		If ga_elig_case_budg_pers_needs_prorated_from <> "" Then
+			ga_elig_case_budg_pers_needs_prorated_from = replace(ga_elig_case_budg_pers_needs_prorated_from, " ", "/")
+			ga_elig_case_budg_pers_needs_prorated_from = ga_elig_case_budg_pers_needs_prorated_from & "/" & elig_footer_year
+		End If
+		If ga_elig_case_budg_pers_needs_prorated_to <> "" Then
+			ga_elig_case_budg_pers_needs_prorated_to = replace(ga_elig_case_budg_pers_needs_prorated_to, " ", "/")
+			ga_elig_case_budg_pers_needs_prorated_to = ga_elig_case_budg_pers_needs_prorated_to & "/" & elig_footer_year
+		End If
+
+		transmit 		'going to the next panel - GASM
+
+		EMReadScreen ga_elig_summ_approved_date, 8, 3, 15
+		EMReadScreen ga_elig_summ_process_date, 8, 2, 73
+		EMReadScreen ga_elig_summ_date_last_approval, 8, 5, 32
+		EMReadScreen ga_elig_summ_curr_prog_status, 12, 6, 32
+		EMReadScreen ga_elig_summ_eligibility_result, 12, 7, 32
+		EMReadScreen ga_elig_summ_hrf_reporting, 12, 8, 32
+		EMReadScreen ga_elig_summ_source_of_info, 4, 9, 32
+		EMReadScreen ga_elig_summ_eligibility_begin_date, 8, 10, 32
+		EMReadScreen ga_elig_summ_eligiblity_review_date, 8, 11, 32
+		EMReadScreen ga_elig_summ_budget_cycle, 5, 12, 32
+		EMReadScreen ga_elig_summ_filing_unit_type_code, 1, 13, 32
+		EMReadScreen ga_elig_summ_faci_unit_type_code, 1, 14, 32
+		EMReadScreen ga_elig_summ_responsible_county, 2, 15, 32
+		EMReadScreen ga_elig_summ_vendor_reason_code, 2, 16, 323
+
+		EMReadScreen ga_elig_summ_total_assets, 10, 5, 71
+		EMReadScreen ga_elig_summ_client_faci_obligation, 10, 6, 71
+		EMReadScreen ga_elig_summ_standards, 10, 7, 71
+		EMReadScreen ga_elig_summ_counted_income, 10, 8, 71
+		EMReadScreen ga_elig_summ_monthly_grant, 10, 9, 71
+		EMReadScreen ga_elig_summ_amount_to_be_paid, 10, 14, 71
+		EMReadScreen ga_elig_summ_action_code, 1, 15, 53
+		EMReadScreen ga_elig_summ_reason_code, 2, 16, 53
+
+		EMReadScreen ga_elig_summ_worker_message, 80, 19, 1
+
+		ga_elig_summ_curr_prog_status = trim(ga_elig_summ_curr_prog_status)
+		ga_elig_summ_eligibility_result = trim(ga_elig_summ_eligibility_result)
+		ga_elig_summ_hrf_reporting = trim(ga_elig_summ_hrf_reporting)
+
+		If ga_elig_summ_filing_unit_type_code = "1" Then ga_elig_summ_filing_unit_type_info = "Single Adult"
+		If ga_elig_summ_filing_unit_type_code = "2" Then ga_elig_summ_filing_unit_type_info = "Single Adult Lv W/ Parents"
+		If ga_elig_summ_filing_unit_type_code = "3" Then ga_elig_summ_filing_unit_type_info = "Minor Child Outside Home"
+		If ga_elig_summ_filing_unit_type_code = "6" Then ga_elig_summ_filing_unit_type_info = "Married Couple"
+		If ga_elig_summ_filing_unit_type_code = "9" Then ga_elig_summ_filing_unit_type_info = "Family State Food Program"
+
+		If ga_elig_summ_faci_unit_type_code = "5" Then ga_elig_summ_faci_unit_type_info = "Personal Needs"
+
+		If ga_elig_summ_vendor_reason_code = "01" Then ga_elig_summ_vendor_reason_info = "Client Request"
+		If ga_elig_summ_vendor_reason_code = "05" Then ga_elig_summ_vendor_reason_info = "Money Mismanagement"
+		If ga_elig_summ_vendor_reason_code = "09" Then ga_elig_summ_vendor_reason_info = "Emergency"
+		If ga_elig_summ_vendor_reason_code = "10" Then ga_elig_summ_vendor_reason_info = "Chemical Dependency"
+		If ga_elig_summ_vendor_reason_code = "11" Then ga_elig_summ_vendor_reason_info = "No Residence"
+		If ga_elig_summ_vendor_reason_code = "20" Then ga_elig_summ_vendor_reason_info = "Grant Diversion"
+
+
+		ga_elig_summ_total_assets = trim(ga_elig_summ_total_assets)
+		ga_elig_summ_client_faci_obligation = trim(ga_elig_summ_client_faci_obligation)
+		ga_elig_summ_standards = trim(ga_elig_summ_standards)
+		ga_elig_summ_counted_income = trim(ga_elig_summ_counted_income)
+		ga_elig_summ_monthly_grant = trim(ga_elig_summ_monthly_grant)
+		ga_elig_summ_amount_to_be_paid = trim(ga_elig_summ_amount_to_be_paid)
+
+		If ga_elig_summ_action_code = "1" Then ga_elig_summ_action_info = "Open"
+		If ga_elig_summ_action_code = "2" Then ga_elig_summ_action_info = "Suspend"
+		If ga_elig_summ_action_code = "3" Then ga_elig_summ_action_info = "Unsuspend"
+		If ga_elig_summ_action_code = "4" Then ga_elig_summ_action_info = "Review - Grant Change"
+		If ga_elig_summ_action_code = "5" Then ga_elig_summ_action_info = "Close"
+		If ga_elig_summ_action_code = "7" Then ga_elig_summ_action_info = "Grant Change - Chng Reported"
+		If ga_elig_summ_action_code = "8" Then ga_elig_summ_action_info = "Review - No Grant Chng"
+		If ga_elig_summ_action_code = "9" Then ga_elig_summ_action_info = "No Grant Chng - Chng Reported"
+		If ga_elig_summ_action_code = "0" Then ga_elig_summ_action_info = "STAT Change - No Notice Rqrd"
+		If ga_elig_summ_action_code = "C" Then ga_elig_summ_action_info = "Reinstate Closed Case"
+
+		If ga_elig_summ_reason_code = "01" Then ga_elig_summ_reason_info = "Earned Income Increased"
+		If ga_elig_summ_reason_code = "02" Then ga_elig_summ_reason_info = "Earned Income Decreased"
+		If ga_elig_summ_reason_code = "03" Then ga_elig_summ_reason_info = "Unearned Income Increased"
+		If ga_elig_summ_reason_code = "04" Then ga_elig_summ_reason_info = "Unearned Income Decreased"
+		If ga_elig_summ_reason_code = "05" Then ga_elig_summ_reason_info = "Expenses/Deductions Increased"
+		If ga_elig_summ_reason_code = "06" Then ga_elig_summ_reason_info = "Expenses/Deductions Decr"
+		If ga_elig_summ_reason_code = "08" Then ga_elig_summ_reason_info = "No Proof Given"
+		If ga_elig_summ_reason_code = "09" Then ga_elig_summ_reason_info = "Did Not Return Review Form"
+		If ga_elig_summ_reason_code = "10" Then ga_elig_summ_reason_info = "Non Coop With GA Rules"
+		If ga_elig_summ_reason_code = "12" Then ga_elig_summ_reason_info = "Must Apply For Other Benefit"
+		If ga_elig_summ_reason_code = "14" Then ga_elig_summ_reason_info = "Not At Given Address"
+		If ga_elig_summ_reason_code = "16" Then ga_elig_summ_reason_info = "Request Close"
+		If ga_elig_summ_reason_code = "17" Then ga_elig_summ_reason_info = "Eligibility For Other Cash Program"
+		If ga_elig_summ_reason_code = "18" Then ga_elig_summ_reason_info = "Non State Resident"
+		If ga_elig_summ_reason_code = "19" Then ga_elig_summ_reason_info = "Client Died"
+		If ga_elig_summ_reason_code = "20" Then ga_elig_summ_reason_info = "Household Member Died"
+		If ga_elig_summ_reason_code = "22" Then ga_elig_summ_reason_info = "Excess Income"
+		If ga_elig_summ_reason_code = "23" Then ga_elig_summ_reason_info = "Assets over the GA Limit"
+		If ga_elig_summ_reason_code = "24" Then ga_elig_summ_reason_info = "Tranfer of Assets - No GA Eligiblity"
+		If ga_elig_summ_reason_code = "27" Then ga_elig_summ_reason_info = "Fail To Sign Interim Assistance Agreemnt"
+		If ga_elig_summ_reason_code = "28" Then ga_elig_summ_reason_info = "Program Reqquirements Have Been Met"
+		If ga_elig_summ_reason_code = "30" Then ga_elig_summ_reason_info = "Household Size Change"
+		If ga_elig_summ_reason_code = "31" Then ga_elig_summ_reason_info = "Review - No Change"
+		If ga_elig_summ_reason_code = "32" Then ga_elig_summ_reason_info = "Begin Recoupment"
+		If ga_elig_summ_reason_code = "33" Then ga_elig_summ_reason_info = "Change Recoupment"
+		If ga_elig_summ_reason_code = "34" Then ga_elig_summ_reason_info = "End Recoupment"
+		If ga_elig_summ_reason_code = "35" Then ga_elig_summ_reason_info = "New GA Basis Of Eligiblity"
+		If ga_elig_summ_reason_code = "36" Then ga_elig_summ_reason_info = "Add/Change/Delete Vendor"
+		If ga_elig_summ_reason_code = "39" Then ga_elig_summ_reason_info = "Person In/Out Facility"
+		If ga_elig_summ_reason_code = "49" Then ga_elig_summ_reason_info = "No HRF"
+		If ga_elig_summ_reason_code = "51" Then ga_elig_summ_reason_info = "Under Control Of Penal System"
+		If ga_elig_summ_reason_code = "52" Then ga_elig_summ_reason_info = "Court Order Mitchell et al"
+		If ga_elig_summ_reason_code = "54" Then ga_elig_summ_reason_info = "Not a GRH Facility"
+		If ga_elig_summ_reason_code = "57" Then ga_elig_summ_reason_info = "Undocumented/Inelig Imig"
+		If ga_elig_summ_reason_code = "59" Then ga_elig_summ_reason_info = "Imig-status not ver"
+		If ga_elig_summ_reason_code = "61" Then ga_elig_summ_reason_info = "No GA Basis or Spouse w/none"
+		If ga_elig_summ_reason_code = "62" Then ga_elig_summ_reason_info = "Lump Sum Payment"
+		If ga_elig_summ_reason_code = "63" Then ga_elig_summ_reason_info = "Disqualified/Lump Sum"
+		If ga_elig_summ_reason_code = "64" Then ga_elig_summ_reason_info = "Failed provide or apply SSN"
+		If ga_elig_summ_reason_code = "66" Then ga_elig_summ_reason_info = "Eligible State wide MFIP"
+		If ga_elig_summ_reason_code = "96" Then ga_elig_summ_reason_info = "April 2010 Legislation"
+		If ga_elig_summ_reason_code = "97" Then ga_elig_summ_reason_info = "GRH Mass Change"
+		If ga_elig_summ_reason_code = "98" Then ga_elig_summ_reason_info = "PNA Mass Change"
+
+		ga_elig_summ_worker_message = trim(ga_elig_summ_worker_message)
+
+
+		Call back_to_SELF
+	end sub
 end class
 
 'Constants
@@ -1858,6 +2644,30 @@ const last_const = 50
 Dim HH_MEMB_ARRAY()
 ReDim HH_MEMB_ARRAY(last_const, 0)
 
+Dim DWP_ELIG_APPROVALS()
+ReDim DWP_ELIG_APPROVALS(0)
+
+Dim MFIP_ELIG_APPROVALS()
+ReDim MFIP_ELIG_APPROVALS(0)
+
+Dim MSA_ELIG_APPROVALS()
+ReDim MSA_ELIG_APPROVALS(0)
+
+Dim GA_ELIG_APPROVALS()
+ReDim GA_ELIG_APPROVALS(0)
+
+Dim CASH_DENIAL_APPROVALS()
+ReDim CASH_DENIAL_APPROVALS(0)
+
+Dim GRH_ELIG_APPROVALS()
+ReDim GRH_ELIG_APPROVALS(0)
+
+Dim IVE_ELIG_APPROVALS()
+ReDim IVE_ELIG_APPROVALS(0)
+
+Dim EMER_ELIG_APPROVALS()
+ReDim EMER_ELIG_APPROVALS(0)
+
 Dim SNAP_ELIG_APPROVALS()
 ReDim SNAP_ELIG_APPROVALS(0)
 
@@ -1904,6 +2714,14 @@ Loop until are_we_passworded_out = False
 
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
+dwp_elig_months_count = 0
+mfip_elig_months_count = 0
+msa_elig_months_count = 0
+ga_elig_months_count = 0
+cash_deny_months_count = 0
+grh_elig_months_count = 0
+ive_elig_months_count = 0
+emer_elig_months_count = 0
 snap_elig_months_count = 0
 
 For each footer_month in MONTHS_ARRAY
@@ -1912,9 +2730,38 @@ For each footer_month in MONTHS_ARRAY
 
 	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 
-	EMReadScreen numb_SNAP_versions, 1, 17, 40
+	' EMReadScreen numb_DWP_versions, 		1, 7, 40
+	EMReadScreen numb_MFIP_versions, 		1, 8, 40
+	' EMReadScreen numb_MSA_versions, 		1, 11, 40
+	' EMReadScreen numb_GA_versions, 			1, 12, 40
+	' EMReadScreen numb_CASH_denial_versions, 1, 13, 40
+	' EMReadScreen numb_GRH_versions, 		1, 14, 40
+	' EMReadScreen numb_IVE_versions, 		1, 15, 40
+	' EMReadScreen numb_EMER_versions, 		1, 16, 40
+	EMReadScreen numb_SNAP_versions, 		1, 17, 40
+
 	' MsgBox "numb_SNAP_versions - " & numb_SNAP_versions
 	'TODO MAKE THIS READ THE DATE AND COMPARE TO TODAY
+
+	If numb_MFIP_versions <> " " Then
+		ReDim Preserve MFIP_ELIG_APPROVALS(mfip_elig_months_count)
+		Set MFIP_ELIG_APPROVALS(mfip_elig_months_count) = new mfip_eligibility_detial
+
+		MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month = MAXIS_footer_month
+		MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year = MAXIS_footer_year
+
+		Call MFIP_ELIG_APPROVALS(mfip_elig_months_count).read_elig
+
+		' MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
+
+		mfip_elig_months_count = mfip_elig_months_count + 1
+	End If
+
 	If numb_SNAP_versions <> " " Then
 		ReDim Preserve SNAP_ELIG_APPROVALS(snap_elig_months_count)
 		Set SNAP_ELIG_APPROVALS(snap_elig_months_count) = new snap_eligibility_detail
@@ -1928,6 +2775,8 @@ For each footer_month in MONTHS_ARRAY
 
 		snap_elig_months_count = snap_elig_months_count + 1
 	End If
+
+
 
 	Call back_to_SELF
 Next
