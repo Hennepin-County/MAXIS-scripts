@@ -64,134 +64,6 @@ function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, versi
 end function
 
 
-function read_MFIP_elig(footer_month, footer_year)
-	call navigate_to_MAXIS_screen("ELIG", "MFIP")
-	Call find_last_approved_ELIG_version(20, 79, version_number, version_date, elig_result)
-
-	row = 7
-	Do
-		EMReadScreen ref_numb, 2, row, 6
-		If ref_numb <> "  " Then
-			EMReadScreen request_yn, 1, row, 32
-			EMReadScreen memb_code, 1, row, 36
-			EMReadScreen memb_count, 11, row, 41
-			EMReadScreen memb_elig, 10, row, 53
-			EMReadScreen memb_begin_date, 8, row, 67
-			EMReadScreen memb_budg_cycle, 1, row, 78
-
-			Call write_value_and_transmit("X", row, 3)
-			EMReadScreen memb_absence, 			6, 7, 17
-			EMReadScreen memb_child_age, 		6, 8, 17
-			EMReadScreen memb_citizenship, 		6, 9, 17
-			EMReadScreen memb_citizenship_ver, 	6, 10, 17
-			EMReadScreen memb_dupl_assist, 		6, 11, 17
-			EMReadScreen memb_fost_care, 		6, 12, 17
-			EMReadScreen memb_fraud, 			6, 13, 17
-			EMReadScreen memb_disq, 			6, 17, 17
-
-			EMReadScreen memb_minor_living, 	6, 7, 52
-			EMReadScreen memb_post_60, 			6, 8, 52
-			EMReadScreen memb_ssi, 				6, 9, 52
-			EMReadScreen memb_ssn_coop, 		6, 10, 52
-			EMReadScreen memb_unit_memb, 		6, 11, 52
-			EMReadScreen memb_unlawful_conduct, 6, 12, 52
-			EMReadScreen memb_fs_recvd, 		6, 17, 52
-			transmit
-
-			Call write_value_and_transmit("X", row, 64)
-			EMReadScreen memb_es_status_code, 2, 9, 22
-			EMReadScreen memb_es_status_info, 30, 9, 25
-			transmit
-
-		End If
-
-		row = row + 1
-		EMReadScreen next_ref_numb, 2, row, 6
-	Loop until next_ref_numb = "  "
-
-
-	Call Back_to_SELF
-end Function
-
-
-function read_DWP_elig(footer_month, footer_year)
-	call navigate_to_MAXIS_screen("ELIG", "DWP ")
-
-
-
-	Call Back_to_SELF
-end Function
-
-
-function read_GA_elig(footer_month, footer_year)
-	call navigate_to_MAXIS_screen("ELIG", "GA  ")
-
-
-
-	Call Back_to_SELF
-end Function
-
-function read_MSA_elig(footer_month, footer_year)
-	call navigate_to_MAXIS_screen("ELIG", "MSA ")
-
-
-
-	Call Back_to_SELF
-end Function
-
-function read_GRH_elig(footer_month, footer_year)
-	call navigate_to_MAXIS_screen("ELIG", "GRH ")
-
-
-
-	Call Back_to_SELF
-end Function
-
-function read_MA_elig(footer_month, footer_year)
-	call navigate_to_MAXIS_screen("ELIG", "HC  ")
-
-
-
-	Call Back_to_SELF
-end Function
-
-function read_MSP_elig(footer_month, footer_year)
-	call navigate_to_MAXIS_screen("ELIG", "HC  ")
-
-
-
-	Call Back_to_SELF
-end Function
-
-function read_EMER_elig(footer_month, footer_year)
-	call navigate_to_MAXIS_screen("ELIG", "EMER")
-
-
-
-	Call Back_to_SELF
-end Function
-
-function read_CASH_elig(footer_month, footer_year)
-	call navigate_to_MAXIS_screen("ELIG", "DENY")
-
-
-
-	Call Back_to_SELF
-end Function
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 'DECLARATIONS===============================================================================================================
@@ -814,7 +686,7 @@ class snap_eligibility_detail
 end class
 
 
-class mfip_eligibility_detial
+class mfip_eligibility_detail
 	public elig_footer_month
 	public elig_footer_year
 	public elig_version_number
@@ -2051,7 +1923,7 @@ class mfip_eligibility_detial
 
 end class
 
-class msa_eligibility_detial
+class msa_eligibility_detail
 	public elig_footer_month
 	public elig_footer_year
 	public elig_version_number
@@ -2143,7 +2015,6 @@ class msa_eligibility_detial
 
 	public msa_elig_budg_ssi_standard_fbr
 	public msa_elig_budg_standard_disregard
-
 	public msa_elig_budg_unearned_income
 	public msa_elig_budg_deemed_income
 	public msa_elig_budg_net_unearned_income
@@ -2153,8 +2024,6 @@ class msa_eligibility_detial
 	public msa_elig_budg_spec_standard_type_code()
 	public msa_elig_budg_spec_standard_type_info()
 	public msa_elig_budg_spec_standard_amount()
-	public msa_elig_budg_spec_standard_
-	public msa_elig_budg_spec_standard_
 
 	public msa_elig_budg_need_standard
 	public msa_elig_budg_net_income
@@ -2170,13 +2039,34 @@ class msa_eligibility_detial
 	public msa_elig_budg_special_needs
 	public msa_elig_budg_household_total_needs
 
-
+	public msa_elig_summ_approved_date
+	public msa_elig_summ_process_date
+	public msa_elig_summ_date_last_approval
+	public msa_elig_summ_curr_prog_status
+	public msa_elig_summ_eligibility_result
+	public msa_elig_summ_reporting_status
+	public msa_elig_summ_source_of_info
+	public msa_elig_summ_benefit
+	public msa_elig_summ_recertification_date
+	public msa_elig_summ_budget_cycle
+	public msa_elig_summ_eligible_houshold_members
+	public msa_elig_summ_shared_houshold
+	public msa_elig_summ_vendor_reason_code
+	public msa_elig_summ_vendor_reason_info
+	public msa_elig_summ_responsible_county
+	public msa_elig_summ_servicing_county
+	public msa_elig_summ_total_assets
+	public msa_elig_summ_maximum_assets
+	public msa_elig_summ_grant
+	public msa_elig_summ_current_payment
+	public msa_elig_summ_worker_message
 
 	public sub read_elig()
+
 		call navigate_to_MAXIS_screen("ELIG", "MSA ")
-		EMWriteScreen elig_footer_month, 20, 54
-		EMWriteScreen elig_footer_year, 20, 57
-		Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result)
+		EMWriteScreen elig_footer_month, 20, 56
+		EMWriteScreen elig_footer_year, 20, 59
+		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result)
 
 		ReDim msa_elig_ref_numbs(0)
 		ReDim msa_elig_membs_full_name(0)
@@ -2210,6 +2100,13 @@ class msa_eligibility_detial
 		ReDim msa_elig_membs_test_verif_date_of_birth(0)
 		ReDim msa_elig_membs_test_verif_disability(0)
 		ReDim msa_elig_membs_test_verif_ssi(0)
+		ReDim msa_elig_budg_memb_special_needs_total(0)
+
+
+		ReDim msa_elig_budg_spec_standard_ref_numb(0)
+		ReDim msa_elig_budg_spec_standard_type_code(0)
+		ReDim msa_elig_budg_spec_standard_type_info(0)
+		ReDim msa_elig_budg_spec_standard_amount(0)
 
 		elig_memb_count = 0
 		msa_row = 7
@@ -2248,6 +2145,7 @@ class msa_eligibility_detial
 			ReDim preserve msa_elig_membs_test_verif_date_of_birth(elig_memb_count)
 			ReDim preserve msa_elig_membs_test_verif_disability(elig_memb_count)
 			ReDim preserve msa_elig_membs_test_verif_ssi(elig_memb_count)
+			ReDim preserve msa_elig_budg_memb_special_needs_total(elig_memb_count)
 
 			msa_elig_ref_numbs(elig_memb_count) = ref_numb
 
@@ -2357,9 +2255,8 @@ class msa_eligibility_detial
 
 			msa_row = msa_row + 1
 			elig_memb_count = elig_memb_count + 1
-			EMReadScreen next_ref_numb, 2, ga_row, 5
+			EMReadScreen next_ref_numb, 2, msa_row, 5
 		Loop until next_ref_numb = "  "
-
 		transmit 		'going to the next panel - MSCR
 
 		EMReadScreen msa_elig_case_test_applicant_eligible, 	6, 6, 7
@@ -2408,7 +2305,7 @@ class msa_eligibility_detial
 
 			EMReadScreen msa_elig_case_test_prosp_total_gross_income, 			9, 13, 55
 			EMReadScreen msa_elig_case_test_prosp_gross_ssi_need_standard, 		9, 14, 55
-			EMReadScreen msa_elig_case_test_prosp_gross_ssi_standard_multiplier 1, 15, 63
+			EMReadScreen msa_elig_case_test_prosp_gross_ssi_standard_multiplier, 1, 15, 63
 			EMReadScreen msa_elig_case_test_prosp_gross_income_limit, 			9, 16, 55
 
 
@@ -2473,65 +2370,8 @@ class msa_eligibility_detial
 			EMReadScreen msa_elig_budg_ssi_standard_fbr, 	9, 6, 32
 			EMReadScreen msa_elig_budg_standard_disregard, 	9, 7, 32
 
-
-			EMReadScreen msa_elig_budg_need_standard, 			9, 6, 72
-			EMReadScreen msa_elig_budg_net_income, 				9, 7, 72
-			EMReadScreen msa_elig_budg_msa_grant, 				9, 8, 72
-
-			EMReadScreen msa_elig_budg_amount_already_issued, 	9, 11, 72
-			EMReadScreen msa_elig_budg_supplement_due, 			9, 12, 72
-			EMReadScreen msa_elig_budg_overpayment, 			9, 13, 72
-
-			EMReadScreen msa_elig_budg_adjusted_grant_amount, 	9, 15, 72
-			EMReadScreen msa_elig_budg_recoupment, 				9, 16, 72
-			EMReadScreen msa_elig_budg_current_payment, 		9, 17, 72
-
 			msa_elig_budg_ssi_standard_fbr = trim(msa_elig_budg_ssi_standard_fbr)
 			msa_elig_budg_standard_disregard = trim(msa_elig_budg_standard_disregard)
-
-			msa_elig_budg_need_standard = trim(msa_elig_budg_need_standard)
-			msa_elig_budg_net_income = trim(msa_elig_budg_net_income)
-			msa_elig_budg_msa_grant = trim(msa_elig_budg_msa_grant)
-
-			msa_elig_budg_amount_already_issued = trim(msa_elig_budg_amount_already_issued)
-			msa_elig_budg_supplement_due = trim(msa_elig_budg_supplement_due)
-			msa_elig_budg_overpayment = trim(msa_elig_budg_overpayment)
-
-			msa_elig_budg_adjusted_grant_amount = trim(msa_elig_budg_adjusted_grant_amount)
-			msa_elig_budg_recoupment = trim(msa_elig_budg_recoupment)
-			msa_elig_budg_current_payment = trim(msa_elig_budg_current_payment)
-
-
-			Call write_value_and_transmit("X", 6, 43)
-			EMReadScreen msa_elig_budg_basic_needs_assistance_standard, 10, 16, 59
-			EMReadScreen msa_elig_budg_special_needs, 					10, 17, 59
-			EMReadScreen msa_elig_budg_household_total_needs, 			10, 18, 59
-
-			msa_elig_budg_basic_needs_assistance_standard = trim(msa_elig_budg_basic_needs_assistance_standard)
-			msa_elig_budg_special_needs = trim(msa_elig_budg_special_needs)
-			msa_elig_budg_household_total_needs = trim(msa_elig_budg_household_total_needs)
-
-			msa_col = 6
-			For msa_col = 6 to 42 step 36
-				EMReadScreen ref_numb, 2, 5, msa_col+9
-				If ref_numb <> "  " Then
-					EMReadScreen amount_total, 8, 15, msa_col+26
-
-					EMReadScreen info_code, 2, 8, msa_col
-					Do while info_code <> "__"
-						ReDim preserve
-
-						msa_row = msa_row + 1
-						EMReadScreen info_code, 2, msa_row, msa_col
-					Loop
-				End If
-			Next
-
-
-
-			msa_elig_budg_memb_special_needs_total
-
-			transmit
 		End If
 
 		If msa_elig_case_budg_type = "Non-SSI TYPE" Then
@@ -2616,15 +2456,145 @@ class msa_eligibility_detial
 					End If
 				Next
 			End if
-
 			transmit
 		End If
+
+		EMReadScreen msa_elig_budg_need_standard, 			9, 6, 72
+		EMReadScreen msa_elig_budg_net_income, 				9, 7, 72
+		EMReadScreen msa_elig_budg_msa_grant, 				9, 8, 72
+
+		EMReadScreen msa_elig_budg_amount_already_issued, 	9, 11, 72
+		EMReadScreen msa_elig_budg_supplement_due, 			9, 12, 72
+		EMReadScreen msa_elig_budg_overpayment, 			9, 13, 72
+
+		EMReadScreen msa_elig_budg_adjusted_grant_amount, 	9, 15, 72
+		EMReadScreen msa_elig_budg_recoupment, 				9, 16, 72
+		EMReadScreen msa_elig_budg_current_payment, 		9, 17, 72
+
+		msa_elig_budg_need_standard = trim(msa_elig_budg_need_standard)
+		msa_elig_budg_net_income = trim(msa_elig_budg_net_income)
+		msa_elig_budg_msa_grant = trim(msa_elig_budg_msa_grant)
+
+		msa_elig_budg_amount_already_issued = trim(msa_elig_budg_amount_already_issued)
+		msa_elig_budg_supplement_due = trim(msa_elig_budg_supplement_due)
+		msa_elig_budg_overpayment = trim(msa_elig_budg_overpayment)
+
+		msa_elig_budg_adjusted_grant_amount = trim(msa_elig_budg_adjusted_grant_amount)
+		msa_elig_budg_recoupment = trim(msa_elig_budg_recoupment)
+		msa_elig_budg_current_payment = trim(msa_elig_budg_current_payment)
+
+
+		Call write_value_and_transmit("X", 6, 43)
+		EMReadScreen msa_elig_budg_basic_needs_assistance_standard, 10, 16, 59
+		EMReadScreen msa_elig_budg_special_needs, 					10, 17, 59
+		EMReadScreen msa_elig_budg_household_total_needs, 			10, 18, 59
+
+		msa_elig_budg_basic_needs_assistance_standard = trim(msa_elig_budg_basic_needs_assistance_standard)
+		msa_elig_budg_special_needs = trim(msa_elig_budg_special_needs)
+		msa_elig_budg_household_total_needs = trim(msa_elig_budg_household_total_needs)
+
+		msa_col = 6
+		spec_needs_count = 0
+		For msa_col = 6 to 42 step 36
+			EMReadScreen ref_numb, 2, 5, msa_col+9
+			If ref_numb <> "  " Then
+				For msa_membs = 0 to UBound(msa_elig_ref_numbs)
+					If msa_elig_ref_numbs(msa_membs) = ref_numb Then
+						EMReadScreen amount_total, 8, 15, msa_col+26
+						msa_elig_budg_memb_special_needs_total(msa_membs) = amount_total
+					End If
+				Next
+
+				EMReadScreen info_code, 2, 8, msa_col
+				Do while info_code <> "__"
+					ReDim preserve msa_elig_budg_spec_standard_ref_numb(spec_needs_count)
+					ReDim preserve msa_elig_budg_spec_standard_type_code(spec_needs_count)
+					ReDim preserve msa_elig_budg_spec_standard_type_info(spec_needs_count)
+					ReDim preserve msa_elig_budg_spec_standard_amount(spec_needs_count)
+
+					msa_elig_budg_spec_standard_ref_numb(spec_needs_count) = ref_numb
+					msa_elig_budg_spec_standard_type_code(spec_needs_count) = info_code
+					If info_code = "" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = ""
+					If info_code = "01" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - High Protein > 79 Gr/Day"
+					If info_code = "02" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - Control Protein 40-60 GR/DAY"
+					If info_code = "03" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - Control Protein < 40 GR/DAY"
+					If info_code = "04" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - Low Cholesterol"
+					If info_code = "05" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - High Residue"
+					If info_code = "06" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - Pregnancy and Lactation"
+					If info_code = "07" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - Gluten Free"
+					If info_code = "08" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - Lactose Free"
+					If info_code = "09" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - Anti Dumping"
+					If info_code = "10" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - Hypoglycemic"
+					If info_code = "11" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "DIET - Ketogenic"
+					If info_code = "RP" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "Representative Payee"
+					If info_code = "GF" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "Guardianship Fee Max"
+					If info_code = "SN" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "Shelter Need"
+					If info_code = "RM" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "Restaurant Meals"
+					If info_code = "EN" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "Excess Need"
+					If info_code = "OT" Then msa_elig_budg_spec_standard_type_info(spec_needs_count) = "Other Need"
+
+					EMReadScreen msa_elig_budg_spec_standard_amount(spec_needs_count), 8, msa_row, msa_col+26
+					msa_elig_budg_spec_standard_amount(spec_needs_count) = trim(msa_elig_budg_spec_standard_amount(spec_needs_count))
+
+					msa_row = msa_row + 1
+					If msa_row = 14 Then MsgBox "MORE THAN SIX?"
+					spec_needs_count = spec_needs_count + 1
+					EMReadScreen info_code, 2, msa_row, msa_col
+				Loop
+			End If
+		Next
+		transmit
+
+		transmit 		'going to the next panel - MSSM
+
+		EMReadScreen msa_elig_summ_approved_date, 8, 3, 14
+		EMReadScreen msa_elig_summ_process_date, 8, 2, 72
+		EMReadScreen msa_elig_summ_date_last_approval, 8, 5, 29
+		EMReadScreen msa_elig_summ_curr_prog_status, 12, 6, 29
+		EMReadScreen msa_elig_summ_eligibility_result, 12, 7, 29
+		EMReadScreen msa_elig_summ_reporting_status, 12, 8, 29
+		EMReadScreen msa_elig_summ_source_of_info, 4, 10, 29
+		EMReadScreen msa_elig_summ_benefit, 12, 11, 29
+		EMReadScreen msa_elig_summ_recertification_date, 8, 12, 29
+		EMReadScreen msa_elig_summ_budget_cycle, 5, 13, 29
+		EMReadScreen msa_elig_summ_eligible_houshold_members, 1, 14, 29
+		EMReadScreen msa_elig_summ_shared_houshold, 3, 15, 29
+		EMReadScreen msa_elig_summ_vendor_reason_code, 2, 16, 18
+
+		EMReadScreen msa_elig_summ_responsible_county, 2, 5, 73
+		EMReadScreen msa_elig_summ_servicing_county, 2, 6, 73
+		EMReadScreen msa_elig_summ_total_assets, 9, 7, 72
+		EMReadScreen msa_elig_summ_maximum_assets, 9, 8, 72
+		EMReadScreen msa_elig_summ_grant, 9, 11, 72
+		EMReadScreen msa_elig_summ_current_payment, 9, 17, 72
+
+		EMReadScreen msa_elig_summ_worker_message, 80, 18, 1
+
+		msa_elig_summ_curr_prog_status = trim(msa_elig_summ_curr_prog_status)
+		msa_elig_summ_eligibility_result = trim(msa_elig_summ_eligibility_result)
+		msa_elig_summ_reporting_status = trim(msa_elig_summ_reporting_status)
+		msa_elig_summ_benefit = trim(msa_elig_summ_benefit)
+		msa_elig_summ_shared_houshold = trim(msa_elig_summ_shared_houshold)
+
+		If msa_elig_summ_vendor_reason_code = "01" Then msa_elig_summ_vendor_reason_info = "Client Request"
+		If msa_elig_summ_vendor_reason_code = "05" Then msa_elig_summ_vendor_reason_info = "Money Mismanagement"
+		If msa_elig_summ_vendor_reason_code = "09" Then msa_elig_summ_vendor_reason_info = "Emergency"
+		If msa_elig_summ_vendor_reason_code = "10" Then msa_elig_summ_vendor_reason_info = "Chemical Dependency"
+		If msa_elig_summ_vendor_reason_code = "11" Then msa_elig_summ_vendor_reason_info = "No Residence"
+		If msa_elig_summ_vendor_reason_code = "20" Then msa_elig_summ_vendor_reason_info = "Grant Diversion"
+
+		msa_elig_summ_total_assets = trim(msa_elig_summ_total_assets)
+		msa_elig_summ_maximum_assets = trim(msa_elig_summ_maximum_assets)
+		msa_elig_summ_grant = trim(msa_elig_summ_grant)
+		msa_elig_summ_current_payment = trim(msa_elig_summ_current_payment)
+
+		msa_elig_summ_worker_message = trim(msa_elig_summ_worker_message)
 
 		Call back_to_SELF
 	end sub
 end class
 
-class ga_eligibility_detial
+class ga_eligibility_detail
 	public elig_footer_month
 	public elig_footer_year
 	public elig_version_number
@@ -3061,7 +3031,7 @@ class ga_eligibility_detial
 		EMReadScreen ga_elig_summ_filing_unit_type_code, 1, 13, 32
 		EMReadScreen ga_elig_summ_faci_unit_type_code, 1, 14, 32
 		EMReadScreen ga_elig_summ_responsible_county, 2, 15, 32
-		EMReadScreen ga_elig_summ_vendor_reason_code, 2, 16, 323
+		EMReadScreen ga_elig_summ_vendor_reason_code, 2, 16, 32
 
 		EMReadScreen ga_elig_summ_total_assets, 10, 5, 71
 		EMReadScreen ga_elig_summ_client_faci_obligation, 10, 6, 71
@@ -3304,7 +3274,7 @@ For each footer_month in MONTHS_ARRAY
 
 	' EMReadScreen numb_DWP_versions, 		1, 7, 40
 	EMReadScreen numb_MFIP_versions, 		1, 8, 40
-	' EMReadScreen numb_MSA_versions, 		1, 11, 40
+	EMReadScreen numb_MSA_versions, 		1, 11, 40
 	EMReadScreen numb_GA_versions, 			1, 12, 40
 	' EMReadScreen numb_CASH_denial_versions, 1, 13, 40
 	' EMReadScreen numb_GRH_versions, 		1, 14, 40
@@ -3317,7 +3287,7 @@ For each footer_month in MONTHS_ARRAY
 
 	If numb_MFIP_versions <> " " Then
 		ReDim Preserve MFIP_ELIG_APPROVALS(mfip_elig_months_count)
-		Set MFIP_ELIG_APPROVALS(mfip_elig_months_count) = new mfip_eligibility_detial
+		Set MFIP_ELIG_APPROVALS(mfip_elig_months_count) = new mfip_eligibility_detail
 
 		MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month = MAXIS_footer_month
 		MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year = MAXIS_footer_year
@@ -3334,9 +3304,25 @@ For each footer_month in MONTHS_ARRAY
 		mfip_elig_months_count = mfip_elig_months_count + 1
 	End If
 
+	If numb_MSA_versions <> " " Then
+		ReDim Preserve MSA_ELIG_APPROVALS(msa_elig_months_count)
+		Set MSA_ELIG_APPROVALS(msa_elig_months_count) = new msa_eligibility_detail
+
+		MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month = MAXIS_footer_month
+		MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year = MAXIS_footer_year
+
+		Call MSA_ELIG_APPROVALS(msa_elig_months_count).read_elig
+
+		MsgBox "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year & vbCr &_
+		"MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant & vbCr &_
+		"MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result
+
+		msa_elig_months_count = msa_elig_months_count + 1
+	End If
+
 	If numb_GA_versions <> " " Then
 		ReDim Preserve GA_ELIG_APPROVALS(ga_elig_months_count)
-		Set GA_ELIG_APPROVALS(ga_elig_months_count) = new ga_eligibility_detial
+		Set GA_ELIG_APPROVALS(ga_elig_months_count) = new ga_eligibility_detail
 
 		GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month = MAXIS_footer_month
 		GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year = MAXIS_footer_year
