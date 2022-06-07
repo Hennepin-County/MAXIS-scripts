@@ -1,5 +1,4 @@
-'GATHERING STATS===========================================================================================
-worker_county_code = "X127"
+'Required for statistical purposes==========================================================================================
 name_of_script = "BULK - DEU-MATCH CLEARED.vbs"
 start_time = timer
 STATS_counter = 1
@@ -9,7 +8,14 @@ STATS_denominatinon = "C"
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
-	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
+    IF on_the_desert_island = TRUE Then
+        FuncLib_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\MASTER FUNCTIONS LIBRARY.vbs"
+        Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+        Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
+        text_from_the_other_script = fso_command.ReadAll
+        fso_command.Close
+        Execute text_from_the_other_script
+    ELSEIF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
@@ -22,7 +28,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
-			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine & "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine & "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
+			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine &_
+                                            "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine &_
+                                            "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", _
+                                            vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
             StopScript
 		END IF
 	ELSE
@@ -170,11 +179,13 @@ call changelog_update("03/20/2017", "Initial version.", "Ilse Ferris, Hennepin C
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
-'THE SCRIPT-----------------------------------------------------------------------------------------------------------
+'----------------------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
+worker_county_code = "X127"
 
 match_type = "WAGE"
 action_taken = "No Savings/Overpayment"
@@ -325,7 +336,7 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	   	match_based_array(maxis_case_number_const,  entry_record)	 = MAXIS_case_number
 	   	match_based_array(client_ssn_const, 		entry_record)	 = trim(replace(objExcel.cells(excel_row, excel_col_client_ssn), "-", ""))
 		match_based_array(program_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_program).Value)
-	   	match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
+	    match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
 		match_based_array(amount_const, 		    entry_record)    = replace(objExcel.cells(excel_row, excel_col_amount).Value, "$", "")
 		match_based_array(amount_const, 		    entry_record)    = replace(objExcel.cells(excel_row, excel_col_amount).Value, ",", "")
 	   	match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
@@ -379,46 +390,50 @@ For item = 0 to UBound(match_based_array, 2)
 	    			IF trim(match_based_array(period_const, item)) = IEVS_period THEN
                     	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 						'----------------------------------------------------------------------------------------------------Employer info & difference notice info
-						   IF match_type = "UBEN" THEN income_source = "Unemployment"
-						   IF match_type = "UNVI" THEN income_source = "NON-WAGE"
-	                       IF match_type = "WAGE" THEN	EMReadScreen income_line, 44, 8, 37 'should be to the right of employer and the left of amount
-	                 	   IF match_type = "BEER" THEN EMReadScreen income_line, 44, 8, 28
+						IF match_type = "UBEN" THEN income_source = "Unemployment"
+						IF match_type = "UNVI" THEN income_source = "NON-WAGE"
+	                    IF match_type = "WAGE" THEN	EMReadScreen income_line, 44, 8, 37 'should be to the right of employer and the left of amount
+	                 	IF match_type = "BEER" THEN EMReadScreen income_line, 44, 8, 28
 
-	                       income_line = trim(income_line)
-	                       income_amount = right(income_line, 8)
-	                       IF instr(income_line, " AMOUNT: $") THEN position = InStr(income_line, " AMOUNT: $")    	  'sets the position at the deliminator
-	                       IF instr(income_line, " AMT: $") THEN position = InStr(income_line, " AMT: $")    		      'sets the position at the deliminator
-	                       income_source = Left(income_line, position)  'establishes employer as being before the deliminator
-					 	   income_source = trim(income_source)
-	                       income_amount = replace(income_amount, "$", "")
-	                       income_amount = trim(replace(income_amount, ",", "")) '*** review Ilse does this look cleaned up?'
-	                   	   IF income_source = match_based_array(income_source_const, item) THEN
-						   	IF income_amount = match_based_array(amount_const, item) THEN
-                            	EXIT DO
+	                    income_line = trim(income_line)
+	                    income_amount = right(income_line, 8)
+	                    IF instr(income_line, " AMOUNT: $") THEN position = InStr(income_line, " AMOUNT: $")    	  'sets the position at the deliminator
+	                    IF instr(income_line, " AMT: $") THEN position = InStr(income_line, " AMT: $")    		      'sets the position at the deliminator
+						income_line = trim(income_line)
+						income_source = Left(income_line, position)  'establishes employer as being before the deliminator
+						income_source = trim(income_source)
+						income_amount = replace(income_amount, "$", "")
+	                    income_amount = replace(income_amount, ",", "")
+						income_amount = trim(income_amount)
+
+	                   	IF income_source = match_based_array(income_source_const, item) THEN
+							IF left(income_amount, 4) = left(match_based_array(amount_const, item), 4) THEN 'had to use left 4 because the excel sheet SOMETIMES reads a number without zeros'
+							   	EXIT DO
 	    				   	ELSE
-								match_based_array(comments_const, item) = "No match could be found."
-                                PF3 ' to leave match
-								EXIT DO
+							  	match_based_array(comments_const, item) = "Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, item) & "~"
+                            	PF3 ' to leave match
+							  	EXIT DO
 							END IF
                         Else
+							match_based_array(comments_const, item) = "Match not cleared due to income name information" & " ~" & income_source & "~" & match_based_array(income_source_const, item) & "~"
                             Call IEVP_looping(ievp_panel)
                             If IEVP_panel = False then
-                                exit do
+                                EXIT DO
                             End if
 						END IF
                         Call IEVP_looping(ievp_panel)
                         If IEVP_panel = False then
-                            exit do
+                            EXIT DO
                         End if
 	    			END IF
                     Call IEVP_looping(ievp_panel)
                     If IEVP_panel = False then
-                        exit do
+                        EXIT DO
                     End if
                 END IF
                 Call IEVP_looping(ievp_panel)
                 If IEVP_panel = False then
-                    exit do
+                    EXIT DO
                 End if
 	        ELSE
 				match_based_array(comments_const, item) = days_pending 'identifying previously cleared matches. Not cleared with BULK script.
