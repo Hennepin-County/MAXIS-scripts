@@ -2051,6 +2051,578 @@ class mfip_eligibility_detial
 
 end class
 
+class msa_eligibility_detial
+	public elig_footer_month
+	public elig_footer_year
+	public elig_version_number
+	public elig_version_date
+	public elig_version_result
+
+	public msa_elig_ref_numbs()
+	public msa_elig_membs_full_name()
+	public msa_elig_membs_request_yn()
+	public msa_elig_membs_member_code()
+	public msa_elig_membs_member_info()
+	public msa_elig_membs_elig_status()
+	public msa_elig_membs_elig_basis_code()
+	public msa_elig_membs_elig_basis_info()
+	public msa_elig_membs_begin_date()
+	public msa_elig_membs_budget_cycle()
+	public msa_elig_membs_test_absence()
+	public msa_elig_membs_test_age()
+	public msa_elig_membs_test_basis_of_eligibility()
+	public msa_elig_membs_test_citizenship()
+	public msa_elig_membs_test_dupl_assistance()
+	public msa_elig_membs_test_fail_coop()
+	public msa_elig_membs_test_fraud()
+	public msa_elig_membs_test_ive_eligible()
+	public msa_elig_membs_test_living_arrangement()
+	public msa_elig_membs_test_ssi_basis()
+	public msa_elig_membs_test_ssn_coop()
+	public msa_elig_membs_test_unit_member()
+	public msa_elig_membs_test_verif()
+	public msa_elig_membs_test_absence_absent()
+	public msa_elig_membs_test_absence_death()
+	public msa_elig_membs_test_fail_coop_sign_iaas()
+	public msa_elig_membs_test_fail_coop_applied_other_benefits()
+	public msa_elig_membs_test_unit_member_faci()
+	public msa_elig_membs_test_unit_member_relationship()
+	public msa_elig_membs_test_verif_date_of_birth()
+	public msa_elig_membs_test_verif_disability()
+	public msa_elig_membs_test_verif_ssi()
+
+	public msa_elig_budg_memb_gross_earned_income()
+	public msa_elig_budg_memb_blind_disa_student()
+	public msa_elig_budg_memb_standard_disregard()
+	public msa_elig_budg_memb_earned_income()
+	public msa_elig_budg_memb_standard_EI_disregard()
+	public msa_elig_budg_memb_work_expense_disa()
+	public msa_elig_budg_memb_earned_inc_subtotal()
+	public msa_elig_budg_memb_earned_inc_disregard()
+	public msa_elig_budg_memb_work_expense_blind()
+	public msa_elig_budg_memb_net_earned_income()
+	public msa_elig_budg_memb_special_needs_total()
+
+	public msa_elig_case_test_applicant_eligible
+	public msa_elig_case_test_application_withdrawn
+	public msa_elig_case_test_eligible_member
+	public msa_elig_case_test_fail_file
+	public msa_elig_case_test_prosp_gross_income
+	public msa_elig_case_test_prosp_net_income
+	public msa_elig_case_test_residence
+	public msa_elig_case_test_assets
+	public msa_elig_case_test_retro_net_income
+	public msa_elig_case_test_verif
+	public msa_elig_case_shared_hh_yn
+
+	public msa_elig_case_test_fail_file_revw
+	public msa_elig_case_test_fail_file_hrf
+	public msa_elig_case_test_prosp_gross_earned_income
+	public msa_elig_case_test_prosp_gross_unearned_income
+	public msa_elig_case_test_prosp_gross_deemed_income
+	public msa_elig_case_test_prosp_total_gross_income
+	public msa_elig_case_test_prosp_gross_ssi_need_standard
+	public msa_elig_case_test_prosp_gross_ssi_standard_multiplier
+	public msa_elig_case_test_prosp_gross_income_limit
+	public msa_elig_case_test_total_countable_assets
+	public msa_elig_case_test_maximum_assets
+	public msa_elig_case_test_verif_acct
+	public msa_elig_case_test_verif_addr
+	public msa_elig_case_test_verif_busi
+	public msa_elig_case_test_verif_cars
+	public msa_elig_case_test_verif_jobs
+	public msa_elig_case_test_verif_lump
+	public msa_elig_case_test_verif_pact
+	public msa_elig_case_test_verif_rbic
+	public msa_elig_case_test_verif_secu
+	public msa_elig_case_test_verif_spon
+	public msa_elig_case_test_verif_stin
+	public msa_elig_case_test_verif_unea
+
+	public msa_elig_case_budg_type
+
+	public msa_elig_budg_ssi_standard_fbr
+	public msa_elig_budg_standard_disregard
+
+	public msa_elig_budg_unearned_income
+	public msa_elig_budg_deemed_income
+	public msa_elig_budg_net_unearned_income
+	public msa_elig_budg_net_earned_income
+
+	public msa_elig_budg_spec_standard_ref_numb()
+	public msa_elig_budg_spec_standard_type_code()
+	public msa_elig_budg_spec_standard_type_info()
+	public msa_elig_budg_spec_standard_amount()
+	public msa_elig_budg_spec_standard_
+	public msa_elig_budg_spec_standard_
+
+	public msa_elig_budg_need_standard
+	public msa_elig_budg_net_income
+	public msa_elig_budg_msa_grant
+	public msa_elig_budg_amount_already_issued
+	public msa_elig_budg_supplement_due
+	public msa_elig_budg_overpayment
+	public msa_elig_budg_adjusted_grant_amount
+	public msa_elig_budg_recoupment
+	public msa_elig_budg_current_payment
+
+	public msa_elig_budg_basic_needs_assistance_standard
+	public msa_elig_budg_special_needs
+	public msa_elig_budg_household_total_needs
+
+
+
+	public sub read_elig()
+		call navigate_to_MAXIS_screen("ELIG", "MSA ")
+		EMWriteScreen elig_footer_month, 20, 54
+		EMWriteScreen elig_footer_year, 20, 57
+		Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result)
+
+		ReDim msa_elig_ref_numbs(0)
+		ReDim msa_elig_membs_full_name(0)
+		ReDim msa_elig_membs_request_yn(0)
+		ReDim msa_elig_membs_member_code(0)
+		ReDim msa_elig_membs_member_info(0)
+		ReDim msa_elig_membs_elig_status(0)
+		ReDim msa_elig_membs_elig_basis_code(0)
+		ReDim msa_elig_membs_elig_basis_info(0)
+		ReDim msa_elig_membs_begin_date(0)
+		ReDim msa_elig_membs_budget_cycle(0)
+		ReDim msa_elig_membs_test_absence(0)
+		ReDim msa_elig_membs_test_age(0)
+		ReDim msa_elig_membs_test_basis_of_eligibility(0)
+		ReDim msa_elig_membs_test_citizenship(0)
+		ReDim msa_elig_membs_test_dupl_assistance(0)
+		ReDim msa_elig_membs_test_fail_coop(0)
+		ReDim msa_elig_membs_test_fraud(0)
+		ReDim msa_elig_membs_test_ive_eligible(0)
+		ReDim msa_elig_membs_test_living_arrangement(0)
+		ReDim msa_elig_membs_test_ssi_basis(0)
+		ReDim msa_elig_membs_test_ssn_coop(0)
+		ReDim msa_elig_membs_test_unit_member(0)
+		ReDim msa_elig_membs_test_verif(0)
+		ReDim msa_elig_membs_test_absence_absent(0)
+		ReDim msa_elig_membs_test_absence_death(0)
+		ReDim msa_elig_membs_test_fail_coop_sign_iaas(0)
+		ReDim msa_elig_membs_test_fail_coop_applied_other_benefits(0)
+		ReDim msa_elig_membs_test_unit_member_faci(0)
+		ReDim msa_elig_membs_test_unit_member_relationship(0)
+		ReDim msa_elig_membs_test_verif_date_of_birth(0)
+		ReDim msa_elig_membs_test_verif_disability(0)
+		ReDim msa_elig_membs_test_verif_ssi(0)
+
+		elig_memb_count = 0
+		msa_row = 7
+		Do
+			EMReadScreen ref_numb, 2, msa_row, 5
+
+			ReDim preserve msa_elig_ref_numbs(elig_memb_count)
+			ReDim preserve msa_elig_membs_full_name(elig_memb_count)
+			ReDim preserve msa_elig_membs_request_yn(elig_memb_count)
+			ReDim preserve msa_elig_membs_member_code(elig_memb_count)
+			ReDim preserve msa_elig_membs_member_info(elig_memb_count)
+			ReDim preserve msa_elig_membs_elig_status(elig_memb_count)
+			ReDim preserve msa_elig_membs_elig_basis_code(elig_memb_count)
+			ReDim preserve msa_elig_membs_elig_basis_info(elig_memb_count)
+			ReDim preserve msa_elig_membs_begin_date(elig_memb_count)
+			ReDim preserve msa_elig_membs_budget_cycle(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_absence(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_age(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_basis_of_eligibility(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_citizenship(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_dupl_assistance(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_fail_coop(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_fraud(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_ive_eligible(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_living_arrangement(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_ssi_basis(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_ssn_coop(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_unit_member(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_verif(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_absence_absent(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_absence_death(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_fail_coop_sign_iaas(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_fail_coop_applied_other_benefits(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_unit_member_faci(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_unit_member_relationship(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_verif_date_of_birth(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_verif_disability(elig_memb_count)
+			ReDim preserve msa_elig_membs_test_verif_ssi(elig_memb_count)
+
+			msa_elig_ref_numbs(elig_memb_count) = ref_numb
+
+			EMReadScreen msa_elig_membs_request_yn(elig_memb_count), 1, msa_row, 25
+
+			EMReadScreen msa_elig_membs_member_code(elig_memb_count), 1, msa_row, 29
+			If msa_elig_membs_member_code(elig_memb_count) = "A" Then msa_elig_membs_member_info(elig_memb_count) = "Eligible"
+			If msa_elig_membs_member_code(elig_memb_count) = "1" Then msa_elig_membs_member_info(elig_memb_count) = "Non-MSA Spouse"
+			If msa_elig_membs_member_code(elig_memb_count) = "2" Then msa_elig_membs_member_info(elig_memb_count) = "Non-MSA Parent - Deem Income/Resources"
+			If msa_elig_membs_member_code(elig_memb_count) = "4" Then msa_elig_membs_member_info(elig_memb_count) = "Step Parent - Deem Resources"
+			If msa_elig_membs_member_code(elig_memb_count) = "N" Then msa_elig_membs_member_info(elig_memb_count) = "Not Counted"
+			If msa_elig_membs_member_code(elig_memb_count) = "I" Then msa_elig_membs_member_info(elig_memb_count) = "Ineligible"
+
+			EMReadScreen msa_elig_membs_elig_status(elig_memb_count), 10, msa_row, 46
+			msa_elig_membs_elig_status(elig_memb_count) = trim(msa_elig_membs_elig_status(elig_memb_count))
+
+			EMReadScreen msa_elig_membs_elig_basis_code(elig_memb_count), 1, msa_row, 59
+			If msa_elig_membs_elig_basis_code(elig_memb_count) = "A" Then msa_elig_membs_elig_basis_info(elig_memb_count) = "Aged"
+			If msa_elig_membs_elig_basis_code(elig_memb_count) = "B" Then msa_elig_membs_elig_basis_info(elig_memb_count) = "Blind"
+			If msa_elig_membs_elig_basis_code(elig_memb_count) = "D" Then msa_elig_membs_elig_basis_info(elig_memb_count) = "Disabled"
+			If msa_elig_membs_elig_basis_code(elig_memb_count) = "S" Then msa_elig_membs_elig_basis_info(elig_memb_count) = "SSI"
+			If msa_elig_membs_elig_basis_code(elig_memb_count) = " " Then msa_elig_membs_elig_basis_info(elig_memb_count) = "Blank"
+
+			EMReadScreen msa_elig_membs_begin_date(elig_memb_count), 8, msa_row, 63
+			msa_elig_membs_begin_date(elig_memb_count) = trim(msa_elig_membs_begin_date(elig_memb_count))
+			If msa_elig_membs_begin_date(elig_memb_count) <> "" then msa_elig_membs_begin_date(elig_memb_count) = replace(msa_elig_membs_begin_date(elig_memb_count), " ", "/")
+
+			EMReadScreen msa_elig_membs_budget_cycle(elig_memb_count), 1, msa_row, 76
+			If msa_elig_membs_budget_cycle(elig_memb_count) = "P" Then msa_elig_membs_budget_cycle(elig_memb_count) = "Prospective"
+			If msa_elig_membs_budget_cycle(elig_memb_count) = "R" Then msa_elig_membs_budget_cycle(elig_memb_count) = "Retrospective"
+
+			Call write_value_and_transmit("X", msa_row, 3)
+
+			EMReadScreen full_name_information, 20, 7, 10
+			full_name_information = trim(full_name_information)
+			name_array = split(full_name_information, " ")
+			For each name_parts in name_array
+				If len(name_parts) <> 1 Then msa_elig_membs_full_name(elig_memb_count) = msa_elig_membs_full_name(elig_memb_count) & " " & name_parts
+			Next
+			msa_elig_membs_full_name(elig_memb_count) = trim((msa_elig_membs_full_name(elig_memb_count)))
+
+			EMReadScreen msa_elig_membs_test_absence(elig_memb_count), 				6, 10, 8
+			EMReadScreen msa_elig_membs_test_age(elig_memb_count), 					6, 11, 8
+			EMReadScreen msa_elig_membs_test_basis_of_eligibility(elig_memb_count), 6, 12, 8
+			EMReadScreen msa_elig_membs_test_citizenship(elig_memb_count), 			6, 13, 8
+			EMReadScreen msa_elig_membs_test_dupl_assistance(elig_memb_count), 		6, 14, 8
+			EMReadScreen msa_elig_membs_test_fail_coop(elig_memb_count), 			6, 15, 8
+			EMReadScreen msa_elig_membs_test_fraud(elig_memb_count), 				6, 16, 8
+
+			EMReadScreen msa_elig_membs_test_ive_eligible(elig_memb_count), 		6, 10, 47
+			EMReadScreen msa_elig_membs_test_living_arrangement(elig_memb_count), 	6, 11, 47
+			EMReadScreen msa_elig_membs_test_ssi_basis(elig_memb_count), 			6, 12, 47
+			EMReadScreen msa_elig_membs_test_ssn_coop(elig_memb_count), 			6, 13, 47
+			EMReadScreen msa_elig_membs_test_unit_member(elig_memb_count), 			6, 14, 47
+			EMReadScreen msa_elig_membs_test_verif(elig_memb_count), 				6, 15, 47
+
+			msa_elig_membs_test_absence(elig_memb_count) = trim(msa_elig_membs_test_absence(elig_memb_count))
+			msa_elig_membs_test_age(elig_memb_count) = trim(msa_elig_membs_test_age(elig_memb_count))
+			msa_elig_membs_test_basis_of_eligibility(elig_memb_count) = trim(msa_elig_membs_test_basis_of_eligibility(elig_memb_count))
+			msa_elig_membs_test_citizenship(elig_memb_count) = trim(msa_elig_membs_test_citizenship(elig_memb_count))
+			msa_elig_membs_test_dupl_assistance(elig_memb_count) = trim(msa_elig_membs_test_dupl_assistance(elig_memb_count))
+			msa_elig_membs_test_fail_coop(elig_memb_count) = trim(msa_elig_membs_test_fail_coop(elig_memb_count))
+			msa_elig_membs_test_fraud(elig_memb_count) = trim(msa_elig_membs_test_fraud(elig_memb_count))
+
+			msa_elig_membs_test_ive_eligible(elig_memb_count) = trim(msa_elig_membs_test_ive_eligible(elig_memb_count))
+			msa_elig_membs_test_living_arrangement(elig_memb_count) = trim(msa_elig_membs_test_living_arrangement(elig_memb_count))
+			msa_elig_membs_test_ssi_basis(elig_memb_count) = trim(msa_elig_membs_test_ssi_basis(elig_memb_count))
+			msa_elig_membs_test_ssn_coop(elig_memb_count) = trim(msa_elig_membs_test_ssn_coop(elig_memb_count))
+			msa_elig_membs_test_unit_member(elig_memb_count) = trim(msa_elig_membs_test_unit_member(elig_memb_count))
+			msa_elig_membs_test_verif(elig_memb_count) = trim(msa_elig_membs_test_verif(elig_memb_count))
+
+			Call write_value_and_transmit("X", 10, 6)
+			EMReadScreen msa_elig_membs_test_absence_absent(elig_memb_count), 	6, 12, 40
+			EMReadScreen msa_elig_membs_test_absence_death(elig_memb_count), 	6, 13, 40
+
+			msa_elig_membs_test_absence_absent(elig_memb_count) = trim(msa_elig_membs_test_absence_absent(elig_memb_count))
+			msa_elig_membs_test_absence_death(elig_memb_count) = trim(msa_elig_membs_test_absence_death(elig_memb_count))
+			transmit
+
+			Call write_value_and_transmit("X", 15, 6)
+			EMReadScreen msa_elig_membs_test_fail_coop_sign_iaas(elig_memb_count), 				6, 12, 24
+			EMReadScreen msa_elig_membs_test_fail_coop_applied_other_benefits(elig_memb_count), 6, 13, 24
+
+			msa_elig_membs_test_fail_coop_sign_iaas(elig_memb_count) = trim(msa_elig_membs_test_fail_coop_sign_iaas(elig_memb_count))
+			msa_elig_membs_test_fail_coop_applied_other_benefits(elig_memb_count) = trim(msa_elig_membs_test_fail_coop_applied_other_benefits(elig_memb_count))
+			transmit
+
+			Call write_value_and_transmit("X", 14, 45)
+			EMReadScreen msa_elig_membs_test_unit_member_faci(elig_memb_count), 		6, 12, 24
+			EMReadScreen msa_elig_membs_test_unit_member_relationship(elig_memb_count), 6, 13, 24
+
+			msa_elig_membs_test_unit_member_faci(elig_memb_count) = trim(msa_elig_membs_test_unit_member_faci(elig_memb_count))
+			msa_elig_membs_test_unit_member_relationship(elig_memb_count) = trim(msa_elig_membs_test_unit_member_relationship(elig_memb_count))
+			transmit
+
+			Call write_value_and_transmit("X", 15, 45)
+			EMReadScreen msa_elig_membs_test_verif_date_of_birth(elig_memb_count), 	6, 12, 30
+			EMReadScreen msa_elig_membs_test_verif_disability(elig_memb_count), 	6, 13, 30
+			EMReadScreen msa_elig_membs_test_verif_ssi(elig_memb_count), 			6, 14, 30
+
+			msa_elig_membs_test_verif_date_of_birth(elig_memb_count) = trim(msa_elig_membs_test_verif_date_of_birth(elig_memb_count))
+			msa_elig_membs_test_verif_disability(elig_memb_count) = trim(msa_elig_membs_test_verif_disability(elig_memb_count))
+			msa_elig_membs_test_verif_ssi(elig_memb_count) = trim(msa_elig_membs_test_verif_ssi(elig_memb_count))
+			transmit
+
+			transmit
+
+			msa_row = msa_row + 1
+			elig_memb_count = elig_memb_count + 1
+			EMReadScreen next_ref_numb, 2, ga_row, 5
+		Loop until next_ref_numb = "  "
+
+		transmit 		'going to the next panel - MSCR
+
+		EMReadScreen msa_elig_case_test_applicant_eligible, 	6, 6, 7
+		EMReadScreen msa_elig_case_test_application_withdrawn, 	6, 7, 7
+		EMReadScreen msa_elig_case_test_eligible_member, 		6, 8, 7
+		EMReadScreen msa_elig_case_test_fail_file, 				6, 9, 7
+		EMReadScreen msa_elig_case_test_prosp_gross_income, 	6, 10, 7
+
+		EMReadScreen msa_elig_case_test_prosp_net_income, 	6, 6, 45
+		EMReadScreen msa_elig_case_test_residence, 			6, 7, 45
+		EMReadScreen msa_elig_case_test_assets, 			6, 8, 45
+		EMReadScreen msa_elig_case_test_retro_net_income, 	6, 9, 45
+		EMReadScreen msa_elig_case_test_verif, 				6, 10, 45
+
+		EMReadScreen msa_elig_case_shared_hh_yn, 1, 13, 61
+
+		msa_elig_case_test_applicant_eligible = trim(msa_elig_case_test_applicant_eligible)
+		msa_elig_case_test_application_withdrawn = trim(msa_elig_case_test_application_withdrawn)
+		msa_elig_case_test_eligible_member = trim(msa_elig_case_test_eligible_member)
+		msa_elig_case_test_fail_file = trim(msa_elig_case_test_fail_file)
+		msa_elig_case_test_prosp_gross_income = trim(msa_elig_case_test_prosp_gross_income)
+
+		msa_elig_case_test_prosp_net_income = trim(msa_elig_case_test_prosp_net_income)
+		msa_elig_case_test_residence = trim(msa_elig_case_test_residence)
+		msa_elig_case_test_assets = trim(msa_elig_case_test_assets)
+		msa_elig_case_test_retro_net_income = trim(msa_elig_case_test_retro_net_income)
+		msa_elig_case_test_verif = trim(msa_elig_case_test_verif)
+
+		If msa_elig_case_test_fail_file <> "NA" Then
+			Call write_value_and_transmit("X", 9, 5)
+
+			EMReadScreen msa_elig_case_test_fail_file_revw, 6, 8, 28
+			EMReadScreen msa_elig_case_test_fail_file_hrf, 6, 9, 28
+
+			msa_elig_case_test_fail_file_revw = trim(msa_elig_case_test_fail_file_revw)
+			msa_elig_case_test_fail_file_hrf = trim(msa_elig_case_test_fail_file_hrf)
+			transmit
+		End If
+
+		If msa_elig_case_test_prosp_gross_income <> "NA" Then
+			Call write_value_and_transmit("X", 10, 5)
+
+			EMReadScreen msa_elig_case_test_prosp_gross_earned_income, 		9, 9, 55
+			EMReadScreen msa_elig_case_test_prosp_gross_unearned_income, 	9, 10, 55
+			EMReadScreen msa_elig_case_test_prosp_gross_deemed_income, 		9, 11, 55
+
+			EMReadScreen msa_elig_case_test_prosp_total_gross_income, 			9, 13, 55
+			EMReadScreen msa_elig_case_test_prosp_gross_ssi_need_standard, 		9, 14, 55
+			EMReadScreen msa_elig_case_test_prosp_gross_ssi_standard_multiplier 1, 15, 63
+			EMReadScreen msa_elig_case_test_prosp_gross_income_limit, 			9, 16, 55
+
+
+			msa_elig_case_test_prosp_gross_earned_income = trim(msa_elig_case_test_prosp_gross_earned_income)
+			msa_elig_case_test_prosp_gross_unearned_income = trim(msa_elig_case_test_prosp_gross_unearned_income)
+			msa_elig_case_test_prosp_gross_deemed_income = trim(msa_elig_case_test_prosp_gross_deemed_income)
+
+			msa_elig_case_test_prosp_total_gross_income = trim(msa_elig_case_test_prosp_total_gross_income)
+			msa_elig_case_test_prosp_gross_ssi_need_standard = trim(msa_elig_case_test_prosp_gross_ssi_need_standard)
+			msa_elig_case_test_prosp_gross_income_limit = trim(msa_elig_case_test_prosp_gross_income_limit)
+			transmit
+		End If
+
+		If msa_elig_case_test_assets <> "NA" Then
+			Call write_value_and_transmit("X", 8, 43)
+
+			EMReadScreen msa_elig_case_test_total_countable_assets, 10, 8, 48
+			EMReadScreen msa_elig_case_test_maximum_assets, 		10, 9, 48
+
+			msa_elig_case_test_total_countable_assets = replace(msa_elig_case_test_total_countable_assets, "_", "")
+			msa_elig_case_test_maximum_assets = replace(msa_elig_case_test_maximum_assets, "_", "")
+			transmit
+		End If
+
+		If msa_elig_case_test_verif <> "NA" Then
+			Call write_value_and_transmit("X", 10, 43)
+
+			EMReadScreen msa_elig_case_test_verif_acct, 6, 6, 32
+			EMReadScreen msa_elig_case_test_verif_addr, 6, 7, 32
+			EMReadScreen msa_elig_case_test_verif_busi, 6, 8, 32
+			EMReadScreen msa_elig_case_test_verif_cars, 6, 9, 32
+			EMReadScreen msa_elig_case_test_verif_jobs, 6, 10, 32
+			EMReadScreen msa_elig_case_test_verif_lump, 6, 11, 32
+			EMReadScreen msa_elig_case_test_verif_pact, 6, 12, 32
+			EMReadScreen msa_elig_case_test_verif_rbic, 6, 13, 32
+			EMReadScreen msa_elig_case_test_verif_secu, 6, 14, 32
+			EMReadScreen msa_elig_case_test_verif_spon, 6, 15, 32
+			EMReadScreen msa_elig_case_test_verif_stin, 6, 16, 32
+			EMReadScreen msa_elig_case_test_verif_unea, 6, 17, 32
+
+			msa_elig_case_test_verif_acct = trim(msa_elig_case_test_verif_acct)
+			msa_elig_case_test_verif_addr = trim(msa_elig_case_test_verif_addr)
+			msa_elig_case_test_verif_busi = trim(msa_elig_case_test_verif_busi)
+			msa_elig_case_test_verif_cars = trim(msa_elig_case_test_verif_cars)
+			msa_elig_case_test_verif_jobs = trim(msa_elig_case_test_verif_jobs)
+			msa_elig_case_test_verif_lump = trim(msa_elig_case_test_verif_lump)
+			msa_elig_case_test_verif_pact = trim(msa_elig_case_test_verif_pact)
+			msa_elig_case_test_verif_rbic = trim(msa_elig_case_test_verif_rbic)
+			msa_elig_case_test_verif_secu = trim(msa_elig_case_test_verif_secu)
+			msa_elig_case_test_verif_spon = trim(msa_elig_case_test_verif_spon)
+			msa_elig_case_test_verif_stin = trim(msa_elig_case_test_verif_stin)
+			msa_elig_case_test_verif_unea = trim(msa_elig_case_test_verif_unea)
+			transmit
+		End If
+
+		transmit 		'going to the next panel - MSCB
+
+		EmReadScreen msa_elig_case_budg_type, 12, 3, 25
+		msa_elig_case_budg_type = trim(msa_elig_case_budg_type)
+
+		If msa_elig_case_budg_type = "SSI TYPE" Then
+			EMReadScreen msa_elig_budg_ssi_standard_fbr, 	9, 6, 32
+			EMReadScreen msa_elig_budg_standard_disregard, 	9, 7, 32
+
+
+			EMReadScreen msa_elig_budg_need_standard, 			9, 6, 72
+			EMReadScreen msa_elig_budg_net_income, 				9, 7, 72
+			EMReadScreen msa_elig_budg_msa_grant, 				9, 8, 72
+
+			EMReadScreen msa_elig_budg_amount_already_issued, 	9, 11, 72
+			EMReadScreen msa_elig_budg_supplement_due, 			9, 12, 72
+			EMReadScreen msa_elig_budg_overpayment, 			9, 13, 72
+
+			EMReadScreen msa_elig_budg_adjusted_grant_amount, 	9, 15, 72
+			EMReadScreen msa_elig_budg_recoupment, 				9, 16, 72
+			EMReadScreen msa_elig_budg_current_payment, 		9, 17, 72
+
+			msa_elig_budg_ssi_standard_fbr = trim(msa_elig_budg_ssi_standard_fbr)
+			msa_elig_budg_standard_disregard = trim(msa_elig_budg_standard_disregard)
+
+			msa_elig_budg_need_standard = trim(msa_elig_budg_need_standard)
+			msa_elig_budg_net_income = trim(msa_elig_budg_net_income)
+			msa_elig_budg_msa_grant = trim(msa_elig_budg_msa_grant)
+
+			msa_elig_budg_amount_already_issued = trim(msa_elig_budg_amount_already_issued)
+			msa_elig_budg_supplement_due = trim(msa_elig_budg_supplement_due)
+			msa_elig_budg_overpayment = trim(msa_elig_budg_overpayment)
+
+			msa_elig_budg_adjusted_grant_amount = trim(msa_elig_budg_adjusted_grant_amount)
+			msa_elig_budg_recoupment = trim(msa_elig_budg_recoupment)
+			msa_elig_budg_current_payment = trim(msa_elig_budg_current_payment)
+
+
+			Call write_value_and_transmit("X", 6, 43)
+			EMReadScreen msa_elig_budg_basic_needs_assistance_standard, 10, 16, 59
+			EMReadScreen msa_elig_budg_special_needs, 					10, 17, 59
+			EMReadScreen msa_elig_budg_household_total_needs, 			10, 18, 59
+
+			msa_elig_budg_basic_needs_assistance_standard = trim(msa_elig_budg_basic_needs_assistance_standard)
+			msa_elig_budg_special_needs = trim(msa_elig_budg_special_needs)
+			msa_elig_budg_household_total_needs = trim(msa_elig_budg_household_total_needs)
+
+			msa_col = 6
+			For msa_col = 6 to 42 step 36
+				EMReadScreen ref_numb, 2, 5, msa_col+9
+				If ref_numb <> "  " Then
+					EMReadScreen amount_total, 8, 15, msa_col+26
+
+					EMReadScreen info_code, 2, 8, msa_col
+					Do while info_code <> "__"
+						ReDim preserve
+
+						msa_row = msa_row + 1
+						EMReadScreen info_code, 2, msa_row, msa_col
+					Loop
+				End If
+			Next
+
+
+
+			msa_elig_budg_memb_special_needs_total
+
+			transmit
+		End If
+
+		If msa_elig_case_budg_type = "Non-SSI TYPE" Then
+			EMReadScreen msa_elig_budg_unearned_income, 	9, 6, 32
+			EMReadScreen msa_elig_budg_deemed_income, 		9, 7, 32
+			EMReadScreen msa_elig_budg_standard_disregard, 	9, 8, 32
+			EMReadScreen msa_elig_budg_net_unearned_income, 9, 9, 32
+			EMReadScreen msa_elig_budg_net_earned_income, 	9, 10, 32
+
+			msa_elig_budg_unearned_income = trim(msa_elig_budg_unearned_income)
+			msa_elig_budg_deemed_income = trim(msa_elig_budg_deemed_income)
+			msa_elig_budg_standard_disregard = trim(msa_elig_budg_standard_disregard)
+			msa_elig_budg_net_unearned_income = trim(msa_elig_budg_net_unearned_income)
+			msa_elig_budg_net_earned_income = trim(msa_elig_budg_net_earned_income)
+
+			Call write_value_and_transmit("X", 10, 3)
+
+			EMReadScreen msa_elig_budg_gross_earned_income, 	9, 9, 42
+			EMReadScreen msa_elig_budg_blind_disa_student, 		9, 10, 42
+			EMReadScreen msa_elig_budg_earned_standard_disregard, 9, 11, 42
+			EMReadScreen msa_elig_budg_earned_income, 			9, 12, 42
+			EMReadScreen msa_elig_budg_standard_EI_disregard, 	9, 13, 42
+			EMReadScreen msa_elig_budg_work_expense_disa, 		9, 14, 42
+			EMReadScreen msa_elig_budg_earned_inc_subtotal, 	9, 15, 42
+			EMReadScreen msa_elig_budg_earned_inc_disregard, 	9, 16, 42
+			EMReadScreen msa_elig_budg_work_expense_blind, 		9, 17, 42
+
+			EMReadScreen ref_numb_one, 2, 7, 62
+			If ref_numb_one <> "  " Then
+				For memn_count = 0 to UBound(msa_elig_ref_numbs)
+					If ref_numb_one = msa_elig_ref_numbs(memn_count) Then
+						EMReadScreen msa_elig_budg_memb_gross_earned_income(memn_count), 	9, 9, 54
+						EMReadScreen msa_elig_budg_memb_blind_disa_student(memn_count), 	9, 10, 54
+						EMReadScreen msa_elig_budg_memb_standard_disregard(memn_count), 	9, 11, 54
+						EMReadScreen msa_elig_budg_memb_earned_income(memn_count), 			9, 12, 54
+						EMReadScreen msa_elig_budg_memb_standard_EI_disregard(memn_count), 	9, 13, 54
+						EMReadScreen msa_elig_budg_memb_work_expense_disa(memn_count), 		9, 14, 54
+						EMReadScreen msa_elig_budg_memb_earned_inc_subtotal(memn_count), 	9, 15, 54
+						EMReadScreen msa_elig_budg_memb_earned_inc_disregard(memn_count), 	9, 16, 54
+						EMReadScreen msa_elig_budg_memb_work_expense_blind(memn_count), 	9, 17, 54
+						EMReadScreen msa_elig_budg_memb_net_earned_income(memn_count), 		9, 18, 54
+
+						msa_elig_budg_memb_gross_earned_income(memn_count) = trim(msa_elig_budg_memb_gross_earned_income(memn_count))
+						msa_elig_budg_memb_blind_disa_student(memn_count) = trim(msa_elig_budg_memb_blind_disa_student(memn_count))
+						msa_elig_budg_memb_standard_disregard(memn_count) = trim(msa_elig_budg_memb_standard_disregard(memn_count))
+						msa_elig_budg_memb_earned_income(memn_count) = trim(msa_elig_budg_memb_earned_income(memn_count))
+						msa_elig_budg_memb_standard_EI_disregard(memn_count) = trim(msa_elig_budg_memb_standard_EI_disregard(memn_count))
+						msa_elig_budg_memb_work_expense_disa(memn_count) = trim(msa_elig_budg_memb_work_expense_disa(memn_count))
+						msa_elig_budg_memb_earned_inc_subtotal(memn_count) = trim(msa_elig_budg_memb_earned_inc_subtotal(memn_count))
+						msa_elig_budg_memb_earned_inc_disregard(memn_count) = trim(msa_elig_budg_memb_earned_inc_disregard(memn_count))
+						msa_elig_budg_memb_work_expense_blind(memn_count) = trim(msa_elig_budg_memb_work_expense_blind(memn_count))
+						msa_elig_budg_memb_net_earned_income(memn_count) = trim(msa_elig_budg_memb_net_earned_income(memn_count))
+					End If
+				Next
+			End if
+
+			EMReadScreen ref_numb_two, 2, 7, 75
+			If ref_numb_two <> "  " Then
+				For memn_count = 0 to UBound(msa_elig_ref_numbs)
+					If ref_numb_two = msa_elig_ref_numbs(memn_count) Then
+						EMReadScreen msa_elig_budg_memb_gross_earned_income(memn_count), 	9, 9, 67
+						EMReadScreen msa_elig_budg_memb_blind_disa_student(memn_count), 	9, 10, 67
+						EMReadScreen msa_elig_budg_memb_standard_disregard(memn_count), 	9, 11, 67
+						EMReadScreen msa_elig_budg_memb_earned_income(memn_count), 			9, 12, 67
+						EMReadScreen msa_elig_budg_memb_standard_EI_disregard(memn_count), 	9, 13, 67
+						EMReadScreen msa_elig_budg_memb_work_expense_disa(memn_count), 		9, 14, 67
+						EMReadScreen msa_elig_budg_memb_earned_inc_subtotal(memn_count), 	9, 15, 67
+						EMReadScreen msa_elig_budg_memb_earned_inc_disregard(memn_count), 	9, 16, 67
+						EMReadScreen msa_elig_budg_memb_work_expense_blind(memn_count), 	9, 17, 67
+						EMReadScreen msa_elig_budg_memb_net_earned_income(memn_count), 		9, 18, 67
+
+						msa_elig_budg_memb_gross_earned_income(memn_count) = trim(msa_elig_budg_memb_gross_earned_income(memn_count))
+						msa_elig_budg_memb_blind_disa_student(memn_count) = trim(msa_elig_budg_memb_blind_disa_student(memn_count))
+						msa_elig_budg_memb_standard_disregard(memn_count) = trim(msa_elig_budg_memb_standard_disregard(memn_count))
+						msa_elig_budg_memb_earned_income(memn_count) = trim(msa_elig_budg_memb_earned_income(memn_count))
+						msa_elig_budg_memb_standard_EI_disregard(memn_count) = trim(msa_elig_budg_memb_standard_EI_disregard(memn_count))
+						msa_elig_budg_memb_work_expense_disa(memn_count) = trim(msa_elig_budg_memb_work_expense_disa(memn_count))
+						msa_elig_budg_memb_earned_inc_subtotal(memn_count) = trim(msa_elig_budg_memb_earned_inc_subtotal(memn_count))
+						msa_elig_budg_memb_earned_inc_disregard(memn_count) = trim(msa_elig_budg_memb_earned_inc_disregard(memn_count))
+						msa_elig_budg_memb_work_expense_blind(memn_count) = trim(msa_elig_budg_memb_work_expense_blind(memn_count))
+						msa_elig_budg_memb_net_earned_income(memn_count) = trim(msa_elig_budg_memb_net_earned_income(memn_count))
+					End If
+				Next
+			End if
+
+			transmit
+		End If
+
+		Call back_to_SELF
+	end sub
+end class
 
 class ga_eligibility_detial
 	public elig_footer_month
@@ -2733,7 +3305,7 @@ For each footer_month in MONTHS_ARRAY
 	' EMReadScreen numb_DWP_versions, 		1, 7, 40
 	EMReadScreen numb_MFIP_versions, 		1, 8, 40
 	' EMReadScreen numb_MSA_versions, 		1, 11, 40
-	' EMReadScreen numb_GA_versions, 			1, 12, 40
+	EMReadScreen numb_GA_versions, 			1, 12, 40
 	' EMReadScreen numb_CASH_denial_versions, 1, 13, 40
 	' EMReadScreen numb_GRH_versions, 		1, 14, 40
 	' EMReadScreen numb_IVE_versions, 		1, 15, 40
@@ -2762,6 +3334,22 @@ For each footer_month in MONTHS_ARRAY
 		mfip_elig_months_count = mfip_elig_months_count + 1
 	End If
 
+	If numb_GA_versions <> " " Then
+		ReDim Preserve GA_ELIG_APPROVALS(ga_elig_months_count)
+		Set GA_ELIG_APPROVALS(ga_elig_months_count) = new ga_eligibility_detial
+
+		GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month = MAXIS_footer_month
+		GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year = MAXIS_footer_year
+
+		Call GA_ELIG_APPROVALS(ga_elig_months_count).read_elig
+
+		' MsgBox "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & vbCr & "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year & vbCr &_
+		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_approved_date: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_approved_date & vbCr & "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_monthly_grant: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_monthly_grant & vbCr &_
+		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result
+
+		ga_elig_months_count = ga_elig_months_count + 1
+	End If
+
 	If numb_SNAP_versions <> " " Then
 		ReDim Preserve SNAP_ELIG_APPROVALS(snap_elig_months_count)
 		Set SNAP_ELIG_APPROVALS(snap_elig_months_count) = new snap_eligibility_detail
@@ -2781,11 +3369,11 @@ For each footer_month in MONTHS_ARRAY
 	Call back_to_SELF
 Next
 
-For approval_month = 0 to UBound(SNAP_ELIG_APPROVALS)
-	For snap_memb = 0 to UBound(SNAP_ELIG_APPROVALS(approval_month).snap_elig_ref_numbs)
-		MsgBox SNAP_ELIG_APPROVALS(approval_month).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval_month).elig_footer_year & vbCr & SNAP_ELIG_APPROVALS(approval_month).snap_elig_ref_numbs(snap_memb) & vbCr & SNAP_ELIG_APPROVALS(approval_month).snap_elig_membs_eligibility(snap_memb)
-	Next
-Next
+' For approval_month = 0 to UBound(SNAP_ELIG_APPROVALS)
+' 	For snap_memb = 0 to UBound(SNAP_ELIG_APPROVALS(approval_month).snap_elig_ref_numbs)
+' 		MsgBox SNAP_ELIG_APPROVALS(approval_month).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval_month).elig_footer_year & vbCr & SNAP_ELIG_APPROVALS(approval_month).snap_elig_ref_numbs(snap_memb) & vbCr & SNAP_ELIG_APPROVALS(approval_month).snap_elig_membs_eligibility(snap_memb)
+' 	Next
+' Next
 
 
 MsgBox "PAUSE"
