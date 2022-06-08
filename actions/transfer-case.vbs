@@ -201,18 +201,14 @@ If transfer_out_of_county = False THEN      'If a transfer_to_worker was entered
 ELSE 'this means out of county is TRUE '
     CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
-    'Using move date to determine CRF change date.
-
-    client_move_date = date 'this doesnt enter into the dialog and I am unsre why'
-    excluded_time_begin_date = date
+    client_move_date = date & ""
+    excluded_time_begin_date = date & ""
     cfr_month = CM_plus_2_mo
 	cfr_year = CM_yr
 
     hc_cfr_month = cfr_month' this variable may be changed by the worker
     hc_cfr_year = cfr_year 'incase the month falls in Dec and differs with cash'
 
-    client_move_date = client_move_date & ""
-    excluded_time_begin_date = excluded_time_begin_date & ""
     IF grh_case = true then excluded_time_dropdown = "YES"
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = ""
@@ -359,7 +355,7 @@ ELSE 'this means out of county is TRUE '
         EMReadScreen GRH, 2, 13, 39                                  'reading for script script_run_lowdown'
         EMReadScreen Health_Care, 2, 14, 39                          'reading for script script_run_lowdown'
         EMReadScreen MA_Excluded_Time, 2, 15, 39                     'reading for script script_run_lowdown'
-        EMReadScreen IV-E_Foster_Care, 2, 16, 39                     'reading for script script_run_lowdown'
+        EMReadScreen IVE_Foster_Care, 2, 16, 39                     'reading for script script_run_lowdown'
         PF9                                                          'putting the transfer in edit mode
         CALL clear_line_of_text(6, 28) 'clearing any old Excluded Time Begin Date __ __ __'
         CALL clear_line_of_text(6, 31)
@@ -380,18 +376,6 @@ ELSE 'this means out of county is TRUE '
         IF excluded_time_dropdown = "YES" THEN                          'If there's excluded time, need to write the info
             call create_MAXIS_friendly_date(excluded_time_begin_date, 0, 6, 28)
             EMWriteScreen hc_cfr, 15, 39
-        END IF
-
-        IF excluded_time_dropdown = "NO" THEN
-            CALL clear_line_of_text(6, 28) 'clearing any old Excluded Time Begin Date __ __ __'
-            CALL clear_line_of_text(6, 31)
-            CALL clear_line_of_text(6, 34)
-            CALL clear_line_of_text(11, 39) 'Clearing Current Fin Resp County Cash I'
-            CALL clear_line_of_text(12, 39) 'Cash II'
-            CALL clear_line_of_text(13, 39) 'GRH'
-            CALL clear_line_of_text(14, 39) 'Health Care'
-            CALL clear_line_of_text(15, 39) 'MA Excluded Time'
-            CALL clear_line_of_text(16, 39) 'IV-E Foster Care
         END IF
 
         IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE) THEN 'previously we read PROG for cash one and cash two programs unsure if this is necessary'
@@ -426,7 +410,8 @@ ELSE 'this means out of county is TRUE '
         END IF
     END IF ' confirming the xfer worked and we left the panel'
 END IF ' the big one'
-script_run_lowdown = script_run_lowdown & vbCr & excluded_time_dropdown & vbCr &  low_down_Excluded_Time_Begin_Date & vbCr &  Cash_I & vbCr &  Cash_II & vbCr & GRH & vbCr &  Health_Care & vbCr &  MA_Excluded_Time & vbCr &  IV-E_Foster_Care & vbCr & " Message: " & vbCr & error_message
+script_run_lowdown = script_run_lowdown & vbCr & "excluded_time_dropdown: " & excluded_time_dropdown & vbCr & "low_down_Excluded_Time_Begin_Date: " & low_down_Excluded_Time_Begin_Date & vbCr & "Cash_I: " & Cash_I & vbCr & "Cash_II: " & Cash_II & vbCr & "GRH: " & GRH & vbCr &  "Health_Care: " & Health_Care & vbCr &  "MA_Excluded_Time: " & MA_Excluded_Time & vbCr &  "IVE_Foster_Care: " & IVE_Foster_Care & vbCr & "cash_cfr: " & cash_cfr & vbCr & "cfr_month: " & cfr_month & vbCr & "cash_cfr: " & cash_cfr & vbCr & "cfr_year: " & cfr_year & vbCr & "cash_cfr: " & cash_cfr & vbCr & "hc_cfr: " & hc_cfr & vbCr & "hc_cfr_month: " & hc_cfr_month & vbCr & "hc_cfr_year: " & hc_cfr_year & vbCr & "worker_number: " & worker_number & vbCr & "transfer_to_worker: " & transfer_to_worker & vbCr & " Message: " & vbCr & error_message
+
 IF end_msg <> "" Then
     closing_message = closing_message & vbCr & vbCr & "Case did not appear to transfer:" & vbCr & end_msg
 ELSE
