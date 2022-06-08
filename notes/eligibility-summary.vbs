@@ -365,27 +365,26 @@ class dwp_eligibility_detail
 		Loop until next_ref_numb = "  "
 
 		transmit 		'going to the next panel - DWCR
-		MsgBox "AT DWCR"
 
-		EMReadScreen dwp_elig_case_test_application_withdrawn, 6, 6, 7
-		EMReadScreen dwp_elig_case_test_assets, 6, 6, 7
-		EMReadScreen dwp_elig_case_test_CS_disqualification, 6, 6, 7
-		EMReadScreen dwp_elig_case_test_death_of_applicant, 6, 6, 7
-		EMReadScreen dwp_elig_case_test_dupl_assistance, 6, 6, 7
-		EMReadScreen dwp_elig_case_test_eligible_child, 6, 6, 7
-		EMReadScreen dwp_elig_case_test_ES_disqualification, 6, 6, 7
-		EMReadScreen dwp_elig_case_test_fail_coop, 6, 6, 7
-		EMReadScreen dwp_elig_case_test_four_month_limit, 6, 6, 7
+		EMReadScreen dwp_elig_case_test_application_withdrawn, 	6, 6, 7
+		EMReadScreen dwp_elig_case_test_assets, 				6, 7, 7
+		EMReadScreen dwp_elig_case_test_CS_disqualification, 	6, 8, 7
+		EMReadScreen dwp_elig_case_test_death_of_applicant, 	6, 9, 7
+		EMReadScreen dwp_elig_case_test_dupl_assistance, 		6, 10, 7
+		EMReadScreen dwp_elig_case_test_eligible_child, 		6, 11, 7
+		EMReadScreen dwp_elig_case_test_ES_disqualification, 	6, 12, 7
+		EMReadScreen dwp_elig_case_test_fail_coop, 				6, 13, 7
+		EMReadScreen dwp_elig_case_test_four_month_limit, 		6, 14, 7
 
-		EMReadScreen dwp_elig_case_test_initial_income, 6, 6, 45
-		EMReadScreen dwp_elig_case_test_MFIP_conversion, 6, 6, 45
-		EMReadScreen dwp_elig_case_test_residence, 6, 6, 45
-		EMReadScreen dwp_elig_case_test_strike, 6, 6, 45
-		EMReadScreen dwp_elig_case_test_TANF_time_limit, 6, 6, 45
-		EMReadScreen dwp_elig_case_test_transfer_of_assets, 6, 6, 45
-		EMReadScreen dwp_elig_case_test_verif, 6, 6, 45
+		EMReadScreen dwp_elig_case_test_initial_income, 		6, 6, 45
+		EMReadScreen dwp_elig_case_test_MFIP_conversion, 		6, 7, 45
+		EMReadScreen dwp_elig_case_test_residence, 				6, 8, 45
+		EMReadScreen dwp_elig_case_test_strike, 				6, 9, 45
+		EMReadScreen dwp_elig_case_test_TANF_time_limit, 		6, 10, 45
+		EMReadScreen dwp_elig_case_test_transfer_of_assets, 	6, 11, 45
+		EMReadScreen dwp_elig_case_test_verif, 					6, 12, 45
 
-		EMReadScreen dwp_elig_case_test_new_spouse_income, 6, 6, 45
+		EMReadScreen dwp_elig_case_test_new_spouse_income, 		6, 17, 7
 
 		dwp_elig_case_test_application_withdrawn = trim(dwp_elig_case_test_application_withdrawn)
 		dwp_elig_case_test_assets = trim(dwp_elig_case_test_assets)
@@ -444,6 +443,7 @@ class dwp_eligibility_detail
 			dwp_elig_test_fail_coop_vendor_info = trim(dwp_elig_test_fail_coop_vendor_info)
 
 			transmit
+
 		End If
 
 		If dwp_elig_case_test_initial_income <> "NA" Then
@@ -515,7 +515,6 @@ class dwp_eligibility_detail
 		End If
 
 		transmit 		'going to the next panel - DWCB1
-		MsgBox "AT DWB1"
 
 
 		EMReadScreen dwp_elig_budg_shel_rent_mortgage, 		9, 5, 29
@@ -612,7 +611,6 @@ class dwp_eligibility_detail
 
 
 		transmit 		'going to the next panel - DWB2
-		MsgBox "AT DWB2"
 
 		EMReadScreen dwp_elig_prorated_date, 8, 6, 18
 		If dwp_elig_prorated_date = "__ __ __" then dwp_elig_prorated_date = ""
@@ -657,7 +655,6 @@ class dwp_eligibility_detail
 		dwp_elig_adjusted_grant_state_amount = trim(dwp_elig_adjusted_grant_state_amount)
 
 		transmit 		'going to the next panel - DWSM
-		MsgBox "AT DWSM"
 
 		EMReadScreen dwp_approved_date, 8, 3, 14
 		EMReadScreen dwp_process_date, 8, 2, 73
@@ -3888,9 +3885,9 @@ For each footer_month in MONTHS_ARRAY
 
 		Call DWP_ELIG_APPROVALS(dwp_elig_months_count).read_elig
 
-		MsgBox "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year & vbCr &_
-		"DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount & vbCr &_
-		"DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result
+		' MsgBox "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year & vbCr &_
+		' "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount & vbCr &_
+		' "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result
 
 		dwp_elig_months_count = dwp_elig_months_count + 1
 	End If
