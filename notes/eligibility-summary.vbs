@@ -67,624 +67,641 @@ end function
 
 
 'DECLARATIONS===============================================================================================================
-
-class snap_eligibility_detail
-
+class dwp_eligibility_detail
 	public elig_footer_month
 	public elig_footer_year
 	public elig_version_number
 	public elig_version_date
 	public elig_version_result
 
-	public snap_elig_ref_numbs()
-	public snap_elig_membs_request_yn()
-	public snap_elig_membs_code()
-	public snap_elig_membs_status_info()
-	public snap_elig_membs_counted()
-	public snap_elig_membs_state_food()
-	public snap_elig_membs_eligibility()
-	public snap_elig_membs_begin_date()
-	public snap_elig_membs_budget_cycle()
+	public dwp_elig_ref_numbs()
+	public dwp_elig_membs_full_name()
+	public dwp_elig_membs_request_yn()
+	public dwp_elig_membs_member_code()
+	public dwp_elig_membs_member_info()
+	public dwp_elig_membs_funding_source_code()
+	public dwp_elig_membs_funding_source_info()
+	public dwp_elig_membs_elig_status()
+	public dwp_elig_membs_begin_date()
+	public dwp_elig_membs_adult_or_child()
+	public dwp_elig_membs_test_absence()
+	public dwp_elig_membs_test_child_age()
+	public dwp_elig_membs_test_citizenship()
+	public dwp_elig_membs_test_citizenship_verif()
+	public dwp_elig_membs_test_dupl_assistance()
+	public dwp_elig_membs_test_foster_care()
+	public dwp_elig_membs_test_fraud()
+	public dwp_elig_membs_test_minor_living_arrangement()
+	public dwp_elig_membs_test_post_60_removal()
+	public dwp_elig_membs_test_ssi()
+	public dwp_elig_membs_test_ssn_coop()
+	public dwp_elig_membs_test_unit_member()
+	public dwp_elig_membs_test_unlawful_conduct()
+	public dwp_elig_membs_es_status_code()
+	public dwp_elig_membs_es_status_info()
 
-	public snap_elig_membs_abawd()
-	public snap_elig_membs_absence()
-	public snap_elig_membs_roomer()
-	public snap_elig_membs_boarder()
-	public snap_elig_membs_citizenship()
-	public snap_elig_membs_citizenship_code()
-	public snap_elig_membs_cmdty()
-	public snap_elig_membs_disq()
-	public snap_elig_membs_dupl_assist()
-	public snap_elig_membs_fraud()
-	public snap_elig_membs_eligible_student()
-	public snap_elig_membs_institution()
-	public snap_elig_membs_mfip_elig()
-	public snap_elig_membs_non_applcnt()
-	public snap_elig_membs_residence()
-	public snap_elig_membs_ssn_coop()
-	public snap_elig_membs_unit_memb()
-	public snap_elig_membs_work_reg()
-	public snap_elig_membs_drug_felon_test()
-	' public snap_elig_membs
-	' public snap_elig_membs
-	' public snap_elig_membs
-	' public snap_elig_membs
-	' public snap_elig_membs
+	public dwp_elig_case_test_application_withdrawn
+	public dwp_elig_case_test_assets
+	public dwp_elig_case_test_CS_disqualification
+	public dwp_elig_case_test_death_of_applicant
+	public dwp_elig_case_test_dupl_assistance
+	public dwp_elig_case_test_eligible_child
+	public dwp_elig_case_test_ES_disqualification
+	public dwp_elig_case_test_fail_coop
+	public dwp_elig_case_test_four_month_limit
+	public dwp_elig_case_test_initial_income
+	public dwp_elig_case_test_MFIP_conversion
+	public dwp_elig_case_test_residence
+	public dwp_elig_case_test_strike
+	public dwp_elig_case_test_TANF_time_limit
+	public dwp_elig_case_test_transfer_of_assets
+	public dwp_elig_case_test_verif
+	public dwp_elig_case_test_new_spouse_income
+	public dwp_elig_asset_CASH
+	public dwp_elig_asset_ACCT
+	public dwp_elig_asset_SECU
+	public dwp_elig_asset_CARS
+	public dwp_elig_asset_SPON
+	public dwp_elig_asset_total
+	public dwp_elig_asset_maximum
+	public dwp_elig_test_fail_coop_applied_other_benefits
+	public dwp_elig_test_fail_coop_provide_requested_info
+	public dwp_elig_test_fail_coop_IEVS
+	public dwp_elig_test_fail_coop_vendor_info
+	public dwp_elig_initial_counted_earned_income
+	public dwp_elig_initial_dependent_care_expense
+	public dwp_elig_initial_counted_unearned_incom
+	public dwp_elig_initial_counted_deemed_income
+	public dwp_elig_initial_child_support_exclusion
+	public dwp_elig_initial_total_counted_income
+	public dwp_elig_initial_family_wage_level
+	public dwp_elig_test_verif_ACCT
+	public dwp_elig_test_verif_BUSI
+	public dwp_elig_test_verif_CARS
+	public dwp_elig_test_verif_JOBS
+	public dwp_elig_test_verif_MEMB_dob
+	public dwp_elig_test_verif_MEMB_id
+	public dwp_elig_test_verif_PARE
+	public dwp_elig_test_verif_PREG
+	public dwp_elig_test_verif_RBIC
+	public dwp_elig_test_verif_ADDR
+	public dwp_elig_test_verif_SCHL
+	public dwp_elig_test_verif_SECU
+	public dwp_elig_test_verif_SPON
+	public dwp_elig_test_verif_UNEA
 
-	public snap_expedited
-	public snap_uhfs
-	public snap_exp_package_includes_month_one
-	public snap_exp_package_includes_month_two
-	public snap_prorated
-	public snap_earned_income_budgeted
-	public snap_unearned_income_budgeted
-	public snap_shel_costs_budgeted
-	public snap_hest_costs_budgeted
-	public snap_categorical_eligibility
-	public snap_case_appl_withdrawn_test
-	public snap_case_applct_elig_test
-	public snap_case_comdty_test
-	public snap_case_disq_test
-	public snap_case_dupl_assist_test
-	public snap_case_eligible_person_test
-	public snap_case_fail_coop_test
-	public snap_case_fail_file_test
-	public snap_case_prosp_gross_inc_test
-	public snap_case_prosp_net_inc_test
-	public snap_case_recert_test
-	public snap_case_residence_test
-	public snap_case_resource_test
-	public snap_case_retro_gross_inc_test
-	public snap_case_retro_net_inc_test
-	public snap_case_strike_test
-	public snap_case_xfer_resource_inc_test
-	public snap_case_verif_test
-	public snap_case_voltry_quit_test
-	public snap_case_work_reg_test
-	public snap_fail_file_hrf
-	public snap_fail_file_sr
-	public snap_resource_cash
-	public snap_resource_acct
-	public snap_resource_secu
-	public snap_resource_cars
-	public snap_resource_rest
-	public snap_resource_other
-	public snap_resource_burial
-	public snap_resource_spon
-	public snap_resource_total
-	public snap_resource_max
-	public snap_budg_gross_wages
-	public snap_budg_self_emp
-	public snap_budg_total_earned_inc
-	public snap_budg_pa_grant_inc
-	public snap_budg_rsdi_inc
-	public snap_budg_ssi_inc
-	public snap_budg_va_inc
-	public snap_budg_uc_wc_inc
-	public snap_budg_cses_inc
-	public snap_budg_other_unea_inc
-	public snap_budg_total_unea_inc
-	public snap_budg_schl_inc
-	public snap_budg_farm_ofset
-	public snap_budg_total_gross_inc
-	public snap_budg_max_gross_inc
-	public snap_budg_deduct_standard
-	public snap_budg_deduct_earned
-	public snap_budg_deduct_medical
-	public snap_budg_deduct_depndt_care
-	public snap_budg_deduct_cses
-	public snap_budg_total_deduct
-	public snap_budg_net_inc
-	public snap_budg_shel_rent_mort
-	public snap_budg_shel_prop_tax
-	public snap_budg_shel_home_ins
-	public snap_budg_shel_electricity
-	public snap_budg_shel_heat_ac
-	public snap_budg_shel_water_garbage
-	public snap_budg_shel_phone
-	public snap_budg_shel_other
-	public snap_budg_shel_total
-	public snap_budg_50_perc_net_inc
-	public snap_budg_adj_shel_costs
-	public snap_budg_max_allow_shel
-	public snap_budg_shel_expenses
-	' public snap_budg_net_adj_inc
-	public snap_budg_max_net_adj_inc
-	public snap_benefit_monthly_fs_allot
-	public snap_benefit_drug_felon_sanc_amt
-	public snap_benefit_recoup_amount
-	public snap_benefit_benefit_amount
-	public snap_benefit_state_food_amt
-	public snap_benefit_fed_food_amt
-	public snap_benefit_recoup_from_fed_fs
-	public snap_benefit_recoup_from_state_fs
-	public snap_approved_date
-	public snap_date_last_approval
-	public snap_curr_prog_status
-	public snap_elig_result
-	public snap_reporting_status
-	public snap_info_source
-	public snap_benefit
-	public snap_elig_revw_date
-	public snap_budget_cycle
-	public snap_budg_numb_in_assist_unit
-	public snap_budg_total_resources
-	public snap_budg_max_resources
-	public snap_budg_net_adj_inc
-	public snap_benefit_monthly_fs_allotment
-	public snap_benefit_prorated_amt
-	public snap_benefit_prorated_date
-	public snap_benefit_amt
-	public snap_exp_criteria_migrant_destitute
-	public snap_exp_criteria_resource_100_income_150
-	public snap_exp_criteria_resource_income_less_shelter
-	public snap_exp_verif_status_postponed
-	public snap_exp_verif_status_out_of_state
-	public snap_exp_verif_status_all_provided
-	public snap_elig_worker_message_one
-	public snap_elig_worker_message_two
+	public dwp_elig_budg_shel_rent_mortgage
+	public dwp_elig_budg_shel_property_tax
+	public dwp_elig_budg_shel_house_insurance
+	public dwp_elig_budg_hest_electricity
+	public dwp_elig_budg_hest_heat_air
+	public dwp_elig_budg_hest_water_sewer_garbage
+	public dwp_elig_budg_hest_phone
+	public dwp_elig_budg_shel_other
+	public dwp_elig_budg_total_shelter_costs
+	public dwp_elig_budg_personal_needs
+	public dwp_elig_budg_total_DWP_need
+	public dwp_elig_budg_earned_income
+	public dwp_elig_budg_unearned_income
+	public dwp_elig_budg_deemed_income
+	public dwp_elig_budg_child_support_exclusion
+	public dwp_elig_budg_budget_month_total
+	public dwp_elig_budg_prior_low
+	public dwp_elig_budg_DWP_countable_income
+	public dwp_elig_budg_unmet_need
+	public dwp_elig_budg_DWP_max_grant
+	public dwp_elig_budg_DWP_grant
+	public dwp_elig_cses_income
+	public dwp_elig_child_count
+
+	public dwp_elig_prorated_date
+	public dwp_elig_prorated_amount
+	public dwp_elig_amount_already_issued
+	public dwp_elig_supplement_due
+	public dwp_elig_overpayment
+	public dwp_elig_adjusted_grant_amount
+	public dwp_elig_recoupment_amount
+	public dwp_elig_shelter_benefit_grant
+	public dwp_elig_personal_needs_grant
+	public dwp_elig_overpayment_fed_hh_count
+	public dwp_elig_overpayment_fed_amount
+	public dwp_elig_overpayment_state_hh_count
+	public dwp_elig_overpayment_state_amount
+	public dwp_elig_adjusted_grant_fed_hh_count
+	public dwp_elig_adjusted_grant_fed_amount
+	public dwp_elig_adjusted_grant_state_hh_count
+	public dwp_elig_adjusted_grant_state_amount
+
+	public dwp_approved_date
+	public dwp_process_date
+	public dwp_prev_approval
+	public dwp_case_last_approval_date
+	public dwp_case_current_prog_status
+	public dwp_case_eligibility_result
+	public dwp_case_source_of_info
+	public dwp_case_benefit_impact
+	public dwp_case_4th_month_of_elig
+	public dwp_case_caregivers_have_es_plan
+	public dwp_case_responsible_county
+	public dwp_case_service_county
+	public dwp_case_asst_unit_caregivers
+	public dwp_case_asst_unit_children
+	public dwp_case_total_assets
+	public dwp_case_maximum_assets
+	public dwp_case_summary_grant_amount
+	public dwp_case_summary_net_grant_amount
+	public dwp_case_summary_shelter_benefit_portion
+	public dwp_case_summary_personal_needs_portion
 
 
 	public sub read_elig()
-		snap_expedited = False
-		snap_uhfs = False
-		snap_exp_package_includes_month_one = False
-		snap_exp_package_includes_month_two = False
-		snap_prorated = False
-		snap_earned_income_budgeted = False
-		snap_unearned_income_budgeted = False
-		snap_shel_costs_budgeted = False
-		snap_hest_costs_budgeted = False
-		snap_categorical_eligibility = ""
+		call navigate_to_MAXIS_screen("ELIG", "DWP ")
+		EMWriteScreen elig_footer_month, 20, 56
+		EMWriteScreen elig_footer_year, 20, 59
+		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result)
 
-		ReDim snap_elig_ref_numbs(0)
-		ReDim snap_elig_membs_request_yn(0)
-		ReDim snap_elig_membs_code(0)
-		ReDim snap_elig_membs_status_info(0)
-		ReDim snap_elig_membs_counted(0)
-		ReDim snap_elig_membs_state_food(0)
-		ReDim snap_elig_membs_eligibility(0)
-		ReDim snap_elig_membs_begin_date(0)
-		ReDim snap_elig_membs_budget_cycle(0)
-		ReDim snap_elig_membs_abawd(0)
-		ReDim snap_elig_membs_absence(0)
-		ReDim snap_elig_membs_roomer(0)
-		ReDim snap_elig_membs_boarder(0)
-		ReDim snap_elig_membs_citizenship(0)
-		ReDim snap_elig_membs_citizenship_code(0)
-		ReDim snap_elig_membs_cmdty(0)
-		ReDim snap_elig_membs_disq(0)
-		ReDim snap_elig_membs_dupl_assist(0)
-		ReDim snap_elig_membs_fraud(0)
-		ReDim snap_elig_membs_eligible_student(0)
-		ReDim snap_elig_membs_institution(0)
-		ReDim snap_elig_membs_mfip_elig(0)
-		ReDim snap_elig_membs_non_applcnt(0)
-		ReDim snap_elig_membs_residence(0)
-		ReDim snap_elig_membs_ssn_coop(0)
-		ReDim snap_elig_membs_unit_memb(0)
-		ReDim snap_elig_membs_work_reg(0)
-		ReDim snap_elig_membs_drug_felon_test(0)
-
-		call navigate_to_MAXIS_screen("ELIG", "FS  ")
-		EMWriteScreen elig_footer_month, 19, 54
-		EMWriteScreen elig_footer_year, 19, 57
-		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result)
+		ReDim dwp_elig_ref_numbs(0)
+		ReDim dwp_elig_membs_full_name(0)
+		ReDim dwp_elig_membs_request_yn(0)
+		ReDim dwp_elig_membs_member_code(0)
+		ReDim dwp_elig_membs_member_info(0)
+		ReDim dwp_elig_membs_funding_source_code(0)
+		ReDim dwp_elig_membs_funding_source_info(0)
+		ReDim dwp_elig_membs_elig_status(0)
+		ReDim dwp_elig_membs_begin_date(0)
+		ReDim dwp_elig_membs_adult_or_child(0)
+		ReDim dwp_elig_membs_test_absence(0)
+		ReDim dwp_elig_membs_test_child_age(0)
+		ReDim dwp_elig_membs_test_citizenship(0)
+		ReDim dwp_elig_membs_test_citizenship_verif(0)
+		ReDim dwp_elig_membs_test_dupl_assistance(0)
+		ReDim dwp_elig_membs_test_foster_care(0)
+		ReDim dwp_elig_membs_test_fraud(0)
+		ReDim dwp_elig_membs_test_minor_living_arrangement(0)
+		ReDim dwp_elig_membs_test_post_60_removal(0)
+		ReDim dwp_elig_membs_test_ssi(0)
+		ReDim dwp_elig_membs_test_ssn_coop(0)
+		ReDim dwp_elig_membs_test_unit_member(0)
+		ReDim dwp_elig_membs_test_unlawful_conduct(0)
+		ReDim dwp_elig_membs_es_status_code(0)
+		ReDim dwp_elig_membs_es_status_info(0)
 
 		row = 7
 		elig_memb_count = 0
 		Do
-			EMReadScreen ref_numb, 2, row, 10
+			EMReadScreen ref_numb, 2, row, 5
 
-			ReDim preserve snap_elig_ref_numbs(elig_memb_count)
-			ReDim preserve snap_elig_membs_request_yn(elig_memb_count)
-			ReDim preserve snap_elig_membs_code(elig_memb_count)
-			ReDim preserve snap_elig_membs_status_info(elig_memb_count)
-			ReDim preserve snap_elig_membs_counted(elig_memb_count)
-			ReDim preserve snap_elig_membs_state_food(elig_memb_count)
-			ReDim preserve snap_elig_membs_eligibility(elig_memb_count)
-			ReDim preserve snap_elig_membs_begin_date(elig_memb_count)
-			ReDim preserve snap_elig_membs_budget_cycle(elig_memb_count)
+			ReDim preserve dwp_elig_ref_numbs(elig_memb_count)
+			ReDim preserve dwp_elig_membs_full_name(elig_memb_count)
+			ReDim preserve dwp_elig_membs_request_yn(elig_memb_count)
+			ReDim preserve dwp_elig_membs_member_code(elig_memb_count)
+			ReDim preserve dwp_elig_membs_member_info(elig_memb_count)
+			ReDim preserve dwp_elig_membs_funding_source_code(elig_memb_count)
+			ReDim preserve dwp_elig_membs_funding_source_info(elig_memb_count)
+			ReDim preserve dwp_elig_membs_elig_status(elig_memb_count)
+			ReDim preserve dwp_elig_membs_begin_date(elig_memb_count)
+			ReDim preserve dwp_elig_membs_adult_or_child(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_absence(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_child_age(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_citizenship(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_citizenship_verif(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_dupl_assistance(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_foster_care(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_fraud(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_minor_living_arrangement(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_post_60_removal(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_ssi(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_ssn_coop(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_unit_member(elig_memb_count)
+			ReDim preserve dwp_elig_membs_test_unlawful_conduct(elig_memb_count)
+			ReDim preserve dwp_elig_membs_es_status_code(elig_memb_count)
+			ReDim preserve dwp_elig_membs_es_status_info(elig_memb_count)
 
-			ReDim preserve snap_elig_membs_abawd(elig_memb_count)
-			ReDim preserve snap_elig_membs_absence(elig_memb_count)
-			ReDim preserve snap_elig_membs_roomer(elig_memb_count)
-			ReDim preserve snap_elig_membs_boarder(elig_memb_count)
-			ReDim preserve snap_elig_membs_citizenship(elig_memb_count)
-			ReDim preserve snap_elig_membs_citizenship_code(elig_memb_count)
-			ReDim preserve snap_elig_membs_cmdty(elig_memb_count)
-			ReDim preserve snap_elig_membs_disq(elig_memb_count)
-			ReDim preserve snap_elig_membs_dupl_assist(elig_memb_count)
-			ReDim preserve snap_elig_membs_fraud(elig_memb_count)
-			ReDim preserve snap_elig_membs_eligible_student(elig_memb_count)
-			ReDim preserve snap_elig_membs_institution(elig_memb_count)
-			ReDim preserve snap_elig_membs_mfip_elig(elig_memb_count)
-			ReDim preserve snap_elig_membs_non_applcnt(elig_memb_count)
-			ReDim preserve snap_elig_membs_residence(elig_memb_count)
-			ReDim preserve snap_elig_membs_ssn_coop(elig_memb_count)
-			ReDim preserve snap_elig_membs_unit_memb(elig_memb_count)
-			ReDim preserve snap_elig_membs_work_reg(elig_memb_count)
-			ReDim preserve snap_elig_membs_drug_felon_test(elig_memb_count)
-
-			snap_elig_ref_numbs(elig_memb_count) = ref_numb
-			EMReadScreen snap_elig_membs_request_yn(elig_memb_count), 1, row, 32
-			EMReadScreen snap_elig_membs_code(elig_memb_count), 1, row, 35
-			EMReadScreen memb_count, 11, row, 39
-			EMReadScreen memb_state_food, 1, row, 50
-			EMReadScreen memb_elig, 10, row, 57
-			EMReadScreen snap_elig_membs_begin_date(elig_memb_count), 8, row, 68
-			EMReadScreen memb_budg_cycle, 1, row, 78
-
-			If snap_elig_membs_code(elig_memb_count) = "A" Then snap_elig_membs_status_info(elig_memb_count) = "Eligible"
-			If snap_elig_membs_code(elig_memb_count) = "C" Then snap_elig_membs_status_info(elig_memb_count) = "Citizenship"
-			If snap_elig_membs_code(elig_memb_count) = "F" Then snap_elig_membs_status_info(elig_memb_count) = "Fraud, DISQ, Work Reg"
-			If snap_elig_membs_code(elig_memb_count) = "D" Then snap_elig_membs_status_info(elig_memb_count) = "Duplicate Assistance"
-			If snap_elig_membs_code(elig_memb_count) = "I" Then snap_elig_membs_status_info(elig_memb_count) = "Ineligible"
-			If snap_elig_membs_code(elig_memb_count) = "N" Then snap_elig_membs_status_info(elig_memb_count) = "Unit Member"
-			If snap_elig_membs_code(elig_memb_count) = "S" Then snap_elig_membs_status_info(elig_memb_count) = "Ineligible Student"
-			If snap_elig_membs_code(elig_memb_count) = "U" Then snap_elig_membs_status_info(elig_memb_count) = "Unknown"
-			snap_elig_membs_counted(elig_memb_count) = trim(memb_count)
-			If memb_state_food = "Y" Then snap_elig_membs_state_food(elig_memb_count) = True
-			If memb_state_food = "N" Then snap_elig_membs_state_food(elig_memb_count) = False
-			snap_elig_membs_eligibility(elig_memb_count) = trim(memb_elig)
-			If memb_budg_cycle = "P" Then snap_elig_membs_budget_cycle(elig_memb_count) = "Prospective"
-			If memb_budg_cycle = "R" Then snap_elig_membs_budget_cycle(elig_memb_count) = "Retrospective"
-
-			Call write_value_and_transmit("X", row, 5)
-
-			EMReadScreen memb_abawd, 			6, 6, 20
-			EMReadScreen memb_absence, 			6, 7, 20
-			EMReadScreen memb_roomer, 			6, 8, 20
-			EMReadScreen memb_boarder, 			6, 9, 20
-			EMReadScreen memb_citizenship, 		6, 10, 20
-			EMReadScreen memb_citizenship_coop, 6, 11, 20
-			EMReadScreen memb_cmdty, 			6, 12, 20
-			EMReadScreen memb_disq,				6, 13, 20
-			EMReadScreen memb_dupl_assist, 		6, 14, 20
-
-			snap_elig_membs_abawd(elig_memb_count) = trim(memb_abawd)
-			snap_elig_membs_absence(elig_memb_count) = trim(memb_absence)
-			snap_elig_membs_roomer(elig_memb_count) = trim(memb_roomer)
-			snap_elig_membs_boarder(elig_memb_count) = trim(memb_boarder)
-			snap_elig_membs_citizenship(elig_memb_count) = trim(memb_citizenship)
-			snap_elig_membs_citizenship_code(elig_memb_count) = trim(memb_citizenship_coop)
-			snap_elig_membs_cmdty(elig_memb_count) = trim(memb_cmdty)
-			snap_elig_membs_disq(elig_memb_count) = trim(memb_disq)
-			snap_elig_membs_dupl_assist(elig_memb_count) = trim(memb_dupl_assist)
-
-			EMReadScreen memb_fraud, 			6, 6, 54
-			EMReadScreen memb_eligible_student, 6, 7, 54
-			EMReadScreen memb_institution, 		6, 8, 54
-			EMReadScreen memb_mfip_elig, 		6, 9, 54
-			EMReadScreen memb_non_applcnt, 		6, 10, 54
-			EMReadScreen memb_residence, 		6, 11, 54
-			EMReadScreen memb_ssn_coop, 		6, 12, 54
-			EMReadScreen memb_unit_memb, 		6, 13, 54
-			EMReadScreen memb_work_reg, 		6, 14, 54
-
-			snap_elig_membs_fraud(elig_memb_count) = trim(memb_fraud)
-			snap_elig_membs_eligible_student(elig_memb_count) = trim(memb_eligible_student)
-			snap_elig_membs_institution(elig_memb_count) = trim(memb_institution)
-			snap_elig_membs_mfip_elig(elig_memb_count) = trim(memb_mfip_elig)
-			snap_elig_membs_non_applcnt(elig_memb_count) = trim(memb_non_applcnt)
-			snap_elig_membs_residence(elig_memb_count) = trim(memb_residence)
-			snap_elig_membs_ssn_coop(elig_memb_count) = trim(memb_ssn_coop)
-			snap_elig_membs_unit_memb(elig_memb_count) = trim(memb_unit_memb)
-			snap_elig_membs_work_reg(elig_memb_count) = trim(memb_work_reg)
-			transmit
-
-
-			elig_memb_count = elig_memb_count + 1
-			row = row + 1
-			EMReadScreen next_ref_numb, 2, row, 10
-		Loop until next_ref_numb = "  "
-
-		transmit 		'FSCR
-		EMReadScreen case_expedited_indicator, 9, 4, 3
-		If case_expedited_indicator = "EXPEDITED" Then snap_expedited = True
-		EMReadScreen case_uhfs_indicator, 11, 5, 4
-		If case_uhfs_indicator = "UNCLE HARRY" Then snap_uhfs = True
-
-		EMReadScreen snap_case_appl_withdrawn_test, 	6, 7, 9
-		EMReadScreen snap_case_applct_elig_test, 		6, 8, 9
-		EMReadScreen snap_case_comdty_test, 			6, 9, 9
-		EMReadScreen snap_case_disq_test, 				6, 10, 9
-		EMReadScreen snap_case_dupl_assist_test, 		6, 11, 9
-		EMReadScreen snap_case_eligible_person_test, 	6, 12, 9
-		EMReadScreen snap_case_fail_coop_test, 			6, 13, 9
-		EMReadScreen snap_case_fail_file_test, 			6, 14, 9
-		EMReadScreen snap_case_prosp_gross_inc_test, 	6, 15, 9
-		EMReadScreen snap_case_prosp_net_inc_test, 		6, 16, 9
-		snap_case_appl_withdrawn_test = trim(snap_case_appl_withdrawn_test)
-		snap_case_applct_elig_test = trim(snap_case_applct_elig_test)
-		snap_case_comdty_test = trim(snap_case_comdty_test)
-		snap_case_disq_test = trim(snap_case_disq_test)
-		snap_case_dupl_assist_test = trim(snap_case_dupl_assist_test)
-		snap_case_eligible_person_test = trim(snap_case_eligible_person_test)
-		snap_case_fail_coop_test = trim(snap_case_fail_coop_test)
-		snap_case_fail_file_test = trim(snap_case_fail_file_test)
-		snap_case_prosp_gross_inc_test = trim(snap_case_prosp_gross_inc_test)
-		snap_case_prosp_net_inc_test = trim(snap_case_prosp_net_inc_test)
-
-		EMReadScreen snap_case_recert_test, 			6, 7, 49
-		EMReadScreen snap_case_residence_test, 			6, 8, 49
-		EMReadScreen snap_case_resource_test, 			6, 9, 49
-		EMReadScreen snap_case_retro_gross_inc_test, 	6, 10, 49
-		EMReadScreen snap_case_retro_net_inc_test, 		6, 11, 49
-		EMReadScreen snap_case_strike_test, 			6, 12, 49
-		EMReadScreen snap_case_xfer_resource_inc_test, 	6, 13, 49
-		EMReadScreen snap_case_verif_test, 				6, 14, 49
-		EMReadScreen snap_case_voltry_quit_test, 		6, 15, 49
-		EMReadScreen snap_case_work_reg_test, 			6, 16, 49
-		snap_case_recert_test = trim(snap_case_recert_test)
-		snap_case_residence_test = trim(snap_case_residence_test)
-		snap_case_resource_test = trim(snap_case_resource_test)
-		snap_case_retro_gross_inc_test = trim(snap_case_retro_gross_inc_test)
-		snap_case_retro_net_inc_test = trim(snap_case_retro_net_inc_test)
-		snap_case_strike_test = trim(snap_case_strike_test)
-		snap_case_xfer_resource_inc_test = trim(snap_case_xfer_resource_inc_test)
-		snap_case_verif_test = trim(snap_case_verif_test)
-		snap_case_voltry_quit_test = trim(snap_case_voltry_quit_test)
-		snap_case_work_reg_test = trim(snap_case_work_reg_test)
-
-		Call write_value_and_transmit("X", 14, 4)		''Fail to File Detail
-		EMReadScreen snap_fail_file_hrf, 6, 10, 32
-		EMReadScreen snap_fail_file_sr, 6, 11, 32
-		transmit
-		snap_fail_file_hrf = trim(snap_fail_file_hrf)
-		snap_fail_file_sr = trim(snap_fail_file_sr)
-
-		Call write_value_and_transmit("X", 14, 4)		''Resource Detail
-		EMReadScreen snap_resource_cash, 	10, 8, 47
-		EMReadScreen snap_resource_acct, 	10, 9, 47
-		EMReadScreen snap_resource_secu, 	10, 10, 47
-		EMReadScreen snap_resource_cars, 	10, 11, 47
-		EMReadScreen snap_resource_rest, 	10, 12, 47
-		EMReadScreen snap_resource_other, 	10, 13, 47
-		EMReadScreen snap_resource_burial, 	10, 14, 47
-		EMReadScreen snap_resource_spon, 	10, 15, 47
-		EMReadScreen snap_resource_total, 	10, 17, 47
-		EMReadScreen snap_resource_max, 	10, 18, 47
-		transmit
-
-		snap_resource_cash = trim(snap_resource_cash)
-		snap_resource_acct = trim(snap_resource_acct)
-		snap_resource_secu = trim(snap_resource_secu)
-		snap_resource_cars = trim(snap_resource_cars)
-		snap_resource_rest = trim(snap_resource_rest)
-		snap_resource_other = trim(snap_resource_other)
-		snap_resource_burial = trim(snap_resource_burial)
-		snap_resource_spon = trim(snap_resource_spon)
-		snap_resource_total = trim(snap_resource_total)
-		snap_resource_max = trim(snap_resource_max)
-
-		transmit 		'FSB1
-		EMReadScreen snap_budg_gross_wages, 		10, 5, 31
-		EMReadScreen snap_budg_self_emp, 			10, 6, 31
-		EMReadScreen snap_budg_total_earned_inc, 	10, 8, 31
-
-		snap_budg_gross_wages = trim(snap_budg_gross_wages)
-		snap_budg_self_emp = trim(snap_budg_self_emp)
-		snap_budg_total_earned_inc = trim(snap_budg_total_earned_inc)
-
-
-		EMReadScreen snap_budg_pa_grant_inc, 	10, 10, 31
-		EMReadScreen snap_budg_rsdi_inc, 		10, 11, 31
-		EMReadScreen snap_budg_ssi_inc, 		10, 12, 31
-		EMReadScreen snap_budg_va_inc, 			10, 13, 31
-		EMReadScreen snap_budg_uc_wc_inc, 		10, 14, 31
-		EMReadScreen snap_budg_cses_inc, 		10, 15, 31
-		EMReadScreen snap_budg_other_unea_inc, 	10, 16, 31
-		EMReadScreen snap_budg_total_unea_inc, 	10, 18, 31
-
-		snap_budg_pa_grant_inc = trim(snap_budg_pa_grant_inc)
-		snap_budg_rsdi_inc = trim(snap_budg_rsdi_inc)
-		snap_budg_ssi_inc = trim(snap_budg_ssi_inc)
-		snap_budg_va_inc = trim(snap_budg_va_inc)
-		snap_budg_uc_wc_inc = trim(snap_budg_uc_wc_inc)
-		snap_budg_cses_inc = trim(snap_budg_cses_inc)
-		snap_budg_other_unea_inc = trim(snap_budg_other_unea_inc)
-		snap_budg_total_unea_inc = trim(snap_budg_total_unea_inc)
-
-		EMReadScreen snap_budg_schl_inc, 			10, 5, 71
-		EMReadScreen snap_budg_farm_ofset, 			10, 6, 71
-		EMReadScreen snap_budg_total_gross_inc, 	10, 7, 71
-		EMReadScreen snap_budg_max_gross_inc, 		10, 8, 71
-
-		EMReadScreen snap_budg_deduct_standard, 	10, 10, 71
-		EMReadScreen snap_budg_deduct_earned, 		10, 11, 71
-		EMReadScreen snap_budg_deduct_medical, 		10, 12, 71
-		EMReadScreen snap_budg_deduct_depndt_care, 	10, 13, 71
-		EMReadScreen snap_budg_deduct_cses, 		10, 14, 71
-		EMReadScreen snap_budg_total_deduct, 		10, 16, 71
-
-		EMReadScreen snap_budg_net_inc, 			10, 18, 71
-
-		snap_budg_schl_inc = trim(snap_budg_schl_inc)
-		snap_budg_farm_ofset = trim(snap_budg_farm_ofset)
-		snap_budg_total_gross_inc = trim(snap_budg_total_gross_inc)
-		snap_budg_max_gross_inc = trim(snap_budg_max_gross_inc)
-		snap_budg_deduct_standard = trim(snap_budg_deduct_standard)
-		snap_budg_deduct_earned = trim(snap_budg_deduct_earned)
-		snap_budg_deduct_medical = trim(snap_budg_deduct_medical)
-		snap_budg_deduct_depndt_care = trim(snap_budg_deduct_depndt_care)
-		snap_budg_deduct_cses = trim(snap_budg_deduct_cses)
-		snap_budg_total_deduct = trim(snap_budg_total_deduct)
-		snap_budg_net_inc = trim(snap_budg_net_inc)
-
-		transmit 		'FSB2
-		EMReadScreen snap_budg_shel_rent_mort, 		10, 5, 27
-		EMReadScreen snap_budg_shel_prop_tax, 		10, 6, 27
-		EMReadScreen snap_budg_shel_home_ins, 		10, 7, 27
-		EMReadScreen snap_budg_shel_electricity, 	10, 8, 27
-		EMReadScreen snap_budg_shel_heat_ac, 		10, 9, 27
-		EMReadScreen snap_budg_shel_water_garbage, 	10, 10, 27
-		EMReadScreen snap_budg_shel_phone, 			10, 11, 27
-		EMReadScreen snap_budg_shel_other, 			10, 12, 27
-		EMReadScreen snap_budg_shel_total, 			10, 14, 27
-		EMReadScreen snap_budg_50_perc_net_inc, 	10, 15, 27
-		EMReadScreen snap_budg_adj_shel_costs, 		10, 17, 27
-
-		snap_budg_shel_rent_mort = trim(snap_budg_shel_rent_mort)
-		snap_budg_shel_prop_tax = trim(snap_budg_shel_prop_tax)
-		snap_budg_shel_home_ins = trim(snap_budg_shel_home_ins)
-		snap_budg_shel_electricity = trim(snap_budg_shel_electricity)
-		snap_budg_shel_heat_ac = trim(snap_budg_shel_heat_ac)
-		snap_budg_shel_water_garbage = trim(snap_budg_shel_water_garbage)
-		snap_budg_shel_phone = trim(snap_budg_shel_phone)
-		snap_budg_shel_other = trim(snap_budg_shel_other)
-		snap_budg_shel_total = trim(snap_budg_shel_total)
-		snap_budg_50_perc_net_inc = trim(snap_budg_50_perc_net_inc)
-		snap_budg_adj_shel_costs = trim(snap_budg_adj_shel_costs)
-
-
-		EMReadScreen snap_budg_max_allow_shel, 			10, 5, 71
-		EMReadScreen snap_budg_shel_expenses, 			10, 6, 71
-		' EMReadScreen fsb2_net_adj_inc, 				10, 7, 71
-		EMReadScreen snap_budg_max_net_adj_inc, 		10, 8, 71
-		EMReadScreen snap_benefit_monthly_fs_allot, 	10, 10, 71
-		EMReadScreen snap_benefit_drug_felon_sanc_amt, 	10, 12, 71
-		EMReadScreen snap_benefit_recoup_amount, 		10, 14, 71
-		EMReadScreen snap_benefit_benefit_amount, 		10, 16, 71
-		EMReadScreen snap_benefit_state_food_amt, 		10, 17, 71
-		EMReadScreen snap_benefit_fed_food_amt, 		10, 18, 71
-
-		snap_budg_max_allow_shel = trim(snap_budg_max_allow_shel)
-		snap_budg_shel_expenses = trim(snap_budg_shel_expenses)
-		' fsb2_net_adj_inc = trim(fsb2_net_adj_inc)
-		snap_budg_max_net_adj_inc = trim(snap_budg_max_net_adj_inc)
-		snap_benefit_monthly_fs_allot = trim(snap_benefit_monthly_fs_allot)
-		snap_benefit_drug_felon_sanc_amt = trim(snap_benefit_drug_felon_sanc_amt)
-		snap_benefit_recoup_amount = trim(snap_benefit_recoup_amount)
-		snap_benefit_benefit_amount = trim(snap_benefit_benefit_amount)
-		snap_benefit_state_food_amt = trim(snap_benefit_state_food_amt)
-		snap_benefit_fed_food_amt = trim(snap_benefit_fed_food_amt)
-
-
-		Call write_value_and_transmit("X", 14, 4)		''Resource Detail
-		row = 8
-		Do
-			EMReadScreen ref_numb, 2, row, 12
-
-			For case_memb = 0 to UBound(snap_elig_ref_numbs)
-				If ref_numb = snap_elig_ref_numbs(case_memb) Then
-					EMReadScreen memb_drug_felon_test, 6, row, 64
-					snap_elig_membs_drug_felon_test(case_memb) = trim(memb_drug_felon_test)
-				End If
+			dwp_elig_ref_numbs(elig_memb_count) = ref_numb
+			EMReadScreen full_name_information, 20, row, 9
+			full_name_information = trim(full_name_information)
+			name_array = split(full_name_information, " ")
+			For each name_parts in name_array
+				If len(name_parts) <> 1 Then dwp_elig_membs_full_name(elig_memb_count) = dwp_elig_membs_full_name(elig_memb_count) & " " & name_parts
 			Next
+			dwp_elig_membs_full_name(elig_memb_count) = trim((dwp_elig_membs_full_name(elig_memb_count)))
 
-			row = row + 1
-			EMReadScreen next_ref_numb, 2, row, 12
-		Loop until next_ref_numb = "  "
-		transmit
+			EMReadScreen dwp_elig_membs_request_yn(elig_memb_count), 1, row, 31
+			EMReadScreen dwp_elig_membs_member_code(elig_memb_count), 1, row, 35
+			EMReadScreen dwp_elig_membs_funding_source_code(elig_memb_count), 1, row, 53
+			EMReadScreen dwp_elig_membs_elig_status(elig_memb_count), 12, row, 57
+			EMReadScreen dwp_elig_membs_begin_date(elig_memb_count), 8, row, 73
 
-		Call write_value_and_transmit("X", 14, 4)		''Resource Detail
-		EMReadScreen snap_benefit_recoup_from_fed_fs, 10, 5, 51
-		EMReadScreen snap_benefit_recoup_from_state_fs, 10, 7, 51
+			dwp_elig_membs_elig_status(elig_memb_count) = trim(dwp_elig_membs_elig_status(elig_memb_count))
 
-		snap_benefit_recoup_from_fed_fs = trim(snap_benefit_recoup_from_fed_fs)
-		snap_benefit_recoup_from_state_fs = trim(snap_benefit_recoup_from_state_fs)
+			If dwp_elig_membs_member_code(elig_memb_count) = "A" Then dwp_elig_membs_member_info(elig_memb_count) = "Eligible"
+			If dwp_elig_membs_member_code(elig_memb_count) = "D" Then dwp_elig_membs_member_info(elig_memb_count) = "SSI/IVE/Adoption Assistance Recipient"
+			If dwp_elig_membs_member_code(elig_memb_count) = "F" Then dwp_elig_membs_member_info(elig_memb_count) = "Ineligible, Deemer"
+			If dwp_elig_membs_member_code(elig_memb_count) = "G" Then dwp_elig_membs_member_info(elig_memb_count) = "Parent of Minor Caregiver, Deemer"
+			If dwp_elig_membs_member_code(elig_memb_count) = "H" Then dwp_elig_membs_member_info(elig_memb_count) = "Other Deemer"
+			If dwp_elig_membs_member_code(elig_memb_count) = "I" Then dwp_elig_membs_member_info(elig_memb_count) = "Ineligible, Pare of Unit"
+			If dwp_elig_membs_member_code(elig_memb_count) = "J" Then dwp_elig_membs_member_info(elig_memb_count) = "Ineligible, Deemer"
+			If dwp_elig_membs_member_code(elig_memb_count) = "N" Then dwp_elig_membs_member_info(elig_memb_count) = "Not Counted"
 
-		transmit
+			If dwp_elig_membs_funding_source_code(elig_memb_count) = "F" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "Federal Funds (TANF Cash)"
+			If dwp_elig_membs_funding_source_code(elig_memb_count) = "S" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "State Funds (Cash)"
+			If dwp_elig_membs_funding_source_code(elig_memb_count) = "I" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "Ineligible for DWP"
+			If dwp_elig_membs_funding_source_code(elig_memb_count) = "N" Then dwp_elig_membs_funding_source_info(elig_memb_count) = "Not Applicable"
 
-		transmit 		'FSSM
-		EMReadScreen snap_approved_date, 			8, 3, 14
-		EMReadScreen snap_date_last_approval, 		8, 5, 31
-		EMReadScreen snap_curr_prog_status, 		10, 6, 31
-		EMReadScreen snap_elig_result, 				10, 7, 31
-		EMReadScreen snap_reporting_status, 		12, 8, 31
-		EMReadScreen snap_info_source, 				4, 9, 31
-		EMReadScreen snap_benefit, 					12, 10, 31
-		EMReadScreen snap_elig_revw_date, 			8, 11, 31
-		EMReadScreen snap_budget_cycle, 			5, 12, 31
-		EMReadScreen snap_budg_numb_in_assist_unit, 2, 13, 31
+			Call write_value_and_transmit("X", row, 3)		'open member test information
+			EMReadScreen dwp_elig_membs_adult_or_child(elig_memb_count), 1, 7, 51
 
-		EMReadScreen snap_budg_total_resources, 		10, 5, 71
-		EMReadScreen snap_budg_max_resources, 			10, 6, 71
-		EMReadScreen snap_budg_net_adj_inc, 			10, 7, 71
-		EMReadScreen snap_benefit_monthly_fs_allotment, 10, 8, 71
-		EMReadScreen snap_benefit_prorated_amt, 		10, 9, 71
-		EMReadScreen snap_benefit_prorated_date,		8, 9, 58
-		EMReadScreen snap_benefit_amt, 					10, 13, 71
+			If dwp_elig_membs_adult_or_child(elig_memb_count) = "A" Then dwp_elig_membs_adult_or_child(elig_memb_count) = "Adult"
+			If dwp_elig_membs_adult_or_child(elig_memb_count) = "C" Then dwp_elig_membs_adult_or_child(elig_memb_count) = "Child"
 
-		snap_approved_date = trim(snap_approved_date)
-		snap_date_last_approval = trim(snap_date_last_approval)
-		snap_curr_prog_status = trim(snap_curr_prog_status)
-		snap_elig_result = trim(snap_elig_result)
-		snap_reporting_status = trim(snap_reporting_status)
-		snap_info_source = trim(snap_info_source)
-		snap_benefit = trim(snap_benefit)
-		snap_elig_revw_date = trim(snap_elig_revw_date)
-		snap_budget_cycle = trim(snap_budget_cycle)
-		snap_budg_numb_in_assist_unit = trim(snap_budg_numb_in_assist_unit)
-		snap_budg_total_resources = trim(snap_budg_total_resources)
-		snap_budg_max_resources = trim(snap_budg_max_resources)
-		snap_budg_net_adj_inc = trim(snap_budg_net_adj_inc)
-		snap_benefit_monthly_fs_allotment = trim(snap_benefit_monthly_fs_allotment)
-		snap_benefit_prorated_amt = trim(snap_benefit_prorated_amt)
-		snap_benefit_prorated_date = trim(snap_benefit_prorated_date)
-		snap_benefit_amt = trim(snap_benefit_amt)
+			EMReadScreen dwp_elig_membs_test_absence(elig_memb_count), 			6, 10, 7
+			EMReadScreen dwp_elig_membs_test_child_age(elig_memb_count), 		6, 11, 7
+			EMReadScreen dwp_elig_membs_test_citizenship(elig_memb_count), 		6, 12, 7
+			EMReadScreen dwp_elig_membs_test_citizenship_verif(elig_memb_count), 6, 13, 7
+			EMReadScreen dwp_elig_membs_test_dupl_assistance(elig_memb_count), 	6, 14, 7
+			EMReadScreen dwp_elig_membs_test_foster_care(elig_memb_count), 		6, 15, 7
+			EMReadScreen dwp_elig_membs_test_fraud(elig_memb_count), 			6, 16, 7
 
+			EMReadScreen dwp_elig_membs_test_minor_living_arrangement(elig_memb_count), 6, 10, 43
+			EMReadScreen dwp_elig_membs_test_post_60_removal(elig_memb_count), 			6, 11, 43
+			EMReadScreen dwp_elig_membs_test_ssi(elig_memb_count), 						6, 12, 43
+			EMReadScreen dwp_elig_membs_test_ssn_coop(elig_memb_count), 				6, 13, 43
+			EMReadScreen dwp_elig_membs_test_unit_member(elig_memb_count), 				6, 14, 43
+			EMReadScreen dwp_elig_membs_test_unlawful_conduct(elig_memb_count), 		6, 15, 43
 
-		EMReadScreen fssm_expedited_info_exists, 16, 14, 44
-		If fssm_expedited_info_exists = "EXPEDITED STATUS" Then
-			Call write_value_and_transmit("X", 14, 72)		''Resource Detail
-			EMReadScreen exp_status_issuance_on_or_before_15th, 1, 3, 5
-			EMReadScreen exp_status_issuance_after_15th, 1, 5, 5
-			EMReadScreen exp_status_issuance_app_month_fs_denial, 1, 9, 5
+			dwp_elig_membs_test_absence(elig_memb_count) = trim(dwp_elig_membs_test_absence(elig_memb_count))
+			dwp_elig_membs_test_child_age(elig_memb_count) = trim(dwp_elig_membs_test_child_age(elig_memb_count))
+			dwp_elig_membs_test_citizenship(elig_memb_count) = trim(dwp_elig_membs_test_citizenship(elig_memb_count))
+			dwp_elig_membs_test_citizenship_verif(elig_memb_count) = trim(dwp_elig_membs_test_citizenship_verif(elig_memb_count))
+			dwp_elig_membs_test_dupl_assistance(elig_memb_count) = trim(dwp_elig_membs_test_dupl_assistance(elig_memb_count))
+			dwp_elig_membs_test_foster_care(elig_memb_count) = trim(dwp_elig_membs_test_foster_care(elig_memb_count))
+			dwp_elig_membs_test_fraud(elig_memb_count) = trim(dwp_elig_membs_test_fraud(elig_memb_count))
 
-			EMReadScreen snap_exp_criteria_migrant_destitute, 1, 15, 5
-			EMReadScreen snap_exp_criteria_resource_100_income_150, 1, 16, 5
-			EMReadScreen snap_exp_criteria_resource_income_less_shelter, 1, 19, 5
+			dwp_elig_membs_test_minor_living_arrangement(elig_memb_count) = trim(dwp_elig_membs_test_minor_living_arrangement(elig_memb_count))
+			dwp_elig_membs_test_post_60_removal(elig_memb_count) = trim(dwp_elig_membs_test_post_60_removal(elig_memb_count))
+			dwp_elig_membs_test_ssi(elig_memb_count) = trim(dwp_elig_membs_test_ssi(elig_memb_count))
+			dwp_elig_membs_test_ssn_coop(elig_memb_count) = trim(dwp_elig_membs_test_ssn_coop(elig_memb_count))
+			dwp_elig_membs_test_unit_member(elig_memb_count) = trim(dwp_elig_membs_test_unit_member(elig_memb_count))
+			dwp_elig_membs_test_unlawful_conduct(elig_memb_count) = trim(dwp_elig_membs_test_unlawful_conduct(elig_memb_count))
 
-			EMReadScreen snap_exp_verif_status_postponed, 1, 15, 52
-			EMReadScreen snap_exp_verif_status_out_of_state, 1, 17, 52
-			EMReadScreen snap_exp_verif_status_all_provided, 1, 19, 52
 			transmit
 
-			If exp_status_issuance_on_or_before_15th = "X" Then snap_exp_package_includes_month_one = True
-			If exp_status_issuance_after_15th = "X" Then
-				snap_exp_package_includes_month_one = True
-				snap_exp_package_includes_month_two = True
+			Call write_value_and_transmit("X", row, 69)		'open member EMPS information
+			EMReadScreen emps_exists_for_memb, 19, 24, 2
+			If emps_exists_for_memb = "EMPS DOES NOT EXIST" Then
+				EMWriteScreen " ", row, 69
+			Else
+				EMReadScreen dwp_elig_membs_es_status_code(elig_memb_count), 2, 9, 22
+				EMReadScreen dwp_elig_membs_es_status_info(elig_memb_count), 30, 9, 25
+
+				dwp_elig_membs_es_status_code(elig_memb_count) = trim(dwp_elig_membs_es_status_code(elig_memb_count))
+				dwp_elig_membs_es_status_info(elig_memb_count) = trim(dwp_elig_membs_es_status_info(elig_memb_count))
+				transmit
 			End If
-			If exp_status_issuance_app_month_fs_denial = "X" Then snap_exp_package_includes_month_two = True
 
-			If snap_exp_criteria_migrant_destitute = "X" Then snap_exp_criteria_migrant_destitute = True
-			If snap_exp_criteria_migrant_destitute = "_" Then snap_exp_criteria_migrant_destitute = False
-			If snap_exp_criteria_resource_100_income_150 = "X" Then snap_exp_criteria_resource_100_income_150 = True
-			If snap_exp_criteria_resource_100_income_150 = "_" Then snap_exp_criteria_resource_100_income_150 = False
-			If snap_exp_criteria_resource_income_less_shelter = "X" Then snap_exp_criteria_resource_income_less_shelter = True
-			If snap_exp_criteria_resource_income_less_shelter = "_" Then snap_exp_criteria_resource_income_less_shelter = False
+			row = row + 1
+			elig_memb_count = elig_memb_count + 1
+			EMReadScreen next_ref_numb, 2, row, 6
+		Loop until next_ref_numb = "  "
 
-			If snap_exp_verif_status_postponed = "X" Then snap_exp_verif_status_postponed = True
-			If snap_exp_verif_status_postponed = "_" Then snap_exp_verif_status_postponed = False
-			If snap_exp_verif_status_out_of_state = "X" Then snap_exp_verif_status_out_of_state = True
-			If snap_exp_verif_status_out_of_state = "_" Then snap_exp_verif_status_out_of_state = False
-			If snap_exp_verif_status_all_provided = "X" Then snap_exp_verif_status_all_provided = True
-			If snap_exp_verif_status_all_provided = "_" Then snap_exp_verif_status_all_provided = False
+		transmit 		'going to the next panel - DWCR
+		MsgBox "AT DWCR"
 
+		EMReadScreen dwp_elig_case_test_application_withdrawn, 6, 6, 7
+		EMReadScreen dwp_elig_case_test_assets, 6, 6, 7
+		EMReadScreen dwp_elig_case_test_CS_disqualification, 6, 6, 7
+		EMReadScreen dwp_elig_case_test_death_of_applicant, 6, 6, 7
+		EMReadScreen dwp_elig_case_test_dupl_assistance, 6, 6, 7
+		EMReadScreen dwp_elig_case_test_eligible_child, 6, 6, 7
+		EMReadScreen dwp_elig_case_test_ES_disqualification, 6, 6, 7
+		EMReadScreen dwp_elig_case_test_fail_coop, 6, 6, 7
+		EMReadScreen dwp_elig_case_test_four_month_limit, 6, 6, 7
 
+		EMReadScreen dwp_elig_case_test_initial_income, 6, 6, 45
+		EMReadScreen dwp_elig_case_test_MFIP_conversion, 6, 6, 45
+		EMReadScreen dwp_elig_case_test_residence, 6, 6, 45
+		EMReadScreen dwp_elig_case_test_strike, 6, 6, 45
+		EMReadScreen dwp_elig_case_test_TANF_time_limit, 6, 6, 45
+		EMReadScreen dwp_elig_case_test_transfer_of_assets, 6, 6, 45
+		EMReadScreen dwp_elig_case_test_verif, 6, 6, 45
+
+		EMReadScreen dwp_elig_case_test_new_spouse_income, 6, 6, 45
+
+		dwp_elig_case_test_application_withdrawn = trim(dwp_elig_case_test_application_withdrawn)
+		dwp_elig_case_test_assets = trim(dwp_elig_case_test_assets)
+		dwp_elig_case_test_CS_disqualification = trim(dwp_elig_case_test_CS_disqualification)
+		dwp_elig_case_test_death_of_applicant = trim(dwp_elig_case_test_death_of_applicant)
+		dwp_elig_case_test_dupl_assistance = trim(dwp_elig_case_test_dupl_assistance)
+		dwp_elig_case_test_eligible_child = trim(dwp_elig_case_test_eligible_child)
+		dwp_elig_case_test_ES_disqualification = trim(dwp_elig_case_test_ES_disqualification)
+		dwp_elig_case_test_fail_coop = trim(dwp_elig_case_test_fail_coop)
+		dwp_elig_case_test_four_month_limit = trim(dwp_elig_case_test_four_month_limit)
+
+		dwp_elig_case_test_initial_income = trim(dwp_elig_case_test_initial_income)
+		dwp_elig_case_test_MFIP_conversion = trim(dwp_elig_case_test_MFIP_conversion)
+		dwp_elig_case_test_residence = trim(dwp_elig_case_test_residence)
+		dwp_elig_case_test_strike = trim(dwp_elig_case_test_strike)
+		dwp_elig_case_test_TANF_time_limit = trim(dwp_elig_case_test_TANF_time_limit)
+		dwp_elig_case_test_transfer_of_assets = trim(dwp_elig_case_test_transfer_of_assets)
+		dwp_elig_case_test_verif = trim(dwp_elig_case_test_verif)
+
+		dwp_elig_case_test_new_spouse_income = trim(dwp_elig_case_test_new_spouse_income)
+
+		If dwp_elig_case_test_assets <> "NA" Then
+			Call write_value_and_transmit("X", 7, 5)
+
+			EMReadScreen dwp_elig_asset_CASH, 9, 8, 54
+			EMReadScreen dwp_elig_asset_ACCT, 9, 9, 54
+			EMReadScreen dwp_elig_asset_SECU, 9, 10, 54
+			EMReadScreen dwp_elig_asset_CARS, 9, 11, 54
+			EMReadScreen dwp_elig_asset_SPON, 9, 12, 54
+
+			EMReadScreen dwp_elig_asset_total, 9, 17, 54
+			EMReadScreen dwp_elig_asset_maximum, 9, 18, 54
+
+			dwp_elig_asset_CASH = trim(dwp_elig_asset_CASH)
+			dwp_elig_asset_ACCT = trim(dwp_elig_asset_ACCT)
+			dwp_elig_asset_SECU = trim(dwp_elig_asset_SECU)
+			dwp_elig_asset_CARS = trim(dwp_elig_asset_CARS)
+			dwp_elig_asset_SPON = trim(dwp_elig_asset_SPON)
+			dwp_elig_asset_total = trim(dwp_elig_asset_total)
+			dwp_elig_asset_maximum = trim(dwp_elig_asset_maximum)
+
+			transmit
 		End If
 
-		EMReadScreen snap_elig_worker_message_one, 80, 17, 1
-		EMReadScreen snap_elig_worker_message_two, 80, 18, 1
+		If dwp_elig_case_test_fail_coop <> "NA" Then
+			Call write_value_and_transmit("X", 13, 5)
 
-		snap_elig_worker_message_one = trim(snap_elig_worker_message_one)
-		snap_elig_worker_message_two = trim(snap_elig_worker_message_two)
+			EMReadScreen dwp_elig_test_fail_coop_applied_other_benefits, 6, 10, 30
+			EMReadScreen dwp_elig_test_fail_coop_provide_requested_info, 6, 11, 30
+			EMReadScreen dwp_elig_test_fail_coop_IEVS, 6, 12, 30
+			EMReadScreen dwp_elig_test_fail_coop_vendor_info, 6, 13, 30
 
-		If snap_budg_total_earned_inc <> "" Then snap_earned_income_budgeted = True
-		If snap_budg_total_unea_inc <> "" Then snap_unearned_income_budgeted = True
-		If snap_budg_shel_rent_mort <> "" or snap_budg_shel_prop_tax <> "" or snap_budg_shel_home_ins <> "" or snap_budg_shel_other <> ""Then snap_shel_costs_budgeted = True
-		If snap_budg_shel_electricity <> "" or snap_budg_shel_heat_ac <> "" or snap_budg_shel_water_garbage <> "" or snap_budg_shel_phone <> ""Then snap_hest_costs_budgeted = True
-		' categorical_eligibility = ""
+			dwp_elig_test_fail_coop_applied_other_benefits = trim(dwp_elig_test_fail_coop_applied_other_benefits)
+			dwp_elig_test_fail_coop_provide_requested_info = trim(dwp_elig_test_fail_coop_provide_requested_info)
+			dwp_elig_test_fail_coop_IEVS = trim(dwp_elig_test_fail_coop_IEVS)
+			dwp_elig_test_fail_coop_vendor_info = trim(dwp_elig_test_fail_coop_vendor_info)
 
-		' MsgBox "snap_benefit_amt - " & snap_benefit_amt
+			transmit
+		End If
 
-		Call Back_to_SELF
-	End sub
+		If dwp_elig_case_test_initial_income <> "NA" Then
+			Call write_value_and_transmit("X", 6, 43)
 
+			EMReadScreen dwp_elig_initial_counted_earned_income, 	9, 8, 42
+			EMReadScreen dwp_elig_initial_dependent_care_expense, 	9, 9, 42
+			EMReadScreen dwp_elig_initial_counted_unearned_incom, 	9, 10, 42
+			EMReadScreen dwp_elig_initial_counted_deemed_income, 	9, 11, 42
+			EMReadScreen dwp_elig_initial_child_support_exclusion, 	9, 12, 42
+			EMReadScreen dwp_elig_initial_total_counted_income, 	9, 13, 42
+			EMReadScreen dwp_elig_initial_family_wage_level, 		9, 15, 42
+
+			dwp_elig_initial_counted_earned_income = trim(dwp_elig_initial_counted_earned_income)
+			dwp_elig_initial_dependent_care_expense = trim(dwp_elig_initial_dependent_care_expense)
+			dwp_elig_initial_counted_unearned_incom = trim(dwp_elig_initial_counted_unearned_incom)
+			dwp_elig_initial_counted_deemed_income = trim(dwp_elig_initial_counted_deemed_income)
+			dwp_elig_initial_child_support_exclusion = trim(dwp_elig_initial_child_support_exclusion)
+			dwp_elig_initial_total_counted_income = trim(dwp_elig_initial_total_counted_income)
+			dwp_elig_initial_family_wage_level = trim(dwp_elig_initial_family_wage_level)
+
+			'TODO - read member specific detail'
+
+			transmit
+		End If
+
+		If dwp_elig_case_test_verif <> "NA" Then
+			Call write_value_and_transmit("X", 12, 43)
+
+			EMReadScreen dwp_elig_test_verif_ACCT, 		6, 5, 32
+			EMReadScreen dwp_elig_test_verif_BUSI, 		6, 6, 32
+			EMReadScreen dwp_elig_test_verif_CARS, 		6, 7, 32
+			EMReadScreen dwp_elig_test_verif_JOBS, 		6, 8, 32
+			EMReadScreen dwp_elig_test_verif_MEMB_dob, 	6, 9, 32
+			EMReadScreen dwp_elig_test_verif_MEMB_id, 	6, 10, 32
+			EMReadScreen dwp_elig_test_verif_PARE, 		6, 11, 32
+			EMReadScreen dwp_elig_test_verif_PREG, 		6, 12, 32
+			EMReadScreen dwp_elig_test_verif_RBIC, 		6, 13, 32
+			EMReadScreen dwp_elig_test_verif_ADDR, 		6, 14, 32
+			EMReadScreen dwp_elig_test_verif_SCHL, 		6, 15, 32
+			EMReadScreen dwp_elig_test_verif_SECU, 		6, 16, 32
+			EMReadScreen dwp_elig_test_verif_SPON, 		6, 17, 32
+			EMReadScreen dwp_elig_test_verif_UNEA, 		6, 18, 32
+
+			dwp_elig_test_verif_ACCT = trim(dwp_elig_test_verif_ACCT)
+			dwp_elig_test_verif_BUSI = trim(dwp_elig_test_verif_BUSI)
+			dwp_elig_test_verif_CARS = trim(dwp_elig_test_verif_CARS)
+			dwp_elig_test_verif_JOBS = trim(dwp_elig_test_verif_JOBS)
+			dwp_elig_test_verif_MEMB_dob = trim(dwp_elig_test_verif_MEMB_dob)
+			dwp_elig_test_verif_MEMB_id = trim(dwp_elig_test_verif_MEMB_id)
+			dwp_elig_test_verif_PARE = trim(dwp_elig_test_verif_PARE)
+			dwp_elig_test_verif_PREG = trim(dwp_elig_test_verif_PREG)
+			dwp_elig_test_verif_RBIC = trim(dwp_elig_test_verif_RBIC)
+			dwp_elig_test_verif_ADDR = trim(dwp_elig_test_verif_ADDR)
+			dwp_elig_test_verif_SCHL = trim(dwp_elig_test_verif_SCHL)
+			dwp_elig_test_verif_SECU = trim(dwp_elig_test_verif_SECU)
+			dwp_elig_test_verif_SPON = trim(dwp_elig_test_verif_SPON)
+			dwp_elig_test_verif_UNEA = trim(dwp_elig_test_verif_UNEA)
+
+			transmit
+		End If
+
+		If dwp_elig_case_test_new_spouse_income <> "NA" Then
+			Call write_value_and_transmit("X", 17, 5)
+
+			'TODO - Read New Spouse Income Information
+
+			transmit
+		End If
+
+		transmit 		'going to the next panel - DWCB1
+		MsgBox "AT DWB1"
+
+
+		EMReadScreen dwp_elig_budg_shel_rent_mortgage, 		9, 5, 29
+		EMReadScreen dwp_elig_budg_shel_property_tax, 		9, 6, 29
+		EMReadScreen dwp_elig_budg_shel_house_insurance, 	9, 7, 29
+		EMReadScreen dwp_elig_budg_hest_electricity, 		9, 8, 29
+		EMReadScreen dwp_elig_budg_hest_heat_air, 			9, 9, 29
+		EMReadScreen dwp_elig_budg_hest_water_sewer_garbage, 9, 10, 29
+		EMReadScreen dwp_elig_budg_hest_phone, 				9, 11, 29
+		EMReadScreen dwp_elig_budg_shel_other, 				9, 12, 29
+
+		EMReadScreen dwp_elig_budg_total_shelter_costs, 	9, 14, 29
+		EMReadScreen dwp_elig_budg_personal_needs, 			9, 15, 29
+
+		EMReadScreen dwp_elig_budg_total_DWP_need, 			9, 17, 29
+
+		EMReadScreen dwp_elig_budg_earned_income, 			9, 7, 71
+		EMReadScreen dwp_elig_budg_unearned_income, 		9, 8, 71
+		EMReadScreen dwp_elig_budg_deemed_income, 			9, 9, 71
+		EMReadScreen dwp_elig_budg_child_support_exclusion, 9, 10, 71
+		EMReadScreen dwp_elig_budg_budget_month_total, 		9, 11, 71
+		EMReadScreen dwp_elig_budg_prior_low, 				9, 12, 71
+		EMReadScreen dwp_elig_budg_DWP_countable_income, 	9, 13, 71
+
+		EMReadScreen dwp_elig_budg_unmet_need, 				9, 15, 71
+		EMReadScreen dwp_elig_budg_DWP_max_grant, 			9, 16, 71
+		EMReadScreen dwp_elig_budg_DWP_grant, 				9, 17, 71
+
+		dwp_elig_budg_shel_rent_mortgage = trim(dwp_elig_budg_shel_rent_mortgage)
+		dwp_elig_budg_shel_property_tax = trim(dwp_elig_budg_shel_property_tax)
+		dwp_elig_budg_shel_house_insurance = trim(dwp_elig_budg_shel_house_insurance)
+		dwp_elig_budg_hest_electricity = trim(dwp_elig_budg_hest_electricity)
+		dwp_elig_budg_hest_heat_air = trim(dwp_elig_budg_hest_heat_air)
+		dwp_elig_budg_hest_water_sewer_garbage = trim(dwp_elig_budg_hest_water_sewer_garbage)
+		dwp_elig_budg_hest_phone = trim(dwp_elig_budg_hest_phone)
+		dwp_elig_budg_shel_other = trim(dwp_elig_budg_shel_other)
+		dwp_elig_budg_total_shelter_costs = trim(dwp_elig_budg_total_shelter_costs)
+		dwp_elig_budg_personal_needs = trim(dwp_elig_budg_personal_needs)
+		dwp_elig_budg_total_DWP_need = trim(dwp_elig_budg_total_DWP_need)
+		dwp_elig_budg_earned_income = trim(dwp_elig_budg_earned_income)
+		dwp_elig_budg_unearned_income = trim(dwp_elig_budg_unearned_income)
+		dwp_elig_budg_deemed_income = trim(dwp_elig_budg_deemed_income)
+		dwp_elig_budg_child_support_exclusion = trim(dwp_elig_budg_child_support_exclusion)
+		dwp_elig_budg_budget_month_total = trim(dwp_elig_budg_budget_month_total)
+		dwp_elig_budg_prior_low = trim(dwp_elig_budg_prior_low)
+		dwp_elig_budg_DWP_countable_income = trim(dwp_elig_budg_DWP_countable_income)
+		dwp_elig_budg_unmet_need = trim(dwp_elig_budg_unmet_need)
+		dwp_elig_budg_DWP_max_grant = trim(dwp_elig_budg_DWP_max_grant)
+		dwp_elig_budg_DWP_grant = trim(dwp_elig_budg_DWP_grant)
+
+		Call write_value_and_transmit("X", 7, 41)
+		EmReadScreen pop_up_menu_title, 13, 3, 46
+		If pop_up_menu_title = "Earned Income" Then
+			'TODO - read member specific unearned income
+			transmit
+		End If
+
+		Call write_value_and_transmit("X", 8, 41)
+		EmReadScreen pop_up_menu_title, 15, 5, 32
+		If pop_up_menu_title = "Unearned Income" Then
+			'TODO - read member specific unearned income
+			transmit
+		End If
+
+		Call write_value_and_transmit("X", 9, 41)
+		EmReadScreen pop_up_menu_title, 13, 3, 36
+		If pop_up_menu_title = "Deemed Income" Then
+			'TODO - read member specific unearned income
+			' EMReadScreen dwp_elig_membs_budg_deemed_self_emp(member_sel), 				9, 8, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_wages(member_sel), 					9, 9, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_counted_earned(member_sel), 		9, 10, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_standard_EI_disregard(member_sel), 	9, 11, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_earned_subtotal(member_sel), 		9, 12, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_earned_disregard(member_sel), 		9, 13, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_unearned_income(member_sel), 		9, 14, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_subtotal_counted_income(member_sel), 9, 15, 56
+			'
+			' EMReadScreen dwp_elig_membs_budg_deemed_deemer_unmet_need(member_sel), 		9, 18, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_allocation(member_sel), 			9, 19, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_child_support(member_sel), 			9, 20, 56
+			' EMReadScreen dwp_elig_membs_budg_deemed_counted_income(member_sel), 		9, 21, 56
+			transmit
+		End If
+
+		Call write_value_and_transmit("X", 10, 41)
+		EMReadScreen dwp_elig_cses_income, 9, 10, 54
+		EMReadScreen dwp_elig_child_count, 2, 12, 36
+		'TODO - read member specific unearned income
+
+		dwp_elig_cses_income = trim(dwp_elig_cses_income)
+		dwp_elig_child_count = trim(dwp_elig_child_count)
+
+		transmit
+
+
+		transmit 		'going to the next panel - DWB2
+		MsgBox "AT DWB2"
+
+		EMReadScreen dwp_elig_prorated_date, 8, 6, 18
+		If dwp_elig_prorated_date = "__ __ __" then dwp_elig_prorated_date = ""
+		dwp_elig_prorated_date = replace(dwp_elig_prorated_date, " ", "/")
+
+		EMReadScreen dwp_elig_prorated_amount, 9, 6, 35
+
+		EMReadScreen dwp_elig_amount_already_issued, 	9, 9, 35
+		EMReadScreen dwp_elig_supplement_due, 			9, 10, 35
+		EMReadScreen dwp_elig_overpayment, 				9, 11, 35
+		EMReadScreen dwp_elig_adjusted_grant_amount, 	9, 12, 35
+		EMReadScreen dwp_elig_recoupment_amount, 		9, 13, 35
+
+		EMReadScreen dwp_elig_shelter_benefit_grant, 	9, 15, 35
+		EMReadScreen dwp_elig_personal_needs_grant, 	9, 16, 35
+
+		Call write_value_and_transmit("X", 11, 3)
+		EMReadScreen dwp_elig_overpayment_fed_hh_count, 	2, 10, 31
+		EMReadScreen dwp_elig_overpayment_fed_amount, 		9, 10, 50
+		EMReadScreen dwp_elig_overpayment_state_hh_count, 	2, 12, 31
+		EMReadScreen dwp_elig_overpayment_state_amount, 	9, 12, 50
+		transmit
+
+		Call write_value_and_transmit("X", 12, 3)
+		EMReadScreen dwp_elig_adjusted_grant_fed_hh_count, 		2, 10, 25
+		EMReadScreen dwp_elig_adjusted_grant_fed_amount, 		9, 10, 45
+		EMReadScreen dwp_elig_adjusted_grant_state_hh_count, 	2, 12, 25
+		EMReadScreen dwp_elig_adjusted_grant_state_amount, 		9, 12, 45
+		transmit
+
+		dwp_elig_prorated_amount = trim(dwp_elig_prorated_amount)
+		dwp_elig_amount_already_issued = trim(dwp_elig_amount_already_issued)
+		dwp_elig_supplement_due = trim(dwp_elig_supplement_due)
+		dwp_elig_overpayment = trim(dwp_elig_overpayment)
+		dwp_elig_adjusted_grant_amount = trim(dwp_elig_adjusted_grant_amount)
+		dwp_elig_recoupment_amount = trim(dwp_elig_recoupment_amount)
+		dwp_elig_shelter_benefit_grant = trim(dwp_elig_shelter_benefit_grant)
+		dwp_elig_personal_needs_grant = trim(dwp_elig_personal_needs_grant)
+		dwp_elig_overpayment_fed_amount = trim(dwp_elig_overpayment_fed_amount)
+		dwp_elig_overpayment_state_amount = trim(dwp_elig_overpayment_state_amount)
+		dwp_elig_adjusted_grant_fed_amount = trim(dwp_elig_adjusted_grant_fed_amount)
+		dwp_elig_adjusted_grant_state_amount = trim(dwp_elig_adjusted_grant_state_amount)
+
+		transmit 		'going to the next panel - DWSM
+		MsgBox "AT DWSM"
+
+		EMReadScreen dwp_approved_date, 8, 3, 14
+		EMReadScreen dwp_process_date, 8, 2, 73
+		EMReadScreen dwp_prev_approval, 4, 3, 73
+
+		EMReadScreen dwp_case_last_approval_date, 8, 5, 31
+		EMReadScreen dwp_case_current_prog_status, 12, 6, 31
+		EMReadScreen dwp_case_eligibility_result, 12,  7, 31
+		EMReadScreen dwp_case_source_of_info, 4, 9, 31
+		EMReadScreen dwp_case_benefit_impact, 12, 10, 31
+		EMReadScreen dwp_case_4th_month_of_elig, 5, 11, 31
+		EMReadScreen dwp_case_caregivers_have_es_plan, 1, 12, 31
+		EMReadScreen dwp_case_responsible_county, 2, 13, 31
+		EMReadScreen dwp_case_service_county, 2, 14, 31
+
+		EMReadScreen dwp_case_asst_unit_caregivers, 3, 5, 72
+		EMReadScreen dwp_case_asst_unit_children, 3, 6, 72
+		EMReadScreen dwp_case_total_assets, 10, 7, 71
+		EMReadScreen dwp_case_maximum_assets, 10, 8, 71
+		EMReadScreen dwp_case_summary_grant_amount, 10, 10, 71
+		EMReadScreen dwp_case_summary_net_grant_amount, 10, 12, 71
+		EMReadScreen dwp_case_summary_shelter_benefit_portion, 10, 13, 71
+		EMReadScreen dwp_case_summary_personal_needs_portion, 10, 14, 71
+
+		dwp_prev_approval = trim(dwp_prev_approval)
+		dwp_case_last_approval_date = trim(dwp_case_last_approval_date)
+
+		dwp_case_current_prog_status = trim(dwp_case_current_prog_status)
+		dwp_case_eligibility_result = trim(dwp_case_eligibility_result)
+		dwp_case_source_of_info = trim(dwp_case_source_of_info)
+		dwp_case_benefit_impact = trim(dwp_case_benefit_impact)
+
+		dwp_case_asst_unit_caregivers = trim(dwp_case_asst_unit_caregivers)
+		dwp_case_asst_unit_children = trim(dwp_case_asst_unit_children)
+		dwp_case_total_assets = trim(dwp_case_total_assets)
+		dwp_case_maximum_assets = trim(dwp_case_maximum_assets)
+		dwp_case_summary_grant_amount = trim(dwp_case_summary_grant_amount)
+		dwp_case_summary_net_grant_amount = trim(dwp_case_summary_net_grant_amount)
+		dwp_case_summary_shelter_benefit_portion = trim(dwp_case_summary_shelter_benefit_portion)
+		dwp_case_summary_personal_needs_portion = trim(dwp_case_summary_personal_needs_portion)
+
+		Call back_to_SELF
+	end sub
 end class
-
 
 class mfip_eligibility_detail
 	public elig_footer_month
@@ -1215,8 +1232,6 @@ class mfip_eligibility_detail
 			EMReadScreen next_ref_numb, 2, row, 6
 		Loop until next_ref_numb = "  "
 
-		' MsgBox "Transmit to get to MFCR"
-
 		transmit			'MFCR
 
 		EMReadScreen mfip_case_test_appl_withdraw, 		6, 6, 7
@@ -1286,8 +1301,6 @@ class mfip_eligibility_detail
 		mfip_counted_asset_max = trim(mfip_counted_asset_max)
 
 		transmit
-		' Pf3
-		' MsgBox "Transmit 1"
 
 		Call write_value_and_transmit("X", 13, 5)						'INITIAL INCOME
 		EMReadScreen mfip_initial_income_earned, 			10, 8, 51
@@ -1344,7 +1357,6 @@ class mfip_eligibility_detail
 				End If
 			Next
 			transmit
-			' MsgBox "Transmit 2 - loop"
 
 			EMReadScreen back_to_menu, 14, 6, 29
 		Loop until back_to_menu = "Initial Income"
@@ -1371,7 +1383,6 @@ class mfip_eligibility_detail
 				End If
 			Next
 			transmit
-			' MsgBox "Transmit 3 - loop"
 
 			EMReadScreen back_to_menu, 14, 6, 29
 		Loop until back_to_menu = "Initial Income"
@@ -1410,13 +1421,9 @@ class mfip_eligibility_detail
 		Loop until next_ref_numb = "  "
 
 		PF3			'back to CSES Exclusion caclulaiton
-		' MsgBox "Back to CSES Exclusion Calc"
 		PF3			'back to initial income calculation
-		' MsgBox "Back to Initial Inocme Calc"
 		PF3			'back to main mf elig panel'
-		' MsgBox "Back to main ELIG MF ELIG panel"
 		Call write_value_and_transmit("X", 14, 44)						'NEW SPOUSE 275% INCOME
-		' MsgBox "Open New Spouse Income"
 		EMReadScreen mfip_12_month_start_date, 				8, 6, 46
 		EMReadScreen mfip_designated_spouse_ref_numb, 		2, 7, 46
 		EMReadScreen mfip_new_spouse_inc_earned, 			10, 11, 57
@@ -1438,7 +1445,6 @@ class mfip_eligibility_detail
 		mfip_hh_size_fornew_spouse_calc = trim(mfip_hh_size_fornew_spouse_calc)
 
 		Call write_value_and_transmit("X", 11, 20)		'Member earned and unearned for New Spouse calculation
-		' MsgBox "person income budget pop up from spousal inocme"
 		Do
 			EMReadScreen pop_up_name, 35, 7, 25
 			pop_up_name = trim(pop_up_name)
@@ -1455,7 +1461,6 @@ class mfip_eligibility_detail
 				End If
 			Next
 			transmit
-			' MsgBox "Transmit 4 - loop"
 
 			EMReadScreen back_to_menu, 17, 7, 22
 		Loop until back_to_menu = "Designated Spouse"
@@ -1470,7 +1475,6 @@ class mfip_eligibility_detail
 
 		PF3
 
-		' MsgBox "Transmit to get to MFBF"
 
 		transmit			'MFBF
 		mfbf_row = 7
@@ -1510,7 +1514,6 @@ class mfip_eligibility_detail
 		mfip_case_sanction_vendor_yn = trim(mfip_case_sanction_vendor_yn)
 		mfip_case_sanction_last_vendor_month = trim(mfip_case_sanction_last_vendor_month)
 
-		' MsgBox "Transmit to get to MFB1"
 		transmit			'MFB1
 
 		EMReadScreen mfip_case_budg_family_wage_level, 				10, 5, 32
@@ -1563,7 +1566,6 @@ class mfip_eligibility_detail
 		mfip_case_budg_entitlement_housing_grant = trim(mfip_case_budg_entitlement_housing_grant)
 
 		Call write_value_and_transmit("X", 6, 3)		' member specific EARNED INCOME
-		' MsgBox "Open specific earned income"
 		Do
 			EMReadScreen pop_up_name, 40, 8, 28
 			pop_up_name = trim(pop_up_name)
@@ -1597,10 +1599,8 @@ class mfip_eligibility_detail
 			transmit
 			EMReadScreen still_in_menu, 12, 5, 32
 		Loop until still_in_menu <> "Maxis Person"
-		' MsgBox "Back to MFB1"
 
 		Call write_value_and_transmit("X", 11, 3)		' member specific UNEARNED INCOME
-		' MsgBox "Open specific Unearned Income"
 		Do
 			EMReadScreen pop_up_name, 25, 8, 34
 			pop_up_name = trim(pop_up_name)
@@ -1622,12 +1622,10 @@ class mfip_eligibility_detail
 			transmit
 			EMReadScreen still_in_menu, 15, 6, 34
 		Loop until still_in_menu <> "Unearned Income"
-		' MsgBox "Back to MFB1 - 2"
 
 		' Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
 
 		Call write_value_and_transmit("X", 13, 3)		'Child Support Exclusion'
-		' MsgBox "Open CSES Exclusion"
 		EMReadScreen mfip_budg_cses_excln_cses_income, 10, 9, 52
 		EMReadScreen mfip_budg_cses_excln_child_count, 2, 11, 37
 		EMReadScreen mfip_budg_cses_excln_total, 10, 13, 52
@@ -1637,10 +1635,8 @@ class mfip_eligibility_detail
 		mfip_budg_cses_excln_total = trim(mfip_budg_cses_excln_total)
 
 		transmit
-		' MsgBox "Back to MFB1 - 3"
 
 		Call write_value_and_transmit("X", 16, 5)		' member specific TRIBAL INCOME
-		' MsgBox "Open Tribal Income"
 		EMReadScreen mfip_budg_total_county_88_child_support_income, 	10, 6, 55
 		EMReadScreen mfip_budg_total_county_88_gaming_income, 			10, 7, 55
 		EMReadScreen mfip_budg_total_tribal_income_fs_portion_deduction, 10, 8, 55
@@ -1663,10 +1659,8 @@ class mfip_eligibility_detail
 			transmit
 			EMReadScreen back_to_menu, 21, 4, 31
 		Loop until back_to_menu = "Tribal Counted Income"
-		' MsgBox "Backt o Tribal Income Menu"
 
 		Call write_value_and_transmit("X", 7, 12)		' member specific Tribal Gaming Income
-		' MsgBox "Open Tribal GAMING Income"
 		Do
 			EMReadScreen pop_up_name, 30, 7, 37
 			pop_up_name = trim(pop_up_name)
@@ -1692,10 +1686,8 @@ class mfip_eligibility_detail
 			EMReadScreen back_to_menu, 21, 4, 31
 		Loop until back_to_menu = "Tribal Counted Income"
 		transmit                  ''back to MFB1
-		' MsgBox "Back to MFB1 - 4"
 
 		Call write_value_and_transmit("X", 18, 5)		' member specific SUBSIDY
-		' MsgBox "Open Subsidy Income"
 		EMReadScreen mfip_budg_total_housing_subsidy_amount, 10, 8, 51
 		EMReadScreen mfip_budg_total_tribal_child_support, 10, 9, 51
 		EMReadScreen mfip_budg_total_subsidy_tribal_cash_portion_deduction, 10, 10, 51
@@ -1704,7 +1696,6 @@ class mfip_eligibility_detail
 		mfip_budg_total_subsidy_tribal_cash_portion_deduction = trim(mfip_budg_total_subsidy_tribal_cash_portion_deduction)
 
 		Call write_value_and_transmit("X", 8, 13)		' member specific subsidy Income
-		' MsgBox "Open member subsidy information"
 		EMReadScreen mfip_elig_budg_total_countable_housing_subsidy, 10, 19, 48
 		EMReadScreen mfip_elig_budg_housing_subsidy_exempt, 1, 21, 47
 
@@ -1728,13 +1719,10 @@ class mfip_eligibility_detail
 			EMReadScreen next_memb_ref_numb, 2, row, 6
 		Loop until next_memb_ref_numb = "  "
 		transmit 					'back to pop-up
-		' MsgBox "back to pop-up"
 
 		transmit                 	'back to MFB1
-		' MsgBox "Back to MFB1 - 5"
 
 		Call write_value_and_transmit("X", 8, 44)		'Sanction and Vendor
-		' MsgBox "Open Saction and Vendor"
 		EMReadScreen mfip_case_budg_10_perc_sanc, 					10, 7, 55
 		EMReadScreen mfip_case_budg_unmet_need_after_pre_vndr_sanc, 10, 8, 55
 		EMReadScreen mfip_case_budg_sanc_calc_food_portion, 		10, 9, 55
@@ -1749,10 +1737,8 @@ class mfip_eligibility_detail
 		mfip_case_budg_pot_mand_vndr_pymts = trim(mfip_case_budg_pot_mand_vndr_pymts)
 		mfip_case_budg_30_perc_sanc = trim(mfip_case_budg_30_perc_sanc)
 		transmit
-		' MsgBox "Back to MFB1 - 6"
 
 		Call write_value_and_transmit("X", 12, 44)		'Food portion Deduction
-		' MsgBox "Open Food Portion Deduction"
 		EMReadScreen mfip_case_budg_non_citzn_fs_inelig_pers_count, 1, 10, 17
 		EMReadScreen mfip_case_budg_non_citzn_fs_inelig_amt, 		10, 10, 45
 		EMReadScreen mfip_case_budg_other_fs_inelig_pers_count, 	1, 12, 17
@@ -1763,9 +1749,6 @@ class mfip_eligibility_detail
 		mfip_case_budg_other_fs_inelig_pers_count = trim(mfip_case_budg_other_fs_inelig_pers_count)
 		mfip_case_budg_other_fs_inelig_amt = trim(mfip_case_budg_other_fs_inelig_amt)
 		transmit
-		' MsgBox "Back to MFB1 - 7"
-
-		' MsgBox "Transmit to get to MFB2"
 
 		transmit			'MFB2
 		EMReadScreen mfip_case_budg_prorate_date, 8, 5, 19
@@ -1856,7 +1839,6 @@ class mfip_eligibility_detail
 		mfip_case_budg_state_cash_memb_count = trim(mfip_case_budg_state_cash_memb_count)
 		mfip_case_budg_state_cash_benefit_amt = trim(mfip_case_budg_state_cash_benefit_amt)
 		transmit
-		' MsgBox "Transmit to get to MFSM"
 		' Call write_value_and_transmit("X", 16, 44)			'MFIP Housing Grant Issuance pop-up - there is not federal housing grant
 		transmit			'MFSM
 
@@ -3133,6 +3115,618 @@ class ga_eligibility_detail
 	end sub
 end class
 
+
+
+class snap_eligibility_detail
+
+	public elig_footer_month
+	public elig_footer_year
+	public elig_version_number
+	public elig_version_date
+	public elig_version_result
+
+	public snap_elig_ref_numbs()
+	public snap_elig_membs_request_yn()
+	public snap_elig_membs_code()
+	public snap_elig_membs_status_info()
+	public snap_elig_membs_counted()
+	public snap_elig_membs_state_food()
+	public snap_elig_membs_eligibility()
+	public snap_elig_membs_begin_date()
+	public snap_elig_membs_budget_cycle()
+
+	public snap_elig_membs_abawd()
+	public snap_elig_membs_absence()
+	public snap_elig_membs_roomer()
+	public snap_elig_membs_boarder()
+	public snap_elig_membs_citizenship()
+	public snap_elig_membs_citizenship_code()
+	public snap_elig_membs_cmdty()
+	public snap_elig_membs_disq()
+	public snap_elig_membs_dupl_assist()
+	public snap_elig_membs_fraud()
+	public snap_elig_membs_eligible_student()
+	public snap_elig_membs_institution()
+	public snap_elig_membs_mfip_elig()
+	public snap_elig_membs_non_applcnt()
+	public snap_elig_membs_residence()
+	public snap_elig_membs_ssn_coop()
+	public snap_elig_membs_unit_memb()
+	public snap_elig_membs_work_reg()
+	public snap_elig_membs_drug_felon_test()
+
+	public snap_expedited
+	public snap_uhfs
+	public snap_exp_package_includes_month_one
+	public snap_exp_package_includes_month_two
+	public snap_prorated
+	public snap_earned_income_budgeted
+	public snap_unearned_income_budgeted
+	public snap_shel_costs_budgeted
+	public snap_hest_costs_budgeted
+	public snap_categorical_eligibility
+	public snap_case_appl_withdrawn_test
+	public snap_case_applct_elig_test
+	public snap_case_comdty_test
+	public snap_case_disq_test
+	public snap_case_dupl_assist_test
+	public snap_case_eligible_person_test
+	public snap_case_fail_coop_test
+	public snap_case_fail_file_test
+	public snap_case_prosp_gross_inc_test
+	public snap_case_prosp_net_inc_test
+	public snap_case_recert_test
+	public snap_case_residence_test
+	public snap_case_resource_test
+	public snap_case_retro_gross_inc_test
+	public snap_case_retro_net_inc_test
+	public snap_case_strike_test
+	public snap_case_xfer_resource_inc_test
+	public snap_case_verif_test
+	public snap_case_voltry_quit_test
+	public snap_case_work_reg_test
+	public snap_fail_file_hrf
+	public snap_fail_file_sr
+	public snap_resource_cash
+	public snap_resource_acct
+	public snap_resource_secu
+	public snap_resource_cars
+	public snap_resource_rest
+	public snap_resource_other
+	public snap_resource_burial
+	public snap_resource_spon
+	public snap_resource_total
+	public snap_resource_max
+	public snap_budg_gross_wages
+	public snap_budg_self_emp
+	public snap_budg_total_earned_inc
+	public snap_budg_pa_grant_inc
+	public snap_budg_rsdi_inc
+	public snap_budg_ssi_inc
+	public snap_budg_va_inc
+	public snap_budg_uc_wc_inc
+	public snap_budg_cses_inc
+	public snap_budg_other_unea_inc
+	public snap_budg_total_unea_inc
+	public snap_budg_schl_inc
+	public snap_budg_farm_ofset
+	public snap_budg_total_gross_inc
+	public snap_budg_max_gross_inc
+	public snap_budg_deduct_standard
+	public snap_budg_deduct_earned
+	public snap_budg_deduct_medical
+	public snap_budg_deduct_depndt_care
+	public snap_budg_deduct_cses
+	public snap_budg_total_deduct
+	public snap_budg_net_inc
+	public snap_budg_shel_rent_mort
+	public snap_budg_shel_prop_tax
+	public snap_budg_shel_home_ins
+	public snap_budg_shel_electricity
+	public snap_budg_shel_heat_ac
+	public snap_budg_shel_water_garbage
+	public snap_budg_shel_phone
+	public snap_budg_shel_other
+	public snap_budg_shel_total
+	public snap_budg_50_perc_net_inc
+	public snap_budg_adj_shel_costs
+	public snap_budg_max_allow_shel
+	public snap_budg_shel_expenses
+	' public snap_budg_net_adj_inc
+	public snap_budg_max_net_adj_inc
+	public snap_benefit_monthly_fs_allot
+	public snap_benefit_drug_felon_sanc_amt
+	public snap_benefit_recoup_amount
+	public snap_benefit_benefit_amount
+	public snap_benefit_state_food_amt
+	public snap_benefit_fed_food_amt
+	public snap_benefit_recoup_from_fed_fs
+	public snap_benefit_recoup_from_state_fs
+	public snap_approved_date
+	public snap_date_last_approval
+	public snap_curr_prog_status
+	public snap_elig_result
+	public snap_reporting_status
+	public snap_info_source
+	public snap_benefit
+	public snap_elig_revw_date
+	public snap_budget_cycle
+	public snap_budg_numb_in_assist_unit
+	public snap_budg_total_resources
+	public snap_budg_max_resources
+	public snap_budg_net_adj_inc
+	public snap_benefit_monthly_fs_allotment
+	public snap_benefit_prorated_amt
+	public snap_benefit_prorated_date
+	public snap_benefit_amt
+	public snap_exp_criteria_migrant_destitute
+	public snap_exp_criteria_resource_100_income_150
+	public snap_exp_criteria_resource_income_less_shelter
+	public snap_exp_verif_status_postponed
+	public snap_exp_verif_status_out_of_state
+	public snap_exp_verif_status_all_provided
+	public snap_elig_worker_message_one
+	public snap_elig_worker_message_two
+
+
+	public sub read_elig()
+		snap_expedited = False
+		snap_uhfs = False
+		snap_exp_package_includes_month_one = False
+		snap_exp_package_includes_month_two = False
+		snap_prorated = False
+		snap_earned_income_budgeted = False
+		snap_unearned_income_budgeted = False
+		snap_shel_costs_budgeted = False
+		snap_hest_costs_budgeted = False
+		snap_categorical_eligibility = ""
+
+		ReDim snap_elig_ref_numbs(0)
+		ReDim snap_elig_membs_request_yn(0)
+		ReDim snap_elig_membs_code(0)
+		ReDim snap_elig_membs_status_info(0)
+		ReDim snap_elig_membs_counted(0)
+		ReDim snap_elig_membs_state_food(0)
+		ReDim snap_elig_membs_eligibility(0)
+		ReDim snap_elig_membs_begin_date(0)
+		ReDim snap_elig_membs_budget_cycle(0)
+		ReDim snap_elig_membs_abawd(0)
+		ReDim snap_elig_membs_absence(0)
+		ReDim snap_elig_membs_roomer(0)
+		ReDim snap_elig_membs_boarder(0)
+		ReDim snap_elig_membs_citizenship(0)
+		ReDim snap_elig_membs_citizenship_code(0)
+		ReDim snap_elig_membs_cmdty(0)
+		ReDim snap_elig_membs_disq(0)
+		ReDim snap_elig_membs_dupl_assist(0)
+		ReDim snap_elig_membs_fraud(0)
+		ReDim snap_elig_membs_eligible_student(0)
+		ReDim snap_elig_membs_institution(0)
+		ReDim snap_elig_membs_mfip_elig(0)
+		ReDim snap_elig_membs_non_applcnt(0)
+		ReDim snap_elig_membs_residence(0)
+		ReDim snap_elig_membs_ssn_coop(0)
+		ReDim snap_elig_membs_unit_memb(0)
+		ReDim snap_elig_membs_work_reg(0)
+		ReDim snap_elig_membs_drug_felon_test(0)
+
+		call navigate_to_MAXIS_screen("ELIG", "FS  ")
+		EMWriteScreen elig_footer_month, 19, 54
+		EMWriteScreen elig_footer_year, 19, 57
+		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result)
+
+		row = 7
+		elig_memb_count = 0
+		Do
+			EMReadScreen ref_numb, 2, row, 10
+
+			ReDim preserve snap_elig_ref_numbs(elig_memb_count)
+			ReDim preserve snap_elig_membs_request_yn(elig_memb_count)
+			ReDim preserve snap_elig_membs_code(elig_memb_count)
+			ReDim preserve snap_elig_membs_status_info(elig_memb_count)
+			ReDim preserve snap_elig_membs_counted(elig_memb_count)
+			ReDim preserve snap_elig_membs_state_food(elig_memb_count)
+			ReDim preserve snap_elig_membs_eligibility(elig_memb_count)
+			ReDim preserve snap_elig_membs_begin_date(elig_memb_count)
+			ReDim preserve snap_elig_membs_budget_cycle(elig_memb_count)
+
+			ReDim preserve snap_elig_membs_abawd(elig_memb_count)
+			ReDim preserve snap_elig_membs_absence(elig_memb_count)
+			ReDim preserve snap_elig_membs_roomer(elig_memb_count)
+			ReDim preserve snap_elig_membs_boarder(elig_memb_count)
+			ReDim preserve snap_elig_membs_citizenship(elig_memb_count)
+			ReDim preserve snap_elig_membs_citizenship_code(elig_memb_count)
+			ReDim preserve snap_elig_membs_cmdty(elig_memb_count)
+			ReDim preserve snap_elig_membs_disq(elig_memb_count)
+			ReDim preserve snap_elig_membs_dupl_assist(elig_memb_count)
+			ReDim preserve snap_elig_membs_fraud(elig_memb_count)
+			ReDim preserve snap_elig_membs_eligible_student(elig_memb_count)
+			ReDim preserve snap_elig_membs_institution(elig_memb_count)
+			ReDim preserve snap_elig_membs_mfip_elig(elig_memb_count)
+			ReDim preserve snap_elig_membs_non_applcnt(elig_memb_count)
+			ReDim preserve snap_elig_membs_residence(elig_memb_count)
+			ReDim preserve snap_elig_membs_ssn_coop(elig_memb_count)
+			ReDim preserve snap_elig_membs_unit_memb(elig_memb_count)
+			ReDim preserve snap_elig_membs_work_reg(elig_memb_count)
+			ReDim preserve snap_elig_membs_drug_felon_test(elig_memb_count)
+
+			snap_elig_ref_numbs(elig_memb_count) = ref_numb
+			EMReadScreen snap_elig_membs_request_yn(elig_memb_count), 1, row, 32
+			EMReadScreen snap_elig_membs_code(elig_memb_count), 1, row, 35
+			EMReadScreen memb_count, 11, row, 39
+			EMReadScreen memb_state_food, 1, row, 50
+			EMReadScreen memb_elig, 10, row, 57
+			EMReadScreen snap_elig_membs_begin_date(elig_memb_count), 8, row, 68
+			EMReadScreen memb_budg_cycle, 1, row, 78
+
+			If snap_elig_membs_code(elig_memb_count) = "A" Then snap_elig_membs_status_info(elig_memb_count) = "Eligible"
+			If snap_elig_membs_code(elig_memb_count) = "C" Then snap_elig_membs_status_info(elig_memb_count) = "Citizenship"
+			If snap_elig_membs_code(elig_memb_count) = "F" Then snap_elig_membs_status_info(elig_memb_count) = "Fraud, DISQ, Work Reg"
+			If snap_elig_membs_code(elig_memb_count) = "D" Then snap_elig_membs_status_info(elig_memb_count) = "Duplicate Assistance"
+			If snap_elig_membs_code(elig_memb_count) = "I" Then snap_elig_membs_status_info(elig_memb_count) = "Ineligible"
+			If snap_elig_membs_code(elig_memb_count) = "N" Then snap_elig_membs_status_info(elig_memb_count) = "Unit Member"
+			If snap_elig_membs_code(elig_memb_count) = "S" Then snap_elig_membs_status_info(elig_memb_count) = "Ineligible Student"
+			If snap_elig_membs_code(elig_memb_count) = "U" Then snap_elig_membs_status_info(elig_memb_count) = "Unknown"
+			snap_elig_membs_counted(elig_memb_count) = trim(memb_count)
+			If memb_state_food = "Y" Then snap_elig_membs_state_food(elig_memb_count) = True
+			If memb_state_food = "N" Then snap_elig_membs_state_food(elig_memb_count) = False
+			snap_elig_membs_eligibility(elig_memb_count) = trim(memb_elig)
+			If memb_budg_cycle = "P" Then snap_elig_membs_budget_cycle(elig_memb_count) = "Prospective"
+			If memb_budg_cycle = "R" Then snap_elig_membs_budget_cycle(elig_memb_count) = "Retrospective"
+
+			Call write_value_and_transmit("X", row, 5)
+
+			EMReadScreen memb_abawd, 			6, 6, 20
+			EMReadScreen memb_absence, 			6, 7, 20
+			EMReadScreen memb_roomer, 			6, 8, 20
+			EMReadScreen memb_boarder, 			6, 9, 20
+			EMReadScreen memb_citizenship, 		6, 10, 20
+			EMReadScreen memb_citizenship_coop, 6, 11, 20
+			EMReadScreen memb_cmdty, 			6, 12, 20
+			EMReadScreen memb_disq,				6, 13, 20
+			EMReadScreen memb_dupl_assist, 		6, 14, 20
+
+			snap_elig_membs_abawd(elig_memb_count) = trim(memb_abawd)
+			snap_elig_membs_absence(elig_memb_count) = trim(memb_absence)
+			snap_elig_membs_roomer(elig_memb_count) = trim(memb_roomer)
+			snap_elig_membs_boarder(elig_memb_count) = trim(memb_boarder)
+			snap_elig_membs_citizenship(elig_memb_count) = trim(memb_citizenship)
+			snap_elig_membs_citizenship_code(elig_memb_count) = trim(memb_citizenship_coop)
+			snap_elig_membs_cmdty(elig_memb_count) = trim(memb_cmdty)
+			snap_elig_membs_disq(elig_memb_count) = trim(memb_disq)
+			snap_elig_membs_dupl_assist(elig_memb_count) = trim(memb_dupl_assist)
+
+			EMReadScreen memb_fraud, 			6, 6, 54
+			EMReadScreen memb_eligible_student, 6, 7, 54
+			EMReadScreen memb_institution, 		6, 8, 54
+			EMReadScreen memb_mfip_elig, 		6, 9, 54
+			EMReadScreen memb_non_applcnt, 		6, 10, 54
+			EMReadScreen memb_residence, 		6, 11, 54
+			EMReadScreen memb_ssn_coop, 		6, 12, 54
+			EMReadScreen memb_unit_memb, 		6, 13, 54
+			EMReadScreen memb_work_reg, 		6, 14, 54
+
+			snap_elig_membs_fraud(elig_memb_count) = trim(memb_fraud)
+			snap_elig_membs_eligible_student(elig_memb_count) = trim(memb_eligible_student)
+			snap_elig_membs_institution(elig_memb_count) = trim(memb_institution)
+			snap_elig_membs_mfip_elig(elig_memb_count) = trim(memb_mfip_elig)
+			snap_elig_membs_non_applcnt(elig_memb_count) = trim(memb_non_applcnt)
+			snap_elig_membs_residence(elig_memb_count) = trim(memb_residence)
+			snap_elig_membs_ssn_coop(elig_memb_count) = trim(memb_ssn_coop)
+			snap_elig_membs_unit_memb(elig_memb_count) = trim(memb_unit_memb)
+			snap_elig_membs_work_reg(elig_memb_count) = trim(memb_work_reg)
+			transmit
+
+
+			elig_memb_count = elig_memb_count + 1
+			row = row + 1
+			EMReadScreen next_ref_numb, 2, row, 10
+		Loop until next_ref_numb = "  "
+
+		transmit 		'FSCR
+		EMReadScreen case_expedited_indicator, 9, 4, 3
+		If case_expedited_indicator = "EXPEDITED" Then snap_expedited = True
+		EMReadScreen case_uhfs_indicator, 11, 5, 4
+		If case_uhfs_indicator = "UNCLE HARRY" Then snap_uhfs = True
+
+		EMReadScreen snap_case_appl_withdrawn_test, 	6, 7, 9
+		EMReadScreen snap_case_applct_elig_test, 		6, 8, 9
+		EMReadScreen snap_case_comdty_test, 			6, 9, 9
+		EMReadScreen snap_case_disq_test, 				6, 10, 9
+		EMReadScreen snap_case_dupl_assist_test, 		6, 11, 9
+		EMReadScreen snap_case_eligible_person_test, 	6, 12, 9
+		EMReadScreen snap_case_fail_coop_test, 			6, 13, 9
+		EMReadScreen snap_case_fail_file_test, 			6, 14, 9
+		EMReadScreen snap_case_prosp_gross_inc_test, 	6, 15, 9
+		EMReadScreen snap_case_prosp_net_inc_test, 		6, 16, 9
+		snap_case_appl_withdrawn_test = trim(snap_case_appl_withdrawn_test)
+		snap_case_applct_elig_test = trim(snap_case_applct_elig_test)
+		snap_case_comdty_test = trim(snap_case_comdty_test)
+		snap_case_disq_test = trim(snap_case_disq_test)
+		snap_case_dupl_assist_test = trim(snap_case_dupl_assist_test)
+		snap_case_eligible_person_test = trim(snap_case_eligible_person_test)
+		snap_case_fail_coop_test = trim(snap_case_fail_coop_test)
+		snap_case_fail_file_test = trim(snap_case_fail_file_test)
+		snap_case_prosp_gross_inc_test = trim(snap_case_prosp_gross_inc_test)
+		snap_case_prosp_net_inc_test = trim(snap_case_prosp_net_inc_test)
+
+		EMReadScreen snap_case_recert_test, 			6, 7, 49
+		EMReadScreen snap_case_residence_test, 			6, 8, 49
+		EMReadScreen snap_case_resource_test, 			6, 9, 49
+		EMReadScreen snap_case_retro_gross_inc_test, 	6, 10, 49
+		EMReadScreen snap_case_retro_net_inc_test, 		6, 11, 49
+		EMReadScreen snap_case_strike_test, 			6, 12, 49
+		EMReadScreen snap_case_xfer_resource_inc_test, 	6, 13, 49
+		EMReadScreen snap_case_verif_test, 				6, 14, 49
+		EMReadScreen snap_case_voltry_quit_test, 		6, 15, 49
+		EMReadScreen snap_case_work_reg_test, 			6, 16, 49
+		snap_case_recert_test = trim(snap_case_recert_test)
+		snap_case_residence_test = trim(snap_case_residence_test)
+		snap_case_resource_test = trim(snap_case_resource_test)
+		snap_case_retro_gross_inc_test = trim(snap_case_retro_gross_inc_test)
+		snap_case_retro_net_inc_test = trim(snap_case_retro_net_inc_test)
+		snap_case_strike_test = trim(snap_case_strike_test)
+		snap_case_xfer_resource_inc_test = trim(snap_case_xfer_resource_inc_test)
+		snap_case_verif_test = trim(snap_case_verif_test)
+		snap_case_voltry_quit_test = trim(snap_case_voltry_quit_test)
+		snap_case_work_reg_test = trim(snap_case_work_reg_test)
+
+		Call write_value_and_transmit("X", 14, 4)		''Fail to File Detail
+		EMReadScreen snap_fail_file_hrf, 6, 10, 32
+		EMReadScreen snap_fail_file_sr, 6, 11, 32
+		transmit
+		snap_fail_file_hrf = trim(snap_fail_file_hrf)
+		snap_fail_file_sr = trim(snap_fail_file_sr)
+
+		Call write_value_and_transmit("X", 14, 4)		''Resource Detail
+		EMReadScreen snap_resource_cash, 	10, 8, 47
+		EMReadScreen snap_resource_acct, 	10, 9, 47
+		EMReadScreen snap_resource_secu, 	10, 10, 47
+		EMReadScreen snap_resource_cars, 	10, 11, 47
+		EMReadScreen snap_resource_rest, 	10, 12, 47
+		EMReadScreen snap_resource_other, 	10, 13, 47
+		EMReadScreen snap_resource_burial, 	10, 14, 47
+		EMReadScreen snap_resource_spon, 	10, 15, 47
+		EMReadScreen snap_resource_total, 	10, 17, 47
+		EMReadScreen snap_resource_max, 	10, 18, 47
+		transmit
+
+		snap_resource_cash = trim(snap_resource_cash)
+		snap_resource_acct = trim(snap_resource_acct)
+		snap_resource_secu = trim(snap_resource_secu)
+		snap_resource_cars = trim(snap_resource_cars)
+		snap_resource_rest = trim(snap_resource_rest)
+		snap_resource_other = trim(snap_resource_other)
+		snap_resource_burial = trim(snap_resource_burial)
+		snap_resource_spon = trim(snap_resource_spon)
+		snap_resource_total = trim(snap_resource_total)
+		snap_resource_max = trim(snap_resource_max)
+
+		transmit 		'FSB1
+		EMReadScreen snap_budg_gross_wages, 		10, 5, 31
+		EMReadScreen snap_budg_self_emp, 			10, 6, 31
+		EMReadScreen snap_budg_total_earned_inc, 	10, 8, 31
+
+		snap_budg_gross_wages = trim(snap_budg_gross_wages)
+		snap_budg_self_emp = trim(snap_budg_self_emp)
+		snap_budg_total_earned_inc = trim(snap_budg_total_earned_inc)
+
+
+		EMReadScreen snap_budg_pa_grant_inc, 	10, 10, 31
+		EMReadScreen snap_budg_rsdi_inc, 		10, 11, 31
+		EMReadScreen snap_budg_ssi_inc, 		10, 12, 31
+		EMReadScreen snap_budg_va_inc, 			10, 13, 31
+		EMReadScreen snap_budg_uc_wc_inc, 		10, 14, 31
+		EMReadScreen snap_budg_cses_inc, 		10, 15, 31
+		EMReadScreen snap_budg_other_unea_inc, 	10, 16, 31
+		EMReadScreen snap_budg_total_unea_inc, 	10, 18, 31
+
+		snap_budg_pa_grant_inc = trim(snap_budg_pa_grant_inc)
+		snap_budg_rsdi_inc = trim(snap_budg_rsdi_inc)
+		snap_budg_ssi_inc = trim(snap_budg_ssi_inc)
+		snap_budg_va_inc = trim(snap_budg_va_inc)
+		snap_budg_uc_wc_inc = trim(snap_budg_uc_wc_inc)
+		snap_budg_cses_inc = trim(snap_budg_cses_inc)
+		snap_budg_other_unea_inc = trim(snap_budg_other_unea_inc)
+		snap_budg_total_unea_inc = trim(snap_budg_total_unea_inc)
+
+		EMReadScreen snap_budg_schl_inc, 			10, 5, 71
+		EMReadScreen snap_budg_farm_ofset, 			10, 6, 71
+		EMReadScreen snap_budg_total_gross_inc, 	10, 7, 71
+		EMReadScreen snap_budg_max_gross_inc, 		10, 8, 71
+
+		EMReadScreen snap_budg_deduct_standard, 	10, 10, 71
+		EMReadScreen snap_budg_deduct_earned, 		10, 11, 71
+		EMReadScreen snap_budg_deduct_medical, 		10, 12, 71
+		EMReadScreen snap_budg_deduct_depndt_care, 	10, 13, 71
+		EMReadScreen snap_budg_deduct_cses, 		10, 14, 71
+		EMReadScreen snap_budg_total_deduct, 		10, 16, 71
+
+		EMReadScreen snap_budg_net_inc, 			10, 18, 71
+
+		snap_budg_schl_inc = trim(snap_budg_schl_inc)
+		snap_budg_farm_ofset = trim(snap_budg_farm_ofset)
+		snap_budg_total_gross_inc = trim(snap_budg_total_gross_inc)
+		snap_budg_max_gross_inc = trim(snap_budg_max_gross_inc)
+		snap_budg_deduct_standard = trim(snap_budg_deduct_standard)
+		snap_budg_deduct_earned = trim(snap_budg_deduct_earned)
+		snap_budg_deduct_medical = trim(snap_budg_deduct_medical)
+		snap_budg_deduct_depndt_care = trim(snap_budg_deduct_depndt_care)
+		snap_budg_deduct_cses = trim(snap_budg_deduct_cses)
+		snap_budg_total_deduct = trim(snap_budg_total_deduct)
+		snap_budg_net_inc = trim(snap_budg_net_inc)
+
+		transmit 		'FSB2
+		EMReadScreen snap_budg_shel_rent_mort, 		10, 5, 27
+		EMReadScreen snap_budg_shel_prop_tax, 		10, 6, 27
+		EMReadScreen snap_budg_shel_home_ins, 		10, 7, 27
+		EMReadScreen snap_budg_shel_electricity, 	10, 8, 27
+		EMReadScreen snap_budg_shel_heat_ac, 		10, 9, 27
+		EMReadScreen snap_budg_shel_water_garbage, 	10, 10, 27
+		EMReadScreen snap_budg_shel_phone, 			10, 11, 27
+		EMReadScreen snap_budg_shel_other, 			10, 12, 27
+		EMReadScreen snap_budg_shel_total, 			10, 14, 27
+		EMReadScreen snap_budg_50_perc_net_inc, 	10, 15, 27
+		EMReadScreen snap_budg_adj_shel_costs, 		10, 17, 27
+
+		snap_budg_shel_rent_mort = trim(snap_budg_shel_rent_mort)
+		snap_budg_shel_prop_tax = trim(snap_budg_shel_prop_tax)
+		snap_budg_shel_home_ins = trim(snap_budg_shel_home_ins)
+		snap_budg_shel_electricity = trim(snap_budg_shel_electricity)
+		snap_budg_shel_heat_ac = trim(snap_budg_shel_heat_ac)
+		snap_budg_shel_water_garbage = trim(snap_budg_shel_water_garbage)
+		snap_budg_shel_phone = trim(snap_budg_shel_phone)
+		snap_budg_shel_other = trim(snap_budg_shel_other)
+		snap_budg_shel_total = trim(snap_budg_shel_total)
+		snap_budg_50_perc_net_inc = trim(snap_budg_50_perc_net_inc)
+		snap_budg_adj_shel_costs = trim(snap_budg_adj_shel_costs)
+
+
+		EMReadScreen snap_budg_max_allow_shel, 			10, 5, 71
+		EMReadScreen snap_budg_shel_expenses, 			10, 6, 71
+		' EMReadScreen fsb2_net_adj_inc, 				10, 7, 71
+		EMReadScreen snap_budg_max_net_adj_inc, 		10, 8, 71
+		EMReadScreen snap_benefit_monthly_fs_allot, 	10, 10, 71
+		EMReadScreen snap_benefit_drug_felon_sanc_amt, 	10, 12, 71
+		EMReadScreen snap_benefit_recoup_amount, 		10, 14, 71
+		EMReadScreen snap_benefit_benefit_amount, 		10, 16, 71
+		EMReadScreen snap_benefit_state_food_amt, 		10, 17, 71
+		EMReadScreen snap_benefit_fed_food_amt, 		10, 18, 71
+
+		snap_budg_max_allow_shel = trim(snap_budg_max_allow_shel)
+		snap_budg_shel_expenses = trim(snap_budg_shel_expenses)
+		' fsb2_net_adj_inc = trim(fsb2_net_adj_inc)
+		snap_budg_max_net_adj_inc = trim(snap_budg_max_net_adj_inc)
+		snap_benefit_monthly_fs_allot = trim(snap_benefit_monthly_fs_allot)
+		snap_benefit_drug_felon_sanc_amt = trim(snap_benefit_drug_felon_sanc_amt)
+		snap_benefit_recoup_amount = trim(snap_benefit_recoup_amount)
+		snap_benefit_benefit_amount = trim(snap_benefit_benefit_amount)
+		snap_benefit_state_food_amt = trim(snap_benefit_state_food_amt)
+		snap_benefit_fed_food_amt = trim(snap_benefit_fed_food_amt)
+
+
+		Call write_value_and_transmit("X", 14, 4)		''Resource Detail
+		row = 8
+		Do
+			EMReadScreen ref_numb, 2, row, 12
+
+			For case_memb = 0 to UBound(snap_elig_ref_numbs)
+				If ref_numb = snap_elig_ref_numbs(case_memb) Then
+					EMReadScreen memb_drug_felon_test, 6, row, 64
+					snap_elig_membs_drug_felon_test(case_memb) = trim(memb_drug_felon_test)
+				End If
+			Next
+
+			row = row + 1
+			EMReadScreen next_ref_numb, 2, row, 12
+		Loop until next_ref_numb = "  "
+		transmit
+
+		Call write_value_and_transmit("X", 14, 4)		''Resource Detail
+		EMReadScreen snap_benefit_recoup_from_fed_fs, 10, 5, 51
+		EMReadScreen snap_benefit_recoup_from_state_fs, 10, 7, 51
+
+		snap_benefit_recoup_from_fed_fs = trim(snap_benefit_recoup_from_fed_fs)
+		snap_benefit_recoup_from_state_fs = trim(snap_benefit_recoup_from_state_fs)
+
+		transmit
+
+		transmit 		'FSSM
+		EMReadScreen snap_approved_date, 			8, 3, 14
+		EMReadScreen snap_date_last_approval, 		8, 5, 31
+		EMReadScreen snap_curr_prog_status, 		10, 6, 31
+		EMReadScreen snap_elig_result, 				10, 7, 31
+		EMReadScreen snap_reporting_status, 		12, 8, 31
+		EMReadScreen snap_info_source, 				4, 9, 31
+		EMReadScreen snap_benefit, 					12, 10, 31
+		EMReadScreen snap_elig_revw_date, 			8, 11, 31
+		EMReadScreen snap_budget_cycle, 			5, 12, 31
+		EMReadScreen snap_budg_numb_in_assist_unit, 2, 13, 31
+
+		EMReadScreen snap_budg_total_resources, 		10, 5, 71
+		EMReadScreen snap_budg_max_resources, 			10, 6, 71
+		EMReadScreen snap_budg_net_adj_inc, 			10, 7, 71
+		EMReadScreen snap_benefit_monthly_fs_allotment, 10, 8, 71
+		EMReadScreen snap_benefit_prorated_amt, 		10, 9, 71
+		EMReadScreen snap_benefit_prorated_date,		8, 9, 58
+		EMReadScreen snap_benefit_amt, 					10, 13, 71
+
+		snap_approved_date = trim(snap_approved_date)
+		snap_date_last_approval = trim(snap_date_last_approval)
+		snap_curr_prog_status = trim(snap_curr_prog_status)
+		snap_elig_result = trim(snap_elig_result)
+		snap_reporting_status = trim(snap_reporting_status)
+		snap_info_source = trim(snap_info_source)
+		snap_benefit = trim(snap_benefit)
+		snap_elig_revw_date = trim(snap_elig_revw_date)
+		snap_budget_cycle = trim(snap_budget_cycle)
+		snap_budg_numb_in_assist_unit = trim(snap_budg_numb_in_assist_unit)
+		snap_budg_total_resources = trim(snap_budg_total_resources)
+		snap_budg_max_resources = trim(snap_budg_max_resources)
+		snap_budg_net_adj_inc = trim(snap_budg_net_adj_inc)
+		snap_benefit_monthly_fs_allotment = trim(snap_benefit_monthly_fs_allotment)
+		snap_benefit_prorated_amt = trim(snap_benefit_prorated_amt)
+		snap_benefit_prorated_date = trim(snap_benefit_prorated_date)
+		snap_benefit_amt = trim(snap_benefit_amt)
+
+
+		EMReadScreen fssm_expedited_info_exists, 16, 14, 44
+		If fssm_expedited_info_exists = "EXPEDITED STATUS" Then
+			Call write_value_and_transmit("X", 14, 72)		''Resource Detail
+			EMReadScreen exp_status_issuance_on_or_before_15th, 1, 3, 5
+			EMReadScreen exp_status_issuance_after_15th, 1, 5, 5
+			EMReadScreen exp_status_issuance_app_month_fs_denial, 1, 9, 5
+
+			EMReadScreen snap_exp_criteria_migrant_destitute, 1, 15, 5
+			EMReadScreen snap_exp_criteria_resource_100_income_150, 1, 16, 5
+			EMReadScreen snap_exp_criteria_resource_income_less_shelter, 1, 19, 5
+
+			EMReadScreen snap_exp_verif_status_postponed, 1, 15, 52
+			EMReadScreen snap_exp_verif_status_out_of_state, 1, 17, 52
+			EMReadScreen snap_exp_verif_status_all_provided, 1, 19, 52
+			transmit
+
+			If exp_status_issuance_on_or_before_15th = "X" Then snap_exp_package_includes_month_one = True
+			If exp_status_issuance_after_15th = "X" Then
+				snap_exp_package_includes_month_one = True
+				snap_exp_package_includes_month_two = True
+			End If
+			If exp_status_issuance_app_month_fs_denial = "X" Then snap_exp_package_includes_month_two = True
+
+			If snap_exp_criteria_migrant_destitute = "X" Then snap_exp_criteria_migrant_destitute = True
+			If snap_exp_criteria_migrant_destitute = "_" Then snap_exp_criteria_migrant_destitute = False
+			If snap_exp_criteria_resource_100_income_150 = "X" Then snap_exp_criteria_resource_100_income_150 = True
+			If snap_exp_criteria_resource_100_income_150 = "_" Then snap_exp_criteria_resource_100_income_150 = False
+			If snap_exp_criteria_resource_income_less_shelter = "X" Then snap_exp_criteria_resource_income_less_shelter = True
+			If snap_exp_criteria_resource_income_less_shelter = "_" Then snap_exp_criteria_resource_income_less_shelter = False
+
+			If snap_exp_verif_status_postponed = "X" Then snap_exp_verif_status_postponed = True
+			If snap_exp_verif_status_postponed = "_" Then snap_exp_verif_status_postponed = False
+			If snap_exp_verif_status_out_of_state = "X" Then snap_exp_verif_status_out_of_state = True
+			If snap_exp_verif_status_out_of_state = "_" Then snap_exp_verif_status_out_of_state = False
+			If snap_exp_verif_status_all_provided = "X" Then snap_exp_verif_status_all_provided = True
+			If snap_exp_verif_status_all_provided = "_" Then snap_exp_verif_status_all_provided = False
+
+
+		End If
+
+		EMReadScreen snap_elig_worker_message_one, 80, 17, 1
+		EMReadScreen snap_elig_worker_message_two, 80, 18, 1
+
+		snap_elig_worker_message_one = trim(snap_elig_worker_message_one)
+		snap_elig_worker_message_two = trim(snap_elig_worker_message_two)
+
+		If snap_budg_total_earned_inc <> "" Then snap_earned_income_budgeted = True
+		If snap_budg_total_unea_inc <> "" Then snap_unearned_income_budgeted = True
+		If snap_budg_shel_rent_mort <> "" or snap_budg_shel_prop_tax <> "" or snap_budg_shel_home_ins <> "" or snap_budg_shel_other <> ""Then snap_shel_costs_budgeted = True
+		If snap_budg_shel_electricity <> "" or snap_budg_shel_heat_ac <> "" or snap_budg_shel_water_garbage <> "" or snap_budg_shel_phone <> ""Then snap_hest_costs_budgeted = True
+		' categorical_eligibility = ""
+
+		Call Back_to_SELF
+	End sub
+
+end class
+
 'Constants
 const ref_numb_const				= 0
 
@@ -3272,7 +3866,7 @@ For each footer_month in MONTHS_ARRAY
 
 	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 
-	' EMReadScreen numb_DWP_versions, 		1, 7, 40
+	EMReadScreen numb_DWP_versions, 		1, 7, 40
 	EMReadScreen numb_MFIP_versions, 		1, 8, 40
 	EMReadScreen numb_MSA_versions, 		1, 11, 40
 	EMReadScreen numb_GA_versions, 			1, 12, 40
@@ -3284,6 +3878,22 @@ For each footer_month in MONTHS_ARRAY
 
 	' MsgBox "numb_SNAP_versions - " & numb_SNAP_versions
 	'TODO MAKE THIS READ THE DATE AND COMPARE TO TODAY
+
+	If numb_DWP_versions <> " " Then
+		ReDim Preserve DWP_ELIG_APPROVALS(dwp_elig_months_count)
+		Set DWP_ELIG_APPROVALS(dwp_elig_months_count) = new dwp_eligibility_detail
+
+		DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month = MAXIS_footer_month
+		DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year = MAXIS_footer_year
+
+		Call DWP_ELIG_APPROVALS(dwp_elig_months_count).read_elig
+
+		MsgBox "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year & vbCr &_
+		"DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount & vbCr &_
+		"DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result
+
+		dwp_elig_months_count = dwp_elig_months_count + 1
+	End If
 
 	If numb_MFIP_versions <> " " Then
 		ReDim Preserve MFIP_ELIG_APPROVALS(mfip_elig_months_count)
@@ -3313,9 +3923,9 @@ For each footer_month in MONTHS_ARRAY
 
 		Call MSA_ELIG_APPROVALS(msa_elig_months_count).read_elig
 
-		MsgBox "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year & vbCr &_
-		"MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant & vbCr &_
-		"MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result
+		' MsgBox "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year & vbCr &_
+		' "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant & vbCr &_
+		' "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result
 
 		msa_elig_months_count = msa_elig_months_count + 1
 	End If
