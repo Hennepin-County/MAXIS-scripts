@@ -3113,6 +3113,506 @@ class ga_eligibility_detail
 end class
 
 
+class emer_eligibility_detail
+	public elig_footer_month
+	public elig_footer_year
+	public elig_version_number
+	public elig_version_date
+	public elig_version_result
+
+	public initial_search_month
+	public initial_search_year
+
+	public emer_program
+
+
+	public emer_check_issue_date()
+	public emer_check_program()
+	public emer_check_status_code()
+	public emer_check_status_info()
+	public emer_check_warrant_number()
+	public emer_check_transaction_amount()
+	public emer_check_type_code()
+	public emer_check_type_info()
+	public emer_check_transaction_number()
+	public emer_check_from_date()
+	public emer_check_to_date()
+	public emer_check_payment_reason()
+	public emer_check_payment_to_name()
+	public emer_check_payment_to_address()
+	public emer_check_mail_method()
+	public emer_check_payment_method()
+	public emer_check_vendor_number()
+	public emer_check_fiche_number()
+	public emer_check_payment_amount()
+	public emer_check_entitement_amount()
+	public emer_check_recoupment_amount()
+	public emer_check_replacement_amount()
+	public emer_check_cacnel_amount()
+	public emer_check_food_portion_amount()
+	public emer_check_reconciliation_date()
+	public emer_check_cancel_reason()
+	public emer_check_replacement_reason()
+	public emer_check_picup_status()
+	public emer_check_pickup_date()
+	public emer_check_servicing_county()
+	public emer_check_responsibility_county()
+	public emer_check_adjusting_transaction()
+	public emer_check_original_transaction()
+	public emer_check_vendor_name()
+	public emer_check_vendor_c_o()
+	public emer_check_vendor_street_one()
+	public emer_check_vendor_street_two()
+	public emer_check_vendor_city()
+	public emer_check_vendor_state()
+	public emer_check_vendor_zip()
+	public emer_check_vendor_grh_yn()
+	public emer_check_vendor_non_profit_yn()
+	public emer_check_vendor_phone()
+	public emer_check_vendor_county()
+	public emer_check_vendor_status_code()
+	public emer_check_vendor_status_info()
+	public emer_check_vendor_incorporated_yn()
+	public emer_check_vendor_federal_tax_id()
+	public emer_check_vendor_ssn()
+	public emer_check_vendor_2nd_address_type_code()
+	public emer_check_vendor_2nd_address_type_info()
+	public emer_check_vendor_2nd_address_eff_date()
+	public emer_check_vendor_2nd_name()
+	public emer_check_vendor_2nd_c_o()
+	public emer_check_vendor_2nd_street_one()
+	public emer_check_vendor_2nd_street_two()
+	public emer_check_vendor_2nd_city()
+	public emer_check_vendor_2nd_state()
+	public emer_check_vendor_2nd_zip()
+	public emer_check_vendor_direct_deposit_yn()
+	public emer_check_vendor_merge_vendor_number()
+	public emer_check_vendor_acct_number_required_yn()
+	public emer_check_vendor_blocked_county_numbers_list()
+	' public emer_check_vendor_direct_deposit_history()	'NOOOOOO'
+
+	public emer_elig_case_test_
+	public
+	public
+	public
+	public
+	public
+	public
+	public
+	public
+	public
+	public
+
+
+	public emer_elig_ref_numbs()
+	public emer_elig_membs_full_name()
+	public emer_elig_membs_request_yn()
+	public emer_elig_membs_code()
+	public emer_elig_membs_info()
+	public emer_elig_membs_fund_fact()
+	public emer_elig_membs_adult_or_child()
+	public emer_elig_membs_elig_status()
+	public emer_elig_membs_12_month_test()
+	public emer_elig_membs_last_emer_begin_date()
+	public emer_elig_membs_()
+	public emer_elig_membs_()
+	public emer_elig_membs_()
+	public emer_elig_membs_()
+	public emer_elig_membs_()
+	public emer_elig_membs_()
+	public emer_elig_membs_()
+	public emer_elig_membs_()
+	public emer_elig_membs_()
+
+	public emer_check_()
+	public emer_check_()
+	public emer_check_()
+	public emer_check_()
+
+
+
+	ReDim emer_check_issue_date(0)
+	ReDim emer_check_program(0)
+	ReDim emer_check_status_code(0)
+	ReDim emer_check_status_info(0)
+	ReDim emer_check_warrant_number(0)
+	ReDim emer_check_transaction_amount(0)
+	ReDim emer_check_type_code(0)
+	ReDim emer_check_type_info(0)
+	ReDim emer_check_transaction_number(0)
+	ReDim emer_check_from_date(0)
+	ReDim emer_check_to_date(0)
+	ReDim emer_check_payment_reason(0)
+	ReDim emer_check_payment_to_name(0)
+	ReDim emer_check_payment_to_address(0)
+	ReDim emer_check_mail_method(0)
+	ReDim emer_check_payment_method(0)
+	ReDim emer_check_vendor_number(0)
+	ReDim emer_check_fiche_number(0)
+	ReDim emer_check_payment_amount(0)
+	ReDim emer_check_entitement_amount(0)
+	ReDim emer_check_recoupment_amount(0)
+	ReDim emer_check_replacement_amount(0)
+	ReDim emer_check_cacnel_amount(0)
+	ReDim emer_check_food_portion_amount(0)
+	ReDim emer_check_reconciliation_date(0)
+	ReDim emer_check_cancel_reason(0)
+	ReDim emer_check_replacement_reason(0)
+	ReDim emer_check_picup_status(0)
+	ReDim emer_check_pickup_date(0)
+	ReDim emer_check_servicing_county(0)
+	ReDim emer_check_responsibility_county(0)
+	ReDim emer_check_adjusting_transaction(0)
+	ReDim emer_check_original_transaction(0)
+	ReDim emer_check_vendor_name(0)
+	ReDim emer_check_vendor_c_o(0)
+	ReDim emer_check_vendor_street_one(0)
+	ReDim emer_check_vendor_street_two(0)
+	ReDim emer_check_vendor_city(0)
+	ReDim emer_check_vendor_state(0)
+	ReDim emer_check_vendor_zip(0)
+	ReDim emer_check_vendor_grh_yn(0)
+	ReDim emer_check_vendor_non_profit_yn(0)
+	ReDim emer_check_vendor_phone(0)
+	ReDim emer_check_vendor_county(0)
+	ReDim emer_check_vendor_status_code(0)
+	ReDim emer_check_vendor_status_info(0)
+	ReDim emer_check_vendor_incorporated_yn(0)
+	ReDim emer_check_vendor_federal_tax_id(0)
+	ReDim emer_check_vendor_ssn(0)
+	ReDim emer_check_vendor_2nd_address_type_code(0)
+	ReDim emer_check_vendor_2nd_address_type_info(0)
+	ReDim emer_check_vendor_2nd_address_eff_date(0)
+	ReDim emer_check_vendor_2nd_name(0)
+	ReDim emer_check_vendor_2nd_c_o(0)
+	ReDim emer_check_vendor_2nd_street_one(0)
+	ReDim emer_check_vendor_2nd_street_two(0)
+	ReDim emer_check_vendor_2nd_city(0)
+	ReDim emer_check_vendor_2nd_state(0)
+	ReDim emer_check_vendor_2nd_zip(0)
+	ReDim emer_check_vendor_direct_deposit_yn(0)
+	ReDim emer_check_vendor_merge_vendor_number(0)
+	ReDim emer_check_vendor_acct_number_required_yn(0)
+	ReDim emer_check_vendor_blocked_county_numbers_list(0)
+
+	public sub read.elig()
+		Call navigate_to_MAXIS_screen("MONY", "INQX")
+		EMWriteScreen initial_search_month, 6, 38
+		EMWriteScreen initial_search_year, 6, 41
+		EMWriteScreen CM_plus_1_mo, 6, 53
+		EMWriteScreen CM_plus_1_yr, 6, 56
+		EMWriteScreen "X", 9, 50
+		EMWriteScreen "X", 11, 50
+		EMWriteScreen "X", 12, 50
+		transmit
+
+		inqd_row = 6
+		tx_count = 0
+		EMReadScreen chck_prog, 7, inqd_row, 16
+		chck_prog = trim(chck_prog)
+		Do while chck_prog <> ""
+
+			ReDim preserve emer_check_issue_date(tx_count)
+			ReDim preserve emer_check_program(tx_count)
+			ReDim preserve emer_check_status_code(tx_count)
+			ReDim preserve emer_check_status_info(tx_count)
+			ReDim preserve emer_check_warrant_number(tx_count)
+			ReDim preserve emer_check_transaction_amount(tx_count)
+			ReDim preserve emer_check_type_code(tx_count)
+			ReDim preserve emer_check_type_info(tx_count)
+			ReDim preserve emer_check_transaction_number(tx_count)
+			ReDim preserve emer_check_from_date(tx_count)
+			ReDim preserve emer_check_to_date(tx_count)
+			ReDim preserve emer_check_payment_reason(tx_count)
+			ReDim preserve emer_check_payment_to_name(tx_count)
+			ReDim preserve emer_check_payment_to_address(tx_count)
+			ReDim preserve emer_check_mail_method(tx_count)
+			ReDim preserve emer_check_payment_method(tx_count)
+			ReDim preserve emer_check_vendor_number(tx_count)
+			ReDim preserve emer_check_fiche_number(tx_count)
+			ReDim preserve emer_check_payment_amount(tx_count)
+			ReDim preserve emer_check_entitement_amount(tx_count)
+			ReDim preserve emer_check_recoupment_amount(tx_count)
+			ReDim preserve emer_check_replacement_amount(tx_count)
+			ReDim preserve emer_check_cacnel_amount(tx_count)
+			ReDim preserve emer_check_food_portion_amount(tx_count)
+			ReDim preserve emer_check_reconciliation_date(tx_count)
+			ReDim preserve emer_check_cancel_reason(tx_count)
+			ReDim preserve emer_check_replacement_reason(tx_count)
+			ReDim preserve emer_check_picup_status(tx_count)
+			ReDim preserve emer_check_pickup_date(tx_count)
+			ReDim preserve emer_check_servicing_county(tx_count)
+			ReDim preserve emer_check_responsibility_county(tx_count)
+			ReDim preserve emer_check_adjusting_transaction(tx_count)
+			ReDim preserve emer_check_original_transaction(tx_count)
+			ReDim preserve emer_check_vendor_name(tx_count)
+			ReDim preserve emer_check_vendor_c_o(tx_count)
+			ReDim preserve emer_check_vendor_street_one(tx_count)
+			ReDim preserve emer_check_vendor_street_two(tx_count)
+			ReDim preserve emer_check_vendor_city(tx_count)
+			ReDim preserve emer_check_vendor_state(tx_count)
+			ReDim preserve emer_check_vendor_zip(tx_count)
+			ReDim preserve emer_check_vendor_grh_yn(tx_count)
+			ReDim preserve emer_check_vendor_non_profit_yn(tx_count)
+			ReDim preserve emer_check_vendor_phone(tx_count)
+			ReDim preserve emer_check_vendor_county(tx_count)
+			ReDim preserve emer_check_vendor_status_code(tx_count)
+			ReDim preserve emer_check_vendor_status_info(tx_count)
+			ReDim preserve emer_check_vendor_incorporated_yn(tx_count)
+			ReDim preserve emer_check_vendor_federal_tax_id(tx_count)
+			ReDim preserve emer_check_vendor_ssn(tx_count)
+			ReDim preserve emer_check_vendor_2nd_address_type_code(tx_count)
+			ReDim preserve emer_check_vendor_2nd_address_type_info(tx_count)
+			ReDim preserve emer_check_vendor_2nd_address_eff_date(tx_count)
+			ReDim preserve emer_check_vendor_2nd_name(tx_count)
+			ReDim preserve emer_check_vendor_2nd_c_o(tx_count)
+			ReDim preserve emer_check_vendor_2nd_street_one(tx_count)
+			ReDim preserve emer_check_vendor_2nd_street_two(tx_count)
+			ReDim preserve emer_check_vendor_2nd_city(tx_count)
+			ReDim preserve emer_check_vendor_2nd_state(tx_count)
+			ReDim preserve emer_check_vendor_2nd_zip(tx_count)
+			ReDim preserve emer_check_vendor_direct_deposit_yn(tx_count)
+			ReDim preserve emer_check_vendor_merge_vendor_number(tx_count)
+			ReDim preserve emer_check_vendor_acct_number_required_yn(tx_count)
+			ReDim preserve emer_check_vendor_blocked_county_numbers_list(tx_count)
+
+			emer_check_program(tx_count) = chck_prog
+			EMReadScreen emer_check_issue_date(tx_count), 8, inqd_row, 7
+			EMReadScreen emer_check_status_code(tx_count), 1, inqd_row, 26
+			If emer_check_status_code(tx_count) = "C" Then emer_check_status_info(tx_count) = "Cancel/Return"
+			If emer_check_status_code(tx_count) = "D" Then emer_check_status_info(tx_count) = "Denied"
+			If emer_check_status_code(tx_count) = "I" Then emer_check_status_info(tx_count) = "Issued"
+			If emer_check_status_code(tx_count) = "P" Then emer_check_status_info(tx_count) = "Pending"
+			If emer_check_status_code(tx_count) = "R" Then emer_check_status_info(tx_count) = "Cashed"
+			If emer_check_status_code(tx_count) = "S" Then emer_check_status_info(tx_count) = "Partial Cancel"
+			If emer_check_status_code(tx_count) = "T" Then emer_check_status_info(tx_count) = "Stopped/Cashed"
+			If emer_check_status_code(tx_count) = "X" Then emer_check_status_info(tx_count) = "Stopped"
+			If emer_check_status_code(tx_count) = "B" Then emer_check_status_info(tx_count) = "Cashed and Replaced"
+			EMReadScreen emer_check_warrant_number(tx_count), 8, inqd_row, 28
+			EMReadScreen emer_check_transaction_amount(tx_count), 9, inqd_row, 37
+			emer_check_transaction_amount(tx_count) == trim(emer_check_transaction_amount(tx_count))
+			EMReadScreen emer_check_type_code(tx_count), 1, inqd_row, 48
+			If emer_check_type_code(tx_count) = "1" Then emer_check_type_info(tx_count) = "Ongoing Issuance"
+			If emer_check_type_code(tx_count) = "2" Then emer_check_type_info(tx_count) = "Same Day Local Issuance"
+			If emer_check_type_code(tx_count) = "3" Then emer_check_type_info(tx_count) = "Replacement Issuance"
+			If emer_check_type_code(tx_count) = "4" Then emer_check_type_info(tx_count) = "Same Day Issuance"
+			If emer_check_type_code(tx_count) = "5" Then emer_check_type_info(tx_count) = "Nightly Issuance"
+			If emer_check_type_code(tx_count) = "6" Then emer_check_type_info(tx_count) = "Manual Issuance"
+			If emer_check_type_code(tx_count) = "7" Then emer_check_type_info(tx_count) = "EBT Rapid Electronic Issuance"
+			If emer_check_type_code(tx_count) = "8" Then emer_check_type_info(tx_count) = "EBT Rapid Electronic Replacement"
+			EMReadScreen emer_check_transaction_number(tx_count), 9, inqd_row, 51
+			EMReadScreen emer_check_from_date(tx_count), 8, inqd_row, 62
+			EMReadScreen emer_check_to_date(tx_count), 8, inqd_row, 73
+
+			Call write_value_and_transmit("I", inqd_row, 4)
+
+
+			EMReadScreen emer_check_payment_reason(tx_count), 	30, 7, 17
+			EMReadScreen emer_check_payment_to_name(tx_count), 	30, 8, 17
+			EMReadScreen addr_one, 								30, 9, 17
+			EMReadScreen addr_two, 								30, 10, 17
+			emer_check_payment_to_address(tx_count) = trim(trim(addr_one) & " " & trim(addr_two))
+			EMReadScreen emer_check_mail_method(tx_count), 			15, 4, 63
+			EMReadScreen emer_check_payment_method(tx_count), 		15, 5, 63
+			EMReadScreen emer_check_vendor_number(tx_count), 		15, 6, 63
+			EMReadScreen emer_check_fiche_number(tx_count), 		15, 7, 63
+			EMReadScreen emer_check_payment_amount(tx_count), 		10, 13, 16
+			EMReadScreen emer_check_entitement_amount(tx_count), 	10, 14, 16
+			EMReadScreen emer_check_recoupment_amount(tx_count), 	10, 15, 16
+			EMReadScreen emer_check_replacement_amount(tx_count), 	10, 16, 16
+			EMReadScreen emer_check_cacnel_amount(tx_count), 		10, 17, 16
+			EMReadScreen emer_check_food_portion_amount(tx_count), 	10, 18, 16
+			EMReadScreen emer_check_reconciliation_date(tx_count), 	8, 6, 43
+			EMReadScreen emer_check_cancel_reason(tx_count), 		30, 17, 41
+			EMReadScreen emer_check_replacement_reason(tx_count), 	30, 18, 46
+			EMReadScreen emer_check_picup_status(tx_count), 		10, 10, 70
+			EMReadScreen emer_check_pickup_date(tx_count), 			8, 11, 70
+			EMReadScreen emer_check_servicing_county(tx_count), 	2, 13, 70
+			EMReadScreen emer_check_responsibility_county(tx_count), 2, 14, 70
+			EMReadScreen emer_check_adjusting_transaction(tx_count), 10, 15, 70
+			EMReadScreen emer_check_original_transaction(tx_count), 10, 16, 70
+
+			emer_check_payment_reason(tx_count) = trim(emer_check_payment_reason(tx_count))
+			emer_check_payment_to_name(tx_count) = trim(emer_check_payment_to_name(tx_count))
+			emer_check_payment_to_address(tx_count) = trim(emer_check_payment_to_address(tx_count))
+			emer_check_mail_method(tx_count) = trim(emer_check_mail_method(tx_count))
+			emer_check_payment_method(tx_count) = trim(emer_check_payment_method(tx_count))
+			emer_check_vendor_number(tx_count) = trim(emer_check_vendor_number(tx_count))
+			emer_check_fiche_number(tx_count) = trim(emer_check_fiche_number(tx_count))
+			emer_check_payment_amount(tx_count) = trim(emer_check_payment_amount(tx_count))
+			emer_check_entitement_amount(tx_count) = trim(emer_check_entitement_amount(tx_count))
+			emer_check_recoupment_amount(tx_count) = trim(emer_check_recoupment_amount(tx_count))
+			emer_check_replacement_amount(tx_count) = trim(emer_check_replacement_amount(tx_count))
+			emer_check_cacnel_amount(tx_count) = trim(emer_check_cacnel_amount(tx_count))
+			emer_check_food_portion_amount(tx_count) = trim(emer_check_food_portion_amount(tx_count))
+			emer_check_reconciliation_date(tx_count) = trim(emer_check_reconciliation_date(tx_count))
+			emer_check_cancel_reason(tx_count) = trim(emer_check_cancel_reason(tx_count))
+			emer_check_replacement_reason(tx_count) = trim(emer_check_replacement_reason(tx_count))
+			emer_check_picup_status(tx_count) = trim(emer_check_picup_status(tx_count))
+			emer_check_pickup_date(tx_count) = trim(emer_check_pickup_date(tx_count))
+			emer_check_servicing_county(tx_count) = trim(emer_check_servicing_county(tx_count))
+			emer_check_responsibility_county(tx_count) = trim(emer_check_responsibility_county(tx_count))
+			emer_check_adjusting_transaction(tx_count) = trim(emer_check_adjusting_transaction(tx_count))
+			emer_check_original_transaction(tx_count) = trim(emer_check_original_transaction(tx_count))
+
+			tx_count = tx_count + 1
+			inqd_row = inqd_row + 1
+
+		Loop
+		PF3
+
+		for each_trans = 0 to UBound(emer_check_program)
+			Call navigate_to_MAXIS_screen("MONY", "VNDS")
+
+			Call write_value_and_transmit(emer_check_vendor_number(each_trans), 4, 59)
+
+			EMReadScreen emer_check_vendor_name(each_trans), 					30, 3, 15
+			EMReadScreen emer_check_vendor_c_o(each_trans), 					30, 4, 15
+			EMReadScreen emer_check_vendor_street_one(each_trans), 				22, 5, 15
+			EMReadScreen emer_check_vendor_street_two(each_trans), 				22, 6, 15
+			EMReadScreen emer_check_vendor_city(each_trans), 					15, 7, 15
+			EMReadScreen emer_check_vendor_state(each_trans), 					2, 7, 36
+			EMReadScreen emer_check_vendor_zip(each_trans), 					10, 7, 46
+			EMReadScreen emer_check_vendor_grh_yn(each_trans), 					1, 4, 57
+			EMReadScreen emer_check_vendor_non_profit_yn(each_trans), 			1, 4, 78
+			EMReadScreen emer_check_vendor_phone(each_trans), 					16, 6, 54
+			emer_check_vendor_phone(each_trans) = "(" & replace(replace(emer_check_vendor_phone(each_trans), " )  ", ")"), "  ", "-")
+			EMReadScreen emer_check_vendor_county(each_trans), 					2, 7, 61
+			EMReadScreen emer_check_vendor_status_code(each_trans), 			1, 16, 15
+			If emer_check_vendor_status_code(each_trans) = "A" Then emer_check_vendor_status_info(each_trans) = "Active"
+			If emer_check_vendor_status_code(each_trans) = "D" Then emer_check_vendor_status_info(each_trans) = "Delete"
+			If emer_check_vendor_status_code(each_trans) = "M" Then emer_check_vendor_status_info(each_trans) = "Merged"
+			If emer_check_vendor_status_code(each_trans) = "P" Then emer_check_vendor_status_info(each_trans) = "Pending"
+			If emer_check_vendor_status_code(each_trans) = "T" Then emer_check_vendor_status_info(each_trans) = "Terminated"
+			EMReadScreen emer_check_vendor_incorporated_yn(each_trans), 		1, 9, 22
+			EMReadScreen emer_check_vendor_federal_tax_id(each_trans), 			9, 9, 41
+			EMReadScreen emer_check_vendor_ssn(each_trans), 					11, 9, 61
+			If emer_check_vendor_ssn(each_trans) = "___ __ ____" Then emer_check_vendor_ssn(each_trans) = ""
+			emer_check_vendor_ssn(each_trans) = replace(emer_check_vendor_ssn(each_trans), " ", "-")
+			EMReadScreen emer_check_vendor_2nd_address_type_code(each_trans), 	1, 10, 22
+			If emer_check_vendor_2nd_address_type_code(each_trans) = "1" Then emer_check_vendor_2nd_address_type_info(each_trans) = "Mailing Address"
+			If emer_check_vendor_2nd_address_type_code(each_trans) = "2" Then emer_check_vendor_2nd_address_type_info(each_trans) = "Court Order"
+			EMReadScreen emer_check_vendor_2nd_address_eff_date(each_trans), 	8, 11, 15
+			If emer_check_vendor_2nd_address_eff_date(each_trans) = "__ __ __" Then emer_check_vendor_2nd_address_eff_date(each_trans) = ""
+			emer_check_vendor_2nd_address_eff_date(each_trans) = replace(emer_check_vendor_2nd_address_eff_date(each_trans), " ", "/")
+			EMReadScreen emer_check_vendor_2nd_name(each_trans), 				30, 11, 15
+			EMReadScreen emer_check_vendor_2nd_c_o(each_trans), 				30, 12, 15
+			EMReadScreen emer_check_vendor_2nd_street_one(each_trans), 			22, 13, 15
+			EMReadScreen emer_check_vendor_2nd_street_two(each_trans), 			22, 14, 15
+			EMReadScreen emer_check_vendor_2nd_city(each_trans), 				15, 15, 15
+			EMReadScreen emer_check_vendor_2nd_state(each_trans), 				2, 15, 35
+			EMReadScreen emer_check_vendor_2nd_zip(each_trans), 				10, 15, 44
+			EMReadScreen emer_check_vendor_direct_deposit_yn(each_trans), 		1, 12, 76
+			EMReadScreen emer_check_vendor_merge_vendor_number(each_trans), 	8, 16, 38
+			EMReadScreen emer_check_vendor_acct_number_required_yn(each_trans), 1, 17, 74
+			EMReadScreen emer_check_vendor_blocked_county_numbers_list(each_trans), 29, 18, 23
+
+			emer_check_vendor_name(each_trans) = replace(emer_check_vendor_name(each_trans), "_", "")
+			emer_check_vendor_c_o(each_trans) = replace(emer_check_vendor_c_o(each_trans), "_", "")
+			emer_check_vendor_street_one(each_trans) = replace(emer_check_vendor_street_one(each_trans), "_", "")
+			emer_check_vendor_street_two(each_trans) = replace(emer_check_vendor_street_two(each_trans), "_", "")
+			emer_check_vendor_city(each_trans) = replace(emer_check_vendor_city(each_trans), "_", "")
+			emer_check_vendor_zip(each_trans) = trim(emer_check_vendor_zip(each_trans))
+			emer_check_vendor_zip(each_trans) = replace(emer_check_vendor_zip(each_trans), " ", "-")
+
+			emer_check_vendor_federal_tax_id(each_trans) = replace(emer_check_vendor_federal_tax_id(each_trans), "_", "")
+
+			emer_check_vendor_2nd_name(each_trans) = replace(emer_check_vendor_2nd_name(each_trans), "_", "")
+			emer_check_vendor_2nd_c_o(each_trans) = replace(emer_check_vendor_2nd_c_o(each_trans), "_", "")
+			emer_check_vendor_2nd_street_one(each_trans) = replace(emer_check_vendor_2nd_street_one(each_trans), "_", "")
+			emer_check_vendor_2nd_street_two(each_trans) = replace(emer_check_vendor_2nd_street_two(each_trans), "_", "")
+			emer_check_vendor_2nd_city(each_trans) = replace(emer_check_vendor_2nd_city(each_trans), "_", "")
+			emer_check_vendor_2nd_zip(each_trans) = replace(emer_check_vendor_2nd_zip(each_trans), "_", "")
+			emer_check_vendor_2nd_zip(each_trans) = trim(emer_check_vendor_2nd_zip(each_trans))
+			emer_check_vendor_2nd_zip(each_trans) = replace(emer_check_vendor_2nd_zip(each_trans), " ", "-")
+
+			emer_check_vendor_merge_vendor_number(each_trans) = replace(emer_check_vendor_merge_vendor_number(each_trans), "_", "")
+			emer_check_vendor_acct_number_required_yn(each_trans) = replace(emer_check_vendor_acct_number_required_yn(each_trans), "_", "")
+
+			emer_check_vendor_blocked_county_numbers_list(each_trans) = replace(emer_check_vendor_blocked_county_numbers_list(each_trans), "_", "")
+			emer_check_vendor_blocked_county_numbers_list(each_trans) = trim((emer_check_vendor_blocked_county_numbers_list(each_trans)))
+
+			PF3
+		Next
+
+		call navigate_to_MAXIS_screen("ELIG", "    ")
+		EMWriteScreen elig_footer_month, 20, 55
+		EMWriteScreen elig_footer_year, 20, 58
+		call navigate_to_MAXIS_screen("ELIG", "EMER")
+		Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result)
+
+		EMReadScreen emer_program, 3, 4, 45
+		emer_program = trim(emer_program)
+
+		emer_row = 8
+		memb_count = 0
+		Do
+			EMReadScreen ref_numb, 2, emer_row, 6
+
+			ReDim preserve emer_elig_ref_numbs(memb_count)
+
+			emer_elig_ref_numbs(memb_count) = ref_numb
+			EMReadScreen emer_elig_membs_full_name(memb_count), 		20, emer_row, 9
+			EMReadScreen emer_elig_membs_request_yn(memb_count), 		1, emer_row, 33
+			EMReadScreen emer_elig_membs_code(memb_count), 				1, emer_row, 38
+			EMReadScreen emer_elig_membs_fund_fact(memb_count), 		1, emer_row, 59
+			EMReadScreen emer_elig_membs_adult_or_child(memb_count), 	1, emer_row, 64
+			EMReadScreen emer_elig_membs_elig_status(memb_count), 		10, emer_row, 69
+
+			If emer_elig_membs_code(memb_count) = "A" Then emer_elig_membs_info(memb_count) = "Counted Eligible"
+			If emer_elig_membs_code(memb_count) = "F" Then emer_elig_membs_info(memb_count) = "Counted Ineligible"
+			If emer_elig_membs_code(memb_count) = "N" Then emer_elig_membs_info(memb_count) = "Not Counted Ineligible"
+
+			If emer_elig_membs_adult_or_child(memb_count) = "A" Then emer_elig_membs_adult_or_child(memb_count) = "Adult"
+			If emer_elig_membs_adult_or_child(memb_count) = "C" Then emer_elig_membs_adult_or_child(memb_count) = "Child"
+
+			emer_elig_membs_full_name(memb_count) = trim((emer_elig_membs_full_name(memb_count)))
+			emer_elig_membs_elig_status(memb_count) = trim((emer_elig_membs_elig_status(memb_count)))
+
+			EMWriteScreen "X", emer_row, 4
+
+			memb_count = memb_count + 1
+			emer_row = emer_row + 1
+			EMReadScreen next_ref_numb, 2, emer_row, 6
+		Loop until next_ref_numb = "  "
+
+		transmit
+		Do
+			EMReadScreen person_name, 20, 18, 18
+			person_name = trim(person_name)
+			For each_memb = 0 to UBound(emer_elig_ref_numbs)
+				If emer_elig_membs_full_name(each_memb) = person_name Then
+					EMReadScreen emer_elig_membs_12_month_test(each_memb), 6, 13, 26
+					EMReadScreen emer_elig_membs_last_emer_begin_date(each_memb), 8, 15, 29
+
+					emer_elig_membs_12_month_test(each_memb) = trim(emer_elig_membs_12_month_test(each_memb))
+					emer_elig_membs_last_emer_begin_date(each_memb) = trim(emer_elig_membs_last_emer_begin_date(each_memb))
+				End If
+			Next
+
+			transmit
+			EMReadScreen emer_panel, 4, 3, 49
+		Loop until emer_panel = "EMCR"
+
+		EMReadScreen emer_elig_case_test_citizenship, 		6, 8, 14
+		EMReadScreen emer_elig_case_test_coop_MFIP, 		6, 9, 14
+		EMReadScreen emer_elig_case_test_copayment, 		6, 10, 14
+		EMReadScreen emer_elig_case_test_cost_effective, 	6, 11, 14
+		EMReadScreen emer_elig_case_test_eligible_child, 	6, 12, 14
+		EMReadScreen emer_elig_case_test_emergency, 		6, 13, 14
+
+		EMReadScreen emer_elig_case_test_equitable_interest, 6, 8, 48
+		EMReadScreen emer_elig_case_test_residency, 		6, 9, 48
+		EMReadScreen emer_elig_case_test_resources, 		6, 10, 48
+		EMReadScreen emer_elig_case_test_verif, 			6, 11, 48
+		EMReadScreen emer_elig_case_test_12_month, 			6, 12, 48
+
+		Call back_to_SELF
+	end sub
+
+
+end class
+
 
 class snap_eligibility_detail
 
@@ -3798,8 +4298,8 @@ ReDim GRH_ELIG_APPROVALS(0)
 Dim IVE_ELIG_APPROVALS()
 ReDim IVE_ELIG_APPROVALS(0)
 
-Dim EMER_ELIG_APPROVALS()
-ReDim EMER_ELIG_APPROVALS(0)
+' Dim EMER_ELIG_APPROVALS()
+' ReDim EMER_ELIG_APPROVALS(0)
 
 Dim SNAP_ELIG_APPROVALS()
 ReDim SNAP_ELIG_APPROVALS(0)
@@ -3857,6 +4357,22 @@ ive_elig_months_count = 0
 emer_elig_months_count = 0
 snap_elig_months_count = 0
 
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
+Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
+EMReadScreen numb_EMER_versions, 1, 16, 40
+
+If numb_EMER_versions <> " " Then
+	Set EMER_ELIG_APPROVAL = new emer_eligibility_detail
+	EMER_ELIG_APPROVAL.elig_footer_month = CM_mo
+	EMER_ELIG_APPROVAL.elig_footer_year = CM_yr
+
+	EMER_ELIG_APPROVAL.initial_search_month = first_footer_month
+	EMER_ELIG_APPROVAL.initial_search_year = first_footer_year
+
+
+End If
+
 For each footer_month in MONTHS_ARRAY
 	' MsgBox footer_month
 	Call convert_date_into_MAXIS_footer_month(footer_month, MAXIS_footer_month, MAXIS_footer_year)
@@ -3870,7 +4386,7 @@ For each footer_month in MONTHS_ARRAY
 	' EMReadScreen numb_CASH_denial_versions, 1, 13, 40
 	' EMReadScreen numb_GRH_versions, 		1, 14, 40
 	' EMReadScreen numb_IVE_versions, 		1, 15, 40
-	' EMReadScreen numb_EMER_versions, 		1, 16, 40
+	' EMReadScreen numb_EMER_versions, 		1, 16, 40		- WE WILL NOT LOOK AT THIS EVERY MONTH
 	EMReadScreen numb_SNAP_versions, 		1, 17, 40
 
 	' MsgBox "numb_SNAP_versions - " & numb_SNAP_versions
@@ -3956,6 +4472,8 @@ For each footer_month in MONTHS_ARRAY
 
 		snap_elig_months_count = snap_elig_months_count + 1
 	End If
+
+
 
 
 
