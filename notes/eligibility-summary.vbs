@@ -3125,7 +3125,6 @@ class emer_eligibility_detail
 
 	public emer_program
 
-
 	public emer_check_issue_date()
 	public emer_check_program()
 	public emer_check_status_code()
@@ -3189,19 +3188,60 @@ class emer_eligibility_detail
 	public emer_check_vendor_merge_vendor_number()
 	public emer_check_vendor_acct_number_required_yn()
 	public emer_check_vendor_blocked_county_numbers_list()
-	' public emer_check_vendor_direct_deposit_history()	'NOOOOOO'
 
-	public emer_elig_case_test_
-	public
-	public
-	public
-	public
-	public
-	public
-	public
-	public
-	public
-	public
+	public emer_elig_case_test_citizenship
+	public emer_elig_case_test_coop_MFIP
+	public emer_elig_case_test_copayment
+	public emer_elig_case_test_cost_effective
+	public emer_elig_case_test_eligible_child
+	public emer_elig_case_test_emergency
+	public emer_elig_case_test_equitable_interest
+	public emer_elig_case_test_residency
+	public emer_elig_case_test_resources
+	public emer_elig_case_test_verif
+	public emer_elig_case_test_12_month
+	public emer_elig_case_test_coop_work
+	public emer_elig_case_test_county_allocation
+	public emer_elig_case_test_elig_other_program
+	public emer_elig_case_test_200_percent_fpg
+
+	public emer_elig_available_gross_earned_income
+	public emer_elig_available_actual_work_expense
+	public emer_elig_available_net_earned_income
+	public emer_elig_available_unearned_income
+	public emer_elig_available_assets
+	public emer_elig_available_other_assets
+	public emer_elig_available_total_income_assets
+	public emer_elig_expense_rent_mortgage
+	public emer_elig_expense_fuel
+	public emer_elig_expense_electric
+	public emer_elig_expense_msa_standard
+	public emer_elig_expense_car_payment
+	public emer_elig_expense_phone
+	public emer_elig_expense_food
+	public emer_elig_expense_other
+	public emer_elig_total_basic_needs
+	public emer_elig_expense_net_income_assets
+
+	public emer_elig_approved_date
+	public emer_elig_process_date
+	public emer_elig_summ_date_last_approval
+	public emer_elig_summ_current_program_status
+	public emer_elig_summ_eligibility_result
+	public emer_elig_summ_last_used
+
+	public emer_elig_summ_adults_in_unit
+	public emer_elig_summ_children_in_unit
+	public emer_elig_summ_begin_date
+	public emer_elig_summ_end_date
+
+	public emer_elig_summ_need_foreclosure
+	public emer_elig_summ_need_temp_shelter
+	public emer_elig_summ_need_other_shelter
+	public emer_elig_summ_need_utility
+	public emer_elig_summ_need_other
+	public emer_elig_summ_need_total
+	public emer_elig_summ_payment
 
 
 	public emer_elig_ref_numbs()
@@ -3214,88 +3254,84 @@ class emer_eligibility_detail
 	public emer_elig_membs_elig_status()
 	public emer_elig_membs_12_month_test()
 	public emer_elig_membs_last_emer_begin_date()
-	public emer_elig_membs_()
-	public emer_elig_membs_()
-	public emer_elig_membs_()
-	public emer_elig_membs_()
-	public emer_elig_membs_()
-	public emer_elig_membs_()
-	public emer_elig_membs_()
-	public emer_elig_membs_()
-	public emer_elig_membs_()
 
-	public emer_check_()
-	public emer_check_()
-	public emer_check_()
-	public emer_check_()
+	public sub read_elig()
 
+		ReDim emer_check_issue_date(0)
+		ReDim emer_check_program(0)
+		ReDim emer_check_status_code(0)
+		ReDim emer_check_status_info(0)
+		ReDim emer_check_warrant_number(0)
+		ReDim emer_check_transaction_amount(0)
+		ReDim emer_check_type_code(0)
+		ReDim emer_check_type_info(0)
+		ReDim emer_check_transaction_number(0)
+		ReDim emer_check_from_date(0)
+		ReDim emer_check_to_date(0)
+		ReDim emer_check_payment_reason(0)
+		ReDim emer_check_payment_to_name(0)
+		ReDim emer_check_payment_to_address(0)
+		ReDim emer_check_mail_method(0)
+		ReDim emer_check_payment_method(0)
+		ReDim emer_check_vendor_number(0)
+		ReDim emer_check_fiche_number(0)
+		ReDim emer_check_payment_amount(0)
+		ReDim emer_check_entitement_amount(0)
+		ReDim emer_check_recoupment_amount(0)
+		ReDim emer_check_replacement_amount(0)
+		ReDim emer_check_cacnel_amount(0)
+		ReDim emer_check_food_portion_amount(0)
+		ReDim emer_check_reconciliation_date(0)
+		ReDim emer_check_cancel_reason(0)
+		ReDim emer_check_replacement_reason(0)
+		ReDim emer_check_picup_status(0)
+		ReDim emer_check_pickup_date(0)
+		ReDim emer_check_servicing_county(0)
+		ReDim emer_check_responsibility_county(0)
+		ReDim emer_check_adjusting_transaction(0)
+		ReDim emer_check_original_transaction(0)
+		ReDim emer_check_vendor_name(0)
+		ReDim emer_check_vendor_c_o(0)
+		ReDim emer_check_vendor_street_one(0)
+		ReDim emer_check_vendor_street_two(0)
+		ReDim emer_check_vendor_city(0)
+		ReDim emer_check_vendor_state(0)
+		ReDim emer_check_vendor_zip(0)
+		ReDim emer_check_vendor_grh_yn(0)
+		ReDim emer_check_vendor_non_profit_yn(0)
+		ReDim emer_check_vendor_phone(0)
+		ReDim emer_check_vendor_county(0)
+		ReDim emer_check_vendor_status_code(0)
+		ReDim emer_check_vendor_status_info(0)
+		ReDim emer_check_vendor_incorporated_yn(0)
+		ReDim emer_check_vendor_federal_tax_id(0)
+		ReDim emer_check_vendor_ssn(0)
+		ReDim emer_check_vendor_2nd_address_type_code(0)
+		ReDim emer_check_vendor_2nd_address_type_info(0)
+		ReDim emer_check_vendor_2nd_address_eff_date(0)
+		ReDim emer_check_vendor_2nd_name(0)
+		ReDim emer_check_vendor_2nd_c_o(0)
+		ReDim emer_check_vendor_2nd_street_one(0)
+		ReDim emer_check_vendor_2nd_street_two(0)
+		ReDim emer_check_vendor_2nd_city(0)
+		ReDim emer_check_vendor_2nd_state(0)
+		ReDim emer_check_vendor_2nd_zip(0)
+		ReDim emer_check_vendor_direct_deposit_yn(0)
+		ReDim emer_check_vendor_merge_vendor_number(0)
+		ReDim emer_check_vendor_acct_number_required_yn(0)
+		ReDim emer_check_vendor_blocked_county_numbers_list(0)
 
+		ReDim emer_elig_ref_numbs(0)
+		ReDim emer_elig_membs_full_name(0)
+		ReDim emer_elig_membs_request_yn(0)
+		ReDim emer_elig_membs_code(0)
+		ReDim emer_elig_membs_info(0)
+		ReDim emer_elig_membs_fund_fact(0)
+		ReDim emer_elig_membs_adult_or_child(0)
+		ReDim emer_elig_membs_elig_status(0)
+		ReDim emer_elig_membs_12_month_test(0)
+		ReDim emer_elig_membs_last_emer_begin_date(0)
 
-	ReDim emer_check_issue_date(0)
-	ReDim emer_check_program(0)
-	ReDim emer_check_status_code(0)
-	ReDim emer_check_status_info(0)
-	ReDim emer_check_warrant_number(0)
-	ReDim emer_check_transaction_amount(0)
-	ReDim emer_check_type_code(0)
-	ReDim emer_check_type_info(0)
-	ReDim emer_check_transaction_number(0)
-	ReDim emer_check_from_date(0)
-	ReDim emer_check_to_date(0)
-	ReDim emer_check_payment_reason(0)
-	ReDim emer_check_payment_to_name(0)
-	ReDim emer_check_payment_to_address(0)
-	ReDim emer_check_mail_method(0)
-	ReDim emer_check_payment_method(0)
-	ReDim emer_check_vendor_number(0)
-	ReDim emer_check_fiche_number(0)
-	ReDim emer_check_payment_amount(0)
-	ReDim emer_check_entitement_amount(0)
-	ReDim emer_check_recoupment_amount(0)
-	ReDim emer_check_replacement_amount(0)
-	ReDim emer_check_cacnel_amount(0)
-	ReDim emer_check_food_portion_amount(0)
-	ReDim emer_check_reconciliation_date(0)
-	ReDim emer_check_cancel_reason(0)
-	ReDim emer_check_replacement_reason(0)
-	ReDim emer_check_picup_status(0)
-	ReDim emer_check_pickup_date(0)
-	ReDim emer_check_servicing_county(0)
-	ReDim emer_check_responsibility_county(0)
-	ReDim emer_check_adjusting_transaction(0)
-	ReDim emer_check_original_transaction(0)
-	ReDim emer_check_vendor_name(0)
-	ReDim emer_check_vendor_c_o(0)
-	ReDim emer_check_vendor_street_one(0)
-	ReDim emer_check_vendor_street_two(0)
-	ReDim emer_check_vendor_city(0)
-	ReDim emer_check_vendor_state(0)
-	ReDim emer_check_vendor_zip(0)
-	ReDim emer_check_vendor_grh_yn(0)
-	ReDim emer_check_vendor_non_profit_yn(0)
-	ReDim emer_check_vendor_phone(0)
-	ReDim emer_check_vendor_county(0)
-	ReDim emer_check_vendor_status_code(0)
-	ReDim emer_check_vendor_status_info(0)
-	ReDim emer_check_vendor_incorporated_yn(0)
-	ReDim emer_check_vendor_federal_tax_id(0)
-	ReDim emer_check_vendor_ssn(0)
-	ReDim emer_check_vendor_2nd_address_type_code(0)
-	ReDim emer_check_vendor_2nd_address_type_info(0)
-	ReDim emer_check_vendor_2nd_address_eff_date(0)
-	ReDim emer_check_vendor_2nd_name(0)
-	ReDim emer_check_vendor_2nd_c_o(0)
-	ReDim emer_check_vendor_2nd_street_one(0)
-	ReDim emer_check_vendor_2nd_street_two(0)
-	ReDim emer_check_vendor_2nd_city(0)
-	ReDim emer_check_vendor_2nd_state(0)
-	ReDim emer_check_vendor_2nd_zip(0)
-	ReDim emer_check_vendor_direct_deposit_yn(0)
-	ReDim emer_check_vendor_merge_vendor_number(0)
-	ReDim emer_check_vendor_acct_number_required_yn(0)
-	ReDim emer_check_vendor_blocked_county_numbers_list(0)
-
-	public sub read.elig()
 		Call navigate_to_MAXIS_screen("MONY", "INQX")
 		EMWriteScreen initial_search_month, 6, 38
 		EMWriteScreen initial_search_year, 6, 41
@@ -3310,8 +3346,8 @@ class emer_eligibility_detail
 		tx_count = 0
 		EMReadScreen chck_prog, 7, inqd_row, 16
 		chck_prog = trim(chck_prog)
-		Do while chck_prog <> ""
 
+		Do while chck_prog <> ""
 			ReDim preserve emer_check_issue_date(tx_count)
 			ReDim preserve emer_check_program(tx_count)
 			ReDim preserve emer_check_status_code(tx_count)
@@ -3390,7 +3426,7 @@ class emer_eligibility_detail
 			If emer_check_status_code(tx_count) = "B" Then emer_check_status_info(tx_count) = "Cashed and Replaced"
 			EMReadScreen emer_check_warrant_number(tx_count), 8, inqd_row, 28
 			EMReadScreen emer_check_transaction_amount(tx_count), 9, inqd_row, 37
-			emer_check_transaction_amount(tx_count) == trim(emer_check_transaction_amount(tx_count))
+			emer_check_transaction_amount(tx_count) = trim(emer_check_transaction_amount(tx_count))
 			EMReadScreen emer_check_type_code(tx_count), 1, inqd_row, 48
 			If emer_check_type_code(tx_count) = "1" Then emer_check_type_info(tx_count) = "Ongoing Issuance"
 			If emer_check_type_code(tx_count) = "2" Then emer_check_type_info(tx_count) = "Same Day Local Issuance"
@@ -3455,17 +3491,20 @@ class emer_eligibility_detail
 			emer_check_adjusting_transaction(tx_count) = trim(emer_check_adjusting_transaction(tx_count))
 			emer_check_original_transaction(tx_count) = trim(emer_check_original_transaction(tx_count))
 
+			PF3
+
 			tx_count = tx_count + 1
 			inqd_row = inqd_row + 1
-
+			EMReadScreen chck_prog, 7, inqd_row, 16
+			chck_prog = trim(chck_prog)
 		Loop
 		PF3
 
 		for each_trans = 0 to UBound(emer_check_program)
 			Call navigate_to_MAXIS_screen("MONY", "VNDS")
 
-			Call write_value_and_transmit(emer_check_vendor_number(each_trans), 4, 59)
 
+			Call write_value_and_transmit(emer_check_vendor_number(each_trans), 4, 59)
 			EMReadScreen emer_check_vendor_name(each_trans), 					30, 3, 15
 			EMReadScreen emer_check_vendor_c_o(each_trans), 					30, 4, 15
 			EMReadScreen emer_check_vendor_street_one(each_trans), 				22, 5, 15
@@ -3541,23 +3580,47 @@ class emer_eligibility_detail
 		call navigate_to_MAXIS_screen("ELIG", "EMER")
 		Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result)
 
-		EMReadScreen emer_program, 3, 4, 45
-		emer_program = trim(emer_program)
+		EMReadScreen emer_program, 2, 4, 45
+
+		ff_col = 59
+		ac_col = 64
+		es_col = 69
+		If emer_program = "EA" Then
+			rn_col = 6
+			fn_col = 9
+			rq_col = 33
+			mc_col = 38
+		End If
+				If emer_program = "EG" Then
+			rn_col = 8
+			fn_col = 13
+			rq_col = 37
+			mc_col = 44
+		End If
 
 		emer_row = 8
 		memb_count = 0
 		Do
-			EMReadScreen ref_numb, 2, emer_row, 6
+			EMReadScreen ref_numb, 2, emer_row, rn_col
 
 			ReDim preserve emer_elig_ref_numbs(memb_count)
+			ReDim preserve emer_elig_membs_full_name(memb_count)
+			ReDim preserve emer_elig_membs_request_yn(memb_count)
+			ReDim preserve emer_elig_membs_code(memb_count)
+			ReDim preserve emer_elig_membs_info(memb_count)
+			ReDim preserve emer_elig_membs_fund_fact(memb_count)
+			ReDim preserve emer_elig_membs_adult_or_child(memb_count)
+			ReDim preserve emer_elig_membs_elig_status(memb_count)
+			ReDim preserve emer_elig_membs_12_month_test(memb_count)
+			ReDim preserve emer_elig_membs_last_emer_begin_date(memb_count)
 
 			emer_elig_ref_numbs(memb_count) = ref_numb
-			EMReadScreen emer_elig_membs_full_name(memb_count), 		20, emer_row, 9
-			EMReadScreen emer_elig_membs_request_yn(memb_count), 		1, emer_row, 33
-			EMReadScreen emer_elig_membs_code(memb_count), 				1, emer_row, 38
-			EMReadScreen emer_elig_membs_fund_fact(memb_count), 		1, emer_row, 59
-			EMReadScreen emer_elig_membs_adult_or_child(memb_count), 	1, emer_row, 64
-			EMReadScreen emer_elig_membs_elig_status(memb_count), 		10, emer_row, 69
+			EMReadScreen emer_elig_membs_full_name(memb_count), 		20, emer_row, fn_col
+			EMReadScreen emer_elig_membs_request_yn(memb_count), 		1, emer_row, rq_col
+			EMReadScreen emer_elig_membs_code(memb_count), 				1, emer_row, mc_col
+			If emer_program = "EA" Then EMReadScreen emer_elig_membs_fund_fact(memb_count), 		1, emer_row, ff_col
+			EMReadScreen emer_elig_membs_adult_or_child(memb_count), 	1, emer_row, ac_col
+			EMReadScreen emer_elig_membs_elig_status(memb_count), 		10, emer_row, es_col
 
 			If emer_elig_membs_code(memb_count) = "A" Then emer_elig_membs_info(memb_count) = "Counted Eligible"
 			If emer_elig_membs_code(memb_count) = "F" Then emer_elig_membs_info(memb_count) = "Counted Ineligible"
@@ -3569,7 +3632,7 @@ class emer_eligibility_detail
 			emer_elig_membs_full_name(memb_count) = trim((emer_elig_membs_full_name(memb_count)))
 			emer_elig_membs_elig_status(memb_count) = trim((emer_elig_membs_elig_status(memb_count)))
 
-			EMWriteScreen "X", emer_row, 4
+			If emer_program = "EA" Then EMWriteScreen "X", emer_row, 4
 
 			memb_count = memb_count + 1
 			emer_row = emer_row + 1
@@ -3577,36 +3640,182 @@ class emer_eligibility_detail
 		Loop until next_ref_numb = "  "
 
 		transmit
-		Do
-			EMReadScreen person_name, 20, 18, 18
-			person_name = trim(person_name)
-			For each_memb = 0 to UBound(emer_elig_ref_numbs)
-				If emer_elig_membs_full_name(each_memb) = person_name Then
-					EMReadScreen emer_elig_membs_12_month_test(each_memb), 6, 13, 26
-					EMReadScreen emer_elig_membs_last_emer_begin_date(each_memb), 8, 15, 29
+		If emer_program = "EA" Then
+			Do
+				EMReadScreen person_name, 20, 18, 18
+				person_name = trim(person_name)
+				For each_memb = 0 to UBound(emer_elig_ref_numbs)
+					If emer_elig_membs_full_name(each_memb) = person_name Then
+						EMReadScreen emer_elig_membs_12_month_test(each_memb), 6, 13, 26
+						EMReadScreen emer_elig_membs_last_emer_begin_date(each_memb), 8, 15, 29
 
-					emer_elig_membs_12_month_test(each_memb) = trim(emer_elig_membs_12_month_test(each_memb))
-					emer_elig_membs_last_emer_begin_date(each_memb) = trim(emer_elig_membs_last_emer_begin_date(each_memb))
-				End If
-			Next
+						emer_elig_membs_12_month_test(each_memb) = trim(emer_elig_membs_12_month_test(each_memb))
+						emer_elig_membs_last_emer_begin_date(each_memb) = trim(emer_elig_membs_last_emer_begin_date(each_memb))
+					End If
+				Next
 
-			transmit
-			EMReadScreen emer_panel, 4, 3, 49
-		Loop until emer_panel = "EMCR"
+				transmit
+				EMReadScreen emer_panel, 4, 3, 49
+			Loop until emer_panel = "EMCR"
 
-		EMReadScreen emer_elig_case_test_citizenship, 		6, 8, 14
-		EMReadScreen emer_elig_case_test_coop_MFIP, 		6, 9, 14
-		EMReadScreen emer_elig_case_test_copayment, 		6, 10, 14
-		EMReadScreen emer_elig_case_test_cost_effective, 	6, 11, 14
-		EMReadScreen emer_elig_case_test_eligible_child, 	6, 12, 14
-		EMReadScreen emer_elig_case_test_emergency, 		6, 13, 14
+			EMReadScreen emer_elig_case_test_citizenship, 		6, 8, 14
+			EMReadScreen emer_elig_case_test_coop_MFIP, 		6, 9, 14
+			EMReadScreen emer_elig_case_test_copayment, 		6, 10, 14
+			EMReadScreen emer_elig_case_test_cost_effective, 	6, 11, 14
+			EMReadScreen emer_elig_case_test_eligible_child, 	6, 12, 14
+			EMReadScreen emer_elig_case_test_emergency, 		6, 13, 14
 
-		EMReadScreen emer_elig_case_test_equitable_interest, 6, 8, 48
-		EMReadScreen emer_elig_case_test_residency, 		6, 9, 48
-		EMReadScreen emer_elig_case_test_resources, 		6, 10, 48
-		EMReadScreen emer_elig_case_test_verif, 			6, 11, 48
-		EMReadScreen emer_elig_case_test_12_month, 			6, 12, 48
+			EMReadScreen emer_elig_case_test_equitable_interest, 6, 8, 48
+			EMReadScreen emer_elig_case_test_residency, 		6, 9, 48
+			EMReadScreen emer_elig_case_test_resources, 		6, 10, 48
+			EMReadScreen emer_elig_case_test_verif, 			6, 11, 48
+			EMReadScreen emer_elig_case_test_12_month, 			6, 12, 48
 
+			emer_elig_case_test_citizenship = trim(emer_elig_case_test_citizenship)
+			emer_elig_case_test_coop_MFIP = trim(emer_elig_case_test_coop_MFIP)
+			emer_elig_case_test_copayment = trim(emer_elig_case_test_copayment)
+			emer_elig_case_test_cost_effective = trim(emer_elig_case_test_cost_effective)
+			emer_elig_case_test_eligible_child = trim(emer_elig_case_test_eligible_child)
+			emer_elig_case_test_emergency = trim(emer_elig_case_test_emergency)
+
+			emer_elig_case_test_equitable_interest = trim(emer_elig_case_test_equitable_interest)
+			emer_elig_case_test_residency = trim(emer_elig_case_test_residency)
+			emer_elig_case_test_resources = trim(emer_elig_case_test_resources)
+			emer_elig_case_test_verif = trim(emer_elig_case_test_verif)
+			emer_elig_case_test_12_month = trim(emer_elig_case_test_12_month)
+		End If
+
+		If emer_program = "EG" Then
+			EMReadScreen emer_elig_case_test_coop_work, 		6, 9, 7
+			EMReadScreen emer_elig_case_test_copayment, 		6, 10, 7
+			EMReadScreen emer_elig_case_test_cost_effective, 	6, 11, 7
+			EMReadScreen emer_elig_case_test_county_allocation, 6, 12, 7
+			EMReadScreen emer_elig_case_test_elig_other_program,6, 13, 7
+			EMReadScreen emer_elig_case_test_emergency, 		6, 14, 7
+
+			EMReadScreen emer_elig_case_test_equitable_interest, 6, 9, 49
+			EMReadScreen emer_elig_case_test_resources, 		6, 10, 49
+			EMReadScreen emer_elig_case_test_residency, 		6, 11, 49
+			EMReadScreen emer_elig_case_test_verif, 			6, 12, 49
+			EMReadScreen emer_elig_case_test_12_month, 			6, 13, 49
+			EMReadScreen emer_elig_case_test_200_percent_fpg, 	6, 14, 49
+
+			emer_elig_case_test_coop_work = trim(emer_elig_case_test_coop_work)
+			emer_elig_case_test_copayment = trim(emer_elig_case_test_copayment)
+			emer_elig_case_test_cost_effective = trim(emer_elig_case_test_cost_effective)
+			emer_elig_case_test_county_allocation = trim(emer_elig_case_test_county_allocation)
+			emer_elig_case_test_elig_other_program = trim(emer_elig_case_test_elig_other_program)
+			emer_elig_case_test_emergency = trim(emer_elig_case_test_emergency)
+
+			emer_elig_case_test_equitable_interest = trim(emer_elig_case_test_equitable_interest)
+			emer_elig_case_test_resources = trim(emer_elig_case_test_resources)
+			emer_elig_case_test_residency = trim(emer_elig_case_test_residency)
+			emer_elig_case_test_verif = trim(emer_elig_case_test_verif)
+			emer_elig_case_test_12_month = trim(emer_elig_case_test_12_month)
+			emer_elig_case_test_200_percent_fpg = trim(emer_elig_case_test_200_percent_fpg)
+		End If
+
+		transmit 		'going to EMAV'
+
+		EMReadScreen emer_elig_available_gross_earned_income, 	9, 7, 32
+		EMReadScreen emer_elig_available_actual_work_expense, 	9, 8, 32
+		EMReadScreen emer_elig_available_net_earned_income, 	9, 9, 32
+
+		EMReadScreen emer_elig_available_unearned_income, 		9, 7, 71
+		EMReadScreen emer_elig_available_assets, 				9, 8, 17
+		EMReadScreen emer_elig_available_other_assets, 			9, 9, 71
+		EMReadScreen emer_elig_available_total_income_assets, 	9, 10, 71
+
+		EMReadScreen emer_elig_expense_rent_mortgage, 		9, 13, 32
+		EMReadScreen emer_elig_expense_fuel,	 			9, 14, 32
+		EMReadScreen emer_elig_expense_electric, 			9, 15, 32
+		EMReadScreen emer_elig_expense_msa_standard, 		9, 16, 32
+
+		EMReadScreen emer_elig_expense_car_payment, 		9, 13, 71
+		EMReadScreen emer_elig_expense_phone, 				9, 14, 71
+		EMReadScreen emer_elig_expense_food, 				9, 15, 71
+		EMReadScreen emer_elig_expense_other, 				9, 16, 71
+		EMReadScreen emer_elig_total_basic_needs, 			9, 17, 71
+		EMReadScreen emer_elig_expense_net_income_assets, 	9, 18, 71
+
+		emer_elig_available_gross_earned_income = trim(emer_elig_available_gross_earned_income)
+		emer_elig_available_actual_work_expense = trim(emer_elig_available_actual_work_expense)
+		emer_elig_available_net_earned_income = trim(emer_elig_available_net_earned_income)
+		emer_elig_available_unearned_income = trim(emer_elig_available_unearned_income)
+		emer_elig_available_assets = trim(emer_elig_available_assets)
+		emer_elig_available_other_assets = trim(emer_elig_available_other_assets)
+		emer_elig_available_total_income_assets = trim(emer_elig_available_total_income_assets)
+		emer_elig_expense_rent_mortgage = trim(emer_elig_expense_rent_mortgage)
+		emer_elig_expense_fuel = trim(emer_elig_expense_fuel)
+		emer_elig_expense_electric = trim(emer_elig_expense_electric)
+		emer_elig_expense_msa_standard = trim(emer_elig_expense_msa_standard)
+		emer_elig_expense_car_payment = trim(emer_elig_expense_car_payment)
+		emer_elig_expense_phone = trim(emer_elig_expense_phone)
+		emer_elig_expense_food = trim(emer_elig_expense_food)
+		emer_elig_expense_other = trim(emer_elig_expense_other)
+		emer_elig_total_basic_needs = trim(emer_elig_total_basic_needs)
+		emer_elig_expense_net_income_assets = trim(emer_elig_expense_net_income_assets)
+
+		emer_elig_available_gross_earned_income = replace(emer_elig_available_gross_earned_income, "_", "")
+		emer_elig_available_actual_work_expense = replace(emer_elig_available_actual_work_expense, "_", "")
+		emer_elig_available_net_earned_income = replace(emer_elig_available_net_earned_income, "_", "")
+		emer_elig_available_unearned_income = replace(emer_elig_available_unearned_income, "_", "")
+		emer_elig_available_assets = replace(emer_elig_available_assets, "_", "")
+		emer_elig_available_other_assets = replace(emer_elig_available_other_assets, "_", "")
+		emer_elig_available_total_income_assets = replace(emer_elig_available_total_income_assets, "_", "")
+		emer_elig_expense_rent_mortgage = replace(emer_elig_expense_rent_mortgage, "_", "")
+		emer_elig_expense_fuel = replace(emer_elig_expense_fuel, "_", "")
+		emer_elig_expense_electric = replace(emer_elig_expense_electric, "_", "")
+		emer_elig_expense_msa_standard = replace(emer_elig_expense_msa_standard, "_", "")
+		emer_elig_expense_car_payment = replace(emer_elig_expense_car_payment, "_", "")
+		emer_elig_expense_phone = replace(emer_elig_expense_phone, "_", "")
+		emer_elig_expense_food = replace(emer_elig_expense_food, "_", "")
+		emer_elig_expense_other = replace(emer_elig_expense_other, "_", "")
+		emer_elig_total_basic_needs = replace(emer_elig_total_basic_needs, "_", "")
+		emer_elig_expense_net_income_assets = replace(emer_elig_expense_net_income_assets, "_", "")
+
+		transmit 'go to EMSM'
+
+		EMReadScreen emer_elig_approved_date, 			8, 3, 14
+		EMReadScreen emer_elig_process_date, 			8, 2, 73
+		EMReadScreen emer_elig_summ_date_last_approval, 8, 6, 32
+		EMReadScreen emer_elig_summ_current_program_status, 10, 7, 32
+		EMReadScreen emer_elig_summ_eligibility_result, 10, 8, 32
+		EMReadScreen emer_elig_summ_last_used, 			8, 9, 32
+
+		EMReadScreen emer_elig_summ_adults_in_unit, 	2, 6, 73
+		EMReadScreen emer_elig_summ_children_in_unit, 	2, 7, 73
+		EMReadScreen emer_elig_summ_begin_date, 		8, 8, 71
+		EMReadScreen emer_elig_summ_end_date, 			8, 9, 71
+
+		EMReadScreen emer_elig_summ_need_foreclosure, 	9, 11, 32
+		EMReadScreen emer_elig_summ_need_temp_shelter, 	9, 12, 32
+		EMReadScreen emer_elig_summ_need_other_shelter, 9, 13, 32
+		EMReadScreen emer_elig_summ_need_utility, 		9, 14, 32
+		EMReadScreen emer_elig_summ_need_other, 		9, 15, 32
+		EMReadScreen emer_elig_summ_need_total, 		9, 16, 32
+
+		EMReadScreen emer_elig_summ_payment, 			9, 13, 71
+
+		emer_elig_summ_date_last_approval = trim(emer_elig_summ_date_last_approval)
+		emer_elig_summ_current_program_status = trim(emer_elig_summ_current_program_status)
+		emer_elig_summ_last_used = trim(emer_elig_summ_last_used)
+
+		emer_elig_summ_adults_in_unit = trim(emer_elig_summ_adults_in_unit)
+		emer_elig_summ_children_in_unit = trim(emer_elig_summ_children_in_unit)
+
+		emer_elig_summ_eligibility_result = replace(emer_elig_summ_eligibility_result, "_", "")
+
+		emer_elig_summ_need_foreclosure = replace(emer_elig_summ_need_foreclosure, "_", "")
+		emer_elig_summ_need_temp_shelter = replace(emer_elig_summ_need_temp_shelter, "_", "")
+		emer_elig_summ_need_other_shelter = replace(emer_elig_summ_need_other_shelter, "_", "")
+		emer_elig_summ_need_utility = replace(emer_elig_summ_need_utility, "_", "")
+		emer_elig_summ_need_other = replace(emer_elig_summ_need_other, "_", "")
+
+		emer_elig_summ_need_total = trim(emer_elig_summ_need_total)
+		emer_elig_summ_payment = trim(emer_elig_summ_payment)
+
+		''TODO - open foreclosure and utility pop-ups
 		Call back_to_SELF
 	end sub
 
@@ -4362,6 +4571,7 @@ MAXIS_footer_year = CM_yr
 Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 EMReadScreen numb_EMER_versions, 1, 16, 40
 
+'TODO figure out EMER Date handling'
 If numb_EMER_versions <> " " Then
 	Set EMER_ELIG_APPROVAL = new emer_eligibility_detail
 	EMER_ELIG_APPROVAL.elig_footer_month = CM_mo
@@ -4370,7 +4580,18 @@ If numb_EMER_versions <> " " Then
 	EMER_ELIG_APPROVAL.initial_search_month = first_footer_month
 	EMER_ELIG_APPROVAL.initial_search_year = first_footer_year
 
+	EMER_ELIG_APPROVAL.read_elig
 
+	transactions = ""
+	for each_tx = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+		transactions = transactions & EMER_ELIG_APPROVAL.emer_check_program(each_tx) & " - $" & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_tx) & " Paid to: " & EMER_ELIG_APPROVAL.emer_check_vendor_name(each_tx)
+		transactions = transactions & vbCr
+	Next
+
+	' MsgBox "EMER_ELIG_APPROVAL.elig_footer_month - " & EMER_ELIG_APPROVAL.elig_footer_month & vbCr & "EMER_ELIG_APPROVAL.elig_footer_year - " & EMER_ELIG_APPROVAL.elig_footer_year & vbCr &_
+	' 		"EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result - " & EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result & vbCr &_
+	' 		"EMER_ELIG_APPROVAL.emer_elig_summ_payment - " & EMER_ELIG_APPROVAL.emer_elig_summ_payment & vbCr &_
+	' 		transactions
 End If
 
 For each footer_month in MONTHS_ARRAY
