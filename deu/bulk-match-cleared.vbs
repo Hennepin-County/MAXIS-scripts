@@ -320,11 +320,9 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	MAXIS_case_number = objExcel.cells(excel_row, excel_col_case_number).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
     IF MAXIS_case_number = "" THEN EXIT DO
-
 	IF trim(objExcel.cells(excel_row, excel_col_period).Value) <> "" THEN
         IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) <> "" THEN
 			add_to_array = TRUE
-
 	    ELSE
 			match_based_array(comments_const, item) = "No resolution status could be found."
 			excel_row = excel_row + 1
@@ -336,8 +334,10 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	   	match_based_array(maxis_case_number_const,  entry_record)	 = MAXIS_case_number
 	   	match_based_array(client_ssn_const, 		entry_record)	 = trim(replace(objExcel.cells(excel_row, excel_col_client_ssn), "-", ""))
 		match_based_array(program_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_program).Value)
-	    match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
-		match_based_array(amount_const, 		    entry_record)    = replace(objExcel.cells(excel_row, excel_col_amount).Value, "$", "")
+        'FormatNumber(number, deciaml places, leading zero(false), negative number (false), use deliminator(false))
+        match_based_array(amount_const, 		    entry_record)    = FormatNumber(match_based_array(amount_const, entry_record), 2, 0, 0, 0) 'this is formating to help the script read the number as a number'
+        match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
+        match_based_array(amount_const, 		    entry_record)    = replace(objExcel.cells(excel_row, excel_col_amount).Value, "$", "")
 		match_based_array(amount_const, 		    entry_record)    = replace(objExcel.cells(excel_row, excel_col_amount).Value, ",", "")
 	   	match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
 	   	match_based_array(notice_sent_date_const,  	entry_record)    = trim(objExcel.cells(excel_row, excel_date_notice_sent).Value)
@@ -407,7 +407,8 @@ For item = 0 to UBound(match_based_array, 2)
 						income_amount = trim(income_amount)
 
 	                   	IF income_source = match_based_array(income_source_const, item) THEN
-							IF left(income_amount, 4) = left(match_based_array(amount_const, item), 4) THEN 'had to use left 4 because the excel sheet SOMETIMES reads a number without zeros'
+                            MsgBox income_amount & " " & match_based_array(amount_const, item)
+							IF income_amount = match_based_array(amount_const, item) THEN
 							   	EXIT DO
 	    				   	ELSE
 							  	match_based_array(comments_const, item) = "Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, item) & "~"
