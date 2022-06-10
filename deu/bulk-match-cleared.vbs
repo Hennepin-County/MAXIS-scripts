@@ -339,7 +339,8 @@ Do 'purpose is to read each excel row and to add into each excel array '
         match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
         match_based_array(amount_const, 		    entry_record)    = replace(objExcel.cells(excel_row, excel_col_amount).Value, "$", "")
 		match_based_array(amount_const, 		    entry_record)    = replace(objExcel.cells(excel_row, excel_col_amount).Value, ",", "")
-	   	match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
+        match_based_array(amount_const, 		    entry_record)    = match_based_array(amount_const, 		    entry_record) *1 'this is so the amount wil be read as a number'
+       	match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
 	   	match_based_array(notice_sent_date_const,  	entry_record)    = trim(objExcel.cells(excel_row, excel_date_notice_sent).Value)
 	   	match_based_array(resolution_status_const,  entry_record)    = trim(UCASE(objExcel.cells(excel_row, excel_col_resolution_status).Value)) 'does it matter I repeat this'
 	   	match_based_array(date_cleared_const,       entry_record)    = trim(objExcel.cells(excel_row, excel_col_date_cleared).Value)	' = 14 'N' Date cleared
@@ -405,10 +406,10 @@ For item = 0 to UBound(match_based_array, 2)
 						income_amount = replace(income_amount, "$", "")
 	                    income_amount = replace(income_amount, ",", "")
 						income_amount = trim(income_amount)
+                        income_amount = income_amount *1 'this is so the amount wil be read as a number'
 
 	                   	IF income_source = match_based_array(income_source_const, item) THEN
-                            MsgBox income_amount & " " & match_based_array(amount_const, item)
-							IF income_amount = match_based_array(amount_const, item) THEN
+                        	IF income_amount = match_based_array(amount_const, item) THEN
 							   	EXIT DO
 	    				   	ELSE
 							  	match_based_array(comments_const, item) = "Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, item) & "~"
