@@ -3112,6 +3112,908 @@ class ga_eligibility_detail
 	end sub
 end class
 
+class grh_eligibility_detail
+
+	public elig_footer_month
+	public elig_footer_year
+	public elig_version_number
+	public elig_version_date
+	public elig_version_result
+
+	public grh_elig_memb_ref_numb
+	public grh_elig_memb_full_name
+	public grh_elig_memb_code
+	public grh_elig_memb_info
+	public grh_elig_memb_elig_status
+	public grh_elig_memb_elig_type_code
+	public grh_elig_memb_elig_type_info
+	public grh_elig_memb_begin_date
+
+	public grh_elig_case_test_application_withdrawn
+	public grh_elig_case_test_pben_coop
+	public grh_elig_case_test_elig_thru_other_program
+	public grh_elig_case_test_fail_file
+	public grh_elig_case_test_placement
+	public grh_elig_case_test_state_residence
+	public grh_elig_case_test_assets
+	public grh_elig_case_test_death_of_applicant
+	public grh_elig_case_test_elig_type
+	public grh_elig_case_test_income
+	public grh_elig_case_test_setting
+	public grh_elig_case_test_verif
+
+	public grh_elig_case_test_verif_ACCT
+	public grh_elig_case_test_verif_BUSI
+	public grh_elig_case_test_verif_CARS
+	public grh_elig_case_test_verif_DISA
+	public grh_elig_case_test_verif_JOBS
+	public grh_elig_case_test_verif_LUMP
+	public grh_elig_case_test_verif_MEMB_id
+	public grh_elig_case_test_verif_MEMB_dob
+
+	public grh_elig_case_test_verif_PBEN
+	public grh_elig_case_test_verif_PACT
+	public grh_elig_case_test_verif_RBIC
+	public grh_elig_case_test_verif_SECU
+	public grh_elig_case_test_verif_STIN
+	public grh_elig_case_test_verif_UNEA
+	public grh_elig_case_test_verif_TRTX_housing_instability
+	public grh_elig_case_test_verif_TRTX_psn_rate_2
+
+	public grh_elig_budg_personal_needs
+	public grh_elig_budg_prior_inc_reduce
+	public grh_elig_budg_inc_unavail_1st_month
+	public grh_elig_budg_total_deductions
+	public grh_elig_budg_counted_income
+	public grh_elig_budg_total_income
+
+	public grh_elig_budg_SSI_standard_fbr
+	public grh_elig_budg_other_countable_PA_grant
+	public grh_elig_budg_PASS_disregard
+	public grh_elig_budg_MFIP_standard_for_one
+	public grh_elig_budg_RSDI_income
+	public grh_elig_budg_other_unearned_income
+	public grh_elig_budg_earned_income
+	public grh_elig_budg_student_EI_disregard
+	public grh_elig_budg_standard_EI_disregard
+	public grh_elig_budg_earned_income_50_perc_disregard
+	public grh_elig_budg_impairment_work_expense
+	public grh_elig_budg_child_support_expense
+	public grh_elig_budg_child_unmet_need
+	public grh_elig_budg_earned_income_subtotal
+	public grh_elig_budg_EW_spousal_allocation
+
+	public grh_elig_budg_vendor_number_one
+	public grh_elig_budg_total_days_one_one
+	public grh_elig_budg_vnd2_rate_limit_one
+	public grh_elig_budg_room_board_doc_one
+	public grh_elig_budg_total_ssr_rate_one
+	public grh_elig_budg_income_test_one
+	public grh_elig_payment_grh_state_amount_one
+	public grh_elig_payment_county_liability_one
+	public grh_elig_payment_total_one
+	public grh_elig_payment_amount_already_issued_one
+
+	public grh_elig_budg_vendor_number_two
+	public grh_elig_budg_total_days_one_two
+	public grh_elig_budg_vnd2_rate_limit_two
+	public grh_elig_budg_room_board_doc_two
+	public grh_elig_budg_total_ssr_rate_two
+	public grh_elig_budg_income_test_two
+	public grh_elig_payment_grh_state_amount_two
+	public grh_elig_payment_county_liability_two
+	public grh_elig_payment_total_two
+	public grh_elig_payment_amount_already_issued_two
+
+	public grh_elig_budg_room_board_doc_one_vnd2_days
+	public grh_elig_budg_room_board_doc_one_vnd2_rate
+	public grh_elig_budg_room_board_doc_one_vnd2_total
+	public grh_elig_budg_room_board_doc_one_faci_doc_days
+	public grh_elig_budg_room_board_doc_one_faci_doc_rate
+	public grh_elig_budg_room_board_doc_one_faci_doc_total
+	public grh_elig_budg_room_board_doc_one_total
+	public grh_elig_budg_room_board_doc_two_vnd2_days
+	public grh_elig_budg_room_board_doc_two_vnd2_rate
+	public grh_elig_budg_room_board_doc_two_vnd2_total
+	public grh_elig_budg_room_board_doc_two_faci_doc_days
+	public grh_elig_budg_room_board_doc_two_faci_doc_rate
+	public grh_elig_budg_room_board_doc_two_faci_doc_total
+	public grh_elig_budg_room_board_doc_two_total
+	public grh_elig_budg_total_ssr_rate_one_days
+	public grh_elig_budg_total_ssr_rate_one_rate
+	public grh_elig_budg_total_ssr_rate_one_total
+	public grh_elig_budg_total_ssr_rate_two_days
+	public grh_elig_budg_total_ssr_rate_two_rate
+	public grh_elig_budg_total_ssr_rate_two_total
+	public grh_elig_payment_county_liability_one_vnd2_co_supp_days
+	public grh_elig_payment_county_liability_one_vnd2_co_supp_rate
+	public grh_elig_payment_county_liability_one_vnd2_co_supp_total
+	public grh_elig_payment_county_liability_one_faci_doc_in_excess_days
+	public grh_elig_payment_county_liability_one_faci_doc_in_excess_rate
+	public grh_elig_payment_county_liability_one_faci_doc_in_excess_total
+	public grh_elig_payment_county_liability_one_total
+	public grh_elig_payment_county_liability_two_vnd2_co_supp_days
+	public grh_elig_payment_county_liability_two_vnd2_co_supp_rate
+	public grh_elig_payment_county_liability_two_vnd2_co_supp_total
+	public grh_elig_payment_county_liability_two_faci_doc_in_excess_days
+	public grh_elig_payment_county_liability_two_faci_doc_in_excess_rate
+	public grh_elig_payment_county_liability_two_faci_doc_in_excess_total
+	public grh_elig_payment_county_liability_two_total
+	public grh_elig_payment_remaining_income
+
+	public grh_elig_approved_date
+	public grh_elig_process_date
+	public grh_elig_date_last_approval
+	public grh_elig_current_progream_status
+	public grh_elig_source_of_info
+	public grh_elig_eligibility_result
+	' public grh_elig_vendor_number
+	public grh_elig_elig_review_date
+	public grh_elig_reporting_status
+	public grh_elig_responsible_county
+	public grh_elig_pre_or_post_pay_one_code
+	public grh_elig_pre_or_post_pay_one_info
+	public grh_elig_payable_amount_one
+	public grh_elig_amount_already_issued_one
+	public grh_elig_setting_overpayment_one
+	public grh_elig_client_obblication_one
+	public grh_elig_pre_or_post_pay_two_code
+	public grh_elig_pre_or_post_pay_two_info
+	public grh_elig_payable_amount_two
+	public grh_elig_amount_already_issued_two
+	public grh_elig_setting_overpayment_two
+	public grh_elig_client_obblication_two
+
+	public grh_vendor_one_name
+	public grh_vendor_one_c_o
+	public grh_vendor_one_street_one
+	public grh_vendor_one_street_two
+	public grh_vendor_one_city
+	public grh_vendor_one_state
+	public grh_vendor_one_zip
+	public grh_vendor_one_grh_yn
+	public grh_vendor_one_non_profit_yn
+	public grh_vendor_one_phone
+	public grh_vendor_one_county
+	public grh_vendor_one_status_code
+	public grh_vendor_one_status_info
+	public grh_vendor_one_incorporated_yn
+	public grh_vendor_one_federal_tax_id
+	public grh_vendor_one_ssn
+	public grh_vendor_one_2nd_address_type_code
+	public grh_vendor_one_2nd_address_type_info
+	public grh_vendor_one_2nd_address_eff_date
+	public grh_vendor_one_2nd_name
+	public grh_vendor_one_2nd_c_o
+	public grh_vendor_one_2nd_street_one
+	public grh_vendor_one_2nd_street_two
+	public grh_vendor_one_2nd_city
+	public grh_vendor_one_2nd_state
+	public grh_vendor_one_2nd_zip
+	public grh_vendor_one_direct_deposit_yn
+	public grh_vendor_one_merge_vendor_number
+	public grh_vendor_one_acct_number_required_yn
+	public grh_vendor_one_blocked_county_numbers_list
+
+	public grh_vendor_two_name
+	public grh_vendor_two_c_o
+	public grh_vendor_two_street_one
+	public grh_vendor_two_street_two
+	public grh_vendor_two_city
+	public grh_vendor_two_state
+	public grh_vendor_two_zip
+	public grh_vendor_two_grh_yn
+	public grh_vendor_two_non_profit_yn
+	public grh_vendor_two_phone
+	public grh_vendor_two_county
+	public grh_vendor_two_status_code
+	public grh_vendor_two_status_info
+	public grh_vendor_two_incorporated_yn
+	public grh_vendor_two_federal_tax_id
+	public grh_vendor_two_ssn
+	public grh_vendor_two_2nd_address_type_code
+	public grh_vendor_two_2nd_address_type_info
+	public grh_vendor_two_2nd_address_eff_date
+	public grh_vendor_two_2nd_name
+	public grh_vendor_two_2nd_c_o
+	public grh_vendor_two_2nd_street_one
+	public grh_vendor_two_2nd_street_two
+	public grh_vendor_two_2nd_city
+	public grh_vendor_two_2nd_state
+	public grh_vendor_two_2nd_zip
+	public grh_vendor_two_direct_deposit_yn
+	public grh_vendor_two_merge_vendor_number
+	public grh_vendor_two_acct_number_required_yn
+	public grh_vendor_two_blocked_county_numbers_list
+
+	public sub read_elig()
+		call navigate_to_MAXIS_screen("ELIG", "GRH ")
+		EMWriteScreen elig_footer_month, 20, 55
+		EMWriteScreen elig_footer_year, 20, 58
+		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result)
+
+		EMReadScreen grh_elig_memb_ref_numb, 2, 6, 3
+		EMReadScreen grh_elig_memb_full_name, 15, 6, 7
+		EMReadScreen grh_elig_memb_code, 1, 6, 24
+		If grh_elig_memb_code = "A" Then grh_elig_memb_info  = "Counted"
+		EMReadScreen grh_elig_memb_elig_status, 10, 6, 41
+		EMReadScreen grh_elig_memb_elig_type_code, 2, 6, 53
+		If grh_elig_memb_elig_type_code = "01" Then  grh_elig_memb_elig_type_info = "SSI"
+		If grh_elig_memb_elig_type_code = "02" Then  grh_elig_memb_elig_type_info = "MFIP"
+		If grh_elig_memb_elig_type_code = "03" Then  grh_elig_memb_elig_type_info = "Blind"
+		If grh_elig_memb_elig_type_code = "04" Then  grh_elig_memb_elig_type_info = "Disabled"
+		If grh_elig_memb_elig_type_code = "05" Then  grh_elig_memb_elig_type_info = "Aged"
+		If grh_elig_memb_elig_type_code = "06" Then  grh_elig_memb_elig_type_info = "Adult"
+		If grh_elig_memb_elig_type_code = "07" Then  grh_elig_memb_elig_type_info = "None"
+		If grh_elig_memb_elig_type_code = "08" Then  grh_elig_memb_elig_type_info = "Residential Treatment"
+		EMReadScreen grh_elig_memb_begin_date, 8, 6, 68
+
+		grh_elig_memb_full_name = trim(grh_elig_memb_full_name)
+		grh_elig_memb_elig_status = trim(grh_elig_memb_elig_status)
+
+		grh_elig_memb_begin_date = replace(grh_elig_memb_begin_date, " ", "/")
+
+		EMReadScreen grh_elig_case_test_application_withdrawn, 	6, 8, 8
+		EMReadScreen grh_elig_case_test_pben_coop, 				6, 9, 8
+		EMReadScreen grh_elig_case_test_elig_thru_other_program, 6, 10, 8
+		EMReadScreen grh_elig_case_test_fail_file, 				6, 11, 8
+		EMReadScreen grh_elig_case_test_placement, 				6, 12, 8
+		EMReadScreen grh_elig_case_test_state_residence, 		6, 13, 8
+
+		EMReadScreen grh_elig_case_test_assets, 				6, 8, 45
+		EMReadScreen grh_elig_case_test_death_of_applicant, 	6, 9, 45
+		EMReadScreen grh_elig_case_test_elig_type, 				6, 10, 45
+		EMReadScreen grh_elig_case_test_income, 				6, 11, 45
+		EMReadScreen grh_elig_case_test_setting, 				6, 12, 45
+		EMReadScreen grh_elig_case_test_verif, 					6, 13, 45
+
+		grh_elig_case_test_application_withdrawn = trim(grh_elig_case_test_application_withdrawn)
+		grh_elig_case_test_pben_coop = trim(grh_elig_case_test_pben_coop)
+		grh_elig_case_test_elig_thru_other_program = trim(grh_elig_case_test_elig_thru_other_program)
+		grh_elig_case_test_fail_file = trim(grh_elig_case_test_fail_file)
+		grh_elig_case_test_placement = trim(grh_elig_case_test_placement)
+		grh_elig_case_test_state_residence = trim(grh_elig_case_test_state_residence)
+
+		grh_elig_case_test_assets = trim(grh_elig_case_test_assets)
+		grh_elig_case_test_death_of_applicant = trim(grh_elig_case_test_death_of_applicant)
+		grh_elig_case_test_elig_type = trim(grh_elig_case_test_elig_type)
+		grh_elig_case_test_income = trim(grh_elig_case_test_income)
+		grh_elig_case_test_setting = trim(grh_elig_case_test_setting)
+		grh_elig_case_test_verif = trim(grh_elig_case_test_verif)
+
+		If grh_elig_case_test_fail_file = "FAILED" Then EMWriteScreen "X", 11, 4
+		If grh_elig_case_test_assets = "FAILED" Then EMWriteScreen "X", 8, 41
+		If grh_elig_case_test_verif = "FAILED" Then EMWriteScreen "X", 13, 41
+
+		Do
+			transmit
+
+			EMReadScreen fail_file_pop_up, 10, 1, 1
+			EMReadScreen assets_pop_up, 10, 1, 1
+			EMReadScreen verif_pop_up, 10, 1, 1
+
+			If fail_file_pop_up = "" Then
+				'TODO - read popup'
+			End If
+
+			If assets_pop_up = "" Then
+				'TODO - read popup'
+			End If
+
+			If verif_pop_up = "" Then
+				EMReadScreen grh_elig_case_test_verif_ACCT, 	6, 7, 10
+				EMReadScreen grh_elig_case_test_verif_BUSI, 	6, 8, 10
+				EMReadScreen grh_elig_case_test_verif_CARS, 	6, 9, 10
+				EMReadScreen grh_elig_case_test_verif_DISA, 	6, 10, 10
+				EMReadScreen grh_elig_case_test_verif_JOBS, 	6, 11, 10
+				EMReadScreen grh_elig_case_test_verif_LUMP, 	6, 12, 10
+				EMReadScreen grh_elig_case_test_verif_MEMB_id, 	6, 13, 10
+				EMReadScreen grh_elig_case_test_verif_MEMB_dob, 6, 14, 10
+
+				EMReadScreen grh_elig_case_test_verif_PBEN, 	6, 7, 45
+				EMReadScreen grh_elig_case_test_verif_PACT, 	6, 8, 45
+				EMReadScreen grh_elig_case_test_verif_RBIC, 	6, 9, 45
+				EMReadScreen grh_elig_case_test_verif_SECU, 	6, 10, 45
+				EMReadScreen grh_elig_case_test_verif_STIN, 	6, 11, 45
+				EMReadScreen grh_elig_case_test_verif_UNEA, 	6, 12, 45
+				EMReadScreen grh_elig_case_test_verif_TRTX_housing_instability, 6, 13, 45
+				EMReadScreen grh_elig_case_test_verif_TRTX_psn_rate_2, 6, 14, 45
+
+				grh_elig_case_test_verif_ACCT = trim(grh_elig_case_test_verif_ACCT)
+				grh_elig_case_test_verif_BUSI = trim(grh_elig_case_test_verif_BUSI)
+				grh_elig_case_test_verif_CARS = trim(grh_elig_case_test_verif_CARS)
+				grh_elig_case_test_verif_DISA = trim(grh_elig_case_test_verif_DISA)
+				grh_elig_case_test_verif_JOBS = trim(grh_elig_case_test_verif_JOBS)
+				grh_elig_case_test_verif_LUMP = trim(grh_elig_case_test_verif_LUMP)
+				grh_elig_case_test_verif_MEMB_id = trim(grh_elig_case_test_verif_MEMB_id)
+				grh_elig_case_test_verif_MEMB_dob = trim(grh_elig_case_test_verif_MEMB_dob)
+
+				grh_elig_case_test_verif_PBEN = trim(grh_elig_case_test_verif_PBEN)
+				grh_elig_case_test_verif_PACT = trim(grh_elig_case_test_verif_PACT)
+				grh_elig_case_test_verif_RBIC = trim(grh_elig_case_test_verif_RBIC)
+				grh_elig_case_test_verif_SECU = trim(grh_elig_case_test_verif_SECU)
+				grh_elig_case_test_verif_STIN = trim(grh_elig_case_test_verif_STIN)
+				grh_elig_case_test_verif_UNEA = trim(grh_elig_case_test_verif_UNEA)
+				grh_elig_case_test_verif_TRTX_housing_instability = trim(grh_elig_case_test_verif_TRTX_housing_instability)
+				grh_elig_case_test_verif_TRTX_psn_rate_2 = trim(grh_elig_case_test_verif_TRTX_psn_rate_2)
+			End If
+
+			EMReadScreen panel_check_GRPB
+			EMReadScreen panel_check_GRFB
+			If panel_check_GRFB = "GRFB" Then
+				skip_budget = True
+				Exit Do
+			End If
+		Loop until panel_check_GRPB = "GRPB"
+
+		If skip_budget = False Then
+			If grh_elig_memb_elig_type_info = "SSI" Then
+				EMReadScreen grh_elig_budg_SSI_standard_fbr, 		8, 6, 29
+				EMReadScreen grh_elig_budg_other_countable_PA_grant, 8, 7, 29
+
+				EMReadScreen grh_elig_budg_PASS_disregard			8, 10, 29
+				EMReadScreen grh_elig_budg_personal_needs, 			8, 11, 29
+				EMReadScreen grh_elig_budg_prior_inc_reduce, 		8, 12, 29
+				EMReadScreen grh_elig_budg_inc_unavail_1st_month, 	8, 13, 29
+
+				EMReadScreen grh_elig_budg_total_deductions, 		8, 16, 29
+				EMReadScreen grh_elig_budg_counted_income,	 		8, 17, 29
+
+
+				grh_elig_budg_SSI_standard_fbr = replace(grh_elig_budg_SSI_standard_fbr, "_", "")
+				grh_elig_budg_other_countable_PA_grant = replace(grh_elig_budg_other_countable_PA_grant, "_", "")
+
+				grh_elig_budg_PASS_disregard = replace(grh_elig_budg_PASS_disregard, "_", "")
+				grh_elig_budg_personal_needs = replace(grh_elig_budg_personal_needs, "_", "")
+				grh_elig_budg_prior_inc_reduce = replace(grh_elig_budg_prior_inc_reduce, "_", "")
+				grh_elig_budg_inc_unavail_1st_month = replace(grh_elig_budg_inc_unavail_1st_month, "_", "")
+
+				grh_elig_budg_total_deductions = trim(grh_elig_budg_total_deductions)
+				grh_elig_budg_counted_income = trim(grh_elig_budg_counted_income)
+			End If
+
+			If grh_elig_memb_elig_type_info = "MFIP" Then
+				EMReadScreen grh_elig_budg_MFIP_standard_for_one, 	8, 6, 31
+				EMReadScreen grh_elig_budg_personal_needs, 			8, 9, 31
+				EMReadScreen grh_elig_budg_prior_inc_reduce, 		8, 10, 31
+				EMReadScreen grh_elig_budg_inc_unavail_1st_month, 	8, 11, 31
+				EMReadScreen grh_elig_budg_total_deductions, 		8, 14, 31
+				EMReadScreen grh_elig_budg_counted_income,	 		8, 15, 31
+
+				grh_elig_budg_MFIP_standard_for_one = trim(grh_elig_budg_MFIP_standard_for_one)
+
+				grh_elig_budg_personal_needs = replace(grh_elig_budg_personal_needs, "_", "")
+				grh_elig_budg_prior_inc_reduce = replace(grh_elig_budg_prior_inc_reduce, "_", "")
+				grh_elig_budg_inc_unavail_1st_month = replace(grh_elig_budg_inc_unavail_1st_month, "_", "")
+
+				grh_elig_budg_total_deductions = trim(grh_elig_budg_total_deductions)
+				grh_elig_budg_counted_income = trim(grh_elig_budg_counted_income)
+			End If
+
+			If grh_elig_memb_elig_type_info = "Blind" or grh_elig_memb_elig_type_info = "Disabled" or grh_elig_memb_elig_type_info = "Aged" or grh_elig_memb_elig_type_info = "Adult" Then
+				If grh_elig_memb_elig_type_info = "Aged" or grh_elig_memb_elig_type_info = "Adult" Then
+					EMReadScreen grh_elig_budg_RSDI_income, 			8, 8, 27
+					EMReadScreen grh_elig_budg_other_unearned_income, 	8, 9, 27
+					EMReadScreen grh_elig_budg_earned_income, 			8, 10, 27
+					EMReadScreen grh_elig_budg_total_income, 			8, 11, 27
+				Else
+					EMReadScreen grh_elig_budg_RSDI_income, 			8, 7, 27
+					EMReadScreen grh_elig_budg_other_unearned_income, 	8, 8, 27
+					EMReadScreen grh_elig_budg_earned_income,	 		8, 9, 27
+					EMReadScreen grh_elig_budg_total_income, 			8, 10, 27
+				End If
+
+				If grh_elig_memb_elig_type_info = "Adult" Then
+					EMReadScreen grh_elig_budg_total_deductions, 	8, 14, 27
+					EMReadScreen grh_elig_budg_counted_income, 		8, 15, 27
+				Else
+					EMReadScreen grh_elig_budg_total_deductions, 	8, 15, 27
+					EMReadScreen grh_elig_budg_counted_income, 		8, 16, 27
+				End If
+
+				EMReadScreen grh_elig_budg_standard_EI_disregard, 			8, 8, 70
+
+				If grh_elig_memb_elig_type_info = "Blind" Then
+					EMReadScreen grh_elig_budg_student_EI_disregard, 			8, 7, 70
+					EMReadScreen grh_elig_budg_earned_income_50_perc_disregard, 8, 9, 70
+					EMReadScreen grh_elig_budg_impairment_work_expense, 		8, 10, 70
+					EMReadScreen grh_elig_budg_personal_needs, 					8, 11, 70
+					EMReadScreen grh_elig_budg_child_support_expense, 			8, 12, 70
+					EMReadScreen grh_elig_budg_child_unmet_need, 				8, 13, 70
+				End If
+
+
+				If grh_elig_memb_elig_type_info = "Disabled" Then
+					EMReadScreen grh_elig_budg_student_EI_disregard, 			8, 7, 70
+					EMReadScreen grh_elig_budg_impairment_work_expense, 		8, 9, 70
+					EMReadScreen grh_elig_budg_earned_income_50_perc_disregard, 8, 10, 70
+					EMReadScreen grh_elig_budg_personal_needs, 					8, 11, 70
+					EMReadScreen grh_elig_budg_child_support_expense, 			8, 12, 70
+					EMReadScreen grh_elig_budg_child_unmet_need, 				8, 13, 70
+				End If
+
+				If grh_elig_memb_elig_type_info = "Aged" Then
+					EMReadScreen grh_elig_budg_earned_income_50_perc_disregard, 8, 9, 70
+					EMReadScreen grh_elig_budg_personal_needs, 					8, 10, 70
+					EMReadScreen grh_elig_budg_child_support_expense, 			8, 11, 70
+					EMReadScreen grh_elig_budg_child_unmet_need, 				8, 12, 70
+					EMReadScreen grh_elig_budg_EW_spousal_allocation, 			8, 13, 70
+				End If
+
+				If grh_elig_memb_elig_type_info = "Adult" Then
+					EMReadScreen grh_elig_budg_earned_income_subtotal, 			8, 9, 70
+					EMReadScreen grh_elig_budg_earned_income_50_perc_disregard, 8, 10, 70
+					EMReadScreen grh_elig_budg_personal_needs, 					8, 11, 70
+					EMReadScreen grh_elig_budg_child_support_expense, 			8, 12, 70
+					EMReadScreen grh_elig_budg_child_unmet_need, 				8, 13, 70
+				End If
+
+				EMReadScreen grh_elig_budg_prior_inc_reduce, 				8, 14, 70
+				EMReadScreen grh_elig_budg_inc_unavail_1st_month, 			8, 15, 70
+
+				grh_elig_budg_RSDI_income = replace(grh_elig_budg_RSDI_income, "_", "")
+				grh_elig_budg_other_unearned_income = replace(grh_elig_budg_other_unearned_income, "_", "")
+				grh_elig_budg_earned_income = replace(grh_elig_budg_earned_income, "_", "")
+				grh_elig_budg_total_income = trim(grh_elig_budg_total_income)
+
+				grh_elig_budg_total_deductions = trim(grh_elig_budg_total_deductions)
+				grh_elig_budg_counted_income = trim(grh_elig_budg_counted_income)
+
+				grh_elig_budg_student_EI_disregard = replace(grh_elig_budg_student_EI_disregard, "_", "")
+				grh_elig_budg_standard_EI_disregard = trim(grh_elig_budg_standard_EI_disregard)
+				grh_elig_budg_earned_income_subtotal = trim(grh_elig_budg_earned_income_subtotal)
+				grh_elig_budg_earned_income_50_perc_disregard = trim(grh_elig_budg_earned_income_50_perc_disregard)
+				grh_elig_budg_impairment_work_expense = replace(grh_elig_budg_impairment_work_expense, "_", "")
+				grh_elig_budg_personal_needs = replace(grh_elig_budg_personal_needs, "_", "")
+				grh_elig_budg_child_support_expense = replace(grh_elig_budg_child_support_expense, "_", "")
+				grh_elig_budg_child_unmet_need = replace(grh_elig_budg_child_unmet_need, "_", "")
+				grh_elig_budg_EW_spousal_allocation = replace(grh_elig_budg_EW_spousal_allocation, "_", "")
+				grh_elig_budg_prior_inc_reduce = replace(grh_elig_budg_prior_inc_reduce, "_", "")
+				grh_elig_budg_inc_unavail_1st_month = replace(grh_elig_budg_inc_unavail_1st_month, "_", "")
+			End If
+
+			If grh_elig_memb_elig_type_info = "Residential Treatment" Then
+				EMReadScreen grh_elig_budg_total_income, 		8, 12, 25
+				EMReadScreen grh_elig_budg_total_deductions, 	8, 15, 25
+				EMReadScreen grh_elig_budg_counted_income, 		8, 16, 25
+
+				grh_elig_budg_total_income = trim(grh_elig_budg_total_income)
+				grh_elig_budg_total_deductions = trim(grh_elig_budg_total_deductions)
+				grh_elig_budg_counted_income = trim(grh_elig_budg_counted_income)
+			End If
+
+			transmit 		'go to next panel - GRFB'
+		End If
+
+		EMReadScreen grh_elig_budg_vendor_number_one, 	8, 6, 25
+		EMReadScreen grh_elig_budg_total_days_one_one, 	8, 7, 25
+		EMReadScreen grh_elig_budg_vnd2_rate_limit_one, 8, 8, 25
+		EMReadScreen grh_elig_budg_room_board_doc_one, 	8, 9, 25
+		' EMReadScreen grh_elig_budg_counted_income, 8, 6, 25
+		EMReadScreen grh_elig_budg_total_ssr_rate_one, 	8, 11, 25
+		EMReadScreen grh_elig_budg_income_test_one, 	8, 12, 25
+
+		EMReadScreen grh_elig_payment_grh_state_amount_one, 		8, 14, 25
+		EMReadScreen grh_elig_payment_county_liability_one, 		8, 15, 25
+		' EMReadScreen grh_elig_payment_counted_income, 8, 6, 25
+		EMReadScreen grh_elig_payment_total_one, 					8, 17, 25
+		EMReadScreen grh_elig_payment_amount_already_issued_one, 	8, 18, 25
+
+		grh_elig_budg_total_days_one_one = trim(grh_elig_budg_total_days_one_one)
+		grh_elig_budg_vnd2_rate_limit_one = trim(grh_elig_budg_vnd2_rate_limit_one)
+		grh_elig_budg_room_board_doc_one = trim(grh_elig_budg_room_board_doc_one)
+		grh_elig_budg_total_ssr_rate_one = trim(grh_elig_budg_total_ssr_rate_one)
+		grh_elig_budg_income_test_one = trim(grh_elig_budg_income_test_one)
+		grh_elig_payment_grh_state_amount_one = trim(grh_elig_payment_grh_state_amount_one)
+		grh_elig_payment_county_liability_one = trim(grh_elig_payment_county_liability_one)
+		grh_elig_payment_total_one = trim(grh_elig_payment_total_one)
+		grh_elig_payment_amount_already_issued_one = trim(grh_elig_payment_amount_already_issued_one)
+
+		EMReadScreen grh_elig_budg_vendor_number_two, 	8, 6, 25
+		EMReadScreen grh_elig_budg_total_days_one_two, 		8, 7, 25
+		EMReadScreen grh_elig_budg_vnd2_rate_limit_two, 8, 8, 25
+		EMReadScreen grh_elig_budg_room_board_doc_two, 	8, 9, 25
+		' EMReadScreen grh_elig_budg_counted_income, 8, 6, 25
+		EMReadScreen grh_elig_budg_total_ssr_rate_two, 	8, 11, 25
+		EMReadScreen grh_elig_budg_income_test_two, 	8, 12, 25
+
+		EMReadScreen grh_elig_payment_grh_state_amount_two, 		8, 14, 25
+		EMReadScreen grh_elig_payment_county_liability_two, 		8, 15, 25
+		' EMReadScreen grh_elig_payment_counted_income, 8, 6, 25
+		EMReadScreen grh_elig_payment_total_two, 					8, 17, 25
+		EMReadScreen grh_elig_payment_amount_already_issued_two, 	8, 18, 25
+
+		grh_elig_budg_total_days_one_two = trim(grh_elig_budg_total_days_one_two)
+		grh_elig_budg_vnd2_rate_limit_two = trim(grh_elig_budg_vnd2_rate_limit_two)
+		grh_elig_budg_room_board_doc_two = trim(grh_elig_budg_room_board_doc_two)
+		grh_elig_budg_total_ssr_rate_two = trim(grh_elig_budg_total_ssr_rate_two)
+		grh_elig_budg_income_test_two = trim(grh_elig_budg_income_test_two)
+		grh_elig_payment_grh_state_amount_two = trim(grh_elig_payment_grh_state_amount_two)
+		grh_elig_payment_county_liability_two = trim(grh_elig_payment_county_liability_two)
+		grh_elig_payment_total_two = trim(grh_elig_payment_total_two)
+		grh_elig_payment_amount_already_issued_two = trim(grh_elig_payment_amount_already_issued_two)
+
+		Call write_value_and_transmit("X", 9, 3)
+		EMReadScreen vendor_number_displayed, 8, 16, 26
+		vendor_number_displayed = trim(vendor_number_displayed)
+		vendor_number_displayed = right("00000000" & vendor_number_displayed, 8)
+		If vendor_number_displayed = grh_elig_budg_vendor_number_one Then
+			EMReadScreen grh_elig_budg_room_board_doc_one_vnd2_days, 4, 19, 36
+			EMReadScreen grh_elig_budg_room_board_doc_one_vnd2_rate, 8, 19, 48
+			EMReadScreen grh_elig_budg_room_board_doc_one_vnd2_total, 8, 19, 64
+
+			EMReadScreen grh_elig_budg_room_board_doc_one_faci_doc_days, 4, 20, 36
+			EMReadScreen grh_elig_budg_room_board_doc_one_faci_doc_rate, 8, 20, 48
+			EMReadScreen grh_elig_budg_room_board_doc_one_faci_doc_total, 8, 20, 64
+
+			EMReadScreen grh_elig_budg_room_board_doc_one_total, 8, 21, 64
+		ElseIf vendor_number_displayed = grh_elig_budg_vendor_number_two Then
+			EMReadScreen grh_elig_budg_room_board_doc_two_vnd2_days, 4, 19, 36
+			EMReadScreen grh_elig_budg_room_board_doc_two_vnd2_rate, 8, 19, 48
+			EMReadScreen grh_elig_budg_room_board_doc_two_vnd2_total, 8, 19, 64
+
+			EMReadScreen grh_elig_budg_room_board_doc_two_faci_doc_days, 4, 20, 36
+			EMReadScreen grh_elig_budg_room_board_doc_two_faci_doc_rate, 8, 20, 48
+			EMReadScreen grh_elig_budg_room_board_doc_two_faci_doc_total, 8, 20, 64
+
+			EMReadScreen grh_elig_budg_room_board_doc_two_total, 8, 21, 64
+		End If
+		transmit
+
+		EMReadScreen another_vendor_display, 11, 17, 14
+		If another_vendor_display = "VENDOR NAME" Then
+			EMReadScreen vendor_number_displayed, 8, 16, 26
+			vendor_number_displayed = trim(vendor_number_displayed)
+			vendor_number_displayed = right("00000000" & vendor_number_displayed, 8)
+			If vendor_number_displayed = grh_elig_budg_vendor_number_one Then
+				EMReadScreen grh_elig_budg_room_board_doc_one_vnd2_days, 4, 19, 36
+				EMReadScreen grh_elig_budg_room_board_doc_one_vnd2_rate, 8, 19, 48
+				EMReadScreen grh_elig_budg_room_board_doc_one_vnd2_total, 8, 19, 64
+
+				EMReadScreen grh_elig_budg_room_board_doc_one_faci_doc_days, 4, 20, 36
+				EMReadScreen grh_elig_budg_room_board_doc_one_faci_doc_rate, 8, 20, 48
+				EMReadScreen grh_elig_budg_room_board_doc_one_faci_doc_total, 8, 20, 64
+
+				EMReadScreen grh_elig_budg_room_board_doc_one_total, 8, 21, 64
+			ElseIf vendor_number_displayed = grh_elig_budg_vendor_number_two Then
+				EMReadScreen grh_elig_budg_room_board_doc_two_vnd2_days, 4, 19, 36
+				EMReadScreen grh_elig_budg_room_board_doc_two_vnd2_rate, 8, 19, 48
+				EMReadScreen grh_elig_budg_room_board_doc_two_vnd2_total, 8, 19, 64
+
+				EMReadScreen grh_elig_budg_room_board_doc_two_faci_doc_days, 4, 20, 36
+				EMReadScreen grh_elig_budg_room_board_doc_two_faci_doc_rate, 8, 20, 48
+				EMReadScreen grh_elig_budg_room_board_doc_two_faci_doc_total, 8, 20, 64
+
+				EMReadScreen grh_elig_budg_room_board_doc_two_total, 8, 21, 64
+			End If
+			transmit
+		End If
+		grh_elig_budg_room_board_doc_one_vnd2_days = trim(grh_elig_budg_room_board_doc_one_vnd2_days)
+		grh_elig_budg_room_board_doc_one_vnd2_rate = trim(grh_elig_budg_room_board_doc_one_vnd2_rate)
+		grh_elig_budg_room_board_doc_one_vnd2_total = trim(grh_elig_budg_room_board_doc_one_vnd2_total)
+
+		grh_elig_budg_room_board_doc_one_faci_doc_days = trim(grh_elig_budg_room_board_doc_one_faci_doc_days)
+		grh_elig_budg_room_board_doc_one_faci_doc_rate = trim(grh_elig_budg_room_board_doc_one_faci_doc_rate)
+		grh_elig_budg_room_board_doc_one_faci_doc_total = trim(grh_elig_budg_room_board_doc_one_faci_doc_total)
+
+		grh_elig_budg_room_board_doc_one_total = trim(grh_elig_budg_room_board_doc_one_total)
+
+
+		grh_elig_budg_room_board_doc_two_vnd2_days = trim(grh_elig_budg_room_board_doc_two_vnd2_days)
+		grh_elig_budg_room_board_doc_two_vnd2_rate = trim(grh_elig_budg_room_board_doc_two_vnd2_rate)
+		grh_elig_budg_room_board_doc_two_vnd2_total = trim(grh_elig_budg_room_board_doc_two_vnd2_total)
+
+		grh_elig_budg_room_board_doc_two_faci_doc_days = trim(grh_elig_budg_room_board_doc_two_faci_doc_days)
+		grh_elig_budg_room_board_doc_two_faci_doc_rate = trim(grh_elig_budg_room_board_doc_two_faci_doc_rate)
+		grh_elig_budg_room_board_doc_two_faci_doc_total = trim(grh_elig_budg_room_board_doc_two_faci_doc_total)
+
+		grh_elig_budg_room_board_doc_two_total = trim(grh_elig_budg_room_board_doc_two_total)
+
+		Call write_value_and_transmit("X", 11, 3)
+		For row = 14 to 19
+			EMReadScreen vendor_number_displayed, 8, row, 8
+			vendor_number_displayed = trim(vendor_number_displayed)
+			vendor_number_displayed = right("00000000" & vendor_number_displayed, 8)
+			If vendor_number_displayed = grh_elig_budg_vendor_number_one Then
+				EMReadScreen grh_elig_budg_total_ssr_rate_one_days, 5, row, 42
+				EMReadScreen grh_elig_budg_total_ssr_rate_one_rate, 9, row, 48
+				EMReadScreen grh_elig_budg_total_ssr_rate_one_total, 9, row, 58
+			ElseIf vendor_number_displayed = grh_elig_budg_vendor_number_two Then
+				EMReadScreen grh_elig_budg_total_ssr_rate_two_days, 5, row, 42
+				EMReadScreen grh_elig_budg_total_ssr_rate_two_rate, 9, row, 48
+				EMReadScreen grh_elig_budg_total_ssr_rate_two_total, 9, row, 58
+			End If
+		Next
+		grh_elig_budg_total_ssr_rate_one_days = trim(grh_elig_budg_total_ssr_rate_one_days)
+		grh_elig_budg_total_ssr_rate_one_rate = trim(grh_elig_budg_total_ssr_rate_one_rate)
+		grh_elig_budg_total_ssr_rate_one_total = trim(grh_elig_budg_total_ssr_rate_one_total)
+		grh_elig_budg_total_ssr_rate_two_days = trim(grh_elig_budg_total_ssr_rate_two_days)
+		grh_elig_budg_total_ssr_rate_two_rate = trim(grh_elig_budg_total_ssr_rate_two_rate)
+		grh_elig_budg_total_ssr_rate_two_total = trim(grh_elig_budg_total_ssr_rate_two_total)
+		transmit
+
+		Call write_value_and_transmit("X", 15, 3)
+
+		EMReadScreen vendor_number_displayed, 8, 2, 26
+		vendor_number_displayed = trim(vendor_number_displayed)
+		vendor_number_displayed = right("00000000" & vendor_number_displayed, 8)
+		If vendor_number_displayed = grh_elig_budg_vendor_number_one Then
+			EMReadScreen grh_elig_payment_county_liability_one_vnd2_co_supp_days, 4, 5, 42
+			EMReadScreen grh_elig_payment_county_liability_one_vnd2_co_supp_rate, 8, 5, 55
+			EMReadScreen grh_elig_payment_county_liability_one_vnd2_co_supp_total, 8, 5, 68
+
+			EMReadScreen grh_elig_payment_county_liability_one_faci_doc_in_excess_days, 4, 6, 42
+			EMReadScreen grh_elig_payment_county_liability_one_faci_doc_in_excess_rate, 8, 6, 55
+			EMReadScreen grh_elig_payment_county_liability_one_faci_doc_in_excess_total, 8, 6, 68
+
+			EMReadScreen grh_elig_payment_county_liability_one_total, 8, 7, 68
+		ElseIf vendor_number_displayed = grh_elig_budg_vendor_number_two Then
+			EMReadScreen grh_elig_payment_county_liability_two_vnd2_co_supp_days, 4, 5, 42
+			EMReadScreen grh_elig_payment_county_liability_two_vnd2_co_supp_rate, 8, 5, 55
+			EMReadScreen grh_elig_payment_county_liability_two_vnd2_co_supp_total, 8, 5, 68
+
+			EMReadScreen grh_elig_payment_county_liability_two_faci_doc_in_excess_days, 4, 6, 42
+			EMReadScreen grh_elig_payment_county_liability_two_faci_doc_in_excess_rate, 8, 6, 55
+			EMReadScreen grh_elig_payment_county_liability_two_faci_doc_in_excess_total, 8, 6, 68
+
+			EMReadScreen grh_elig_payment_county_liability_two_total, 8, 7, 68
+		End If
+		transmit
+
+		EMReadScreen another_vendor_display, 11, 3, 14
+		If another_vendor_display = "Vendor Name]" Then
+			EMReadScreen vendor_number_displayed, 8, 2, 26
+			vendor_number_displayed = trim(vendor_number_displayed)
+			vendor_number_displayed = right("00000000" & vendor_number_displayed, 8)
+			If vendor_number_displayed = grh_elig_budg_vendor_number_one Then
+				EMReadScreen grh_elig_payment_county_liability_one_vnd2_co_supp_days, 4, 5, 42
+				EMReadScreen grh_elig_payment_county_liability_one_vnd2_co_supp_rate, 8, 5, 55
+				EMReadScreen grh_elig_payment_county_liability_one_vnd2_co_supp_total, 8, 5, 68
+
+				EMReadScreen grh_elig_payment_county_liability_one_faci_doc_in_excess_days, 4, 6, 42
+				EMReadScreen grh_elig_payment_county_liability_one_faci_doc_in_excess_rate, 8, 6, 55
+				EMReadScreen grh_elig_payment_county_liability_one_faci_doc_in_excess_total, 8, 6, 68
+
+				EMReadScreen grh_elig_payment_county_liability_one_total, 8, 6, 68
+			ElseIf vendor_number_displayed = grh_elig_budg_vendor_number_two Then
+				EMReadScreen grh_elig_payment_county_liability_two_vnd2_co_supp_days, 4, 5, 42
+				EMReadScreen grh_elig_payment_county_liability_two_vnd2_co_supp_rate, 8, 5, 55
+				EMReadScreen grh_elig_payment_county_liability_two_vnd2_co_supp_total, 8, 5, 68
+
+				EMReadScreen grh_elig_payment_county_liability_two_faci_doc_in_excess_days, 4, 6, 42
+				EMReadScreen grh_elig_payment_county_liability_two_faci_doc_in_excess_rate, 8, 6, 55
+				EMReadScreen grh_elig_payment_county_liability_two_faci_doc_in_excess_total, 8, 6, 68
+
+				EMReadScreen grh_elig_payment_county_liability_two_total, 8, 7, 68
+			End If
+			transmit
+		End If
+		grh_elig_payment_county_liability_one_vnd2_co_supp_days = trim(grh_elig_payment_county_liability_one_vnd2_co_supp_days)
+		grh_elig_payment_county_liability_one_vnd2_co_supp_rate = trim(grh_elig_payment_county_liability_one_vnd2_co_supp_rate)
+		grh_elig_payment_county_liability_one_vnd2_co_supp_total = trim(grh_elig_payment_county_liability_one_vnd2_co_supp_total)
+
+		grh_elig_payment_county_liability_one_faci_doc_in_excess_days = trim(grh_elig_payment_county_liability_one_faci_doc_in_excess_days)
+		grh_elig_payment_county_liability_one_faci_doc_in_excess_rate = trim(grh_elig_payment_county_liability_one_faci_doc_in_excess_rate)
+		grh_elig_payment_county_liability_one_faci_doc_in_excess_total = trim(grh_elig_payment_county_liability_one_faci_doc_in_excess_total)
+
+		grh_elig_payment_county_liability_one_total = trim(grh_elig_payment_county_liability_one_total)
+
+
+		grh_elig_payment_county_liability_two_vnd2_co_supp_days = trim(grh_elig_payment_county_liability_two_vnd2_co_supp_days)
+		grh_elig_payment_county_liability_two_vnd2_co_supp_rate = trim(grh_elig_payment_county_liability_two_vnd2_co_supp_rate)
+		grh_elig_payment_county_liability_two_vnd2_co_supp_total = trim(grh_elig_payment_county_liability_two_vnd2_co_supp_total)
+
+		grh_elig_payment_county_liability_two_faci_doc_in_excess_days = trim(grh_elig_payment_county_liability_two_faci_doc_in_excess_days)
+		grh_elig_payment_county_liability_two_faci_doc_in_excess_rate = trim(grh_elig_payment_county_liability_two_faci_doc_in_excess_rate)
+		grh_elig_payment_county_liability_two_faci_doc_in_excess_total = trim(grh_elig_payment_county_liability_two_faci_doc_in_excess_total)
+
+		grh_elig_payment_county_liability_two_total = trim(grh_elig_payment_county_liability_two_total)
+
+		transmit
+
+		Call write_value_and_transmit("X", 16, 3)
+		EMReadScreen grh_elig_payment_remaining_income, 9, 4, 53
+		grh_elig_payment_remaining_income == trim(grh_elig_payment_remaining_income)
+		transmit
+
+		transmit 		'go to next panel - GRSM
+
+		EMReadScreen grh_elig_approved_date, 8, 3, 14
+		EMReadScreen grh_elig_process_date, 8, 2, 72
+
+		EMReadScreen grh_elig_date_last_approval, 		8, 5, 31
+		EMReadScreen grh_elig_current_progream_status, 	10, 6, 31
+		EMReadScreen grh_elig_source_of_info, 			4, 7, 31
+		EMReadScreen grh_elig_eligibility_result, 		10, 8, 31
+
+		EMReadScreen grh_elig_elig_review_date, 	8, 6, 69
+		EMReadScreen grh_elig_reporting_status, 	8, 7, 69
+		EMReadScreen grh_elig_responsible_county, 	2, 8, 69
+
+		grh_elig_current_progream_status = trim(grh_elig_current_progream_status)
+		grh_elig_eligibility_result = trim(grh_elig_eligibility_result)
+
+		grh_elig_elig_review_date = replace(grh_elig_elig_review_date, " ", "/")
+		grh_elig_reporting_status = trim(grh_elig_reporting_status)
+
+		' EMReadScreen grh_elig_vendor_number, 		8, 10, 32
+		EMReadScreen grh_elig_pre_or_post_pay_one_code, 2, 11, 38
+		EMReadScreen grh_elig_payable_amount_one, 		9, 12, 31
+
+		EMReadScreen grh_elig_amount_already_issued_one, 9, 13, 31
+		EMReadScreen grh_elig_setting_overpayment_one, 	9, 16, 31
+		EMReadScreen grh_elig_client_obblication_one, 	9, 17, 31
+
+		If grh_elig_pre_or_post_pay_one_code = "07" Then grh_elig_pre_or_post_pay_one_info = "Pre-pay"
+		If grh_elig_pre_or_post_pay_one_code = "08" Then grh_elig_pre_or_post_pay_one_info = "Post-pay Hold"
+		If grh_elig_pre_or_post_pay_one_code = "20" Then grh_elig_pre_or_post_pay_one_info = "Release Post-pay"
+		grh_elig_payable_amount_one = trim(grh_elig_payable_amount_one)
+		grh_elig_amount_already_issued_one = trim(grh_elig_amount_already_issued_one)
+		grh_elig_setting_overpayment_one = trim(grh_elig_setting_overpayment_one)
+		grh_elig_client_obblication_one = trim(grh_elig_client_obblication_one)
+
+		EMReadScreen grh_elig_pre_or_post_pay_two_code, 2, 11, 38
+		EMReadScreen grh_elig_payable_amount_two, 		9, 12, 31
+
+		EMReadScreen grh_elig_amount_already_issued_two, 9, 13, 31
+		EMReadScreen grh_elig_setting_overpayment_two, 	9, 16, 31
+		EMReadScreen grh_elig_client_obblication_two, 	9, 17, 31
+
+		If grh_elig_pre_or_post_pay_two_code = "07" Then grh_elig_pre_or_post_pay_two_info = "Pre-pay"
+		If grh_elig_pre_or_post_pay_two_code = "08" Then grh_elig_pre_or_post_pay_two_info = "Post-pay Hold"
+		If grh_elig_pre_or_post_pay_two_code = "20" Then grh_elig_pre_or_post_pay_two_info = "Release Post-pay"
+		grh_elig_payable_amount_two = trim(grh_elig_payable_amount_two)
+		grh_elig_amount_already_issued_two = trim(grh_elig_amount_already_issued_two)
+		grh_elig_setting_overpayment_two = trim(grh_elig_setting_overpayment_two)
+		grh_elig_client_obblication_two = trim(grh_elig_client_obblication_two)
+
+		call back_to_SELF
+
+		Call navigate_to_MAXIS_screen("MONY", "VNDS")
+
+		If grh_elig_budg_vendor_number_one <> "" Then
+			Call write_value_and_transmit(grh_elig_budg_vendor_number_one, 4, 59)
+			EMReadScreen grh_vendor_one_name, 					30, 3, 15
+			EMReadScreen grh_vendor_one_c_o, 					30, 4, 15
+			EMReadScreen grh_vendor_one_street_one, 			22, 5, 15
+			EMReadScreen grh_vendor_one_street_two, 			22, 6, 15
+			EMReadScreen grh_vendor_one_city, 					15, 7, 15
+			EMReadScreen grh_vendor_one_state, 					2, 7, 36
+			EMReadScreen grh_vendor_one_zip, 					10, 7, 46
+			EMReadScreen grh_vendor_one_grh_yn, 				1, 4, 57
+			EMReadScreen grh_vendor_one_non_profit_yn, 			1, 4, 78
+			EMReadScreen grh_vendor_one_phone, 					16, 6, 54
+			grh_vendor_one_phone = "(" & replace(replace(grh_vendor_one_phone, " )  ", ")"), "  ", "-")
+			EMReadScreen grh_vendor_one_county, 				2, 7, 61
+			EMReadScreen grh_vendor_one_status_code, 			1, 16, 15
+			If grh_vendor_one_status_code = "A" Then grh_vendor_one_status_info = "Active"
+			If grh_vendor_one_status_code = "D" Then grh_vendor_one_status_info = "Delete"
+			If grh_vendor_one_status_code = "M" Then grh_vendor_one_status_info = "Merged"
+			If grh_vendor_one_status_code = "P" Then grh_vendor_one_status_info = "Pending"
+			If grh_vendor_one_status_code = "T" Then grh_vendor_one_status_info = "Terminated"
+			EMReadScreen grh_vendor_one_incorporated_yn, 		1, 9, 22
+			EMReadScreen grh_vendor_one_federal_tax_id, 		9, 9, 41
+			EMReadScreen grh_vendor_one_ssn, 					11, 9, 61
+			If grh_vendor_one_ssn = "___ __ ____" Then grh_vendor_one_ssn = ""
+			grh_vendor_one_ssn = replace(grh_vendor_one_ssn, " ", "-")
+			EMReadScreen grh_vendor_one_2nd_address_type_code, 	1, 10, 22
+			If grh_vendor_one_2nd_address_type_code = "1" Then grh_vendor_one_2nd_address_type_info = "Mailing Address"
+			If grh_vendor_one_2nd_address_type_code = "2" Then grh_vendor_one_2nd_address_type_info = "Court Order"
+			EMReadScreen grh_vendor_one_2nd_address_eff_date, 	8, 11, 15
+			If grh_vendor_one_2nd_address_eff_date = "__ __ __" Then grh_vendor_one_2nd_address_eff_date = ""
+			grh_vendor_one_2nd_address_eff_date = replace(grh_vendor_one_2nd_address_eff_date, " ", "/")
+			EMReadScreen grh_vendor_one_2nd_name, 				30, 11, 15
+			EMReadScreen grh_vendor_one_2nd_c_o, 				30, 12, 15
+			EMReadScreen grh_vendor_one_2nd_street_one, 		22, 13, 15
+			EMReadScreen grh_vendor_one_2nd_street_two, 		22, 14, 15
+			EMReadScreen grh_vendor_one_2nd_city, 				15, 15, 15
+			EMReadScreen grh_vendor_one_2nd_state, 				2, 15, 35
+			EMReadScreen grh_vendor_one_2nd_zip, 				10, 15, 44
+			EMReadScreen grh_vendor_one_direct_deposit_yn, 		1, 12, 76
+			EMReadScreen grh_vendor_one_merge_vendor_number, 	8, 16, 38
+			EMReadScreen grh_vendor_one_acct_number_required_yn, 1, 17, 74
+			EMReadScreen grh_vendor_one_blocked_county_numbers_list, 29, 18, 23
+
+			grh_vendor_one_name = replace(grh_vendor_one_name, "_", "")
+			grh_vendor_one_c_o = replace(grh_vendor_one_c_o, "_", "")
+			grh_vendor_one_street_one = replace(grh_vendor_one_street_one, "_", "")
+			grh_vendor_one_street_two = replace(grh_vendor_one_street_two, "_", "")
+			grh_vendor_one_city = replace(grh_vendor_one_city, "_", "")
+			grh_vendor_one_zip = trim(grh_vendor_one_zip)
+			grh_vendor_one_zip = replace(grh_vendor_one_zip, " ", "-")
+
+			grh_vendor_one_federal_tax_id = replace(grh_vendor_one_federal_tax_id, "_", "")
+
+			grh_vendor_one_2nd_name = replace(grh_vendor_one_2nd_name, "_", "")
+			grh_vendor_one_2nd_c_o = replace(grh_vendor_one_2nd_c_o, "_", "")
+			grh_vendor_one_2nd_street_one = replace(grh_vendor_one_2nd_street_one, "_", "")
+			grh_vendor_one_2nd_street_two = replace(grh_vendor_one_2nd_street_two, "_", "")
+			grh_vendor_one_2nd_city = replace(grh_vendor_one_2nd_city, "_", "")
+			grh_vendor_one_2nd_zip = replace(grh_vendor_one_2nd_zip, "_", "")
+			grh_vendor_one_2nd_zip = trim(grh_vendor_one_2nd_zip)
+			grh_vendor_one_2nd_zip = replace(grh_vendor_one_2nd_zip, " ", "-")
+
+			grh_vendor_one_merge_vendor_number = replace(grh_vendor_one_merge_vendor_number, "_", "")
+			grh_vendor_one_acct_number_required_yn = replace(grh_vendor_one_acct_number_required_yn, "_", "")
+
+			grh_vendor_one_blocked_county_numbers_list = replace(grh_vendor_one_blocked_county_numbers_list, "_", "")
+			grh_vendor_one_blocked_county_numbers_list = trim(grh_vendor_one_blocked_county_numbers_list)
+		End If
+
+
+		If grh_elig_budg_vendor_number_two <> "" Then
+			Call write_value_and_transmit(grh_elig_budg_vendor_number_two, 4, 59)
+			EMReadScreen grh_vendor_two_name, 					30, 3, 15
+			EMReadScreen grh_vendor_two_c_o, 					30, 4, 15
+			EMReadScreen grh_vendor_two_street_one, 			22, 5, 15
+			EMReadScreen grh_vendor_two_street_two, 			22, 6, 15
+			EMReadScreen grh_vendor_two_city, 					15, 7, 15
+			EMReadScreen grh_vendor_two_state, 					2, 7, 36
+			EMReadScreen grh_vendor_two_zip, 					10, 7, 46
+			EMReadScreen grh_vendor_two_grh_yn, 				1, 4, 57
+			EMReadScreen grh_vendor_two_non_profit_yn, 			1, 4, 78
+			EMReadScreen grh_vendor_two_phone, 					16, 6, 54
+			grh_vendor_two_phone = "(" & replace(replace(grh_vendor_two_phone, " )  ", ")"), "  ", "-")
+			EMReadScreen grh_vendor_two_county, 				2, 7, 61
+			EMReadScreen grh_vendor_two_status_code, 			1, 16, 15
+			If grh_vendor_two_status_code = "A" Then grh_vendor_two_status_info = "Active"
+			If grh_vendor_two_status_code = "D" Then grh_vendor_two_status_info = "Delete"
+			If grh_vendor_two_status_code = "M" Then grh_vendor_two_status_info = "Merged"
+			If grh_vendor_two_status_code = "P" Then grh_vendor_two_status_info = "Pending"
+			If grh_vendor_two_status_code = "T" Then grh_vendor_two_status_info = "Terminated"
+			EMReadScreen grh_vendor_two_incorporated_yn, 		1, 9, 22
+			EMReadScreen grh_vendor_two_federal_tax_id, 			9, 9, 41
+			EMReadScreen grh_vendor_two_ssn, 					11, 9, 61
+			If grh_vendor_two_ssn = "___ __ ____" Then grh_vendor_two_ssn = ""
+			grh_vendor_two_ssn = replace(grh_vendor_two_ssn, " ", "-")
+			EMReadScreen grh_vendor_two_2nd_address_type_code, 	1, 10, 22
+			If grh_vendor_two_2nd_address_type_code = "1" Then grh_vendor_two_2nd_address_type_info = "Mailing Address"
+			If grh_vendor_two_2nd_address_type_code = "2" Then grh_vendor_two_2nd_address_type_info = "Court Order"
+			EMReadScreen grh_vendor_two_2nd_address_eff_date, 	8, 11, 15
+			If grh_vendor_two_2nd_address_eff_date = "__ __ __" Then grh_vendor_two_2nd_address_eff_date = ""
+			grh_vendor_two_2nd_address_eff_date = replace(grh_vendor_two_2nd_address_eff_date, " ", "/")
+			EMReadScreen grh_vendor_two_2nd_name, 				30, 11, 15
+			EMReadScreen grh_vendor_two_2nd_c_o, 				30, 12, 15
+			EMReadScreen grh_vendor_two_2nd_street_one, 		22, 13, 15
+			EMReadScreen grh_vendor_two_2nd_street_two, 		22, 14, 15
+			EMReadScreen grh_vendor_two_2nd_city, 				15, 15, 15
+			EMReadScreen grh_vendor_two_2nd_state, 				2, 15, 35
+			EMReadScreen grh_vendor_two_2nd_zip, 				10, 15, 44
+			EMReadScreen grh_vendor_two_direct_deposit_yn, 		1, 12, 76
+			EMReadScreen grh_vendor_two_merge_vendor_number, 	8, 16, 38
+			EMReadScreen grh_vendor_two_acct_number_required_yn, 1, 17, 74
+			EMReadScreen grh_vendor_two_blocked_county_numbers_list, 29, 18, 23
+
+			grh_vendor_two_name = replace(grh_vendor_two_name, "_", "")
+			grh_vendor_two_c_o = replace(grh_vendor_two_c_o, "_", "")
+			grh_vendor_two_street_one = replace(grh_vendor_two_street_one, "_", "")
+			grh_vendor_two_street_two = replace(grh_vendor_two_street_two, "_", "")
+			grh_vendor_two_city = replace(grh_vendor_two_city, "_", "")
+			grh_vendor_two_zip = trim(grh_vendor_two_zip)
+			grh_vendor_two_zip = replace(grh_vendor_two_zip, " ", "-")
+
+			grh_vendor_two_federal_tax_id = replace(grh_vendor_two_federal_tax_id, "_", "")
+
+			grh_vendor_two_2nd_name = replace(grh_vendor_two_2nd_name, "_", "")
+			grh_vendor_two_2nd_c_o = replace(grh_vendor_two_2nd_c_o, "_", "")
+			grh_vendor_two_2nd_street_one = replace(grh_vendor_two_2nd_street_one, "_", "")
+			grh_vendor_two_2nd_street_two = replace(grh_vendor_two_2nd_street_two, "_", "")
+			grh_vendor_two_2nd_city = replace(grh_vendor_two_2nd_city, "_", "")
+			grh_vendor_two_2nd_zip = replace(grh_vendor_two_2nd_zip, "_", "")
+			grh_vendor_two_2nd_zip = trim(grh_vendor_two_2nd_zip)
+			grh_vendor_two_2nd_zip = replace(grh_vendor_two_2nd_zip, " ", "-")
+
+			grh_vendor_two_merge_vendor_number = replace(grh_vendor_two_merge_vendor_number, "_", "")
+			grh_vendor_two_acct_number_required_yn = replace(grh_vendor_two_acct_number_required_yn, "_", "")
+
+			grh_vendor_two_blocked_county_numbers_list = replace(grh_vendor_two_blocked_county_numbers_list, "_", "")
+			grh_vendor_two_blocked_county_numbers_list = trim(grh_vendor_two_blocked_county_numbers_list)
+		End If
+
+		Call back_to_SELF
+	end sub
+
+end class
 
 class emer_eligibility_detail
 	public elig_footer_month
@@ -4605,7 +5507,7 @@ For each footer_month in MONTHS_ARRAY
 	EMReadScreen numb_MSA_versions, 		1, 11, 40
 	EMReadScreen numb_GA_versions, 			1, 12, 40
 	' EMReadScreen numb_CASH_denial_versions, 1, 13, 40
-	' EMReadScreen numb_GRH_versions, 		1, 14, 40
+	EMReadScreen numb_GRH_versions, 		1, 14, 40
 	' EMReadScreen numb_IVE_versions, 		1, 15, 40
 	' EMReadScreen numb_EMER_versions, 		1, 16, 40		- WE WILL NOT LOOK AT THIS EVERY MONTH
 	EMReadScreen numb_SNAP_versions, 		1, 17, 40
