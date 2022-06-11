@@ -3256,13 +3256,13 @@ class grh_eligibility_detail
 	public grh_elig_payable_amount_one
 	public grh_elig_amount_already_issued_one
 	public grh_elig_setting_overpayment_one
-	public grh_elig_client_obblication_one
+	public grh_elig_client_obligation_one
 	public grh_elig_pre_or_post_pay_two_code
 	public grh_elig_pre_or_post_pay_two_info
 	public grh_elig_payable_amount_two
 	public grh_elig_amount_already_issued_two
 	public grh_elig_setting_overpayment_two
-	public grh_elig_client_obblication_two
+	public grh_elig_client_obligation_two
 
 	public grh_vendor_one_name
 	public grh_vendor_one_c_o
@@ -3438,8 +3438,8 @@ class grh_eligibility_detail
 				grh_elig_case_test_verif_TRTX_psn_rate_2 = trim(grh_elig_case_test_verif_TRTX_psn_rate_2)
 			End If
 
-			EMReadScreen panel_check_GRPB
-			EMReadScreen panel_check_GRFB
+			EMReadScreen panel_check_GRPB, 4, 3, 51
+			EMReadScreen panel_check_GRFB, 4, 3, 47
 			If panel_check_GRFB = "GRFB" Then
 				skip_budget = True
 				Exit Do
@@ -3451,7 +3451,7 @@ class grh_eligibility_detail
 				EMReadScreen grh_elig_budg_SSI_standard_fbr, 		8, 6, 29
 				EMReadScreen grh_elig_budg_other_countable_PA_grant, 8, 7, 29
 
-				EMReadScreen grh_elig_budg_PASS_disregard			8, 10, 29
+				EMReadScreen grh_elig_budg_PASS_disregard,			8, 10, 29
 				EMReadScreen grh_elig_budg_personal_needs, 			8, 11, 29
 				EMReadScreen grh_elig_budg_prior_inc_reduce, 		8, 12, 29
 				EMReadScreen grh_elig_budg_inc_unavail_1st_month, 	8, 13, 29
@@ -3599,6 +3599,7 @@ class grh_eligibility_detail
 		EMReadScreen grh_elig_payment_total_one, 					8, 17, 25
 		EMReadScreen grh_elig_payment_amount_already_issued_one, 	8, 18, 25
 
+		If grh_elig_budg_vendor_number_one = "00000000" Then grh_elig_budg_vendor_number_one = ""
 		grh_elig_budg_total_days_one_one = trim(grh_elig_budg_total_days_one_one)
 		grh_elig_budg_vnd2_rate_limit_one = trim(grh_elig_budg_vnd2_rate_limit_one)
 		grh_elig_budg_room_board_doc_one = trim(grh_elig_budg_room_board_doc_one)
@@ -3609,20 +3610,21 @@ class grh_eligibility_detail
 		grh_elig_payment_total_one = trim(grh_elig_payment_total_one)
 		grh_elig_payment_amount_already_issued_one = trim(grh_elig_payment_amount_already_issued_one)
 
-		EMReadScreen grh_elig_budg_vendor_number_two, 	8, 6, 25
-		EMReadScreen grh_elig_budg_total_days_one_two, 		8, 7, 25
-		EMReadScreen grh_elig_budg_vnd2_rate_limit_two, 8, 8, 25
-		EMReadScreen grh_elig_budg_room_board_doc_two, 	8, 9, 25
+		EMReadScreen grh_elig_budg_vendor_number_two, 	8, 6, 44
+		EMReadScreen grh_elig_budg_total_days_one_two, 	8, 7, 44
+		EMReadScreen grh_elig_budg_vnd2_rate_limit_two, 8, 8, 44
+		EMReadScreen grh_elig_budg_room_board_doc_two, 	8, 9, 44
 		' EMReadScreen grh_elig_budg_counted_income, 8, 6, 25
-		EMReadScreen grh_elig_budg_total_ssr_rate_two, 	8, 11, 25
-		EMReadScreen grh_elig_budg_income_test_two, 	8, 12, 25
+		EMReadScreen grh_elig_budg_total_ssr_rate_two, 	8, 11, 44
+		EMReadScreen grh_elig_budg_income_test_two, 	8, 12, 44
 
-		EMReadScreen grh_elig_payment_grh_state_amount_two, 		8, 14, 25
-		EMReadScreen grh_elig_payment_county_liability_two, 		8, 15, 25
+		EMReadScreen grh_elig_payment_grh_state_amount_two, 		8, 14, 44
+		EMReadScreen grh_elig_payment_county_liability_two, 		8, 15, 44
 		' EMReadScreen grh_elig_payment_counted_income, 8, 6, 25
-		EMReadScreen grh_elig_payment_total_two, 					8, 17, 25
-		EMReadScreen grh_elig_payment_amount_already_issued_two, 	8, 18, 25
+		EMReadScreen grh_elig_payment_total_two, 					8, 17, 44
+		EMReadScreen grh_elig_payment_amount_already_issued_two, 	8, 18, 44
 
+		If grh_elig_budg_vendor_number_two = "00000000" Then grh_elig_budg_vendor_number_two = ""
 		grh_elig_budg_total_days_one_two = trim(grh_elig_budg_total_days_one_two)
 		grh_elig_budg_vnd2_rate_limit_two = trim(grh_elig_budg_vnd2_rate_limit_two)
 		grh_elig_budg_room_board_doc_two = trim(grh_elig_budg_room_board_doc_two)
@@ -3813,7 +3815,7 @@ class grh_eligibility_detail
 
 		Call write_value_and_transmit("X", 16, 3)
 		EMReadScreen grh_elig_payment_remaining_income, 9, 4, 53
-		grh_elig_payment_remaining_income == trim(grh_elig_payment_remaining_income)
+		grh_elig_payment_remaining_income = trim(grh_elig_payment_remaining_income)
 		transmit
 
 		transmit 		'go to next panel - GRSM
@@ -3842,7 +3844,7 @@ class grh_eligibility_detail
 
 		EMReadScreen grh_elig_amount_already_issued_one, 9, 13, 31
 		EMReadScreen grh_elig_setting_overpayment_one, 	9, 16, 31
-		EMReadScreen grh_elig_client_obblication_one, 	9, 17, 31
+		EMReadScreen grh_elig_client_obligation_one, 	9, 17, 31
 
 		If grh_elig_pre_or_post_pay_one_code = "07" Then grh_elig_pre_or_post_pay_one_info = "Pre-pay"
 		If grh_elig_pre_or_post_pay_one_code = "08" Then grh_elig_pre_or_post_pay_one_info = "Post-pay Hold"
@@ -3850,14 +3852,14 @@ class grh_eligibility_detail
 		grh_elig_payable_amount_one = trim(grh_elig_payable_amount_one)
 		grh_elig_amount_already_issued_one = trim(grh_elig_amount_already_issued_one)
 		grh_elig_setting_overpayment_one = trim(grh_elig_setting_overpayment_one)
-		grh_elig_client_obblication_one = trim(grh_elig_client_obblication_one)
+		grh_elig_client_obligation_one = trim(grh_elig_client_obligation_one)
 
-		EMReadScreen grh_elig_pre_or_post_pay_two_code, 2, 11, 38
-		EMReadScreen grh_elig_payable_amount_two, 		9, 12, 31
+		EMReadScreen grh_elig_pre_or_post_pay_two_code, 2, 11, 57
+		EMReadScreen grh_elig_payable_amount_two, 		9, 12, 50
 
-		EMReadScreen grh_elig_amount_already_issued_two, 9, 13, 31
-		EMReadScreen grh_elig_setting_overpayment_two, 	9, 16, 31
-		EMReadScreen grh_elig_client_obblication_two, 	9, 17, 31
+		EMReadScreen grh_elig_amount_already_issued_two, 9, 13, 50
+		EMReadScreen grh_elig_setting_overpayment_two, 	9, 16, 50
+		EMReadScreen grh_elig_client_obligation_two, 	9, 17, 50
 
 		If grh_elig_pre_or_post_pay_two_code = "07" Then grh_elig_pre_or_post_pay_two_info = "Pre-pay"
 		If grh_elig_pre_or_post_pay_two_code = "08" Then grh_elig_pre_or_post_pay_two_info = "Post-pay Hold"
@@ -3865,7 +3867,7 @@ class grh_eligibility_detail
 		grh_elig_payable_amount_two = trim(grh_elig_payable_amount_two)
 		grh_elig_amount_already_issued_two = trim(grh_elig_amount_already_issued_two)
 		grh_elig_setting_overpayment_two = trim(grh_elig_setting_overpayment_two)
-		grh_elig_client_obblication_two = trim(grh_elig_client_obblication_two)
+		grh_elig_client_obligation_two = trim(grh_elig_client_obligation_two)
 
 		call back_to_SELF
 
@@ -3938,6 +3940,179 @@ class grh_eligibility_detail
 
 			grh_vendor_one_blocked_county_numbers_list = replace(grh_vendor_one_blocked_county_numbers_list, "_", "")
 			grh_vendor_one_blocked_county_numbers_list = trim(grh_vendor_one_blocked_county_numbers_list)
+
+			transmit
+			EMReadScreen grh_vendor_one_current_rate_period_code, 1, 6, 24
+
+			If grh_vendor_one_current_rate_period_code = "1" Then grh_vendor_one_current_rate_period_info = "Calendar Year"
+			If grh_vendor_one_current_rate_period_code = "2" Then grh_vendor_one_current_rate_period_info = "Fiscal Year"
+			If grh_vendor_one_current_rate_period_code = "3" Then grh_vendor_one_current_rate_period_info = "Federal Fiscal Year"
+			If grh_vendor_one_current_rate_period_code = "4" Then grh_vendor_one_current_rate_period_info = "Other"
+
+			EMReadScreen grh_vendor_one_rate_from_date, 7, 6, 47
+			EMReadScreen grh_vendor_one_rate_to_date, 7, 6, 61
+			EMReadScreen grh_vendor_one_initial_rate_date, 10, 7, 21
+			EMReadScreen grh_vendor_one_NPI_number, 10, 7, 41
+			EMReadScreen grh_vendor_one_family_foster_care_yn, 1, 8, 69
+			EMReadScreen grh_vendor_one_rate_limit, 8, 9, 24
+			EMReadScreen grh_vendor_one_exempt_reason_code, 2, 9, 69
+			If grh_vendor_one_exempt_reason_code = "01" Then grh_vendor_one_exempt_reason_info = "Andrew Board & Care"
+			If grh_vendor_one_exempt_reason_code = "04" Then grh_vendor_one_exempt_reason_info = "Aldrich"
+			If grh_vendor_one_exempt_reason_code = "05" Then grh_vendor_one_exempt_reason_info = "Amy Johnson"
+			If grh_vendor_one_exempt_reason_code = "09" Then grh_vendor_one_exempt_reason_info = "Quinlan Home"
+			If grh_vendor_one_exempt_reason_code = "10" Then grh_vendor_one_exempt_reason_info = "Revere Home"
+			If grh_vendor_one_exempt_reason_code = "11" Then grh_vendor_one_exempt_reason_info = "River Oaks"
+			If grh_vendor_one_exempt_reason_code = "12" Then grh_vendor_one_exempt_reason_info = "Special Srvices"
+			If grh_vendor_one_exempt_reason_code = "14" Then grh_vendor_one_exempt_reason_info = "Albert Lea"
+			If grh_vendor_one_exempt_reason_code = "15" Then grh_vendor_one_exempt_reason_info = "Metro Demo"
+			If grh_vendor_one_exempt_reason_code = "16" Then grh_vendor_one_exempt_reason_info = "Broadway"
+			If grh_vendor_one_exempt_reason_code = "18" Then grh_vendor_one_exempt_reason_info = "Murphy's Board and Care"
+			If grh_vendor_one_exempt_reason_code = "25" Then grh_vendor_one_exempt_reason_info = "Valley Home"
+			If grh_vendor_one_exempt_reason_code = "26" Then grh_vendor_one_exempt_reason_info = "LTH Supportive Housing"
+			If grh_vendor_one_exempt_reason_code = "27" Then grh_vendor_one_exempt_reason_info = "Boarding Care Home"
+			If grh_vendor_one_exempt_reason_code = "28" Then grh_vendor_one_exempt_reason_info = "Banked Bed"
+			If grh_vendor_one_exempt_reason_code = "29" Then grh_vendor_one_exempt_reason_info = "Tribe Certified Housing"
+
+			EMReadScreen grh_vendor_one_DHS_license_1_code, 2, 10, 24
+			If grh_vendor_one_DHS_license_1_code = "__" Then grh_vendor_one_DHS_license_1_info = ""
+			If grh_vendor_one_DHS_license_1_code = "01" Then grh_vendor_one_DHS_license_1_info = "SILS- Developmental Disabled Rule 18"
+			If grh_vendor_one_DHS_license_1_code = "02" Then grh_vendor_one_DHS_license_1_info = "Developmentaly Diabled Rule 34"
+			If grh_vendor_one_DHS_license_1_code = "03" Then grh_vendor_one_DHS_license_1_info = "Adult Mentally Ill Rule 36"
+			If grh_vendor_one_DHS_license_1_code = "04" Then grh_vendor_one_DHS_license_1_info = "Adult Foster Care Rule 203"
+			If grh_vendor_one_DHS_license_1_code = "05" Then grh_vendor_one_DHS_license_1_info = "Mentally Retarded Waiver Rule 42"
+			If grh_vendor_one_DHS_license_1_code = "06" Then grh_vendor_one_DHS_license_1_info = "Pregnant Woman Shelter Rule 6"
+			If grh_vendor_one_DHS_license_1_code = "07" Then grh_vendor_one_DHS_license_1_info = "Other DHS license"
+			If grh_vendor_one_DHS_license_1_code = "08" Then grh_vendor_one_DHS_license_1_info = "No DHS License"
+			If grh_vendor_one_DHS_license_1_code = "09" Then grh_vendor_one_DHS_license_1_info = "Physical Handicap Rule 80"
+			If grh_vendor_one_DHS_license_1_code = "10" Then grh_vendor_one_DHS_license_1_info = "Child Foster Care Rules 1 & 8"
+			If grh_vendor_one_DHS_license_1_code = "11" Then grh_vendor_one_DHS_license_1_info = "Chemical Dependancy Rule 35"
+			EMReadScreen grh_vendor_one_DHS_license_2_code, 2, 10, 27
+			If grh_vendor_one_DHS_license_2_code = "__" Then grh_vendor_one_DHS_license_2_info = ""
+			If grh_vendor_one_DHS_license_2_code = "01" Then grh_vendor_one_DHS_license_2_info = "SILS- Developmental Disabled Rule 18"
+			If grh_vendor_one_DHS_license_2_code = "02" Then grh_vendor_one_DHS_license_2_info = "Developmentaly Diabled Rule 34"
+			If grh_vendor_one_DHS_license_2_code = "03" Then grh_vendor_one_DHS_license_2_info = "Adult Mentally Ill Rule 36"
+			If grh_vendor_one_DHS_license_2_code = "04" Then grh_vendor_one_DHS_license_2_info = "Adult Foster Care Rule 203"
+			If grh_vendor_one_DHS_license_2_code = "05" Then grh_vendor_one_DHS_license_2_info = "Mentally Retarded Waiver Rule 42"
+			If grh_vendor_one_DHS_license_2_code = "06" Then grh_vendor_one_DHS_license_2_info = "Pregnant Woman Shelter Rule 6"
+			If grh_vendor_one_DHS_license_2_code = "07" Then grh_vendor_one_DHS_license_2_info = "Other DHS license"
+			If grh_vendor_one_DHS_license_2_code = "08" Then grh_vendor_one_DHS_license_2_info = "No DHS License"
+			If grh_vendor_one_DHS_license_2_code = "09" Then grh_vendor_one_DHS_license_2_info = "Physical Handicap Rule 80"
+			If grh_vendor_one_DHS_license_2_code = "10" Then grh_vendor_one_DHS_license_2_info = "Child Foster Care Rules 1 & 8"
+			If grh_vendor_one_DHS_license_2_code = "11" Then grh_vendor_one_DHS_license_2_info = "Chemical Dependancy Rule 35"
+			EMReadScreen grh_vendor_one_DHS_license_3_code, 2, 10, 30
+			If grh_vendor_one_DHS_license_3_code = "__" Then grh_vendor_one_DHS_license_3_info = ""
+			If grh_vendor_one_DHS_license_3_code = "01" Then grh_vendor_one_DHS_license_3_info = "SILS- Developmental Disabled Rule 18"
+			If grh_vendor_one_DHS_license_3_code = "02" Then grh_vendor_one_DHS_license_3_info = "Developmentaly Diabled Rule 34"
+			If grh_vendor_one_DHS_license_3_code = "03" Then grh_vendor_one_DHS_license_3_info = "Adult Mentally Ill Rule 36"
+			If grh_vendor_one_DHS_license_3_code = "04" Then grh_vendor_one_DHS_license_3_info = "Adult Foster Care Rule 203"
+			If grh_vendor_one_DHS_license_3_code = "05" Then grh_vendor_one_DHS_license_3_info = "Mentally Retarded Waiver Rule 42"
+			If grh_vendor_one_DHS_license_3_code = "06" Then grh_vendor_one_DHS_license_3_info = "Pregnant Woman Shelter Rule 6"
+			If grh_vendor_one_DHS_license_3_code = "07" Then grh_vendor_one_DHS_license_3_info = "Other DHS license"
+			If grh_vendor_one_DHS_license_3_code = "08" Then grh_vendor_one_DHS_license_3_info = "No DHS License"
+			If grh_vendor_one_DHS_license_3_code = "09" Then grh_vendor_one_DHS_license_3_info = "Physical Handicap Rule 80"
+			If grh_vendor_one_DHS_license_3_code = "10" Then grh_vendor_one_DHS_license_3_info = "Child Foster Care Rules 1 & 8"
+			If grh_vendor_one_DHS_license_3_code = "11" Then grh_vendor_one_DHS_license_3_info = "Chemical Dependancy Rule 35"
+
+			EMReadScreen grh_vendor_one_health_dept_license_1_code, 2, 10, 69
+			If grh_vendor_one_health_dept_license_1_code = "__" Then grh_vendor_one_health_dept_license_1_info = ""
+			If grh_vendor_one_health_dept_license_1_code = "01" Then grh_vendor_one_health_dept_license_1_info = "Nursing Home"
+			If grh_vendor_one_health_dept_license_1_code = "02" Then grh_vendor_one_health_dept_license_1_info = "Boarding Care Home"
+			If grh_vendor_one_health_dept_license_1_code = "03" Then grh_vendor_one_health_dept_license_1_info = "Supervised Living Facility"
+			If grh_vendor_one_health_dept_license_1_code = "04" Then grh_vendor_one_health_dept_license_1_info = "Board and Lodging"
+			If grh_vendor_one_health_dept_license_1_code = "05" Then grh_vendor_one_health_dept_license_1_info = "Hotal/Restaurant"
+			If grh_vendor_one_health_dept_license_1_code = "06" Then grh_vendor_one_health_dept_license_1_info = "Board & Lodge with Special Services"
+			If grh_vendor_one_health_dept_license_1_code = "07" Then grh_vendor_one_health_dept_license_1_info = "Tribal License"
+			If grh_vendor_one_health_dept_license_1_code = "08" Then grh_vendor_one_health_dept_license_1_info = "Metro Demo"
+			If grh_vendor_one_health_dept_license_1_code = "09" Then grh_vendor_one_health_dept_license_1_info = "Housing with Services"
+			If grh_vendor_one_health_dept_license_1_code = "10" Then grh_vendor_one_health_dept_license_1_info = "Supportive Housing"
+			EMReadScreen grh_vendor_one_health_dept_license_2_code, 2, 10, 72
+			If grh_vendor_one_health_dept_license_2_code = "__" Then grh_vendor_one_health_dept_license_2_info = ""
+			If grh_vendor_one_health_dept_license_2_code = "01" Then grh_vendor_one_health_dept_license_2_info = "Nursing Home"
+			If grh_vendor_one_health_dept_license_2_code = "02" Then grh_vendor_one_health_dept_license_2_info = "Boarding Care Home"
+			If grh_vendor_one_health_dept_license_2_code = "03" Then grh_vendor_one_health_dept_license_2_info = "Supervised Living Facility"
+			If grh_vendor_one_health_dept_license_2_code = "04" Then grh_vendor_one_health_dept_license_2_info = "Board and Lodging"
+			If grh_vendor_one_health_dept_license_2_code = "05" Then grh_vendor_one_health_dept_license_2_info = "Hotal/Restaurant"
+			If grh_vendor_one_health_dept_license_2_code = "06" Then grh_vendor_one_health_dept_license_2_info = "Board & Lodge with Special Services"
+			If grh_vendor_one_health_dept_license_2_code = "07" Then grh_vendor_one_health_dept_license_2_info = "Tribal License"
+			If grh_vendor_one_health_dept_license_2_code = "08" Then grh_vendor_one_health_dept_license_2_info = "Metro Demo"
+			If grh_vendor_one_health_dept_license_2_code = "09" Then grh_vendor_one_health_dept_license_2_info = "Housing with Services"
+			If grh_vendor_one_health_dept_license_2_code = "10" Then grh_vendor_one_health_dept_license_2_info = "Supportive Housing"
+			EMReadScreen grh_vendor_one_health_dept_license_3_code, 2, 10, 75
+			If grh_vendor_one_health_dept_license_3_code = "__" Then grh_vendor_one_health_dept_license_3_info = ""
+			If grh_vendor_one_health_dept_license_3_code = "01" Then grh_vendor_one_health_dept_license_3_info = "Nursing Home"
+			If grh_vendor_one_health_dept_license_3_code = "02" Then grh_vendor_one_health_dept_license_3_info = "Boarding Care Home"
+			If grh_vendor_one_health_dept_license_3_code = "03" Then grh_vendor_one_health_dept_license_3_info = "Supervised Living Facility"
+			If grh_vendor_one_health_dept_license_3_code = "04" Then grh_vendor_one_health_dept_license_3_info = "Board and Lodging"
+			If grh_vendor_one_health_dept_license_3_code = "05" Then grh_vendor_one_health_dept_license_3_info = "Hotal/Restaurant"
+			If grh_vendor_one_health_dept_license_3_code = "06" Then grh_vendor_one_health_dept_license_3_info = "Board & Lodge with Special Services"
+			If grh_vendor_one_health_dept_license_3_code = "07" Then grh_vendor_one_health_dept_license_3_info = "Tribal License"
+			If grh_vendor_one_health_dept_license_3_code = "08" Then grh_vendor_one_health_dept_license_3_info = "Metro Demo"
+			If grh_vendor_one_health_dept_license_3_code = "09" Then grh_vendor_one_health_dept_license_3_info = "Housing with Services"
+			If grh_vendor_one_health_dept_license_3_code = "10" Then grh_vendor_one_health_dept_license_3_info = "Supportive Housing"
+
+			EMReadScreen grh_vendor_one_number_of_licesned_beds, 4, 11, 24
+			EMReadScreen grh_vendor_one_total_GRH_agreement_beds, 4, 11, 69
+			EMReadScreen grh_vendor_one_resident_disa_type_1_code, 2,  12, 24
+			If grh_vendor_one_resident_disa_type_1_code = "__" Then grh_vendor_one_resident_disa_type_1_info = ""
+			If grh_vendor_one_resident_disa_type_1_code = "01" Then grh_vendor_one_resident_disa_type_1_info = "Development Disabled"
+			If grh_vendor_one_resident_disa_type_1_code = "02" Then grh_vendor_one_resident_disa_type_1_info = "Chemically Dependent"
+			If grh_vendor_one_resident_disa_type_1_code = "03" Then grh_vendor_one_resident_disa_type_1_info = "Mentally Ill"
+			If grh_vendor_one_resident_disa_type_1_code = "04" Then grh_vendor_one_resident_disa_type_1_info = "Physically Handicapped"
+			If grh_vendor_one_resident_disa_type_1_code = "05" Then grh_vendor_one_resident_disa_type_1_info = "Elderly"
+			If grh_vendor_one_resident_disa_type_1_code = "06" Then grh_vendor_one_resident_disa_type_1_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_one_resident_disa_type_1_code = "08" Then grh_vendor_one_resident_disa_type_1_info = "None of the Above"
+
+			EMReadScreen grh_vendor_one_resident_disa_type_2_code, 2,  12, 24
+			If grh_vendor_one_resident_disa_type_2_code = "__" Then grh_vendor_one_resident_disa_type_2_info = ""
+			If grh_vendor_one_resident_disa_type_2_code = "01" Then grh_vendor_one_resident_disa_type_2_info = "Development Disabled"
+			If grh_vendor_one_resident_disa_type_2_code = "02" Then grh_vendor_one_resident_disa_type_2_info = "Chemically Dependent"
+			If grh_vendor_one_resident_disa_type_2_code = "03" Then grh_vendor_one_resident_disa_type_2_info = "Mentally Ill"
+			If grh_vendor_one_resident_disa_type_2_code = "04" Then grh_vendor_one_resident_disa_type_2_info = "Physically Handicapped"
+			If grh_vendor_one_resident_disa_type_2_code = "05" Then grh_vendor_one_resident_disa_type_2_info = "Elderly"
+			If grh_vendor_one_resident_disa_type_2_code = "06" Then grh_vendor_one_resident_disa_type_2_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_one_resident_disa_type_2_code = "08" Then grh_vendor_one_resident_disa_type_2_info = "None of the Above"
+
+			EMReadScreen grh_vendor_one_resident_disa_type_3_code, 2,  12, 24
+			If grh_vendor_one_resident_disa_type_3_code = "__" Then grh_vendor_one_resident_disa_type_3_info = ""
+			If grh_vendor_one_resident_disa_type_3_code = "01" Then grh_vendor_one_resident_disa_type_3_info = "Development Disabled"
+			If grh_vendor_one_resident_disa_type_3_code = "02" Then grh_vendor_one_resident_disa_type_3_info = "Chemically Dependent"
+			If grh_vendor_one_resident_disa_type_3_code = "03" Then grh_vendor_one_resident_disa_type_3_info = "Mentally Ill"
+			If grh_vendor_one_resident_disa_type_3_code = "04" Then grh_vendor_one_resident_disa_type_3_info = "Physically Handicapped"
+			If grh_vendor_one_resident_disa_type_3_code = "05" Then grh_vendor_one_resident_disa_type_3_info = "Elderly"
+			If grh_vendor_one_resident_disa_type_3_code = "06" Then grh_vendor_one_resident_disa_type_3_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_one_resident_disa_type_3_code = "08" Then grh_vendor_one_resident_disa_type_3_info = "None of the Above"
+
+			EMReadScreen grh_vendor_one_resident_disa_type_4_code, 2,  12, 24
+			If grh_vendor_one_resident_disa_type_4_code = "__" Then grh_vendor_one_resident_disa_type_4_info = ""
+			If grh_vendor_one_resident_disa_type_4_code = "01" Then grh_vendor_one_resident_disa_type_4_info = "Development Disabled"
+			If grh_vendor_one_resident_disa_type_4_code = "02" Then grh_vendor_one_resident_disa_type_4_info = "Chemically Dependent"
+			If grh_vendor_one_resident_disa_type_4_code = "03" Then grh_vendor_one_resident_disa_type_4_info = "Mentally Ill"
+			If grh_vendor_one_resident_disa_type_4_code = "04" Then grh_vendor_one_resident_disa_type_4_info = "Physically Handicapped"
+			If grh_vendor_one_resident_disa_type_4_code = "05" Then grh_vendor_one_resident_disa_type_4_info = "Elderly"
+			If grh_vendor_one_resident_disa_type_4_code = "06" Then grh_vendor_one_resident_disa_type_4_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_one_resident_disa_type_4_code = "08" Then grh_vendor_one_resident_disa_type_4_info = "None of the Above"
+
+			EMReadScreen grh_vendor_one_resident_disa_type_5_code, 2,  12, 24
+			If grh_vendor_one_resident_disa_type_5_code = "__" Then grh_vendor_one_resident_disa_type_5_info = ""
+			If grh_vendor_one_resident_disa_type_5_code = "01" Then grh_vendor_one_resident_disa_type_5_info = "Development Disabled"
+			If grh_vendor_one_resident_disa_type_5_code = "02" Then grh_vendor_one_resident_disa_type_5_info = "Chemically Dependent"
+			If grh_vendor_one_resident_disa_type_5_code = "03" Then grh_vendor_one_resident_disa_type_5_info = "Mentally Ill"
+			If grh_vendor_one_resident_disa_type_5_code = "04" Then grh_vendor_one_resident_disa_type_5_info = "Physically Handicapped"
+			If grh_vendor_one_resident_disa_type_5_code = "05" Then grh_vendor_one_resident_disa_type_5_info = "Elderly"
+			If grh_vendor_one_resident_disa_type_5_code = "06" Then grh_vendor_one_resident_disa_type_5_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_one_resident_disa_type_5_code = "08" Then grh_vendor_one_resident_disa_type_5_info = "None of the Above"
+
+			EMReadScreen grh_vendor_one_room_and_board_rate_one_monthly, 8, 15, 54
+			EMReadScreen grh_vendor_one_room_and_board_rate_one_per_diem, 8, 15, 68
+			EMReadScreen grh_vendor_one_SSR_monthly, 8, 16, 54
+			EMReadScreen grh_vendor_one_SSR_per_diem, 8, 16, 68
+
+			grh_vendor_one_room_and_board_rate_one_monthly = replace(grh_vendor_one_room_and_board_rate_one_monthly, "_", "")
+			grh_vendor_one_room_and_board_rate_one_per_diem = trim(grh_vendor_one_room_and_board_rate_one_per_diem)
+			grh_vendor_one_SSR_monthly = replace(grh_vendor_one_SSR_monthly, "_", "")
+			grh_vendor_one_SSR_per_diem = trim(grh_vendor_one_SSR_per_diem)
+
+			PF3
 		End If
 
 
@@ -4008,6 +4183,179 @@ class grh_eligibility_detail
 
 			grh_vendor_two_blocked_county_numbers_list = replace(grh_vendor_two_blocked_county_numbers_list, "_", "")
 			grh_vendor_two_blocked_county_numbers_list = trim(grh_vendor_two_blocked_county_numbers_list)
+
+			transmit
+			EMReadScreen grh_vendor_two_current_rate_period_code, 1, 6, 24
+
+			If grh_vendor_two_current_rate_period_code = "1" Then grh_vendor_two_current_rate_period_info = "Calendar Year"
+			If grh_vendor_two_current_rate_period_code = "2" Then grh_vendor_two_current_rate_period_info = "Fiscal Year"
+			If grh_vendor_two_current_rate_period_code = "3" Then grh_vendor_two_current_rate_period_info = "Federal Fiscal Year"
+			If grh_vendor_two_current_rate_period_code = "4" Then grh_vendor_two_current_rate_period_info = "Other"
+
+			EMReadScreen grh_vendor_two_rate_from_date, 7, 6, 47
+			EMReadScreen grh_vendor_two_rate_to_date, 7, 6, 61
+			EMReadScreen grh_vendor_two_initial_rate_date, 10, 7, 21
+			EMReadScreen grh_vendor_two_NPI_number, 10, 7, 41
+			EMReadScreen grh_vendor_two_family_foster_care_yn, 1, 8, 69
+			EMReadScreen grh_vendor_two_rate_limit, 8, 9, 24
+			EMReadScreen grh_vendor_two_exempt_reason_code, 2, 9, 69
+			If grh_vendor_two_exempt_reason_code = "01" Then grh_vendor_two_exempt_reason_info = "Andrew Board & Care"
+			If grh_vendor_two_exempt_reason_code = "04" Then grh_vendor_two_exempt_reason_info = "Aldrich"
+			If grh_vendor_two_exempt_reason_code = "05" Then grh_vendor_two_exempt_reason_info = "Amy Johnson"
+			If grh_vendor_two_exempt_reason_code = "09" Then grh_vendor_two_exempt_reason_info = "Quinlan Home"
+			If grh_vendor_two_exempt_reason_code = "10" Then grh_vendor_two_exempt_reason_info = "Revere Home"
+			If grh_vendor_two_exempt_reason_code = "11" Then grh_vendor_two_exempt_reason_info = "River Oaks"
+			If grh_vendor_two_exempt_reason_code = "12" Then grh_vendor_two_exempt_reason_info = "Special Srvices"
+			If grh_vendor_two_exempt_reason_code = "14" Then grh_vendor_two_exempt_reason_info = "Albert Lea"
+			If grh_vendor_two_exempt_reason_code = "15" Then grh_vendor_two_exempt_reason_info = "Metro Demo"
+			If grh_vendor_two_exempt_reason_code = "16" Then grh_vendor_two_exempt_reason_info = "Broadway"
+			If grh_vendor_two_exempt_reason_code = "18" Then grh_vendor_two_exempt_reason_info = "Murphy's Board and Care"
+			If grh_vendor_two_exempt_reason_code = "25" Then grh_vendor_two_exempt_reason_info = "Valley Home"
+			If grh_vendor_two_exempt_reason_code = "26" Then grh_vendor_two_exempt_reason_info = "LTH Supportive Housing"
+			If grh_vendor_two_exempt_reason_code = "27" Then grh_vendor_two_exempt_reason_info = "Boarding Care Home"
+			If grh_vendor_two_exempt_reason_code = "28" Then grh_vendor_two_exempt_reason_info = "Banked Bed"
+			If grh_vendor_two_exempt_reason_code = "29" Then grh_vendor_two_exempt_reason_info = "Tribe Certified Housing"
+
+			EMReadScreen grh_vendor_two_DHS_license_1_code, 2, 10, 24
+			If grh_vendor_two_DHS_license_1_code = "__" Then grh_vendor_two_DHS_license_1_info = ""
+			If grh_vendor_two_DHS_license_1_code = "01" Then grh_vendor_two_DHS_license_1_info = "SILS- Developmental Disabled Rule 18"
+			If grh_vendor_two_DHS_license_1_code = "02" Then grh_vendor_two_DHS_license_1_info = "Developmentaly Diabled Rule 34"
+			If grh_vendor_two_DHS_license_1_code = "03" Then grh_vendor_two_DHS_license_1_info = "Adult Mentally Ill Rule 36"
+			If grh_vendor_two_DHS_license_1_code = "04" Then grh_vendor_two_DHS_license_1_info = "Adult Foster Care Rule 203"
+			If grh_vendor_two_DHS_license_1_code = "05" Then grh_vendor_two_DHS_license_1_info = "Mentally Retarded Waiver Rule 42"
+			If grh_vendor_two_DHS_license_1_code = "06" Then grh_vendor_two_DHS_license_1_info = "Pregnant Woman Shelter Rule 6"
+			If grh_vendor_two_DHS_license_1_code = "07" Then grh_vendor_two_DHS_license_1_info = "Other DHS license"
+			If grh_vendor_two_DHS_license_1_code = "08" Then grh_vendor_two_DHS_license_1_info = "No DHS License"
+			If grh_vendor_two_DHS_license_1_code = "09" Then grh_vendor_two_DHS_license_1_info = "Physical Handicap Rule 80"
+			If grh_vendor_two_DHS_license_1_code = "10" Then grh_vendor_two_DHS_license_1_info = "Child Foster Care Rules 1 & 8"
+			If grh_vendor_two_DHS_license_1_code = "11" Then grh_vendor_two_DHS_license_1_info = "Chemical Dependancy Rule 35"
+			EMReadScreen grh_vendor_two_DHS_license_2_code, 2, 10, 27
+			If grh_vendor_two_DHS_license_2_code = "__" Then grh_vendor_two_DHS_license_2_info = ""
+			If grh_vendor_two_DHS_license_2_code = "01" Then grh_vendor_two_DHS_license_2_info = "SILS- Developmental Disabled Rule 18"
+			If grh_vendor_two_DHS_license_2_code = "02" Then grh_vendor_two_DHS_license_2_info = "Developmentaly Diabled Rule 34"
+			If grh_vendor_two_DHS_license_2_code = "03" Then grh_vendor_two_DHS_license_2_info = "Adult Mentally Ill Rule 36"
+			If grh_vendor_two_DHS_license_2_code = "04" Then grh_vendor_two_DHS_license_2_info = "Adult Foster Care Rule 203"
+			If grh_vendor_two_DHS_license_2_code = "05" Then grh_vendor_two_DHS_license_2_info = "Mentally Retarded Waiver Rule 42"
+			If grh_vendor_two_DHS_license_2_code = "06" Then grh_vendor_two_DHS_license_2_info = "Pregnant Woman Shelter Rule 6"
+			If grh_vendor_two_DHS_license_2_code = "07" Then grh_vendor_two_DHS_license_2_info = "Other DHS license"
+			If grh_vendor_two_DHS_license_2_code = "08" Then grh_vendor_two_DHS_license_2_info = "No DHS License"
+			If grh_vendor_two_DHS_license_2_code = "09" Then grh_vendor_two_DHS_license_2_info = "Physical Handicap Rule 80"
+			If grh_vendor_two_DHS_license_2_code = "10" Then grh_vendor_two_DHS_license_2_info = "Child Foster Care Rules 1 & 8"
+			If grh_vendor_two_DHS_license_2_code = "11" Then grh_vendor_two_DHS_license_2_info = "Chemical Dependancy Rule 35"
+			EMReadScreen grh_vendor_two_DHS_license_3_code, 2, 10, 30
+			If grh_vendor_two_DHS_license_3_code = "__" Then grh_vendor_two_DHS_license_3_info = ""
+			If grh_vendor_two_DHS_license_3_code = "01" Then grh_vendor_two_DHS_license_3_info = "SILS- Developmental Disabled Rule 18"
+			If grh_vendor_two_DHS_license_3_code = "02" Then grh_vendor_two_DHS_license_3_info = "Developmentaly Diabled Rule 34"
+			If grh_vendor_two_DHS_license_3_code = "03" Then grh_vendor_two_DHS_license_3_info = "Adult Mentally Ill Rule 36"
+			If grh_vendor_two_DHS_license_3_code = "04" Then grh_vendor_two_DHS_license_3_info = "Adult Foster Care Rule 203"
+			If grh_vendor_two_DHS_license_3_code = "05" Then grh_vendor_two_DHS_license_3_info = "Mentally Retarded Waiver Rule 42"
+			If grh_vendor_two_DHS_license_3_code = "06" Then grh_vendor_two_DHS_license_3_info = "Pregnant Woman Shelter Rule 6"
+			If grh_vendor_two_DHS_license_3_code = "07" Then grh_vendor_two_DHS_license_3_info = "Other DHS license"
+			If grh_vendor_two_DHS_license_3_code = "08" Then grh_vendor_two_DHS_license_3_info = "No DHS License"
+			If grh_vendor_two_DHS_license_3_code = "09" Then grh_vendor_two_DHS_license_3_info = "Physical Handicap Rule 80"
+			If grh_vendor_two_DHS_license_3_code = "10" Then grh_vendor_two_DHS_license_3_info = "Child Foster Care Rules 1 & 8"
+			If grh_vendor_two_DHS_license_3_code = "11" Then grh_vendor_two_DHS_license_3_info = "Chemical Dependancy Rule 35"
+
+			EMReadScreen grh_vendor_two_health_dept_license_1_code, 2, 10, 69
+			If grh_vendor_two_health_dept_license_1_code = "__" Then grh_vendor_two_health_dept_license_1_info = ""
+			If grh_vendor_two_health_dept_license_1_code = "01" Then grh_vendor_two_health_dept_license_1_info = "Nursing Home"
+			If grh_vendor_two_health_dept_license_1_code = "02" Then grh_vendor_two_health_dept_license_1_info = "Boarding Care Home"
+			If grh_vendor_two_health_dept_license_1_code = "03" Then grh_vendor_two_health_dept_license_1_info = "Supervised Living Facility"
+			If grh_vendor_two_health_dept_license_1_code = "04" Then grh_vendor_two_health_dept_license_1_info = "Board and Lodging"
+			If grh_vendor_two_health_dept_license_1_code = "05" Then grh_vendor_two_health_dept_license_1_info = "Hotal/Restaurant"
+			If grh_vendor_two_health_dept_license_1_code = "06" Then grh_vendor_two_health_dept_license_1_info = "Board & Lodge with Special Services"
+			If grh_vendor_two_health_dept_license_1_code = "07" Then grh_vendor_two_health_dept_license_1_info = "Tribal License"
+			If grh_vendor_two_health_dept_license_1_code = "08" Then grh_vendor_two_health_dept_license_1_info = "Metro Demo"
+			If grh_vendor_two_health_dept_license_1_code = "09" Then grh_vendor_two_health_dept_license_1_info = "Housing with Services"
+			If grh_vendor_two_health_dept_license_1_code = "10" Then grh_vendor_two_health_dept_license_1_info = "Supportive Housing"
+			EMReadScreen grh_vendor_two_health_dept_license_2_code, 2, 10, 72
+			If grh_vendor_two_health_dept_license_2_code = "__" Then grh_vendor_two_health_dept_license_2_info = ""
+			If grh_vendor_two_health_dept_license_2_code = "01" Then grh_vendor_two_health_dept_license_2_info = "Nursing Home"
+			If grh_vendor_two_health_dept_license_2_code = "02" Then grh_vendor_two_health_dept_license_2_info = "Boarding Care Home"
+			If grh_vendor_two_health_dept_license_2_code = "03" Then grh_vendor_two_health_dept_license_2_info = "Supervised Living Facility"
+			If grh_vendor_two_health_dept_license_2_code = "04" Then grh_vendor_two_health_dept_license_2_info = "Board and Lodging"
+			If grh_vendor_two_health_dept_license_2_code = "05" Then grh_vendor_two_health_dept_license_2_info = "Hotal/Restaurant"
+			If grh_vendor_two_health_dept_license_2_code = "06" Then grh_vendor_two_health_dept_license_2_info = "Board & Lodge with Special Services"
+			If grh_vendor_two_health_dept_license_2_code = "07" Then grh_vendor_two_health_dept_license_2_info = "Tribal License"
+			If grh_vendor_two_health_dept_license_2_code = "08" Then grh_vendor_two_health_dept_license_2_info = "Metro Demo"
+			If grh_vendor_two_health_dept_license_2_code = "09" Then grh_vendor_two_health_dept_license_2_info = "Housing with Services"
+			If grh_vendor_two_health_dept_license_2_code = "10" Then grh_vendor_two_health_dept_license_2_info = "Supportive Housing"
+			EMReadScreen grh_vendor_two_health_dept_license_3_code, 2, 10, 75
+			If grh_vendor_two_health_dept_license_3_code = "__" Then grh_vendor_two_health_dept_license_3_info = ""
+			If grh_vendor_two_health_dept_license_3_code = "01" Then grh_vendor_two_health_dept_license_3_info = "Nursing Home"
+			If grh_vendor_two_health_dept_license_3_code = "02" Then grh_vendor_two_health_dept_license_3_info = "Boarding Care Home"
+			If grh_vendor_two_health_dept_license_3_code = "03" Then grh_vendor_two_health_dept_license_3_info = "Supervised Living Facility"
+			If grh_vendor_two_health_dept_license_3_code = "04" Then grh_vendor_two_health_dept_license_3_info = "Board and Lodging"
+			If grh_vendor_two_health_dept_license_3_code = "05" Then grh_vendor_two_health_dept_license_3_info = "Hotal/Restaurant"
+			If grh_vendor_two_health_dept_license_3_code = "06" Then grh_vendor_two_health_dept_license_3_info = "Board & Lodge with Special Services"
+			If grh_vendor_two_health_dept_license_3_code = "07" Then grh_vendor_two_health_dept_license_3_info = "Tribal License"
+			If grh_vendor_two_health_dept_license_3_code = "08" Then grh_vendor_two_health_dept_license_3_info = "Metro Demo"
+			If grh_vendor_two_health_dept_license_3_code = "09" Then grh_vendor_two_health_dept_license_3_info = "Housing with Services"
+			If grh_vendor_two_health_dept_license_3_code = "10" Then grh_vendor_two_health_dept_license_3_info = "Supportive Housing"
+
+			EMReadScreen grh_vendor_two_number_of_licesned_beds, 4, 11, 24
+			EMReadScreen grh_vendor_two_total_GRH_agreement_beds, 4, 11, 69
+			EMReadScreen grh_vendor_two_resident_disa_type_1_code, 2,  12, 24
+			If grh_vendor_two_resident_disa_type_1_code = "__" Then grh_vendor_two_resident_disa_type_1_info = ""
+			If grh_vendor_two_resident_disa_type_1_code = "01" Then grh_vendor_two_resident_disa_type_1_info = "Development Disabled"
+			If grh_vendor_two_resident_disa_type_1_code = "02" Then grh_vendor_two_resident_disa_type_1_info = "Chemically Dependent"
+			If grh_vendor_two_resident_disa_type_1_code = "03" Then grh_vendor_two_resident_disa_type_1_info = "Mentally Ill"
+			If grh_vendor_two_resident_disa_type_1_code = "04" Then grh_vendor_two_resident_disa_type_1_info = "Physically Handicapped"
+			If grh_vendor_two_resident_disa_type_1_code = "05" Then grh_vendor_two_resident_disa_type_1_info = "Elderly"
+			If grh_vendor_two_resident_disa_type_1_code = "06" Then grh_vendor_two_resident_disa_type_1_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_two_resident_disa_type_1_code = "08" Then grh_vendor_two_resident_disa_type_1_info = "None of the Above"
+
+			EMReadScreen grh_vendor_two_resident_disa_type_2_code, 2,  12, 24
+			If grh_vendor_two_resident_disa_type_2_code = "__" Then grh_vendor_two_resident_disa_type_2_info = ""
+			If grh_vendor_two_resident_disa_type_2_code = "01" Then grh_vendor_two_resident_disa_type_2_info = "Development Disabled"
+			If grh_vendor_two_resident_disa_type_2_code = "02" Then grh_vendor_two_resident_disa_type_2_info = "Chemically Dependent"
+			If grh_vendor_two_resident_disa_type_2_code = "03" Then grh_vendor_two_resident_disa_type_2_info = "Mentally Ill"
+			If grh_vendor_two_resident_disa_type_2_code = "04" Then grh_vendor_two_resident_disa_type_2_info = "Physically Handicapped"
+			If grh_vendor_two_resident_disa_type_2_code = "05" Then grh_vendor_two_resident_disa_type_2_info = "Elderly"
+			If grh_vendor_two_resident_disa_type_2_code = "06" Then grh_vendor_two_resident_disa_type_2_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_two_resident_disa_type_2_code = "08" Then grh_vendor_two_resident_disa_type_2_info = "None of the Above"
+
+			EMReadScreen grh_vendor_two_resident_disa_type_3_code, 2,  12, 24
+			If grh_vendor_two_resident_disa_type_3_code = "__" Then grh_vendor_two_resident_disa_type_3_info = ""
+			If grh_vendor_two_resident_disa_type_3_code = "01" Then grh_vendor_two_resident_disa_type_3_info = "Development Disabled"
+			If grh_vendor_two_resident_disa_type_3_code = "02" Then grh_vendor_two_resident_disa_type_3_info = "Chemically Dependent"
+			If grh_vendor_two_resident_disa_type_3_code = "03" Then grh_vendor_two_resident_disa_type_3_info = "Mentally Ill"
+			If grh_vendor_two_resident_disa_type_3_code = "04" Then grh_vendor_two_resident_disa_type_3_info = "Physically Handicapped"
+			If grh_vendor_two_resident_disa_type_3_code = "05" Then grh_vendor_two_resident_disa_type_3_info = "Elderly"
+			If grh_vendor_two_resident_disa_type_3_code = "06" Then grh_vendor_two_resident_disa_type_3_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_two_resident_disa_type_3_code = "08" Then grh_vendor_two_resident_disa_type_3_info = "None of the Above"
+
+			EMReadScreen grh_vendor_two_resident_disa_type_4_code, 2,  12, 24
+			If grh_vendor_two_resident_disa_type_4_code = "__" Then grh_vendor_two_resident_disa_type_4_info = ""
+			If grh_vendor_two_resident_disa_type_4_code = "01" Then grh_vendor_two_resident_disa_type_4_info = "Development Disabled"
+			If grh_vendor_two_resident_disa_type_4_code = "02" Then grh_vendor_two_resident_disa_type_4_info = "Chemically Dependent"
+			If grh_vendor_two_resident_disa_type_4_code = "03" Then grh_vendor_two_resident_disa_type_4_info = "Mentally Ill"
+			If grh_vendor_two_resident_disa_type_4_code = "04" Then grh_vendor_two_resident_disa_type_4_info = "Physically Handicapped"
+			If grh_vendor_two_resident_disa_type_4_code = "05" Then grh_vendor_two_resident_disa_type_4_info = "Elderly"
+			If grh_vendor_two_resident_disa_type_4_code = "06" Then grh_vendor_two_resident_disa_type_4_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_two_resident_disa_type_4_code = "08" Then grh_vendor_two_resident_disa_type_4_info = "None of the Above"
+
+			EMReadScreen grh_vendor_two_resident_disa_type_5_code, 2,  12, 24
+			If grh_vendor_two_resident_disa_type_5_code = "__" Then grh_vendor_two_resident_disa_type_5_info = ""
+			If grh_vendor_two_resident_disa_type_5_code = "01" Then grh_vendor_two_resident_disa_type_5_info = "Development Disabled"
+			If grh_vendor_two_resident_disa_type_5_code = "02" Then grh_vendor_two_resident_disa_type_5_info = "Chemically Dependent"
+			If grh_vendor_two_resident_disa_type_5_code = "03" Then grh_vendor_two_resident_disa_type_5_info = "Mentally Ill"
+			If grh_vendor_two_resident_disa_type_5_code = "04" Then grh_vendor_two_resident_disa_type_5_info = "Physically Handicapped"
+			If grh_vendor_two_resident_disa_type_5_code = "05" Then grh_vendor_two_resident_disa_type_5_info = "Elderly"
+			If grh_vendor_two_resident_disa_type_5_code = "06" Then grh_vendor_two_resident_disa_type_5_info = "Deaf/Blind or Brain Injured"
+			If grh_vendor_two_resident_disa_type_5_code = "08" Then grh_vendor_two_resident_disa_type_5_info = "None of the Above"
+
+			EMReadScreen grh_vendor_two_room_and_board_rate_two_monthly, 8, 15, 54
+			EMReadScreen grh_vendor_two_room_and_board_rate_two_per_diem, 8, 15, 68
+			EMReadScreen grh_vendor_two_SSR_monthly, 8, 16, 54
+			EMReadScreen grh_vendor_two_SSR_per_diem, 8, 16, 68
+
+			grh_vendor_two_room_and_board_rate_one_monthly = replace(grh_vendor_two_room_and_board_rate_one_monthly, "_", "")
+			grh_vendor_two_room_and_board_rate_one_per_diem = trim(grh_vendor_two_room_and_board_rate_one_per_diem)
+			grh_vendor_two_SSR_monthly = replace(grh_vendor_two_SSR_monthly, "_", "")
+			grh_vendor_two_SSR_per_diem = trim(grh_vendor_two_SSR_per_diem)
+
+			PF3
 		End If
 
 		Call back_to_SELF
@@ -5580,6 +5928,26 @@ For each footer_month in MONTHS_ARRAY
 		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result
 
 		ga_elig_months_count = ga_elig_months_count + 1
+	End If
+
+	If numb_GRH_versions <> " " Then
+		ReDim Preserve GRH_ELIG_APPROVALS(grh_elig_months_count)
+		Set GRH_ELIG_APPROVALS(grh_elig_months_count) = new grh_eligibility_detail
+
+		GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month = MAXIS_footer_month
+		GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year = MAXIS_footer_year
+
+		Call GRH_ELIG_APPROVALS(grh_elig_months_count).read_elig
+
+		' MsgBox "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year & vbCr &_
+		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date & vbCr &_
+		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_one: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_one & vbCr &_
+		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_one_name & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_one: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_one & vbCr &_
+		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_two: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_two & vbCr &_
+		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_name: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_name & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two & vbCr &_
+		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result
+
+		grh_elig_months_count = grh_elig_months_count + 1
 	End If
 
 	If numb_SNAP_versions <> " " Then
