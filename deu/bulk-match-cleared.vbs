@@ -1,12 +1,10 @@
-'GATHERING STATS===========================================================================================
-worker_county_code = "X127"
+'Required for statistical purposes==========================================================================================
 name_of_script = "BULK - DEU-MATCH CLEARED.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 180
 STATS_denominatinon = "C"
 'END OF STATS BLOCK===========================================================================================
-
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -14,7 +12,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
 		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
-		END IF
+		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
 		req.send													'Sends request
@@ -23,7 +21,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 			Execute req.responseText								'Executes the script code
 		ELSE														'Error message
 			critical_error_msgbox = MsgBox ("Something has gone wrong. The Functions Library code stored on GitHub was not able to be reached." & vbNewLine & vbNewLine & "FuncLib URL: " & FuncLib_URL & vbNewLine & vbNewLine & "The script has stopped. Please check your Internet connection. Consult a scripts administrator with any questions.", vbOKonly + vbCritical, "BlueZone Scripts Critical Error")
-            StopScript
+		    StopScript
 		END IF
 	ELSE
 		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
@@ -170,11 +168,13 @@ call changelog_update("03/20/2017", "Initial version.", "Ilse Ferris, Hennepin C
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
-'THE SCRIPT-----------------------------------------------------------------------------------------------------------
+'----------------------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
+worker_county_code = "X127"
 
 match_type = "WAGE"
 action_taken = "No Savings/Overpayment"
@@ -309,11 +309,9 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	MAXIS_case_number = objExcel.cells(excel_row, excel_col_case_number).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
     IF MAXIS_case_number = "" THEN EXIT DO
-
 	IF trim(objExcel.cells(excel_row, excel_col_period).Value) <> "" THEN
         IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) <> "" THEN
 			add_to_array = TRUE
-
 	    ELSE
 			match_based_array(comments_const, item) = "No resolution status could be found."
 			excel_row = excel_row + 1
@@ -325,10 +323,12 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	   	match_based_array(maxis_case_number_const,  entry_record)	 = MAXIS_case_number
 	   	match_based_array(client_ssn_const, 		entry_record)	 = trim(replace(objExcel.cells(excel_row, excel_col_client_ssn), "-", ""))
 		match_based_array(program_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_program).Value)
-	   	match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
-		match_based_array(amount_const, 		    entry_record)    = replace(objExcel.cells(excel_row, excel_col_amount).Value, "$", "")
-		match_based_array(amount_const, 		    entry_record)    = replace(objExcel.cells(excel_row, excel_col_amount).Value, ",", "")
-	   	match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
+		match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
+        match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), "$", "")
+        match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), ",", "")
+        match_based_array(amount_const, 		    entry_record)    = FormatNumber(match_based_array(amount_const, entry_record), 2, 0, 0, 0) 'this is formating to help the script read the number as a number'
+        match_based_array(amount_const, 		    entry_record)    = match_based_array(amount_const, entry_record) *1 'this is so the amount wil be read as a number'
+       	match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
 	   	match_based_array(notice_sent_date_const,  	entry_record)    = trim(objExcel.cells(excel_row, excel_date_notice_sent).Value)
 	   	match_based_array(resolution_status_const,  entry_record)    = trim(UCASE(objExcel.cells(excel_row, excel_col_resolution_status).Value)) 'does it matter I repeat this'
 	   	match_based_array(date_cleared_const,       entry_record)    = trim(objExcel.cells(excel_row, excel_col_date_cleared).Value)	' = 14 'N' Date cleared
@@ -379,46 +379,51 @@ For item = 0 to UBound(match_based_array, 2)
 	    			IF trim(match_based_array(period_const, item)) = IEVS_period THEN
                     	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 						'----------------------------------------------------------------------------------------------------Employer info & difference notice info
-						   IF match_type = "UBEN" THEN income_source = "Unemployment"
-						   IF match_type = "UNVI" THEN income_source = "NON-WAGE"
-	                       IF match_type = "WAGE" THEN	EMReadScreen income_line, 44, 8, 37 'should be to the right of employer and the left of amount
-	                 	   IF match_type = "BEER" THEN EMReadScreen income_line, 44, 8, 28
+						IF match_type = "UBEN" THEN income_source = "Unemployment"
+						IF match_type = "UNVI" THEN income_source = "NON-WAGE"
+	                    IF match_type = "WAGE" THEN	EMReadScreen income_line, 44, 8, 37 'should be to the right of employer and the left of amount
+	                 	IF match_type = "BEER" THEN EMReadScreen income_line, 44, 8, 28
 
-	                       income_line = trim(income_line)
-	                       income_amount = right(income_line, 8)
-	                       IF instr(income_line, " AMOUNT: $") THEN position = InStr(income_line, " AMOUNT: $")    	  'sets the position at the deliminator
-	                       IF instr(income_line, " AMT: $") THEN position = InStr(income_line, " AMT: $")    		      'sets the position at the deliminator
-	                       income_source = Left(income_line, position)  'establishes employer as being before the deliminator
-					 	   income_source = trim(income_source)
-	                       income_amount = replace(income_amount, "$", "")
-	                       income_amount = trim(replace(income_amount, ",", "")) '*** review Ilse does this look cleaned up?'
-	                   	   IF income_source = match_based_array(income_source_const, item) THEN
-						   	IF income_amount = match_based_array(amount_const, item) THEN
-                            	EXIT DO
+	                    income_line = trim(income_line)
+	                    income_amount = right(income_line, 8)
+	                    IF instr(income_line, " AMOUNT: $") THEN position = InStr(income_line, " AMOUNT: $")    	  'sets the position at the deliminator
+	                    IF instr(income_line, " AMT: $") THEN position = InStr(income_line, " AMT: $")    		      'sets the position at the deliminator
+						income_line = trim(income_line)
+						income_source = Left(income_line, position)  'establishes employer as being before the deliminator
+						income_source = trim(income_source)
+						income_amount = replace(income_amount, "$", "")
+	                    income_amount = replace(income_amount, ",", "")
+						income_amount = trim(income_amount)
+                        income_amount = income_amount *1 'this is so the amount wil be read as a number'
+
+	                   	IF income_source = match_based_array(income_source_const, item) THEN
+                        	IF income_amount = match_based_array(amount_const, item) THEN
+							   	EXIT DO
 	    				   	ELSE
-								match_based_array(comments_const, item) = "No match could be found."
-                                PF3 ' to leave match
-								EXIT DO
+							  	match_based_array(comments_const, item) = "Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, item) & "~"
+                            	PF3 ' to leave match
+							  	EXIT DO
 							END IF
                         Else
+							match_based_array(comments_const, item) = "Match not cleared due to income name information" & " ~" & income_source & "~" & match_based_array(income_source_const, item) & "~"
                             Call IEVP_looping(ievp_panel)
                             If IEVP_panel = False then
-                                exit do
+                                EXIT DO
                             End if
 						END IF
                         Call IEVP_looping(ievp_panel)
                         If IEVP_panel = False then
-                            exit do
+                            EXIT DO
                         End if
 	    			END IF
                     Call IEVP_looping(ievp_panel)
                     If IEVP_panel = False then
-                        exit do
+                        EXIT DO
                     End if
                 END IF
                 Call IEVP_looping(ievp_panel)
                 If IEVP_panel = False then
-                    exit do
+                    EXIT DO
                 End if
 	        ELSE
 				match_based_array(comments_const, item) = days_pending 'identifying previously cleared matches. Not cleared with BULK script.
