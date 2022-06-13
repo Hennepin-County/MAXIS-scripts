@@ -323,9 +323,10 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	   	match_based_array(maxis_case_number_const,  entry_record)	 = MAXIS_case_number
 	   	match_based_array(client_ssn_const, 		entry_record)	 = trim(replace(objExcel.cells(excel_row, excel_col_client_ssn), "-", ""))
 		match_based_array(program_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_program).Value)
-        match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
-        match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), "$", "")'leaving the replace incase the script reads the full information in excel'
-		match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), ",", "")
+		match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
+        match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), "$", "")
+        match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), ",", "")
+        match_based_array(amount_const, 		    entry_record)    = FormatNumber(match_based_array(amount_const, entry_record), 2, 0, 0, 0) 'this is formating to help the script read the number as a number'
         match_based_array(amount_const, 		    entry_record)    = match_based_array(amount_const, entry_record) *1 'this is so the amount wil be read as a number'
        	match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
 	   	match_based_array(notice_sent_date_const,  	entry_record)    = trim(objExcel.cells(excel_row, excel_date_notice_sent).Value)
