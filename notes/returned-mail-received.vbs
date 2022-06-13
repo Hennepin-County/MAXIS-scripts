@@ -68,10 +68,10 @@ BeginDialog Dialog1, 0, 0, 221, 215, "RETURNED MAIL PROCESSING"
   EditBox 60, 5, 50, 15, MAXIS_case_number
   EditBox 60, 25, 50, 15, date_received
   DropListBox 105, 65, 110, 15, "Select One:"+chr(9)+"Forwarding address in MN"+chr(9)+"Forwarding address outside MN"+chr(9)+"No forwarding address provided"+chr(9)+"No response received", ADDR_actions
-  DropListBox 100, 150, 110, 15, "Select One:"+chr(9)+"YES "+chr(9)+"NO", client_contact_dropdown 'do we want more HERE'
-  EditBox 105, 175, 110, 15, worker_signature
+  DropListBox 100, 150, 110, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", client_contact_dropdown 'do we want more HERE'
+  EditBox 70, 175, 145, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 110, 195, 50, 15
+    OkButton 115, 195, 50, 15
     CancelButton 165, 195, 50, 15
     PushButton 135, 5, 80, 15, "SNAP TE02.08.012", SNAP_POLI_TEMP_button
     PushButton 135, 25, 80, 15, "CASH TE02.08.011", CASH_POLI_TEMP_button
@@ -81,7 +81,9 @@ BeginDialog Dialog1, 0, 0, 221, 215, "RETURNED MAIL PROCESSING"
   Text 5, 70, 85, 10, "Mail Has Been Returned:"
   GroupBox 5, 85, 210, 85, " Request for Contact"
   Text 10, 100, 140, 10, "Please make an attempt to call the client."
-  Text 10, 115, 200, 35, "For SNAP verification of the new shelter costs is needed to continue to allow any shelter costs as a deduction. For CASH the address MUST be verified. For HC cases cannot be closed for address unknown currently."
+  Text 10, 115, 200, 10, "SNAP: shelter cost must be verified to allow shelter deduction"
+  Text 10, 125, 195, 10, "CASH: address must be verified"
+  Text 10, 135, 200, 15, "HC: currently all MA cases must stay open even if address is unknown"
   Text 10, 155, 50, 10, "Client Contact:"
   Text 5, 180, 60, 10, "Worker Signature:"
 EndDialog
@@ -179,7 +181,7 @@ DO
     DO
 		err_msg = ""
     	DO
-			Dialog Dialog1
+			DIALOG Dialog1
 			cancel_without_confirmation
 			MAXIS_dialog_navigation
             IF buttonpressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/return_Mail_Processing_for_SNAP.aspx") 'HSR manual policy page
@@ -221,7 +223,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
         DO
         	DO
         		err_msg = ""
-        		Dialog Dialog1
+        		DIALOG Dialog1
         		cancel_confirmation
         		IF verif_request_checkbox = UNCHECKED and CRF_checkbox = UNCHECKED and SVF_checkbox= UNCHECKED THEN err_msg = err_msg & vbCr & "Please elect     the verification requested and ensure forms are sent in ECF."
         		IF mets_addr_correspondence = "YES" THEN
@@ -245,43 +247,43 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
 	IF ADDR_actions = "Forwarding address in MN" or ADDR_actions = "Forwarding address outside MN" THEN
-		BeginDialog Dialog1, 0, 0, 206, 245, "RETURNED MAIL PROCESSING"
-		  CheckBox 10, 15, 75, 10, "Returned Mail/Other", return_mail_checkbox
-		  CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
-		  CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
-		  CheckBox 100, 25, 100, 10, "Change Report (DHS-2402)", CRF_checkbox
-		  EditBox 40, 55, 155, 15, new_addr_line_one
-		  EditBox 40, 75, 155, 15, new_addr_line_two
-		  EditBox 40, 95, 155, 15, new_addr_city
-		  EditBox 40, 115, 20, 15, new_addr_state
-		  EditBox 155, 115, 40, 15, new_addr_zip
-		  DropListBox 130, 140, 65, 15, "Select:"+chr(9)+county_list, county_code
-		  DropListBox 140, 165, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr_correspondence
-		  EditBox 140, 180, 55, 15, mets_case_number
-		  EditBox 55, 200, 140, 15, other_notes
-		  ButtonGroup ButtonPressed
-		    OkButton 85, 220, 50, 15
-		    CancelButton 145, 220, 50, 15
-		  GroupBox 5, 5, 195, 35, "Verification Request Includes:"
-		  GroupBox 5, 40, 195, 120, "Forwarding Address:"
-		  Text 10, 60, 25, 10, "Street:"
-		  Text 20, 100, 15, 10, "City:"
-		  Text 20, 120, 20, 10, "State:"
-		  Text 120, 120, 30, 10, "Zip code:"
-		  Text 100, 145, 25, 10, "County:"
-		  Text 10, 170, 95, 10, "METS correspondence sent:"
-		  Text 10, 185, 70, 10, "METS case number:"
-		  Text 10, 205, 40, 10, "Other notes:"
-		EndDialog
+	    BeginDialog Dialog1, 0, 0, 206, 240, "RETURNED MAIL PROCESSING"
+         CheckBox 10, 15, 75, 10, "Returned Mail/Other", return_mail_checkbox
+         CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
+         CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
+         CheckBox 100, 25, 100, 10, "Change Report (DHS-2402)", CRF_checkbox
+         EditBox 40, 55, 155, 15, new_addr_line_one
+         EditBox 40, 75, 155, 15, new_addr_line_two
+         EditBox 40, 95, 155, 15, new_addr_city
+         EditBox 40, 115, 20, 15, new_addr_state
+         EditBox 155, 115, 40, 15, new_addr_zip
+         DropListBox 130, 140, 65, 15, "Select:"+chr(9)+"county_list", county_code
+         DropListBox 140, 165, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr_correspondence
+         EditBox 140, 180, 55, 15, mets_case_number
+         EditBox 55, 200, 140, 15, other_notes
+         ButtonGroup ButtonPressed
+         OkButton 95, 220, 50, 15
+         CancelButton 145, 220, 50, 15
+         GroupBox 5, 5, 195, 35, "Verification Request Includes:"
+         GroupBox 5, 40, 195, 120, "Forwarding Address:"
+         Text 10, 60, 25, 10, "Street:"
+         Text 10, 100, 15, 10, "City:"
+         Text 10, 120, 20, 10, "State:"
+         Text 120, 120, 30, 10, "Zip code:"
+         Text 100, 145, 25, 10, "County:"
+         Text 10, 170, 95, 10, "METS correspondence sent:"
+         Text 10, 185, 70, 10, "METS case number:"
+         Text 10, 205, 40, 10, "Other notes:"
+        EndDialog
 
     	DO
     		DO
     			err_msg = ""
     			DIALOG Dialog1
     			cancel_without_confirmation
-				new_addr_line_one = trim(new_addr_line_one)
-				new_addr_line_two = trim(new_addr_line_two)
-				new_addr_city = trim(new_addr_city)
+				new_addr_line_one = trim(UCASE(new_addr_line_one))
+				new_addr_line_two = trim(UCASE(new_addr_line_two))
+				new_addr_city = trim(UCASE(new_addr_city))
 				new_addr_state = trim(new_addr_state)
 				new_addr_zip = trim(new_addr_zip)
     			IF new_addr_line_one = "" THEN err_msg = err_msg & vbCr & "Please complete the street address the client in now living at."
@@ -331,7 +333,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
         DO
         	DO
         		err_msg = ""
-        		Dialog Dialog1
+        		DIALOG Dialog1
         		cancel_without_confirmation
         		If isdate(date_requested) = FALSE THEN  err_msg = err_msg & vbnewline & "Please enter the date verifications were requested."
 				IF Cdate(date_requested) > cdate(date) = TRUE THEN  err_msg = err_msg & vbnewline & "You must enter an actual date that is not in the future."
@@ -463,7 +465,7 @@ Call script_end_procedure_with_error_report(closing_message)
 'this agency because of this returned mail.  You can avoid having your case closed if you contact this agency by (__insert the 10 date deadline___).
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
-'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'------Task/Step---------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------05/11/2022
