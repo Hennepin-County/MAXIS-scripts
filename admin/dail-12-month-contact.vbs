@@ -289,8 +289,8 @@ For item = 0 to Ubound(DAIL_array, 2)
         CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
         Call write_variable_in_SPEC_MEMO("************************************************************")
         PF4
-        EmReadscreen memo_confirmation, 33, 24, 2
-        If memo_confirmation <> "NEW MEMO WAS CREATED SUCCESSFULLY" then
+        EmReadscreen memo_confirmation, 26, 24, 2
+        If memo_confirmation <> "NEW MEMO CREATE SUCCESSFUL" then
             DAIL_array(case_status_const, item) = "Unable to send MEMO. Process Manually."
         Else
             'THE CASE NOTE
@@ -370,7 +370,8 @@ script_end_procedure_with_error_report("Success! Please review the list created 
 '--Denomination reviewed -------------------------------------------------------11/02/2021
 '--Script name reviewed---------------------------------------------------------11/02/2021
 '--BULK - remove 1 incrementor at end of script reviewed------------------------11/02/2021
-
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/23/2022
+'
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub taks are complete-----------------------------------------11/02/2021
 '--comment Code-----------------------------------------------------------------11/02/2021
