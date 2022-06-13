@@ -1227,9 +1227,11 @@ class mfip_eligibility_detail
 
 			row = row + 1
 			EMReadScreen next_ref_numb, 2, row, 6
+			' MsgBox "row: " & row
 		Loop until next_ref_numb = "  "
 
 		transmit			'MFCR
+		' MsgBox "In MFCR"
 
 		EMReadScreen mfip_case_test_appl_withdraw, 		6, 6, 7
 		EMReadScreen mfip_case_test_asset, 				6, 7, 7
@@ -1281,6 +1283,7 @@ class mfip_eligibility_detail
 		mfip_fs_case_test_opt_out_housing_grant = trim(mfip_fs_case_test_opt_out_housing_grant)
 
 		Call write_value_and_transmit("X", 7, 5)						'ASSETS
+		' MsgBox "In Asset Pop-UP"
 		EMReadScreen mfip_counted_asset_CASH, 	10, 6, 47
 		EMReadScreen mfip_counted_asset_ACCT, 	10, 7, 47
 		EMReadScreen mfip_counted_asset_SECU, 	10, 8, 47
@@ -1298,8 +1301,10 @@ class mfip_eligibility_detail
 		mfip_counted_asset_max = trim(mfip_counted_asset_max)
 
 		transmit
+		' MsgBox "Back to MFCR - 1"
 
 		Call write_value_and_transmit("X", 13, 5)						'INITIAL INCOME
+		' MsgBox "In Initial Income Pop_up"
 		EMReadScreen mfip_initial_income_earned, 			10, 8, 51
 		EMReadScreen mfip_initial_income_deoendant_care, 	10, 9, 51
 		EMReadScreen mfip_initial_income_unearned, 			10, 10, 51
@@ -1318,6 +1323,7 @@ class mfip_eligibility_detail
 
 		'TODO - Read each person's information in the pop-ups
 		Call write_value_and_transmit("X", 8, 20)		'Member Initial Earned Income
+		' MsgBox "Member Initial Earned Income"
 		Do
 			EMReadScreen pop_up_name, 40, 8, 28
 			pop_up_name = trim(pop_up_name)
@@ -1357,12 +1363,14 @@ class mfip_eligibility_detail
 
 			EMReadScreen back_to_menu, 14, 6, 29
 		Loop until back_to_menu = "Initial Income"
+		' MsgBox "Back to the Initial Income Pop-Up"
 
 		If mfip_initial_income_deoendant_care <> "0.00" Then 			''Depended Care Initial Income calculation pop-up
 			Call write_value_and_transmit("X", 9, 20)
 		End If
 
 		Call write_value_and_transmit("X", 10, 20)		'Member Initial Unearned Income
+		' MsgBox "Member Initial Unearned Income"
 		Do
 			EMReadScreen pop_up_name, 40, 8, 28
 			pop_up_name = trim(pop_up_name)
@@ -1383,12 +1391,51 @@ class mfip_eligibility_detail
 
 			EMReadScreen back_to_menu, 14, 6, 29
 		Loop until back_to_menu = "Initial Income"
+		' MsgBox "Back to the Initial Income Pop-Up"
 
 		If mfip_initial_income_deemed <> "0.00" Then 			'Deemed Initial Income calculation pop-up
 			Call write_value_and_transmit("X", 11, 20)
+
+			Do
+				EMReadScreen pop_up_name, 40, 8, 28
+				pop_up_name = trim(pop_up_name)
+				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
+					If pop_up_name = mfip_elig_membs_full_name(case_memb) Then
+						' EMReadScreen mfip_elig_membs_deemer_initial_BUSI_inc_total(case_memb), 			9, 9, 52
+						' EMReadScreen mfip_elig_membs_deemer_initial_JOBS_inc_total(case_memb), 			9, 10, 54
+						' EMReadScreen mfip_elig_membs_deemer_initial_earned_inc_total(case_memb), 		9, 11, 54
+						' EMReadScreen mfip_elig_membs_deemer_initial_stndrd_ei_disregard(case_memb), 	9, 12, 54
+						' EMReadScreen mfip_elig_membs_deemer_initial_earned_inc_subtotal(case_memb), 	9, 13, 54
+						' EMReadScreen mfip_elig_membs_deemer_initial_earned_inc_disregard(case_memb), 	9, 14, 54
+						' EMReadScreen mfip_elig_membs_deemer_initial_unearned_inc(case_memb), 			9, 15, 54
+						' EMReadScreen mfip_elig_membs_deemer_initial_sub_total_counted_income(case_memb),9, 17, 54
+						' EMReadScreen mfip_elig_membs_deemer_initial_allocation(case_memb), 				9, 18, 54
+						' EMReadScreen mfip_elig_membs_deemer_initial_child_support(case_memb), 			9, 19, 54
+						' EMReadScreen mfip_elig_membs_deemer_initial_counted_income_total(case_memb),	9, 20, 54
+						'
+						' mfip_elig_membs_deemer_initial_BUSI_inc_total(case_memb) = trim(mfip_elig_membs_deemer_initial_BUSI_inc_total(case_memb))
+						' mfip_elig_membs_deemer_initial_JOBS_inc_total(case_memb) = trim(mfip_elig_membs_deemer_initial_JOBS_inc_total(case_memb))
+						' mfip_elig_membs_deemer_initial_earned_inc_total(case_memb) = trim(mfip_elig_membs_deemer_initial_earned_inc_total(case_memb))
+						' mfip_elig_membs_deemer_initial_stndrd_ei_disregard(case_memb) = trim(mfip_elig_membs_deemer_initial_stndrd_ei_disregard(case_memb))
+						' mfip_elig_membs_deemer_initial_earned_inc_subtotal(case_memb) = trim(mfip_elig_membs_deemer_initial_earned_inc_subtotal(case_memb))
+						' mfip_elig_membs_deemer_initial_earned_inc_disregard(case_memb) = trim(mfip_elig_membs_deemer_initial_earned_inc_disregard(case_memb))
+						' mfip_elig_membs_deemer_initial_unearned_inc(case_memb) = trim(mfip_elig_membs_deemer_initial_unearned_inc(case_memb))
+						' mfip_elig_membs_deemer_initial_sub_total_counted_income(case_memb) = trim(mfip_elig_membs_deemer_initial_sub_total_counted_income(case_memb))
+						' mfip_elig_membs_deemer_initial_allocation(case_memb) = trim(mfip_elig_membs_deemer_initial_allocation(case_memb))
+						' mfip_elig_membs_deemer_initial_child_support(case_memb) = trim(mfip_elig_membs_deemer_initial_child_support(case_memb))
+						' mfip_elig_membs_deemer_initial_counted_income_total(case_memb) = trim(mfip_elig_membs_deemer_initial_counted_income_total(case_memb))
+
+					End If
+				Next
+				transmit
+
+				EMReadScreen back_to_menu, 14, 6, 29
+			Loop until back_to_menu = "Initial Income"
 		End If
 
 		Call write_value_and_transmit("X", 12, 20)				'CSES Exclusion Initiall Income calculation pop-up
+		EMWaitReady 0, 0
+		' MsgBox "CSES Exclusion Pop-Up"
 		EMReadScreen mfip_initial_income_cses_income, 10, 9, 52
 		EMReadScreen mfip_initial_income_cses_child_count, 2, 11, 37
 
@@ -1396,6 +1443,7 @@ class mfip_eligibility_detail
 		mfip_initial_income_cses_child_count = trim(mfip_initial_income_cses_child_count)
 
 		Call write_value_and_transmit("X", 9, 20)				'open cses initial income pop-up'
+		' MsgBox "CSES initial Income"
 
 		EMReadScreen mfip_initial_income_net_cses_income, 10, 19, 44
 		mfip_initial_income_net_cses_income = trim(mfip_initial_income_net_cses_income)
@@ -1418,8 +1466,12 @@ class mfip_eligibility_detail
 		Loop until next_ref_numb = "  "
 
 		PF3			'back to CSES Exclusion caclulaiton
+		' MsgBox "back to CSES Exclusion calculation"
 		PF3			'back to initial income calculation
+		' MsgBox "Back to Initial Income Pop-Up"
 		PF3			'back to main mf elig panel'
+		' MsgBox "Back to MFCR - 2"
+
 		Call write_value_and_transmit("X", 14, 44)						'NEW SPOUSE 275% INCOME
 		EMReadScreen mfip_12_month_start_date, 				8, 6, 46
 		EMReadScreen mfip_designated_spouse_ref_numb, 		2, 7, 46
@@ -1471,9 +1523,11 @@ class mfip_eligibility_detail
 		End If
 
 		PF3
+		' MsgBox "Back to MFCR - 3"
 
 
 		transmit			'MFBF
+		' MsgBox "In MFBF"
 		mfbf_row = 7
 		Do
 			EMReadScreen ref_numb, 2, mfbf_row, 3
@@ -1512,7 +1566,7 @@ class mfip_eligibility_detail
 		mfip_case_sanction_last_vendor_month = trim(mfip_case_sanction_last_vendor_month)
 
 		transmit			'MFB1
-
+		' MsgBox "In MFB1"
 		EMReadScreen mfip_case_budg_family_wage_level, 				10, 5, 32
 		EMReadScreen mfip_case_budg_monthly_earned_income, 			10, 6, 32
 		EMReadScreen mfip_case_budg_wage_level_earned_inc_difference, 10, 7, 32
@@ -1748,6 +1802,7 @@ class mfip_eligibility_detail
 		transmit
 
 		transmit			'MFB2
+		' MsgBox "In MFB2"
 		EMReadScreen mfip_case_budg_prorate_date, 8, 5, 19
 
 		EMReadScreen mfip_case_budg_fed_food_benefit, 			10, 7, 32
@@ -1838,7 +1893,7 @@ class mfip_eligibility_detail
 		transmit
 		' Call write_value_and_transmit("X", 16, 44)			'MFIP Housing Grant Issuance pop-up - there is not federal housing grant
 		transmit			'MFSM
-
+		' MsgBox "In MFSM"
 		EMReadScreen mfip_approved_date, 8, 3, 14
 		EMReadScreen mfip_process_date, 8, 2, 73
 		EMReadScreen mfip_prev_approval, 4, 3, 73
@@ -3107,6 +3162,370 @@ class ga_eligibility_detail
 
 		ga_elig_summ_worker_message = trim(ga_elig_summ_worker_message)
 
+
+		Call back_to_SELF
+	end sub
+end class
+
+class deny_eligibility_detail
+
+	public elig_footer_month
+	public elig_footer_year
+	public elig_version_number
+	public elig_version_date
+	public elig_version_result
+
+	public deny_cash_membs_ref_numbs()
+	public deny_cash_membs_full_name()
+	public deny_cash_membs_request_yn()
+	public deny_cash_membs_dwp_test_absence()
+	public deny_cash_membs_dwp_test_child_age()
+	public deny_cash_membs_dwp_test_citizenship()
+	public deny_cash_membs_dwp_test_citizenship_verif()
+	public deny_cash_membs_dwp_test_dupl_assist()
+	public deny_cash_membs_dwp_test_foster_care()
+	public deny_cash_membs_dwp_test_fraud()
+	public deny_cash_membs_dwp_test_minor_living_arrangement()
+	public deny_cash_membs_dwp_test_post_60_removal()
+	public deny_cash_membs_dwp_test_SSI()
+	public deny_cash_membs_dwp_test_SSN_coop()
+	public deny_cash_membs_dwp_test_Unit_member()
+	public deny_cash_membs_dwp_test_unlawful_conduct()
+	public deny_cash_membs_mfip_test_absence()
+	public deny_cash_membs_mfip_test_child_age()
+	public deny_cash_membs_mfip_test_citizenship()
+	public deny_cash_membs_mfip_test_citizenship_verif()
+	public deny_cash_membs_mfip_test_dupl_assist()
+	public deny_cash_membs_mfip_test_foster_care()
+	public deny_cash_membs_mfip_test_fraud()
+	public deny_cash_membs_mfip_test_minor_living_arrangement()
+	public deny_cash_membs_mfip_test_post_60_removal()
+	public deny_cash_membs_mfip_test_SSI()
+	public deny_cash_membs_mfip_test_SSN_coop()
+	public deny_cash_membs_mfip_test_Unit_member()
+	public deny_cash_membs_mfip_test_unlawful_conduct()
+	public deny_cash_membs_msa_test_absence()
+	public deny_cash_membs_msa_test_age()
+	public deny_cash_membs_msa_test_basis_of_elig()
+	public deny_cash_membs_msa_test_citizenship()
+	public deny_cash_membs_msa_test_dupl_assist()
+	public deny_cash_membs_msa_test_fail_coop()
+	public deny_cash_membs_msa_test_fraud()
+	public deny_cash_membs_msa_test_IVE_elig()
+	public deny_cash_membs_msa_test_living_arrangment()
+	public deny_cash_membs_msa_test_SSI_basis()
+	public deny_cash_membs_msa_test_SSN_coop()
+	public deny_cash_membs_msa_test_unit_member()
+	public deny_cash_membs_msa_test_verif()
+	public deny_cash_membs_ga_test_absence()
+	public deny_cash_membs_ga_test_basis_of_elig()
+	public deny_cash_membs_ga_test_dupl_assist()
+	public deny_cash_membs_ga_test_ga_coop()
+	public deny_cash_membs_ga_test_imig_status()
+	public deny_cash_membs_ga_test_imig_verif()
+	public deny_cash_membs_ga_test_IVE_elig()
+	public deny_cash_membs_ga_test_lump_sum_payment()
+	public deny_cash_membs_ga_test_SSI()
+	public deny_cash_membs_ga_test_SSN_coop()
+	public deny_cash_membs_ga_test_unit_member()
+
+	public deny_cash_dwp_reason_code
+	public deny_cash_mfip_reason_code
+	public deny_cash_msa_reason_code
+	public deny_cash_ga_reason_code
+	public deny_cash_dwp_reason_info
+	public deny_cash_mfip_reason_info
+	public deny_cash_msa_reason_info
+	public deny_cash_ga_reason_info
+	public deny_cash_worker_message_one
+	public deny_cash_worker_message_two
+	public deny_cash_worker_message_three
+
+	public sub read_elig()
+		call navigate_to_MAXIS_screen("ELIG", "DENY")
+		EMWriteScreen elig_footer_month, 19, 54
+		EMWriteScreen elig_footer_year, 19, 57
+		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result)
+
+		ReDim deny_cash_membs_ref_numbs(0)
+		ReDim deny_cash_membs_full_name(0)
+		ReDim deny_cash_membs_request_yn(0)
+		ReDim deny_cash_membs_dwp_test_absence(0)
+		ReDim deny_cash_membs_dwp_test_child_age(0)
+		ReDim deny_cash_membs_dwp_test_citizenship(0)
+		ReDim deny_cash_membs_dwp_test_citizenship_verif(0)
+		ReDim deny_cash_membs_dwp_test_dupl_assist(0)
+		ReDim deny_cash_membs_dwp_test_foster_care(0)
+		ReDim deny_cash_membs_dwp_test_fraud(0)
+		ReDim deny_cash_membs_dwp_test_minor_living_arrangement(0)
+		ReDim deny_cash_membs_dwp_test_post_60_removal(0)
+		ReDim deny_cash_membs_dwp_test_SSI(0)
+		ReDim deny_cash_membs_dwp_test_SSN_coop(0)
+		ReDim deny_cash_membs_dwp_test_Unit_member(0)
+		ReDim deny_cash_membs_dwp_test_unlawful_conduct(0)
+		ReDim deny_cash_membs_mfip_test_absence(0)
+		ReDim deny_cash_membs_mfip_test_child_age(0)
+		ReDim deny_cash_membs_mfip_test_citizenship(0)
+		ReDim deny_cash_membs_mfip_test_citizenship_verif(0)
+		ReDim deny_cash_membs_mfip_test_dupl_assist(0)
+		ReDim deny_cash_membs_mfip_test_foster_care(0)
+		ReDim deny_cash_membs_mfip_test_fraud(0)
+		ReDim deny_cash_membs_mfip_test_minor_living_arrangement(0)
+		ReDim deny_cash_membs_mfip_test_post_60_removal(0)
+		ReDim deny_cash_membs_mfip_test_SSI(0)
+		ReDim deny_cash_membs_mfip_test_SSN_coop(0)
+		ReDim deny_cash_membs_mfip_test_Unit_member(0)
+		ReDim deny_cash_membs_mfip_test_unlawful_conduct(0)
+		ReDim deny_cash_membs_msa_test_absence(0)
+		ReDim deny_cash_membs_msa_test_age(0)
+		ReDim deny_cash_membs_msa_test_basis_of_elig(0)
+		ReDim deny_cash_membs_msa_test_citizenship(0)
+		ReDim deny_cash_membs_msa_test_dupl_assist(0)
+		ReDim deny_cash_membs_msa_test_fail_coop(0)
+		ReDim deny_cash_membs_msa_test_fraud(0)
+		ReDim deny_cash_membs_msa_test_IVE_elig(0)
+		ReDim deny_cash_membs_msa_test_living_arrangment(0)
+		ReDim deny_cash_membs_msa_test_SSI_basis(0)
+		ReDim deny_cash_membs_msa_test_SSN_coop(0)
+		ReDim deny_cash_membs_msa_test_unit_member(0)
+		ReDim deny_cash_membs_msa_test_verif(0)
+		ReDim deny_cash_membs_ga_test_absence(0)
+		ReDim deny_cash_membs_ga_test_basis_of_elig(0)
+		ReDim deny_cash_membs_ga_test_dupl_assist(0)
+		ReDim deny_cash_membs_ga_test_ga_coop(0)
+		ReDim deny_cash_membs_ga_test_imig_status(0)
+		ReDim deny_cash_membs_ga_test_imig_verif(0)
+		ReDim deny_cash_membs_ga_test_IVE_elig(0)
+		ReDim deny_cash_membs_ga_test_lump_sum_payment(0)
+		ReDim deny_cash_membs_ga_test_SSI(0)
+		ReDim deny_cash_membs_ga_test_SSN_coop(0)
+		ReDim deny_cash_membs_ga_test_unit_member(0)
+
+		row = 8
+		memb_count = 0
+		Do
+			ReDim preserve deny_cash_membs_ref_numbs(memb_count)
+			ReDim preserve deny_cash_membs_full_name(memb_count)
+			ReDim preserve deny_cash_membs_request_yn(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_absence(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_child_age(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_citizenship(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_citizenship_verif(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_dupl_assist(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_foster_care(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_fraud(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_minor_living_arrangement(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_post_60_removal(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_SSI(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_SSN_coop(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_Unit_member(memb_count)
+			ReDim preserve deny_cash_membs_dwp_test_unlawful_conduct(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_absence(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_child_age(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_citizenship(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_citizenship_verif(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_dupl_assist(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_foster_care(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_fraud(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_minor_living_arrangement(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_post_60_removal(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_SSI(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_SSN_coop(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_Unit_member(memb_count)
+			ReDim preserve deny_cash_membs_mfip_test_unlawful_conduct(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_absence(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_age(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_basis_of_elig(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_citizenship(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_dupl_assist(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_fail_coop(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_fraud(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_IVE_elig(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_living_arrangment(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_SSI_basis(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_SSN_coop(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_unit_member(memb_count)
+			ReDim preserve deny_cash_membs_msa_test_verif(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_absence(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_basis_of_elig(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_dupl_assist(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_ga_coop(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_imig_status(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_imig_verif(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_IVE_elig(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_lump_sum_payment(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_SSI(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_SSN_coop(memb_count)
+			ReDim preserve deny_cash_membs_ga_test_unit_member(memb_count)
+
+			EMReadScreen deny_cash_membs_ref_numbs(memb_count), 2, row, 5
+			EMReadScreen deny_cash_membs_full_name(memb_count), 25, row, 11
+			EMReadScreen deny_cash_membs_request_yn(memb_count), 1, row, 42
+
+			Call write_value_and_transmit("X", row, 47)		'DWP Tests'
+			EMReadScreen deny_cash_membs_dwp_test_absence(memb_count), 				6, 7, 10
+			EMReadScreen deny_cash_membs_dwp_test_child_age(memb_count), 			6, 8, 10
+			EMReadScreen deny_cash_membs_dwp_test_citizenship(memb_count), 			6, 9, 10
+			EMReadScreen deny_cash_membs_dwp_test_citizenship_verif(memb_count), 	6, 10, 10
+			EMReadScreen deny_cash_membs_dwp_test_dupl_assist(memb_count), 			6, 11, 10
+			EMReadScreen deny_cash_membs_dwp_test_foster_care(memb_count), 			6, 12, 10
+			EMReadScreen deny_cash_membs_dwp_test_fraud(memb_count), 				6, 13, 10
+
+			EMReadScreen deny_cash_membs_dwp_test_minor_living_arrangement(memb_count), 6, 7, 42
+			EMReadScreen deny_cash_membs_dwp_test_post_60_removal(memb_count), 			6, 8, 42
+			EMReadScreen deny_cash_membs_dwp_test_SSI(memb_count), 						6, 9, 42
+			EMReadScreen deny_cash_membs_dwp_test_SSN_coop(memb_count), 				6, 10, 42
+			EMReadScreen deny_cash_membs_dwp_test_Unit_member(memb_count), 				6, 11, 42
+			EMReadScreen deny_cash_membs_dwp_test_unlawful_conduct(memb_count), 		6, 12, 42
+			transmit
+
+			Call write_value_and_transmit("X", row, 52)		'MFIP Tests'
+			EMReadScreen deny_cash_membs_mfip_test_absence(memb_count), 			6, 7, 10
+			EMReadScreen deny_cash_membs_mfip_test_child_age(memb_count), 			6, 8, 10
+			EMReadScreen deny_cash_membs_mfip_test_citizenship(memb_count), 		6, 9, 10
+			EMReadScreen deny_cash_membs_mfip_test_citizenship_verif(memb_count), 	6, 10, 10
+			EMReadScreen deny_cash_membs_mfip_test_dupl_assist(memb_count), 		6, 11, 10
+			EMReadScreen deny_cash_membs_mfip_test_foster_care(memb_count), 		6, 12, 10
+			EMReadScreen deny_cash_membs_mfip_test_fraud(memb_count), 				6, 13, 10
+
+			EMReadScreen deny_cash_membs_mfip_test_minor_living_arrangement(memb_count), 6, 7, 42
+			EMReadScreen deny_cash_membs_mfip_test_post_60_removal(memb_count), 		6, 8, 42
+			EMReadScreen deny_cash_membs_mfip_test_SSI(memb_count), 					6, 9, 42
+			EMReadScreen deny_cash_membs_mfip_test_SSN_coop(memb_count), 				6, 10, 42
+			EMReadScreen deny_cash_membs_mfip_test_Unit_member(memb_count), 			6, 11, 42
+			EMReadScreen deny_cash_membs_mfip_test_unlawful_conduct(memb_count), 		6, 12, 42
+			transmit
+
+			Call write_value_and_transmit("X", row, 67)		'MSA Tests'
+			EMReadScreen deny_cash_membs_msa_test_absence(memb_count), 			6, 7, 10
+			EMReadScreen deny_cash_membs_msa_test_age(memb_count), 				6, 8, 10
+			EMReadScreen deny_cash_membs_msa_test_basis_of_elig(memb_count), 	6, 9, 10
+			EMReadScreen deny_cash_membs_msa_test_citizenship(memb_count), 		6, 10, 10
+			EMReadScreen deny_cash_membs_msa_test_dupl_assist(memb_count), 		6, 11, 10
+			EMReadScreen deny_cash_membs_msa_test_fail_coop(memb_count), 		6, 12, 10
+			EMReadScreen deny_cash_membs_msa_test_fraud(memb_count), 			6, 13, 10
+
+			EMReadScreen deny_cash_membs_msa_test_IVE_elig(memb_count), 		6, 7, 42
+			EMReadScreen deny_cash_membs_msa_test_living_arrangment(memb_count), 6, 8, 42
+			EMReadScreen deny_cash_membs_msa_test_SSI_basis(memb_count), 		6, 9, 42
+			EMReadScreen deny_cash_membs_msa_test_SSN_coop(memb_count), 		6, 10, 42
+			EMReadScreen deny_cash_membs_msa_test_unit_member(memb_count), 		6, 11, 42
+			EMReadScreen deny_cash_membs_msa_test_verif(memb_count), 			6, 12, 42
+			transmit
+
+			Call write_value_and_transmit("X", row, 72)		'GA Tests'
+			EMReadScreen deny_cash_membs_ga_test_absence(memb_count), 		6, 7, 10
+			EMReadScreen deny_cash_membs_ga_test_basis_of_elig(memb_count), 6, 8, 10
+			EMReadScreen deny_cash_membs_ga_test_dupl_assist(memb_count), 	6, 9, 10
+			EMReadScreen deny_cash_membs_ga_test_ga_coop(memb_count), 		6, 10, 10
+			EMReadScreen deny_cash_membs_ga_test_imig_status(memb_count), 	6, 11, 10
+			EMReadScreen deny_cash_membs_ga_test_imig_verif(memb_count), 	6, 12, 10
+
+			EMReadScreen deny_cash_membs_ga_test_IVE_elig(memb_count), 			6, 7, 42
+			EMReadScreen deny_cash_membs_ga_test_lump_sum_payment(memb_count), 	6, 8, 42
+			EMReadScreen deny_cash_membs_ga_test_SSI(memb_count), 				6, 9, 42
+			EMReadScreen deny_cash_membs_ga_test_SSN_coop(memb_count), 			6, 10, 42
+			EMReadScreen deny_cash_membs_ga_test_unit_member(memb_count), 		6, 11, 42
+			transmit
+			row = row + 1
+			memb_count = memb_count + 1
+			EMReadScreen next_ref_number, 2, row, 5
+		Loop until next_ref_number = "  "
+
+		transmit 		'Move to the next panel - CASM
+
+		EMReadScreen deny_cash_dwp_reason_code, 2, 8, 46
+		EMReadScreen deny_cash_mfip_reason_code, 2, 9, 46
+		EMReadScreen deny_cash_msa_reason_code, 2, 12, 46
+		EMReadScreen deny_cash_ga_reason_code, 2, 13, 46
+
+		If deny_cash_dwp_reason_code = "" Then deny_cash_dwp_reason_info = ""
+		If deny_cash_dwp_reason_code = "01" Then deny_cash_dwp_reason_info = "No Eligible Child"
+		If deny_cash_dwp_reason_code = "02" Then deny_cash_dwp_reason_info = "Application Withdrawn"
+		If deny_cash_dwp_reason_code = "03" Then deny_cash_dwp_reason_info = "Initial Income"
+		If deny_cash_dwp_reason_code = "04" Then deny_cash_dwp_reason_info = "Assets"
+		If deny_cash_dwp_reason_code = "05" Then deny_cash_dwp_reason_info = "Fail To Cooperate"
+		If deny_cash_dwp_reason_code = "06" Then deny_cash_dwp_reason_info = "Child Support Disqualification"
+		If deny_cash_dwp_reason_code = "07" Then deny_cash_dwp_reason_info = "Employment Services Disqualification"
+		If deny_cash_dwp_reason_code = "08" Then deny_cash_dwp_reason_info = "Death"
+		If deny_cash_dwp_reason_code = "09" Then deny_cash_dwp_reason_info = "Residence"
+		If deny_cash_dwp_reason_code = "10" Then deny_cash_dwp_reason_info = "Transfer of Resources"
+		If deny_cash_dwp_reason_code = "11" Then deny_cash_dwp_reason_info = "Verification"
+		If deny_cash_dwp_reason_code = "12" Then deny_cash_dwp_reason_info = "Strike"
+		If deny_cash_dwp_reason_code = "13" Then deny_cash_dwp_reason_info = "Program Active"
+		If deny_cash_dwp_reason_code = "14" Then deny_cash_dwp_reason_info = "4 Month Limit"
+		If deny_cash_dwp_reason_code = "15" Then deny_cash_dwp_reason_info = "MFIP Conversion"
+		If deny_cash_dwp_reason_code = "23" Then deny_cash_dwp_reason_info = "Duplicate Assistance"
+		If deny_cash_dwp_reason_code = "99" Then deny_cash_dwp_reason_info = "PND2 Denial"
+		If deny_cash_dwp_reason_code = "TL" Then deny_cash_dwp_reason_info = "TANF Time Limit"
+
+		If deny_cash_mfip_reason_code = "" Then deny_cash_mfip_reason_info = ""
+		If deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_reason_info = "No Eligible Child"
+		If deny_cash_mfip_reason_code = "02" Then deny_cash_mfip_reason_info = "Application Withdrawn"
+		If deny_cash_mfip_reason_code = "03" Then deny_cash_mfip_reason_info = "Initial Income"
+		If deny_cash_mfip_reason_code = "04" Then deny_cash_mfip_reason_info = "Monthly Income"
+		If deny_cash_mfip_reason_code = "05" Then deny_cash_mfip_reason_info = "Assets"
+		If deny_cash_mfip_reason_code = "06" Then deny_cash_mfip_reason_info = "Fail To Cooperate"
+		If deny_cash_mfip_reason_code = "07" Then deny_cash_mfip_reason_info = "Fail To Cooperate with IEVS"
+		If deny_cash_mfip_reason_code = "08" Then deny_cash_mfip_reason_info = "Death"
+		If deny_cash_mfip_reason_code = "09" Then deny_cash_mfip_reason_info = "Residence"
+		If deny_cash_mfip_reason_code = "10" Then deny_cash_mfip_reason_info = "Transfer of Resources"
+		If deny_cash_mfip_reason_code = "11" Then deny_cash_mfip_reason_info = "Verification"
+		If deny_cash_mfip_reason_code = "12" Then deny_cash_mfip_reason_info = "Strike"
+		If deny_cash_mfip_reason_code = "13" Then deny_cash_mfip_reason_info = "Fail To File"
+		If deny_cash_mfip_reason_code = "14" Then deny_cash_mfip_reason_info = "Program Active"
+		If deny_cash_mfip_reason_code = "23" Then deny_cash_mfip_reason_info = "Duplicate Assistance"
+		If deny_cash_mfip_reason_code = "24" Then deny_cash_mfip_reason_info = "Minor Living Arrangement"
+		If deny_cash_mfip_reason_code = "TL" Then deny_cash_mfip_reason_info = "TANF Time Limit"
+		If deny_cash_mfip_reason_code = "33" Then deny_cash_mfip_reason_info = "Diversionary Work Program"
+		If deny_cash_mfip_reason_code = "34" Then deny_cash_mfip_reason_info = "Sanction Period"
+		If deny_cash_mfip_reason_code = "35" Then deny_cash_mfip_reason_info = "Sanction Date Compliance"
+		If deny_cash_mfip_reason_code = "99" Then deny_cash_mfip_reason_info = "PND2 Denial System Entered"
+
+		If deny_cash_msa_reason_code = "" Then deny_cash_msa_reason_info = ""
+		If deny_cash_msa_reason_code = "01" Then deny_cash_msa_reason_info = "No Eligible Member"
+		If deny_cash_msa_reason_code = "03" Then deny_cash_msa_reason_info = "Verification"
+		If deny_cash_msa_reason_code = "08" Then deny_cash_msa_reason_info = "Application Withdrawn"
+		If deny_cash_msa_reason_code = "10" Then deny_cash_msa_reason_info = "Residence"
+		If deny_cash_msa_reason_code = "11" Then deny_cash_msa_reason_info = "Assets"
+		If deny_cash_msa_reason_code = "24" Then deny_cash_msa_reason_info = "Program Active"
+		If deny_cash_msa_reason_code = "28" Then deny_cash_msa_reason_info = "Fail To File"
+		If deny_cash_msa_reason_code = "29" Then deny_cash_msa_reason_info = "Applicant Eligible"
+		If deny_cash_msa_reason_code = "30" Then deny_cash_msa_reason_info = "Prospective Gross Income"
+		If deny_cash_msa_reason_code = "31" Then deny_cash_msa_reason_info = "Prospective Net Income"
+		If deny_cash_msa_reason_code = "99" Then deny_cash_msa_reason_info = "PND2 Denial System Entered"
+
+		If deny_cash_ga_reason_code = "" Then deny_cash_ga_reason_info = ""
+		If deny_cash_ga_reason_code = "01" Then deny_cash_ga_reason_info = "No Eligible Person"
+		If deny_cash_ga_reason_code = "02" Then deny_cash_ga_reason_info = "Net Income"
+		If deny_cash_ga_reason_code = "03" Then deny_cash_ga_reason_info = "Verification"
+		If deny_cash_ga_reason_code = "04" Then deny_cash_ga_reason_info = "Non Cooperation"
+		If deny_cash_ga_reason_code = "06" Then deny_cash_ga_reason_info = "Other Benefits"
+		If deny_cash_ga_reason_code = "07" Then deny_cash_ga_reason_info = "Address Unknown"
+		If deny_cash_ga_reason_code = "08" Then deny_cash_ga_reason_info = "Application Withdrawn"
+		If deny_cash_ga_reason_code = "09" Then deny_cash_ga_reason_info = "Client Request"
+		If deny_cash_ga_reason_code = "10" Then deny_cash_ga_reason_info = "Residence"
+		If deny_cash_ga_reason_code = "11" Then deny_cash_ga_reason_info = "Assets"
+		If deny_cash_ga_reason_code = "12" Then deny_cash_ga_reason_info = "Transfer of Resource"
+		If deny_cash_ga_reason_code = "14" Then deny_cash_ga_reason_info = "Interim Assistance Agreement"
+		If deny_cash_ga_reason_code = "15" Then deny_cash_ga_reason_info = "Out Of County"
+		If deny_cash_ga_reason_code = "16" Then deny_cash_ga_reason_info = "Disqualify"
+		If deny_cash_ga_reason_code = "17" Then deny_cash_ga_reason_info = "Interview"
+		If deny_cash_ga_reason_code = "19" Then deny_cash_ga_reason_info = "Fail to File"
+		If deny_cash_ga_reason_code = "21" Then deny_cash_ga_reason_info = "Duplicate Assistance"
+		If deny_cash_ga_reason_code = "22" Then deny_cash_ga_reason_info = "Death"
+		If deny_cash_ga_reason_code = "23" Then deny_cash_ga_reason_info = "Eligible Other Benefits"
+		If deny_cash_ga_reason_code = "26" Then deny_cash_ga_reason_info = "Program Active"
+		If deny_cash_ga_reason_code = "29" Then deny_cash_ga_reason_info = "Lump Sum"
+		If deny_cash_ga_reason_code = "99" Then deny_cash_ga_reason_info = "PND2 Denial System Entered"
+
+		EMReadScreen deny_cash_worker_message_one, 75, 16, 2
+		EMReadScreen deny_cash_worker_message_two, 75, 17, 2
+		EMReadScreen deny_cash_worker_message_three, 75, 18, 2
+
+		deny_cash_worker_message_one = trim(deny_cash_worker_message_one)
+		deny_cash_worker_message_two = trim(deny_cash_worker_message_two)
+		deny_cash_worker_message_three = trim(deny_cash_worker_message_three)
 
 		Call back_to_SELF
 	end sub
@@ -5812,7 +6231,7 @@ msa_elig_months_count = 0
 ga_elig_months_count = 0
 cash_deny_months_count = 0
 grh_elig_months_count = 0
-ive_elig_months_count = 0
+' ive_elig_months_count = 0
 emer_elig_months_count = 0
 snap_elig_months_count = 0
 
@@ -5854,7 +6273,7 @@ For each footer_month in MONTHS_ARRAY
 	EMReadScreen numb_MFIP_versions, 		1, 8, 40
 	EMReadScreen numb_MSA_versions, 		1, 11, 40
 	EMReadScreen numb_GA_versions, 			1, 12, 40
-	' EMReadScreen numb_CASH_denial_versions, 1, 13, 40
+	EMReadScreen numb_CASH_denial_versions, 1, 13, 40
 	EMReadScreen numb_GRH_versions, 		1, 14, 40
 	' EMReadScreen numb_IVE_versions, 		1, 15, 40
 	' EMReadScreen numb_EMER_versions, 		1, 16, 40		- WE WILL NOT LOOK AT THIS EVERY MONTH
@@ -5880,6 +6299,7 @@ For each footer_month in MONTHS_ARRAY
 	End If
 
 	If numb_MFIP_versions <> " " Then
+		MsgBox "In MFIP"
 		ReDim Preserve MFIP_ELIG_APPROVALS(mfip_elig_months_count)
 		Set MFIP_ELIG_APPROVALS(mfip_elig_months_count) = new mfip_eligibility_detail
 
@@ -5888,14 +6308,15 @@ For each footer_month in MONTHS_ARRAY
 
 		Call MFIP_ELIG_APPROVALS(mfip_elig_months_count).read_elig
 
-		' MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant & vbCr &_
-		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
+		MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
+		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount & vbCr &_
+		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion & vbCr &_
+		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion & vbCr &_
+		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant & vbCr &_
+		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
 
 		mfip_elig_months_count = mfip_elig_months_count + 1
+		MsgBox "mfip_elig_months_count: " & mfip_elig_months_count
 	End If
 
 	If numb_MSA_versions <> " " Then
@@ -5928,6 +6349,31 @@ For each footer_month in MONTHS_ARRAY
 		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result
 
 		ga_elig_months_count = ga_elig_months_count + 1
+	End If
+
+	If numb_CASH_denial_versions <> " " Then
+		ReDim Preserve CASH_DENIAL_APPROVALS(cash_deny_months_count)
+		Set CASH_DENIAL_APPROVALS(cash_deny_months_count) = new deny_eligibility_detail
+
+		CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_month = MAXIS_footer_month
+		CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_year = MAXIS_footer_year
+
+		Call CASH_DENIAL_APPROVALS(cash_deny_months_count).read_elig
+
+		members = ""
+		for each_memb = 0 to UBound(CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_ref_numbs)
+			members = members & "MEMB " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_ref_numbs(each_memb) & " - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_full_name(each_memb) & " Request: " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_request_yn(each_memb)
+			members = members & vbCr
+		Next
+
+		MsgBox "CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_month - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_month & vbCr & "CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_year - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_year & vbCr &_
+		"CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_dwp_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_dwp_reason_info & vbCr &_
+		"CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_mfip_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_mfip_reason_info & vbCr &_
+		"CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_msa_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_msa_reason_info & vbCr &_
+		"CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info & vbCr &_
+		members
+
+		cash_deny_months_count = cash_deny_months_count + 1
 	End If
 
 	If numb_GRH_versions <> " " Then
