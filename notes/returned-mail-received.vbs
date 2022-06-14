@@ -245,38 +245,35 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 		reservation_name = "N/A"
 	END IF
 
-	Call remove_dash_from_droplist(county_list)
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
 	IF ADDR_actions = "forwarding address in MN" or ADDR_actions = "forwarding address outside MN" THEN
-	    BeginDialog Dialog1, 0, 0, 206, 240, "RETURNED MAIL PROCESSING"
-         CheckBox 10, 15, 75, 10, "Returned Mail/Other", return_mail_checkbox
-         CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
-         CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
-         CheckBox 100, 25, 100, 10, "Change Report (DHS-2402)", CRF_checkbox
-         EditBox 40, 55, 155, 15, new_addr_line_one
-         EditBox 40, 75, 155, 15, new_addr_line_two
-         EditBox 40, 95, 155, 15, new_addr_city
-         EditBox 40, 115, 20, 15, new_addr_state
-         EditBox 155, 115, 40, 15, new_addr_zip
-         DropListBox 130, 140, 65, 15, "Select:"+chr(9)+county_list, county_code
-         DropListBox 140, 165, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr_correspondence
-         EditBox 140, 180, 55, 15, mets_case_number
-         EditBox 55, 200, 140, 15, other_notes
-         ButtonGroup ButtonPressed
-         OkButton 95, 220, 50, 15
-         CancelButton 145, 220, 50, 15
-         GroupBox 5, 5, 195, 35, "Verification Request Includes:"
-         GroupBox 5, 40, 195, 120, "forwarding Address:"
-         Text 10, 60, 25, 10, "Street:"
-         Text 10, 100, 15, 10, "City:"
-         Text 10, 120, 20, 10, "State:"
-         Text 120, 120, 30, 10, "Zip code:"
-         Text 100, 145, 25, 10, "County:"
-         Text 10, 170, 95, 10, "METS correspondence sent:"
-         Text 10, 185, 70, 10, "METS case number:"
-         Text 10, 205, 40, 10, "Other notes:"
-        EndDialog
+    	BeginDialog Dialog1, 0, 0, 206, 215, "RETURNED MAIL PROCESSING"
+    	  CheckBox 10, 15, 75, 10, "Returned Mail/Other", return_mail_checkbox
+    	  CheckBox 100, 15, 90, 10, "Shelter Form (DHS-2952)", SVF_checkbox
+    	  CheckBox 10, 25, 80, 10, "Verification Request", verif_request_checkbox
+    	  CheckBox 100, 25, 100, 10, "Change Report (DHS-2402)", CRF_checkbox
+    	  EditBox 40, 55, 155, 15, new_addr_line_one
+    	  EditBox 40, 75, 155, 15, new_addr_line_two
+    	  EditBox 40, 95, 155, 15, new_addr_city
+    	  EditBox 40, 115, 20, 15, new_addr_state
+    	  EditBox 155, 115, 40, 15, new_addr_zip
+    	  DropListBox 145, 140, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO"+chr(9)+"N/A", mets_addr_correspondence
+    	  EditBox 145, 155, 55, 15, mets_case_number
+    	  EditBox 60, 175, 140, 15, other_notes
+    	  ButtonGroup ButtonPressed
+    	    OkButton 95, 195, 50, 15
+    	    CancelButton 150, 195, 50, 15
+    	  GroupBox 5, 5, 195, 35, "Verification Request Includes:"
+    	  GroupBox 5, 40, 195, 95, "Forwarding Address:"
+    	  Text 10, 60, 25, 10, "Street:"
+    	  Text 10, 100, 15, 10, "City:"
+    	  Text 10, 120, 20, 10, "State:"
+    	  Text 120, 120, 30, 10, "Zip code:"
+    	  Text 10, 145, 95, 10, "METS correspondence sent:"
+    	  Text 10, 160, 70, 10, "METS case number:"
+    	  Text 10, 180, 40, 10, "Other notes:"
+    	EndDialog
 
     	DO
     		DO
@@ -302,8 +299,6 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
     	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 		new_addr_street_full = ""
-
-		IF county_code = "89" THEN 
 
 		begining_of_footer_month = MAXIS_footer_month & "/1/" & MAXIS_footer_year
 		begining_of_footer_month = DateAdd("d", 0, begining_of_footer_month)
@@ -427,12 +422,12 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Client contacted", client_contact_d
 IF mailing_address_confirmed = "YES" THEN  'Address Detail
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & mail_line_one)
 	If mail_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                             " & mail_line_two)
-	CALL write_variable_in_CASE_NOTE("                             " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
+	CALL write_variable_in_CASE_NOTE("                               " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
 END IF
 IF residential_address_confirmed = "YES" THEN
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & resi_addr_line_one)
 	If resi_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                               " & resi_addr_line_two)
-	CALL write_variable_in_CASE_NOTE("                               " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
+	CALL write_variable_in_CASE_NOTE("         		                      " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
 	CALL write_bullet_and_variable_in_case_note("Verification(s) received", pending_verifs)
 END IF
 IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household is homeless")
@@ -515,5 +510,7 @@ Call script_end_procedure_with_error_report(closing_message)
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/14/2022
 '--Complete misc. documentation (if applicable)---------------------------------06/14/2022
 '--Update project team/issue contact (if applicable)----------------------------06/14/2022
-'--Other Note-------------------------------------------------------------------The reason we updated the residential instead of the mailing address is the inibaiting errors that occur when updating the panel
+'--Other Note-------------------------------------------------------------------The reason we updated the residential instead of the mailing address is the inibiting errors that occur when updating the panel
 'the last iteration this was discussed at length and the determinaition was made to leave the residential address and only update mailing although that has not been the best practive at Hennepin Co. I have sent 3 Pf11 about this clarification '
+'COUNTY OF RESIDENCE CANNOT BE 89 WHEN STATE IS MN - we are not updating the residential piece'
+'SNAP 2. On STAT/ADDR, enter the new address from the returned mail envelope.  Enter "OT" in the verification field. We are not updating OT as it is in the residential area of the script
