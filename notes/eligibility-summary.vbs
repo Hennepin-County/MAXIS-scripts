@@ -6102,6 +6102,1103 @@ class snap_eligibility_detail
 
 end class
 
+class hc_eligibility_detail
+	public elig_footer_month
+	public elig_footer_year
+	' public elig_version_number
+	' public elig_version_date
+	' public elig_version_result
+
+	public hc_elig_ref_numbs()
+	public hc_elig_full_name()
+	public hc_prog_elig_appd()
+	public hc_prog_elig_major_program()
+	public hc_prog_elig_eligibility_result()
+	public hc_prog_elig_status()
+	public hc_prog_elig_app_indc()
+	public hc_prog_elig_magi_excempt()
+	public hc_prog_elig_process_date()
+	public hc_prog_elig_source_of_info()
+	public hc_prog_elig_responsible_county()
+	public hc_prog_elig_servicing_county()
+	public hc_prog_elig_test_application_withdrawn()
+	public hc_prog_elig_test_application_process_incomplete()
+	public hc_prog_elig_test_no_new_prog_eligibility()
+	public hc_prog_elig_test_assistance_unit()
+	public hc_prog_elig_worker_msg_one()
+	public hc_prog_elig_worker_msg_two()
+	public hc_prog_elig_elig_type()
+	public hc_prog_elig_elig_standard()
+	public hc_prog_elig_method()
+	public hc_prog_elig_waiver()
+	public hc_prog_elig_total_net_income()
+	public hc_prog_elig_standard()
+	public hc_prog_elig_excess_income()
+	public hc_prog_elig_test_absence()
+	public hc_prog_elig_test_assets()
+	public hc_prog_elig_test_citizenship()
+	public hc_prog_elig_test_coop()
+	public hc_prog_elig_test_correctional_faci()
+	public hc_prog_elig_test_death()
+	public hc_prog_elig_test_elig_other_prog()
+	public hc_prog_elig_test_fail_file()
+	public hc_prog_elig_test_IMD()
+	public hc_prog_elig_test_uncompensated_transfer()
+	public hc_prog_elig_test_income()
+	public hc_prog_elig_test_medicare_elig()
+	public hc_prog_elig_test_MNSure_system()
+	public hc_prog_elig_test_Obligation_one_mo()
+	public hc_prog_elig_test_obligation_six_mo()
+	public hc_prog_elig_test_other_health_ins()
+	public hc_prog_elig_test_parent()
+	public hc_prog_elig_test_residence()
+	public hc_prog_elig_test_verif()
+	public hc_prog_elig_test_withdrawn()
+	public hc_prog_elig_test_coop_pben_cash()
+	public hc_prog_elig_test_coop_pben_smrt()
+	public hc_prog_elig_test_coop_pben()
+	public hc_prog_elig_test_coop_fail_provide_info()
+	public hc_prog_elig_test_coop_IEVS()
+	public hc_prog_elig_test_coop_medical_support()
+	public hc_prog_elig_test_coop_other_health_ins()
+	public hc_prog_elig_test_coop_SSN()
+	public hc_prog_elig_test_coop_third_party_liability()
+	public hc_prog_elig_test_fail_file_HRF()
+	public hc_prog_elig_test_fail_file_IR()
+	public hc_prog_elig_test_fail_file_AR()
+	public hc_prog_elig_test_fail_file_ER()
+	public hc_prog_elig_test_fail_file_quarterly_TYMA()
+	public hc_prog_elig_test_verif_ACCT()
+	public hc_prog_elig_test_verif_BUSI()
+	public hc_prog_elig_test_verif_JOBS()
+	public hc_prog_elig_test_verif_IMIG_status()
+	public hc_prog_elig_test_verif_LUMP()
+	public hc_prog_elig_test_verif_OTHR()
+	public hc_prog_elig_test_verif_PBEN()
+	public hc_prog_elig_test_verif_PREG()
+	public hc_prog_elig_test_verif_RBIC()
+	public hc_prog_elig_test_verif_REST()
+	public hc_prog_elig_test_verif_SECU()
+	public hc_prog_elig_test_verif_SPON()
+	public hc_prog_elig_test_verif_TRAN()
+	public hc_prog_elig_test_verif_UNEA()
+	public hc_prog_elig_test_verif_cit_id()
+	public hc_prog_elig_test_verif_CARS()
+	public hc_prog_elig_hh_size()
+	public hc_prog_elig_members_whose_income_counts()
+	public hc_prog_elig_members_whose_income_counts_list()
+	public hc_prog_elig_PTMA()
+	public hc_prog_elig_elig_standard_percent()
+	public hc_prog_elig_basis()
+	public hc_prog_elig_budg_gross_unearned()
+	public hc_prog_elig_budg_excluded_unearned()
+	public hc_prog_elig_budg_unearned_deduction()
+	public hc_prog_elig_budg_net_unearned_income()
+	public hc_prog_elig_budg_gross_earned()
+	public hc_prog_elig_budg_excluded_earned()
+	public hc_prog_elig_budg_work_exp_deduction()
+	public hc_prog_elig_budg_earned_disregarrd()
+	public hc_prog_elig_budg_dependent_care()
+	public hc_prog_elig_budg_earned_deduction()
+	public hc_prog_elig_budg_net_earned_income()
+	public hc_prog_elig_budg_child_sup_deduction()
+	public hc_prog_elig_budg_deemed_income()
+	public hc_prog_elig_budg_total_net_income()
+	public hc_prog_elig_budg_income_standard()
+	public hc_prog_elig_budg_spenddown()
+	public hc_prog_elig_budg_transfer_penalty()
+	public hc_prog_elig_budg_total_liability()
+	public hc_prog_elig_budg_deemed_earned()
+	public hc_prog_elig_budg_countable_earrned_income()
+	public hc_prog_elig_budg_subtotal_countable_income()
+	public hc_prog_elig_budg_va_aid_attendincome()
+	public hc_prog_elig_budg_total_countable_income()
+	public hc_prog_elig_budg_LTC_exclusions()
+	public hc_prog_elig_budg_medicare_premium()
+	public hc_prog_elig_budg_maint_needs_allowance()
+	public hc_prog_elig_budg_guardian_rep_payee_fee()
+	public hc_prog_elig_budg_spousal_allocation()
+	public hc_prog_elig_budg_family_allocation()
+	public hc_prog_elig_budg_health_ins_premium()
+	public hc_prog_elig_budg_other_medical_expense()
+	public hc_prog_elig_budg_SSI_1611_benefit()
+	public hc_prog_elig_budg_other_deductions()
+	public hc_prog_elig_budg_waiver_obligation()
+	public hc_prog_elig_budg_person_clothing_needs()
+	public hc_prog_elig_budg_LTC_spenddown()
+	public hc_prog_elig_budg_medical_spenddown()
+	public hc_prog_elig_mobl_result()
+	public hc_prog_elig_mobl_type()
+	public hc_prog_elig_mobl_period()
+	public hc_prog_elig_spdn_option()
+	public hc_prog_elig_spdn_type()
+	public hc_prog_elig_spdn_method()
+	public hc_prog_elig_spdn_covered_pop()
+	public hc_prog_elig_original_monthly_spdn()
+	public hc_prog_elig_monthly_spdn_counted_bills()
+	public hc_prog_elig_monthly_spdn_satisfaction_date()
+	public hc_prog_elig_monthly_spdn_recipient_amount()
+	public hc_prog_elig_monthly_spdn_balance()
+	public hc_prog_elig_oiginal_six_mo_spdn()
+	public hc_prog_elig_six_mo_spdn_counted_bills()
+	public hc_prog_elig_six_mo_spnd_satisfaction_date()
+	public hc_prog_elig_six_mo_spdn_recipient_amount()
+	public hc_prog_elig_six_mo_spdn_unused_balance()
+	public hc_prog_elig_cert_prd_total_net_income()
+	public hc_prog_elig_cert_prd_total_standard()
+	public hc_prog_elig_cert_prd_total_excess_income()
+	public hc_prog_elig_app_date()
+	public hc_prog_elig_curr_prog_status()
+	public hc_prog_elig_elig_result()
+	public hc_prog_elig_elig_begin_date()
+	public hc_prog_elig_HRF_reporting()
+	public hc_prog_elig_ER_date()
+	public hc_prog_elig_SR_date()
+	public hc_prog_elig_TYMA_begin_date()
+	public hc_prog_elig_TYMA_type()
+	public hc_prog_elig_budg_deemed_unearned()
+	public hc_prog_elig_budg_standard_disregard()
+	public hc_prog_elig_budg_excess_income()
+	public hc_prog_elig_test_after_processing_month()
+	public hc_prog_elig_test_basis_for_other_prog()
+	public hc_prog_elig_test_medicare_part_a()
+	' public
+
+	public sub read_elig()
+
+		ReDim hc_elig_ref_numbs(0)
+		ReDim hc_elig_full_name(0)
+		ReDim hc_prog_elig_appd(0)
+		ReDim hc_prog_elig_major_program(0)
+		ReDim hc_prog_elig_eligibility_result(0)
+		ReDim hc_prog_elig_status(0)
+		ReDim hc_prog_elig_app_indc(0)
+		ReDim hc_prog_elig_magi_excempt(0)
+		ReDim hc_prog_elig_process_date(0)
+		ReDim hc_prog_elig_source_of_info(0)
+		ReDim hc_prog_elig_responsible_county(0)
+		ReDim hc_prog_elig_servicing_county(0)
+		ReDim hc_prog_elig_test_application_withdrawn(0)
+		ReDim hc_prog_elig_test_application_process_incomplete(0)
+		ReDim hc_prog_elig_test_no_new_prog_eligibility(0)
+		ReDim hc_prog_elig_test_assistance_unit(0)
+		ReDim hc_prog_elig_worker_msg_one(0)
+		ReDim hc_prog_elig_worker_msg_two(0)
+		ReDim hc_prog_elig_elig_type(0)
+		ReDim hc_prog_elig_elig_standard(0)
+		ReDim hc_prog_elig_method(0)
+		ReDim hc_prog_elig_waiver(0)
+		ReDim hc_prog_elig_total_net_income(0)
+		ReDim hc_prog_elig_standard(0)
+		ReDim hc_prog_elig_excess_income(0)
+		ReDim hc_prog_elig_test_absence(0)
+		ReDim hc_prog_elig_test_assets(0)
+		ReDim hc_prog_elig_test_citizenship(0)
+		ReDim hc_prog_elig_test_coop(0)
+		ReDim hc_prog_elig_test_correctional_faci(0)
+		ReDim hc_prog_elig_test_death(0)
+		ReDim hc_prog_elig_test_elig_other_prog(0)
+		ReDim hc_prog_elig_test_fail_file(0)
+		ReDim hc_prog_elig_test_IMD(0)
+		ReDim hc_prog_elig_test_uncompensated_transfer(0)
+		ReDim hc_prog_elig_test_income(0)
+		ReDim hc_prog_elig_test_medicare_elig(0)
+		ReDim hc_prog_elig_test_MNSure_system(0)
+		ReDim hc_prog_elig_test_Obligation_one_mo(0)
+		ReDim hc_prog_elig_test_obligation_six_mo(0)
+		ReDim hc_prog_elig_test_other_health_ins(0)
+		ReDim hc_prog_elig_test_parent(0)
+		ReDim hc_prog_elig_test_residence(0)
+		ReDim hc_prog_elig_test_verif(0)
+		ReDim hc_prog_elig_test_withdrawn(0)
+		ReDim hc_prog_elig_test_coop_pben_cash(0)
+		ReDim hc_prog_elig_test_coop_pben_smrt(0)
+		ReDim hc_prog_elig_test_coop_pben(0)
+		ReDim hc_prog_elig_test_coop_fail_provide_info(0)
+		ReDim hc_prog_elig_test_coop_IEVS(0)
+		ReDim hc_prog_elig_test_coop_medical_support(0)
+		ReDim hc_prog_elig_test_coop_other_health_ins(0)
+		ReDim hc_prog_elig_test_coop_SSN(0)
+		ReDim hc_prog_elig_test_coop_third_party_liability(0)
+		ReDim hc_prog_elig_test_fail_file_HRF(0)
+		ReDim hc_prog_elig_test_fail_file_IR(0)
+		ReDim hc_prog_elig_test_fail_file_AR(0)
+		ReDim hc_prog_elig_test_fail_file_ER(0)
+		ReDim hc_prog_elig_test_fail_file_quarterly_TYMA(0)
+		ReDim hc_prog_elig_test_verif_ACCT(0)
+		ReDim hc_prog_elig_test_verif_BUSI(0)
+		ReDim hc_prog_elig_test_verif_JOBS(0)
+		ReDim hc_prog_elig_test_verif_IMIG_status(0)
+		ReDim hc_prog_elig_test_verif_LUMP(0)
+		ReDim hc_prog_elig_test_verif_OTHR(0)
+		ReDim hc_prog_elig_test_verif_PBEN(0)
+		ReDim hc_prog_elig_test_verif_PREG(0)
+		ReDim hc_prog_elig_test_verif_RBIC(0)
+		ReDim hc_prog_elig_test_verif_REST(0)
+		ReDim hc_prog_elig_test_verif_SECU(0)
+		ReDim hc_prog_elig_test_verif_SPON(0)
+		ReDim hc_prog_elig_test_verif_TRAN(0)
+		ReDim hc_prog_elig_test_verif_UNEA(0)
+		ReDim hc_prog_elig_test_verif_cit_id(0)
+		ReDim hc_prog_elig_test_verif_CARS(0)
+		ReDim hc_prog_elig_hh_size(0)
+		ReDim hc_prog_elig_members_whose_income_counts(0)
+		ReDim hc_prog_elig_members_whose_income_counts_list(0)
+		ReDim hc_prog_elig_PTMA(0)
+		ReDim hc_prog_elig_elig_standard_percent(0)
+		ReDim hc_prog_elig_basis(0)
+		ReDim hc_prog_elig_budg_gross_unearned(0)
+		ReDim hc_prog_elig_budg_excluded_unearned(0)
+		ReDim hc_prog_elig_budg_unearned_deduction(0)
+		ReDim hc_prog_elig_budg_net_unearned_income(0)
+		ReDim hc_prog_elig_budg_gross_earned(0)
+		ReDim hc_prog_elig_budg_excluded_earned(0)
+		ReDim hc_prog_elig_budg_work_exp_deduction(0)
+		ReDim hc_prog_elig_budg_earned_disregarrd(0)
+		ReDim hc_prog_elig_budg_dependent_care(0)
+		ReDim hc_prog_elig_budg_earned_deduction(0)
+		ReDim hc_prog_elig_budg_net_earned_income(0)
+		ReDim hc_prog_elig_budg_child_sup_deduction(0)
+		ReDim hc_prog_elig_budg_deemed_income(0)
+		ReDim hc_prog_elig_budg_total_net_income(0)
+		ReDim hc_prog_elig_budg_income_standard(0)
+		ReDim hc_prog_elig_budg_spenddown(0)
+		ReDim hc_prog_elig_budg_transfer_penalty(0)
+		ReDim hc_prog_elig_budg_total_liability(0)
+		ReDim hc_prog_elig_budg_deemed_earned(0)
+		ReDim hc_prog_elig_budg_countable_earrned_income(0)
+		ReDim hc_prog_elig_budg_subtotal_countable_income(0)
+		ReDim hc_prog_elig_budg_va_aid_attendincome(0)
+		ReDim hc_prog_elig_budg_total_countable_income(0)
+		ReDim hc_prog_elig_budg_LTC_exclusions(0)
+		ReDim hc_prog_elig_budg_medicare_premium(0)
+		ReDim hc_prog_elig_budg_maint_needs_allowance(0)
+		ReDim hc_prog_elig_budg_guardian_rep_payee_fee(0)
+		ReDim hc_prog_elig_budg_spousal_allocation(0)
+		ReDim hc_prog_elig_budg_family_allocation(0)
+		ReDim hc_prog_elig_budg_health_ins_premium(0)
+		ReDim hc_prog_elig_budg_other_medical_expense(0)
+		ReDim hc_prog_elig_budg_SSI_1611_benefit(0)
+		ReDim hc_prog_elig_budg_other_deductions(0)
+		ReDim hc_prog_elig_budg_waiver_obligation(0)
+		ReDim hc_prog_elig_budg_person_clothing_needs(0)
+		ReDim hc_prog_elig_budg_LTC_spenddown(0)
+		ReDim hc_prog_elig_budg_medical_spenddown(0)
+		ReDim hc_prog_elig_mobl_result(0)
+		ReDim hc_prog_elig_mobl_type(0)
+		ReDim hc_prog_elig_mobl_period(0)
+		ReDim hc_prog_elig_spdn_option(0)
+		ReDim hc_prog_elig_spdn_type(0)
+		ReDim hc_prog_elig_spdn_method(0)
+		ReDim hc_prog_elig_spdn_covered_pop(0)
+		ReDim hc_prog_elig_original_monthly_spdn(0)
+		ReDim hc_prog_elig_monthly_spdn_counted_bills(0)
+		ReDim hc_prog_elig_monthly_spdn_satisfaction_date(0)
+		ReDim hc_prog_elig_monthly_spdn_recipient_amount(0)
+		ReDim hc_prog_elig_monthly_spdn_balance(0)
+		ReDim hc_prog_elig_oiginal_six_mo_spdn(0)
+		ReDim hc_prog_elig_six_mo_spdn_counted_bills(0)
+		ReDim hc_prog_elig_six_mo_spnd_satisfaction_date(0)
+		ReDim hc_prog_elig_six_mo_spdn_recipient_amount(0)
+		ReDim hc_prog_elig_six_mo_spdn_unused_balance(0)
+		ReDim hc_prog_elig_cert_prd_total_net_income(0)
+		ReDim hc_prog_elig_cert_prd_total_standard(0)
+		ReDim hc_prog_elig_cert_prd_total_excess_income(0)
+		ReDim hc_prog_elig_app_date(0)
+		ReDim hc_prog_elig_curr_prog_status(0)
+		ReDim hc_prog_elig_elig_result(0)
+		ReDim hc_prog_elig_elig_begin_date(0)
+		ReDim hc_prog_elig_HRF_reporting(0)
+		ReDim hc_prog_elig_ER_date(0)
+		ReDim hc_prog_elig_SR_date(0)
+		ReDim hc_prog_elig_TYMA_begin_date(0)
+		ReDim hc_prog_elig_TYMA_type(0)
+		ReDim hc_prog_elig_budg_deemed_unearned(0)
+		ReDim hc_prog_elig_budg_standard_disregard(0)
+		ReDim hc_prog_elig_budg_excess_income(0)
+		ReDim hc_prog_elig_test_after_processing_month(0)
+		ReDim hc_prog_elig_test_basis_for_other_prog(0)
+		ReDim hc_prog_elig_test_medicare_part_a(0)
+
+		call navigate_to_MAXIS_screen("ELIG", "HC  ")
+		EMWriteScreen elig_footer_month, 19, 54
+		EMWriteScreen elig_footer_year, 19, 57
+		transmit
+
+		hc_row = 8
+		hc_prog_count = 0
+		Do
+			ReDim preserve hc_elig_ref_numbs(hc_prog_count)
+			ReDim preserve hc_elig_full_name(hc_prog_count)
+			ReDim preserve hc_prog_elig_appd(hc_prog_count)
+			ReDim preserve hc_prog_elig_major_program(hc_prog_count)
+			ReDim preserve hc_prog_elig_eligibility_result(hc_prog_count)
+			ReDim preserve hc_prog_elig_status(hc_prog_count)
+			ReDim preserve hc_prog_elig_app_indc(hc_prog_count)
+			ReDim preserve hc_prog_elig_magi_excempt(hc_prog_count)
+			ReDim preserve hc_prog_elig_process_date(hc_prog_count)
+			ReDim preserve hc_prog_elig_source_of_info(hc_prog_count)
+			ReDim preserve hc_prog_elig_responsible_county(hc_prog_count)
+			ReDim preserve hc_prog_elig_servicing_county(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_application_withdrawn(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_application_process_incomplete(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_no_new_prog_eligibility(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_assistance_unit(hc_prog_count)
+			ReDim preserve hc_prog_elig_worker_msg_one(hc_prog_count)
+			ReDim preserve hc_prog_elig_worker_msg_two(hc_prog_count)
+			ReDim preserve hc_prog_elig_elig_type(hc_prog_count)
+			ReDim preserve hc_prog_elig_elig_standard(hc_prog_count)
+			ReDim preserve hc_prog_elig_method(hc_prog_count)
+			ReDim preserve hc_prog_elig_waiver(hc_prog_count)
+			ReDim preserve hc_prog_elig_total_net_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_standard(hc_prog_count)
+			ReDim preserve hc_prog_elig_excess_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_absence(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_assets(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_citizenship(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_correctional_faci(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_death(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_elig_other_prog(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_fail_file(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_IMD(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_uncompensated_transfer(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_medicare_elig(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_MNSure_system(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_Obligation_one_mo(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_obligation_six_mo(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_other_health_ins(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_parent(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_residence(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_withdrawn(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop_pben_cash(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop_pben_smrt(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop_pben(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop_fail_provide_info(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop_IEVS(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop_medical_support(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop_other_health_ins(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop_SSN(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_coop_third_party_liability(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_fail_file_HRF(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_fail_file_IR(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_fail_file_AR(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_fail_file_ER(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_fail_file_quarterly_TYMA(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_ACCT(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_BUSI(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_JOBS(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_IMIG_status(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_LUMP(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_OTHR(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_PBEN(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_PREG(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_RBIC(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_REST(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_SECU(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_SPON(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_TRAN(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_UNEA(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_cit_id(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_verif_CARS(hc_prog_count)
+			ReDim preserve hc_prog_elig_hh_size(hc_prog_count)
+			ReDim preserve hc_prog_elig_members_whose_income_counts(hc_prog_count)
+			ReDim preserve hc_prog_elig_members_whose_income_counts_list(hc_prog_count)
+			ReDim preserve hc_prog_elig_PTMA(hc_prog_count)
+			ReDim preserve hc_prog_elig_elig_standard_percent(hc_prog_count)
+			ReDim preserve hc_prog_elig_basis(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_gross_unearned(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_excluded_unearned(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_unearned_deduction(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_net_unearned_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_gross_earned(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_excluded_earned(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_work_exp_deduction(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_earned_disregarrd(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_dependent_care(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_earned_deduction(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_net_earned_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_child_sup_deduction(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_deemed_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_total_net_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_income_standard(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_spenddown(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_transfer_penalty(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_total_liability(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_deemed_earned(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_countable_earrned_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_subtotal_countable_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_va_aid_attendincome(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_total_countable_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_LTC_exclusions(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_medicare_premium(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_maint_needs_allowance(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_spousal_allocation(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_family_allocation(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_health_ins_premium(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_other_medical_expense(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_other_deductions(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_waiver_obligation(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_person_clothing_needs(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_LTC_spenddown(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_medical_spenddown(hc_prog_count)
+			ReDim preserve hc_prog_elig_mobl_result(hc_prog_count)
+			ReDim preserve hc_prog_elig_mobl_type(hc_prog_count)
+			ReDim preserve hc_prog_elig_mobl_period(hc_prog_count)
+			ReDim preserve hc_prog_elig_spdn_option(hc_prog_count)
+			ReDim preserve hc_prog_elig_spdn_type(hc_prog_count)
+			ReDim preserve hc_prog_elig_spdn_method(hc_prog_count)
+			ReDim preserve hc_prog_elig_spdn_covered_pop(hc_prog_count)
+			ReDim preserve hc_prog_elig_original_monthly_spdn(hc_prog_count)
+			ReDim preserve hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count)
+			ReDim preserve hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count)
+			ReDim preserve hc_prog_elig_monthly_spdn_recipient_amount(hc_prog_count)
+			ReDim preserve hc_prog_elig_monthly_spdn_balance(hc_prog_count)
+			ReDim preserve hc_prog_elig_oiginal_six_mo_spdn(hc_prog_count)
+			ReDim preserve hc_prog_elig_six_mo_spdn_counted_bills(hc_prog_count)
+			ReDim preserve hc_prog_elig_six_mo_spnd_satisfaction_date(hc_prog_count)
+			ReDim preserve hc_prog_elig_six_mo_spdn_recipient_amount(hc_prog_count)
+			ReDim preserve hc_prog_elig_six_mo_spdn_unused_balance(hc_prog_count)
+			ReDim preserve hc_prog_elig_cert_prd_total_net_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_cert_prd_total_standard(hc_prog_count)
+			ReDim preserve hc_prog_elig_cert_prd_total_excess_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_app_date(hc_prog_count)
+			ReDim preserve hc_prog_elig_curr_prog_status(hc_prog_count)
+			ReDim preserve hc_prog_elig_elig_result(hc_prog_count)
+			ReDim preserve hc_prog_elig_elig_begin_date(hc_prog_count)
+			ReDim preserve hc_prog_elig_HRF_reporting(hc_prog_count)
+			ReDim preserve hc_prog_elig_ER_date(hc_prog_count)
+			ReDim preserve hc_prog_elig_SR_date(hc_prog_count)
+			ReDim preserve hc_prog_elig_TYMA_begin_date(hc_prog_count)
+			ReDim preserve hc_prog_elig_TYMA_type(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_deemed_unearned(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_standard_disregard(hc_prog_count)
+			ReDim preserve hc_prog_elig_budg_excess_income(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_after_processing_month(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_basis_for_other_prog(hc_prog_count)
+			ReDim preserve hc_prog_elig_test_medicare_part_a(hc_prog_count)
+
+			EMReadScreen hc_elig_ref_numbs(hc_prog_count), 2, hc_row, 3
+			EMReadScreen hc_elig_full_name(hc_prog_count), 17, hc_row, 7
+
+			If hc_elig_ref_numbs(hc_prog_count) = "  " Then
+				hc_elig_ref_numbs(hc_prog_count) = hc_elig_ref_numbs(hc_prog_count-1)
+				hc_elig_full_name(hc_prog_count) = hc_elig_full_name(hc_prog_count-1)
+			End If
+			EMReadScreen clt_hc_prog, 4, hc_row, 28
+			If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
+
+				EMReadScreen prog_status, 3, hc_row, 68
+				If prog_status <> "APP" Then                        'Finding the approved version
+					EMReadScreen total_versions, 2, hc_row, 64
+					If total_versions = "01" Then
+						hc_prog_elig_appd(hc_prog_count) = False
+					Else
+						EMReadScreen current_version, 2, hc_row, 58
+						If current_version = "01" Then
+							hc_prog_elig_appd(hc_prog_count) = False
+						Else
+							prev_version = right ("00" & abs(current_version) - 1, 2)
+							EMWriteScreen prev_version, hc_row, 58
+							transmit
+							hc_prog_elig_appd(hc_prog_count) = True
+						End If
+
+					End If
+				Else
+					hc_prog_elig_appd(hc_prog_count) = True
+				End If
+			Else
+				hc_prog_elig_appd(hc_prog_count) = False
+			End If
+
+			If hc_prog_elig_appd(hc_prog_count) = True Then
+				EMReadScreen hc_prog_elig_major_program(hc_prog_count), 		4, hc_row, 28
+				EMReadScreen hc_prog_elig_eligibility_result(hc_prog_count), 	8, hc_row, 41
+				EMReadScreen hc_prog_elig_status(hc_prog_count), 				8, hc_row, 50
+				EMReadScreen hc_prog_elig_app_indc(hc_prog_count), 				6, hc_row, 68
+				EMReadScreen hc_prog_elig_magi_excempt(hc_prog_count), 			6, hc_row, 74
+
+				hc_prog_elig_major_program(hc_prog_count) = trim(hc_prog_elig_major_program(hc_prog_count))
+
+				Call write_value_and_transmit("X", hc_row, 26)
+				' MsgBox "MOVING - 1" & vbCr & hc_prog_elig_major_program(hc_prog_count) & vbCr & "MEMB " & hc_elig_ref_numbs(hc_prog_count)
+				EMReadScreen hc_prog_elig_process_date(hc_prog_count), 8, 2, 73
+				hc_prog_elig_process_date(hc_prog_count) = DateAdd("d", 0, hc_prog_elig_process_date(hc_prog_count))
+
+				' If DateDiff("'d", hc_prog_elig_process_date(hc_prog_count), date) = 0 Then
+					If hc_prog_elig_major_program(hc_prog_count) = "HC D" Then
+						EMReadScreen hc_prog_elig_source_of_info(hc_prog_count), 		4, 9, 33
+						EMReadScreen hc_prog_elig_responsible_county(hc_prog_count), 	2, 8, 78
+						EMReadScreen hc_prog_elig_servicing_county(hc_prog_count), 	2, 9, 78
+
+						EMReadScreen hc_prog_elig_test_application_withdrawn(hc_prog_count), 			6, 13, 22
+						EMReadScreen hc_prog_elig_test_application_process_incomplete(hc_prog_count), 6, 14, 22
+						EMReadScreen hc_prog_elig_test_no_new_prog_eligibility(hc_prog_count), 		6, 15, 22
+						EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 				6, 16, 22
+
+						EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 19, 3
+					End If
+
+					If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
+						hc_col = 17
+						Do
+							EMReadScreen budg_mo, 2, 6, hc_col + 2
+							EMReadScreen budg_yr, 2, 6, hc_col + 5
+							' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
+							If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
+								EMReadScreen hc_prog_elig_elig_type(hc_prog_count), 		2, 12, hc_col
+								EMReadScreen hc_prog_elig_elig_standard(hc_prog_count), 	1, 12, hc_col + 5
+								EMReadScreen hc_prog_elig_method(hc_prog_count), 			1, 13, hc_col + 4
+								EMReadScreen hc_prog_elig_waiver(hc_prog_count), 			1, 14, hc_col + 4
+
+								EMReadScreen hc_prog_elig_total_net_income(hc_prog_count), 9, 15, hc_col
+								EMReadScreen hc_prog_elig_standard(hc_prog_count), 		9, 16, hc_col
+								EMReadScreen hc_prog_elig_excess_income(hc_prog_count), 	9, 17, hc_col
+
+								Call write_value_and_transmit("X", 7, hc_col)						'Opening the HC Span
+								' MsgBox "MOVING - 2"
+								If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
+									EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 			6, 6, 5
+									EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 			6, 7, 5
+									EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 	6, 8, 5
+									EMReadScreen hc_prog_elig_test_citizenship(hc_prog_count), 		6, 9, 5
+									EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 				6, 10, 5
+									EMReadScreen hc_prog_elig_test_correctional_faci(hc_prog_count), 	6, 11, 5
+									EMReadScreen hc_prog_elig_test_death(hc_prog_count), 				6, 12, 5
+									EMReadScreen hc_prog_elig_test_elig_other_prog(hc_prog_count), 	6, 13, 5
+									EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 			6, 14, 5
+									EMReadScreen hc_prog_elig_test_IMD(hc_prog_count), 				6, 15, 5
+
+									EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 6, 18, 5
+
+									EMReadScreen hc_prog_elig_test_income(hc_prog_count), 			6, 6, 46
+									EMReadScreen hc_prog_elig_test_medicare_elig(hc_prog_count), 		6, 7, 46
+									EMReadScreen hc_prog_elig_test_MNSure_system(hc_prog_count), 		6, 8, 46
+									EMReadScreen hc_prog_elig_test_Obligation_one_mo(hc_prog_count), 	6, 9, 46
+									EMReadScreen hc_prog_elig_test_obligation_six_mo(hc_prog_count), 	6, 10, 46
+									If hc_prog_elig_major_program(hc_prog_count) = "MA" Then
+										EMReadScreen hc_prog_elig_test_other_health_ins(hc_prog_count), 6, 11, 46
+										EMReadScreen hc_prog_elig_test_parent(hc_prog_count), 			6, 12, 46
+										EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 		6, 13, 46
+										EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 			6, 14, 46
+										EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 		6, 15, 46
+									ElseIf hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
+										EMReadScreen hc_prog_elig_test_parent(hc_prog_count), 		6, 11, 46
+										EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 	6, 12, 46
+										EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 		6, 13, 46
+										EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 	6, 14, 46
+									End If
+								End If
+
+								If hc_prog_elig_major_program(hc_prog_count) = "IMD" Then
+									EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 			6, 7, 5
+									EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 			6, 8, 5
+									EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 	6, 9, 5
+									EMReadScreen hc_prog_elig_test_citizenship(hc_prog_count), 		6, 10, 5
+									EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 			6, 11, 5
+									EMReadScreen hc_prog_elig_test_death(hc_prog_count), 			6, 12, 5
+									EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 		6, 13, 5
+									EMReadScreen hc_prog_elig_test_IMD(hc_prog_count), 				6, 14, 5
+									EMReadScreen hc_prog_elig_test_income(hc_prog_count), 			6, 15, 5
+
+									EMReadScreen hc_prog_elig_test_medicare_elig(hc_prog_count), 			6, 7, 44
+									EMReadScreen hc_prog_elig_test_MNSure_system(hc_prog_count), 			6, 8, 44
+									EMReadScreen hc_prog_elig_test_Obligation_one_mo(hc_prog_count),		6, 9, 44
+									EMReadScreen hc_prog_elig_test_obligation_six_mo(hc_prog_count), 		6, 10, 44
+									EMReadScreen hc_prog_elig_test_parent(hc_prog_count), 					6, 11, 44
+									EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 				6, 12, 44
+									EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 	6, 13, 44
+									EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 					6, 14, 44
+									EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 				6, 15, 44
+								End If
+
+								Call write_value_and_transmit("X", 7, 3)				'Assets'
+								' MsgBox "MOVING - 3"
+								transmit
+								' MsgBox "MOVING - 4"
+
+								Call write_value_and_transmit("X", 10, 3)				'Cooperration'
+								' MsgBox "MOVING - 5"
+								Call write_value_and_transmit("X", 10, 26)				'Cooperration'
+								' MsgBox "MOVING - 6"
+								EMReadScreen hc_prog_elig_test_coop_pben_cash(hc_prog_count), 			6, 10, 31
+								EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
+								transmit
+								' MsgBox "MOVING - 7"
+								EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 					6, 10, 28
+								EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
+								EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 					6, 12, 28
+								EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 		6, 13, 28
+								EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 		6, 14, 28
+								EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 					6, 15, 28
+								EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
+								transmit
+								' MsgBox "MOVING - 8"
+
+								Call write_value_and_transmit("X", 14, 3)				'Fail to File'
+								' MsgBox "MOVING - 9"
+								EMReadScreen hc_prog_elig_test_fail_file_HRF(hc_prog_count), 				6, 14, 33
+								EMReadScreen hc_prog_elig_test_fail_file_IR(hc_prog_count), 				6, 15, 33
+								EMReadScreen hc_prog_elig_test_fail_file_AR(hc_prog_count), 				6, 16, 33
+								EMReadScreen hc_prog_elig_test_fail_file_ER(hc_prog_count), 				6, 17, 33
+								EMReadScreen hc_prog_elig_test_fail_file_quarterly_TYMA(hc_prog_count), 	6, 18, 33
+								transmit
+								' MsgBox "MOVING - 10"
+
+								If hc_prog_elig_major_program(hc_prog_count) = "MA" Then Call write_value_and_transmit("X", 14, 44)				'Verification'
+								If hc_prog_elig_major_program(hc_prog_count) = "EMA" Then Call write_value_and_transmit("X", 13, 44)				'Verification'
+								' MsgBox "MOVING - 11"
+								EMReadScreen hc_prog_elig_test_verif_ACCT(hc_prog_count), 		6, 5, 10
+								EMReadScreen hc_prog_elig_test_verif_BUSI(hc_prog_count), 		6, 6, 10
+								EMReadScreen hc_prog_elig_test_verif_JOBS(hc_prog_count), 		6, 7, 10
+								EMReadScreen hc_prog_elig_test_verif_IMIG_status(hc_prog_count), 	6, 8, 10
+								EMReadScreen hc_prog_elig_test_verif_LUMP(hc_prog_count), 		6, 9, 10
+								EMReadScreen hc_prog_elig_test_verif_OTHR(hc_prog_count), 		6, 10, 10
+								EMReadScreen hc_prog_elig_test_verif_PBEN(hc_prog_count), 		6, 11, 10
+								EMReadScreen hc_prog_elig_test_verif_PREG(hc_prog_count), 		6, 12, 10
+								EMReadScreen hc_prog_elig_test_verif_RBIC(hc_prog_count), 		6, 13, 10
+								EMReadScreen hc_prog_elig_test_verif_REST(hc_prog_count), 		6, 14, 10
+								EMReadScreen hc_prog_elig_test_verif_SECU(hc_prog_count), 		6, 15, 10
+								EMReadScreen hc_prog_elig_test_verif_SPON(hc_prog_count), 		6, 16, 10
+								EMReadScreen hc_prog_elig_test_verif_TRAN(hc_prog_count), 		6, 17, 10
+								EMReadScreen hc_prog_elig_test_verif_UNEA(hc_prog_count), 		6, 18, 10
+								EMReadScreen hc_prog_elig_test_verif_cit_id(hc_prog_count), 		6, 19, 10
+								EMReadScreen hc_prog_elig_test_verif_CARS(hc_prog_count), 		6, 20, 10
+								transmit
+								' MsgBox "MOVING - 12"
+
+								Call write_value_and_transmit("X", 18, 3)				'Uncompensated Transfer
+								' MsgBox "MOVING - 13"
+								transmit
+								' MsgBox "MOVING - 14"
+
+								' Call write_value_and_transmit("X", 9, 44)				'Obligation - One Month - we don't need this
+								' transmit
+
+								transmit
+								' MsgBox "MOVING - 15"
+
+								Call write_value_and_transmit("X", 8, hc_col+4)			'Household Count'
+								' MsgBox "MOVING - 16"
+								EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
+								hh_row = 12
+								Do
+									EMReadScreen inc_count_ind, 1, hh_row, 61
+									If inc_count_ind = "Y" Then
+										EMReadScreen memb_numb_income_count, 2, hh_row, 13
+										hc_prog_elig_members_whose_income_counts(hc_prog_count) = hc_prog_elig_members_whose_income_counts(hc_prog_count) & " " & memb_numb_income_count
+									End If
+									hh_row = hh_row + 1
+									EMReadScreen next_inc_count_ind, 1, hh_row, 61
+								Loop until next_inc_count_ind = " "
+								hc_prog_elig_members_whose_income_counts(hc_prog_count) = trim(hc_prog_elig_members_whose_income_counts(hc_prog_count))
+								hc_prog_elig_members_whose_income_counts_list(hc_prog_count) = replace(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ", ",")
+								hc_prog_elig_members_whose_income_counts(hc_prog_count) = split(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ")
+								transmit
+								' MsgBox "MOVING - 17"
+
+								If hc_prog_elig_method(hc_prog_count) <> "X" Then
+									Call write_value_and_transmit("X", 9, hc_col+4)		'Budget'
+									' MsgBox "MOVING - 18"
+									EMReadScreen hc_prog_elig_PTMA(hc_prog_count), 1, 5, 63
+									EMReadScreen hc_prog_elig_elig_standard_percent(hc_prog_count), 3, 6, 66
+									EMReadScreen hc_prog_elig_basis(hc_prog_count), 20, 6, 24
+
+									EMReadScreen budg_panel, 70, 3, 2
+									' SBUD
+									' CBUD
+									' BBUD
+									' LBUD
+									' ABUD
+									budget_found = False
+
+									If InStr(budg_panel, "ABUD") <> 0 Then
+										' MsgBox "ABUD"
+										budget_found = true
+										EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 9, 31
+										EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 10, 31
+										EMReadScreen hc_prog_elig_budg_unearned_deduction(hc_prog_count), 	10, 11, 31
+										EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 12, 31
+
+										EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 14, 31
+										EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 15, 31
+										EMReadScreen hc_prog_elig_budg_work_exp_deduction(hc_prog_count), 	10, 16, 31
+										EMReadScreen hc_prog_elig_budg_earned_disregarrd(hc_prog_count), 	10, 17, 31
+										EMReadScreen hc_prog_elig_budg_dependent_care(hc_prog_count), 		10, 18, 31
+
+										EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 9, 71
+										EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 10, 71
+
+										EMReadScreen hc_prog_elig_budg_child_sup_deduction(hc_prog_count),	10, 12, 71
+										EMReadScreen hc_prog_elig_budg_deemed_income(hc_prog_count), 		10, 13, 71
+										EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 14, 71
+										EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 15, 71
+										EMReadScreen hc_prog_elig_budg_spenddown(hc_prog_count), 			10, 16, 71
+										EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 	10, 17, 71
+										EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 		10, 18, 71
+									End If
+
+									If InStr(budg_panel, "BBUD") <> 0 Then
+									' If hc_prog_elig_method(hc_prog_count) = "B" Then
+										' MsgBox "BBUD"
+										budget_found = true
+										EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 8, 31
+										EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 9, 31
+										EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 10, 31
+										EMReadScreen hc_prog_elig_budg_unearned_deduction(hc_prog_count), 	10, 11, 31
+										EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 12, 31
+
+										EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 8, 71
+										EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 9, 71
+										EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 10, 71
+										EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 11, 71
+										EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 12, 71
+
+										EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 14, 71
+										EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 15, 71
+										EMReadScreen hc_prog_elig_budg_spenddown(hc_prog_count), 			10, 16, 71
+										EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 	10, 17, 71
+										EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 		10, 18, 71
+									End If
+
+									If InStr(budg_panel, "CBUD") <> 0 Then
+										' MsgBox "CBUD"
+										budget_found = true
+										EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 8, 31
+										EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 9, 31
+										EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 	10, 10, 31
+										EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 11, 31
+
+										EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 8, 71
+										EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 		10, 9, 71
+										EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 10, 71
+
+										EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 13, 71
+										EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 14, 71
+										EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 		10, 15, 71
+										EMReadScreen hc_prog_elig_budg_excess_income(hc_prog_count), 		10, 16, 71
+									End If
+
+									If InStr(budg_panel, "LBUD") <> 0 Then
+										' MsgBox "LBUD"
+										budget_found = true
+										EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 			10, 8, 32
+										EMReadScreen hc_prog_elig_budg_countable_earrned_income(hc_prog_count),	10, 9, 32
+										EMReadScreen hc_prog_elig_budg_subtotal_countable_income(hc_prog_count),10, 10, 32
+										EMReadScreen hc_prog_elig_budg_va_aid_attendincome(hc_prog_count), 		10, 11, 32
+										EMReadScreen hc_prog_elig_budg_total_countable_income(hc_prog_count), 	10, 12, 32
+
+										EMReadScreen hc_prog_elig_budg_LTC_exclusions(hc_prog_count), 			10, 14, 32
+										EMReadScreen hc_prog_elig_budg_medicare_premium(hc_prog_count), 		10, 15, 32
+										EMReadScreen hc_prog_elig_budg_person_clothing_needs(hc_prog_count), 	10, 16, 32
+										EMReadScreen hc_prog_elig_budg_maint_needs_allowance(hc_prog_count), 	10, 17, 32
+										EMReadScreen hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count), 	10, 18, 32
+
+										EMReadScreen hc_prog_elig_budg_spousal_allocation(hc_prog_count), 		10, 8, 70
+										EMReadScreen hc_prog_elig_budg_family_allocation(hc_prog_count), 		10, 9, 70
+										EMReadScreen hc_prog_elig_budg_health_ins_premium(hc_prog_count), 		10, 10, 70
+										EMReadScreen hc_prog_elig_budg_other_medical_expense(hc_prog_count), 	10, 11, 70
+										EMReadScreen hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count), 		10, 12, 70
+										EMReadScreen hc_prog_elig_budg_other_deductions(hc_prog_count), 		10, 13, 70
+										EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 		10, 14, 70
+										EMReadScreen hc_prog_elig_budg_LTC_spenddown(hc_prog_count), 			10, 15, 70
+										EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 		10, 16, 70
+										EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 			10, 17, 70
+										EMReadScreen hc_prog_elig_budg_medical_spenddown(hc_prog_count), 		10, 18, 70
+									End If
+
+									If InStr(budg_panel, "SBUD") <> 0 Then
+										' MsgBox "SBUD"
+										budget_found = true
+										EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 			10, 9, 31
+										EMReadScreen hc_prog_elig_budg_countable_earrned_income(hc_prog_count),	10, 10, 31
+										EMReadScreen hc_prog_elig_budg_subtotal_countable_income(hc_prog_count),10, 11, 31
+										EMReadScreen hc_prog_elig_budg_va_aid_attendincome(hc_prog_count), 		10, 12, 31
+										EMReadScreen hc_prog_elig_budg_total_countable_income(hc_prog_count), 	10, 13, 31
+
+										EMReadScreen hc_prog_elig_budg_LTC_exclusions(hc_prog_count), 			10, 15, 31
+										EMReadScreen hc_prog_elig_budg_medicare_premium(hc_prog_count), 		10, 16, 31
+										EMReadScreen hc_prog_elig_budg_maint_needs_allowance(hc_prog_count), 	10, 17, 31
+										EMReadScreen hc_prog_elig_budg_guardian_rep_payee_fee(hc_prog_count), 	10, 18, 31
+
+										EMReadScreen hc_prog_elig_budg_spousal_allocation(hc_prog_count), 		10, 9, 71
+										EMReadScreen hc_prog_elig_budg_family_allocation(hc_prog_count), 		10, 10, 71
+										EMReadScreen hc_prog_elig_budg_health_ins_premium(hc_prog_count), 		10, 11, 71
+										EMReadScreen hc_prog_elig_budg_other_medical_expense(hc_prog_count), 	10, 12, 71
+										EMReadScreen hc_prog_elig_budg_SSI_1611_benefit(hc_prog_count), 		10, 13, 71
+										EMReadScreen hc_prog_elig_budg_other_deductions(hc_prog_count), 		10, 14, 71
+										EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 		10, 15, 71
+										EMReadScreen hc_prog_elig_budg_waiver_obligation(hc_prog_count),	 	10, 16, 71
+										EMReadScreen hc_prog_elig_budg_transfer_penalty(hc_prog_count), 		10, 17, 71
+										EMReadScreen hc_prog_elig_budg_total_liability(hc_prog_count), 			10, 18, 71
+									End If
+									If budget_found = false Then MsgBox "Budget not coded:" & vbCr & budg_panel
+
+									transmit
+									' MsgBox "MOVING - 19"
+								End If
+
+								Call write_value_and_transmit("X", 18, 3)				'MOBL
+								' MsgBox "MOVING - 20"
+								EMReadScreen hc_prog_elig_mobl_result(hc_prog_count), 4, 6, 32
+								EMReadScreen hc_prog_elig_mobl_type(hc_prog_count), 	18, 6, 39
+								EMReadScreen hc_prog_elig_mobl_period(hc_prog_count), 13, 6, 61
+								mobl_row = 6
+								Do
+									EMReadScreen mobl_ref_numb, 2, mobl_row, 6
+									If mobl_ref_numb = hc_elig_ref_numbs(hc_prog_count) Then Exit Do
+									mobl_row = mobl_row + 1
+								Loop until mobl_ref_numb = "  "
+								Call write_value_and_transmit("X", mobl_row, 3)				'MOBL
+								Do
+									' MsgBox "MOVING - 21"
+									EMReadScreen spenddown_header, 75, 3, 2
+									spenddown_header = trim(spenddown_header)
+									If spenddown_header = "Community Spenddown Results (SPDN)" Then
+										EMReadScreen hc_prog_elig_spdn_option(hc_prog_count), 	2, 4, 59
+										EMReadScreen hc_prog_elig_spdn_type(hc_prog_count), 		1, 5, 14
+										EMReadScreen hc_prog_elig_spdn_method(hc_prog_count), 	1, 5, 45
+										EMReadScreen hc_prog_elig_spdn_covered_pop(hc_prog_count), 1, 5, 68
+
+										mobl_col = 21
+										Do
+											EMReadScreen mobl_mo, 2, 7, mobl_col
+											EMReadScreen mobl_yr, 2, 7, mobl_col
+											If budg_mo = elig_footer_month AND budg_yr = elig_footer_year Then
+												EMReadScreen hc_prog_elig_original_monthly_spdn(hc_prog_count), 			10, 8, mobl_col-5
+												EMReadScreen hc_prog_elig_monthly_spdn_counted_bills(hc_prog_count), 		10, 9, mobl_col-5
+												EMReadScreen hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count),	5, 10, mobl_col
+												EMReadScreen hc_prog_elig_monthly_spdn_recipient_amount(hc_prog_count), 	10, 11, mobl_col-5
+												EMReadScreen hc_prog_elig_monthly_spdn_balance(hc_prog_count), 				10, 12, mobl_col-5
+
+												If hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) <> "__ __" Then
+													hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = replace(hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count), " ", "/")
+													hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) & "/" & elig_footer_year
+												Else
+													hc_prog_elig_monthly_spdn_satisfaction_date(hc_prog_count) = ""
+												End If
+											End If
+											mobl_col = mobl_col + 11
+										Loop until mobl_col = 87
+										EMReadScreen hc_prog_elig_oiginal_six_mo_spdn(hc_prog_count), 			10, 15, 45
+										EMReadScreen hc_prog_elig_six_mo_spdn_counted_bills(hc_prog_count), 		10, 16, 45
+										EMReadScreen hc_prog_elig_six_mo_spnd_satisfaction_date(hc_prog_count), 	8, 17, 45
+										EMReadScreen hc_prog_elig_six_mo_spdn_recipient_amount(hc_prog_count), 	10, 18, 45
+										EMReadScreen hc_prog_elig_six_mo_spdn_unused_balance(hc_prog_count), 		10, 19, 45
+									ElseIf spenddown_header = "SIS-EW Waiver Obligation Results (EWWO)" Then
+										'2506494
+									ElseIf spenddown_header = "Long Term Care/Medical Spenddown Results (LTCS)" Then
+										'804476
+									Else
+										MsgBox spenddown_header
+									End If
+									transmit
+									EMReadScreen back_to_MOBL_check, 4,	 3, 49
+								Loop until back_to_MOBL_check = "MOBL"
+								' MsgBox "MOVING - 22"
+								PF3
+
+								Call write_value_and_transmit("X", 18, 34)				'Cert Period Amount'
+								' MsgBox "MOVING - 22.5"
+								EMReadScreen cert_pd_pop_up_check, 27, 5, 13
+								If cert_pd_pop_up_check = "Certification Period Amount" Then
+									EMReadScreen hc_prog_elig_cert_prd_total_net_income(hc_prog_count), 	10, 7, 34
+									EMReadScreen hc_prog_elig_cert_prd_total_standard(hc_prog_count), 		10, 8, 34
+									EMReadScreen hc_prog_elig_cert_prd_total_excess_income(hc_prog_count), 	10, 9, 34
+									transmit
+								End If
+								EMWriteScreen " ", 18, 34
+								' MsgBox "MOVING - 23"
+
+								transmit
+								' MsgBox "MOVING - 24"
+
+								EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
+
+								EMReadScreen hc_prog_elig_curr_prog_status(hc_prog_count), 10, 8, 34
+								EMReadScreen hc_prog_elig_elig_result(hc_prog_count), 	10, 9, 34
+								EMReadScreen hc_prog_elig_elig_begin_date(hc_prog_count), 8, 10, 34
+								EMReadScreen hc_prog_elig_HRF_reporting(hc_prog_count), 	10, 11, 34
+								EMReadScreen hc_prog_elig_ER_date(hc_prog_count), 		8, 12, 34
+								EMReadScreen hc_prog_elig_SR_date(hc_prog_count), 		8, 13, 34
+								If trim(hc_prog_elig_SR_date(hc_prog_count)) <> "" Then EMReadScreen hc_prog_elig_SR_date(hc_prog_count), 		8, 14, 34
+								EMReadScreen hc_prog_elig_TYMA_begin_date(hc_prog_count), 8, 15, 34
+
+								EMReadScreen hc_prog_elig_responsible_county(hc_prog_count), 	2, 8, 76
+								EMReadScreen hc_prog_elig_servicing_county(hc_prog_count), 	2, 9, 76
+								EMReadScreen hc_prog_elig_source_of_info(hc_prog_count), 		4, 10, 76
+
+								EMReadScreen hc_prog_elig_TYMA_type(hc_prog_count), 2, 15, 76
+
+								EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 18, 3
+								EMReadScreen hc_prog_elig_worker_msg_two(hc_prog_count), 78, 19, 3
+
+								transmit
+								' MsgBox "MOVING - 25"
+
+								Exit Do
+							End If
+							hc_col = hc_col + 11
+							If hc_col = 85 Then hc_prog_elig_appd(hc_prog_count) = False
+						Loop until hc_col = 83
+					End If
+
+					If hc_prog_elig_major_program(hc_prog_count) = "QMB" or hc_prog_elig_major_program(hc_prog_count) = "SLMB" or hc_prog_elig_major_program(hc_prog_count) = "QI1" Then
+						' MsgBox hc_prog_elig_major_program(hc_prog_count)
+						' EmReadScreen hc_elig_membs_prog_one
+						EMReadScreen hc_prog_elig_elig_type(hc_prog_count), 		2, 6, 56
+						EMReadScreen hc_prog_elig_elig_standard(hc_prog_count), 	1, 6, 64
+						EMReadScreen hc_prog_elig_elig_standard_percent(hc_prog_count), 3, 6, 66
+						EMReadScreen hc_prog_elig_basis(hc_prog_count), 			15, 6, 27
+
+						EMReadScreen hc_prog_elig_budg_gross_unearned(hc_prog_count), 		10, 9, 31
+						EMReadScreen hc_prog_elig_budg_deemed_unearned(hc_prog_count), 		10, 10, 31
+						EMReadScreen hc_prog_elig_budg_excluded_unearned(hc_prog_count), 		10, 11, 31
+						EMReadScreen hc_prog_elig_budg_unearned_deduction(hc_prog_count), 	10, 12, 31
+						EMReadScreen hc_prog_elig_budg_standard_disregard(hc_prog_count), 	10, 13, 31
+						EMReadScreen hc_prog_elig_budg_net_unearned_income(hc_prog_count), 	10, 14, 31
+
+						EMReadScreen hc_prog_elig_budg_gross_earned(hc_prog_count), 		10, 9, 71
+						EMReadScreen hc_prog_elig_budg_deemed_earned(hc_prog_count), 		10, 10, 71
+						EMReadScreen hc_prog_elig_budg_excluded_earned(hc_prog_count), 	10, 11, 71
+						EMReadScreen hc_prog_elig_budg_earned_deduction(hc_prog_count), 	10, 12, 71
+						EMReadScreen hc_prog_elig_budg_net_earned_income(hc_prog_count), 	10, 13, 71
+
+						EMReadScreen hc_prog_elig_budg_total_net_income(hc_prog_count), 	10, 15, 71
+						EMReadScreen hc_prog_elig_budg_income_standard(hc_prog_count), 	10, 16, 71
+						EMReadScreen hc_prog_elig_budg_excess_income(hc_prog_count), 		10, 17, 71
+
+						Call write_value_and_transmit("X", 5, 66)			'Household Count'
+						' MsgBox "MOVING - 26"
+						EMReadScreen hc_prog_elig_hh_size(hc_prog_count), 2, 5, 68
+						hh_row = 12
+						Do
+							EMReadScreen inc_count_ind, 1, hh_row, 61
+							If inc_count_ind = "Y" Then
+								EMReadScreen memb_numb_income_count, 2, hh_row, 13
+								hc_prog_elig_members_whose_income_counts(hc_prog_count) = hc_prog_elig_members_whose_income_counts(hc_prog_count) & " " & memb_numb_income_count
+							End If
+							hh_row = hh_row + 1
+							EMReadScreen next_inc_count_ind, 1, hh_row, 61
+						Loop until next_inc_count_ind = " "
+						hc_prog_elig_members_whose_income_counts(hc_prog_count) = trim(hc_prog_elig_members_whose_income_counts(hc_prog_count))
+						hc_prog_elig_members_whose_income_counts_list(hc_prog_count) = replace(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ", ",")
+						hc_prog_elig_members_whose_income_counts(hc_prog_count) = split(hc_prog_elig_members_whose_income_counts(hc_prog_count), " ")
+						transmit
+						' MsgBox "MOVING - 27"
+
+						transmit
+						' MsgBox "MOVING - 28"
+
+						EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 				6, 6, 5
+						EMReadScreen hc_prog_elig_test_after_processing_month(hc_prog_count),	6, 7, 5
+						EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 				6, 8, 5
+						EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 		6, 9, 5
+						EMReadScreen hc_prog_elig_test_basis_for_other_prog(hc_prog_count), 	6, 10, 5
+						EMReadScreen hc_prog_elig_test_citizenship(hc_prog_count), 			6, 11, 5
+						EMReadScreen hc_prog_elig_test_coop(hc_prog_count), 					6, 12, 5
+						EMReadScreen hc_prog_elig_test_correctional_faci(hc_prog_count), 		6, 13, 5
+
+						EMReadScreen hc_prog_elig_test_death(hc_prog_count), 					6, 6, 46
+						EMReadScreen hc_prog_elig_test_fail_file(hc_prog_count), 				6, 7, 46
+						EMReadScreen hc_prog_elig_test_income(hc_prog_count), 				6, 8, 46
+						EMReadScreen hc_prog_elig_test_medicare_part_a(hc_prog_count),		6, 9, 46
+						EMReadScreen hc_prog_elig_test_residence(hc_prog_count), 				6, 10, 46
+						EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 					6, 11, 46
+						EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 				6, 12, 46
+
+						EMReadScreen hc_prog_elig_test_uncompensated_transfer(hc_prog_count), 6, 17, 5
+
+						transmit
+						' MsgBox "MOVING - 29"
+
+						EMReadScreen hc_prog_elig_app_date(hc_prog_count), 8, 4, 73
+
+						EMReadScreen hc_prog_elig_curr_prog_status(hc_prog_count), 10, 8, 34
+						EMReadScreen hc_prog_elig_elig_result(hc_prog_count), 	10, 9, 34
+						EMReadScreen hc_prog_elig_elig_begin_date(hc_prog_count), 8, 10, 34
+						EMReadScreen hc_prog_elig_ER_date(hc_prog_count), 		8, 11, 34
+						EMReadScreen hc_prog_elig_SR_date(hc_prog_count), 		8, 12, 34
+						If trim(hc_prog_elig_SR_date(hc_prog_count)) <> "" Then EMReadScreen hc_prog_elig_SR_date(hc_prog_count), 		8, 13, 34
+						EMReadScreen hc_prog_elig_source_of_info(hc_prog_count), 	4, 14, 34
+
+						EMReadScreen hc_prog_elig_responsible_county(hc_prog_count), 	2, 8, 78
+						EMReadScreen hc_prog_elig_servicing_county(hc_prog_count), 	2, 9, 78
+
+						EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 18, 3
+						EMReadScreen hc_prog_elig_worker_msg_two(hc_prog_count), 78, 19, 3
+
+						transmit
+						' MsgBox "MOVING - 30"
+
+					End If
+				' Else
+				' 	hc_prog_elig_appd(hc_prog_count) = False
+				' End If
+			End If
+
+			' EMReadScreen next_ref_numb, 2, hc_row+1, 3
+			' If next_ref_numb = "  " Then
+			' 	hc_row = hc_row + 1
+			'
+			' 	EMReadScreen clt_hc_prog, 4, hc_row, 28
+			' 	If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
+			'
+			' 		EMReadScreen prog_status, 3, hc_row, 68
+			' 		If prog_status <> "APP" Then                        'Finding the approved version
+			' 			EMReadScreen total_versions, 2, hc_row, 64
+			' 			If total_versions = "01" Then
+			' 				hc_elig_membs_prog_two_appd(hc_prog_count) = False
+			' 			Else
+			' 				EMReadScreen current_version, 2, hc_row, 58
+			' 				If current_version = "01" Then
+			' 					hc_elig_membs_prog_two_appd(hc_prog_count) = False
+			' 				Else
+			' 					prev_version = right ("00" & abs(current_version) - 1, 2)
+			' 					EMWriteScreen prev_version, hc_row, 58
+			' 					transmit
+			' 					hc_elig_membs_prog_two_appd(hc_prog_count) = True
+			' 				End If
+			'
+			' 			End If
+			' 		Else
+			' 			hc_elig_membs_prog_two_appd(hc_prog_count) = True
+			' 		End If
+			' 	Else
+			' 		hc_elig_membs_prog_two_appd(hc_prog_count) = False
+			' 	End If
+			'
+			' 	If hc_elig_membs_prog_two_appd(hc_prog_count) = True Then
+			' 		EMReadScreen hc_elig_membs_prog_two_process_date(hc_prog_count), 8, 2, 73
+			' 		hc_elig_membs_prog_two_process_date(hc_prog_count) = DateAdd("d", 0, hc_elig_membs_prog_two_process_date(hc_prog_count))
+			'
+			' 		If DateDiff("'d", hc_elig_membs_prog_two_process_date(hc_prog_count), date) = 0 Then
+			' 			EMReadScreen hc_elig_membs_program_two(hc_prog_count), 4, hc_row, 28
+			' 			EMReadScreen hc_elig_membs_prog_two_eligibility_result(hc_prog_count), 8, hc_row, 41
+			' 			EMReadScreen hc_elig_membs_prog_two_status(hc_prog_count), 8, hc_row, 50
+			' 			EMReadScreen hc_elig_membs_prog_two_app_indc(hc_prog_count), 6, hc_row, 68
+			' 			EMReadScreen hc_elig_membs_prog_two_magi_excempt(hc_prog_count), 6, hc_row, 74
+			' 		Else
+			'
+			' 		End If
+			' 	End If
+			' End If
+
+			hc_prog_count = hc_prog_count + 1
+			hc_row = hc_row + 1
+			EMReadScreen next_ref_numb, 2, hc_row, 3
+			EMReadScreen next_maj_prog, 4, hc_row, 28
+			' MsgBox "Row: " & hc_row & vbCr & "Next Ref Numb: " & next_ref_numb & vbCr & "Next Major Prog: " & next_maj_prog
+		Loop until next_ref_numb = "  " and next_maj_prog = "    "
+		Call back_to_SELF
+	end sub
+end class
+
 'Constants
 const ref_numb_const				= 0
 
@@ -6182,6 +7279,9 @@ ReDim IVE_ELIG_APPROVALS(0)
 Dim SNAP_ELIG_APPROVALS()
 ReDim SNAP_ELIG_APPROVALS(0)
 
+Dim HC_ELIG_APPROVALS()
+ReDim HC_ELIG_APPROVALS(0)
+
 '===========================================================================================================================
 EMConnect ""
 Call check_for_MAXIS(True)
@@ -6234,6 +7334,7 @@ grh_elig_months_count = 0
 ' ive_elig_months_count = 0
 emer_elig_months_count = 0
 snap_elig_months_count = 0
+hc_elig_months_count = 0
 
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
@@ -6299,7 +7400,7 @@ For each footer_month in MONTHS_ARRAY
 	End If
 
 	If numb_MFIP_versions <> " " Then
-		MsgBox "In MFIP"
+		' MsgBox "In MFIP"
 		ReDim Preserve MFIP_ELIG_APPROVALS(mfip_elig_months_count)
 		Set MFIP_ELIG_APPROVALS(mfip_elig_months_count) = new mfip_eligibility_detail
 
@@ -6308,15 +7409,15 @@ For each footer_month in MONTHS_ARRAY
 
 		Call MFIP_ELIG_APPROVALS(mfip_elig_months_count).read_elig
 
-		MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
-		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount & vbCr &_
-		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion & vbCr &_
-		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion & vbCr &_
-		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant & vbCr &_
-		"MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
+		' MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_food_portion & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant & vbCr &_
+		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
 
 		mfip_elig_months_count = mfip_elig_months_count + 1
-		MsgBox "mfip_elig_months_count: " & mfip_elig_months_count
+		' MsgBox "mfip_elig_months_count: " & mfip_elig_months_count
 	End If
 
 	If numb_MSA_versions <> " " Then
@@ -6366,12 +7467,12 @@ For each footer_month in MONTHS_ARRAY
 			members = members & vbCr
 		Next
 
-		MsgBox "CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_month - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_month & vbCr & "CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_year - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_year & vbCr &_
-		"CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_dwp_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_dwp_reason_info & vbCr &_
-		"CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_mfip_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_mfip_reason_info & vbCr &_
-		"CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_msa_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_msa_reason_info & vbCr &_
-		"CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info & vbCr &_
-		members
+		' MsgBox "CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_month - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_month & vbCr & "CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_year - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_footer_year & vbCr &_
+		' "CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_dwp_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_dwp_reason_info & vbCr &_
+		' "CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_mfip_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_mfip_reason_info & vbCr &_
+		' "CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_msa_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_msa_reason_info & vbCr &_
+		' "CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info & vbCr &_
+		' members
 
 		cash_deny_months_count = cash_deny_months_count + 1
 	End If
@@ -6411,11 +7512,34 @@ For each footer_month in MONTHS_ARRAY
 	End If
 
 
+	reDim preserve HC_ELIG_APPROVALS(hc_elig_months_count)
 
+	Set HC_ELIG_APPROVALS(hc_elig_months_count) = new hc_eligibility_detail
+
+	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month = MAXIS_footer_month
+	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year = MAXIS_footer_year
+
+	Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
+
+	' elig_list = ""
+	' for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
+	' 	If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_appd(hc_elig) = True Then
+	' 		elig_list = elig_list & "MEMB " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs(hc_elig) & ": " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_major_program(hc_elig) & " " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_elig_type(hc_elig) & "-" & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_elig_standard(hc_elig) & vbCr
+	' 	End If
+	' 	' MsgBox "hc_elig - " & hc_elig & vbCr & elig_list
+	' Next
+	'
+	' MsgBox "Footer Month - " & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month & "/" & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year & vbCr &_
+	' 	   "HC Eligibility: " & vbCr &_
+	' 	   elig_list
+
+	hc_elig_months_count = hc_elig_months_count + 1
 
 
 	Call back_to_SELF
 Next
+
+
 
 ' For approval_month = 0 to UBound(SNAP_ELIG_APPROVALS)
 ' 	For snap_memb = 0 to UBound(SNAP_ELIG_APPROVALS(approval_month).snap_elig_ref_numbs)
