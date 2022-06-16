@@ -54,10 +54,15 @@ changelog_display
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
+
+'file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\SNAP Work\ABAWD WREG Clean Up Report 6.2022.xlsx"
+worksheet_name = "Counted ABAWD"
 
 'column constants
 pmi_col         =  1
-case_number_col = 2
+case_number_col =  2
 fset_col        = 11
 abawd_col       = 12
 memb_numb_col   = 18
@@ -65,37 +70,47 @@ snap_status_col = 19
 notes_col       = 20
 case_active_col = 21
 
-MAXIS_footer_month = "07"
-MAXIS_footer_year = "21"
-
-'file_selection_path = "C:\Users\ilfe001\OneDrive - Hennepin County\Desktop\SNAP Work\ABAWD Report 10-2020 thru 06-2021 PT 2.xlsx"
-
 'dialog and dialog DO...Loop
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, 115, "BULK - ABAWD REPORT"
   ButtonGroup ButtonPressed
     PushButton 200, 50, 50, 15, "Browse...", select_a_file_button
+  EditBox 85, 95, 20, 15, MAXIS_footer_month
+  EditBox 110, 95, 20, 15, MAXIS_footer_year
+  ButtonGroup ButtonPressed
     OkButton 150, 95, 50, 15
     CancelButton 205, 95, 50, 15
   EditBox 15, 50, 180, 15, file_selection_path
-  Text 20, 20, 235, 25, "This script should be used when a list of SNAP cases wtih member numbers are provided by BOBI to gather ABAWD, FSET and Banked Months information."
-  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
   GroupBox 10, 5, 250, 85, "Using this script:"
+  Text 20, 100, 65, 10, "Footer month/year:"
+  Text 15, 70, 230, 15, "Select the Excel file that contains your inforamtion by selecting the 'Browse' button, and finding the file."
+  Text 20, 20, 235, 25, "This script should be used when a list of SNAP cases wtih member numbers are provided by BOBI to gather ABAWD, FSET and Banked Months information."
 EndDialog
+
 Do
     'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
+        err_msg = ""
     	Dialog Dialog1
     	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-    Loop until ButtonPressed = OK and file_selection_path <> ""
+         Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+    Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_SELF
 
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+
+objExcel.worksheets(worksheet_name).Activate
+
+'Setting the Excel rows with variables
+ObjExcel.Cells(1, memb_numb_col).Value = "Member #"
+ObjExcel.Cells(1, snap_status_col).Value = "SNAP Status"
+ObjExcel.Cells(1, notes_col).Value = "Notes"
+ObjExcel.Cells(1, case_active_col).Value = "Case Active"
 
 FOR i = 1 to 21		'formatting the cells'
 	objExcel.Cells(1, i).Font.Bold = True		'bold font'
@@ -139,37 +154,40 @@ NEXT
         Elseif (is_this_priv = False and self_screen = "SELF") then
             ObjExcel.Cells(excel_row, notes_col).Value = trim(self_error)
         Else
-            Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+            Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
             ObjExcel.Cells(excel_row, snap_status_col).Value = snap_case
             ObjExcel.Cells(excel_row, case_active_col).Value = case_active
 
             EmReadscreen county_code, 4, 21, 14 'reading from CASE/CURR
-            If county_code <> UCASE(worker_county_code) then ObjExcel.Cells(excel_row, notes_col).Value = "Out-of-county Case"
-            Call navigate_to_MAXIS_screen("STAT", "MEMB")
-            Do
-                EmReadscreen memb_panel_PMI, 8, 4, 46
-                memb_panel_PMI = right ("00000000" & trim(memb_panel_PMI), 8)
-                If trim(memb_panel_PMI) = PMI_number then
-                    EmReadscreen member_number, 2, 4, 33
-                    Exit do
-                Else
-                    transmit
-                    EmReadscreen end_of_membs_message, 5, 24, 2
-                End if
-            Loop until end_of_membs_message = "ENTER"
-
-            If trim(member_number) = "" then
-                ObjExcel.Cells(excel_row, notes_col).Value = "Unable to find member on case"
+            If county_code <> UCASE(worker_county_code) then
+                ObjExcel.Cells(excel_row, notes_col).Value = "Out-of-county Case"
             Else
-    	           call navigate_to_MAXIS_screen("STAT", "WREG")
-                Call write_value_and_transmit(member_number, 20, 76)
+                Call navigate_to_MAXIS_screen("STAT", "MEMB")
+                Do
+                    EmReadscreen memb_panel_PMI, 8, 4, 46
+                    'memb_panel_PMI = right ("00000000" & trim(memb_panel_PMI), 8)
+                    If trim(memb_panel_PMI) = PMI_number then
+                        EmReadscreen member_number, 2, 4, 33
+                        Exit do
+                    Else
+                        transmit
+                        EmReadscreen end_of_membs_message, 5, 24, 2
+                    End if
+                Loop until end_of_membs_message = "ENTER"
 
-    	           EMReadScreen FSET_code, 2, 8, 50
-    	           EMReadScreen ABAWD_code, 2, 13, 50
+                If trim(member_number) = "" then
+                    ObjExcel.Cells(excel_row, notes_col).Value = "Unable to find member on case"
+                Else
+    	            Call navigate_to_MAXIS_screen("STAT", "WREG")
+                    Call write_value_and_transmit(member_number, 20, 76)
 
-                ObjExcel.Cells(excel_row, memb_numb_col).Value = member_number                      'writing in the member number with initial 0 trimmed.
-                ObjExcel.Cells(excel_row, fset_col).Value = replace(FSET_code, "_", "")
-    	           ObjExcel.Cells(excel_row, abawd_col).Value = replace(ABAWD_code, "_", "")
+    	            EMReadScreen FSET_code, 2, 8, 50
+    	            EMReadScreen ABAWD_code, 2, 13, 50
+
+                    ObjExcel.Cells(excel_row, memb_numb_col).Value = member_number                      'writing in the member number with initial 0 trimmed.
+                    ObjExcel.Cells(excel_row, fset_col).Value = replace(FSET_code, "_", "")
+    	            ObjExcel.Cells(excel_row, abawd_col).Value = replace(ABAWD_code, "_", "")
+                End if
             End if
         End if
         STATS_counter = STATS_counter + 1
