@@ -79,6 +79,11 @@ Do
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call write_value_and_transmit("S", 6, 3)
+'PRIV Handling
+EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+
 Call write_value_and_transmit("BILS", 20, 71)
 
 PF9 'into edit mode
@@ -134,3 +139,45 @@ If updates_made <> 0 then
 elseif updates_made = 0 then
     script_end_procedure_with_error_report("No remedial care entries found to update. You may have already updated this case or need to add new BILS. Use ACTIONS - BILS UPDATER to add new BILS.")
 End if
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------06/17/2022
+'--Tab orders reviewed & confirmed----------------------------------------------06/17/2022
+'--Mandatory fields all present & Reviewed--------------------------------------06/17/2022------------------N/A
+'--All variables in dialog match mandatory fields-------------------------------06/17/2022------------------N/A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------06/17/2022------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------06/17/2022------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/17/2022------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/17/2022------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------06/17/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------06/17/2022
+'--Out-of-County handling reviewed----------------------------------------------06/17/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------06/17/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------06/17/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---06/17/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------06/17/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------06/17/2022
+'--Denomination reviewed -------------------------------------------------------06/17/2022
+'--Script name reviewed---------------------------------------------------------06/17/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------06/17/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------06/17/2022
+'--comment Code-----------------------------------------------------------------06/17/2022
+'--Update Changelog for release/update------------------------------------------06/17/2022
+'--Remove testing message boxes-------------------------------------------------06/17/2022
+'--Remove testing code/unnecessary code-----------------------------------------06/17/2022
+'--Review/update SharePoint instructions----------------------------------------06/17/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/17/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/17/2022
+'--Complete misc. documentation (if applicable)---------------------------------06/17/2022
+'--Update project team/issue contact (if applicable)----------------------------06/17/2022------------------N/A
