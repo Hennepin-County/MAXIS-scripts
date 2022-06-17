@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/17/2022", "Updated remedial care amount to $234.00 for July 2022.", "Ilse Ferris, Hennepin County") ''#873
 call changelog_update("01/03/2022", "Updated remedial care amount to $195.00 for January 2022.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/10/2021", "Updated remedial care amount to $189.00 for July 2021.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/07/2020", "Updated remedial care amount to $177.00 for January 2021.", "Ilse Ferris, Hennepin County")
@@ -57,10 +58,10 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'<<<GO THROUGH AND REMOVE REDUNDANT FUNCTIONS
 EMConnect ""
-remedial_care_amt = "195.00"	'Amount that needs to be updated with current remedial care amount.
-target_date = "01/01/2022" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
+'EPM Reference for Remedial Care: http://hcopub.dhs.state.mn.us/epm/appendix_f.htm?rhhlterm=remedial%20care&rhsearch=remedial%20care
+remedial_care_amt = "234.00"	'Amount that needs to be updated with current remedial care amount.
+target_date = "07/01/2022" 'This date is the 1st possible date that a span can be set at for current COLA span updates. This needs to be updated in code at each COLA (Dec for Jan & June for July.)
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 256, 65, "LTC Remedial Care BILS Panel Updater"
@@ -77,12 +78,8 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-EMSendKey "s" & "<enter>"
-EMWaitReady 0, 0
-
-EMWriteScreen "bils", 20, 71
-EMSendKey "<enter>"
-EMWaitReady 0, 0
+Call write_value_and_transmit("S", 6, 3)
+Call write_value_and_transmit("BILS", 20, 71)
 
 PF9 'into edit mode
 
