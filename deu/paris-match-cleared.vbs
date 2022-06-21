@@ -58,15 +58,13 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-Call Check_for_MAXIS(False )
+Call Check_for_MAXIS(False)
 
 EMReadscreen dail_check, 4, 2, 48
 IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
 
-'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "T"
+EMSendKey "T" 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 TRANSMIT
-
 EMReadScreen DAIL_message, 4, 6, 6 'read the DAIL msg'
 IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a Paris match. Please select a Paris match, and run the script again.")
 
@@ -81,10 +79,10 @@ If left(memb_confirmation, 4) = "MEMB" then
 
     'Heading to STAT to get the Member's SSN
     Call write_value_and_transmit("S", 6, 3)
-    EMReadScreen stat_check, 4, 20, 21
     'PRIV Handling
     EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
     If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+    EMReadScreen stat_check, 4, 20, 21
     If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
 
     Call write_value_and_transmit("MEMB", 20, 71)
@@ -103,10 +101,6 @@ Call write_value_and_transmit("INTM", 20, 71)
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 
-EMReadScreen error_check, 75, 24, 2
-error_check = TRIM(error_check)
-IF error_check <> "" THEN script_end_procedure(error_check & vbcr & "An error occurred, please process manually.")'-------option to read from REPT need to checking for error msg'
-
 Row = 8
 DO
 	EMReadScreen INTM_match_status, 2, row, 73 'DO loop to check status of case before we go into insm'
@@ -118,23 +112,26 @@ DO
 	'PC Person Closed, Not PARIS Interstate
 	'CC Case Closed, Not PARIS Interstate
 	EMReadScreen INTM_period, 5, row, 59
-	IF INTM_match_status = "" THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
-	'IF INTM_match_status <> "RV" THEN
-	    INTM_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
+	IF INTM_match_status = "  " THEN script_end_procedure_with_error_report("A pending PARIS match could not be found. The script will now end.")
+	IF INTM_match_status = "RV" THEN
+        row = row + 1 'skipping verified cases
+    Else
+        INTM_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
         "   " & INTM_period, vbYesNoCancel, "Please confirm this match")
-		IF INTM_info_confirmation = vbNo THEN
+	    IF INTM_info_confirmation = vbNo THEN
             row = row + 1
             'msgbox "row: " & row
             IF row = 18 THEN
-				'msgbox "this should transmit"
+	    		'msgbox "this should transmit"
                 PF8
-				row = 8
-				EMReadScreen INTM_match_status, 2, row, 73
-				EMReadScreen INTM_period, 5, row, 59
-			END IF
+	    		row = 8
+	    		EMReadScreen INTM_match_status, 2, row, 73
+	    		EMReadScreen INTM_period, 5, row, 59
+	    	END IF
         END IF
-		IF INTM_info_confirmation = vbYes THEN EXIT DO
-    	IF INTM_info_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The match has not been acted on.")
+	    IF INTM_info_confirmation = vbYes THEN EXIT DO
+        IF INTM_info_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The match has not been acted on.")
+    End if
 LOOP UNTIL INTM_info_confirmation = vbYes
 '-----------------------------------------------------navigating into the match'
 'msgbox "row: " & row
@@ -225,7 +222,6 @@ DO
 
 		'-------------------------------------------------------------------trims excess spaces of match_active_programs
 		match_active_programs = "" 'sometimes blanking over information will clear the value of the variable'
-		'match_row = row           'establishing match row the same as the current state row. Needs another variables since we are only incrementing the match row in the loop. Row needs to stay the same for larger loop/next state.
 		DO
 
 			EMReadScreen other_state_active_programs, 22, row, 60
@@ -249,7 +245,6 @@ DO
 		fax_number = ""
 		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
 		add_state = add_state + 1
-			'MsgBox add_state
         row = row + 3
 		IF row = 19 THEN
 			PF8
@@ -282,33 +277,33 @@ IF notice_sent = "N" THEN
 		LOOP UNTIL err_msg = ""
 		CALL check_for_password_without_transmit(are_we_passworded_out)
 	LOOP UNTIL are_we_passworded_out = false
-END IF
+End if
 
 IF send_notice_checkbox = CHECKED THEN
-'----------------------------------------------------------------Defaulting checkboxes to being CHECKED (per DEU instruction)
+    '----------------------------------------------------------------Defaulting checkboxes to being CHECKED (per DEU instruction)
     diff_notice_CHECKBOX = 1
     shelter_verf_CHECKBOX = 1
     proof_residency_CHECKBOX = 1
-	'-------------------------------------------------------------------------------------------------DIALOG
-	Dialog1 = "" 'Blanking out previous dialog detail
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 376, 235, "SEND PARIS MATCH DIFFERENCE NOTICE"
     	Text 10, 15, 130, 10, "Case number: "   & MAXIS_case_number
     	Text 165, 15, 175, 10, "Client Name: "  & Client_Name
     	Text 10, 35, 110, 10, "Match month: "   & Match_Month
     	Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
-	GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
-		For item = 0 to Ubound(state_array, 2)
-		    Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
-		    Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
-		    Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, item)
-		    Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, item)
-		Next
-		   'For item = 1 to Ubound(state_array, 2)
-			'   Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, item)
-			'   Text 185, 90, 185, 10, "2nd Match Active Programs: "   & state_array(progs, item)
-			'   Text 185, 75, 110, 10, "2nd Match State Case Number: " & state_array(match_case_num, item)
-			'   Text 185, 105, 175, 15, "2nd Match Contact Info: "  & state_array(contact_info, item)
-		   'Next
+    GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
+    	If state_array(state_name, 0) <> "" then
+    	    Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, 0)
+    	    Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, 0)
+    	    Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, 0)
+    	    Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, 0)
+    	End if
+    	If state_array(state_name, 1) <> "" then
+    	    Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, 1)
+    	    Text 185, 90, 185, 10, "2nd Match Active Programs: "   & state_array(progs, 1)
+    	    Text 185, 75, 175, 10, "2nd Match State Case Number: " & state_array(match_case_num, 1)
+    	    Text 185, 105, 175, 15, "2nd Match Contact Info: "  & state_array(contact_info, 1)
+    	End if
     	Text 60, 180, 60, 10, "Referral to Fraud:"
       	Text 55, 160, 65, 10, "Contact Other State:"
     	Text 10, 140, 110, 10, "Accessing benefits in other state:"
@@ -327,73 +322,63 @@ IF send_notice_checkbox = CHECKED THEN
         CancelButton 295, 215, 70, 15
     EndDialog
 
-    	'---------------------------------------------------------------------send notice dialog and dialog DO...loop
+    '---------------------------------------------------------------------send notice dialog and dialog DO...loop
+    DO
     	DO
-    		DO
-    			err_msg = ""
-    			Dialog Dialog1
-    			cancel_without_confirmation
-    			IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
-    			IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
-				IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
-    			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-			LOOP UNTIL err_msg = ""
-    		'--------------------------------------------------------------CHECKING FOR MAXIS WITHOUT TRANSMITTING SINCE THIS WILL NAVIGATE US AWAY FROM THE AREA WE ARE AT
-    		EMReadScreen MAXIS_check, 5, 1, 39
-    		IF MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " THEN
-    			IF end_script = TRUE THEN
-    				script_end_procedure("You Do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
-    			ELSE
-    				warning_box = MsgBox("You Do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-    				IF warning_box = vbCancel THEN stopscript
-    			END IF
-    		END IF
-			CALL check_for_password_without_transmit(are_we_passworded_out)
-		LOOP UNTIL are_we_passworded_out = false
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_without_confirmation
+    		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
+    		IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
+    		IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)
+    LOOP UNTIL are_we_passworded_out = false
 
-    	'sending the notice
-    	PF9	'edit mode'
-    	EMReadScreen edit_error, 2, 24, 2
-    	edit_error = trim (edit_error)
-    	IF edit_error <> "" THEN script_end_procedure ("Unable to send difference notice please review case")
-    	EMwritescreen "Y", 8, 73 'send Notice
-    	TRANSMIT
+    'sending the notice
+    PF9	'edit mode'
+    EMReadScreen edit_error, 2, 24, 2
+    edit_error = trim (edit_error)
+    IF edit_error <> "" THEN script_end_procedure ("Unable to send difference notice please review case")
+    Call write_value_and_transmit("Y", 8, 73) 'send Notice
 
-    	'--------------------------------------------------------------------The case note & case note related code
-    	'creating new variable for case note for programs appealing that is incremential
-    	pending_verifs = ""
-    	IF shelter_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Shelter, "
-    	IF diff_notice_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
-    	IF proof_residency_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Residency, "
-    	IF schl_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "School, "
-    	'trims excess spaces of pending_verifs
-    	pending_verifs = trim(pending_verifs)
-    	'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
-    	IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
-    	Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
+    '--------------------------------------------------------------------The case note & case note related code
+    'creating new variable for case note for programs appealing that is incremential
+    pending_verifs = ""
+    IF shelter_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Shelter, "
+    IF diff_notice_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
+    IF proof_residency_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Residency, "
+    IF schl_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "School, "
 
-    	'-----------------------------------------------------------------------The case note
-    	start_a_blank_CASE_NOTE
-    	CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS MATCH " & "(" & first_name &  ") DIFF NOTICE SENT-----")
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
-    	'formatting for multiple states
-    	For item = 0 to Ubound(state_array, 2)
-    		CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
-    		CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, item))
-    		CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, item))
-    	NEXT
-    	CALL write_variable_in_CASE_NOTE ("-----")
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", contact_other_state)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
-    	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-    	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
-    	CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+    pending_verifs = trim(pending_verifs) 'trims excess spaces of pending_verifs
+    'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
+    IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
+    Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
 
-ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
-	IF sent_date <> "" then MsgBox("A difference notice was sent on " & sent_date & ". The script will now navigate to clear the PARIS match.")
+    '-----------------------------------------------------------------------The case note
+    start_a_blank_CASE_NOTE
+    CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS MATCH " & "(" & first_name &  ") DIFF NOTICE SENT-----")
+    CALL write_bullet_and_variable_in_CASE_NOTE("Client Name", Client_Name)
+    CALL write_bullet_and_variable_in_CASE_NOTE("MN Active Programs", MN_active_programs)
+    'formatting for multiple states
+    For item = 0 to Ubound(state_array, 2)
+    	CALL write_variable_in_CASE_NOTE("----- Match State: " & state_array(state_name, item) & " -----")
+    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Active Programs", state_array(progs, item))
+    	CALL write_bullet_and_variable_in_CASE_NOTE("Match State Contact Info", state_array(contact_info, item))
+    NEXT
+    CALL write_variable_in_CASE_NOTE ("-----")
+    CALL write_bullet_and_variable_in_CASE_NOTE("Client accessing benefits in other state", bene_other_state)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Contacted other state", contact_other_state)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
+    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+    CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+
+    closing_msg = "Success, the difference notice was sent to this resident."
+Else
+	'IF sent_date <> "" then MsgBox("A difference notice was sent on " & sent_date & ". The script will now navigate to clear the PARIS match.")
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 376, 260, "PARIS MATCH CLEARED"
@@ -402,12 +387,18 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
      Text 10, 35, 110, 10, "Match month: "   & Match_Month
      Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
 	 GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
-	 	For item = 0 to Ubound(state_array, 2)
-     		Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, item)
-			Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, item)
-			Text 10, 90, 155, 10, "Match Active Programs: " & state_array(progs, item)
- 			Text 10, 105, 170, 15, "Match State Contact Info: "   &  state_array(contact_info, item)
-		Next
+        If state_array(state_name, 0) <> "" then
+            Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, 0)
+            Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, 0)
+            Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, 0)
+            Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, 0)
+        End if
+        If state_array(state_name, 1) <> "" then
+            Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, 1)
+            Text 185, 90, 185, 10, "2nd Match Active Programs: "   & state_array(progs, 1)
+            Text 185, 75, 175, 10, "2nd Match State Case Number: " & state_array(match_case_num, 1)
+            Text 185, 105, 175, 15, "2nd Match Contact Info: "  & state_array(contact_info, 1)
+        End if
   	 Text 10, 140, 110, 10, "Accessing benefits in other state:"
      DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
      DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
@@ -438,18 +429,7 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 			IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     	LOOP UNTIL err_msg = ""
-
-    	'CHECKING FOR MAXIS WITHOUT TRANSMITTING SINCE THIS WILL NAVIGATE US AWAY FROM THE AREA WE ARE AT
-    	EMReadScreen MAXIS_check, 5, 1, 39
-    	IF MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " THEN
-    		IF end_script = True THEN
-    			script_end_procedure("You Do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
-    		ELSE
-    			warning_box = MsgBox("You Do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again, or press ""cancel"" to exit the script.", vbOKCancel)
-    			IF warning_box = vbCancel THEN stopscript
-    		END IF
-    	END IF
-		CALL check_for_password_without_transmit(are_we_passworded_out)
+		CALL check_for_password(are_we_passworded_out)
 	LOOP UNTIL are_we_passworded_out = false
 
     '--------------------------------------------------------------------The case note
@@ -458,14 +438,14 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     IF Other_Verif_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other verification provided, "
     IF proof_residency_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "Residency, "
     IF schl_verf_CHECKBOX = CHECKED THEN pending_verifs = pending_verifs & "School, "
-    'trims excess spaces of pending_verifs
-    pending_verifs = trim(pending_verifs)
+
+    pending_verifs = trim(pending_verifs) 'trims excess spaces of pending_verifs
     'takes the last comma off of pending_verifs when autofilled into dialog if more more than one app date is found and additional app is selected
     IF right(pending_verifs, 1) = "," THEN pending_verifs = left(pending_verifs, len(pending_verifs) - 1)
 
     Due_date = dateadd("d", 10, date)	'defaults the due date for all verifications at 10 days
-    'requested for HEADER of casenote'
 
+    'requested for HEADER of casenote'
     IF resolution_status = "PR - Person Removed From Household" THEN rez_status = "PR"
     IF resolution_status = "HM - Household Moved Out Of State" THEN rez_status = "HM"
     IF resolution_status = "RV - Residency Verified, Person in MN" THEN rez_status = "RV"
@@ -479,11 +459,12 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
 	EMwritescreen rez_status, 9, 27
 	IF fraud_referral = "YES" THEN
 		EMwritescreen "Y", 10, 27
-		ELSE
+	ELSE
 		TRANSMIT
 	END IF
 	PF3
     PF3
+
     '----------------------------------------------------------------the case match note
     start_a_blank_CASE_NOTE
     CALL write_variable_in_CASE_NOTE ("-----" & Match_month & " PARIS MATCH " & "(" & first_name &  ") CLEARED " & rez_status & "-----")
@@ -507,6 +488,7 @@ ELSEIF clear_action_checkbox = CHECKED or notice_sent = "Y" THEN
     CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
     CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
+    closing_msg = "Success, your PARIS match has been resolved and case noted."
 END IF
 
-script_end_procedure_with_error_report("Success PARIS match updated and copied to case note.")
+script_end_procedure_with_error_report(closing_msg)
