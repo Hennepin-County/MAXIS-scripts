@@ -120,9 +120,7 @@ DO
         "   " & INTM_period, vbYesNoCancel, "Please confirm this match")
 	    IF INTM_info_confirmation = vbNo THEN
             row = row + 1
-            'msgbox "row: " & row
             IF row = 18 THEN
-	    		'msgbox "this should transmit"
                 PF8
 	    		row = 8
 	    		EMReadScreen INTM_match_status, 2, row, 73
@@ -133,8 +131,7 @@ DO
         IF INTM_info_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The match has not been acted on.")
     End if
 LOOP UNTIL INTM_info_confirmation = vbYes
-'-----------------------------------------------------navigating into the match'
-'msgbox "row: " & row
+'-----------------------------------------------------navigating into the match
 CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
 
 'Ensuring that the client has not already had a difference notice sent
@@ -455,7 +452,6 @@ Else
 
 	'------------------------------------------------------------------'still need to be on PARIS Interstate Match Display (INSM)'
 	PF9
-	'msgbox rez_status
 	EMwritescreen rez_status, 9, 27
 	IF fraud_referral = "YES" THEN
 		EMwritescreen "Y", 10, 27
@@ -492,3 +488,45 @@ Else
 END IF
 
 script_end_procedure_with_error_report(closing_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------06/21/2022
+'--Tab orders reviewed & confirmed----------------------------------------------06/21/2022
+'--Mandatory fields all present & Reviewed--------------------------------------06/21/2022
+'--All variables in dialog match mandatory fields-------------------------------06/21/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------06/21/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------06/21/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/21/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/21/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------06/21/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------06/21/2022
+'--Out-of-County handling reviewed----------------------------------------------06/21/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------06/21/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------06/21/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---06/21/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------06/21/2022------------------N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------06/21/2022------------------N/A
+'--Denomination reviewed -------------------------------------------------------06/21/2022
+'--Script name reviewed---------------------------------------------------------06/21/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------06/21/2022------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------06/21/2022
+'--comment Code-----------------------------------------------------------------06/21/2022
+'--Update Changelog for release/update------------------------------------------06/21/2022
+'--Remove testing message boxes-------------------------------------------------06/21/2022
+'--Remove testing code/unnecessary code-----------------------------------------06/21/2022
+'--Review/update SharePoint instructions----------------------------------------06/21/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/21/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/21/2022
+'--Complete misc. documentation (if applicable)---------------------------------06/21/2022
+'--Update project team/issue contact (if applicable)----------------------------06/21/2022
