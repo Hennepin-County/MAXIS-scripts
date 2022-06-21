@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/21/2022", "Added fix for PARI DAIL's while DHS interface with SSN is being repaired.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL and clear matches FR.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/03/2018", "Updated coding for multiple states on INSM panel.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/28/2018", "Added handling for more than two states of PARIS matches on INSM.", "MiKayla Handley, Hennepin County")
@@ -57,7 +58,7 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-CALL MAXIS_case_number_finder (MAXIS_case_number)
+Call Check_for_MAXIS(False )
 
 EMReadscreen dail_check, 4, 2, 48
 IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
@@ -71,10 +72,37 @@ IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a Paris match. 
 
 EMReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number= TRIM(MAXIS_case_number)
-'msgbox "did i make it"
-'Navigating deeper into the match interface
-CALL write_value_and_transmit("I", 6, 3)   'navigates to INFC
-CALL write_value_and_transmit("INTM", 20, 71)   'navigates to INTM
+
+'determining if the old message with the SSN functionality will be needed or not.
+EMReadScreen memb_confirmation, 7, 6, 20
+If left(memb_confirmation, 4) = "MEMB" then
+    SSN_present = False
+    member_number = right(memb_confirmation, 2)
+
+    'Heading to STAT to get the Member's SSN
+    Call write_value_and_transmit("S", 6, 3)
+    EMReadScreen stat_check, 4, 20, 21
+    'PRIV Handling
+    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+    If stat_check <> "STAT" then script_end_procedure_with_error_report("Unable to get to stat due to an error screen. Clear the error screen and return to the DAIL. Then try the script again.")
+
+    Call write_value_and_transmit("MEMB", 20, 71)
+    Call write_value_and_transmit(member_number, 20, 76)
+    EmReadscreen client_SSN, 11, 7, 42
+    client_SSN = replace(client_SSN, " ", "")
+    PF3 ' back to the DAIL
+End if
+
+'Going to INFC
+Call write_value_and_transmit("I", 6, 3) 'to INFC
+If SSN_present = False then EmWriteScreen client_SSN, 3, 63
+Call write_value_and_transmit("INTM", 20, 71)
+
+'checking for IRS non-disclosure agreement.
+EMReadScreen agreement_check, 9, 2, 24
+IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+
 EMReadScreen error_check, 75, 24, 2
 error_check = TRIM(error_check)
 IF error_check <> "" THEN script_end_procedure(error_check & vbcr & "An error occurred, please process manually.")'-------option to read from REPT need to checking for error msg'
