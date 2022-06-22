@@ -237,7 +237,7 @@ DO
 		phone_number = ""
 		fax_number = ""
 		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
-		add_state = add_state + 1
+        add_state = add_state + 1
         row = row + 3
 		IF row = 19 THEN
 			PF8
@@ -247,6 +247,14 @@ DO
 		END IF
 	END IF
 LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
+
+'array and dialog display management
+add_state = add_state - 1   'subtracted one increment at the end of the information gathering. Dialog will only show up to 2 states, case note will be all states.
+If add_state = 0 then
+    multi_state = False     'Boolean for not showing 2nd state in dialog.
+Else
+    multi_state = True
+End if
 
 IF notice_sent = "N" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
@@ -285,13 +293,13 @@ IF paris_action = "Yes, send the notice" then
     	Text 10, 35, 110, 10, "Match month: "   & Match_Month
     	Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
     GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
-    	If state_array(state_name, 0) <> "" then
+
     	    Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, 0)
     	    Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, 0)
     	    Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, 0)
     	    Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, 0)
-    	End if
-    	If state_array(state_name, 1) <> "" then
+
+    	If multi_state = True then
     	    Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, 1)
     	    Text 185, 90, 185, 10, "2nd Match Active Programs: "   & state_array(progs, 1)
     	    Text 185, 75, 175, 10, "2nd Match State Case Number: " & state_array(match_case_num, 1)
@@ -380,18 +388,16 @@ Else
      Text 10, 35, 110, 10, "Match month: "   & Match_Month
      Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
 	 GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
-        If state_array(state_name, 0) <> "" then
-            Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, 0)
-            Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, 0)
-            Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, 0)
-            Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, 0)
-        End if
-        If state_array(state_name, 1) <> "" then
-            Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, 1)
-            Text 185, 90, 185, 10, "2nd Match Active Programs: "   & state_array(progs, 1)
-            Text 185, 75, 175, 10, "2nd Match State Case Number: " & state_array(match_case_num, 1)
-            Text 185, 105, 175, 15, "2nd Match Contact Info: "  & state_array(contact_info, 1)
-        End if
+     Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, 0)
+     Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, 0)
+     Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, 0)
+     Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, 0)
+    If multi_state = True then
+        Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, 1)
+        Text 185, 90, 185, 10, "2nd Match Active Programs: "   & state_array(progs, 1)
+        Text 185, 75, 175, 10, "2nd Match State Case Number: " & state_array(match_case_num, 1)
+        Text 185, 105, 175, 15, "2nd Match Contact Info: "  & state_array(contact_info, 1)
+    End if
   	 Text 10, 140, 110, 10, "Accessing benefits in other state:"
      DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
      DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
