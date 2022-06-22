@@ -43,7 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("06/21/2022", "Added fix for PARI DAIL's while DHS interface with SSN is being repaired.", "Ilse Ferris, Hennepin County")
+call changelog_update("06/21/2022", "Added fix for PARI DAIL's while DHS interface with SSN is being repaired. Also made some functional changes to support the user experience.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL and clear matches FR.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/03/2018", "Updated coding for multiple states on INSM panel.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/28/2018", "Added handling for more than two states of PARIS matches on INSM.", "MiKayla Handley, Hennepin County")
@@ -118,18 +118,14 @@ DO
     Else
         INTM_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
         "   " & INTM_period, vbYesNoCancel, "Please confirm this match")
-	    IF INTM_info_confirmation = vbNo THEN
-            row = row + 1
-            IF row = 18 THEN
-                PF8
-	    		row = 8
-	    		EMReadScreen INTM_match_status, 2, row, 73
-	    		EMReadScreen INTM_period, 5, row, 59
-	    	END IF
-        END IF
+	    IF INTM_info_confirmation = vbNo THEN row = row + 1
 	    IF INTM_info_confirmation = vbYes THEN EXIT DO
         IF INTM_info_confirmation = vbCancel THEN script_end_procedure_with_error_report("The script has ended. The match has not been acted on.")
     End if
+    IF row = 18 THEN
+        PF8
+        row = 8 'resetting row as 8 to start on new page
+    END IF
 LOOP UNTIL INTM_info_confirmation = vbYes
 '-----------------------------------------------------navigating into the match
 CALL write_value_and_transmit("X", row, 3) 'navigating to insm'
@@ -255,28 +251,28 @@ LOOP UNTIL last_page_check = "THIS IS THE LAST PAGE"
 IF notice_sent = "N" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 166, 85, "SEND DIFFERENCE NOTICE?"
-      CheckBox 25, 35, 105, 10, "YES - Send Difference Notice", send_notice_checkbox
-      CheckBox 25, 50, 130, 10, "NO - Continue Match Action to Clear", clear_action_checkbox
+    BeginDialog Dialog1, 0, 0, 171, 75, "Send Difference Notice?"
+      Text 5, 5, 135, 10, "A difference notice has not been sent."
+      Text 5, 20, 165, 10, "Would you like to send the difference notice now?"
+      DropListBox 20, 35, 140, 15, "Select one..."+chr(9)+"Yes, send the notice"+chr(9)+"No, clear the match", paris_action
       ButtonGroup ButtonPressed
-        OkButton 60, 65, 45, 15
-        CancelButton 110, 65, 45, 15
-      Text 10, 10, 145, 20, "A difference notice has not been sent, would you like to send the difference notice now?"
+        OkButton 65, 55, 45, 15
+        CancelButton 115, 55, 45, 15
     EndDialog
 	DO
     	DO
     		err_msg = ""
     		Dialog Dialog1
     		cancel_without_confirmation
-    		IF send_notice_checkbox = UNCHECKED AND clear_action_checkbox = UNCHECKED THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
-    		IF send_notice_checkbox = CHECKED AND clear_action_checkbox = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please select only one answer to continue."
+    	    If paris_action = "Select one..." then err_msg = err_msg & "* Select a PARIS action option."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
-		CALL check_for_password_without_transmit(are_we_passworded_out)
+		CALL check_for_password(are_we_passworded_out)
 	LOOP UNTIL are_we_passworded_out = false
 End if
 
-IF send_notice_checkbox = CHECKED THEN
+'If sending the difference notice, the user selects this option
+IF paris_action = "Yes, send the notice" then
     '----------------------------------------------------------------Defaulting checkboxes to being CHECKED (per DEU instruction)
     diff_notice_CHECKBOX = 1
     shelter_verf_CHECKBOX = 1
@@ -375,7 +371,7 @@ IF send_notice_checkbox = CHECKED THEN
 
     closing_msg = "Success, the difference notice was sent to this resident."
 Else
-	'IF sent_date <> "" then MsgBox("A difference notice was sent on " & sent_date & ". The script will now navigate to clear the PARIS match.")
+    'If user selects the paris_option of "Yes, send the notice", then this will support matches that already have a difference notice sent OR the staff can clear the match.
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 376, 260, "PARIS MATCH CLEARED"
