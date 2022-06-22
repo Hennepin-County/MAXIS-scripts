@@ -723,6 +723,13 @@ class mfip_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public er_month
+	public hrf_month
+	public er_status
+	public er_caf_date
+	public er_interview_date
+	public hrf_status
+	public hrf_doc_date
 
 	public mfip_elig_ref_numbs()
 	public mfip_elig_membs_full_name()
@@ -1989,6 +1996,10 @@ class msa_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public er_month
+	public er_status
+	public er_caf_date
+	public er_interview_date
 
 	public msa_elig_ref_numbs()
 	public msa_elig_membs_full_name()
@@ -2668,6 +2679,13 @@ class ga_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public er_month
+	public hrf_month
+	public er_status
+	public er_caf_date
+	public er_interview_date
+	public hrf_status
+	public hrf_doc_date
 
 	public ga_elig_case_status
 	public ga_elig_file_unit_type_code
@@ -3589,6 +3607,13 @@ class grh_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public er_month
+	public hrf_month
+	public er_status
+	public er_caf_date
+	public er_interview_date
+	public hrf_status
+	public hrf_doc_date
 
 	public grh_elig_memb_ref_numb
 	public grh_elig_memb_full_name
@@ -5565,6 +5590,13 @@ class snap_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public er_month
+	public hrf_month
+	public er_status
+	public er_caf_date
+	public er_interview_date
+	public hrf_status
+	public hrf_doc_date
 
 	public snap_elig_ref_numbs()
 	public snap_elig_membs_request_yn()
@@ -5600,6 +5632,8 @@ class snap_eligibility_detail
 	public snap_uhfs
 	public snap_exp_package_includes_month_one
 	public snap_exp_package_includes_month_two
+	public elig_membs_list
+	public inelig_membs_list
 	public snap_prorated
 	public snap_earned_income_budgeted
 	public snap_unearned_income_budgeted
@@ -5668,6 +5702,9 @@ class snap_eligibility_detail
 	public snap_budg_shel_water_garbage
 	public snap_budg_shel_phone
 	public snap_budg_shel_other
+	public snap_budg_housing_exp_total
+	public snap_budg_utilities_exp_total
+	public snap_budg_utilities_list
 	public snap_budg_shel_total
 	public snap_budg_50_perc_net_inc
 	public snap_budg_adj_shel_costs
@@ -5696,6 +5733,8 @@ class snap_eligibility_detail
 	public snap_budg_total_resources
 	public snap_budg_max_resources
 	public snap_budg_net_adj_inc
+	public snap_bug_30_percent_net_adj_inc
+	public snap_budg_thrifty_food_plan
 	public snap_benefit_monthly_fs_allotment
 	public snap_benefit_prorated_amt
 	public snap_benefit_prorated_date
@@ -5767,6 +5806,8 @@ class snap_eligibility_detail
 
 		row = 7
 		elig_memb_count = 0
+		elig_membs_list = ""
+		inelig_membs_list = ""
 		Do
 			EMReadScreen ref_numb, 2, row, 10
 
@@ -5823,6 +5864,8 @@ class snap_eligibility_detail
 			snap_elig_membs_eligibility(elig_memb_count) = trim(memb_elig)
 			If memb_budg_cycle = "P" Then snap_elig_membs_budget_cycle(elig_memb_count) = "Prospective"
 			If memb_budg_cycle = "R" Then snap_elig_membs_budget_cycle(elig_memb_count) = "Retrospective"
+			If snap_elig_membs_eligibility(elig_memb_count) = "ELIGIBLE" Then elig_membs_list = elig_membs_list & "Memb " & snap_elig_ref_numbs(elig_memb_count) & ", "
+			If snap_elig_membs_eligibility(elig_memb_count) = "INELIGIBLE" Then inelig_membs_list = inelig_membs_list & "Memb " & snap_elig_ref_numbs(elig_memb_count) & ", "
 
 			Call write_value_and_transmit("X", row, 5)
 
@@ -5872,6 +5915,11 @@ class snap_eligibility_detail
 			row = row + 1
 			EMReadScreen next_ref_numb, 2, row, 10
 		Loop until next_ref_numb = "  "
+
+		elig_membs_list = trim(elig_membs_list)
+		inelig_membs_list = trim(inelig_membs_list)
+		If right(elig_membs_list, 1) = "," Then elig_membs_list = left(elig_membs_list, len(elig_membs_list)-1)
+		If right(inelig_membs_list, 1) = "," Then inelig_membs_list = left(inelig_membs_list, len(inelig_membs_list)-1)
 
 		transmit 		'FSCR
 		EMReadScreen case_expedited_indicator, 9, 4, 3
@@ -5960,6 +6008,7 @@ class snap_eligibility_detail
 		snap_budg_gross_wages = trim(snap_budg_gross_wages)
 		snap_budg_self_emp = trim(snap_budg_self_emp)
 		snap_budg_total_earned_inc = trim(snap_budg_total_earned_inc)
+		If snap_budg_total_earned_inc = "" Then snap_budg_total_earned_inc = "0.00"
 
 
 		EMReadScreen snap_budg_pa_grant_inc, 	10, 10, 31
@@ -5979,6 +6028,7 @@ class snap_eligibility_detail
 		snap_budg_cses_inc = trim(snap_budg_cses_inc)
 		snap_budg_other_unea_inc = trim(snap_budg_other_unea_inc)
 		snap_budg_total_unea_inc = trim(snap_budg_total_unea_inc)
+		If snap_budg_total_unea_inc = "" Then snap_budg_total_unea_inc = "0.00"
 
 		EMReadScreen snap_budg_schl_inc, 			10, 5, 71
 		EMReadScreen snap_budg_farm_ofset, 			10, 6, 71
@@ -6031,6 +6081,48 @@ class snap_eligibility_detail
 		snap_budg_50_perc_net_inc = trim(snap_budg_50_perc_net_inc)
 		snap_budg_adj_shel_costs = trim(snap_budg_adj_shel_costs)
 
+		If snap_budg_shel_rent_mort = "" Then snap_budg_shel_rent_mort = 0
+		If snap_budg_shel_prop_tax = "" Then snap_budg_shel_prop_tax = 0
+		If snap_budg_shel_home_ins = "" Then snap_budg_shel_home_ins = 0
+		If snap_budg_shel_electricity = "" Then snap_budg_shel_electricity = 0
+		If snap_budg_shel_heat_ac = "" Then snap_budg_shel_heat_ac = 0
+		If snap_budg_shel_water_garbage = "" Then snap_budg_shel_water_garbage = 0
+		If snap_budg_shel_phone = "" Then snap_budg_shel_phone = 0
+		If snap_budg_shel_other = "" Then snap_budg_shel_other = 0
+
+		snap_budg_shel_rent_mort = snap_budg_shel_rent_mort*1
+		snap_budg_shel_prop_tax = snap_budg_shel_prop_tax*1
+		snap_budg_shel_home_ins = snap_budg_shel_home_ins*1
+		snap_budg_shel_electricity = snap_budg_shel_electricity*1
+		snap_budg_shel_heat_ac = snap_budg_shel_heat_ac*1
+		snap_budg_shel_water_garbage = snap_budg_shel_water_garbage*1
+		snap_budg_shel_phone = snap_budg_shel_phone*1
+		snap_budg_shel_other = snap_budg_shel_other*1
+
+		snap_budg_housing_exp_total = snap_budg_shel_rent_mort + snap_budg_shel_prop_tax + snap_budg_shel_home_ins + snap_budg_shel_other
+		snap_budg_utilities_exp_total = snap_budg_shel_electricity + snap_budg_shel_heat_ac + snap_budg_shel_phone
+
+		snap_budg_utilities_list = "None"
+		If snap_budg_shel_heat_ac <> 0 Then
+			snap_budg_utilities_list = "Heat and AC"
+		ElseIf snap_budg_shel_electricity <> 0 and snap_budg_shel_phone <> 0 Then
+			snap_budg_utilities_list = "Electricity and Phone"
+		ElseIf snap_budg_shel_electricity <> 0 Then
+			snap_budg_utilities_list = "Electricity"
+		ElseIf snap_budg_shel_phone <> 0 Then
+			snap_budg_utilities_list = "Phone"
+		End If
+		snap_budg_housing_exp_total = FormatNumber(snap_budg_housing_exp_total, 2, -1, 0, -1)
+		snap_budg_utilities_exp_total = FormatNumber(snap_budg_utilities_exp_total, 2, -1, 0, -1)
+
+		snap_budg_shel_rent_mort = FormatNumber(snap_budg_shel_rent_mort, 2, -1, 0, -1)
+		snap_budg_shel_prop_tax = FormatNumber(snap_budg_shel_prop_tax, 2, -1, 0, -1)
+		snap_budg_shel_home_ins = FormatNumber(snap_budg_shel_home_ins, 2, -1, 0, -1)
+		snap_budg_shel_electricity = FormatNumber(snap_budg_shel_electricity, 2, -1, 0, -1)
+		snap_budg_shel_heat_ac = FormatNumber(snap_budg_shel_heat_ac, 2, -1, 0, -1)
+		snap_budg_shel_water_garbage = FormatNumber(snap_budg_shel_water_garbage, 2, -1, 0, -1)
+		snap_budg_shel_phone = FormatNumber(snap_budg_shel_phone, 2, -1, 0, -1)
+		snap_budg_shel_other = FormatNumber(snap_budg_shel_other, 2, -1, 0, -1)
 
 		EMReadScreen snap_budg_max_allow_shel, 			10, 5, 71
 		EMReadScreen snap_budg_shel_expenses, 			10, 6, 71
@@ -6119,6 +6211,26 @@ class snap_eligibility_detail
 		snap_benefit_prorated_date = trim(snap_benefit_prorated_date)
 		snap_benefit_amt = trim(snap_benefit_amt)
 
+		If snap_budg_net_adj_inc = "" Then snap_budg_net_adj_inc = 0
+		snap_budg_net_adj_inc = snap_budg_net_adj_inc*1
+		snap_bug_30_percent_net_adj_inc = .3 * snap_budg_net_adj_inc
+		snap_bug_30_percent_net_adj_inc = Round(snap_bug_30_percent_net_adj_inc)
+		snap_budg_net_adj_inc = FormatNumber(snap_budg_net_adj_inc, 2, -1, 0, -1)
+		snap_bug_30_percent_net_adj_inc = FormatNumber(snap_bug_30_percent_net_adj_inc, 2, -1, 0, -1)
+
+		If snap_budg_numb_in_assist_unit = "" Then snap_budg_numb_in_assist_unit = 0
+		snap_budg_numb_in_assist_unit = snap_budg_numb_in_assist_unit*1
+		If snap_budg_numb_in_assist_unit = 0 Then snap_budg_thrifty_food_plan = "0.00"
+		If snap_budg_numb_in_assist_unit = 1 Then snap_budg_thrifty_food_plan = "250.00"
+		If snap_budg_numb_in_assist_unit = 2 Then snap_budg_thrifty_food_plan = "459.00"
+		If snap_budg_numb_in_assist_unit = 3 Then snap_budg_thrifty_food_plan = "658.00"
+		If snap_budg_numb_in_assist_unit = 4 Then snap_budg_thrifty_food_plan = "835.00"
+		If snap_budg_numb_in_assist_unit = 5 Then snap_budg_thrifty_food_plan = "992.00"
+		If snap_budg_numb_in_assist_unit = 6 Then snap_budg_thrifty_food_plan = "1,190.00"
+		If snap_budg_numb_in_assist_unit = 7 Then snap_budg_thrifty_food_plan = "1,316.00"
+		If snap_budg_numb_in_assist_unit = 8 Then snap_budg_thrifty_food_plan = "1,504.00"
+		If snap_budg_numb_in_assist_unit > 8 Then snap_budg_thrifty_food_plan = 1504 + ((snap_budg_numb_in_assist_unit-8)*188)
+		snap_budg_thrifty_food_plan = snap_budg_thrifty_food_plan & ""
 
 		EMReadScreen fssm_expedited_info_exists, 16, 14, 44
 		If fssm_expedited_info_exists = "EXPEDITED STATUS" Then
@@ -6184,6 +6296,13 @@ class hc_eligibility_detail
 	' public elig_version_result
 	public approved_today
 	public approved_version_found
+	public er_month
+	public hrf_month
+	public er_status
+	public er_caf_date
+	public er_interview_date
+	public hrf_status
+	public hrf_doc_date
 
 	public hc_elig_ref_numbs()
 	public hc_elig_full_name()
@@ -7294,6 +7413,39 @@ class stat_detail
 	public stat_hest_prosp_phone_yn
 	public stat_hest_prosp_phone_fs_units
 
+	public stat_revw_cash_code
+	public stat_next_cash_revw_date
+	public stat_next_cash_revw_process
+	public stat_last_cash_revw_date
+	public stat_last_cash_revw_process
+	public stat_revw_snap_code
+	public stat_next_snap_revw_date
+	public stat_next_snap_revw_process
+	public stat_last_snap_revw_date
+	public stat_last_snap_revw_process
+	public stat_revw_hc_code
+	public stat_next_hc_revw_date
+	public stat_next_hc_revw_process
+	public stat_last_hc_revw_date
+	public stat_last_hc_revw_process
+	public stat_revw_form_recvd_date
+	public stat_revw_interview_date
+	public stat_mont_cash_status
+	public stat_mont_snap_status
+	public stat_mont_hc_status
+	public stat_mont_form_recvd_date
+	public stat_shel_prosp_all_total
+	public stat_hest_retro_heat_air_amount
+	public stat_hest_retro_electric_amount
+	public stat_hest_retro_phone_amount
+	public stat_hest_prosp_heat_air_amount
+	public stat_hest_prosp_electric_amount
+	public stat_hest_prosp_phone_amount
+	public stat_hest_retro_all
+	public stat_hest_prosp_all
+	public stat_hest_retro_list
+	public stat_hest_prosp_list
+
 	public stat_memb_ref_numb()
 	public stat_memb_first_name()
 	public stat_memb_last_name()
@@ -7312,6 +7464,10 @@ class stat_detail
 	public stat_memi_citizenship_verif_code()
 	public stat_memi_citizenship_verif_info()
 	public stat_jobs_one_exists()
+	public stat_jobs_one_job_ended()
+	public stat_jobs_one_job_counted()
+	public stat_jobs_one_inc_type()
+	public stat_jobs_one_sub_inc_type()
 	public stat_jobs_one_verif_code()
 	public stat_jobs_one_verif_info()
 	public stat_jobs_one_employer_name()
@@ -7326,6 +7482,10 @@ class stat_detail
 	public stat_jobs_one_grh_pic_ave_inc_per_pay()
 	public stat_jobs_one_grh_pic_prosp_monthly_inc()
 	public stat_jobs_two_exists()
+	public stat_jobs_two_job_ended()
+	public stat_jobs_two_job_counted()
+	public stat_jobs_two_inc_type()
+	public stat_jobs_two_sub_inc_type()
 	public stat_jobs_two_verif_code()
 	public stat_jobs_two_verif_info()
 	public stat_jobs_two_employer_name()
@@ -7340,6 +7500,10 @@ class stat_detail
 	public stat_jobs_two_grh_pic_ave_inc_per_pay()
 	public stat_jobs_two_grh_pic_prosp_monthly_inc()
 	public stat_jobs_three_exists()
+	public stat_jobs_three_job_ended()
+	public stat_jobs_three_job_counted()
+	public stat_jobs_three_inc_type()
+	public stat_jobs_three_sub_inc_type()
 	public stat_jobs_three_verif_code()
 	public stat_jobs_three_verif_info()
 	public stat_jobs_three_employer_name()
@@ -7354,6 +7518,10 @@ class stat_detail
 	public stat_jobs_three_grh_pic_ave_inc_per_pay()
 	public stat_jobs_three_grh_pic_prosp_monthly_inc()
 	public stat_jobs_four_exists()
+	public stat_jobs_four_job_ended()
+	public stat_jobs_four_job_counted()
+	public stat_jobs_four_inc_type()
+	public stat_jobs_four_sub_inc_type()
 	public stat_jobs_four_verif_code()
 	public stat_jobs_four_verif_info()
 	public stat_jobs_four_employer_name()
@@ -7368,6 +7536,10 @@ class stat_detail
 	public stat_jobs_four_grh_pic_ave_inc_per_pay()
 	public stat_jobs_four_grh_pic_prosp_monthly_inc()
 	public stat_jobs_five_exists()
+	public stat_jobs_five_job_ended()
+	public stat_jobs_five_job_counted()
+	public stat_jobs_five_inc_type()
+	public stat_jobs_five_sub_inc_type()
 	public stat_jobs_five_verif_code()
 	public stat_jobs_five_verif_info()
 	public stat_jobs_five_employer_name()
@@ -7383,6 +7555,7 @@ class stat_detail
 	public stat_jobs_five_grh_pic_prosp_monthly_inc()
 	public stat_busi_one_exists()
 	public stat_busi_one_type()
+	public stat_busi_one_counted()
 	public stat_busi_one_type_info()
 	public stat_busi_one_inc_start_date()
 	public stat_busi_one_inc_end_date()
@@ -7392,14 +7565,15 @@ class stat_detail
 	public stat_busi_one_snap_prosp_net_inc()
 	public stat_busi_one_snap_retro_gross_inc()
 	public stat_busi_one_snap_retro_expenses()
-	public stat_busi_one_snap_retro_verif_code()
-	public stat_busi_one_snap_retro_verif_info()
+	public stat_busi_one_snap_income_verif_code()
+	public stat_busi_one_snap_income_verif_info()
 	public stat_busi_one_snap_prosp_gross_inc()
 	public stat_busi_one_snap_prosp_expenses()
-	public stat_busi_one_snap_prosp_verif_code()
-	public stat_busi_one_snap_prosp_verif_info()
+	public stat_busi_one_snap_expense_verif_code()
+	public stat_busi_one_snap_expense_verif_info()
 	public stat_busi_two_exists()
 	public stat_busi_two_type()
+	public stat_busi_two_counted()
 	public stat_busi_two_type_info()
 	public stat_busi_two_inc_start_date()
 	public stat_busi_two_inc_end_date()
@@ -7409,14 +7583,15 @@ class stat_detail
 	public stat_busi_two_snap_prosp_net_inc()
 	public stat_busi_two_snap_retro_gross_inc()
 	public stat_busi_two_snap_retro_expenses()
-	public stat_busi_two_snap_retro_verif_code()
-	public stat_busi_two_snap_retro_verif_info()
+	public stat_busi_two_snap_income_verif_code()
+	public stat_busi_two_snap_income_verif_info()
 	public stat_busi_two_snap_prosp_gross_inc()
 	public stat_busi_two_snap_prosp_expenses()
-	public stat_busi_two_snap_prosp_verif_code()
-	public stat_busi_two_snap_prosp_verif_info()
+	public stat_busi_two_snap_expense_verif_code()
+	public stat_busi_two_snap_expense_verif_info()
 	public stat_busi_three_exists()
 	public stat_busi_three_type()
+	public stat_busi_three_counted()
 	public stat_busi_three_type_info()
 	public stat_busi_three_inc_start_date()
 	public stat_busi_three_inc_end_date()
@@ -7426,13 +7601,14 @@ class stat_detail
 	public stat_busi_three_snap_prosp_net_inc()
 	public stat_busi_three_snap_retro_gross_inc()
 	public stat_busi_three_snap_retro_expenses()
-	public stat_busi_three_snap_retro_verif_code()
-	public stat_busi_three_snap_retro_verif_info()
+	public stat_busi_three_snap_income_verif_code()
+	public stat_busi_three_snap_income_verif_info()
 	public stat_busi_three_snap_prosp_gross_inc()
 	public stat_busi_three_snap_prosp_expenses()
-	public stat_busi_three_snap_prosp_verif_code()
-	public stat_busi_three_snap_prosp_verif_info()
+	public stat_busi_three_snap_expense_verif_code()
+	public stat_busi_three_snap_expense_verif_info()
 	public stat_unea_one_exists()
+	public stat_unea_one_counted()
 	public stat_unea_one_type_code()
 	public stat_unea_one_type_info()
 	public stat_unea_one_verif_code()
@@ -7443,6 +7619,7 @@ class stat_detail
 	public stat_unea_one_snap_pic_ave_inc_per_pay()
 	public stat_unea_one_snap_pic_prosp_monthly_inc()
 	public stat_unea_two_exists()
+	public stat_unea_two_counted()
 	public stat_unea_two_type_code()
 	public stat_unea_two_type_info()
 	public stat_unea_two_verif_code()
@@ -7453,6 +7630,7 @@ class stat_detail
 	public stat_unea_two_snap_pic_ave_inc_per_pay()
 	public stat_unea_two_snap_pic_prosp_monthly_inc()
 	public stat_unea_three_exists()
+	public stat_unea_three_counted()
 	public stat_unea_three_type_code()
 	public stat_unea_three_type_info()
 	public stat_unea_three_verif_code()
@@ -7463,6 +7641,7 @@ class stat_detail
 	public stat_unea_three_snap_pic_ave_inc_per_pay()
 	public stat_unea_three_snap_pic_prosp_monthly_inc()
 	public stat_unea_four_exists()
+	public stat_unea_four_counted()
 	public stat_unea_four_type_code()
 	public stat_unea_four_type_info()
 	public stat_unea_four_verif_code()
@@ -7473,6 +7652,7 @@ class stat_detail
 	public stat_unea_four_snap_pic_ave_inc_per_pay()
 	public stat_unea_four_snap_pic_prosp_monthly_inc()
 	public stat_unea_five_exists()
+	public stat_unea_five_counted()
 	public stat_unea_five_type_code()
 	public stat_unea_five_type_info()
 	public stat_unea_five_verif_code()
@@ -7578,6 +7758,10 @@ class stat_detail
 		ReDim stat_memi_citizenship_verif_code(0)
 		ReDim stat_memi_citizenship_verif_info(0)
 		ReDim stat_jobs_one_exists(0)
+		ReDim stat_jobs_one_job_ended(0)
+		ReDim stat_jobs_one_job_counted(0)
+		ReDim stat_jobs_one_inc_type(0)
+		ReDim stat_jobs_one_sub_inc_type(0)
 		ReDim stat_jobs_one_verif_code(0)
 		ReDim stat_jobs_one_verif_info(0)
 		ReDim stat_jobs_one_employer_name(0)
@@ -7592,6 +7776,10 @@ class stat_detail
 		ReDim stat_jobs_one_grh_pic_ave_inc_per_pay(0)
 		ReDim stat_jobs_one_grh_pic_prosp_monthly_inc(0)
 		ReDim stat_jobs_two_exists(0)
+		ReDim stat_jobs_two_job_ended(0)
+		ReDim stat_jobs_two_job_counted(0)
+		ReDim stat_jobs_two_inc_type(0)
+		ReDim stat_jobs_two_sub_inc_type(0)
 		ReDim stat_jobs_two_verif_code(0)
 		ReDim stat_jobs_two_verif_info(0)
 		ReDim stat_jobs_two_employer_name(0)
@@ -7606,6 +7794,10 @@ class stat_detail
 		ReDim stat_jobs_two_grh_pic_ave_inc_per_pay(0)
 		ReDim stat_jobs_two_grh_pic_prosp_monthly_inc(0)
 		ReDim stat_jobs_three_exists(0)
+		ReDim stat_jobs_three_job_ended(0)
+		ReDim stat_jobs_three_job_counted(0)
+		ReDim stat_jobs_three_inc_type(0)
+		ReDim stat_jobs_three_sub_inc_type(0)
 		ReDim stat_jobs_three_verif_code(0)
 		ReDim stat_jobs_three_verif_info(0)
 		ReDim stat_jobs_three_employer_name(0)
@@ -7620,6 +7812,10 @@ class stat_detail
 		ReDim stat_jobs_three_grh_pic_ave_inc_per_pay(0)
 		ReDim stat_jobs_three_grh_pic_prosp_monthly_inc(0)
 		ReDim stat_jobs_four_exists(0)
+		ReDim stat_jobs_four_job_ended(0)
+		ReDim stat_jobs_four_job_counted(0)
+		ReDim stat_jobs_four_inc_type(0)
+		ReDim stat_jobs_four_sub_inc_type(0)
 		ReDim stat_jobs_four_verif_code(0)
 		ReDim stat_jobs_four_verif_info(0)
 		ReDim stat_jobs_four_employer_name(0)
@@ -7634,6 +7830,10 @@ class stat_detail
 		ReDim stat_jobs_four_grh_pic_ave_inc_per_pay(0)
 		ReDim stat_jobs_four_grh_pic_prosp_monthly_inc(0)
 		ReDim stat_jobs_five_exists(0)
+		ReDim stat_jobs_five_job_ended(0)
+		ReDim stat_jobs_five_job_counted(0)
+		ReDim stat_jobs_five_inc_type(0)
+		ReDim stat_jobs_five_sub_inc_type(0)
 		ReDim stat_jobs_five_verif_code(0)
 		ReDim stat_jobs_five_verif_info(0)
 		ReDim stat_jobs_five_employer_name(0)
@@ -7649,6 +7849,7 @@ class stat_detail
 		ReDim stat_jobs_five_grh_pic_prosp_monthly_inc(0)
 		ReDim stat_busi_one_exists(0)
 		ReDim stat_busi_one_type(0)
+		ReDim stat_busi_one_counted(0)
 		ReDim stat_busi_one_type_info(0)
 		ReDim stat_busi_one_inc_start_date(0)
 		ReDim stat_busi_one_inc_end_date(0)
@@ -7658,14 +7859,15 @@ class stat_detail
 		ReDim stat_busi_one_snap_prosp_net_inc(0)
 		ReDim stat_busi_one_snap_retro_gross_inc(0)
 		ReDim stat_busi_one_snap_retro_expenses(0)
-		ReDim stat_busi_one_snap_retro_verif_code(0)
-		ReDim stat_busi_one_snap_retro_verif_info(0)
+		ReDim stat_busi_one_snap_income_verif_code(0)
+		ReDim stat_busi_one_snap_income_verif_info(0)
 		ReDim stat_busi_one_snap_prosp_gross_inc(0)
 		ReDim stat_busi_one_snap_prosp_expenses(0)
-		ReDim stat_busi_one_snap_prosp_verif_code(0)
-		ReDim stat_busi_one_snap_prosp_verif_info(0)
+		ReDim stat_busi_one_snap_expense_verif_code(0)
+		ReDim stat_busi_one_snap_expense_verif_info(0)
 		ReDim stat_busi_two_exists(0)
 		ReDim stat_busi_two_type(0)
+		ReDim stat_busi_two_counted(0)
 		ReDim stat_busi_two_type_info(0)
 		ReDim stat_busi_two_inc_start_date(0)
 		ReDim stat_busi_two_inc_end_date(0)
@@ -7675,14 +7877,15 @@ class stat_detail
 		ReDim stat_busi_two_snap_prosp_net_inc(0)
 		ReDim stat_busi_two_snap_retro_gross_inc(0)
 		ReDim stat_busi_two_snap_retro_expenses(0)
-		ReDim stat_busi_two_snap_retro_verif_code(0)
-		ReDim stat_busi_two_snap_retro_verif_info(0)
+		ReDim stat_busi_two_snap_income_verif_code(0)
+		ReDim stat_busi_two_snap_income_verif_info(0)
 		ReDim stat_busi_two_snap_prosp_gross_inc(0)
 		ReDim stat_busi_two_snap_prosp_expenses(0)
-		ReDim stat_busi_two_snap_prosp_verif_code(0)
-		ReDim stat_busi_two_snap_prosp_verif_info(0)
+		ReDim stat_busi_two_snap_expense_verif_code(0)
+		ReDim stat_busi_two_snap_expense_verif_info(0)
 		ReDim stat_busi_three_exists(0)
 		ReDim stat_busi_three_type(0)
+		ReDim stat_busi_three_counted(0)
 		ReDim stat_busi_three_type_info(0)
 		ReDim stat_busi_three_inc_start_date(0)
 		ReDim stat_busi_three_inc_end_date(0)
@@ -7692,13 +7895,14 @@ class stat_detail
 		ReDim stat_busi_three_snap_prosp_net_inc(0)
 		ReDim stat_busi_three_snap_retro_gross_inc(0)
 		ReDim stat_busi_three_snap_retro_expenses(0)
-		ReDim stat_busi_three_snap_retro_verif_code(0)
-		ReDim stat_busi_three_snap_retro_verif_info(0)
+		ReDim stat_busi_three_snap_income_verif_code(0)
+		ReDim stat_busi_three_snap_income_verif_info(0)
 		ReDim stat_busi_three_snap_prosp_gross_inc(0)
 		ReDim stat_busi_three_snap_prosp_expenses(0)
-		ReDim stat_busi_three_snap_prosp_verif_code(0)
-		ReDim stat_busi_three_snap_prosp_verif_info(0)
+		ReDim stat_busi_three_snap_expense_verif_code(0)
+		ReDim stat_busi_three_snap_expense_verif_info(0)
 		ReDim stat_unea_one_exists(0)
+		ReDim stat_unea_one_counted(0)
 		ReDim stat_unea_one_type_code(0)
 		ReDim stat_unea_one_type_info(0)
 		ReDim stat_unea_one_verif_code(0)
@@ -7709,6 +7913,7 @@ class stat_detail
 		ReDim stat_unea_one_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_one_snap_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_two_exists(0)
+		ReDim stat_unea_two_counted(0)
 		ReDim stat_unea_two_type_code(0)
 		ReDim stat_unea_two_type_info(0)
 		ReDim stat_unea_two_verif_code(0)
@@ -7719,6 +7924,7 @@ class stat_detail
 		ReDim stat_unea_two_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_two_snap_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_three_exists(0)
+		ReDim stat_unea_three_counted(0)
 		ReDim stat_unea_three_type_code(0)
 		ReDim stat_unea_three_type_info(0)
 		ReDim stat_unea_three_verif_code(0)
@@ -7729,6 +7935,7 @@ class stat_detail
 		ReDim stat_unea_three_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_three_snap_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_four_exists(0)
+		ReDim stat_unea_four_counted(0)
 		ReDim stat_unea_four_type_code(0)
 		ReDim stat_unea_four_type_info(0)
 		ReDim stat_unea_four_verif_code(0)
@@ -7739,6 +7946,7 @@ class stat_detail
 		ReDim stat_unea_four_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_four_snap_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_five_exists(0)
+		ReDim stat_unea_five_counted(0)
 		ReDim stat_unea_five_type_code(0)
 		ReDim stat_unea_five_type_info(0)
 		ReDim stat_unea_five_verif_code(0)
@@ -7821,6 +8029,8 @@ class stat_detail
 		ReDim stat_shel_prosp_subsidy_verif_code(0)
 		ReDim stat_shel_prosp_subsidy_verif_info(0)
 
+		stat_shel_prosp_all_total = 0
+
 		Call navigate_to_MAXIS_screen("STAT", "MEMB")
 		memb_count = -1
 		Do
@@ -7844,6 +8054,10 @@ class stat_detail
 			ReDim preserve stat_memi_citizenship_verif_code(memb_count)
 			ReDim preserve stat_memi_citizenship_verif_info(memb_count)
 			ReDim preserve stat_jobs_one_exists(memb_count)
+			ReDim preserve stat_jobs_one_job_ended(memb_count)
+			ReDim preserve stat_jobs_one_job_counted(memb_count)
+			ReDim preserve stat_jobs_one_inc_type(memb_count)
+			ReDim preserve stat_jobs_one_sub_inc_type(memb_count)
 			ReDim preserve stat_jobs_one_verif_code(memb_count)
 			ReDim preserve stat_jobs_one_verif_info(memb_count)
 			ReDim preserve stat_jobs_one_employer_name(memb_count)
@@ -7858,6 +8072,10 @@ class stat_detail
 			ReDim preserve stat_jobs_one_grh_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_jobs_one_grh_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_jobs_two_exists(memb_count)
+			ReDim preserve stat_jobs_two_job_ended(memb_count)
+			ReDim preserve stat_jobs_two_job_counted(memb_count)
+			ReDim preserve stat_jobs_two_inc_type(memb_count)
+			ReDim preserve stat_jobs_two_sub_inc_type(memb_count)
 			ReDim preserve stat_jobs_two_verif_code(memb_count)
 			ReDim preserve stat_jobs_two_verif_info(memb_count)
 			ReDim preserve stat_jobs_two_employer_name(memb_count)
@@ -7872,6 +8090,10 @@ class stat_detail
 			ReDim preserve stat_jobs_two_grh_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_jobs_two_grh_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_jobs_three_exists(memb_count)
+			ReDim preserve stat_jobs_three_job_ended(memb_count)
+			ReDim preserve stat_jobs_three_job_counted(memb_count)
+			ReDim preserve stat_jobs_three_inc_type(memb_count)
+			ReDim preserve stat_jobs_three_sub_inc_type(memb_count)
 			ReDim preserve stat_jobs_three_verif_code(memb_count)
 			ReDim preserve stat_jobs_three_verif_info(memb_count)
 			ReDim preserve stat_jobs_three_employer_name(memb_count)
@@ -7886,6 +8108,10 @@ class stat_detail
 			ReDim preserve stat_jobs_three_grh_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_jobs_three_grh_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_jobs_four_exists(memb_count)
+			ReDim preserve stat_jobs_four_job_ended(memb_count)
+			ReDim preserve stat_jobs_four_job_counted(memb_count)
+			ReDim preserve stat_jobs_four_inc_type(memb_count)
+			ReDim preserve stat_jobs_four_sub_inc_type(memb_count)
 			ReDim preserve stat_jobs_four_verif_code(memb_count)
 			ReDim preserve stat_jobs_four_verif_info(memb_count)
 			ReDim preserve stat_jobs_four_employer_name(memb_count)
@@ -7900,6 +8126,10 @@ class stat_detail
 			ReDim preserve stat_jobs_four_grh_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_jobs_four_grh_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_jobs_five_exists(memb_count)
+			ReDim preserve stat_jobs_five_job_ended(memb_count)
+			ReDim preserve stat_jobs_five_job_counted(memb_count)
+			ReDim preserve stat_jobs_five_inc_type(memb_count)
+			ReDim preserve stat_jobs_five_sub_inc_type(memb_count)
 			ReDim preserve stat_jobs_five_verif_code(memb_count)
 			ReDim preserve stat_jobs_five_verif_info(memb_count)
 			ReDim preserve stat_jobs_five_employer_name(memb_count)
@@ -7915,6 +8145,7 @@ class stat_detail
 			ReDim preserve stat_jobs_five_grh_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_busi_one_exists(memb_count)
 			ReDim preserve stat_busi_one_type(memb_count)
+			ReDim preserve stat_busi_one_counted(memb_count)
 			ReDim preserve stat_busi_one_type_info(memb_count)
 			ReDim preserve stat_busi_one_inc_start_date(memb_count)
 			ReDim preserve stat_busi_one_inc_end_date(memb_count)
@@ -7924,14 +8155,15 @@ class stat_detail
 			ReDim preserve stat_busi_one_snap_prosp_net_inc(memb_count)
 			ReDim preserve stat_busi_one_snap_retro_gross_inc(memb_count)
 			ReDim preserve stat_busi_one_snap_retro_expenses(memb_count)
-			ReDim preserve stat_busi_one_snap_retro_verif_code(memb_count)
-			ReDim preserve stat_busi_one_snap_retro_verif_info(memb_count)
+			ReDim preserve stat_busi_one_snap_income_verif_code(memb_count)
+			ReDim preserve stat_busi_one_snap_income_verif_info(memb_count)
 			ReDim preserve stat_busi_one_snap_prosp_gross_inc(memb_count)
 			ReDim preserve stat_busi_one_snap_prosp_expenses(memb_count)
-			ReDim preserve stat_busi_one_snap_prosp_verif_code(memb_count)
-			ReDim preserve stat_busi_one_snap_prosp_verif_info(memb_count)
+			ReDim preserve stat_busi_one_snap_expense_verif_code(memb_count)
+			ReDim preserve stat_busi_one_snap_expense_verif_info(memb_count)
 			ReDim preserve stat_busi_two_exists(memb_count)
 			ReDim preserve stat_busi_two_type(memb_count)
+			ReDim preserve stat_busi_two_counted(memb_count)
 			ReDim preserve stat_busi_two_type_info(memb_count)
 			ReDim preserve stat_busi_two_inc_start_date(memb_count)
 			ReDim preserve stat_busi_two_inc_end_date(memb_count)
@@ -7941,14 +8173,15 @@ class stat_detail
 			ReDim preserve stat_busi_two_snap_prosp_net_inc(memb_count)
 			ReDim preserve stat_busi_two_snap_retro_gross_inc(memb_count)
 			ReDim preserve stat_busi_two_snap_retro_expenses(memb_count)
-			ReDim preserve stat_busi_two_snap_retro_verif_code(memb_count)
-			ReDim preserve stat_busi_two_snap_retro_verif_info(memb_count)
+			ReDim preserve stat_busi_two_snap_income_verif_code(memb_count)
+			ReDim preserve stat_busi_two_snap_income_verif_info(memb_count)
 			ReDim preserve stat_busi_two_snap_prosp_gross_inc(memb_count)
 			ReDim preserve stat_busi_two_snap_prosp_expenses(memb_count)
-			ReDim preserve stat_busi_two_snap_prosp_verif_code(memb_count)
-			ReDim preserve stat_busi_two_snap_prosp_verif_info(memb_count)
+			ReDim preserve stat_busi_two_snap_expense_verif_code(memb_count)
+			ReDim preserve stat_busi_two_snap_expense_verif_info(memb_count)
 			ReDim preserve stat_busi_three_exists(memb_count)
 			ReDim preserve stat_busi_three_type(memb_count)
+			ReDim preserve stat_busi_three_counted(memb_count)
 			ReDim preserve stat_busi_three_type_info(memb_count)
 			ReDim preserve stat_busi_three_inc_start_date(memb_count)
 			ReDim preserve stat_busi_three_inc_end_date(memb_count)
@@ -7958,13 +8191,14 @@ class stat_detail
 			ReDim preserve stat_busi_three_snap_prosp_net_inc(memb_count)
 			ReDim preserve stat_busi_three_snap_retro_gross_inc(memb_count)
 			ReDim preserve stat_busi_three_snap_retro_expenses(memb_count)
-			ReDim preserve stat_busi_three_snap_retro_verif_code(memb_count)
-			ReDim preserve stat_busi_three_snap_retro_verif_info(memb_count)
+			ReDim preserve stat_busi_three_snap_income_verif_code(memb_count)
+			ReDim preserve stat_busi_three_snap_income_verif_info(memb_count)
 			ReDim preserve stat_busi_three_snap_prosp_gross_inc(memb_count)
 			ReDim preserve stat_busi_three_snap_prosp_expenses(memb_count)
-			ReDim preserve stat_busi_three_snap_prosp_verif_code(memb_count)
-			ReDim preserve stat_busi_three_snap_prosp_verif_info(memb_count)
+			ReDim preserve stat_busi_three_snap_expense_verif_code(memb_count)
+			ReDim preserve stat_busi_three_snap_expense_verif_info(memb_count)
 			ReDim preserve stat_unea_one_exists(memb_count)
+			ReDim preserve stat_unea_one_counted(memb_count)
 			ReDim preserve stat_unea_one_type_code(memb_count)
 			ReDim preserve stat_unea_one_type_info(memb_count)
 			ReDim preserve stat_unea_one_verif_code(memb_count)
@@ -7975,6 +8209,7 @@ class stat_detail
 			ReDim preserve stat_unea_one_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_one_snap_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_unea_two_exists(memb_count)
+			ReDim preserve stat_unea_two_counted(memb_count)
 			ReDim preserve stat_unea_two_type_code(memb_count)
 			ReDim preserve stat_unea_two_type_info(memb_count)
 			ReDim preserve stat_unea_two_verif_code(memb_count)
@@ -7985,6 +8220,7 @@ class stat_detail
 			ReDim preserve stat_unea_two_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_two_snap_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_unea_three_exists(memb_count)
+			ReDim preserve stat_unea_three_counted(memb_count)
 			ReDim preserve stat_unea_three_type_code(memb_count)
 			ReDim preserve stat_unea_three_type_info(memb_count)
 			ReDim preserve stat_unea_three_verif_code(memb_count)
@@ -7995,6 +8231,7 @@ class stat_detail
 			ReDim preserve stat_unea_three_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_three_snap_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_unea_four_exists(memb_count)
+			ReDim preserve stat_unea_four_counted(memb_count)
 			ReDim preserve stat_unea_four_type_code(memb_count)
 			ReDim preserve stat_unea_four_type_info(memb_count)
 			ReDim preserve stat_unea_four_verif_code(memb_count)
@@ -8005,6 +8242,7 @@ class stat_detail
 			ReDim preserve stat_unea_four_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_four_snap_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_unea_five_exists(memb_count)
+			ReDim preserve stat_unea_five_counted(memb_count)
 			ReDim preserve stat_unea_five_type_code(memb_count)
 			ReDim preserve stat_unea_five_type_info(memb_count)
 			ReDim preserve stat_unea_five_verif_code(memb_count)
@@ -8168,6 +8406,8 @@ class stat_detail
 			If existance_check = "DOES NOT EXIST" Then stat_jobs_one_exists(each_memb) = False
 
 			If stat_jobs_one_exists(each_memb) = True Then
+				EMReadScreen stat_jobs_one_inc_type(each_memb), 1, 5, 34
+				EMReadScreen stat_jobs_one_sub_inc_type(each_memb), 2, 5, 74
 				EMReadScreen stat_jobs_one_verif_code(each_memb), 1, 6, 34
 				EMReadScreen stat_jobs_one_employer_name(each_memb), 30, 7, 42
 				EMReadScreen stat_jobs_one_inc_start_date(each_memb), 8, 9, 35
@@ -8185,6 +8425,20 @@ class stat_detail
 				stat_jobs_one_inc_start_date(each_memb) = replace(stat_jobs_one_inc_start_date(each_memb), " ", "/")
 				stat_jobs_one_inc_end_date(each_memb) = replace(stat_jobs_one_inc_end_date(each_memb), " ", "/")
 				If stat_jobs_one_inc_end_date(each_memb) = "__/__/__" Then stat_jobs_one_inc_end_date(each_memb) = ""
+
+				stat_jobs_one_job_ended(each_memb) = False
+				stat_jobs_one_job_counted(each_memb) = True
+				current_month = footer_month & "/1/" & footer_year
+				current_month = DateAdd("d", 0, current_month)
+				If IsDate(stat_jobs_one_inc_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_jobs_one_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_one_job_ended(each_memb) = True
+				End If
+				If stat_jobs_one_job_ended(each_memb) = True Then stat_jobs_one_job_counted(each_memb) = False
+				If stat_jobs_one_inc_type(each_memb) = "G" Then stat_jobs_one_job_counted(each_memb) = False
+				If stat_jobs_one_inc_type(each_memb) = "F" Then stat_jobs_one_job_counted(each_memb) = False
+				If stat_jobs_one_inc_type(each_memb) = "S" Then stat_jobs_one_job_counted(each_memb) = False
+
+				If stat_jobs_one_sub_inc_type(each_memb) = "04" Then stat_jobs_one_job_counted(each_memb) = False
 
 				If stat_jobs_one_main_pay_freq(each_memb) = "1" Then stat_jobs_one_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_one_main_pay_freq(each_memb) = "2" Then stat_jobs_one_main_pay_freq(each_memb) = "Semi-Monthly"
@@ -8250,6 +8504,20 @@ class stat_detail
 				stat_jobs_two_inc_end_date(each_memb) = replace(stat_jobs_two_inc_end_date(each_memb), " ", "/")
 				If stat_jobs_two_inc_end_date(each_memb) = "__/__/__" Then stat_jobs_two_inc_end_date(each_memb) = ""
 
+				stat_jobs_two_job_ended(each_memb) = False
+				stat_jobs_two_job_counted(each_memb) = True
+				current_month = footer_month & "/1/" & footer_year
+				current_month = DateAdd("d", 0, current_month)
+				If IsDate(stat_jobs_two_inc_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_jobs_two_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_two_job_ended(each_memb) = True
+				End If
+				If stat_jobs_two_job_ended(each_memb) = True Then stat_jobs_two_job_counted(each_memb) = False
+				If stat_jobs_two_inc_type(each_memb) = "G" Then stat_jobs_two_job_counted(each_memb) = False
+				If stat_jobs_two_inc_type(each_memb) = "F" Then stat_jobs_two_job_counted(each_memb) = False
+				If stat_jobs_two_inc_type(each_memb) = "S" Then stat_jobs_two_job_counted(each_memb) = False
+
+				If stat_jobs_two_sub_inc_type(each_memb) = "04" Then stat_jobs_two_job_counted(each_memb) = False
+
 				If stat_jobs_two_main_pay_freq(each_memb) = "1" Then stat_jobs_two_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_two_main_pay_freq(each_memb) = "2" Then stat_jobs_two_main_pay_freq(each_memb) = "Semi-Monthly"
 				If stat_jobs_two_main_pay_freq(each_memb) = "3" Then stat_jobs_two_main_pay_freq(each_memb) = "BiWeekly"
@@ -8313,6 +8581,20 @@ class stat_detail
 				stat_jobs_three_inc_start_date(each_memb) = replace(stat_jobs_three_inc_start_date(each_memb), " ", "/")
 				stat_jobs_three_inc_end_date(each_memb) = replace(stat_jobs_three_inc_end_date(each_memb), " ", "/")
 				If stat_jobs_three_inc_end_date(each_memb) = "__/__/__" Then stat_jobs_three_inc_end_date(each_memb) = ""
+
+				stat_jobs_three_job_ended(each_memb) = False
+				stat_jobs_three_job_counted(each_memb) = True
+				current_month = footer_month & "/1/" & footer_year
+				current_month = DateAdd("d", 0, current_month)
+				If IsDate(stat_jobs_three_inc_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_jobs_three_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_three_job_ended(each_memb) = True
+				End If
+				If stat_jobs_three_job_ended(each_memb) = True Then stat_jobs_three_job_counted(each_memb) = False
+				If stat_jobs_three_inc_type(each_memb) = "G" Then stat_jobs_three_job_counted(each_memb) = False
+				If stat_jobs_three_inc_type(each_memb) = "F" Then stat_jobs_three_job_counted(each_memb) = False
+				If stat_jobs_three_inc_type(each_memb) = "S" Then stat_jobs_three_job_counted(each_memb) = False
+
+				If stat_jobs_three_sub_inc_type(each_memb) = "04" Then stat_jobs_three_job_counted(each_memb) = False
 
 				If stat_jobs_three_main_pay_freq(each_memb) = "1" Then stat_jobs_three_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_three_main_pay_freq(each_memb) = "2" Then stat_jobs_three_main_pay_freq(each_memb) = "Semi-Monthly"
@@ -8378,6 +8660,20 @@ class stat_detail
 				stat_jobs_four_inc_end_date(each_memb) = replace(stat_jobs_four_inc_end_date(each_memb), " ", "/")
 				If stat_jobs_four_inc_end_date(each_memb) = "__/__/__" Then stat_jobs_four_inc_end_date(each_memb) = ""
 
+				stat_jobs_four_job_ended(each_memb) = False
+				stat_jobs_four_job_counted(each_memb) = True
+				current_month = footer_month & "/1/" & footer_year
+				current_month = DateAdd("d", 0, current_month)
+				If IsDate(stat_jobs_four_inc_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_jobs_four_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_four_job_ended(each_memb) = True
+				End If
+				If stat_jobs_four_job_ended(each_memb) = True Then stat_jobs_four_job_counted(each_memb) = False
+				If stat_jobs_four_inc_type(each_memb) = "G" Then stat_jobs_four_job_counted(each_memb) = False
+				If stat_jobs_four_inc_type(each_memb) = "F" Then stat_jobs_four_job_counted(each_memb) = False
+				If stat_jobs_four_inc_type(each_memb) = "S" Then stat_jobs_four_job_counted(each_memb) = False
+
+				If stat_jobs_four_sub_inc_type(each_memb) = "04" Then stat_jobs_four_job_counted(each_memb) = False
+
 				If stat_jobs_four_main_pay_freq(each_memb) = "1" Then stat_jobs_four_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_four_main_pay_freq(each_memb) = "2" Then stat_jobs_four_main_pay_freq(each_memb) = "Semi-Monthly"
 				If stat_jobs_four_main_pay_freq(each_memb) = "3" Then stat_jobs_four_main_pay_freq(each_memb) = "BiWeekly"
@@ -8442,6 +8738,20 @@ class stat_detail
 				stat_jobs_five_inc_end_date(each_memb) = replace(stat_jobs_five_inc_end_date(each_memb), " ", "/")
 				If stat_jobs_five_inc_end_date(each_memb) = "__/__/__" Then stat_jobs_five_inc_end_date(each_memb) = ""
 
+				stat_jobs_five_job_ended(each_memb) = False
+				stat_jobs_five_job_counted(each_memb) = True
+				current_month = footer_month & "/1/" & footer_year
+				current_month = DateAdd("d", 0, current_month)
+				If IsDate(stat_jobs_five_inc_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_jobs_five_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_five_job_ended(each_memb) = True
+				End If
+				If stat_jobs_five_job_ended(each_memb) = True Then stat_jobs_five_job_counted(each_memb) = False
+				If stat_jobs_five_inc_type(each_memb) = "G" Then stat_jobs_five_job_counted(each_memb) = False
+				If stat_jobs_five_inc_type(each_memb) = "F" Then stat_jobs_five_job_counted(each_memb) = False
+				If stat_jobs_five_inc_type(each_memb) = "S" Then stat_jobs_five_job_counted(each_memb) = False
+
+				If stat_jobs_five_sub_inc_type(each_memb) = "04" Then stat_jobs_five_job_counted(each_memb) = False
+
 				If stat_jobs_five_main_pay_freq(each_memb) = "1" Then stat_jobs_five_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_five_main_pay_freq(each_memb) = "2" Then stat_jobs_five_main_pay_freq(each_memb) = "Semi-Monthly"
 				If stat_jobs_five_main_pay_freq(each_memb) = "3" Then stat_jobs_five_main_pay_freq(each_memb) = "BiWeekly"
@@ -8492,6 +8802,7 @@ class stat_detail
 			If existance_check = "DOES NOT EXIST" Then stat_busi_one_exists(each_memb) = False
 
 			If stat_busi_one_exists(each_memb) = True Then
+				stat_busi_one_counted(each_memb) = True
 				EMReadScreen stat_busi_one_type(each_memb), 2, 5, 37
 				EMReadScreen stat_busi_one_inc_start_date(each_memb), 8, 5, 55
 				EMReadScreen stat_busi_one_inc_end_date(each_memb), 8, 5, 72
@@ -8520,28 +8831,28 @@ class stat_detail
 
 				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_one_snap_retro_gross_inc(each_memb), 8, 11, 43
-				EMReadScreen stat_busi_one_snap_retro_expenses(each_memb), 8, 11, 59
-				EMReadScreen stat_busi_one_snap_retro_verif_code(each_memb), 1, 11, 73
-				EMReadScreen stat_busi_one_snap_prosp_gross_inc(each_memb), 8, 17, 43
-				EMReadScreen stat_busi_one_snap_prosp_expenses(each_memb), 8, 17, 9
-				EMReadScreen stat_busi_one_snap_prosp_verif_code(each_memb), 1, 17, 73
+				EMReadScreen stat_busi_one_snap_retro_expenses(each_memb), 8, 17, 43
+				EMReadScreen stat_busi_one_snap_prosp_gross_inc(each_memb), 8, 11, 59
+				EMReadScreen stat_busi_one_snap_prosp_expenses(each_memb), 8, 17, 59
+				EMReadScreen stat_busi_one_snap_income_verif_code(each_memb), 1, 11, 73
+				EMReadScreen stat_busi_one_snap_expense_verif_code(each_memb), 1, 17, 73
 				PF3
 
-				If stat_busi_one_snap_retro_verif_code(each_memb) = "_" Then stat_busi_one_snap_retro_verif_info(each_memb) = ""
-				If stat_busi_one_snap_retro_verif_code(each_memb) = "1" Then stat_busi_one_snap_retro_verif_info(each_memb) = "Income Tax Returns"
-				If stat_busi_one_snap_retro_verif_code(each_memb) = "2" Then stat_busi_one_snap_retro_verif_info(each_memb) = "Receipts of Sales/Purchases"
-				If stat_busi_one_snap_retro_verif_code(each_memb) = "3" Then stat_busi_one_snap_retro_verif_info(each_memb) = "Client Business Records/Ledger"
-				If stat_busi_one_snap_retro_verif_code(each_memb) = "4" Then stat_busi_one_snap_retro_verif_info(each_memb) = "Pending Out of Stat Verifs"
-				If stat_busi_one_snap_retro_verif_code(each_memb) = "6" Then stat_busi_one_snap_retro_verif_info(each_memb) = "Other Document"
-				If stat_busi_one_snap_retro_verif_code(each_memb) = "N" Then stat_busi_one_snap_retro_verif_info(each_memb) = "No Verif Provided"
+				If stat_busi_one_snap_income_verif_code(each_memb) = "_" Then stat_busi_one_snap_income_verif_info(each_memb) = ""
+				If stat_busi_one_snap_income_verif_code(each_memb) = "1" Then stat_busi_one_snap_income_verif_info(each_memb) = "Income Tax Returns"
+				If stat_busi_one_snap_income_verif_code(each_memb) = "2" Then stat_busi_one_snap_income_verif_info(each_memb) = "Receipts of Sales/Purchases"
+				If stat_busi_one_snap_income_verif_code(each_memb) = "3" Then stat_busi_one_snap_income_verif_info(each_memb) = "Client Business Records/Ledger"
+				If stat_busi_one_snap_income_verif_code(each_memb) = "4" Then stat_busi_one_snap_income_verif_info(each_memb) = "Pending Out of Stat Verifs"
+				If stat_busi_one_snap_income_verif_code(each_memb) = "6" Then stat_busi_one_snap_income_verif_info(each_memb) = "Other Document"
+				If stat_busi_one_snap_income_verif_code(each_memb) = "N" Then stat_busi_one_snap_income_verif_info(each_memb) = "No Verif Provided"
 
-				If stat_busi_one_snap_prosp_verif_code(each_memb) = "_" Then stat_busi_one_snap_prosp_verif_info(each_memb) = ""
-				If stat_busi_one_snap_prosp_verif_code(each_memb) = "1" Then stat_busi_one_snap_prosp_verif_info(each_memb) = "Income Tax Returns"
-				If stat_busi_one_snap_prosp_verif_code(each_memb) = "2" Then stat_busi_one_snap_prosp_verif_info(each_memb) = "Receipts of Sales/Purchases"
-				If stat_busi_one_snap_prosp_verif_code(each_memb) = "3" Then stat_busi_one_snap_prosp_verif_info(each_memb) = "Client Business Records/Ledger"
-				If stat_busi_one_snap_prosp_verif_code(each_memb) = "4" Then stat_busi_one_snap_prosp_verif_info(each_memb) = "Pending Out of Stat Verifs"
-				If stat_busi_one_snap_prosp_verif_code(each_memb) = "6" Then stat_busi_one_snap_prosp_verif_info(each_memb) = "Other Document"
-				If stat_busi_one_snap_prosp_verif_code(each_memb) = "N" Then stat_busi_one_snap_prosp_verif_info(each_memb) = "No Verif Provided"
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "_" Then stat_busi_one_snap_expense_verif_info(each_memb) = ""
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "1" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Income Tax Returns"
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "2" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Receipts of Sales/Purchases"
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "3" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Client Business Records/Ledger"
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "4" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "6" Then stat_busi_one_snap_expense_verif_info(each_memb) = "Other Document"
+				If stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then stat_busi_one_snap_expense_verif_info(each_memb) = "No Verif Provided"
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -8552,6 +8863,7 @@ class stat_detail
 			If existance_check = "DOES NOT EXIST" Then stat_busi_two_exists(each_memb) = False
 
 			If stat_busi_two_exists(each_memb) = True Then
+				stat_busi_two_counted(each_memb) = True
 				EMReadScreen stat_busi_two_type(each_memb), 2, 5, 37
 				EMReadScreen stat_busi_two_inc_start_date(each_memb), 8, 5, 55
 				EMReadScreen stat_busi_two_inc_end_date(each_memb), 8, 5, 72
@@ -8580,28 +8892,28 @@ class stat_detail
 
 				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_two_snap_retro_gross_inc(each_memb), 8, 11, 43
-				EMReadScreen stat_busi_two_snap_retro_expenses(each_memb), 8, 11, 59
-				EMReadScreen stat_busi_two_snap_retro_verif_code(each_memb), 1, 11, 73
-				EMReadScreen stat_busi_two_snap_prosp_gross_inc(each_memb), 8, 17, 43
-				EMReadScreen stat_busi_two_snap_prosp_expenses(each_memb), 8, 17, 9
-				EMReadScreen stat_busi_two_snap_prosp_verif_code(each_memb), 1, 17, 73
+				EMReadScreen stat_busi_two_snap_retro_expenses(each_memb), 8, 17, 43
+				EMReadScreen stat_busi_two_snap_prosp_gross_inc(each_memb), 8, 11, 59
+				EMReadScreen stat_busi_two_snap_prosp_expenses(each_memb), 8, 17, 59
+				EMReadScreen stat_busi_two_snap_income_verif_code(each_memb), 1, 11, 73
+				EMReadScreen stat_busi_two_snap_expense_verif_code(each_memb), 1, 17, 73
 				PF3
 
-				If stat_busi_two_snap_retro_verif_code(each_memb) = "_" Then stat_busi_two_snap_retro_verif_info(each_memb) = ""
-				If stat_busi_two_snap_retro_verif_code(each_memb) = "1" Then stat_busi_two_snap_retro_verif_info(each_memb) = "Income Tax Returns"
-				If stat_busi_two_snap_retro_verif_code(each_memb) = "2" Then stat_busi_two_snap_retro_verif_info(each_memb) = "Receipts of Sales/Purchases"
-				If stat_busi_two_snap_retro_verif_code(each_memb) = "3" Then stat_busi_two_snap_retro_verif_info(each_memb) = "Client Business Records/Ledger"
-				If stat_busi_two_snap_retro_verif_code(each_memb) = "4" Then stat_busi_two_snap_retro_verif_info(each_memb) = "Pending Out of Stat Verifs"
-				If stat_busi_two_snap_retro_verif_code(each_memb) = "6" Then stat_busi_two_snap_retro_verif_info(each_memb) = "Other Document"
-				If stat_busi_two_snap_retro_verif_code(each_memb) = "N" Then stat_busi_two_snap_retro_verif_info(each_memb) = "No Verif Provided"
+				If stat_busi_two_snap_income_verif_code(each_memb) = "_" Then stat_busi_two_snap_income_verif_info(each_memb) = ""
+				If stat_busi_two_snap_income_verif_code(each_memb) = "1" Then stat_busi_two_snap_income_verif_info(each_memb) = "Income Tax Returns"
+				If stat_busi_two_snap_income_verif_code(each_memb) = "2" Then stat_busi_two_snap_income_verif_info(each_memb) = "Receipts of Sales/Purchases"
+				If stat_busi_two_snap_income_verif_code(each_memb) = "3" Then stat_busi_two_snap_income_verif_info(each_memb) = "Client Business Records/Ledger"
+				If stat_busi_two_snap_income_verif_code(each_memb) = "4" Then stat_busi_two_snap_income_verif_info(each_memb) = "Pending Out of Stat Verifs"
+				If stat_busi_two_snap_income_verif_code(each_memb) = "6" Then stat_busi_two_snap_income_verif_info(each_memb) = "Other Document"
+				If stat_busi_two_snap_income_verif_code(each_memb) = "N" Then stat_busi_two_snap_income_verif_info(each_memb) = "No Verif Provided"
 
-				If stat_busi_two_snap_prosp_verif_code(each_memb) = "_" Then stat_busi_two_snap_prosp_verif_info(each_memb) = ""
-				If stat_busi_two_snap_prosp_verif_code(each_memb) = "1" Then stat_busi_two_snap_prosp_verif_info(each_memb) = "Income Tax Returns"
-				If stat_busi_two_snap_prosp_verif_code(each_memb) = "2" Then stat_busi_two_snap_prosp_verif_info(each_memb) = "Receipts of Sales/Purchases"
-				If stat_busi_two_snap_prosp_verif_code(each_memb) = "3" Then stat_busi_two_snap_prosp_verif_info(each_memb) = "Client Business Records/Ledger"
-				If stat_busi_two_snap_prosp_verif_code(each_memb) = "4" Then stat_busi_two_snap_prosp_verif_info(each_memb) = "Pending Out of Stat Verifs"
-				If stat_busi_two_snap_prosp_verif_code(each_memb) = "6" Then stat_busi_two_snap_prosp_verif_info(each_memb) = "Other Document"
-				If stat_busi_two_snap_prosp_verif_code(each_memb) = "N" Then stat_busi_two_snap_prosp_verif_info(each_memb) = "No Verif Provided"
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "_" Then stat_busi_two_snap_expense_verif_info(each_memb) = ""
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "1" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Income Tax Returns"
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "2" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Receipts of Sales/Purchases"
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "3" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Client Business Records/Ledger"
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "4" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "6" Then stat_busi_two_snap_expense_verif_info(each_memb) = "Other Document"
+				If stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then stat_busi_two_snap_expense_verif_info(each_memb) = "No Verif Provided"
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -8612,6 +8924,7 @@ class stat_detail
 			If existance_check = "DOES NOT EXIST" Then stat_busi_three_exists(each_memb) = False
 
 			If stat_busi_three_exists(each_memb) = True Then
+				stat_busi_three_counted(each_memb) = True
 				EMReadScreen stat_busi_three_type(each_memb), 2, 5, 37
 				EMReadScreen stat_busi_three_inc_start_date(each_memb), 8, 5, 55
 				EMReadScreen stat_busi_three_inc_end_date(each_memb), 8, 5, 72
@@ -8640,28 +8953,28 @@ class stat_detail
 
 				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_three_snap_retro_gross_inc(each_memb), 8, 11, 43
-				EMReadScreen stat_busi_three_snap_retro_expenses(each_memb), 8, 11, 59
-				EMReadScreen stat_busi_three_snap_retro_verif_code(each_memb), 1, 11, 73
-				EMReadScreen stat_busi_three_snap_prosp_gross_inc(each_memb), 8, 17, 43
-				EMReadScreen stat_busi_three_snap_prosp_expenses(each_memb), 8, 17, 9
-				EMReadScreen stat_busi_three_snap_prosp_verif_code(each_memb), 1, 17, 73
+				EMReadScreen stat_busi_three_snap_retro_expenses(each_memb), 8, 17, 43
+				EMReadScreen stat_busi_three_snap_prosp_gross_inc(each_memb), 8, 11, 59
+				EMReadScreen stat_busi_three_snap_prosp_expenses(each_memb), 8, 17, 59
+				EMReadScreen stat_busi_three_snap_income_verif_code(each_memb), 1, 11, 73
+				EMReadScreen stat_busi_three_snap_expense_verif_code(each_memb), 1, 17, 73
 				PF3
 
-				If stat_busi_three_snap_retro_verif_code(each_memb) = "_" Then stat_busi_three_snap_retro_verif_info(each_memb) = ""
-				If stat_busi_three_snap_retro_verif_code(each_memb) = "1" Then stat_busi_three_snap_retro_verif_info(each_memb) = "Income Tax Returns"
-				If stat_busi_three_snap_retro_verif_code(each_memb) = "2" Then stat_busi_three_snap_retro_verif_info(each_memb) = "Receipts of Sales/Purchases"
-				If stat_busi_three_snap_retro_verif_code(each_memb) = "3" Then stat_busi_three_snap_retro_verif_info(each_memb) = "Client Business Records/Ledger"
-				If stat_busi_three_snap_retro_verif_code(each_memb) = "4" Then stat_busi_three_snap_retro_verif_info(each_memb) = "Pending Out of Stat Verifs"
-				If stat_busi_three_snap_retro_verif_code(each_memb) = "6" Then stat_busi_three_snap_retro_verif_info(each_memb) = "Other Document"
-				If stat_busi_three_snap_retro_verif_code(each_memb) = "N" Then stat_busi_three_snap_retro_verif_info(each_memb) = "No Verif Provided"
+				If stat_busi_three_snap_income_verif_code(each_memb) = "_" Then stat_busi_three_snap_income_verif_info(each_memb) = ""
+				If stat_busi_three_snap_income_verif_code(each_memb) = "1" Then stat_busi_three_snap_income_verif_info(each_memb) = "Income Tax Returns"
+				If stat_busi_three_snap_income_verif_code(each_memb) = "2" Then stat_busi_three_snap_income_verif_info(each_memb) = "Receipts of Sales/Purchases"
+				If stat_busi_three_snap_income_verif_code(each_memb) = "3" Then stat_busi_three_snap_income_verif_info(each_memb) = "Client Business Records/Ledger"
+				If stat_busi_three_snap_income_verif_code(each_memb) = "4" Then stat_busi_three_snap_income_verif_info(each_memb) = "Pending Out of Stat Verifs"
+				If stat_busi_three_snap_income_verif_code(each_memb) = "6" Then stat_busi_three_snap_income_verif_info(each_memb) = "Other Document"
+				If stat_busi_three_snap_income_verif_code(each_memb) = "N" Then stat_busi_three_snap_income_verif_info(each_memb) = "No Verif Provided"
 
-				If stat_busi_three_snap_prosp_verif_code(each_memb) = "_" Then stat_busi_three_snap_prosp_verif_info(each_memb) = ""
-				If stat_busi_three_snap_prosp_verif_code(each_memb) = "1" Then stat_busi_three_snap_prosp_verif_info(each_memb) = "Income Tax Returns"
-				If stat_busi_three_snap_prosp_verif_code(each_memb) = "2" Then stat_busi_three_snap_prosp_verif_info(each_memb) = "Receipts of Sales/Purchases"
-				If stat_busi_three_snap_prosp_verif_code(each_memb) = "3" Then stat_busi_three_snap_prosp_verif_info(each_memb) = "Client Business Records/Ledger"
-				If stat_busi_three_snap_prosp_verif_code(each_memb) = "4" Then stat_busi_three_snap_prosp_verif_info(each_memb) = "Pending Out of Stat Verifs"
-				If stat_busi_three_snap_prosp_verif_code(each_memb) = "6" Then stat_busi_three_snap_prosp_verif_info(each_memb) = "Other Document"
-				If stat_busi_three_snap_prosp_verif_code(each_memb) = "N" Then stat_busi_three_snap_prosp_verif_info(each_memb) = "No Verif Provided"
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "_" Then stat_busi_three_snap_expense_verif_info(each_memb) = ""
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "1" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Income Tax Returns"
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "2" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Receipts of Sales/Purchases"
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "3" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Client Business Records/Ledger"
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "4" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Pending Out of Stat Verifs"
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "6" Then stat_busi_three_snap_expense_verif_info(each_memb) = "Other Document"
+				If stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then stat_busi_three_snap_expense_verif_info(each_memb) = "No Verif Provided"
 			End If
 
 		Next
@@ -9310,6 +9623,47 @@ class stat_detail
 				If stat_shel_prosp_subsidy_verif_code(each_memb) = "LE" Then stat_shel_prosp_subsidy_verif_info(each_memb) = "Lease"
 				If stat_shel_prosp_subsidy_verif_code(each_memb) = "OT" Then stat_shel_prosp_subsidy_verif_info(each_memb) = "Other Document"
 				If stat_shel_prosp_subsidy_verif_code(each_memb) = "NO" Then stat_shel_prosp_subsidy_verif_info(each_memb) = "No Verif Provided"
+
+
+
+				stat_shel_prosp_rent_amount(each_memb) = trim(stat_shel_prosp_rent_amount(each_memb))
+				If stat_shel_prosp_rent_amount(each_memb) = "________" Then stat_shel_prosp_rent_amount(each_memb) = 0
+				stat_shel_prosp_rent_amount(each_memb) = stat_shel_prosp_rent_amount(each_memb)*1
+
+				stat_shel_prosp_lot_rent_amount(each_memb) = trim(stat_shel_prosp_lot_rent_amount(each_memb))
+				If stat_shel_prosp_lot_rent_amount(each_memb) = "________" Then stat_shel_prosp_lot_rent_amount(each_memb) = 0
+				stat_shel_prosp_lot_rent_amount(each_memb) = stat_shel_prosp_lot_rent_amount(each_memb)*1
+
+				stat_shel_prosp_mortgage_amount(each_memb) = trim(stat_shel_prosp_mortgage_amount(each_memb))
+				If stat_shel_prosp_mortgage_amount(each_memb) = "________" Then stat_shel_prosp_mortgage_amount(each_memb) = 0
+				stat_shel_prosp_mortgage_amount(each_memb) = stat_shel_prosp_mortgage_amount(each_memb)*1
+
+				stat_shel_prosp_insurance_amount(each_memb) = trim(stat_shel_prosp_insurance_amount(each_memb))
+				If stat_shel_prosp_insurance_amount(each_memb) = "________" Then stat_shel_prosp_insurance_amount(each_memb) = 0
+				stat_shel_prosp_insurance_amount(each_memb) = stat_shel_prosp_insurance_amount(each_memb)*1
+
+				stat_shel_prosp_taxes_amount(each_memb) = trim(stat_shel_prosp_taxes_amount(each_memb))
+				If stat_shel_prosp_taxes_amount(each_memb) = "________" Then stat_shel_prosp_taxes_amount(each_memb) = 0
+				stat_shel_prosp_taxes_amount(each_memb) = stat_shel_prosp_taxes_amount(each_memb)*1
+
+				stat_shel_prosp_room_amount(each_memb) = trim(stat_shel_prosp_room_amount(each_memb))
+				If stat_shel_prosp_room_amount(each_memb) = "________" Then stat_shel_prosp_room_amount(each_memb) = 0
+				stat_shel_prosp_room_amount(each_memb) = stat_shel_prosp_room_amount(each_memb)*1
+
+				stat_shel_prosp_garage_amount(each_memb) = trim(stat_shel_prosp_garage_amount(each_memb))
+				If stat_shel_prosp_garage_amount(each_memb) = "________" Then stat_shel_prosp_garage_amount(each_memb) = 0
+				stat_shel_prosp_garage_amount(each_memb) = stat_shel_prosp_garage_amount(each_memb)*1
+
+				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_rent_amount(each_memb)
+				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_lot_rent_amount(each_memb)
+				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_mortgage_amount(each_memb)
+				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_insurance_amount(each_memb)
+				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_taxes_amount(each_memb)
+				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_room_amount(each_memb)
+				stat_shel_prosp_all_total = stat_shel_prosp_all_total + stat_shel_prosp_garage_amount(each_memb)
+
+
+
 			End If
 		Next
 
@@ -9323,20 +9677,144 @@ class stat_detail
 
 			EMReadScreen stat_hest_retro_heat_air_yn, 		1, 13, 34
 			EMReadScreen stat_hest_retro_heat_air_fs_units, 2, 13, 42
+			EMReadScreen stat_hest_retro_heat_air_amount,	6, 13, 49
 			EMReadScreen stat_hest_retro_electric_yn, 		1, 14, 34
 			EMReadScreen stat_hest_retro_electric_fs_units, 2, 14, 42
+			EMReadScreen stat_hest_retro_electric_amount,	6, 14, 49
 			EMReadScreen stat_hest_retro_phone_yn, 			1, 15, 34
 			EMReadScreen stat_hest_retro_phone_fs_units, 	2, 15, 42
+			EMReadScreen stat_hest_retro_phone_amount,		6, 15, 49
 
 			EMReadScreen stat_hest_prosp_heat_air_yn, 		1, 13, 60
 			EMReadScreen stat_hest_prosp_heat_air_fs_units, 2, 13, 68
+			EMReadScreen stat_hest_prosp_heat_air_amount,	6, 13, 75
 			EMReadScreen stat_hest_prosp_electric_yn, 		1, 14, 60
 			EMReadScreen stat_hest_prosp_electric_fs_units, 2, 14, 68
+			EMReadScreen stat_hest_prosp_electric_amount,	6, 14, 75
 			EMReadScreen stat_hest_prosp_phone_yn, 			1, 15, 60
 			EMReadScreen stat_hest_prosp_phone_fs_units, 	2, 15, 68
+			EMReadScreen stat_hest_prosp_phone_amount,		6, 15, 75
 			'305184
 
+			stat_hest_retro_heat_air_amount = trim(stat_hest_retro_heat_air_amount)
+			If stat_hest_retro_heat_air_amount = "" Then stat_hest_retro_heat_air_amount = 0
+			stat_hest_retro_heat_air_amount = stat_hest_retro_heat_air_amount*1
+
+			stat_hest_retro_electric_amount = trim(stat_hest_retro_electric_amount)
+			If stat_hest_retro_electric_amount = "" Then stat_hest_retro_electric_amount = 0
+			stat_hest_retro_electric_amount = stat_hest_retro_electric_amount*1
+
+			stat_hest_retro_phone_amount = trim(stat_hest_retro_phone_amount)
+			If stat_hest_retro_phone_amount = "" Then stat_hest_retro_phone_amount = 0
+			stat_hest_retro_phone_amount = stat_hest_retro_phone_amount*1
+
+			stat_hest_prosp_heat_air_amount = trim(stat_hest_prosp_heat_air_amount)
+			If stat_hest_prosp_heat_air_amount = "" Then stat_hest_prosp_heat_air_amount = 0
+			stat_hest_prosp_heat_air_amount = stat_hest_prosp_heat_air_amount*1
+
+			stat_hest_prosp_electric_amount = trim(stat_hest_prosp_electric_amount)
+			If stat_hest_prosp_electric_amount = "" Then stat_hest_prosp_electric_amount = 0
+			stat_hest_prosp_electric_amount = stat_hest_prosp_electric_amount*1
+
+			stat_hest_prosp_phone_amount = trim(stat_hest_prosp_phone_amount)
+			If stat_hest_prosp_phone_amount = "" Then stat_hest_prosp_phone_amount = 0
+			stat_hest_prosp_phone_amount = stat_hest_prosp_phone_amount*1
+
+			stat_hest_retro_all = stat_hest_retro_heat_air_amount + stat_hest_retro_electric_amount + stat_hest_retro_phone_amount
+			stat_hest_prosp_all = stat_hest_prosp_heat_air_amount + stat_hest_prosp_electric_amount + stat_hest_prosp_phone_amount
+			If stat_hest_retro_heat_air_yn = "Y" Then
+				stat_hest_retro_list = "Heat/Air Conditioning"
+			ElseIf stat_hest_retro_electric_yn = "Y" AND stat_hest_retro_phone_yn = "Y" Then
+				stat_hest_retro_list = "Electric and Phone"
+			ElseIf stat_hest_retro_electric_yn = "Y" Then
+				stat_hest_retro_list = "Electric"
+			ElseIf stat_hest_retro_phone_yn = "Y" Then
+				stat_hest_retro_list = "Phone"
+			Else
+				stat_hest_retro_list = "None"
+			End If
+
+			If stat_hest_retro_heat_air_yn = "Y" Then
+				stat_hest_prosp_list = "Heat/Air Conditioning"
+			ElseIf stat_hest_retro_electric_yn = "Y" AND stat_hest_retro_phone_yn = "Y" Then
+				stat_hest_prosp_list = "Electric and Phone"
+			ElseIf stat_hest_retro_electric_yn = "Y" Then
+				stat_hest_prosp_list = "Electric"
+			ElseIf stat_hest_retro_phone_yn = "Y" Then
+				stat_hest_prosp_list = "Phone"
+			Else
+				stat_hest_prosp_list = "None"
+			End If
+
 		End if
+
+		Call navigate_to_MAXIS_screen("STAT", "REVW")
+
+		EMReadScreen stat_revw_cash_code, 1, 7, 40
+		EMReadScreen stat_next_cash_revw_date, 8, 9, 37
+		EMReadScreen stat_next_cash_revw_process, 2, 9, 46
+		EMReadScreen stat_last_cash_revw_date, 8, 11, 37
+		EMReadScreen stat_last_cash_revw_process, 2, 11, 46
+		EMReadScreen stat_revw_snap_code, 1, 7, 60
+		EMReadScreen stat_next_snap_revw_date, 8, 9, 57
+		EMReadScreen stat_next_snap_revw_process, 2, 9, 66
+		EMReadScreen stat_last_snap_revw_date, 8, 11, 57
+		EMReadScreen stat_last_snap_revw_process, 2, 11, 66
+		EMReadScreen stat_revw_hc_code, 1, 7, 73
+		EMReadScreen stat_next_hc_revw_date, 8, 9, 70
+		EMReadScreen stat_next_hc_revw_process, 2, 9, 79
+		EMReadScreen stat_last_hc_revw_date, 8, 11, 70
+		EMReadScreen stat_last_hc_revw_process, 2, 11, 79
+		EMReadScreen stat_revw_form_recvd_date, 8, 13, 37
+		EMReadScreen stat_revw_interview_date, 8, 15, 37
+
+		stat_revw_cash_code = replace(stat_revw_cash_code, "_", "")
+		stat_revw_snap_code = replace(stat_revw_snap_code, "_", "")
+		stat_revw_hc_code = replace(stat_revw_hc_code, "_", "")
+
+		stat_next_cash_revw_process = trim(stat_next_cash_revw_process)
+		stat_last_cash_revw_process = trim(stat_last_cash_revw_process)
+
+		stat_next_snap_revw_process = trim(stat_next_snap_revw_process)
+		stat_last_snap_revw_process = trim(stat_last_snap_revw_process)
+
+		stat_next_hc_revw_process = trim(stat_next_hc_revw_process)
+		stat_last_hc_revw_process = trim(stat_last_hc_revw_process)
+
+		stat_next_cash_revw_date = replace(stat_next_cash_revw_date, " ", "/")
+		If stat_next_cash_revw_date = "__/__/__" Then stat_next_cash_revw_date = ""
+		stat_last_cash_revw_date = replace(stat_last_cash_revw_date, " ", "/")
+		If stat_last_cash_revw_date = "__/__/__" Then stat_last_cash_revw_date = ""
+
+		stat_next_snap_revw_date = replace(stat_next_snap_revw_date, " ", "/")
+		If stat_next_snap_revw_date = "__/__/__" Then stat_next_snap_revw_date = ""
+		stat_last_snap_revw_date = replace(stat_last_snap_revw_date, " ", "/")
+		If stat_last_snap_revw_date = "__/__/__" Then stat_last_snap_revw_date = ""
+
+		stat_next_hc_revw_date = replace(stat_next_hc_revw_date, " ", "/")
+		If stat_next_hc_revw_date = "__/__/__" Then stat_next_hc_revw_date = ""
+		stat_last_hc_revw_date = replace(stat_last_hc_revw_date, " ", "/")
+		If stat_last_hc_revw_date = "__/__/__" Then stat_last_hc_revw_date = ""
+
+		stat_revw_form_recvd_date = replace(stat_revw_form_recvd_date, " ", "/")
+		If stat_revw_form_recvd_date = "__/__/__" Then stat_revw_form_recvd_date = ""
+		stat_revw_interview_date = replace(stat_revw_interview_date, " ", "/")
+		If stat_revw_interview_date = "__/__/__" Then stat_revw_interview_date = ""
+
+
+		Call navigate_to_MAXIS_screen("STAT", "MONT")
+
+		EMReadScreen stat_mont_cash_status, 1, 11, 43
+		EMReadScreen stat_mont_snap_status, 1, 11, 53
+		EMReadScreen stat_mont_hc_status, 1, 11, 63
+		EMReadScreen stat_mont_form_recvd_date, 8, 6, 39
+
+		stat_mont_cash_status = replace(stat_mont_cash_status, "_", "")
+		stat_mont_snap_status = replace(stat_mont_snap_status, "_", "")
+		stat_mont_hc_status = replace(stat_mont_hc_status, "_", "")
+
+		stat_mont_form_recvd_date = replace(stat_mont_form_recvd_date, " ", "/")
+		If stat_mont_form_recvd_date = "__/__/__" Then stat_mont_form_recvd_date = ""
 
 		Call back_to_SELF
 	end sub
@@ -9470,6 +9948,9 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
+
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
 first_DWP_approval = ""
@@ -9536,6 +10017,16 @@ For each footer_month in MONTHS_ARRAY
 	' MsgBox footer_month
 	Call convert_date_into_MAXIS_footer_month(footer_month, MAXIS_footer_month, MAXIS_footer_year)
 
+	ReDim preserve STAT_INFORMATION(month_count)
+
+	Set STAT_INFORMATION(month_count) = new stat_detail
+
+	STAT_INFORMATION(month_count).footer_month = MAXIS_footer_month
+	STAT_INFORMATION(month_count).footer_year = MAXIS_footer_year
+
+	Call STAT_INFORMATION(month_count).gather_stat_info
+
+
 	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 
 	EMReadScreen numb_DWP_versions, 		1, 7, 40
@@ -9578,6 +10069,21 @@ For each footer_month in MONTHS_ARRAY
 
 		Call MFIP_ELIG_APPROVALS(mfip_elig_months_count).read_elig
 
+		MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_month = False
+		MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_month = False
+
+		If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_month = True
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		End If
+		If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_month = True
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+		End If
+
 		If first_MFIP_approval = "" AND MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today Then first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 
 		' MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
@@ -9600,6 +10106,15 @@ For each footer_month in MONTHS_ARRAY
 
 		Call MSA_ELIG_APPROVALS(msa_elig_months_count).read_elig
 
+		MSA_ELIG_APPROVALS(msa_elig_months_count).er_month = False
+
+		If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
+			MSA_ELIG_APPROVALS(msa_elig_months_count).er_month = True
+			MSA_ELIG_APPROVALS(msa_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+			MSA_ELIG_APPROVALS(msa_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			MSA_ELIG_APPROVALS(msa_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		End If
+
 		If first_MSA_approval = "" AND MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today Then first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		' MsgBox "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year & vbCr &_
 		' "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant & vbCr &_
@@ -9616,6 +10131,21 @@ For each footer_month in MONTHS_ARRAY
 		GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year = MAXIS_footer_year
 
 		Call GA_ELIG_APPROVALS(ga_elig_months_count).read_elig
+
+		GA_ELIG_APPROVALS(ga_elig_months_count).er_month = False
+		GA_ELIG_APPROVALS(ga_elig_months_count).hrf_month = False
+
+		If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
+			GA_ELIG_APPROVALS(ga_elig_months_count).er_month = True
+			GA_ELIG_APPROVALS(ga_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+			GA_ELIG_APPROVALS(ga_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			GA_ELIG_APPROVALS(ga_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		End If
+		If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
+			GA_ELIG_APPROVALS(ga_elig_months_count).hrf_month = True
+			GA_ELIG_APPROVALS(ga_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
+			GA_ELIG_APPROVALS(ga_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+		End If
 
 		If first_GA_approval = "" AND GA_ELIG_APPROVALS(ga_elig_months_count).approved_today Then first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		' MsgBox "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & vbCr & "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year & vbCr &_
@@ -9660,6 +10190,21 @@ For each footer_month in MONTHS_ARRAY
 
 		Call GRH_ELIG_APPROVALS(grh_elig_months_count).read_elig
 
+		GRH_ELIG_APPROVALS(grh_elig_months_count).er_month = False
+		GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_month = False
+
+		If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
+			GRH_ELIG_APPROVALS(grh_elig_months_count).er_month = True
+			GRH_ELIG_APPROVALS(grh_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+			GRH_ELIG_APPROVALS(grh_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			GRH_ELIG_APPROVALS(grh_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		End If
+		If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
+			GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_month = True
+			GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
+			GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+		End If
+
 		If first_GRH_approval = "" AND GRH_ELIG_APPROVALS(grh_elig_months_count).approved_today Then first_GRH_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		' MsgBox "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year & vbCr &_
 		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date & vbCr &_
@@ -9681,8 +10226,47 @@ For each footer_month in MONTHS_ARRAY
 
 		Call SNAP_ELIG_APPROVALS(snap_elig_months_count).read_elig
 
+		SNAP_ELIG_APPROVALS(snap_elig_months_count).er_month = False
+		SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_month = False
+
+		If STAT_INFORMATION(month_count).stat_revw_snap_code <> "" Then
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_month = True
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_snap_code
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		End If
+		If STAT_INFORMATION(month_count).stat_mont_snap_status <> "" Then
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_month = True
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_snap_status
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+		End If
+
 		If first_SNAP_approval = "" AND SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_today Then first_SNAP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		' MsgBox "SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month - " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month
+
+		For each_elig_memb = 0 to UBound(SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_ref_numbs)
+			For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
+				If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
+					If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
+						STAT_INFORMATION(month_count).stat_jobs_one_job_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_jobs_two_job_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_jobs_three_job_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_jobs_four_job_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_jobs_five_job_counted(each_stat_memb) = False
+
+						STAT_INFORMATION(month_count).stat_busi_one_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_busi_two_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_busi_three_counted(each_stat_memb) = False
+
+						STAT_INFORMATION(month_count).stat_unea_one_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_unea_two_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_unea_three_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_unea_four_counted(each_stat_memb) = False
+						STAT_INFORMATION(month_count).stat_unea_five_counted(each_stat_memb) = False
+					End If
+				End If
+			Next
+		Next
 
 		snap_elig_months_count = snap_elig_months_count + 1
 	End If
@@ -9696,6 +10280,21 @@ For each footer_month in MONTHS_ARRAY
 	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year = MAXIS_footer_year
 
 	Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
+
+	HC_ELIG_APPROVALS(hc_elig_months_count).er_month = False
+	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = False
+
+	If STAT_INFORMATION(month_count).stat_revw_hc_code <> "" Then
+		HC_ELIG_APPROVALS(hc_elig_months_count).er_month = True
+		HC_ELIG_APPROVALS(hc_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_hc_code
+		HC_ELIG_APPROVALS(hc_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+		HC_ELIG_APPROVALS(hc_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+	End If
+	If STAT_INFORMATION(month_count).stat_mont_hc_status <> "" Then
+		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = True
+		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_hc_status
+		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+	End If
 
 	If first_HC_approval = "" AND HC_ELIG_APPROVALS(hc_elig_months_count).approved_today Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 	' elig_list = ""
@@ -9713,16 +10312,8 @@ For each footer_month in MONTHS_ARRAY
 	hc_elig_months_count = hc_elig_months_count + 1
 
 
-	ReDim preserve STAT_INFORMATION(month_count)
+	month_count = month_count + 1					'This is way down here because I want to be able to reference the information in the current month for this class.
 
-	Set STAT_INFORMATION(month_count) = new stat_detail
-
-	STAT_INFORMATION(month_count).footer_month = MAXIS_footer_month
-	STAT_INFORMATION(month_count).footer_year = MAXIS_footer_year
-
-	Call STAT_INFORMATION(month_count).gather_stat_info
-
-	month_count = month_count + 1
 
 	Call back_to_SELF
 Next
@@ -9743,8 +10334,19 @@ If first_SNAP_approval <> "" Then enter_CNOTE_for_SNAP = True
 If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 
 ' MsgBox "first_SNAP_approval - " & first_SNAP_approval & vbCr & "enter_CNOTE_for_SNAP - " & enter_CNOTE_for_SNAP
+
+const months_in_approval	= 0
+const confirm_budget_selection	= 9
+const first_mo_const		= 10
+const last_mo_const			= 11
+const wcom_needed			= 12
+const dialog_displayed		= 13
+const budget_error_exists	= 14
+const btn_one 				= 15
+const approval_confirmed	= 16
+
 Dim SNAP_UNIQUE_APPROVALS()
-ReDim SNAP_UNIQUE_APPROVALS(0)
+ReDim SNAP_UNIQUE_APPROVALS(approval_confirmed, 0)
 
 If enter_CNOTE_for_SNAP = True Then
 	'Budgets match if the earned income, unearned income, shelter expenses, and entitlements are the same
@@ -9776,9 +10378,12 @@ If enter_CNOTE_for_SNAP = True Then
 		' MsgBox ("Earned Income - " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc & vbCr & "Unearned Income - " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc & vbCr & "Housing Exp - " & sum_housing & vbCr & "Hest - " & sum_hest & vbCr & "FS Allotment - " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot & vbCr & vbCr & "Month - " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
 
 		If approval = 0 Then
-			ReDim preserve SNAP_UNIQUE_APPROVALS(unique_app_count)
+			ReDim preserve SNAP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
 
-			SNAP_UNIQUE_APPROVALS(unique_app_count) = SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
+			SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
+			SNAP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
+			SNAP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 500 + unique_app_count
+			SNAP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 			last_earned_income = SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc
 			last_unearned_income = SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc
 			last_shelter_expense = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other
@@ -9797,12 +10402,18 @@ If enter_CNOTE_for_SNAP = True Then
 			If last_eligibility <> SNAP_ELIG_APPROVALS(approval).snap_elig_result Then match_last_benefit_amounts = False
 			If last_snap_entitlement <> SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot Then match_last_benefit_amounts = False
 
-			If match_last_benefit_amounts = True Then SNAP_UNIQUE_APPROVALS(unique_app_count-1) = SNAP_UNIQUE_APPROVALS(unique_app_count-1) & "~" & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
+			If match_last_benefit_amounts = True Then
+				SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
+				SNAP_UNIQUE_APPROVALS(last_mo_const, unique_app_count-1) = SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
+			End If
 
 			If match_last_benefit_amounts = False Then
-				ReDim preserve SNAP_UNIQUE_APPROVALS(unique_app_count)
+				ReDim preserve SNAP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
 
-				SNAP_UNIQUE_APPROVALS(unique_app_count) = SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
+				SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
+				SNAP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
+				SNAP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 500 + unique_app_count
+				SNAP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 				last_earned_income = SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc
 				last_unearned_income = SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc
 				last_shelter_expense = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other
@@ -9817,11 +10428,269 @@ If enter_CNOTE_for_SNAP = True Then
 		End If
 	Next
 
+	' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+	' Next
 
-	For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS)
-		first_month = left(SNAP_UNIQUE_APPROVALS(unique_app), 5)
-		If len(SNAP_UNIQUE_APPROVALS(unique_app)) > 5 Then
-			last_month = right(SNAP_UNIQUE_APPROVALS(unique_app), 5)
+	all_snap_approvals_confirmed = False
+	approval_selected = 0
+
+	Do
+
+		first_month = left(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
+		elig_ind = ""
+		month_ind = ""
+		For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
+			If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
+		Next
+		For each_month = 0 to UBound(STAT_INFORMATION)
+			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
+		Next
+
+		ei_count = 0
+		unea_count = 0
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		  If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted(each_memb) = True Then ei_count = ei_count + 1
+
+		  If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted(each_memb) = True Then unea_count = unea_count + 1
+		  If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted(each_memb) = True Then unea_count = unea_count + 1
+		  If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted(each_memb) = True Then unea_count = unea_count + 1
+		  If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted(each_memb) = True Then unea_count = unea_count + 1
+		  If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted(each_memb) = True Then unea_count = unea_count + 1
+		Next
+		ei_len = ei_count * 20
+		unea_len = unea_count * 10
+		income_box_len = 30 + unea_len
+		If ei_len > unea_count Then income_box_len = 30 + ei_len
+
+		BeginDialog Dialog1, 0, 0, 555, 385, "Dialog"
+		  GroupBox 460, 10, 85, 165, "SNAP Approvals"
+		  EditBox 600, 400, 50, 10, empty_editbox
+		  ButtonGroup ButtonPressed
+			PushButton 360, 20, 85, 10, "Deductions Detail", deductions_detail_btn
+		    PushButton 200, 170, 70, 10, "HH COMP Detail", hh_comp_detail
+			PushButton 360, 190, 85, 10, "Shelter Expense Detail", shel_exp_detail_btn
+			y_pos = 25
+			display_detail = ""
+			for each_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+				If SNAP_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
+					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app)
+				ElseIF SNAP_UNIQUE_APPROVALS(last_mo_const, each_app) = CM_plus_1_mo & "/" & CM_plus_1_yr Then
+					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - Ongoing"
+				Else
+					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - " & SNAP_UNIQUE_APPROVALS(last_mo_const, each_app)
+				End if
+				If each_app = approval_selected Then display_detail = month_display
+				If each_app = approval_selected Then
+					Text 470, y_pos+2, 75, 13, month_display
+				Else
+					PushButton 465, y_pos, 75, 13, month_display, SNAP_UNIQUE_APPROVALS(btn_one, each_app)
+				End If
+				y_pos = y_pos + 15
+			next
+			PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+			' PushButton 465, 25, 75, 15, "08/21 - 09/21", app_btn_one
+			' PushButton 465, 40, 75, 15, "10/21 - 02/22", app_btn_two
+			' PushButton 465, 55, 75, 15, "03/22 - Ongoing", app_btn_three
+			If approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) Then
+				PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+			Else
+				PushButton 440, 365, 110, 15, "Next Approval", next_approval_btn
+			End If
+		  GroupBox 5, 10, 285, 105, "Approval Detail"
+		  Text 15, 20, 135, 10, "Total Gross Income . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc
+		  Text 15, 30, 135, 10, "Total Deductions . . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct & "  ( - )"
+		  Text 15, 40, 135, 10, "Net Income . . . . . . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc
+		  Text 15, 50, 135, 10, "Shelter Expense . . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses & "  ( - )"
+		  Text 15, 60, 135, 10, "Net Adjusted Income . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc
+
+		  Text 15, 75, 135, 10, "Thrifty Food Plan . . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan
+		  Text 15, 85, 135, 10, "30% of Net Adj Income . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc & "  ( - )"
+
+		  Text 40, 100, 105, 10, "Entitlement . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot
+		  ' Text 15, 95, 130, 25, "Monthly SNAP Allotment calculated by subtracting 30% of the adjusted net income from the Thrifty Food Plan"
+
+		  Text 165, 20, 120, 10, "Months in Approval: " & display_detail
+		  Text 205, 30, 80, 10, " Result:   " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result
+		  Text 165, 40, 120, 10, " Benefit Entitlement:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot
+		  Text 165, 60, 115, 10, "Max Gross Inc . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc
+		  Text 170, 70, 110, 10, "Gross Income Test . . . " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_gross_inc_test
+		  Text 165, 80, 115, 10, "Max Net Inc . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc
+		  Text 170, 90, 110, 10, "Net Income Test . . . . . " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_net_inc_test
+
+		  GroupBox 300, 10, 150, 80, "Total Deductions Calculation"
+		  Text 325, 35, 100, 10, " Standard . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard
+		  Text 320, 45, 100, 10, " Earned Inc . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned
+		  Text 330, 55, 100, 10, "Medical . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical
+		  Text 305, 65, 130, 10, "Dependent Care . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care
+		  Text 310, 75, 130, 10, " Child Support . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses
+
+		  GroupBox 300, 95, 150, 80, "Allowable Shelter Cost Calculation"
+		  Text 305, 110, 145, 10, "Total Shelter Costs . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total
+		  Text 305, 120, 145, 10, "Half of Net Income . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc & "  ( - )"
+		  Text 305, 130, 145, 10, "Adjusted Shelter Costs . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs
+		  Text 305, 140, 90, 20, "This case has a maximum shelter cost of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel
+		  Text 305, 160, 145, 10, "Allowed Shelter Expense . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses
+
+		  ' Text 15, 125, 130, 10, "REVIEW ALL BUDGET INFORMATION"
+		  ' Text 15, 135, 135, 10, "Check income, pay frequency, amounts."
+		  ' Text 15, 145, 135, 10, "Review housing expense and utilities."
+		  GroupBox 5, 120, 285, 35, "SNAP Benefits Issued to Resident in the Approval Package"
+		  app_y_pos = 132
+		  app_x_pos = 10
+		  For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
+		  	If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				Text app_x_pos, app_y_pos, 85, 10, SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt
+				app_y_pos = app_y_pos + 10
+				If app_y_pos = 152 Then
+					app_y_pos = 132
+					app_x_pos = app_x_pos + 90
+				End If
+			End If
+		  Next
+		  ' Text 10, 135, 85, 10, "MONTH 1 - $ XXX"
+		  ' Text 10, 145, 85, 10, "MONTH 2 - $ XXX"
+		  ' Text 100, 135, 85, 10, "MONTH 3 - $ XXX"
+		  ' Text 100, 145, 85, 10, "MONTH 4 - $ XXX"
+		  ' Text 190, 135, 85, 10, "MONTH 5 - $ XXX"
+		  ' Text 190, 145, 85, 10, "MONTH 6 - $ XXX"
+
+		  GroupBox 5, 160, 285, 70, "Houshold Composition"
+		  Text 20, 170, 115, 10, "Members in Assistance Unit:  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit
+		  Text 35, 180, 245, 20, "Eligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).elig_membs_list
+		  Text 30, 200, 245, 20, "Ineligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).inelig_membs_list
+
+		  ' GroupBox 300, 90, 150, 80, "Allowable Shelter Cost Calculation"
+		  GroupBox 300, 180, 240, 50, "Expenses"
+		  Text 315, 205, 200, 10, "Utilities Expense:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total & "  -  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_list
+		  Text 310, 215, 125, 10, "Housing Expense:  $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total
+
+		  GroupBox 5, 235, 540, income_box_len, "Income"
+		  Text 10, 245, 155, 10, "Total GROSS EARNED Income:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc
+		  Text 300, 245, 155, 10, "Total GROSS UNEARNED Income:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc
+		  y_pos = 260
+		  y_pos_2 = 260
+		  For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		  	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted(each_memb) = True Then
+				' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+				Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+	  		    Text 40, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted(each_memb) = True Then
+				' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb)
+				Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+				Text 40, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted(each_memb) = True Then
+				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb)
+				Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted(each_memb) = True Then
+				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb)
+				Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted(each_memb) = True Then
+				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb)
+				Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted(each_memb) = True Then
+				' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) &
+				Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+				Text 40, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_expenses(each_memb)
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted(each_memb) = True Then
+				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb)
+				Text 25, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_expenses(each_memb)
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted(each_memb) = True Then
+				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb)
+				Text 25, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_expenses(each_memb)
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted(each_memb) = True Then
+				Text 305, y_pos_2, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb)
+				y_pos_2 = y_pos_2 + 10
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted(each_memb) = True Then
+				Text 305, y_pos_2, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb)
+				y_pos_2 = y_pos_2 + 10
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted(each_memb) = True Then
+				Text 305, y_pos_2, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb)
+				y_pos_2 = y_pos_2 + 10
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted(each_memb) = True Then
+				Text 305, y_pos_2, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb)
+				y_pos_2 = y_pos_2 + 10
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted(each_memb) = True Then
+				Text 305, y_pos_2, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb)
+				y_pos_2 = y_pos_2 + 10
+			End If
+		  Next
+		  ' Text 15, 155, 215, 10, "MEMB 01 - JOB NAME                           Monhtly Income:   $ XXX"
+		  ' Text 25, 165, 200, 10, "Paid FREQUENCY - $ XXX average inc/pay date"
+		  ' Text 15, 175, 215, 10, "MEMB 01 - JOB NAME                           Monhtly Income:   $ XXX"
+		  ' Text 25, 185, 200, 10, "Paid FREQUENCY - $ XXX average inc/pay date"
+		  ' Text 245, 155, 205, 10, "MEMB 01 - UNEA TYPE                   Monhtly Income:   $ XXX"
+		  ' Text 245, 165, 205, 10, "MEMB 01 - UNEA TYPE                   Monhtly Income:   $ XXX"
+
+
+'308133'
+
+
+
+		  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+		  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		EndDialog
+
+		dialog Dialog1
+		cancel_confirmation
+
+		all_snap_approvals_confirmed = True
+
+		If SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then SNAP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
+		If SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then SNAP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
+
+		for each_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+			If ButtonPressed = SNAP_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
+			If SNAP_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then all_snap_approvals_confirmed = False
+		Next
+		' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+		' Next
+
+	Loop until all_snap_approvals_confirmed = True
+
+
+
+End If
+
+
+'305758
+'305184
+
+
+
+If enter_CNOTE_for_SNAP = True Then
+	' MsgBox "MADE IT TO THE NOTE"
+	''
+	For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+		first_month = left(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
+		If len(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
+			last_month = right(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
 		End If
 
 		Call start_a_blank_case_note
@@ -9831,7 +10700,7 @@ If enter_CNOTE_for_SNAP = True Then
 				If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then
 					If last_month = curr_month_plus_one Then
 						Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Ongoing")		'TODO - add closure or denial details here based on some other logic that we have to figure out'
-					ElseIf len(SNAP_UNIQUE_APPROVALS(unique_app)) > 5 Then
+					ElseIf len(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
 						Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - " & last_month)
 					Else
 						Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " only")		'TODO - add closure or denial details here based on some other logic that we have to figure out'
@@ -9843,10 +10712,11 @@ If enter_CNOTE_for_SNAP = True Then
 				' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 				Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(approval).snap_approved_date)
-				Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
+				' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
+				Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
 
 			End If
-			If InStr(SNAP_UNIQUE_APPROVALS(unique_app), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+			If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
 				If SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot = SNAP_ELIG_APPROVALS(approval).snap_benefit_amt Then
 					Call write_variable_in_CASE_NOTE(" - " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & " . . . Entitlement:    $" & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 7) & " - Full Amount Issued to Resident")
 				Else
@@ -9857,7 +10727,9 @@ If enter_CNOTE_for_SNAP = True Then
 				If SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot <> SNAP_ELIG_APPROVALS(approval).snap_benefit_amt Then  Call write_variable_in_CASE_NOTE("               Issued to Resident:   $" & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 7))
 			End If
 		Next
-		Call write_variable_in_CASE_NOTE("*** BUDGET FOR APPROVAL ***")
+		' Call write_variable_in_CASE_NOTE("*** BUDGET FOR APPROVAL ***")
+		Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
+		' "======================================XX======================================"
 
 		For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
 			If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year = first_month Then
@@ -9888,24 +10760,225 @@ If enter_CNOTE_for_SNAP = True Then
 				If SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc = "0.00"
 				If SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc = "0.00"
 
+
+
+
 				Call write_variable_in_CASE_NOTE(" Household: " & SNAP_ELIG_APPROVALS(approval).snap_budg_numb_in_assist_unit & " Adult")
-				Call write_variable_in_CASE_NOTE(" Income:    Earned:    $" & right("       " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc, 7))
-				Call write_variable_in_CASE_NOTE("            Unearned:  $" & right("       " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc, 7))
-				Call write_variable_in_CASE_NOTE(" Expenses:  Housing:   $" & right("       " & sum_housing & ".00", 7))
-				Call write_variable_in_CASE_NOTE("            Utilities: $" & right("       " & sum_hest & ".00", 7))
 
-				Call write_variable_in_CASE_NOTE("*** CASE STATUS ***")
+				beginning_txt = " Income:    "
+				earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc, 8)
+				spaces_30 = "                              "
+				For each_memb = 0 to UBound(STAT_INFORMATION(approval).stat_memb_ref_numb)
+		  		  	If STAT_INFORMATION(approval).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_one_job_counted(each_memb) = True Then
+						job_detail = left(STAT_INFORMATION(approval).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_one_employer_name(each_memb) & spaces_30, 26)
+						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+						beginning_txt = "            "
+						earned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_two_job_counted(each_memb) = True Then
+						job_detail = left(STAT_INFORMATION(approval).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_two_employer_name(each_memb) & spaces_30, 26)
+						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+						beginning_txt = "            "
+						earned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_three_job_counted(each_memb) = True Then
+						job_detail = left(STAT_INFORMATION(approval).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_three_employer_name(each_memb) & spaces_30, 26)
+						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+						beginning_txt = "            "
+						earned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_four_job_counted(each_memb) = True Then
+						job_detail = left(STAT_INFORMATION(approval).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_four_employer_name(each_memb) & spaces_30, 26)
+						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+						beginning_txt = "            "
+						earned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_five_job_counted(each_memb) = True Then
+						job_detail = left(STAT_INFORMATION(approval).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_five_employer_name(each_memb) & spaces_30, 26)
+						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+						beginning_txt = "            "
+						earned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_busi_one_counted(each_memb) = True Then
+						busi_details = left(STAT_INFORMATION(approval).stat_busi_one_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_busi_one_type_info(each_memb) & spaces_30, 25)
+						Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+						beginning_txt = "            "
+						earned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_busi_two_counted(each_memb) = True Then
+						busi_details = left(STAT_INFORMATION(approval).stat_busi_two_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_busi_two_type_info(each_memb) & spaces_30, 25)
+						Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+						beginning_txt = "            "
+						earned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_busi_three_counted(each_memb) = True Then
+						busi_details = left(STAT_INFORMATION(approval).stat_busi_three_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_busi_three_type_info(each_memb) & spaces_30, 25)
+						Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+						beginning_txt = "            "
+						earned_info = "|"
+		  			End If
+				Next
+				If earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc, 8) Then
+					' Call write_variable_in_CASE_NOTE(" Income:    NONE                            |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc, 8))
+					Call write_variable_in_CASE_NOTE(" Income:    NO Earned Income                |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc, 8))
 
-				Call write_variable_in_CASE_NOTE(" SNAP Status:      " & SNAP_ELIG_APPROVALS(approval).snap_curr_prog_status)
-				Call write_variable_in_CASE_NOTE(" Reporting Status: " & SNAP_ELIG_APPROVALS(approval).snap_reporting_status)
-				Call write_variable_in_CASE_NOTE(" Review Date:      " & SNAP_ELIG_APPROVALS(approval).snap_elig_revw_date)
-				Call write_variable_in_CASE_NOTE(" Budget Cycle:     " & SNAP_ELIG_APPROVALS(approval).snap_budget_cycle)
+				End If
+				unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc, 8)
+				For each_memb = 0 to UBound(STAT_INFORMATION(approval).stat_memb_ref_numb)
+		  			If STAT_INFORMATION(approval).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_one_counted(each_memb) = True Then
+						unea_detail = left(STAT_INFORMATION(approval).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_one_type_info(each_memb), 31)
+						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+						unearned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_two_counted(each_memb) = True Then
+						unea_detail = left(STAT_INFORMATION(approval).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_two_type_info(each_memb), 31)
+						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+						unearned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_three_counted(each_memb) = True Then
+						unea_detail = left(STAT_INFORMATION(approval).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_three_type_info(each_memb), 31)
+						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+						unearned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_four_counted(each_memb) = True Then
+						unea_detail = left(STAT_INFORMATION(approval).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_four_type_info(each_memb), 31)
+						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+						unearned_info = "|"
+		  			End If
+		  			If STAT_INFORMATION(approval).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_five_counted(each_memb) = True Then
+						unea_detail = left(STAT_INFORMATION(approval).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_five_type_info(each_memb), 31)
+						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+						unearned_info = "|"
+		  			End If
+				Next
+				If unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc, 8))
+
+				Call write_variable_in_CASE_NOTE("                                            |    Total Gross Inc: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_gross_inc, 8))
+
+				deduction_detail_one = ""
+				deduction_detail_two = ""
+				deduction_detail_three = ""
+
+				' Standard $177
+				' Earned Inc $126
+				' Medical Exp $0
+				' Depndt Care $175.00
+				' 1234567890123456789
+				' Child Suprt $0
+
+				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard <> "" Then
+					If deduction_detail_one = "" Then
+						deduction_detail_one = left("Standard $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_one) < 21 Then
+						deduction_detail_one = deduction_detail_one & "- Standard $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "")
+					ElseIf deduction_detail_two = "" Then
+						deduction_detail_two = left("Standard $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_two) < 21 Then
+						deduction_detail_two = deduction_detail_two & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "")
+					ElseIf deduction_detail_three = "" Then
+						deduction_detail_three = deduction_detail_three & "Standard $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "")
+					ElseIf len(deduction_detail_three) < 21 Then
+						deduction_detail_three = deduction_detail_three & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "")
+					End if
+				End If
+				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned <> "" Then
+					' MsgBox SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned
+					If deduction_detail_one = "" Then
+						deduction_detail_one = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_one) < 21 Then
+						deduction_detail_one = deduction_detail_one & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "")
+					ElseIf deduction_detail_two = "" Then
+						deduction_detail_two = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_two) < 21 Then
+						deduction_detail_two = deduction_detail_two & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "")
+					ElseIf deduction_detail_three = "" Then
+						deduction_detail_three = deduction_detail_three & "Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "")
+					ElseIf len(deduction_detail_three) < 21 Then
+						deduction_detail_three = deduction_detail_three & "- Earned Inc  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "")
+					End if
+				End If
+				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical <> "" Then
+					If deduction_detail_one = "" Then
+						deduction_detail_one = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_one) < 21 Then
+						deduction_detail_one = deduction_detail_one & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "")
+					ElseIf deduction_detail_two = "" Then
+						deduction_detail_two = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_two) < 21 Then
+						deduction_detail_two = deduction_detail_two & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "")
+					ElseIf deduction_detail_three = "" Then
+						deduction_detail_three = deduction_detail_three & "Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "")
+					ElseIf len(deduction_detail_three) < 21 Then
+						deduction_detail_three = deduction_detail_three & "- Medical Exp  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "")
+					End if
+				End If
+				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care <> "" Then
+					If deduction_detail_one = "" Then
+						deduction_detail_one = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_one) < 21 Then
+						deduction_detail_one = deduction_detail_one & "-Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "")
+					ElseIf deduction_detail_two = "" Then
+						deduction_detail_two = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_two) < 21 Then
+						deduction_detail_two = deduction_detail_two & "- Depndt Care $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "")
+					ElseIf deduction_detail_three = "" Then
+						deduction_detail_three = deduction_detail_three & "Depndt Care $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "")
+					ElseIf len(deduction_detail_three) < 21 Then
+						deduction_detail_three = deduction_detail_three & "- Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "")
+					End if
+				End If
+				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses <> "" Then
+					If deduction_detail_one = "" Then
+						deduction_detail_one = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_one) < 21 Then
+						deduction_detail_one = deduction_detail_one & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "")
+					ElseIf deduction_detail_two = "" Then
+						deduction_detail_two = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
+					ElseIf len(deduction_detail_two) < 21 Then
+						deduction_detail_two = deduction_detail_two & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "")
+					ElseIf deduction_detail_three = "" Then
+						deduction_detail_three = deduction_detail_three & "Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "")
+					ElseIf len(deduction_detail_three) < 21 Then
+						deduction_detail_three = deduction_detail_three & "- Child Suprt  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "")
+					End if
+				End If
+				' MsgBox "deduction_detail_one - " & deduction_detail_one & vbCr &_
+				' 		"deduction_detail_two - " & deduction_detail_two & vbCr &_
+				' 		"deduction_detail_three - " & deduction_detail_three
+				Call write_variable_in_CASE_NOTE(" Deductions:" & left(deduction_detail_one & spaces_30, 32) & "|   (-)   Deductions: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_deduct, 8))
+				If deduction_detail_two <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_two & spaces_30, 32) & "|")
+				If deduction_detail_three <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_three & spaces_30, 32) & "|")
+				' MsgBox "CHECK"
+				Call write_variable_in_CASE_NOTE("                                            |            Net Inc: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_net_inc, 8))
+				Call write_variable_in_CASE_NOTE(" Expenses:  Housing: $"& left(SNAP_ELIG_APPROVALS(approval).snap_budg_housing_exp_total & "        ", 8)& "        |--------------------------|")
+				' " Expenses:  Housing: $1,250.00        |-------------------------------------|"
+
+
+				Call write_variable_in_CASE_NOTE("            Utilities: $"& left(SNAP_ELIG_APPROVALS(approval).snap_budg_utilities_exp_total&"        ", 8) & "      | Total Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_budg_shel_total, ".00", "")&"        ", 8) & "|")
+				Call write_variable_in_CASE_NOTE("            MAX Allowable: $"& left(SNAP_ELIG_APPROVALS(approval).snap_budg_max_allow_shel&"        ", 8) & "  |(-)1/2 Net Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_budg_50_perc_net_inc, ".00", "")&"        ", 8) & "|")
+				Call write_variable_in_CASE_NOTE("                                      |   Adj Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_budg_adj_shel_costs, ".00", "")&"        ", 8) & "|")
+				Call write_variable_in_CASE_NOTE("                                      |--------------------------|")
+				Call write_variable_in_CASE_NOTE("                                            |  (-)Allow Shel Exp: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_shel_expenses, 8))
+				Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_net_adj_inc, 8))
+				Call write_variable_in_CASE_NOTE("                                      |------------------------------|")
+				Call write_variable_in_CASE_NOTE("                                      |    Thrifty Food Plan: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_budg_thrifty_food_plan, ".00", "")&"     ", 5) & "|")
+				Call write_variable_in_CASE_NOTE("                                      |(-)30% of Net Adj Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_bug_30_percent_net_adj_inc, ".00", "")&"     ", 5) & "|")
+				Call write_variable_in_CASE_NOTE("                                      |------------------------------|")
+				Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8))
+
+				' Call write_variable_in_CASE_NOTE("*** CASE STATUS ***")
+				Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
+				spaces_18 = "                  "
+				Call write_variable_in_CASE_NOTE(" SNAP Status:      " & left(SNAP_ELIG_APPROVALS(approval).snap_curr_prog_status & spaces_18, 18) & "Budget Cycle:     " & SNAP_ELIG_APPROVALS(approval).snap_budget_cycle)
+				Call write_variable_in_CASE_NOTE(" Reporting Status: " & left(SNAP_ELIG_APPROVALS(approval).snap_reporting_status & spaces_18, 18) & "Review Date:      " & SNAP_ELIG_APPROVALS(approval).snap_elig_revw_date)
+				' Call write_variable_in_CASE_NOTE("Review Date:      " & SNAP_ELIG_APPROVALS(approval).snap_elig_revw_date)
+				' Call write_variable_in_CASE_NOTE("Budget Cycle:     " & SNAP_ELIG_APPROVALS(approval).snap_budget_cycle)
 			End If
 		Next
 		Call write_variable_in_CASE_NOTE("---")
 		Call write_variable_in_CASE_NOTE(worker_signature)
 
-		' MsgBox SNAP_UNIQUE_APPROVALS(unique_app)
+		' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
 		PF3
 	Next
 
