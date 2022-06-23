@@ -44,15 +44,88 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+function custom_HH_member_custom_dialog(HH_member_array)
+'--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
+'~~~~~ HH_member_array: should be HH_member_array for function to work
+'===== Keywords: MAXIS, member, array, dialog
+	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+	EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
+    transmit
+
+	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+		EMReadscreen ref_nbr, 3, 4, 33
+        EMReadScreen access_denied_check, 13, 24, 2
+        'MsgBox access_denied_check
+        If access_denied_check = "ACCESS DENIED" Then
+            PF10
+            last_name = "UNABLE TO FIND"
+            first_name = " - Access Denied"
+            mid_initial = ""
+        Else
+    		EMReadscreen last_name, 25, 6, 30
+    		EMReadscreen first_name, 12, 6, 63
+    		EMReadscreen mid_initial, 1, 6, 79
+    		last_name = trim(replace(last_name, "_", "")) & " "
+    		first_name = trim(replace(first_name, "_", "")) & " "
+    		mid_initial = replace(mid_initial, "_", "")
+        End If
+		client_string = ref_nbr & last_name & first_name & mid_initial
+		client_array = client_array & client_string & "|"
+		transmit
+	    Emreadscreen edit_check, 7, 24, 2
+	LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+	client_array = TRIM(client_array)
+	test_array = split(client_array, "|")
+	total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+
+	DIM all_client_array()
+	ReDim all_clients_array(total_clients, 1)
+
+	FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
+		Interim_array = split(client_array, "|")
+		all_clients_array(x, 0) = Interim_array(x)
+		all_clients_array(x, 1) = 0         'unchecking all the members in this HH
+	NEXT
+
+	BEGINDIALOG HH_memb_dialog, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+		Text 10, 5, 105, 10, "Household members to look at:"
+		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+			IF all_clients_array(i, 0) <> "" THEN checkbox 10, (20 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, 1)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+		NEXT
+		ButtonGroup ButtonPressed
+		OkButton 185, 10, 50, 15
+		CancelButton 185, 30, 50, 15
+	ENDDIALOG
+													'runs the dialog that has been dynamically created. Streamlined with new functions.
+	Dialog HH_memb_dialog
+	If buttonpressed = 0 then stopscript
+	check_for_maxis(True)
+
+	HH_member_array = ""
+
+	FOR i = 0 to total_clients
+		IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+			IF all_clients_array(i, 1) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+				'msgbox all_clients_
+				HH_member_array = HH_member_array & left(all_clients_array(i, 0), 2) & " "
+			END IF
+		END IF
+	NEXT
+
+	HH_member_array = TRIM(HH_member_array)							'Cleaning up array for ease of use.
+	HH_member_array = SPLIT(HH_member_array, " ")
+end function
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/23/2022", "Update to uncheck all HH members ", "MiKayla Handley, Hennepin County") '#882
 call changelog_update("05/19/2022", "Update to send all UC verification requests to DEED email at: HSPH.ES.DEED@Hennepin.us", "Ilse Ferris, Hennepin County") '#847
 call changelog_update("11/24/2021", "Updates to the dialog as most teams are now using ES support staff for UC verification request.", "MiKayla Handley") '#644'
-call changelog_update("07/30/2021", "Inital Version.", "MiKayla Handley")
+call changelog_update("07/30/2021", "Inital Version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
@@ -112,9 +185,10 @@ Call MAXIS_background_check
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 'navigating to stat memb to gather the ref number and name.
 IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 
+
 'Selecting the HH member
 DO
-    CALL HH_member_custom_dialog(HH_member_array)
+    CALL custom_HH_member_custom_dialog(HH_member_array)
     IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
 LOOP UNTIL uBound(HH_member_array) <> -1
 
