@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/23/2022", "Added fix for PARIS matches that were not the 1st DAIL message for a case.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2022", "Added fix for PARI DAIL's while DHS interface with SSN is being repaired. Also made some functional changes to support the user experience.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL and clear matches FR.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/03/2018", "Updated coding for multiple states on INSM panel.", "Ilse Ferris, Hennepin County")
@@ -58,13 +59,13 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '---------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-Call Check_for_MAXIS(False)
 
 EMReadscreen dail_check, 4, 2, 48
 IF dail_check <> "DAIL" THEN script_end_procedure("You are not in your dail. This script will stop.")
 
-EMSendKey "T" 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-TRANSMIT
+EMGetCursor row, col
+Call write_value_and_transmit("T", row, col)
+
 EMReadScreen DAIL_message, 4, 6, 6 'read the DAIL msg'
 IF DAIL_message <> "PARI" THEN script_end_procedure("This is not a Paris match. Please select a Paris match, and run the script again.")
 
