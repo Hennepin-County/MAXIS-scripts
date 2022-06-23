@@ -7735,10 +7735,98 @@ class stat_detail
 	public stat_shel_prosp_subsidy_verif_code()
 	public stat_shel_prosp_subsidy_verif_info()
 
+	public stat_disq_one_exists()
+	public stat_disq_one_program()
+	public stat_disq_one_type_code()
+	public stat_disq_one_type_info()
+	public stat_disq_one_begin_date()
+	public stat_disq_one_end_date()
+	public stat_disq_one_cure_reason_code()
+	public stat_disq_one_cure_reason_info()
+	public stat_disq_one_fraud_determination_date()
+	public stat_disq_one_county_of_fraud()
+	public stat_disq_one_state_of_fraud()
+	public stat_disq_one_SNAP_trafficking_yn()
+	public stat_disq_one_SNAP_offense_code()
+	public stat_disq_one_SNAP_offense_info()
+	public stat_disq_one_source()
+	public stat_disq_one_active()
+
+	public stat_disq_two_exists()
+	public stat_disq_two_program()
+	public stat_disq_two_type_code()
+	public stat_disq_two_type_info()
+	public stat_disq_two_begin_date()
+	public stat_disq_two_end_date()
+	public stat_disq_two_cure_reason_code()
+	public stat_disq_two_cure_reason_info()
+	public stat_disq_two_fraud_determination_date()
+	public stat_disq_two_county_of_fraud()
+	public stat_disq_two_state_of_fraud()
+	public stat_disq_two_SNAP_trafficking_yn()
+	public stat_disq_two_SNAP_offense_code()
+	public stat_disq_two_SNAP_offense_info()
+	public stat_disq_two_source()
+	public stat_disq_two_active()
+
+	public stat_disq_three_exists()
+	public stat_disq_three_program()
+	public stat_disq_three_type_code()
+	public stat_disq_three_type_info()
+	public stat_disq_three_begin_date()
+	public stat_disq_three_end_date()
+	public stat_disq_three_cure_reason_code()
+	public stat_disq_three_cure_reason_info()
+	public stat_disq_three_fraud_determination_date()
+	public stat_disq_three_county_of_fraud()
+	public stat_disq_three_state_of_fraud()
+	public stat_disq_three_SNAP_trafficking_yn()
+	public stat_disq_three_SNAP_offense_code()
+	public stat_disq_three_SNAP_offense_info()
+	public stat_disq_three_source()
+	public stat_disq_three_active()
+
+	public stat_disq_four_exists()
+	public stat_disq_four_program()
+	public stat_disq_four_type_code()
+	public stat_disq_four_type_info()
+	public stat_disq_four_begin_date()
+	public stat_disq_four_end_date()
+	public stat_disq_four_cure_reason_code()
+	public stat_disq_four_cure_reason_info()
+	public stat_disq_four_fraud_determination_date()
+	public stat_disq_four_county_of_fraud()
+	public stat_disq_four_state_of_fraud()
+	public stat_disq_four_SNAP_trafficking_yn()
+	public stat_disq_four_SNAP_offense_code()
+	public stat_disq_four_SNAP_offense_info()
+	public stat_disq_four_source()
+	public stat_disq_four_active()
+
+	public stat_disq_five_exists()
+	public stat_disq_five_program()
+	public stat_disq_five_type_code()
+	public stat_disq_five_type_info()
+	public stat_disq_five_begin_date()
+	public stat_disq_five_end_date()
+	public stat_disq_five_cure_reason_code()
+	public stat_disq_five_cure_reason_info()
+	public stat_disq_five_fraud_determination_date()
+	public stat_disq_five_county_of_fraud()
+	public stat_disq_five_state_of_fraud()
+	public stat_disq_five_SNAP_trafficking_yn()
+	public stat_disq_five_SNAP_offense_code()
+	public stat_disq_five_SNAP_offense_info()
+	public stat_disq_five_source()
+	public stat_disq_five_active()
+
 
 	public sub gather_stat_info()
 		MAXIS_footer_month = footer_month
 		MAXIS_footer_year = footer_year
+
+		current_month = footer_month & "/1/" & footer_year
+		current_month = DateAdd("d", 0, current_month)
 
 		ReDim stat_memb_ref_numb(0)
 		ReDim stat_memb_first_name(0)
@@ -8028,6 +8116,91 @@ class stat_detail
 		ReDim stat_shel_prosp_subsidy_amount(0)
 		ReDim stat_shel_prosp_subsidy_verif_code(0)
 		ReDim stat_shel_prosp_subsidy_verif_info(0)
+
+		ReDim stat_disq_one_exists(0)
+		ReDim stat_disq_one_program(0)
+		ReDim stat_disq_one_type_code(0)
+		ReDim stat_disq_one_type_info(0)
+		ReDim stat_disq_one_begin_date(0)
+		ReDim stat_disq_one_end_date(0)
+		ReDim stat_disq_one_cure_reason_code(0)
+		ReDim stat_disq_one_cure_reason_info(0)
+		ReDim stat_disq_one_fraud_determination_date(0)
+		ReDim stat_disq_one_county_of_fraud(0)
+		ReDim stat_disq_one_state_of_fraud(0)
+		ReDim stat_disq_one_SNAP_trafficking_yn(0)
+		ReDim stat_disq_one_SNAP_offense_code(0)
+		ReDim stat_disq_one_SNAP_offense_info(0)
+		ReDim stat_disq_one_source(0)
+		ReDim stat_disq_one_active(0)
+
+		ReDim stat_disq_two_exists(0)
+		ReDim stat_disq_two_program(0)
+		ReDim stat_disq_two_type_code(0)
+		ReDim stat_disq_two_type_info(0)
+		ReDim stat_disq_two_begin_date(0)
+		ReDim stat_disq_two_end_date(0)
+		ReDim stat_disq_two_cure_reason_code(0)
+		ReDim stat_disq_two_cure_reason_info(0)
+		ReDim stat_disq_two_fraud_determination_date(0)
+		ReDim stat_disq_two_county_of_fraud(0)
+		ReDim stat_disq_two_state_of_fraud(0)
+		ReDim stat_disq_two_SNAP_trafficking_yn(0)
+		ReDim stat_disq_two_SNAP_offense_code(0)
+		ReDim stat_disq_two_SNAP_offense_info(0)
+		ReDim stat_disq_two_source(0)
+		ReDim stat_disq_two_active(0)
+
+		ReDim stat_disq_three_exists(0)
+		ReDim stat_disq_three_program(0)
+		ReDim stat_disq_three_type_code(0)
+		ReDim stat_disq_three_type_info(0)
+		ReDim stat_disq_three_begin_date(0)
+		ReDim stat_disq_three_end_date(0)
+		ReDim stat_disq_three_cure_reason_code(0)
+		ReDim stat_disq_three_cure_reason_info(0)
+		ReDim stat_disq_three_fraud_determination_date(0)
+		ReDim stat_disq_three_county_of_fraud(0)
+		ReDim stat_disq_three_state_of_fraud(0)
+		ReDim stat_disq_three_SNAP_trafficking_yn(0)
+		ReDim stat_disq_three_SNAP_offense_code(0)
+		ReDim stat_disq_three_SNAP_offense_info(0)
+		ReDim stat_disq_three_source(0)
+		ReDim stat_disq_three_active(0)
+
+		ReDim stat_disq_four_exists(0)
+		ReDim stat_disq_four_program(0)
+		ReDim stat_disq_four_type_code(0)
+		ReDim stat_disq_four_type_info(0)
+		ReDim stat_disq_four_begin_date(0)
+		ReDim stat_disq_four_end_date(0)
+		ReDim stat_disq_four_cure_reason_code(0)
+		ReDim stat_disq_four_cure_reason_info(0)
+		ReDim stat_disq_four_fraud_determination_date(0)
+		ReDim stat_disq_four_county_of_fraud(0)
+		ReDim stat_disq_four_state_of_fraud(0)
+		ReDim stat_disq_four_SNAP_trafficking_yn(0)
+		ReDim stat_disq_four_SNAP_offense_code(0)
+		ReDim stat_disq_four_SNAP_offense_info(0)
+		ReDim stat_disq_four_source(0)
+		ReDim stat_disq_four_active(0)
+
+		ReDim stat_disq_five_exists(0)
+		ReDim stat_disq_five_program(0)
+		ReDim stat_disq_five_type_code(0)
+		ReDim stat_disq_five_type_info(0)
+		ReDim stat_disq_five_begin_date(0)
+		ReDim stat_disq_five_end_date(0)
+		ReDim stat_disq_five_cure_reason_code(0)
+		ReDim stat_disq_five_cure_reason_info(0)
+		ReDim stat_disq_five_fraud_determination_date(0)
+		ReDim stat_disq_five_county_of_fraud(0)
+		ReDim stat_disq_five_state_of_fraud(0)
+		ReDim stat_disq_five_SNAP_trafficking_yn(0)
+		ReDim stat_disq_five_SNAP_offense_code(0)
+		ReDim stat_disq_five_SNAP_offense_info(0)
+		ReDim stat_disq_five_source(0)
+		ReDim stat_disq_five_active(0)
 
 		stat_shel_prosp_all_total = 0
 
@@ -8325,6 +8498,92 @@ class stat_detail
 			ReDim preserve stat_shel_prosp_subsidy_verif_code(memb_count)
 			ReDim preserve stat_shel_prosp_subsidy_verif_info(memb_count)
 
+			ReDim preserve stat_disq_one_exists(memb_count)
+			ReDim preserve stat_disq_one_program(memb_count)
+			ReDim preserve stat_disq_one_type_code(memb_count)
+			ReDim preserve stat_disq_one_type_info(memb_count)
+			ReDim preserve stat_disq_one_begin_date(memb_count)
+			ReDim preserve stat_disq_one_end_date(memb_count)
+			ReDim preserve stat_disq_one_cure_reason_code(memb_count)
+			ReDim preserve stat_disq_one_cure_reason_info(memb_count)
+			ReDim preserve stat_disq_one_fraud_determination_date(memb_count)
+			ReDim preserve stat_disq_one_county_of_fraud(memb_count)
+			ReDim preserve stat_disq_one_state_of_fraud(memb_count)
+			ReDim preserve stat_disq_one_SNAP_trafficking_yn(memb_count)
+			ReDim preserve stat_disq_one_SNAP_offense_code(memb_count)
+			ReDim preserve stat_disq_one_SNAP_offense_info(memb_count)
+			ReDim preserve stat_disq_one_source(memb_count)
+			ReDim preserve stat_disq_one_active(memb_count)
+
+
+			ReDim preserve stat_disq_two_exists(memb_count)
+			ReDim preserve stat_disq_two_program(memb_count)
+			ReDim preserve stat_disq_two_type_code(memb_count)
+			ReDim preserve stat_disq_two_type_info(memb_count)
+			ReDim preserve stat_disq_two_begin_date(memb_count)
+			ReDim preserve stat_disq_two_end_date(memb_count)
+			ReDim preserve stat_disq_two_cure_reason_code(memb_count)
+			ReDim preserve stat_disq_two_cure_reason_info(memb_count)
+			ReDim preserve stat_disq_two_fraud_determination_date(memb_count)
+			ReDim preserve stat_disq_two_county_of_fraud(memb_count)
+			ReDim preserve stat_disq_two_state_of_fraud(memb_count)
+			ReDim preserve stat_disq_two_SNAP_trafficking_yn(memb_count)
+			ReDim preserve stat_disq_two_SNAP_offense_code(memb_count)
+			ReDim preserve stat_disq_two_SNAP_offense_info(memb_count)
+			ReDim preserve stat_disq_two_source(memb_count)
+			ReDim preserve stat_disq_two_active(memb_count)
+
+			ReDim preserve stat_disq_three_exists(memb_count)
+			ReDim preserve stat_disq_three_program(memb_count)
+			ReDim preserve stat_disq_three_type_code(memb_count)
+			ReDim preserve stat_disq_three_type_info(memb_count)
+			ReDim preserve stat_disq_three_begin_date(memb_count)
+			ReDim preserve stat_disq_three_end_date(memb_count)
+			ReDim preserve stat_disq_three_cure_reason_code(memb_count)
+			ReDim preserve stat_disq_three_cure_reason_info(memb_count)
+			ReDim preserve stat_disq_three_fraud_determination_date(memb_count)
+			ReDim preserve stat_disq_three_county_of_fraud(memb_count)
+			ReDim preserve stat_disq_three_state_of_fraud(memb_count)
+			ReDim preserve stat_disq_three_SNAP_trafficking_yn(memb_count)
+			ReDim preserve stat_disq_three_SNAP_offense_code(memb_count)
+			ReDim preserve stat_disq_three_SNAP_offense_info(memb_count)
+			ReDim preserve stat_disq_three_source(memb_count)
+			ReDim preserve stat_disq_three_active(memb_count)
+
+			ReDim preserve stat_disq_four_exists(memb_count)
+			ReDim preserve stat_disq_four_program(memb_count)
+			ReDim preserve stat_disq_four_type_code(memb_count)
+			ReDim preserve stat_disq_four_type_info(memb_count)
+			ReDim preserve stat_disq_four_begin_date(memb_count)
+			ReDim preserve stat_disq_four_end_date(memb_count)
+			ReDim preserve stat_disq_four_cure_reason_code(memb_count)
+			ReDim preserve stat_disq_four_cure_reason_info(memb_count)
+			ReDim preserve stat_disq_four_fraud_determination_date(memb_count)
+			ReDim preserve stat_disq_four_county_of_fraud(memb_count)
+			ReDim preserve stat_disq_four_state_of_fraud(memb_count)
+			ReDim preserve stat_disq_four_SNAP_trafficking_yn(memb_count)
+			ReDim preserve stat_disq_four_SNAP_offense_code(memb_count)
+			ReDim preserve stat_disq_four_SNAP_offense_info(memb_count)
+			ReDim preserve stat_disq_four_source(memb_count)
+			ReDim preserve stat_disq_four_active(memb_count)
+
+			ReDim preserve stat_disq_five_exists(memb_count)
+			ReDim preserve stat_disq_five_program(memb_count)
+			ReDim preserve stat_disq_five_type_code(memb_count)
+			ReDim preserve stat_disq_five_type_info(memb_count)
+			ReDim preserve stat_disq_five_begin_date(memb_count)
+			ReDim preserve stat_disq_five_end_date(memb_count)
+			ReDim preserve stat_disq_five_cure_reason_code(memb_count)
+			ReDim preserve stat_disq_five_cure_reason_info(memb_count)
+			ReDim preserve stat_disq_five_fraud_determination_date(memb_count)
+			ReDim preserve stat_disq_five_county_of_fraud(memb_count)
+			ReDim preserve stat_disq_five_state_of_fraud(memb_count)
+			ReDim preserve stat_disq_five_SNAP_trafficking_yn(memb_count)
+			ReDim preserve stat_disq_five_SNAP_offense_code(memb_count)
+			ReDim preserve stat_disq_five_SNAP_offense_info(memb_count)
+			ReDim preserve stat_disq_five_source(memb_count)
+			ReDim preserve stat_disq_five_active(memb_count)
+
 			EMReadScreen stat_memb_ref_numb(memb_count), 2, 4, 33
 			EMReadScreen stat_memb_last_name(memb_count), 25, 6, 30
 			EMReadScreen stat_memb_first_name(memb_count), 12, 6, 63
@@ -8428,8 +8687,6 @@ class stat_detail
 
 				stat_jobs_one_job_ended(each_memb) = False
 				stat_jobs_one_job_counted(each_memb) = True
-				current_month = footer_month & "/1/" & footer_year
-				current_month = DateAdd("d", 0, current_month)
 				If IsDate(stat_jobs_one_inc_end_date(each_memb)) = True Then
 					If DateDiff("m", stat_jobs_one_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_one_job_ended(each_memb) = True
 				End If
@@ -8506,8 +8763,6 @@ class stat_detail
 
 				stat_jobs_two_job_ended(each_memb) = False
 				stat_jobs_two_job_counted(each_memb) = True
-				current_month = footer_month & "/1/" & footer_year
-				current_month = DateAdd("d", 0, current_month)
 				If IsDate(stat_jobs_two_inc_end_date(each_memb)) = True Then
 					If DateDiff("m", stat_jobs_two_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_two_job_ended(each_memb) = True
 				End If
@@ -8584,8 +8839,6 @@ class stat_detail
 
 				stat_jobs_three_job_ended(each_memb) = False
 				stat_jobs_three_job_counted(each_memb) = True
-				current_month = footer_month & "/1/" & footer_year
-				current_month = DateAdd("d", 0, current_month)
 				If IsDate(stat_jobs_three_inc_end_date(each_memb)) = True Then
 					If DateDiff("m", stat_jobs_three_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_three_job_ended(each_memb) = True
 				End If
@@ -8662,8 +8915,6 @@ class stat_detail
 
 				stat_jobs_four_job_ended(each_memb) = False
 				stat_jobs_four_job_counted(each_memb) = True
-				current_month = footer_month & "/1/" & footer_year
-				current_month = DateAdd("d", 0, current_month)
 				If IsDate(stat_jobs_four_inc_end_date(each_memb)) = True Then
 					If DateDiff("m", stat_jobs_four_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_four_job_ended(each_memb) = True
 				End If
@@ -8740,8 +8991,6 @@ class stat_detail
 
 				stat_jobs_five_job_ended(each_memb) = False
 				stat_jobs_five_job_counted(each_memb) = True
-				current_month = footer_month & "/1/" & footer_year
-				current_month = DateAdd("d", 0, current_month)
 				If IsDate(stat_jobs_five_inc_end_date(each_memb)) = True Then
 					If DateDiff("m", stat_jobs_five_inc_end_date(each_memb), current_month) > 0 Then stat_jobs_five_job_ended(each_memb) = True
 				End If
@@ -8828,6 +9077,7 @@ class stat_detail
 
 				EMReadScreen stat_busi_one_snap_retro_net_inc(each_memb), 8, 10, 55
 				EMReadScreen stat_busi_one_snap_prosp_net_inc(each_memb), 8, 10, 69
+				stat_busi_one_snap_prosp_net_inc(each_memb) = trim(stat_busi_one_snap_prosp_net_inc(each_memb))
 
 				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_one_snap_retro_gross_inc(each_memb), 8, 11, 43
@@ -8889,6 +9139,7 @@ class stat_detail
 
 				EMReadScreen stat_busi_two_snap_retro_net_inc(each_memb), 8, 10, 55
 				EMReadScreen stat_busi_two_snap_prosp_net_inc(each_memb), 8, 10, 69
+				stat_busi_two_snap_prosp_net_inc(each_memb) = trim(stat_busi_two_snap_prosp_net_inc(each_memb))
 
 				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_two_snap_retro_gross_inc(each_memb), 8, 11, 43
@@ -8950,6 +9201,7 @@ class stat_detail
 
 				EMReadScreen stat_busi_three_snap_retro_net_inc(each_memb), 8, 10, 55
 				EMReadScreen stat_busi_three_snap_prosp_net_inc(each_memb), 8, 10, 69
+				stat_busi_three_snap_prosp_net_inc(each_memb) = trim(stat_busi_three_snap_prosp_net_inc(each_memb))
 
 				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_three_snap_retro_gross_inc(each_memb), 8, 11, 43
@@ -9667,6 +9919,581 @@ class stat_detail
 			End If
 		Next
 
+
+		call navigate_to_MAXIS_screen("STAT", "DISQ")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+		' 305184
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "01", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_disq_one_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_disq_one_exists(each_memb) = False
+
+			If stat_disq_one_exists(each_memb) = True Then
+				EMReadScreen stat_disq_one_program(each_memb), 2, 6, 54
+				If stat_disq_one_program(each_memb) = "__" Then stat_disq_one_program(each_memb) = ""
+				If stat_disq_one_program(each_memb) = "AF" Then stat_disq_one_program(each_memb) = "AFDC"
+				If stat_disq_one_program(each_memb) = "CC" Then stat_disq_one_program(each_memb) = "Child Care Assistance"
+				If stat_disq_one_program(each_memb) = "DW" Then stat_disq_one_program(each_memb) = "DWP"
+				If stat_disq_one_program(each_memb) = "FG" Then stat_disq_one_program(each_memb) = "Family General Assistance"
+				If stat_disq_one_program(each_memb) = "FS" Then stat_disq_one_program(each_memb) = "SNAP"
+				If stat_disq_one_program(each_memb) = "GA" Then stat_disq_one_program(each_memb) = "General Asssistance"
+				If stat_disq_one_program(each_memb) = "GR" Then stat_disq_one_program(each_memb) = "GRH"
+				If stat_disq_one_program(each_memb) = "IM" Then stat_disq_one_program(each_memb) = "IMD"
+				If stat_disq_one_program(each_memb) = "MA" Then stat_disq_one_program(each_memb) = "Medical Assistance"
+				If stat_disq_one_program(each_memb) = "MF" Then stat_disq_one_program(each_memb) = "MFIP"
+				If stat_disq_one_program(each_memb) = "MS" Then stat_disq_one_program(each_memb) = "MN Supplemental Aid"
+				If stat_disq_one_program(each_memb) = "QI" Then stat_disq_one_program(each_memb) = "QI-1"
+				If stat_disq_one_program(each_memb) = "QM" Then stat_disq_one_program(each_memb) = "QMB"
+				If stat_disq_one_program(each_memb) = "QW" Then stat_disq_one_program(each_memb) = "QWD"
+				If stat_disq_one_program(each_memb) = "RC" Then stat_disq_one_program(each_memb) = "Refugee Cash Assistance"
+				If stat_disq_one_program(each_memb) = "RM" Then stat_disq_one_program(each_memb) = "RMA"
+				If stat_disq_one_program(each_memb) = "SL" Then stat_disq_one_program(each_memb) = "SLMB"
+				If stat_disq_one_program(each_memb) = "WB" Then stat_disq_one_program(each_memb) = "Work Benefit Program"
+				If stat_disq_one_program(each_memb) = "4E" Then stat_disq_one_program(each_memb) = "Title IV-E Foster Care"
+				EMReadScreen stat_disq_one_type_code(each_memb), 2, 6, 64
+				If stat_disq_one_type_code(each_memb) = "__" Then stat_disq_one_type_info(each_memb) = ""
+				If stat_disq_one_type_code(each_memb) = "02" Then stat_disq_one_type_info(each_memb) = "SNAP Fraud - 1st Disq"
+				If stat_disq_one_type_code(each_memb) = "03" Then stat_disq_one_type_info(each_memb) = "SNAP Fraud - 2md Disq"
+				If stat_disq_one_type_code(each_memb) = "04" Then stat_disq_one_type_info(each_memb) = "SNAP Fraud - 3rd Disq"
+				If stat_disq_one_type_code(each_memb) = "06" Then stat_disq_one_type_info(each_memb) = "Non-Coop with State QC"
+				If stat_disq_one_type_code(each_memb) = "07" Then stat_disq_one_type_info(each_memb) = "Non-Coop with Federal QC"
+				If stat_disq_one_type_code(each_memb) = "08" Then stat_disq_one_type_info(each_memb) = "RCA Non-Comply with E&T"
+				If stat_disq_one_type_code(each_memb) = "11" Then stat_disq_one_type_info(each_memb) = "Voluntary Quit"
+				If stat_disq_one_type_code(each_memb) = "12" Then stat_disq_one_type_info(each_memb) = "Improper Transfer of Assets"
+				If stat_disq_one_type_code(each_memb) = "13" Then stat_disq_one_type_info(each_memb) = "Lump Sum"
+				If stat_disq_one_type_code(each_memb) = "14" Then stat_disq_one_type_info(each_memb) = "IEVS Non-Coop"
+				If stat_disq_one_type_code(each_memb) = "15" Then stat_disq_one_type_info(each_memb) = "Cash Fraud - Time Set by Court"
+				If stat_disq_one_type_code(each_memb) = "16" Then stat_disq_one_type_info(each_memb) = "Cash Fraud - 1st Disq"
+				If stat_disq_one_type_code(each_memb) = "17" Then stat_disq_one_type_info(each_memb) = "Cash Fraud - 2nd Disq"
+				If stat_disq_one_type_code(each_memb) = "18" Then stat_disq_one_type_info(each_memb) = "Cash Fraud - 3rd Disq"
+				If stat_disq_one_type_code(each_memb) = "20" Then stat_disq_one_type_info(each_memb) = "Improper Transfer of Income"
+				If stat_disq_one_type_code(each_memb) = "23" Then stat_disq_one_type_info(each_memb) = "Fleeing Felon, Violating Parole/Probation, Explosives"
+				If stat_disq_one_type_code(each_memb) = "26" Then stat_disq_one_type_info(each_memb) = "Family Cash Falsify Residence for Duplicate Assistance"
+				If stat_disq_one_type_code(each_memb) = "28" Then stat_disq_one_type_info(each_memb) = "Convicted of Drug Felony - Failed Drug Test"
+				If stat_disq_one_type_code(each_memb) = "29" Then stat_disq_one_type_info(each_memb) = "US Citizenship/ID Verif Non-Coop"
+				If stat_disq_one_type_code(each_memb) = "30" Then stat_disq_one_type_info(each_memb) = "Immigration Status Verif Non-Coop"
+				If stat_disq_one_type_code(each_memb) = "31" Then stat_disq_one_type_info(each_memb) = "EBT Misuse - 1st Disq"
+				If stat_disq_one_type_code(each_memb) = "32" Then stat_disq_one_type_info(each_memb) = "EBT Misuse - 2nd Disq"
+				If stat_disq_one_type_code(each_memb) = "33" Then stat_disq_one_type_info(each_memb) = "EBT Misuse - 3rd Disq"
+				EMReadScreen stat_disq_one_begin_date(each_memb), 8, 8, 64
+				stat_disq_one_begin_date(each_memb) = replace(stat_disq_one_begin_date(each_memb), " ", "/")
+				If stat_disq_one_begin_date(each_memb) = "__/__/__" Then stat_disq_one_begin_date(each_memb) = ""
+				EMReadScreen stat_disq_one_end_date(each_memb), 8, 9, 64
+				stat_disq_one_end_date(each_memb) = replace(stat_disq_one_end_date(each_memb), " ", "/")
+				If stat_disq_one_end_date(each_memb) = "__/__/__" Then stat_disq_one_end_date(each_memb) = ""
+				EMReadScreen stat_disq_one_cure_reason_code(each_memb), 1, 11, 64
+				If stat_disq_one_cure_reason_code(each_memb) = "_" Then stat_disq_one_cure_reason_info(each_memb) = ""
+				If stat_disq_one_cure_reason_code(each_memb) = "A" Then stat_disq_one_cure_reason_info(each_memb) = "No longer Fleeing Felon/Parole Violation"
+				If stat_disq_one_cure_reason_code(each_memb) = "0" Then stat_disq_one_cure_reason_info(each_memb) = "Property Returned/Adequate Compensation"
+				If stat_disq_one_cure_reason_code(each_memb) = "1" Then stat_disq_one_cure_reason_info(each_memb) = "Return to Same Job"
+				If stat_disq_one_cure_reason_code(each_memb) = "2" Then stat_disq_one_cure_reason_info(each_memb) = "Accept Comparable Employment"
+				If stat_disq_one_cure_reason_code(each_memb) = "6" Then stat_disq_one_cure_reason_info(each_memb) = "Cooperate with State QC"
+				If stat_disq_one_cure_reason_code(each_memb) = "7" Then stat_disq_one_cure_reason_info(each_memb) = "Cooperate with Federal QC"
+				If stat_disq_one_cure_reason_code(each_memb) = "8" Then stat_disq_one_cure_reason_info(each_memb) = "Lump Sum Recalculated"
+				EMReadScreen stat_disq_one_fraud_determination_date(each_memb), 8, 13, 64
+				stat_disq_one_fraud_determination_date(each_memb) = replace(stat_disq_one_fraud_determination_date(each_memb), " ", "/")
+				If stat_disq_one_fraud_determination_date(each_memb) = "__/__/__" Then stat_disq_one_fraud_determination_date(each_memb) = ""
+				EMReadScreen stat_disq_one_county_of_fraud(each_memb), 2, 15, 64
+				EMReadScreen stat_disq_one_state_of_fraud(each_memb), 2, 16, 64
+				EMReadScreen stat_disq_one_SNAP_trafficking_yn(each_memb), 1, 17, 64
+				EMReadScreen stat_disq_one_SNAP_offense_code(each_memb), 2, 18, 64
+				If stat_disq_one_SNAP_offense_code(each_memb) = "__" Then stat_disq_one_SNAP_offense_info(each_memb) = ""
+				If stat_disq_one_SNAP_offense_code(each_memb) = "AL" Then stat_disq_one_SNAP_offense_info(each_memb) = "Alcohol"
+				If stat_disq_one_SNAP_offense_code(each_memb) = "DR" Then stat_disq_one_SNAP_offense_info(each_memb) = "Drugs"
+				If stat_disq_one_SNAP_offense_code(each_memb) = "GU" Then stat_disq_one_SNAP_offense_info(each_memb) = "Guns"
+				If stat_disq_one_SNAP_offense_code(each_memb) = "OT" Then stat_disq_one_SNAP_offense_info(each_memb) = "Other"
+
+				If stat_disq_one_type_code(each_memb) = "02" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "03" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "04" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "15" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "16" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "17" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "18" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "23" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "26" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "28" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "31" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "32" Then stat_disq_one_source(each_memb) = "DISQUAL"
+				If stat_disq_one_type_code(each_memb) = "32" Then stat_disq_one_source(each_memb) = "DISQUAL"
+
+				If stat_disq_one_type_code(each_memb) = "06" Then stat_disq_one_source(each_memb) = "NON-COOP"
+				If stat_disq_one_type_code(each_memb) = "07" Then stat_disq_one_source(each_memb) = "NON-COOP"
+				If stat_disq_one_type_code(each_memb) = "08" Then stat_disq_one_source(each_memb) = "NON-COOP"
+				If stat_disq_one_type_code(each_memb) = "14" Then stat_disq_one_source(each_memb) = "NON-COOP"
+				If stat_disq_one_type_code(each_memb) = "29" Then stat_disq_one_source(each_memb) = "NON-COOP"
+				If stat_disq_one_type_code(each_memb) = "30" Then stat_disq_one_source(each_memb) = "NON-COOP"
+
+				If stat_disq_one_type_code(each_memb) = "12" Then stat_disq_one_source(each_memb) = "TRANSFER"
+				If stat_disq_one_type_code(each_memb) = "20" Then stat_disq_one_source(each_memb) = "TRANSFER"
+
+				If stat_disq_one_type_code(each_memb) = "11" Then stat_disq_one_source(each_memb) = "VOL QUIT"
+
+				stat_disq_one_active(each_memb) = True
+				If IsDate(stat_disq_one_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_disq_one_end_date(each_memb), current_month) >= 0 Then stat_disq_one_active(each_memb) = False
+				End If
+			End If
+
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "02", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_disq_two_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_disq_two_exists(each_memb) = False
+
+			If stat_disq_two_exists(each_memb) = True Then
+				EMReadScreen stat_disq_two_program(each_memb), 2, 6, 54
+				If stat_disq_two_program(each_memb) = "__" Then stat_disq_two_program(each_memb) = ""
+				If stat_disq_two_program(each_memb) = "AF" Then stat_disq_two_program(each_memb) = "AFDC"
+				If stat_disq_two_program(each_memb) = "CC" Then stat_disq_two_program(each_memb) = "Child Care Assistance"
+				If stat_disq_two_program(each_memb) = "DW" Then stat_disq_two_program(each_memb) = "DWP"
+				If stat_disq_two_program(each_memb) = "FG" Then stat_disq_two_program(each_memb) = "Family General Assistance"
+				If stat_disq_two_program(each_memb) = "FS" Then stat_disq_two_program(each_memb) = "SNAP"
+				If stat_disq_two_program(each_memb) = "GA" Then stat_disq_two_program(each_memb) = "General Asssistance"
+				If stat_disq_two_program(each_memb) = "GR" Then stat_disq_two_program(each_memb) = "GRH"
+				If stat_disq_two_program(each_memb) = "IM" Then stat_disq_two_program(each_memb) = "IMD"
+				If stat_disq_two_program(each_memb) = "MA" Then stat_disq_two_program(each_memb) = "Medical Assistance"
+				If stat_disq_two_program(each_memb) = "MF" Then stat_disq_two_program(each_memb) = "MFIP"
+				If stat_disq_two_program(each_memb) = "MS" Then stat_disq_two_program(each_memb) = "MN Supplemental Aid"
+				If stat_disq_two_program(each_memb) = "QI" Then stat_disq_two_program(each_memb) = "QI-1"
+				If stat_disq_two_program(each_memb) = "QM" Then stat_disq_two_program(each_memb) = "QMB"
+				If stat_disq_two_program(each_memb) = "QW" Then stat_disq_two_program(each_memb) = "QWD"
+				If stat_disq_two_program(each_memb) = "RC" Then stat_disq_two_program(each_memb) = "Refugee Cash Assistance"
+				If stat_disq_two_program(each_memb) = "RM" Then stat_disq_two_program(each_memb) = "RMA"
+				If stat_disq_two_program(each_memb) = "SL" Then stat_disq_two_program(each_memb) = "SLMB"
+				If stat_disq_two_program(each_memb) = "WB" Then stat_disq_two_program(each_memb) = "Work Benefit Program"
+				If stat_disq_two_program(each_memb) = "4E" Then stat_disq_two_program(each_memb) = "Title IV-E Foster Care"
+				EMReadScreen stat_disq_two_type_code(each_memb), 2, 6, 64
+				If stat_disq_two_type_code(each_memb) = "__" Then stat_disq_two_type_info(each_memb) = ""
+				If stat_disq_two_type_code(each_memb) = "02" Then stat_disq_two_type_info(each_memb) = "SNAP Fraud - 1st Disq"
+				If stat_disq_two_type_code(each_memb) = "03" Then stat_disq_two_type_info(each_memb) = "SNAP Fraud - 2md Disq"
+				If stat_disq_two_type_code(each_memb) = "04" Then stat_disq_two_type_info(each_memb) = "SNAP Fraud - 3rd Disq"
+				If stat_disq_two_type_code(each_memb) = "06" Then stat_disq_two_type_info(each_memb) = "Non-Coop with State QC"
+				If stat_disq_two_type_code(each_memb) = "07" Then stat_disq_two_type_info(each_memb) = "Non-Coop with Federal QC"
+				If stat_disq_two_type_code(each_memb) = "08" Then stat_disq_two_type_info(each_memb) = "RCA Non-Comply with E&T"
+				If stat_disq_two_type_code(each_memb) = "11" Then stat_disq_two_type_info(each_memb) = "Voluntary Quit"
+				If stat_disq_two_type_code(each_memb) = "12" Then stat_disq_two_type_info(each_memb) = "Improper Transfer of Assets"
+				If stat_disq_two_type_code(each_memb) = "13" Then stat_disq_two_type_info(each_memb) = "Lump Sum"
+				If stat_disq_two_type_code(each_memb) = "14" Then stat_disq_two_type_info(each_memb) = "IEVS Non-Coop"
+				If stat_disq_two_type_code(each_memb) = "15" Then stat_disq_two_type_info(each_memb) = "Cash Fraud - Time Set by Court"
+				If stat_disq_two_type_code(each_memb) = "16" Then stat_disq_two_type_info(each_memb) = "Cash Fraud - 1st Disq"
+				If stat_disq_two_type_code(each_memb) = "17" Then stat_disq_two_type_info(each_memb) = "Cash Fraud - 2nd Disq"
+				If stat_disq_two_type_code(each_memb) = "18" Then stat_disq_two_type_info(each_memb) = "Cash Fraud - 3rd Disq"
+				If stat_disq_two_type_code(each_memb) = "20" Then stat_disq_two_type_info(each_memb) = "Improper Transfer of Income"
+				If stat_disq_two_type_code(each_memb) = "23" Then stat_disq_two_type_info(each_memb) = "Fleeing Felon, Violating Parole/Probation, Explosives"
+				If stat_disq_two_type_code(each_memb) = "26" Then stat_disq_two_type_info(each_memb) = "Family Cash Falsify Residence for Duplicate Assistance"
+				If stat_disq_two_type_code(each_memb) = "28" Then stat_disq_two_type_info(each_memb) = "Convicted of Drug Felony - Failed Drug Test"
+				If stat_disq_two_type_code(each_memb) = "29" Then stat_disq_two_type_info(each_memb) = "US Citizenship/ID Verif Non-Coop"
+				If stat_disq_two_type_code(each_memb) = "30" Then stat_disq_two_type_info(each_memb) = "Immigration Status Verif Non-Coop"
+				If stat_disq_two_type_code(each_memb) = "31" Then stat_disq_two_type_info(each_memb) = "EBT Misuse - 1st Disq"
+				If stat_disq_two_type_code(each_memb) = "32" Then stat_disq_two_type_info(each_memb) = "EBT Misuse - 2nd Disq"
+				If stat_disq_two_type_code(each_memb) = "33" Then stat_disq_two_type_info(each_memb) = "EBT Misuse - 3rd Disq"
+				EMReadScreen stat_disq_two_begin_date(each_memb), 8, 8, 64
+				stat_disq_two_begin_date(each_memb) = replace(stat_disq_two_begin_date(each_memb), " ", "/")
+				If stat_disq_two_begin_date(each_memb) = "__/__/__" Then stat_disq_two_begin_date(each_memb) = ""
+				EMReadScreen stat_disq_two_end_date(each_memb), 8, 9, 64
+				stat_disq_two_end_date(each_memb) = replace(stat_disq_two_end_date(each_memb), " ", "/")
+				If stat_disq_two_end_date(each_memb) = "__/__/__" Then stat_disq_two_end_date(each_memb) = ""
+				EMReadScreen stat_disq_two_cure_reason_code(each_memb), 1, 11, 64
+				If stat_disq_two_cure_reason_code(each_memb) = "_" Then stat_disq_two_cure_reason_info(each_memb) = ""
+				If stat_disq_two_cure_reason_code(each_memb) = "A" Then stat_disq_two_cure_reason_info(each_memb) = "No longer Fleeing Felon/Parole Violation"
+				If stat_disq_two_cure_reason_code(each_memb) = "0" Then stat_disq_two_cure_reason_info(each_memb) = "Property Returned/Adequate Compensation"
+				If stat_disq_two_cure_reason_code(each_memb) = "1" Then stat_disq_two_cure_reason_info(each_memb) = "Return to Same Job"
+				If stat_disq_two_cure_reason_code(each_memb) = "2" Then stat_disq_two_cure_reason_info(each_memb) = "Accept Comparable Employment"
+				If stat_disq_two_cure_reason_code(each_memb) = "6" Then stat_disq_two_cure_reason_info(each_memb) = "Cooperate with State QC"
+				If stat_disq_two_cure_reason_code(each_memb) = "7" Then stat_disq_two_cure_reason_info(each_memb) = "Cooperate with Federal QC"
+				If stat_disq_two_cure_reason_code(each_memb) = "8" Then stat_disq_two_cure_reason_info(each_memb) = "Lump Sum Recalculated"
+				EMReadScreen stat_disq_two_fraud_determination_date(each_memb), 8, 13, 64
+				stat_disq_two_fraud_determination_date(each_memb) = replace(stat_disq_two_fraud_determination_date(each_memb), " ", "/")
+				If stat_disq_two_fraud_determination_date(each_memb) = "__/__/__" Then stat_disq_two_fraud_determination_date(each_memb) = ""
+				EMReadScreen stat_disq_two_county_of_fraud(each_memb), 2, 15, 64
+				EMReadScreen stat_disq_two_state_of_fraud(each_memb), 2, 16, 64
+				EMReadScreen stat_disq_two_SNAP_trafficking_yn(each_memb), 1, 17, 64
+				EMReadScreen stat_disq_two_SNAP_offense_code(each_memb), 2, 18, 64
+				If stat_disq_two_SNAP_offense_code(each_memb) = "__" Then stat_disq_two_SNAP_offense_info(each_memb) = ""
+				If stat_disq_two_SNAP_offense_code(each_memb) = "AL" Then stat_disq_two_SNAP_offense_info(each_memb) = "Alcohol"
+				If stat_disq_two_SNAP_offense_code(each_memb) = "DR" Then stat_disq_two_SNAP_offense_info(each_memb) = "Drugs"
+				If stat_disq_two_SNAP_offense_code(each_memb) = "GU" Then stat_disq_two_SNAP_offense_info(each_memb) = "Guns"
+				If stat_disq_two_SNAP_offense_code(each_memb) = "OT" Then stat_disq_two_SNAP_offense_info(each_memb) = "Other"
+
+				If stat_disq_two_type_code(each_memb) = "02" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "03" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "04" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "15" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "16" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "17" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "18" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "23" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "26" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "28" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "31" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "32" Then stat_disq_two_source(each_memb) = "DISQUAL"
+				If stat_disq_two_type_code(each_memb) = "32" Then stat_disq_two_source(each_memb) = "DISQUAL"
+
+				If stat_disq_two_type_code(each_memb) = "06" Then stat_disq_two_source(each_memb) = "NON-COOP"
+				If stat_disq_two_type_code(each_memb) = "07" Then stat_disq_two_source(each_memb) = "NON-COOP"
+				If stat_disq_two_type_code(each_memb) = "08" Then stat_disq_two_source(each_memb) = "NON-COOP"
+				If stat_disq_two_type_code(each_memb) = "14" Then stat_disq_two_source(each_memb) = "NON-COOP"
+				If stat_disq_two_type_code(each_memb) = "29" Then stat_disq_two_source(each_memb) = "NON-COOP"
+				If stat_disq_two_type_code(each_memb) = "30" Then stat_disq_two_source(each_memb) = "NON-COOP"
+
+				If stat_disq_two_type_code(each_memb) = "12" Then stat_disq_two_source(each_memb) = "TRANSFER"
+				If stat_disq_two_type_code(each_memb) = "20" Then stat_disq_two_source(each_memb) = "TRANSFER"
+
+				If stat_disq_two_type_code(each_memb) = "11" Then stat_disq_two_source(each_memb) = "VOL QUIT"
+
+				stat_disq_two_active(each_memb) = True
+				If IsDate(stat_disq_two_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_disq_two_end_date(each_memb), current_month) >= 0 Then stat_disq_two_active(each_memb) = False
+				End If
+			End If
+
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "03", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_disq_three_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_disq_three_exists(each_memb) = False
+
+			If stat_disq_three_exists(each_memb) = True Then
+				EMReadScreen stat_disq_three_program(each_memb), 2, 6, 54
+				If stat_disq_three_program(each_memb) = "__" Then stat_disq_three_program(each_memb) = ""
+				If stat_disq_three_program(each_memb) = "AF" Then stat_disq_three_program(each_memb) = "AFDC"
+				If stat_disq_three_program(each_memb) = "CC" Then stat_disq_three_program(each_memb) = "Child Care Assistance"
+				If stat_disq_three_program(each_memb) = "DW" Then stat_disq_three_program(each_memb) = "DWP"
+				If stat_disq_three_program(each_memb) = "FG" Then stat_disq_three_program(each_memb) = "Family General Assistance"
+				If stat_disq_three_program(each_memb) = "FS" Then stat_disq_three_program(each_memb) = "SNAP"
+				If stat_disq_three_program(each_memb) = "GA" Then stat_disq_three_program(each_memb) = "General Asssistance"
+				If stat_disq_three_program(each_memb) = "GR" Then stat_disq_three_program(each_memb) = "GRH"
+				If stat_disq_three_program(each_memb) = "IM" Then stat_disq_three_program(each_memb) = "IMD"
+				If stat_disq_three_program(each_memb) = "MA" Then stat_disq_three_program(each_memb) = "Medical Assistance"
+				If stat_disq_three_program(each_memb) = "MF" Then stat_disq_three_program(each_memb) = "MFIP"
+				If stat_disq_three_program(each_memb) = "MS" Then stat_disq_three_program(each_memb) = "MN Supplemental Aid"
+				If stat_disq_three_program(each_memb) = "QI" Then stat_disq_three_program(each_memb) = "QI-1"
+				If stat_disq_three_program(each_memb) = "QM" Then stat_disq_three_program(each_memb) = "QMB"
+				If stat_disq_three_program(each_memb) = "QW" Then stat_disq_three_program(each_memb) = "QWD"
+				If stat_disq_three_program(each_memb) = "RC" Then stat_disq_three_program(each_memb) = "Refugee Cash Assistance"
+				If stat_disq_three_program(each_memb) = "RM" Then stat_disq_three_program(each_memb) = "RMA"
+				If stat_disq_three_program(each_memb) = "SL" Then stat_disq_three_program(each_memb) = "SLMB"
+				If stat_disq_three_program(each_memb) = "WB" Then stat_disq_three_program(each_memb) = "Work Benefit Program"
+				If stat_disq_three_program(each_memb) = "4E" Then stat_disq_three_program(each_memb) = "Title IV-E Foster Care"
+				EMReadScreen stat_disq_three_type_code(each_memb), 2, 6, 64
+				If stat_disq_three_type_code(each_memb) = "__" Then stat_disq_three_type_info(each_memb) = ""
+				If stat_disq_three_type_code(each_memb) = "02" Then stat_disq_three_type_info(each_memb) = "SNAP Fraud - 1st Disq"
+				If stat_disq_three_type_code(each_memb) = "03" Then stat_disq_three_type_info(each_memb) = "SNAP Fraud - 2md Disq"
+				If stat_disq_three_type_code(each_memb) = "04" Then stat_disq_three_type_info(each_memb) = "SNAP Fraud - 3rd Disq"
+				If stat_disq_three_type_code(each_memb) = "06" Then stat_disq_three_type_info(each_memb) = "Non-Coop with State QC"
+				If stat_disq_three_type_code(each_memb) = "07" Then stat_disq_three_type_info(each_memb) = "Non-Coop with Federal QC"
+				If stat_disq_three_type_code(each_memb) = "08" Then stat_disq_three_type_info(each_memb) = "RCA Non-Comply with E&T"
+				If stat_disq_three_type_code(each_memb) = "11" Then stat_disq_three_type_info(each_memb) = "Voluntary Quit"
+				If stat_disq_three_type_code(each_memb) = "12" Then stat_disq_three_type_info(each_memb) = "Improper Transfer of Assets"
+				If stat_disq_three_type_code(each_memb) = "13" Then stat_disq_three_type_info(each_memb) = "Lump Sum"
+				If stat_disq_three_type_code(each_memb) = "14" Then stat_disq_three_type_info(each_memb) = "IEVS Non-Coop"
+				If stat_disq_three_type_code(each_memb) = "15" Then stat_disq_three_type_info(each_memb) = "Cash Fraud - Time Set by Court"
+				If stat_disq_three_type_code(each_memb) = "16" Then stat_disq_three_type_info(each_memb) = "Cash Fraud - 1st Disq"
+				If stat_disq_three_type_code(each_memb) = "17" Then stat_disq_three_type_info(each_memb) = "Cash Fraud - 2nd Disq"
+				If stat_disq_three_type_code(each_memb) = "18" Then stat_disq_three_type_info(each_memb) = "Cash Fraud - 3rd Disq"
+				If stat_disq_three_type_code(each_memb) = "20" Then stat_disq_three_type_info(each_memb) = "Improper Transfer of Income"
+				If stat_disq_three_type_code(each_memb) = "23" Then stat_disq_three_type_info(each_memb) = "Fleeing Felon, Violating Parole/Probation, Explosives"
+				If stat_disq_three_type_code(each_memb) = "26" Then stat_disq_three_type_info(each_memb) = "Family Cash Falsify Residence for Duplicate Assistance"
+				If stat_disq_three_type_code(each_memb) = "28" Then stat_disq_three_type_info(each_memb) = "Convicted of Drug Felony - Failed Drug Test"
+				If stat_disq_three_type_code(each_memb) = "29" Then stat_disq_three_type_info(each_memb) = "US Citizenship/ID Verif Non-Coop"
+				If stat_disq_three_type_code(each_memb) = "30" Then stat_disq_three_type_info(each_memb) = "Immigration Status Verif Non-Coop"
+				If stat_disq_three_type_code(each_memb) = "31" Then stat_disq_three_type_info(each_memb) = "EBT Misuse - 1st Disq"
+				If stat_disq_three_type_code(each_memb) = "32" Then stat_disq_three_type_info(each_memb) = "EBT Misuse - 2nd Disq"
+				If stat_disq_three_type_code(each_memb) = "33" Then stat_disq_three_type_info(each_memb) = "EBT Misuse - 3rd Disq"
+				EMReadScreen stat_disq_three_begin_date(each_memb), 8, 8, 64
+				stat_disq_three_begin_date(each_memb) = replace(stat_disq_three_begin_date(each_memb), " ", "/")
+				If stat_disq_three_begin_date(each_memb) = "__/__/__" Then stat_disq_three_begin_date(each_memb) = ""
+				EMReadScreen stat_disq_three_end_date(each_memb), 8, 9, 64
+				stat_disq_three_end_date(each_memb) = replace(stat_disq_three_end_date(each_memb), " ", "/")
+				If stat_disq_three_end_date(each_memb) = "__/__/__" Then stat_disq_three_end_date(each_memb) = ""
+				EMReadScreen stat_disq_three_cure_reason_code(each_memb), 1, 11, 64
+				If stat_disq_three_cure_reason_code(each_memb) = "_" Then stat_disq_three_cure_reason_info(each_memb) = ""
+				If stat_disq_three_cure_reason_code(each_memb) = "A" Then stat_disq_three_cure_reason_info(each_memb) = "No longer Fleeing Felon/Parole Violation"
+				If stat_disq_three_cure_reason_code(each_memb) = "0" Then stat_disq_three_cure_reason_info(each_memb) = "Property Returned/Adequate Compensation"
+				If stat_disq_three_cure_reason_code(each_memb) = "1" Then stat_disq_three_cure_reason_info(each_memb) = "Return to Same Job"
+				If stat_disq_three_cure_reason_code(each_memb) = "2" Then stat_disq_three_cure_reason_info(each_memb) = "Accept Comparable Employment"
+				If stat_disq_three_cure_reason_code(each_memb) = "6" Then stat_disq_three_cure_reason_info(each_memb) = "Cooperate with State QC"
+				If stat_disq_three_cure_reason_code(each_memb) = "7" Then stat_disq_three_cure_reason_info(each_memb) = "Cooperate with Federal QC"
+				If stat_disq_three_cure_reason_code(each_memb) = "8" Then stat_disq_three_cure_reason_info(each_memb) = "Lump Sum Recalculated"
+				EMReadScreen stat_disq_three_fraud_determination_date(each_memb), 8, 13, 64
+				stat_disq_three_fraud_determination_date(each_memb) = replace(stat_disq_three_fraud_determination_date(each_memb), " ", "/")
+				If stat_disq_three_fraud_determination_date(each_memb) = "__/__/__" Then stat_disq_three_fraud_determination_date(each_memb) = ""
+				EMReadScreen stat_disq_three_county_of_fraud(each_memb), 2, 15, 64
+				EMReadScreen stat_disq_three_state_of_fraud(each_memb), 2, 16, 64
+				EMReadScreen stat_disq_three_SNAP_trafficking_yn(each_memb), 1, 17, 64
+				EMReadScreen stat_disq_three_SNAP_offense_code(each_memb), 2, 18, 64
+				If stat_disq_three_SNAP_offense_code(each_memb) = "__" Then stat_disq_three_SNAP_offense_info(each_memb) = ""
+				If stat_disq_three_SNAP_offense_code(each_memb) = "AL" Then stat_disq_three_SNAP_offense_info(each_memb) = "Alcohol"
+				If stat_disq_three_SNAP_offense_code(each_memb) = "DR" Then stat_disq_three_SNAP_offense_info(each_memb) = "Drugs"
+				If stat_disq_three_SNAP_offense_code(each_memb) = "GU" Then stat_disq_three_SNAP_offense_info(each_memb) = "Guns"
+				If stat_disq_three_SNAP_offense_code(each_memb) = "OT" Then stat_disq_three_SNAP_offense_info(each_memb) = "Other"
+
+				If stat_disq_three_type_code(each_memb) = "02" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "03" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "04" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "15" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "16" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "17" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "18" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "23" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "26" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "28" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "31" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "32" Then stat_disq_three_source(each_memb) = "DISQUAL"
+				If stat_disq_three_type_code(each_memb) = "32" Then stat_disq_three_source(each_memb) = "DISQUAL"
+
+				If stat_disq_three_type_code(each_memb) = "06" Then stat_disq_three_source(each_memb) = "NON-COOP"
+				If stat_disq_three_type_code(each_memb) = "07" Then stat_disq_three_source(each_memb) = "NON-COOP"
+				If stat_disq_three_type_code(each_memb) = "08" Then stat_disq_three_source(each_memb) = "NON-COOP"
+				If stat_disq_three_type_code(each_memb) = "14" Then stat_disq_three_source(each_memb) = "NON-COOP"
+				If stat_disq_three_type_code(each_memb) = "29" Then stat_disq_three_source(each_memb) = "NON-COOP"
+				If stat_disq_three_type_code(each_memb) = "30" Then stat_disq_three_source(each_memb) = "NON-COOP"
+
+				If stat_disq_three_type_code(each_memb) = "12" Then stat_disq_three_source(each_memb) = "TRANSFER"
+				If stat_disq_three_type_code(each_memb) = "20" Then stat_disq_three_source(each_memb) = "TRANSFER"
+
+				If stat_disq_three_type_code(each_memb) = "11" Then stat_disq_three_source(each_memb) = "VOL QUIT"
+
+				stat_disq_three_active(each_memb) = True
+				If IsDate(stat_disq_three_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_disq_three_end_date(each_memb), current_month) >= 0 Then stat_disq_three_active(each_memb) = False
+				End If
+			End If
+
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "04", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_disq_four_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_disq_four_exists(each_memb) = False
+
+			If stat_disq_four_exists(each_memb) = True Then
+				EMReadScreen stat_disq_four_program(each_memb), 2, 6, 54
+				If stat_disq_four_program(each_memb) = "__" Then stat_disq_four_program(each_memb) = ""
+				If stat_disq_four_program(each_memb) = "AF" Then stat_disq_four_program(each_memb) = "AFDC"
+				If stat_disq_four_program(each_memb) = "CC" Then stat_disq_four_program(each_memb) = "Child Care Assistance"
+				If stat_disq_four_program(each_memb) = "DW" Then stat_disq_four_program(each_memb) = "DWP"
+				If stat_disq_four_program(each_memb) = "FG" Then stat_disq_four_program(each_memb) = "Family General Assistance"
+				If stat_disq_four_program(each_memb) = "FS" Then stat_disq_four_program(each_memb) = "SNAP"
+				If stat_disq_four_program(each_memb) = "GA" Then stat_disq_four_program(each_memb) = "General Asssistance"
+				If stat_disq_four_program(each_memb) = "GR" Then stat_disq_four_program(each_memb) = "GRH"
+				If stat_disq_four_program(each_memb) = "IM" Then stat_disq_four_program(each_memb) = "IMD"
+				If stat_disq_four_program(each_memb) = "MA" Then stat_disq_four_program(each_memb) = "Medical Assistance"
+				If stat_disq_four_program(each_memb) = "MF" Then stat_disq_four_program(each_memb) = "MFIP"
+				If stat_disq_four_program(each_memb) = "MS" Then stat_disq_four_program(each_memb) = "MN Supplemental Aid"
+				If stat_disq_four_program(each_memb) = "QI" Then stat_disq_four_program(each_memb) = "QI-1"
+				If stat_disq_four_program(each_memb) = "QM" Then stat_disq_four_program(each_memb) = "QMB"
+				If stat_disq_four_program(each_memb) = "QW" Then stat_disq_four_program(each_memb) = "QWD"
+				If stat_disq_four_program(each_memb) = "RC" Then stat_disq_four_program(each_memb) = "Refugee Cash Assistance"
+				If stat_disq_four_program(each_memb) = "RM" Then stat_disq_four_program(each_memb) = "RMA"
+				If stat_disq_four_program(each_memb) = "SL" Then stat_disq_four_program(each_memb) = "SLMB"
+				If stat_disq_four_program(each_memb) = "WB" Then stat_disq_four_program(each_memb) = "Work Benefit Program"
+				If stat_disq_four_program(each_memb) = "4E" Then stat_disq_four_program(each_memb) = "Title IV-E Foster Care"
+				EMReadScreen stat_disq_four_type_code(each_memb), 2, 6, 64
+				If stat_disq_four_type_code(each_memb) = "__" Then stat_disq_four_type_info(each_memb) = ""
+				If stat_disq_four_type_code(each_memb) = "02" Then stat_disq_four_type_info(each_memb) = "SNAP Fraud - 1st Disq"
+				If stat_disq_four_type_code(each_memb) = "03" Then stat_disq_four_type_info(each_memb) = "SNAP Fraud - 2md Disq"
+				If stat_disq_four_type_code(each_memb) = "04" Then stat_disq_four_type_info(each_memb) = "SNAP Fraud - 3rd Disq"
+				If stat_disq_four_type_code(each_memb) = "06" Then stat_disq_four_type_info(each_memb) = "Non-Coop with State QC"
+				If stat_disq_four_type_code(each_memb) = "07" Then stat_disq_four_type_info(each_memb) = "Non-Coop with Federal QC"
+				If stat_disq_four_type_code(each_memb) = "08" Then stat_disq_four_type_info(each_memb) = "RCA Non-Comply with E&T"
+				If stat_disq_four_type_code(each_memb) = "11" Then stat_disq_four_type_info(each_memb) = "Voluntary Quit"
+				If stat_disq_four_type_code(each_memb) = "12" Then stat_disq_four_type_info(each_memb) = "Improper Transfer of Assets"
+				If stat_disq_four_type_code(each_memb) = "13" Then stat_disq_four_type_info(each_memb) = "Lump Sum"
+				If stat_disq_four_type_code(each_memb) = "14" Then stat_disq_four_type_info(each_memb) = "IEVS Non-Coop"
+				If stat_disq_four_type_code(each_memb) = "15" Then stat_disq_four_type_info(each_memb) = "Cash Fraud - Time Set by Court"
+				If stat_disq_four_type_code(each_memb) = "16" Then stat_disq_four_type_info(each_memb) = "Cash Fraud - 1st Disq"
+				If stat_disq_four_type_code(each_memb) = "17" Then stat_disq_four_type_info(each_memb) = "Cash Fraud - 2nd Disq"
+				If stat_disq_four_type_code(each_memb) = "18" Then stat_disq_four_type_info(each_memb) = "Cash Fraud - 3rd Disq"
+				If stat_disq_four_type_code(each_memb) = "20" Then stat_disq_four_type_info(each_memb) = "Improper Transfer of Income"
+				If stat_disq_four_type_code(each_memb) = "23" Then stat_disq_four_type_info(each_memb) = "Fleeing Felon, Violating Parole/Probation, Explosives"
+				If stat_disq_four_type_code(each_memb) = "26" Then stat_disq_four_type_info(each_memb) = "Family Cash Falsify Residence for Duplicate Assistance"
+				If stat_disq_four_type_code(each_memb) = "28" Then stat_disq_four_type_info(each_memb) = "Convicted of Drug Felony - Failed Drug Test"
+				If stat_disq_four_type_code(each_memb) = "29" Then stat_disq_four_type_info(each_memb) = "US Citizenship/ID Verif Non-Coop"
+				If stat_disq_four_type_code(each_memb) = "30" Then stat_disq_four_type_info(each_memb) = "Immigration Status Verif Non-Coop"
+				If stat_disq_four_type_code(each_memb) = "31" Then stat_disq_four_type_info(each_memb) = "EBT Misuse - 1st Disq"
+				If stat_disq_four_type_code(each_memb) = "32" Then stat_disq_four_type_info(each_memb) = "EBT Misuse - 2nd Disq"
+				If stat_disq_four_type_code(each_memb) = "33" Then stat_disq_four_type_info(each_memb) = "EBT Misuse - 3rd Disq"
+				EMReadScreen stat_disq_four_begin_date(each_memb), 8, 8, 64
+				stat_disq_four_begin_date(each_memb) = replace(stat_disq_four_begin_date(each_memb), " ", "/")
+				If stat_disq_four_begin_date(each_memb) = "__/__/__" Then stat_disq_four_begin_date(each_memb) = ""
+				EMReadScreen stat_disq_four_end_date(each_memb), 8, 9, 64
+				stat_disq_four_end_date(each_memb) = replace(stat_disq_four_end_date(each_memb), " ", "/")
+				If stat_disq_four_end_date(each_memb) = "__/__/__" Then stat_disq_four_end_date(each_memb) = ""
+				EMReadScreen stat_disq_four_cure_reason_code(each_memb), 1, 11, 64
+				If stat_disq_four_cure_reason_code(each_memb) = "_" Then stat_disq_four_cure_reason_info(each_memb) = ""
+				If stat_disq_four_cure_reason_code(each_memb) = "A" Then stat_disq_four_cure_reason_info(each_memb) = "No longer Fleeing Felon/Parole Violation"
+				If stat_disq_four_cure_reason_code(each_memb) = "0" Then stat_disq_four_cure_reason_info(each_memb) = "Property Returned/Adequate Compensation"
+				If stat_disq_four_cure_reason_code(each_memb) = "1" Then stat_disq_four_cure_reason_info(each_memb) = "Return to Same Job"
+				If stat_disq_four_cure_reason_code(each_memb) = "2" Then stat_disq_four_cure_reason_info(each_memb) = "Accept Comparable Employment"
+				If stat_disq_four_cure_reason_code(each_memb) = "6" Then stat_disq_four_cure_reason_info(each_memb) = "Cooperate with State QC"
+				If stat_disq_four_cure_reason_code(each_memb) = "7" Then stat_disq_four_cure_reason_info(each_memb) = "Cooperate with Federal QC"
+				If stat_disq_four_cure_reason_code(each_memb) = "8" Then stat_disq_four_cure_reason_info(each_memb) = "Lump Sum Recalculated"
+				EMReadScreen stat_disq_four_fraud_determination_date(each_memb), 8, 13, 64
+				stat_disq_four_fraud_determination_date(each_memb) = replace(stat_disq_four_fraud_determination_date(each_memb), " ", "/")
+				If stat_disq_four_fraud_determination_date(each_memb) = "__/__/__" Then stat_disq_four_fraud_determination_date(each_memb) = ""
+				EMReadScreen stat_disq_four_county_of_fraud(each_memb), 2, 15, 64
+				EMReadScreen stat_disq_four_state_of_fraud(each_memb), 2, 16, 64
+				EMReadScreen stat_disq_four_SNAP_trafficking_yn(each_memb), 1, 17, 64
+				EMReadScreen stat_disq_four_SNAP_offense_code(each_memb), 2, 18, 64
+				If stat_disq_four_SNAP_offense_code(each_memb) = "__" Then stat_disq_four_SNAP_offense_info(each_memb) = ""
+				If stat_disq_four_SNAP_offense_code(each_memb) = "AL" Then stat_disq_four_SNAP_offense_info(each_memb) = "Alcohol"
+				If stat_disq_four_SNAP_offense_code(each_memb) = "DR" Then stat_disq_four_SNAP_offense_info(each_memb) = "Drugs"
+				If stat_disq_four_SNAP_offense_code(each_memb) = "GU" Then stat_disq_four_SNAP_offense_info(each_memb) = "Guns"
+				If stat_disq_four_SNAP_offense_code(each_memb) = "OT" Then stat_disq_four_SNAP_offense_info(each_memb) = "Other"
+
+				If stat_disq_four_type_code(each_memb) = "02" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "03" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "04" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "15" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "16" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "17" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "18" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "23" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "26" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "28" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "31" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "32" Then stat_disq_four_source(each_memb) = "DISQUAL"
+				If stat_disq_four_type_code(each_memb) = "32" Then stat_disq_four_source(each_memb) = "DISQUAL"
+
+				If stat_disq_four_type_code(each_memb) = "06" Then stat_disq_four_source(each_memb) = "NON-COOP"
+				If stat_disq_four_type_code(each_memb) = "07" Then stat_disq_four_source(each_memb) = "NON-COOP"
+				If stat_disq_four_type_code(each_memb) = "08" Then stat_disq_four_source(each_memb) = "NON-COOP"
+				If stat_disq_four_type_code(each_memb) = "14" Then stat_disq_four_source(each_memb) = "NON-COOP"
+				If stat_disq_four_type_code(each_memb) = "29" Then stat_disq_four_source(each_memb) = "NON-COOP"
+				If stat_disq_four_type_code(each_memb) = "30" Then stat_disq_four_source(each_memb) = "NON-COOP"
+
+				If stat_disq_four_type_code(each_memb) = "12" Then stat_disq_four_source(each_memb) = "TRANSFER"
+				If stat_disq_four_type_code(each_memb) = "20" Then stat_disq_four_source(each_memb) = "TRANSFER"
+
+				If stat_disq_four_type_code(each_memb) = "11" Then stat_disq_four_source(each_memb) = "VOL QUIT"
+
+				stat_disq_four_active(each_memb) = True
+				If IsDate(stat_disq_four_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_disq_four_end_date(each_memb), current_month) >= 0 Then stat_disq_four_active(each_memb) = False
+				End If
+			End If
+
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			EMWriteScreen "05", 20, 79
+			transmit
+			EMReadScreen existance_check, 14, 24, 13
+			stat_disq_five_exists(each_memb) = True
+			If existance_check = "DOES NOT EXIST" Then stat_disq_five_exists(each_memb) = False
+
+			If stat_disq_five_exists(each_memb) = True Then
+				EMReadScreen stat_disq_five_program(each_memb), 2, 6, 54
+				If stat_disq_five_program(each_memb) = "__" Then stat_disq_five_program(each_memb) = ""
+				If stat_disq_five_program(each_memb) = "AF" Then stat_disq_five_program(each_memb) = "AFDC"
+				If stat_disq_five_program(each_memb) = "CC" Then stat_disq_five_program(each_memb) = "Child Care Assistance"
+				If stat_disq_five_program(each_memb) = "DW" Then stat_disq_five_program(each_memb) = "DWP"
+				If stat_disq_five_program(each_memb) = "FG" Then stat_disq_five_program(each_memb) = "Family General Assistance"
+				If stat_disq_five_program(each_memb) = "FS" Then stat_disq_five_program(each_memb) = "SNAP"
+				If stat_disq_five_program(each_memb) = "GA" Then stat_disq_five_program(each_memb) = "General Asssistance"
+				If stat_disq_five_program(each_memb) = "GR" Then stat_disq_five_program(each_memb) = "GRH"
+				If stat_disq_five_program(each_memb) = "IM" Then stat_disq_five_program(each_memb) = "IMD"
+				If stat_disq_five_program(each_memb) = "MA" Then stat_disq_five_program(each_memb) = "Medical Assistance"
+				If stat_disq_five_program(each_memb) = "MF" Then stat_disq_five_program(each_memb) = "MFIP"
+				If stat_disq_five_program(each_memb) = "MS" Then stat_disq_five_program(each_memb) = "MN Supplemental Aid"
+				If stat_disq_five_program(each_memb) = "QI" Then stat_disq_five_program(each_memb) = "QI-1"
+				If stat_disq_five_program(each_memb) = "QM" Then stat_disq_five_program(each_memb) = "QMB"
+				If stat_disq_five_program(each_memb) = "QW" Then stat_disq_five_program(each_memb) = "QWD"
+				If stat_disq_five_program(each_memb) = "RC" Then stat_disq_five_program(each_memb) = "Refugee Cash Assistance"
+				If stat_disq_five_program(each_memb) = "RM" Then stat_disq_five_program(each_memb) = "RMA"
+				If stat_disq_five_program(each_memb) = "SL" Then stat_disq_five_program(each_memb) = "SLMB"
+				If stat_disq_five_program(each_memb) = "WB" Then stat_disq_five_program(each_memb) = "Work Benefit Program"
+				If stat_disq_five_program(each_memb) = "4E" Then stat_disq_five_program(each_memb) = "Title IV-E Foster Care"
+				EMReadScreen stat_disq_five_type_code(each_memb), 2, 6, 64
+				If stat_disq_five_type_code(each_memb) = "__" Then stat_disq_five_type_info(each_memb) = ""
+				If stat_disq_five_type_code(each_memb) = "02" Then stat_disq_five_type_info(each_memb) = "SNAP Fraud - 1st Disq"
+				If stat_disq_five_type_code(each_memb) = "03" Then stat_disq_five_type_info(each_memb) = "SNAP Fraud - 2md Disq"
+				If stat_disq_five_type_code(each_memb) = "04" Then stat_disq_five_type_info(each_memb) = "SNAP Fraud - 3rd Disq"
+				If stat_disq_five_type_code(each_memb) = "06" Then stat_disq_five_type_info(each_memb) = "Non-Coop with State QC"
+				If stat_disq_five_type_code(each_memb) = "07" Then stat_disq_five_type_info(each_memb) = "Non-Coop with Federal QC"
+				If stat_disq_five_type_code(each_memb) = "08" Then stat_disq_five_type_info(each_memb) = "RCA Non-Comply with E&T"
+				If stat_disq_five_type_code(each_memb) = "11" Then stat_disq_five_type_info(each_memb) = "Voluntary Quit"
+				If stat_disq_five_type_code(each_memb) = "12" Then stat_disq_five_type_info(each_memb) = "Improper Transfer of Assets"
+				If stat_disq_five_type_code(each_memb) = "13" Then stat_disq_five_type_info(each_memb) = "Lump Sum"
+				If stat_disq_five_type_code(each_memb) = "14" Then stat_disq_five_type_info(each_memb) = "IEVS Non-Coop"
+				If stat_disq_five_type_code(each_memb) = "15" Then stat_disq_five_type_info(each_memb) = "Cash Fraud - Time Set by Court"
+				If stat_disq_five_type_code(each_memb) = "16" Then stat_disq_five_type_info(each_memb) = "Cash Fraud - 1st Disq"
+				If stat_disq_five_type_code(each_memb) = "17" Then stat_disq_five_type_info(each_memb) = "Cash Fraud - 2nd Disq"
+				If stat_disq_five_type_code(each_memb) = "18" Then stat_disq_five_type_info(each_memb) = "Cash Fraud - 3rd Disq"
+				If stat_disq_five_type_code(each_memb) = "20" Then stat_disq_five_type_info(each_memb) = "Improper Transfer of Income"
+				If stat_disq_five_type_code(each_memb) = "23" Then stat_disq_five_type_info(each_memb) = "Fleeing Felon, Violating Parole/Probation, Explosives"
+				If stat_disq_five_type_code(each_memb) = "26" Then stat_disq_five_type_info(each_memb) = "Family Cash Falsify Residence for Duplicate Assistance"
+				If stat_disq_five_type_code(each_memb) = "28" Then stat_disq_five_type_info(each_memb) = "Convicted of Drug Felony - Failed Drug Test"
+				If stat_disq_five_type_code(each_memb) = "29" Then stat_disq_five_type_info(each_memb) = "US Citizenship/ID Verif Non-Coop"
+				If stat_disq_five_type_code(each_memb) = "30" Then stat_disq_five_type_info(each_memb) = "Immigration Status Verif Non-Coop"
+				If stat_disq_five_type_code(each_memb) = "31" Then stat_disq_five_type_info(each_memb) = "EBT Misuse - 1st Disq"
+				If stat_disq_five_type_code(each_memb) = "32" Then stat_disq_five_type_info(each_memb) = "EBT Misuse - 2nd Disq"
+				If stat_disq_five_type_code(each_memb) = "33" Then stat_disq_five_type_info(each_memb) = "EBT Misuse - 3rd Disq"
+				EMReadScreen stat_disq_five_begin_date(each_memb), 8, 8, 64
+				stat_disq_five_begin_date(each_memb) = replace(stat_disq_five_begin_date(each_memb), " ", "/")
+				If stat_disq_five_begin_date(each_memb) = "__/__/__" Then stat_disq_five_begin_date(each_memb) = ""
+				EMReadScreen stat_disq_five_end_date(each_memb), 8, 9, 64
+				stat_disq_five_end_date(each_memb) = replace(stat_disq_five_end_date(each_memb), " ", "/")
+				If stat_disq_five_end_date(each_memb) = "__/__/__" Then stat_disq_five_end_date(each_memb) = ""
+				EMReadScreen stat_disq_five_cure_reason_code(each_memb), 1, 11, 64
+				If stat_disq_five_cure_reason_code(each_memb) = "_" Then stat_disq_five_cure_reason_info(each_memb) = ""
+				If stat_disq_five_cure_reason_code(each_memb) = "A" Then stat_disq_five_cure_reason_info(each_memb) = "No longer Fleeing Felon/Parole Violation"
+				If stat_disq_five_cure_reason_code(each_memb) = "0" Then stat_disq_five_cure_reason_info(each_memb) = "Property Returned/Adequate Compensation"
+				If stat_disq_five_cure_reason_code(each_memb) = "1" Then stat_disq_five_cure_reason_info(each_memb) = "Return to Same Job"
+				If stat_disq_five_cure_reason_code(each_memb) = "2" Then stat_disq_five_cure_reason_info(each_memb) = "Accept Comparable Employment"
+				If stat_disq_five_cure_reason_code(each_memb) = "6" Then stat_disq_five_cure_reason_info(each_memb) = "Cooperate with State QC"
+				If stat_disq_five_cure_reason_code(each_memb) = "7" Then stat_disq_five_cure_reason_info(each_memb) = "Cooperate with Federal QC"
+				If stat_disq_five_cure_reason_code(each_memb) = "8" Then stat_disq_five_cure_reason_info(each_memb) = "Lump Sum Recalculated"
+				EMReadScreen stat_disq_five_fraud_determination_date(each_memb), 8, 13, 64
+				stat_disq_five_fraud_determination_date(each_memb) = replace(stat_disq_five_fraud_determination_date(each_memb), " ", "/")
+				If stat_disq_five_fraud_determination_date(each_memb) = "__/__/__" Then stat_disq_five_fraud_determination_date(each_memb) = ""
+				EMReadScreen stat_disq_five_county_of_fraud(each_memb), 2, 15, 64
+				EMReadScreen stat_disq_five_state_of_fraud(each_memb), 2, 16, 64
+				EMReadScreen stat_disq_five_SNAP_trafficking_yn(each_memb), 1, 17, 64
+				EMReadScreen stat_disq_five_SNAP_offense_code(each_memb), 2, 18, 64
+				If stat_disq_five_SNAP_offense_code(each_memb) = "__" Then stat_disq_five_SNAP_offense_info(each_memb) = ""
+				If stat_disq_five_SNAP_offense_code(each_memb) = "AL" Then stat_disq_five_SNAP_offense_info(each_memb) = "Alcohol"
+				If stat_disq_five_SNAP_offense_code(each_memb) = "DR" Then stat_disq_five_SNAP_offense_info(each_memb) = "Drugs"
+				If stat_disq_five_SNAP_offense_code(each_memb) = "GU" Then stat_disq_five_SNAP_offense_info(each_memb) = "Guns"
+				If stat_disq_five_SNAP_offense_code(each_memb) = "OT" Then stat_disq_five_SNAP_offense_info(each_memb) = "Other"
+
+				If stat_disq_five_type_code(each_memb) = "02" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "03" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "04" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "15" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "16" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "17" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "18" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "23" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "26" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "28" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "31" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "32" Then stat_disq_five_source(each_memb) = "DISQUAL"
+				If stat_disq_five_type_code(each_memb) = "32" Then stat_disq_five_source(each_memb) = "DISQUAL"
+
+				If stat_disq_five_type_code(each_memb) = "06" Then stat_disq_five_source(each_memb) = "NON-COOP"
+				If stat_disq_five_type_code(each_memb) = "07" Then stat_disq_five_source(each_memb) = "NON-COOP"
+				If stat_disq_five_type_code(each_memb) = "08" Then stat_disq_five_source(each_memb) = "NON-COOP"
+				If stat_disq_five_type_code(each_memb) = "14" Then stat_disq_five_source(each_memb) = "NON-COOP"
+				If stat_disq_five_type_code(each_memb) = "29" Then stat_disq_five_source(each_memb) = "NON-COOP"
+				If stat_disq_five_type_code(each_memb) = "30" Then stat_disq_five_source(each_memb) = "NON-COOP"
+
+				If stat_disq_five_type_code(each_memb) = "12" Then stat_disq_five_source(each_memb) = "TRANSFER"
+				If stat_disq_five_type_code(each_memb) = "20" Then stat_disq_five_source(each_memb) = "TRANSFER"
+
+				If stat_disq_five_type_code(each_memb) = "11" Then stat_disq_five_source(each_memb) = "VOL QUIT"
+
+				stat_disq_five_active(each_memb) = True
+				If IsDate(stat_disq_five_end_date(each_memb)) = True Then
+					If DateDiff("m", stat_disq_five_end_date(each_memb), current_month) >= 0 Then stat_disq_five_active(each_memb) = False
+				End If
+			End If
+		Next
+
 		Call navigate_to_MAXIS_screen("STAT", "HEST")
 
 		EMReadScreen hest_version, 1, 2, 73
@@ -10335,15 +11162,17 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 
 ' MsgBox "first_SNAP_approval - " & first_SNAP_approval & vbCr & "enter_CNOTE_for_SNAP - " & enter_CNOTE_for_SNAP
 
-const months_in_approval	= 0
-const confirm_budget_selection	= 9
-const first_mo_const		= 10
-const last_mo_const			= 11
-const wcom_needed			= 12
-const dialog_displayed		= 13
-const budget_error_exists	= 14
-const btn_one 				= 15
-const approval_confirmed	= 16
+const months_in_approval			= 0
+const package_is_expedited_const 	= 7
+const include_budget_in_note_const	= 8
+const confirm_budget_selection		= 9
+const first_mo_const				= 10
+const last_mo_const					= 11
+const wcom_needed					= 12
+const dialog_displayed				= 13
+const budget_error_exists			= 14
+const btn_one 						= 15
+const approval_confirmed			= 16
 
 Dim SNAP_UNIQUE_APPROVALS()
 ReDim SNAP_UNIQUE_APPROVALS(approval_confirmed, 0)
@@ -10384,12 +11213,15 @@ If enter_CNOTE_for_SNAP = True Then
 			SNAP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
 			SNAP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 500 + unique_app_count
 			SNAP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+			SNAP_UNIQUE_APPROVALS(package_is_expedited_const, unique_app_count) = SNAP_ELIG_APPROVALS(approval).snap_expedited
+			SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
 			last_earned_income = SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc
 			last_unearned_income = SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc
 			last_shelter_expense = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other
 			last_hest_expense = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone
 			last_eligibility = SNAP_ELIG_APPROVALS(approval).snap_elig_result
 			last_snap_entitlement = SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot
+			last_expedited_status = SNAP_ELIG_APPROVALS(approval).snap_expedited
 
 			unique_app_count = unique_app_count + 1
 		Else
@@ -10401,6 +11233,7 @@ If enter_CNOTE_for_SNAP = True Then
 			If last_hest_expense <> SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone Then match_last_benefit_amounts = False
 			If last_eligibility <> SNAP_ELIG_APPROVALS(approval).snap_elig_result Then match_last_benefit_amounts = False
 			If last_snap_entitlement <> SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot Then match_last_benefit_amounts = False
+			If last_expedited_status <> SNAP_ELIG_APPROVALS(approval).snap_expedited Then match_last_benefit_amounts = False
 
 			If match_last_benefit_amounts = True Then
 				SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
@@ -10414,12 +11247,15 @@ If enter_CNOTE_for_SNAP = True Then
 				SNAP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year
 				SNAP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 500 + unique_app_count
 				SNAP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+				SNAP_UNIQUE_APPROVALS(package_is_expedited_const, unique_app_count) = SNAP_ELIG_APPROVALS(approval).snap_expedited
+				SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
 				last_earned_income = SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc
 				last_unearned_income = SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc
 				last_shelter_expense = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other
 				last_hest_expense = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone
 				last_eligibility = SNAP_ELIG_APPROVALS(approval).snap_elig_result
 				last_snap_entitlement = SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot
+				last_expedited_status = SNAP_ELIG_APPROVALS(approval).snap_expedited
 
 				' MsgBox ("last_shelter_expense - " & last_shelter_expense & vbCr & "last_hest_expense - " & last_hest_expense)
 
@@ -10693,29 +11529,67 @@ If enter_CNOTE_for_SNAP = True Then
 			last_month = right(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
 		End If
 
+		elig_ind = ""
+		For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
+			If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
+		Next
+		month_ind = ""
+		For each_month = 0 to UBound(STAT_INFORMATION)
+			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
+		Next
+
+
+
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "INELIGIBLE" Then
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_comdty_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_disq_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_dupl_assist_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_eligible_person_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			' snap_case_prosp_gross_inc_test
+			' snap_case_prosp_net_inc_test
+
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			' snap_case_retro_gross_inc_test
+			' snap_case_retro_net_inc_test
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_voltry_quit_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+		End If
+
 		Call start_a_blank_case_note
 
-		For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
-			If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year = first_month Then
-				If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then
-					If last_month = curr_month_plus_one Then
-						Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Ongoing")		'TODO - add closure or denial details here based on some other logic that we have to figure out'
-					ElseIf len(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
-						Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - " & last_month)
-					Else
-						Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " only")		'TODO - add closure or denial details here based on some other logic that we have to figure out'
-					End If
-				ElseIf SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then
-
-				End If
-				' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Entitlement: $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
-				' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
-
-				Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(approval).snap_approved_date)
-				' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
-				Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
-
+		program_detail = "- SNAP"
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
+			If last_month = curr_month_plus_one Then
+				header_end = " - Ongoing"
+			ElseIf len(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
+				header_end = " - " & last_month
+			Else
+				header_end = " only"
 			End If
+			If SNAP_UNIQUE_APPROVALS(package_is_expedited_const, unique_app) = True Then program_detail = "EXPEDITED SNAP"
+			elig_info = "ELIGIBLE"
+		ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "INELIGIBLE" Then
+			If snap_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
+			If snap_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
+		End If
+		Call write_variable_in_CASE_NOTE("APP Completed " & program_detail & elig_info & " eff " & first_month & header_end)		'TODO - add closure or denial details here based on some other logic that we have to figure out'
+		' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Entitlement: $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
+		' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
+
+		Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(elig_ind).snap_approved_date)
+		' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
+		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
+		'TODO - update this to match the formatting in the budget better.'
+		For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
 			If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
 				If SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot = SNAP_ELIG_APPROVALS(approval).snap_benefit_amt Then
 					Call write_variable_in_CASE_NOTE(" - " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & " . . . Entitlement:    $" & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 7) & " - Full Amount Issued to Resident")
@@ -10727,254 +11601,289 @@ If enter_CNOTE_for_SNAP = True Then
 				If SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot <> SNAP_ELIG_APPROVALS(approval).snap_benefit_amt Then  Call write_variable_in_CASE_NOTE("               Issued to Resident:   $" & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 7))
 			End If
 		Next
-		' Call write_variable_in_CASE_NOTE("*** BUDGET FOR APPROVAL ***")
-		Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
+
 		' "======================================XX======================================"
 
-		For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
-			If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year = first_month Then
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort = 0
-				SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort * 1
+		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
+			Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
 
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax = 0
-				SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax * 1
-
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins = 0
-				SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins * 1
-
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other = 0
-				SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other * 1
-
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity = 0
-				SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity * 1
-
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac = 0
-				SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac * 1
-
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone = 0
-				SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone * 1
-
-				sum_housing = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_rent_mort + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_prop_tax + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_home_ins + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_other
-				sum_hest = SNAP_ELIG_APPROVALS(approval).snap_budg_shel_electricity + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_heat_ac + SNAP_ELIG_APPROVALS(approval).snap_budg_shel_phone
-
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc = "0.00"
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc = "" Then SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc = "0.00"
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_gross_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Prospective Income exceeds GROSS INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc)
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_net_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Prospective Income exceeds NET INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc)
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_gross_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Retrospective Income exceeds GROSS INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc)
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_net_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Retrospective Income exceeds NET INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc)
 
 
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "0.00"
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "0.00"
 
+			Call write_variable_in_CASE_NOTE(" Household: " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " Adult")
 
-				Call write_variable_in_CASE_NOTE(" Household: " & SNAP_ELIG_APPROVALS(approval).snap_budg_numb_in_assist_unit & " Adult")
+			beginning_txt = " Income:    "
+			earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8)
+			spaces_30 = "                              "
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+	  		  	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 26)
+					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+					beginning_txt = "            "
+					earned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 26)
+					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+					beginning_txt = "            "
+					earned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 26)
+					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+					beginning_txt = "            "
+					earned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 26)
+					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+					beginning_txt = "            "
+					earned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 26)
+					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+					beginning_txt = "            "
+					earned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted(each_memb) = True Then
+					busi_details = left(STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 25)
+					Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+					beginning_txt = "            "
+					earned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted(each_memb) = True Then
+					busi_details = left(STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 25)
+					Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+					beginning_txt = "            "
+					earned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted(each_memb) = True Then
+					busi_details = left(STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 25)
+					Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+					beginning_txt = "            "
+					earned_info = "|"
+	  			End If
+			Next
+			If earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8) Then
+				' Call write_variable_in_CASE_NOTE(" Income:    NONE                            |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
+				Call write_variable_in_CASE_NOTE(" Income:    NO Earned Income                |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
 
-				beginning_txt = " Income:    "
-				earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc, 8)
-				spaces_30 = "                              "
-				For each_memb = 0 to UBound(STAT_INFORMATION(approval).stat_memb_ref_numb)
-		  		  	If STAT_INFORMATION(approval).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_one_job_counted(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(approval).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_one_employer_name(each_memb) & spaces_30, 26)
-						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-						beginning_txt = "            "
-						earned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_two_job_counted(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(approval).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_two_employer_name(each_memb) & spaces_30, 26)
-						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-						beginning_txt = "            "
-						earned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_three_job_counted(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(approval).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_three_employer_name(each_memb) & spaces_30, 26)
-						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-						beginning_txt = "            "
-						earned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_four_job_counted(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(approval).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_four_employer_name(each_memb) & spaces_30, 26)
-						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-						beginning_txt = "            "
-						earned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_jobs_five_job_counted(each_memb) = True Then
-						job_detail = left(STAT_INFORMATION(approval).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_jobs_five_employer_name(each_memb) & spaces_30, 26)
-						Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-						beginning_txt = "            "
-						earned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_busi_one_counted(each_memb) = True Then
-						busi_details = left(STAT_INFORMATION(approval).stat_busi_one_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_busi_one_type_info(each_memb) & spaces_30, 25)
-						Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
-						beginning_txt = "            "
-						earned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_busi_two_counted(each_memb) = True Then
-						busi_details = left(STAT_INFORMATION(approval).stat_busi_two_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_busi_two_type_info(each_memb) & spaces_30, 25)
-						Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
-						beginning_txt = "            "
-						earned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_busi_three_counted(each_memb) = True Then
-						busi_details = left(STAT_INFORMATION(approval).stat_busi_three_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(approval).stat_busi_three_type_info(each_memb) & spaces_30, 25)
-						Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
-						beginning_txt = "            "
-						earned_info = "|"
-		  			End If
-				Next
-				If earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc, 8) Then
-					' Call write_variable_in_CASE_NOTE(" Income:    NONE                            |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc, 8))
-					Call write_variable_in_CASE_NOTE(" Income:    NO Earned Income                |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_earned_inc, 8))
-
-				End If
-				unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc, 8)
-				For each_memb = 0 to UBound(STAT_INFORMATION(approval).stat_memb_ref_numb)
-		  			If STAT_INFORMATION(approval).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_one_counted(each_memb) = True Then
-						unea_detail = left(STAT_INFORMATION(approval).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_one_type_info(each_memb), 31)
-						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-						unearned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_two_counted(each_memb) = True Then
-						unea_detail = left(STAT_INFORMATION(approval).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_two_type_info(each_memb), 31)
-						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-						unearned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_three_counted(each_memb) = True Then
-						unea_detail = left(STAT_INFORMATION(approval).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_three_type_info(each_memb), 31)
-						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-						unearned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_four_counted(each_memb) = True Then
-						unea_detail = left(STAT_INFORMATION(approval).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_four_type_info(each_memb), 31)
-						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-						unearned_info = "|"
-		  			End If
-		  			If STAT_INFORMATION(approval).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(approval).stat_unea_five_counted(each_memb) = True Then
-						unea_detail = left(STAT_INFORMATION(approval).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(approval).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(approval).stat_unea_five_type_info(each_memb), 31)
-						Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-						unearned_info = "|"
-		  			End If
-				Next
-				If unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(approval).snap_budg_total_unea_inc, 8))
-
-				Call write_variable_in_CASE_NOTE("                                            |    Total Gross Inc: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_gross_inc, 8))
-
-				deduction_detail_one = ""
-				deduction_detail_two = ""
-				deduction_detail_three = ""
-
-				' Standard $177
-				' Earned Inc $126
-				' Medical Exp $0
-				' Depndt Care $175.00
-				' 1234567890123456789
-				' Child Suprt $0
-
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard <> "" Then
-					If deduction_detail_one = "" Then
-						deduction_detail_one = left("Standard $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_one) < 21 Then
-						deduction_detail_one = deduction_detail_one & "- Standard $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "")
-					ElseIf deduction_detail_two = "" Then
-						deduction_detail_two = left("Standard $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_two) < 21 Then
-						deduction_detail_two = deduction_detail_two & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "")
-					ElseIf deduction_detail_three = "" Then
-						deduction_detail_three = deduction_detail_three & "Standard $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "")
-					ElseIf len(deduction_detail_three) < 21 Then
-						deduction_detail_three = deduction_detail_three & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_standard, ".00", "")
-					End if
-				End If
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned <> "" Then
-					' MsgBox SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned
-					If deduction_detail_one = "" Then
-						deduction_detail_one = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_one) < 21 Then
-						deduction_detail_one = deduction_detail_one & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "")
-					ElseIf deduction_detail_two = "" Then
-						deduction_detail_two = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_two) < 21 Then
-						deduction_detail_two = deduction_detail_two & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "")
-					ElseIf deduction_detail_three = "" Then
-						deduction_detail_three = deduction_detail_three & "Earned Inc $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "")
-					ElseIf len(deduction_detail_three) < 21 Then
-						deduction_detail_three = deduction_detail_three & "- Earned Inc  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_earned, ".00", "")
-					End if
-				End If
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical <> "" Then
-					If deduction_detail_one = "" Then
-						deduction_detail_one = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_one) < 21 Then
-						deduction_detail_one = deduction_detail_one & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "")
-					ElseIf deduction_detail_two = "" Then
-						deduction_detail_two = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_two) < 21 Then
-						deduction_detail_two = deduction_detail_two & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "")
-					ElseIf deduction_detail_three = "" Then
-						deduction_detail_three = deduction_detail_three & "Medical Exp $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "")
-					ElseIf len(deduction_detail_three) < 21 Then
-						deduction_detail_three = deduction_detail_three & "- Medical Exp  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_medical, ".00", "")
-					End if
-				End If
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care <> "" Then
-					If deduction_detail_one = "" Then
-						deduction_detail_one = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_one) < 21 Then
-						deduction_detail_one = deduction_detail_one & "-Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "")
-					ElseIf deduction_detail_two = "" Then
-						deduction_detail_two = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_two) < 21 Then
-						deduction_detail_two = deduction_detail_two & "- Depndt Care $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "")
-					ElseIf deduction_detail_three = "" Then
-						deduction_detail_three = deduction_detail_three & "Depndt Care $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "")
-					ElseIf len(deduction_detail_three) < 21 Then
-						deduction_detail_three = deduction_detail_three & "- Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_depndt_care, ".00", "")
-					End if
-				End If
-				If SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses <> "" Then
-					If deduction_detail_one = "" Then
-						deduction_detail_one = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_one) < 21 Then
-						deduction_detail_one = deduction_detail_one & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "")
-					ElseIf deduction_detail_two = "" Then
-						deduction_detail_two = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
-					ElseIf len(deduction_detail_two) < 21 Then
-						deduction_detail_two = deduction_detail_two & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "")
-					ElseIf deduction_detail_three = "" Then
-						deduction_detail_three = deduction_detail_three & "Child Suprt $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "")
-					ElseIf len(deduction_detail_three) < 21 Then
-						deduction_detail_three = deduction_detail_three & "- Child Suprt  $" & replace(SNAP_ELIG_APPROVALS(approval).snap_budg_deduct_cses, ".00", "")
-					End if
-				End If
-				' MsgBox "deduction_detail_one - " & deduction_detail_one & vbCr &_
-				' 		"deduction_detail_two - " & deduction_detail_two & vbCr &_
-				' 		"deduction_detail_three - " & deduction_detail_three
-				Call write_variable_in_CASE_NOTE(" Deductions:" & left(deduction_detail_one & spaces_30, 32) & "|   (-)   Deductions: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_total_deduct, 8))
-				If deduction_detail_two <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_two & spaces_30, 32) & "|")
-				If deduction_detail_three <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_three & spaces_30, 32) & "|")
-				' MsgBox "CHECK"
-				Call write_variable_in_CASE_NOTE("                                            |            Net Inc: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_net_inc, 8))
-				Call write_variable_in_CASE_NOTE(" Expenses:  Housing: $"& left(SNAP_ELIG_APPROVALS(approval).snap_budg_housing_exp_total & "        ", 8)& "        |--------------------------|")
-				' " Expenses:  Housing: $1,250.00        |-------------------------------------|"
-
-
-				Call write_variable_in_CASE_NOTE("            Utilities: $"& left(SNAP_ELIG_APPROVALS(approval).snap_budg_utilities_exp_total&"        ", 8) & "      | Total Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_budg_shel_total, ".00", "")&"        ", 8) & "|")
-				Call write_variable_in_CASE_NOTE("            MAX Allowable: $"& left(SNAP_ELIG_APPROVALS(approval).snap_budg_max_allow_shel&"        ", 8) & "  |(-)1/2 Net Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_budg_50_perc_net_inc, ".00", "")&"        ", 8) & "|")
-				Call write_variable_in_CASE_NOTE("                                      |   Adj Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_budg_adj_shel_costs, ".00", "")&"        ", 8) & "|")
-				Call write_variable_in_CASE_NOTE("                                      |--------------------------|")
-				Call write_variable_in_CASE_NOTE("                                            |  (-)Allow Shel Exp: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_shel_expenses, 8))
-				Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_budg_net_adj_inc, 8))
-				Call write_variable_in_CASE_NOTE("                                      |------------------------------|")
-				Call write_variable_in_CASE_NOTE("                                      |    Thrifty Food Plan: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_budg_thrifty_food_plan, ".00", "")&"     ", 5) & "|")
-				Call write_variable_in_CASE_NOTE("                                      |(-)30% of Net Adj Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(approval).snap_bug_30_percent_net_adj_inc, ".00", "")&"     ", 5) & "|")
-				Call write_variable_in_CASE_NOTE("                                      |------------------------------|")
-				Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $" & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8))
-
-				' Call write_variable_in_CASE_NOTE("*** CASE STATUS ***")
-				Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
-				spaces_18 = "                  "
-				Call write_variable_in_CASE_NOTE(" SNAP Status:      " & left(SNAP_ELIG_APPROVALS(approval).snap_curr_prog_status & spaces_18, 18) & "Budget Cycle:     " & SNAP_ELIG_APPROVALS(approval).snap_budget_cycle)
-				Call write_variable_in_CASE_NOTE(" Reporting Status: " & left(SNAP_ELIG_APPROVALS(approval).snap_reporting_status & spaces_18, 18) & "Review Date:      " & SNAP_ELIG_APPROVALS(approval).snap_elig_revw_date)
-				' Call write_variable_in_CASE_NOTE("Review Date:      " & SNAP_ELIG_APPROVALS(approval).snap_elig_revw_date)
-				' Call write_variable_in_CASE_NOTE("Budget Cycle:     " & SNAP_ELIG_APPROVALS(approval).snap_budget_cycle)
 			End If
-		Next
+			unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8)
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+	  			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), 31)
+					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+					unearned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), 31)
+					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+					unearned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), 31)
+					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+					unearned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), 31)
+					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+					unearned_info = "|"
+	  			End If
+	  			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), 31)
+					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+					unearned_info = "|"
+	  			End If
+			Next
+			If unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
+
+			Call write_variable_in_CASE_NOTE("                                            |    Total Gross Inc: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc, 8))
+
+			deduction_detail_one = ""
+			deduction_detail_two = ""
+			deduction_detail_three = ""
+
+			' Standard $177
+			' Earned Inc $126
+			' Medical Exp $0
+			' Depndt Care $175.00
+			' 1234567890123456789
+			' Child Suprt $0
+
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard <> "" Then
+				If deduction_detail_one = "" Then
+					deduction_detail_one = left("Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_one) < 21 Then
+					deduction_detail_one = deduction_detail_one & "- Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
+				ElseIf deduction_detail_two = "" Then
+					deduction_detail_two = left("Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_two) < 21 Then
+					deduction_detail_two = deduction_detail_two & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
+				ElseIf deduction_detail_three = "" Then
+					deduction_detail_three = deduction_detail_three & "Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
+				ElseIf len(deduction_detail_three) < 21 Then
+					deduction_detail_three = deduction_detail_three & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
+				End if
+			End If
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned <> "" Then
+				' MsgBox SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned
+				If deduction_detail_one = "" Then
+					deduction_detail_one = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_one) < 21 Then
+					deduction_detail_one = deduction_detail_one & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
+				ElseIf deduction_detail_two = "" Then
+					deduction_detail_two = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_two) < 21 Then
+					deduction_detail_two = deduction_detail_two & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
+				ElseIf deduction_detail_three = "" Then
+					deduction_detail_three = deduction_detail_three & "Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
+				ElseIf len(deduction_detail_three) < 21 Then
+					deduction_detail_three = deduction_detail_three & "- Earned Inc  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
+				End if
+			End If
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical <> "" Then
+				If deduction_detail_one = "" Then
+					deduction_detail_one = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_one) < 21 Then
+					deduction_detail_one = deduction_detail_one & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
+				ElseIf deduction_detail_two = "" Then
+					deduction_detail_two = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_two) < 21 Then
+					deduction_detail_two = deduction_detail_two & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
+				ElseIf deduction_detail_three = "" Then
+					deduction_detail_three = deduction_detail_three & "Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
+				ElseIf len(deduction_detail_three) < 21 Then
+					deduction_detail_three = deduction_detail_three & "- Medical Exp  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
+				End if
+			End If
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care <> "" Then
+				If deduction_detail_one = "" Then
+					deduction_detail_one = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_one) < 21 Then
+					deduction_detail_one = deduction_detail_one & "-Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
+				ElseIf deduction_detail_two = "" Then
+					deduction_detail_two = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_two) < 21 Then
+					deduction_detail_two = deduction_detail_two & "- Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
+				ElseIf deduction_detail_three = "" Then
+					deduction_detail_three = deduction_detail_three & "Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
+				ElseIf len(deduction_detail_three) < 21 Then
+					deduction_detail_three = deduction_detail_three & "- Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
+				End if
+			End If
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses <> "" Then
+				If deduction_detail_one = "" Then
+					deduction_detail_one = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_one) < 21 Then
+					deduction_detail_one = deduction_detail_one & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
+				ElseIf deduction_detail_two = "" Then
+					deduction_detail_two = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
+				ElseIf len(deduction_detail_two) < 21 Then
+					deduction_detail_two = deduction_detail_two & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
+				ElseIf deduction_detail_three = "" Then
+					deduction_detail_three = deduction_detail_three & "Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
+				ElseIf len(deduction_detail_three) < 21 Then
+					deduction_detail_three = deduction_detail_three & "- Child Suprt  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
+				End if
+			End If
+			' MsgBox "deduction_detail_one - " & deduction_detail_one & vbCr &_
+			' 		"deduction_detail_two - " & deduction_detail_two & vbCr &_
+			' 		"deduction_detail_three - " & deduction_detail_three
+			Call write_variable_in_CASE_NOTE(" Deductions:" & left(deduction_detail_one & spaces_30, 32) & "|   (-)   Deductions: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct, 8))
+			If deduction_detail_two <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_two & spaces_30, 32) & "|")
+			If deduction_detail_three <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_three & spaces_30, 32) & "|")
+			' MsgBox "CHECK"
+			Call write_variable_in_CASE_NOTE("                                            |            Net Inc: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc, 8))
+			Call write_variable_in_CASE_NOTE(" Expenses:  Housing: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total & "        ", 8)& "        |--------------------------|")
+			' " Expenses:  Housing: $1,250.00        |-------------------------------------|"
+
+
+			Call write_variable_in_CASE_NOTE("            Utilities: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total&"        ", 8) & "      | Total Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total, ".00", "")&"        ", 8) & "|")
+			Call write_variable_in_CASE_NOTE("            MAX Allowable: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel&"        ", 8) & "  |(-)1/2 Net Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc, ".00", "")&"        ", 8) & "|")
+			Call write_variable_in_CASE_NOTE("                                      |   Adj Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs, ".00", "")&"        ", 8) & "|")
+			Call write_variable_in_CASE_NOTE("                                      |--------------------------|")
+			Call write_variable_in_CASE_NOTE("                                            |  (-)Allow Shel Exp: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses, 8))
+			Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc, 8))
+			Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+			Call write_variable_in_CASE_NOTE("                               |    Thrifty Food Plan: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan, ".00", "")&"     ", 5) & "|")
+			Call write_variable_in_CASE_NOTE("                               |(-)30% of Net Adj Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc, ".00", "")&"     ", 5) & "|")
+			Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+			Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot, 8))
+
+			' Call write_variable_in_CASE_NOTE("*** CASE STATUS ***")
+		End If
+
+		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
+			Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
+
+			Call write_variable_in_CASE_NOTE("* SNAP is INELIGIBLE because not all CASE TESTS were passed to make this Houshold Eligible")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for SNAP benefits was withdrawn. (APPLICATION WITHDRAWN)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The applicant is not SNAP eligibile. (APPLICANT ELIGIBLE)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_comdty_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has received Commodity Food in this time period. (COMMODITY)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_disq_test = "FAILED" Then
+				Call write_variable_in_CASE_NOTE(" - This case has a Disqualification. (DISQUALIFICATION)")
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True Then
+						If STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
+							Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+							If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True ThenCall write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
+						End If
+						If STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
+							Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+							If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True ThenCall write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
+						End If
+						If STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
+							Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+							If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True ThenCall write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
+						End If
+						If STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
+							Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+							If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True ThenCall write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
+						End If
+						If STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
+							Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+							If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True ThenCall write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
+						End If
+					End If
+				Next
+			End If
+
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_dupl_assist_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has already received SNAP. (DUPL ASSISTANCE)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_eligible_person_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is not eligible person on this case. (ELIGIBLE PERSON)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has failed to cooperate. (FAIL TO COOPERATE)")
+			' TODO - add more detail about what cooperation was failed.
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has failed to file a report. (FAIL TO FILE)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_fail_file_hrf = "FAILED" Then Call write_variable_in_CASE_NOTE("    -Monthly Household Report process was not completed.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_fail_file_sr = "FAILED" Then Call write_variable_in_CASE_NOTE("    -Six Month Report process was not completed.")
+
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The annual recertification process was not completed. (RECERTIFICATION)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not established Minnesota residency. (RESIDENCE)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The assets have exceeded the max. (RESOURCE)")
+			' TODO - add more asset test information'
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has a member on strike. (STRIKE)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has failed transfer resources/income. (TRANSFER RESOURCE INC)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_voltry_quit_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has a member who quit work, not following SNAP general work rules. (VOLUNTARY QUIT)")
+			' TODO - add more detail for voluntary quit detail'
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The persons on this case did not comply with work registration. (WORK REGISTRATION)")
+			' TODO - add more detail for work Reg'
+		End If
+
+		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
+		spaces_18 = "                  "
+		Call write_variable_in_CASE_NOTE(" SNAP Status:      " & left(SNAP_ELIG_APPROVALS(elig_ind).snap_curr_prog_status & spaces_18, 18) & "Budget Cycle:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
+		Call write_variable_in_CASE_NOTE(" Reporting Status: " & left(SNAP_ELIG_APPROVALS(elig_ind).snap_reporting_status & spaces_18, 18) & "Review Date:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
+		' Call write_variable_in_CASE_NOTE("Review Date:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
+		' Call write_variable_in_CASE_NOTE("Budget Cycle:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
 		Call write_variable_in_CASE_NOTE("---")
 		Call write_variable_in_CASE_NOTE(worker_signature)
 
