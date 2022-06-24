@@ -55,8 +55,10 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
-MAXIS_footer_month = CM_mo
-MAXIS_footer_year = CM_yr
+'changing footer dates to current month to avoid invalid months.
+MAXIS_footer_month = datepart("M", date)
+IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
+MAXIS_footer_year = right(datepart("YYYY", date), 2)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 131, 65, "Case Number to clear match"
