@@ -51,49 +51,53 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/24/2021", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley") '#493
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'THE SCRIPT----------------------------------------------------------------------------------------------------
+'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
+'Connects to BLUEZONE
 EMConnect ""
-'Hunts for Maxis case number to autofill it
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
-'Error proof functions
-Call check_for_MAXIS(true)
-
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 156, 80, "EDRS dialog"
-  EditBox 60, 10, 80, 15, MAXIS_case_number
-  ButtonGroup ButtonPressed
-    OkButton 15, 55, 50, 15
-    CancelButton 80, 55, 50, 15
-  Text 5, 15, 50, 10, "Case Number:"
-EndDialog
-
-DO
-	dialog Dialog1
-	IF buttonpressed = 0 THEN stopscript
-	IF MAXIS_case_number = "" THEN MSGBOX "Please enter a case number"
-
-LOOP UNTIL MAXIS_case_number <> ""
-
-'Error proof functions
+'Makes sure we're in MAXIS
 Call check_for_MAXIS(False)
 
-'Creating a custom dialog for determining who the HH members are
-call HH_member_custom_dialog(HH_member_array)
-
-'Error proof functions
-Call check_for_MAXIS(False)
+'Grabs the MAXIS case number
+CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'changing footer dates to current month to avoid invalid months.
 MAXIS_footer_month = datepart("M", date)
 IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
 MAXIS_footer_year = right(datepart("YYYY", date), 2)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 201, 65, "ELECTRONIC DISQUALIFIED RECIPIENT SYSTEM "
+  EditBox 70, 5, 50, 15, MAXIS_case_number
+  EditBox 70, 25, 125, 15, worker_signature
+  ButtonGroup ButtonPressed
+    PushButton 130, 5, 65, 15, "ERDS TE02.08.127", POLI_TEMP_ERDS_button
+    OkButton 100, 45, 45, 15
+    CancelButton 150, 45, 45, 15
+  Text 5, 30, 60, 10, "Worker Signature:"
+  Text 5, 10, 50, 10, "Case Number:"
+EndDialog
+
+Do
+    Do
+        err_msg = ""
+        DIALOG Dialog1  					'Calling a dialog without a assigned variable will call the most recently defined dialog
+		cancel_confirmation
+		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "Please enter a valid case number."
+		IF ButtonPressed = POLI_TEMP_ERDS_button THEN CALL view_poli_temp("02", "08", "127", "") 'TE02.08.127 ELECTRONIC DISQUALIFIED RECIPIENT SYSTEM
+        If err_msg <> "" Then MsgBox "*** Resolve to Continue: " & vbNewLine & err_msg
+    Loop until err_msg = ""
+    Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
+
+'Creating a custom dialog for determining who the HH members are
+call HH_member_custom_dialog(HH_member_array)
 
 Dim Member_Info_Array()
 Redim Member_Info_Array(UBound(HH_member_array), 4)
@@ -102,15 +106,12 @@ Redim Member_Info_Array(UBound(HH_member_array), 4)
 'Navigate to stat/memb and check for ERRR message
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 For i = 0 to Ubound(HH_member_array)
-
 	Member_Info_Array(i, 0) = HH_member_array(i)
-	'Navigating to selected memb panel
-	EMwritescreen HH_member_array(i), 20, 76
+	EMwritescreen HH_member_array(i), 20, 76 	'Navigating to selected memb panel
 	transmit
 
 	EMReadScreen no_MEMB, 13, 8, 22 'If this member does not exist, this will stop the script from continuing.
 	IF no_MEMB = "Arrival Date:" THEN script_end_procedure("This HH member does not exist.")
-
 
 	'Reading info and removing spaces
 	EMReadscreen First_name, 12, 6, 63
@@ -131,17 +132,19 @@ For i = 0 to Ubound(HH_member_array)
 	Emreadscreen SSN_number, 11, 7, 42
 	SSN_number = replace(SSN_number, " ", "")
 	Member_Info_Array(i, 4) = SSN_number
-
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-
 Next
 
 'Navigate back to self and to EDRS
-Back_to_self
+CALL Back_to_self
+
+'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+EMReadScreen agreement_check, 9, 2, 24
+IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+
 CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 
 For i = 0 to UBound(HH_member_array)
-
 	'Write in SSN number into EDRS
 	EMwritescreen Member_Info_Array(i, 4), 2, 7
 	transmit
@@ -163,7 +166,49 @@ For i = 0 to UBound(HH_member_array)
 		Hits = Hits & "Member #: " & Member_Info_Array(i, 0) & " " & Member_Info_Array(i, 1) & " " & Member_Info_Array(i, 2) & " has SSN Match. " & vbCr     'If after searching a SSN number you don't get the NO DISQ message then let worker know you found the SSN
 	END IF
 Next
+
 Msgbox Hits
 
 STATS_counter = STATS_counter - 1			'Removing one instance of the STATS Counter
-script_end_procedure("")
+script_end_procedure_with_error_report("Success your request has been completed please see TE02.08.127 for further processing.")
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------06/24/2022
+'--Tab orders reviewed & confirmed----------------------------------------------06/24/2022
+'--Mandatory fields all present & Reviewed--------------------------------------06/24/2022
+'--All variables in dialog match mandatory fields-------------------------------06/24/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------06/24/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------06/24/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/24/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/24/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------06/24/2022
+'--PRIV Case handling reviewed -------------------------------------------------06/24/2022
+'--Out-of-County handling reviewed----------------------------------------------06/24/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------06/24/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------06/24/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---06/24/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------06/24/2022------------------N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------06/24/2022
+'--Denomination reviewed -------------------------------------------------------06/24/2022
+'--Script name reviewed---------------------------------------------------------06/24/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------06/24/2022 'QUESTION this one is not bulk but still removes'
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------06/24/2022
+'--Comment Code-----------------------------------------------------------------06/24/2022
+'--Update Changelog for release/update------------------------------------------06/24/2022
+'--Remove testing message boxes-------------------------------------------------06/24/2022
+'--Remove testing code/unnecessary code-----------------------------------------06/24/2022
+'--Review/update SharePoint instructions----------------------------------------06/24/2022 'TODO'
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/24/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/24/2022
+'--Complete misc. documentation (if applicable)---------------------------------06/24/2022
+'--Update project team/issue contact (if applicable)----------------------------06/24/2022
