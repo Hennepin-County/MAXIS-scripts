@@ -1,21 +1,3 @@
-'This script has been updated on 04/23/2015.
-'(1) This script has been updated to handle multiple RSDI claims. I have used a multidimensional array to handle a whole bunch of information. Here's how it goes...
-'	The "i" in the bndx_array refers to the RSDI claim. If the client has 1 RSDI claim, it will work only with bndx_array(0, x). If there are two, it wll be bndx_array(1, x), etc.
-'	bndx_array(i, 0) = RSDI claim number as found in BNDX
-'	bndx_array(i, 1) = RSDI claim amount as found in BNDX
-'	bndx_array(i, 2) = RSDI claim number as found in UNEA
-'	bndx_array(i, 3) = RSDI prospective amount as found in UNEA
-'	bndx_array(i, 4) = RSDI amount found in UNEA PIC
-'	bndx_array(i, 5) = RSDI amount found in UNEA HC INC EST
-'----------------------------------------------------------------
-'(2) The error message and comparison message has been updated to provide more information.
-'----------------------------------------------------------------
-'(3) The way the script handles the RSDI claim number has been updated. Because some claim suffixes include numeric values, the script will read 11 characters on UNEA, but it will always drop the last
-' character when reading a claim number ending in "A". The reason for this is that some cases have A00 in the claim number and some only have "A". BNDX, however, will only ever put "A" for the suffix.
-'-----------------------------------------------------------------
-'(4) Future plans could include bulking the BNDX Scrubber. However, for 04/2015, the number of BNDX DAILs seems to be down considerably. That enhancement request could be put on hold.
-'-----------------------------------------------------------------
-
 'Required for statistical purposes===============================================================================
 name_of_script = "DAIL - BNDX SCRUBBER.vbs"
 start_time = timer
@@ -62,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/21/2021", "Updated handling for non-disclosure agreement.", "MiKayla Handley") '#493
 call changelog_update("05/16/2022", "Updated script functionality to support IEVS/INFO message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County") ''#814
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -122,7 +105,7 @@ If bndx_month <> MAXIS_footer_month then EmWriteScreen MAXIS_footer_month, 20, 5
 If bndx_year <> MAXIS_footer_year then EmWriteScreen MAXIS_footer_year, 20, 58
 
 CALL write_value_and_transmit("BNDX", 20, 71)
-'checking for IRS non-disclosure agreement.
+'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 
