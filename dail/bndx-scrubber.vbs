@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("06/21/2021", "Updated handling for non-disclosure agreement.", "MiKayla Handley") '#493
+call changelog_update("06/21/2022", "Updated handling for non-disclosure agreement.", "MiKayla Handley") '#493
 call changelog_update("05/16/2022", "Updated script functionality to support IEVS/INFO message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County") ''#814
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
