@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley") '#493
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/31/2020", "Removed agency overpayment for cash verbiage.", "MiKayla Handley, Hennepin County")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC.", "MiKayla Handley")
@@ -62,8 +63,6 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 memb_number = "01"
-'discovery_date = date & ""
-
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -155,7 +154,6 @@ BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
   Text 165, 70, 10, 10, "To:"
   GroupBox 5, 45, 350, 100, "Overpayment Information"
   Text 105, 70, 20, 10, "From:"
-''  CheckBox 5, 260, 250, 15, "DHS 2776E Cash (agency) Error Overpayment Worksheet form completed", ECF_checkbox
 EndDialog
 
 Do
@@ -167,7 +165,6 @@ Do
     IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
-    	'IF OP_program = "Select:"THEN err_msg = err_msg & vbNewLine &  "* Please enter the program for the overpayment."
 	IF OP_program_II <> "Select:" THEN
 		IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred II."
 		IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
@@ -189,7 +186,6 @@ Do
 		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
 	END IF
     	IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-	'IF isdate(income_rcvd_date) = False or income_rcvd_date = "" then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the income received."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -207,6 +203,10 @@ SSN_number_read = replace(SSN_number_read, " ", "")
 CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(SSN_number_read, 3, 63) '
+'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+EMReadScreen agreement_check, 9, 2, 24
+IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+
 EMReadScreen edit_error, 2, 24, 2
 edit_error = trim(edit_error)
 IF edit_error <> "" THEN script_end_procedure_with_error_report("No IEVS matches and/ or could not access IEVP.")
@@ -217,10 +217,8 @@ DO
 	IF trim(IEVS_match) = "" THEN script_end_procedure_with_error_report("IEVS match for the selected period could not be found. The script will now end.")
 	ievp_info_confirmation = MsgBox("Press YES to confirm this is the match you wish to act on." & vbNewLine & "For the next match, press NO." & vbNewLine & vbNewLine & _
 	"   " & IEVS_match, vbYesNoCancel, "Please confirm this match")
-	'msgbox IEVS_match
 	IF ievp_info_confirmation = vbNo THEN
 		row = row + 1
-	'msgbox "row: " & row
 		IF row = 17 THEN
 			PF8
 			row = 7
@@ -278,7 +276,6 @@ IF instr(first_name, " ") THEN   						'If there is a middle initial in the firs
 	position = InStr(first_name, " ")               	'establishing the length of the variable
 	first_name = Left(first_name, position-1)       	'trims the middle initial off of the first name
 END IF
-
 '----------------------------------------------------------------------------------------------------ACTIVE PROGRAMS
 EMReadScreen Active_Programs, 13, 6, 68
 Active_Programs = trim(Active_Programs)
@@ -342,10 +339,9 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
     Do
     	Dialog Dialog1
     	cancel_without_confirmation
+		IF claim_referral_tracking_dropdown =  "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select if the claim referral tracking needs to be updated."
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-
 
     'Going to the MISC panel to add claim referral tracking information
     Call navigate_to_MAXIS_screen ("STAT", "MISC")
