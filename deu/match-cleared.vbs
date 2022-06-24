@@ -36,8 +36,6 @@ END IF
 
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 script_run_lowdown = ""
-'TODO I need error proofing in multiple places on this script in and out of IULA and IULB ensuring the case and on CCOL'
-'need to check about adding for multiple claims'
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
@@ -1031,3 +1029,5 @@ If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & 
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/24/2022
 '--Complete misc. documentation (if applicable)---------------------------------06/24/2022
 '--Update project team/issue contact (if applicable)----------------------------06/24/2022
+'TODO I need error proofing in multiple places on this script in and out of IULA and IULB ensuring the case and on CCOL'
+'need to check about adding for multiple claims'
