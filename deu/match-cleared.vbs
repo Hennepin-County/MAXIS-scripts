@@ -292,7 +292,7 @@ IF sent_date <> "" THEN sent_date = replace(sent_date, " ", "/")
 EMReadScreen clear_code, 2, 12, 58
 '----------------------------------------------------------------Defaulting checkboxes to being checked (per DEU instruction)
 IF notice_sent = "N" THEN
-    Dialog1 = "" 'Blanking out previous dialog detail
+	Dialog1 = "" 'Blanking out previous dialog detail
 	BeginDialog Dialog1, 0, 0, 271, 185, "DIFFERENCE NOTICE NOT SENT FOR: " & MAXIS_case_number
 	  DropListBox 85, 90, 70, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", difference_notice_action_dropdown
 	  CheckBox 175, 15, 70, 10, "Difference Notice", diff_notice_checkbox
@@ -324,10 +324,8 @@ IF notice_sent = "N" THEN
     	Dialog Dialog1
     	cancel_without_confirmation
     	IF difference_notice_action_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
-    	'IF claim_referral_tracking_dropdown =  "Select One:" and difference_notice_action_dropdown =  "YES" THEN err_msg = err_msg & vbNewLine & "* Please select if the claim referral tracking needs to be updated."
-		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please ensure you are completing other notes"
-		' If other_notes = "" Then err_msg = err_msg & vbNewLine & "Enter information into the 'Other Notes' field for entry into ILUB. (We will be address scenario specific requirements for this field in the future.)"
-    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please ensure you are completing other notes"
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 END IF
@@ -335,7 +333,6 @@ END IF
 IF difference_notice_action_dropdown =  "YES" THEN '--------------------------------------------------------------------sending the notice in IULA
     EMwritescreen "005", 12, 46 'writing the resolve time to read for later
     EMwritescreen "Y", 14, 37 'send Notice
-	'msgbox "Difference Notice Sent"
 	TRANSMIT 'goes into IULA
 	'removed the IULB information '
 	TRANSMIT'exiting IULA, helps prevent errors when going to the case note
@@ -380,7 +377,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 
 	DO
 		err_msg = ""
-		Dialog Dialog1
+		DIALOG Dialog1
 		cancel_without_confirmation
 		other_notes = trim(other_notes)
 		IF IsNumeric(resolve_time) = false or len(resolve_time) > 3 THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric resolved time, ie 005."
@@ -391,7 +388,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 		IF resolution_status = "BE-Child" AND exp_grad_date = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BE - Child graduation date and date rcvd must be completed."
 		If resolution_status = "CC-Overpayment Only" AND programs = "Health Care" or programs = "Medical Assistance" THEN err_msg = err_msg & vbNewLine & "System does not allow HC or MA cases to be cleared with the code 'CC - Claim Entered'."
 		If resolution_status = "BO-Other" AND other_notes = "" THEN err_msg = err_msg & vbNewLine & "When clearing using BO-Other other notes must be completed."
-		'If other_notes = "" Then err_msg = err_msg & vbNewLine & "Enter information into the 'Other Notes' field for entry into IULB. (We will be addressing scenario specific requirements for this field in the future.)"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -481,7 +477,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	    Do
 	        Do
 	        	err_msg = ""
-	        	dialog Dialog1
+	        	DIALOG Dialog1
 	        	cancel_confirmation
 	        	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	        	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
@@ -538,7 +534,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 
 	    DO
 	    	err_msg = ""
-	    	Dialog Dialog1
+	    	DIALOG Dialog1
 	    	cancel_confirmation
 	    	IF IsNumeric(IULB_savings_amount) = false THEN err_msg = err_msg & vbNewLine & "Please enter a valid numeric amount no decimal."
 	    	IF IULB_result_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please enter the IULB result."
@@ -748,7 +744,7 @@ script_run_lowdown = script_run_lowdown & vbCr & "Other resp members: " & OT_res
 If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EVF/ATR is still needed"
 '--------------------------------------------------------------------The case note & case note related code
     verification_needed = ""
-     	IF Diff_Notice_Checkbox = CHECKED THEN verification_needed = verification_needed & "Difference Notice, "
+    IF Diff_Notice_Checkbox = CHECKED THEN verification_needed = verification_needed & "Difference Notice, "
     IF EVF_checkbox = CHECKED THEN verification_needed = verification_needed & "EVF, "
     IF ATR_Verf_CheckBox = CHECKED THEN verification_needed = verification_needed & "ATR, "
     IF lottery_verf_checkbox = CHECKED THEN verification_needed = verification_needed & "Lottery/Gaming Form, "
