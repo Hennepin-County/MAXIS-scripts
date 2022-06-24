@@ -102,7 +102,6 @@ call HH_member_custom_dialog(HH_member_array)
 Dim Member_Info_Array()
 Redim Member_Info_Array(UBound(HH_member_array), 4)
 
-
 'Navigate to stat/memb and check for ERRR message
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 For i = 0 to Ubound(HH_member_array)
