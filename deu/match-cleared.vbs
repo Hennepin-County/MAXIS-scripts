@@ -36,7 +36,8 @@ END IF
 
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 script_run_lowdown = ""
-'TODO I need error proofing in multiple places on this script. in and out of IULA and IULB ensuring the case and on CCOL' 'need to check about adding for multiple claims'
+'TODO I need error proofing in multiple places on this script in and out of IULA and IULB ensuring the case and on CCOL'
+'need to check about adding for multiple claims'
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
@@ -44,8 +45,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("08/24/2021", "GitHub issue #571 BUG-Remove mandatory handling from other notes variable.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("06/09/2021", "GitHub issue #373 BUG-NO IEVS MATCHES FOR SSN needs error script end procedure.", "MiKayla Handley, Hennepin County")
+call changelog_update("06/21/2021", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley") '#493
+CALL changelog_update("08/24/2021", "Remove mandatory handling from other notes variable.", "MiKayla Handley, Hennepin County") '#571 '
+CALL changelog_update("06/09/2021", "Handling for script end procedure.", "MiKayla Handley, Hennepin County") '#373 '
 CALL changelog_update("01/11/2021", "Updated BNDX handling to ensure header of case note is written correctly.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/17/2020", "The field for 'OTHER NOTES' is now required when completing the information to clear the match. ##~## ##~##We are aware that this will not always be required in MAXIS and will be adding additional functionality for scenario and match specific requirements of this field, but in order to provide you with a working script right now this field must be mandatory each time.##~## ##~##Thank you for your patience as we provide updates to this script.##~##", "Casey Love, Hennepin County")
@@ -67,7 +69,6 @@ CALL changelog_update("11/22/2017", "Updated Non-coop option to the cleared matc
 CALL changelog_update("11/21/2017", "Updated to clear match, and added handling for sending the difference notice.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/14/2017", "Initial version.", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
-
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
@@ -137,41 +138,9 @@ client_SSN = replace(client_SSN, " ", "")
 CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(client_SSN, 3, 63)
-
 'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
-EMReadscreen non_disclosure_access, 9, 2, 24  'Automated IRS and SSA Non-disclosure
-IF non_disclosure_access = "Automated" THEN
-	PF8
-	PF8
-	PF8
-	PF8
-	PF8
-	EMReadscreen final_agreement, 5, 19, 33
-	IF final_agreement = "agree" THEN
-	    BeginDialog Dialog1, 0, 0, 191, 120, "NON-DISCLOSURE AGREEMENT"
-         ButtonGroup ButtonPressed
-         OkButton 80, 100, 50, 15
-         CancelButton 135, 100, 50, 15
-         Text 5, 5, 180, 50, "BY ACCESSING AND USING THIS GOVERNMENT COMPUTER SYSTEM, YOU ARE CONSENTING TO SYSTEM MONITORING FOR LAW ENFORCEMENT AND OTHER PURPOSES. UNAUTHORIZED USE OF, OR ACCESS TO, THIS COMPUTER SYSTEM MAY SUBJECT YOU TO CRIMINAL PROSECUTION AND PENALTIES."
-         Text 5, 60, 180, 20, "NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS"
-         Text 5, 85, 180, 10, "PLEASE COMPLETE AND HIT 'OK TO PROCEED "
-        EndDialog
-	    DO
-	    	DO
-	    		err_msg = ""
-	    		Dialog Dialog1
-	    		cancel_confirmation
-	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	    	   LOOP UNTIL err_msg = ""
-	    	CALL check_for_password_without_transmit(are_we_passworded_out)
-	    LOOP UNTIL are_we_passworded_out = false
-		'EMwritescreen "Y", 19, 45
-		'TRANSMIT
-	ELSE
-		script_end_procedure_with_error_report("An error occured when trying to update the non disclosure access.")
-	END IF
-END IF
-
+EMReadScreen agreement_check, 9, 2, 24
+IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 EMReadScreen panel_check, 4, 2, 52
 IF panel_check <> "IEVP" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on INFC/IEVP to read the correct information. If the social security number is not found the match must be completed manually. The only way to find the wage match is go to REPT/IEVC. The issue might be that the client has a duplicate PMI number. Review for a PF11 to be submitted.")
 
@@ -596,12 +565,10 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 			CALL back_to_SELF
 			CALL navigate_to_MAXIS_screen("INFC" , "____")
 			CALL write_value_and_transmit("IEVP", 20, 71)
-			CALL write_value_and_transmit(client_SSN, 3, 63)
+			CALL write_value_and_transmit(client_SSN, 3, 63) 'do not need to do the non-disclosure here '
 		End If
 		CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
-
 	End If
-	'msgbox panel_name
 
 	EMWriteScreen resolve_time, 12, 46	    'resolved notes depending on the resolution_status
     IF resolution_status = "CB-Ovrpmt And Future Save" THEN IULA_res_status = "CB"
@@ -637,7 +604,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
         	End If
         	col = col + 6
         Loop until action_header = "    "
-		' Loop until col = 77
     END IF
 
     IF change_response = "YES" THEN
@@ -662,12 +628,9 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 				other_notes = "Claim entered. See case note. " & other_notes
 				CALL clear_line_of_text(17, 9)
 			END IF
-			' If action_header <> "ACTH" THEN
-			' If enter_claim = TRUE Then
-				EMWriteScreen Claim_number, 17, 9
-				EMWriteScreen Claim_number_II, 18, 9
-				EMWriteScreen claim_number_III, 19, 9
-			' END IF
+			EMWriteScreen Claim_number, 17, 9
+			EMWriteScreen Claim_number_II, 18, 9
+			EMWriteScreen claim_number_III, 19, 9
 
 			IF resolution_status = "CF-Future Save" THEN
 				other_notes = "Future Savings. " & other_notes
@@ -702,7 +665,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 			notes_array = split(IULB_notes, " ")
 			For each word in notes_array
 				EMWriteScreen word & " ", iulb_row, iulb_col
-			 	'msgbox "Word - " & word & vbCr & "Row - " & iulb_row & "   Col - " & iulb_col & vbCr & "Add - " & iulb_col + len(word)
 				If iulb_col + len(word) > 77 Then
 					iulb_col = 6
 					iulb_row = iulb_row + 1
@@ -726,41 +688,12 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 					script_run_lowdown = script_run_lowdown & vbCr & vbCR & "DEU Error Type: " & MISC_error_check & panel_name
     			END IF
     		END IF
-    	ELSE 	'IF panel_name = "IEVP" THEN
+    	ELSE
     		CALL back_to_SELF
     	END IF
     ELSE
     	script_run_lowdown = script_run_lowdown & vbCr & vbCR & "DEU Error Type: " & MISC_error_check & panel_name
     END IF
-	'------------------------------------------------------------------back on the IEVP menu, making sure that the match cleared
-	'EMReadScreen days_pending, 5, row, 72
-    'days_pending = trim(days_pending)
-    'match_cleared = TRUE
-
-    'IF IsNumeric(days_pending) = TRUE THEN
-	'	match_cleared = FALSE
-    '	EMReadScreen MAXIS_error_message, 75, 24, 02
-    '	MAXIS_error_message = trim(MAXIS_error_message)
-    '	IF MAXIS_error_message <> "" THEN
-    '		Dialog1 = "" 'Blanking out previous dialog detail
-    '		BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
-    '		ButtonGroup ButtonPressed
-    '		OkButton 135, 75, 45, 15
-    '		CancelButton 180, 75, 45, 15
-    '		GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, THEN hit ok to continue."
-    '		Text 15, 10, 190, 35, MAXIS_error_message
-    '		EditBox 50, 55, 175, 15, email_BZST
-    '		Text 5, 60, 45, 10, "Email BZST:"
-    '		EndDialog
-    '		'Showing case number dialog
-    '		Do
-    '	  		Dialog Dialog1
-    '	  		cancel_without_confirmation
-    '	  		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows 'user to password back into MAXIS
-    '		Loop until are_we_passworded_out = false					'loops until user passwords back in
-    '		IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " &    'MAXIS_error_message & "  EOM.", "", "", TRUE)
-    '	END IF
-	'END IF
 END IF 'end of match when difference_notice_action_dropdown =  "YES" '
 
 script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Notice Sent: " & notice_sent
@@ -815,74 +748,64 @@ script_run_lowdown = script_run_lowdown & vbCr & "Income Received Date: " & inco
 script_run_lowdown = script_run_lowdown & vbCr & "OP Reason: " & Reason_OP
 script_run_lowdown = script_run_lowdown & vbCr & "Other resp members: " & OT_resp_memb
 If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EVF/ATR is still needed"
-     	'If match_cleared = FALSE and sent_date <> date THEN
-        '   	confirm_cleared = MsgBox("The script cannot identify that this match has cleared." & vbNewLine & vbNewLine & "Review IEVP and find the match that 'is being cleared with this run." & vbNewLine & " ** HAS THE MATCH BEEN 'CLEARED? **", vbQuestion + vbYesNo, "Confirm Match Cleared")
-        '   	IF confirm_cleared = vbYes Then match_cleared = TRUE
-        '	IF confirm_cleared = vbno Then
-        '		match_cleared = FALSE
-        '		script_end_procedure_with_error_report("This match did not clear in IEVP, please advise what may have     'happened.")
-        '	END IF
-        'END IF
-    ''--------------------------------------------------------------------The case note & case note related code
-    	verification_needed = ""
-      	IF Diff_Notice_Checkbox = CHECKED THEN verification_needed = verification_needed & "Difference Notice, "
-    	IF EVF_checkbox = CHECKED THEN verification_needed = verification_needed & "EVF, "
-    	IF ATR_Verf_CheckBox = CHECKED THEN verification_needed = verification_needed & "ATR, "
-    	IF lottery_verf_checkbox = CHECKED THEN verification_needed = verification_needed & "Lottery/Gaming Form, "
-    	IF rental_checkbox =  CHECKED THEN verification_needed = verification_needed & "Rental Income Form, "
-    	IF other_checkbox = CHECKED THEN verification_needed = verification_needed & "Other, "
+'--------------------------------------------------------------------The case note & case note related code
+    verification_needed = ""
+     	IF Diff_Notice_Checkbox = CHECKED THEN verification_needed = verification_needed & "Difference Notice, "
+    IF EVF_checkbox = CHECKED THEN verification_needed = verification_needed & "EVF, "
+    IF ATR_Verf_CheckBox = CHECKED THEN verification_needed = verification_needed & "ATR, "
+    IF lottery_verf_checkbox = CHECKED THEN verification_needed = verification_needed & "Lottery/Gaming Form, "
+    IF rental_checkbox =  CHECKED THEN verification_needed = verification_needed & "Rental Income Form, "
+    IF other_checkbox = CHECKED THEN verification_needed = verification_needed & "Other, "
 
-		verification_needed = trim(verification_needed) 	'takes the last comma off of verification_needed when autofilled into dialog if more more than one app date is found and additional app is selected
-		IF right(verification_needed, 1) = "," THEN verification_needed = left(verification_needed, len(verification_needed) - 1)
-    	'------------------------------------------------------------------STAT/MISC for claim referral tracking
-    	IF claim_referral_tracking_dropdown <> "Not Needed" THEN
-    	    'Going to the MISC panel to add claim referral tracking information
-    		CALL navigate_to_MAXIS_screen ("STAT", "MISC")
-    		Row = 6
-    		EMReadScreen panel_number, 1, 02, 73
-    		If panel_number = "0" THEN
-    			EMWriteScreen "NN", 20,79
-    			TRANSMIT
-    			'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
-    			EMReadScreen MISC_error_check,  74, 24, 02
-    			IF trim(MISC_error_check) = "" THEN
-    				case_note_only = FALSE
-    			else
-    				maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo     + vbQuestion, "Message handling")
-    				IF maxis_error_check = vbYes THEN
-					case_note_only = TRUE 'this will case note only'
-				END IF
-				IF maxis_error_check= vbNo THEN
-					case_note_only = FALSE 'this will update the panels and case note'
-				END IF
+	verification_needed = trim(verification_needed) 	'takes the last comma off of verification_needed when autofilled into dialog if more more than one app date is found and additional app is selected
+	IF right(verification_needed, 1) = "," THEN verification_needed = left(verification_needed, len(verification_needed) - 1)
+    '------------------------------------------------------------------STAT/MISC for claim referral tracking
+    IF claim_referral_tracking_dropdown <> "Not Needed" THEN
+        'Going to the MISC panel to add claim referral tracking information
+    	CALL navigate_to_MAXIS_screen ("STAT", "MISC")
+    	Row = 6
+    	EMReadScreen panel_number, 1, 02, 73
+    	If panel_number = "0" THEN
+    		EMWriteScreen "NN", 20,79
+    		TRANSMIT
+    		'CHECKING FOR MAXIS PROGRAMS ARE INACTIVE'
+    		EMReadScreen MISC_error_check,  74, 24, 02
+    		IF trim(MISC_error_check) = "" THEN
+    			case_note_only = FALSE
+    		else
+    			maxis_error_check = MsgBox("*** NOTICE!!!***" & vbNewLine & "Continue to case note only?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo     + vbQuestion, "Message handling")
+    			IF maxis_error_check = vbYes THEN
+				case_note_only = TRUE 'this will case note only'
+			END IF
+			IF maxis_error_check= vbNo THEN
+				case_note_only = FALSE 'this will update the panels and case note'
 			END IF
 		END IF
-
-		Do
-			'Checking to see if the MISC panel is empty, if not it will find a new line'
-			EMReadScreen MISC_description, 25, row, 30
-			MISC_description = replace(MISC_description, "_", "")
-			If trim(MISC_description) = "" THEN
-				'PF9
-				EXIT DO
-			Else
-				row = row + 1
-			End if
-		Loop Until row = 17
-		If row = 17 THEN MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-
-		'writing in the action taken and date to the MISC panel
-		PF9
-		'_________________________ 25 characters to write on MISC
-		IF claim_referral_tracking_dropdown =  "Initial" THEN MISC_action_taken = "Claim Referral Initial"
-		IF claim_referral_tracking_dropdown =  "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
-		IF claim_referral_tracking_dropdown =  "No Savings/Overpayment" THEN MISC_action_taken = "Determination-No Savings"
-		IF claim_referral_tracking_dropdown =  "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
-		EMWriteScreen MISC_action_taken, Row, 30
-		EMWriteScreen date, Row, 66
-        TRANSMIT
-
 	END IF
+
+	Do
+		'Checking to see if the MISC panel is empty, if not it will find a new line'
+		EMReadScreen MISC_description, 25, row, 30
+		MISC_description = replace(MISC_description, "_", "")
+		If trim(MISC_description) = "" THEN
+			'PF9
+			EXIT DO
+		Else
+			row = row + 1
+		End if
+	Loop Until row = 17
+	If row = 17 THEN MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+
+	'writing in the action taken and date to the MISC panel
+	PF9
+	'_________________________ 25 characters to write on MISC
+	IF claim_referral_tracking_dropdown =  "Initial" THEN MISC_action_taken = "Claim Referral Initial"
+	IF claim_referral_tracking_dropdown =  "OP Non-Collectible (please specify)" THEN MISC_action_taken = "Determination-Non-Collect"
+	IF claim_referral_tracking_dropdown =  "No Savings/Overpayment" THEN MISC_action_taken = "Determination-No Savings"
+	IF claim_referral_tracking_dropdown =  "Overpayment Exists" THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
+	EMWriteScreen MISC_action_taken, Row, 30
+	EMWriteScreen date, Row, 66
+    TRANSMIT
 	'------------------------------------------setting up case note header'
 	IF ATR_needed_checkbox = CHECKED THEN
 		header_note = "ATR/EVF STILL REQUIRED"
@@ -1023,8 +946,7 @@ If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & 
 	    	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	    	CALL create_outlook_email("HSPH.FAA.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 	    END IF
-'-----------------------------------------------------------------writing the CCOL case note'
-	    'msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
+		'-----------------------------------------------------------------writing the CCOL case note'
 	    CALL navigate_to_MAXIS_screen("CCOL", "CLSM")
 	    EMWriteScreen Claim_number, 4, 9
 	    TRANSMIT
@@ -1069,3 +991,43 @@ If ATR_needed_checkbox = checked Then script_run_lowdown = script_run_lowdown & 
 		IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
 		script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
 	END IF
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------06/24/2022
+'--Tab orders reviewed & confirmed----------------------------------------------06/24/2022
+'--Mandatory fields all present & Reviewed--------------------------------------06/24/2022
+'--All variables in dialog match mandatory fields-------------------------------06/24/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------06/24/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------06/24/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/24/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/24/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------06/24/2022
+'--PRIV Case handling reviewed -------------------------------------------------06/24/2022
+'--Out-of-County handling reviewed----------------------------------------------06/24/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------06/24/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---06/24/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------06/24/2022------------------N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------06/24/2022
+'--Script name reviewed---------------------------------------------------------06/24/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------------------------N/A
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------06/24/2022
+'--comment Code-----------------------------------------------------------------06/24/2022
+'--Update Changelog for release/update------------------------------------------06/24/2022
+'--Remove testing message boxes-------------------------------------------------06/24/2022
+'--Remove testing code/unnecessary code-----------------------------------------06/24/2022
+'--Review/update SharePoint instructions----------------------------------------06/24/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/24/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/24/2022
+'--Complete misc. documentation (if applicable)---------------------------------06/24/2022
+'--Update project team/issue contact (if applicable)----------------------------06/24/2022
