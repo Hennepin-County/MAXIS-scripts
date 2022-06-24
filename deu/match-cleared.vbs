@@ -165,7 +165,6 @@ DO
 			cancel_confirmation
 			IF ButtonPressed = next_match THEN
 				row = row + 1
-				'msgbox "row: " & row
 				IF row = 17 THEN
 					PF8
 					row = 7
@@ -210,7 +209,6 @@ ELSE
 		IEVS_year = "20" & IEVS_year
 	ELSEIF match_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 4, 8, 15
-		'msgbox IEVS_year
 		select_quarter = "YEAR"
 	END IF
 END IF
@@ -302,7 +300,7 @@ IF notice_sent = "N" THEN
 	  CheckBox 175, 55, 80, 10, "Rental Income Form", rental_checkbox
 	  CheckBox 175, 65, 80, 10, "Other (please specify)", other_checkbox
 	  CheckBox 10, 170, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
-	  DropListBox 145, 120, 115, 15, "Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+	  DropListBox 145, 120, 115, 15, "Select One:"+chr(9)+"Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
 	  EditBox 50, 145, 215, 15, other_notes
 	  Text 5, 10, 165, 10, "Client name: "   & client_name
 	  Text 5, 55, 160, 10, "Active Programs: "  & programs
@@ -324,7 +322,8 @@ IF notice_sent = "N" THEN
     	Dialog Dialog1
     	cancel_without_confirmation
     	IF difference_notice_action_dropdown = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select an answer to continue."
-    	IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please ensure you are completing other notes"
+		IF claim_referral_tracking_dropdown =  "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select if the claim referral tracking needs to be updated."
+		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please ensure you are completing other notes"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
@@ -356,7 +355,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
       EditBox 275, 95, 40, 15, exp_grad_date
       CheckBox 5, 85, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
       CheckBox 5, 100, 130, 10, "Overpayment (other programs)", HC_OP_checkbox
-      DropListBox 140, 125, 175, 15, "Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+      DropListBox 140, 125, 175, 15, "Select One:"+chr(9)+"Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
       EditBox 50, 150, 180, 15, other_notes
       ButtonGroup ButtonPressed
         OkButton 235, 150, 40, 15

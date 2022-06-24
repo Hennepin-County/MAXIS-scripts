@@ -233,7 +233,6 @@ DO
 		fax_number = ""
 		'-----------------------------------------------add_state allows for the next state to gather all the information for array'
 		add_state = add_state + 1
-		'MsgBox add_state
 		row = row + 3
 		IF row = 19 THEN
 			PF8
@@ -251,7 +250,6 @@ IF resolution_status = "FR - Failed Residency Verification Request" THEN rez_sta
 IF resolution_status = "PC - Person Closed, Not PARIS Interstate" THEN rez_status = "PC"
 IF resolution_status = "CC - Case Closed, Not PARIS Interstate" THEN rez_status = "CC"
 PF9 'to edit the case'
-'msgbox rez_status & "This update may cause issues, please let MiKayla know right away to assist with testing."
 EMwritescreen rez_status, 9, 27
 IF fraud_referral = "YES" THEN
 	EMwritescreen "Y", 10, 27
