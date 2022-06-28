@@ -1964,7 +1964,7 @@ function access_HEST_panel(access_type, all_persons_paying, choice_date, actual_
 		EMReadScreen hest_version, 1, 2, 73
 		If hest_version = "1" Then PF9
 		If hest_version = "0" Then
-			EMWriteScreen "nn", 20, 79
+			EMWriteScreen "NN", 20, 79
 			transmit
 		End If
 
@@ -2381,7 +2381,7 @@ function access_SHEL_panel(access_type, shel_ref_number, hud_sub_yn, shared_yn, 
 			EMReadScreen shel_version, 1, 2, 73
 			If shel_version = "1" Then PF9
 			If shel_version = "0" Then
-				EMWriteScreen "nn", 20, 79
+				EMWriteScreen "NN", 20, 79
 				transmit
 			End If
 
@@ -2543,7 +2543,7 @@ function add_BUSI_to_variable(variable_name_for_BUSI)
 		If BUSI_type = "07" then BUSI_type = "InHome Daycare"
 		If BUSI_type = "08" then BUSI_type = "Rental Income"
 		If BUSI_type = "09" then BUSI_type = "Other"
-		EMWriteScreen "x", 7, 26
+		EMWriteScreen "X", 7, 26
 		EMSendKey "<enter>"
 		EMWaitReady 0, 0
 		If cash_check = 1 then
@@ -2563,7 +2563,7 @@ function add_BUSI_to_variable(variable_name_for_BUSI)
 			EMReadScreen BUSI_amt, 8, 9, 54
 			BUSI_amt = trim(BUSI_amt)
 		ElseIf HC_check = 1 then
-			EMWriteScreen "x", 17, 29
+			EMWriteScreen "X", 17, 29
 			EMSendKey "<enter>"
 			EMWaitReady 0, 0
 			EMReadScreen BUSI_amt, 8, 15, 54
@@ -2613,7 +2613,7 @@ function add_BUSI_to_variable(variable_name_for_BUSI)
 		IF BUSI_method = "02" THEN BUSI_method = "Tax Forms"
 
 		'Going to the Gross Income Calculation pop-up
-		EMWriteScreen "x", 6, 26
+		EMWriteScreen "X", 6, 26
 		transmit
 
 		'Getting the verification codes for each type. Only does income, expenses are not included at this time.
@@ -2756,7 +2756,7 @@ function add_JOBS_to_variable(variable_name_for_JOBS)
   EMReadScreen jobs_hourly_wage, 6, 6, 75   'reading hourly wage field
   jobs_hourly_wage = replace(jobs_hourly_wage, "_", "")   'trimming any underscores
 ' Navigates to the FS PIC
-    EMWriteScreen "x", 19, 38
+    EMWriteScreen "X", 19, 38
     transmit
     EMReadScreen SNAP_JOBS_amt, 8, 17, 56
     SNAP_JOBS_amt = trim(SNAP_JOBS_amt)
@@ -2769,7 +2769,7 @@ function add_JOBS_to_variable(variable_name_for_JOBS)
 'Navigats to GRH PIC
 	EMReadscreen GRH_PIC_check, 3, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
 	IF GRH_PIC_check = "GRH" THEN
-		EMWriteScreen "x", 19, 71
+		EMWriteScreen "X", 19, 71
 		transmit
 		EMReadScreen GRH_JOBS_amt, 8, 16, 69
 		GRH_JOBS_amt = trim(GRH_JOBS_amt)
@@ -2788,9 +2788,9 @@ function add_JOBS_to_variable(variable_name_for_JOBS)
     EMReadScreen pay_frequency, 1, 18, 35
 	EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
 	IF HC_income_est_check = "Est" Then 'this is the old position
-		EMWriteScreen "x", 19, 54
+		EMWriteScreen "X", 19, 54
 	ELSE								'this is the new position
-		EMWriteScreen "x", 19, 48
+		EMWriteScreen "X", 19, 48
 	END IF
     transmit
     EMReadScreen HC_JOBS_amt, 8, 11, 63
@@ -2999,7 +2999,7 @@ function add_UNEA_to_variable(variable_name_for_UNEA)
   Else
     EMReadScreen UNEA_amt, 8, 18, 68
     UNEA_amt = trim(UNEA_amt)
-      EMWriteScreen "x", 10, 26
+      EMWriteScreen "X", 10, 26
       transmit
       EMReadScreen SNAP_UNEA_amt, 8, 17, 56
       SNAP_UNEA_amt = trim(SNAP_UNEA_amt)
@@ -3011,7 +3011,7 @@ function add_UNEA_to_variable(variable_name_for_UNEA)
       retro_UNEA_amt = trim(retro_UNEA_amt)
 	EMReadScreen prosp_UNEA_amt, 8, 18, 68
 	prosp_UNEA_amt = trim(prosp_UNEA_amt)
-      EMWriteScreen "x", 6, 56
+      EMWriteScreen "X", 6, 56
       transmit
       EMReadScreen HC_UNEA_amt, 8, 9, 65
       HC_UNEA_amt = trim(HC_UNEA_amt)
@@ -3330,7 +3330,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
  '~~~~~ read_panel_from: first four characters because we use separate handling for HCRE-retro. This is something that should be fixed someday!!!!!!!!!
  '~~~~~ variable_written_to: the variable used by the editbox you wish to autofill.
  '===== Keywords: MAXIS, autofill, HH_member_array
-  call navigate_to_MAXIS_screen("stat", left(panel_read_from, 4))
+  call navigate_to_MAXIS_screen("STAT", left(panel_read_from, 4))
 
   'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
   EMReadScreen panel_total_check, 6, 2, 73
@@ -3882,7 +3882,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
   			EMReadScreen EMPS_under1, 1, 12, 76
   			IF EMPS_under1 = "Y" then
   				ES_exemptions = ES_exemptions & " FT child under 1: " & EMPS_under1 & ","
-  				EMWriteScreen "x", 12, 39
+  				EMWriteScreen "X", 12, 39
   				transmit
   				MAXIS_row = 7
   				MAXIS_col = 22
@@ -4474,7 +4474,7 @@ function autofill_editbox_from_MAXIS(HH_member_array, panel_read_from, variable_
       transmit
     EMReadScreen wreg_total, 1, 2, 78
     IF wreg_total <> "0" THEN
-	EmWriteScreen "x", 13, 57
+	EmWriteScreen "X", 13, 57
 	transmit
 	 bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))
 	  bene_yr_row = 10
@@ -5355,7 +5355,7 @@ function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 '~~~~~ county_code: inserted by reading the county code under REPT/USER
 '===== Keywords: MAXIS, array, worker number, create
 	'Getting to REPT/USER
-	call navigate_to_MAXIS_screen("rept", "user")
+	call navigate_to_MAXIS_screen("REPT", "USER")
 
 	'Hitting PF5 to force sorting, which allows directly selecting a county
 	PF5
@@ -7731,14 +7731,14 @@ Function get_to_RKEY()
             col = 1
             EMSearch " C3", row, col
             If row <> 0 Then
-                EMWriteScreen "x", row, 4
+                EMWriteScreen "X", row, 4
                 transmit
             Else
                 row = 1
                 col = 1
                 EMSearch " C4", row, col
                 If row <> 0 Then
-                    EMWriteScreen "x", row, 4
+                    EMWriteScreen "X", row, 4
                     transmit
                 Else
                     script_end_procedure_with_error_report("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
@@ -7749,14 +7749,14 @@ Function get_to_RKEY()
             row = 1
             col = 1
             EMSearch "RECIPIENT FILE APPLICATION", row, col
-            EMWriteScreen "x", row, col - 3
+            EMWriteScreen "X", row, col - 3
             transmit
         Else
             'Now it finds the recipient file application feature and selects it.
             row = 1
             col = 1
             EMSearch "RECIPIENT FILE APPLICATION", row, col
-            EMWriteScreen "x", row, col - 3
+            EMWriteScreen "X", row, col - 3
             transmit
         End If
     END IF
@@ -9225,7 +9225,7 @@ function navigate_to_MMIS_region(group_security_selection)
         row = 1
         col = 1
         EMSearch menu_to_enter, row, col
-        EMWriteScreen "x", row, col - 3
+        EMWriteScreen "X", row, col - 3
         transmit
 
 	Else
@@ -9236,14 +9236,14 @@ function navigate_to_MMIS_region(group_security_selection)
 			col = 1
 			EMSearch " C3", row, col
 			If row <> 0 Then
-				EMWriteScreen "x", row, 4
+				EMWriteScreen "X", row, 4
 				transmit
 			Else
 				row = 1
 				col = 1
 				EMSearch " C4", row, col
 				If row <> 0 Then
-					EMWriteScreen "x", row, 4
+					EMWriteScreen "X", row, 4
 					transmit
 				Else
 					script_end_procedure("You do not appear to have access to the County Eligibility area of MMIS, this script requires access to this region. The script will now stop.")
@@ -9254,7 +9254,7 @@ function navigate_to_MMIS_region(group_security_selection)
 			row = 1
 			col = 1
 			EMSearch "RECIPIENT FILE APPLICATION", row, col
-			EMWriteScreen "x", row, col - 3
+			EMWriteScreen "X", row, col - 3
 			transmit
 
 		Case "GRH UPDATE"
@@ -9262,7 +9262,7 @@ function navigate_to_MMIS_region(group_security_selection)
 			col = 1
 			EMSearch "GRHU", row, col
 			If row <> 0 Then
-				EMWriteScreen "x", row, 4
+				EMWriteScreen "X", row, 4
 				transmit
 			Else
 				script_end_procedure("You do not appear to have access to the GRH area of MMIS, this script requires access to this region. The script will now stop.")
@@ -9272,7 +9272,7 @@ function navigate_to_MMIS_region(group_security_selection)
 			row = 1
 			col = 1
 			EMSearch "PRIOR AUTHORIZATION   ", row, col
-			EMWriteScreen "x", row, col - 3
+			EMWriteScreen "X", row, col - 3
 			transmit
 
 		Case "GRH INQUIRY"
@@ -9280,7 +9280,7 @@ function navigate_to_MMIS_region(group_security_selection)
 			col = 1
 			EMSearch "GRHI", row, col
 			If row <> 0 Then
-				EMWriteScreen "x", row, 4
+				EMWriteScreen "X", row, 4
 				transmit
 			Else
 				script_end_procedure("You do not appear to have access to the GRH Inquiry area of MMIS, this script requires access to this region. The script will now stop.")
@@ -9290,7 +9290,7 @@ function navigate_to_MMIS_region(group_security_selection)
 			row = 1
 			col = 1
 			EMSearch "PRIOR AUTHORIZATION   ", row, col
-			EMWriteScreen "x", row, col - 3
+			EMWriteScreen "X", row, col - 3
 			transmit
 
 		Case "MMIS MCRE"
@@ -9298,14 +9298,14 @@ function navigate_to_MMIS_region(group_security_selection)
 			col = 1
 			EMSearch "EK01", row, col
 			If row <> 0 Then
-				EMWriteScreen "x", row, 4
+				EMWriteScreen "X", row, 4
 				transmit
 			Else
 				row = 1
 				col = 1
 				EMSearch "EKIQ", row, col
 				If row <> 0 Then
-					EMWriteScreen "x", row, 4
+					EMWriteScreen "X", row, 4
 					transmit
 				Else
 					script_end_procedure("You do not appear to have access to the MCRE area of MMIS, this script requires access to this region. The script will now stop.")
@@ -9316,7 +9316,7 @@ function navigate_to_MMIS_region(group_security_selection)
 			row = 1
 			col = 1
 			EMSearch "RECIPIENT FILE APPLICATION", row, col
-			EMWriteScreen "x", row, col - 3
+			EMWriteScreen "X", row, col - 3
 			transmit
 
 		End Select
@@ -10910,7 +10910,7 @@ end function
 function start_a_blank_CASE_NOTE()
 '--- This function navigates user to a blank case note, presses PF9, and checks to make sure you're in edit mode (keeping you from writing all of the case note on an inquiry screen).
 '===== Keywords: MAXIS, case note, navigate, edit
-	call navigate_to_MAXIS_screen("case", "note")
+	call navigate_to_MAXIS_screen("CASE", "NOTE")
 	DO
 		PF9
 		EMReadScreen case_note_check, 17, 2, 33
@@ -10983,10 +10983,10 @@ function start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_a
 		EMSearch "OTHER", row, col         						'Finding the place the OTHER Address indicator is
 		IF row > 4 THEN other_row = row                     	'If it isn't 4, that means it was found. Logs the row it found the SOCWKR string as swkr_row
 
-		EMWriteScreen "x", 5, 12                                        					'Initiates new memo to client
-		IF forms_to_arep = "Y" AND arep_row <> "" THEN EMWriteScreen "x", arep_row, 12     	'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
-		IF forms_to_swkr = "Y" AND swkr_row <> "" THEN EMWriteScreen "x", swkr_row, 12     	'If forms_to_swkr was "Y" (see above) it puts an X on the row SOCWKR was found.
-		If send_to_other = "Y" AND other_row <> "" Then EMWriteScreen "x", other_row, 12	'If send_to_other was "Y" (see above) it puts an X on the row OTHER was found.
+		EMWriteScreen "X", 5, 12                                        					'Initiates new memo to client
+		IF forms_to_arep = "Y" AND arep_row <> "" THEN EMWriteScreen "X", arep_row, 12     	'If forms_to_arep was "Y" (see above) it puts an X on the row ALTREP was found.
+		IF forms_to_swkr = "Y" AND swkr_row <> "" THEN EMWriteScreen "X", swkr_row, 12     	'If forms_to_swkr was "Y" (see above) it puts an X on the row SOCWKR was found.
+		If send_to_other = "Y" AND other_row <> "" Then EMWriteScreen "X", other_row, 12	'If send_to_other was "Y" (see above) it puts an X on the row OTHER was found.
 
 		transmit                                              	'Transmits to start the memo writing process
 		If send_to_other = "Y" Then								'If we are sending to the 'OTHER' Address, the Address Information needs to be entered.
