@@ -205,6 +205,7 @@ DO
 		END IF
 		IF mailing_address_confirmed = "NO" and residential_address_confirmed = "NO" and notes_on_address = "" THEN  err_msg = err_msg & vbCr & "Please confirm what the address was using notes on address that the agency attempted to deliver mail to. ADDR will not be updated at this time. Please explain where the address was found and on what date."
 		IF returned_mail = "" THEN  err_msg = err_msg & vbCr & "Please explain what mail was returned."
+		IF isdate(due_date) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the verifications requested due date."
 		IF verifications_requested = "" THEN  err_msg = err_msg & vbCr & "Please explain the verification(s) requested."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		LOOP UNTIL err_msg = ""
@@ -266,7 +267,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 
     IF ADDR_actions = "no response received" THEN
     	Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 351, 120, "Request for Contact to the client with no response-Refused/Failed "
+		BeginDialog Dialog1, 0, 0, 351, 120, "Request for Contact to the client with no response-Refused/Failed Info"
 	      ButtonGroup ButtonPressed
 	        PushButton 5, 100, 65, 15, "PACT TE02.13.10", POLI_TEMP_PACT_button
 	        OkButton 245, 100, 50, 15
@@ -316,8 +317,13 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 					EMWriteScreen "Y", 13, 64 ' this is a pop up box asking if the selection is correct per poli/temp SEE TEMP TE02.13.10'
 					TRANSMIT
 				END IF
-			Loop until (trim)pact_pop_up = "*" 'it wil never equal blank '
-			EMReadScreen error_message,  74, 24, 02 'for script_run_lowdown'
+			Loop until trim(pact_pop_up) = "*" 'it wil never equal blank '
+			EMReadScreen panel_number_check, 1, 02, 73
+			IF panel_number_check = "0" THEN
+				closing_message = "Unable to verify that the PACT panel was updated. Please verify and notify the BlueZone Script team."
+			END IF
+			EMReadScreen error_message,  74, 24, 02 'for script_run_lowdown-reading for messages that might be missed if they are not inhibiting'
+			error_message = trim(error_message)
         END IF 'if snap or cash are true'
 		'we cannot close HC currently but this is the place for that handling'
 	END IF 'if no response received'
@@ -335,14 +341,14 @@ CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", METS_case_number
 IF mailing_address_confirmed = "YES" THEN  'Address Detail
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & mail_line_one)
 	If mail_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                             " & mail_line_two)
-	CALL write_variable_in_CASE_NOTE("                               " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
+	CALL write_variable_in_CASE_NOTE("                             " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
 END IF
 IF residential_address_confirmed = "YES" THEN
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & resi_addr_line_one)
 	If resi_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                               " & resi_addr_line_two)
-	CALL write_variable_in_CASE_NOTE("         		                      " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
+	CALL write_variable_in_CASE_NOTE("         		                    " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
 END IF
-IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household is homeless")
+IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household reported as homeless")
 IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
 Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
@@ -360,10 +366,10 @@ CALL write_variable_in_case_note("* Client must be provided 10 days to return re
 CALL write_bullet_and_variable_in_case_note("Verification(s) requested", verifications_requested)
 CALL write_bullet_and_variable_in_case_note("Verification(s) request date", date_requested)
 CALL write_bullet_and_variable_in_case_note("Verifcation(s) due", due_date)
-CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-
+error_message = error_message & ", "
 script_run_lowdown = script_run_lowdown & vbCr & " Message: " & vbCr & error_message & vbCr & ADDR_actions & "ADDR_actions " & vbCr & "notes_on_address " & notes_on_address & vbCr & "resi address " & resi_addr_line_one & " " & resi_addr_line_two & " " & resi_addr_street_full & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbCr & "resi_county " & resi_county & vbCr & "addr_verif " & addr_verif & vbCr & "homeless_addr " & homeless_addr & vbCr & "reservation_addr " & reservation_addr & vbCr & "living_situation " & living_situation & vbCr & "reservation_name " & reservation_name & vbCr & "mail address " & mail_line_one & " " & mail_line_two & " " & mail_street_full & " " & mail_city_line & " " & mail_state_line & " " & mail_zip_line & vbCr & "addr_eff_date & addr_future_date " & addr_eff_date & addr_future_date & vbCr & "phone " & phone_one & phone_two & phone_three & vbCr & "addr_email " & addr_email & vbCr & "verif_received " & verif_received & vbCr & "original_information " & original_information & vbCr & "update_attempted " & update_attempted & vbCr & "Verification Request " & verifications_requested & vbCr & "new addr " & new_addr_line_one & " " & new_addr_line_two & " " & new_addr_city  & " " & new_addr_state & " " & new_addr_zip & vbCr & "county list" & county_code & vbCr & "Mets " & mets_addr_correspondence & mets_case_number & vbCr & "Other Notes " & other_notes
 'Checks if this is a METS case and pops up a message box with instructions if the ADDR is incorrect.
 IF METS_case_number <> "" THEN MsgBox "Please update the METS ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance Process)"
