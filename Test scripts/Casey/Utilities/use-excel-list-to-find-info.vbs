@@ -138,11 +138,71 @@ Call check_for_MAXIS(True)
 ' script_end_procedure("Thanks! We're done here.")
 
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases June 3.xlsx"
+file_url = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\Auto-Close Pause Project\Tier Two Review\Tier Two Completed Review Data.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
+Call navigate_to_MAXIS_screen("CCOL", "CLIC")
 
-excel_row = 763
+excel_row = 3
+Do
+	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+	MAXIS_case_number = left(MAXIS_case_number & "       ", 8)
+	Call write_value_and_transmit(MAXIS_case_number, 4, 8)
+	ObjExcel.Cells(excel_row, 104).Value = "NO"
+	month_of_op = #2/1/2022#
+
+	prog_col = 105
+	number_col = 106
+	balance_col = 107
+
+	ccol_row = 8
+	Do
+		EMReadScreen claim_pd_start, 5, ccol_row, 26
+		EMReadScreen claim_pd_end, 5, ccol_row, 32
+		If trim(claim_pd_start) <> "" Then
+			claim_pd_start = replace(claim_pd_start, "/", "/1/")
+			claim_pd_end = replace(claim_pd_end, "/", "/1/")
+			claim_pd_start = DateAdd("d", 0, claim_pd_start)
+			claim_pd_end = DateAdd("d", 0, claim_pd_end)
+
+
+			If DateDiff("d", month_of_op, claim_pd_start) <= 0 AND DateDiff("d", month_of_op, claim_pd_end) >= 0 Then
+
+
+
+			' If claim_pd = "02/22" Then
+				' MsgBox "in the time range" & vbCr & vbCr &"claim_pd_start - " & claim_pd_start & vbCr & "date diff - " & DateDiff("d", month_of_op, claim_pd_start) & vbCr & "claim_pd_end - " & claim_pd_end & vbCr & "date diff - " & DateDiff("d", month_of_op, claim_pd_end)
+				EMReadScreen claim_prog, 2, ccol_row, 5
+				EMReadScreen claim_numb, 6, ccol_row, 54
+				EMReadScreen claim_bal, 9, ccol_row, 38
+
+				ObjExcel.Cells(excel_row, 104).Value = "YES"
+
+				ObjExcel.Cells(excel_row, prog_col).Value = trim(claim_prog)
+				ObjExcel.Cells(excel_row, number_col).Value = trim(claim_numb)
+				ObjExcel.Cells(excel_row, balance_col).Value = trim(claim_bal)
+
+				prog_col = prog_col + 3
+				number_col = number_col + 3
+				balance_col = balance_col + 3
+
+			End If
+		End If
+
+
+		ccol_row = ccol_row + 1
+		If ccol_row = 18 Then
+			exit do
+			ObjExcel.Cells(excel_row, 109).Value = "???"
+		End If
+		EMReadScreen next_claim_pd, 5, ccol_row, 26
+	Loop until trim(next_claim_pd) = ""
+	excel_row = excel_row + 1
+Loop until trim(ObjExcel.Cells(excel_row, 2).Value) = ""
+
+MsgBox "STOP HERE"
+
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
 	MAXIS_case_number = left(MAXIS_case_number & "       ", 8)
