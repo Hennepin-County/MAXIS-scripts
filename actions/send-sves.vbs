@@ -86,11 +86,12 @@ Do
         err_msg = ""
         DIALOG Dialog1  					'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
-		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "Please enter a valid case number."
+		Call validate_MAXIS_case_number(err_msg, "*")
 		If trim(member_number) = "" Then err_msg = err_msg & vbNewLine & "Please enter the member number that needs a SVES sent."
 		IF SVES_actions = "Select One:" THEN  err_msg = err_msg & vbnewline & "Please select the number you want to use to initate the query."
 		IF ButtonPressed = POLI_TEMP_SVES_button THEN CALL view_poli_temp("02", "12", "13", "") 'TE02.12.13 SVES TPQY INTERFACE
-        If err_msg <> "" Then MsgBox "*** Resolve to Continue: " & vbNewLine & err_msg
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Please enter your worker signature."
+		If err_msg <> "" Then MsgBox "*** Resolve to Continue: " & vbNewLine & err_msg
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
