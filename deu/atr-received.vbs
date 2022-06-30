@@ -54,11 +54,10 @@ CALL changelog_update("11/07/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 '=================================================================================================END CHANGELOG BLOCK
 '---------------------------------------------------------------------THE SCRIPT
-'---------------------------------------------------------------------THE SCRIPT
-'testing_run = TRUE
+
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-'MAXIS_case_number = "2260862"
+
 '---------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 201, 65, "ATR RECEIVED"
@@ -70,7 +69,6 @@ BeginDialog Dialog1, 0, 0, 201, 65, "ATR RECEIVED"
     CancelButton 150, 45, 45, 15
   Text 5, 10, 50, 10, "Case Number:"
 EndDialog
-
 
 DO
 	DO
