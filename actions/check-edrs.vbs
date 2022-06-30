@@ -109,7 +109,7 @@ For i = 0 to Ubound(HH_member_array)
 	transmit
 
 	EMReadScreen no_MEMB, 13, 8, 22 'If this member does not exist, this will stop the script from continuing.
-	IF no_MEMB = "Arrival Date:" THEN script_end_procedure("This HH member does not exist.")
+	IF no_MEMB = "Arrival Date:" THEN script_end_procedure("This HH member does not exist, the script will now end. ")
 
 	'Reading info and removing spaces
 	EMReadscreen First_name, 12, 6, 63
