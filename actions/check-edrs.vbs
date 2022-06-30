@@ -68,9 +68,8 @@ Call check_for_MAXIS(False)
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'changing footer dates to current month to avoid invalid months.
-MAXIS_footer_month = datepart("M", date)
-IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = right(datepart("YYYY", date), 2)
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 106, 65, "ELECTRONIC DISQUALIFIED RECIPIENT SYSTEM "
@@ -101,7 +100,9 @@ Dim Member_Info_Array()
 Redim Member_Info_Array(UBound(HH_member_array), 4)
 
 'Navigate to stat/memb and check for ERRR message
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
+
 For i = 0 to Ubound(HH_member_array)
 	Member_Info_Array(i, 0) = HH_member_array(i)
 	EMwritescreen HH_member_array(i), 20, 76 	'Navigating to selected memb panel
@@ -195,7 +196,7 @@ script_end_procedure_with_error_report("Success your request has been completed 
 '--Incrementors reviewed (if necessary)-----------------------------------------06/24/2022
 '--Denomination reviewed -------------------------------------------------------06/24/2022
 '--Script name reviewed---------------------------------------------------------06/24/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------06/24/2022 'QUESTION this one is not bulk but still removes'
+'--BULK - remove 1 incrementor at end of script reviewed------------------------06/24/2022
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------06/24/2022
