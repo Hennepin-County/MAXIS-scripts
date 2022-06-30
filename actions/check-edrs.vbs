@@ -73,25 +73,23 @@ IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_mon
 MAXIS_footer_year = right(datepart("YYYY", date), 2)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 201, 65, "ELECTRONIC DISQUALIFIED RECIPIENT SYSTEM "
-  EditBox 70, 5, 50, 15, MAXIS_case_number
-  EditBox 70, 25, 125, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 106, 65, "ELECTRONIC DISQUALIFIED RECIPIENT SYSTEM "
+  EditBox 55, 5, 45, 15, MAXIS_case_number
   ButtonGroup ButtonPressed
-    PushButton 130, 5, 65, 15, "ERDS TE02.08.127", POLI_TEMP_ERDS_button
-    OkButton 100, 45, 45, 15
-    CancelButton 150, 45, 45, 15
-  Text 5, 30, 60, 10, "Worker Signature:"
+    PushButton 5, 25, 95, 15, "ERDS TE02.08.127", POLI_TEMP_ERDS_button
+    OkButton 5, 45, 45, 15
+    CancelButton 55, 45, 45, 15
   Text 5, 10, 50, 10, "Case Number:"
 EndDialog
 
 Do
     Do
         err_msg = ""
-        DIALOG Dialog1  					'Calling a dialog without a assigned variable will call the most recently defined dialog
+        DIALOG Dialog1  'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
-		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "Please enter a valid case number."
+		Call validate_MAXIS_case_number(err_msg, "*")
 		IF ButtonPressed = POLI_TEMP_ERDS_button THEN CALL view_poli_temp("02", "08", "127", "") 'TE02.08.127 ELECTRONIC DISQUALIFIED RECIPIENT SYSTEM
-        If err_msg <> "" Then MsgBox "*** Resolve to Continue: " & vbNewLine & err_msg
+        IF err_msg <> "" THEN MsgBox "*** Resolve to Continue: " & vbNewLine & err_msg
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
@@ -137,11 +135,10 @@ Next
 'Navigate back to self and to EDRS
 CALL Back_to_self
 
+CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
-
-CALL navigate_to_MAXIS_screen("INFC", "EDRS")
 
 For i = 0 to UBound(HH_member_array)
 	'Write in SSN number into EDRS
