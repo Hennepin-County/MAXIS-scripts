@@ -83,7 +83,8 @@ DO
 	Loop until are_we_passworded_out = false
 
 ''----------------------------------------------------------------------------------------------------STAT
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+IF is_this_priv = TRUE THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
 EMwritescreen MEMB_number, 20, 76
 TRANSMIT
 EMReadscreen SSN_number_read, 11, 7, 42
