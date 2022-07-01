@@ -71,6 +71,10 @@ If SSN_present = True then
     transmit
     Call write_value_and_transmit("SVES", 20, 71)    'Navigates to SVES
     Call write_value_and_transmit("TPQY", 20, 70)    'Navigates to TPQY
+	'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+	EMReadScreen agreement_check, 9, 2, 24
+	IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+
 Else
     Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
     If is_this_priv = True then script_end_procedure("This is a privileged case. Cannot access. The script will now end.")
@@ -87,7 +91,6 @@ Else
 	'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
 	EMReadScreen agreement_check, 9, 2, 24
 	IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
-
 End if
 
 script_end_procedure("")
