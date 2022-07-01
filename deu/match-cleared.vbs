@@ -43,7 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley") '#493
+CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("08/24/2021", "Remove mandatory handling from other notes variable.", "MiKayla Handley, Hennepin County") '#571 '
 CALL changelog_update("06/09/2021", "Handling for script end procedure.", "MiKayla Handley, Hennepin County") '#373 '
 CALL changelog_update("01/11/2021", "Updated BNDX handling to ensure header of case note is written correctly.", "MiKayla Handley, Hennepin County")
