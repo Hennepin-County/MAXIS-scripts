@@ -182,7 +182,7 @@ action_taken = "No Savings/Overpayment"
 
 'This can only be run by DEU Supervisor or script team member
 If user_ID_for_validation <> "WF7329"
-	IF user_ID_for_validation <> "VISA002" THEN
+	IF user_ID_for_validation <> "WFO119" THEN
 		IF user_ID_for_validation <> "WFS395" THEN
         	IF user_ID_for_validation <> "ILFE001" THEN
 				IF user_ID_for_validation <> "CALO001" THEN
