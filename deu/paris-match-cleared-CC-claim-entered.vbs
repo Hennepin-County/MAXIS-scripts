@@ -56,28 +56,31 @@ EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
 memb_number = "01"
 'changing footer dates to current month to avoid invalid months.
-MAXIS_footer_month = datepart("M", date)
-IF Len(MAXIS_footer_month) <> 2 THEN MAXIS_footer_month = "0" & MAXIS_footer_month
-MAXIS_footer_year = right(datepart("YYYY", date), 2)
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 131, 65, "Case Number to clear match"
-  EditBox 60, 5, 65, 15, MAXIS_case_number
-  EditBox 60, 25, 30, 15, MEMB_number
+BeginDialog Dialog1, 0, 0, 211, 65, "PARIS MATCH CLEARED"
+  EditBox 70, 5, 50, 15, MAXIS_case_number
+  EditBox 180, 5, 20, 15, MEMB_number
+  EditBox 70, 25, 130, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 20, 45, 50, 15
-    CancelButton 75, 45, 50, 15
-  Text 5, 30, 55, 10, "MEMB Number:"
+    OkButton 105, 45, 45, 15
+    CancelButton 155, 45, 45, 15
   Text 5, 10, 50, 10, "Case Number:"
+  Text 125, 10, 55, 10, "MEMB Number:"
+  Text 5, 30, 60, 10, "Worker Signature:"
 EndDialog
+
 DO
 	    DO
         	err_msg = ""
         	Dialog Dialog1
         	cancel_without_confirmation
-         	If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-         	If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2 digit member number."
-        	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+         	Call validate_MAXIS_case_number(err_msg, "*")
+         	If IsNumeric(MEMB_number) = False or len(MEMB_number) <> 2 then err_msg = err_msg & vbNewLine & "* Please enter a valid 2 digit member number."
+			IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
         LOOP UNTIL err_msg = ""
 		CALL check_for_password_without_transmit(are_we_passworded_out)
 	Loop until are_we_passworded_out = false
