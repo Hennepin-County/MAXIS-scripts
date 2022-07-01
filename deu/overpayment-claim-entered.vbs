@@ -44,10 +44,10 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley") '#493
+CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/31/2020", "Removed agency overpayment for cash verbiage.", "MiKayla Handley, Hennepin County")
-call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC.", "MiKayla Handley")
+call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/30/2019", "Updated script to add areas for multiple claims based on request.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("04/02/2018", "Updates to fraud referral for the case note.", "MiKayla Handley, Hennepin County")
@@ -161,7 +161,7 @@ Do
 	dialog Dialog1
 	cancel_without_confirmation
 	IF memb_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the member number."
-	IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbnewline & "* Enter a valid case number."
+	Call validate_MAXIS_case_number(err_msg, "*")
     IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
 	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
 	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
@@ -192,8 +192,10 @@ CALL check_for_password_without_transmit(are_we_passworded_out)
 
 back_to_self
 '----------------------------------------------------------------------------------------------------STAT
-CALL navigate_to_MAXIS_screen("STAT", "MEMB")
+CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+IF is_this_priv = TRUE THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
 EMwritescreen memb_number, 20, 76
+TRANSMIT
 EMReadScreen first_name, 12, 6, 63
 first_name = replace(first_name, "_", "")
 first_name = trim(first_name)
@@ -453,14 +455,10 @@ IF HC_claim_number <> "" THEN
 END IF
 
 '---------------------------------------------------------------writing the CCOL case note'
-msgbox "Navigating to CCOL to add case note, please contact the BlueZone Scripts team with any concerns."
+
 Call navigate_to_MAXIS_screen("CCOL", "CLSM")
 EMWriteScreen Claim_number, 4, 9
 TRANSMIT
-'NO CLAIMS WERE FOUND FOR THIS CASE, PROGRAM, AND STATUS
-EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
-error_check = trim(error_check)
-If error_check <> "" then script_end_procedure_with_error_report(error_check & ". Unable to update this case. Please review case, and run the script again if applicable.")
 PF4
 EMReadScreen existing_case_note, 1, 5, 6
 IF existing_case_note = "" THEN
