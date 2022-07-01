@@ -44,9 +44,9 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("06/03/2022", "Updates for HC active/pending procedure and added handling for entering PACT panel.", "MiKayla Handley") '#427 & #365 '
-call changelog_update("03/12/2021", "Updated handling for current address confirmation.", "MiKayla Handley")
-call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
+call changelog_update("06/03/2022", "Updates for HC active/pending procedure and added handling for entering PACT panel.", "MiKayla Handley, Hennepin County") '#427 & #365 '
+call changelog_update("03/12/2021", "Updated handling for current address confirmation.", "MiKayla Handley, Hennepin County")
+call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/13/2020", "Updated the zip code to only allow for 5 characters.", "MiKayla Handley, Hennepin County")
 call changelog_update("06/06/2019", "Initial version. Re-written per POLI/TEMP.", "MiKayla Handley, Hennepin County")
 
@@ -94,7 +94,7 @@ DO
     	err_msg = ""
     	DIALOG Dialog1
     	cancel_confirmation
-    	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "Please enter a valid case number."
+    	Call validate_MAXIS_case_number(err_msg, "*")
 		IF isdate(date_received) = FALSE THEN
 			err_msg = err_msg & vbnewline & "Please enter the date."
 		Else
@@ -121,9 +121,6 @@ MAXIS_footer_month_confirmation
 
 CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, please request access to the case and run the script again.")
-
-EMReadScreen error_message, 75, 24, 2 'reading for messages that might be missed if they are not inhibiting'
-error_message = trim(error_message)
 
 EMReadScreen worker_number, 7, 21, 21              'reading the current(primary) workers number '
 IF left(worker_number, 4) <> "X127" THEN script_end_procedure("*** Out of County ***" & vbCr & worker_number & vbCr & "Please resolve for the script to continue.")
