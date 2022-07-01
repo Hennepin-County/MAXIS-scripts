@@ -158,6 +158,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/30/2022", "Updated handling for new upervisor.", "MiKayla Handley, Hennepin County") '#498
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 call changelog_update("08/19/2021", "Retire the BULK script due to redundancy.", "MiKayla Handley, Hennepin County") '#596'
 call changelog_update("06/17/2021", "Updating the dialog box to ensure that a cleared method is entered.", "MiKayla Handley, Hennepin County") '#498'
@@ -179,11 +180,15 @@ worker_county_code = "X127"
 match_type = "WAGE"
 action_taken = "No Savings/Overpayment"
 
-'This can only be run by Maureen Headbird DEU HSS = WF7329 and MiKayla Handley WFS395
-If user_ID_for_validation <> "WF7329" THEN
-	IF user_ID_for_validation <> "WFS395" THEN
-        IF user_ID_for_validation <> "ILFE001" THEN
-		    script_end_procedure("This is restricted to use by HSS only. Please contact your supervisor to run.")
+'This can only be run by DEU Supervisor or script team member
+If user_ID_for_validation <> "WF7329"
+	IF user_ID_for_validation <> "VISA002" THEN
+		IF user_ID_for_validation <> "WFS395" THEN
+        	IF user_ID_for_validation <> "ILFE001" THEN
+				IF user_ID_for_validation <> "CALO001" THEN
+		    		script_end_procedure("This is restricted to use by a supervisor only. Please contact your supervisor to run.")
+				END IF
+			END IF
         END IF
 	END IF
 END IF
