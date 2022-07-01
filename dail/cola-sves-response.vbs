@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 call changelog_update("05/23/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -87,39 +88,73 @@ End If
 
 client_name = trim(last_name) & " " & trim(first_name)		'putting the name into one string
 
-'Finding the client to gather SSN for SVES navigation 
-Call navigate_to_MAXIS_screen("STAT", "MEMB")
-EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
-If PRIV_check = "PRIV" then
-    script_end_procedure("This is a privileged case. Cannot access. The script will now end.")
-Else 
-    Do 
-        EmReadscreen memb_last_name, 25, 6, 30
-        memb_last_name = replace(memb_last_name, "_", "")
-        
-        EmReadscreen memb_first_name, 12, 6, 63
-        memb_first_name = replace(memb_first_name, "_", "")
-        
-        memb_client_name = trim(memb_last_name) & " " & trim(memb_first_name)
-    
-        If memb_client_name = client_name then 
-            EmReadscreen client_SSN, 11, 7, 42
-            client_SSN = replace(client_SSN, " ", "")
-            'msgbox client_SSN & vbcr & client_name 
-            Exit do 
-        Else 
-            transmit 
-            'msgbox "didn't find name"
-        End if 
-        
-        EMReadScreen MEMB_error, 5, 24, 2
-        If MEMB_error = "ENTER" then script_end_procedure("Unable to find client name in the household. The script will now end.")
-    Loop 
-End if 
-    
-'Going to the SVES Response 
+'Finding the client SSN for SVES navigation
+CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
+Do
+    EmReadscreen memb_last_name, 25, 6, 30
+    memb_last_name = replace(memb_last_name, "_", "")
+    EmReadscreen memb_first_name, 12, 6, 63
+    memb_first_name = replace(memb_first_name, "_", "")
+    memb_client_name = trim(memb_last_name) & " " & trim(memb_first_name)
+    If memb_client_name = client_name then
+        EmReadscreen client_SSN, 11, 7, 42
+        client_SSN = replace(client_SSN, " ", "")
+        Exit do
+    Else
+        transmit
+    End if
+    EMReadScreen MEMB_error, 5, 24, 2
+    If MEMB_error = "ENTER" then script_end_procedure("Unable to find client name in the household. The script will now end.")
+Loop
+
+'Going to the SVES Response
 Call navigate_to_MAXIS_screen("INFC", "SVES")
 EmWriteScreen client_SSN, 4, 68
 Call write_value_and_transmit("TPQY", 20, 70)
+'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+EMReadScreen agreement_check, 9, 2, 24
+IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 
 script_end_procedure_with_error_report("Success, the script has navigated you to TPQY for: " & first_name & " " & last_name)
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------06/21/2022
+'--Tab orders reviewed & confirmed----------------------------------------------06/21/2022
+'--Mandatory fields all present & Reviewed--------------------------------------06/21/2022
+'--All variables in dialog match mandatory fields-------------------------------06/21/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------06/21/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------06/21/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/21/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/21/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------06/21/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------06/21/2022
+'--Out-of-County handling reviewed----------------------------------------------06/21/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------06/21/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------06/21/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---06/21/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------06/21/2022------------------N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------06/21/2022------------------N/A
+'--Denomination reviewed -------------------------------------------------------06/21/2022
+'--Script name reviewed---------------------------------------------------------06/21/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------06/21/2022------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------06/21/2022
+'--comment Code-----------------------------------------------------------------06/21/2022
+'--Update Changelog for release/update------------------------------------------06/21/2022
+'--Remove testing message boxes-------------------------------------------------06/21/2022
+'--Remove testing code/unnecessary code-----------------------------------------06/21/2022
+'--Review/update SharePoint instructions----------------------------------------06/21/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/21/2022 'TODO'
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/21/2022
+'--Complete misc. documentation (if applicable)---------------------------------06/21/2022
+'--Update project team/issue contact (if applicable)----------------------------06/21/2022

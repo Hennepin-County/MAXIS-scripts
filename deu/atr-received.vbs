@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Corrected spelling error.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/11/2017", "Updated to correct case note.", "MiKayla Handley, Hennepin County")
@@ -53,57 +54,55 @@ CALL changelog_update("11/07/2017", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 '=================================================================================================END CHANGELOG BLOCK
 '---------------------------------------------------------------------THE SCRIPT
-'---------------------------------------------------------------------THE SCRIPT
-'testing_run = TRUE
+
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-'MAXIS_case_number = "2260862"
+
 '---------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 111, 45, "Case Number"
-  EditBox 65, 5, 40, 15, MAXIS_case_number
+BeginDialog Dialog1, 0, 0, 201, 65, "ATR RECEIVED"
+  EditBox 70, 5, 50, 15, MAXIS_case_number
+  EditBox 70, 25, 125, 15, worker_signature
+  Text 5, 30, 60, 10, "Worker Signature:"
   ButtonGroup ButtonPressed
-    OkButton 20, 25, 40, 15
-    CancelButton 65, 25, 40, 15
+    OkButton 100, 45, 45, 15
+    CancelButton 150, 45, 45, 15
   Text 5, 10, 50, 10, "Case Number:"
 EndDialog
 
 DO
 	DO
 		err_msg = ""
-		Dialog Dialog1
+		DIALOG Dialog1
 		cancel_without_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Please enter your worker signature."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
 
-EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case THEN it gets identified, and will not be updated in MMIS
-IF PRIV_check = "PRIV" THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
-
 '----------------------------------------------------------------------------------------------------Gathering the member information
-CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-
+CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
 client_array = "Select One:" & "|"
 
 DO								'reads the reference number, last name, first name, and THEN puts it into a single string THEN into the array
 EMReadscreen ref_nbr, 3, 4, 33
 EMReadScreen access_denied_check, 13, 24, 2
-'MsgBox access_denied_check
 If access_denied_check = "ACCESS DENIED" Then
 	PF10
 	last_name = "UNABLE TO FIND"
 	first_name = " - Access Denied"
 	mid_initial = ""
-Else
+	Else
 	EMReadscreen last_name, 25, 6, 30
 	EMReadscreen first_name, 12, 6, 63
 	EMReadscreen mid_initial, 1, 6, 79
 	last_name = trim(replace(last_name, "_", "")) & " "
 	first_name = trim(replace(first_name, "_", "")) & " "
 	mid_initial = replace(mid_initial, "_", "")
-End If
+	End If
 	EMReadscreen MEMB_number, 3, 4, 33
 	EMReadscreen last_name, 25, 6, 30
 	EMReadscreen first_name, 12, 6, 63
@@ -147,14 +146,12 @@ LOOP UNTIL are_we_passworded_out = false
 ievs_member = trim(ievs_member)
 IEVS_ssn = right(ievs_member, 9)
 IEVS_MEMB_number = left(ievs_member, 2)
-'MsgBox IEVS_MEMB_number
 CALL navigate_to_MAXIS_screen("INFC" , "____")
 CALL write_value_and_transmit("IEVP", 20, 71)
 CALL write_value_and_transmit(IEVS_ssn, 3, 63)
-
-EMReadscreen err_msg, 75, 24, 02
-err_msg = trim(err_msg)
-If err_msg <> "" THEN script_end_procedure_with_error_report("*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine)
+'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+EMReadScreen agreement_check, 9, 2, 24
+IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 
 '------------------------------------------------------------------selecting the correct wage match
 Row = 7
@@ -179,7 +176,6 @@ DO
 			cancel_confirmation
 			IF ButtonPressed = next_match THEN
 				row = row + 1
-				'msgbox "row: " & row
 				IF row = 17 THEN
 					PF8
 					row = 7
@@ -223,7 +219,6 @@ ELSE
 		IEVS_year = "20" & IEVS_year
 	ELSEIF match_type = "UNVI" THEN
 		EMReadScreen IEVS_year, 4, 8, 15
-		'msgbox IEVS_year
 		select_quarter = "YEAR"
 	END IF
 END IF
@@ -331,7 +326,7 @@ BeginDialog Dialog1, 0, 0, 271, 240, "ATR RECEIVED FOR: "  & MAXIS_case_number
   EditBox 55, 125, 95, 15, source_address
   EditBox 55, 145, 45, 15, source_phone
   CheckBox 150, 150, 115, 10, "Set a TIKL due to 10 day cutoff", tenday_checkbox
-  DropListBox 140, 175, 115, 15, "Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
+  DropListBox 140, 175, 115, 15, "Select One:"+chr(9)+"Not Needed"+chr(9)+"Initial"+chr(9)+"Overpayment Exists"+chr(9)+"OP Non-Collectible (please specify)"+chr(9)+"No Savings/Overpayment", claim_referral_tracking_dropdown
   EditBox 50, 200, 215, 15, other_notes
   ButtonGroup ButtonPressed
     OkButton 175, 220, 45, 15
@@ -350,7 +345,6 @@ BeginDialog Dialog1, 0, 0, 271, 240, "ATR RECEIVED FOR: "  & MAXIS_case_number
   GroupBox 5, 165, 260, 30, "SNAP or MFIP Federal Food only"
   Text 10, 180, 130, 10, "Claim Referral Tracking on STAT/MISC:"
   Text 5, 205, 40, 10, "Other notes: "
-
 EndDialog
 
 DO
@@ -375,28 +369,6 @@ ELSE
 END IF
 
 TRANSMIT 'this will take us to IULB'
-EMReadScreen err_msg, 75, 24, 02
-err_msg = trim(err_msg)
-IF err_msg <> "" THEN
-	Dialog1 = "" 'Blanking out previous dialog detail
-	  BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
-		ButtonGroup ButtonPressed
-		OkButton 135, 75, 45, 15
-		CancelButton 180, 75, 45, 15
-		GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, then hit ok to continue."
-		Text 15, 10, 190, 35, err_msg
-		EditBox 50, 55, 175, 15, email_BZST
-		Text 5, 60, 45, 10, "Email BZST:"
-	  EndDialog
-
-	'Showing case number dialog
-	Do
-	  Dialog Dialog1
-	  cancel_without_confirmation
-	  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	Loop until are_we_passworded_out = false					'loops until user passwords back in
-	IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & err_msg & "  EOM.", "", "", TRUE)
-END IF
 
 ROW = 8
 EMReadScreen IULB_first_line, 1, row, 6
@@ -408,10 +380,8 @@ ELSE
 	EMwritescreen "ATR RECEIVED " & date_ATR_received, row, 6
 END IF
 
-'msgbox "Responded to difference notice has been updated"
 TRANSMIT 'exiting IULA, helps prevent errors when going to the case note
-''--------------------------------------------------------------------The case note & case note related code
-'--------------------------------------------------------------------The case note & case note related code
+
 pending_verifs = ""
 IF Diff_Notice_Checkbox = CHECKED THEN pending_verifs = pending_verifs & "Difference Notice, "
 IF empl_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "EVF, "
@@ -420,29 +390,6 @@ IF lottery_verf_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Lotte
 IF rental_checkbox =  CHECKED THEN pending_verifs = pending_verifs & "Rental Income Form, "
 IF other_checkbox = CHECKED THEN pending_verifs = pending_verifs & "Other, "
 
-IF MAXIS_error_message <> "" THEN
-	EMReadScreen MAXIS_error_message, 75, 24, 02
-	MAXIS_error_message = trim(MAXIS_error_message)
-
-	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 231, 95, "Maxis Message, please screen shot"
-		ButtonGroup ButtonPressed
-		OkButton 135, 75, 45, 15
-		CancelButton 180, 75, 45, 15
-		GroupBox 5, 0, 220, 50, "You can update maxis if there is an error, THEN hit ok to continue."
-		Text 15, 10, 190, 35, MAXIS_error_message
-		EditBox 50, 55, 175, 15, email_BZST
-		Text 5, 60, 45, 10, "Email BZST:"
-	EndDialog
-
-	'Showing case number dialog
-	Do
-	  Dialog Dialog1
-	  cancel_without_confirmation
-	  CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	Loop until are_we_passworded_out = false					'loops until user passwords back in
-	IF email_BZST <> "" THEN CALL create_outlook_email("Mikayla.Handley@hennepin.us", "", "Case #" & maxis_case_number & " Error message: " & MAXIS_error_message & "  EOM.", "", "", TRUE)
-END IF
 '------------------------------------------------------------------STAT/MISC for claim referral tracking
 IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	'Going to the MISC panel to add claim referral tracking information
@@ -527,7 +474,7 @@ IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	CALL write_variable_in_case_note(worker_signature)
 	PF3
 END IF
-
+'-------------------------------------------------------------------------------------------------The case note
 start_a_blank_case_note
 IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") " & "ATR RECEIVED-----")
 IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ") " & " (" & first_name & ") " & "ATR RECEIVED-----")
@@ -552,3 +499,44 @@ CALL write_variable_in_CASE_NOTE ("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
 script_end_procedure_with_error_report("ATR case note updated successfully." & vbNewLine & "Please remember to update/delete the DISQ panel")
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------06/24/2022
+'--Tab orders reviewed & confirmed----------------------------------------------06/24/2022
+'--Mandatory fields all present & Reviewed--------------------------------------06/24/2022
+'--All variables in dialog match mandatory fields-------------------------------06/24/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------06/24/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------06/24/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/24/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------06/24/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------06/24/2022
+'--PRIV Case handling reviewed -------------------------------------------------06/24/2022
+'--Out-of-County handling reviewed----------------------------------------------06/24/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------06/24/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------06/24/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---06/24/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------06/24/2022------------------N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------06/24/2022
+'--Denomination reviewed -------------------------------------------------------06/24/2022
+'--Script name reviewed---------------------------------------------------------06/24/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------06/24/2022
+'--Comment Code-----------------------------------------------------------------06/24/2022
+'--Update Changelog for release/update------------------------------------------06/24/2022
+'--Remove testing message boxes-------------------------------------------------06/24/2022
+'--Remove testing code/unnecessary code-----------------------------------------06/24/2022
+'--Review/update SharePoint instructions----------------------------------------06/24/2022 'TODO'
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/24/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/24/2022
+'--Complete misc. documentation (if applicable)---------------------------------06/24/2022
+'--Update project team/issue contact (if applicable)----------------------------06/24/2022

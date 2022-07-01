@@ -59,43 +59,43 @@ EMConnect ""
 renewal_date = CM_plus_1_mo & "/" & CM_plus_1_yr
 'file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\UNEA Updater\11-17 ssi rsdi renewals report.xlsx"
 
-'dialog and dialog DO...Loop	
+'dialog and dialog DO...Loop
 Do
 	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed 
-			Dialog1 = ""
-            BeginDialog Dialog1, 0, 0, 266, 135, "SSI-RSDI Updater"
-	  			ButtonGroup ButtonPressed
-	  			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
-	  			DropListBox 185, 90, 65, 15, "Select one..."+chr(9)+"Send SVES"+chr(9)+"Update Cases", action_type
-	  			ButtonGroup ButtonPressed
-	  			OkButton 145, 115, 50, 15
-	  			CancelButton 200, 115, 50, 15
-	  			GroupBox 10, 5, 250, 105, "Using the SSI-RSDI Updater script:"
-	  			Text 20, 20, 235, 20, "This script should be used when a list of recipeints on SSI and/or RSDI has a renewal, or another need for updating this information is needed."
-	  			Text 15, 65, 230, 15, "Select the Excel file that contains the PMI inforamtion by selecting the 'Browse' button, and finding the file."
-	  			EditBox 15, 45, 180, 15, file_selection_path
-	  			Text 80, 95, 100, 10, "Select the script's action type:"
-			EndDialog
+		'The dialog is defined in the loop as it can change as buttons are pressed
+		Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 266, 135, "SSI-RSDI Updater"
+	  		ButtonGroup ButtonPressed
+	  		PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
+	  		DropListBox 185, 90, 65, 15, "Select one..."+chr(9)+"Send SVES"+chr(9)+"Update Cases", action_type
+	  		ButtonGroup ButtonPressed
+	  		OkButton 145, 115, 50, 15
+	  		CancelButton 200, 115, 50, 15
+	  		GroupBox 10, 5, 250, 105, "Using the SSI-RSDI Updater script:"
+	  		Text 20, 20, 235, 20, "This script should be used when a list of recipeints on SSI and/or RSDI has a renewal, or another need for updating this information is needed."
+	  		Text 15, 65, 230, 15, "Select the Excel file that contains the PMI inforamtion by selecting the 'Browse' button, and finding the file."
+	  		EditBox 15, 45, 180, 15, file_selection_path
+	  		Text 80, 95, 100, 10, "Select the script's action type:"
+		EndDialog
 
-			err_msg = ""
-			Dialog Dialog1
-			cancel_without_confirmation
-			If ButtonPressed = select_a_file_button then
-				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
-					objExcel.Quit 'Closing the Excel file that was opened on the first push'
-					objExcel = "" 	'Blanks out the previous file path'
-				End If
-				call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
+		err_msg = ""
+		Dialog Dialog1
+		cancel_without_confirmation
+		If ButtonPressed = select_a_file_button then
+			If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
+				objExcel.Quit 'Closing the Excel file that was opened on the first push'
+				objExcel = "" 	'Blanks out the previous file path'
 			End If
-			If action_type = "Select one..." then err_msg = err_msg & vbNewLine & "Select the type of action you'd like the script to take."
-			If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data."
-			If err_msg <> "" Then MsgBox err_msg
-		Loop until err_msg = ""
-		If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+			call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
+		End If
+		If action_type = "Select one..." then err_msg = err_msg & vbNewLine & "Select the type of action you'd like the script to take."
+		If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data."
 		If err_msg <> "" Then MsgBox err_msg
+	Loop until err_msg = ""
+	If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+	If err_msg <> "" Then MsgBox err_msg
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
- Loop until are_we_passworded_out = false					'loops until user passwords back in
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'ARRAY business----------------------------------------------------------------------------------------------------
 'Sets up the array to store all the information for each client'
@@ -119,18 +119,18 @@ Do                                                            'Loops until there
 	client_PMI = objExcel.cells(excel_row, 2).Value          're-establishing the name of the county for functions to use
 	If client_PMI = "" then exit do
 	'trims off all the zeros to ensure uniformity with PMI on the MEMB panel
-	Do 
+	Do
 		if left(client_PMI, 1) = "0" then client_PMI = right(client_PMI, len(client_PMI) -1)
 	Loop until left(client_PMI, 1) <> "0"
 	client_PMI = trim(client_PMI)
-	
+
 	'case number & member number
-	MAXIS_case_number = objExcel.cells(excel_row, 1).Value		
+	MAXIS_case_number = objExcel.cells(excel_row, 1).Value
 	MAXIS_case_number = trim(MAXIS_case_number)
-	
+
 	member_number = objExcel.cells(excel_row, 3).Value
-	member_number = trim(member_number)		
-	
+	member_number = trim(member_number)
+
 	'Adding client information to the array
 	ReDim Preserve PMI_array(6, entry_record)	'This resizes the array based on if the client is in the selected county
 	PMI_array (clt_PMI,     	entry_record) = client_PMI			'PMI
@@ -151,33 +151,33 @@ If entry_record = 0 then script_end_procedure("No cases have been found on this 
 
 'Closes the excel file
 'objExcel.Quit
-If action_type = "Send SVES" then 
+If action_type = "Send SVES" then
     'Gathering info from MAXIS, and making the referrals and case notes if cases are found and active----------------------------------------------------------------------------------------------------
     For item = 0 to UBound(PMI_array, 2)
-    	MAXIS_case_number = PMI_array(case_number, item)	
+    	MAXIS_case_number = PMI_array(case_number, item)
     	client_PMI = PMI_array(clt_PMI, item)
-    
+
     	Call check_for_MAXIS(False)		'Makes sure we're in MAXIS
     	Call navigate_to_MAXIS_screen("stat", "memb") 'Goes to MEMB to get info
-    	
+
     	'Checking for PRIV cases.
     	EMReadScreen priv_check, 6, 24, 14 'If it can't get into the case, script will end.
     	IF priv_check = "PRIVIL" THEN
-    		
-    		PMI_array(SVES_status, item) = False 
+
+    		PMI_array(SVES_status, item) = False
     		PMI_array(failure_reason, item) = "Case is a privliged case."
     		'msgbox "PRIV case" & vbcr & MAXIS_case_number
     	ELSE
-			EMReadScreen county_code, 2, 21, 23 
-			If county_code <> "27" then 
-				PMI_array(SVES_status, item) = False 
-				PMI_array(failure_reason, item) = "Not a Hennepin County case."	
-			Else 
-			
-    	        Do 
+			EMReadScreen county_code, 2, 21, 23
+			If county_code <> "27" then
+				PMI_array(SVES_status, item) = False
+				PMI_array(failure_reason, item) = "Not a Hennepin County case."
+			Else
+
+    	        Do
     	        	EMReadscreen PMI_confirmation, 8, 4, 46
     	        	PMI_confirmation = trim(PMI_confirmation)
-    	        	If PMI_confirmation <> client_PMI then 
+    	        	If PMI_confirmation <> client_PMI then
     	        		transmit
     	        		PMI_array(SVES_status, item) = FALSE
     	        	Else
@@ -190,30 +190,34 @@ If action_type = "Send SVES" then
     	        		PMI_array(clt_SSN, item) = client_SSN
 						PMI_array(member_num, item) = member_number
     		    		PMI_array(SVES_status, item) = True
-    	        	END IF 
+    	        	END IF
     	        	EMReadScreen MEMB_error, 5, 24, 2
     	        Loop until PMI_confirmation = PMI_array (clt_PMI, item) or MEMB_error = "ENTER"
-    	        If PMI_array(SVES_status, item) = FALSE then 
-					PMI_array(failure_reason, item) = "PMI did not match on STAT/MEMB"	
+    	        If PMI_array(SVES_status, item) = FALSE then
+					PMI_array(failure_reason, item) = "PMI did not match on STAT/MEMB"
 					PMI_array(member_num, item) = ""
-				End if 
-			End if 
-    	End if 
+				End if
+			End if
+    	End if
     		'blanking out variables
     	client_PMI = ""
     	MAXIS_case_number = ""
-    next 	
-    		
+    next
+
     'Sending the SVES/QURY
     For item = 0 to UBound(PMI_array, 2)
-    	
+
     	IF PMI_array(SVES_status, item) = True then
-    	
-    		MAXIS_case_number = PMI_array(case_number, item)			
+
+    		MAXIS_case_number = PMI_array(case_number, item)
     		client_PMI = PMI_array(clt_PMI, item)
     		client_SSN = PMI_array(clt_SSN, item)
     		'establishing values from the array to write into INFC/SVES
-    	    Call navigate_to_MAXIS_screen("infc", "sves")
+    	    Call navigate_to_MAXIS_screen("INFC", "SVES")
+			'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+			EMReadScreen agreement_check, 9, 2, 24
+			IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+
       	    EMWriteScreen client_SSN, 			4, 68
     	    EMWriteScreen client_PMI, 			5, 68
       	    EMWriteScreen "qury",  				20, 70
@@ -224,22 +228,22 @@ If action_type = "Send SVES" then
     	    EMReadScreen duplicate_SVES, 	    7, 24, 2
     	    If duplicate_SVES = "WARNING" then transmit
     		EMReadScreen confirm_SVES, 			6, 24, 2
-    		if confirm_SVES = "RECORD" then 
+    		if confirm_SVES = "RECORD" then
     	    	PMI_array(SVES_status, item) = True
     			PMI_array(failure_reason, item) = "QURY sent."
     	    Else
-    	    	PMI_array(SVES_status, item) = False 
+    	    	PMI_array(SVES_status, item) = False
     	    	PMI_array(failure_reason, item) = "Attempt to send QURY failed."
-    	    END IF 
-    	END IF 
-    Next 
-    
+    	    END IF
+    	END IF
+    Next
+
     For item = 0 to UBound(PMI_array, 2)
     	'establishing values from the array to write into case notes
     	IF PMI_array(SVES_status, item) = True then
-    		MAXIS_case_number = PMI_array(case_number, item)			
+    		MAXIS_case_number = PMI_array(case_number, item)
     		client_PMI = PMI_array(clt_PMI, item)
-    		
+
     		start_a_blank_CASE_NOTE		'Now it case notes
     		call write_variable_in_case_note("SVES/QURY sent for PMI# " & client_PMI & " for " & renewal_date & " Recertification")
     		call write_variable_in_case_note("* Used SSN for QURY.")
@@ -247,23 +251,23 @@ If action_type = "Send SVES" then
     		call write_variable_in_case_note("QURY sent using script by I. Ferris, QI team")
     	END IF
     next
-    
+
     excel_row = 2
 	ObjExcel.columns(3).NumberFormat = "@" 		'formatting as text
     ObjExcel.Cells(1, 17).Value = "NOTES"
     objExcel.Cells(1, 1).Font.Bold = True		'bold font'
-    
+
     For item = 0 to UBound(PMI_array, 2)
     	'establishing values from the array to write into case notes
 		 ObjExcel.Cells(excel_row, 3).Value = PMI_array (member_num, item)	'Adding the reson why SVES/QURY wasn't sent.
     	 ObjExcel.Cells(excel_row, 17).Value = PMI_array (failure_reason, item)	'Adding the reson why SVES/QURY wasn't sent.
     	excel_row = excel_row + 1
-    Next 
-End if 
+    Next
+End if
 
-'If action_type = "Update Cases" then 
+'If action_type = "Update Cases" then
 '
-'End if 
-		
-STATS_counter = STATS_counter - 1		
+'End if
+
+STATS_counter = STATS_counter - 1
 script_end_procedure("Sucess! SVES/QURY has been sent on all cases except for those on the newly created Excel spreadsheet. Please review spreadsheet, and process manually if necessary.")

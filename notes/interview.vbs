@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement.", "MiKayla Handley, Hennepin County") '#493
 call changelog_update("03/29/2022", "Removed ApplyMN as application type option.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/09/2022", "For MFIP Applications an MFIP Orientation to Financial Services is required and should be completed during the interview.##~## ##~##Currently, the script does not have functionality to support the details of the MFIP Orientation Requuirement. This functionality is in the process of being built and tested.##~## ##~##Until that update is complete and ready to be released, we have added a dialog with referece links to the policy requirements that will serve as a placeholder for when to complete the MFIP Orientation during the Interview.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/29/2021", "TESTING UPDATES##~##We made a couple changes.##~## ##~##Added a 'Worker Signature' box to the first dialog as that was missing.##~##Updated the look of the first dialog and added some guidance in pop-up boxes.##~##Changed the 'Error Message' handling in the dialog so if you have to 'BACK' to a question from the last page, it will let you.##~##Removed the 'Update PROG' functionality, since it is broken.##~## ##~##Another addition is a new tool in UTILITIES to open a PDF that was previously created. Go try it out!##~##", "Casey Love, Hennepin County")
@@ -9584,6 +9585,9 @@ End If
 'Navigate back to self and to EDRS
 Back_to_self
 CALL navigate_to_MAXIS_screen("INFC", "EDRS")
+'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+EMReadScreen agreement_check, 9, 2, 24
+IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 
 edrs_match_found = False
 For the_memb = 0 to UBound(HH_MEMB_ARRAY, 2)

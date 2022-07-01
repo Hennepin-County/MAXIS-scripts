@@ -72,7 +72,6 @@ function claim_referral_tracking(action_taken, action_date)
 	'~~~~~ msp_status: Outputs the program status for MSP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
 	'===== Keywords: MAXIS, case status, output, status
 
-
     claim_referral = False
     If snap_case = TRUE or mfip_case = TRUE then claim_referral = True
 
@@ -159,8 +158,10 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("08/19/2021", "GitHub #569 Retire the BULK script due to redundancy.", "MiKayla Handley, Hennepin County")
-call changelog_update("06/17/2021", "GitHub #498 Updating the dialog box to ensure that a cleared method is entered.", "MiKayla Handley, Hennepin County")
+CALL changelog_update("06/30/2022", "Updated handling for new upervisor.", "MiKayla Handley, Hennepin County") '#498
+CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
+call changelog_update("08/19/2021", "Retire the BULK script due to redundancy.", "MiKayla Handley, Hennepin County") '#596'
+call changelog_update("06/17/2021", "Updating the dialog box to ensure that a cleared method is entered.", "MiKayla Handley, Hennepin County") '#498'
 call changelog_update("12/07/2019", "Added handling for coding the Excel spreadsheet. You must use BC, BE, BN, or CC only in the cleared status field.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/14/2017", "Program information will not be input into the Excel spreadsheet. This will not need to be added manually by staff completing the cases.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/05/2017", "Added handling for minor children in school (excluded income) & multiple people per case.", "Ilse Ferris, Hennepin County")
@@ -179,11 +180,15 @@ worker_county_code = "X127"
 match_type = "WAGE"
 action_taken = "No Savings/Overpayment"
 
-'This can only be run by Maureen Headbird DEU HSS = WF7329 and MiKayla Handley WFS395
-If user_ID_for_validation <> "WF7329" THEN
-	IF user_ID_for_validation <> "WFS395" THEN
-        IF user_ID_for_validation <> "ILFE001" THEN
-		    script_end_procedure("This is restricted to use by HSS only. Please contact your supervisor to run.")
+'This can only be run by DEU Supervisor or script team member
+If user_ID_for_validation <> "WF7329"
+	IF user_ID_for_validation <> "WFO119" THEN
+		IF user_ID_for_validation <> "WFS395" THEN
+        	IF user_ID_for_validation <> "ILFE001" THEN
+				IF user_ID_for_validation <> "CALO001" THEN
+		    		script_end_procedure("This is restricted to use by a supervisor only. Please contact your supervisor to run.")
+				END IF
+			END IF
         END IF
 	END IF
 END IF
@@ -346,7 +351,11 @@ For item = 0 to UBound(match_based_array, 2)
 	MAXIS_case_number = match_based_array(maxis_case_number_const, item)
 	CALL navigate_to_MAXIS_screen("INFC" , "____")
 	CALL write_value_and_transmit(match_based_array(client_ssn_const, item), 3, 63)
-	CALL write_value_and_transmit("IEVP", 20, 71)
+	CALL write_value_and_transmit("IEVP", 20, 71) 'this comes after to avoid moving away from IEVP'
+	'checking for NON-DISCLOSURE AGREEMENT REQUIRED FOR ACCESS TO IEVS FUNCTIONS'
+	EMReadScreen agreement_check, 9, 2, 24
+	IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
+
     EMReadScreen IEVP_panel_check, 4, 2, 52
 	IF IEVP_panel_check = "IEVP" THEN
 	'------------------------------------------------------------------selecting the correct wage match
@@ -551,7 +560,6 @@ For item = 0 to UBound(match_based_array, 2)
         If match_based_array(match_cleared_const, item) = TRUE then
 	 	    'Going to the MISC panel to add claim referral tracking information
 	        Call claim_referral_tracking(action_taken, action_date)
-
             '----------------------------------------------------------------------------------------------------CASE NOTE
 		    CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
 		    EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT
