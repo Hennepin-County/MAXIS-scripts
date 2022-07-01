@@ -153,10 +153,6 @@ CALL write_value_and_transmit(IEVS_ssn, 3, 63)
 EMReadScreen agreement_check, 9, 2, 24
 IF agreement_check = "Automated" THEN script_end_procedure("To view INFC data you will need to review the agreement. Please navigate to INFC and then into one of the screens and review the agreement.")
 
-EMReadscreen err_msg, 75, 24, 02
-err_msg = trim(err_msg)
-If err_msg <> "" THEN script_end_procedure_with_error_report("*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine)
-
 '------------------------------------------------------------------selecting the correct wage match
 Row = 7
 DO
