@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/02/2022", "Updated string for checking to see if no DAILs exist based on options selected (all vs. specified DAIL's).", "Ilse Ferris, Hennepin County")
 call changelog_update("04/11/2022", "Added additional handling for moving to another case load if no DAILs are present.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/18/2021", "Updated new server name.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/26/2021", "Removed emailing Todd Bennington per request.", "Ilse Ferris, Hennepin County")
@@ -197,6 +198,14 @@ Else
     script_end_procedure("Unable to navigate to DAIL/PICK. The script will now end.")
 End if
 
+'Ending message when there are no more DAIL's differs based on if you select ALL DAIL's or specific DAILs
+If all_check = 1 then
+    dail_end_msg = "NO MESSAGES WORK"
+Else
+    'all specified selection(s) will get this ending user message.
+    dail_end_msg = "NO MESSAGES TYPE"
+End if
+
 'This for...next contains each worker indicated above
 For each worker in worker_array
 	EMWriteScreen worker, 21, 6
@@ -284,8 +293,9 @@ For each worker in worker_array
 			EMReadScreen next_dail_check, 4, dail_row, 4
 			If trim(next_dail_check) = "" then
 				PF8
-				EMReadScreen last_page_check, 17, 24, 2
-				If last_page_check = "THIS IS THE LAST " or last_page_check = "NO MESSAGES TYPES" then
+                EMReadScreen last_page_check, 16, 24, 2
+                'DAIL/PICK will look for 'no message worker X127XXX as the full message.
+                If last_page_check = "THIS IS THE LAST" or last_page_check = dail_end_msg then
 					all_done = true
 					exit do
 				Else
