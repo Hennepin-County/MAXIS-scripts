@@ -76,7 +76,924 @@ function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, versi
 	End If
 end function
 
+function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_130_percent)
 
+	month_to_review = footer_month & "/1/" & footer_year
+	month_to_review = DateAdd("d", 0, month_to_review)
+
+	If IsNumeric(hh_size) = True Then
+		hh_size = hh_size*1
+
+		If DateDiff("d", #10/1/2021#, month_to_review) >= 0 Then
+			If hh_size = 1 Then fpg_130_percent = 1396
+			If hh_size = 2 Then fpg_130_percent = 1888
+			If hh_size = 3 Then fpg_130_percent = 2379
+			If hh_size = 4 Then fpg_130_percent = 2871
+			If hh_size = 5 Then fpg_130_percent = 3363
+			If hh_size = 6 Then fpg_130_percent = 3855
+			If hh_size = 7 Then fpg_130_percent = 4347
+			If hh_size = 8 Then fpg_130_percent = 4839
+
+			If hh_size > 8 Then fpg_130_percent = 4839 + (492 * (hh_size-8))
+		End If
+	End If
+
+end function
+
+function snap_elig_dialog()
+
+	BeginDialog Dialog1, 0, 0, 555, 385, "SNAP Approval Packages"
+	  GroupBox 460, 10, 85, 165, "SNAP Approvals"
+
+	  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+	  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+
+	  If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+	  	GroupBox 5, 10, 285, 105, "Approval Detail"
+	  	Text 15, 20, 135, 10, "Total Gross Income . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc
+	  	Text 15, 30, 135, 10, "Total Deductions . . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct & "  ( - )"
+	  	Text 15, 40, 135, 10, "Net Income . . . . . . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc
+	  	Text 15, 50, 135, 10, "Shelter Expense . . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses & "  ( - )"
+	  	Text 15, 60, 135, 10, "Net Adjusted Income . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc
+
+	  	Text 15, 75, 135, 10, "Thrifty Food Plan . . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan
+	  	Text 15, 85, 135, 10, "30% of Net Adj Income . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc & "  ( - )"
+
+	  	Text 40, 100, 105, 10, "Entitlement . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot
+	  	' Text 15, 95, 130, 25, "Monthly SNAP Allotment calculated by subtracting 30% of the adjusted net income from the Thrifty Food Plan"
+	  	Text 165, 20, 120, 10, "Months in Approval: " & display_detail
+	  	Text 205, 30, 80, 10, " Result:   " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result
+
+	  	Text 165, 40, 120, 10, " Benefit Entitlement:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot
+	  	Text 165, 60, 115, 10, "Max Gross Inc . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc
+	  	Text 170, 70, 110, 10, "Gross Income Test . . . " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_gross_inc_test
+	  	Text 165, 80, 115, 10, "Max Net Inc . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc
+	  	Text 170, 90, 110, 10, "Net Income Test . . . . . " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_net_inc_test
+
+	  	GroupBox 300, 10, 150, 80, "Total Deductions Calculation"
+	  	Text 325, 35, 100, 10, " Standard . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard
+	  	Text 320, 45, 100, 10, " Earned Inc . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned
+	  	Text 330, 55, 100, 10, "Medical . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical
+	  	Text 305, 65, 130, 10, "Dependent Care . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care
+	  	Text 310, 75, 130, 10, " Child Support . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses
+
+	  	GroupBox 300, 95, 150, 80, "Allowable Shelter Cost Calculation"
+	  	Text 305, 110, 145, 10, "Total Shelter Costs . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total
+	  	Text 305, 120, 145, 10, "Half of Net Income . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc & "  ( - )"
+	  	Text 305, 130, 145, 10, "Adjusted Shelter Costs . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs
+	  	Text 305, 140, 90, 20, "This case has a maximum shelter cost of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel
+	  	Text 305, 160, 145, 10, "Allowed Shelter Expense . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses
+
+	  Else
+
+	  	GroupBox 5, 10, 450, 90, "Approval Detail"
+
+	  	Text 15, 20, 120, 10, "Months in Approval: " & display_detail
+	  	Text 55, 30, 80, 10, " Result:   " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result
+
+	  	Text 15, 45, 100, 10, "APPL Withdrawn:    " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test
+	  	Text 15, 55, 100, 10, "Applicant Elig:         " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test
+	  	Text 15, 65, 100, 10, "Commodity:             " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_comdty_test
+	  	Text 15, 75, 100, 10, "Disqualification:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_disq_test
+	  	Text 15, 85, 100, 10, "Duplicate Assist:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_dupl_assist_test
+
+	  	Text 125, 45, 100, 10, "Eligible Person:       " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_eligible_person_test
+	  	Text 125, 55, 100, 10, "Fail Cooperation:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test
+	  	Text 125, 65, 100, 10, "Fail to File:               " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test
+	  	Text 125, 75, 100, 10, "Prosp Gross Inc:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_gross_inc_test
+	  	Text 125, 85, 100, 10, "Prosp Net Inc:         " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_net_inc_test
+
+	  	Text 235, 45, 100, 10, "Recertification:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test
+	  	Text 235, 55, 100, 10, "Residence:           " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test
+	  	Text 235, 65, 100, 10, "Resource:             " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test
+	  	Text 235, 75, 100, 10, "Retro Gross Inc:    " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_gross_inc_test
+	  	Text 235, 85, 100, 10, "Retro Net Inc:        " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_net_inc_test
+
+	  	Text 345, 45, 100, 10, "Strike:                    " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test
+	  	Text 345, 55, 100, 10, "Xfer Asset/Inc:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test
+	  	Text 345, 65, 100, 10, "Verification:            " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test
+	  	Text 345, 75, 100, 10, "Voluntary Quit:       " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_voltry_quit_test
+	  	Text 345, 85, 100, 10, "Work Registration: " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test
+
+	  	GroupBox 5, 100, 450, 60, "Ineligible Details"
+	  	If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" then
+			Text 15, 115, 165, 10, "What is the date the verification request was sent? "
+			Editbox 180, 110, 50, 15, SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Text 235, 115, 150, 10, "(due date is 10 days from this request date)"
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" then
+				Text 15, 135, 120, 10, "List PACT reason(s) for ineligibility: "
+				Editbox 130, 130, 310, 15, SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
+				Text 130, 145, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
+			End if
+		Else
+			Text 15, 120, 300, 10, "This case is ineligible becaues it hasn't met the requirements for SNAP Eligibility. The case tests above show what requirements have not been met."
+	    End if
+
+	  End If
+
+	  ' EditBox 600, 400, 50, 10, empty_editbox
+	  ButtonGroup ButtonPressed
+	    If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 115, 50, 10, "View ELIG", nav_stat_elig_btn
+		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 165, 100, 50, 10, "View ELIG", nav_stat_elig_btn
+		If all_snap_approvals_confirmed = True Then
+			PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+		ElseIf snap_approval_is_incorrect = True Then
+			PushButton 440, 365, 110, 15, "Cancel Approval Noting", app_incorrect_btn
+		ElseIf UBound(SNAP_UNIQUE_APPROVALS, 2) = 0 Then
+			Text 400, 360, 150, 20, "Thre is only one approval package, review the approval and indicate accuracy."
+		ElseIf approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) Then
+			PushButton 440, 365, 110, 15, "First Approval", first_approval_btn
+		Else
+			PushButton 440, 365, 110, 15, "Next Approval", next_approval_btn
+		End If
+		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 360, 20, 85, 10, "Deductions Detail", deductions_detail_btn
+		PushButton 200, 170, 70, 10, "HH COMP Detail", hh_comp_detail
+		PushButton 360, 190, 85, 10, "Shelter Expense Detail", shel_exp_detail_btn
+		y_pos = 25
+		display_detail = ""
+		for each_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+			If SNAP_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
+				month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app)
+			ElseIF SNAP_UNIQUE_APPROVALS(last_mo_const, each_app) = CM_plus_1_mo & "/" & CM_plus_1_yr Then
+				month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - Ongoing"
+			Else
+				month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - " & SNAP_UNIQUE_APPROVALS(last_mo_const, each_app)
+			End if
+			If each_app = approval_selected Then display_detail = month_display
+			If each_app = approval_selected Then
+				Text 470, y_pos+2, 75, 13, month_display
+			Else
+				PushButton 465, y_pos, 75, 13, month_display, SNAP_UNIQUE_APPROVALS(btn_one, each_app)
+			End If
+			y_pos = y_pos + 15
+		next
+		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		' PushButton 465, 25, 75, 15, "08/21 - 09/21", app_btn_one
+		' PushButton 465, 40, 75, 15, "10/21 - 02/22", app_btn_two
+		' PushButton 465, 55, 75, 15, "03/22 - Ongoing", app_btn_three
+
+
+	  ' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
+	  ' Text 15, 125, 130, 10, "REVIEW ALL BUDGET INFORMATION"
+	  ' Text 15, 135, 135, 10, "Check income, pay frequency, amounts."
+	  ' Text 15, 145, 135, 10, "Review housing expense and utilities."
+	  If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
+		  GroupBox 5, 120, 285, 35, "SNAP Benefits Issued to Resident in the Approval Package"
+		  app_y_pos = 132
+		  app_x_pos = 10
+		  For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
+		  	If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				Text app_x_pos, app_y_pos, 85, 10, SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt
+				app_y_pos = app_y_pos + 10
+				If app_y_pos = 152 Then
+					app_y_pos = 132
+					app_x_pos = app_x_pos + 90
+				End If
+			End If
+		  Next
+	  End If
+	  ' Text 10, 135, 85, 10, "MONTH 1 - $ XXX"
+	  ' Text 10, 145, 85, 10, "MONTH 2 - $ XXX"
+	  ' Text 100, 135, 85, 10, "MONTH 3 - $ XXX"
+	  ' Text 100, 145, 85, 10, "MONTH 4 - $ XXX"
+	  ' Text 190, 135, 85, 10, "MONTH 5 - $ XXX"
+	  ' Text 190, 145, 85, 10, "MONTH 6 - $ XXX"
+
+	  GroupBox 5, 160, 285, 70, "Household Composition"
+	  Text 20, 170, 115, 10, "Members in Assistance Unit:  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit
+	  Text 35, 180, 245, 20, "Eligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).elig_membs_list
+	  Text 30, 200, 245, 20, "Ineligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).inelig_membs_list
+
+	  ' GroupBox 300, 90, 150, 80, "Allowable Shelter Cost Calculation"
+	  GroupBox 300, 180, 240, 50, "Expenses"
+	  Text 315, 205, 200, 10, "Utilities Expense:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total & "  -  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_list
+	  Text 310, 215, 125, 10, "Housing Expense:  $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total
+
+	  GroupBox 5, 235, 540, income_box_len, "Income"
+	  Text 10, 245, 155, 10, "Total GROSS EARNED Income:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc
+	  Text 300, 245, 155, 10, "Total GROSS UNEARNED Income:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc
+	  y_pos = 260
+	  y_pos_2 = 260
+	  For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+	  	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted(each_memb) = True Then
+			' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+			Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+  		    If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+			Else
+				Text 40, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+			End If
+			y_pos = y_pos + 20
+		End If
+		If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted(each_memb) = True Then
+			' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb)
+			Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+			If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+			Else
+				Text 40, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+			End If
+			y_pos = y_pos + 20
+		End If
+		If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted(each_memb) = True Then
+			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb)
+			If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+			Else
+				Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+			End If
+			y_pos = y_pos + 20
+		End If
+		If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted(each_memb) = True Then
+			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb)
+			If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+			Else
+				Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+			End If
+			y_pos = y_pos + 20
+		End If
+		If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted(each_memb) = True Then
+			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb)
+			If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+			Else
+				Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+			End If
+			y_pos = y_pos + 20
+		End If
+		If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted(each_memb) = True Then
+			' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) &
+			Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+			If STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then
+				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+			Else
+				Text 40, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_expenses(each_memb)
+			End If
+			y_pos = y_pos + 20
+		End If
+		If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted(each_memb) = True Then
+			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb)
+			If STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
+				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+			Else
+				Text 25, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_expenses(each_memb)
+			End If
+			y_pos = y_pos + 20
+		End If
+		If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted(each_memb) = True Then
+			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb)
+			If STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
+				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+			Else
+				Text 25, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_expenses(each_memb)
+			End If
+			y_pos = y_pos + 20
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted(each_memb) = True Then
+			Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb)
+			y_pos_2 = y_pos_2 + 10
+			If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+				Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				y_pos_2 = y_pos_2 + 10
+			End If
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted(each_memb) = True Then
+			Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb)
+			y_pos_2 = y_pos_2 + 10
+			If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+				Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				y_pos_2 = y_pos_2 + 10
+			End If
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted(each_memb) = True Then
+			Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb)
+			y_pos_2 = y_pos_2 + 10
+			If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+				Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				y_pos_2 = y_pos_2 + 10
+			End If
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted(each_memb) = True Then
+			Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb)
+			y_pos_2 = y_pos_2 + 10
+			If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+				Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				y_pos_2 = y_pos_2 + 10
+			End If
+		End If
+		If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted(each_memb) = True Then
+			Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb)
+			y_pos_2 = y_pos_2 + 10
+			If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+				Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				y_pos_2 = y_pos_2 + 10
+			End If
+		End If
+	  Next
+	  ' Text 15, 155, 215, 10, "MEMB 01 - JOB NAME                           Monhtly Income:   $ XXX"
+	  ' Text 25, 165, 200, 10, "Paid FREQUENCY - $ XXX average inc/pay date"
+	  ' Text 15, 175, 215, 10, "MEMB 01 - JOB NAME                           Monhtly Income:   $ XXX"
+	  ' Text 25, 185, 200, 10, "Paid FREQUENCY - $ XXX average inc/pay date"
+	  ' Text 245, 155, 205, 10, "MEMB 01 - UNEA TYPE                   Monhtly Income:   $ XXX"
+	  ' Text 245, 165, 205, 10, "MEMB 01 - UNEA TYPE                   Monhtly Income:   $ XXX"
+
+
+	  '308133'
+
+
+
+	EndDialog
+end function
+
+function snap_elig_case_note()
+
+	Call start_a_blank_case_note
+
+	end_msg_info = end_msg_info & "NOTE entered for SNAP - " & elig_info & " eff " & first_month & header_end & vbCr
+	Call write_variable_in_CASE_NOTE("APP Completed " & program_detail & " " & elig_info & " eff " & first_month & header_end)		'TODO - add closure or denial details here based on some other logic that we have to figure out'
+	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Entitlement: $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
+	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
+
+	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(elig_ind).snap_approved_date)
+	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
+	If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
+		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
+		For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
+			If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				If SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot = SNAP_ELIG_APPROVALS(approval).snap_benefit_amt Then
+					' " 10/21:     Entitlement: $ 1,125.00 ¦ Issued to Resident: $ 1,125.00    10/21"
+					Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "| Issued to Resident: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
+				Else
+					If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt <> "" Then
+						Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "|           Prorated: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt, 8) & "-from " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date)
+						If SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then Call write_variable_in_CASE_NOTE("                               | Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
+						If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
+					ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then
+						Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "| Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
+						If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
+					ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then
+						Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "|         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
+					End If
+
+					Call write_variable_in_CASE_NOTE("                               | Issued to Resident: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
+					Call write_variable_in_CASE_NOTE("                               |---------------------------------------------")
+				End If
+			End If
+		Next
+	End If
+
+	' "======================================XX======================================"
+
+	If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
+		Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
+
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_gross_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Prosp Inc exceeds GROSS INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc)
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_net_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Prosp Inc exceeds NET INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc)
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_gross_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Retro Inc exceeds GROSS INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc)
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_net_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Retro Inc exceeds NET INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc)
+
+
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "0.00"
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "0.00"
+
+		Call write_variable_in_CASE_NOTE(" Household: " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " Adult")
+
+		beginning_txt = " Income:    "
+		earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8)
+		spaces_30 = "                              "
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted(each_memb) = True Then
+				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 26)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				beginning_txt = "            "
+				earned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted(each_memb) = True Then
+				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 26)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				beginning_txt = "            "
+				earned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted(each_memb) = True Then
+				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 26)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				beginning_txt = "            "
+				earned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted(each_memb) = True Then
+				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 26)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				beginning_txt = "            "
+				earned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted(each_memb) = True Then
+				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 26)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				beginning_txt = "            "
+				earned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted(each_memb) = True Then
+				busi_details = left(STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 25)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+				beginning_txt = "            "
+				earned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted(each_memb) = True Then
+				busi_details = left(STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 25)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+				beginning_txt = "            "
+				earned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted(each_memb) = True Then
+				busi_details = left(STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 25)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+				beginning_txt = "            "
+				earned_info = "|"
+			End If
+		Next
+		If earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8) Then
+			' Call write_variable_in_CASE_NOTE(" Income:    NONE                            |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
+			Call write_variable_in_CASE_NOTE(" Income:    NO Earned Income                |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
+
+		End If
+		unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8)
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted(each_memb) = True Then
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), 31)
+				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unearned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted(each_memb) = True Then
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), 31)
+				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unearned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted(each_memb) = True Then
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), 31)
+				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unearned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted(each_memb) = True Then
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), 31)
+				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unearned_info = "|"
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted(each_memb) = True Then
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), 31)
+				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unearned_info = "|"
+			End If
+		Next
+		If unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
+
+		Call write_variable_in_CASE_NOTE("                                            |    Total Gross Inc: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc, 8))
+
+		deduction_detail_one = ""
+		deduction_detail_two = ""
+		deduction_detail_three = ""
+
+		' Standard $177
+		' Earned Inc $126
+		' Medical Exp $0
+		' Depndt Care $175.00
+		' 1234567890123456789
+		' Child Suprt $0
+
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard <> "" Then
+			If deduction_detail_one = "" Then
+				deduction_detail_one = left("Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_one) < 21 Then
+				deduction_detail_one = deduction_detail_one & "- Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
+			ElseIf deduction_detail_two = "" Then
+				deduction_detail_two = left("Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_two) < 21 Then
+				deduction_detail_two = deduction_detail_two & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
+			ElseIf deduction_detail_three = "" Then
+				deduction_detail_three = deduction_detail_three & "Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
+			ElseIf len(deduction_detail_three) < 21 Then
+				deduction_detail_three = deduction_detail_three & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
+			End if
+		End If
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned <> "" Then
+			' MsgBox SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned
+			If deduction_detail_one = "" Then
+				deduction_detail_one = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_one) < 21 Then
+				deduction_detail_one = deduction_detail_one & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
+			ElseIf deduction_detail_two = "" Then
+				deduction_detail_two = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_two) < 21 Then
+				deduction_detail_two = deduction_detail_two & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
+			ElseIf deduction_detail_three = "" Then
+				deduction_detail_three = deduction_detail_three & "Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
+			ElseIf len(deduction_detail_three) < 21 Then
+				deduction_detail_three = deduction_detail_three & "- Earned Inc  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
+			End if
+		End If
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical <> "" Then
+			If deduction_detail_one = "" Then
+				deduction_detail_one = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_one) < 21 Then
+				deduction_detail_one = deduction_detail_one & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
+			ElseIf deduction_detail_two = "" Then
+				deduction_detail_two = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_two) < 21 Then
+				deduction_detail_two = deduction_detail_two & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
+			ElseIf deduction_detail_three = "" Then
+				deduction_detail_three = deduction_detail_three & "Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
+			ElseIf len(deduction_detail_three) < 21 Then
+				deduction_detail_three = deduction_detail_three & "- Medical Exp  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
+			End if
+		End If
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care <> "" Then
+			If deduction_detail_one = "" Then
+				deduction_detail_one = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_one) < 21 Then
+				deduction_detail_one = deduction_detail_one & "-Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
+			ElseIf deduction_detail_two = "" Then
+				deduction_detail_two = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_two) < 21 Then
+				deduction_detail_two = deduction_detail_two & "- Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
+			ElseIf deduction_detail_three = "" Then
+				deduction_detail_three = deduction_detail_three & "Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
+			ElseIf len(deduction_detail_three) < 21 Then
+				deduction_detail_three = deduction_detail_three & "- Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
+			End if
+		End If
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses <> "" Then
+			If deduction_detail_one = "" Then
+				deduction_detail_one = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_one) < 21 Then
+				deduction_detail_one = deduction_detail_one & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
+			ElseIf deduction_detail_two = "" Then
+				deduction_detail_two = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
+			ElseIf len(deduction_detail_two) < 21 Then
+				deduction_detail_two = deduction_detail_two & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
+			ElseIf deduction_detail_three = "" Then
+				deduction_detail_three = deduction_detail_three & "Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
+			ElseIf len(deduction_detail_three) < 21 Then
+				deduction_detail_three = deduction_detail_three & "- Child Suprt  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
+			End if
+		End If
+		' MsgBox "deduction_detail_one - " & deduction_detail_one & vbCr &_
+		' 		"deduction_detail_two - " & deduction_detail_two & vbCr &_
+		' 		"deduction_detail_three - " & deduction_detail_three
+		Call write_variable_in_CASE_NOTE(" Deductions:" & left(deduction_detail_one & spaces_30, 32) & "|   (-)   Deductions: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct, 8))
+		If deduction_detail_two <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_two & spaces_30, 32) & "|")
+		If deduction_detail_three <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_three & spaces_30, 32) & "|")
+		' MsgBox "CHECK"
+		Call write_variable_in_CASE_NOTE("                                            |            Net Inc: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc, 8))
+		Call write_variable_in_CASE_NOTE(" Expenses:  Housing: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total & "        ", 8)& "        |--------------------------|")
+		' " Expenses:  Housing: $1,250.00        |-------------------------------------|"
+
+
+		Call write_variable_in_CASE_NOTE("            Utilities: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total&"        ", 8) & "      | Total Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total, ".00", "")&"        ", 8) & "|")
+		Call write_variable_in_CASE_NOTE("            MAX Allowable: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel&"        ", 8) & "  |(-)1/2 Net Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc, ".00", "")&"        ", 8) & "|")
+		Call write_variable_in_CASE_NOTE("                                      |   Adj Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs, ".00", "")&"        ", 8) & "|")
+		Call write_variable_in_CASE_NOTE("                                      |--------------------------|")
+		Call write_variable_in_CASE_NOTE("                                            |  (-)Allow Shel Exp: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses, 8))
+		Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc, 8))
+		Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+		Call write_variable_in_CASE_NOTE("                               |    Thrifty Food Plan: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan, ".00", "")&"        ", 8) & "|")
+		Call write_variable_in_CASE_NOTE("                               |(-)30% of Net Adj Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc, ".00", "")&"        ", 8) & "|")
+		Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+		Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot, 8))
+
+		If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = True Then
+			Call write_variable_in_CASE_NOTE("SNAP Budgeted Gross Income of  $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc & " exceeds 130% FPG of $ " & FormatNumber(SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app), 2, -1, 0, -1))
+
+			If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = True Then Call write_variable_in_CASE_NOTE(" - WCOM added to Notice for to clarify reporting responsibilities.")
+		End If
+		' Call write_variable_in_CASE_NOTE("*** CASE STATUS ***")
+	End If
+
+	If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
+		Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
+
+		Call write_variable_in_CASE_NOTE("* SNAP is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for SNAP benefits was withdrawn. (APPLICATION WITHDRAWN)")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - The applicant is not SNAP eligibile. (APPLICANT ELIGIBLE)")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_abawd(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has reached the SNAP Time Limit - ABAWD")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_absence(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is not in the household.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_roomer(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is a roomer.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_boarder(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is a boarder.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_citizenship(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 does not meet citizenship requirements.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_citizenship_coop(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has not complied with citizzenship information.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_cmdty(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has received commodities for this time period.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_disq(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is disqualified from SNAP")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_dupl_assist(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has received SNAP assisnce on another case.")
+
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_fraud(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has a Fraud determination.")
+			If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
+				Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+				If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
+			End If
+			If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
+				Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+				If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
+			End If
+			If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
+				Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+				If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
+			End If
+			If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
+				Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+				If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
+			End If
+			If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
+				Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+				If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
+			End If
+
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_eligible_student(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is an ineligible student.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_institution(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is in an institution.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_mfip_elig(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is MFIP eligible.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_non_applcnt(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is not requesting SNAP.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_residence(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 does not have MN residence.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_ssn_coop(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has not cooperated with SSN requirements.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_unit_memb(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is not a unit member.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_work_reg(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has not complied with work registration.")
+
+		End If
+
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_comdty_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has received Commodity Food in this time period. (COMMODITY)")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_disq_test = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - This case has a Disqualification. (DISQUALIFICATION)")
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
+				End If
+			Next
+		End If
+
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_dupl_assist_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has already received SNAP. (DUPL ASSISTANCE)")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_eligible_person_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is not eligible person on this case. (ELIGIBLE PERSON)")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - This case has failed to cooperate. (FAIL TO COOPERATE)")
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
+				End If
+			Next
+		End If
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has failed to file a report. (FAIL TO FILE)")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_fail_file_hrf = "FAILED" Then Call write_variable_in_CASE_NOTE("    -Monthly Household Report process was not completed.")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_fail_file_sr = "FAILED" Then Call write_variable_in_CASE_NOTE("    -Six Month Report process was not completed.")
+
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The annual recertification process was not completed. (RECERTIFICATION)")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not established Minnesota residency. (RESIDENCE)")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The assets have exceeded the max. (RESOURCE)")
+		' TODO - add more asset test information'
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has a member on strike. (STRIKE)")
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - This case has failed transfer resources/income. (TRANSFER RESOURCE INC)")
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
+				End If
+			Next
+		End If
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
+			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_MEMB_ID  = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of the identity of the Applicant was not received.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_ACCT = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of bank account not received.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Case ineligible due to: " & SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ". ")
+				Call write_variable_in_CASE_NOTE("     INELIG created using PACT.")
+				If SNAP_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True Then Call write_variable_in_CASE_NOTE("     WCOM added to Notice with PACT reason.")
+			End If
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_ADDR = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Residency not verified.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_SECU = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of securities not received.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_RBIC = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Self Employment - Roomer/Boarder Income not verified.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_BUSI = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Self Employment income not verified.")
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+					End if
+				Next
+			End If
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_SPON = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Sponsor income not verified.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_STIN = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Student income not verified.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_UNEA = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
+					End if
+				Next
+			End If
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_JOBS = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Wage income not verified.")
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
+					End if
+					If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+						Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
+					End if
+				Next
+			End If
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_STWK = "FAILED" Then Call write_variable_in_CASE_NOTE("   - End of employment not verified.")
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_STRK = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of strike was not received.")
+		End If
+
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_voltry_quit_test = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - This case has a member who quit work, not following SNAP general work rules. (VOLUNTARY QUIT)")
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
+				End If
+			Next
+		End If
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The persons on this case did not comply with work registration. (WORK REGISTRATION)")
+		' TODO - add more detail for work Reg'
+	End If
+
+	'312524'
+	first_memb = ""
+	If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test = "FAILED" and UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb) > 0 Then first_memb = 1
+	If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test <> "FAILED" Then first_memb = 0
+
+	first_inelig_memb = True
+	If first_memb <> "" Then
+		For each_memb = first_memb to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_eligibility(each_memb) = "INELIGIBLE" Then
+
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
+					If first_inelig_memb = True Then
+						Call write_variable_in_CASE_NOTE("================================ MEMBER TESTS ===============================")
+						first_inelig_memb = False
+					End If
+					Call write_variable_in_CASE_NOTE(" - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not eligible for SNAP and not included in the SNAP benefit.")
+					Call write_variable_in_CASE_NOTE("   The income for this member is " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_counted(each_memb))
+				ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_failed_test(each_memb) = True Then
+					If first_inelig_memb = True Then
+						Call write_variable_in_CASE_NOTE("================================ MEMBER TESTS ===============================")
+						first_inelig_memb = False
+					End If
+					Call write_variable_in_CASE_NOTE(" - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not eligible for SNAP.")
+				End If
+
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_abawd(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has reached the SNAP Time Limit - ABAWD")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_absence(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not in the household.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_roomer(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is a roomer.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_boarder(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is a boarder.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_citizenship(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " does not meet citizenship requirements.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_citizenship_coop(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not complied with citizzenship information.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_cmdty(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has received commodities for this time period.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_disq(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is disqualified from SNAP")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_dupl_assist(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has received SNAP assisnce on another case.")
+
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_fraud(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has a Fraud determination.")
+				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
+				End If
+				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
+					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
+				End If
+
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_eligible_student(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is an ineligible student.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_institution(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is in an institution.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_mfip_elig(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is MFIP eligible.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_non_applcnt(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not requesting SNAP.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_residence(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " does not have MN residence.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_ssn_coop(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not cooperated with SSN requirements.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_unit_memb(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not a unit member.")
+				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_work_reg(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not complied with work registration.")
+			End If
+		Next
+	End if
+
+	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
+	spaces_18 = "                  "
+	' Call write_variable_in_CASE_NOTE(" SNAP Status:      " & left(SNAP_ELIG_APPROVALS(elig_ind).snap_curr_prog_status & spaces_18, 18) & "Budget Cycle:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
+	' Call write_variable_in_CASE_NOTE(" Reporting Status: " & left(SNAP_ELIG_APPROVALS(elig_ind).snap_reporting_status & spaces_18, 18) & "Review Date:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
+	Call write_variable_in_CASE_NOTE("SNAP Status:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_curr_prog_status)
+	Call write_variable_in_CASE_NOTE("Budget Cycle:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
+	If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
+		Call write_variable_in_CASE_NOTE("Reporting Status: " & SNAP_ELIG_APPROVALS(elig_ind).snap_reporting_status)
+		Call write_variable_in_CASE_NOTE("Review Date:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
+	End If
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+
+	' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
+	PF3
+end function
 
 
 'DECLARATIONS===============================================================================================================
@@ -11468,6 +12385,9 @@ If row <> 24 and row <> 0 Then
 	If advise_not_to_use_lcase = True Then MsgBox "The script has reviewed REPT/PND2 and found that denial coding has been entered as lowercase letters. " & vbCr & vbCr & " - Either an 'i' or 'r' was entered for the case to deny." & vbCr & vbCr & "Please be aware that entering command information in MAXIS is most reliable if entered as an Upper Case letter." & vbCr & "The script has repaired the entry to make them capitalized." & vbCr & vbCr & "This information is just for awareness, the script will continue and there is no additional action needed."
 End If
 
+Call back_to_SELF
+EMWriteScreen MAXIS_case_number, 18, 43
+
 
 'In order to determine the array - need to be able to see if the budget changes from one to the next
 'EMER doesn't have an array - there is only one month
@@ -11494,6 +12414,7 @@ first_approval_btn		= 120
 app_incorrect_btn		= 130
 
 const months_in_approval			= 0
+' const wcom_needed 					= 4
 const verif_reqquest_date			= 5
 const pact_inelig_reasons			= 6
 const package_is_expedited_const 	= 7
@@ -11506,7 +12427,13 @@ const dialog_displayed				= 13
 const budget_error_exists			= 14
 const btn_one 						= 15
 const approval_incorrect			= 16
-const approval_confirmed			= 17
+const pact_wcom_needed				= 17
+const pact_wcom_sent				= 18
+const snap_over_130_wcom_needed		= 19
+const snap_over_130_wcom_sent		= 20
+const snap_130_percent_fpg_amt		= 21
+
+const approval_confirmed			= 22
 
 Dim SNAP_UNIQUE_APPROVALS()
 ReDim SNAP_UNIQUE_APPROVALS(approval_confirmed, 0)
@@ -11646,6 +12573,23 @@ If enter_CNOTE_for_SNAP = True Then
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
 		End If
 
+		Call determine_130_percent_of_FPG(left(first_month, 2), right(first_month, 2), SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit, SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app))
+		SNAP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = False
+		SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, unique_app) = False
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" then SNAP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = True
+
+
+		If IsNumeric(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc) = True and IsNumeric(SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app)) = True Then
+			grs_inc = SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc*1
+			max_130_inc = SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app)*1
+			If grs_inc > max_130_inc Then SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, unique_app) = True
+		End If
+		SNAP_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = False
+		SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = False
+
+		SNAP_UNIQUE_APPROVALS(wcom_needed, unique_app) = False
+		If SNAP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = True Then SNAP_UNIQUE_APPROVALS(wcom_needed, unique_app) = True
+		If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, unique_app) = True Then SNAP_UNIQUE_APPROVALS(wcom_needed, unique_app) = True
 
 		ei_count = 0
 		unea_count = 0
@@ -11685,308 +12629,7 @@ If enter_CNOTE_for_SNAP = True Then
 		income_box_len = 30 + unea_len
 		If ei_len > unea_count Then income_box_len = 30 + ei_len
 
-		BeginDialog Dialog1, 0, 0, 555, 385, "SNAP Approval Packages"
-		  GroupBox 460, 10, 85, 165, "SNAP Approvals"
-
-		  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
-
-		  If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
-		  	GroupBox 5, 10, 285, 105, "Approval Detail"
-		  	Text 15, 20, 135, 10, "Total Gross Income . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc
-		  	Text 15, 30, 135, 10, "Total Deductions . . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct & "  ( - )"
-		  	Text 15, 40, 135, 10, "Net Income . . . . . . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc
-		  	Text 15, 50, 135, 10, "Shelter Expense . . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses & "  ( - )"
-		  	Text 15, 60, 135, 10, "Net Adjusted Income . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc
-
-		  	Text 15, 75, 135, 10, "Thrifty Food Plan . . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan
-		  	Text 15, 85, 135, 10, "30% of Net Adj Income . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc & "  ( - )"
-
-		  	Text 40, 100, 105, 10, "Entitlement . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot
-		  	' Text 15, 95, 130, 25, "Monthly SNAP Allotment calculated by subtracting 30% of the adjusted net income from the Thrifty Food Plan"
-		  	Text 165, 20, 120, 10, "Months in Approval: " & display_detail
-		  	Text 205, 30, 80, 10, " Result:   " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result
-
-		  	Text 165, 40, 120, 10, " Benefit Entitlement:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot
-		  	Text 165, 60, 115, 10, "Max Gross Inc . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc
-		  	Text 170, 70, 110, 10, "Gross Income Test . . . " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_gross_inc_test
-		  	Text 165, 80, 115, 10, "Max Net Inc . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc
-		  	Text 170, 90, 110, 10, "Net Income Test . . . . . " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_net_inc_test
-
-		  	GroupBox 300, 10, 150, 80, "Total Deductions Calculation"
-		  	Text 325, 35, 100, 10, " Standard . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard
-		  	Text 320, 45, 100, 10, " Earned Inc . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned
-		  	Text 330, 55, 100, 10, "Medical . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical
-		  	Text 305, 65, 130, 10, "Dependent Care . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care
-		  	Text 310, 75, 130, 10, " Child Support . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses
-
-		  	GroupBox 300, 95, 150, 80, "Allowable Shelter Cost Calculation"
-		  	Text 305, 110, 145, 10, "Total Shelter Costs . . . . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total
-		  	Text 305, 120, 145, 10, "Half of Net Income . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc & "  ( - )"
-		  	Text 305, 130, 145, 10, "Adjusted Shelter Costs . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs
-		  	Text 305, 140, 90, 20, "This case has a maximum shelter cost of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel
-		  	Text 305, 160, 145, 10, "Allowed Shelter Expense . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses
-
-		  Else
-
-		  	GroupBox 5, 10, 450, 90, "Approval Detail"
-
-		  	Text 15, 20, 120, 10, "Months in Approval: " & display_detail
-		  	Text 55, 30, 80, 10, " Result:   " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result
-
-		  	Text 15, 45, 100, 10, "APPL Withdrawn:    " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test
-		  	Text 15, 55, 100, 10, "Applicant Elig:         " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test
-		  	Text 15, 65, 100, 10, "Commodity:             " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_comdty_test
-		  	Text 15, 75, 100, 10, "Disqualification:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_disq_test
-		  	Text 15, 85, 100, 10, "Duplicate Assist:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_dupl_assist_test
-
-		  	Text 125, 45, 100, 10, "Eligible Person:       " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_eligible_person_test
-		  	Text 125, 55, 100, 10, "Fail Cooperation:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test
-		  	Text 125, 65, 100, 10, "Fail to File:               " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test
-		  	Text 125, 75, 100, 10, "Prosp Gross Inc:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_gross_inc_test
-		  	Text 125, 85, 100, 10, "Prosp Net Inc:         " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_net_inc_test
-
-		  	Text 235, 45, 100, 10, "Recertification:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test
-		  	Text 235, 55, 100, 10, "Residence:           " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test
-		  	Text 235, 65, 100, 10, "Resource:             " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test
-		  	Text 235, 75, 100, 10, "Retro Gross Inc:    " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_gross_inc_test
-		  	Text 235, 85, 100, 10, "Retro Net Inc:        " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_net_inc_test
-
-		  	Text 345, 45, 100, 10, "Strike:                    " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test
-		  	Text 345, 55, 100, 10, "Xfer Asset/Inc:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test
-		  	Text 345, 65, 100, 10, "Verification:            " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test
-		  	Text 345, 75, 100, 10, "Voluntary Quit:       " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_voltry_quit_test
-		  	Text 345, 85, 100, 10, "Work Registration: " & SNAP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test
-
-		  	GroupBox 5, 100, 450, 60, "Ineligible Details"
-		  	If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" then
-				Text 15, 115, 165, 10, "What is the date the verification request was sent? "
-				Editbox 180, 110, 50, 15, SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
-				Text 235, 115, 150, 10, "(due date is 10 days from this request date)"
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" then
-					Text 15, 135, 120, 10, "List PACT reason(s) for ineligibility: "
-					Editbox 130, 130, 310, 15, SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
-					Text 130, 145, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
-				End if
-			Else
-				Text 15, 120, 300, 10, "This case is ineligible becaues it hasn't met the requirements for SNAP Eligibility. The case tests above show what requirements have not been met."
-		    End if
-
-		  End If
-
-		  ' EditBox 600, 400, 50, 10, empty_editbox
-		  ButtonGroup ButtonPressed
-		    If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 115, 50, 10, "View ELIG", nav_stat_elig_btn
-			If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 165, 100, 50, 10, "View ELIG", nav_stat_elig_btn
-			If all_snap_approvals_confirmed = True Then
-				PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
-			ElseIf snap_approval_is_incorrect = True Then
-				PushButton 440, 365, 110, 15, "Cancel Approval Noting", app_incorrect_btn
-			ElseIf UBound(SNAP_UNIQUE_APPROVALS, 2) = 0 Then
-				Text 400, 360, 150, 20, "Thre is only one approval package, review the approval and indicate accuracy."
-			ElseIf approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) Then
-				PushButton 440, 365, 110, 15, "First Approval", first_approval_btn
-			Else
-				PushButton 440, 365, 110, 15, "Next Approval", next_approval_btn
-			End If
-			If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 360, 20, 85, 10, "Deductions Detail", deductions_detail_btn
-			PushButton 200, 170, 70, 10, "HH COMP Detail", hh_comp_detail
-			PushButton 360, 190, 85, 10, "Shelter Expense Detail", shel_exp_detail_btn
-			y_pos = 25
-			display_detail = ""
-			for each_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
-				If SNAP_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
-					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app)
-				ElseIF SNAP_UNIQUE_APPROVALS(last_mo_const, each_app) = CM_plus_1_mo & "/" & CM_plus_1_yr Then
-					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - Ongoing"
-				Else
-					month_display = SNAP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - " & SNAP_UNIQUE_APPROVALS(last_mo_const, each_app)
-				End if
-				If each_app = approval_selected Then display_detail = month_display
-				If each_app = approval_selected Then
-					Text 470, y_pos+2, 75, 13, month_display
-				Else
-					PushButton 465, y_pos, 75, 13, month_display, SNAP_UNIQUE_APPROVALS(btn_one, each_app)
-				End If
-				y_pos = y_pos + 15
-			next
-			PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
-			' PushButton 465, 25, 75, 15, "08/21 - 09/21", app_btn_one
-			' PushButton 465, 40, 75, 15, "10/21 - 02/22", app_btn_two
-			' PushButton 465, 55, 75, 15, "03/22 - Ongoing", app_btn_three
-
-
-		  ' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
-		  ' Text 15, 125, 130, 10, "REVIEW ALL BUDGET INFORMATION"
-		  ' Text 15, 135, 135, 10, "Check income, pay frequency, amounts."
-		  ' Text 15, 145, 135, 10, "Review housing expense and utilities."
-		  If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
-			  GroupBox 5, 120, 285, 35, "SNAP Benefits Issued to Resident in the Approval Package"
-			  app_y_pos = 132
-			  app_x_pos = 10
-			  For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
-			  	If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, approval_selected), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-					Text app_x_pos, app_y_pos, 85, 10, SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt
-					app_y_pos = app_y_pos + 10
-					If app_y_pos = 152 Then
-						app_y_pos = 132
-						app_x_pos = app_x_pos + 90
-					End If
-				End If
-			  Next
-		  End If
-		  ' Text 10, 135, 85, 10, "MONTH 1 - $ XXX"
-		  ' Text 10, 145, 85, 10, "MONTH 2 - $ XXX"
-		  ' Text 100, 135, 85, 10, "MONTH 3 - $ XXX"
-		  ' Text 100, 145, 85, 10, "MONTH 4 - $ XXX"
-		  ' Text 190, 135, 85, 10, "MONTH 5 - $ XXX"
-		  ' Text 190, 145, 85, 10, "MONTH 6 - $ XXX"
-
-		  GroupBox 5, 160, 285, 70, "Household Composition"
-		  Text 20, 170, 115, 10, "Members in Assistance Unit:  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit
-		  Text 35, 180, 245, 20, "Eligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).elig_membs_list
-		  Text 30, 200, 245, 20, "Ineligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).inelig_membs_list
-
-		  ' GroupBox 300, 90, 150, 80, "Allowable Shelter Cost Calculation"
-		  GroupBox 300, 180, 240, 50, "Expenses"
-		  Text 315, 205, 200, 10, "Utilities Expense:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total & "  -  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_list
-		  Text 310, 215, 125, 10, "Housing Expense:  $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total
-
-		  GroupBox 5, 235, 540, income_box_len, "Income"
-		  Text 10, 245, 155, 10, "Total GROSS EARNED Income:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc
-		  Text 300, 245, 155, 10, "Total GROSS UNEARNED Income:   $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc
-		  y_pos = 260
-		  y_pos_2 = 260
-		  For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-		  	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted(each_memb) = True Then
-				' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
-				Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
-	  		    If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted(each_memb) = True Then
-				' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb)
-				Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted(each_memb) = True Then
-				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted(each_memb) = True Then
-				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted(each_memb) = True Then
-				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted(each_memb) = True Then
-				' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) &
-				Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
-				If STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_expenses(each_memb)
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted(each_memb) = True Then
-				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb)
-				If STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 25, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_expenses(each_memb)
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted(each_memb) = True Then
-				Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb)
-				If STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 25, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_expenses(each_memb)
-				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-					y_pos_2 = y_pos_2 + 10
-				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-					y_pos_2 = y_pos_2 + 10
-				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-					y_pos_2 = y_pos_2 + 10
-				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-					y_pos_2 = y_pos_2 + 10
-				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
-					y_pos_2 = y_pos_2 + 10
-				End If
-			End If
-		  Next
-		  ' Text 15, 155, 215, 10, "MEMB 01 - JOB NAME                           Monhtly Income:   $ XXX"
-		  ' Text 25, 165, 200, 10, "Paid FREQUENCY - $ XXX average inc/pay date"
-		  ' Text 15, 175, 215, 10, "MEMB 01 - JOB NAME                           Monhtly Income:   $ XXX"
-		  ' Text 25, 185, 200, 10, "Paid FREQUENCY - $ XXX average inc/pay date"
-		  ' Text 245, 155, 205, 10, "MEMB 01 - UNEA TYPE                   Monhtly Income:   $ XXX"
-		  ' Text 245, 165, 205, 10, "MEMB 01 - UNEA TYPE                   Monhtly Income:   $ XXX"
-
-
-		  '308133'
-
-
-
-		EndDialog
+		call snap_elig_dialog
 
 		dialog Dialog1
 		cancel_confirmation
@@ -12117,12 +12760,10 @@ If enter_CNOTE_for_SNAP = True Then
 			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 		Next
 
-		Call start_a_blank_case_note
-
 		program_detail = "- SNAP"
 		header_end = ""
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
-			If last_month = curr_month_plus_one Then
+			If last_month = curr_month_plus_one or first_month = curr_month_plus_one Then
 				header_end = " - Ongoing"
 			ElseIf len(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
 				header_end = " - " & last_month
@@ -12138,579 +12779,71 @@ If enter_CNOTE_for_SNAP = True Then
 			If snap_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
 			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
 		End If
+		due_date = ""
+		If IsDate(SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = True Then due_date = DateAdd("d", 10, SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
 
-		end_msg_info = end_msg_info & "NOTE entered for SNAP - " & elig_info & " eff " & first_month & header_end & vbCr
-		Call write_variable_in_CASE_NOTE("APP Completed " & program_detail & " " & elig_info & " eff " & first_month & header_end)		'TODO - add closure or denial details here based on some other logic that we have to figure out'
-		' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Entitlement: $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
-		' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
+		'This is the WCOM part
+		If SNAP_UNIQUE_APPROVALS(wcom_needed, unique_app) = True Then
+			ft_mo = left(first_month, 2)
+			ft_yr = right(first_month, 2)
 
-		Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(elig_ind).snap_approved_date)
-		' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
-			Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
-			For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
-				If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-					If SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot = SNAP_ELIG_APPROVALS(approval).snap_benefit_amt Then
-						' " 10/21:     Entitlement: $ 1,125.00 ¦ Issued to Resident: $ 1,125.00    10/21"
-						Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "| Issued to Resident: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
-					Else
-						If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt <> "" Then
-							Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "|           Prorated: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt, 8) & "-from " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date)
-							If SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then Call write_variable_in_CASE_NOTE("                               | Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
-							If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
-						ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then
-							Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "| Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
-							If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
-						ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then
-							Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "|         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			EMWriteScreen ft_mo, 03, 46
+			EMWriteScreen ft_yr, 03, 51
+			transmit
+
+			wcom_row = 7
+			Do
+				EMReadScreen notc_date, 8, wcom_row, 16
+				EMReadScreen notc_type, 2, wcom_row, 26
+				EMReadScreen notc_description, 30, wcom_row, 30
+				EMReadScreen notc_print_status, 8, wcom_row, 71
+
+				If notc_date <> "        " Then
+					notc_date = DateAdd("d", 0, notc_date)
+					notc_description = trim(notc_description)
+					notc_print_status = trim(notc_print_status)
+					If DateDiff("d", date, notc_date) = 0 AND notc_type = "FS" AND notc_description = "ELIG Approval Notice" AND notc_print_status = "Waiting" Then
+						Call write_value_and_transmit("X", wcom_row, 13)
+
+						PF9
+						EMReadScreen wcom_line, 60, 3, 15
+						If trim(wcom_line) = "" Then
+
+							If SNAP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = True Then
+								If right(elig_info, 6) = "Denied" Then
+									' 60_days_from_app = ""
+									' If IsDate(STAT_INFORMATION(month_ind).stat_prog_snap_appl_date) = True Then 60_days_from_app = DateAdd("d", 60, STAT_INFORMATION(month_ind).stat_prog_snap_appl_date)
+									' "Your SNAP application has been denied because you did not provide: " & SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ".  This proof was needed by " & due_date & ".  If you need assistance getting this proof please contact us at the number listed on this notice by " & 60_days_from_app"." ''(This date will be 60 days after the application date).
+									CALL write_variable_in_SPEC_MEMO("Your SNAP application has been denied because you did not provide: " & SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ".  This proof was needed by " & due_date & ".  If you need assistance getting this proof please contact us at the number listed on this notice by " & DateAdd("d", 30, date) & ".") ''(This date will be 30 days from today).
+								End If
+
+								If right(elig_info, 6) = "Closed" Then
+									first_of_closure = ft_mo & "/1/" & ft_yr
+									first_of_closure = DateAdd("d", 0, first_of_closure)
+									end_of_closure_mo = DateAdd("m", 1, first_of_closure)
+									end_of_closure_mo = DateAdd("d", -1, end_of_closure_mo)
+									CALL write_variable_in_SPEC_MEMO("Your SNAP case will close because you did not provide: " & SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ".  This proof was needed by " & due_date & ".  If you need assistance getting this proof please contact us at the number listed on this notice by " & end_of_closure_mo & ".")  ''(Enter the last day of the month prior to the effective date of the closing)"
+								End If
+								SNAP_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True
+							End if
+							If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, unique_app) = True Then
+								CALL write_variable_in_SPEC_MEMO("The monthly gross income for your household is higher than 130% FPG for your household size. This amount is listed above in this notice.  You do not need to report changes in income until your next renewal.  If you have a decrease in income you may be eligible for more benefits.  You may contact the phone number in this letter if this occurs.")
+								SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = True
+							End If
+							PF4
+							PF3
 						End If
-
-						Call write_variable_in_CASE_NOTE("                               | Issued to Resident: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
-						Call write_variable_in_CASE_NOTE("                               |---------------------------------------------")
+						Exit Do
 					End If
-				End If
-			Next
+				End if
+				wcom_row = wcom_row + 1
+			Loop until notc_date = "        "
+			Call back_to_SELF
 		End If
 
-		' "======================================XX======================================"
-
-		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
-			Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
-
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_gross_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Prosp Inc exceeds GROSS INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc)
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_prosp_net_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Prosp Inc exceeds NET INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc)
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_gross_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Retro Inc exceeds GROSS INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc)
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_retro_net_inc_test = "FAILED" Then Call write_variable_in_CASE_NOTE("SNAP INELIGIBLE because Retro Inc exceeds NET INCOME MAX of $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc)
-
-
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "0.00"
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "0.00"
-
-			Call write_variable_in_CASE_NOTE(" Household: " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " Adult")
-
-			beginning_txt = " Income:    "
-			earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8)
-			spaces_30 = "                              "
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	  		  	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 26)
-					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-					beginning_txt = "            "
-					earned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 26)
-					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-					beginning_txt = "            "
-					earned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 26)
-					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-					beginning_txt = "            "
-					earned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 26)
-					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-					beginning_txt = "            "
-					earned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted(each_memb) = True Then
-					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 26)
-					Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
-					beginning_txt = "            "
-					earned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted(each_memb) = True Then
-					busi_details = left(STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 25)
-					Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
-					beginning_txt = "            "
-					earned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted(each_memb) = True Then
-					busi_details = left(STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 25)
-					Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
-					beginning_txt = "            "
-					earned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted(each_memb) = True Then
-					busi_details = left(STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 25)
-					Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
-					beginning_txt = "            "
-					earned_info = "|"
-	  			End If
-			Next
-			If earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8) Then
-				' Call write_variable_in_CASE_NOTE(" Income:    NONE                            |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
-				Call write_variable_in_CASE_NOTE(" Income:    NO Earned Income                |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
-
-			End If
-			unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8)
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	  			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted(each_memb) = True Then
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), 31)
-					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-					unearned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted(each_memb) = True Then
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), 31)
-					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-					unearned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted(each_memb) = True Then
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), 31)
-					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-					unearned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted(each_memb) = True Then
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), 31)
-					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-					unearned_info = "|"
-	  			End If
-	  			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted(each_memb) = True Then
-					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), 31)
-					Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
-					unearned_info = "|"
-	  			End If
-			Next
-			If unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
-
-			Call write_variable_in_CASE_NOTE("                                            |    Total Gross Inc: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc, 8))
-
-			deduction_detail_one = ""
-			deduction_detail_two = ""
-			deduction_detail_three = ""
-
-			' Standard $177
-			' Earned Inc $126
-			' Medical Exp $0
-			' Depndt Care $175.00
-			' 1234567890123456789
-			' Child Suprt $0
-
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard <> "" Then
-				If deduction_detail_one = "" Then
-					deduction_detail_one = left("Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_one) < 21 Then
-					deduction_detail_one = deduction_detail_one & "- Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
-				ElseIf deduction_detail_two = "" Then
-					deduction_detail_two = left("Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_two) < 21 Then
-					deduction_detail_two = deduction_detail_two & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
-				ElseIf deduction_detail_three = "" Then
-					deduction_detail_three = deduction_detail_three & "Standard $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
-				ElseIf len(deduction_detail_three) < 21 Then
-					deduction_detail_three = deduction_detail_three & "- Standard  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard, ".00", "")
-				End if
-			End If
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned <> "" Then
-				' MsgBox SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned
-				If deduction_detail_one = "" Then
-					deduction_detail_one = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_one) < 21 Then
-					deduction_detail_one = deduction_detail_one & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
-				ElseIf deduction_detail_two = "" Then
-					deduction_detail_two = left("Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_two) < 21 Then
-					deduction_detail_two = deduction_detail_two & "- Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
-				ElseIf deduction_detail_three = "" Then
-					deduction_detail_three = deduction_detail_three & "Earned Inc $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
-				ElseIf len(deduction_detail_three) < 21 Then
-					deduction_detail_three = deduction_detail_three & "- Earned Inc  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned, ".00", "")
-				End if
-			End If
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical <> "" Then
-				If deduction_detail_one = "" Then
-					deduction_detail_one = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_one) < 21 Then
-					deduction_detail_one = deduction_detail_one & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
-				ElseIf deduction_detail_two = "" Then
-					deduction_detail_two = left("Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_two) < 21 Then
-					deduction_detail_two = deduction_detail_two & "- Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
-				ElseIf deduction_detail_three = "" Then
-					deduction_detail_three = deduction_detail_three & "Medical Exp $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
-				ElseIf len(deduction_detail_three) < 21 Then
-					deduction_detail_three = deduction_detail_three & "- Medical Exp  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical, ".00", "")
-				End if
-			End If
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care <> "" Then
-				If deduction_detail_one = "" Then
-					deduction_detail_one = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_one) < 21 Then
-					deduction_detail_one = deduction_detail_one & "-Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
-				ElseIf deduction_detail_two = "" Then
-					deduction_detail_two = left("Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_two) < 21 Then
-					deduction_detail_two = deduction_detail_two & "- Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
-				ElseIf deduction_detail_three = "" Then
-					deduction_detail_three = deduction_detail_three & "Depndt Care $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
-				ElseIf len(deduction_detail_three) < 21 Then
-					deduction_detail_three = deduction_detail_three & "- Depndt Care  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care, ".00", "")
-				End if
-			End If
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses <> "" Then
-				If deduction_detail_one = "" Then
-					deduction_detail_one = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_one) < 21 Then
-					deduction_detail_one = deduction_detail_one & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
-				ElseIf deduction_detail_two = "" Then
-					deduction_detail_two = left("Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "") & spaces_18, 15)
-				ElseIf len(deduction_detail_two) < 21 Then
-					deduction_detail_two = deduction_detail_two & "- Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
-				ElseIf deduction_detail_three = "" Then
-					deduction_detail_three = deduction_detail_three & "Child Suprt $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
-				ElseIf len(deduction_detail_three) < 21 Then
-					deduction_detail_three = deduction_detail_three & "- Child Suprt  $" & replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses, ".00", "")
-				End if
-			End If
-			' MsgBox "deduction_detail_one - " & deduction_detail_one & vbCr &_
-			' 		"deduction_detail_two - " & deduction_detail_two & vbCr &_
-			' 		"deduction_detail_three - " & deduction_detail_three
-			Call write_variable_in_CASE_NOTE(" Deductions:" & left(deduction_detail_one & spaces_30, 32) & "|   (-)   Deductions: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct, 8))
-			If deduction_detail_two <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_two & spaces_30, 32) & "|")
-			If deduction_detail_three <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_three & spaces_30, 32) & "|")
-			' MsgBox "CHECK"
-			Call write_variable_in_CASE_NOTE("                                            |            Net Inc: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc, 8))
-			Call write_variable_in_CASE_NOTE(" Expenses:  Housing: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total & "        ", 8)& "        |--------------------------|")
-			' " Expenses:  Housing: $1,250.00        |-------------------------------------|"
-
-
-			Call write_variable_in_CASE_NOTE("            Utilities: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total&"        ", 8) & "      | Total Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total, ".00", "")&"        ", 8) & "|")
-			Call write_variable_in_CASE_NOTE("            MAX Allowable: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel&"        ", 8) & "  |(-)1/2 Net Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc, ".00", "")&"        ", 8) & "|")
-			Call write_variable_in_CASE_NOTE("                                      |   Adj Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs, ".00", "")&"        ", 8) & "|")
-			Call write_variable_in_CASE_NOTE("                                      |--------------------------|")
-			Call write_variable_in_CASE_NOTE("                                            |  (-)Allow Shel Exp: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses, 8))
-			Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc, 8))
-			Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
-			Call write_variable_in_CASE_NOTE("                               |    Thrifty Food Plan: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan, ".00", "")&"        ", 8) & "|")
-			Call write_variable_in_CASE_NOTE("                               |(-)30% of Net Adj Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc, ".00", "")&"        ", 8) & "|")
-			Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
-			Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot, 8))
-
-			' Call write_variable_in_CASE_NOTE("*** CASE STATUS ***")
-		End If
-
-		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
-			Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
-
-			Call write_variable_in_CASE_NOTE("* SNAP is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for SNAP benefits was withdrawn. (APPLICATION WITHDRAWN)")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test = "FAILED" Then
-				Call write_variable_in_CASE_NOTE(" - The applicant is not SNAP eligibile. (APPLICANT ELIGIBLE)")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_abawd(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has reached the SNAP Time Limit - ABAWD")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_absence(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is not in the household.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_roomer(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is a roomer.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_boarder(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is a boarder.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_citizenship(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 does not meet citizenship requirements.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_citizenship_coop(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has not complied with citizzenship information.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_cmdty(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has received commodities for this time period.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_disq(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is disqualified from SNAP")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_dupl_assist(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has received SNAP assisnce on another case.")
-
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_fraud(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has a Fraud determination.")
-				If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
-				End If
-				If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
-				End If
-				If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
-				End If
-				If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
-				End If
-				If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
-					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
-				End If
-
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_eligible_student(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is an ineligible student.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_institution(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is in an institution.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_mfip_elig(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is MFIP eligible.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_non_applcnt(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is not requesting SNAP.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_residence(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 does not have MN residence.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_ssn_coop(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has not cooperated with SSN requirements.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_unit_memb(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is not a unit member.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_work_reg(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 has not complied with work registration.")
-
-			End If
-
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_comdty_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has received Commodity Food in this time period. (COMMODITY)")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_disq_test = "FAILED" Then
-				Call write_variable_in_CASE_NOTE(" - This case has a Disqualification. (DISQUALIFICATION)")
-				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
-					End If
-				Next
-			End If
-
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_dupl_assist_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has already received SNAP. (DUPL ASSISTANCE)")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_eligible_person_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is not eligible person on this case. (ELIGIBLE PERSON)")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then
-				Call write_variable_in_CASE_NOTE(" - This case has failed to cooperate. (FAIL TO COOPERATE)")
-				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
-					End If
-				Next
-			End If
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has failed to file a report. (FAIL TO FILE)")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_fail_file_hrf = "FAILED" Then Call write_variable_in_CASE_NOTE("    -Monthly Household Report process was not completed.")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_fail_file_sr = "FAILED" Then Call write_variable_in_CASE_NOTE("    -Six Month Report process was not completed.")
-
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The annual recertification process was not completed. (RECERTIFICATION)")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not established Minnesota residency. (RESIDENCE)")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The assets have exceeded the max. (RESOURCE)")
-			' TODO - add more asset test information'
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has a member on strike. (STRIKE)")
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test = "FAILED" Then
-				Call write_variable_in_CASE_NOTE(" - This case has failed transfer resources/income. (TRANSFER RESOURCE INC)")
-				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "TRANSFER" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
-					End If
-				Next
-			End If
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then
-				Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
-				Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & DateAdd("d", 10, SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)))
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_MEMB_ID  = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of the identity of the Applicant was not received.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_ACCT = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of bank account not received.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" Then
-					Call write_variable_in_CASE_NOTE("   - Case ineligible due to: " & SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ". ")
-					Call write_variable_in_CASE_NOTE("     INELIG created using PACT.")
-				End If
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_ADDR = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Residency not verified.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_SECU = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of securities not received.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_RBIC = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Self Employment - Roomer/Boarder Income not verified.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_BUSI = "FAILED" Then
-					Call write_variable_in_CASE_NOTE("   - Self Employment income not verified.")
-					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-						If STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
-						End if
-					Next
-				End If
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_SPON = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Sponsor income not verified.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_STIN = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Student income not verified.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_UNEA = "FAILED" Then
-					Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
-					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-						If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
-						End if
-					Next
-				End If
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_JOBS = "FAILED" Then
-					Call write_variable_in_CASE_NOTE("   - Wage income not verified.")
-					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-						If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
-						End if
-						If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
-							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
-						End if
-					Next
-				End If
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_STWK = "FAILED" Then Call write_variable_in_CASE_NOTE("   - End of employment not verified.")
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_STRK = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of strike was not received.")
-			End If
-
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_voltry_quit_test = "FAILED" Then
-				Call write_variable_in_CASE_NOTE(" - This case has a member who quit work, not following SNAP general work rules. (VOLUNTARY QUIT)")
-				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-					If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "VOL QUIT" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
-					End If
-				Next
-			End If
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The persons on this case did not comply with work registration. (WORK REGISTRATION)")
-			' TODO - add more detail for work Reg'
-		End If
-
-		'312524'
-		first_memb = ""
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test = "FAILED" and UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb) > 0 Then first_memb = 1
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test <> "FAILED" Then first_memb = 0
-
-		first_inelig_memb = True
-		If first_memb <> "" Then
-			For each_memb = first_memb to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-
-				If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_eligibility(each_memb) = "INELIGIBLE" Then
-					If first_inelig_memb = True Then
-						Call write_variable_in_CASE_NOTE("================================ MEMBER TESTS ===============================")
-						first_inelig_memb = False
-					End If
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
-						Call write_variable_in_CASE_NOTE(" - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not eligible for SNAP and not included in the SNAP benefit.")
-						Call write_variable_in_CASE_NOTE("   The income for this member is " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_counted(each_memb))
-					ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_failed_test(each_memb) = True Then
-						Call write_variable_in_CASE_NOTE(" - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not eligible for SNAP.")
-					End If
-
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_abawd(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has reached the SNAP Time Limit - ABAWD")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_absence(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not in the household.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_roomer(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is a roomer.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_boarder(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is a boarder.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_citizenship(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " does not meet citizenship requirements.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_citizenship_coop(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not complied with citizzenship information.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_cmdty(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has received commodities for this time period.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_disq(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is disqualified from SNAP")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_dupl_assist(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has received SNAP assisnce on another case.")
-
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_fraud(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has a Fraud determination.")
-					If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
-					End If
-					If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "DISQUAL" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
-						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
-						If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
-					End If
-
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_eligible_student(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is an ineligible student.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_institution(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is in an institution.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_mfip_elig(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is MFIP eligible.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_non_applcnt(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not requesting SNAP.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_residence(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " does not have MN residence.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_ssn_coop(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not cooperated with SSN requirements.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_unit_memb(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not a unit member.")
-					If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_work_reg(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not complied with work registration.")
-				End If
-			Next
-		End if
-
-		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
-		spaces_18 = "                  "
-		' Call write_variable_in_CASE_NOTE(" SNAP Status:      " & left(SNAP_ELIG_APPROVALS(elig_ind).snap_curr_prog_status & spaces_18, 18) & "Budget Cycle:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
-		' Call write_variable_in_CASE_NOTE(" Reporting Status: " & left(SNAP_ELIG_APPROVALS(elig_ind).snap_reporting_status & spaces_18, 18) & "Review Date:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
-		Call write_variable_in_CASE_NOTE("SNAP Status:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_curr_prog_status)
-		Call write_variable_in_CASE_NOTE("Budget Cycle:     " & SNAP_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
-			Call write_variable_in_CASE_NOTE("Reporting Status: " & SNAP_ELIG_APPROVALS(elig_ind).snap_reporting_status)
-			Call write_variable_in_CASE_NOTE("Review Date:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
-		End If
-		Call write_variable_in_CASE_NOTE("---")
-		Call write_variable_in_CASE_NOTE(worker_signature)
-
-		' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
-		PF3
+		'Here we entere the CASE NOTE
+		Call snap_elig_case_note
 	Next
 
 	'CASE NOTE EXAMPLE - 305487 - CASE NUMBER'
