@@ -11841,6 +11841,7 @@ ReDim STAT_INFORMATION(0)
 '===========================================================================================================================
 EMConnect ""
 Call check_for_MAXIS(True)
+testing_run = True
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
