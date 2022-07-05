@@ -58,7 +58,8 @@ Function declare_elig_main_menu_dialog()
 		'Subcategory handling (creating a second list as a string which gets converted later to an array)
 		script_array(current_script).show_script = FALSE
 		If script_array(current_script).used_for_elig = True then script_array(current_script).show_script = TRUE
-
+		Call script_array(current_script).show_button(see_the_button)
+		If see_the_button = FALSE Then script_array(current_script).show_script = FALSE
 
 																									'If the script in the array is of the correct category (ACTIONS/NOTES/ETC)...
 		' 	For each listed_subcategory in script_array(current_script).subcategory																									'...then iterate through each listed subcategory, and...
