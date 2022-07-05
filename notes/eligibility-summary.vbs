@@ -11887,7 +11887,13 @@ Do
 Loop until are_we_passworded_out = False
 
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-
+Call back_to_SELF
+EMReadScreen MX_region, 10, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
+	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Eligibility Summary Script cancelled as it was run in inquiry.")
+End If
 
 Call date_array_generator(first_footer_month, first_footer_year, MONTHS_ARRAY)
 
