@@ -11879,7 +11879,7 @@ Do
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20ELIGIBILITY%20SUMMARY.docx"
 		Else
-			MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
+			If err_msg <> "" Then MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
 		End If
 
 	Loop until err_msg = ""
