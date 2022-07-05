@@ -6730,7 +6730,6 @@ class snap_eligibility_detail
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		' EMReadScreen approved_today, 8, 3, 14
 		' approved_today = DateAdd("d", 0, approved_today)
-
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 
@@ -11875,6 +11874,13 @@ Do
 
 		Call validate_MAXIS_case_number(err_msg, "*")
 		Call validate_footer_month_entry(first_footer_month, first_footer_year, err_msg, "*")
+
+		If ButtonPressed = intructions_btn Then
+			err_msg = "LOOP"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20ELIGIBILITY%20SUMMARY.docx"
+		Else
+			MsgBox "*** Please Resolve to Continue ***" & vbNewLine & err_msg
+		End If
 
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
