@@ -52,9 +52,6 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 '------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
-'setting the footer month to make the updates in'
-back_to_self 'resetting MAXIS back to self before getting started
-Call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
 
 Dialog1 = ""
 BeginDialog dialog1, 0, 0, 316, 65, "Select the source file"
@@ -69,7 +66,7 @@ Do
 'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
     'Show initial dialog
     Do
-		Dialog dialog1
+		DIALOG dialog1
 		cancel_without_confirmation
 		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
 	Loop until ButtonPressed = OK and file_selection_path <> ""
@@ -87,18 +84,18 @@ BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to start"
 EndDialog
 
 DO
-    dialog Dialog1
-    If buttonpressed = 0 then stopscript								'loops until all errors are resolved
+    DIALOG Dialog1
+	IF IsNumeric(excel_row_to_restart) = FALSE THEN err_msg = err_msg & vbNewLine & "Please enter the excel line you wish to restart on."
+    cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-excel_row = excel_row_to_restart
-
-
-back_to_self
+'setting the footer month to make the updates in'
+back_to_self 'resetting MAXIS back to self before getting started
+Call MAXIS_footer_month_confirmation	'ensuring we are in the correct footer month/year
 EMWriteScreen CM_mo, 20, 43
 EMWriteScreen CM_yr, 20, 46
-transmit
+TRANSMIT
 
 ObjExcel.Cells(1, 1).Value = "WORKER"
 ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
@@ -107,18 +104,18 @@ ObjExcel.Cells(1, 4).Value = "APPL DATE"
 ObjExcel.Cells(1, 5).Value = "INAC DATE"
 ObjExcel.Cells(1, 6).Value = "TRANSFERED"
 ObjExcel.Cells(1, 7).Value = "CONFRIM"
-STATS_counter = STATS_counter + 1
+
 
 'This bit freezes the top row of the Excel sheet for better use ability when there is a lot of information
 ObjExcel.ActiveSheet.Range("A2").Select
 objExcel.ActiveWindow.FreezePanes = True
 
 'Now the script adds all the clients on the excel list into an array
+transfer_to_worker = "X127CCL" 'setting the worker to the closed basket'
 transfer_case_action = TRUE
 Do
     previous_worker_number = objExcel.cells(excel_row_to_restart, 1).Value          're-establishing the worker number for functions to use
-    If previous_worker_number = "" then exit do ' this will need to exit'
-    previous_worker_number = trim(previous_worker_number)
+    If trim(previous_worker_number) = "" then exit do ' this will need to exit'
 	IF previous_worker_number = "X127CCL" OR previous_worker_number = "X1274EC" or previous_worker_number = "X127966" or previous_worker_number = "X127AP7" or previous_worker_number = "X127CSS" or previous_worker_number = "X127EF8" or previous_worker_number = "X127EF9" or previous_worker_number = "X127EH9" or previous_worker_number = "X127EJ1" or previous_worker_number = "X127EM2" or previous_worker_number = "X127EM3" or previous_worker_number = "X127EM4" or previous_worker_number = "X127EN6" or previous_worker_number = "X127EN8" or previous_worker_number = "X127EN9" or previous_worker_number = "X127EP1" or previous_worker_number = "X127EP2" or previous_worker_number = "X127EQ6" or previous_worker_number = "X127EQ7" or previous_worker_number = "X127EW4" or previous_worker_number = "X127EW6" or previous_worker_number = "X127EW7" or previous_worker_number = "X127EW8" or previous_worker_number = "X127EX4" or previous_worker_number = "X127EX5" or previous_worker_number = "X127EZ2" or previous_worker_number = "X127F3E" or previous_worker_number = "X127F3F" or previous_worker_number = "X127F3J" or previous_worker_number = "X127F3K" or previous_worker_number = "X127F3N" or previous_worker_number = "X127F3P" or previous_worker_number = "X127F4A" or previous_worker_number = "X127F4B" or previous_worker_number = "X127FE2" or previous_worker_number = "X127FE3" or previous_worker_number = "X127FE6" or previous_worker_number = "X127FF1" or previous_worker_number = "X127FF2" or previous_worker_number = "X127FF4" or previous_worker_number = "X127FF5" or previous_worker_number = "X127FG1" or previous_worker_number = "X127FG2" or previous_worker_number = "X127FG5" or previous_worker_number = "X127FG6" or previous_worker_number = "X127FG7" or previous_worker_number = "X127FG9" or previous_worker_number = "X127FH3" or previous_worker_number = "X127FI1" or previous_worker_number = "X127FI3" or previous_worker_number = "X127FI6" or previous_worker_number = "X127FJ2" or previous_worker_number = "X127GF5" or previous_worker_number = "X127Q95" or previous_worker_number = "X127Y86" or previous_worker_number = "X127EP8" or previous_worker_number = "X127EN5" THEN
 		transfer_case_action  = FALSE
 		action_completed = "Excluded"
@@ -128,9 +125,8 @@ Do
 	END IF
 
 	MAXIS_case_number 	 = objExcel.cells(excel_row_to_restart, 2).Value          're-establishing the case numbers for functions to use
-    IF MAXIS_case_number = "" THEN EXIT DO 'this should end the script'
-    MAXIS_case_number	 = trim(MAXIS_case_number)
-	transfer_to_worker = "X127CCL" 'setting the worker to the closed basket'
+    IF trim(MAXIS_case_number) = "" THEN EXIT DO 'this should end the script'
+
     IF transfer_case_action = TRUE THEN
 	    'go to SPEC/XFER
 		CALL navigate_to_MAXIS_screen_review_PRIV("SPEC", "XFER", is_this_priv) ' need discovery on priv cases for xfer handling'
@@ -169,6 +165,7 @@ Do
 		'Export data to Excel
 		ObjExcel.Cells(excel_row_to_restart, 6).Value = trim(transfer_case_action)
 		objExcel.cells(excel_row_to_restart, 7).Value = trim(action_completed)
+		STATS_counter = STATS_counter + 1    'adds one instance to the stats counter
 		excel_row_to_restart = excel_row_to_restart + 1	'increments the excel row so we don't overwrite our data
 LOOP UNTIL previous_worker_number = ""
 FOR i = 1 to 7		'formatting the cells'
