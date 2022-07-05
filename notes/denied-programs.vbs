@@ -275,6 +275,7 @@ BeginDialog Dialog1, 0, 0, 401, 375 - dialog_shrink_amt, "Denied progs"
   Text 5, 355 - dialog_shrink_amt, 60, 10, "Worker signature: "
 EndDialog
 
+elig_summ_option_given = False
 Do
     DO
 		err_msg = ""
@@ -284,6 +285,14 @@ Do
         grh_pnd2_code = ""
     	DIALOG Dialog1
     	cancel_confirmation
+
+        If SNAP_check = checked and HC_check = unchecked and cash_check = unchecked and emer_check = unchecked Then
+            If elig_summ_option_given = False Then
+                elig_summ_option_given = True
+                Call select_testing_file("ALL", "", "notes/eligibility-summary.vbs", "master", True, True)
+            End if
+        End If
+
     	If buttonpressed = SPEC_WCOM_button then
             call navigate_to_MAXIS_screen("spec", "wcom")
             err_msg = "LOOP" & err_msg

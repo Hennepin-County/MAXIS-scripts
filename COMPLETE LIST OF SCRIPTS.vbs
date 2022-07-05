@@ -1270,6 +1270,23 @@ script_array(script_num).used_for_elig			= False
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Eligibility Summary"																		'Script name
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+' script_array(script_num).tags                   = array("Adult Cash", "Application", "Communication", "DWP", "EMER", "Health Care", "HS/GRH", "LTC", "MFIP", "Reviews", "SNAP")
+script_array(script_num).tags                   = array("Application", "Communication", "Reviews", "SNAP")
+script_array(script_num).dlg_keys               = array("Cn", "Sm", "Exp")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).in_testing				= True  'This can be set to TRUE if we have a new script_bowie	that is in testing
+script_array(script_num).testing_category 		= "ALL" 'idetify what we are using to determine WHO is testing - use ONLY ALL, GROUP, REGION, POPULATION, or SCRIPT
+script_array(script_num).testing_criteria       = array("")         'ARRAY list which of the category is being used
+script_array(script_num).release_date           = #07/05/2022#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= True
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Emergency"
 ' script_array(script_num).description 			= "Template for EA/EGA applications.*"
 script_array(script_num).category               = "NOTES"

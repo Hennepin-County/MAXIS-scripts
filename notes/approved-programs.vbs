@@ -114,23 +114,30 @@ BeginDialog Dialog1, 0, 0, 316, 235, "Benefits Approved"
   Text 5, 40, 110, 20, "Benefit Breakdown (Issuance/Spenddown/Premium):"
 EndDialog
 
-
+elig_summ_option_given = False
 Do
 	Do
 		'Adding err_msg handling
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-			'Enforcing mandatory fields
-			If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
-			IF autofill_check = checked THEN
-				IF snap_approved_check = unchecked AND cash_approved_check = unchecked AND emer_approved_check = unchecked THEN err_msg = err_msg & _
-				 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
-			End If
-            If postponed_verif_check = checked and trim(docs_needed) = "" then err_msg = err_msg & vbCr & "* Please enter the postponed verifications needed/requested."
-            'If SNAP_banked_mo_check = checked AND (trim(banked_footer_month) = "" OR trim(banked_footer_year) = "") Then err_msg = err_msg & vbNewLine & "* Indicate the first month being approved with BANKED MONTHS since this approval includes a BANKED MONTH."
-			IF worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+
+        If snap_approved_check = checked and cash_approved_check = unchecked and hc_approved_check = unchecked and emer_approved_check = unchecked Then
+            If elig_summ_option_given = False Then
+                elig_summ_option_given = True
+                Call select_testing_file("ALL", "", "notes/eligibility-summary.vbs", "master", True, True)
+            End if
+        End If
+		'Enforcing mandatory fields
+		If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "* Please enter a case number."
+		IF autofill_check = checked THEN
+			IF snap_approved_check = unchecked AND cash_approved_check = unchecked AND emer_approved_check = unchecked THEN err_msg = err_msg & _
+			 vbCr & "* You checked to have the approved amount autofilled but have not selected a program with an approval amount. Please check your selections."
+		End If
+        If postponed_verif_check = checked and trim(docs_needed) = "" then err_msg = err_msg & vbCr & "* Please enter the postponed verifications needed/requested."
+        'If SNAP_banked_mo_check = checked AND (trim(banked_footer_month) = "" OR trim(banked_footer_year) = "") Then err_msg = err_msg & vbNewLine & "* Indicate the first month being approved with BANKED MONTHS since this approval includes a BANKED MONTH."
+		IF worker_signature = "" then err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 Loop until are_we_passworded_out = false

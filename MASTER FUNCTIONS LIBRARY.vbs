@@ -10743,6 +10743,13 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
 '~~~~~ file_branch: which branch the file is in
 '~~~~~ force_error_reporting: should the in-script error reporting automatically happen
 '===== Keywords: MAXIS, PRISM, production, clear
+	testing_script_name = ""
+	file_path = replace(file_path, "\", "/")
+	file_name_array = split(file_path, "/")
+	testing_script_name = file_name_array(1)
+	testing_script_name = replace(testing_script_name, ".vbs", "")
+	testing_script_name = replace(testing_script_name, "-", " ")
+	testing_script_name = UCase(file_name_array(0)) & " - " & UCase(testing_script_name)
 
     run_testing_file = FALSE
     If Instr(the_selection, ",") <> 0 Then
@@ -10790,11 +10797,11 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
                     Next
                 Case Else
                     body_text = "The call of the function select_testing_file is using an invalid selection_type."
-                    body_text = body_text & vbCr & "On script - " & name_of_script & "."
+                    body_text = body_text & vbCr & "On script - " & testing_script_name & "."
                     body_text = body_text & vbCr & "The selection type of - " & selection_type & " was entered into the function call"
                     body_text = body_text & vbCr & "The only valid options are: ALL, SCRIPT, GROUP, PROGRAM, POPULATION, or REGION"
                     body_text = body_text & vbCr & "Review the script file particularly the call for the function select_testing_file."
-                    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "FUNCTION ERROR - select_testing_file for " & name_of_script, body_text, "", TRUE)
+                    Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", "FUNCTION ERROR - select_testing_file for " & testing_script_name, body_text, "", TRUE)
             End Select
 
             If tester.tester_population = "BZ" Then
@@ -10804,7 +10811,7 @@ function select_testing_file(selection_type, the_selection, file_path, file_bran
             End If
 
             If run_testing_file = TRUE and allow_option = TRUE Then
-                continue_with_testing_file = MsgBox("You have been selected to test this script - " & name_of_script & "." & vbNewLine & vbNewLine & "At this time you can select if you would like to run the testing file or the original file." & vbNewLine & vbNewLine & "** Would you like to test this script now?", vbQuestion + vbYesNo, "Use Testing File")
+                continue_with_testing_file = MsgBox("You have been selected to test this script - " & testing_script_name & "." & vbNewLine & vbNewLine & "At this time you can select if you would like to run the testing file or the original file." & vbNewLine & vbNewLine & "** Would you like to test this script now?", vbQuestion + vbYesNo, "Use Testing File")
                 If continue_with_testing_file = vbNo Then run_testing_file = FALSE
             End If
 

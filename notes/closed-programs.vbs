@@ -127,6 +127,7 @@ BeginDialog Dialog1, 0, 0, 481, 265, "Closed Programs"
 EndDialog
 
 'Dialog starts: includes nav button for SPEC/WCOM, validates the date of closure, confirms that date of closure is last day of a month, checks that a program was selected for closure, and navigates to CASE/NOTE
+elig_summ_option_given = False
 DO
 	DO
 		err_msg = ""		'establishing value of varaible, this is necessary for the Do...LOOP
@@ -134,6 +135,14 @@ DO
 			Do
     			DIALOG Dialog1
 				cancel_confirmation
+
+                If SNAP_check = checked and cash_check = unchecked and HC_check = unchecked Then
+                    If elig_summ_option_given = False Then
+                        elig_summ_option_given = True
+                        Call select_testing_file("ALL", "", "notes/eligibility-summary.vbs", "master", True, True)
+                    End if
+                End If
+
 				If ButtonPressed = SPEC_WCOM_button then call navigate_to_MAXIS_screen("spec", "wcom")
 				If ButtonPressed = HC_EPM_Button then CreateObject("WScript.Shell").Run("http://hcopub.dhs.state.mn.us/epm/#t=index_1.htm")
 			Loop until ButtonPressed = -1
@@ -206,7 +215,7 @@ IF worker_county_code = "x127" THEN
 		END IF
 
         IF swap_to_memo = vbYes THEN
-        	call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
+        	call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 
 			'Worker Comment Input
 	  	  	Call write_variable_in_spec_memo("************************************************************")
