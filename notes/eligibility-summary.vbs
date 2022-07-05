@@ -36,6 +36,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/05/2022", "Initial version.", "Casey Love, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 
 function ensure_variable_is_a_number(variable)
 	variable = trim(variable)
@@ -207,7 +219,7 @@ function snap_elig_dialog()
 			PushButton 440, 365, 110, 15, "Next Approval", next_approval_btn
 		End If
 		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 360, 20, 85, 10, "Deductions Detail", deductions_detail_btn
-		PushButton 200, 170, 70, 10, "HH COMP Detail", hh_comp_detail
+		PushButton 200, 160, 70, 10, "HH COMP Detail", hh_comp_detail
 		PushButton 360, 190, 85, 10, "Shelter Expense Detail", shel_exp_detail_btn
 		y_pos = 25
 		display_detail = ""
@@ -260,7 +272,7 @@ function snap_elig_dialog()
 	  ' Text 190, 145, 85, 10, "MONTH 6 - $ XXX"
 
 	  GroupBox 5, 160, 285, 70, "Household Composition"
-	  Text 20, 170, 115, 10, "Members in Assistance Unit:  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit
+	  Text 20, 170, 285, 10, "Members in Assistance Unit:  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " - Adult: " & SNAP_ELIG_APPROVALS(elig_ind).adults_recv_snap & ", Children: " & SNAP_ELIG_APPROVALS(elig_ind).children_recv_snap
 	  Text 35, 180, 245, 20, "Eligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).elig_membs_list
 	  Text 30, 200, 245, 20, "Ineligible Members:  " & SNAP_ELIG_APPROVALS(elig_ind).inelig_membs_list
 
@@ -457,7 +469,7 @@ function snap_elig_case_note()
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "0.00"
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "0.00"
 
-		Call write_variable_in_CASE_NOTE(" Household: " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " Adult")
+		Call write_variable_in_CASE_NOTE(" SNAP Unit Size: " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " - Adult: " & SNAP_ELIG_APPROVALS(elig_ind).adults_recv_snap & ", Children: " & SNAP_ELIG_APPROVALS(elig_ind).children_recv_snap)
 
 		beginning_txt = " Income:    "
 		earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8)
@@ -6660,6 +6672,8 @@ class snap_eligibility_detail
 	public snap_elig_revw_date
 	public snap_budget_cycle
 	public snap_budg_numb_in_assist_unit
+	public adults_recv_snap
+	public children_recv_snap
 	public snap_budg_total_resources
 	public snap_budg_max_resources
 	public snap_budg_net_adj_inc
@@ -9701,6 +9715,10 @@ class stat_detail
 			EMReadScreen stat_memb_id_verif_code(memb_count), 2, 9, 68
 			EMReadScreen stat_memb_rel_to_applct_code(memb_count), 2, 10, 42
 
+			stat_memb_age(memb_count) = trim(stat_memb_age(memb_count))
+			If stat_memb_age(memb_count) = "" Then stat_memb_age(memb_count) = 0
+			stat_memb_age(memb_count) = stat_memb_age(memb_count)*1
+
 			If stat_memb_id_verif_code(memb_count) = "BC" Then stat_memb_id_verif_info(memb_count) = "Birth Certificate"
 			If stat_memb_id_verif_code(memb_count) = "RE" Then stat_memb_id_verif_info(memb_count) = "Religious Record"
 			If stat_memb_id_verif_code(memb_count) = "DL" Then stat_memb_id_verif_info(memb_count) = "Drivers License/State ID"
@@ -12188,7 +12206,8 @@ For each footer_month in MONTHS_ARRAY
 
 		If first_SNAP_approval = "" AND SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_today = True Then first_SNAP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		' MsgBox "SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month - " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month
-
+		SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap = 0
+		SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap = 0
 		For each_elig_memb = 0 to UBound(SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_ref_numbs)
 			For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
 				If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
@@ -12208,6 +12227,13 @@ For each footer_month in MONTHS_ARRAY
 						STAT_INFORMATION(month_count).stat_unea_three_counted(each_stat_memb) = False
 						STAT_INFORMATION(month_count).stat_unea_four_counted(each_stat_memb) = False
 						STAT_INFORMATION(month_count).stat_unea_five_counted(each_stat_memb) = False
+					End If
+					If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_eligibility(each_elig_memb) = "ELIGIBLE" Then
+						If STAT_INFORMATION(month_count).stat_memb_age(each_stat_memb) > 21 Then
+							SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap = SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap + 1
+						Else
+							SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap = SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap + 1
+						End If
 					End If
 				End If
 			Next
