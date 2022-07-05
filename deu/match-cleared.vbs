@@ -915,7 +915,7 @@ CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
 CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'to save casenote'
 
-'IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-----------------------------------------------------------------------------------------OP CASENOTE
+IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-----------------------------------------------------------------------------------------OP CASENOTE
     IF HC_claim_number <> "" THEN
     	EMWriteScreen "x", 5, 3
     	TRANSMIT
@@ -981,7 +981,7 @@ PF3 'to save casenote'
 	'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
 	IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
 	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
-'END IF
+END IF
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
