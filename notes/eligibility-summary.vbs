@@ -3077,6 +3077,16 @@ class msa_eligibility_detail
 			ReDim msa_elig_membs_test_verif_date_of_birth(0)
 			ReDim msa_elig_membs_test_verif_disability(0)
 			ReDim msa_elig_membs_test_verif_ssi(0)
+			ReDim msa_elig_budg_memb_gross_earned_income(0)
+			ReDim msa_elig_budg_memb_blind_disa_student(0)
+			ReDim msa_elig_budg_memb_standard_disregard(0)
+			ReDim msa_elig_budg_memb_earned_income(0)
+			ReDim msa_elig_budg_memb_standard_EI_disregard(0)
+			ReDim msa_elig_budg_memb_work_expense_disa(0)
+			ReDim msa_elig_budg_memb_earned_inc_subtotal(0)
+			ReDim msa_elig_budg_memb_earned_inc_disregard(0)
+			ReDim msa_elig_budg_memb_work_expense_blind(0)
+			ReDim msa_elig_budg_memb_net_earned_income(0)
 			ReDim msa_elig_budg_memb_special_needs_total(0)
 
 
@@ -3122,6 +3132,16 @@ class msa_eligibility_detail
 				ReDim preserve msa_elig_membs_test_verif_date_of_birth(elig_memb_count)
 				ReDim preserve msa_elig_membs_test_verif_disability(elig_memb_count)
 				ReDim preserve msa_elig_membs_test_verif_ssi(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_gross_earned_income(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_blind_disa_student(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_standard_disregard(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_earned_income(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_standard_EI_disregard(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_work_expense_disa(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_earned_inc_subtotal(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_earned_inc_disregard(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_work_expense_blind(elig_memb_count)
+				ReDim preserve msa_elig_budg_memb_net_earned_income(elig_memb_count)
 				ReDim preserve msa_elig_budg_memb_special_needs_total(elig_memb_count)
 
 				msa_elig_ref_numbs(elig_memb_count) = ref_numb
