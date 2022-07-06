@@ -12608,7 +12608,7 @@ If enter_CNOTE_for_SNAP = True Then
 		If IsNumeric(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc) = True and IsNumeric(SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app)) = True Then
 			grs_inc = SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc*1
 			max_130_inc = SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app)*1
-			If grs_inc > max_130_inc Then SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, unique_app) = True
+			If grs_inc > max_130_inc AND SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, unique_app) = True
 		End If
 		SNAP_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = False
 		SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = False
