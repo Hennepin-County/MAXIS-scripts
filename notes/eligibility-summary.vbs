@@ -11827,29 +11827,32 @@ end_msg_info = ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-BeginDialog Dialog1, 0, 0, 366, 85, "Eligibility Summary Case Number Dialog"
-  EditBox 65, 10, 60, 15, MAXIS_case_number
-  EditBox 90, 30, 15, 15, first_footer_month
-  EditBox 110, 30, 15, 15, first_footer_year
-  ButtonGroup ButtonPressed
-    OkButton 25, 65, 50, 15
-    CancelButton 80, 65, 50, 15
-  Text 15, 15, 50, 10, "Case Number"
-  Text 20, 35, 65, 10, "First month of APP"
-  Text 95, 45, 35, 10, "MM    YY"
-  Text 160, 10, 140, 20, "This script will detail information about all APP actions for a this case taken today."
-  Text 165, 30, 185, 10, "- Script will handle for approvals, denials, and closures."
-  Text 165, 40, 155, 10, "- Script will handle for any program in MAXIS."
-  Text 165, 50, 180, 10, "- To be handled by the script ELIG resulsts must be:"
-  Text 185, 60, 75, 10, "CREATED Today"
-  Text 185, 70, 75, 10, "APPROVED Today"
-  ButtonGroup ButtonPressed
-    PushButton 255, 65, 105, 15, "Script Instructions", intructions_btn
-EndDialog
-
 Do
 	Do
 		err_msg = ""
+
+		BeginDialog Dialog1, 0, 0, 366, 135, "Eligibility Summary Case Number Dialog"
+		  EditBox 75, 10, 60, 15, MAXIS_case_number
+		  EditBox 100, 30, 15, 15, first_footer_month
+		  EditBox 120, 30, 15, 15, first_footer_year
+		  EditBox 10, 65, 125, 15, worker_signature
+		  ButtonGroup ButtonPressed
+		    OkButton 250, 110, 50, 15
+		    CancelButton 305, 110, 50, 15
+		    PushButton 250, 60, 105, 15, "Script Instructions", intructions_btn
+		  Text 25, 15, 50, 10, "Case Number"
+		  Text 30, 35, 65, 10, "First month of APP"
+		  Text 105, 45, 35, 10, "MM    YY"
+		  Text 10, 55, 80, 10, "Sign your case note(s):"
+		  Text 10, 90, 160, 10, "This script does not have an open 'Notes' field."
+		  Text 10, 105, 235, 20, "If there were otherr actions/updates to the case, a separete NOTE should be entered (or another script run) to detail the specifics of that action."
+		  Text 155, 5, 140, 20, "This script will detail information about all APP actions for a this case taken today."
+		  Text 160, 25, 185, 10, "- Script will handle for approvals, denials, and closures."
+		  Text 160, 35, 155, 10, "- Script will handle for any program in MAXIS."
+		  Text 160, 45, 180, 10, "- To be handled by the script ELIG resulsts must be:"
+		  Text 175, 55, 60, 10, "CREATED Today"
+		  Text 175, 65, 65, 10, "APPROVED Today"
+		EndDialog
 
 		dialog Dialog1
 
@@ -11857,6 +11860,7 @@ Do
 
 		Call validate_MAXIS_case_number(err_msg, "*")
 		Call validate_footer_month_entry(first_footer_month, first_footer_year, err_msg, "*")
+		If trim(worker_signature) = "" Then err_msg = err_msg & vbNewLine & "* Enter your name to sign your case note."
 
 		If ButtonPressed = intructions_btn Then
 			err_msg = "LOOP"
