@@ -207,14 +207,10 @@ function snap_elig_dialog()
 	  ButtonGroup ButtonPressed
 	    If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 115, 50, 10, "View ELIG", nav_stat_elig_btn
 		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 165, 100, 50, 10, "View ELIG", nav_stat_elig_btn
-		If all_snap_approvals_confirmed = True Then
-			PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
-		ElseIf snap_approval_is_incorrect = True Then
+		If snap_approval_is_incorrect = True Then
 			PushButton 440, 365, 110, 15, "Cancel Approval Noting", app_incorrect_btn
-		ElseIf UBound(SNAP_UNIQUE_APPROVALS, 2) = 0 Then
-			Text 400, 360, 150, 20, "Thre is only one approval package, review the approval and indicate accuracy."
-		ElseIf approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) Then
-			PushButton 440, 365, 110, 15, "First Approval", first_approval_btn
+		ElseIf approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) or snap_approval_is_incorrect = True Then
+			PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
 		Else
 			PushButton 440, 365, 110, 15, "Next Approval", next_approval_btn
 		End If
@@ -240,15 +236,7 @@ function snap_elig_dialog()
 			y_pos = y_pos + 15
 		next
 		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
-		' PushButton 465, 25, 75, 15, "08/21 - 09/21", app_btn_one
-		' PushButton 465, 40, 75, 15, "10/21 - 02/22", app_btn_two
-		' PushButton 465, 55, 75, 15, "03/22 - Ongoing", app_btn_three
 
-
-	  ' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
-	  ' Text 15, 125, 130, 10, "REVIEW ALL BUDGET INFORMATION"
-	  ' Text 15, 135, 135, 10, "Check income, pay frequency, amounts."
-	  ' Text 15, 145, 135, 10, "Review housing expense and utilities."
 	  If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
 		  GroupBox 5, 120, 285, 35, "SNAP Benefits Issued to Resident in the Approval Package"
 		  app_y_pos = 132
@@ -264,12 +252,6 @@ function snap_elig_dialog()
 			End If
 		  Next
 	  End If
-	  ' Text 10, 135, 85, 10, "MONTH 1 - $ XXX"
-	  ' Text 10, 145, 85, 10, "MONTH 2 - $ XXX"
-	  ' Text 100, 135, 85, 10, "MONTH 3 - $ XXX"
-	  ' Text 100, 145, 85, 10, "MONTH 4 - $ XXX"
-	  ' Text 190, 135, 85, 10, "MONTH 5 - $ XXX"
-	  ' Text 190, 145, 85, 10, "MONTH 6 - $ XXX"
 
 	  GroupBox 5, 160, 285, 70, "Household Composition"
 	  Text 20, 170, 285, 10, "Members in Assistance Unit:  " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " - Adult: " & SNAP_ELIG_APPROVALS(elig_ind).adults_recv_snap & ", Children: " & SNAP_ELIG_APPROVALS(elig_ind).children_recv_snap
@@ -403,18 +385,6 @@ function snap_elig_dialog()
 			End If
 		End If
 	  Next
-	  ' Text 15, 155, 215, 10, "MEMB 01 - JOB NAME                           Monhtly Income:   $ XXX"
-	  ' Text 25, 165, 200, 10, "Paid FREQUENCY - $ XXX average inc/pay date"
-	  ' Text 15, 175, 215, 10, "MEMB 01 - JOB NAME                           Monhtly Income:   $ XXX"
-	  ' Text 25, 185, 200, 10, "Paid FREQUENCY - $ XXX average inc/pay date"
-	  ' Text 245, 155, 205, 10, "MEMB 01 - UNEA TYPE                   Monhtly Income:   $ XXX"
-	  ' Text 245, 165, 205, 10, "MEMB 01 - UNEA TYPE                   Monhtly Income:   $ XXX"
-
-
-	  '308133'
-
-
-
 	EndDialog
 end function
 
@@ -9773,7 +9743,6 @@ class stat_detail
 
 		Call navigate_to_MAXIS_screen("STAT", "JOBS")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
-		' 305184
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
 			EMWriteScreen "01", 20, 79
 			transmit
@@ -10159,7 +10128,6 @@ class stat_detail
 
 		call navigate_to_MAXIS_screen("STAT", "BUSI")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
-		' 305184
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
 			EMWriteScreen "01", 20, 79
 			transmit
@@ -10350,7 +10318,6 @@ class stat_detail
 
 		call navigate_to_MAXIS_screen("STAT", "UNEA")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
-		' 305184
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
 			EMWriteScreen "01", 20, 79
 			transmit
@@ -10765,7 +10732,6 @@ class stat_detail
 
 		call navigate_to_MAXIS_screen("STAT", "ACCT")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
-		' 305184
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
 			EMWriteScreen "01", 20, 79
 			transmit
@@ -10834,7 +10800,6 @@ class stat_detail
 
 		call navigate_to_MAXIS_screen("STAT", "SHEL")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
-		' 305184
 			Call write_value_and_transmit(stat_memb_ref_numb(each_memb), 20, 76)
 
 			stat_shel_exists(each_memb) = False
@@ -11044,7 +11009,6 @@ class stat_detail
 
 		call navigate_to_MAXIS_screen("STAT", "DISQ")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
-		' 305184
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
 			EMWriteScreen "01", 20, 79
 			transmit
@@ -11643,7 +11607,6 @@ class stat_detail
 			EMReadScreen stat_hest_prosp_phone_yn, 			1, 15, 60
 			EMReadScreen stat_hest_prosp_phone_fs_units, 	2, 15, 68
 			EMReadScreen stat_hest_prosp_phone_amount,		6, 15, 75
-			'305184
 
 			stat_hest_retro_heat_air_amount = trim(stat_hest_retro_heat_air_amount)
 			If stat_hest_retro_heat_air_amount = "" Then stat_hest_retro_heat_air_amount = 0
@@ -11860,6 +11823,7 @@ ReDim STAT_INFORMATION(0)
 EMConnect ""
 Call check_for_MAXIS(True)
 testing_run = True
+end_msg_info = ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
@@ -12449,8 +12413,7 @@ nav_stat_elig_btn		= 50
 
 app_confirmed_btn		= 100
 next_approval_btn		= 110
-first_approval_btn		= 120
-app_incorrect_btn		= 130
+app_incorrect_btn		= 120
 
 const months_in_approval			= 0
 ' const wcom_needed 					= 4
@@ -12731,27 +12694,28 @@ If enter_CNOTE_for_SNAP = True Then
 				SNAP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 			End If
 
-
-
-
-			for each_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
-				If ButtonPressed = SNAP_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
-				If SNAP_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then all_snap_approvals_confirmed = False
-				If SNAP_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then snap_approval_is_incorrect = True
-			Next
 			If ButtonPressed = -1 Then
-				If all_snap_approvals_confirmed = True Then
+				If approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) Then
 					ButtonPressed = app_confirmed_btn
 				ElseIf snap_approval_is_incorrect = True Then
 					ButtonPressed = app_incorrect_btn
-				ElseIf approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) Then
-					ButtonPressed = first_approval_btn
 				Else
 					ButtonPressed = next_approval_btn
 				End If
 			End If
 
-			If ButtonPressed = first_approval_btn Then approval_selected = 0
+			not_confirmed_pckg_list = ""
+			first_unconfirmmed_month = ""
+			for each_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+				If ButtonPressed = SNAP_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
+				If SNAP_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
+					all_snap_approvals_confirmed = False
+					not_confirmed_pckg_list = not_confirmed_pckg_list & replace(SNAP_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
+					If first_unconfirmmed_month = "" Then first_unconfirmmed_month = each_app
+				End If
+				If SNAP_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then snap_approval_is_incorrect = True
+			Next
+
 			If ButtonPressed = next_approval_btn Then
 				approval_selected = approval_selected + 1
 				If approval_selected > UBound(SNAP_UNIQUE_APPROVALS, 2) Then
@@ -12763,10 +12727,14 @@ If enter_CNOTE_for_SNAP = True Then
 				End If
 			End If
 		End If
+		If ButtonPressed = app_confirmed_btn and all_snap_approvals_confirmed = False Then
+			MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
+			approval_selected = first_unconfirmmed_month
+		End If
 		' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
 		' Next
 
-	Loop until ButtonPressed = app_confirmed_btn or ButtonPressed = app_incorrect_btn
+	Loop until (ButtonPressed = app_confirmed_btn and all_snap_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 
 	If snap_approval_is_incorrect = True Then
 		enter_CNOTE_for_SNAP = False
@@ -12774,10 +12742,6 @@ If enter_CNOTE_for_SNAP = True Then
 	End if
 
 End If
-
-
-'305758
-'305184
 
 
 If enter_CNOTE_for_SNAP = True Then
@@ -12885,8 +12849,6 @@ If enter_CNOTE_for_SNAP = True Then
 		Call snap_elig_case_note
 	Next
 
-	'CASE NOTE EXAMPLE - 305487 - CASE NUMBER'
-	''305184
 End If
 
 If denials_found_on_pnd2 = True Then
