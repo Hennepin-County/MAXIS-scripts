@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/07/2022", "Resolved bug for privileged cases failing.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/02/2022", "Resolved bug in reading the Case Number if more than one TIKL message on a case.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/21/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -244,7 +245,6 @@ Next
 
 For item = 0 to Ubound(DAIL_array, 2)
     MAXIS_case_number = DAIL_array(maxis_case_number_const, item)
-    MAXIS_background_check
     Call navigate_to_MAXIS_screen_review_PRIV("CASE", "CURR", is_this_priv)
     EmReadscreen worker_county, 4, 21, 14
     If is_this_priv = True then
@@ -281,6 +281,7 @@ For item = 0 to Ubound(DAIL_array, 2)
     End if
 
     If DAIL_array(send_memo_const, item) = True then
+        MAXIS_background_check
         stats_counter = stats_counter + 1
         Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)	'navigates to spec/memo and opens into edit mode
 
