@@ -93,69 +93,6 @@ const faci_release_in_30_col_const 			= 39
 const script_run_date_col_const 			= 40
 const script_run_col_const					= 41
 
-const disc_case_nbr_col_const 			= 1
-const disc_exp_det_col_const 			= 2
-const disc_app_in_5_col_const 			= 3
-const disc_app_in_7_col_const 			= 4
-const disc_appl_date_col_const 			= 5
-const disc_bdays_appl_notc_col_const 	= 6
-const disc_cdays_appl_notc_col_const 	= 7
-const disc_notc_date_col_const 			= 8
-const disc_bdays_notc_intv_col_const 	= 9
-const disc_cdays_notc_intv_col_const 	= 10
-const disc_intv_date_col_const 			= 11
-const disc_app_date_col_const 			= 12
-const disc_id_col_const 				= 13
-const disc_app_delays_col_const 		= 14
-const disc_income_col_const 			= 15
-const disc_asset_col_const 				= 16
-const disc_shelter_col_const 			= 17
-const disc_utilities_col_const 			= 18
-const disc_screening_col_const 			= 19
-const disc_worker_col_const 			= 20
-const disc_script_run_col_const			= 21
-const disc_bdays_appl_app_col_const 	= 22
-const disc_cdays_appl_app_col_const 	= 23
-
-
-const work_case_nbr_col_const 			= 1
-const work_worker_col_const 			= 2
-const work_appl_date_col_const 			= 3
-const work_notc_date_col_const 			= 4
-const work_intv_date_col_const 			= 5
-const work_app_date_col_const 			= 6
-const work_id_col_const 				= 7
-const work_app_delays_col_const 		= 8
-const work_exp_det_col_const 			= 9
-const work_income_col_const 			= 10
-const work_asset_col_const 				= 11
-const work_shelter_col_const 			= 12
-const work_utilities_col_const 			= 13
-const work_script_run_date_col_const	= 14
-
-const exch_rept_id_col_const 				= 15 	' ID
-const exch_rept_faci_col_const 				= 16 	' FACI
-const exch_rept_out_of_state_col_const 		= 17 	' Out of State
-const exch_rept_prev_exp_col_const 			= 18 	' Previous EXP Not Verified
-const exch_rept_deu_disq_col_const 			= 19 	' DEU/DISQ
-const exch_rept_imig_col_const 				= 20 	' Immigration
-const exch_rept_new_hire_col_const 			= 21 	' New Hire
-const exch_rept_job_info_col_const 			= 22 	' Attested Income/STWK
-const exch_rept_other_info_col_const 		= 23 	' Other Attested Information
-const exch_rept_insuf_intvw_col_const 		= 24 	' Did not gather enough informat at interview
-const exch_rept_HSR_lacks_support_col_const = 25 	' Worker Lacks Support
-const exch_rept_insuf_case_note_col_const 	= 26 	' Was CASE/NOTE Sufficient
-const exch_rept_MAXIS_updated_col_const 	= 27 	' Was MAXIS Updated Correctly
-const exch_rept_HSR_knew_poli_col_const 	= 28 	' Worker Knew Policy
-const exch_rept_exchange_col_const 			= 29 	' Exchange Needed?
-const exch_rept_exch_date_time_col_const 	= 30 	' Date/Time of Exchange - When did you connect with the worker
-const exch_rept_exch_durr_col_const 		= 31 	' Durration of Exchange
-const exch_rept_unable_to_connect_col_const = 32 	' Unable to Connect
-const exch_rept_notes_col_const 			= 33 	' Notes
-const exch_worklist_date_time_col_const		= 34
-const exch_app_date_time_col				= 35
-const exch_app_status_col 					= 36
-const exch_app_exp_status_col 				= 37
 
 'END DECLARATIONS BLOCK ====================================================================================================
 'Manually set if you want to run the testing code for creating a worklist.
@@ -560,6 +497,103 @@ Next
 
 objWorkbook.Save()		'saving the excel
 objHSSWorkbook.Save()		'saving the excel
+
+const case_numb_rept_out_const		= 0
+const app_date_rept_out_const		= 1
+const intv_date_rept_out_const		= 2
+const delay_explain_rept_out_const	= 3
+const worker_name_rept_out_const	= 4
+const hss_name_rept_out_const		= 5
+const hss_email_rept_out_const		= 6
+const pm_name_rept_out_const		= 7
+const pm_email_rept_out_const		= 8
+const last_rept_out_const			= 9
+
+Dim REPORT_OUT_ARRAY()
+ReDim REPORT_OUT_ARRAY(last_rept_out_const, 0)
+
+all_hsr_list = "~"
+all_hss_list = "~"
+all_pm_list = "~"
+
+hss_excel_row = 2																'default to the first row
+report_out_count = 0
+Do
+	If ObjHSSExcel.Cells(hss_excel_row, hss_rept_report_day_col).Value = date Then
+		ReDim preserve REPORT_OUT_ARRAY(last_rept_out_const, report_out_count)
+
+		REPORT_OUT_ARRAY(case_numb_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_case_number_col).Value
+		REPORT_OUT_ARRAY(app_date_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_application_date_col).Value
+		REPORT_OUT_ARRAY(intv_date_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_interview_date_col).Value
+		REPORT_OUT_ARRAY(delay_explain_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_approval_delay_detail_col).Value
+		REPORT_OUT_ARRAY(worker_name_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value
+		REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value
+		REPORT_OUT_ARRAY(hss_email_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value & "@hennepin.us"
+		REPORT_OUT_ARRAY(pm_name_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value
+		REPORT_OUT_ARRAY(pm_email_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value & "@hennepin.us"
+		' REPORT_OUT_ARRAY(, report_out_count)
+
+		If InStr(all_hsr_list, "~" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~") = 0 Then all_hsr_list = all_hsr_list & REPORT_OUT_ARRAY(worker_name_rept_out_const, report_out_count) & "~"
+		If InStr(all_hss_list, "~" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~") = 0 Then all_hss_list = all_hss_list & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~"
+		If InStr(all_pm_list, "~" & REPORT_OUT_ARRAY(pm_name_rept_out_const, report_out_count) & "~") = 0 Then all_pm_list = all_pm_list & REPORT_OUT_ARRAY(pm_name_rept_out_const, report_out_count) & "~"
+
+		report_out_count = report_out_count + 1
+	end If
+	hss_excel_row = hss_excel_row + 1
+	this_case_number = trim(ObjHSSExcel.Cells(hss_excel_row, 2).Value)
+Loop Until this_case_number = ""
+
+HSR_ARRAY = split(all_hsr_list, "~")
+HSS_ARRAY = split(all_hss_list, "~")
+' PM_ARRAY = split(all_pm_list, "~")
+
+all_repts_list = ""
+email_subject = "Cases determined EXPEDITED that Require Action"
+
+For each_hss = 1 to UBound(HSS_ARRAY)-1		'there is always a blank instance at the begining and end so we start and the second and end at the second to last
+	report_details = ""
+
+	email_recip = ""
+	email_recip_CC = ""
+	email_name = ""
+	For each_hsr = 1 to UBound(HSR_ARRAY)-1
+		report_details = report_details & vbCr & vbCr & "Cases found processed by: " & HSR_ARRAY(each_hsr)
+		For each_rept = 0 to UBound(REPORT_OUT_ARRAY, 2)
+			If REPORT_OUT_ARRAY(hss_name_rept_out_const, each_rept) = HSS_ARRAY(each_hss) and REPORT_OUT_ARRAY(worker_name_rept_out_const, each_rept) = HSR_ARRAY(each_hsr) Then
+				report_details = report_details & vbCr & " - " & REPORT_OUT_ARRAY(case_numb_rept_out_const, each_rept) & " Application Date: " & REPORT_OUT_ARRAY(app_date_rept_out_const, each_rept) & " Interview Date: " & REPORT_OUT_ARRAY(intv_date_rept_out_const, each_rept)
+				If REPORT_OUT_ARRAY(delay_explain_rept_out_const, each_rept) <> "" Then report_details = report_details & vbCr & chr(9) & " - Explanation of Delay: " & REPORT_OUT_ARRAY(delay_explain_rept_out_const, each_rept)
+
+				If email_name = "" Then email_name = REPORT_OUT_ARRAY(hss_name_rept_out_const, each_rept)
+				If email_recip = "" Then email_recip = REPORT_OUT_ARRAY(hss_email_rept_out_const, each_rept)
+				If email_recip_CC = "" Then email_recip_CC = REPORT_OUT_ARRAY(pm_email_rept_out_const, each_rept)
+			End if
+		next
+	Next
+
+	email_body = "Good morning " & email_name & ", "
+	email_body = email_body & vbCr & vbCr & "This is an automated email to provide a list of cases that require review and action. "
+	email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligiblity for Expedited SNAP but are still in a PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necesary support to cmoplete processing on these case(s) today."
+	email_body = email_body & vbCr & report_details
+	email_body = email_body & vbCr & vbCr & "Cases that meet expedited criteria can have all verifications except identity of the applicant postponed. No other verifications should hold up processing of Expedited SNAP (this included immigration verification - do not hold cases us for immigration verification)."
+	email_body = email_body & vbCr & "The only other instances in which we cannot approve expedited right away is in the case of a resident still in a facility or if the last issueance of SNAP was Expedited with postponed verifications and there are currently postponed verifications. "
+	email_body = email_body & vbCr & "If the worker beleives the case cannot be processed at this time, ensure they check with Knowledge Now. Any other policy or procedural questions should also go to Knowledge Now."
+	email_body = email_body & vbCr & vbCr & "*** Remember cases that are Expedited do NOT have a 30 Day application processing period, they have a 5 Business Day/7 Calendar Day application processing period. ***"
+	email_body = email_body & vbCr & vbCr & "Please connect with QI Leadership or the BlueZone Script Team with any questions about this report."
+	email_body = email_body & vbCr & vbCr & "Thank you for your dedication to our residents and quality processing."
+
+	Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, "", False)
+	all_repts_list = all_repts_list & vbCr  & "__________________________" & vbCr & "Sent to: " & email_name & " - " & email_recip & vbCr & "CC: " & email_recip_CC & vbCr & report_details
+Next
+email_body = "These are all the cases identified by the Expedited Determination Report Process"
+email_body = email_body & vbCr & vbCr & "This is an automated email to provide a list of cases that require review and action. "
+email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligiblity for Expedited SNAP but are still in a PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necesary support to cmoplete processing on these case(s) today."
+email_body = email_body & vbCr & all_repts_list
+Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, "", False)
+
+' For each_pm = 1 to UBound(PM_ARRAY)-1
+'
+' Next
+
 
 If leave_excel_open = "No - Close the file" Then
 	ObjHSSExcel.ActiveWorkbook.Close
