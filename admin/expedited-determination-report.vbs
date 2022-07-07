@@ -93,6 +93,44 @@ const faci_release_in_30_col_const 			= 39
 const script_run_date_col_const 			= 40
 const script_run_col_const					= 41
 
+const work_case_nbr_col_const 			= 1
+const work_worker_col_const 			= 2
+const work_appl_date_col_const 			= 3
+const work_notc_date_col_const 			= 4
+const work_intv_date_col_const 			= 5
+const work_app_date_col_const 			= 6
+const work_id_col_const 				= 7
+const work_app_delays_col_const 		= 8
+const work_exp_det_col_const 			= 9
+const work_income_col_const 			= 10
+const work_asset_col_const 				= 11
+const work_shelter_col_const 			= 12
+const work_utilities_col_const 			= 13
+const work_script_run_date_col_const	= 14
+const exch_rept_id_col_const 				= 15 	' ID
+const exch_rept_faci_col_const 				= 16 	' FACI
+const exch_rept_out_of_state_col_const 		= 17 	' Out of State
+const exch_rept_prev_exp_col_const 			= 18 	' Previous EXP Not Verified
+const exch_rept_deu_disq_col_const 			= 19 	' DEU/DISQ
+const exch_rept_imig_col_const 				= 20 	' Immigration
+const exch_rept_new_hire_col_const 			= 21 	' New Hire
+const exch_rept_job_info_col_const 			= 22 	' Attested Income/STWK
+const exch_rept_other_info_col_const 		= 23 	' Other Attested Information
+const exch_rept_insuf_intvw_col_const 		= 24 	' Did not gather enough informat at interview
+const exch_rept_HSR_lacks_support_col_const = 25 	' Worker Lacks Support
+const exch_rept_insuf_case_note_col_const 	= 26 	' Was CASE/NOTE Sufficient
+const exch_rept_MAXIS_updated_col_const 	= 27 	' Was MAXIS Updated Correctly
+const exch_rept_HSR_knew_poli_col_const 	= 28 	' Worker Knew Policy
+const exch_rept_exchange_col_const 			= 29 	' Exchange Needed?
+const exch_rept_exch_date_time_col_const 	= 30 	' Date/Time of Exchange - When did you connect with the worker
+const exch_rept_exch_durr_col_const 		= 31 	' Durration of Exchange
+const exch_rept_unable_to_connect_col_const = 32 	' Unable to Connect
+const exch_rept_notes_col_const 			= 33 	' Notes
+const exch_worklist_date_time_col_const		= 34
+const exch_app_date_time_col				= 35
+const exch_app_status_col 					= 36
+const exch_app_exp_status_col 				= 37
+
 
 'END DECLARATIONS BLOCK ====================================================================================================
 'Manually set if you want to run the testing code for creating a worklist.
@@ -165,13 +203,12 @@ Do
 	elig_result = ""
 	approval_status = ""
 	note_time = ""
-	If ObjReportExcel.Cells(total_excel_row, exch_app_date_time_col).Value = "" Then
+	If trim(ObjReportExcel.Cells(total_excel_row, exch_app_date_time_col).Value) = "" Then
 
 		MAXIS_case_number = trim(ObjReportExcel.Cells(total_excel_row, work_case_nbr_col_const).Value)
 		date_of_application = ObjReportExcel.Cells(total_excel_row, work_appl_date_col_const).Value
 		Call convert_date_into_MAXIS_footer_month(date_of_application, MAXIS_footer_month, MAXIS_footer_year)
 		date_of_application = DateAdd("d", 0, date_of_application)
-
 
 		Call back_to_SELF
 		Call navigate_to_MAXIS_screen("ELIG", "FS  ")
