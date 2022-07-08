@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/08/2022", "The SNAP CASE/NOTE format has been updated to be a little clearer and cleaner. Review the new format of the CASE/NOTE and let us know what you think.##~## ##~##Remember that for now the script only works for SNAP approvals and denials on REPT/PND2. MFIP functionality should be available soon.", "Casey Love, Hennepin County")
 call changelog_update("07/05/2022", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -388,12 +389,144 @@ function snap_elig_dialog()
 	EndDialog
 end function
 
+function rept_pnd2_dialog()
+	Dlg_len = 65
+
+	If pnd2_cash_status = "I" or pnd2_cash_status = "R" then Dlg_len = Dlg_len + 50
+	If (pnd2_cash_status = "I" or pnd2_cash_status = "R") and pnd2_cash_prog_two <> "" then Dlg_len = Dlg_len + 50
+	If pnd2_2nd_cash_status = "I" or pnd2_2nd_cash_status = "R" then Dlg_len = Dlg_len + 50
+	If (pnd2_2nd_cash_status = "I" or pnd2_2nd_cash_status = "R") and pnd2_2nd_cash_prog_two <> "" then Dlg_len = Dlg_len + 50
+	If pnd2_snap_status = "I" or pnd2_snap_status = "R" then Dlg_len = Dlg_len + 50
+	If pnd2_2nd_snap_status = "I" or pnd2_2nd_snap_status = "R" then Dlg_len = Dlg_len + 50
+	If pnd2_emer_status = "I" or pnd2_emer_status = "R" then Dlg_len = Dlg_len + 50
+	If pnd2_2nd_emer_status = "I" or pnd2_2nd_emer_status = "R" then Dlg_len = Dlg_len + 50
+	If pnd2_grh_status = "I" or pnd2_grh_status = "R" then Dlg_len = Dlg_len + 50
+	If pnd2_2nd_grh_status = "I" or pnd2_2nd_grh_status = "R" then Dlg_len = Dlg_len + 50
+
+	y_pos = 25
+	cash_listed = 0
+
+	BeginDialog Dialog1, 0, 0, 341, Dlg_len, "Program Denials Via REPT/PND2"
+	  Text 15, 10, 320, 10, "This case has been updated to have denials processed through the REPT/PND2 overnight batch."
+	  If pnd2_cash_status = "I" or pnd2_cash_status = "R" then
+		  GroupBox 15, y_pos, 315, 45, "Cash Denial"
+		  If pnd2_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
+		  If pnd2_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
+		  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_cash_prog_one
+		  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_appl_date
+		  Text 185, y_pos + 25, 140, 10, "Cash has been pending for " & pnd2_days_pending & " Days."
+
+		  cash_listed = cash_listed + 1
+		  y_pos = y_pos + 50
+
+		  If pnd2_cash_prog_two <> "" Then
+			  GroupBox 15, y_pos, 315, 45, "Cash Denial"
+			  If pnd2_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
+			  If pnd2_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
+			  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_cash_prog_two
+			  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_appl_date
+			  Text 185, y_pos + 25, 140, 10, "Cash has been pending for " & pnd2_days_pending & " Days."
+
+			  cash_listed = cash_listed + 1
+			  y_pos = y_pos + 50
+		  End If
+	  End If
+
+	  If pnd2_2nd_cash_status = "I" or pnd2_2nd_cash_status = "R" then
+		  GroupBox 15, y_pos, 315, 45, "Cash Denial"
+		  If pnd2_2nd_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
+		  If pnd2_2nd_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
+		  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_2nd_cash_prog_one
+		  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_2nd_appl_date
+		  Text 185, y_pos + 25, 140, 10, "Cash has been pending for " & pnd2_2nd_days_pending & " Days."
+
+		  cash_listed = cash_listed + 1
+		  y_pos = y_pos + 50
+
+		  If pnd2_2nd_cash_prog_two <> "" Then
+			  GroupBox 15, y_pos, 315, 45, "Cash Denial"
+			  If pnd2_2nd_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
+			  If pnd2_2nd_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
+			  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_2nd_cash_prog_two
+			  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_2nd_appl_date
+			  Text 185, y_pos + 25, 140, 10, "Cash has been pending for " & pnd2_2nd_days_pending & " Days."
+
+			  cash_listed = cash_listed + 1
+			  y_pos = y_pos + 50
+		  End If
+	  End If
+
+	  If pnd2_snap_status = "I" or pnd2_snap_status = "R" then
+		  GroupBox 15, y_pos, 315, 45, "SNAP Denial"
+		  If pnd2_snap_status = "I" Then Text 20, y_pos + 15, 155, 10, "SNAP Dened for NO INTERVIEW"
+		  If pnd2_snap_status = "R" Then Text 20, y_pos + 15, 155, 10, "SNAP Application WITHDRAWN"
+		  Text 185, y_pos + 15, 140, 10, "SNAP application date: " & pnd2_appl_date
+		  Text 185, y_pos + 25, 140, 10, "SNAP has been pending for " & pnd2_days_pending & " Days."
+
+		  y_pos = y_pos + 50
+	  End If
+	  If pnd2_2nd_snap_status = "I" or pnd2_2nd_snap_status = "R" then
+		  GroupBox 15, y_pos, 315, 45, "SNAP Denial"
+		  If pnd2_2nd_snap_status = "I" Then Text 20, y_pos + 15, 155, 10, "SNAP Dened for NO INTERVIEW"
+		  If pnd2_2nd_snap_status = "R" Then Text 20, y_pos + 15, 155, 10, "SNAP Application WITHDRAWN"
+		  Text 185, y_pos + 15, 140, 10, "SNAP application date: " & pnd2_2nd_appl_date
+		  Text 185, y_pos + 25, 140, 10, "SNAP has been pending for " & pnd2_2nd_days_pending & " Days."
+
+		  y_pos = y_pos + 50
+	  End If
+
+	  If pnd2_emer_status = "I" or pnd2_emer_status = "R" then
+		  GroupBox 15, y_pos, 315, 45, "Emergency Denial"
+		  If pnd2_emer_status = "I" Then Text 20, y_pos + 15, 155, 10, "EMER Dened for NO INTERVIEW"
+		  If pnd2_emer_status = "R" Then Text 20, y_pos + 15, 155, 10, "EMER Application WITHDRAWN"
+		  Text 185, y_pos + 15, 140, 10, "EMER application date: " & pnd2_appl_date
+		  Text 185, y_pos + 25, 140, 10, "EMER has been pending for " & pnd2_days_pending & " Days."
+
+		  y_pos = y_pos + 50
+	  End If
+	  If pnd2_2nd_emer_status = "I" or pnd2_2nd_emer_status = "R" then
+		  GroupBox 15, y_pos, 315, 45, "Emergency Denial"
+		  If pnd2_2nd_emer_status = "I" Then Text 20, y_pos + 15, 155, 10, "EMER Dened for NO INTERVIEW"
+		  If pnd2_2nd_emer_status = "R" Then Text 20, y_pos + 15, 155, 10, "EMER Application WITHDRAWN"
+		  Text 185, y_pos + 15, 140, 10, "EMER application date: " & pnd2_2nd_appl_date
+		  Text 185, y_pos + 25, 140, 10, "EMER has been pending for " & pnd2_2nd_days_pending & " Days."
+
+		  y_pos = y_pos + 50
+	  End If
+
+	  If pnd2_grh_status = "I" or pnd2_grh_status = "R" then
+		  GroupBox 15, y_pos, 315, 45, "GRH Denial"
+		  If pnd2_grh_status = "I" Then Text 20, y_pos + 15, 155, 10, "GRH Dened for NO INTERVIEW"
+		  If pnd2_grh_status = "R" Then Text 20, y_pos + 15, 155, 10, "GRH Application WITHDRAWN"
+		  Text 185, y_pos + 15, 140, 10, "GRH application date: " & pnd2_appl_date
+		  Text 185, y_pos + 25, 140, 10, "GRH has been pending for " & pnd2_days_pending & " Days."
+
+		  y_pos = y_pos + 50
+	  End If
+	  If pnd2_2nd_grh_status = "I" or pnd2_2nd_grh_status = "R" then
+		  GroupBox 15, y_pos, 315, 45, "GRH Denial"
+		  If pnd2_2nd_grh_status = "I" Then Text 20, y_pos + 15, 155, 10, "GRH Dened for NO INTERVIEW"
+		  If pnd2_2nd_grh_status = "R" Then Text 20, y_pos + 15, 155, 10, "GRH Application WITHDRAWN"
+		  Text 185, y_pos + 15, 140, 10, "GRH application date: " & pnd2_2nd_appl_date
+		  Text 185, y_pos + 25, 140, 10, "GRH has been pending for " & pnd2_2nd_days_pending & " Days."
+
+		  y_pos = y_pos + 50
+	  End If
+	  Text 20, y_pos+5, 135, 10, "Confirm that these denials are accurate:"
+	  DropListBox 155, y_pos, 155, 45, "Indicate if the Denial is Accurate"+chr(9)+"Yes - denial is Accurate"+chr(9)+"No - I need to update the denial", denial_accurate
+	  y_pos = y_pos + 20
+	  ButtonGroup ButtonPressed
+		OkButton 230, y_pos, 50, 15
+		CancelButton 280, y_pos, 50, 15
+	EndDialog
+end function
+
 function snap_elig_case_note()
 
 	Call start_a_blank_case_note
 
 	end_msg_info = end_msg_info & "NOTE entered for SNAP - " & elig_info & " eff " & first_month & header_end & vbCr
-	Call write_variable_in_CASE_NOTE("APP Completed " & program_detail & " " & elig_info & " eff " & first_month & header_end)		'TODO - add closure or denial details here based on some other logic that we have to figure out'
+	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)		'TODO - add closure or denial details here based on some other logic that we have to figure out'
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Entitlement: $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
@@ -405,21 +538,21 @@ function snap_elig_case_note()
 			If InStr(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
 				If SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot = SNAP_ELIG_APPROVALS(approval).snap_benefit_amt Then
 					' " 10/21:     Entitlement: $ 1,125.00 ¦ Issued to Resident: $ 1,125.00    10/21"
-					Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "| Issued to Resident: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
+					Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " | Issued to Resident: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
 				Else
 					If SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt <> "" Then
-						Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "|           Prorated: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt, 8) & "-from " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date)
+						Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " |           Prorated: $ " & right("        " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_amt, 8) & "-from " & SNAP_ELIG_APPROVALS(approval).snap_benefit_prorated_date)
 						If SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then Call write_variable_in_CASE_NOTE("                               | Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
 						If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
 					ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued <> "" Then
-						Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "| Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
+						Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " | Amt Already Issued: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt_already_issued, 8) & "  (-)")
 						If SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then Call write_variable_in_CASE_NOTE("                               |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
 					ElseIf SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount <> "0.00" Then
-						Call write_variable_in_CASE_NOTE(" " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & "|         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
+						Call write_variable_in_CASE_NOTE(SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot, 8) & " |         Recoupment: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_recoup_amount, 8) & "  (-)")
 					End If
 
 					Call write_variable_in_CASE_NOTE("                               | Issued to Resident: $ " & right("       " & SNAP_ELIG_APPROVALS(approval).snap_benefit_amt, 8) & "         " & SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year)
-					Call write_variable_in_CASE_NOTE("                               |---------------------------------------------")
+					If SNAP_ELIG_APPROVALS(approval).elig_footer_month & "/" & SNAP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
 				End If
 			End If
 		Next
@@ -439,97 +572,123 @@ function snap_elig_case_note()
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "0.00"
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "" Then SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "0.00"
 
-		Call write_variable_in_CASE_NOTE(" SNAP Unit Size: " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " - Adult: " & SNAP_ELIG_APPROVALS(elig_ind).adults_recv_snap & ", Children: " & SNAP_ELIG_APPROVALS(elig_ind).children_recv_snap)
+		Call write_variable_in_CASE_NOTE(left("SNAP Unit Size: " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit & " - Adult: " & SNAP_ELIG_APPROVALS(elig_ind).adults_recv_snap & ", Children: " & SNAP_ELIG_APPROVALS(elig_ind).children_recv_snap & "            ", 44) & "|--- SNAP Benefit Calculation ---")
+		Call write_variable_in_CASE_NOTE("Income:                                     |")
+		' "   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
 
-		beginning_txt = " Income:    "
-		earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8)
+
+		' beginning_txt = " Income:    "
+		beginning_txt = "            "
+		beginning_txt = "  "
+		earned_info = "|   Gross Earned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8)
 		spaces_30 = "                              "
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 26)
-				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb), ".")
+				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
+				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 26)
-				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb), ".")
+				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
+				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 26)
-				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb), ".")
+				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
+				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 26)
-				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb), ".")
+				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
+				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted(each_memb) = True Then
-				job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 26)
-				Call write_variable_in_CASE_NOTE(beginning_txt & "Job- $" & job_detail & earned_info)
+				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb), ".")
+				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
+				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted(each_memb) = True Then
-				busi_details = left(STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 25)
-				Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+				busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb), ".")
+				busi_details = left(busi_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "BUSI- $" & busi_details & earned_info)
 				beginning_txt = "            "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted(each_memb) = True Then
-				busi_details = left(STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 25)
-				Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+				busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb), ".")
+				busi_details = left(busi_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "BUSI- $" & busi_details & earned_info)
 				beginning_txt = "            "
+				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted(each_memb) = True Then
-				busi_details = left(STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 25)
-				Call write_variable_in_CASE_NOTE(beginning_txt & "SELF- $" & busi_details & earned_info)
+				busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb), ".")
+				busi_details = left(busi_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE(beginning_txt & "BUSI- $" & busi_details & earned_info)
 				beginning_txt = "            "
+				beginning_txt = "  "
 				earned_info = "|"
 			End If
 		Next
-		If earned_info = "|   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8) Then
+		If earned_info = "|   Gross Earned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8) Then
 			' Call write_variable_in_CASE_NOTE(" Income:    NONE                            |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
-			Call write_variable_in_CASE_NOTE(" Income:    NO Earned Income                |   Gross Earned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
-
+			Call write_variable_in_CASE_NOTE("  NO Earned Income                          |   Gross Earned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc, 8))
+											 ' "  NO Unearned Income                        |"
 		End If
-		unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8)
+		unearned_info = "| Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8)
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), 31)
-				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb), ".")
+				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), 31)
-				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb), ".")
+				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), 31)
-				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb), ".")
+				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), 31)
-				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb), ".")
+				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE(" UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted(each_memb) = True Then
-				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), 31)
-				Call write_variable_in_CASE_NOTE("            "  & "$" & unea_detail & unearned_info)
+				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb), ".")
+				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 35)
+				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 		Next
-		If unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
+		' If unearned_info = "| Gross Unearned Inc: $" & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
+		If unearned_info = "| Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("  NO Unearned Income                        | Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
 
-		Call write_variable_in_CASE_NOTE("                                            |    Total Gross Inc: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc, 8))
+		Call write_variable_in_CASE_NOTE("                                            |    Total Gross Inc: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc, 8))
 
 		deduction_detail_one = ""
 		deduction_detail_two = ""
@@ -621,12 +780,12 @@ function snap_elig_case_note()
 		' MsgBox "deduction_detail_one - " & deduction_detail_one & vbCr &_
 		' 		"deduction_detail_two - " & deduction_detail_two & vbCr &_
 		' 		"deduction_detail_three - " & deduction_detail_three
-		Call write_variable_in_CASE_NOTE(" Deductions:" & left(deduction_detail_one & spaces_30, 32) & "|   (-)   Deductions: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct, 8))
+		Call write_variable_in_CASE_NOTE("Deductions: " & left(deduction_detail_one & spaces_30, 32) & "|   (-)   Deductions: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_deduct, 8))
 		If deduction_detail_two <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_two & spaces_30, 32) & "|")
 		If deduction_detail_three <> "" Then Call write_variable_in_CASE_NOTE("            " & left(deduction_detail_three & spaces_30, 32) & "|")
 		' MsgBox "CHECK"
-		Call write_variable_in_CASE_NOTE("                                            |            Net Inc: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc, 8))
-		Call write_variable_in_CASE_NOTE(" Expenses:  Housing: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total & "        ", 8)& "        |--------------------------|")
+		Call write_variable_in_CASE_NOTE("                                            |            Net Inc: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_inc, 8))
+		Call write_variable_in_CASE_NOTE("Expenses:   Housing: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total & "        ", 8)& "        |--------------------------|")
 		' " Expenses:  Housing: $1,250.00        |-------------------------------------|"
 
 
@@ -634,13 +793,13 @@ function snap_elig_case_note()
 		Call write_variable_in_CASE_NOTE("            MAX Allowable: $"& left(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel&"        ", 8) & "  |(-)1/2 Net Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                                      |   Adj Shelter: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                                      |--------------------------|")
-		Call write_variable_in_CASE_NOTE("                                            |  (-)Allow Shel Exp: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses, 8))
-		Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc, 8))
+		Call write_variable_in_CASE_NOTE("                                            |  (-)Allow Shel Exp: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses, 8))
+		Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc, 8))
 		Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
 		Call write_variable_in_CASE_NOTE("                               |    Thrifty Food Plan: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                               |(-)30% of Net Adj Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc, ".00", "")&"        ", 8) & "|")
 		Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
-		Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $" & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot, 8))
+		Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot, 8))
 
 		If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = True Then
 			Call write_variable_in_CASE_NOTE("SNAP Budgeted Gross Income of  $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc & " exceeds 130% FPG of $ " & FormatNumber(SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app), 2, -1, 0, -1))
@@ -976,7 +1135,6 @@ function snap_elig_case_note()
 	' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
 	PF3
 end function
-
 
 'DECLARATIONS===============================================================================================================
 class dwp_eligibility_detail
@@ -8183,7 +8341,7 @@ class hc_eligibility_detail
 									ElseIf spenddown_header = "Long Term Care/Medical Spenddown Results (LTCS)" Then
 										'804476
 									Else
-										MsgBox spenddown_header
+										' MsgBox spenddown_header
 									End If
 									transmit
 									EMReadScreen back_to_MOBL_check, 4,	 3, 49
@@ -12776,6 +12934,8 @@ If enter_CNOTE_for_SNAP = True Then
 		first_month = left(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
 		If len(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
 			last_month = right(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
+		Else
+			last_month = first_month
 		End If
 
 		elig_ind = ""
@@ -12798,7 +12958,7 @@ If enter_CNOTE_for_SNAP = True Then
 			Else
 				header_end = " only"
 			End If
-			If SNAP_UNIQUE_APPROVALS(package_is_expedited_const, unique_app) = True Then program_detail = "EXPEDITED SNAP"
+			If SNAP_UNIQUE_APPROVALS(package_is_expedited_const, unique_app) = True Then program_detail = "- EXPEDITED SNAP"
 			elig_info = "ELIGIBLE"
 			one_month_is_elig = True
 		ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "INELIGIBLE" Then
@@ -12877,163 +13037,10 @@ If enter_CNOTE_for_SNAP = True Then
 End If
 
 If denials_found_on_pnd2 = True Then
+	denial_accurate = ""
 
 	Do
-		Dlg_len = 65
-
-		If pnd2_cash_status = "I" or pnd2_cash_status = "R" then Dlg_len = Dlg_len + 50
-		If (pnd2_cash_status = "I" or pnd2_cash_status = "R") and pnd2_cash_prog_two <> "" then Dlg_len = Dlg_len + 50
-		If pnd2_2nd_cash_status = "I" or pnd2_2nd_cash_status = "R" then Dlg_len = Dlg_len + 50
-		If (pnd2_2nd_cash_status = "I" or pnd2_2nd_cash_status = "R") and pnd2_2nd_cash_prog_two <> "" then Dlg_len = Dlg_len + 50
-		If pnd2_snap_status = "I" or pnd2_snap_status = "R" then Dlg_len = Dlg_len + 50
-		If pnd2_2nd_snap_status = "I" or pnd2_2nd_snap_status = "R" then Dlg_len = Dlg_len + 50
-		If pnd2_emer_status = "I" or pnd2_emer_status = "R" then Dlg_len = Dlg_len + 50
-		If pnd2_2nd_emer_status = "I" or pnd2_2nd_emer_status = "R" then Dlg_len = Dlg_len + 50
-		If pnd2_grh_status = "I" or pnd2_grh_status = "R" then Dlg_len = Dlg_len + 50
-		If pnd2_2nd_grh_status = "I" or pnd2_2nd_grh_status = "R" then Dlg_len = Dlg_len + 50
-
-		y_pos = 25
-		cash_listed = 0
-
-		BeginDialog Dialog1, 0, 0, 341, Dlg_len, "Program Denials Via REPT/PND2"
-		  Text 15, 10, 320, 10, "This case has been updated to have denials processed through the REPT/PND2 overnight batch."
-		  If pnd2_cash_status = "I" or pnd2_cash_status = "R" then
-			  GroupBox 15, y_pos, 315, 45, "Cash Denial"
-			  If pnd2_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
-			  If pnd2_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
-			  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_cash_prog_one
-			  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_appl_date
-			  Text 185, y_pos + 25, 140, 10, "Cash has been pending for " & pnd2_days_pending & " Days."
-
-			  cash_listed = cash_listed + 1
-			  y_pos = y_pos + 50
-
-			  If pnd2_cash_prog_two <> "" Then
-				  GroupBox 15, y_pos, 315, 45, "Cash Denial"
-				  If pnd2_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
-				  If pnd2_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
-				  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_cash_prog_two
-				  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_appl_date
-				  Text 185, y_pos + 25, 140, 10, "Cash has been pending for " & pnd2_days_pending & " Days."
-
-				  cash_listed = cash_listed + 1
-				  y_pos = y_pos + 50
-			  End If
-		  End If
-
-		  If pnd2_2nd_cash_status = "I" or pnd2_2nd_cash_status = "R" then
-			  GroupBox 15, y_pos, 315, 45, "Cash Denial"
-			  If pnd2_2nd_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
-			  If pnd2_2nd_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
-			  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_2nd_cash_prog_one
-			  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_2nd_appl_date
-			  Text 185, y_pos + 25, 140, 10, "Cash has been pending for " & pnd2_2nd_days_pending & " Days."
-
-			  cash_listed = cash_listed + 1
-			  y_pos = y_pos + 50
-
-			  If pnd2_2nd_cash_prog_two <> "" Then
-				  GroupBox 15, y_pos, 315, 45, "Cash Denial"
-				  If pnd2_2nd_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
-				  If pnd2_2nd_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
-				  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_2nd_cash_prog_two
-				  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_2nd_appl_date
-				  Text 185, y_pos + 25, 140, 10, "Cash has been pending for " & pnd2_2nd_days_pending & " Days."
-
-				  cash_listed = cash_listed + 1
-				  y_pos = y_pos + 50
-			  End If
-		  End If
-
-		  If pnd2_snap_status = "I" or pnd2_snap_status = "R" then
-			  GroupBox 15, y_pos, 315, 45, "SNAP Denial"
-			  If pnd2_snap_status = "I" Then Text 20, y_pos + 15, 155, 10, "SNAP Dened for NO INTERVIEW"
-			  If pnd2_snap_status = "R" Then Text 20, y_pos + 15, 155, 10, "SNAP Application WITHDRAWN"
-			  Text 185, y_pos + 15, 140, 10, "SNAP application date: " & pnd2_appl_date
-			  Text 185, y_pos + 25, 140, 10, "SNAP has been pending for " & pnd2_days_pending & " Days."
-
-			  y_pos = y_pos + 50
-		  End If
-		  If pnd2_2nd_snap_status = "I" or pnd2_2nd_snap_status = "R" then
-			  GroupBox 15, y_pos, 315, 45, "SNAP Denial"
-			  If pnd2_2nd_snap_status = "I" Then Text 20, y_pos + 15, 155, 10, "SNAP Dened for NO INTERVIEW"
-			  If pnd2_2nd_snap_status = "R" Then Text 20, y_pos + 15, 155, 10, "SNAP Application WITHDRAWN"
-			  Text 185, y_pos + 15, 140, 10, "SNAP application date: " & pnd2_2nd_appl_date
-			  Text 185, y_pos + 25, 140, 10, "SNAP has been pending for " & pnd2_2nd_days_pending & " Days."
-
-			  y_pos = y_pos + 50
-		  End If
-
-		  If pnd2_emer_status = "I" or pnd2_emer_status = "R" then
-			  GroupBox 15, y_pos, 315, 45, "Emergency Denial"
-			  If pnd2_emer_status = "I" Then Text 20, y_pos + 15, 155, 10, "EMER Dened for NO INTERVIEW"
-			  If pnd2_emer_status = "R" Then Text 20, y_pos + 15, 155, 10, "EMER Application WITHDRAWN"
-			  Text 185, y_pos + 15, 140, 10, "EMER application date: " & pnd2_appl_date
-			  Text 185, y_pos + 25, 140, 10, "EMER has been pending for " & pnd2_days_pending & " Days."
-
-			  y_pos = y_pos + 50
-		  End If
-		  If pnd2_2nd_emer_status = "I" or pnd2_2nd_emer_status = "R" then
-			  GroupBox 15, y_pos, 315, 45, "Emergency Denial"
-			  If pnd2_2nd_emer_status = "I" Then Text 20, y_pos + 15, 155, 10, "EMER Dened for NO INTERVIEW"
-			  If pnd2_2nd_emer_status = "R" Then Text 20, y_pos + 15, 155, 10, "EMER Application WITHDRAWN"
-			  Text 185, y_pos + 15, 140, 10, "EMER application date: " & pnd2_2nd_appl_date
-			  Text 185, y_pos + 25, 140, 10, "EMER has been pending for " & pnd2_2nd_days_pending & " Days."
-
-			  y_pos = y_pos + 50
-		  End If
-
-		  If pnd2_grh_status = "I" or pnd2_grh_status = "R" then
-			  GroupBox 15, y_pos, 315, 45, "GRH Denial"
-			  If pnd2_grh_status = "I" Then Text 20, y_pos + 15, 155, 10, "GRH Dened for NO INTERVIEW"
-			  If pnd2_grh_status = "R" Then Text 20, y_pos + 15, 155, 10, "GRH Application WITHDRAWN"
-			  Text 185, y_pos + 15, 140, 10, "GRH application date: " & pnd2_appl_date
-			  Text 185, y_pos + 25, 140, 10, "GRH has been pending for " & pnd2_days_pending & " Days."
-
-			  y_pos = y_pos + 50
-		  End If
-		  If pnd2_2nd_grh_status = "I" or pnd2_2nd_grh_status = "R" then
-			  GroupBox 15, y_pos, 315, 45, "GRH Denial"
-			  If pnd2_2nd_grh_status = "I" Then Text 20, y_pos + 15, 155, 10, "GRH Dened for NO INTERVIEW"
-			  If pnd2_2nd_grh_status = "R" Then Text 20, y_pos + 15, 155, 10, "GRH Application WITHDRAWN"
-			  Text 185, y_pos + 15, 140, 10, "GRH application date: " & pnd2_2nd_appl_date
-			  Text 185, y_pos + 25, 140, 10, "GRH has been pending for " & pnd2_2nd_days_pending & " Days."
-
-			  y_pos = y_pos + 50
-		  End If
-		  Text 20, y_pos+5, 135, 10, "Confirm that these denials are accurate:"
-		  DropListBox 155, y_pos, 155, 45, "Indicate if the Denial is Accurate"+chr(9)+"Yes - denial is Accurate"+chr(9)+"No - I need to update the denial", denial_accurate
-		  y_pos = y_pos + 20
-		  ButtonGroup ButtonPressed
-		    OkButton 230, y_pos, 50, 15
-		    CancelButton 280, y_pos, 50, 15
-
-		  ' y_pos = y_pos -
-		  ' GroupBox 15, 25, 315, 45, "Cash Denial"
-		  ' Text 20, 40, 155, 10, "Cash Dened for NO INTERVIEW"
-		  ' Text 20, 50, 155, 10, "Cash Program: "
-		  ' Text 185, 40, 140, 10, "Cash application date: "
-		  ' Text 185, 50, 140, 10, "Cash has been pending for  Days."
-		  ' GroupBox 15, 75, 315, 45, "Cash Denial"
-		  ' Text 20, 90, 155, 10, "Cash Dened for NO INTERVIEW"
-		  ' Text 20, 100, 155, 10, "Cash Program: "
-		  ' Text 185, 90, 140, 10, "Cash application date: "
-		  ' Text 185, 100, 140, 10, "Cash has been pending for  Days."
-		  ' GroupBox 15, 125, 315, 45, "SNAP Denial"
-		  ' Text 20, 140, 155, 10, "SNAP Application Withdrawn"
-		  ' Text 185, 140, 140, 10, "SNAP application date: "
-		  ' Text 185, 150, 140, 10, "SNAP has been pending for  Days."
-		  ' GroupBox 15, 175, 315, 45, "EMER Denial"
-		  ' Text 20, 190, 155, 10, "EMER Dened for NO INTERVIEW"
-		  ' Text 20, 200, 155, 10, "EMER Program: "
-		  ' Text 185, 190, 140, 10, "EMER application date: "
-		  ' Text 185, 200, 140, 10, "EMER has been pending for  Days."
-		  ' Text 20, 230, 135, 10, "Confirm that these denials are accurate:"
-		  ' DropListBox 155, 225, 155, 45, "Indicate if the Denial is Accurate"+chr(9)+"Yes - denial is Accurate"+chr(9)+"No - I need to update the denial", denial_accurate
-		  ' ButtonGroup ButtonPressed
-		  '   OkButton 230, 245, 50, 15
-		  '   CancelButton 280, 245, 50, 15
-		EndDialog
+		Call rept_pnd2_dialog
 
 		dialog Dialog1
 		cancel_confirmation
