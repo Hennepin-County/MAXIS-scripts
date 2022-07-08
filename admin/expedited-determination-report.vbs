@@ -609,8 +609,8 @@ For each_hss = 1 to UBound(HSS_ARRAY)-1		'there is always a blank instance at th
 
 	email_body = "Good morning " & email_name & ", "
 	email_body = email_body & vbCr & vbCr & "This is an automated email to provide a list of cases that require review and action. "
-	email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligiblity for Expedited SNAP but are still in a PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necesary support to cmoplete processing on these case(s) today."
-	email_body = email_body & vbCr & report_details
+	email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligibility for Expedited SNAP but are still in a PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necessary support to complete processing on these case(s) today."
+	email_body = email_body & report_details
 	email_body = email_body & vbCr & vbCr & "Cases that meet expedited criteria can have all verifications except identity of the applicant postponed. No other verifications should hold up processing of Expedited SNAP (this included immigration verification - do not hold cases us for immigration verification)."
 	email_body = email_body & vbCr & "The only other instances in which we cannot approve expedited right away is in the case of a resident still in a facility or if the last issueance of SNAP was Expedited with postponed verifications and there are currently postponed verifications. "
 	email_body = email_body & vbCr & "If the worker beleives the case cannot be processed at this time, ensure they check with Knowledge Now. Any other policy or procedural questions should also go to Knowledge Now."
@@ -619,11 +619,11 @@ For each_hss = 1 to UBound(HSS_ARRAY)-1		'there is always a blank instance at th
 	email_body = email_body & vbCr & vbCr & "Thank you for your dedication to our residents and quality processing."
 
 	Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, "", False)
-	all_repts_list = all_repts_list & vbCr  & "__________________________" & vbCr & "Sent to: " & email_name & " - " & email_recip & vbCr & "CC: " & email_recip_CC & vbCr & report_details
+	all_repts_list = all_repts_list & vbCr  & "______________________________________________________________________________" & vbCr & "Sent to: " & email_name & " - " & email_recip & vbCr & "CC: " & email_recip_CC & report_details
 Next
 email_body = "These are all the cases identified by the Expedited Determination Report Process"
 email_body = email_body & vbCr & vbCr & "This is an automated email to provide a list of cases that require review and action. "
-email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligiblity for Expedited SNAP but are still in a PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necesary support to cmoplete processing on these case(s) today."
+email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligibility for Expedited SNAP but are still in a PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necessary support to complete processing on these case(s) today."
 email_body = email_body & vbCr & all_repts_list
 Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, "", False)
 
