@@ -11843,6 +11843,7 @@ ReDim STAT_INFORMATION(0)
 EMConnect ""
 Call check_for_MAXIS(True)
 testing_run = True
+If user_ID_for_validation = "AMST002" Then testing_run = False
 end_msg_info = ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
