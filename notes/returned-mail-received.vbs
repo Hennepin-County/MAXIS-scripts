@@ -1,3 +1,4 @@
+Option Explicit
 'Required for statistical purposes==========================================================================================
 name_of_script = "NOTES - RETURNED MAIL RECEIVED.vbs"
 start_time = timer
@@ -56,6 +57,18 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE SCRIPT-----------------------------------------------------------------------------------------------------------------
+'global variable'
+Dim name_of_script, start_time, STATS_counter, STATS_manualtime, STATS_denomination, run_locally, use_master_branch, req, fso, FuncLib_URL, critical_error_msgbox, run_another_script_fso, _
+fso_command, text_from_the_other_script
+
+Dim Dialog1, MAXIS_case_number, date_received, METS_case_number, ADDR_actions, worker_signature, cancel_confirmation, MAXIS_footer_month_confirmation, is_this_priv, worker_number, notes_on_address, _
+resi_addr_line_one, resi_addr_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_county, addr_verif, homeless_addr, reservation_addr, living_situation, _
+reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city_line, mail_state_line, mail_zip_line, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, _
+type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted, case_invalid_error, snap_or_cash_case, _
+family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, residential_address_confirmed, mailing_address_confirmed, returned_mail, _
+verifications_requested, other_notes, due_date, POLI_TEMP_PACT_button, panel_number, TIKL_note_text, _
+SNAP_POLI_TEMP_button, CASH_POLI_TEMP_button, one_source_button, err_msg
+
 
 EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
@@ -68,7 +81,7 @@ BeginDialog Dialog1, 0, 0, 221, 225, "RETURNED MAIL PROCESSING"
   EditBox 75, 65, 50, 15, MAXIS_case_number
   EditBox 75, 85, 50, 15, date_received
   EditBox 75, 105, 50, 15, METS_case_number
-  DropListBox 105, 125, 110, 15, "Select:"+chr(9)+"forwarding address in MN"+chr(9)+"forwarding address outside MN"+chr(9)+"no forwarding address provided"+chr(9)+"no response received", ADDR_actions
+  DropListBox 105, 125, 110, 15, "Select:"+chr(9)+"forwarding address provided"+chr(9)+"no forwarding address provided"+chr(9)+"no response received", ADDR_actions
   EditBox 70, 185, 145, 15, worker_signature
   ButtonGroup ButtonPressed
     PushButton 135, 65, 80, 15, "SNAP TE02.08.012", SNAP_POLI_TEMP_button
@@ -211,7 +224,7 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" THEN
 
-	IF ADDR_actions = "forwarding address in MN"  THEN
+	IF ADDR_actions = "forwarding address provided"  THEN
 		new_addr_state = "MN"
 		reservation_addr = "No"
 		reservation_name = "N/A"
@@ -219,7 +232,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 
 	'-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-	IF ADDR_actions = "forwarding address in MN" or ADDR_actions = "forwarding address outside MN" THEN
+	IF ADDR_actions = "forwarding address provided" THEN
 	    BeginDialog Dialog1, 0, 0, 206, 125, "RETURNED MAIL PROCESSING"
 	      EditBox 40, 15, 155, 15, new_addr_line_one
 	      EditBox 40, 35, 155, 15, new_addr_line_two
@@ -350,7 +363,7 @@ IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation
 Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
 
-IF ADDR_actions = "forwarding address in MN" or ADDR_actions = "forwarding address outside MN" THEN
+IF ADDR_actions = "forwarding address provided" THEN
 	CALL write_variable_in_CASE_NOTE("* Forwarding address was on returned mail.")
 	CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
 	If new_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two)
