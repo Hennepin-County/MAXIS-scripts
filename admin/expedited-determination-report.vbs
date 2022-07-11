@@ -570,7 +570,7 @@ Do
 		REPORT_OUT_ARRAY(pm_email_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value & "@hennepin.us"
 		' REPORT_OUT_ARRAY(, report_out_count)
 
-		If InStr(all_hsr_list, "~" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~") = 0 Then all_hsr_list = all_hsr_list & REPORT_OUT_ARRAY(worker_name_rept_out_const, report_out_count) & "~"
+		If InStr(all_hsr_list, "~" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~") = 0 Then all_hsr_list = all_hsr_list & REPORT_OUT_ARRAY(worker_name_rept_out_const, report_out_count) & "|" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~"
 		If InStr(all_hss_list, "~" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~") = 0 Then all_hss_list = all_hss_list & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~"
 		If InStr(all_pm_list, "~" & REPORT_OUT_ARRAY(pm_name_rept_out_const, report_out_count) & "~") = 0 Then all_pm_list = all_pm_list & REPORT_OUT_ARRAY(pm_name_rept_out_const, report_out_count) & "~"
 
@@ -594,17 +594,21 @@ For each_hss = 1 to UBound(HSS_ARRAY)-1		'there is always a blank instance at th
 	email_recip_CC = ""
 	email_name = ""
 	For each_hsr = 1 to UBound(HSR_ARRAY)-1
-		report_details = report_details & vbCr & vbCr & "Cases found processed by: " & HSR_ARRAY(each_hsr)
-		For each_rept = 0 to UBound(REPORT_OUT_ARRAY, 2)
-			If REPORT_OUT_ARRAY(hss_name_rept_out_const, each_rept) = HSS_ARRAY(each_hss) and REPORT_OUT_ARRAY(worker_name_rept_out_const, each_rept) = HSR_ARRAY(each_hsr) Then
-				report_details = report_details & vbCr & " - " & REPORT_OUT_ARRAY(case_numb_rept_out_const, each_rept) & " Application Date: " & REPORT_OUT_ARRAY(app_date_rept_out_const, each_rept) & " Interview Date: " & REPORT_OUT_ARRAY(intv_date_rept_out_const, each_rept)
-				If REPORT_OUT_ARRAY(delay_explain_rept_out_const, each_rept) <> "" Then report_details = report_details & vbCr & chr(9) & " - Explanation of Delay: " & REPORT_OUT_ARRAY(delay_explain_rept_out_const, each_rept)
+		temp_array = ""
+		temp_array = split(HSR_ARRAY(each_hsr))
+		If temp_array(1) =  HSS_ARRAY(each_hss) Then
+			report_details = report_details & vbCr & vbCr & "Cases found processed by: " & temp_array(0)
+			For each_rept = 0 to UBound(REPORT_OUT_ARRAY, 2)
+				If REPORT_OUT_ARRAY(hss_name_rept_out_const, each_rept) = HSS_ARRAY(each_hss) and REPORT_OUT_ARRAY(worker_name_rept_out_const, each_rept) = temp_array(0) Then
+					report_details = report_details & vbCr & " - " & REPORT_OUT_ARRAY(case_numb_rept_out_const, each_rept) & " Application Date: " & REPORT_OUT_ARRAY(app_date_rept_out_const, each_rept) & " Interview Date: " & REPORT_OUT_ARRAY(intv_date_rept_out_const, each_rept)
+					If REPORT_OUT_ARRAY(delay_explain_rept_out_const, each_rept) <> "" Then report_details = report_details & vbCr & chr(9) & " - Explanation of Delay: " & REPORT_OUT_ARRAY(delay_explain_rept_out_const, each_rept)
 
-				If email_name = "" Then email_name = REPORT_OUT_ARRAY(hss_name_rept_out_const, each_rept)
-				If email_recip = "" Then email_recip = REPORT_OUT_ARRAY(hss_email_rept_out_const, each_rept)
-				If email_recip_CC = "" Then email_recip_CC = REPORT_OUT_ARRAY(pm_email_rept_out_const, each_rept)
-			End if
-		next
+					If email_name = "" Then email_name = REPORT_OUT_ARRAY(hss_name_rept_out_const, each_rept)
+					If email_recip = "" Then email_recip = REPORT_OUT_ARRAY(hss_email_rept_out_const, each_rept)
+					If email_recip_CC = "" Then email_recip_CC = REPORT_OUT_ARRAY(pm_email_rept_out_const, each_rept)
+				End if
+			next
+		End If
 	Next
 
 	email_body = "Good morning " & email_name & ", "
