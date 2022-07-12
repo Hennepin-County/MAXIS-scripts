@@ -133,14 +133,8 @@ const exch_app_exp_status_col 				= 37
 
 
 'END DECLARATIONS BLOCK ====================================================================================================
-'Manually set if you want to run the testing code for creating a worklist.
-'This option is only available to scriptwriters.
-create_a_test_worklist = True
-'If TRUE - the script will NOT delete the files that create the reports so that our data review is not changed. It also does not update any of the other reports/files
-'          You should also have MAXIS ready - there may not be good password handling. Inquiry or Production is fine.
-'If FALSE - the script WILL delete the files that fill in information
-'           The False option is run by Laurie weekly.
-If create_a_test_worklist = True Then EMConnect ""
+
+EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
@@ -549,7 +543,7 @@ const last_rept_out_const			= 9
 Dim REPORT_OUT_ARRAY()
 ReDim REPORT_OUT_ARRAY(last_rept_out_const, 0)
 
-all_hsr_list = "~"
+all_hsr_list = "~|~"
 all_hss_list = "~"
 all_pm_list = "~"
 
@@ -563,14 +557,14 @@ Do
 		REPORT_OUT_ARRAY(app_date_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_application_date_col).Value
 		REPORT_OUT_ARRAY(intv_date_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_interview_date_col).Value
 		REPORT_OUT_ARRAY(delay_explain_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_approval_delay_detail_col).Value
-		REPORT_OUT_ARRAY(worker_name_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value
-		REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value
+		REPORT_OUT_ARRAY(worker_name_rept_out_const, report_out_count) = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value)
+		REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value)
 		REPORT_OUT_ARRAY(hss_email_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value & "@hennepin.us"
-		REPORT_OUT_ARRAY(pm_name_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value
+		REPORT_OUT_ARRAY(pm_name_rept_out_const, report_out_count) = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value)
 		REPORT_OUT_ARRAY(pm_email_rept_out_const, report_out_count) = ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value & "@hennepin.us"
 		' REPORT_OUT_ARRAY(, report_out_count)
 
-		If InStr(all_hsr_list, "~" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~") = 0 Then all_hsr_list = all_hsr_list & REPORT_OUT_ARRAY(worker_name_rept_out_const, report_out_count) & "|" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~"
+		If InStr(all_hsr_list, "~" & REPORT_OUT_ARRAY(worker_name_rept_out_const, report_out_count) & "|" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~")  = 0 Then all_hsr_list = all_hsr_list & REPORT_OUT_ARRAY(worker_name_rept_out_const, report_out_count) & "|" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~"
 		If InStr(all_hss_list, "~" & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~") = 0 Then all_hss_list = all_hss_list & REPORT_OUT_ARRAY(hss_name_rept_out_const, report_out_count) & "~"
 		If InStr(all_pm_list, "~" & REPORT_OUT_ARRAY(pm_name_rept_out_const, report_out_count) & "~") = 0 Then all_pm_list = all_pm_list & REPORT_OUT_ARRAY(pm_name_rept_out_const, report_out_count) & "~"
 
@@ -595,7 +589,7 @@ For each_hss = 1 to UBound(HSS_ARRAY)-1		'there is always a blank instance at th
 	email_name = ""
 	For each_hsr = 1 to UBound(HSR_ARRAY)-1
 		temp_array = ""
-		temp_array = split(HSR_ARRAY(each_hsr))
+		temp_array = split(HSR_ARRAY(each_hsr), "|")
 		If temp_array(1) =  HSS_ARRAY(each_hss) Then
 			report_details = report_details & vbCr & vbCr & "Cases found processed by: " & temp_array(0)
 			For each_rept = 0 to UBound(REPORT_OUT_ARRAY, 2)
