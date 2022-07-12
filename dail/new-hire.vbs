@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/11/2022", "Bug fix in reading the MAXIS Case Number.", "Ilse Ferris, Hennepin County") ''#900
 call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County") ''#814
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("12/17/2019", "Updated navigation to case note from DAIL.", "Ilse Ferris, Hennepin County")
@@ -67,9 +68,11 @@ changelog_display
 
 '----------------------------------------------------------------------------------------------------------Script
 EMConnect ""
-
 EMSendKey "T" 'TYPES "T" TO BRING THE SELECTED MESSAGE TO THE TOP
 transmit
+
+EmReadScreen MAXIS_case_number, 8, 5, 73
+MAXIS_case_number = trim(MAXIS_case_number)
 
 'determining if the old message with the SSN functionality will be needed or not.
 EMReadScreen HIRE_check, 11, 6, 24
@@ -85,8 +88,6 @@ EMSendKey "X"
 transmit
 
 'Reading information fom the HIRE pop-up
-EmReadscreen MAXIS_case_number, 8, 6, 57
-MAXIS_case_number = Trim(MAXIS_case_number)
 'Date Hired and Employer Name
 EMReadScreen new_hire_second_line, 61, 10, 5
 new_hire_second_line = trim(new_hire_second_line)
