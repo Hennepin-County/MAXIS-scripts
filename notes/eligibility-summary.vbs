@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/12/2022", "TESTING UPDATE ##~## ##~##We have added some detail to the end message about the actions the script has taken and the status of the case.##~## ##~##Adjustments made to the script layout that should help to speed up some of the script runs. We know this script takes a bit of time to gather the details needed, but we hope the level of detail and the small amount of input required in the script balances these longer run times.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/08/2022", "The SNAP CASE/NOTE format has been updated to be a little clearer and cleaner. Review the new format of the CASE/NOTE and let us know what you think.##~## ##~##Remember that for now the script only works for SNAP approvals and denials on REPT/PND2. MFIP functionality should be available soon.", "Casey Love, Hennepin County")
 call changelog_update("07/05/2022", "Initial version.", "Casey Love, Hennepin County")
 
@@ -536,6 +537,7 @@ end function
 
 function snap_elig_case_note()
 
+	CASE_NOTE_entered = True
 	Call start_a_blank_case_note
 
 	end_msg_info = end_msg_info & "NOTE entered for SNAP - " & elig_info & " eff " & first_month & header_end & vbCr
@@ -1308,7 +1310,8 @@ class dwp_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-
+		End If
+		If approved_today = True Then
 			ReDim dwp_elig_ref_numbs(0)
 			ReDim dwp_elig_membs_full_name(0)
 			ReDim dwp_elig_membs_request_yn(0)
@@ -2078,7 +2081,8 @@ class mfip_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-
+		End If
+		If approved_today = True Then
 			ReDim mfip_elig_ref_numbs(0)
 			ReDim mfip_elig_membs_full_name(0)
 			ReDim mfip_elig_membs_request_yn(0)
@@ -3215,7 +3219,8 @@ class msa_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-
+		End If
+		If approved_today = True Then
 			ReDim msa_elig_ref_numbs(0)
 			ReDim msa_elig_membs_full_name(0)
 			ReDim msa_elig_membs_request_yn(0)
@@ -3892,7 +3897,8 @@ class ga_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-
+		End If
+		If approved_today = True Then
 	 		EMReadScreen ga_elig_case_status, 12, 18, 23
 			EMReadScreen ga_elig_file_unit_type_code, 1, 18, 52
 			EMReadScreen ga_elig_faci_file_unit_type_code, 1, 18, 77
@@ -4401,7 +4407,8 @@ class deny_eligibility_detail
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-
+		End If
+		If approved_today = True Then
 			ReDim deny_cash_membs_ref_numbs(0)
 			ReDim deny_cash_membs_full_name(0)
 			ReDim deny_cash_membs_request_yn(0)
@@ -4920,7 +4927,8 @@ class grh_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-
+		End If
+		If approved_today = True Then
 			EMReadScreen grh_elig_memb_ref_numb, 2, 6, 3
 			EMReadScreen grh_elig_memb_full_name, 15, 6, 7
 			EMReadScreen grh_elig_memb_code, 1, 6, 24
@@ -6098,7 +6106,7 @@ class emer_eligibility_detail
 	public emer_elig_membs_last_emer_begin_date()
 
 	public sub read_elig()
-		approved_today = False
+		approved_today = False			'TODO EMER - handling for approved_today'
 		approved_version_found = False
 
 		ReDim emer_check_issue_date(0)
@@ -6907,7 +6915,8 @@ class snap_eligibility_detail
 		' approved_today = DateAdd("d", 0, approved_today)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-
+		End If
+		If approved_today = True Then
 			row = 7
 			elig_memb_count = 0
 			elig_membs_list = ""
@@ -7622,7 +7631,7 @@ class hc_eligibility_detail
 	' public
 
 	public sub read_elig()
-		approved_today = False
+		approved_today = False						'TODO - HC add approved_today handling'
 		approved_version_found = False
 
 		ReDim hc_elig_ref_numbs(0)
@@ -12288,7 +12297,9 @@ If numb_EMER_versions <> " " Then
 
 	EMER_ELIG_APPROVAL.read_elig
 
-	If EMER_ELIG_APPROVAL.approved_today = True then enter_CNOTE_for_EMER = True
+	If EMER_ELIG_APPROVAL.approved_today = True then
+		enter_CNOTE_for_EMER = True
+	End If
 	' transactions = ""
 	' for each_tx = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
 	' 	transactions = transactions & EMER_ELIG_APPROVAL.emer_check_program(each_tx) & " - $" & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_tx) & " Paid to: " & EMER_ELIG_APPROVAL.emer_check_vendor_name(each_tx)
@@ -12304,16 +12315,7 @@ End If
 For each footer_month in MONTHS_ARRAY
 	' MsgBox footer_month
 	Call convert_date_into_MAXIS_footer_month(footer_month, MAXIS_footer_month, MAXIS_footer_year)
-
-	ReDim preserve STAT_INFORMATION(month_count)
-
-	Set STAT_INFORMATION(month_count) = new stat_detail
-
-	STAT_INFORMATION(month_count).footer_month = MAXIS_footer_month
-	STAT_INFORMATION(month_count).footer_year = MAXIS_footer_year
-
-	Call STAT_INFORMATION(month_count).gather_stat_info
-
+	approval_found_for_this_month = False
 
 	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 
@@ -12339,12 +12341,14 @@ For each footer_month in MONTHS_ARRAY
 
 		Call DWP_ELIG_APPROVALS(dwp_elig_months_count).read_elig
 
-		If first_DWP_approval = "" AND DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today Then first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+		If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True Then
+			If first_DWP_approval = "" Then first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+			approval_found_for_this_month = True
+		End If
 		' MsgBox "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year & vbCr &_
 		' "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount & vbCr &_
 		' "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result
 
-		dwp_elig_months_count = dwp_elig_months_count + 1
 	End If
 
 	If numb_MFIP_versions <> " " Then
@@ -12357,80 +12361,11 @@ For each footer_month in MONTHS_ARRAY
 
 		Call MFIP_ELIG_APPROVALS(mfip_elig_months_count).read_elig
 
-		MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_month = False
-		MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_month = False
 
-		If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
-			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_month = True
-			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
-			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
+			If first_MFIP_approval = "" Then first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+			approval_found_for_this_month = True
 		End If
-		If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
-			MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_month = True
-			MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
-			MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
-		End If
-
-		If first_MFIP_approval = "" AND MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
-
-		For each_elig_memb = 0 to UBound(MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs)
-			For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
-				If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
-
-					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
-						STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_mfip(each_stat_memb) = False
-
-						STAT_INFORMATION(month_count).stat_busi_one_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_busi_two_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_busi_three_counted_for_mfip(each_stat_memb) = False
-
-						STAT_INFORMATION(month_count).stat_unea_one_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_unea_two_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
-
-					End If
-
-					' If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
-					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_deemed(each_elig_memb) = "Deemed" Then
-						STAT_INFORMATION(month_count).stat_jobs_one_job_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_jobs_two_job_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_jobs_three_job_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_jobs_four_job_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_jobs_five_job_deemed_for_mfip(each_stat_memb) = True
-
-						STAT_INFORMATION(month_count).stat_busi_one_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_busi_two_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_busi_three_deemed_for_mfip(each_stat_memb) = True
-
-						STAT_INFORMATION(month_count).stat_unea_one_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_unea_two_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_unea_three_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_unea_four_deemed_for_mfip(each_stat_memb) = True
-						STAT_INFORMATION(month_count).stat_unea_five_deemed_for_mfip(each_stat_memb) = True
-
-
-					End If
-				End if
-
-				If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
-					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_retro_monthly_gross_wage(each_stat_memb)
-					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
-
-					the_counted_amount = ""
-					Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
-					STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) = the_gross_amount
-					STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb) = the_counted_amount
-					' MsgBox "STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) - " & STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) & vbCr & "STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb) - " & STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb)
-				End If
-			Next
-		Next
 		' MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
 		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount & vbCr &_
 		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_cash_portion & vbCr &_
@@ -12438,7 +12373,6 @@ For each footer_month in MONTHS_ARRAY
 		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_housing_grant & vbCr &_
 		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
 
-		mfip_elig_months_count = mfip_elig_months_count + 1
 		' MsgBox "mfip_elig_months_count: " & mfip_elig_months_count
 	End If
 
@@ -12451,21 +12385,14 @@ For each footer_month in MONTHS_ARRAY
 
 		Call MSA_ELIG_APPROVALS(msa_elig_months_count).read_elig
 
-		MSA_ELIG_APPROVALS(msa_elig_months_count).er_month = False
-
-		If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
-			MSA_ELIG_APPROVALS(msa_elig_months_count).er_month = True
-			MSA_ELIG_APPROVALS(msa_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
-			MSA_ELIG_APPROVALS(msa_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-			MSA_ELIG_APPROVALS(msa_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		If MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today = True Then
+			If first_MSA_approval = "" Then first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+			approval_found_for_this_month = True
 		End If
-
-		If first_MSA_approval = "" AND MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today Then first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		' MsgBox "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year & vbCr &_
 		' "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant & vbCr &_
 		' "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result
 
-		msa_elig_months_count = msa_elig_months_count + 1
 	End If
 
 	If numb_GA_versions <> " " Then
@@ -12477,27 +12404,15 @@ For each footer_month in MONTHS_ARRAY
 
 		Call GA_ELIG_APPROVALS(ga_elig_months_count).read_elig
 
-		GA_ELIG_APPROVALS(ga_elig_months_count).er_month = False
-		GA_ELIG_APPROVALS(ga_elig_months_count).hrf_month = False
-
-		If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
-			GA_ELIG_APPROVALS(ga_elig_months_count).er_month = True
-			GA_ELIG_APPROVALS(ga_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
-			GA_ELIG_APPROVALS(ga_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-			GA_ELIG_APPROVALS(ga_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
-		End If
-		If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
-			GA_ELIG_APPROVALS(ga_elig_months_count).hrf_month = True
-			GA_ELIG_APPROVALS(ga_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
-			GA_ELIG_APPROVALS(ga_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+		If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
+			If first_GA_approval = "" Then first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+			approval_found_for_this_month = True
 		End If
 
-		If first_GA_approval = "" AND GA_ELIG_APPROVALS(ga_elig_months_count).approved_today Then first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		' MsgBox "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & vbCr & "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year & vbCr &_
 		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_approved_date: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_approved_date & vbCr & "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_monthly_grant: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_monthly_grant & vbCr &_
 		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result
 
-		ga_elig_months_count = ga_elig_months_count + 1
 	End If
 
 	If numb_CASH_denial_versions <> " " Then
@@ -12509,7 +12424,10 @@ For each footer_month in MONTHS_ARRAY
 
 		Call CASH_DENIAL_APPROVALS(cash_deny_months_count).read_elig
 
-		If first_DENY_approval = "" AND CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_today Then first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+		If CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_today = True Then
+			If first_DENY_approval = "" Then first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+			approval_found_for_this_month = True
+		End If
 		' members = ""
 		' for each_memb = 0 to UBound(CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_ref_numbs)
 		' 	members = members & "MEMB " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_ref_numbs(each_memb) & " - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_full_name(each_memb) & " Request: " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_request_yn(each_memb)
@@ -12523,7 +12441,6 @@ For each footer_month in MONTHS_ARRAY
 		' "CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info - " & CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_ga_reason_info & vbCr &_
 		' members
 
-		cash_deny_months_count = cash_deny_months_count + 1
 	End If
 
 	If numb_GRH_versions <> " " Then
@@ -12535,22 +12452,10 @@ For each footer_month in MONTHS_ARRAY
 
 		Call GRH_ELIG_APPROVALS(grh_elig_months_count).read_elig
 
-		GRH_ELIG_APPROVALS(grh_elig_months_count).er_month = False
-		GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_month = False
-
-		If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
-			GRH_ELIG_APPROVALS(grh_elig_months_count).er_month = True
-			GRH_ELIG_APPROVALS(grh_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
-			GRH_ELIG_APPROVALS(grh_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-			GRH_ELIG_APPROVALS(grh_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		If GRH_ELIG_APPROVALS(grh_elig_months_count).approved_today = True Then
+			If first_GRH_approval = "" Then first_GRH_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+			approval_found_for_this_month = True
 		End If
-		If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
-			GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_month = True
-			GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
-			GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
-		End If
-
-		If first_GRH_approval = "" AND GRH_ELIG_APPROVALS(grh_elig_months_count).approved_today Then first_GRH_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 		' MsgBox "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year & vbCr &_
 		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date & vbCr &_
 		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_one: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_payable_amount_one & vbCr &_
@@ -12559,7 +12464,6 @@ For each footer_month in MONTHS_ARRAY
 		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_name: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_vendor_two_name & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_budg_vendor_number_two & vbCr &_
 		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result
 
-		grh_elig_months_count = grh_elig_months_count + 1
 	End If
 
 	If numb_SNAP_versions <> " " Then
@@ -12571,57 +12475,11 @@ For each footer_month in MONTHS_ARRAY
 
 		Call SNAP_ELIG_APPROVALS(snap_elig_months_count).read_elig
 
-		SNAP_ELIG_APPROVALS(snap_elig_months_count).er_month = False
-		SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_month = False
-
-		If STAT_INFORMATION(month_count).stat_revw_snap_code <> "" Then
-			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_month = True
-			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_snap_code
-			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
-		End If
-		If STAT_INFORMATION(month_count).stat_mont_snap_status <> "" Then
-			SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_month = True
-			SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_snap_status
-			SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+		If SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_today = True Then
+			If first_SNAP_approval = "" Then first_SNAP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+			approval_found_for_this_month = True
 		End If
 
-		If first_SNAP_approval = "" AND SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_today = True Then first_SNAP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
-		' MsgBox "SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month - " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month
-		SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap = 0
-		SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap = 0
-		For each_elig_memb = 0 to UBound(SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_ref_numbs)
-			For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
-				If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
-					If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
-						STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_snap(each_stat_memb) = False
-
-						STAT_INFORMATION(month_count).stat_busi_one_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_busi_two_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_busi_three_counted_for_snap(each_stat_memb) = False
-
-						STAT_INFORMATION(month_count).stat_unea_one_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_unea_two_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_unea_three_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_unea_four_counted_for_snap(each_stat_memb) = False
-						STAT_INFORMATION(month_count).stat_unea_five_counted_for_snap(each_stat_memb) = False
-					End If
-					If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_eligibility(each_elig_memb) = "ELIGIBLE" Then
-						If STAT_INFORMATION(month_count).stat_memb_age(each_stat_memb) > 21 Then
-							SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap = SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap + 1
-						Else
-							SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap = SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap + 1
-						End If
-					End If
-				End If
-			Next
-		Next
-
-		snap_elig_months_count = snap_elig_months_count + 1
 	End If
 
 
@@ -12634,22 +12492,13 @@ For each footer_month in MONTHS_ARRAY
 
 	Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
 
-	HC_ELIG_APPROVALS(hc_elig_months_count).er_month = False
-	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = False
-
-	If STAT_INFORMATION(month_count).stat_revw_hc_code <> "" Then
-		HC_ELIG_APPROVALS(hc_elig_months_count).er_month = True
-		HC_ELIG_APPROVALS(hc_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_hc_code
-		HC_ELIG_APPROVALS(hc_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-		HC_ELIG_APPROVALS(hc_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
-	End If
-	If STAT_INFORMATION(month_count).stat_mont_hc_status <> "" Then
-		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = True
-		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_hc_status
-		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+	If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
+		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+		approval_found_for_this_month = True
 	End If
 
-	If first_HC_approval = "" AND HC_ELIG_APPROVALS(hc_elig_months_count).approved_today Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+
+
 	' elig_list = ""
 	' for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
 	' 	If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_appd(hc_elig) = True Then
@@ -12661,7 +12510,234 @@ For each footer_month in MONTHS_ARRAY
 	' MsgBox "Footer Month - " & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month & "/" & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year & vbCr &_
 	' 	   "HC Eligibility: " & vbCr &_
 	' 	   elig_list
+	If approval_found_for_this_month = True Then
+		ReDim preserve STAT_INFORMATION(month_count)
 
+		Set STAT_INFORMATION(month_count) = new stat_detail
+
+		STAT_INFORMATION(month_count).footer_month = MAXIS_footer_month
+		STAT_INFORMATION(month_count).footer_year = MAXIS_footer_year
+
+		Call STAT_INFORMATION(month_count).gather_stat_info
+	End If
+
+	'NOW WE ADD THE STAT INFORMATION to each Program
+	If numb_DWP_versions <> " " Then
+		If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True Then
+		End If
+		dwp_elig_months_count = dwp_elig_months_count + 1
+	End If
+
+	If numb_MFIP_versions <> " " Then
+		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_month = False
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_month = False
+
+			If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_month = True
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			End If
+			If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_month = True
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+			End If
+
+
+			For each_elig_memb = 0 to UBound(MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs)
+				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
+					If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
+
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
+							STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_mfip(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_busi_one_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_two_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_three_counted_for_mfip(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_unea_one_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_two_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_three_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_four_counted_for_mfip(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_five_counted_for_mfip(each_stat_memb) = False
+
+						End If
+
+						' If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_elig_membs_deemed(each_elig_memb) = "Deemed" Then
+							STAT_INFORMATION(month_count).stat_jobs_one_job_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_jobs_two_job_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_jobs_three_job_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_jobs_four_job_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_jobs_five_job_deemed_for_mfip(each_stat_memb) = True
+
+							STAT_INFORMATION(month_count).stat_busi_one_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_busi_two_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_busi_three_deemed_for_mfip(each_stat_memb) = True
+
+							STAT_INFORMATION(month_count).stat_unea_one_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_unea_two_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_unea_three_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_unea_four_deemed_for_mfip(each_stat_memb) = True
+							STAT_INFORMATION(month_count).stat_unea_five_deemed_for_mfip(each_stat_memb) = True
+
+
+						End If
+					End if
+
+					If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_retro_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
+
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb) = the_counted_amount
+						' MsgBox "STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) - " & STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) & vbCr & "STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb) - " & STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb)
+					End If
+				Next
+			Next
+		End If
+		mfip_elig_months_count = mfip_elig_months_count + 1
+	End If
+
+	If numb_MSA_versions <> " " Then
+		If MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today = True Then
+			MSA_ELIG_APPROVALS(msa_elig_months_count).er_month = False
+
+			If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
+				MSA_ELIG_APPROVALS(msa_elig_months_count).er_month = True
+				MSA_ELIG_APPROVALS(msa_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+				MSA_ELIG_APPROVALS(msa_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				MSA_ELIG_APPROVALS(msa_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			End If
+		End If
+		msa_elig_months_count = msa_elig_months_count + 1
+	End If
+
+	If numb_GA_versions <> " " Then
+		If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
+
+			GA_ELIG_APPROVALS(ga_elig_months_count).er_month = False
+			GA_ELIG_APPROVALS(ga_elig_months_count).hrf_month = False
+
+			If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
+				GA_ELIG_APPROVALS(ga_elig_months_count).er_month = True
+				GA_ELIG_APPROVALS(ga_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+				GA_ELIG_APPROVALS(ga_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				GA_ELIG_APPROVALS(ga_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			End If
+			If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
+				GA_ELIG_APPROVALS(ga_elig_months_count).hrf_month = True
+				GA_ELIG_APPROVALS(ga_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
+				GA_ELIG_APPROVALS(ga_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+			End If
+		End If
+		ga_elig_months_count = ga_elig_months_count + 1
+	End If
+
+	If numb_CASH_denial_versions <> " " Then
+		If CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_today = True Then
+		End If
+		cash_deny_months_count = cash_deny_months_count + 1
+	End If
+
+	If numb_GRH_versions <> " " Then
+		If GRH_ELIG_APPROVALS(grh_elig_months_count).approved_today = True Then
+			GRH_ELIG_APPROVALS(grh_elig_months_count).er_month = False
+			GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_month = False
+
+			If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
+				GRH_ELIG_APPROVALS(grh_elig_months_count).er_month = True
+				GRH_ELIG_APPROVALS(grh_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+				GRH_ELIG_APPROVALS(grh_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				GRH_ELIG_APPROVALS(grh_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			End If
+			If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
+				GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_month = True
+				GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
+				GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+			End If
+		End If
+		grh_elig_months_count = grh_elig_months_count + 1
+	End If
+
+	If numb_SNAP_versions <> " " Then
+		If SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_today = True Then
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_month = False
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_month = False
+
+			If STAT_INFORMATION(month_count).stat_revw_snap_code <> "" Then
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).er_month = True
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_snap_code
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			End If
+			If STAT_INFORMATION(month_count).stat_mont_snap_status <> "" Then
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_month = True
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_snap_status
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+			End If
+
+			' MsgBox "SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month - " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap = 0
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap = 0
+			For each_elig_memb = 0 to UBound(SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_ref_numbs)
+				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
+					If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
+						If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
+							STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_snap(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_busi_one_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_two_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_three_counted_for_snap(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_unea_one_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_two_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_three_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_four_counted_for_snap(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_five_counted_for_snap(each_stat_memb) = False
+						End If
+						If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_eligibility(each_elig_memb) = "ELIGIBLE" Then
+							If STAT_INFORMATION(month_count).stat_memb_age(each_stat_memb) > 21 Then
+								SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap = SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap + 1
+							Else
+								SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap = SNAP_ELIG_APPROVALS(snap_elig_months_count).children_recv_snap + 1
+							End If
+						End If
+					End If
+				Next
+			Next
+		End If
+		snap_elig_months_count = snap_elig_months_count + 1
+	End If
+
+	If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
+		HC_ELIG_APPROVALS(hc_elig_months_count).er_month = False
+		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = False
+
+		If STAT_INFORMATION(month_count).stat_revw_hc_code <> "" Then
+			HC_ELIG_APPROVALS(hc_elig_months_count).er_month = True
+			HC_ELIG_APPROVALS(hc_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_hc_code
+			HC_ELIG_APPROVALS(hc_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			HC_ELIG_APPROVALS(hc_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		End If
+		If STAT_INFORMATION(month_count).stat_mont_hc_status <> "" Then
+			HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = True
+			HC_ELIG_APPROVALS(hc_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_hc_status
+			HC_ELIG_APPROVALS(hc_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+		End If
+	End If
 	hc_elig_months_count = hc_elig_months_count + 1
 
 
@@ -12809,7 +12885,7 @@ End If
 Call back_to_SELF
 EMWriteScreen MAXIS_case_number, 18, 43
 
-
+CASE_NOTE_entered = False
 'In order to determine the array - need to be able to see if the budget changes from one to the next
 'EMER doesn't have an array - there is only one month
 
@@ -13381,6 +13457,7 @@ If enter_CNOTE_for_MFIP = True Then
 		If IsDate(MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = True Then due_date = DateAdd("d", 10, MFIP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
 
 
+		CASE_NOTE_entered = True
 		call start_a_blank_case_note
 
 		end_msg_info = end_msg_info & "NOTE entered for MFIP - " & elig_info & " eff " & first_month & header_end & vbCr
@@ -13534,6 +13611,7 @@ End If
 If enter_CNOTE_for_SNAP = True Then
 	' MsgBox "MADE IT TO THE NOTE"
 	''
+	'TODO  - add a CNOTE about REVW or HRF being completed and ELIG or NOT ELIG'
 	For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
 		first_month = left(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
 		If len(SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
@@ -13720,6 +13798,7 @@ If denials_found_on_pnd2 = True Then
 				PF3
 
 				end_msg_info = end_msg_info & "CASE/NOTE entered for Denial of " & pnd2_appl_date & " application of " & progs_denied_for_intv & " - denied on REPT/PND2 for no Interview." & vbCr
+				CASE_NOTE_entered = True
 				Call start_a_blank_CASE_NOTE
 
 				Call write_variable_in_CASE_NOTE("DENIAL of " & pnd2_appl_date & " Application for No Interview: " & progs_denied_for_intv)
@@ -13736,6 +13815,7 @@ If denials_found_on_pnd2 = True Then
 			If progs_denied_for_wthdrw <> "" Then
 				end_msg_info = end_msg_info & "CASE/NOTE entered for Denial of " & pnd2_appl_date & " application of " & progs_denied_for_wthdrw & " - denied on REPT/PND2 for Withdraw of Request." & vbCr
 
+				CASE_NOTE_entered = True
 				Call start_a_blank_CASE_NOTE
 
 				Call write_variable_in_CASE_NOTE("DENIAL of " & pnd2_appl_date & " Application by resident Request: " & progs_denied_for_wthdrw)
@@ -13812,6 +13892,8 @@ If denials_found_on_pnd2 = True Then
 				PF3
 
 				end_msg_info = end_msg_info & "CASE/NOTE entered for Denial of " & pnd2_2nd_appl_date & " application of " & progs_denied_for_intv & " - denied on REPT/PND2 for no Interview." & vbCr
+
+				CASE_NOTE_entered = True
 				Call start_a_blank_CASE_NOTE
 
 				Call write_variable_in_CASE_NOTE("DENIAL of " & pnd2_2nd_appl_date & " Application for No Interview: " & progs_denied_for_intv)
@@ -13827,6 +13909,8 @@ If denials_found_on_pnd2 = True Then
 
 			If progs_denied_for_wthdrw <> "" Then
 				end_msg_info = end_msg_info & "CASE/NOTE entered for Denial of " & pnd2_2nd_appl_date & " application of " & progs_denied_for_wthdrw & " - denied on REPT/PND2 for Withdraw of Request." & vbCr
+
+				CASE_NOTE_entered = True
 				Call start_a_blank_CASE_NOTE
 
 				Call write_variable_in_CASE_NOTE("DENIAL of " & pnd2_2nd_appl_date & " Application by resident Request: " & progs_denied_for_wthdrw)
@@ -13858,10 +13942,28 @@ End If
 ' 	Next
 ' Next
 
+script_run_lowdown = script_run_lowdown & vbCr & "ga_status - " & ga_status
+script_run_lowdown = script_run_lowdown & vbCr & "msa_status - " & msa_status
+script_run_lowdown = script_run_lowdown & vbCr & "mfip_status - " & mfip_status
+script_run_lowdown = script_run_lowdown & vbCr & "dwp_status - " & dwp_status
+script_run_lowdown = script_run_lowdown & vbCr & "grh_status - " & grh_status
+script_run_lowdown = script_run_lowdown & vbCr & "snap_status - " & snap_status
+script_run_lowdown = script_run_lowdown & vbCr & "ma_status - " & ma_status
+script_run_lowdown = script_run_lowdown & vbCr & "msp_status - " & msp_status
+script_run_lowdown = script_run_lowdown & vbCr & "emer_status - " & emer_status
+script_run_lowdown = script_run_lowdown & vbCr & "case_status - " & case_status
+
+script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Active Programs:" & vbCr & list_active_programs
+script_run_lowdown = script_run_lowdown & vbCr & "Pending Programs:" & vbCr & list_pending_programs
+
+If CASE_NOTE_entered = False Then end_msg_info = end_msg_info & vbCr & vbCr & "The script did NOT enter a CASE/NOTE as it could not find any ELIG results that were generated and approved today. This script is to NOTE already completed approval. If this case has a program that is ready to approve, ensure the ELIG results were generated today and the approval was completed."
 If pnd2_display_limit_hit = True AND denials_found_on_pnd2 = False Then end_msg_info = end_msg_info & vbCr & vbCr & "The script could not read REPT/PND2 because the X-Number it is in has hit the MAXIS REPT/PND2 display limit. If you are trying to deny the case via REPT/PND2, the case will need to be in an X-Number that is not at the REPT/PND2 display limit."
+end_msg_info = end_msg_info & vbCr
+If list_active_programs <> "" Then end_msg_info = end_msg_info & vbCr & "This case currently has the following active programs: " & list_active_programs
+If list_pending_programs <> "" Then end_msg_info = end_msg_info & vbCr & "This case currently has the following pending programs: " & list_pending_programs
+If list_active_programs = "" and list_pending_programs = "" Then end_msg_info = end_msg_info & vbCr & "This case currently has no pending or active programs."
 
-
-Call script_end_procedure_with_error_report("All approval information has been reviewed." & vbCr & vbCr & end_msg_info)
+Call script_end_procedure_with_error_report("All approval information has been reviewed." & vbCr & end_msg_info)
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
