@@ -159,70 +159,69 @@ If grh_case = True Then snap_or_cash_case = True
 If snap_case = True Then snap_or_cash_case = True
 
 '-------------------------------------------------------------------------------------------------DIALOG
-residential_address_confirmed = "YES"
-If mail_street_full <> "" Then
-	residential_address_confirmed = "NO"
-	mailing_address_confirmed = "YES"
-End If
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 566, 155, "RETURNED MAIL PROCESSING"
-  DropListBox 220, 15, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", residential_address_confirmed
-  DropListBox 500, 15, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", mailing_address_confirmed
-  EditBox 85, 75, 195, 15, returned_mail
-  EditBox 85, 95, 195, 15, verifications_requested
-  EditBox 85, 115, 195, 15, other_notes
-  EditBox 85, 135, 45, 15, due_date
-  EditBox 365, 115, 195, 15, notes_on_address
-  Text 10, 25, 200, 25, resi_addr_street_full
-  Text 10, 35, 210, 15, resi_addr_city &  ", "  & resi_addr_state & " "   & resi_addr_zip
-  Text 290, 25, 200, 25, mail_street_full
-  If mail_city <> "_______________" Then Text 295, 40, 200, 10, mail_city_line & ", "  & mail_state_line &  " "  & mail_zip_line
-  GroupBox 285, 5, 275, 65, "Mailing Address"
-  Text 290, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
-  Text 10, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
-  Text 10, 55, 50, 10, "Future Date:"
-  Text 60, 55, 70, 10, addr_future_date
-  Text 290, 55, 50, 10, "Effective Date:"
-  Text 345, 55, 70, 10, addr_eff_date
-  Text 5, 80, 65, 10, "What was returned:"
-  Text 290, 120, 65, 10, "Notes on address:"
-  GroupBox 5, 5, 275, 65, "Residential Address in Maxis"
-  GroupBox 285, 70, 275, 40, "Note:"
-  Text 290, 80, 160, 10, "Do not make any changes to STAT/ADDR."
-  Text 290, 95, 260, 10, "Do not enter a ? or unknown or other county codes on the ADDR panel."
-  Text 5, 120, 40, 10, "Other notes:"
-  Text 5, 140, 35, 10, "Due date:"
-  Text 5, 100, 75, 10, "Verification requested:"
-  ButtonGroup ButtonPressed
-    PushButton 220, 50, 55, 15, "CASE/ADHI", ADHI_button
-    PushButton 500, 50, 55, 15, "HSR Manual", HSR_manual_button
-    CancelButton 505, 135, 55, 15
-    OkButton 445, 135, 55, 15
-EndDialog
+IF ADDR_actions <> "no response received" THEN
+    residential_address_confirmed = "YES"
+    If mail_street_full <> "" Then
+    	residential_address_confirmed = "NO"
+    	mailing_address_confirmed = "YES"
+    End If
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 566, 155, "RETURNED MAIL PROCESSING"
+      DropListBox 220, 15, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", residential_address_confirmed
+      DropListBox 500, 15, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", mailing_address_confirmed
+      EditBox 85, 75, 195, 15, returned_mail
+      EditBox 85, 95, 195, 15, verifications_requested
+      EditBox 85, 115, 195, 15, other_notes
+      EditBox 85, 135, 45, 15, due_date
+      EditBox 365, 115, 195, 15, notes_on_address
+      Text 10, 25, 200, 25, resi_addr_street_full
+      Text 10, 35, 210, 15, resi_addr_city &  ", "  & resi_addr_state & " "   & resi_addr_zip
+      Text 290, 25, 200, 25, mail_street_full
+      If mail_city <> "_______________" Then Text 295, 40, 200, 10, mail_city_line & ", "  & mail_state_line &  " "  & mail_zip_line
+      GroupBox 285, 5, 275, 65, "Mailing Address"
+      Text 290, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
+      Text 10, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
+      Text 10, 55, 50, 10, "Future Date:"
+      Text 60, 55, 70, 10, addr_future_date
+      Text 290, 55, 50, 10, "Effective Date:"
+      Text 345, 55, 70, 10, addr_eff_date
+      Text 5, 80, 65, 10, "What was returned:"
+      Text 290, 120, 65, 10, "Notes on address:"
+      GroupBox 5, 5, 275, 65, "Residential Address in Maxis"
+      GroupBox 285, 70, 275, 40, "Note:"
+      Text 290, 80, 160, 10, "Do not make any changes to STAT/ADDR."
+      Text 290, 95, 260, 10, "Do not enter a ? or unknown or other county codes on the ADDR panel."
+      Text 5, 120, 40, 10, "Other notes:"
+      Text 5, 140, 35, 10, "Due date:"
+      Text 5, 100, 75, 10, "Verification requested:"
+      ButtonGroup ButtonPressed
+        PushButton 220, 50, 55, 15, "CASE/ADHI", ADHI_button
+        PushButton 500, 50, 55, 15, "HSR Manual", HSR_manual_button
+        CancelButton 505, 135, 55, 15
+        OkButton 445, 135, 55, 15
+    EndDialog
 
-DO
     DO
-		err_msg = ""
-    	DO
-			DIALOG Dialog1
-			cancel_without_confirmation
-			MAXIS_dialog_navigation
-            IF buttonpressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/return_Mail_Processing_for_SNAP.aspx") 'HSR manual policy page
-        LOOP until ButtonPressed = -1
-		IF residential_address_confirmed = "Select:" THEN err_msg = err_msg & vbCr & "Please confirm if this the address that the agency attempted to deliver mail to."
-		IF mail_line_one <> "" THEN
-			IF mailing_address_confirmed = "Select:" THEN err_msg = err_msg & vbCr & "Please confirm if the mailing address is the address that the agency attempted to deliver mail to."
-		END IF
-		IF mailing_address_confirmed = "NO" and residential_address_confirmed = "NO" and notes_on_address = "" THEN  err_msg = err_msg & vbCr & "Please confirm what the address was using notes on address that the agency attempted to deliver mail to. ADDR will not be updated at this time. Please explain where the address was found and on what date."
-		IF returned_mail = "" THEN  err_msg = err_msg & vbCr & "Please explain what mail was returned."
-		IF isdate(due_date) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the verifications requested due date."
-		IF verifications_requested = "" THEN  err_msg = err_msg & vbCr & "Please explain the verification(s) requested."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-		LOOP UNTIL err_msg = ""
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to  assword back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-
-IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" THEN
+        DO
+    		err_msg = ""
+        	DO
+    			DIALOG Dialog1
+    			cancel_without_confirmation
+    			MAXIS_dialog_navigation
+                IF buttonpressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/return_Mail_Processing_for_SNAP.aspx") 'HSR manual policy page
+            LOOP until ButtonPressed = -1
+    		IF residential_address_confirmed = "Select:" THEN err_msg = err_msg & vbCr & "Please confirm if this the address that the agency attempted to deliver mail to."
+    		IF mail_line_one <> "" THEN
+    			IF mailing_address_confirmed = "Select:" THEN err_msg = err_msg & vbCr & "Please confirm if the mailing address is the address that the agency attempted to deliver mail to."
+    		END IF
+    		IF mailing_address_confirmed = "NO" and residential_address_confirmed = "NO" and notes_on_address = "" THEN  err_msg = err_msg & vbCr & "Please confirm what the address was using notes on address that the agency attempted to deliver mail to. ADDR will not be updated at this time. Please explain where the address was found and on what date."
+    		IF returned_mail = "" THEN  err_msg = err_msg & vbCr & "Please explain what mail was returned."
+    		IF isdate(due_date) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the verifications requested due date."
+    		IF verifications_requested = "" THEN  err_msg = err_msg & vbCr & "Please explain the verification(s) requested."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    		LOOP UNTIL err_msg = ""
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to  assword back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 	IF ADDR_actions = "forwarding address provided"  THEN
 		new_addr_state = "MN"
@@ -274,7 +273,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
 		If DateDiff("d", begining_of_footer_month, addr_eff_date) > 0 Then begining_of_footer_month = addr_eff_date
 		Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 	END IF
-
+ELSE
     IF ADDR_actions = "no response received" THEN
     	Dialog1 = "" 'Blanking out previous dialog detail
 		BeginDialog Dialog1, 0, 0, 351, 120, "Request for Contact to the client with no response-Refused/Failed Info"
@@ -337,7 +336,7 @@ IF mailing_address_confirmed = "YES" or residential_address_confirmed = "YES" TH
         END IF 'if snap or cash are true'
 		'we cannot close HC currently but this is the place for that handling'
 	END IF 'if no response received'
-END IF 'confirmed address from maxis
+END IF 'forwarding address provided
 
 '----------------------------------------------------------------------------------------------------TIKL
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
