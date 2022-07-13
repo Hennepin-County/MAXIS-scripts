@@ -61,13 +61,17 @@ changelog_display
 Dim name_of_script, start_time, STATS_counter, STATS_manualtime, STATS_denomination, run_locally, use_master_branch, req, fso, FuncLib_URL, critical_error_msgbox, run_another_script_fso, _
 fso_command, text_from_the_other_script
 
-Dim Dialog1, MAXIS_case_number, date_received, METS_case_number, ADDR_actions, worker_signature, cancel_confirmation, MAXIS_footer_month_confirmation, is_this_priv, worker_number, notes_on_address, _
+Dim Dialog1, MAXIS_case_number, date_received, METS_case_number, ADDR_actions, worker_signature, is_this_priv, worker_number, notes_on_address, _
 resi_addr_line_one, resi_addr_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_county, addr_verif, homeless_addr, reservation_addr, living_situation, _
 reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city_line, mail_state_line, mail_zip_line, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, _
 type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted, case_invalid_error, snap_or_cash_case, _
 family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, residential_address_confirmed, mailing_address_confirmed, returned_mail, _
-verifications_requested, other_notes, due_date, POLI_TEMP_PACT_button, panel_number, TIKL_note_text, _
-SNAP_POLI_TEMP_button, CASH_POLI_TEMP_button, one_source_button, err_msg
+verifications_requested, other_notes, due_date, POLI_TEMP_PACT_button, panel_number, panel_number_check, TIKL_note_text, _
+SNAP_POLI_TEMP_button, CASH_POLI_TEMP_button, one_source_button, err_msg, are_we_passworded_out, case_active, MAXIS_footer_year, MAXIS_footer_month, case_pending, case_rein, ma_case, _
+msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, _
+emer_type, case_status, list_active_programs, list_pending_programs, mail_city, ADHI_button, HSR_manual_button, new_addr_line_one, new_addr_line_two, new_addr_city, new_addr_state, _
+new_addr_zip, new_addr_street_full, begining_of_footer_month, resi_street_full, county_code, date_verifications_requested, error_message, mets_addr_correspondence, open_cash1, open_cash2, _
+pact_pop_up, closing_message, end_msg
 
 
 EMConnect ""                                        'Connecting to BlueZone
@@ -136,7 +140,7 @@ CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, please request access to the case and run the script again.")
 
 EMReadScreen worker_number, 7, 21, 21              'reading the current(primary) workers number '
-IF left(worker_number, 4) <> "X127" THEN script_end_procedure("*** Out of County ***" & vbCr & worker_number & vbCr & "Please resolve for the script to continue.")
+IF left(worker_number, 4) <> "X127" THEN script_end_procedure("*** Out of County ***" & vbCr & worker_number & vbCr & "This case is Out of County the script will now end.")
 
 ' CALL read_ADDR_panel(addr_eff_date, addr_future_date, resi_addr_line_one, resi_addr_line_two,              resi_addr_city, resi_addr_state, resi_addr_zip,                                                                                              mail_line_one, mail_line_two,                   mail_city_line, mail_state_line, mail_zip_line, living_situation, living_sit_line, homeless_line, addr_phone_1A)
 Call access_ADDR_panel("READ", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_addr_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, resi_county, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city_line, mail_state_line, mail_zip_line, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
@@ -150,11 +154,7 @@ CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending,
 
 snap_or_cash_case = False 'we need to establish if snap or cash are active, pending, for how the case is handled'
 If family_cash_case = True Then snap_or_cash_case = True
-If mfip_case = True Then snap_or_cash_case = True
-If dwp_case = True Then snap_or_cash_case = True
 If adult_cash_case = True Then snap_or_cash_case = True
-If ga_case = True Then snap_or_cash_case = True
-If msa_case = True Then snap_or_cash_case = True
 If grh_case = True Then snap_or_cash_case = True
 If snap_case = True Then snap_or_cash_case = True
 
@@ -177,7 +177,7 @@ IF ADDR_actions <> "no response received" THEN
       Text 10, 25, 200, 25, resi_addr_street_full
       Text 10, 35, 210, 15, resi_addr_city &  ", "  & resi_addr_state & " "   & resi_addr_zip
       Text 290, 25, 200, 25, mail_street_full
-      If mail_city <> "_______________" Then Text 295, 40, 200, 10, mail_city_line & ", "  & mail_state_line &  " "  & mail_zip_line
+      If mail_city <> "_______________" Then Text 290, 35, 200, 10, mail_city_line & ", "  & mail_state_line &  " "  & mail_zip_line
       GroupBox 285, 5, 275, 65, "Mailing Address"
       Text 290, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
       Text 10, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
@@ -225,8 +225,6 @@ IF ADDR_actions <> "no response received" THEN
 
 	IF ADDR_actions = "forwarding address provided"  THEN
 		new_addr_state = "MN"
-		reservation_addr = "No"
-		reservation_name = "N/A"
 	END IF
 
 	'-------------------------------------------------------------------------------------------------DIALOG
@@ -276,23 +274,27 @@ IF ADDR_actions <> "no response received" THEN
 ELSE
     IF ADDR_actions = "no response received" THEN
     	Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 351, 120, "Request for Contact to the client with no response-Refused/Failed Info"
-	      ButtonGroup ButtonPressed
-	        PushButton 5, 100, 65, 15, "PACT TE02.13.10", POLI_TEMP_PACT_button
-	        OkButton 245, 100, 50, 15
-	        CancelButton 300, 100, 50, 15
-	      Text 5, 5, 340, 10, "SNAP the script will enter code 4 when mail to the client has been returned to the agency."
-	      Text 5, 15, 340, 10, "Cash the script will enter code 3 in the Close/Deny field on the STAT/PACT Panel."
-	      Text 5, 25, 235, 10, "Health Care cannot be denied at this time for whereabouts unknown"
-	      Text 5, 40, 305, 10, "Allow 10 days for the client to respond to the Verification Request before terminating benefits. "
-	      Text 5, 50, 330, 10, "Approve ineligible results in ELIG. Send a closing notice 10 days before the effective date of closing."
-	      Text 5, 60, 340, 35, "Remember to enter a worker comment in SPEC/WCOM to add a detailed explanation of closure to the notice.  DHS suggested text for the SPEC/WCOM: Your mail has been returned to our agency.  On (insert date) you were sent a request to contact this agency because of this returned mail.  You can avoid having your case closed if you contact this agency by (insert the closing date deadline)."
-	    EndDialog
+        BeginDialog Dialog1, 0, 0, 351, 160, "Request for Contact to the client with no response-Refused/Failed "
+          EditBox 105, 5, 50, 15, date_verifications_requested
+          ButtonGroup ButtonPressed
+            PushButton 5, 140, 65, 15, "PACT TE02.13.10", POLI_TEMP_PACT_button
+            OkButton 240, 140, 50, 15
+            CancelButton 295, 140, 50, 15
+          Text 5, 10, 100, 10, "Date Verifications Requested:"
+          Text 5, 25, 305, 10, "Allow 10 days for the client to respond to the Verification Request before terminating benefits."
+          Text 5, 40, 330, 10, "Approve ineligible results in ELIG. Send a closing notice 10 days before the effective date of closing."
+          Text 5, 55, 340, 35, "Remember to enter a worker comment in SPEC/WCOM to add a detailed explanation of closure to the notice.  DHS suggested text for the SPEC/WCOM: Your mail has been returned to our agency.  On (insert date) you were sent a request to contact this agency because of this returned mail.  You can avoid having your case closed if you contact this agency by (insert the closing date deadline)."
+          Text 20, 95, 295, 10, "SNAP the script will enter code 4 when mail to the client has been returned to the agency."
+          Text 20, 110, 265, 10, "CASH the script will enter code 3 in the Close/Deny field on the STAT/PACT Panel."
+          Text 20, 125, 225, 10, "Health Care cannot be denied at this time for whereabouts unknown."
+        EndDialog
 
 		DO
 			err_msg = ""
 			DIALOG Dialog1
 			cancel_without_confirmation
+			IF IsDate(date_verifications_requested) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the date the verifications were requested."
+			IF DateDiff("d", date_verifications_requested, date) < 10 THEN err_msg = err_msg & vbnewline & "You must allow 10 days for the client to respond to the Verification Request before terminating benefits."
 			IF ButtonPressed = POLI_TEMP_PACT_button THEN CALL view_poli_temp("02", "13", "10", "") 'TE02.13.10' STAT:  PACT
 			IF ButtonPressed = POLI_TEMP_PACT_button THEN
 				err_msg = "LOOP"
@@ -317,8 +319,8 @@ ELSE
 			EMReadScreen open_cash2, 2, 8, 43
 			IF open_cash1 <> "  " THEN EMWriteScreen "3", 6, 58 'Enter code "3" (Refused/Failed Required Info)'
 			IF open_cash2 <> "  " THEN EMWriteScreen "3", 8, 58 'Enter code "3" (Refused/Failed Required Info)'
-        	If snap_case = True THEN EMWriteScreen "4", 12, 58 'Enter code "4" (Refused/Failed (FS Only))'
-        	IF grh_case = True THEN EMWriteScreen "3", 10, 58 'Enter code "3" (Refused/Failed Required Info)'
+        	If snap_case = TRUE THEN EMWriteScreen "4", 12, 58 'Enter code "4" (Refused/Failed (FS Only))'
+        	IF grh_case = TRUE THEN EMWriteScreen "3", 10, 58 'Enter code "3" (Refused/Failed Required Info)'
         	TRANSMIT
 			Do
 				EMReadScreen pact_pop_up, 45, 13, 16 'this always comes up to confirm '
@@ -350,12 +352,12 @@ CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", METS_case_number
 IF mailing_address_confirmed = "YES" THEN  'Address Detail
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & mail_line_one)
 	If mail_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                             " & mail_line_two)
-	CALL write_variable_in_CASE_NOTE("                             " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
+	CALL write_variable_in_CASE_NOTE("                                " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
 END IF
 IF residential_address_confirmed = "YES" THEN
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & resi_addr_line_one)
 	If resi_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                               " & resi_addr_line_two)
-	CALL write_variable_in_CASE_NOTE("         		                    " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
+	CALL write_variable_in_CASE_NOTE("        		                  " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
 END IF
 IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household reported as homeless")
 IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
@@ -363,17 +365,17 @@ Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
 
 IF ADDR_actions = "forwarding address provided" THEN
-	CALL write_variable_in_CASE_NOTE("* Forwarding address was on returned mail.")
+	CALL write_variable_in_CASE_NOTE("* Forwarding address was on returned mail")
 	CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
 	If new_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two)
 	CALL write_variable_in_CASE_NOTE("                            " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
 ELSEIF ADDR_actions = "no response received" THEN
 	CALL write_variable_in_CASE_NOTE ("* ECF reviewed for requested verifications")
+	CALL write_variable_in_CASE_NOTE("* Date verifications requested: " & date_verifications_requested)
 	IF snap_or_cash_case = True THEN CALL write_variable_in_CASE_NOTE ("* PACT panel entered per POLI/TEMP TE02.13.10")
 END IF
 CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
 CALL write_bullet_and_variable_in_case_note("Verification(s) requested", verifications_requested)
-CALL write_bullet_and_variable_in_case_note("Verification(s) request date", date_requested)
 CALL write_bullet_and_variable_in_case_note("Verifcation(s) due", due_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 CALL write_variable_in_CASE_NOTE ("---")
