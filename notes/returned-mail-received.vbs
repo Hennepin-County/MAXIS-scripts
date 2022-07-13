@@ -269,9 +269,8 @@ IF ADDR_actions <> "no response received" THEN
 		Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 	END IF
 ELSE
-   	ADDR_actions = "no response received" THEN
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 351, 160, "Request for Contact to the client with no response-Refused/Failed "
+    BeginDialog Dialog1, 0, 0, 351, 160, "Request for Contact to the client with no response-Refused/Failed"
      EditBox 105, 5, 50, 15, date_verifications_requested
      ButtonGroup ButtonPressed
        PushButton 5, 140, 65, 15, "PACT TE02.13.10", POLI_TEMP_PACT_button
@@ -287,25 +286,26 @@ ELSE
     EndDialog
 
 	DO
-		err_msg = ""
-		DIALOG Dialog1
-		cancel_without_confirmation
-		IF IsDate(date_verifications_requested) = FALSE THEN
-			err_msg = err_msg & vbnewline & "Please enter the date the verifications were requested."
-		ELSEIF
-			DateDiff("d", date_verifications_requested, date) < 10 THEN err_msg = err_msg & vbnewline & "You must allow 10 days for the client to respond to the Verification Request before terminating benefits."
-		END IF
-		IF ButtonPressed = POLI_TEMP_PACT_button THEN
-			CALL view_poli_temp("02", "13", "10", "") 'TE02.13.10' STAT:  PACT
-			err_msg = "LOOP"
-		Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-		End If
-		IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""
+		DO
+   			err_msg = ""
+		    DIALOG Dialog1
+		    cancel_without_confirmation
+		    IF IsDate(date_verifications_requested) = FALSE THEN
+		    	err_msg = err_msg & vbnewline & "Please enter the date the verifications were requested."
+		    ELSE
+		    	IF DateDiff("d", date_verifications_requested, date) < 10 THEN err_msg = err_msg & vbnewline & "You must allow 10 days for the client to respond to the Verification Request before terminating benefits."
+		    END IF
+		    IF ButtonPressed = POLI_TEMP_PACT_button THEN
+		    	CALL view_poli_temp("02", "13", "10", "") 'TE02.13.10' STAT:  PACT
+		    	err_msg = "LOOP"
+	        END IF                                        	'If the instructions button was NOT pressed, we want to display the error message if it exists.
+		    IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		LOOP UNTIL err_msg = ""
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
-       'per POLI/TEMP this only pertains to active cash and snap '
-       IF snap_or_cash_case = TRUE THEN
+	CALL back_to_self ' so that we done with POLI/TEMP'
+    IF snap_or_cash_case = TRUE THEN 'per POLI/TEMP this only pertains to active cash and snap '
        	CALL MAXIS_background_check
 		CALL navigate_to_MAXIS_screen("STAT", "PACT") 	'Checking to see if the PACT panel is empty, if not it create a new panel'
        	EMReadScreen panel_number, 1, 02, 73
@@ -335,7 +335,7 @@ ELSE
 		END IF
 		EMReadScreen error_message,  74, 24, 02 'for script_run_lowdown-reading for messages that might be missed if they are not inhibiting'
 		error_message = trim(error_message)
-       END IF 'if snap or cash are true'
+    END IF 'if snap or cash are true'
 	'we cannot close HC currently but this is the place for that handling'
 END IF 'forwarding address provided
 
@@ -382,7 +382,7 @@ CALL write_variable_in_CASE_NOTE(worker_signature)
 error_message = error_message & ", "
 script_run_lowdown = script_run_lowdown & vbCr & " Message: " & vbCr & error_message & vbCr & ADDR_actions & "ADDR_actions " & vbCr & "notes_on_address " & notes_on_address & vbCr & "resi address " & resi_addr_line_one & " " & resi_addr_line_two & " " & resi_addr_street_full & " " & resi_addr_city & " " & resi_addr_state & " " & resi_addr_zip & vbCr & "resi_county " & resi_county & vbCr & "addr_verif " & addr_verif & vbCr & "homeless_addr " & homeless_addr & vbCr & "reservation_addr " & reservation_addr & vbCr & "living_situation " & living_situation & vbCr & "reservation_name " & reservation_name & vbCr & "mail address " & mail_line_one & " " & mail_line_two & " " & mail_street_full & " " & mail_city_line & " " & mail_state_line & " " & mail_zip_line & vbCr & "addr_eff_date & addr_future_date " & addr_eff_date & addr_future_date & vbCr & "phone " & phone_one & phone_two & phone_three & vbCr & "addr_email " & addr_email & vbCr & "verif_received " & verif_received & vbCr & "original_information " & original_information & vbCr & "update_attempted " & update_attempted & vbCr & "Verification Request " & verifications_requested & vbCr & "new addr " & new_addr_line_one & " " & new_addr_line_two & " " & new_addr_city  & " " & new_addr_state & " " & new_addr_zip & vbCr & "county list" & county_code & vbCr & "Mets " & mets_addr_correspondence & mets_case_number & vbCr & "Other Notes " & other_notes
 'Checks if this is a METS case and pops up a message box with instructions if the ADDR is incorrect.
-IF METS_case_number <> "" THEN end_msg & "Please update the METS ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance Process)"
+IF METS_case_number <> "" THEN end_msg = "Please update the METS ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance Process)"
 IF ADDR_actions <> "no response received" THEN
 	closing_message = closing_message & "Success! TIKL has been set for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. "  & vbCr & end_msg
 ELSE
