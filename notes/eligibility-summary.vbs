@@ -13248,46 +13248,46 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 		Next
 
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "INELIGIBLE" Then
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_comdty_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_disq_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_dupl_assist_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_eligible_person_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_applct_elig_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_comdty_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_disq_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_dupl_assist_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_eligible_person_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_coop_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_fail_file_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 			' snap_case_prosp_gross_inc_test
 			' snap_case_prosp_net_inc_test
 
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_recert_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_residence_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_resource_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 			' snap_case_retro_gross_inc_test
 			' snap_case_retro_net_inc_test
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_voltry_quit_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
-			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_strike_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_xfer_resource_inc_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_voltry_quit_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test = "FAILED" Then SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
 		End If
 
-		Call determine_130_percent_of_FPG(left(first_month, 2), right(first_month, 2), SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit, SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app))
-		SNAP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = False
-		SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, unique_app) = False
-		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" then SNAP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = True
+		Call determine_130_percent_of_FPG(left(first_month, 2), right(first_month, 2), SNAP_ELIG_APPROVALS(elig_ind).snap_budg_numb_in_assist_unit, SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, approval_selected))
+		SNAP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = False
+		SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, approval_selected) = False
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" then SNAP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True
 
 
-		If IsNumeric(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc) = True and IsNumeric(SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app)) = True Then
+		If IsNumeric(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc) = True and IsNumeric(SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, approval_selected)) = True Then
 			grs_inc = SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc*1
-			max_130_inc = SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app)*1
-			If grs_inc > max_130_inc AND SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, unique_app) = True
+			max_130_inc = SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, approval_selected)*1
+			If grs_inc > max_130_inc AND SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, approval_selected) = True
 		End If
-		SNAP_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = False
-		SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = False
+		SNAP_UNIQUE_APPROVALS(pact_wcom_sent, approval_selected) = False
+		SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, approval_selected) = False
 
-		SNAP_UNIQUE_APPROVALS(wcom_needed, unique_app) = False
-		If SNAP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = True Then SNAP_UNIQUE_APPROVALS(wcom_needed, unique_app) = True
-		If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, unique_app) = True Then SNAP_UNIQUE_APPROVALS(wcom_needed, unique_app) = True
+		SNAP_UNIQUE_APPROVALS(wcom_needed, approval_selected) = False
+		If SNAP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True Then SNAP_UNIQUE_APPROVALS(wcom_needed, approval_selected) = True
+		If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_needed, approval_selected) = True Then SNAP_UNIQUE_APPROVALS(wcom_needed, approval_selected) = True
 
 		ei_count = 0
 		unea_count = 0
