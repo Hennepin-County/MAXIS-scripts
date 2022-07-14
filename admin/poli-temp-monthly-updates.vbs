@@ -2,7 +2,7 @@
 name_of_script = "ADMIN - POLI TEMP MONTHLY UPDATES.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 120                     'manual run time in seconds
+STATS_manualtime = 390                     'manual run time in seconds
 STATS_denomination = "I"                   'I is for each Instance
 'END OF stats block=========================================================================================================
 
@@ -89,13 +89,13 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 Call check_for_MAXIS(False) 'Checks to make sure we're in MAXIS
 
-temp_one = trim(temp_one)
+temp_one = trim(temp_one)   'trimming variables
 temp_two = trim(temp_two)
 temp_three = trim(temp_three)
 temp_four = trim(temp_four)
 
 For each update in temp_array
-    'Setting up footer month/year based on what we're doing
+    'Setting up footer month/year based on which version we're looking at. CM - 2 since DHS will update changes in CM and CM + 1. And sometimes they report changes for one month in another month (June changes in July.)
     If update = "Original" then
         MAXIS_footer_month = CM_minus_2_mo
         MAXIS_footer_year = CM_minus_2_mo_yr
@@ -110,7 +110,7 @@ For each update in temp_array
     	EMReadScreen SELF_check, 4, 2, 50
     Loop until SELF_check = "SELF"
 
-    Call MAXIS_footer_month_confirmation
+    Call MAXIS_footer_month_confirmation    'confirms the footer month based on the version.
 
     Call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
     EMWriteScreen "TEMP", 5, 40     'Writes TEMP
@@ -120,36 +120,36 @@ For each update in temp_array
 
     If temp_one <> "" Then
         panel_title = "TABLE"
-
+        'Ensuring that temp references are at least 2 in length.
         If temp_one <> "" Then temp_one = right("00" & temp_one, 2)
         If len(temp_two) = 1 Then temp_two = right("00" & temp_two, 2)
         If len(temp_three) = 1 Then temp_three = right("00" & temp_three, 2)
         If len(temp_four) = 1 Then temp_four = right("00" & temp_four, 2)
-
+        'creating the string to enter into TEMP/TABLE
         total_code = "TE" & temp_one & "." & temp_two
         If temp_three <> "" Then total_code = total_code & "." & temp_three
         If temp_four <> "" Then total_code = total_code & "." & temp_four
 
+        'Writing information and navigating in TEMP/TABLE
         Call write_value_and_transmit(total_code, 3, 21)
         EMReadScreen section_found, 18, 6, 54
         section_found = trim(section_found)
         If section_found = total_code Then
             EMReadScreen poli_title, 46, 6, 8
             poli_title = trim(poli_title)
-            EmReadscreen poli_update_yr, 4, 6, 74
+            EmReadscreen poli_update_yr, 4, 6, 74   'This will be used to name the files
             EmReadscreen poli_update_mo, 2, 6, 79
             Call write_value_and_transmit("X", 6, 4)
         Else
-            end_msg = "The POLI/TEMP table reference: " & total_code & " could not be found. Please check the reference and try again."
-            script_end_procedure(end_msg)
+            script_end_procedure("The POLI/TEMP table reference: " & total_code & " could not be found. Please check the reference and try again.")
         End If
         policy_info = policy_info & ": " & total_code
     End If
 
     'Creates the Word doc
     Set objWord = CreateObject("Word.Application")
-    objWord.Visible = False
-
+    objWord.Visible = False 'setting visibility to false to support stabilization - poor connectivity can create an issue here.
+    'sets up Word document with formatting for margins, font, title and paragraph settings.
     Set objDoc = objWord.Documents.Add()
     Set objSelection = objWord.Selection
     objSelection.PageSetup.LeftMargin = 50
@@ -166,15 +166,14 @@ For each update in temp_array
 
     notice_length = 0
     page_nbr = 2
-
-    EMReadScreen end_of_poli, 2, 3, 79
+    'Reading TEMP reference title and information
+    EMReadScreen end_of_poli, 2, 3, 79  'reading total number of reference pages
     end_of_poli = trim(end_of_poli)
     Do
         For notice_row = 4 to 21
             EMReadScreen poli_line, 74, notice_row, 6
             poli_line = trim(poli_line)
             If notice_row = 3 Then first_line = poli_line
-            'MsgBox poli_line
             if right(trim(poli_line),9) = "FMINFO___" Then poli_line = ""
             If right(trim(poli_line),4) = "Page" Then
                 poli_line = trim(poli_line) & " " & page_nbr
@@ -190,34 +189,34 @@ For each update in temp_array
         notice_length = notice_length + 1
     Loop until current_page = end_of_poli
 
-    objSelection.TypeText poli_wording
-
+    objSelection.TypeText poli_wording  'exporting temp verbiage to Word
+    'adding closing message to document about when information was collected.
     objSelection.TypeParagraph()
     objSelection.TypeText "POLI/TEMP Information up-to-date as of: " & date & " (date Word Document created)"
     objSelection.TypeParagraph()
 
-    'File information coding
+    '----------------------------------------------------------------------------------------------------File information coding
     If right(poli_title, 1) = "." then poli_title = left(poli_title, len(poli_title) - 1) 'sometimes there is an extra period in the title.
 
     'These characters will not allow the file to save. Replacing them based on the character found.
     poli_title = replace(poli_title, ":", " ")
     poli_title = replace(poli_title, "/", " ")
-    poli_title = replace(poli_title, "<", "under ")
+    poli_title = replace(poli_title, "<", "Under ")
     poli_title = replace(poli_title, chr(34), "")   'chr(34) is ""
 
-    root_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\"
-    month_folder = DatePart("yyyy", date) & " - " & right("0" & DatePart("m", date), 2)
+    'folder paths
+    root_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\" 'KC folder where the DIFF files will be housed
+    month_folder = DatePart("yyyy", date) & " - " & right("0" & DatePart("m", date), 2) 'using the current month to send the revised and orginal docs
     month_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\" & month_folder
 
+    'Creating file names
     poli_update_date = " " & poli_update_yr & " - " & poli_update_mo
     file_name = "\" & poli_update_date & " " & total_code & " " & new_poli & poli_title & ".docx"
-    'msgbox "File Name: " & file_name
-
-    If update = "Original" then original_file = file_name
-    If update = "Revised" then revised_file = file_name
+    If update = "Original" then original_file = file_name   'changes the file name to be compared below
+    If update = "Revised" then revised_file = file_name     'ditto
 
     objDoc.SaveAs(month_file_path & file_name)
-    objWord.Visible = True
+    objWord.Visible = True  'Setting visibility back to true prior to quit. Ooes not need to be before the save.
     objWord.Quit
 
     'blanking out the variables
@@ -230,15 +229,16 @@ For each update in temp_array
 Next
 
 '----------------------------------------------------------------------------------------------------Comparing the two files and creating a new file to be saved w/ changes tracked.
+'Creating single variable to compare below
 old_poli_file = month_file_path & original_file
 new_poli_file = month_file_path & revised_file
 
-Set objWord = CreateObject("Word.Application")
-objWord.Documents.Open old_poli_file
-objWord.ActiveDocument.Compare new_poli_file
+Set objWord = CreateObject("Word.Application")  'set application object
+objWord.Documents.Open old_poli_file            'opening old file - original temp file
+objWord.ActiveDocument.Compare new_poli_file    'comparing the new file - revised temp file
 objWord.Visible = True
 
-Set objDoc = objWord.ActiveDocument
+Set objDoc = objWord.ActiveDocument             'set document object
 objDoc.SaveAs(root_file_path & revised_file)
 objWord.Quit
 
