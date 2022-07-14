@@ -990,6 +990,7 @@ function snap_elig_case_note()
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
 			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+			If expedited_package_approved = True Then Call write_variable_in_CASE_NOTE("   Verifications postponed for Expedited Approval of prervious month(s), if provided eligibility for this month can be redetermined.")
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_MEMB_ID  = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of the identity of the Applicant was not received.")
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_ACCT = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of bank account not received.")
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" Then
@@ -13145,6 +13146,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 	last_shelter_expense = ""
 	last_hest_expense = ""
 	last_snap_entitlement = ""
+	expedited_package_approved = False
 	start_capturing_approvals = False
 	unique_app_count = 0
 	For approval = 0 to UBound(SNAP_ELIG_APPROVALS)
@@ -13186,6 +13188,8 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				last_snap_entitlement = SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot
 				last_expedited_status = SNAP_ELIG_APPROVALS(approval).snap_expedited
 
+				If SNAP_ELIG_APPROVALS(approval).snap_expedited = True Then expedited_package_approved = True
+
 				unique_app_count = unique_app_count + 1
 			Else
 				match_last_benefit_amounts = True
@@ -13220,6 +13224,8 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 					last_eligibility = SNAP_ELIG_APPROVALS(approval).snap_elig_result
 					last_snap_entitlement = SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot
 					last_expedited_status = SNAP_ELIG_APPROVALS(approval).snap_expedited
+
+					If SNAP_ELIG_APPROVALS(approval).snap_expedited = True Then expedited_package_approved = True
 
 					' MsgBox ("last_shelter_expense - " & last_shelter_expense & vbCr & "last_hest_expense - " & last_hest_expense)
 
@@ -13341,8 +13347,10 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 			Else
 				If DateDiff("d", SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
-					err_msg = err_msg & vbNewLine & "* The verification request date: " &  SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
-					SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+					If expedited_package_approved = False Then
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+						SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+					End If
 				End If
 			End If
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" then
