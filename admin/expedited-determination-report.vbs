@@ -137,6 +137,7 @@ const exch_app_exp_status_col 				= 37
 EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
+Call check_for_MAXIS(true)
 
 'Declaring the only dialog
 Do
@@ -666,3 +667,45 @@ Next
 
 'SAVE EXCEL'
 Call script_end_procedure("Expedited Determination report is updated and the tracking files removed.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/14/2022
+'--Tab orders reviewed & confirmed----------------------------------------------07/14/2022
+'--Mandatory fields all present & Reviewed--------------------------------------N/A
+'--All variables in dialog match mandatory fields-------------------------------N//A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/14/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------07/14/2022
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/14/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------07/14/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---07/14/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------07/14/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------07/14/2022
+'--Denomination reviewed -------------------------------------------------------07/14/2022
+'--Script name reviewed---------------------------------------------------------07/14/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------07/14/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------07/14/2022
+'--comment Code-----------------------------------------------------------------07/14/2022
+'--Update Changelog for release/update------------------------------------------07/14/2022
+'--Remove testing message boxes-------------------------------------------------07/14/2022
+'--Remove testing code/unnecessary code-----------------------------------------07/14/2022
+'--Review/update SharePoint instructions----------------------------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/14/2022
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
