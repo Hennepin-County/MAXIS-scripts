@@ -990,7 +990,10 @@ function snap_elig_case_note()
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
 			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
-			If expedited_package_approved = True Then Call write_variable_in_CASE_NOTE("   Verifications postponed for Expedited Approval of prervious month(s), if provided eligibility for this month can be redetermined.")
+			If expedited_package_approved = True Then
+				Call write_variable_in_CASE_NOTE("   Verifications postponed for Expedited Approval of previous month(s)")
+				Call write_variable_in_CASE_NOTE("   - if provided eligibility for this month can be redetermined")
+			End If
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_MEMB_ID  = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of the identity of the Applicant was not received.")
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_ACCT = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Proof of bank account not received.")
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" Then
