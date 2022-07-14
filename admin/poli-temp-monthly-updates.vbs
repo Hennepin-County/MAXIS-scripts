@@ -57,6 +57,7 @@ Dim CM_minus__mo, CM_minus_2_yr
 CM_minus_2_mo =  right("0" &  DatePart("m", DateAdd("m", -2, date)), 2)
 CM_minus_2_yr =  right(DatePart("yyyy", DateAdd("m", -2, date)), 2)
 
+'These are two processes that will be completed. Gathering the origional file, then grab the revised file.
 Temp_updates = "Original,Revised"
 Temp_array = split(Temp_updates, ",")
 
@@ -243,3 +244,45 @@ objDoc.SaveAs(root_file_path & revised_file)
 objWord.Quit
 
 script_end_procedure("Success!!")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/14/2022
+'--Tab orders reviewed & confirmed----------------------------------------------07/14/2022
+'--Mandatory fields all present & Reviewed--------------------------------------07/14/2022
+'--All variables in dialog match mandatory fields-------------------------------07/14/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------07/14/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------07/14/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/14/2022-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/14/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------07/14/2022-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------07/14/2022-------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------07/14/2022-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/14/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------07/14/2022-------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---07/14/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------07/14/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------07/14/2022
+'--Denomination reviewed -------------------------------------------------------07/14/2022
+'--Script name reviewed---------------------------------------------------------07/14/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------07/14/2022-------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------07/14/2022
+'--comment Code-----------------------------------------------------------------07/14/2022
+'--Update Changelog for release/update------------------------------------------07/14/2022
+'--Remove testing message boxes-------------------------------------------------07/14/2022
+'--Remove testing code/unnecessary code-----------------------------------------07/14/2022
+'--Review/update SharePoint instructions----------------------------------------07/14/2022-------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/14/2022-------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------Will be added to master after pull is approved.
+'--Complete misc. documentation (if applicable)---------------------------------07/14/2022-------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------07/14/2022
