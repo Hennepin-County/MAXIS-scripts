@@ -286,76 +286,76 @@ function snap_elig_dialog()
 	  For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	  	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_snap(each_memb) = True Then
 			' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
-			Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+			Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
   		    If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 			Else
-				Text 40, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
 			End If
 			y_pos = y_pos + 20
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_snap(each_memb) = True Then
 			' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb)
-			Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+			Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb) & " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
 			If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 			Else
-				Text 40, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
 			End If
 			y_pos = y_pos + 20
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_snap(each_memb) = True Then
-			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb)
+			Text 15, y_pos, 275, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb)
 			If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 			Else
-				Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				Text 25, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
 			End If
 			y_pos = y_pos + 20
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_snap(each_memb) = True Then
-			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb)
+			Text 15, y_pos, 275, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb)
 			If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 			Else
-				Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				Text 25, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
 			End If
 			y_pos = y_pos + 20
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_snap(each_memb) = True Then
-			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb)
+			Text 15, y_pos, 275, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb)
 			If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 			Else
-				Text 25, y_pos+10, 200, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
+				Text 25, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_pay_freq(each_memb) & " - $ " & STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_ave_inc_per_pay(each_memb) & " average inc/pay date"
 			End If
 			y_pos = y_pos + 20
 		End If
 		If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_snap(each_memb) = True Then
 			' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) &
-			Text 15, y_pos, 215, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+			Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
 			If STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 			Else
-				Text 40, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_expenses(each_memb)
+				Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_expenses(each_memb)
 			End If
 			y_pos = y_pos + 20
 		End If
 		If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_snap(each_memb) = True Then
-			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb)
+			Text 15, y_pos, 275, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb)
 			If STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 			Else
-				Text 25, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_expenses(each_memb)
+				Text 25, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_expenses(each_memb)
 			End If
 			y_pos = y_pos + 20
 		End If
 		If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_snap(each_memb) = True Then
-			Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb)
+			Text 15, y_pos, 275, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & left(STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb)
 			If STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
 				Text 40, y_pos+10, 200, 10, "Verification NOT Received."
 			Else
-				Text 25, y_pos+10, 200, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_expenses(each_memb)
+				Text 25, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_expenses(each_memb)
 			End If
 			y_pos = y_pos + 20
 		End If
@@ -670,32 +670,57 @@ function snap_elig_case_note()
 		unearned_info = "| Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8)
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_snap(each_memb) = True Then
-				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb), ".")
-				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 35)
+				If InStr(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb), ".")
+					list_unea_amt = unea_amt_array(0)
+				Else
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb)
+				End If
+				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_snap(each_memb) = True Then
-				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb), ".")
-				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 35)
+				If InStr(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb), ".")
+					list_unea_amt = unea_amt_array(0)
+				Else
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb)
+				End If
+				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_snap(each_memb) = True Then
-				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb), ".")
-				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 35)
+				If InStr(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb), ".")
+					list_unea_amt = unea_amt_array(0)
+				Else
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb)
+				End If
+				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_snap(each_memb) = True Then
-				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb), ".")
-				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 35)
+				If InStr(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb), ".")
+					list_unea_amt = unea_amt_array(0)
+				Else
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb)
+				End If
+				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(" UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_snap(each_memb) = True Then
-				unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb), ".")
-				unea_detail = left(unea_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 35)
+				If InStr(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb), ".")
+					list_unea_amt = unea_amt_array(0)
+				Else
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb)
+				End If
+				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
@@ -1146,7 +1171,6 @@ function snap_elig_case_note()
 	End If
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-
 	' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
 	PF3
 end function
@@ -13301,7 +13325,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 		ei_len = ei_count * 20
 		unea_len = unea_count * 10
 		income_box_len = 30 + unea_len
-		If ei_len > unea_count Then income_box_len = 30 + ei_len
+		If ei_len > unea_len Then income_box_len = 30 + ei_len
 
 		call snap_elig_dialog
 
