@@ -91,8 +91,10 @@ Call check_for_MAXIS(True)  'Checks to make sure we're in MAXIS
 Call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
 EMWriteScreen "TEMP", 5, 40     'Writes TEMP
 Call write_value_and_transmit(panel_title, 21, 71)  'Writes the panel_title selection
-If panel_title = "TABLE" then EmWriteScreen "TE", 3, 21
-EMSetCursor 3, 23
+If panel_title = "TABLE" then
+    EmWriteScreen "TE", 3, 21
+    EMSetCursor 3, 23
+End if
 
 script_end_procedure("")
 
@@ -127,7 +129,7 @@ script_end_procedure("")
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub taks are complete-----------------------------------------01/13/2022
 '--comment Code-----------------------------------------------------------------01/13/2022
-'--Update Changelog for release/update------------------------------------------01/13/2022
+'--Update Changelog for release/update------------------------------------------07/14/2022-----------------N/A
 '--Remove testing message boxes-------------------------------------------------01/13/2022-----------------N/A-------------------------
 '--Remove testing code/unnecessary code-----------------------------------------01/13/2022-----------------N/A-------------------------
 '--Review/update SharePoint instructions----------------------------------------01/13/2022
