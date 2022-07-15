@@ -351,12 +351,12 @@ CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", METS_case_number
 IF mailing_address_confirmed = "YES" THEN  'Address Detail
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & mail_line_one)
 	If mail_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                             " & mail_line_two)
-	CALL write_variable_in_CASE_NOTE("                                " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
+	CALL write_variable_in_CASE_NOTE("                               " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
 END IF
 IF residential_address_confirmed = "YES" THEN
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from: " & resi_addr_line_one)
 	If resi_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                               " & resi_addr_line_two)
-	CALL write_variable_in_CASE_NOTE("        		                  " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
+	CALL write_variable_in_CASE_NOTE("        		                 " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
 END IF
 IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household reported as homeless")
 IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
@@ -384,10 +384,14 @@ script_run_lowdown = script_run_lowdown & vbCr & " Message: " & vbCr & error_mes
 'Checks if this is a METS case and pops up a message box with instructions if the ADDR is incorrect.
 IF METS_case_number <> "" THEN end_msg = "Please update the METS ADDR if you are able to. If unable, please forward the new ADDR information to the correct area (i.e. Change In Circumstance Process)"
 
-IF ADDR_actions <> "no response received" THEN
-   IF snap_or_cash_case = TRUE THEN closing_message = closing_message & "Success! The PACT panel and case note have been entered, please approve ineligible results in ELIG & enter using NOTICES SPEC/WCOM adding worker comments." & vbCr & end_msg '[this meets the requirement for HC'
+IF ADDR_actions = "no response received" THEN
+    IF snap_or_cash_case = TRUE THEN
+		closing_message = closing_message & "Success! The PACT panel and case note have been entered, please approve ineligible results in ELIG & enter using NOTICES SPEC/WCOM adding worker comments." & vbCr & end_msg 'WILL ONLY RUN IF SNAP OR CASH AND NO RESPONSE RCVD'
+	ELSE
+		closing_message = closing_message & "Success! A case note has been entered." & vbCr & end_msg 'this meets the requirement for HC'
+	END IF
 ELSE
-	closing_message = closing_message & "Success! TIKL has been set for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. "  & vbCr & end_msg
+	closing_message = closing_message & "Success! TIKL has been set for the ADDR verification requested. Reminder:  When a change reporting unit reports a change over the telephone or in person, the unit is not required to also report the change on a Change Report from. "  & vbCr & end_msg 'FOR EVERYTHING ELSE'
 END IF
 Call script_end_procedure_with_error_report(closing_message)
 
