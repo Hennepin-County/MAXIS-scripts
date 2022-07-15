@@ -360,7 +360,6 @@ IF residential_address_confirmed = "YES" THEN
 END IF
 IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household reported as homeless")
 IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
-Call write_bullet_and_variable_in_CASE_NOTE("Living Situation", living_situation)
 Call write_bullet_and_variable_in_CASE_NOTE("Address Detail", notes_on_address)
 
 IF ADDR_actions = "forwarding address provided" THEN
@@ -368,12 +367,13 @@ IF ADDR_actions = "forwarding address provided" THEN
 	CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
 	If new_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two)
 	CALL write_variable_in_CASE_NOTE("                            " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
+	CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
 ELSEIF ADDR_actions = "no response received" THEN
 	CALL write_variable_in_CASE_NOTE ("* ECF reviewed for requested verifications")
 	CALL write_variable_in_CASE_NOTE("* Date verifications requested: " & date_verifications_requested)
 	IF snap_or_cash_case = True THEN CALL write_variable_in_CASE_NOTE ("* PACT panel entered per POLI/TEMP TE02.13.10")
+	CALL write_variable_in_case_note("* Client was provided 10 days to return requested verifications")
 END IF
-CALL write_variable_in_case_note("* Client must be provided 10 days to return requested verifications")
 CALL write_bullet_and_variable_in_case_note("Verification(s) requested", verifications_requested)
 CALL write_bullet_and_variable_in_case_note("Verifcation(s) due", due_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
