@@ -206,6 +206,7 @@ Do
 
 		Call back_to_SELF
 		Call navigate_to_MAXIS_screen("ELIG", "FS  ")							'go check ELIG FS and find an approved version
+		'TODO add function find_last_approved_ELIG_version from Eligiblity Summary once it is is ready 
 		EMWriteScreen "99", 19, 78
 		transmit
 
