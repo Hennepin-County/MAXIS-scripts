@@ -2461,7 +2461,8 @@ class mfip_eligibility_detail
 			mfip_counted_asset_total = trim(mfip_counted_asset_total)
 			mfip_counted_asset_max = trim(mfip_counted_asset_max)
 
-			transmit 				' MsgBox "Back to MFCR - 1"
+			transmit
+			' MsgBox "Back to MFCR - 1"
 
 			If mfip_case_test_verif = "FAILED" Then
 
@@ -2501,7 +2502,8 @@ class mfip_eligibility_detail
 				mfip_verif_UNEA = UCase(mfip_verif_UNEA)
 				mfip_verif_MEMI = UCase(mfip_verif_MEMI)
 
-				transmit 				' MsgBox "Back to MFCR - 1"
+				transmit
+				' MsgBox "Back to MFCR - 1"
 			End if
 
 			Call write_value_and_transmit("X", 13, 5)						'INITIAL INCOME
@@ -2525,7 +2527,8 @@ class mfip_eligibility_detail
 			'TODO - Read each person's information in the pop-ups
 			Call write_value_and_transmit("X", 8, 20)		'Member Initial Earned Income
 			' MsgBox "Member Initial Earned Income"
-			Do
+			EMReadScreen back_to_menu, 14, 6, 29
+			Do while back_to_menu <> "Initial Income"
 				EMReadScreen pop_up_name, 40, 8, 28
 				pop_up_name = trim(pop_up_name)
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
@@ -2563,7 +2566,7 @@ class mfip_eligibility_detail
 				transmit
 
 				EMReadScreen back_to_menu, 14, 6, 29
-			Loop until back_to_menu = "Initial Income"
+			Loop
 			' MsgBox "Back to the Initial Income Pop-Up"
 
 			If mfip_initial_income_deoendant_care <> "0.00" Then 			''Depended Care Initial Income calculation pop-up
@@ -2818,7 +2821,9 @@ class mfip_eligibility_detail
 			mfip_case_budg_entitlement_housing_grant = trim(mfip_case_budg_entitlement_housing_grant)
 
 			Call write_value_and_transmit("X", 6, 3)		' member specific EARNED INCOME
-			Do
+			EMReadScreen still_in_menu, 12, 5, 32
+
+			Do while still_in_menu = "Maxis Person"
 				EMReadScreen pop_up_name, 40, 8, 28
 				pop_up_name = trim(pop_up_name)
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
@@ -2850,10 +2855,11 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen still_in_menu, 12, 5, 32
-			Loop until still_in_menu <> "Maxis Person"
+			Loop
 
 			Call write_value_and_transmit("X", 11, 3)		' member specific UNEARNED INCOME
-			Do
+			EMReadScreen still_in_menu, 15, 6, 34
+			Do while still_in_menu = "Unearned Income"
 				EMReadScreen pop_up_name, 25, 8, 34
 				pop_up_name = trim(pop_up_name)
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
@@ -2873,7 +2879,7 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen still_in_menu, 15, 6, 34
-			Loop until still_in_menu <> "Unearned Income"
+			Loop
 
 			' Call write_value_and_transmit("X", 12, 3)		'TODO member specific DEEMED INCOME
 
@@ -2897,7 +2903,8 @@ class mfip_eligibility_detail
 			mfip_budg_total_tribal_income_fs_portion_deduction = trim(mfip_budg_total_tribal_income_fs_portion_deduction)
 
 			Call write_value_and_transmit("X", 6, 12)		' member specific Tribal Child Support Income
-			Do
+			EMReadScreen back_to_menu, 21, 4, 31
+			Do while back_to_menu <> "Tribal Counted Income"
 				EMReadScreen pop_up_name, 25, 8, 34
 				pop_up_name = trim(pop_up_name)
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
@@ -2910,10 +2917,11 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen back_to_menu, 21, 4, 31
-			Loop until back_to_menu = "Tribal Counted Income"
+			Loop
 
 			Call write_value_and_transmit("X", 7, 12)		' member specific Tribal Gaming Income
-			Do
+			EMReadScreen back_to_menu, 21, 4, 31
+			Do while back_to_menu <> "Tribal Counted Income"
 				EMReadScreen pop_up_name, 30, 7, 37
 				pop_up_name = trim(pop_up_name)
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
@@ -2936,7 +2944,7 @@ class mfip_eligibility_detail
 				Next
 				transmit
 				EMReadScreen back_to_menu, 21, 4, 31
-			Loop until back_to_menu = "Tribal Counted Income"
+			Loop
 			transmit                  ''back to MFB1
 
 			Call write_value_and_transmit("X", 18, 5)		' member specific SUBSIDY
@@ -13920,7 +13928,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				End If
 
 			Else
-				Text 15, 125, 300, 10, "This case is ineligible becaues it hasn't met the requirements for MFIP Eligibility. The case tests above show what requirements have not been met."
+				Text 15, 125, 300, 20, "This case is ineligible becaues it hasn't met the requirements for MFIP Eligibility. The case tests above show what requirements have not been met."
 		    End if
 
 		  End if
