@@ -128,6 +128,111 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 
 end function
 
+function display_approval_packages_dialog()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 401, 320, "Approval Packages"
+	  Text 150, 10, 125, 10, "What are Approval Packages?"
+	  GroupBox 10, 25, 370, 10, ""
+	  Text 10, 45, 225, 10, "They are groups of months for a program that share budget details."
+	  Text 25, 60, 315, 10, "The script reviews the APPROVED versions of the program and assesses if there are changes."
+	  Text 25, 70, 50, 10, "It will look at:"
+	  Text 35, 85, 70, 10, "Eligibility Result"
+	  Text 35, 95, 70, 10, "Budget Cycle"
+	  Text 35, 105, 70, 10, "Income"
+	  Text 35, 115, 95, 10, "Houshold Composition"
+	  Text 35, 125, 95, 10, "Entitlement "
+	  Text 25, 140, 205, 20, "If these are the same from month to month, the script groups these approval months together as an 'Approval Package'."
+	  GroupBox 10, 165, 370, 10, ""
+	  Text 20, 185, 175, 10, "There may only be one 'Approval Package' listed. "
+	  Text 30, 200, 295, 10, "If there is only one month in the approval, there will only be one 'Approval Package'."
+	  Text 30, 215, 295, 10, "If the budget for all months match, there will only be one 'Approval Package'."
+	  GroupBox 10, 230, 370, 10, ""
+	  Text 20, 250, 285, 20, "If there are multiple 'Approval Packages', you can navigate between them using the buttons in the top right corner of the Approval Dialog."
+	  Text 30, 270, 270, 10, "The package currently displayed will be listed in 'Text' and cannot be pressed."
+	  Text 30, 285, 340, 10, "Other packages will be a button and pressing them will display the detail of that 'Approval Package'."
+	  ButtonGroup ButtonPressed
+		OkButton 345, 300, 50, 15
+	EndDialog
+
+	dialog Dialog1
+
+	ButtonPressed = unique_approval_explain_btn
+
+end function
+
+function display_snap_deductions_dialog()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 386, 285, "SNAP Deductions"
+	  Text 155, 10, 100, 10, "SNAP Deductions Detail"
+	  GroupBox 10, 20, 370, 10, ""
+	  GroupBox 10, 40, 370, 30, " Standard . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_standard
+	  Text 25, 55, 180, 10, "A standard deduction is applied to all SNAP Budgets."
+	  GroupBox 10, 80, 370, 35, " Earned Inc . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_earned
+	  Text 25, 95, 215, 20, "A deduction of 20% of the Budgeted Earned Income on the case is applied for SNAP."
+	  GroupBox 10, 125, 370, 40, "Medical . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_medical
+	  Text 25, 140, 245, 10, "Certain SNAP cases can have a Medical Deduction of verified Expenses."
+	  Text 25, 150, 245, 10, "All details of FMED should be reviewed in the CM."
+	  GroupBox 10, 175, 370, 40, "Dependent Care . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_depndt_care
+	  Text 25, 190, 180, 10, "Care of a dependent can be used a SNAP deduction."
+	  Text 25, 200, 180, 10, "Dependent Care Expeses are declaratory."
+	  GroupBox 10, 225, 370, 30, " Child Support . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_deduct_cses
+	  Text 25, 240, 245, 10, "Court Ordered Child Support Expense can be allowed as a deduction."
+	  ButtonGroup ButtonPressed
+	    OkButton 330, 260, 50, 15
+	    PushButton 290, 50, 85, 15, "CM 0018.21", cm_18_21_btn
+	    PushButton 290, 95, 85, 15, "CM 0018.18", cm_18_18_btn
+	    PushButton 290, 140, 85, 15, "CM 0018.12", cm_18_12_btn
+	    PushButton 290, 190, 85, 15, "CM 0018.09", cm_18_09_btn
+	    PushButton 290, 235, 85, 15, "CM 0018.33", cm_18_33_btn
+	EndDialog
+
+	Do
+
+		dialog Dialog1
+
+		If ButtonPressed = cm_18_21_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001821"
+		If ButtonPressed = cm_18_18_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001818"
+		If ButtonPressed = cm_18_12_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001812"
+		If ButtonPressed = cm_18_09_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001809"
+		If ButtonPressed = cm_18_33_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001833"
+	Loop until ButtonPressed = -1
+	ButtonPressed = deductions_detail_btn
+end function
+
+function display_snap_shelter_expenses()
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 386, 165, "SNAP Deductions"
+	  Text 145, 10, 100, 10, "SNAP Shelter Expense Detail"
+	  GroupBox 10, 20, 370, 10, ""
+	  Text 10, 40, 315, 10, "The amounts listed on the Approval Package Dialog is only the amount budgeted in ELIG/FS."
+	  Text 10, 55, 340, 10, "If this is not the amount reported by the resident, review STAT coding and complete a new approval."
+	  GroupBox 10, 75, 175, 75, "Housing Expense . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_housing_exp_total
+	  Text 20, 90, 150, 10, "Rent/Mortgage . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_rent_mort
+	  Text 20, 100, 150, 10, "Property Tax . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_prop_tax
+	  Text 20, 110, 150, 10, "House Insurance $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_home_ins
+	  Text 20, 120, 150, 10, "Other . . . . . . . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_other
+	  GroupBox 190, 75, 190, 65, "Utility Expense . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_utilities_exp_total
+	  Text 200, 90, 150, 10, "Electricity . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_electricity
+	  Text 200, 100, 135, 10, "Heat/Air . . . .$ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_heat_ac
+	  Text 200, 110, 150, 10, "Phone . . . . . $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_phone
+	  ButtonGroup ButtonPressed
+	    OkButton 330, 145, 50, 15
+	    PushButton 95, 130, 85, 15, "CM 0018.15", cm_18_15_btn
+	    PushButton 290, 120, 85, 15, "CM 0018.15.09", cm_18_15_09_btn
+	EndDialog
+
+
+	Do
+
+		dialog Dialog1
+
+		If ButtonPressed = cm_18_15_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001815"
+		If ButtonPressed = cm_18_15_09_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00181509"
+	Loop until ButtonPressed = -1
+	ButtonPressed = shel_exp_detail_btn
+end function
+
 function snap_elig_dialog()
 
 	display_detail = ""
@@ -236,7 +341,7 @@ function snap_elig_dialog()
 			PushButton 440, 365, 110, 15, "Next Approval", next_approval_btn
 		End If
 		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 360, 20, 85, 10, "Deductions Detail", deductions_detail_btn
-		PushButton 200, 160, 70, 10, "HH COMP Detail", hh_comp_detail
+		' PushButton 200, 160, 70, 10, "HH COMP Detail", hh_comp_detail
 		PushButton 360, 190, 85, 10, "Shelter Expense Detail", shel_exp_detail_btn
 		y_pos = 25
 		display_detail = ""
@@ -430,7 +535,7 @@ function rept_pnd2_dialog()
 	  Text 15, 10, 320, 10, "This case has been updated to have denials processed through the REPT/PND2 overnight batch."
 	  If pnd2_cash_status = "I" or pnd2_cash_status = "R" then
 		  GroupBox 15, y_pos, 315, 45, "Cash Denial"
-		  If pnd2_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
+		  If pnd2_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Denied for NO INTERVIEW"
 		  If pnd2_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
 		  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_cash_prog_one
 		  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_appl_date
@@ -441,7 +546,7 @@ function rept_pnd2_dialog()
 
 		  If pnd2_cash_prog_two <> "" Then
 			  GroupBox 15, y_pos, 315, 45, "Cash Denial"
-			  If pnd2_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
+			  If pnd2_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Denied for NO INTERVIEW"
 			  If pnd2_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
 			  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_cash_prog_two
 			  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_appl_date
@@ -454,7 +559,7 @@ function rept_pnd2_dialog()
 
 	  If pnd2_2nd_cash_status = "I" or pnd2_2nd_cash_status = "R" then
 		  GroupBox 15, y_pos, 315, 45, "Cash Denial"
-		  If pnd2_2nd_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
+		  If pnd2_2nd_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Denied for NO INTERVIEW"
 		  If pnd2_2nd_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
 		  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_2nd_cash_prog_one
 		  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_2nd_appl_date
@@ -465,7 +570,7 @@ function rept_pnd2_dialog()
 
 		  If pnd2_2nd_cash_prog_two <> "" Then
 			  GroupBox 15, y_pos, 315, 45, "Cash Denial"
-			  If pnd2_2nd_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Dened for NO INTERVIEW"
+			  If pnd2_2nd_cash_status = "I" Then Text 20, y_pos + 15, 155, 10, "Cash Denied for NO INTERVIEW"
 			  If pnd2_2nd_cash_status = "R" Then Text 20, y_pos + 15, 155, 10, "Cash Application WITHDRAWN"
 			  Text 20, y_pos + 25, 155, 10, "Cash Program: " & pnd2_2nd_cash_prog_two
 			  Text 185, y_pos + 15, 140, 10, "Cash application date: " & pnd2_2nd_appl_date
@@ -478,7 +583,7 @@ function rept_pnd2_dialog()
 
 	  If pnd2_snap_status = "I" or pnd2_snap_status = "R" then
 		  GroupBox 15, y_pos, 315, 45, "SNAP Denial"
-		  If pnd2_snap_status = "I" Then Text 20, y_pos + 15, 155, 10, "SNAP Dened for NO INTERVIEW"
+		  If pnd2_snap_status = "I" Then Text 20, y_pos + 15, 155, 10, "SNAP Denied for NO INTERVIEW"
 		  If pnd2_snap_status = "R" Then Text 20, y_pos + 15, 155, 10, "SNAP Application WITHDRAWN"
 		  Text 185, y_pos + 15, 140, 10, "SNAP application date: " & pnd2_appl_date
 		  Text 185, y_pos + 25, 140, 10, "SNAP has been pending for " & pnd2_days_pending & " Days."
@@ -487,7 +592,7 @@ function rept_pnd2_dialog()
 	  End If
 	  If pnd2_2nd_snap_status = "I" or pnd2_2nd_snap_status = "R" then
 		  GroupBox 15, y_pos, 315, 45, "SNAP Denial"
-		  If pnd2_2nd_snap_status = "I" Then Text 20, y_pos + 15, 155, 10, "SNAP Dened for NO INTERVIEW"
+		  If pnd2_2nd_snap_status = "I" Then Text 20, y_pos + 15, 155, 10, "SNAP Denied for NO INTERVIEW"
 		  If pnd2_2nd_snap_status = "R" Then Text 20, y_pos + 15, 155, 10, "SNAP Application WITHDRAWN"
 		  Text 185, y_pos + 15, 140, 10, "SNAP application date: " & pnd2_2nd_appl_date
 		  Text 185, y_pos + 25, 140, 10, "SNAP has been pending for " & pnd2_2nd_days_pending & " Days."
@@ -497,7 +602,7 @@ function rept_pnd2_dialog()
 
 	  If pnd2_emer_status = "I" or pnd2_emer_status = "R" then
 		  GroupBox 15, y_pos, 315, 45, "Emergency Denial"
-		  If pnd2_emer_status = "I" Then Text 20, y_pos + 15, 155, 10, "EMER Dened for NO INTERVIEW"
+		  If pnd2_emer_status = "I" Then Text 20, y_pos + 15, 155, 10, "EMER Denied for NO INTERVIEW"
 		  If pnd2_emer_status = "R" Then Text 20, y_pos + 15, 155, 10, "EMER Application WITHDRAWN"
 		  Text 185, y_pos + 15, 140, 10, "EMER application date: " & pnd2_appl_date
 		  Text 185, y_pos + 25, 140, 10, "EMER has been pending for " & pnd2_days_pending & " Days."
@@ -506,7 +611,7 @@ function rept_pnd2_dialog()
 	  End If
 	  If pnd2_2nd_emer_status = "I" or pnd2_2nd_emer_status = "R" then
 		  GroupBox 15, y_pos, 315, 45, "Emergency Denial"
-		  If pnd2_2nd_emer_status = "I" Then Text 20, y_pos + 15, 155, 10, "EMER Dened for NO INTERVIEW"
+		  If pnd2_2nd_emer_status = "I" Then Text 20, y_pos + 15, 155, 10, "EMER Denied for NO INTERVIEW"
 		  If pnd2_2nd_emer_status = "R" Then Text 20, y_pos + 15, 155, 10, "EMER Application WITHDRAWN"
 		  Text 185, y_pos + 15, 140, 10, "EMER application date: " & pnd2_2nd_appl_date
 		  Text 185, y_pos + 25, 140, 10, "EMER has been pending for " & pnd2_2nd_days_pending & " Days."
@@ -516,7 +621,7 @@ function rept_pnd2_dialog()
 
 	  If pnd2_grh_status = "I" or pnd2_grh_status = "R" then
 		  GroupBox 15, y_pos, 315, 45, "GRH Denial"
-		  If pnd2_grh_status = "I" Then Text 20, y_pos + 15, 155, 10, "GRH Dened for NO INTERVIEW"
+		  If pnd2_grh_status = "I" Then Text 20, y_pos + 15, 155, 10, "GRH Denied for NO INTERVIEW"
 		  If pnd2_grh_status = "R" Then Text 20, y_pos + 15, 155, 10, "GRH Application WITHDRAWN"
 		  Text 185, y_pos + 15, 140, 10, "GRH application date: " & pnd2_appl_date
 		  Text 185, y_pos + 25, 140, 10, "GRH has been pending for " & pnd2_days_pending & " Days."
@@ -525,7 +630,7 @@ function rept_pnd2_dialog()
 	  End If
 	  If pnd2_2nd_grh_status = "I" or pnd2_2nd_grh_status = "R" then
 		  GroupBox 15, y_pos, 315, 45, "GRH Denial"
-		  If pnd2_2nd_grh_status = "I" Then Text 20, y_pos + 15, 155, 10, "GRH Dened for NO INTERVIEW"
+		  If pnd2_2nd_grh_status = "I" Then Text 20, y_pos + 15, 155, 10, "GRH Denied for NO INTERVIEW"
 		  If pnd2_2nd_grh_status = "R" Then Text 20, y_pos + 15, 155, 10, "GRH Application WITHDRAWN"
 		  Text 185, y_pos + 15, 140, 10, "GRH application date: " & pnd2_2nd_appl_date
 		  Text 185, y_pos + 25, 140, 10, "GRH has been pending for " & pnd2_2nd_days_pending & " Days."
@@ -896,7 +1001,7 @@ function snap_elig_case_note()
 					Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
 					If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
 				End If
-			Next 
+			Next
 
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_eligible_student(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is an ineligible student.")
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_membs_institution(0) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb 01 is in an institution.")
@@ -12646,7 +12751,7 @@ Do
 		  Text 105, 45, 35, 10, "MM    YY"
 		  Text 10, 55, 80, 10, "Sign your case note(s):"
 		  Text 10, 90, 160, 10, "This script does not have an open 'Notes' field."
-		  Text 10, 105, 235, 20, "If there were otherr actions/updates to the case, a separete NOTE should be entered (or another script run) to detail the specifics of that action."
+		  Text 10, 105, 235, 20, "If there were other actions/updates to the case, a separete NOTE should be entered (or another script run) to detail the specifics of that action."
 		  Text 155, 5, 140, 20, "This script will detail information about all APP actions for a this case taken today."
 		  Text 160, 25, 185, 10, "- Script will handle for approvals, denials, and closures."
 		  Text 160, 35, 155, 10, "- Script will handle for any program in MAXIS."
@@ -13522,42 +13627,42 @@ If approval_note_found = True Then
 	  Text 10, 10, 385, 10, "APPROVAL CASE/NOTEs from today have been found. Determine if a new CASE/NOTE is needed for the program(s)."
 	  y_pos = 25
 	  If approval_note_found_for_DWP = True Then
-		  Text 20, y_pos+5, 305, 10, "DWP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  Text 15, y_pos+5, 310, 10, "DWP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DWP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MFIP = True Then
-		  Text 20, y_pos+5, 305, 10, "MFIP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  Text 15, y_pos+5, 310, 10, "MFIP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFIP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MSA = True Then
-		  Text 20, y_pos+5, 305, 10, "MSA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  Text 15, y_pos+5, 310, 10, "MSA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MSA
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_GA = True Then
-		  Text 20, y_pos+5, 305, 10, "GA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  Text 15, y_pos+5, 310, 10, "GA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GA
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_DENY = True Then
-		  Text 20, y_pos+5, 305, 10, "Cash DENY Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  Text 15, y_pos+5, 310, 10, "Cash DENY Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DENY
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_GRH = True Then
-		  Text 20, y_pos+5, 305, 10, "GRH Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  Text 15, y_pos+5, 310, 10, "GRH Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GRH
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_SNAP = True Then
-		  Text 20, y_pos+5, 305, 10, "SNAP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  Text 15, y_pos+5, 310, 10, "SNAP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_SNAP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_HC = True Then
-		  Text 20, y_pos+5, 305, 10, "HC Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  Text 15, y_pos+5, 310, 10, "HC Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
 		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_HC
 		  y_pos = y_pos + 20
 	  End If
@@ -14174,6 +14279,8 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 			' transmit
 		End If
 
+		If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+
 		If err_msg = "" Then
 
 			all_mfip_approvals_confirmed = True
@@ -14473,10 +14580,12 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 			' transmit
 		End If
 
-		If ButtonPressed = deductions_detail_btn then MsgBox "DEDUCTION EXPLANATION TO GO HERE"
-		If ButtonPressed = hh_comp_detail then MsgBox "HH COMP EXPLANATION TO GO HERE"
-		If ButtonPressed = shel_exp_detail_btn then MsgBox "SHELTER EXPENSE EXPLANATION TO GO HERE"
-		If ButtonPressed = unique_approval_explain_btn then MsgBox "UNIQUE APPROVAL EXPLANATION TO GO HERE"
+		If ButtonPressed = deductions_detail_btn then Call display_snap_deductions_dialog
+		' If ButtonPressed = hh_comp_detail then MsgBox "HH COMP EXPLANATION TO GO HERE"
+		If ButtonPressed = shel_exp_detail_btn then Call display_snap_shelter_expenses
+		If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+
+
 		' If ButtonPressed = app_confirmed_btn
 
 		If err_msg = "" Then
