@@ -206,7 +206,7 @@ Do
 
 		Call back_to_SELF
 		Call navigate_to_MAXIS_screen("ELIG", "FS  ")							'go check ELIG FS and find an approved version
-		'TODO add function find_last_approved_ELIG_version from Eligiblity Summary once it is is ready 
+		'TODO add function find_last_approved_ELIG_version from Eligiblity Summary once it is is ready
 		EMWriteScreen "99", 19, 78
 		transmit
 
@@ -371,6 +371,9 @@ Do
 	worker_count = worker_count + 1
 	next_worker_info = trim(ObjHSSExcel.Cells(excel_row, worker_col))
 Loop until next_worker_info = ""
+
+MAXIS_footer_month = CM_mo
+MAXIS_footer_year = CM_yr
 
 'Now we are going to read all of the txt files generated from the Expedited Determination script runs. If they need review, they will be added to the report out file - otherwise they will be saved in the large Excel list
 this_month_worklist = MonthName(DatePart("m", date)) & " " & DatePart("yyyy", date)			'finding the right sheet for the HSS report out excel'
