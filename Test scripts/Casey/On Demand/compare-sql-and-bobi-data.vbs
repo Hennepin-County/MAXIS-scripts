@@ -64,7 +64,7 @@ sql_cases_string = "~"
 
 
 'Open the days excel
-excel_name = "5-13-2022 Data Review.xlsx"
+excel_name = "7-15-2022 Data Review.xlsx"
 excel_path = "C:\Users\calo001\OneDrive - Hennepin County\Projects\On Demand\BOBI vs SQL Data Review\" & excel_name
 Call excel_open(excel_path, True, False, ObjExcel, objWorkbook)
 
