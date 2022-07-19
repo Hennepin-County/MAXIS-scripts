@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/19/2022", "TESTING UPDATE ##~## ##~##MFIP ELIGIBILITY APPROVALS are now handled in the script run!##~## ##~##This script now handles for SNAP and MFIP Approvals in ELIG. It will also handle for denials from REPT/PND2.##~## ##~##As MFIP fucntionality is new, there may be bugs, please let us know if anything doesn't work or seems weird in the wording.##~## ##~##We will be continuing to add new programs to the functionality. Please note that while MFIP works, Cash Denials do NOT work.##~## ##~##The error reporting default will be turned off for SNAP only cases as that functionality seems to be well tested. Please send a report on a SNAP only approval case if you run in to any issues or errors.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/12/2022", "TESTING UPDATE ##~## ##~##We have added some detail to the end message about the actions the script has taken and the status of the case.##~## ##~##Adjustments made to the script layout that should help to speed up some of the script runs. We know this script takes a bit of time to gather the details needed, but we hope the level of detail and the small amount of input required in the script balances these longer run times.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/08/2022", "The SNAP CASE/NOTE format has been updated to be a little clearer and cleaner. Review the new format of the CASE/NOTE and let us know what you think.##~## ##~##Remember that for now the script only works for SNAP approvals and denials on REPT/PND2. MFIP functionality should be available soon.", "Casey Love, Hennepin County")
 call changelog_update("07/05/2022", "Initial version.", "Casey Love, Hennepin County")
@@ -128,6 +129,11 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 end function
 
 function snap_elig_dialog()
+
+	display_detail = ""
+	for each_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+		If each_app = approval_selected Then display_detail = month_display
+	next
 
 	BeginDialog Dialog1, 0, 0, 555, 385, "SNAP Approval Packages"
 	  GroupBox 460, 10, 85, 165, "SNAP Approvals"
@@ -546,6 +552,8 @@ function snap_elig_case_note()
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(elig_ind).snap_approved_date)
+	If add_new_note_for_SNAP = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+
 	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
 	If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -1835,6 +1843,7 @@ class mfip_eligibility_detail
 	public er_interview_date
 	public hrf_status
 	public hrf_doc_date
+	'TODO - add significant change functionality
 
 	public mfip_elig_ref_numbs()
 	public mfip_elig_membs_full_name()
@@ -1968,6 +1977,23 @@ class mfip_eligibility_detail
 	public mfip_initial_income_net_cses_income
 	public mfip_initial_income_total
 	public mfip_initial_income_family_wage_level
+
+	public mfip_verif_ACCT
+	public mfip_verif_BUSI
+	public mfip_verif_CARS
+	public mfip_verif_JOBS
+	public mfip_verif_MEMB_dob
+	public mfip_verif_MEMB_id
+	public mfip_verif_PARE
+	public mfip_verif_PREG
+	public mfip_verif_RBIC
+	public mfip_verif_ADDR
+	public mfip_verif_SCHL
+	public mfip_verif_SECU
+	public mfip_verif_SHEL
+	public mfip_verif_SPON
+	public mfip_verif_UNEA
+	public mfip_verif_MEMI
 
 	public mfip_12_month_start_date
 	public mfip_designated_spouse_ref_numb
@@ -2435,8 +2461,48 @@ class mfip_eligibility_detail
 			mfip_counted_asset_total = trim(mfip_counted_asset_total)
 			mfip_counted_asset_max = trim(mfip_counted_asset_max)
 
-			transmit
-			' MsgBox "Back to MFCR - 1"
+			transmit 				' MsgBox "Back to MFCR - 1"
+
+			If mfip_case_test_verif = "FAILED" Then
+
+				Call write_value_and_transmit("X", 13, 44)						'ASSETS
+
+				EMReadScreen mfip_verif_ACCT, 6, 5, 28
+				EMReadScreen mfip_verif_BUSI, 6, 6, 28
+				EMReadScreen mfip_verif_CARS, 6, 7, 28
+				EMReadScreen mfip_verif_JOBS, 6, 8, 28
+				EMReadScreen mfip_verif_MEMB_dob, 6, 9, 28
+				EMReadScreen mfip_verif_MEMB_id, 6, 10, 28
+				EMReadScreen mfip_verif_PARE, 6, 11, 28
+				EMReadScreen mfip_verif_PREG, 6, 12, 28
+				EMReadScreen mfip_verif_RBIC, 6, 13, 28
+				EMReadScreen mfip_verif_ADDR, 6, 14, 28
+				EMReadScreen mfip_verif_SCHL, 6, 15, 28
+				EMReadScreen mfip_verif_SECU, 6, 16, 28
+				EMReadScreen mfip_verif_SHEL, 6, 17, 28
+				EMReadScreen mfip_verif_SPON, 6, 18, 28
+				EMReadScreen mfip_verif_UNEA, 6, 19, 28
+				EMReadScreen mfip_verif_MEMI, 6, 20, 28
+
+				mfip_verif_ACCT = UCase(mfip_verif_ACCT)
+				mfip_verif_BUSI = UCase(mfip_verif_BUSI)
+				mfip_verif_CARS = UCase(mfip_verif_CARS)
+				mfip_verif_JOBS = UCase(mfip_verif_JOBS)
+				mfip_verif_MEMB_dob = UCase(mfip_verif_MEMB_dob)
+				mfip_verif_MEMB_id = UCase(mfip_verif_MEMB_id)
+				mfip_verif_PARE = UCase(mfip_verif_PARE)
+				mfip_verif_PREG = UCase(mfip_verif_PREG)
+				mfip_verif_RBIC = UCase(mfip_verif_RBIC)
+				mfip_verif_ADDR = UCase(mfip_verif_ADDR)
+				mfip_verif_SCHL = UCase(mfip_verif_SCHL)
+				mfip_verif_SECU = UCase(mfip_verif_SECU)
+				mfip_verif_SHEL = UCase(mfip_verif_SHEL)
+				mfip_verif_SPON = UCase(mfip_verif_SPON)
+				mfip_verif_UNEA = UCase(mfip_verif_UNEA)
+				mfip_verif_MEMI = UCase(mfip_verif_MEMI)
+
+				transmit 				' MsgBox "Back to MFCR - 1"
+			End if
 
 			Call write_value_and_transmit("X", 13, 5)						'INITIAL INCOME
 			' MsgBox "In Initial Income Pop_up"
@@ -8630,6 +8696,19 @@ class stat_detail
 	public stat_prog_hc_interview_date
 	public stat_prog_hc_status
 
+	public stat_pact_exists
+	public stat_pact_cash_one_prog
+	public stat_pact_cash_one_code
+	public stat_pact_cash_one_info
+	public stat_pact_cash_one_vendor
+	public stat_pact_cash_two_prog
+	public stat_pact_cash_two_code
+	public stat_pact_cash_two_info
+	public stat_pact_cash_two_vendor
+	public stat_pact_grh_code
+	public stat_pact_grh_info
+	public stat_pact_snap_code
+	public stat_pact_snap_info
 
 	public stat_hest_persons_paying_list
 	public stat_hest_retro_heat_air_yn
@@ -8815,14 +8894,33 @@ class stat_detail
 	public stat_jobs_five_job_deemed_for_mfip()
 	public stat_jobs_five_mfip_gross_amt()
 	public stat_jobs_five_mfip_counted_amt()
+	public stat_busi_one_deemed_for_mfip()
+	public stat_busi_two_deemed_for_mfip()
+	public stat_busi_three_deemed_for_mfip()
+	public stat_unea_one_deemed_for_mfip()
+	public stat_unea_two_deemed_for_mfip()
+	public stat_unea_three_deemed_for_mfip()
+	public stat_unea_four_deemed_for_mfip()
+	public stat_unea_five_deemed_for_mfip()
 	public stat_busi_one_exists()
 	public stat_busi_one_type()
 	public stat_busi_one_counted_for_snap()
+	public stat_busi_one_counted_for_mfip()
 	public stat_busi_one_type_info()
 	public stat_busi_one_inc_start_date()
 	public stat_busi_one_inc_end_date()
 	public stat_busi_one_method()
 	public stat_busi_one_method_date()
+	public stat_busi_one_mfip_gross_amt()
+	public stat_busi_one_mfip_counted_amt()
+	public stat_busi_one_cash_retro_net_inc()
+	public stat_busi_one_cash_prosp_net_inc()
+	public stat_busi_one_cash_retro_gross_inc()
+	public stat_busi_one_cash_retro_expenses()
+	public stat_busi_one_cash_prosp_gross_inc()
+	public stat_busi_one_cash_prosp_expenses()
+	public stat_busi_one_cash_income_verif_code()
+	public stat_busi_one_cash_expense_verif_code()
 	public stat_busi_one_snap_retro_net_inc()
 	public stat_busi_one_snap_prosp_net_inc()
 	public stat_busi_one_snap_retro_gross_inc()
@@ -8836,11 +8934,22 @@ class stat_detail
 	public stat_busi_two_exists()
 	public stat_busi_two_type()
 	public stat_busi_two_counted_for_snap()
+	public stat_busi_two_counted_for_mfip()
 	public stat_busi_two_type_info()
 	public stat_busi_two_inc_start_date()
 	public stat_busi_two_inc_end_date()
 	public stat_busi_two_method()
 	public stat_busi_two_method_date()
+	public stat_busi_two_mfip_gross_amt()
+	public stat_busi_two_mfip_counted_amt()
+	public stat_busi_two_cash_retro_net_inc()
+	public stat_busi_two_cash_prosp_net_inc()
+	public stat_busi_two_cash_retro_gross_inc()
+	public stat_busi_two_cash_retro_expenses()
+	public stat_busi_two_cash_prosp_gross_inc()
+	public stat_busi_two_cash_prosp_expenses()
+	public stat_busi_two_cash_income_verif_code()
+	public stat_busi_two_cash_expense_verif_code()
 	public stat_busi_two_snap_retro_net_inc()
 	public stat_busi_two_snap_prosp_net_inc()
 	public stat_busi_two_snap_retro_gross_inc()
@@ -8854,11 +8963,22 @@ class stat_detail
 	public stat_busi_three_exists()
 	public stat_busi_three_type()
 	public stat_busi_three_counted_for_snap()
+	public stat_busi_three_counted_for_mfip()
 	public stat_busi_three_type_info()
 	public stat_busi_three_inc_start_date()
 	public stat_busi_three_inc_end_date()
 	public stat_busi_three_method()
 	public stat_busi_three_method_date()
+	public stat_busi_three_mfip_gross_amt()
+	public stat_busi_three_mfip_counted_amt()
+	public stat_busi_three_cash_retro_net_inc()
+	public stat_busi_three_cash_prosp_net_inc()
+	public stat_busi_three_cash_retro_gross_inc()
+	public stat_busi_three_cash_retro_expenses()
+	public stat_busi_three_cash_prosp_gross_inc()
+	public stat_busi_three_cash_prosp_expenses()
+	public stat_busi_three_cash_income_verif_code()
+	public stat_busi_three_cash_expense_verif_code()
 	public stat_busi_three_snap_retro_net_inc()
 	public stat_busi_three_snap_prosp_net_inc()
 	public stat_busi_three_snap_retro_gross_inc()
@@ -8871,59 +8991,79 @@ class stat_detail
 	public stat_busi_three_snap_expense_verif_info()
 	public stat_unea_one_exists()
 	public stat_unea_one_counted_for_snap()
+	public stat_unea_one_counted_for_mfip()
 	public stat_unea_one_type_code()
 	public stat_unea_one_type_info()
 	public stat_unea_one_verif_code()
 	public stat_unea_one_verif_info()
 	public stat_unea_one_inc_start_date()
 	public stat_unea_one_inc_end_date()
+	public stat_unea_one_retro_monthly_gross_income()
+	public stat_unea_one_prosp_monthly_gross_income()
 	public stat_unea_one_snap_pic_pay_freq()
 	public stat_unea_one_snap_pic_ave_inc_per_pay()
 	public stat_unea_one_snap_pic_prosp_monthly_inc()
+	Public stat_unea_one_mfip_gross_amt()
 	public stat_unea_two_exists()
 	public stat_unea_two_counted_for_snap()
+	public stat_unea_two_counted_for_mfip()
 	public stat_unea_two_type_code()
 	public stat_unea_two_type_info()
 	public stat_unea_two_verif_code()
 	public stat_unea_two_verif_info()
 	public stat_unea_two_inc_start_date()
 	public stat_unea_two_inc_end_date()
+	public stat_unea_two_retro_monthly_gross_income()
+	public stat_unea_two_prosp_monthly_gross_income()
 	public stat_unea_two_snap_pic_pay_freq()
 	public stat_unea_two_snap_pic_ave_inc_per_pay()
 	public stat_unea_two_snap_pic_prosp_monthly_inc()
+	Public stat_unea_two_mfip_gross_amt()
 	public stat_unea_three_exists()
 	public stat_unea_three_counted_for_snap()
+	public stat_unea_three_counted_for_mfip()
 	public stat_unea_three_type_code()
 	public stat_unea_three_type_info()
 	public stat_unea_three_verif_code()
 	public stat_unea_three_verif_info()
 	public stat_unea_three_inc_start_date()
 	public stat_unea_three_inc_end_date()
+	public stat_unea_three_retro_monthly_gross_income()
+	public stat_unea_three_prosp_monthly_gross_income()
 	public stat_unea_three_snap_pic_pay_freq()
 	public stat_unea_three_snap_pic_ave_inc_per_pay()
 	public stat_unea_three_snap_pic_prosp_monthly_inc()
+	Public stat_unea_three_mfip_gross_amt()
 	public stat_unea_four_exists()
 	public stat_unea_four_counted_for_snap()
+	public stat_unea_four_counted_for_mfip()
 	public stat_unea_four_type_code()
 	public stat_unea_four_type_info()
 	public stat_unea_four_verif_code()
 	public stat_unea_four_verif_info()
 	public stat_unea_four_inc_start_date()
 	public stat_unea_four_inc_end_date()
+	public stat_unea_four_retro_monthly_gross_income()
+	public stat_unea_four_prosp_monthly_gross_income()
 	public stat_unea_four_snap_pic_pay_freq()
 	public stat_unea_four_snap_pic_ave_inc_per_pay()
 	public stat_unea_four_snap_pic_prosp_monthly_inc()
+	Public stat_unea_four_mfip_gross_amt()
 	public stat_unea_five_exists()
 	public stat_unea_five_counted_for_snap()
+	public stat_unea_five_counted_for_mfip()
 	public stat_unea_five_type_code()
 	public stat_unea_five_type_info()
 	public stat_unea_five_verif_code()
 	public stat_unea_five_verif_info()
 	public stat_unea_five_inc_start_date()
 	public stat_unea_five_inc_end_date()
+	public stat_unea_five_retro_monthly_gross_income()
+	public stat_unea_five_prosp_monthly_gross_income()
 	public stat_unea_five_snap_pic_pay_freq()
 	public stat_unea_five_snap_pic_ave_inc_per_pay()
 	public stat_unea_five_snap_pic_prosp_monthly_inc()
+	Public stat_unea_five_mfip_gross_amt()
 	public stat_acct_one_exists()
 	public stat_acct_one_type()
 	public stat_acct_one_balence()
@@ -9089,6 +9229,7 @@ class stat_detail
 
 		current_month = footer_month & "/1/" & footer_year
 		current_month = DateAdd("d", 0, current_month)
+		Call navigate_to_MAXIS_screen("STAT", "PROG")
 
 		EMReadScreen stat_prog_cash_I_appl_date, 		8, 6, 33
 		EMReadScreen stat_prog_cash_I_elig_begin_date, 	8, 6, 44
@@ -9167,6 +9308,45 @@ class stat_detail
 		If stat_prog_cash_II_prog = "MS" Then stat_prog_cash_II_prog = "MSA"
 		If stat_prog_cash_II_prog = "GA" Then stat_prog_cash_II_prog = "GA"
 		If stat_prog_cash_II_prog = "DW" Then stat_prog_cash_II_prog = "DWP"
+
+		Call navigate_to_MAXIS_screen("STAT", "PACT")
+		EMReadScreen panel_instance, 1, 2, 73
+		stat_pact_exists = False
+		If panel_instance = "1" Then
+			stat_pact_exists = True
+			EMReadScreen stat_pact_cash_one_prog, 2, 6, 43
+			EMReadScreen stat_pact_cash_one_code, 1, 6, 58
+			EMReadScreen stat_pact_cash_one_vendor, 1, 6, 74
+			If stat_pact_cash_one_code = "1" Then stat_pact_cash_one_info = "Application Withdrwan per Client Request"
+			If stat_pact_cash_one_code = "2" Then stat_pact_cash_one_info = "Program Closed per Client Request"
+			If stat_pact_cash_one_code = "3" Then stat_pact_cash_one_info = "Refused/Failed Requied Information"
+			If stat_pact_cash_one_code = "7" Then stat_pact_cash_one_info = "Refused/Failed Vendor Information"
+			If stat_pact_cash_one_vendor = "1" Then stat_pact_cash_one_vendor = "Client Request"
+			If stat_pact_cash_one_vendor = "2" Then stat_pact_cash_one_vendor = "Money Mismanagment"
+			If stat_pact_cash_one_vendor = "7" Then stat_pact_cash_one_vendor = "Convicted Drug Felon in HH"
+
+			EMReadScreen stat_pact_cash_two_prog, 2, 8, 43
+			EMReadScreen stat_pact_cash_two_code, 1, 8, 58
+			EMReadScreen stat_pact_cash_two_vendor, 1, 8, 74
+			If stat_pact_cash_two_code = "1" Then stat_pact_cash_two_info = "Application Withdrwan per Client Request"
+			If stat_pact_cash_two_code = "2" Then stat_pact_cash_two_info = "Program Closed per Client Request"
+			If stat_pact_cash_two_code = "3" Then stat_pact_cash_two_info = "Refused/Failed Requied Information"
+			If stat_pact_cash_two_code = "7" Then stat_pact_cash_two_info = "Refused/Failed Vendor Information"
+			If stat_pact_cash_two_vendor = "1" Then stat_pact_cash_two_vendor = "Client Request"
+			If stat_pact_cash_two_vendor = "2" Then stat_pact_cash_two_vendor = "Money Mismanagment"
+			If stat_pact_cash_two_vendor = "7" Then stat_pact_cash_two_vendor = "Convicted Drug Felon in HH"
+
+			EMReadScreen stat_pact_grh_code, 1, 10, 58
+			If stat_pact_grh_code = "1" Then stat_pact_grh_info = "Application Withdrwan per Client Request"
+			If stat_pact_grh_code = "2" Then stat_pact_grh_info = "Program Closed per Client Request"
+			If stat_pact_grh_code = "3" Then stat_pact_grh_info = "Refused/Failed Requied Information"
+
+			EMReadScreen stat_pact_snap_code, 1, 12, 58
+			If stat_pact_snap_code = "1" Then stat_pact_snap_info = "Application Withdrwan per Client Request"
+			If stat_pact_snap_code = "2" Then stat_pact_snap_info = "Program Closed per Client Request"
+			If stat_pact_snap_code = "3" Then stat_pact_snap_info = "Refused/Failed Requied Information"
+			If stat_pact_snap_code = "4" Then stat_pact_snap_info = "Refused/Failed Requied Information - SNAP ONLY"
+		End if
 
 
 		ReDim stat_memb_ref_numb(0)
@@ -9309,11 +9489,23 @@ class stat_detail
 		ReDim stat_busi_one_exists(0)
 		ReDim stat_busi_one_type(0)
 		ReDim stat_busi_one_counted_for_snap(0)
+		ReDim stat_busi_one_counted_for_mfip(0)
+		ReDim stat_busi_one_deemed_for_mfip(0)
 		ReDim stat_busi_one_type_info(0)
 		ReDim stat_busi_one_inc_start_date(0)
 		ReDim stat_busi_one_inc_end_date(0)
 		ReDim stat_busi_one_method(0)
 		ReDim stat_busi_one_method_date(0)
+		ReDim stat_busi_one_mfip_gross_amt(0)
+		ReDim stat_busi_one_mfip_counted_amt(0)
+		ReDim stat_busi_one_cash_retro_net_inc(0)
+		ReDim stat_busi_one_cash_prosp_net_inc(0)
+		ReDim stat_busi_one_cash_retro_gross_inc(0)
+		ReDim stat_busi_one_cash_retro_expenses(0)
+		ReDim stat_busi_one_cash_prosp_gross_inc(0)
+		ReDim stat_busi_one_cash_prosp_expenses(0)
+		ReDim stat_busi_one_cash_income_verif_code(0)
+		ReDim stat_busi_one_cash_expense_verif_code(0)
 		ReDim stat_busi_one_snap_retro_net_inc(0)
 		ReDim stat_busi_one_snap_prosp_net_inc(0)
 		ReDim stat_busi_one_snap_retro_gross_inc(0)
@@ -9327,11 +9519,23 @@ class stat_detail
 		ReDim stat_busi_two_exists(0)
 		ReDim stat_busi_two_type(0)
 		ReDim stat_busi_two_counted_for_snap(0)
+		ReDim stat_busi_two_counted_for_mfip(0)
+		ReDim stat_busi_two_deemed_for_mfip(0)
 		ReDim stat_busi_two_type_info(0)
 		ReDim stat_busi_two_inc_start_date(0)
 		ReDim stat_busi_two_inc_end_date(0)
 		ReDim stat_busi_two_method(0)
 		ReDim stat_busi_two_method_date(0)
+		ReDim stat_busi_two_mfip_gross_amt(0)
+		ReDim stat_busi_two_mfip_counted_amt(0)
+		ReDim stat_busi_two_cash_retro_net_inc(0)
+		ReDim stat_busi_two_cash_prosp_net_inc(0)
+		ReDim stat_busi_two_cash_retro_gross_inc(0)
+		ReDim stat_busi_two_cash_retro_expenses(0)
+		ReDim stat_busi_two_cash_prosp_gross_inc(0)
+		ReDim stat_busi_two_cash_prosp_expenses(0)
+		ReDim stat_busi_two_cash_income_verif_code(0)
+		ReDim stat_busi_two_cash_expense_verif_code(0)
 		ReDim stat_busi_two_snap_retro_net_inc(0)
 		ReDim stat_busi_two_snap_prosp_net_inc(0)
 		ReDim stat_busi_two_snap_retro_gross_inc(0)
@@ -9345,11 +9549,23 @@ class stat_detail
 		ReDim stat_busi_three_exists(0)
 		ReDim stat_busi_three_type(0)
 		ReDim stat_busi_three_counted_for_snap(0)
+		ReDim stat_busi_three_counted_for_mfip(0)
+		ReDim stat_busi_three_deemed_for_mfip(0)
 		ReDim stat_busi_three_type_info(0)
 		ReDim stat_busi_three_inc_start_date(0)
 		ReDim stat_busi_three_inc_end_date(0)
 		ReDim stat_busi_three_method(0)
 		ReDim stat_busi_three_method_date(0)
+		ReDim stat_busi_three_mfip_gross_amt(0)
+		ReDim stat_busi_three_mfip_counted_amt(0)
+		ReDim stat_busi_three_cash_retro_net_inc(0)
+		ReDim stat_busi_three_cash_prosp_net_inc(0)
+		ReDim stat_busi_three_cash_retro_gross_inc(0)
+		ReDim stat_busi_three_cash_retro_expenses(0)
+		ReDim stat_busi_three_cash_prosp_gross_inc(0)
+		ReDim stat_busi_three_cash_prosp_expenses(0)
+		ReDim stat_busi_three_cash_income_verif_code(0)
+		ReDim stat_busi_three_cash_expense_verif_code(0)
 		ReDim stat_busi_three_snap_retro_net_inc(0)
 		ReDim stat_busi_three_snap_prosp_net_inc(0)
 		ReDim stat_busi_three_snap_retro_gross_inc(0)
@@ -9362,56 +9578,81 @@ class stat_detail
 		ReDim stat_busi_three_snap_expense_verif_info(0)
 		ReDim stat_unea_one_exists(0)
 		ReDim stat_unea_one_counted_for_snap(0)
+		ReDim stat_unea_one_counted_for_mfip(0)
+		ReDim stat_unea_one_deemed_for_mfip(0)
 		ReDim stat_unea_one_type_code(0)
 		ReDim stat_unea_one_type_info(0)
 		ReDim stat_unea_one_verif_code(0)
 		ReDim stat_unea_one_verif_info(0)
 		ReDim stat_unea_one_inc_start_date(0)
 		ReDim stat_unea_one_inc_end_date(0)
+		ReDim stat_unea_one_mfip_gross_amt(0)
+		ReDim stat_unea_one_retro_monthly_gross_income(0)
+		ReDim stat_unea_one_prosp_monthly_gross_income(0)
 		ReDim stat_unea_one_snap_pic_pay_freq(0)
 		ReDim stat_unea_one_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_one_snap_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_two_exists(0)
 		ReDim stat_unea_two_counted_for_snap(0)
+		ReDim stat_unea_two_counted_for_mfip(0)
+		ReDim stat_unea_two_deemed_for_mfip(0)
 		ReDim stat_unea_two_type_code(0)
 		ReDim stat_unea_two_type_info(0)
 		ReDim stat_unea_two_verif_code(0)
 		ReDim stat_unea_two_verif_info(0)
 		ReDim stat_unea_two_inc_start_date(0)
 		ReDim stat_unea_two_inc_end_date(0)
+		ReDim stat_unea_two_mfip_gross_amt(0)
+		ReDim stat_unea_two_retro_monthly_gross_income(0)
+		ReDim stat_unea_two_prosp_monthly_gross_income(0)
 		ReDim stat_unea_two_snap_pic_pay_freq(0)
 		ReDim stat_unea_two_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_two_snap_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_three_exists(0)
 		ReDim stat_unea_three_counted_for_snap(0)
+		ReDim stat_unea_three_counted_for_mfip(0)
+		ReDim stat_unea_three_deemed_for_mfip(0)
 		ReDim stat_unea_three_type_code(0)
 		ReDim stat_unea_three_type_info(0)
 		ReDim stat_unea_three_verif_code(0)
 		ReDim stat_unea_three_verif_info(0)
 		ReDim stat_unea_three_inc_start_date(0)
 		ReDim stat_unea_three_inc_end_date(0)
+		ReDim stat_unea_three_mfip_gross_amt(0)
+		ReDim stat_unea_three_retro_monthly_gross_income(0)
+		ReDim stat_unea_three_prosp_monthly_gross_income(0)
 		ReDim stat_unea_three_snap_pic_pay_freq(0)
 		ReDim stat_unea_three_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_three_snap_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_four_exists(0)
 		ReDim stat_unea_four_counted_for_snap(0)
+		ReDim stat_unea_four_counted_for_mfip(0)
+		ReDim stat_unea_four_deemed_for_mfip(0)
 		ReDim stat_unea_four_type_code(0)
 		ReDim stat_unea_four_type_info(0)
 		ReDim stat_unea_four_verif_code(0)
 		ReDim stat_unea_four_verif_info(0)
 		ReDim stat_unea_four_inc_start_date(0)
 		ReDim stat_unea_four_inc_end_date(0)
+		ReDim stat_unea_four_mfip_gross_amt(0)
+		ReDim stat_unea_four_retro_monthly_gross_income(0)
+		ReDim stat_unea_four_prosp_monthly_gross_income(0)
 		ReDim stat_unea_four_snap_pic_pay_freq(0)
 		ReDim stat_unea_four_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_four_snap_pic_prosp_monthly_inc(0)
 		ReDim stat_unea_five_exists(0)
 		ReDim stat_unea_five_counted_for_snap(0)
+		ReDim stat_unea_five_counted_for_mfip(0)
+		ReDim stat_unea_five_deemed_for_mfip(0)
 		ReDim stat_unea_five_type_code(0)
 		ReDim stat_unea_five_type_info(0)
 		ReDim stat_unea_five_verif_code(0)
 		ReDim stat_unea_five_verif_info(0)
 		ReDim stat_unea_five_inc_start_date(0)
 		ReDim stat_unea_five_inc_end_date(0)
+		ReDim stat_unea_five_mfip_gross_amt(0)
+		ReDim stat_unea_five_retro_monthly_gross_income(0)
+		ReDim stat_unea_five_prosp_monthly_gross_income(0)
 		ReDim stat_unea_five_snap_pic_pay_freq(0)
 		ReDim stat_unea_five_snap_pic_ave_inc_per_pay(0)
 		ReDim stat_unea_five_snap_pic_prosp_monthly_inc(0)
@@ -9720,11 +9961,23 @@ class stat_detail
 			ReDim preserve stat_busi_one_exists(memb_count)
 			ReDim preserve stat_busi_one_type(memb_count)
 			ReDim preserve stat_busi_one_counted_for_snap(memb_count)
+			ReDim preserve stat_busi_one_counted_for_mfip(memb_count)
+			ReDim preserve stat_busi_one_deemed_for_mfip(memb_count)
 			ReDim preserve stat_busi_one_type_info(memb_count)
 			ReDim preserve stat_busi_one_inc_start_date(memb_count)
 			ReDim preserve stat_busi_one_inc_end_date(memb_count)
 			ReDim preserve stat_busi_one_method(memb_count)
 			ReDim preserve stat_busi_one_method_date(memb_count)
+			ReDim preserve stat_busi_one_mfip_gross_amt(memb_count)
+			ReDim preserve stat_busi_one_mfip_counted_amt(memb_count)
+			ReDim preserve stat_busi_one_cash_retro_net_inc(memb_count)
+			ReDim preserve stat_busi_one_cash_prosp_net_inc(memb_count)
+			ReDim preserve stat_busi_one_cash_retro_gross_inc(memb_count)
+			ReDim preserve stat_busi_one_cash_retro_expenses(memb_count)
+			ReDim preserve stat_busi_one_cash_prosp_gross_inc(memb_count)
+			ReDim preserve stat_busi_one_cash_prosp_expenses(memb_count)
+			ReDim preserve stat_busi_one_cash_income_verif_code(memb_count)
+			ReDim preserve stat_busi_one_cash_expense_verif_code(memb_count)
 			ReDim preserve stat_busi_one_snap_retro_net_inc(memb_count)
 			ReDim preserve stat_busi_one_snap_prosp_net_inc(memb_count)
 			ReDim preserve stat_busi_one_snap_retro_gross_inc(memb_count)
@@ -9738,11 +9991,23 @@ class stat_detail
 			ReDim preserve stat_busi_two_exists(memb_count)
 			ReDim preserve stat_busi_two_type(memb_count)
 			ReDim preserve stat_busi_two_counted_for_snap(memb_count)
+			ReDim preserve stat_busi_two_counted_for_mfip(memb_count)
+			ReDim preserve stat_busi_two_deemed_for_mfip(memb_count)
 			ReDim preserve stat_busi_two_type_info(memb_count)
 			ReDim preserve stat_busi_two_inc_start_date(memb_count)
 			ReDim preserve stat_busi_two_inc_end_date(memb_count)
 			ReDim preserve stat_busi_two_method(memb_count)
 			ReDim preserve stat_busi_two_method_date(memb_count)
+			ReDim preserve stat_busi_two_mfip_gross_amt(memb_count)
+			ReDim preserve stat_busi_two_mfip_counted_amt(memb_count)
+			ReDim preserve stat_busi_two_cash_retro_net_inc(memb_count)
+			ReDim preserve stat_busi_two_cash_prosp_net_inc(memb_count)
+			ReDim preserve stat_busi_two_cash_retro_gross_inc(memb_count)
+			ReDim preserve stat_busi_two_cash_retro_expenses(memb_count)
+			ReDim preserve stat_busi_two_cash_prosp_gross_inc(memb_count)
+			ReDim preserve stat_busi_two_cash_prosp_expenses(memb_count)
+			ReDim preserve stat_busi_two_cash_income_verif_code(memb_count)
+			ReDim preserve stat_busi_two_cash_expense_verif_code(memb_count)
 			ReDim preserve stat_busi_two_snap_retro_net_inc(memb_count)
 			ReDim preserve stat_busi_two_snap_prosp_net_inc(memb_count)
 			ReDim preserve stat_busi_two_snap_retro_gross_inc(memb_count)
@@ -9756,11 +10021,23 @@ class stat_detail
 			ReDim preserve stat_busi_three_exists(memb_count)
 			ReDim preserve stat_busi_three_type(memb_count)
 			ReDim preserve stat_busi_three_counted_for_snap(memb_count)
+			ReDim preserve stat_busi_three_counted_for_mfip(memb_count)
+			ReDim preserve stat_busi_three_deemed_for_mfip(memb_count)
 			ReDim preserve stat_busi_three_type_info(memb_count)
 			ReDim preserve stat_busi_three_inc_start_date(memb_count)
 			ReDim preserve stat_busi_three_inc_end_date(memb_count)
 			ReDim preserve stat_busi_three_method(memb_count)
 			ReDim preserve stat_busi_three_method_date(memb_count)
+			ReDim preserve stat_busi_three_mfip_gross_amt(memb_count)
+			ReDim preserve stat_busi_three_mfip_counted_amt(memb_count)
+			ReDim preserve stat_busi_three_cash_retro_net_inc(memb_count)
+			ReDim preserve stat_busi_three_cash_prosp_net_inc(memb_count)
+			ReDim preserve stat_busi_three_cash_retro_gross_inc(memb_count)
+			ReDim preserve stat_busi_three_cash_retro_expenses(memb_count)
+			ReDim preserve stat_busi_three_cash_prosp_gross_inc(memb_count)
+			ReDim preserve stat_busi_three_cash_prosp_expenses(memb_count)
+			ReDim preserve stat_busi_three_cash_income_verif_code(memb_count)
+			ReDim preserve stat_busi_three_cash_expense_verif_code(memb_count)
 			ReDim preserve stat_busi_three_snap_retro_net_inc(memb_count)
 			ReDim preserve stat_busi_three_snap_prosp_net_inc(memb_count)
 			ReDim preserve stat_busi_three_snap_retro_gross_inc(memb_count)
@@ -9773,56 +10050,81 @@ class stat_detail
 			ReDim preserve stat_busi_three_snap_expense_verif_info(memb_count)
 			ReDim preserve stat_unea_one_exists(memb_count)
 			ReDim preserve stat_unea_one_counted_for_snap(memb_count)
+			ReDim preserve stat_unea_one_counted_for_mfip(memb_count)
+			ReDim preserve stat_unea_one_deemed_for_mfip(memb_count)
 			ReDim preserve stat_unea_one_type_code(memb_count)
 			ReDim preserve stat_unea_one_type_info(memb_count)
 			ReDim preserve stat_unea_one_verif_code(memb_count)
 			ReDim preserve stat_unea_one_verif_info(memb_count)
 			ReDim preserve stat_unea_one_inc_start_date(memb_count)
 			ReDim preserve stat_unea_one_inc_end_date(memb_count)
+			ReDim preserve stat_unea_one_retro_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_one_prosp_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_one_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_one_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_one_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_one_snap_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_unea_two_exists(memb_count)
 			ReDim preserve stat_unea_two_counted_for_snap(memb_count)
+			ReDim preserve stat_unea_two_counted_for_mfip(memb_count)
+			ReDim preserve stat_unea_two_deemed_for_mfip(memb_count)
 			ReDim preserve stat_unea_two_type_code(memb_count)
 			ReDim preserve stat_unea_two_type_info(memb_count)
 			ReDim preserve stat_unea_two_verif_code(memb_count)
 			ReDim preserve stat_unea_two_verif_info(memb_count)
 			ReDim preserve stat_unea_two_inc_start_date(memb_count)
 			ReDim preserve stat_unea_two_inc_end_date(memb_count)
+			ReDim preserve stat_unea_two_retro_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_two_prosp_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_two_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_two_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_two_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_two_snap_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_unea_three_exists(memb_count)
 			ReDim preserve stat_unea_three_counted_for_snap(memb_count)
+			ReDim preserve stat_unea_three_counted_for_mfip(memb_count)
+			ReDim preserve stat_unea_three_deemed_for_mfip(memb_count)
 			ReDim preserve stat_unea_three_type_code(memb_count)
 			ReDim preserve stat_unea_three_type_info(memb_count)
 			ReDim preserve stat_unea_three_verif_code(memb_count)
 			ReDim preserve stat_unea_three_verif_info(memb_count)
 			ReDim preserve stat_unea_three_inc_start_date(memb_count)
 			ReDim preserve stat_unea_three_inc_end_date(memb_count)
+			ReDim preserve stat_unea_three_retro_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_three_prosp_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_three_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_three_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_three_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_three_snap_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_unea_four_exists(memb_count)
 			ReDim preserve stat_unea_four_counted_for_snap(memb_count)
+			ReDim preserve stat_unea_four_counted_for_mfip(memb_count)
+			ReDim preserve stat_unea_four_deemed_for_mfip(memb_count)
 			ReDim preserve stat_unea_four_type_code(memb_count)
 			ReDim preserve stat_unea_four_type_info(memb_count)
 			ReDim preserve stat_unea_four_verif_code(memb_count)
 			ReDim preserve stat_unea_four_verif_info(memb_count)
 			ReDim preserve stat_unea_four_inc_start_date(memb_count)
 			ReDim preserve stat_unea_four_inc_end_date(memb_count)
+			ReDim preserve stat_unea_four_retro_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_four_prosp_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_four_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_four_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_four_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_four_snap_pic_prosp_monthly_inc(memb_count)
 			ReDim preserve stat_unea_five_exists(memb_count)
 			ReDim preserve stat_unea_five_counted_for_snap(memb_count)
+			ReDim preserve stat_unea_five_counted_for_mfip(memb_count)
+			ReDim preserve stat_unea_five_deemed_for_mfip(memb_count)
 			ReDim preserve stat_unea_five_type_code(memb_count)
 			ReDim preserve stat_unea_five_type_info(memb_count)
 			ReDim preserve stat_unea_five_verif_code(memb_count)
 			ReDim preserve stat_unea_five_verif_info(memb_count)
 			ReDim preserve stat_unea_five_inc_start_date(memb_count)
 			ReDim preserve stat_unea_five_inc_end_date(memb_count)
+			ReDim preserve stat_unea_five_retro_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_five_prosp_monthly_gross_income(memb_count)
+			ReDim preserve stat_unea_five_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_five_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_five_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_five_snap_pic_prosp_monthly_inc(memb_count)
@@ -10530,6 +10832,7 @@ class stat_detail
 
 			If stat_busi_one_exists(each_memb) = True Then
 				stat_busi_one_counted_for_snap(each_memb) = True
+				stat_busi_one_counted_for_mfip(each_memb) = True
 				EMReadScreen stat_busi_one_type(each_memb), 2, 5, 37
 				EMReadScreen stat_busi_one_inc_start_date(each_memb), 8, 5, 55
 				EMReadScreen stat_busi_one_inc_end_date(each_memb), 8, 5, 72
@@ -10553,11 +10856,23 @@ class stat_detail
 				stat_busi_one_method_date(each_memb) = replace(stat_busi_one_method_date(each_memb), " ", "/")
 				If stat_busi_one_method_date(each_memb) = "__/__/__" Then stat_busi_one_method_date(each_memb) = ""
 
+				EMReadScreen stat_busi_one_cash_retro_net_inc(each_memb), 8, 10, 55
+				EMReadScreen stat_busi_one_cash_prosp_net_inc(each_memb), 8, 10, 69
+				stat_busi_one_cash_retro_net_inc(each_memb) = trim(stat_busi_one_cash_retro_net_inc(each_memb))
+				stat_busi_one_cash_prosp_net_inc(each_memb) = trim(stat_busi_one_cash_prosp_net_inc(each_memb))
+
 				EMReadScreen stat_busi_one_snap_retro_net_inc(each_memb), 8, 10, 55
 				EMReadScreen stat_busi_one_snap_prosp_net_inc(each_memb), 8, 10, 69
 				stat_busi_one_snap_prosp_net_inc(each_memb) = trim(stat_busi_one_snap_prosp_net_inc(each_memb))
 
 				Call write_value_and_transmit("X", 6, 26)
+				EMReadScreen stat_busi_one_cash_retro_gross_inc(each_memb), 8, 9, 43
+				EMReadScreen stat_busi_one_cash_retro_expenses(each_memb), 8, 15, 43
+				EMReadScreen stat_busi_one_cash_prosp_gross_inc(each_memb), 8, 9, 59
+				EMReadScreen stat_busi_one_cash_prosp_expenses(each_memb), 8, 15, 59
+				EMReadScreen stat_busi_one_cash_income_verif_code(each_memb), 1, 9, 73
+				EMReadScreen stat_busi_one_cash_expense_verif_code(each_memb), 1, 15, 73
+
 				EMReadScreen stat_busi_one_snap_retro_gross_inc(each_memb), 8, 11, 43
 				EMReadScreen stat_busi_one_snap_retro_expenses(each_memb), 8, 17, 43
 				EMReadScreen stat_busi_one_snap_prosp_gross_inc(each_memb), 8, 11, 59
@@ -10592,6 +10907,7 @@ class stat_detail
 
 			If stat_busi_two_exists(each_memb) = True Then
 				stat_busi_two_counted_for_snap(each_memb) = True
+				stat_busi_two_counted_for_mfip(each_memb) = True
 				EMReadScreen stat_busi_two_type(each_memb), 2, 5, 37
 				EMReadScreen stat_busi_two_inc_start_date(each_memb), 8, 5, 55
 				EMReadScreen stat_busi_two_inc_end_date(each_memb), 8, 5, 72
@@ -10615,9 +10931,22 @@ class stat_detail
 				stat_busi_two_method_date(each_memb) = replace(stat_busi_two_method_date(each_memb), " ", "/")
 				If stat_busi_two_method_date(each_memb) = "__/__/__" Then stat_busi_two_method_date(each_memb) = ""
 
+				EMReadScreen stat_busi_two_cash_retro_net_inc(each_memb), 8, 10, 55
+				EMReadScreen stat_busi_two_cash_prosp_net_inc(each_memb), 8, 10, 69
+				stat_busi_two_cash_retro_net_inc(each_memb) = trim(stat_busi_two_cash_retro_net_inc(each_memb))
+				stat_busi_two_cash_prosp_net_inc(each_memb) = trim(stat_busi_two_cash_prosp_net_inc(each_memb))
+
 				EMReadScreen stat_busi_two_snap_retro_net_inc(each_memb), 8, 10, 55
 				EMReadScreen stat_busi_two_snap_prosp_net_inc(each_memb), 8, 10, 69
 				stat_busi_two_snap_prosp_net_inc(each_memb) = trim(stat_busi_two_snap_prosp_net_inc(each_memb))
+
+				Call write_value_and_transmit("X", 6, 26)
+				EMReadScreen stat_busi_two_cash_retro_gross_inc(each_memb), 8, 9, 43
+				EMReadScreen stat_busi_two_cash_retro_expenses(each_memb), 8, 15, 43
+				EMReadScreen stat_busi_two_cash_prosp_gross_inc(each_memb), 8, 9, 59
+				EMReadScreen stat_busi_two_cash_prosp_expenses(each_memb), 8, 15, 59
+				EMReadScreen stat_busi_two_cash_income_verif_code(each_memb), 1, 9, 73
+				EMReadScreen stat_busi_two_cash_expense_verif_code(each_memb), 1, 15, 73
 
 				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_two_snap_retro_gross_inc(each_memb), 8, 11, 43
@@ -10654,6 +10983,7 @@ class stat_detail
 
 			If stat_busi_three_exists(each_memb) = True Then
 				stat_busi_three_counted_for_snap(each_memb) = True
+				stat_busi_three_counted_for_mfip(each_memb) = True
 				EMReadScreen stat_busi_three_type(each_memb), 2, 5, 37
 				EMReadScreen stat_busi_three_inc_start_date(each_memb), 8, 5, 55
 				EMReadScreen stat_busi_three_inc_end_date(each_memb), 8, 5, 72
@@ -10677,9 +11007,22 @@ class stat_detail
 				stat_busi_three_method_date(each_memb) = replace(stat_busi_three_method_date(each_memb), " ", "/")
 				If stat_busi_three_method_date(each_memb) = "__/__/__" Then stat_busi_three_method_date(each_memb) = ""
 
+				EMReadScreen stat_busi_three_cash_retro_net_inc(each_memb), 8, 10, 55
+				EMReadScreen stat_busi_three_cash_prosp_net_inc(each_memb), 8, 10, 69
+				stat_busi_three_cash_retro_net_inc(each_memb) = trim(stat_busi_three_cash_retro_net_inc(each_memb))
+				stat_busi_three_cash_prosp_net_inc(each_memb) = trim(stat_busi_three_cash_prosp_net_inc(each_memb))
+
 				EMReadScreen stat_busi_three_snap_retro_net_inc(each_memb), 8, 10, 55
 				EMReadScreen stat_busi_three_snap_prosp_net_inc(each_memb), 8, 10, 69
 				stat_busi_three_snap_prosp_net_inc(each_memb) = trim(stat_busi_three_snap_prosp_net_inc(each_memb))
+
+				Call write_value_and_transmit("X", 6, 26)
+				EMReadScreen stat_busi_three_cash_retro_gross_inc(each_memb), 8, 9, 43
+				EMReadScreen stat_busi_three_cash_retro_expenses(each_memb), 8, 15, 43
+				EMReadScreen stat_busi_three_cash_prosp_gross_inc(each_memb), 8, 9, 59
+				EMReadScreen stat_busi_three_cash_prosp_expenses(each_memb), 8, 15, 59
+				EMReadScreen stat_busi_three_cash_income_verif_code(each_memb), 1, 9, 73
+				EMReadScreen stat_busi_three_cash_expense_verif_code(each_memb), 1, 15, 73
 
 				Call write_value_and_transmit("X", 6, 26)
 				EMReadScreen stat_busi_three_snap_retro_gross_inc(each_memb), 8, 11, 43
@@ -10777,6 +11120,17 @@ class stat_detail
 				stat_unea_one_inc_end_date(each_memb) = replace(stat_unea_one_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_one_inc_end_date(each_memb) = "__/__/__" Then stat_unea_one_inc_end_date(each_memb) = ""
 
+				EMReadScreen stat_unea_one_retro_monthly_gross_income(each_memb), 8, 18, 39
+				EMReadScreen stat_unea_one_prosp_monthly_gross_income(each_memb), 8, 18, 68
+
+				stat_unea_one_retro_monthly_gross_income(each_memb) = trim(stat_unea_one_retro_monthly_gross_income(each_memb))
+				stat_unea_one_prosp_monthly_gross_income(each_memb) = trim(stat_unea_one_prosp_monthly_gross_income(each_memb))
+
+				If stat_unea_one_retro_monthly_gross_income(each_memb) = "" Then stat_unea_one_retro_monthly_gross_income(each_memb) = "0.00"
+				If stat_unea_one_prosp_monthly_gross_income(each_memb) = "" Then stat_unea_one_prosp_monthly_gross_income(each_memb) = "0.00"
+
+				stat_unea_one_counted_for_mfip(each_memb) = stat_unea_one_counted_for_snap(each_memb)
+
 				Call write_value_and_transmit("X", 10, 26)
 				EMReadScreen stat_unea_one_snap_pic_pay_freq(each_memb), 1, 5, 64
 				EMReadScreen stat_unea_one_snap_pic_ave_inc_per_pay(each_memb), 10, 17, 52
@@ -10858,6 +11212,17 @@ class stat_detail
 				stat_unea_two_inc_start_date(each_memb) = replace(stat_unea_two_inc_start_date(each_memb), " ", "/")
 				stat_unea_two_inc_end_date(each_memb) = replace(stat_unea_two_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_two_inc_end_date(each_memb) = "__/__/__" Then stat_unea_two_inc_end_date(each_memb) = ""
+
+				EMReadScreen stat_unea_two_retro_monthly_gross_income(each_memb), 8, 18, 39
+				EMReadScreen stat_unea_two_prosp_monthly_gross_income(each_memb), 8, 18, 68
+
+				stat_unea_two_retro_monthly_gross_income(each_memb) = trim(stat_unea_two_retro_monthly_gross_income(each_memb))
+				stat_unea_two_prosp_monthly_gross_income(each_memb) = trim(stat_unea_two_prosp_monthly_gross_income(each_memb))
+
+				If stat_unea_two_retro_monthly_gross_income(each_memb) = "" Then stat_unea_two_retro_monthly_gross_income(each_memb) = "0.00"
+				If stat_unea_two_prosp_monthly_gross_income(each_memb) = "" Then stat_unea_two_prosp_monthly_gross_income(each_memb) = "0.00"
+
+				stat_unea_two_counted_for_mfip(each_memb) = stat_unea_two_counted_for_snap(each_memb)
 
 				Call write_value_and_transmit("X", 10, 26)
 				EMReadScreen stat_unea_two_snap_pic_pay_freq(each_memb), 1, 5, 64
@@ -10941,6 +11306,17 @@ class stat_detail
 				stat_unea_three_inc_end_date(each_memb) = replace(stat_unea_three_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_three_inc_end_date(each_memb) = "__/__/__" Then stat_unea_three_inc_end_date(each_memb) = ""
 
+				EMReadScreen stat_unea_three_retro_monthly_gross_income(each_memb), 8, 18, 39
+				EMReadScreen stat_unea_three_prosp_monthly_gross_income(each_memb), 8, 18, 68
+
+				stat_unea_three_retro_monthly_gross_income(each_memb) = trim(stat_unea_three_retro_monthly_gross_income(each_memb))
+				stat_unea_three_prosp_monthly_gross_income(each_memb) = trim(stat_unea_three_prosp_monthly_gross_income(each_memb))
+
+				If stat_unea_three_retro_monthly_gross_income(each_memb) = "" Then stat_unea_three_retro_monthly_gross_income(each_memb) = "0.00"
+				If stat_unea_three_prosp_monthly_gross_income(each_memb) = "" Then stat_unea_three_prosp_monthly_gross_income(each_memb) = "0.00"
+
+				stat_unea_three_counted_for_mfip(each_memb) = stat_unea_three_counted_for_snap(each_memb)
+
 				Call write_value_and_transmit("X", 10, 26)
 				EMReadScreen stat_unea_three_snap_pic_pay_freq(each_memb), 1, 5, 64
 				EMReadScreen stat_unea_three_snap_pic_ave_inc_per_pay(each_memb), 10, 17, 52
@@ -11023,6 +11399,17 @@ class stat_detail
 				stat_unea_four_inc_end_date(each_memb) = replace(stat_unea_four_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_four_inc_end_date(each_memb) = "__/__/__" Then stat_unea_four_inc_end_date(each_memb) = ""
 
+				EMReadScreen stat_unea_four_retro_monthly_gross_income(each_memb), 8, 18, 39
+				EMReadScreen stat_unea_four_prosp_monthly_gross_income(each_memb), 8, 18, 68
+
+				stat_unea_four_retro_monthly_gross_income(each_memb) = trim(stat_unea_four_retro_monthly_gross_income(each_memb))
+				stat_unea_four_prosp_monthly_gross_income(each_memb) = trim(stat_unea_four_prosp_monthly_gross_income(each_memb))
+
+				If stat_unea_four_retro_monthly_gross_income(each_memb) = "" Then stat_unea_four_retro_monthly_gross_income(each_memb) = "0.00"
+				If stat_unea_four_prosp_monthly_gross_income(each_memb) = "" Then stat_unea_four_prosp_monthly_gross_income(each_memb) = "0.00"
+
+				stat_unea_four_counted_for_mfip(each_memb) = stat_unea_four_counted_for_snap(each_memb)
+
 				Call write_value_and_transmit("X", 10, 26)
 				EMReadScreen stat_unea_four_snap_pic_pay_freq(each_memb), 1, 5, 64
 				EMReadScreen stat_unea_four_snap_pic_ave_inc_per_pay(each_memb), 10, 17, 52
@@ -11104,6 +11491,17 @@ class stat_detail
 				stat_unea_five_inc_start_date(each_memb) = replace(stat_unea_five_inc_start_date(each_memb), " ", "/")
 				stat_unea_five_inc_end_date(each_memb) = replace(stat_unea_five_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_five_inc_end_date(each_memb) = "__/__/__" Then stat_unea_five_inc_end_date(each_memb) = ""
+
+				EMReadScreen stat_unea_five_retro_monthly_gross_income(each_memb), 8, 18, 39
+				EMReadScreen stat_unea_five_prosp_monthly_gross_income(each_memb), 8, 18, 68
+
+				stat_unea_five_retro_monthly_gross_income(each_memb) = trim(stat_unea_five_retro_monthly_gross_income(each_memb))
+				stat_unea_five_prosp_monthly_gross_income(each_memb) = trim(stat_unea_five_prosp_monthly_gross_income(each_memb))
+
+				If stat_unea_five_retro_monthly_gross_income(each_memb) = "" Then stat_unea_five_retro_monthly_gross_income(each_memb) = "0.00"
+				If stat_unea_five_prosp_monthly_gross_income(each_memb) = "" Then stat_unea_five_prosp_monthly_gross_income(each_memb) = "0.00"
+
+				stat_unea_five_counted_for_mfip(each_memb) = stat_unea_five_counted_for_snap(each_memb)
 
 				Call write_value_and_transmit("X", 10, 26)
 				EMReadScreen stat_unea_five_snap_pic_pay_freq(each_memb), 1, 5, 64
@@ -12215,8 +12613,7 @@ ReDim STAT_INFORMATION(0)
 '===========================================================================================================================
 EMConnect ""
 Call check_for_MAXIS(True)
-testing_run = True
-If user_ID_for_validation = "AMST002" Then testing_run = False
+
 end_msg_info = ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -12356,9 +12753,6 @@ For each footer_month in MONTHS_ARRAY
 	' EMReadScreen numb_IVE_versions, 		1, 15, 40
 	' EMReadScreen numb_EMER_versions, 		1, 16, 40		- WE WILL NOT LOOK AT THIS EVERY MONTH
 	EMReadScreen numb_SNAP_versions, 		1, 17, 40
-
-	' MsgBox "numb_SNAP_versions - " & numb_SNAP_versions
-	'TODO MAKE THIS READ THE DATE AND COMPARE TO TODAY
 
 	If numb_DWP_versions <> " " Then
 		ReDim Preserve DWP_ELIG_APPROVALS(dwp_elig_months_count)
@@ -12618,7 +13012,6 @@ For each footer_month in MONTHS_ARRAY
 
 						End If
 					End if
-
 					If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
 						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_retro_monthly_gross_wage(each_stat_memb)
 						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
@@ -12627,7 +13020,92 @@ For each footer_month in MONTHS_ARRAY
 						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
 						STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) = the_gross_amount
 						STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb) = the_counted_amount
-						' MsgBox "STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) - " & STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) & vbCr & "STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb) - " & STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb)
+					End If
+					If STAT_INFORMATION(month_count).stat_jobs_two_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_retro_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_prosp_monthly_gross_wage(each_stat_memb)
+
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_two_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_two_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_jobs_three_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_retro_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_prosp_monthly_gross_wage(each_stat_memb)
+
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_three_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_three_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_jobs_four_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_retro_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_prosp_monthly_gross_wage(each_stat_memb)
+
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_four_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_four_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_jobs_five_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_retro_monthly_gross_wage(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_prosp_monthly_gross_wage(each_stat_memb)
+
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_five_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_five_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+
+
+					If STAT_INFORMATION(month_count).stat_busi_one_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_busi_one_cash_retro_net_inc(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_busi_one_cash_prosp_net_inc(each_stat_memb)
+
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_busi_one_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_busi_one_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_busi_two_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_busi_two_cash_retro_net_inc(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_busi_two_cash_prosp_net_inc(each_stat_memb)
+
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_busi_two_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_busi_two_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_busi_three_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then the_gross_amount = STAT_INFORMATION(month_count).stat_busi_three_cash_retro_net_inc(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then the_gross_amount = STAT_INFORMATION(month_count).stat_busi_three_cash_prosp_net_inc(each_stat_memb)
+
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_busi_three_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_busi_three_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+
+					If STAT_INFORMATION(month_count).stat_unea_one_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then STAT_INFORMATION(month_count).stat_unea_one_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_one_retro_monthly_gross_income(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then STAT_INFORMATION(month_count).stat_unea_one_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_one_prosp_monthly_gross_income(each_stat_memb)
+					End If
+					If STAT_INFORMATION(month_count).stat_unea_two_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then STAT_INFORMATION(month_count).stat_unea_two_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_two_retro_monthly_gross_income(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then STAT_INFORMATION(month_count).stat_unea_two_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_two_prosp_monthly_gross_income(each_stat_memb)
+					End If
+					If STAT_INFORMATION(month_count).stat_unea_three_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then STAT_INFORMATION(month_count).stat_unea_three_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_three_retro_monthly_gross_income(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then STAT_INFORMATION(month_count).stat_unea_three_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_three_prosp_monthly_gross_income(each_stat_memb)
+					End If
+					If STAT_INFORMATION(month_count).stat_unea_four_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then STAT_INFORMATION(month_count).stat_unea_four_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_four_retro_monthly_gross_income(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then STAT_INFORMATION(month_count).stat_unea_four_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_four_prosp_monthly_gross_income(each_stat_memb)
+					End If
+					If STAT_INFORMATION(month_count).stat_unea_five_exists(each_stat_memb) = True Then
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "RETRO" Then STAT_INFORMATION(month_count).stat_unea_five_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_five_retro_monthly_gross_income(each_stat_memb)
+						If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle = "PROSP" Then STAT_INFORMATION(month_count).stat_unea_five_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_five_prosp_monthly_gross_income(each_stat_memb)
 					End If
 				Next
 			Next
@@ -12927,13 +13405,13 @@ If first_SNAP_approval <> "" Then enter_CNOTE_for_SNAP = True
 If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' MsgBox "first_MFIP_approval - " & first_MFIP_approval & vbCr & "enter_CNOTE_for_MFIP - " & enter_CNOTE_for_MFIP
 
-enter_CNOTE_for_MFIP = False
+If enter_CNOTE_for_MFIP = True Then testing_run = True
 
-deductions_detail_btn 	= 10
-hh_comp_detail			= 20
-shel_exp_detail_btn		= 30
-unique_approval_explain_btn	= 40
-nav_stat_elig_btn		= 50
+deductions_detail_btn 	= 10010
+hh_comp_detail			= 10020
+shel_exp_detail_btn		= 10030
+unique_approval_explain_btn	= 10040
+nav_stat_elig_btn		= 10050
 
 app_confirmed_btn		= 100
 next_approval_btn		= 110
@@ -12967,7 +13445,178 @@ ReDim MFIP_UNIQUE_APPROVALS(approval_confirmed, 0)
 Dim SNAP_UNIQUE_APPROVALS()
 ReDim SNAP_UNIQUE_APPROVALS(approval_confirmed, 0)
 
-'TODO - Add functionality to review CASE/NOTES for approvals that have been noted TODAY so that we don't double up on NOTES
+approval_note_found_for_DWP = False
+approval_note_found_for_MFIP = False
+approval_note_found_for_MSA = False
+approval_note_found_for_GA = False
+approval_note_found_for_DENY = False
+approval_note_found_for_GRH = False
+approval_note_found_for_SNAP = False
+approval_note_found_for_HC = False
+approval_note_found = False
+
+Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
+too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
+
+note_row = 5
+Do
+	EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+
+	EMReadScreen note_title, 55, note_row, 25               'reading the note header
+	note_title = trim(note_title)
+	if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
+
+	note_date = DateAdd("d", 0, note_date)
+	If left(note_title, 11) = "APPROVAL - " and DateDiff("d", date, note_date) = 0 Then
+		' approval_note_found = True
+
+		' If InStr(note_title, "DWP") <> 0 Then approval_note_found_for_DWP = True
+		If InStr(note_title, "MFIP") <> 0 Then approval_note_found_for_MFIP = True
+		' If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
+		' If InStr(note_title, "GA") <> 0 Then approval_note_found_for_GA = True
+		' If InStr(note_title, "DENY") <> 0 Then approval_note_found_for_DENY = True
+		' If InStr(note_title, "GRH") <> 0 Then approval_note_found_for_GRH = True
+		If InStr(note_title, "SNAP") <> 0 Then approval_note_found_for_SNAP = True
+		' If InStr(note_title, "HC") <> 0 Then approval_note_found_for_HC = True
+
+		If approval_note_found_for_MFIP = True Then approval_note_found = True
+		If approval_note_found_for_SNAP = True Then approval_note_found = True
+
+	End If
+
+
+	note_row = note_row + 1
+	if note_row = 19 then
+		note_row = 5
+		PF8
+		EMReadScreen check_for_last_page, 9, 24, 14
+		If check_for_last_page = "LAST PAGE" Then Exit Do
+	End If
+	EMReadScreen next_note_date, 8, note_row, 6
+	if next_note_date = "        " then Exit Do
+Loop until DateDiff("d", date, next_note_date) <= 0
+
+If approval_note_found = True Then
+	dlg_len = 45
+	If approval_note_found_for_DWP = True Then dlg_len = dlg_len + 20
+	If approval_note_found_for_MFIP = True Then dlg_len = dlg_len + 20
+	If approval_note_found_for_MSA = True Then dlg_len = dlg_len + 20
+	If approval_note_found_for_GA = True Then dlg_len = dlg_len + 20
+	If approval_note_found_for_DENY = True Then dlg_len = dlg_len + 20
+	If approval_note_found_for_GRH = True Then dlg_len = dlg_len + 20
+	If approval_note_found_for_SNAP = True Then dlg_len = dlg_len + 20
+	If approval_note_found_for_HC = True Then dlg_len = dlg_len + 20
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 536, dlg_len, "APPROVAL CASE/NOTE found for Today"
+	  Text 10, 10, 385, 10, "APPROVAL CASE/NOTEs from today have been found. Determine if a new CASE/NOTE is needed for the program(s)."
+	  y_pos = 25
+	  If approval_note_found_for_DWP = True Then
+		  Text 20, y_pos+5, 305, 10, "DWP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DWP
+		  y_pos = y_pos + 20
+	  End If
+	  If approval_note_found_for_MFIP = True Then
+		  Text 20, y_pos+5, 305, 10, "MFIP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFIP
+		  y_pos = y_pos + 20
+	  End If
+	  If approval_note_found_for_MSA = True Then
+		  Text 20, y_pos+5, 305, 10, "MSA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MSA
+		  y_pos = y_pos + 20
+	  End If
+	  If approval_note_found_for_GA = True Then
+		  Text 20, y_pos+5, 305, 10, "GA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GA
+		  y_pos = y_pos + 20
+	  End If
+	  If approval_note_found_for_DENY = True Then
+		  Text 20, y_pos+5, 305, 10, "Cash DENY Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DENY
+		  y_pos = y_pos + 20
+	  End If
+	  If approval_note_found_for_GRH = True Then
+		  Text 20, y_pos+5, 305, 10, "GRH Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GRH
+		  y_pos = y_pos + 20
+	  End If
+	  If approval_note_found_for_SNAP = True Then
+		  Text 20, y_pos+5, 305, 10, "SNAP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_SNAP
+		  y_pos = y_pos + 20
+	  End If
+	  If approval_note_found_for_HC = True Then
+		  Text 20, y_pos+5, 305, 10, "HC Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_HC
+		  y_pos = y_pos + 20
+	  End If
+	  ButtonGroup ButtonPressed
+		OkButton 425, y_pos, 50, 15
+		CancelButton 480, y_pos, 50, 15
+	EndDialog
+
+	Do
+
+		dialog Dialog1
+		cancel_confirmation
+
+		err_msg = ""
+
+		If approval_note_found_for_DWP = True and add_new_note_for_DWP = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for DWP Eligibility should be Reviewed and Entered into MAXIS."
+		If approval_note_found_for_MFIP = True and add_new_note_for_MFIP = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for MFIP Eligibility should be Reviewed and Entered into MAXIS."
+		If approval_note_found_for_MSA = True and add_new_note_for_MSA = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for MSA Eligibility should be Reviewed and Entered into MAXIS."
+		If approval_note_found_for_GA = True and add_new_note_for_GA = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for GA Eligibility should be Reviewed and Entered into MAXIS."
+		If approval_note_found_for_DENY = True and add_new_note_for_DENY = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for Cash DENY Eligibility should be Reviewed and Entered into MAXIS."
+		If approval_note_found_for_GRH = True and add_new_note_for_GRH = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for GRH Eligibility should be Reviewed and Entered into MAXIS."
+		If approval_note_found_for_SNAP = True and add_new_note_for_SNAP = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for SNAP Eligibility should be Reviewed and Entered into MAXIS."
+		If approval_note_found_for_HC = True and add_new_note_for_HC = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for HC Eligibility should be Reviewed and Entered into MAXIS."
+
+		If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbCr & "Please resolve to continue:" & vbCr & err_msg
+	Loop until err_msg = ""
+
+	If add_new_note_for_DWP = "No - Eligibility is the same - No NOTE Needed" Then
+		enter_CNOTE_for_DWP = False
+		end_msg_info = end_msg_info & vbCr & "DWP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+	End If
+	If add_new_note_for_DWP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for DWP, it was requested to enter a new note about eligibility for DWP."
+	If add_new_note_for_MFIP = "No - Eligibility is the same - No NOTE Needed" Then
+		enter_CNOTE_for_MFIP = False
+		end_msg_info = end_msg_info & vbCr & "MFIP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+	End If
+	If add_new_note_for_MFIP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for MFIP, it was requested to enter a new note about eligibility for MFIP."
+	If add_new_note_for_MSA = "No - Eligibility is the same - No NOTE Needed" Then
+		enter_CNOTE_for_MSA = False
+		end_msg_info = end_msg_info & vbCr & "MSA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+	End If
+	If add_new_note_for_MSA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for MSA, it was requested to enter a new note about eligibility for MSA."
+	If add_new_note_for_GA = "No - Eligibility is the same - No NOTE Needed" Then
+		enter_CNOTE_for_GA = False
+		end_msg_info = end_msg_info & vbCr & "GA had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+	End If
+	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for GA, it was requested to enter a new note about eligibility for GA."
+	If add_new_note_for_DENY = "No - Eligibility is the same - No NOTE Needed" Then
+		enter_CNOTE_for_NDY = False
+		end_msg_info = end_msg_info & vbCr & "Cash DENY had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+	End If
+	If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for Cash DENY, it was requested to enter a new note about eligibility for Cash DENY."
+	If add_new_note_for_GRH = "No - Eligibility is the same - No NOTE Needed" Then
+		enter_CNOTE_for_GRH = False
+		end_msg_info = end_msg_info & vbCr & "GRH had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+	End If
+	If add_new_note_for_GRH = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for GRH, it was requested to enter a new note about eligibility for GRH."
+	If add_new_note_for_SNAP = "No - Eligibility is the same - No NOTE Needed" Then
+		enter_CNOTE_for_SNAP = False
+		end_msg_info = end_msg_info & vbCr & "SNAP had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+	End If
+	If add_new_note_for_SNAP = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for SNAP, it was requested to enter a new note about eligibility for SNAP."
+	If add_new_note_for_HC = "No - Eligibility is the same - No NOTE Needed" Then
+		enter_CNOTE_for_HC = False
+		end_msg_info = end_msg_info & vbCr & "HC had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+	End If
+	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for HC, it was requested to enter a new note about eligibility for HC."
+
+End If
 
 'Determining MFIP unique approvals
 If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval from today was found
@@ -13001,7 +13650,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 
 				MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year
 				MFIP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year
-				MFIP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 500 + unique_app_count
+				MFIP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
 				MFIP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 				MFIP_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
 				MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
@@ -13047,7 +13696,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 
 					MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year
 					MFIP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year
-					MFIP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 500 + unique_app_count
+					MFIP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
 					MFIP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 					MFIP_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
 					MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
@@ -13087,14 +13736,198 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 		Next
 
+		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "INELIGIBLE" Then
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_appl_withdraw = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_asset = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_death_applicant = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_dupl_assist = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_elig_child = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_coop = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			' If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_minor_liv_arrange = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			' If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_post_60_disq = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_residence = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_sanction_limit = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_strike = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_TANF_time_limit = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_transfer_asset = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_275_new_spouse_income = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc = "FAILED" Then MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+		End If
+
+		show_pact = False
+		If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_one_prog = "MF" and STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "3" Then show_pact = True
+		If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_two_prog = "MF" and STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "3" Then show_pact = True
+		MFIP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = False
+		If show_pact = True Then MFIP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True
+		MFIP_UNIQUE_APPROVALS(pact_wcom_sent, approval_selected) = False
+
+		MFIP_UNIQUE_APPROVALS(wcom_needed, approval_selected) = False
+		If MFIP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True Then MFIP_UNIQUE_APPROVALS(wcom_needed, approval_selected) = True
+
+		ei_count = 0
+		unea_count = 0
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		  If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
+
+		  If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_snap(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		  If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_snap(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		  If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_snap(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		  If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_snap(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		  If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_snap(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		Next
+		ei_len = ei_count * 20
+		unea_len = unea_count * 10
+		income_box_len = 30 + unea_len
+		If ei_len > unea_len Then income_box_len = 30 + ei_len
+
 		BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Approval Packages"
 		  GroupBox 460, 10, 85, 165, "MFIP Approvals"
 		  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
+		  If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+
+			  GroupBox 5, 10, 285, 65, "Approval Detail"
+			  Text 15, 20, 150, 10, "Monthly Need . . . . . . . . . .  $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_need
+	  	  	  Text 15, 30, 150, 10, "Unearned Income . . . . . . . . .  $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income & "  ( - )"
+	  	  	  Text 15, 40, 150, 10, "Deemed Income . . . . . . . . . .  $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deemed_income & "  ( - )"
+	  	  	  Text 15, 50, 150, 10, "Child Support Exclusion . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_cses_exclusion & "  ( + )"
+	  	  	  Text 15, 60, 150, 10, "Unmet Need . . . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need
+
+			  Text 205, 20, 80, 10, " Result:   " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result
+			  Text 165, 30, 120, 40, "Months in Approval: " & replace(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
+
+			  ' GroupBox 5, 75, 285,  55, "Cash Amount Calculation"
+	  	  	  ' Text 15, 85, 150, 10, "Cash Portion . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_cash_portion
+	  	  	  ' Text 15, 95, 150, 10, "Subsidy Reduction . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deduction_subsidy_tribal_cses & "  ( - )"
+	  	  	  ' Text 15, 105, 150, 10, "Sanction . . . . . . . . . . . . $ " ''& MFIP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot & "  ( - )"
+			  ' Text 15, 115, 150, 10, "Cash Issuance . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_cash_after_sanc_portion
+			  '
+	  	  	  ' ' Text 15, 95, 130, 25, "Monthly SNAP Allotment calculated by subtracting 30% of the adjusted net income from the Thrifty Food Plan"
+			  ' GroupBox 5, 130, 285,  40, "Food Amount Calculation"
+			  ' Text 15, 140, 150, 10, "Food Portion . . . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_food_portion
+			  ' Text 15, 150, 150, 10, "Food Portion Deduction . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_food_portion_deduction & "  ( - )"
+			  ' ' Text 15, 150, 150, 10, "Sanction . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind). & "  ( - )"
+			  ' Text 15, 160, 150, 10, "Food Issuance . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_fed_food_benefit
+			  '
+			  ' Text 15, 180, 150, 10, "Housing Grant Issuance . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_entitlement_housing_grant
+
+			  GroupBox 5, 75, 140,  55, "Cash Amount Calculation"
+	  	  	  Text 15, 85, 125, 10, "Cash Portion . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_cash_portion
+	  	  	  Text 15, 95, 125, 10, "Subsidy Reduction . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deduction_subsidy_tribal_cses & "  ( - )"
+	  	  	  Text 15, 105, 125, 10, "Sanction . . . . . . . . . . . . $ " ''& MFIP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot & "  ( - )"
+			  Text 15, 115, 125, 10, "Cash Issuance . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_cash_after_sanc_portion
+
+	  	  	  ' Text 15, 95, 130, 25, "Monthly SNAP Allotment calculated by subtracting 30% of the adjusted net income from the Thrifty Food Plan"
+			  GroupBox 150, 75, 140,  55, "Food Amount Calculation"
+			  Text 160, 85, 125, 10, "Food Portion . . . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_food_portion
+			  Text 160, 95, 125, 10, "Food Portion Deduction . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_food_portion_deduction & "  ( - )"
+			  ' Text 160, 95, 125, 10, "Sanction . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind). & "  ( - )"
+			  Text 160, 105, 125, 10, "Food Issuance . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_fed_food_benefit
+
+			  ' Text 8, 133, 150, 10, "Housing Grant Issuance . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_entitlement_housing_grant
+
+
+	  	  	  ' Text 165, 40, 120, 10, " Benefit Entitlement:   $ " & MFIP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot
+	  	  	  ' Text 165, 60, 115, 10, "Max Gross Inc . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc
+	  	  	  ' Text 170, 70, 110, 10, "Gross Income Test . . . " & MFIP_ELIG_APPROVALS(elig_ind).snap_case_prosp_gross_inc_test
+	  	  	  ' Text 165, 80, 115, 10, "Max Net Inc . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc
+	  	  	  ' Text 170, 90, 110, 10, "Net Income Test . . . . . " & MFIP_ELIG_APPROVALS(elig_ind).snap_case_prosp_net_inc_test
+
+	  	  	  GroupBox 300, 10, 150, 85, "Determining Monthly Need"
+	  	  	  Text 305, 20, 130, 10, "Family Wage Level . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_family_wage_level
+	  	  	  Text 305, 30, 130, 10, "Earned Incomme . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_earned_income & "  ( - )"
+	  	  	  Text 305, 40, 130, 10, "Difference . . . . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_wage_level_earned_inc_difference
+	  	  	  Text 305, 50, 130, 10, "Transitional Standard . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_transitional_standard
+			  Text 305, 62, 140, 15, "Montly Need is the smaller of the Transitional standard and the Difference."
+			  Text 305, 80, 130, 10, "Monthly Need . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_need
+
+	  	  	  ' GroupBox 300, 95, 150, 80, "Allowable Shelter Cost Calculation"
+	  	  	  ' Text 305, 110, 145, 10, "Total Shelter Costs . . . . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).snap_budg_shel_total
+	  	  	  ' Text 305, 120, 145, 10, "Half of Net Income . . . . . . . . .$ " & MFIP_ELIG_APPROVALS(elig_ind).snap_budg_50_perc_net_inc & "  ( - )"
+	  	  	  ' Text 305, 130, 145, 10, "Adjusted Shelter Costs . . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).snap_budg_adj_shel_costs
+	  	  	  ' Text 305, 140, 90, 20, "This case has a maximum shelter cost of $ " & MFIP_ELIG_APPROVALS(elig_ind).snap_budg_max_allow_shel
+	  	  	  ' Text 305, 160, 145, 10, "Allowed Shelter Expense . . . . $ " & MFIP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses
+			  GroupBox 300, 95, 150, 35,	"Household Composition"
+			  Text 310, 105, 100, 10, "Caregivers: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_asst_unit_caregivers
+			  Text 310, 115, 100, 10, "Children: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_asst_unit_children
+
+		  Else
+		    GroupBox 5, 10, 450, 90, "Approval Detail"
+			Text 15, 20, 80, 10, " Result:   " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result
+			Text 15, 30, 120, 40, "Months in Approval: " & replace(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
+
+			Text 15, 45, 110, 10, "APPL Withdrawn:    " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_appl_withdraw
+			Text 15, 55, 110, 10, "Asset:                      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_asset
+			Text 15, 65, 110, 10, "Death of Applicant: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_death_applicant
+			Text 15, 75, 110, 10, "Duplicate Assist:     " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_dupl_assist
+			Text 15, 85, 110, 10, "Eligible Child:          " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_elig_child
+
+			Text 125, 45, 110, 10, "Fail Cooperation:      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_coop
+			Text 125, 55, 110, 10, "Fail to File:               " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file
+			Text 125, 65, 110, 10, "Initial Income:          " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income
+			Text 125, 75, 110, 10, "Minor Lvg Arrang.:   " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_minor_liv_arrange
+			Text 125, 85, 110, 10, "Monthly Income:      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income
+
+			Text 235, 45, 110, 10, "Post 60 DISQ:     " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_post_60_disq
+			Text 235, 55, 110, 10, "Residence:          " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_residence
+			Text 235, 65, 110, 10, "Sanction Limit:     " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_sanction_limit
+			Text 235, 75, 110, 10, "Strike:                  " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_strike
+			Text 235, 85, 110, 10, "TANF Time Limit: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_TANF_time_limit
+
+			Text 345, 45, 100, 10, "Asset Transfer:     " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_transfer_asset
+			Text 345, 55, 100, 10, "Verification:          " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif
+			Text 345, 65, 100, 10, "New Spouse Income: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_275_new_spouse_income
+			Text 345, 75, 100, 10, "Fail QC Coop:       " & MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc
+			' Text 345, 85, 100, 10, "Work Registration: " & MFIP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test
+
+			GroupBox 5, 105, 450, 60, "Ineligible Details"
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" or (MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_coop = "FAILED" and STAT_INFORMATION(month_ind).stat_pact_exists = True) Then
+				Text 15, 120, 165, 10, "What is the date the verification request was sent? "
+				Editbox 180, 115, 50, 15, MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+				Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
+
+				If show_pact = True Then
+					Text 15, 140, 120, 10, "List PACT reason(s) for ineligibility: "
+					Editbox 130, 135, 310, 15, MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
+					Text 130, 150, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
+				End If
+
+			Else
+				Text 15, 125, 300, 10, "This case is ineligible becaues it hasn't met the requirements for MFIP Eligibility. The case tests above show what requirements have not been met."
+		    End if
+
+		  End if
+
 		  ButtonGroup ButtonPressed
 		    If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 115, 50, 10, "View ELIG", nav_stat_elig_btn
-			If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 165, 100, 50, 10, "View ELIG", nav_stat_elig_btn
+			If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 235, 60, 50, 10, "View ELIG", nav_stat_elig_btn
 			' If mfip_approval_is_incorrect = True Then
 			' 	PushButton 440, 365, 110, 15, "Cancel Approval Noting", app_incorrect_btn
 			' ElseIf approval_selected = UBound(MFIP_UNIQUE_APPROVALS, 2) or mfip_approval_is_incorrect = True Then
@@ -13104,11 +13937,11 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 			' End If
 			PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
 
-			If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 360, 20, 85, 10, "Deductions Detail", deductions_detail_btn
-			PushButton 200, 160, 70, 10, "HH COMP Detail", hh_comp_detail
-			PushButton 360, 190, 85, 10, "Shelter Expense Detail", shel_exp_detail_btn
+			' If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 360, 20, 85, 10, "Deductions Detail", deductions_detail_btn
+			' PushButton 200, 160, 70, 10, "HH COMP Detail", hh_comp_detail
+			' PushButton 360, 190, 85, 10, "Shelter Expense Detail", shel_exp_detail_btn
 			y_pos = 25
-			display_detail = ""
+			' display_detail = ""
 			for each_app = 0 to UBound(MFIP_UNIQUE_APPROVALS, 2)
 				If MFIP_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
 					month_display = MFIP_UNIQUE_APPROVALS(first_mo_const, each_app)
@@ -13117,7 +13950,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				Else
 					month_display = MFIP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - " & MFIP_UNIQUE_APPROVALS(last_mo_const, each_app)
 				End if
-				If each_app = approval_selected Then display_detail = month_display
+				' If each_app = approval_selected Then display_detail = month_display
 				If each_app = approval_selected Then
 					Text 470, y_pos+2, 75, 13, month_display
 				Else
@@ -13127,12 +13960,260 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 			next
 			PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
 
+
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
+				' GroupBox 300, 110, 150, 35, "MFIP Benefits Issued for the Approval Package"
+				GroupBox 5, 135, 445, 65, "MFIP Benefits Issued for the Approval Package"
+				app_y_pos = 150
+				app_x_pos = 10
+				For approval = 0 to UBound(MFIP_ELIG_APPROVALS)
+					If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, approval_selected), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+						Text app_x_pos, app_y_pos, 200, 10, MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount
+						Text app_x_pos, app_y_pos+10, 200, 10, "            Cash: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion & " Food: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion & " HG: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant
+						app_y_pos = app_y_pos + 20
+						If app_y_pos = 190 Then
+							app_y_pos = 150
+							app_x_pos = app_x_pos + 220
+						End If
+					End If
+				Next
+		    Else
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Intial Income Limit of " &  MFIP_ELIG_APPROVALS(approval).mfip_case_budg_family_wage_level & " (which is the same as the Family Wage Level)."
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MFIP Standard and no benefit to be issued."
+			End If
+
+			' GroupBox 5, 200, 285, 25, "Household Composition"
+
+
+			GroupBox 5, 205, 540, income_box_len, "Income"
+
+			Text 10, 215, 155, 10, "Total GROSS EARNED Income:   $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_earned_income
+	  	    Text 300, 215, 155, 10, "Total GROSS UNEARNED Income:   $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income
+
+			y_pos = 230
+	  	    y_pos_2 = 230
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+		  		    If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+		  		    If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+		  		    If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+		  		    If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+		  		    If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
+				End If
+
+				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
+					' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) &
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "RETRO" Then Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_retro_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_retro_expenses(each_memb)
+						If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "PROSP" Then Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
+					' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) &
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "RETRO" Then Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_retro_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_retro_expenses(each_memb)
+						If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "PROSP" Then Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
+					End If
+					y_pos = y_pos + 20
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
+					' Text 15, y_pos, 215, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) &
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "RETRO" Then Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_retro_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_retro_expenses(each_memb)
+						If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "PROSP" Then Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
+					End If
+					y_pos = y_pos + 20
+				End If
+
+				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
+					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
+					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
+					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
+					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
+					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
+				End If
+
+			Next
+
 		EndDialog
 
 		dialog Dialog1
 		cancel_confirmation
 
-		all_mfip_approvals_confirmed = True
+		err_msg = ""
+
+
+		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" and MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
+			If Isdate(MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
+			Else
+				If DateDiff("d", MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+					If expedited_package_approved = False Then
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+						MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+					End If
+				End If
+			End If
+		End If
+
+		If show_pact = True Then
+			If trim(MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" Then
+				err_msg = err_msg & vbNewLine & "* Since PACT was used to approve this MFIP benefit as ineligible, list the reasons for ineligibility."
+			ElseIf len(MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 30 Then
+				err_msg = err_msg & vbNewLine & "* MFIP ineligibility due to PACT requires sufficient explaination, expand upon the information entered in the Reason for Ineligibility field."
+			End If
+			If trim(MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" or len(MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 15 Then err_msg = err_msg & vbNewLine & " *** This information will be entered in a WCOM and should be writen without appreviations and in full detail."
+
+		End If
+
+
+		If err_msg <> "" and ButtonPressed < 10000 Then
+			MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+			If ButtonPressed = app_confirmed_btn Then ButtonPressed = -1
+		End If
+
+		If ButtonPressed = nav_stat_elig_btn Then
+			ft_mo = left(first_month, 2)
+			ft_yr = right(first_month, 2)
+			Call back_to_SELF
+			call navigate_to_MAXIS_screen("ELIG", "MFIP")
+			EMWriteScreen ft_mo, 20, 55
+			EMWriteScreen ft_yr, 20, 58
+			Call find_last_approved_ELIG_version(20, 79, vrs_numb, vrs_dt, vrs_rslt, approval_found)
+			' transmit
+		End If
+
+		If err_msg = "" Then
+
+			all_mfip_approvals_confirmed = True
+			mfip_approval_is_incorrect = False
+
+			If MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+				MFIP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
+				MFIP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
+			ElseIf MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+				MFIP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
+				MFIP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
+			End If
+
+			If ButtonPressed = -1 Then
+				If approval_selected = UBound(MFIP_UNIQUE_APPROVALS, 2) Then
+					ButtonPressed = app_confirmed_btn
+				ElseIf mfip_approval_is_incorrect = True Then
+					ButtonPressed = app_incorrect_btn
+				Else
+					ButtonPressed = next_approval_btn
+				End If
+			End If
+
+			not_confirmed_pckg_list = ""
+			first_unconfirmmed_month = ""
+			for each_app = 0 to UBound(MFIP_UNIQUE_APPROVALS, 2)
+				If ButtonPressed = MFIP_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
+				If MFIP_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
+					all_mfip_approvals_confirmed = False
+					not_confirmed_pckg_list = not_confirmed_pckg_list & replace(MFIP_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
+					If first_unconfirmmed_month = "" Then first_unconfirmmed_month = each_app
+				End If
+				If MFIP_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then mfip_approval_is_incorrect = True
+			Next
+
+			If ButtonPressed = next_approval_btn Then
+				approval_selected = approval_selected + 1
+				If approval_selected > UBound(MFIP_UNIQUE_APPROVALS, 2) Then
+					If all_mfip_approvals_confirmed = True Then
+						ButtonPressed = app_confirmed_btn
+					Else
+						approval_selected = UBound(MFIP_UNIQUE_APPROVALS, 2)
+					End If
+				End If
+			End If
+		End If
+		If ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = False Then
+			MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
+			approval_selected = first_unconfirmmed_month
+		End If
 	Loop until (ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 
 	If mfip_approval_is_incorrect = True Then
@@ -13479,9 +14560,11 @@ If enter_CNOTE_for_MFIP = True Then
 			Else
 				header_end = " only"
 			End If
-			If MFIP_UNIQUE_APPROVALS(package_is_expedited_const, unique_app) = True Then program_detail = "- EXPEDITED SNAP"
+			' If MFIP_UNIQUE_APPROVALS(package_is_expedited_const, unique_app) = True Then program_detail = "- EXPEDITED SNAP"
 			elig_info = "ELIGIBLE"
 			one_month_is_elig = True
+		ElseIf MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "SUSPENDED" Then
+			elig_info = "SUSPENDED"
 		ElseIf MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "INELIGIBLE" Then
 			If mfip_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
 			If mfip_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
@@ -13489,7 +14572,64 @@ If enter_CNOTE_for_MFIP = True Then
 			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
 		End If
 		due_date = ""
-		If IsDate(MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = True Then due_date = DateAdd("d", 10, MFIP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+		If IsDate(MFIP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, MFIP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+
+		'This is the WCOM part
+		If MFIP_UNIQUE_APPROVALS(wcom_needed, unique_app) = True Then
+			ft_mo = left(first_month, 2)
+			ft_yr = right(first_month, 2)
+
+			Call navigate_to_MAXIS_screen("SPEC", "WCOM")
+			EMWriteScreen ft_mo, 03, 46
+			EMWriteScreen ft_yr, 03, 51
+			transmit
+
+			wcom_row = 7
+			Do
+				EMReadScreen notc_date, 8, wcom_row, 16
+				EMReadScreen notc_type, 2, wcom_row, 26
+				EMReadScreen notc_description, 30, wcom_row, 30
+				EMReadScreen notc_print_status, 8, wcom_row, 71
+
+				If notc_date <> "        " Then
+					notc_date = DateAdd("d", 0, notc_date)
+					notc_description = trim(notc_description)
+					notc_print_status = trim(notc_print_status)
+					If DateDiff("d", date, notc_date) = 0 AND notc_type = "MF" AND notc_description = "ELIG Approval Notice" AND notc_print_status = "Waiting" Then
+						Call write_value_and_transmit("X", wcom_row, 13)
+
+						PF9
+						EMReadScreen wcom_line, 60, 3, 15
+						If trim(wcom_line) = "" Then
+
+							If MFIP_UNIQUE_APPROVALS(pact_wcom_needed, unique_app) = True Then
+								If right(elig_info, 6) = "Denied" Then
+									' 60_days_from_app = ""
+									' If IsDate(STAT_INFORMATION(month_ind).stat_prog_snap_appl_date) = True Then 60_days_from_app = DateAdd("d", 60, STAT_INFORMATION(month_ind).stat_prog_snap_appl_date)
+									' "Your SNAP application has been denied because you did not provide: " & SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ".  This proof was needed by " & due_date & ".  If you need assistance getting this proof please contact us at the number listed on this notice by " & 60_days_from_app"." ''(This date will be 60 days after the application date).
+									CALL write_variable_in_SPEC_MEMO("Your MFIP application has been denied because you did not provide: " & MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ".  This proof was needed by " & due_date & ".  If you need assistance getting this proof please contact us at the number listed on this notice by " & DateAdd("d", 30, date) & ".") ''(This date will be 30 days from today).
+								End If
+
+								If right(elig_info, 6) = "Closed" Then
+									first_of_closure = ft_mo & "/1/" & ft_yr
+									first_of_closure = DateAdd("d", 0, first_of_closure)
+									end_of_closure_mo = DateAdd("m", 1, first_of_closure)
+									end_of_closure_mo = DateAdd("d", -1, end_of_closure_mo)
+									CALL write_variable_in_SPEC_MEMO("Your MFIP case will close because you did not provide: " & MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ".  This proof was needed by " & due_date & ".  If you need assistance getting this proof please contact us at the number listed on this notice by " & end_of_closure_mo & ".")  ''(Enter the last day of the month prior to the effective date of the closing)"
+								End If
+								MFIP_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True
+							End if
+
+							PF4
+							PF3
+						End If
+						Exit Do
+					End If
+				End if
+				wcom_row = wcom_row + 1
+			Loop until notc_date = "        "
+			Call back_to_SELF
+		End If
 
 
 		CASE_NOTE_entered = True
@@ -13498,6 +14638,7 @@ If enter_CNOTE_for_MFIP = True Then
 		end_msg_info = end_msg_info & "NOTE entered for MFIP - " & elig_info & " eff " & first_month & header_end & vbCr
 		Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 		Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MFIP_ELIG_APPROVALS(elig_ind).mfip_approved_date)
+		If add_new_note_for_MFIP = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "ELIGIBLE" Then
 			Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -13506,32 +14647,34 @@ If enter_CNOTE_for_MFIP = True Then
 				If InStr(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app), MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
 					' If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date = "" and MFIP_ELIG_APPROVALS(approval).mfip_case_budg_recoupment = "" Then
 					' MsgBox MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal & vbCr &  MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount & vbCr & MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant & vbCr & MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant
-					If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal = MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount and MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant = MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant Then
-						Call write_variable_in_CASE_NOTE(MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Entitlement: $ " & right("       " & replace(MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal, ".00", ""), 8) & " | Issuance-Cash: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion, ".00", "") & "     ", 5) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 5) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
-					Else
-						beginning_text = MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Entitlement: $ " & right("       " & replace(MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal, ".00", ""), 8)
-						If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date <> "" Then
-							Call write_variable_in_CASE_NOTE(beginning_text & " | Prorated from " & MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date)
-							beginning_text = "                             "
-						End If
-						If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_recoupment <> "0.00" Then
-							Call write_variable_in_CASE_NOTE(beginning_text & " | Recoupment: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_budg_recoupment)
-							beginning_text = "                             "
-						End If
-						Call write_variable_in_CASE_NOTE("                              | Issuance-Cash: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion, ".00", "") & "     ", 5) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 5) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
-						'TODO add ammount issued detail'
-						' If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued <> "0.00" Then
-						' If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_mand_sanc_vendor <> "0.00" Then
-						If MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+					' If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal = MFIP_ELIG_APPROVALS(approval).mfip_case_summary_net_grant_amount and MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant = MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant Then
+					' 	Call write_variable_in_CASE_NOTE(MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Entitlement: $ " & right("       " & replace(MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal, ".00", ""), 8) & " | Issuance-Cash: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion, ".00", "") & "     ", 5) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 5) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
+					' Else
+					beginning_text = MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year & " Entitlement: $ " & right("       " & replace(MFIP_ELIG_APPROVALS(approval).mfip_case_budg_unmet_neet_subtotal, ".00", ""), 8) & " "
+					If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date <> "" Then
+						Call write_variable_in_CASE_NOTE(beginning_text & "| Prorated from " & MFIP_ELIG_APPROVALS(approval).mfip_case_budg_prorate_date)
+						beginning_text = "                              "
 					End If
+					If MFIP_ELIG_APPROVALS(approval).mfip_case_budg_recoupment <> "0.00" Then
+						Call write_variable_in_CASE_NOTE(beginning_text & "| Recoupment: $ " & MFIP_ELIG_APPROVALS(approval).mfip_case_budg_recoupment)
+						beginning_text = "                              "
+					End If
+					Call write_variable_in_CASE_NOTE(beginning_text & "| Issuance-Cash: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_cash_portion, ".00", "") & "     ", 5) & "-Food: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_food_portion, ".00", "") & "     ", 5) & "-HG: $" & left(replace(MFIP_ELIG_APPROVALS(approval).mfip_case_summary_housing_grant, ".00", "") & "     ", 5))
+					If MFIP_ELIG_APPROVALS(approval).elig_footer_month & "/" & MFIP_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+					' End If
 				End If
 			Next
+			If MFIP_ELIG_APPROVALS(approval).mfip_fs_case_test_opt_out_cash = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP CASH PORTION")
+			If MFIP_ELIG_APPROVALS(approval).mfip_fs_case_test_opt_out_housing_grant = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP HOUSING GRANT PORTION")
 		End If
 
 
 
 		If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
 			Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Call write_variable_in_CASE_NOTE("MFIP INELIGIBLE because initial income exceeds Family Wage Level of " & trim(MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_family_wage_level))
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income = "FAILED" Then Call write_variable_in_CASE_NOTE("MFIP INELIGIBLE because income exceeds benefit standard.")
+
 			Call write_variable_in_CASE_NOTE("MFIP Assistance Unit: Caregivers: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_asst_unit_caregivers & ", Children: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_asst_unit_children)
 
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budget_cycle = "PROSP" Then Call write_variable_in_CASE_NOTE("    *** PROPSPECTIVE BUDGET ***     |------ MFIP BENEFIT CALCULATION --------")
@@ -13550,16 +14693,66 @@ If enter_CNOTE_for_MFIP = True Then
 					beginning_txt = "  "
 					earned_info = "|"
 				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
+					Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
+					beginning_txt = "            "
+					beginning_txt = "  "
+					earned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
+					Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
+					beginning_txt = "            "
+					beginning_txt = "  "
+					earned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
+					Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
+					beginning_txt = "            "
+					beginning_txt = "  "
+					earned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
+					Call write_variable_in_CASE_NOTE(left("        Count: $" & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & spaces_30, 36) & "|")
+					beginning_txt = "            "
+					beginning_txt = "  "
+					earned_info = "|"
+				End If
 
 
-				' If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
-				' 	job_detail = left(STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
-				' 	Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
-				' 	Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_one_mfip_counted_amt(each_memb) & spaces_30, 36))
-				' 	beginning_txt = "            "
-				' 	beginning_txt = "  "
-				' 	earned_info = "|"
-				' End If
+				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_one_mfip_counted_amt(each_memb) & spaces_30, 36))
+					beginning_txt = "            "
+					beginning_txt = "  "
+					earned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_two_mfip_counted_amt(each_memb) & spaces_30, 36))
+					beginning_txt = "            "
+					beginning_txt = "  "
+					earned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
+					Call write_variable_in_CASE_NOTE(left("       Count: $" & STAT_INFORMATION(month_ind).stat_busi_three_mfip_counted_amt(each_memb) & spaces_30, 36))
+					beginning_txt = "            "
+					beginning_txt = "  "
+					earned_info = "|"
+				End If
+
+
 
 			Next
 			If earned_info = "|          (-) Earned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_monthly_earned_income, 8) Then Call write_variable_in_CASE_NOTE("  NO EARNED Income                  " & earned_info)
@@ -13572,40 +14765,149 @@ If enter_CNOTE_for_MFIP = True Then
 			Call write_variable_in_CASE_NOTE("Other Income:                  |---------------------------------|")
 
 			unearned_info = "| (-)        Unearned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income, 8)
-			' For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			' 	If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
-			' 		unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
-			' 		Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
-			' 		unearned_info = "|"
-			' 	End If
-			' Next
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
+					STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), "Disbursed", "DISB")
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+			Next
 			If unearned_info = "| (-)        Unearned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income, 8) Then Call write_variable_in_CASE_NOTE("  NO UNEARNED Income                " & unearned_info)
 
 			deemed_info = "| (-)          Deemed Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deemed_income, 8)
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
+					deemed_info = "|"
 				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
+					deemed_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
+					deemed_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
+					deemed_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  JOBS- $" & job_detail & earned_info)
+					deemed_info = "|"
+				End If
+
+				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
+					deemed_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
+					deemed_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_deemed_for_mfip(each_memb) = True Then
+					job_detail = left(STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  BUSI- $" & job_detail & earned_info)
+					deemed_info = "|"
+				End If
+
+				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_deemed_for_mfip(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					deemed_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_deemed_for_mfip(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					deemed_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_deemed_for_mfip(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					deemed_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_deemed_for_mfip(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					deemed_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_deemed_for_mfip(each_memb) = True Then
+					unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					deemed_info = "|"
+				End If
+
 			Next
 			If deemed_info = "| (-)          Deemed Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deemed_income, 8) Then Call write_variable_in_CASE_NOTE("  NO DEEMED Income                  " & deemed_info)
 
-			Call write_variable_in_CASE_NOTE("Exclsn: Child Supp. Income $" & left(MFIP_ELIG_APPROVALS(elig_ind).mfip_budg_cses_excln_cses_income&"        ", 8) & "| (+)Child Support Exclusion: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_cses_exclusion, 8))
-			Call write_variable_in_CASE_NOTE("        Child Count: " & left(MFIP_ELIG_APPROVALS(elig_ind).mfip_budg_cses_excln_child_count&"  ", 2) & "             |")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_cses_exclusion = "0.00" Then  Call write_variable_in_CASE_NOTE("Exclsn: NO CSES Exclusion           | (+)Child Support Exclusion: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_cses_exclusion, 8))
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_cses_exclusion <> "0.00" Then
+				Call write_variable_in_CASE_NOTE("Exclsn: Child Supp. Income $" & left(MFIP_ELIG_APPROVALS(elig_ind).mfip_budg_cses_excln_cses_income&"        ", 8) & "| (+)Child Support Exclusion: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_cses_exclusion, 8))
+				Call write_variable_in_CASE_NOTE("        Child Count: " & left(MFIP_ELIG_APPROVALS(elig_ind).mfip_budg_cses_excln_child_count&"  ", 2) & "             |")
+			End If
 			Call write_variable_in_CASE_NOTE("                                    |                 Unmet Need: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need, 8))
+
+
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deduction_sanction_vendor <> "0.00" Then
+				Call write_variable_in_CASE_NOTE("                                    |-------- SANCTION CALCULATION ----------")
+				Call write_variable_in_CASE_NOTE("                                    |                 Unmet Need: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_unmet_need, 8))
+				Call write_variable_in_CASE_NOTE("                                    | (-) 10% of standard to MAX: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_10_perc_sanc, 8))
+				Call write_variable_in_CASE_NOTE("                                    |   Need after pre-vndr Sanc: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_after_pre_vndr_sanc, 8))
+				Call write_variable_in_CASE_NOTE("                                    |               Food Portion: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_sanc_calc_food_portion, 8))
+				Call write_variable_in_CASE_NOTE("                                    |               Cash Portion: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_sanc_calc_cash_portion, 8))
+				Call write_variable_in_CASE_NOTE("                                    |      Potential Mand.Vendor: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_pot_mand_vndr_pymts, 8))
+				Call write_variable_in_CASE_NOTE("                                    | (-) 30% of standard to MAX: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_30_perc_sanc, 8))
+				Call write_variable_in_CASE_NOTE("                                    |  Total Sanction and Vendor: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_cash_portion, 8))
+				Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
+
+			End if
+
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_cash_portion <> MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_cash_after_sanc_portion Then
+
 				Call write_variable_in_CASE_NOTE("                                    |----- CASH ISSUANCE CALCULATION --------")
 				Call write_variable_in_CASE_NOTE("                                    |               Cash Portion: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_cash_portion, 8))
-				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_cash_portion <> "0.00" and MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deduction_subsidy_tribal_cses <> "0.00" Then
-					Call write_variable_in_CASE_NOTE("                                    | (-)      Subsidy Reduction: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deduction_subsidy_tribal_cses, 8))
-				End If
-				'TODO add sanction calculation'
-				' Call write_variable_in_CASE_NOTE("")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unmet_need_cash_portion <> "0.00" and MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deduction_subsidy_tribal_cses <> "0.00" Then Call write_variable_in_CASE_NOTE("                                    | (-)      Subsidy Reduction: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_deduction_subsidy_tribal_cses, 8))
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_mand_sanc_vendor <> "0.00" Then Call write_variable_in_CASE_NOTE("                                    | (+)   Mand Sanction Vendor: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_mand_sanc_vendor, 8))
 				Call write_variable_in_CASE_NOTE("                                    |              Cash Issuance: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_cash_after_sanc_portion, 8))
 				Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
 			End If
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_food_portion <> MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_fed_food_benefit Then
 				Call write_variable_in_CASE_NOTE("                                    |----- FOOD ISSUANCE CALCULATION --------")
 				Call write_variable_in_CASE_NOTE("                                    |               Food Portion: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_net_food_portion, 8))
-				'TODO - add food reduction calculation'
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_non_citzn_fs_inelig_amt <> "0.00" Then Call write_variable_in_CASE_NOTE("                                    | (-)     Non-Citizen INELIG: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_non_citzn_fs_inelig_amt, 8))
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_other_fs_inelig_amt <> "0.00" Then Call write_variable_in_CASE_NOTE("                                    | (-)           Other INELIG: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_other_fs_inelig_amt, 8))
 				Call write_variable_in_CASE_NOTE("                                    |              Food Issuance: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_fed_food_benefit, 8))
 				Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
 
@@ -13613,18 +14915,147 @@ If enter_CNOTE_for_MFIP = True Then
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_entitlement_housing_grant = "110.00" Then Call write_variable_in_CASE_NOTE("Housing Grant Eligible: Yes         |       Housing Grant Amount: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_entitlement_housing_grant, 8))
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_entitlement_housing_grant = "0.00" Then Call write_variable_in_CASE_NOTE("Housing Grant Eligible: No          |       Housing Grant Amount: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_entitlement_housing_grant, 8))
 
-
-			'TODO - add cash and snap other calculations'
 			'TODO - add vendor detail
 
 		End If
 
-		' If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
-		' 	Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
-		' 	Call write_variable_in_CASE_NOTE("* MFIP is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
-		' 	If MFIP_ELIG_APPROVALS(elig_ind).snap_case_appl_withdrawn_test = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for MFIP benefits was withdrawn. (APPLICATION WITHDRAWN)")
-		'
-		' End If
+		If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
+			Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
+			Call write_variable_in_CASE_NOTE("* MFIP is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
+
+
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_appl_withdraw = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for MFIP benefits was withdrawn. (APPLICATION WITHDRAWN)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_asset = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Asset Limits. (ASSET)")
+			'TODO add details about assets'
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_death_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Memb 01 has died. (DEATH OF APPLICANT)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_dupl_assist = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Benefits already received for this unit on another case/state. (DUPICATE ASSISTANCE)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_elig_child = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is no eligible child on this case. (ELIGIBLE CHILD)")
+
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_coop = "FAILED" Then
+				Call write_variable_in_CASE_NOTE(" - This case has failed to cooperate. (FAIL TO COOPERATE)")
+				show_pact = False
+				If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_one_prog = "MF" and STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "3" Then show_pact = True
+				If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_two_prog = "MF" and STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "3" Then show_pact = True
+				If show_pact = True Then
+					Call write_variable_in_CASE_NOTE("   - Case ineligible due to: " & MFIP_UNIQUE_APPROVALS(pact_inelig_reasons, unique_app) & ". ")
+					Call write_variable_in_CASE_NOTE("     INELIG created using PACT.")
+					If MFIP_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True Then Call write_variable_in_CASE_NOTE("     WCOM added to Notice with PACT reason.")
+
+				End If
+
+				For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_disq_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_one_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_one_program(each_memb) = "SNAP" Then
+						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_one_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_one_begin_date(each_memb))
+						If IsDate(STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_one_end_date(each_memb))
+					End If
+					If STAT_INFORMATION(month_ind).stat_disq_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_two_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_two_program(each_memb) = "SNAP" Then
+						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_two_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_two_begin_date(each_memb))
+						If IsDate(STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_two_end_date(each_memb))
+					End If
+					If STAT_INFORMATION(month_ind).stat_disq_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_three_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_three_program(each_memb) = "SNAP" Then
+						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_three_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_three_begin_date(each_memb))
+						If IsDate(STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_three_end_date(each_memb))
+					End If
+					If STAT_INFORMATION(month_ind).stat_disq_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_four_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_four_program(each_memb) = "SNAP" Then
+						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_four_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_four_begin_date(each_memb))
+						If IsDate(STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_four_end_date(each_memb))
+					End If
+					If STAT_INFORMATION(month_ind).stat_disq_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_active(each_memb) = True AND STAT_INFORMATION(month_ind).stat_disq_five_source(each_memb) = "NON-COOP" AND STAT_INFORMATION(month_ind).stat_disq_five_program(each_memb) = "SNAP" Then
+						Call write_variable_in_CASE_NOTE("   - " & STAT_INFORMATION(month_ind).stat_disq_five_type_info(each_memb) & " begin date: " & STAT_INFORMATION(month_ind).stat_disq_five_begin_date(each_memb))
+						If IsDate(STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb)) = True Then Call write_variable_in_CASE_NOTE("     Disqualification to end on " & STAT_INFORMATION(month_ind).stat_disq_five_end_date(each_memb))
+					End If
+				Next
+			End If
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has failed to file a report. (FAIL TO FILE)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Initial Income Test. (INITIAL INCOME)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_minor_liv_arrange = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The minor licving arrangement has not been assessed and determined. (MINOR LIVING ARRANGEMENT)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - . This case has exceeded the Monthly Income Test.(MONTHLY INOCME)")
+
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_post_60_disq = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case is not qualified to receive POST 60 TANF. (POST 60 DISQ)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not established Minnesota residency. (RESIDENCE)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_sanction_limit = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the sanction limit. (SANCTION LIMIT)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_strike = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The case has a member on strike. (STRIKE)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_TANF_time_limit = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the TANF Time Limit. (TANF TIME LIMIT)")
+
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_transfer_asset = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case is not qualified due to improper trransfer of assets. (TRANSFER OF ASSETS)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" Then
+				Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
+				Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & MFIP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_ACCT = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Bank account not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_BUSI = "FAILED" Then
+					Call write_variable_in_CASE_NOTE("   - Self Employment not verified.")
+					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+						If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+						End if
+					Next
+				End If
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_CARS = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Vehicle not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_JOBS = "FAILED" Then
+					Call write_variable_in_CASE_NOTE("   - Job not verified.")
+					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+						If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
+						End if
+					Next
+				End if
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_MEMB_dob = "FAILED" Then Call write_variable_in_CASE_NOTE("   - HH Memb date of birth not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_MEMB_id = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Adult Memb ID not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_PARE = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Parental relationship not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_PREG = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Pregnancy not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_RBIC = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Self Employment - Roomer/Boarder Income not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_ADDR = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Address not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_SCHL = "FAILED" Then Call write_variable_in_CASE_NOTE("   - School information not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_SECU = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Securities asset not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_SHEL = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Shelter expense not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_SPON = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Sponsor Income/Assets not verified.")
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_UNEA = "FAILED" Then
+					Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
+					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+						If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
+						End if
+						If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+							Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
+						End if
+					Next
+				End if
+				If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_MEMI = "FAILED" Then Call write_variable_in_CASE_NOTE("   - State Residence not verified.")
+
+			End If
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_275_new_spouse_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case exceeded New Spouse Income Limit. (275% FPG NSI)")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not cooperated with SNAP QC. (FAIL to COOP SNAP QC)")
+		End If
+		' Text 345, 85, 100, 10, "Work Registration: " & MFIP_ELIG_APPROVALS(elig_ind).snap_case_work_reg_test
+
+
 
 		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
 		Call write_variable_in_CASE_NOTE("MFIP Status:      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_current_prog_status)
@@ -13747,7 +15178,7 @@ If enter_CNOTE_for_SNAP = True Then
 			Call back_to_SELF
 		End If
 
-		'Here we entere the CASE NOTE
+		'Here we entere the CASENOTE
 		Call snap_elig_case_note
 	Next
 
@@ -13755,6 +15186,7 @@ End If
 
 If denials_found_on_pnd2 = True Then
 	denial_accurate = ""
+	testing_run = True
 
 	Do
 		Call rept_pnd2_dialog
@@ -13990,6 +15422,8 @@ script_run_lowdown = script_run_lowdown & vbCr & "case_status - " & case_status
 
 script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Active Programs:" & vbCr & list_active_programs
 script_run_lowdown = script_run_lowdown & vbCr & "Pending Programs:" & vbCr & list_pending_programs
+
+If user_ID_for_validation = "AMST002" Then testing_run = False
 
 If CASE_NOTE_entered = False Then end_msg_info = end_msg_info & vbCr & vbCr & "The script did NOT enter a CASE/NOTE as it could not find any ELIG results that were generated and approved today. This script is to NOTE already completed approval. If this case has a program that is ready to approve, ensure the ELIG results were generated today and the approval was completed."
 If pnd2_display_limit_hit = True AND denials_found_on_pnd2 = False Then end_msg_info = end_msg_info & vbCr & vbCr & "The script could not read REPT/PND2 because the X-Number it is in has hit the MAXIS REPT/PND2 display limit. If you are trying to deny the case via REPT/PND2, the case will need to be in an X-Number that is not at the REPT/PND2 display limit."
