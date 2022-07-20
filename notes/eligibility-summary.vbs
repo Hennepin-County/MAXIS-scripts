@@ -14783,8 +14783,8 @@ If enter_CNOTE_for_MFIP = True Then
 					' End If
 				End If
 			Next
-			If MFIP_ELIG_APPROVALS(approval).mfip_fs_case_test_opt_out_cash = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP CASH PORTION")
-			If MFIP_ELIG_APPROVALS(approval).mfip_fs_case_test_opt_out_housing_grant = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP HOUSING GRANT PORTION")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_opt_out_cash = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP CASH PORTION")
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_opt_out_housing_grant = "FAILED" Then Call write_variable_in_CASE_NOTE("* Case has selected to OPT OUT of MFIP HOUSING GRANT PORTION")
 		End If
 
 
@@ -15543,6 +15543,7 @@ script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Active Programs:" & vbC
 script_run_lowdown = script_run_lowdown & vbCr & "Pending Programs:" & vbCr & list_pending_programs
 
 If user_ID_for_validation = "AMST002" Then testing_run = False
+If user_ID_for_validation = "CALO001" Then testing_run = False
 
 If CASE_NOTE_entered = False Then end_msg_info = end_msg_info & vbCr & vbCr & "The script did NOT enter a CASE/NOTE as it could not find any ELIG results that were generated and approved today. This script is to NOTE already completed approval. If this case has a program that is ready to approve, ensure the ELIG results were generated today and the approval was completed."
 If pnd2_display_limit_hit = True AND denials_found_on_pnd2 = False Then end_msg_info = end_msg_info & vbCr & vbCr & "The script could not read REPT/PND2 because the X-Number it is in has hit the MAXIS REPT/PND2 display limit. If you are trying to deny the case via REPT/PND2, the case will need to be in an X-Number that is not at the REPT/PND2 display limit."
