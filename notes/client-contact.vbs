@@ -102,12 +102,6 @@ If basket_number = "X127EF9" then suggested_population = "1800"
 If basket_number = "X127EG9" then suggested_population = "1800"
 If basket_number = "X127EG0" then suggested_population = "1800"
 
-'If basket_number = "X127EP3" then suggested_population = "ADS"
-'If basket_number = "X127F3U" then suggested_population = "ADS"
-'If basket_number = "X127F3V" then suggested_population = "ADS"
-
-
-
 If basket_number = "X127ED8" then suggested_population = "Adults"
 If basket_number = "X127EE1" then suggested_population = "Adults"
 If basket_number = "X127EE2" then suggested_population = "Adults"
@@ -152,6 +146,7 @@ If basket_number = "X127EX9" then suggested_population = "Adults"
 If basket_number = "X127F3D" then suggested_population = "Adults"
 If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adults Basket
 
+If basket_number = "X127EY8" then suggested_population = "DWP"
 If basket_number = "X127FE7" then suggested_population = "DWP"
 If basket_number = "X127FE8" then suggested_population = "DWP"
 If basket_number = "X127FE9" then suggested_population = "DWP"
@@ -397,6 +392,7 @@ script_end_procedure_with_error_report(end_msg)
 '--Out-of-County handling reviewed----------------------------------------------10/07/2021
 '--script_end_procedures (w/ or w/o error messaging)----------------------------10/07/2021
 '--BULK - review output of statistics and run time/count (if applicable)--------10/07/2021------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---07/20/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------10/07/2021
