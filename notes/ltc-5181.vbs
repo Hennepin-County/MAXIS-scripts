@@ -90,6 +90,9 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
+
 'Dialog completed by worker. Each dialog follows this process:
 '  1. Show the dialog and validate that next/OK or prev is pressed
 '  2. Do the validation on that page, but contain a "if ButtonPressed = prev then exit do" to skip the validation if previous is pressed
@@ -444,7 +447,7 @@ If update_SWKR_info_checkbox = 1 THEN
 	'creates a new panel if one doesn't exist, and will needs new if there is not one
 	EMReadScreen panel_exists_check, 1, 2, 73
 	IF panel_exists_check = "0" THEN
-		EMWriteScreen "nn", 20, 79 'creating new panel
+		EMWriteScreen "NN", 20, 79 'creating new panel
 		transmit
 	ELSE
 		PF9	'putting panel into edit mode
@@ -573,4 +576,46 @@ If sent_5181_to_caseworker_check = 1 then Call write_variable_in_case_note("* Se
 Call write_variable_in_case_note ("---")
 call write_variable_in_case_note (worker_signature)
 
-script_end_procedure("Success! Please make sure your DISA and FACI panel(s) are updated if needed. Also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")
+script_end_procedure_with_error_report("Success! Please make sure your DISA and FACI panel(s) are updated if needed. Also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/21/2022
+'--Tab orders reviewed & confirmed----------------------------------------------07/21/2022
+'--Mandatory fields all present & Reviewed--------------------------------------07/21/2022
+'--All variables in dialog match mandatory fields-------------------------------07/21/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------07/21/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------07/21/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/21/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/21/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------07/21/2022
+'--PRIV Case handling reviewed -------------------------------------------------07/21/2022
+'--Out-of-County handling reviewed----------------------------------------------07/21/2022----------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/21/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------07/21/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---07/21/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------07/21/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------07/21/2022
+'--Denomination reviewed -------------------------------------------------------07/21/2022
+'--Script name reviewed---------------------------------------------------------07/21/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------07/21/2022-----------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------07/21/2022
+'--comment Code-----------------------------------------------------------------07/21/2022
+'--Update Changelog for release/update------------------------------------------07/21/2022
+'--Remove testing message boxes-------------------------------------------------07/21/2022
+'--Remove testing code/unnecessary code-----------------------------------------07/21/2022
+'--Review/update SharePoint instructions----------------------------------------07/21/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/21/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/21/2022
+'--Complete misc. documentation (if applicable)---------------------------------07/21/2022
+'--Update project team/issue contact (if applicable)----------------------------07/21/2022
