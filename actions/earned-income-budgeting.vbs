@@ -1254,7 +1254,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         LIST_OF_INCOME_ARRAY(pay_date, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_date, all_income))           'formatting the information'
                                         LIST_OF_INCOME_ARRAY(gross_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(gross_amount, all_income))
                                         LIST_OF_INCOME_ARRAY(hours, all_income) = trim(LIST_OF_INCOME_ARRAY(hours, all_income))
-                                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" AND LIST_OF_INCOME_ARRAY(gross_amount, all_income) <> "" AND LIST_OF_INCOME_ARRAY(hours, all_income) <> "" Then
+                                        If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND (LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" OR LIST_OF_INCOME_ARRAY(gross_amount, all_income) <> "" OR LIST_OF_INCOME_ARRAY(hours, all_income) <> "") Then
                                             actual_checks_provided = TRUE           'this helps us know what functionality to use a little later
                                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then there_are_counted_checks = TRUE
                                             LIST_OF_INCOME_ARRAY(future_check, all_income) = FALSE              'only in the month of application can we use future checks - we need to see if there are any
