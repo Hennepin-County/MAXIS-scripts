@@ -60,6 +60,7 @@ changelog_display
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number and footer month/year
 EMConnect ""
+call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -82,9 +83,8 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
-        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
-        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+		Call validate_MAXIS_case_number(err_msg, "*")
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -166,10 +166,18 @@ Do
     				Dialog Dialog1						'Displays the first dialog - defined just above.
     				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
     			Loop until ButtonPressed = next_to_page_02_button
-                If isdate(date_5181) = False or trim(date_5181) = "" then err_msg = err_msg & vbcr & "Enter a valid 5181 date."
-                If isdate(date_received) = False or trim(date_received) = "" then err_msg = err_msg & vbcr & "Enter the date the 5181 was received."
-                IF trim(lead_agency) = "" then err_msg = err_msg & vbcr & "Enter the Lead Agency Name."		'Requires the user to select a waiver
-    			If waiver_type_droplist = "Select one..." then err_msg = err_msg & vbcr & "Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
+                If isdate(date_5181) = False or trim(date_5181) = "" then err_msg = err_msg & vbcr & "* Enter a valid 5181 date."
+                If isdate(date_received) = False or trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the 5181 was received."
+                IF trim(lead_agency) = "" then err_msg = err_msg & vbcr & "* Enter the Lead Agency Name."		'Requires the user to select a waiver
+                IF update_addr_checkbox = 1 then
+                    If isdate(date_of_admission) = False then err_msg = err_msg & "* Enter the date of admission."
+                    If trim(facility_address_line_01) = "" then err_msg = err_msg & "* Update the faci address line 1."
+                    If trim(facility_city) = "" then err_msg = err_msg & "* Update the faci city."
+                    If trim(facility_state) = "" then err_msg = err_msg & "* Update the faci state."
+                    If trim(facility_county_code) = "" then err_msg = err_msg & "* Update the faci county code."
+                    If trim(facility_zip_code) = "" then err_msg = err_msg & "* Update the faci zip code."
+                End if
+    			If waiver_type_droplist = "Select one..." then err_msg = err_msg & vbcr & "* Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
                 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
             Loop until err_msg = ""
     	Loop until ButtonPressed = next_to_page_02_button
@@ -301,14 +309,28 @@ Do
     				Dialog Dialog1							'Displays the third dialog - defined just above.
     				cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
     				MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-    				IF (exited_waiver_program_check = checked AND exit_waiver_end_date = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the exited waiver checkbox that was checked."
-    				IF (client_deceased_check =  checked AND date_of_death = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the client deceased checkbox that was checked."
-    				IF (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the client moved to LTCF checkbox that was checked."
-    				IF (waiver_program_change_check = checked AND waiver_program_change_from = "" AND waiver_program_change_to = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the waiver program change checkbox that was checked."
-    				IF (client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan = "") THEN err_msg = err_msg & vBcr & "Complete a field next to the client disenrolled from health plan checkbox that was checked."
-    				IF (new_address_check = checked AND new_address_effective_date =  "") THEN err_msg = err_msg & vBcr & "Complete a field next to the new address effective date checkbox that was checked."
-                    IF trim(case_action) = "" THEN err_msg = err_msg & vBcr & "Complete case actions section."
-    				IF trim(worker_signature) = "" THEN err_msg = err_msg & vBcr & "Sign your case note."
+    				IF (exited_waiver_program_check = checked AND isdate(exit_waiver_end_date) = false) THEN err_msg = err_msg & vBcr & "* Complete the field next to the exited waiver checkbox that was checked."
+    				IF (client_deceased_check =  checked AND isdate(date_of_death) = false) THEN err_msg = err_msg & vBcr & "* Complete the field next to the client deceased checkbox that was checked."
+    				IF (client_moved_to_LTCF_check = checked AND isdate(client_moved_to_LTCF) = False) THEN err_msg = err_msg & vBcr & "* Complete the field next to the client moved to LTCF checkbox that was checked."
+                    If LTCF_update_ADDR_checkbox = 1 then
+                        If trim(LTCF_ADDR_line_01) = "" then err_msg = err_msg & "* Update the faci address line 1."
+                        If trim(LTCF_city) = "" then err_msg = err_msg & "* Update the faci city."
+                        If trim(LTCF_state) = "" then err_msg = err_msg & "* Update the faci state."
+                        If trim(LTCF_county_code) = "" then err_msg = err_msg & "* Update the faci county code."
+                        If trim(LTCF_zip_code) = "" then err_msg = err_msg & "* Update the faci zip code."
+                    End if
+                    IF (waiver_program_change_check = checked AND waiver_program_change_from = "" AND waiver_program_change_to = "") THEN err_msg = err_msg & vBcr & "* Complete the field next to the waiver program change checkbox that was checked."
+    				IF (client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan = "") THEN err_msg = err_msg & vBcr & "* Complete a field next to the client disenrolled from health plan checkbox that was checked."
+    				IF (new_address_check = checked AND isdate(new_address_effective_date) = False) THEN err_msg = err_msg & vBcr & "* Complete a field next to the new address effective date checkbox that was checked."
+                    If update_addr_new_ADDR_checkbox = 1 then
+                        If trim(change_ADDR_line_1) = "" then err_msg = err_msg & "* Update the new address line 1."
+                        If trim(change_city) = "" then err_msg = err_msg & "* Update the new city."
+                        If trim(change_state) = "" then err_msg = err_msg & "* Update the new state."
+                        If trim(change_county_code) = "" then err_msg = err_msg & "* Update the new county code."
+                        If trim(change_zip_code) = "" then err_msg = err_msg & "* Update the new zip code."
+                    End if
+                    IF trim(case_action) = "" THEN err_msg = err_msg & vBcr & "* Complete case actions section."
+    				IF trim(worker_signature) = "" THEN err_msg = err_msg & vBcr & "* Sign your case note."
                     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     			Loop until err_msg = ""
     		Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
@@ -318,10 +340,10 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
+
 'Dollar bill symbol will be added to numeric variables
 IF estimated_monthly_waiver_costs <> "" THEN estimated_monthly_waiver_costs = "$" & estimated_monthly_waiver_costs
-'Checking to see that we're in MAXIS
-call check_for_MAXIS(False)
 
 'ACTIONS----------------------------------------------------------------------------------------------------
 'Updates STAT MEMB with client's date of death (client_deceased_check)
@@ -486,9 +508,6 @@ If ongoing_case_manager_check = 1 THEN
 	transmit
 	PF3
 END IF
-
-'Checking to see that we're in MAXIS
-call check_for_MAXIS(False)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
