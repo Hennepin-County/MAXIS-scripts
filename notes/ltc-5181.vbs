@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2022", "Fixed bug that was clearing all ADDR information.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Removed TIKL option to identify that 5181 has been rec'd.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/06/2020", "Updated error message handling and password handling around the dialogs.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/23/2018", "Updated dialog boxes to accommodate a laptop users.", "Ilse Ferris, Hennepin County")
@@ -365,6 +366,8 @@ IF update_addr_checkbox = 1 THEN
 		Transmit
 	END IF
 
+    Call access_ADDR_panel("READ", notes_on_address, facility_address_line_01, facility_address_line_02, resi_street_full, facility_city, facility_state, facility_zip_code, facility_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, date_of_admission, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempte
+
 	Call access_ADDR_panel("WRITE", notes_on_address, facility_address_line_01, facility_address_line_02, resi_street_full, facility_city, facility_state, facility_zip_code, facility_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, date_of_admission, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
 
@@ -385,8 +388,9 @@ IF LTCF_update_ADDR_checkbox = 1 THEN
 		Transmit
 	END IF
 
-	Call access_ADDR_panel("WRITE", notes_on_address, LTCF_ADDR_line_01, LTCF_ADDR_line_02, resi_street_full, LTCF_city, LTCF_state, LTCF_zip_code, LTCF_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, client_moved_to_LTCF, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("READ", notes_on_address, LTCF_ADDR_line_01, LTCF_ADDR_line_02, resi_street_full, LTCF_city, LTCF_state, LTCF_zip_code, LTCF_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, client_moved_to_LTCF, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
+	Call access_ADDR_panel("WRITE", notes_on_address, LTCF_ADDR_line_01, LTCF_ADDR_line_02, resi_street_full, LTCF_city, LTCF_state, LTCF_zip_code, LTCF_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, client_moved_to_LTCF, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
 
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for new address
@@ -406,8 +410,9 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 		Transmit
 	END IF
 
-	Call access_ADDR_panel("WRITE", notes_on_address, change_ADDR_line_1, change_ADDR_line_2, resi_street_full, change_city, change_state, change_zip_code, change_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, new_address_effective_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("READ", notes_on_address, change_ADDR_line_1, change_ADDR_line_2, resi_street_full, change_city, change_state, change_zip_code, change_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, new_address_effective_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
+	Call access_ADDR_panel("WRITE", notes_on_address, change_ADDR_line_1, change_ADDR_line_2, resi_street_full, change_city, change_state, change_zip_code, change_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, new_address_effective_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
 
 'Updates SWKR panel with Name, address and phone number if checked on DIALOG 1
