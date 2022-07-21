@@ -90,7 +90,7 @@ DO
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
 If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
 
 'Dialog completed by worker. Each dialog follows this process:
@@ -173,12 +173,12 @@ Do
                 If isdate(date_received) = False or trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the 5181 was received."
                 IF trim(lead_agency) = "" then err_msg = err_msg & vbcr & "* Enter the Lead Agency Name."		'Requires the user to select a waiver
                 IF update_addr_checkbox = 1 then
-                    If isdate(date_of_admission) = False then err_msg = err_msg & "* Enter the date of admission."
-                    If trim(facility_address_line_01) = "" then err_msg = err_msg & "* Update the faci address line 1."
-                    If trim(facility_city) = "" then err_msg = err_msg & "* Update the faci city."
-                    If trim(facility_state) = "" then err_msg = err_msg & "* Update the faci state."
-                    If trim(facility_county_code) = "" then err_msg = err_msg & "* Update the faci county code."
-                    If trim(facility_zip_code) = "" then err_msg = err_msg & "* Update the faci zip code."
+                    If isdate(date_of_admission) = False then err_msg = err_msg & vBcr & "* Enter the date of admission."
+                    If trim(facility_address_line_01) = "" then err_msg = err_msg & vBcr & "* Update the faci address line 1."
+                    If trim(facility_city) = "" then err_msg = err_msg & vBcr & "* Update the faci city."
+                    If trim(facility_state) = "" then err_msg = err_msg & vBcr & "* Update the faci state."
+                    If trim(facility_county_code) = "" then err_msg = err_msg & vBcr & "* Update the faci county code."
+                    If trim(facility_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the faci zip code."
                 End if
     			If waiver_type_droplist = "Select one..." then err_msg = err_msg & vbcr & "* Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
                 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -316,21 +316,21 @@ Do
     				IF (client_deceased_check =  checked AND isdate(date_of_death) = false) THEN err_msg = err_msg & vBcr & "* Complete the field next to the client deceased checkbox that was checked."
     				IF (client_moved_to_LTCF_check = checked AND isdate(client_moved_to_LTCF) = False) THEN err_msg = err_msg & vBcr & "* Complete the field next to the client moved to LTCF checkbox that was checked."
                     If LTCF_update_ADDR_checkbox = 1 then
-                        If trim(LTCF_ADDR_line_01) = "" then err_msg = err_msg & "* Update the faci address line 1."
-                        If trim(LTCF_city) = "" then err_msg = err_msg & "* Update the faci city."
-                        If trim(LTCF_state) = "" then err_msg = err_msg & "* Update the faci state."
-                        If trim(LTCF_county_code) = "" then err_msg = err_msg & "* Update the faci county code."
-                        If trim(LTCF_zip_code) = "" then err_msg = err_msg & "* Update the faci zip code."
+                        If trim(LTCF_ADDR_line_01) = "" then err_msg = err_msg & vBcr & "* Update the faci address line 1."
+                        If trim(LTCF_city) = "" then err_msg = err_msg & vBcr & "* Update the faci city."
+                        If trim(LTCF_state) = "" then err_msg = err_msg & vBcr & "* Update the faci state."
+                        If trim(LTCF_county_code) = "" then err_msg = err_msg & vBcr & "* Update the faci county code."
+                        If trim(LTCF_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the faci zip code."
                     End if
                     IF (waiver_program_change_check = checked AND waiver_program_change_from = "" AND waiver_program_change_to = "") THEN err_msg = err_msg & vBcr & "* Complete the field next to the waiver program change checkbox that was checked."
     				IF (client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan = "") THEN err_msg = err_msg & vBcr & "* Complete a field next to the client disenrolled from health plan checkbox that was checked."
     				IF (new_address_check = checked AND isdate(new_address_effective_date) = False) THEN err_msg = err_msg & vBcr & "* Complete a field next to the new address effective date checkbox that was checked."
                     If update_addr_new_ADDR_checkbox = 1 then
-                        If trim(change_ADDR_line_1) = "" then err_msg = err_msg & "* Update the new address line 1."
-                        If trim(change_city) = "" then err_msg = err_msg & "* Update the new city."
-                        If trim(change_state) = "" then err_msg = err_msg & "* Update the new state."
-                        If trim(change_county_code) = "" then err_msg = err_msg & "* Update the new county code."
-                        If trim(change_zip_code) = "" then err_msg = err_msg & "* Update the new zip code."
+                        If trim(change_ADDR_line_1) = "" then err_msg = err_msg & vBcr & "* Update the new address line 1."
+                        If trim(change_city) = "" then err_msg = err_msg & vBcr & "* Update the new city."
+                        If trim(change_state) = "" then err_msg = err_msg & vBcr & "* Update the new state."
+                        If trim(change_county_code) = "" then err_msg = err_msg & vBcr & "* Update the new county code."
+                        If trim(change_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the new zip code."
                     End if
                     IF trim(case_action) = "" THEN err_msg = err_msg & vBcr & "* Complete case actions section."
     				IF trim(worker_signature) = "" THEN err_msg = err_msg & vBcr & "* Sign your case note."
@@ -391,7 +391,7 @@ IF update_addr_checkbox = 1 THEN
 		Transmit
 	END IF
 
-    Call access_ADDR_panel("READ", notes_on_address, facility_address_line_01, facility_address_line_02, resi_street_full, facility_city, facility_state, facility_zip_code, facility_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, date_of_admission, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempte
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
 	Call access_ADDR_panel("WRITE", notes_on_address, facility_address_line_01, facility_address_line_02, resi_street_full, facility_city, facility_state, facility_zip_code, facility_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, date_of_admission, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
@@ -413,7 +413,7 @@ IF LTCF_update_ADDR_checkbox = 1 THEN
 		Transmit
 	END IF
 
-    Call access_ADDR_panel("READ", notes_on_address, LTCF_ADDR_line_01, LTCF_ADDR_line_02, resi_street_full, LTCF_city, LTCF_state, LTCF_zip_code, LTCF_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, client_moved_to_LTCF, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
 	Call access_ADDR_panel("WRITE", notes_on_address, LTCF_ADDR_line_01, LTCF_ADDR_line_02, resi_street_full, LTCF_city, LTCF_state, LTCF_zip_code, LTCF_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, client_moved_to_LTCF, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
@@ -435,7 +435,7 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 		Transmit
 	END IF
 
-    Call access_ADDR_panel("READ", notes_on_address, change_ADDR_line_1, change_ADDR_line_2, resi_street_full, change_city, change_state, change_zip_code, change_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, new_address_effective_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
 	Call access_ADDR_panel("WRITE", notes_on_address, change_ADDR_line_1, change_ADDR_line_2, resi_street_full, change_city, change_state, change_zip_code, change_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, new_address_effective_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
