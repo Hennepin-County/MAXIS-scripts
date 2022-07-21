@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2022", "TESTING UPDATE ##~## ##~##CASE NOTE Added - for REVW Completion. If an approval is completed and that program has a REVW code of 'A', the script will create a seperate CASE/NOTE to document the completion of the RERVW.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/19/2022", "TESTING UPDATE ##~## ##~##MFIP ELIGIBILITY APPROVALS are now handled in the script run!##~## ##~##This script now handles for SNAP and MFIP Approvals in ELIG. It will also handle for denials from REPT/PND2.##~## ##~##As MFIP fucntionality is new, there may be bugs, please let us know if anything doesn't work or seems weird in the wording.##~## ##~##We will be continuing to add new programs to the functionality. Please note that while MFIP works, Cash Denials do NOT work.##~## ##~##The error reporting default will be turned off for SNAP only cases as that functionality seems to be well tested. Please send a report on a SNAP only approval case if you run in to any issues or errors.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/12/2022", "TESTING UPDATE ##~## ##~##We have added some detail to the end message about the actions the script has taken and the status of the case.##~## ##~##Adjustments made to the script layout that should help to speed up some of the script runs. We know this script takes a bit of time to gather the details needed, but we hope the level of detail and the small amount of input required in the script balances these longer run times.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/08/2022", "The SNAP CASE/NOTE format has been updated to be a little clearer and cleaner. Review the new format of the CASE/NOTE and let us know what you think.##~## ##~##Remember that for now the script only works for SNAP approvals and denials on REPT/PND2. MFIP functionality should be available soon.", "Casey Love, Hennepin County")
@@ -1943,11 +1944,11 @@ class mfip_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
-	public er_month
+	public revw_month
 	public hrf_month
-	public er_status
-	public er_caf_date
-	public er_interview_date
+	public revw_status
+	public revw_caf_date
+	public revw_interview_date
 	public hrf_status
 	public hrf_doc_date
 	'TODO - add significant change functionality
@@ -3282,10 +3283,10 @@ class msa_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
-	public er_month
-	public er_status
-	public er_caf_date
-	public er_interview_date
+	public revw_month
+	public revw_status
+	public revw_caf_date
+	public revw_interview_date
 
 	public msa_elig_ref_numbs()
 	public msa_elig_membs_full_name()
@@ -3985,11 +3986,11 @@ class ga_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
-	public er_month
+	public revw_month
 	public hrf_month
-	public er_status
-	public er_caf_date
-	public er_interview_date
+	public revw_status
+	public revw_caf_date
+	public revw_interview_date
 	public hrf_status
 	public hrf_doc_date
 
@@ -4912,11 +4913,12 @@ class grh_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
-	public er_month
+	public revw_month
 	public hrf_month
-	public er_status
-	public er_caf_date
-	public er_interview_date
+	public revw_status
+	public revw_type
+	public revw_caf_date
+	public revw_interview_date
 	public hrf_status
 	public hrf_doc_date
 
@@ -6895,11 +6897,12 @@ class snap_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
-	public er_month
+	public revw_month
 	public hrf_month
-	public er_status
-	public er_caf_date
-	public er_interview_date
+	public revw_status
+	public revw_type
+	public revw_caf_date
+	public revw_interview_date
 	public hrf_status
 	public hrf_doc_date
 
@@ -7676,11 +7679,12 @@ class hc_eligibility_detail
 	' public elig_version_result
 	public approved_today
 	public approved_version_found
-	public er_month
+	public revw_month
 	public hrf_month
-	public er_status
-	public er_caf_date
-	public er_interview_date
+	public revw_status
+	public revw_type
+	public revw_caf_date
+	public revw_interview_date
 	public hrf_status
 	public hrf_doc_date
 
@@ -8791,7 +8795,7 @@ class stat_detail
 	public stat_prog_cash_II_status
 	public stat_prog_emer_appl_date
 	public stat_prog_emer_elig_begin_date
-	public stat_prog_emer_interview_date
+	public stat_prog_emrevw_interview_date
 	public stat_prog_emer_prog
 	public stat_prog_emer_status
 	public stat_prog_grh_appl_date
@@ -9359,7 +9363,7 @@ class stat_detail
 		EMReadScreen stat_prog_cash_II_status, 			4, 7, 74
 		EMReadScreen stat_prog_emer_appl_date, 			8, 8, 33
 		' EMReadScreen stat_prog_emer_elig_begin_date, 	8, 8, 44
-		EMReadScreen stat_prog_emer_interview_date, 	8, 8, 55
+		EMReadScreen stat_prog_emrevw_interview_date, 	8, 8, 55
 		EMReadScreen stat_prog_emer_prog, 				2, 8, 67
 		EMReadScreen stat_prog_emer_status, 			4, 8, 74
 		EMReadScreen stat_prog_grh_appl_date, 			8, 9, 33
@@ -9394,8 +9398,8 @@ class stat_detail
 		If stat_prog_cash_II_interview_date = "__/__/__" Then stat_prog_cash_II_interview_date = ""
 		stat_prog_emer_appl_date = replace(stat_prog_emer_appl_date, " ", "/")
 		If stat_prog_emer_appl_date = "__/__/__" Then stat_prog_emer_appl_date = ""
-		stat_prog_emer_interview_date = replace(stat_prog_emer_interview_date, " ", "/")
-		If stat_prog_emer_interview_date = "__/__/__" Then stat_prog_emer_interview_date = ""
+		stat_prog_emrevw_interview_date = replace(stat_prog_emrevw_interview_date, " ", "/")
+		If stat_prog_emrevw_interview_date = "__/__/__" Then stat_prog_emrevw_interview_date = ""
 		stat_prog_grh_appl_date = replace(stat_prog_grh_appl_date, " ", "/")
 		If stat_prog_grh_appl_date = "__/__/__" Then stat_prog_grh_appl_date = ""
 		stat_prog_grh_elig_begin_date = replace(stat_prog_grh_elig_begin_date, " ", "/")
@@ -12595,6 +12599,7 @@ class stat_detail
 
 		stat_next_snap_revw_process = trim(stat_next_snap_revw_process)
 		stat_last_snap_revw_process = trim(stat_last_snap_revw_process)
+		' MsgBox "stat_next_snap_revw_process - ~" & stat_next_snap_revw_process & "~" & vbCr & "stat_last_snap_revw_process - ~" & stat_last_snap_revw_process & "~"
 
 		stat_next_hc_revw_process = trim(stat_next_hc_revw_process)
 		stat_last_hc_revw_process = trim(stat_last_hc_revw_process)
@@ -12826,6 +12831,60 @@ MAXIS_footer_year = CM_yr
 Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 EMReadScreen numb_EMER_versions, 1, 16, 40
 
+const month_const 	= 0
+const er_revw_completed_const	= 1
+const sr_revw_commpleted_const	= 2
+const hrf_completed_const		= 3
+const er_programs_const 		= 4
+const sr_programs_const 		= 5
+const hrf_programs_const 		= 6
+const revw_form_date_const		= 7
+const revw_intvw_date_const		= 8
+const hrf_form_date_const		= 9
+
+const mfip_revw_completed_const = 10
+const mfip_next_revw_const 		= 11
+const mfip_hrf_completed_const 	= 12
+const mfip_elig_const 			= 13
+const mfip_budg_cycle_const 	= 14
+
+const ga_revw_completed_const 	= 15
+const ga_next_revw_const 		= 16
+const ga_hrf_completed_const 	= 17
+const ga_elig_const 			= 18
+const ga_budg_cycle_const 		= 19
+
+const snap_revw_completed_const = 20
+const snap_next_revw_const 		= 21
+const snap_hrf_completed_const 	= 22
+const snap_elig_const 			= 23
+const snap_budg_cycle_const 	= 24
+
+const msa_revw_completed_const 	= 25
+const msa_next_revw_const 		= 26
+const msa_elig_const 			= 27
+const msa_budg_cycle_const 		= 28
+
+const grh_revw_completed_const 	= 29
+const grh_next_revw_const 		= 30
+const grh_hrf_completed_const 	= 31
+const grh_elig_const 			= 32
+const grh_budg_cycle_const 		= 33
+
+const hc_revw_completed_const 	= 34
+const hc_next_revw_const 		= 35
+const hc_elig_const 			= 36
+const hc_budg_cycle_const 		= 37
+
+' const mfip_revw_completed_const =
+' const mfip_revw_completed_const =
+' const mfip_revw_completed_const =
+
+const final_const				= 40
+
+Dim REPORTING_COMPLETE_ARRAY()
+ReDim REPORTING_COMPLETE_ARRAY(final_const, 0)
+
 'TODO figure out EMER Date handling'
 If numb_EMER_versions <> " " Then
 	Set EMER_ELIG_APPROVAL = new emer_eligibility_detail
@@ -12853,6 +12912,12 @@ If numb_EMER_versions <> " " Then
 End If
 
 For each footer_month in MONTHS_ARRAY
+	ReDim Preserve REPORTING_COMPLETE_ARRAY(final_const, month_count)
+	REPORTING_COMPLETE_ARRAY(month_const, month_count) = footer_month
+	REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = False
+	REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, month_count) = False
+	REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = False
+
 	' MsgBox footer_month
 	Call convert_date_into_MAXIS_footer_month(footer_month, MAXIS_footer_month, MAXIS_footer_year)
 	approval_found_for_this_month = False
@@ -13067,19 +13132,34 @@ For each footer_month in MONTHS_ARRAY
 
 	If numb_MFIP_versions <> " " Then
 		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
-			MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_month = False
+			MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_month = False
 			MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_month = False
 
-			If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
-				MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_month = True
-				MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
-				MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-				MFIP_ELIG_APPROVALS(mfip_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			REPORTING_COMPLETE_ARRAY(mfip_next_revw_const, month_count) = MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_review_date
+			REPORTING_COMPLETE_ARRAY(mfip_elig_const, month_count) = MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result
+			REPORTING_COMPLETE_ARRAY(mfip_budg_cycle_const, month_count) = MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_budget_cycle
+
+			If STAT_INFORMATION(month_count).stat_revw_cash_code = "A" Then
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_month = True
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+
+				REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/MFIP"
+				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
 			End If
-			If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
+			If STAT_INFORMATION(month_count).stat_mont_cash_status = "A" Then
 				MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_month = True
 				MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
 				MFIP_ELIG_APPROVALS(mfip_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+
+				REPORTING_COMPLETE_ARRAY(mfip_hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) & "/MFIP"
+				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 			End If
 
 
@@ -13230,13 +13310,22 @@ For each footer_month in MONTHS_ARRAY
 
 	If numb_MSA_versions <> " " Then
 		If MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today = True Then
-			MSA_ELIG_APPROVALS(msa_elig_months_count).er_month = False
+			MSA_ELIG_APPROVALS(msa_elig_months_count).revw_month = False
 
-			If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
-				MSA_ELIG_APPROVALS(msa_elig_months_count).er_month = True
-				MSA_ELIG_APPROVALS(msa_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
-				MSA_ELIG_APPROVALS(msa_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-				MSA_ELIG_APPROVALS(msa_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			REPORTING_COMPLETE_ARRAY(msa_next_revw_const, month_count) = MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_recertification_date
+			REPORTING_COMPLETE_ARRAY(msa_elig_const, month_count) = MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result
+			REPORTING_COMPLETE_ARRAY(msa_budg_cycle_const, month_count) = MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_budget_cycle
+			If STAT_INFORMATION(month_count).stat_revw_cash_code = "A" Then
+				MSA_ELIG_APPROVALS(msa_elig_months_count).revw_month = True
+				MSA_ELIG_APPROVALS(msa_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+				MSA_ELIG_APPROVALS(msa_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				MSA_ELIG_APPROVALS(msa_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+
+				REPORTING_COMPLETE_ARRAY(msa_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/MSA"
+				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
 			End If
 		End If
 		msa_elig_months_count = msa_elig_months_count + 1
@@ -13245,19 +13334,34 @@ For each footer_month in MONTHS_ARRAY
 	If numb_GA_versions <> " " Then
 		If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
 
-			GA_ELIG_APPROVALS(ga_elig_months_count).er_month = False
+			GA_ELIG_APPROVALS(ga_elig_months_count).revw_month = False
 			GA_ELIG_APPROVALS(ga_elig_months_count).hrf_month = False
 
-			If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
-				GA_ELIG_APPROVALS(ga_elig_months_count).er_month = True
-				GA_ELIG_APPROVALS(ga_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
-				GA_ELIG_APPROVALS(ga_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-				GA_ELIG_APPROVALS(ga_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			REPORTING_COMPLETE_ARRAY(ga_next_revw_const, month_count) = GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligiblity_review_date
+			REPORTING_COMPLETE_ARRAY(ga_elig_const, month_count) = GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result
+			REPORTING_COMPLETE_ARRAY(ga_budg_cycle_const, month_count) = GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_budget_cycle
+
+			If STAT_INFORMATION(month_count).stat_revw_cash_code = "A" Then
+				GA_ELIG_APPROVALS(ga_elig_months_count).revw_month = True
+				GA_ELIG_APPROVALS(ga_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+				GA_ELIG_APPROVALS(ga_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				GA_ELIG_APPROVALS(ga_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+
+				REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/GA"
+				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
 			End If
-			If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
+			If STAT_INFORMATION(month_count).stat_mont_cash_status = "A" Then
 				GA_ELIG_APPROVALS(ga_elig_months_count).hrf_month = True
 				GA_ELIG_APPROVALS(ga_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
 				GA_ELIG_APPROVALS(ga_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+
+				REPORTING_COMPLETE_ARRAY(ga_hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) & "/GA"
+				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 			End If
 		End If
 		ga_elig_months_count = ga_elig_months_count + 1
@@ -13271,19 +13375,46 @@ For each footer_month in MONTHS_ARRAY
 
 	If numb_GRH_versions <> " " Then
 		If GRH_ELIG_APPROVALS(grh_elig_months_count).approved_today = True Then
-			GRH_ELIG_APPROVALS(grh_elig_months_count).er_month = False
+			GRH_ELIG_APPROVALS(grh_elig_months_count).revw_month = False
 			GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_month = False
 
-			If STAT_INFORMATION(month_count).stat_revw_cash_code <> "" Then
-				GRH_ELIG_APPROVALS(grh_elig_months_count).er_month = True
-				GRH_ELIG_APPROVALS(grh_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_cash_code
-				GRH_ELIG_APPROVALS(grh_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-				GRH_ELIG_APPROVALS(grh_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			REPORTING_COMPLETE_ARRAY(grh_next_revw_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_elig_review_date
+			REPORTING_COMPLETE_ARRAY(grh_elig_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result
+			' REPORTING_COMPLETE_ARRAY(grh_budg_cycle_const, month_count) = GRH_ELIG_APPROVALS(grh_elig_months_count).ga_elig_summ_budget_cycle
+
+
+			If STAT_INFORMATION(month_count).stat_revw_cash_code = "A" Then
+				GRH_ELIG_APPROVALS(grh_elig_months_count).revw_month = True
+				GRH_ELIG_APPROVALS(grh_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_cash_code
+				GRH_ELIG_APPROVALS(grh_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				GRH_ELIG_APPROVALS(grh_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+
+				REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
+
+				If IsDate(STAT_INFORMATION(month_count).stat_last_cash_revw_date) = True Then last_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_last_cash_revw_date)
+				If IsDate(STAT_INFORMATION(month_count).stat_next_cash_revw_date) = True Then next_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_next_cash_revw_date)
+
+				If next_revw_month = last_revw_month OR STAT_INFORMATION(month_count).stat_next_cash_revw_process = "SR" Then
+					GRH_ELIG_APPROVALS(grh_elig_months_count).revw_type = "ER"
+					REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+					REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/GRH"
+				ElseIf STAT_INFORMATION(month_count).stat_next_cash_revw_process = "ER" Then
+					GRH_ELIG_APPROVALS(grh_elig_months_count).revw_type = "SR"
+					REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, month_count) = True
+					REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/GRH"
+				End If
 			End If
-			If STAT_INFORMATION(month_count).stat_mont_cash_status <> "" Then
+			If STAT_INFORMATION(month_count).stat_mont_cash_status = "A" Then
 				GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_month = True
 				GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_cash_status
 				GRH_ELIG_APPROVALS(grh_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+
+				REPORTING_COMPLETE_ARRAY(grh_hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) & "/GRH"
+				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 			End If
 		End If
 		grh_elig_months_count = grh_elig_months_count + 1
@@ -13291,19 +13422,43 @@ For each footer_month in MONTHS_ARRAY
 
 	If numb_SNAP_versions <> " " Then
 		If SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_today = True Then
-			SNAP_ELIG_APPROVALS(snap_elig_months_count).er_month = False
+			SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_month = False
 			SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_month = False
 
-			If STAT_INFORMATION(month_count).stat_revw_snap_code <> "" Then
-				SNAP_ELIG_APPROVALS(snap_elig_months_count).er_month = True
-				SNAP_ELIG_APPROVALS(snap_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_snap_code
-				SNAP_ELIG_APPROVALS(snap_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-				SNAP_ELIG_APPROVALS(snap_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+			REPORTING_COMPLETE_ARRAY(snap_next_revw_const, month_count) = SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_revw_date
+			REPORTING_COMPLETE_ARRAY(snap_elig_const, month_count) = SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_result
+			REPORTING_COMPLETE_ARRAY(snap_budg_cycle_const, month_count) = SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_budget_cycle
+
+			If STAT_INFORMATION(month_count).stat_revw_snap_code = "A" Then
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_month = True
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_snap_code
+				REPORTING_COMPLETE_ARRAY(snap_revw_completed_const, month_count) = True
+
+				If IsDate(STAT_INFORMATION(month_count).stat_last_snap_revw_date) = True Then last_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_last_snap_revw_date)
+				If IsDate(STAT_INFORMATION(month_count).stat_next_snap_revw_date) = True Then next_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_next_snap_revw_date)
+
+				If next_revw_month = last_revw_month OR STAT_INFORMATION(month_count).stat_next_snap_revw_process = "SR" Then
+					SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_type = "ER"
+					REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+					REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/SNAP"
+				ElseIf STAT_INFORMATION(month_count).stat_next_snap_revw_process = "ER" Then
+					SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_type = "SR"
+					REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, month_count) = True
+					REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/SNAP"
+				End If
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
 			End If
-			If STAT_INFORMATION(month_count).stat_mont_snap_status <> "" Then
+			If STAT_INFORMATION(month_count).stat_mont_snap_status = "A" Then
 				SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_month = True
 				SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_snap_status
 				SNAP_ELIG_APPROVALS(snap_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+				REPORTING_COMPLETE_ARRAY(snap_hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(hrf_programs_const, month_count) & "/SNAP"
+				REPORTING_COMPLETE_ARRAY(hrf_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
 			End If
 
 			' MsgBox "SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month - " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_footer_month
@@ -13339,25 +13494,46 @@ For each footer_month in MONTHS_ARRAY
 					End If
 				Next
 			Next
+			snap_elig_months_count = snap_elig_months_count + 1
 		End If
-		snap_elig_months_count = snap_elig_months_count + 1
 	End If
 
 	If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
-		HC_ELIG_APPROVALS(hc_elig_months_count).er_month = False
+		HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = False
 		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = False
 
-		If STAT_INFORMATION(month_count).stat_revw_hc_code <> "" Then
-			HC_ELIG_APPROVALS(hc_elig_months_count).er_month = True
-			HC_ELIG_APPROVALS(hc_elig_months_count).er_status = STAT_INFORMATION(month_count).stat_revw_hc_code
-			HC_ELIG_APPROVALS(hc_elig_months_count).er_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-			HC_ELIG_APPROVALS(hc_elig_months_count).er_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+		' REPORTING_COMPLETE_ARRAY(hc_next_revw_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_elig_revw_date
+		' REPORTING_COMPLETE_ARRAY(hc_elig_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_elig_result
+		' REPORTING_COMPLETE_ARRAY(hc_budg_cycle_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_budget_cycle
+
+		If STAT_INFORMATION(month_count).stat_revw_hc_code = "A" Then
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = True
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_hc_code
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+
+			REPORTING_COMPLETE_ARRAY(hc_revw_completed_const, month_count) = True
+			REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
+
+			If IsDate(STAT_INFORMATION(month_count).stat_last_hc_revw_date) = True Then last_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_last_hc_revw_date)
+			If IsDate(STAT_INFORMATION(month_count).stat_next_hc_revw_date) = True Then next_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_next_hc_revw_date)
+
+			If next_revw_month = last_revw_month OR STAT_INFORMATION(month_count).stat_next_hc_revw_process = "SR" Then
+				HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "ER"
+				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/HC"
+			ElseIf STAT_INFORMATION(month_count).stat_next_hc_revw_process = "ER" Then
+				HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "SR"
+				REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/HC"
+			End If
 		End If
-		If STAT_INFORMATION(month_count).stat_mont_hc_status <> "" Then
-			HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = True
-			HC_ELIG_APPROVALS(hc_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_hc_status
-			HC_ELIG_APPROVALS(hc_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
-		End If
+		' If STAT_INFORMATION(month_count).stat_mont_hc_status == "A" Then
+		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = True
+		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_hc_status
+		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+		' End If
 	End If
 	hc_elig_months_count = hc_elig_months_count + 1
 
@@ -13732,6 +13908,8 @@ If approval_note_found = True Then
 	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for HC, it was requested to enter a new note about eligibility for HC."
 
 End If
+
+Call back_to_SELF
 
 'Determining MFIP unique approvals
 If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval from today was found
@@ -15513,6 +15691,84 @@ If denials_found_on_pnd2 = True Then
 
 
 End If
+
+For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
+	If REPORTING_COMPLETE_ARRAY(er_revw_completed_const, each_month) = True Then
+		testing_run = True
+		If left(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), 1) = "/" Then REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = right(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), len(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month))-1)
+
+		Call start_a_blank_CASE_NOTE
+
+		Call write_variable_in_CASE_NOTE("REVW COMPLETE - " & REPORTING_COMPLETE_ARRAY(month_const, each_month) & " ER for " & REPORTING_COMPLETE_ARRAY(er_programs_const, each_month))
+		Call write_variable_in_CASE_NOTE("* Approval Detail and Eligibility in Previous Note(s)")
+		Call write_bullet_and_variable_in_CASE_NOTE("Review Completed on", date)
+		Call write_bullet_and_variable_in_CASE_NOTE("Review Form Received", REPORTING_COMPLETE_ARRAY(revw_form_date_const, each_month))
+		Call write_bullet_and_variable_in_CASE_NOTE("Interview Completed", REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, each_month))
+
+		If REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, each_month) = True Then
+			Call write_variable_in_CASE_NOTE("======================= MFIP =======================")
+			Call write_bullet_and_variable_in_CASE_NOTE("MFIP Eligibility in REVW Month " & REPORTING_COMPLETE_ARRAY(month_const, each_month), REPORTING_COMPLETE_ARRAY(mfip_elig_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("MFIP Budget Cycle upon REVW", REPORTING_COMPLETE_ARRAY(mfip_budg_cycle_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("Next Cash Review", REPORTING_COMPLETE_ARRAY(mfip_next_revw_const, each_month))
+		End If
+		If REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, each_month) = True Then
+			Call write_variable_in_CASE_NOTE("======================== GA ========================")
+			Call write_bullet_and_variable_in_CASE_NOTE("GA Eligibility in REVW Month " & REPORTING_COMPLETE_ARRAY(month_const, each_month), REPORTING_COMPLETE_ARRAY(ga_elig_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("GA Budget Cycle upon REVW", REPORTING_COMPLETE_ARRAY(ga_budg_cycle_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("Next Cash Review", REPORTING_COMPLETE_ARRAY(ga_next_revw_const, each_month))
+		End If
+		If REPORTING_COMPLETE_ARRAY(msa_revw_completed_const, each_month) = True Then
+			Call write_variable_in_CASE_NOTE("======================= MSA ========================")
+			Call write_bullet_and_variable_in_CASE_NOTE("MSA Eligibility in REVW Month " & REPORTING_COMPLETE_ARRAY(month_const, each_month), REPORTING_COMPLETE_ARRAY(msa_elig_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("MSA Budget Cycle upon REVW", REPORTING_COMPLETE_ARRAY(msa_budg_cycle_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("Next Cash Review", REPORTING_COMPLETE_ARRAY(msa_next_revw_const, each_month))
+		End If
+		If REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, each_month) = True and InStr(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), "GRH") <> 0 Then
+			Call write_variable_in_CASE_NOTE("======================= GRH ========================")
+			Call write_bullet_and_variable_in_CASE_NOTE("GRH Eligibility in REVW Month " & REPORTING_COMPLETE_ARRAY(month_const, each_month), REPORTING_COMPLETE_ARRAY(grh_elig_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("GRH Budget Cycle upon REVW", REPORTING_COMPLETE_ARRAY(grh_budg_cycle_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("Next Cash Review", REPORTING_COMPLETE_ARRAY(grh_next_revw_const, each_month))
+		End If
+		If REPORTING_COMPLETE_ARRAY(snap_revw_completed_const, each_month) = True and InStr(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), "SNAP") <> 0 Then
+			Call write_variable_in_CASE_NOTE("======================= SNAP =======================")
+			Call write_bullet_and_variable_in_CASE_NOTE("SNAP Eligibility in REVW Month " & REPORTING_COMPLETE_ARRAY(month_const, each_month), REPORTING_COMPLETE_ARRAY(snap_elig_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("SNAP Budget Cycle upon REVW", REPORTING_COMPLETE_ARRAY(snap_budg_cycle_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("Next SNAP Review", REPORTING_COMPLETE_ARRAY(snap_next_revw_const, each_month))
+		End If
+
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE(worker_signature)
+	End If
+
+
+	If REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, each_month) = True Then
+		testing_run = True
+		If left(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), 1) = "/" Then REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month) = right(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), len(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month))-1)
+
+		Call start_a_blank_CASE_NOTE
+
+		Call write_variable_in_CASE_NOTE("REVW COMPLETE - " & REPORTING_COMPLETE_ARRAY(month_const, each_month) & " SR for " & REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month))
+		Call write_variable_in_CASE_NOTE("* Approval Detail and Eligibility in Previous Note(s)")
+		Call write_bullet_and_variable_in_CASE_NOTE("Review Completed on", date)
+		Call write_bullet_and_variable_in_CASE_NOTE("Review Form Received", REPORTING_COMPLETE_ARRAY(revw_form_date_const, each_month))
+
+		If REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, each_month) = True and InStr(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), "GRH") <> 0 Then
+			Call write_variable_in_CASE_NOTE("======================= GRH ========================")
+			Call write_bullet_and_variable_in_CASE_NOTE("GRH Eligibility in REVW Month " & REPORTING_COMPLETE_ARRAY(month_const, each_month), REPORTING_COMPLETE_ARRAY(grh_elig_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("GRH Budget Cycle upon REVW", REPORTING_COMPLETE_ARRAY(grh_budg_cycle_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("Next Cash Review", REPORTING_COMPLETE_ARRAY(grh_next_revw_const, each_month))
+		End If
+		If REPORTING_COMPLETE_ARRAY(snap_revw_completed_const, each_month) = True and InStr(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), "SNAP") <> 0 Then
+			Call write_variable_in_CASE_NOTE("======================= SNAP =======================")
+			Call write_bullet_and_variable_in_CASE_NOTE("SNAP Eligibility in REVW Month " & REPORTING_COMPLETE_ARRAY(month_const, each_month), REPORTING_COMPLETE_ARRAY(snap_elig_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("SNAP Budget Cycle upon REVW", REPORTING_COMPLETE_ARRAY(snap_budg_cycle_const, each_month))
+			Call write_bullet_and_variable_in_CASE_NOTE("Next SNAP Review", REPORTING_COMPLETE_ARRAY(snap_next_revw_const, each_month))
+		End If
+
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE(worker_signature)
+	End If
+Next
 
 
 ' "- 04/22 . . . Entitlement:    $ "250
