@@ -719,6 +719,7 @@ function snap_elig_case_note()
 					pay_info = job_amt_array(0)
 				End if
 				If pay_info = "" Then pay_info = "0"
+				
 				job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
@@ -726,55 +727,97 @@ function snap_elig_case_note()
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_snap(each_memb) = True Then
-				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb), ".")
-				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 35)
+				pay_info = STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb)
+				If InStr(STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_two_snap_pic_prosp_monthly_inc(each_memb), ".")
+					pay_info = job_amt_array(0)
+				End if
+				If pay_info = "" Then pay_info = "0"
+
+				job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
 				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_snap(each_memb) = True Then
-				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb), ".")
-				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 35)
+				pay_info = STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb)
+				If InStr(STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_three_snap_pic_prosp_monthly_inc(each_memb), ".")
+					pay_info = job_amt_array(0)
+				End if
+				If pay_info = "" Then pay_info = "0"
+
+				job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
 				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_snap(each_memb) = True Then
-				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb), ".")
-				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 35)
+				pay_info = STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb)
+				If InStr(STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_four_snap_pic_prosp_monthly_inc(each_memb), ".")
+					pay_info = job_amt_array(0)
+				End if
+				If pay_info = "" Then pay_info = "0"
+
+				job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
 				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_snap(each_memb) = True Then
-				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb), ".")
-				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 35)
+				pay_info = STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb)
+				If InStr(STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_five_snap_pic_prosp_monthly_inc(each_memb), ".")
+					pay_info = job_amt_array(0)
+				End if
+				If pay_info = "" Then pay_info = "0"
+
+				job_detail = left(jpay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
 				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_snap(each_memb) = True Then
-				busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb), ".")
-				busi_details = left(busi_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 35)
+				pay_info = STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb)
+				If InStr(STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb), ".") <> 0 Then
+					busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_one_snap_prosp_net_inc(each_memb), ".")
+					pay_info = busi_amt_array(0)
+				End if
+				If pay_info = "" Then pay_info = "0"
+
+				busi_details = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(beginning_txt & "BUSI- $" & busi_details & earned_info)
 				beginning_txt = "            "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_snap(each_memb) = True Then
-				busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb), ".")
-				busi_details = left(busi_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 35)
+				pay_info = STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb)
+				If InStr(STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb), ".") <> 0 Then
+					busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_two_snap_prosp_net_inc(each_memb), ".")
+					pay_info = busi_amt_array(0)
+				End if
+				If pay_info = "" Then pay_info = "0"
+
+				busi_details = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(beginning_txt & "BUSI- $" & busi_details & earned_info)
 				beginning_txt = "            "
 				beginning_txt = "  "
 				earned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_snap(each_memb) = True Then
-				busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb), ".")
-				busi_details = left(busi_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 35)
+				pay_info = STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb)
+				If InStr(STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb), ".") <> 0 Then
+					busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_three_snap_prosp_net_inc(each_memb), ".")
+					pay_info = busi_amt_array(0)
+				End if
+				If pay_info = "" Then pay_info = "0"
+
+				busi_details = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(beginning_txt & "BUSI- $" & busi_details & earned_info)
 				beginning_txt = "            "
 				beginning_txt = "  "
@@ -789,55 +832,50 @@ function snap_elig_case_note()
 		unearned_info = "| Gross Unearned Inc: $ " & right("        "&SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8)
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_snap(each_memb) = True Then
+				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb)
 				If InStr(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
 					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb), ".")
 					list_unea_amt = unea_amt_array(0)
-				Else
-					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_snap_pic_prosp_monthly_inc(each_memb)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_snap(each_memb) = True Then
+				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb)
 				If InStr(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
 					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb), ".")
 					list_unea_amt = unea_amt_array(0)
-				Else
-					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_snap_pic_prosp_monthly_inc(each_memb)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_snap(each_memb) = True Then
+				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb)
 				If InStr(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
 					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb), ".")
 					list_unea_amt = unea_amt_array(0)
-				Else
-					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_snap_pic_prosp_monthly_inc(each_memb)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_snap(each_memb) = True Then
+				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb)
 				If InStr(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
 					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb), ".")
 					list_unea_amt = unea_amt_array(0)
-				Else
-					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_snap_pic_prosp_monthly_inc(each_memb)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(" UNEA- $" & unea_detail & unearned_info)
 				unearned_info = "|"
 			End If
 			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_snap(each_memb) = True Then
+				list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb)
 				If InStr(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
 					unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb), ".")
 					list_unea_amt = unea_amt_array(0)
-				Else
-					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_snap_pic_prosp_monthly_inc(each_memb)
 				End If
 				unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
