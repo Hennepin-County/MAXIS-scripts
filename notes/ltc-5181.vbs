@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("07/21/2022", "Fixed bug that was clearing all ADDR information.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Removed TIKL option to identify that 5181 has been rec'd.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/06/2020", "Updated error message handling and password handling around the dialogs.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/23/2018", "Updated dialog boxes to accommodate a laptop users.", "Ilse Ferris, Hennepin County")
@@ -59,6 +60,7 @@ changelog_display
 'THE SCRIPT------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to MAXIS & grabbing the case number and footer month/year
 EMConnect ""
+call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
 Call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -81,13 +83,15 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
-        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
-        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+		Call validate_MAXIS_case_number(err_msg, "*")
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "ADDR", is_this_priv)
+If is_this_priv = True then script_end_procedure("Case is privileged. The script will now end.")
 
 'Dialog completed by worker. Each dialog follows this process:
 '  1. Show the dialog and validate that next/OK or prev is pressed
@@ -165,10 +169,18 @@ Do
     				Dialog Dialog1						'Displays the first dialog - defined just above.
     				cancel_confirmation				'Asks if you're sure you want to cancel, and cancels if you select that.
     			Loop until ButtonPressed = next_to_page_02_button
-                If isdate(date_5181) = False or trim(date_5181) = "" then err_msg = err_msg & vbcr & "Enter a valid 5181 date."
-                If isdate(date_received) = False or trim(date_received) = "" then err_msg = err_msg & vbcr & "Enter the date the 5181 was received."
-                IF trim(lead_agency) = "" then err_msg = err_msg & vbcr & "Enter the Lead Agency Name."		'Requires the user to select a waiver
-    			If waiver_type_droplist = "Select one..." then err_msg = err_msg & vbcr & "Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
+                If isdate(date_5181) = False or trim(date_5181) = "" then err_msg = err_msg & vbcr & "* Enter a valid 5181 date."
+                If isdate(date_received) = False or trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the 5181 was received."
+                IF trim(lead_agency) = "" then err_msg = err_msg & vbcr & "* Enter the Lead Agency Name."		'Requires the user to select a waiver
+                IF update_addr_checkbox = 1 then
+                    If isdate(date_of_admission) = False then err_msg = err_msg & vBcr & "* Enter the date of admission."
+                    If trim(facility_address_line_01) = "" then err_msg = err_msg & vBcr & "* Update the faci address line 1."
+                    If trim(facility_city) = "" then err_msg = err_msg & vBcr & "* Update the faci city."
+                    If trim(facility_state) = "" then err_msg = err_msg & vBcr & "* Update the faci state."
+                    If trim(facility_county_code) = "" then err_msg = err_msg & vBcr & "* Update the faci county code."
+                    If trim(facility_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the faci zip code."
+                End if
+    			If waiver_type_droplist = "Select one..." then err_msg = err_msg & vbcr & "* Choose waiver type (or select 'no waiver')."		'Requires the user to select a waiver
                 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
             Loop until err_msg = ""
     	Loop until ButtonPressed = next_to_page_02_button
@@ -300,14 +312,28 @@ Do
     				Dialog Dialog1							'Displays the third dialog - defined just above.
     				cancel_confirmation					'Asks if you're sure you want to cancel, and cancels if you select that.
     				MAXIS_dialog_navigation				'Navigates around MAXIS using a custom function (works with the prev/next buttons and all the navigation buttons)
-    				IF (exited_waiver_program_check = checked AND exit_waiver_end_date = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the exited waiver checkbox that was checked."
-    				IF (client_deceased_check =  checked AND date_of_death = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the client deceased checkbox that was checked."
-    				IF (client_moved_to_LTCF_check = checked AND client_moved_to_LTCF = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the client moved to LTCF checkbox that was checked."
-    				IF (waiver_program_change_check = checked AND waiver_program_change_from = "" AND waiver_program_change_to = "") THEN err_msg = err_msg & vBcr & "Complete the field next to the waiver program change checkbox that was checked."
-    				IF (client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan = "") THEN err_msg = err_msg & vBcr & "Complete a field next to the client disenrolled from health plan checkbox that was checked."
-    				IF (new_address_check = checked AND new_address_effective_date =  "") THEN err_msg = err_msg & vBcr & "Complete a field next to the new address effective date checkbox that was checked."
-                    IF trim(case_action) = "" THEN err_msg = err_msg & vBcr & "Complete case actions section."
-    				IF trim(worker_signature) = "" THEN err_msg = err_msg & vBcr & "Sign your case note."
+    				IF (exited_waiver_program_check = checked AND isdate(exit_waiver_end_date) = false) THEN err_msg = err_msg & vBcr & "* Complete the field next to the exited waiver checkbox that was checked."
+    				IF (client_deceased_check =  checked AND isdate(date_of_death) = false) THEN err_msg = err_msg & vBcr & "* Complete the field next to the client deceased checkbox that was checked."
+    				IF (client_moved_to_LTCF_check = checked AND isdate(client_moved_to_LTCF) = False) THEN err_msg = err_msg & vBcr & "* Complete the field next to the client moved to LTCF checkbox that was checked."
+                    If LTCF_update_ADDR_checkbox = 1 then
+                        If trim(LTCF_ADDR_line_01) = "" then err_msg = err_msg & vBcr & "* Update the faci address line 1."
+                        If trim(LTCF_city) = "" then err_msg = err_msg & vBcr & "* Update the faci city."
+                        If trim(LTCF_state) = "" then err_msg = err_msg & vBcr & "* Update the faci state."
+                        If trim(LTCF_county_code) = "" then err_msg = err_msg & vBcr & "* Update the faci county code."
+                        If trim(LTCF_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the faci zip code."
+                    End if
+                    IF (waiver_program_change_check = checked AND waiver_program_change_from = "" AND waiver_program_change_to = "") THEN err_msg = err_msg & vBcr & "* Complete the field next to the waiver program change checkbox that was checked."
+    				IF (client_disenrolled_health_plan_check = checked AND client_disenrolled_from_healthplan = "") THEN err_msg = err_msg & vBcr & "* Complete a field next to the client disenrolled from health plan checkbox that was checked."
+    				IF (new_address_check = checked AND isdate(new_address_effective_date) = False) THEN err_msg = err_msg & vBcr & "* Complete a field next to the new address effective date checkbox that was checked."
+                    If update_addr_new_ADDR_checkbox = 1 then
+                        If trim(change_ADDR_line_1) = "" then err_msg = err_msg & vBcr & "* Update the new address line 1."
+                        If trim(change_city) = "" then err_msg = err_msg & vBcr & "* Update the new city."
+                        If trim(change_state) = "" then err_msg = err_msg & vBcr & "* Update the new state."
+                        If trim(change_county_code) = "" then err_msg = err_msg & vBcr & "* Update the new county code."
+                        If trim(change_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the new zip code."
+                    End if
+                    IF trim(case_action) = "" THEN err_msg = err_msg & vBcr & "* Complete case actions section."
+    				IF trim(worker_signature) = "" THEN err_msg = err_msg & vBcr & "* Sign your case note."
                     IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     			Loop until err_msg = ""
     		Loop until ButtonPressed = -1 or ButtonPressed = previous_to_page_02_button
@@ -317,10 +343,10 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+call check_for_MAXIS(False) 'Checking to see that we're in MAXIS
+
 'Dollar bill symbol will be added to numeric variables
 IF estimated_monthly_waiver_costs <> "" THEN estimated_monthly_waiver_costs = "$" & estimated_monthly_waiver_costs
-'Checking to see that we're in MAXIS
-call check_for_MAXIS(False)
 
 'ACTIONS----------------------------------------------------------------------------------------------------
 'Updates STAT MEMB with client's date of death (client_deceased_check)
@@ -365,6 +391,8 @@ IF update_addr_checkbox = 1 THEN
 		Transmit
 	END IF
 
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+
 	Call access_ADDR_panel("WRITE", notes_on_address, facility_address_line_01, facility_address_line_02, resi_street_full, facility_city, facility_state, facility_zip_code, facility_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, date_of_admission, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
 
@@ -385,8 +413,9 @@ IF LTCF_update_ADDR_checkbox = 1 THEN
 		Transmit
 	END IF
 
-	Call access_ADDR_panel("WRITE", notes_on_address, LTCF_ADDR_line_01, LTCF_ADDR_line_02, resi_street_full, LTCF_city, LTCF_state, LTCF_zip_code, LTCF_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, client_moved_to_LTCF, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
+	Call access_ADDR_panel("WRITE", notes_on_address, LTCF_ADDR_line_01, LTCF_ADDR_line_02, resi_street_full, LTCF_city, LTCF_state, LTCF_zip_code, LTCF_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, client_moved_to_LTCF, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
 
 'Updates ADDR if selected on DIALOG 3 "have script update ADDR panel" for new address
@@ -406,8 +435,9 @@ IF update_addr_new_ADDR_checkbox = 1 THEN
 		Transmit
 	END IF
 
-	Call access_ADDR_panel("WRITE", notes_on_address, change_ADDR_line_1, change_ADDR_line_2, resi_street_full, change_city, change_state, change_zip_code, change_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, new_address_effective_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
+    Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 
+	Call access_ADDR_panel("WRITE", notes_on_address, change_ADDR_line_1, change_ADDR_line_2, resi_street_full, change_city, change_state, change_zip_code, change_county_code, "OT - Other Document", addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, new_address_effective_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 END If
 
 'Updates SWKR panel with Name, address and phone number if checked on DIALOG 1
@@ -417,7 +447,7 @@ If update_SWKR_info_checkbox = 1 THEN
 	'creates a new panel if one doesn't exist, and will needs new if there is not one
 	EMReadScreen panel_exists_check, 1, 2, 73
 	IF panel_exists_check = "0" THEN
-		EMWriteScreen "nn", 20, 79 'creating new panel
+		EMWriteScreen "NN", 20, 79 'creating new panel
 		transmit
 	ELSE
 		PF9	'putting panel into edit mode
@@ -481,9 +511,6 @@ If ongoing_case_manager_check = 1 THEN
 	transmit
 	PF3
 END IF
-
-'Checking to see that we're in MAXIS
-call check_for_MAXIS(False)
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE
@@ -549,4 +576,46 @@ If sent_5181_to_caseworker_check = 1 then Call write_variable_in_case_note("* Se
 Call write_variable_in_case_note ("---")
 call write_variable_in_case_note (worker_signature)
 
-script_end_procedure("Success! Please make sure your DISA and FACI panel(s) are updated if needed. Also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")
+script_end_procedure_with_error_report("Success! Please make sure your DISA and FACI panel(s) are updated if needed. Also evaluate the case for any other possible programs that can be opened, or that need to be changed or closed.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------07/21/2022
+'--Tab orders reviewed & confirmed----------------------------------------------07/21/2022
+'--Mandatory fields all present & Reviewed--------------------------------------07/21/2022
+'--All variables in dialog match mandatory fields-------------------------------07/21/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------07/21/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------07/21/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/21/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/21/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------07/21/2022
+'--PRIV Case handling reviewed -------------------------------------------------07/21/2022
+'--Out-of-County handling reviewed----------------------------------------------07/21/2022----------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------07/21/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------07/21/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---07/21/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------07/21/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------07/21/2022
+'--Denomination reviewed -------------------------------------------------------07/21/2022
+'--Script name reviewed---------------------------------------------------------07/21/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------07/21/2022-----------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------07/21/2022
+'--comment Code-----------------------------------------------------------------07/21/2022
+'--Update Changelog for release/update------------------------------------------07/21/2022
+'--Remove testing message boxes-------------------------------------------------07/21/2022
+'--Remove testing code/unnecessary code-----------------------------------------07/21/2022
+'--Review/update SharePoint instructions----------------------------------------07/21/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/21/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/21/2022
+'--Complete misc. documentation (if applicable)---------------------------------07/21/2022
+'--Update project team/issue contact (if applicable)----------------------------07/21/2022
