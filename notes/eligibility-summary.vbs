@@ -713,8 +713,13 @@ function snap_elig_case_note()
 		spaces_30 = "                              "
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_snap(each_memb) = True Then
-				job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb), ".")
-				job_detail = left(job_amt_array(0) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 35)
+				pay_info = STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb)
+				If InStr(STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb), ".") <> 0 Then
+					job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_one_snap_pic_prosp_monthly_inc(each_memb), ".")
+					pay_info = job_amt_array(0)
+				End if
+				If pay_info = "" Then pay_info = "0"
+				job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 35)
 				Call write_variable_in_CASE_NOTE(beginning_txt & "JOBS- $" & job_detail & earned_info)
 				beginning_txt = "            "
 				beginning_txt = "  "
@@ -1291,6 +1296,7 @@ function snap_elig_case_note()
 	End If
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
+
 	' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
 	PF3
 end function
