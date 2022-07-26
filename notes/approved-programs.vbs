@@ -133,7 +133,9 @@ Do
 
         If offer_test_script = True and elig_summ_option_given = False Then
             elig_summ_option_given = True
-            Call select_testing_file("ALL", "", "notes/eligibility-summary.vbs", "master", True, True)
+            run_elig_summ = MsgBox("It appears you are running 'NOTES - Approved Programs' on a case that has been approved SNAP and/or MFIP. In this case the new script 'NOTES - Eligibility Summary' is available to use to document the eligibility results for these programs." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
+            If run_elig_summ = vbYes then Call run_another_script(script_repository & "/notes/eligibility-summary.vbs")
+            ' Call select_testing_file("ALL", "", "notes/eligibility-summary.vbs", "master", True, True)
         End if
 
 		'Enforcing mandatory fields
