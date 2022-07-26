@@ -15831,7 +15831,7 @@ If first_SNAP_approval <> "" Then enter_CNOTE_for_SNAP = True
 If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' MsgBox "first_MFIP_approval - " & first_MFIP_approval & vbCr & "enter_CNOTE_for_MFIP - " & enter_CNOTE_for_MFIP
 
-If enter_CNOTE_for_MFIP = True Then testing_run = True
+' If enter_CNOTE_for_MFIP = True Then testing_run = True
 enter_CNOTE_for_GA = False
 If script_user_is_a_tester = False Then enter_CNOTE_for_GA = False
 
@@ -17207,7 +17207,7 @@ End If
 
 If denials_found_on_pnd2 = True Then
 	denial_accurate = ""
-	testing_run = True
+	' testing_run = True
 
 	Do
 		Call rept_pnd2_dialog
@@ -17418,7 +17418,7 @@ End If
 
 For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 	If REPORTING_COMPLETE_ARRAY(er_revw_completed_const, each_month) = True Then
-		testing_run = True
+		' testing_run = True
 		If left(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), 1) = "/" Then REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = right(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), len(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month))-1)
 
 		Call start_a_blank_CASE_NOTE
@@ -17466,7 +17466,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 
 
 	If REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, each_month) = True Then
-		testing_run = True
+		' testing_run = True
 		If left(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), 1) = "/" Then REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month) = right(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), len(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month))-1)
 
 		Call start_a_blank_CASE_NOTE
