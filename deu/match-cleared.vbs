@@ -35,6 +35,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
 script_run_lowdown = ""
 
 'CHANGELOG BLOCK ===========================================================================================================
@@ -43,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/08/2020", "Updated BUG when clearing match BO-Other added back IULB notes per DEU request.", "MiKayla Handley, Hennepin County") '#922
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("08/24/2021", "Remove mandatory handling from other notes variable.", "MiKayla Handley, Hennepin County") '#571 '
 CALL changelog_update("06/09/2021", "Handling for script end procedure.", "MiKayla Handley, Hennepin County") '#373 '
@@ -554,6 +556,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	EMReadScreen panel_name, 4, 02, 52
 	IF panel_name <> "IULA" THEN
 		EMReadScreen back_panel_name, 4, 2, 52
+		Call IEVP_looping(ievp_panel)
 		If back_panel_name <> "IEVP" Then
 			CALL back_to_SELF
 			CALL navigate_to_MAXIS_screen("INFC" , "____")
@@ -650,12 +653,12 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 			IF resolution_status = "BN-Already Known-No Savings" THEN IULB_notes = "Already known - No savings. " & other_notes
 			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Client name and wage earner name are different. " & other_notes
 			IF resolution_status = "BU-Unable To Verify" THEN IULB_notes = "Unable To Verify. " & other_notes
-			'IF resolution_status = "BO-Other" THEN IULB_notes = "HC Claim entered. " & other_notes
+			IF resolution_status = "BO-Other" THEN IULB_notes = "HC Claim entered. " & other_notes
 			IF resolution_status = "NC-Non Cooperation" THEN IULB_notes = "Non-coop, requested verf not in ECF, " & other_notes
 
 			iulb_row = 8
 			iulb_col = 6
-			notes_array = split(IULB_notes, " ")
+			notes_array = split(IULB_notes, " ") 'this is where we write to IULB'
 			For each word in notes_array
 				EMWriteScreen word & " ", iulb_row, iulb_col
 				If iulb_col + len(word) > 77 Then
@@ -665,12 +668,10 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 				End If
 				iulb_col = iulb_col + len(word) + 1
 			Next
-
     	    TRANSMIT
-
     		EMReadScreen MISC_error_check,  74, 24, 02
     		IF trim(MISC_error_check) <> "" THEN
-    			next_steps_message_box = MsgBox("***WARNING MESSAGE***" & vbNewLine & "Transmit?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion,     "Message handling")
+    			next_steps_message_box = MsgBox("***WARNING MESSAGE***" & vbNewLine & "Do you want to transmit?" & vbNewLine & MISC_error_check & vbNewLine, vbYesNo + vbQuestion,     "Message handling")
     			IF next_steps_message_box = vbYes THEN
     				TRANSMIT
     				EMReadScreen panel_name, 4, 02, 52
