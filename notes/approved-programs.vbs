@@ -18,8 +18,10 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
     ELSEIF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
 		IF use_master_branch = TRUE THEN			   'If the default_directory is C:\DHS-MAXIS-Scripts\Script Files, you're probably a scriptwriter and should use the master branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+            script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"
 		Else											'Everyone else should use the release branch.
 			FuncLib_URL = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/MASTER%20FUNCTIONS%20LIBRARY.vbs"
+            script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"
 		End if
 		SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a FuncLib_URL
 		req.open "GET", FuncLib_URL, FALSE							'Attempts to open the FuncLib_URL
@@ -36,6 +38,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		END IF
 	ELSE
 		FuncLib_URL = "C:\MAXIS-scripts\MASTER FUNCTIONS LIBRARY.vbs"
+        script_repository = "C:\MAXIS-Scripts\"
 		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
 		Set fso_command = run_another_script_fso.OpenTextFile(FuncLib_URL)
 		text_from_the_other_script = fso_command.ReadAll
@@ -133,8 +136,11 @@ Do
 
         If offer_test_script = True and elig_summ_option_given = False Then
             elig_summ_option_given = True
-            run_elig_summ = MsgBox("It appears you are running 'NOTES - Approved Programs' on a case that has been approved SNAP and/or MFIP. In this case the new script 'NOTES - Eligibility Summary' is available to use to document the eligibility results for these programs." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
-            If run_elig_summ = vbYes then Call run_another_script(script_repository & "/notes/eligibility-summary.vbs")
+            ' run_elig_summ = MsgBox("It appears you are running 'NOTES - Approved Programs' on a case that has been approved SNAP and/or MFIP. In this case the new script 'NOTES - Eligibility Summary' is available to use to document the eligibility results for these programs." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
+            ' ' MsgBox script_repository & "notes/eligibility-summary.vbs"
+            ' script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/notes/eligibility-summary.vbs"
+            ' MsgBox script_url
+            ' If run_elig_summ = vbYes then Call run_another_script(script_url)
             ' Call select_testing_file("ALL", "", "notes/eligibility-summary.vbs", "master", True, True)
         End if
 
