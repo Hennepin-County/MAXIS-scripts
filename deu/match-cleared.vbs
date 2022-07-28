@@ -344,7 +344,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 326, 170, "MATCH CLEARED - CASE NUMBER: "  & MAXIS_case_number
       EditBox 175, 5, 15, 15, resolve_time
-      DropListBox 75, 35, 115, 15, "Select One:"+chr(9)+"CB-Ovrpmt And Future Save"+chr(9)+"CC-Overpayment Only"+chr(9)+"CF-Future Save"+chr(9)+"CA-Excess Assets"+chr(9)+"CI-Benefit Increase"+chr(9)+"CP-Applicant Only Savings"+chr(9)+"BC-Case Closed"+chr(9)+"BE-Child"+chr(9)+"BE-No Change"+chr(9)+"BE-NC-Non-collectible"+chr(9)+"BE-Overpayment Entered"+chr(9)+"BN-Already Known-No Savings"+chr(9)+"BI-Interface Prob"+chr(9)+"BP-Wrong Person"+chr(9)+"BU-Unable To Verify"+chr(9)+"BO-Other"+chr(9)+"NC-Non Cooperation", resolution_status
+      DropListBox 75, 35, 115, 15, "Select One:"+chr(9)+"CB-Ovrpmt And Future Save"+chr(9)+"CC-Overpayment Only"+chr(9)+"CF-Future Save"+chr(9)+"CA-Excess Assets"+chr(9)+"CI-Benefit Increase"+chr(9)+"CP-Applicant Only Savings"+chr(9)+"BC-Case Closed"+chr(9)+"BE-Child"+chr(9)+"BE-No Change"+chr(9)+"BE-NC-Non-collectible"+chr(9)+"BE-Overpayment Entered"+chr(9)+"BN-Already Known-No Savings"+chr(9)+"BI-Interface Prob"+chr(9)+"BO-Other"+chr(9)+"BP-Wrong Person"+chr(9)+"BU-Unable To Verify"+chr(9)+"NC-Non Cooperation", resolution_status
       DropListBox 120, 50, 70, 15, "Select One:"+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"N/A", change_response
       DropListBox 120, 65, 70, 15, "Select One:"+chr(9)+"DISQ Added"+chr(9)+"DISQ Deleted"+chr(9)+"Pending Verif"+chr(9)+"No"+chr(9)+"N/A", DISQ_action
       EditBox 275, 15, 40, 15, date_received
@@ -556,7 +556,6 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 	EMReadScreen panel_name, 4, 02, 52
 	IF panel_name <> "IULA" THEN
 		EMReadScreen back_panel_name, 4, 2, 52
-		Call IEVP_looping(ievp_panel)
 		If back_panel_name <> "IEVP" Then
 			CALL back_to_SELF
 			CALL navigate_to_MAXIS_screen("INFC" , "____")
@@ -653,7 +652,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 			IF resolution_status = "BN-Already Known-No Savings" THEN IULB_notes = "Already known - No savings. " & other_notes
 			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Client name and wage earner name are different. " & other_notes
 			IF resolution_status = "BU-Unable To Verify" THEN IULB_notes = "Unable To Verify. " & other_notes
-			IF resolution_status = "BO-Other" THEN IULB_notes = "HC Claim entered. " & other_notes
+			IF resolution_status = "BO-Other" THEN IULB_notes = "No review due during the match period. " & other_notes
 			IF resolution_status = "NC-Non Cooperation" THEN IULB_notes = "Non-coop, requested verf not in ECF, " & other_notes
 
 			iulb_row = 8
@@ -885,7 +884,6 @@ IF resolution_status = "BI-Interface Prob" THEN CALL write_variable_in_case_note
 IF resolution_status = "BN-Already Known-No Savings" THEN CALL write_variable_in_case_note("* Client reported income. Correct income is in JOBS/BUSI and budgeted.")
 IF resolution_status = "BP-Wrong Person" THEN CALL write_variable_in_case_note("* Client name and wage earner name are different.  Client's SSN has been verified. No overpayment or savings related to this match.")
 IF resolution_status = "BU-Unable To Verify" THEN CALL write_variable_in_case_note("* Unable to verify, due to:")
-'IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* HC Claim entered.")
 IF resolution_status = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
 IF resolution_status = "NC-Non Cooperation" THEN
 	CALL write_variable_in_case_note("* Client failed to cooperate with wage match.")
