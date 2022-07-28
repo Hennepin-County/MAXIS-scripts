@@ -33,108 +33,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-function claim_referral_tracking(action_taken, action_date)
-'--- This function tracks the date a worker first suspects there may be a SNAP or MFIP claim. It also helps to track the discovery date and the established date of a claim. This will create or update the MISC panel and case note the referral.
-'~~~~~ action_taken: 4 options exist for clearing claim referral "Sent Verification Request", "Determination-OP Entered","Determination-Non-Collect", "No Savings/Overpayment" each has different handling
-'===== Keywords: MAXIS, Claim, MISC, CCOL, overpayment
-    CALL Check_for_MAXIS(false)                         'Ensuring we are not passworded out
-    action_date = date & ""
-
-	Call back_to_SELF
-    MAXIS_background_check      'Making sure we are out of background.
-
-    'Grabbing case and program status information from MAXIS.
-    'For this script to work correctly, these must be correct BEFORE running the script.
-    CALL determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-	'--- Function used to return booleans on case and program status based on CASE CURR information. There is no input informat but MAXIS_case_number needs to be defined.
-	'~~~~~ case_active: Outputs BOOLEAN of if the case is active in any MAXIS program
-	'~~~~~ case_pending: Outputs BOOLEAN of if the case is pending for any MAXIS Program
-	'~~~~~ case_rein: Outputs BOOLEAN of if the case is in REIN for any MAXIS Program
-	'~~~~~ family_cash_case: Outputs BOOLEAN of if the case is active or pending for any family cash program (MFIP or DWP)
-	'~~~~~ mfip_case: Outputs BOOLEAN of if the case is active or pending MFIP
-	'~~~~~ dwp_case: Outputs BOOLEAN of if the case is active or pending DWP
-	'~~~~~ adult_cash_case: Outputs BOOLEAN of if the case is active or pending any adult cash program (GA or MSA)
-	'~~~~~ ga_case: Outputs BOOLEAN of if the case is active or pending GA
-	'~~~~~ msa_case: Outputs BOOLEAN of if the case is active or pending MSA
-	'~~~~~ grh_case: Outputs BOOLEAN of if the case is active or pending GRH
-	'~~~~~ snap_case: Outputs BOOLEAN of if the case is active or pending SNAP
-	'~~~~~ ma_case: Outputs BOOLEAN of if the case is active or pending MA
-	'~~~~~ msp_case: Outputs BOOLEAN of if the case is active or pending any MSP
-	'~~~~~ unknown_cash_pending: BOOLEAN of if the case has a general 'CASH' program pending but it has not been defined
-	'~~~~~ unknown_hc_pending: BOOLEAN of if the case has a general 'HC' program pending but it has not been defined
-	'~~~~~ ga_status: Outputs the program status for GA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-	'~~~~~ msa_status: Outputs the program status for MSA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-	'~~~~~ mfip_status: Outputs the program status for MFIP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-	'~~~~~ dwp_status: Outputs the program status for DWP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-	'~~~~~ grh_status: Outputs the program status for GRH - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-	'~~~~~ snap_status: Outputs the program status for SNAP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-	'~~~~~ ma_status: Outputs the program status for MA - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-	'~~~~~ msp_status: Outputs the program status for MSP - will be one of these four options (ACTIVE, INACTIVE, PENDING, REIN)
-	'===== Keywords: MAXIS, case status, output, status
-
-    claim_referral = False
-    If snap_case = TRUE or mfip_case = TRUE then claim_referral = True
-
-    IF claim_referral = False then
-		match_based_array(comments_const, item) = "Please review the case if cash or snap were active."
-    	case_note = FALSE
-	END IF
-
-    IF claim_referral = True then
-        case_note = True
-        'Going to the MISC panel to add claim referral tracking information
-        CALL navigate_to_MAXIS_screen ("STAT", "MISC")
-        Row = 6
-        EMReadScreen panel_number, 1, 02, 73
-        IF panel_number = "0" THEN
-            EMWriteScreen "NN", 20,79
-            TRANSMIT
-        ELSE
-            DO
-                'Checking to see if the MISC panel is empty, if not it will find a new line'
-                EMReadScreen MISC_description, 25, row, 30
-                MISC_description = replace(MISC_description, "_", "")
-                IF trim(MISC_description) = "" THEN
-                    PF9
-                    EXIT DO
-                ELSE
-                  row = row + 1
-                END IF
-            LOOP UNTIL row = 17
-            IF row = 17 THEN match_based_array(comments_const, item) = "There is not a blank field in the MISC panel."
-        END IF
-        'writing in the action taken and date to the MISC panel
-        PF9
-        EMWriteScreen action_taken, Row, 30
-        EMWriteScreen date, Row, 66
-        TRANSMIT 'to save the work'
-        'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-        IF action_taken = "Sent Verification Request" THEN Call create_TIKL("Potential overpayment exists on case. Please review case for receipt of additional requested information.", 10, date, False, TIKL_note_text)
-    End if
-
-    '-------------------------------------------------------------------------------------------------case note
-    If case_note = True then
-        start_a_blank_CASE_NOTE
-        Call write_variable_in_case_note("***Claim Referral Tracking-" & action_taken & "***")
-        Call write_bullet_and_variable_in_case_note("Action Date", action_date)
-        Call write_bullet_and_variable_in_case_note("Pending Program(s)", pending_programs)
-        CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", active_programs)
-        If action_taken = "Sent Verification Request" THEN Call write_bullet_and_variable_in_case_note("Verification requested", verif_requested)
-        IF action_taken = "Sent Verification Request" THEN CALL write_variable_in_case_note(TIKL_note_text)
-        If action_taken = "Determination-OP Entered" THEN CALL write_variable_in_case_note("* Claim entered") 'this should call OP?'
-        IF action_taken = "Determination-Non-Collect" THEN Call write_variable_in_case_note("* Claim is non-collectible.")
-        IF action_taken = "No Savings/Overpayment" THEN Call write_variable_in_case_note("* No overpayment was found after review.")
-        CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-        If action_taken <> "Determination-OP Entered" THEN CALL write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-        Call write_variable_in_case_note("---")
-        Call write_variable_in_case_note(worker_signature)
-        IF action_taken = "Sent Verification Request" THEN end_msg = end_msg & vbCr & ("Claim Referral Tracking - you have indicated that you sent a request for additional information. Please follow the agency's procedure(s) for claim entry once received.")
-        IF action_taken = "Determination-OP Entered" THEN end_msg = end_msg & vbCr & ("Claim Referral Tracking - you have indicated that an overpayment exists. Please follow the agency's procedure(s) for claim entry.")
-        IF action_taken = "Determination-Non-Collect" THEN end_msg = end_msg & vbCr & ("Claim Referral Tracking - you have indicated that an overpayment exists, but is non-collectible. Please follow the agency's procedure(s) for claim entry.")
-        PF3
-		match_based_array(comments_const, item) = "CLAIM REF & CASE NOTE COMPLETE"
-    END IF
-END FUNCTION
 
 Function IEVP_looping(ievp_panel)
     row = row + 1
@@ -158,6 +56,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("07/26/2022", "Updated handling for claim referral tracking.", "MiKayla Handley, Hennepin County") '#991
 CALL changelog_update("06/30/2022", "Updated handling for new upervisor.", "MiKayla Handley, Hennepin County") '#498
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 call changelog_update("08/19/2021", "Retire the BULK script due to redundancy.", "MiKayla Handley, Hennepin County") '#596'
@@ -176,12 +75,9 @@ EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 worker_county_code = "X127"
-
 match_type = "WAGE"
-action_taken = "No Savings/Overpayment"
-
 'This can only be run by DEU Supervisor or script team member
-If user_ID_for_validation <> "WF7329"
+IF user_ID_for_validation <> "WF7329" THEN
 	IF user_ID_for_validation <> "WFO119" THEN
 		IF user_ID_for_validation <> "WFS395" THEN
         	IF user_ID_for_validation <> "ILFE001" THEN
@@ -198,41 +94,36 @@ Do
 		'The dialog is defined in the loop as it can change as buttons are pressed
 	    '-------------------------------------------------------------------------------------------------DIALOG
 	    Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 271, 240, "BULK-Match Cleared"
-		  DropListBox 140, 15, 120, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
-		  DropListBox 140, 35, 120, 15, "Select One:"+chr(9)+"Sent Verification Request"+chr(9)+"Determination-OP Entered"+chr(9)+"Determination-Non-Collect"+chr(9)+"No Savings/Overpayment", action_taken
-		  EditBox 65, 55, 195, 15, other_notes
-		  ButtonGroup ButtonPressed
-		    PushButton 10, 115, 50, 15, "Browse:", select_a_file_button
-		  EditBox 65, 115, 195, 15, IEVS_match_path
-		  ButtonGroup ButtonPressed
-		    PushButton 50, 175, 145, 15, "Open IEVS Template Excel File", open_ievs_template_file_button
-		  EditBox 70, 220, 95, 15, worker_signature
-		  ButtonGroup ButtonPressed
-		    OkButton 170, 220, 45, 15
-		    CancelButton 220, 220, 45, 15
-		  Text 10, 20, 120, 10, "Select the type of match to process:"
-		  Text 10, 40, 130, 10, "Claim Referral Tracking on STAT/MISC:"
-		  Text 10, 60, 45, 10, "Other Notes:"
-		  GroupBox 5, 80, 260, 135, "Using the script:"
-		  Text 10, 90, 250, 15, "Select the Excel file that contains the case information by selecting the 'Browse' button and locating the file."
-		  Text 10, 135, 245, 15, "This script should be used when matches have been researched and ready to be cleared. "
-		  Text 10, 155, 245, 20, "You MUST use the correct Excel layout for this script to work properly. The column positions and layout can be found in the IEVS Template Excel file."
-		  Text 10, 190, 245, 20, "If you use a different layout in the file you select, the script will likely not function correctly."
-		  Text 5, 225, 60, 10, "Worker Signature:"
-		  GroupBox 5, 5, 260, 70, "Complete prior to browsing the script:"
-		EndDialog
+        BeginDialog Dialog1, 0, 0, 271, 240, "BULK-Match Cleared"
+          DropListBox 140, 15, 120, 15, "Select One:"+chr(9)+"BEER"+chr(9)+"BNDX"+chr(9)+"SDXS/SDXI"+chr(9)+"UNVI"+chr(9)+"UBEN"+chr(9)+"WAGE", match_type
+          EditBox 65, 35, 195, 15, other_notes
+          ButtonGroup ButtonPressed
+            PushButton 10, 115, 50, 15, "Browse:", select_a_file_button
+          EditBox 65, 115, 195, 15, IEVS_match_path
+          ButtonGroup ButtonPressed
+            PushButton 60, 175, 145, 15, "Open IEVS Template Excel File", open_ievs_template_file_button
+          EditBox 70, 220, 95, 15, worker_signature
+          ButtonGroup ButtonPressed
+            OkButton 170, 220, 45, 15
+            CancelButton 220, 220, 45, 15
+          GroupBox 5, 5, 260, 65, "Complete prior to browsing the script:"
+          Text 10, 20, 120, 10, "Select the type of match to process:"
+          Text 10, 40, 45, 10, "Other Notes:"
+          Text 10, 55, 170, 10, "Please note this will apprear on ALL cases cleared."
+          GroupBox 5, 75, 260, 140, "Using the script:"
+          Text 10, 90, 250, 15, "Select the Excel file that contains the case information by selecting the 'Browse' button and locating the file."
+          Text 10, 135, 245, 15, "This script should be used when matches have been researched and ready to be cleared. "
+          Text 10, 155, 245, 20, "You MUST use the correct Excel layout for this script to work properly. The column positions and layout can be found in the IEVS Template Excel file."
+          Text 10, 195, 245, 20, "If you use a different layout in the file you select, the script will likely not function correctly."
+          Text 5, 225, 60, 10, "Worker Signature:"
+        EndDialog
 
 	  	err_msg = ""
-		Dialog Dialog1
+		DIALOG Dialog1
 		cancel_confirmation
 		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(IEVS_match_path, ".xlsx")
-		If match_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Select type of match you are processing."
-		IF action_taken = "Select One:" then err_msg = err_msg & vbnewline & "* Please select the action taken for next step in overpayment."
-		IF action_taken = "Sent Verification Request" and verif_requested = "" then err_msg = err_msg & vbnewline & "* You selected that a request for additional information was sent, please advise what verifications were requested."
-		IF action_taken = "Determination-Non-Collect" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please the reason the claim is non-collectible."
-		'If IEVS_match_path = "" then err_msg = err_msg & vbNewLine & "* Use the Browse Button to select the file that has your client data."
-        If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
+		If match_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select type of match you are processing."
+        If trim(worker_signature) = "" then err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
  		If ButtonPressed = open_ievs_template_file_button Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/BlueZone%20Script%20Resources/IEVS%20TEMPLATE.xlsx"
@@ -458,7 +349,7 @@ For item = 0 to UBound(match_based_array, 2)
     		EMReadScreen IEVS_year, 4, 8, 15
     		select_quarter = "YEAR"
     	END IF
-		'confirm client name  '
+		'client name for case note  '
 	   	EMReadScreen client_name, 35, 5, 24
     	client_name = trim(client_name)                     	'trimming the client name
     	IF instr(client_name, ",") THEN    						'Most cases have both last name and 1st name. This separates the two names
@@ -559,8 +450,7 @@ For item = 0 to UBound(match_based_array, 2)
 
         If match_based_array(match_cleared_const, item) = TRUE then
 	 	    'Going to the MISC panel to add claim referral tracking information
-	        Call claim_referral_tracking(action_taken, action_date)
-            '----------------------------------------------------------------------------------------------------CASE NOTE
+	        '----------------------------------------------------------------------------------------------------CASE NOTE
 		    CALL navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
 		    EMReadScreen county_code, 4, 21, 14  'Out of county cases from STAT
 		    EMReadScreen case_invalid_error, 72, 24, 2 'if a person enters an invalid footer month for the case the script will attempt to  navigate'
@@ -705,7 +595,7 @@ script_end_procedure_with_error_report("Success your list has been updated, plea
 '--Manual time study reviewed --------------------------------------------------03/11/2022
 '--Incrementors reviewed (if necessary)-----------------------------------------03/11/2022
 '--Denomination reviewed -------------------------------------------------------03/11/2022
-'--Script name reviewed---------------------------------------------------------03/11/2022
+'--Script name reviewed---------------------------------------------------------03/11/2022 purposed rename BULK-DEU-MATCH CLEARED
 '--BULK - remove 1 incrementor at end of script reviewed------------------------03/11/2022
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
