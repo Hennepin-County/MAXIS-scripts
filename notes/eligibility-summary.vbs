@@ -2059,18 +2059,18 @@ function ga_elig_case_note()
 
 			Call write_variable_in_CASE_NOTE(" - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " is not eligible for GA.")
 
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_absence(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is not in the household.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_dupl_assistance(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has received GA assisnce on another case.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_ga_coop(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not cooperated with GA requirements.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_ive(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has IV-E eligibility.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_ssi(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is SSI eligible.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_lump_sum_payment(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not met lump sum requirement.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_unit_member(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " does not meet criteria to be a member of the GA unit.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_imig_status_verif(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not verified immigration status.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_imig_status(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " does not qualify for GA due to immigration status.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_basis_of_elig(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " does not meet a basis of eligibility for GA.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_elig_other_prgm(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " is potentially eligible for another cash program.")
-			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_ssn_coop(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).snap_elig_ref_numbs(each_memb) & " has not provided SSN.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_absence(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " is not in the household.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_dupl_assistance(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " has received GA assisnce on another case.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_ga_coop(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " has not cooperated with GA requirements.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_ive(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " has IV-E eligibility.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_ssi(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " is SSI eligible.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_lump_sum_payment(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " has not met lump sum requirement.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_unit_member(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " does not meet criteria to be a member of the GA unit.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_imig_status_verif(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " has not verified immigration status.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_imig_status(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " does not qualify for GA due to immigration status.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_basis_of_elig(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " does not meet a basis of eligibility for GA.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_elig_other_prgm(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " is potentially eligible for another cash program.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_membs_test_ssn_coop(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " & GA_ELIG_APPROVALS(elig_ind).ga_elig_ref_numbs(each_memb) & " has not provided SSN.")
 		End If
 	Next
 
@@ -15672,6 +15672,14 @@ enter_CNOTE_for_DENY = False
 enter_CNOTE_for_HC = False
 enter_CNOTE_for_DWP = False
 
+If enter_CNOTE_for_DWP = True Then testing_run = True
+If enter_CNOTE_for_MSA = True Then testing_run = True
+If enter_CNOTE_for_GA = True Then testing_run = True
+If enter_CNOTE_for_DENY = True Then testing_run = True
+If enter_CNOTE_for_GRH = True Then testing_run = True
+If enter_CNOTE_for_HC = True Then testing_run = True
+If enter_CNOTE_for_EMER = True Then testing_run = True
+
 deductions_detail_btn 	= 10010
 hh_comp_detail			= 10020
 shel_exp_detail_btn		= 10030
@@ -15724,7 +15732,6 @@ approval_note_found_for_HC = False
 approval_note_found = False
 
 Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
-too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
 
 note_row = 5
 Do
@@ -15733,22 +15740,26 @@ Do
 	EMReadScreen note_title, 55, note_row, 25               'reading the note header
 	note_title = trim(note_title)
 	if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
-
 	note_date = DateAdd("d", 0, note_date)
 	If left(note_title, 11) = "APPROVAL - " and DateDiff("d", date, note_date) = 0 Then
 		' approval_note_found = True
-
 		' If InStr(note_title, "DWP") <> 0 Then approval_note_found_for_DWP = True
 		If InStr(note_title, "MFIP") <> 0 Then approval_note_found_for_MFIP = True
 		' If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
-		' If InStr(note_title, "GA") <> 0 Then approval_note_found_for_GA = True
+		If InStr(note_title, "GA") <> 0 Then approval_note_found_for_GA = True
 		' If InStr(note_title, "DENY") <> 0 Then approval_note_found_for_DENY = True
 		' If InStr(note_title, "GRH") <> 0 Then approval_note_found_for_GRH = True
 		If InStr(note_title, "SNAP") <> 0 Then approval_note_found_for_SNAP = True
 		' If InStr(note_title, "HC") <> 0 Then approval_note_found_for_HC = True
 
+		' If approval_note_found_for_DWP = True Then approval_note_found = True
 		If approval_note_found_for_MFIP = True Then approval_note_found = True
+		' If approval_note_found_for_MSA = True Then approval_note_found = True
+		If approval_note_found_for_GA = True Then approval_note_found = True
+		' If approval_note_found_for_DENY = True Then approval_note_found = True
+		' If approval_note_found_for_GRH = True Then approval_note_found = True
 		If approval_note_found_for_SNAP = True Then approval_note_found = True
+		' If approval_note_found_for_HC = True Then approval_note_found = True
 
 	End If
 
@@ -15762,7 +15773,7 @@ Do
 	End If
 	EMReadScreen next_note_date, 8, note_row, 6
 	if next_note_date = "        " then Exit Do
-Loop until DateDiff("d", date, next_note_date) <= 0
+Loop until DateDiff("d", date, next_note_date) < 0
 
 If approval_note_found = True Then
 	dlg_len = 45
