@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/01/2022", "Added Excel output warning message.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/01/2022", "Updated the Appointment Notice and NOMI to have information for residents about in person support.", "Casey Love, Hennepin County")
 call changelog_update("01/25/2022", "Added new QI members and MiKayla to the list of On Demand Application assignment staff.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
@@ -2270,7 +2271,8 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 Next
 objWorkWorkbook.Save
 
-' MsgBox "Step Three - We are about to make the Worklist"
+MsgBox "Do not engage with any applications while Excel is outputing the Excel lists for the On Demand Waiver Applications Assignment." & vbcr & vbcr & "Press OK when you're ready to continue.",64, "Excel Output is Ready"   'Warning to staff re: Excel Output
+
 date_month = DatePart("m", date)
 date_day = DatePart("d", date)
 date_year = DatePart("yyyy", date)
