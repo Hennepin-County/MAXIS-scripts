@@ -84,7 +84,7 @@ BeginDialog Dialog1, 0, 0, 221, 225, "RETURNED MAIL"
   EditBox 75, 65, 50, 15, MAXIS_case_number
   EditBox 75, 85, 50, 15, date_received
   EditBox 75, 105, 50, 15, METS_case_number
-  DropListBox 105, 125, 110, 15, "Select:"+chr(9)+"forwarding address provided"+chr(9)+"no forwarding address provided"+chr(9)+"no response received"+chr(9)+"address confirmed-received in error", ADDR_actions
+  DropListBox 90, 125, 125, 15, "Select:"+chr(9)+"forwarding address provided"+chr(9)+"no forwarding address provided"+chr(9)+"no response received"+chr(9)+"address confirmed - received in error", ADDR_actions
   EditBox 70, 185, 145, 15, worker_signature
   ButtonGroup ButtonPressed
     PushButton 135, 65, 80, 15, "SNAP TE02.08.012", SNAP_POLI_TEMP_button
@@ -97,7 +97,7 @@ BeginDialog Dialog1, 0, 0, 221, 225, "RETURNED MAIL"
   Text 5, 110, 70, 10, "METS Case Number:"
   Text 5, 190, 60, 10, "Worker Signature:"
   Text 10, 15, 195, 10, "Best practice is that you make an attempt to call the client."
-  Text 10, 30, 200, 25, "If you have contacted the client the CLIENT CONTACT script should be used, if you were unable to reach the continue using this script. "
+  Text 10, 30, 200, 25, "If you have contacted the client, the CLIENT CONTACT script should be used, if you were unable to reach the client, continue using this script. "
   GroupBox 5, 140, 210, 40, "Note:"
   Text 10, 150, 160, 10, "Do not make any changes to STAT/ADDR."
   Text 10, 160, 195, 15, "Do not enter a ? or unknown or other county codes on the ADDR panel."
@@ -225,7 +225,7 @@ IF ADDR_actions <> "no response received" THEN
 
 '-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
-	IF ADDR_actions = "address confirmed-received in error" THEN
+	IF ADDR_actions = "address confirmed - received in error" THEN
 		BeginDialog Dialog1, 0, 0, 206, 60, "Received in error"
   		 EditBox 5, 20, 195, 15, received_error_confirmation
   		 ButtonGroup ButtonPressed
@@ -238,7 +238,7 @@ IF ADDR_actions <> "no response received" THEN
     			err_msg = ""
     			DIALOG Dialog1
     			cancel_without_confirmation
-    			IF received_error_confirmation <> "" or len(received_error_confirmation) > 5 THEN err_msg = err_msg & vbNewLine & "Please explain how you confirmed the address on file is correct."
+    			IF received_error_confirmation = "" or len(received_error_confirmation) < 5 THEN err_msg = err_msg & vbNewLine & "Please explain how you confirmed the address on file is correct."
     			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     		LOOP UNTIL err_msg = ""
     		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to password back into MAXIS
@@ -378,6 +378,7 @@ CALL write_variable_in_CASE_NOTE("Returned mail received " & ADDR_actions)
 CALL write_bullet_and_variable_in_CASE_NOTE("Received on", date_received)
 CALL write_bullet_and_variable_in_CASE_NOTE("What was returned", returned_mail)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", METS_case_number)
+CALL write_bullet_and_variable_in_CASE_NOTE("Confirmed address is correct:", received_error_confirmation)
 IF mailing_address_confirmed = "YES" THEN  'Address Detail
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from (mailing): " & mail_line_one)
 	If mail_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                                         " & mail_line_two)
