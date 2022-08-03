@@ -697,17 +697,16 @@ CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
 
+interview_email_body = "A SPEC/MEMO has been created. If the client has completed the interview, please cancel the notice and update STAT/PROG with the interview information. Case Assignment is not tasked with cancelling or preventing this notice from being generated."
 'Functionality to send emails in certain situations
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-
 'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
 IF how_application_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_603_email_checkbox =  UNCHECKED and MA_transition_request_checkbox = UNCHECKED and Auto_Newborn_checkbox = UNCHECKED THEN
-    CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
-    ELSEIF Auto_Newborn_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+    CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", interview_email_body, "", FALSE)
+ELSEIF Auto_Newborn_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 END IF
 If was_ccap_requested = "Yes - Child Care Requested" Then
     Call find_user_name(the_person_running_the_script)
-
     ccap_email_subject = "ES - CA - Financial Case " & MAXIS_case_number & " - " & case_name & " also requests CCAP"
     ccap_email_body = "MNbenefits Application received requesting CCAP with other financial programs."
     If trim(confirmation_number) <> "" Then ccap_email_body = ccap_email_body & vbCr & "Confirmation Number: " & confirmation_number
@@ -717,7 +716,6 @@ If was_ccap_requested = "Yes - Child Care Requested" Then
     ccap_email_body = ccap_email_body & vbCr & vbCr & "Thank you,"
     ccap_email_body = ccap_email_body & vbCr & the_person_running_the_script
     If running_from_ca_menu = True Then ccap_email_body = ccap_email_body & vbCr & "Case Assignment Team"
-
     Call create_outlook_email("HSPH.ResourcesCCAP@hennepin.us", "", ccap_email_subject, ccap_email_body, "", True)
 End If
 
