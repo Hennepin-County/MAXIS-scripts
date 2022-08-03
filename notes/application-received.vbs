@@ -697,7 +697,7 @@ CALL write_variable_in_CASE_NOTE ("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 ' to save Case note
 
-interview_email_body = "A SPEC/MEMO has been created. If the client has completed the interview, please cancel the notice and update STAT/PROG with the interview information. Case Assignment is not tasked with cancelling or preventing this notice from being generated."
+IF send_appt_ltr = TRUE THEN interview_email_body = "A SPEC/MEMO has been created. If the client has completed the interview, please cancel the notice and update STAT/PROG with the interview information. Case Assignment is not tasked with cancelling or preventing this notice from being generated."
 'Functionality to send emails in certain situations
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
@@ -785,7 +785,7 @@ END IF
 
 'SENDING a SPEC/MEMO - this happens AFTER the transfer so that the correct team information is on the notice.
 'there should not be an issue with PRIV cases because going directly here we shouldn't lose the 'connection/access'
-IF send_appt_ltr = TRUE THEN        'If we are supposed to be sending an applientment letter - it will do it here - this matches the information in ON DEMAND functionality
+IF send_appt_ltr = TRUE THEN        'If we are supposed to be sending an appointment letter - it will do it here - this matches the information in ON DEMAND functionality
 	last_contact_day = DateAdd("d", 30, application_date)
 	If DateDiff("d", interview_date, last_contact_day) < 0 Then last_contact_day = interview_date
 
