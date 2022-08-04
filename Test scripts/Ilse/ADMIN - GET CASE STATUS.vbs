@@ -60,15 +60,25 @@ FUNCTION get_case_status
 
 	Call navigate_to_MAXIS_screen("CASE", "CURR")
 	EMReadScreen CURR_panel_check, 4, 2, 55
-
-
 	If CURR_panel_check <> "CURR" then ObjExcel.Cells(excel_row, 2).Value = ""
 
 	EMReadScreen case_status, 8, 8, 9
 	case_status = trim(case_status)
 	ObjExcel.Cells(excel_row, 2).Value = case_status
+    excel_row = excel_row + 1
+
+    'supporting if there are multiple DAIL messages for a case
+    Do
+        next_case_number = objExcel.cells(excel_row, 3).value
+        If trim(next_case_number) = trim(MAXIS_case_number) then
+            ObjExcel.Cells(excel_row, 2).Value = case_status
+            excel_row = excel_row + 1
+        Else
+            exit do
+        End if
+    Loop until trim(next_case_number) <> trim(MAXIS_case_number)
+
 	MAXIS_case_number = ""
-	excel_row = excel_row + 1
 	'using new variable count to calculate percentages
 	IF case_status = "ACTIVE" then active_status = active_status + 1
 	IF case_status = "APP OPEN" then active_status = active_status + 1
@@ -86,8 +96,7 @@ END FUNCTION
 '----------------------------------------------------------------------------------------------------The script
 'CONNECTS TO BlueZone
 EMConnect ""
-MAXIS_footer_month = CM_mo
-MAXIS_footer_year = CM_yr
+Call check_for_MAXIS(False)
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
@@ -103,17 +112,22 @@ BeginDialog Dialog1, 0, 0, 301, 100, "BULK - GET CASE STATUS"
   GroupBox 10, 5, 285, 70, "Using this script:"
 EndDialog
 
+
+'dialog and dialog DO...Loop
 Do
-    'Initial Dialog to determine the excel file to use, column with case numbers, and which process should be run
-    'Show initial dialog
     Do
-    	Dialog Dialog1
-    	If ButtonPressed = cancel then stopscript
-    	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
-    Loop until ButtonPressed = OK and file_selection_path <> ""
-    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
+        err_msg = ""
+        dialog Dialog1
+        cancel_without_confirmation
+        If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."
+        If err_msg <> "" Then MsgBox err_msg
+    Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+'Opening today's list
+Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to start"
@@ -126,12 +140,11 @@ EndDialog
 
 DO
     dialog Dialog1
-    If buttonpressed = 0 then stopscript								'loops until all errors are resolved
+    cancel_without_confirmation
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 excel_row = excel_row_to_restart
-
 
 back_to_self
 EMWriteScreen CM_mo, 20, 43
@@ -141,8 +154,8 @@ transmit
 Do
 	'Grabs the case number
 	MAXIS_case_number = objExcel.cells(excel_row, 3).value
-	If MAXIS_case_number = "" then exit do
-	get_case_status
+	If trim(MAXIS_case_number) = "" then exit do
+	Call get_case_status
 LOOP UNTIL objExcel.Cells(excel_row, 3).value = ""
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning
 
