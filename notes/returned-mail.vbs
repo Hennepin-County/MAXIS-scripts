@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/03/2022", "Remove ability to select both residential and mailing address. Created an option for received in error.", "MiKayla Handley, Hennepin County") '#427 & #365 '
 call changelog_update("06/03/2022", "Updates for HC active/pending procedure and added handling for entering PACT panel.", "MiKayla Handley, Hennepin County") '#427 & #365 '
 call changelog_update("03/12/2021", "Updated handling for current address confirmation.", "MiKayla Handley, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris, Hennepin County")
@@ -76,7 +77,7 @@ pact_pop_up, closing_message, end_msg, received_error_confirmation
 EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
 CALL Check_for_MAXIS(false)                         'Ensuring we are not passworded out
-CALL back_to_self                                        'added to ensure we have the time to update and send the case in the background
+CALL back_to_self                                   'added to ensure we have the time to update and send the case in the background
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Running the initial dialog
@@ -169,10 +170,6 @@ IF ADDR_actions <> "no response received" THEN
       DropListBox 220, 15, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", residential_address_confirmed
       DropListBox 500, 15, 55, 15, "Select:"+chr(9)+"YES"+chr(9)+"NO", mailing_address_confirmed
       EditBox 90, 75, 190, 15, returned_mail
-      EditBox 90, 95, 190, 15, verifications_requested
-      EditBox 90, 115, 190, 15, other_notes
-      EditBox 90, 135, 45, 15, due_date
-      EditBox 365, 115, 195, 15, notes_on_address
       Text 10, 25, 200, 25, resi_addr_street_full
       Text 10, 35, 210, 15, resi_addr_city &  ", "  & resi_addr_state & " "   & resi_addr_zip
       Text 290, 25, 200, 25, mail_street_full
@@ -185,19 +182,33 @@ IF ADDR_actions <> "no response received" THEN
       Text 290, 55, 50, 10, "Effective Date:"
       Text 345, 55, 70, 10, addr_eff_date
       Text 5, 80, 65, 10, "What was returned:"
-      Text 290, 120, 65, 10, "Notes on address:"
       GroupBox 5, 5, 275, 65, "Residential Address"
       GroupBox 285, 70, 275, 35, "Note:"
-      Text 290, 80, 265, 10, "Send out a Request for Contact(Verification Request Form - DHS 2919)"
-      Text 290, 90, 170, 10, "to the new address from the returned mail envelope"
+      Text 290, 80, 265, 10, "Send out a Request for Contact(Verification Request Form - DHS 2919) to the"
+      Text 290, 90, 170, 10, "correct address from the returned mail envelope."
       Text 5, 120, 40, 10, "Other notes:"
-      Text 5, 140, 35, 10, "Due date:"
-      Text 5, 100, 85, 10, "Verification(s) requested:"
+      IF ADDR_actions = "address confirmed - received in error" THEN
+      	Text 5, 140, 200, 10, "How did you confirm the returned mail was received in error?"
+       	EditBox 220, 135, 215, 15, received_error_confirmation
+		Text 5, 100, 40, 10, "Other notes:"
+  		EditBox 90, 95, 190, 15, other_notes
+  		Text 5, 120, 65, 10, "Notes on address:"
+  		EditBox 90, 115, 190, 15, notes_on_address
+      ELSE
+      	Text 5, 100, 85, 10, "Verification(s) pending:"
+      	Text 5, 140, 35, 10, "Due date:"
+		Text 5, 120, 40, 10, "Other notes:"
+		Text 290, 120, 65, 10, "Notes on address:"
+      	EditBox 90, 95, 190, 15, verifications_requested
+      	EditBox 90, 135, 45, 15, due_date
+      	EditBox 90, 115, 190, 15, other_notes
+      	EditBox 365, 115, 195, 15, notes_on_address
+      END IF
       ButtonGroup ButtonPressed
-        PushButton 220, 50, 55, 15, "CASE/ADHI", ADHI_button
-        PushButton 500, 50, 55, 15, "HSR Manual", HSR_manual_button
-        CancelButton 505, 135, 55, 15
-        OkButton 445, 135, 55, 15
+       PushButton 220, 50, 55, 15, "CASE/ADHI", ADHI_button
+       PushButton 500, 50, 55, 15, "HSR Manual", HSR_manual_button
+       CancelButton 505, 135, 55, 15
+       OkButton 445, 135, 55, 15
     EndDialog
 
     DO
@@ -215,35 +226,17 @@ IF ADDR_actions <> "no response received" THEN
     		END IF
 			IF residential_address_confirmed = "YES" and mailing_address_confirmed = "YES" THEN err_msg = err_msg & vbCr & "Please confirm what the address the agency attempted to deliver mail to."
     		IF mailing_address_confirmed = "NO" and residential_address_confirmed = "NO" THEN err_msg = err_msg & vbCr & "Please confirm what the address the agency attempted to deliver mail to."
-    		IF returned_mail = "" THEN err_msg = err_msg & vbCr & "Please explain what mail was returned."
-    		IF isdate(due_date) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the verification(s) requested due date."
-    		IF verifications_requested = "" THEN  err_msg = err_msg & vbCr & "Please explain the verification(s) requested."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    		IF trim(returned_mail) = "" or len(returned_mail) < 3 THEN err_msg = err_msg & vbCr & "Please explainin detail what mail was returned."
+			IF ADDR_actions = "address confirmed - received in error" THEN
+				IF received_error_confirmation = "" or len(received_error_confirmation) < 5 THEN err_msg = err_msg & vbNewLine & "Please explain in detail how you confirmed the address on file is correct."
+			ELSE
+				IF isdate(due_date) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the verification(s) requested due date."
+				IF trim(verifications_requested) = "" or len(returned_mail) < 3 THEN  err_msg = err_msg & vbCr & "Please explain in detail the verification(s) still pending."
+			END IF
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     		LOOP UNTIL err_msg = ""
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to  assword back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-
-'-------------------------------------------------------------------------------------------------DIALOG
-	Dialog1 = "" 'Blanking out previous dialog detail
-	IF ADDR_actions = "address confirmed - received in error" THEN
-		BeginDialog Dialog1, 0, 0, 206, 60, "Received in error"
-  		 EditBox 5, 20, 195, 15, received_error_confirmation
-  		 ButtonGroup ButtonPressed
-    		OkButton 95, 40, 50, 15
-    		CancelButton 150, 40, 50, 15
-  		 Text 5, 5, 200, 10, "How did you confirm the returned mail was received in error?"
-		EndDialog
-    	DO
-    		DO
-    			err_msg = ""
-    			DIALOG Dialog1
-    			cancel_without_confirmation
-    			IF received_error_confirmation = "" or len(received_error_confirmation) < 5 THEN err_msg = err_msg & vbNewLine & "Please explain how you confirmed the address on file is correct."
-    			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-    		LOOP UNTIL err_msg = ""
-    		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to password back into MAXIS
-    	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-	END IF
 
 '-------------------------------------------------------------------------------------------------DIALOG
 	Dialog1 = "" 'Blanking out previous dialog detail
@@ -342,14 +335,17 @@ IF ADDR_actions = "no response received" THEN
 		EMReadScreen open_cash2, 2, 8, 43
 		IF open_cash1 <> "  " THEN EMWriteScreen "3", 6, 58 'Enter code "3" (Refused/Failed Required Info)'
 		IF open_cash2 <> "  " THEN EMWriteScreen "3", 8, 58 'Enter code "3" (Refused/Failed Required Info)'
-       	IF snap_case = TRUE THEN
-			IF case_pending = TRUE THEN EMWriteScreen "3", 12, 58 ''CASE IS PENDING, USE '1' OR '3' TO DENY
-		ELSE
-			EMWriteScreen "4", 12, 58 'Enter code "4" (Refused/Failed (FS Only))'
-		END IF
-   		IF grh_case = TRUE THEN EMWriteScreen "3", 10, 58 'Enter code "3" (Refused/Failed Required Info)'
 
+       	IF snap_case = True THEN
+			IF case_pending = True THEN
+				EMWriteScreen "3", 12, 58 ''CASE IS PENDING, USE '1' OR '3' TO DENY
+			ELSE
+				EMWriteScreen "4", 12, 58 'Enter code "4" (Refused/Failed (FS Only))'
+			END IF
+		END IF
+   		IF grh_case = True THEN EMWriteScreen "3", 10, 58 'Enter code "3" (Refused/Failed Required Info)'
        	TRANSMIT
+
 		Do
 			EMReadScreen pact_pop_up, 45, 13, 16 'this always comes up to confirm '
 			IF pact_pop_up = "IS IT CORRECT POLICY TO USE A PACT PANEL? Y/N" THEN
@@ -378,16 +374,16 @@ CALL write_variable_in_CASE_NOTE("Returned mail received " & ADDR_actions)
 CALL write_bullet_and_variable_in_CASE_NOTE("Received on", date_received)
 CALL write_bullet_and_variable_in_CASE_NOTE("What was returned", returned_mail)
 CALL write_bullet_and_variable_in_CASE_NOTE("METS case number", METS_case_number)
-CALL write_bullet_and_variable_in_CASE_NOTE("Confirmed address is correct:", received_error_confirmation)
+CALL write_bullet_and_variable_in_CASE_NOTE("Confirmed address is correct", received_error_confirmation)
 IF mailing_address_confirmed = "YES" THEN  'Address Detail
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from (mailing): " & mail_line_one)
-	If mail_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                                         " & mail_line_two)
-	CALL write_variable_in_CASE_NOTE("                                         " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
+	If mail_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                                        " & mail_line_two)
+	CALL write_variable_in_CASE_NOTE("                                        " & mail_city_line & ", " & mail_state_line & " " &   mail_zip_line)
 END IF
 IF residential_address_confirmed = "YES" THEN
 	CALL write_variable_in_CASE_NOTE("* Returned mail received from (residential): " & resi_addr_line_one)
-	If resi_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                                              " & resi_addr_line_two)
-	CALL write_variable_in_CASE_NOTE("                                              " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
+	If resi_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                                             " & resi_addr_line_two)
+	CALL write_variable_in_CASE_NOTE("                                             " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
 END IF
 IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household reported as homeless")
 IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
