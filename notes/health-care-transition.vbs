@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/10/2022", "Removed 'certified disabled' text from health care service requested option. Example: 'certified disabled, requesting TEFRA' is now 'Requesting TERFA'.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/20/2020", "Updated link to REQUEST TO APPL use form on SharePoint.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/04/2019", "Added checkbox reminders to support Request to APPL and MA Transition Communication Form proces.", "Ilse Ferris, Hennepin County")
@@ -190,7 +191,7 @@ Elseif initial_option = "1. Non-MAGI referral" then
       EditBox 70, 5, 55, 15, request_date
       Text 140, 10, 120, 10, "METS Case Number: " & METS_case_number
       Text 5, 30, 65, 10, "Service requested:"
-      DropListBox 70, 25, 195, 15, "Select One:"+chr(9)+"21+ years, no dependents and Medicare or SSI"+chr(9)+"65 years old, no dependents"+chr(9)+"Certified disabled, applying for MA-EPD"+chr(9)+"Certified disabled, Requesting waiver"+chr(9)+"Certified disabled, Requesting TEFRA"+chr(9)+"Child in Foster Care"+chr(9)+"Only Medicare Savings Programs requested"+chr(9)+"Other", service_requested
+      DropListBox 70, 25, 195, 15, "Select One:"+chr(9)+"21+ years, no dependents and Medicare or SSI"+chr(9)+"65 years old, no dependents"+chr(9)+"Applying for MA-EPD"+chr(9)+"Requesting waiver"+chr(9)+"Requesting TEFRA"+chr(9)+"Child in Foster Care"+chr(9)+"Only Medicare Savings Programs requested"+chr(9)+"Other", service_requested
       CheckBox 5, 45, 70, 10, "SMRT approved.", SMRT_approved
       CheckBox 100, 45, 70, 10, "SMRT pending.", SMRT_pending
       CheckBox 170, 45, 95, 10, "Sent Request to APPL.", useform_checkbox
@@ -304,7 +305,7 @@ If initial_option = "MAXIS to METS Migration" then
     last_day_of_month = dateadd("d", -1, next_month) & "" 	'blank space added to make 'last_day_for_recert' a string
 
     'THE MEMO----------------------------------------------------------------------------------------------------
-    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
+    Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
     If METS_case_number = "" then
         Call write_variable_in_SPEC_MEMO (trim(client_name_list) & "'s Medical Assistance will end at the end of the day on " & last_day_of_month & ". It will end because our records show that you need to complete application in MNsure so we can redetermine your eligibility for health care coverage.")
         Call write_variable_in_SPEC_MEMO ("(Code of Federal Regulations, title 42, section 435.916, and Minnesota Statutes, section 256B.056, subdivision 7a)")
