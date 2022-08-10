@@ -78,21 +78,20 @@ DO
 	DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1
-		cancel_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
+		cancel_without_confirmation
 		call validate_MAXIS_case_number(err_msg, "*")
-        If service_requested = "Select One:" then err_msg = err_msg & vbcr & "* Select a service requested by the client."
         If initial_option = "Select One:" then err_msg = err_msg & vbcr & "* Select a transition process."
-		If service_requested = "Other" and trim(other_notes) = "" then err_msg = err_msg & vbcr & "* Enter a description of the service requested in the other notes field."
+        If initial_option <> "MAXIS to METS Migration" then
+            If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
+        End if
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets identified, and will not be updated in MMIS
-If PRIV_check = "PRIV" then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
-
 '----------------------------------------------------------------------------------------------------Gathering the member information
-CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)  'checking for priv then navigating to stat memb to gather the ref number and name.
+If is_this_priv = True then script_end_procedure("PRIV case, cannot access/update. The script will now end.")
 
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 	EMReadscreen ref_nbr, 3, 4, 33
@@ -119,7 +118,7 @@ ReDim all_clients_array(total_clients, 1)
 FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
 	Interim_array = split(client_array, "|")
 	all_clients_array(x, 0) = Interim_array(x)
-	all_clients_array(x, 1) = 1    '1 = checked
+	all_clients_array(x, 1) = 0    '0 = unchecked
 NEXT
 
 BEGINDIALOG Dialog1, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
@@ -133,12 +132,22 @@ BEGINDIALOG Dialog1, 0, 0, 241, (35 + (total_clients * 15)), "HH Member Dialog" 
 ENDDIALOG
 
 Do
-    Dialog Dialog1       'runs the dialog that has been dynamically created. Streamlined with new functions.
-    cancel_confirmation
+    Do
+        err_msg = ""
+        Dialog Dialog1       'runs the dialog that has been dynamically created. Streamlined with new functions.
+        cancel_confirmation
+        'ensuring that users have
+        checked_count = 0
+        FOR i = 0 to total_clients												'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+            IF all_clients_array(i, 1) = 1 then checked_count = checked_count + 1 'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+        NEXT
+        If checked_count = 0 then err_msg = err_msg & vbcr & "* Select all persons who are transitioning health care."
+        IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-check_for_maxis(False)
+Call check_for_maxis(False)
 
 transition_membs = -1
 Dim transition_array()
@@ -174,10 +183,6 @@ If initial_option = "MAXIS to METS Migration" then
     		err_msg = ""					'establishing value of variable, this is necessary for the Do...LOOP
     		dialog Dialog1		'main dialog
     		cancel_confirmation
-            'If affliated_case_checkbox = 1 then
-            '    If IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbNewLine & "* Enter a valid METS case number."
-            'End if
-            'If affliated_case_checkbox = 0 and trim(METS_case_number) <> "" then err_msg = err_msg & vbNewLine & "*If case has an affliated METS case, check the checkbox and enter the METS case number."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
     	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
     	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -219,8 +224,9 @@ Elseif initial_option = "1. Non-MAGI referral" then
             Dialog Dialog1
             cancel_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If isdate(request_date) = false or trim(request_date) = "" then err_msg = err_msg & vbcr & "* Enter a valid request date."
-            If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
+            'If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
             IF service_requested = "Select One:" then err_msg = err_msg & vbcr & "* Enter the service request reason."
+            If service_requested = "Other" and trim(other_notes) = "" then err_msg = err_msg & vbcr & "* Enter a description of the service requested in the other notes field."
             'HC_type
             For item = 0 to ubound(transition_array, 2)
             	If (transition_array(hc_type_const, item)) = "Select One:"then err_msg = err_msg & vbCr & "* Select a health care type for each member."
@@ -262,7 +268,6 @@ else
             dialog Dialog1
             cancel_confirmation              'new function that will cancel, collect stats, but not give user option to confirm ending script.
             If (initial_option = "3. Eligibility ended in METS" AND (isdate(mmis_end_date) = false or trim(mmis_end_date) = "")) then err_msg = err_msg & vbcr & "* Enter a valid MMIS end date."
-            'If trim(METS_case_number) = "" or IsNumeric(METS_case_number) = False or len(METS_case_number) <> 8 then err_msg = err_msg & vbcr & "* Enter a valid METS case number."
             IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         LOOP UNTIL err_msg = ""									'loops until all errors are resolved
