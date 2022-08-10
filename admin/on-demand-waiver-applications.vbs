@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/10/2022", "Added checkbox option in the main dialog to select if user wants Excel output warning message.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/01/2022", "Added Excel output warning message.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/01/2022", "Updated the Appointment Notice and NOMI to have information for residents about in person support.", "Casey Love, Hennepin County")
 call changelog_update("01/25/2022", "Added new QI members and MiKayla to the list of On Demand Application assignment staff.", "Ilse Ferris, Hennepin County")
@@ -260,21 +261,24 @@ file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Im
 
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 316, 175, "Select the source file"
-DropListBox 185, 75, 125, 45, "Select One..."+chr(9)+"Amber Stone"+chr(9)+"Brooke Reilley"+chr(9)+"Deborah Lechner"+chr(9)+"Jacob Arco"+chr(9)+"Jessica Hall"+chr(9)+"Keith Semmelink"+chr(9)+"Kerry Walsh"+chr(9)+"Louise Kinzer"+chr(9)+"Mandora Young"+chr(9)+"MiKayla Handley"+chr(9)+"Ryan Kierth"+chr(9)+"Yeng Yang", qi_member_on_ONDEMAND
-  EditBox 5, 125, 260, 15, file_selection_path
+BeginDialog Dialog1, 0, 0, 316, 190, "Select the source file"
+  DropListBox 185, 75, 125, 45, "Select One..."+chr(9)+"Amber Stone"+chr(9)+"Brooke Reilley"+chr(9)+"Deborah Lechner"+chr(9)+"Jacob Arco"+chr(9)+"Jessica Hall"+chr(9)+"Keith Semmelink"+chr(9)+"Kerry Walsh"+chr(9)+"Louise Kinzer"+chr(9)+"Mandora Young"+chr(9)+"MiKayla Handley"+chr(9)+"Ryan Kierth"+chr(9)+"Yeng Yang", qi_member_on_ONDEMAND
+  CheckBox 5, 175, 230, 10, "Check here for warning message before Excel output/email creation.", warning_checkbox
   ButtonGroup ButtonPressed
-    PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
     OkButton 205, 155, 50, 15
     CancelButton 260, 155, 50, 15
+    PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
+  Text 5, 150, 195, 20, "Reminder, do not use Excel during the time the script is running. The script needs to use Excel."
   Text 5, 5, 305, 25, "This script will send Appointment Notices and NOMIs after reviewing cases from the BOBI for today. Once completed, this script will create a WorkList for QI to complete any additional manual review or updates."
   Text 5, 35, 80, 10, "Scrript Requirements:"
   Text 10, 50, 45, 10, "- Production"
   Text 10, 60, 75, 10, "- Heavy use of Excel"
   Text 10, 80, 175, 10, "Select the QI Member assigned to On Demand today:"
   Text 5, 105, 295, 20, "Click the BROWSE button and select the BOBI report for today. Once selected, click 'OK'. There will be no additional input needed until the script run is complete."
-  Text 5, 150, 195, 20, "Reminder, do not use Excel during the time the script is running. The script needs to use Excel."
+  EditBox 5, 125, 260, 15, file_selection_path
 EndDialog
+
+
 
 'dialog and dialog DO...Loop
 Do
@@ -2271,7 +2275,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 Next
 objWorkWorkbook.Save
 
-MsgBox "Do not engage with any applications while Excel is outputing the Excel lists for the On Demand Waiver Applications Assignment." & vbcr & vbcr & "Press OK when you're ready to continue.",64, "Excel Output is Ready"   'Warning to staff re: Excel Output
+If warning_checkbox = 1 then MsgBox "Do not engage with any applications while Excel is outputing the Excel lists for the On Demand Waiver Applications Assignment." & vbcr & vbcr & "Press OK when you're ready to continue.",64, "Excel Output is Ready"   'Warning to staff re: Excel Output
 
 date_month = DatePart("m", date)
 date_day = DatePart("d", date)
