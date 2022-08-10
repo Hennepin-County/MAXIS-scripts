@@ -26,6 +26,7 @@ FMCDJAME = Work Registration (WREG)
 FMCCKDMD = Case Reviews (REVW)
 FMLVCAM2 = Income Verifications To Do (IEVC)
 FMLWIAM3 = Verification Log Update (IULA)
+FMKHTAM1 = Current Statuses Display  (CURR) 
 IF STAT_note_check = "NOTE" THEN
     EMReadScreen screen_code 8, 1, 72
     IF screen_code = "FMCAMAM2" THEN 'FMCAMAM2 = Case Notes (NOTE) inside case note
