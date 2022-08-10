@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("08/10/2022", "Removed anticipated date results as a mandatory field.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/22/2022", "Update to resolve bug with docket number writing in case notes.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("05/14/2021", "Update to resolve bug with N/A and case notes.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("02/22/2021", "Update to dialog for received handling. Added mandatory explanation for continuation of pre-appeal benefits.", "MiKayla Handley, Hennepin County")
@@ -310,7 +311,6 @@ IF appeal_actions = "Reconsideration" THEN
             IF isdate(hearing_date) = false THEN err_msg = err_msg & vbNewLine & "* Please complete date of hearing."
             If appeal_attendence = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select if the client attended appeal, or if appeal was held by phone"
             IF hearing_details = "" THEN err_msg = err_msg & vbNewLine & "* Please enter hearing details"
-            IF isdate(anticipated_date_result) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the anticipated date of appeal decision"
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
@@ -357,7 +357,6 @@ IF appeal_actions = "Hearing Information" THEN
             IF isdate(hearing_date) = false THEN err_msg = err_msg & vbNewLine & "* Please complete date of hearing."
             If appeal_attendence = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select if the client attended appeal, or if appeal was held by phone"
             IF hearing_details = "" THEN err_msg = err_msg & vbNewLine & "* Please enter hearing details"
-            IF isdate(anticipated_date_result) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the anticipated date of appeal decision"
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
