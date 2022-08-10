@@ -1,5 +1,4 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-worker_county_code = "X127" 'testing code'
 name_of_script = "ADMIN - DAIL FMED DEDUCTION.vbs"
 start_time = timer
 STATS_counter = 1                    'sets the stats counter at one
@@ -260,7 +259,7 @@ For item = 0 to Ubound(DAIL_array, 2)
         Else
             'THE CASE NOTE
             Call start_a_blank_CASE_NOTE
-            Call write_variable_in_case_note("MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION")
+            Call write_variable_in_case_note("MEMB HAS TURNED 60-NOTIFY ABOUT POSSIBLE FMED DEDUCTION")
             Call write_variable_in_case_note("* Sent MEMO to client about FMED deductions.")
             Call write_variable_in_case_note("---")
             Call write_variable_in_case_note(worker_signature)
@@ -304,3 +303,45 @@ file_info = month_folder & "\" & decimator_folder & "\" & report_date & " FMED D
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 
 script_end_procedure_with_error_report("Success! Please review the list created for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------08/10/2022
+'--Tab orders reviewed & confirmed----------------------------------------------08/10/2022
+'--Mandatory fields all present & Reviewed--------------------------------------08/10/2022
+'--All variables in dialog match mandatory fields-------------------------------08/10/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------08/10/2022------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------08/10/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------08/10/2022------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/10/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------08/10/2022
+'--PRIV Case handling reviewed -------------------------------------------------08/10/2022
+'--Out-of-County handling reviewed----------------------------------------------08/10/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------08/10/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------08/10/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---08/10/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------08/10/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------08/10/2022
+'--Denomination reviewed -------------------------------------------------------08/10/2022
+'--Script name reviewed---------------------------------------------------------08/10/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------08/10/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------08/10/2022
+'--comment Code-----------------------------------------------------------------08/10/2022
+'--Update Changelog for release/update------------------------------------------08/10/2022
+'--Remove testing message boxes-------------------------------------------------08/10/2022
+'--Remove testing code/unnecessary code-----------------------------------------08/10/2022
+'--Review/update SharePoint instructions----------------------------------------08/10/2022: Instructions held locally at: T:\Eligibility Support\Mnsure\SSR Folder\SHELTER PROJECT\REPORTS Instructions\Laurie H Directions for Running Reports
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/10/2022------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/10/2022------------------N/A Will direct commmit Complete List of scripts
+'--Complete misc. documentation (if applicable)---------------------------------08/10/2022
+'--Update project team/issue contact (if applicable)----------------------------08/10/2022
