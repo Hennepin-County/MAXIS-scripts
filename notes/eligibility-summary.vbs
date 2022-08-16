@@ -499,6 +499,320 @@ function define_mfip_elig_dialog()
 	EndDialog
 end function
 
+
+function define_msa_elig_dialog()
+	BeginDialog Dialog1, 0, 0, 555, 385, "MSA Approval Packages"
+	  GroupBox 460, 10, 85, 165, "MSA Approvals"
+	  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+	  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+
+	  If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+	  	' MsgBox MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type
+	  	  Select Case MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type
+
+			  Case "SSI TYPE"
+			  ''305450
+
+				  GroupBox 5, 10, 445, 120, "Approval Detail - SSI Type MSA"
+				  ' Text 15, 20, 150, 10, "GA Individual Benefit Calculation"
+				  Text 15, 20, 150, 10, "SSI Standard (FBR) . . . . . .  $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_ssi_standard_fbr
+				  Text 15, 30, 150, 10, "Disregard . . . . . . . . . . . . . . .$ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_standard_disregard & "  ( - )"
+				  Text 15, 40, 150, 10, "Net Income . . . . . . . . . .  . . .$ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income
+
+				  Text 15, 55, 150, 10, "Need Standard . . . . . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_need_standard
+				  Text 15, 65, 150, 10, "Net Income . . . . . . . . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income & "  ( - )"
+				  Text 15, 75, 150, 10, "MSA Grant . . . . . . . . . . . . . . . . . .$ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_msa_grant
+
+
+				  y_pos = 20
+
+			  Case "Non-SSI TYPE"
+			  ''305184
+			  	  GroupBox 5, 10, 445, 120, "Approval Detail - Non-SSI Type MSA"
+
+				  Text 15, 20, 150, 10, "Unearned income . . . . . . . . .  $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_unearned_income
+				  Text 15, 30, 150, 10, "Deemed Income . . . . . . . . . . .$ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_deemed_income & "  ( + )"
+				  Text 15, 40, 150, 10, "Standard Disregard . . . . .  . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_standard_disregard & "  ( - )"
+				  Text 15, 50, 150, 10, "Net Unearned Income . . . .  . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_unearned_income
+				  Text 15, 60, 150, 10, "Net Earned Income . . . . . .  . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_earned_income & "  ( + )"
+				  Text 15, 70, 150, 10, "Net Income . . . . . . . . . . . .  . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income
+
+
+				  Text 205, 20, 150, 10, "Need Standard . . . . . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_need_standard
+				  Text 205, 30, 150, 10, "Net Income . . . . . . . . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income & "  ( - )"
+				  Text 205, 40, 150, 10, "MSA Grant . . . . . . . . . . . . . . . . . .$ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_msa_grant
+
+
+				  y_pos = 55
+		  End Select
+
+		  grp_len = 60
+		  For each_spec_need = 0 to UBound(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_info)
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_info(each_spec_need) <> "" Then grp_len = grp_len + 10
+		  Next
+		  If grp_len = 60 Then grp_len = 70
+
+		  GroupBox 200, y_pos, 200, grp_len, "Needs Standard Calculation"
+		  y_pos = y_pos + 10
+		  Text 205, y_pos, 150, 10, "Special Needs Supplements:"
+		  y_pos = y_pos + 10
+		  For each_spec_need = 0 to UBound(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_info)
+		  	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_info(each_spec_need) <> "" Then
+				Text 210, y_pos, 150, 10, MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_info(each_spec_need)
+				Text 315, y_pos, 50, 10,"$ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_amount(each_spec_need)
+				y_pos = y_pos + 10
+			End If
+		  Next
+		  If (MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type = "SSI TYPE" and y_pos = 40) OR (MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type = "Non-SSI TYPE" and y_pos = 75) Then
+		  	Text 210, y_pos, 150, 10, "No Special Needs Supplements Added"
+			y_pos = y_pos + 10
+		  End If
+		  y_pos = y_pos + 5
+		  Text 205, y_pos, 190, 10, "Basic needs Assistance Standard: . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_basic_needs_assistance_standard
+		  y_pos = y_pos + 10
+		  Text 205, y_pos, 190, 10, "Special needs . . . . . . . . . . . . . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_special_needs
+		  y_pos = y_pos + 10
+		  Text 205, y_pos, 190, 10, "Household Total Needs . . . . . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_household_total_needs
+
+		  Text 55, 90, 80, 10, " Result:  " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result
+		  Text 15, 105, 160, 20, "Months in Approval:  " & replace(MSA_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
+		  '
+		  ' Text 15, 55, 150, 10, "Household Unit Size - " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_memb_hh_count
+		  ' Text 15, 65, 100, 10, "Countable Assets: " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_countable_assets
+		  ' Text 15, 75, 100, 10, "Maximum Assets: " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_maximum_assets
+		  '
+		  ' GroupBox 300, 10, 150, 120, "Countable Income Calculation"
+		  ' Text 305, 25, 145, 10, "Gross Wages/Salary . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_wages
+		  ' Text 305, 35, 145, 10, "Self Employment . . . . . . . . . .$ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_self_emp
+		  ' Text 305, 45, 145, 10, "Total Earned Income . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_gross_income
+		  ' Text 305, 55, 145, 10, "Standard EI Disregard . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_standard_EI_disregard & "  ( - )"
+		  ' Text 305, 65, 145, 10, "EI Disregard (" & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_earned_income_disregard_percent & "%) . . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_earned_income_disregard_amount & "  ( - )"
+		  ' Text 305, 75, 145, 10, "Net Earned Income . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_net_earned_income
+		  ' Text 305, 85, 145, 10, "Unearned Income . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_unearned_income
+		  ' Text 305, 95, 145, 10, "Counted School Income . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_counted_school_income
+		  ' Text 305, 105, 145, 10, "Deemed Income . . . . . . . . . $ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_deemed_income
+		  ' Text 305, 115, 145, 10, "Total Counteable Income . . .$ " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_countable_income
+
+
+
+	  Else
+		GroupBox 5, 10, 450, 90, "Approval Detail"
+		Text 15, 20, 80, 10, " Result:   " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result
+		Text 165, 20, 120, 30, "Months in Approval: " & replace(MSA_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
+
+		Text 15, 45, 110, 10, "Aplicant Elig:             " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_applicant_eligible
+		Text 15, 55, 110, 10, "APPL Withdrawn:     " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_application_withdrawn
+		Text 15, 65, 110, 10, "Elig Member:             " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_eligible_member
+		Text 15, 75, 110, 10, "Fail to File:                 " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_fail_file
+		Text 15, 85, 110, 10, "Gross Income:           " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_gross_income
+
+		Text 175, 45, 150, 10, "Prosp Net Income:             " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_net_income
+		Text 175, 55, 150, 10, "Residence:                        " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_residence
+		Text 175, 65, 150, 10, "Asset:                                " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_assets
+		Text 175, 75, 150, 10, "Retro Net Income:             " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_retro_net_income
+		Text 175, 85, 150, 10, "Verification:                        " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif
+
+
+		GroupBox 5, 105, 450, 60, "Ineligible Details"
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" Then
+			Text 15, 120, 165, 10, "What is the date the verification request was sent? "
+			Editbox 180, 115, 50, 15, MSA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
+		Else
+			Text 15, 125, 300, 20, "This case is ineligible becaues it hasn't met the requirements for GA Eligibility. The case tests above show what requirements have not been met."
+		End if
+
+	  End if
+
+	  ButtonGroup ButtonPressed
+		If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 80, 50, 10, "View ELIG", nav_stat_elig_btn
+		If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 145, 90, 50, 10, "View ELIG", nav_stat_elig_btn
+
+		PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+
+		y_pos = 25
+		for each_app = 0 to UBound(MSA_UNIQUE_APPROVALS, 2)
+			If MSA_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
+				month_display = MSA_UNIQUE_APPROVALS(first_mo_const, each_app)
+			ElseIF MSA_UNIQUE_APPROVALS(last_mo_const, each_app) = CM_plus_1_mo & "/" & CM_plus_1_yr Then
+				month_display = MSA_UNIQUE_APPROVALS(first_mo_const, each_app) & " - Ongoing"
+			Else
+				month_display = MSA_UNIQUE_APPROVALS(first_mo_const, each_app) & " - " & MSA_UNIQUE_APPROVALS(last_mo_const, each_app)
+			End if
+			' If each_app = approval_selected Then display_detail = month_display
+			If each_app = approval_selected Then
+				Text 470, y_pos+2, 75, 13, month_display
+			Else
+				PushButton 465, y_pos, 75, 13, month_display, MSA_UNIQUE_APPROVALS(btn_one, each_app)
+			End If
+			y_pos = y_pos + 15
+		next
+		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+
+
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
+			' GroupBox 5, 95, 285, 35, "Basis of ELIGIBILITY"
+			' y_pos = 105
+			' for each_memb = 0 to UBound(MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs)
+			' 	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) = "A" Then
+			' 		Text 15, y_pos, 250, 10, "MEMB " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " - " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_elig_basis_info(each_memb)
+			' 		y_pos =y_pos + 10
+			' 	End If
+			' Next
+
+			GroupBox 5, 135, 445, 65, "MSA Benefits Issued for the Approval Package"
+			app_y_pos = 150
+			app_x_pos = 10
+			For approval = 0 to UBound(MSA_ELIG_APPROVALS)
+				If InStr(MSA_UNIQUE_APPROVALS(months_in_approval, approval_selected), MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+					Text app_x_pos, app_y_pos, 200, 10, MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & MSA_ELIG_APPROVALS(approval).msa_elig_summ_current_payment
+					app_y_pos = app_y_pos + 10
+					If app_y_pos = 190 Then
+						app_y_pos = 150
+						app_x_pos = app_x_pos + 150
+					End If
+				End If
+			Next
+		Else
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_gross_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MSA Standard and no benefit to be issued."
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MSA Standard and no benefit to be issued."
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_retro_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MSA Standard and no benefit to be issued."
+		End If
+
+		GroupBox 5, 205, 540, income_box_len, "Income"
+
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type = "Non-SSI TYPE" Then
+
+			Text 10, 215, 155, 10, "Total NET EARNED Income:   $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_earned_income
+			Text 300, 215, 155, 10, "Total NET UNEARNED Income:   $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_unearned_income
+		Else
+			Text 10, 215, 155, 10, "Earned Income Not reviewed in Budget"
+			Text 300, 215, 155, 10, "Total SSI Standard (FBR) Income:   $ " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_ssi_standard_fbr
+		End If
+
+		y_pos = 230
+		y_pos_2 = 230
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_msa(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_msa(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_msa(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_msa(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_msa(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+
+			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_msa(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_msa(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_msa(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+
+			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_msa(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_msa(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_msa(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_msa(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_msa(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+
+		Next
+
+	EndDialog
+end function
+
 function define_ga_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "GA Approval Packages"
 	  GroupBox 460, 10, 85, 165, "GA Approvals"
@@ -1627,6 +1941,482 @@ function mfip_elig_case_note()
 	Call write_variable_in_CASE_NOTE(worker_signature)
 end function
 
+function msa_elig_case_note()
+
+	CASE_NOTE_entered = True
+	Call start_a_blank_case_note
+
+	end_msg_info = end_msg_info & "NOTE entered for MSA - " & elig_info & " eff " & first_month & header_end & vbCr
+	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
+	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month & " - Entitlement: $ " & SNAP_ELIG_APPROVALS(approval).snap_benefit_monthly_fs_allot)
+	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
+
+	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_approved_date)
+	If add_new_note_for_MSA = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+
+	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
+		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
+		For approval = 0 to UBound(MSA_ELIG_APPROVALS)
+			If InStr(MSA_UNIQUE_APPROVALS(months_in_approval, unique_app), MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+				begining_info = MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant, 8) & " |"
+
+				If MSA_ELIG_APPROVALS(approval).msa_elig_budg_amount_already_issued <> "0.00" Then
+					Call write_variable_in_CASE_NOTE(begining_info & " Amt Already Issued: $ " & right("       " & MSA_ELIG_APPROVALS(approval).msa_elig_budg_amount_already_issued, 8) & "  (-)")
+					begining_info = "                               |"
+				End If
+				If MSA_ELIG_APPROVALS(approval).msa_elig_budg_recoupment <> "0.00" Then
+					Call write_variable_in_CASE_NOTE(begining_info & "         Recoupment: $ " & right("       " & MSA_ELIG_APPROVALS(approval).msa_elig_budg_recoupment, 8) & "  (-)")
+					begining_info = "                               |"
+				End If
+				Call write_variable_in_CASE_NOTE(begining_info & " Issued to Resident: $ " & right("       " & MSA_ELIG_APPROVALS(approval).msa_elig_budg_current_payment, 8) & "         " & MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year)
+				If MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year <> last_month and begining_info = "                               |"Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+			End If
+		Next
+	End If
+
+
+	If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
+		Call write_variable_in_CASE_NOTE("============================= BUDGET FOR APPROVAL ===========================")
+
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_gross_income = "FAILED" Then Call write_variable_in_CASE_NOTE("MSA INELIGIBLE because Prosp Gross Inc exceeds INCOME Limit.")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("MSA INELIGIBLE because Prosp Net Inc exceeds INCOME Limit.")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_retro_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("MSA INELIGIBLE because Retro Net Inc exceeds INCOME Limit.")
+
+		' If MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "" Then MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_earned_inc = "0.00"
+		' If MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "" Then MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc = "0.00"
+
+		Call write_variable_in_CASE_NOTE(left("MSA Unit Size: " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligible_houshold_members & "                              ", 44)  & "|---- MSA Benefit Calculation ---")
+		Call write_variable_in_CASE_NOTE("Income:                                     |")
+		spaces_30 = "                              "
+
+
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type = "SSI TYPE" Then
+			unearned_info = "| SSI Standard (FBR): $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_ssi_standard_fbr, 8)
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				' If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) = "SSI" Then
+				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				' If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) = "SSI" Then
+				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				' If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) = "SSI" Then
+				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				' If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) = "SSI" Then
+				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE(" UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				' If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_msa(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) = "SSI" Then
+				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+			Next
+			' If unearned_info = "| Gross Unearned Inc: $" & right("        "&MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
+			If unearned_info = "|         SSI Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_ssi_standard_fbr, 8) Then Call write_variable_in_CASE_NOTE("  NO Unearned Income                        |         SSI Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_ssi_standard_fbr, 8))
+			Call write_variable_in_CASE_NOTE("                                            |(-)  Stndrd Disrgrd: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_standard_disregard, 8))
+
+		End If
+
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type = "Non-SSI TYPE" Then
+
+			unearned_info = "|       Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_unearned_income, 8)
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE(" UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_msa(each_memb) = True Then
+					list_unea_amt = STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						unea_amt_array = split(STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb), ".")
+						list_unea_amt = unea_amt_array(0)
+					End If
+					unea_detail = left(list_unea_amt & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & "- "& STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & unearned_info)
+					unearned_info = "|"
+				End If
+			Next
+			' If unearned_info = "| Gross Unearned Inc: $" & right("        "&MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8) Then Call write_variable_in_CASE_NOTE("            NO Unearned Income              | Gross Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).snap_budg_total_unea_inc, 8))
+			If unearned_info = "|       Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_unearned_income, 8) Then Call write_variable_in_CASE_NOTE("  NO Unearned Income                        |       Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_unearned_income, 8))
+
+			Call write_variable_in_CASE_NOTE("                                            |      Deemed Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_deemed_income, 8))
+			Call write_variable_in_CASE_NOTE("                                            |(-)  Stndrd Disrgrd: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_standard_disregard, 8))
+			Call write_variable_in_CASE_NOTE("                                            |   Net Unearned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_unearned_income, 8))
+
+			JOBS_info = "|     Net Earned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_earned_income, 8)
+			BUSI_found = False
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_msa(each_memb) = True Then
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_income(each_memb), ".")
+						pay_info = job_amt_array(0)
+					End if
+					If pay_info = "" Then pay_info = "0"
+
+					job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  " & "JOBS- $" & job_detail & JOBS_info)
+					JOBS_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_msa(each_memb) = True Then
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_income(each_memb), ".")
+						pay_info = job_amt_array(0)
+					End if
+					If pay_info = "" Then pay_info = "0"
+
+					job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  " & "JOBS- $" & job_detail & JOBS_info)
+					JOBS_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_msa(each_memb) = True Then
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_income(each_memb), ".")
+						pay_info = job_amt_array(0)
+					End if
+					If pay_info = "" Then pay_info = "0"
+
+					job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  " & "JOBS- $" & job_detail & JOBS_info)
+					JOBS_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_msa(each_memb) = True Then
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_income(each_memb), ".")
+						pay_info = job_amt_array(0)
+					End if
+					If pay_info = "" Then pay_info = "0"
+
+					job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  " & "JOBS- $" & job_detail & JOBS_info)
+					JOBS_info = "|"
+				End If
+				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_msa(each_memb) = True Then
+					pay_info = STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						job_amt_array = split(STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_income(each_memb), ".")
+						pay_info = job_amt_array(0)
+					End if
+					If pay_info = "" Then pay_info = "0"
+
+					job_detail = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  " & "JOBS- $" & job_detail & JOBS_info)
+					JOBS_info = "|"
+				End If
+				If JOBS_info = "|     Net Earned Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_earned_income, 8) Then Call write_variable_in_CASE_NOTE(left("  NO Wages/Salary Income "& spaces_30, 44) & JOBS_info)
+
+				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_msa(each_memb) = True Then
+					pay_info = STAT_INFORMATION(month_ind).stat_busi_one_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_busi_one_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_one_prosp_monthly_gross_income(each_memb), ".")
+						pay_info = busi_amt_array(0)
+					End if
+					If pay_info = "" Then pay_info = "0"
+
+					busi_details = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  " & "BUSI- $" & busi_details & "|")
+					BUSI_found = True
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_msa(each_memb) = True Then
+					pay_info = STAT_INFORMATION(month_ind).stat_busi_two_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_busi_two_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_two_prosp_monthly_gross_income(each_memb), ".")
+						pay_info = busi_amt_array(0)
+					End if
+					If pay_info = "" Then pay_info = "0"
+
+					busi_details = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  " & "BUSI- $" & busi_details & "|")
+					BUSI_found = True
+				End If
+				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_msa(each_memb) = True Then
+					pay_info = STAT_INFORMATION(month_ind).stat_busi_three_prosp_monthly_gross_income(each_memb)
+					If InStr(STAT_INFORMATION(month_ind).stat_busi_three_prosp_monthly_gross_income(each_memb), ".") <> 0 Then
+						busi_amt_array = split(STAT_INFORMATION(month_ind).stat_busi_three_prosp_monthly_gross_income(each_memb), ".")
+						pay_info = busi_amt_array(0)
+					End if
+					If pay_info = "" Then pay_info = "0"
+
+					busi_details = left(pay_info & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb) & spaces_30, 35)
+					Call write_variable_in_CASE_NOTE("  " & "BUSI- $" & busi_details & "|")
+
+					BUSI_found = True
+				End If
+			Next
+			' If BUSI_info = "| Self Employmnt Inc: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_gross_self_emp, 8) Then Call write_variable_in_CASE_NOTE(left("  NO Self Employment Income "& spaces_30, 44) & BUSI_info)
+			If BUSI_found = False Then Call write_variable_in_CASE_NOTE(left("  NO Self Employment Income "& spaces_30, 44) & "|")
+
+			Call write_variable_in_CASE_NOTE("                                            |         Net Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income, 8))
+
+		End If
+
+
+		' Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+		Call write_variable_in_CASE_NOTE("                               |---- Need Standard Calulation ---|")
+
+		Call write_variable_in_CASE_NOTE("                               |   Basic Needs Stndrd: $ " & left(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_basic_needs_assistance_standard&"        ", 8) & "|")
+		Call write_variable_in_CASE_NOTE("                               |        Special Needs: $ " & left(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_special_needs&"        ", 8) & "|")
+		first_spec_need = True
+		for spec_stdrd = 0 to UBound(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_info)
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_amount(spec_stdrd) <> "" Then
+				If first_spec_need = True Then
+					' Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+					Call write_variable_in_CASE_NOTE("                               | Special Needs ------------------|")
+				End If
+				Call write_variable_in_CASE_NOTE("                               |  " & left(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_type_info(spec_stdrd)&spaces_30, 22) & "$ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_spec_standard_amount(spec_stdrd), 6) & " |")
+				first_spec_need = False
+			End If
+		Next
+		' If first_spec_need = True Then Call write_variable_in_CASE_NOTE("                               | No Special Needs                |")
+		If first_spec_need = True Then Call write_variable_in_CASE_NOTE("                               |                No Special Needs |")
+		If first_spec_need = False Then Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+
+		' Call write_variable_in_CASE_NOTE("                               |     Total Deductions: $ " & left(replace(MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_deductions, ".00", "")&"        ", 8) & "|")
+		' Call write_variable_in_CASE_NOTE("                               |     Total Deductions: $ " & left(replace(MSA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_total_deductions, ".00", "")&"        ", 8) & "|")
+		Call write_variable_in_CASE_NOTE("                               |          Total Needs: $ " & left(MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_household_total_needs&"        ", 8) & "|")
+		Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+
+		' Call write_variable_in_CASE_NOTE("                                            |        Total Needs: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_household_total_needs, 8))
+		Call write_variable_in_CASE_NOTE("                                            |      Need Standard: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_need_standard, 8))
+		Call write_variable_in_CASE_NOTE("                                            | (-)     Net Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income, 8))
+		Call write_variable_in_CASE_NOTE("                                            |          MSA Grant: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_msa_grant, 8))
+		' Call write_variable_in_CASE_NOTE("                                            |         Net Income: $ " & right("        "&MSA_ELIG_APPROVALS(elig_ind).msa_elig_budg_net_income, 8))
+
+	End If
+
+	If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
+		Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
+
+		Call write_variable_in_CASE_NOTE("* MSA is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
+
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_applicant_eligible = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The applicant is not eligible for MSA. (APPLICANT ELIGIBLE)")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The request for MSA benefits was withdrawn. (APPLICATION WITHDRAWN)")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_eligible_member = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is no eligible person on this case. (ELIGIBLE MEMBER)")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_fail_file = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has failed to file a report. (FAIL TO FILE)")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_gross_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - . ()")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - . ()")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not established Minnesota residency. (RESIDENCE)")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_assets = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has exceeded the Asset Limit. (ASSET)")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_retro_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - . ()")
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
+			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & MSA_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+			first_job_not_verified = True
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+					If first_job_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Wage income not verified.")
+					first_job_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+					If first_job_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Wage income not verified.")
+					first_job_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+					If first_job_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Wage income not verified.")
+					first_job_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+					If first_job_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Wage income not verified.")
+					first_job_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+					If first_job_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Wage income not verified.")
+					first_job_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
+				End if
+			Next
+
+			first_busi_not_verified = True
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then
+					If first_busi_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Self Employment income not verified.")
+					first_busi_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
+					If first_busi_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Self Employment income not verified.")
+					first_busi_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
+					If first_busi_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Self Employment income not verified.")
+					first_busi_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+				End if
+			Next
+
+			first_unea_not_verified = True
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+					If first_unea_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
+					first_unea_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+					If first_unea_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
+					first_unea_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+					If first_unea_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
+					first_unea_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+					If first_unea_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
+					first_unea_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
+				End if
+				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+					If first_unea_not_verified = True Then Call write_variable_in_CASE_NOTE("   - Unearned income not verified.")
+					first_unea_not_verified = False
+					Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
+				End if
+			Next
+		End If
+
+	End If
+
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		first_inelig_memb = True
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_elig_status(each_memb) = "INELIGIBLE" Then
+			If first_inelig_memb = True Then Call write_variable_in_CASE_NOTE("================================ MEMBER TESTS ===============================")
+			first_inelig_memb = False
+
+			Call write_variable_in_CASE_NOTE(" - Memb " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " is not eligible for MSA.")
+
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_absence(each_memb) = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " is not in the household.")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_absence_absent(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Moved out.")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_absence_death(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Has died.")
+			End if
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_age(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " does not meet age requirements.")
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_basis_of_eligibility(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " does not meet a basis of eligibility for MSA.")
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_citizenship(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " does not meet citizenship requirements.")
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_dupl_assistance(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & "  has received MSA assisnce on another case.")
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_fail_coop(each_memb) = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " failed to cooperate")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_fail_coop_sign_iaas(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Failed to sign IAAs")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_fail_coop_applied_other_benefits(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Failed to apply for Other Maintence Benefits")
+			End If
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_fraud(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " is not eligible due to fraud.")
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_ive_eligible(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " has IV-E eligibility.")
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_living_arrangement(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " is not in a qualified living arragement.")
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_ssi_basis(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " does not have an SSI basis.")
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_ssn_coop(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " has not cooperated with SSN requirements.")
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_unit_member(each_memb) = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " Is not a part of the MSA household")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_unit_member_faci(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Is in a facility.")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_unit_member_relationship(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Is not related to the MSA member(s).")
+			End If
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_verif(each_memb) = "FAILED" Then
+				Call write_variable_in_CASE_NOTE("   - Memb " &  MSA_ELIG_APPROVALS(elig_ind).msa_elig_ref_numbs(each_memb) & " has not provided necessary verifications.")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_verif_date_of_birth(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Need Date of Birth verification.")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_verif_disability(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Need Disability verification.")
+				If MSA_ELIG_APPROVALS(elig_ind).msa_elig_membs_test_verif_ssi(each_memb) = "FAILED" Then Call write_variable_in_CASE_NOTE("     Need SSI verification.")
+			End If
+		End If
+	Next
+
+	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
+	spaces_18 = "                  "
+	' Call write_variable_in_CASE_NOTE(" SNAP Status:      " & left(GA_ELIG_APPROVALS(elig_ind).snap_curr_prog_status & spaces_18, 18) & "Budget Cycle:     " & GA_ELIG_APPROVALS(elig_ind).snap_budget_cycle)
+	' Call write_variable_in_CASE_NOTE(" Reporting Status: " & left(GA_ELIG_APPROVALS(elig_ind).snap_reporting_status & spaces_18, 18) & "Review Date:      " & GA_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
+	Call write_variable_in_CASE_NOTE("MSA Status:       " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_curr_prog_status)
+	Call write_variable_in_CASE_NOTE("Shared Household: " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_shared_houshold)
+	' If MSA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info <> "" Then Call write_variable_in_CASE_NOTE("Reason:           " & MSA_ELIG_APPROVALS(elig_ind).ga_elig_summ_reason_info)
+	Call write_variable_in_CASE_NOTE("Budget Cycle:     " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_budget_cycle)
+	If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
+		Call write_variable_in_CASE_NOTE("Reporting Status: " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_reporting_status)
+		Call write_variable_in_CASE_NOTE("Review Date:      " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_recertification_date)
+	End If
+	Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
+
+	' MsgBox "PAUSE HERE"
+end function
 
 function ga_elig_case_note()
 
@@ -1639,7 +2429,7 @@ function ga_elig_case_note()
 	' If SNAP_ELIG_APPROVALS(approval).snap_elig_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APP Completed - SNAP " & SNAP_ELIG_APPROVALS(approval).snap_elig_result & " eff " & first_month)
 
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_approved_date)
-	If add_new_note_for_SNAP = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 
 	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
 	If GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
@@ -4787,6 +5577,7 @@ class msa_eligibility_detail
 	public msa_elig_membs_request_yn()
 	public msa_elig_membs_member_code()
 	public msa_elig_membs_member_info()
+	public msa_elig_membs_counted()
 	public msa_elig_membs_elig_status()
 	public msa_elig_membs_elig_basis_code()
 	public msa_elig_membs_elig_basis_info()
@@ -4923,6 +5714,7 @@ class msa_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			' If DateDiff("d", #8/9/2022#, elig_version_date) = 0 Then approved_today = True
 		End If
 		If approved_today = True Then
 			ReDim msa_elig_ref_numbs(0)
@@ -4930,6 +5722,7 @@ class msa_eligibility_detail
 			ReDim msa_elig_membs_request_yn(0)
 			ReDim msa_elig_membs_member_code(0)
 			ReDim msa_elig_membs_member_info(0)
+			ReDim msa_elig_membs_counted(0)
 			ReDim msa_elig_membs_elig_status(0)
 			ReDim msa_elig_membs_elig_basis_code(0)
 			ReDim msa_elig_membs_elig_basis_info(0)
@@ -4985,6 +5778,7 @@ class msa_eligibility_detail
 				ReDim preserve msa_elig_membs_request_yn(elig_memb_count)
 				ReDim preserve msa_elig_membs_member_code(elig_memb_count)
 				ReDim preserve msa_elig_membs_member_info(elig_memb_count)
+				ReDim preserve msa_elig_membs_counted(elig_memb_count)
 				ReDim preserve msa_elig_membs_elig_status(elig_memb_count)
 				ReDim preserve msa_elig_membs_elig_basis_code(elig_memb_count)
 				ReDim preserve msa_elig_membs_elig_basis_info(elig_memb_count)
@@ -5029,12 +5823,14 @@ class msa_eligibility_detail
 				EMReadScreen msa_elig_membs_request_yn(elig_memb_count), 1, msa_row, 25
 
 				EMReadScreen msa_elig_membs_member_code(elig_memb_count), 1, msa_row, 29
+				EMReadScreen msa_elig_membs_counted(elig_memb_count), 10, msa_row, 33
 				If msa_elig_membs_member_code(elig_memb_count) = "A" Then msa_elig_membs_member_info(elig_memb_count) = "Eligible"
 				If msa_elig_membs_member_code(elig_memb_count) = "1" Then msa_elig_membs_member_info(elig_memb_count) = "Non-MSA Spouse"
 				If msa_elig_membs_member_code(elig_memb_count) = "2" Then msa_elig_membs_member_info(elig_memb_count) = "Non-MSA Parent - Deem Income/Resources"
 				If msa_elig_membs_member_code(elig_memb_count) = "4" Then msa_elig_membs_member_info(elig_memb_count) = "Step Parent - Deem Resources"
 				If msa_elig_membs_member_code(elig_memb_count) = "N" Then msa_elig_membs_member_info(elig_memb_count) = "Not Counted"
 				If msa_elig_membs_member_code(elig_memb_count) = "I" Then msa_elig_membs_member_info(elig_memb_count) = "Ineligible"
+				msa_elig_membs_counted(elig_memb_count) = trim(msa_elig_membs_counted(elig_memb_count))
 
 				EMReadScreen msa_elig_membs_elig_status(elig_memb_count), 10, msa_row, 46
 				msa_elig_membs_elig_status(elig_memb_count) = trim(msa_elig_membs_elig_status(elig_memb_count))
@@ -5245,7 +6041,7 @@ class msa_eligibility_detail
 
 			If msa_elig_case_budg_type = "SSI TYPE" Then
 				EMReadScreen msa_elig_budg_ssi_standard_fbr, 	9, 6, 32
-				EMReadScreen msa_elig_budg_standard_disregard, 	9, 7, 32
+				EMReadScreen msa_elig_budg_standard_disregard, 	9, 8, 32
 
 				msa_elig_budg_ssi_standard_fbr = trim(msa_elig_budg_ssi_standard_fbr)
 				msa_elig_budg_standard_disregard = trim(msa_elig_budg_standard_disregard)
@@ -5263,6 +6059,7 @@ class msa_eligibility_detail
 				msa_elig_budg_standard_disregard = trim(msa_elig_budg_standard_disregard)
 				msa_elig_budg_net_unearned_income = trim(msa_elig_budg_net_unearned_income)
 				msa_elig_budg_net_earned_income = trim(msa_elig_budg_net_earned_income)
+				If msa_elig_budg_deemed_income = "" Then msa_elig_budg_deemed_income = "0.00"
 
 				Call write_value_and_transmit("X", 10, 3)
 
@@ -12791,8 +13588,8 @@ class stat_detail
 				stat_busi_one_method_date(each_memb) = replace(stat_busi_one_method_date(each_memb), " ", "/")
 				If stat_busi_one_method_date(each_memb) = "__/__/__" Then stat_busi_one_method_date(each_memb) = ""
 
-				EMReadScreen stat_busi_one_cash_retro_net_inc(each_memb), 8, 10, 55
-				EMReadScreen stat_busi_one_cash_prosp_net_inc(each_memb), 8, 10, 69
+				EMReadScreen stat_busi_one_cash_retro_net_inc(each_memb), 8, 8, 55
+				EMReadScreen stat_busi_one_cash_prosp_net_inc(each_memb), 8, 8, 69
 				stat_busi_one_cash_retro_net_inc(each_memb) = trim(stat_busi_one_cash_retro_net_inc(each_memb))
 				stat_busi_one_cash_prosp_net_inc(each_memb) = trim(stat_busi_one_cash_prosp_net_inc(each_memb))
 
@@ -15192,6 +15989,37 @@ For each footer_month in MONTHS_ARRAY
 				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
 			End If
+
+			For each_elig_memb = 0 to UBound(MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_ref_numbs)
+				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
+					If MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
+
+						If MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_membs_counted(each_elig_memb) <> "COUNTED" Then
+							STAT_INFORMATION(month_count).stat_jobs_one_job_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_two_job_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_three_job_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_four_job_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_jobs_five_job_counted_for_msa(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_busi_one_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_two_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_busi_three_counted_for_msa(each_stat_memb) = False
+
+							STAT_INFORMATION(month_count).stat_unea_one_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_two_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_three_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_four_counted_for_msa(each_stat_memb) = False
+							STAT_INFORMATION(month_count).stat_unea_five_counted_for_msa(each_stat_memb) = False
+
+						End If
+						If STAT_INFORMATION(month_count).stat_unea_one_type_code(each_memb) = "44" Then STAT_INFORMATION(month_count).stat_unea_one_counted_for_msa(each_stat_memb) = False
+						If STAT_INFORMATION(month_count).stat_unea_two_type_code(each_memb) = "44" Then STAT_INFORMATION(month_count).stat_unea_two_counted_for_msa(each_stat_memb) = False
+						If STAT_INFORMATION(month_count).stat_unea_three_type_code(each_memb) = "44" Then STAT_INFORMATION(month_count).stat_unea_three_counted_for_msa(each_stat_memb) = False
+						If STAT_INFORMATION(month_count).stat_unea_four_type_code(each_memb) = "44" Then STAT_INFORMATION(month_count).stat_unea_four_counted_for_msa(each_stat_memb) = False
+						If STAT_INFORMATION(month_count).stat_unea_five_type_code(each_memb) = "44" Then STAT_INFORMATION(month_count).stat_unea_five_counted_for_msa(each_stat_memb) = False
+					End If
+				Next
+			Next
 		End If
 		msa_elig_months_count = msa_elig_months_count + 1
 	End If
@@ -15664,8 +16492,9 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' REVIEW - handle for allowed functionality here'
 ' If enter_CNOTE_for_MFIP = True Then testing_run = True
 ' enter_CNOTE_for_GA = False
-If script_user_is_a_tester = False Then enter_CNOTE_for_GA = False
-enter_CNOTE_for_MSA = False
+' If script_user_is_a_tester = False Then enter_CNOTE_for_GA = False
+If script_user_is_a_tester = False Then enter_CNOTE_for_MSA = False
+' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_MSA = False
 enter_CNOTE_for_EMER = False
 enter_CNOTE_for_GRH = False
 enter_CNOTE_for_DENY = False
@@ -15715,6 +16544,9 @@ const approval_confirmed			= 22
 Dim MFIP_UNIQUE_APPROVALS()
 ReDim MFIP_UNIQUE_APPROVALS(approval_confirmed, 0)
 
+Dim MSA_UNIQUE_APPROVALS()
+ReDim MSA_UNIQUE_APPROVALS(approval_confirmed, 0)
+
 Dim GA_UNIQUE_APPROVALS()
 ReDim GA_UNIQUE_APPROVALS(approval_confirmed, 0)
 
@@ -15745,7 +16577,7 @@ Do
 		' approval_note_found = True
 		' If InStr(note_title, "DWP") <> 0 Then approval_note_found_for_DWP = True
 		If InStr(note_title, "MFIP") <> 0 Then approval_note_found_for_MFIP = True
-		' If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
+		If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
 		If InStr(note_title, "GA") <> 0 Then approval_note_found_for_GA = True
 		' If InStr(note_title, "DENY") <> 0 Then approval_note_found_for_DENY = True
 		' If InStr(note_title, "GRH") <> 0 Then approval_note_found_for_GRH = True
@@ -15754,7 +16586,7 @@ Do
 
 		' If approval_note_found_for_DWP = True Then approval_note_found = True
 		If approval_note_found_for_MFIP = True Then approval_note_found = True
-		' If approval_note_found_for_MSA = True Then approval_note_found = True
+		If approval_note_found_for_MSA = True Then approval_note_found = True
 		If approval_note_found_for_GA = True Then approval_note_found = True
 		' If approval_note_found_for_DENY = True Then approval_note_found = True
 		' If approval_note_found_for_GRH = True Then approval_note_found = True
@@ -16189,6 +17021,264 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 
 End If
 
+If enter_CNOTE_for_MSA = True Then
+	last_elig_result = ""
+	last_file_test = ""
+	last_gross_income_test = ""
+	last_net_income_test = ""
+	last_ssi_fbr = ""
+	last_standard_disregard = ""
+	last_need_standard = ""
+	last_net_income = ""
+	last_budget_type = ""
+	last_msa_grant = ""
+	last_basic_assistance_standard = ""
+	last_special_needs = ""
+
+	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
+	unique_app_count = 0
+	For approval = 0 to UBound(MSA_ELIG_APPROVALS)
+		If MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year = first_MSA_approval Then start_capturing_approvals = True
+		If start_capturing_approvals = True Then
+			If unique_app_count = 0 Then
+				ReDim preserve MSA_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
+
+				MSA_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year
+				MSA_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year
+				MSA_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
+				MSA_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+				MSA_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
+				MSA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+
+				last_elig_result = MSA_ELIG_APPROVALS(approval).msa_elig_summ_eligibility_result
+				last_file_test = MSA_ELIG_APPROVALS(approval).msa_elig_case_test_fail_file
+				last_gross_income_test = MSA_ELIG_APPROVALS(approval).msa_elig_case_test_prosp_gross_income
+				last_net_income_test = MSA_ELIG_APPROVALS(approval).msa_elig_case_test_prosp_net_income
+				last_ssi_fbr = MSA_ELIG_APPROVALS(approval).msa_elig_budg_ssi_standard_fbr
+				last_standard_disregard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_standard_disregard
+				last_need_standard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_need_standard
+				last_net_income = MSA_ELIG_APPROVALS(approval).msa_elig_budg_net_income
+				last_budget_type = MSA_ELIG_APPROVALS(approval).msa_elig_case_budg_type
+				last_msa_grant = MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant
+				last_basic_assistance_standard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_basic_needs_assistance_standard
+				last_special_needs = MSA_ELIG_APPROVALS(approval).msa_elig_budg_special_needs
+
+				unique_app_count = unique_app_count + 1
+			Else
+				match_last_benefit_amounts = True
+
+				If last_elig_result <> MSA_ELIG_APPROVALS(approval).msa_elig_summ_eligibility_result Then match_last_benefit_amounts = False
+				If last_file_test <> MSA_ELIG_APPROVALS(approval).msa_elig_case_test_fail_file Then match_last_benefit_amounts = False
+				If last_gross_income_test <> MSA_ELIG_APPROVALS(approval).msa_elig_case_test_prosp_gross_income Then match_last_benefit_amounts = False
+				If last_net_income_test <> MSA_ELIG_APPROVALS(approval).msa_elig_case_test_prosp_net_income Then match_last_benefit_amounts = False
+				If last_ssi_fbr <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_ssi_standard_fbr Then match_last_benefit_amounts = False
+				If last_standard_disregard <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_standard_disregard Then match_last_benefit_amounts = False
+				If last_need_standard <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_need_standard Then match_last_benefit_amounts = False
+				If last_net_income <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_net_income Then match_last_benefit_amounts = False
+				If last_budget_type <> MSA_ELIG_APPROVALS(approval).msa_elig_case_budg_type Then match_last_benefit_amounts = False
+				If last_msa_grant <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant Then match_last_benefit_amounts = False
+				If last_basic_assistance_standard <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_basic_needs_assistance_standard Then match_last_benefit_amounts = False
+				If last_special_needs <> MSA_ELIG_APPROVALS(approval).msa_elig_budg_special_needs Then match_last_benefit_amounts = False
+
+				If match_last_benefit_amounts = True Then
+					MSA_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = MSA_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year
+					MSA_UNIQUE_APPROVALS(last_mo_const, unique_app_count-1) = MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year
+				End If
+				If match_last_benefit_amounts = False Then
+					ReDim preserve MSA_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
+
+					MSA_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year
+					MSA_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year
+					MSA_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
+					MSA_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+					MSA_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
+					MSA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+
+					last_elig_result = MSA_ELIG_APPROVALS(approval).msa_elig_summ_eligibility_result
+					last_file_test = MSA_ELIG_APPROVALS(approval).msa_elig_case_test_fail_file
+					last_gross_income_test = MSA_ELIG_APPROVALS(approval).msa_elig_case_test_prosp_gross_income
+					last_net_income_test = MSA_ELIG_APPROVALS(approval).msa_elig_case_test_prosp_net_income
+					last_ssi_fbr = MSA_ELIG_APPROVALS(approval).msa_elig_budg_ssi_standard_fbr
+					last_standard_disregard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_standard_disregard
+					last_need_standard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_need_standard
+					last_net_income = MSA_ELIG_APPROVALS(approval).msa_elig_budg_net_income
+					last_budget_type = MSA_ELIG_APPROVALS(approval).msa_elig_case_budg_type
+					last_msa_grant = MSA_ELIG_APPROVALS(approval).msa_elig_budg_msa_grant
+					last_basic_assistance_standard = MSA_ELIG_APPROVALS(approval).msa_elig_budg_basic_needs_assistance_standard
+					last_special_needs = MSA_ELIG_APPROVALS(approval).msa_elig_budg_special_needs
+
+					unique_app_count = unique_app_count + 1
+				End If
+			End If
+		End If
+	Next
+
+	all_msa_approvals_confirmed = False
+	approval_selected = 0
+
+	Do
+
+		first_month = left(MSA_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
+		elig_ind = ""
+		month_ind = ""
+		For approval = 0 to UBound(MSA_ELIG_APPROVALS)
+			' MsgBox "APPROVALS MO - " & MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year & vbCr & "approval - " & approval & vbCr & "first_month - " & first_month
+			If MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
+		Next
+		For each_month = 0 to UBound(STAT_INFORMATION)
+			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
+		Next
+
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "INELIGIBLE" Then
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_applicant_eligible = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_application_withdrawn = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_eligible_member = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_fail_file = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			' If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_gross_income = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			' If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_net_income = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_residence = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_assets = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_retro_net_income = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_shared_hh_yn = "FAILED" Then MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+		End If
+
+		ei_count = 0
+		unea_count = 0
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		  If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_msa(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_msa(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_msa(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_msa(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_msa(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_msa(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_msa(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_msa(each_memb) = True Then ei_count = ei_count + 1
+
+		  If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_msa(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		  If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_msa(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		  If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_msa(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		  If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_msa(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		  If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_msa(each_memb) = True Then
+			  unea_count = unea_count + 1
+			  If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+		  End If
+		Next
+		ei_len = ei_count * 20
+		unea_len = unea_count * 10
+		income_box_len = 30 + unea_len
+		If ei_len > unea_len Then income_box_len = 30 + ei_len
+
+		call define_msa_elig_dialog
+
+		dialog Dialog1
+		cancel_confirmation
+
+		err_msg = ""
+
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" and MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
+			If Isdate(MSA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
+			Else
+				If DateDiff("d", MSA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+					If expedited_package_approved = False Then
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  MSA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+						MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+					End If
+				End If
+			End If
+		End If
+
+		If err_msg <> "" and ButtonPressed < 10000 Then
+			MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+			If ButtonPressed = app_confirmed_btn Then ButtonPressed = -1
+		End If
+
+		If ButtonPressed = nav_stat_elig_btn Then
+			ft_mo = left(first_month, 2)
+			ft_yr = right(first_month, 2)
+			Call back_to_SELF
+			call navigate_to_MAXIS_screen("ELIG", "MSA")
+			EMWriteScreen ft_mo, 20, 56
+			EMWriteScreen ft_yr, 20, 59
+			Call find_last_approved_ELIG_version(20, 79, vrs_numb, vrs_dt, vrs_rslt, approval_found)
+			' transmit
+		End If
+
+		If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+
+		If err_msg = "" Then
+
+			all_msa_approvals_confirmed = True
+			msa_approval_is_incorrect = False
+
+			If MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+				MSA_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
+				MSA_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
+			ElseIf MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+				MSA_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
+				MSA_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
+			End If
+
+			If ButtonPressed = -1 Then
+				If approval_selected = UBound(MSA_UNIQUE_APPROVALS, 2) Then
+					ButtonPressed = app_confirmed_btn
+				ElseIf msa_approval_is_incorrect = True Then
+					ButtonPressed = app_incorrect_btn
+				Else
+					ButtonPressed = next_approval_btn
+				End If
+			End If
+
+			not_confirmed_pckg_list = ""
+			first_unconfirmmed_month = ""
+			for each_app = 0 to UBound(MSA_UNIQUE_APPROVALS, 2)
+				If ButtonPressed = MSA_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
+				If MSA_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
+					all_msa_approvals_confirmed = False
+					not_confirmed_pckg_list = not_confirmed_pckg_list & replace(MSA_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
+					If first_unconfirmmed_month = "" Then first_unconfirmmed_month = each_app
+				End If
+				If MSA_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then msa_approval_is_incorrect = True
+			Next
+
+			If ButtonPressed = next_approval_btn Then
+				approval_selected = approval_selected + 1
+				If approval_selected > UBound(MSA_UNIQUE_APPROVALS, 2) Then
+					If all_msa_approvals_confirmed = True Then
+						ButtonPressed = app_confirmed_btn
+					Else
+						approval_selected = UBound(MSA_UNIQUE_APPROVALS, 2)
+					End If
+				End If
+			End If
+		End If
+		If ButtonPressed = app_confirmed_btn and all_msa_approvals_confirmed = False Then
+			MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
+			approval_selected = first_unconfirmmed_month
+		End If
+
+	Loop until (ButtonPressed = app_confirmed_btn and all_msa_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
+
+	If msa_approval_is_incorrect = True Then
+		enter_CNOTE_for_MSA = False
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MSA Approvals from " & first_MSA_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+	End if
+
+End If
+
 If enter_CNOTE_for_GA = True Then
 	last_elig_result = ""
 	last_indv_unit_type = ""
@@ -16209,8 +17299,6 @@ If enter_CNOTE_for_GA = True Then
 	last_elig_action = ""
 	last_elig_reason = ""
 	last_budget_cycle = ""
-
-
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
 	unique_app_count = 0
@@ -16342,32 +17430,32 @@ If enter_CNOTE_for_GA = True Then
 		ei_count = 0
 		unea_count = 0
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-		  If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
-		  If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
-		  If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
-		  If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
-		  If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
-		  If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
-		  If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
-		  If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_snap(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
+		  If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_ga(each_memb) = True Then ei_count = ei_count + 1
 
-		  If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_snap(each_memb) = True Then
+		  If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_ga(each_memb) = True Then
 			  unea_count = unea_count + 1
 			  If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
 		  End If
-		  If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_snap(each_memb) = True Then
+		  If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_ga(each_memb) = True Then
 			  unea_count = unea_count + 1
 			  If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
 		  End If
-		  If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_snap(each_memb) = True Then
+		  If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_ga(each_memb) = True Then
 			  unea_count = unea_count + 1
 			  If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
 		  End If
-		  If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_snap(each_memb) = True Then
+		  If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_ga(each_memb) = True Then
 			  unea_count = unea_count + 1
 			  If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
 		  End If
-		  If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_snap(each_memb) = True Then
+		  If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_ga(each_memb) = True Then
 			  unea_count = unea_count + 1
 			  If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
 		  End If
@@ -16889,6 +17977,56 @@ If enter_CNOTE_for_MFIP = True Then
 		Call mfip_elig_case_note
 
 		' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
+		PF3
+	Next
+End If
+
+if enter_CNOTE_for_MSA = True Then
+	For unique_app = 0 to UBound(MSA_UNIQUE_APPROVALS, 2)
+		first_month = left(MSA_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
+		If len(MSA_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
+			last_month = right(MSA_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
+		Else
+			last_month = first_month
+		End If
+
+		elig_ind = ""
+		one_month_is_elig = False
+		For approval = 0 to UBound(MSA_ELIG_APPROVALS)
+			If MSA_ELIG_APPROVALS(approval).elig_footer_month & "/" & MSA_ELIG_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
+		Next
+		month_ind = ""
+		For each_month = 0 to UBound(STAT_INFORMATION)
+			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
+		Next
+
+		program_detail = "- MSA"
+		header_end = ""
+		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
+			If last_month = curr_month_plus_one or first_month = curr_month_plus_one Then
+				header_end = " - Ongoing"
+			ElseIf len(MSA_UNIQUE_APPROVALS(months_in_approval, unique_app)) > 5 Then
+				header_end = " - " & last_month
+			Else
+				header_end = " only"
+			End If
+			If MSA_UNIQUE_APPROVALS(package_is_expedited_const, unique_app) = True Then program_detail = "- EXPEDITED SNAP"
+			elig_info = "ELIGIBLE"
+			one_month_is_elig = True
+		ElseIf MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "INELIGIBLE" Then
+			If msa_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
+			If msa_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
+			If msa_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
+			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
+		End If
+		due_date = ""
+		If IsDate(MSA_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, MSA_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+
+		'Here we entere the CASENOTE
+		' Call snap_elig_case_note
+		Call msa_elig_case_note
+
+		' MsgBox MSA_UNIQUE_APPROVALS(months_in_approval, unique_app)
 		PF3
 	Next
 End If
