@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/16/2022", "Added supports to read case note headers created by the ELIGIBLITY SUMMARY script.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/08/2020", "Added message reminding you to let the script work without trying to multitask. This can cause the script to error.", "Casey Love, Hennepin County")
 call changelog_update("06/01/2020", "Initial version.", "Casey Love, Hennepin County")
 
@@ -239,11 +240,13 @@ Select Case type_of_work_assignment                                             
 					EMReadScreen note_date, 8, note_row, 6      'reading the note date
 					EMReadScreen note_x_number, 7, note_row, 16 'reading the note worker
 					EMReadScreen note_title, 55, note_row, 25   'reading the note header
+                    note_title = trim(note_title)
 
 					If note_x_number = qi_worker_x_number and DateDiff("d", note_date, work_assignment_date) = 0 Then
 						orig_oda_number_of_case_notes = orig_oda_number_of_case_notes + 1
 						If InStr(note_title, "~ Denied") <> 0 Then denied_note_exists = True
 						If InStr(note_title, "----Denied") <> 0 Then denied_note_exists = True
+                        If InStr(note_title, "INELIGIBLE eff ") <> 0 then denied_note_exists = True
 
 						If InStr(note_title, "~ Appointment letter sent in MEMO") <> 0 Then orig_oda_number_of_appt_notc = orig_oda_number_of_appt_notc + 1
 						If InStr(note_title, "~ Client has not completed application interview, NOMI") <> 0 Then orig_oda_number_of_nomis = orig_oda_number_of_nomis + 1
