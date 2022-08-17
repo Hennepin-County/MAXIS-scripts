@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/16/2022", "Added supports to read case note headers created by the ELIGIBLITY SUMMARY script.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/08/2020", "Added message reminding you to let the script work without trying to multitask. This can cause the script to error.", "Casey Love, Hennepin County")
 call changelog_update("06/01/2020", "Initial version.", "Casey Love, Hennepin County")
 
@@ -239,11 +240,13 @@ Select Case type_of_work_assignment                                             
 					EMReadScreen note_date, 8, note_row, 6      'reading the note date
 					EMReadScreen note_x_number, 7, note_row, 16 'reading the note worker
 					EMReadScreen note_title, 55, note_row, 25   'reading the note header
+                    note_title = trim(note_title)
 
 					If note_x_number = qi_worker_x_number and DateDiff("d", note_date, work_assignment_date) = 0 Then
 						orig_oda_number_of_case_notes = orig_oda_number_of_case_notes + 1
 						If InStr(note_title, "~ Denied") <> 0 Then denied_note_exists = True
 						If InStr(note_title, "----Denied") <> 0 Then denied_note_exists = True
+                        If InStr(note_title, "INELIGIBLE eff ") <> 0 then denied_note_exists = True
 
 						If InStr(note_title, "~ Appointment letter sent in MEMO") <> 0 Then orig_oda_number_of_appt_notc = orig_oda_number_of_appt_notc + 1
 						If InStr(note_title, "~ Client has not completed application interview, NOMI") <> 0 Then orig_oda_number_of_nomis = orig_oda_number_of_nomis + 1
@@ -884,3 +887,45 @@ CALL create_outlook_email(qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@
 ' CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", main_email_subject, main_email_body, "", TRUE)
 
 Call script_end_procedure_with_error_report("Great work! Thank you for completing your assignment report.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------08/16/2022
+'--Tab orders reviewed & confirmed----------------------------------------------08/16/2022
+'--Mandatory fields all present & Reviewed--------------------------------------08/16/2022
+'--All variables in dialog match mandatory fields-------------------------------08/16/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------08/16/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------08/16/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------08/16/2022-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/16/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------08/16/2022-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------08/16/2022
+'--Out-of-County handling reviewed----------------------------------------------08/16/2022-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------08/16/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------08/16/2022-------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---08/16/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------08/16/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------08/16/2022-------------------N/A
+'--Denomination reviewed -------------------------------------------------------08/16/2022
+'--Script name reviewed---------------------------------------------------------08/16/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------08/16/2022-------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------08/16/2022
+'--comment Code-----------------------------------------------------------------08/16/2022
+'--Update Changelog for release/update------------------------------------------08/16/2022
+'--Remove testing message boxes-------------------------------------------------08/16/2022
+'--Remove testing code/unnecessary code-----------------------------------------08/16/2022
+'--Review/update SharePoint instructions----------------------------------------08/16/2022-------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/16/2022-------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------08/16/2022
+'--Complete misc. documentation (if applicable)---------------------------------08/16/2022
+'--Update project team/issue contact (if applicable)----------------------------08/16/2022
