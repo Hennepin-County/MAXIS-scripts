@@ -286,13 +286,30 @@ Do
     	DIALOG Dialog1
     	cancel_confirmation
 
-        If SNAP_check = checked and HC_check = unchecked and cash_check = unchecked and emer_check = unchecked Then
-            If elig_summ_option_given = False Then
-                elig_summ_option_given = True
-                ' run_elig_summ = MsgBox("It appears you are running 'NOTES - Denied Programs' on a case that has been denied SNAP. In this case the new script 'NOTES - Eligibility Summary' is available to use to document the eligibility results for these programs." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
-                ' If run_elig_summ = vbYes then Call run_another_script(script_repository & "/notes/eligibility-summary.vbs")
-                ' Call select_testing_file("ALL", "", "notes/eligibility-summary.vbs", "master", True, True)
-            End if
+        Call validate_MAXIS_case_number(err_msg, "*")
+        If err_msg = "" and cash_check = checked Then Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
+        offer_test_script = True
+        If HC_check = checked Then offer_test_script = False
+        If emer_check = checked Then offer_test_script = False
+        If msa_status = "ACTIVE" Then offer_test_script = False
+        If msa_status = "APP CLOSE" Then offer_test_script = False
+        If msa_status = "APP OPEN" Then offer_test_script = False
+        If grh_status = "ACTIVE" Then offer_test_script = False
+        If grh_status = "APP CLOSE" Then offer_test_script = False
+        If grh_status = "APP OPEN" Then offer_test_script = False
+        If dwp_status = "ACTIVE" Then offer_test_script = False
+        If dwp_status = "APP CLOSE" Then offer_test_script = False
+        If dwp_status = "APP OPEN" Then offer_test_script = False
+
+        If offer_test_script = True and elig_summ_option_given = False Then
+            elig_summ_option_given = True
+            run_elig_summ = MsgBox("It appears you are running 'NOTES - Denied Programs' on a case that has been approved SNAP, MFIP or GA. In this case the new script 'NOTES - Eligibility Summary' is available to use to document the eligibility results for these programs." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
+            If run_elig_summ = vbYes then
+                script_url = script_repository & "notes\eligibility-summary.vbs"
+                ' MsgBox script_url
+                Call run_from_GitHub(script_url)
+            End If
         End If
 
     	If buttonpressed = SPEC_WCOM_button then
@@ -305,7 +322,7 @@ Do
             coded_denial = "" 			'Reseting this value to make sure we are not duplicating the case note.
             call check_pnd2_for_denial(coded_denial, SNAP_pnd2_code, cash_pnd2_code, grh_pnd2_code, emer_pnd2_code)
         End If
-    	If MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
+    	' If MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number."
     	If application_date = "" THEN err_msg = err_msg & vbCr & "Please enter an application date."
     	If (SNAP_check = checked and SNAP_denial_date = "") or (SNAP_check = unchecked and SNAP_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked SNAP but not added a denial date, or vice versa."
     	If (HC_check = checked and HC_denial_date = "") or (HC_check = unchecked and HC_denial_date <> "") THEN err_msg = err_msg & vbCr & "You have checked HC but not added a denial date, or vice versa."
