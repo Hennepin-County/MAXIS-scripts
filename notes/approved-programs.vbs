@@ -127,22 +127,28 @@ Do
 
         Call validate_MAXIS_case_number(err_msg, "*")
         If err_msg = "" and cash_approved_check = checked Then Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
-        offer_test_script = False
-        If snap_approved_check = checked Then offer_test_script = True
-        If cash_approved_check = checked and ga_status = "INACTIVE" and msa_status = "INACTIVE" and mfip_status = "ACTIVE" and dwp_status = "INACTIVE" and grh_status = "INACTIVE" Then offer_test_script = True
-        If cash_approved_check = checked and (ga_status = "ACTIVE" or msa_status = "ACTIVE" or dwp_status = "ACTIVE" or grh_status = "ACTIVE") Then offer_test_script = False
+        offer_test_script = True
         If hc_approved_check = checked Then offer_test_script = False
         If emer_approved_check = checked Then offer_test_script = False
+        If msa_status = "ACTIVE" Then offer_test_script = False
+        If msa_status = "APP CLOSE" Then offer_test_script = False
+        If msa_status = "APP OPEN" Then offer_test_script = False
+        If grh_status = "ACTIVE" Then offer_test_script = False
+        If grh_status = "APP CLOSE" Then offer_test_script = False
+        If grh_status = "APP OPEN" Then offer_test_script = False
+        If dwp_status = "ACTIVE" Then offer_test_script = False
+        If dwp_status = "APP CLOSE" Then offer_test_script = False
+        If dwp_status = "APP OPEN" Then offer_test_script = False
 
         If offer_test_script = True and elig_summ_option_given = False Then
             elig_summ_option_given = True
-            ' run_elig_summ = MsgBox("It appears you are running 'NOTES - Approved Programs' on a case that has been approved SNAP and/or MFIP. In this case the new script 'NOTES - Eligibility Summary' is available to use to document the eligibility results for these programs." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
-            ' ' MsgBox script_repository & "notes/eligibility-summary.vbs"
-            ' script_url = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/notes/eligibility-summary.vbs"
-            ' MsgBox script_url
-            ' If run_elig_summ = vbYes then Call run_another_script(script_url)
-            ' Call select_testing_file("ALL", "", "notes/eligibility-summary.vbs", "master", True, True)
-        End if
+            run_elig_summ = MsgBox("It appears you are running 'NOTES - Approved Programs' on a case that has been approved SNAP, MFIP or GA. In this case the new script 'NOTES - Eligibility Summary' is available to use to document the eligibility results for these programs." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
+            If run_elig_summ = vbYes then
+                script_url = script_repository & "notes\eligibility-summary.vbs"
+                ' MsgBox script_url
+                Call run_from_GitHub(script_url)
+            End If
+        End If
 
 		'Enforcing mandatory fields
 		IF autofill_check = checked THEN
