@@ -1086,6 +1086,215 @@ function define_ga_elig_dialog()
 	EndDialog
 end function
 
+function define_emer_elig_dialog()
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 555, 385, "EMER Approval"
+		If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
+			GroupBox 5, 10, 425, 105, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - ELIGIBLE"
+			y_pos = 40
+			Text 15, 25, 250, 10, "MONY/CHCK Issued for Emergency Assistance:"
+			For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+				Text 20, y_pos, 400, 10, "$ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - EMER Program: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck)
+				y_pos = y_pos + 10
+				'TODO - add IF NO MONY CHCKS THEN STOP AND TRY AGAIN'
+				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then
+					Text 30, y_pos+5, 85, 10, "XCEL Account Number:"
+					EditBox 115, y_pos, 75, 15, emer_excel_account_number
+					y_pos = y_pos + 10
+
+				End If
+			Next
+			Text 15, 80, 250, 10, "Emergency Begin Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & " - Emergency End Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_end_date
+			Text 15, 90, 150, 10, "Household: Adults - " & EMER_ELIG_APPROVAL.emer_elig_summ_adults_in_unit & ", Children - " & EMER_ELIG_APPROVAL.emer_elig_summ_children_in_unit
+			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used <> "" Then Text 15, 100, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: " & EMER_ELIG_APPROVAL.emer_elig_summ_last_used
+			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used = "" Then Text 15, 100, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: Never"
+
+			GroupBox 5, 125, 525, 90, "Emergency"
+			Text 15, 140, 85, 10, "Emergency to Resolve:"
+			CheckBox 100, 140, 100, 10, "Eviction - Past Due Balance", emer_past_due_rent_checkbox
+			CheckBox 210, 140, 100, 10, "New Housing", emer_new_housing_checkbox
+			CheckBox 310, 140, 100, 10, "Moving Expenses", emer_moving_exp_checkbox
+			CheckBox 390, 140, 100, 10, "Utility Shut-Off", emer_utility_checkbox
+			CheckBox 480, 140, 45, 10, "Bus Ticket", emer_bus_checkbox
+
+			CheckBox 100, 155, 100, 10, "Mortgage Balance", emer_foreclosure_checkbox
+			CheckBox 210, 155, 100, 10, "Delinquent Prop Tax", emer_property_tax_checkbox
+			CheckBox 310, 155, 100, 10, "Home Repairs", emer_home_repair_checkbox
+			CheckBox 390, 155, 100, 10, "Replcmt due to Fire", emer_fire_replace_checkbox
+			CheckBox 480, 155, 45, 10, "Storage", emer_storage_checkbox
+
+			Text 15, 175, 100, 10, "Household Available Assets:   $"
+			EditBox 120, 170, 75, 15, emer_available_assets
+			Text 15, 195, 100, 10, "Resolving Emergency Notes:"
+			EditBox 120, 190, 300, 15, emer_emer_resolve_notes
+
+			GroupBox 5, 220, 425, 55, "Cost Effectivness"
+			Text 15, 235, 185, 10, "Details to determine affordability:"
+			Text 20, 255, 100, 10, "Ongoing Monthly NET Income:   $"
+			EditBox 130, 250, 75, 15, emer_ongoing_mothly_income
+			Text 230, 235, 95, 10, "Ongoing Sheler Expense:   $"
+			EditBox 325, 230, 75, 15, emer_ongoing_shelter_expense
+			Text 230, 255, 95, 10, "Ongoing Utility Expense:   $"
+			EditBox 325, 250, 75, 15, emer_ongoing_utility_expense
+
+			' If EMER_ELIG_APPROVAL.emer_program = "EG" Then
+			GroupBox 5, 280, 425, 50, "Income Limit"
+			Text 15, 295, 300, 10, "Income Limit Details:"
+			Text 20, 310, 95, 10, "Income Application Month:   $"
+			If EMER_ELIG_APPROVAL.emer_program = "EG" Then Text 20, 310, 145, 10, "NET Income in the application month:   $"
+			If EMER_ELIG_APPROVAL.emer_program = "EA" Then Text 20, 310, 150, 10, "GROSS Income in 30 Days before Application:   $"
+			EditBox 175, 305, 75, 15, emer_past_30_days_income
+			Text 300, 310, 100, 10, "200% FPG: $ " & EMER_ELIG_APPROVAL.emer_fpg_limit
+			' End If
+		End if
+		If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "INELIGIBLE" Then
+			GroupBox 5, 10, 425, 110, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - INELIGIBLE"
+
+			Text 15, 30, 250, 10, "Emergency Begin Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & " - Emergency End Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_end_date
+			' Text 15, 30, 150, 10, "Household: Adults - " & EMER_ELIG_APPROVAL.emer_elig_summ_adults_in_unit & ", Children - " & EMER_ELIG_APPROVAL.emer_elig_summ_children_in_unit
+			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used <> "" Then Text 15, 40, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: " & EMER_ELIG_APPROVAL.emer_elig_summ_last_used
+			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used = "" Then Text 15, 40, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: Never"
+
+			If EMER_ELIG_APPROVAL.emer_program = "EA" Then
+				Text 15, 55, 100, 10, "Citizenshoip:             " & EMER_ELIG_APPROVAL.emer_elig_case_test_citizenship
+				Text 15, 65, 100, 10, "MFIP COOP:             " & EMER_ELIG_APPROVAL.emer_elig_case_test_coop_MFIP
+				Text 15, 75, 100, 10, "Copayment:              " & EMER_ELIG_APPROVAL.emer_elig_case_test_copayment
+				Text 15, 85, 100, 10, "Cost Effective:          " & EMER_ELIG_APPROVAL.emer_elig_case_test_cost_effective
+				Text 15, 95, 100, 10, "Eligible Child:            " & EMER_ELIG_APPROVAL.emer_elig_case_test_eligible_child
+				Text 15, 105, 100, 10, "Emergency:              " & EMER_ELIG_APPROVAL.emer_elig_case_test_emergency
+
+				Text 235, 55, 100, 10, "Equitable Interest:     " & EMER_ELIG_APPROVAL.emer_elig_case_test_equitable_interest
+			  	Text 235, 65, 100, 10, "Residency:                " & EMER_ELIG_APPROVAL.emer_elig_case_test_residency
+			  	Text 235, 75, 100, 10, "Resources:                " & EMER_ELIG_APPROVAL.emer_elig_case_test_resources
+			  	Text 235, 85, 100, 10, "Verification:                " & EMER_ELIG_APPROVAL.emer_elig_case_test_verif
+			  	Text 235, 95, 100, 10, "12 Month:                  " & EMER_ELIG_APPROVAL.emer_elig_case_test_12_month			'gather from ELIG
+			End If
+
+			If EMER_ELIG_APPROVAL.emer_program = "EG" Then
+				Text 15, 55, 100, 10, "Cooperation/Work:     " & EMER_ELIG_APPROVAL.emer_elig_case_test_coop_work
+				Text 15, 65, 100, 10, "Copayment:                 " & EMER_ELIG_APPROVAL.emer_elig_case_test_copayment
+				Text 15, 75, 100, 10, "Cost Effective:            " & EMER_ELIG_APPROVAL.emer_elig_case_test_cost_effective
+				Text 15, 85, 120, 10, "County Allocation:       " & EMER_ELIG_APPROVAL.emer_elig_case_test_county_allocation
+				Text 15, 95, 120, 10, "Elig Other Program:     " & EMER_ELIG_APPROVAL.emer_elig_case_test_elig_other_program
+				Text 15, 105, 100, 10, "Emergency:                 " & EMER_ELIG_APPROVAL.emer_elig_case_test_emergency
+
+				Text 235, 55, 100, 10, "Equitable Interest:     " & EMER_ELIG_APPROVAL.emer_elig_case_test_equitable_interest
+				Text 235, 65, 100, 10, "Resources:                " & EMER_ELIG_APPROVAL.emer_elig_case_test_resources
+				Text 235, 75, 100, 10, "Residency:                " & EMER_ELIG_APPROVAL.emer_elig_case_test_residency
+				Text 235, 85, 100, 10, "Verification:                " & EMER_ELIG_APPROVAL.emer_elig_case_test_verif
+				Text 235, 95, 100, 10, "12 Month:                  " & EMER_ELIG_APPROVAL.emer_elig_case_test_12_month
+				Text 235, 105, 100, 10, "200% FPG:                " & EMER_ELIG_APPROVAL.emer_elig_case_test_200_percent_fpg
+			End If
+
+			GroupBox 5, 125, 535, 210, "Ineligibiity Details"
+
+			y_pos = 135
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_coop_work = "FAILED" Then
+				GroupBox 10, y_pos, 525, 45, "Ineligibility due to failing COOPERATION/WORK REQUIREMENT"
+				y_pos = y_pos + 15
+				Text 15, y_pos, 300, 10, "Detail the Cooperation/Work Requirement that was failed:"
+				y_pos = y_pos + 10
+				EditBox 15, y_pos, 515, 15, emer_test_coop_work_detail
+				y_pos = y_pos + 25
+
+			End If
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_copayment = "FAILED" Then			'REVIEWED'
+				GroupBox 10, y_pos, 525, 45, "Ineligibility due to failing COPAYMENT"
+				y_pos = y_pos + 15
+				Text 15, y_pos, 200, 10, "Detail required Copayment and what was not met:"
+				y_pos = y_pos + 10
+				EditBox 15, y_pos, 515, 15, emer_test_copayment_detail
+				y_pos = y_pos + 25
+			End If
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_cost_effective = "FAILED" Then			'REVIEWED'
+				GroupBox 10, y_pos, 525, 50, "Ineligibility due to failing COST EFFECTIVE"
+				y_pos = y_pos + 15
+				' Text 15, y_pos, 200, 10, "NOTES:"
+				' y_pos = y_pos + 10
+				' EditBox 15, y_pos, 425, 15, emer_test__detail
+				Text 20, y_pos, 105, 10, "Ongoing Monthly NET Income:   $"
+				EditBox 130, y_pos-5, 75, 15, emer_ongoing_mothly_income
+				Text 230, y_pos, 95, 10, "Ongoing Shelter Expense:   $"
+				EditBox 325, y_pos-5, 75, 15, emer_ongoing_shelter_expense
+				y_pos = y_pos + 20
+				Text 230, y_pos, 95, 10, "Ongoing Utility Expense:   $"
+				EditBox 325, y_pos-5, 75, 15, emer_ongoing_utility_expense
+				y_pos = y_pos + 20
+			End If
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_elig_other_program = "FAILED" Then
+				GroupBox 10, y_pos, 525, 45, "Ineligibility due to failing ELIGBILITY FOR OTHER PROGRAMS"
+				y_pos = y_pos + 15
+				Text 15, y_pos, 250, 10, "List other programs the household is Eligible for:"
+				y_pos = y_pos + 10
+				EditBox 15, y_pos, 515, 15, emer_test_elig_other_prog_detail
+				y_pos = y_pos + 25
+			End If
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_equitable_interest = "FAILED" Then			'REVIEWED'
+				GroupBox 10, y_pos, 525, 45, "Ineligibility due to failing EQUITABLE INTEREST"
+				y_pos = y_pos + 15
+				Text 15, y_pos, 200, 10, "Explain living situation:"
+				y_pos = y_pos + 10
+				EditBox 15, y_pos, 515, 15, emer_test_equitable_interest_detail
+				y_pos = y_pos + 25
+			End If
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_residency = "FAILED" Then			'REVIEWED'
+				GroupBox 10, y_pos, 525, 30, "Ineligibility due to failing RESIDENCY"
+				y_pos = y_pos + 15
+				Text 15, y_pos, 145, 10, "Date household established MN Residency:"
+				EditBox 160, y_pos-5, 75, 15, emer_test_date_residency_starte
+				y_pos = y_pos + 20
+			End If
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_resources = "FAILED" Then			'REVIEWED'
+				GroupBox 10, y_pos, 525, 30, "Ineligibility due to failing RESOURCES"
+				y_pos = y_pos + 15
+				Text 15, y_pos, 100, 10, "Household Available Assets:"
+				EditBox 115, y_pos-5, 75, 15, emer_available_assets
+				y_pos = y_pos + 20
+			End If
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" Then			'REVIEWED'
+				GroupBox 10, y_pos, 525, 55, "Ineligibility due to VERIFICATIONS"
+				y_pos = y_pos + 15
+				Text 230, y_pos, 95, 10, "Date Verif Request Sent:"
+				EditBox 325, y_pos-5, 75, 15, emer_verif_reqquest_date
+				y_pos = y_pos + 10
+				Text 15, y_pos, 250, 10, "List all verifications that were required and not received:"
+				y_pos = y_pos + 10
+				EditBox 15, y_pos, 515, 15, emer_test_verif_detail
+				y_pos = y_pos + 25
+			End If
+			If EMER_ELIG_APPROVAL.emer_elig_case_test_200_percent_fpg = "FAILED" Then			'REVIEWED'
+				GroupBox 10, y_pos, 525, 35, "Ineligibility due to failing EXCEEDING 200% FPG"
+				' y_pos = y_pos + 15
+				' Text 15, y_pos, 200, 10, "NOTES:"
+				' EditBox 15, y_pos, 425, 15, emer_test__detail
+				y_pos = y_pos + 20
+
+				If EMER_ELIG_APPROVAL.emer_program = "EG" Then Text 20, y_pos, 145, 10, "NET Income in the application month:   $"
+				If EMER_ELIG_APPROVAL.emer_program = "EA" Then Text 20, y_pos, 150, 10, "GROSS Income in 30 Days before Application:   $"
+				EditBox 175, y_pos-5, 75, 15, emer_past_30_days_income
+				Text 300, y_pos, 200, 10, "200% FPG: $ " & EMER_ELIG_APPROVAL.emer_inelig_fpg_limit & "  -  Household Size: " & EMER_ELIG_APPROVAL.manual_hh_count
+				y_pos = y_pos + 20
+			End If
+
+		End If
+		Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", confirm_emer_budget_selection
+
+		ButtonGroup ButtonPressed
+			' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 115, 50, 10, "View ELIG", nav_stat_elig_btn
+			' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+			PushButton 375, 20, 50, 10, "View ELIG", nav_stat_elig_btn
+			PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+			' If snap_approval_is_incorrect = True Then
+			' 	PushButton 440, 365, 110, 15, "Cancel Approval Noting", app_incorrect_btn
+			' ElseIf approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) or snap_approval_is_incorrect = True Then
+			' End If
+
+		' Text 15, 80, 150, 10
+		' Text 15, 80, 150, 10
+	EndDialog
+end function
+
 function define_snap_elig_dialog()
 
 	display_detail = ""
@@ -2878,6 +3087,139 @@ function ga_elig_case_note()
 	End If
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
+end function
+
+function emer_elig_case_note()
+
+	CASE_NOTE_entered = True
+	end_msg_info = end_msg_info & "NOTE entered for EMER - " & EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result & " eff " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & vbCr
+
+	Call start_a_blank_case_note
+
+	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then Call write_variable_in_CASE_NOTE("*-*-* EMER ISSUED *-*-* " & EMER_ELIG_APPROVAL.emer_program & " Approved " & EMER_ELIG_APPROVAL.emer_elig_approved_date & " - $ " & EMER_ELIG_APPROVAL.emer_elig_summ_payment)
+	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "INELIGIBLE" Then Call write_variable_in_CASE_NOTE("APPROVAL - " & EMER_ELIG_APPROVAL.emer_program & " INELIGIBLE - Denied on " &  EMER_ELIG_APPROVAL.emer_elig_approved_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", EMER_ELIG_APPROVAL.emer_elig_approved_date)
+
+
+	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
+		Call write_variable_in_CASE_NOTE("============================= MONY/CHCK ISSUED ==============================")
+		For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
+			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number)
+			Call write_variable_in_CASE_NOTE("           for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - PROGRAM: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck))
+		Next
+
+		If emergecny_to_resolve_details = True OR affordability_details = True OR income_limit_details = True Then
+			Call write_variable_in_CASE_NOTE("============================= APPROVAL DETAILS ==============================")
+			If emergecny_to_resolve_details = True Then
+				Call write_variable_in_CASE_NOTE("Emergency to Resolve:")
+				If emer_past_due_rent_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - Eviction - Past Due Balance Paid")
+				If emer_new_housing_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - New Housing (Damage Deposit/First Months Rent)")
+				If emer_moving_exp_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - Moving Expenses")
+				If emer_utility_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - Utility Shut Off")
+				If emer_bus_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - Bus Ticket")
+				If emer_foreclosure_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - Mortgage Balance")
+				If emer_property_tax_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - Deliquent Property Tax")
+				If emer_home_repair_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - Home Repairs")
+				If emer_fire_replace_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - Replacement of Personal Items/Bed due to Fire")
+				If emer_storage_checkbox = checked Then Call write_variable_in_CASE_NOTE("  - Storage")
+				If trim(emer_available_assets) <> "" Then Call write_variable_in_CASE_NOTE("  Household Available Assets: $ " & emer_available_assets)
+				If trim(emer_emer_resolve_notes) <> "" Then Call write_variable_in_CASE_NOTE("  Resolve EMER Notes: " & emer_emer_resolve_notes)
+			End If
+			If affordability_details = True Then
+				Call write_variable_in_CASE_NOTE("Cost Effectiveness:")
+				If trim(emer_ongoing_mothly_income) <> "" Then Call write_variable_in_CASE_NOTE("  Ongoing Monthly NET Income: $ " & emer_ongoing_mothly_income)
+				If trim(emer_ongoing_shelter_expense) <> "" Then Call write_variable_in_CASE_NOTE("  Ongoing Housing Costs: $ " & emer_ongoing_shelter_expense)
+				If trim(emer_ongoing_utility_expense) <> "" Then Call write_variable_in_CASE_NOTE("  Ongoing Utility Costs: $ " & emer_ongoing_utility_expense)
+			End If
+			If income_limit_details = True Then
+				Call write_variable_in_CASE_NOTE("Within 200%:")
+				Call write_variable_in_CASE_NOTE("  Household Size: " & EMER_ELIG_APPROVAL.houshold_size)
+				Call write_variable_in_CASE_NOTE("  200% FPG: $ " & EMER_ELIG_APPROVAL.emer_fpg_limit)
+				Call write_variable_in_CASE_NOTE("  Houshold income: $ " & emer_past_30_days_income)
+			End If
+		End if
+
+		Call write_variable_in_CASE_NOTE("======================== HOUSEHOLD MEMBERS ELIGIBLE =========================")
+		Call write_variable_in_CASE_NOTE("Household: " & EMER_ELIG_APPROVAL.emer_elig_summ_adults_in_unit & " Adults, " & EMER_ELIG_APPROVAL.emer_elig_summ_children_in_unit & " Children")
+		For each_memb = 0 to UBound(EMER_ELIG_APPROVAL.emer_elig_ref_numbs)
+			Call write_variable_in_CASE_NOTE("  - MEMB " & EMER_ELIG_APPROVAL.emer_elig_ref_numbs(each_memb) & " - " & EMER_ELIG_APPROVAL.emer_elig_membs_info(each_memb))
+		Next
+
+		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
+		Call write_variable_in_CASE_NOTE("Emergency Begin Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date)
+		Call write_variable_in_CASE_NOTE("Emergency End Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_end_date)
+		If list_active_programs <> "" Then Call write_variable_in_CASE_NOTE("Other Active Programs: " & list_active_programs)
+		If list_pending_programs <> "" Then Call write_variable_in_CASE_NOTE("Other Pending Programs: " & list_pending_programs)
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE(worker_signature)
+	End If
+	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "INELIGIBLE" Then
+
+
+		Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
+
+		Call write_variable_in_CASE_NOTE("* " & EMER_ELIG_APPROVAL.emer_program & " is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
+
+
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_citizenship = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case has not met Citizenship Requirements.")
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_coop_MFIP = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case has not commplied with application for MFIP.")
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_coop_work = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - Case has not met cooperation with work requirement.")
+			If trim(emer_test_coop_work_detail) <> "" Then Call write_variable_in_CASE_NOTE("   Coop/Work Detail: " & emer_test_coop_work_detail)
+		End If
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_copayment = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - Case has not completed required copayment.")
+			If trim(emer_test_copayment_detail) <> "" Then Call write_variable_in_CASE_NOTE("   Copayment Info: " & emer_test_copayment_detail)
+		End If
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_cost_effective = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - The emergency will not be resolved to a cost effective situation.")
+			If trim(emer_ongoing_mothly_income) <> "" Then Call write_variable_in_CASE_NOTE("   Ongoing Monthly NET Income: $ " & emer_ongoing_mothly_income)
+			If trim(emer_ongoing_shelter_expense) <> "" Then Call write_variable_in_CASE_NOTE("   Ongoing Housing Costs: $ " & emer_ongoing_shelter_expense)
+			If trim(emer_ongoing_utility_expense) <> "" Then Call write_variable_in_CASE_NOTE("   Ongoing Utility Costs: $ " & emer_ongoing_utility_expense)
+		End If
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_county_allocation = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is insufficient county allocation.")
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_CASE_NOTE(" - There is no eligible child on this case.")
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_elig_other_program = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - The case needs to pursue eligibility for other assistance programs.")
+			If trim(emer_test_elig_other_prog_detail) <> "" Then Call write_variable_in_CASE_NOTE("   Other Program Info: " & emer_test_elig_other_prog_detail)
+		End If
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_emergency = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The situation does not meet the definition of an emergency for " & EMER_ELIG_APPROVAL.emer_program)
+
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_equitable_interest = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - The case is not listed as owning or living in this location.")
+			If trim(emer_test_equitable_interest_detail) <> "" Then Call write_variable_in_CASE_NOTE("   Living Situation Details: " & emer_test_equitable_interest_detail)
+		End If
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_residency = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - This case has not established 30 days of MN Residency.")
+			If trim(emer_test_date_residency_starte) <> "" Then Call write_variable_in_CASE_NOTE("   MN Residency established on " & emer_test_date_residency_starte)
+		End If
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_resources = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - The case appears to have resources to cover the emergency.")
+			If trim(emer_available_assets) <> "" Then Call write_variable_in_CASE_NOTE("   Household Available Assets: $ " & emer_available_assets)
+		End If
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - Not all required verifications have been provided.")
+			Call write_variable_in_CASE_NOTE("   Verification Request Form Sent on " & emer_verif_reqquest_date & ", due by: " & due_date)
+			If trim(emer_test_verif_detail) <> "" Then Call write_variable_in_CASE_NOTE("   Verifications Needed: " & emer_test_verif_detail)
+		End If
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_12_month = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Emergency Funds have been issued on this case in the past 12 months.")
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_200_percent_fpg = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - The income for this case exceeds 200% FPG.")
+			If trim(emer_past_30_days_income) <> "" Then
+				Call write_variable_in_CASE_NOTE("   200% FPG: $ " & EMER_ELIG_APPROVAL.emer_inelig_fpg_limit & "  -  Household Size: " & EMER_ELIG_APPROVAL.manual_hh_count)
+				If EMER_ELIG_APPROVAL.emer_program = "EG" Then Call write_variable_in_CASE_NOTE("   NET Income in Application Month: $ " & emer_past_30_days_income)
+				If EMER_ELIG_APPROVAL.emer_program = "EA" Then Call write_variable_in_CASE_NOTE("   GROSS Income in 30 Days before Application: $ " & emer_past_30_days_income)
+			End if
+		End If
+		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
+		Call write_variable_in_CASE_NOTE("Emergency Request has been denied.")
+		If list_active_programs <> "" Then Call write_variable_in_CASE_NOTE("Other Active Programs: " & list_active_programs)
+		If list_pending_programs <> "" Then Call write_variable_in_CASE_NOTE("Other Pending Programs: " & list_pending_programs)
+		Call write_variable_in_CASE_NOTE("---")
+		Call write_variable_in_CASE_NOTE(worker_signature)
+
+	End If
 end function
 
 function snap_elig_case_note()
@@ -8513,6 +8855,11 @@ class emer_eligibility_detail
 	public initial_search_year
 
 	public emer_program
+	public houshold_size
+	public manual_hh_count
+	public emer_fpg_limit
+	public emer_inelig_fpg_limit
+	public mony_check_found
 
 	public emer_check_issue_date()
 	public emer_check_program()
@@ -8647,6 +8994,7 @@ class emer_eligibility_detail
 	public sub read_elig()
 		approved_today = False			'TODO EMER - handling for approved_today'
 		approved_version_found = False
+		mony_check_found = False
 
 		ReDim emer_check_issue_date(0)
 		ReDim emer_check_program(0)
@@ -8803,8 +9151,13 @@ class emer_eligibility_detail
 			ReDim preserve emer_check_vendor_acct_number_required_yn(tx_count)
 			ReDim preserve emer_check_vendor_blocked_county_numbers_list(tx_count)
 
+			mony_check_found = True
 			emer_check_program(tx_count) = chck_prog
 			EMReadScreen emer_check_issue_date(tx_count), 8, inqd_row, 7
+			emer_check_issue_date(tx_count) = trim(emer_check_issue_date(tx_count))
+			If IsDate(emer_check_issue_date(tx_count)) = True Then
+				If DateDiff("d", date, emer_check_issue_date(tx_count)) = 0 Then approved_today = True
+			End if
 			EMReadScreen emer_check_status_code(tx_count), 1, inqd_row, 26
 			If emer_check_status_code(tx_count) = "C" Then emer_check_status_info(tx_count) = "Cancel/Return"
 			If emer_check_status_code(tx_count) = "D" Then emer_check_status_info(tx_count) = "Denied"
@@ -8969,243 +9322,318 @@ class emer_eligibility_detail
 		EMWriteScreen elig_footer_month, 20, 55
 		EMWriteScreen elig_footer_year, 20, 58
 		call navigate_to_MAXIS_screen("ELIG", "EMER")
-		Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+		manual_hh_count = 0
 		If approved_version_found = True Then
-			EMReadScreen emer_program, 2, 4, 45
 
-			ff_col = 59
-			ac_col = 64
-			es_col = 69
-			If emer_program = "EA" Then
-				rn_col = 6
-				fn_col = 9
-				rq_col = 33
-				mc_col = 38
-			End If
-			If emer_program = "EG" Then
-				rn_col = 8
-				fn_col = 13
-				rq_col = 37
-				mc_col = 44
-			End If
+			If IsDate(elig_version_date) = True Then
+				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+				If DateDiff("d", #8/16/2022#, elig_version_date) = 0 Then approved_today = True
+				If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
+			End if
 
-			emer_row = 8
-			memb_count = 0
-			Do
-				EMReadScreen ref_numb, 2, emer_row, rn_col
+			if approved_today = True Then
+				EMReadScreen emer_program, 2, 4, 45
 
-				ReDim preserve emer_elig_ref_numbs(memb_count)
-				ReDim preserve emer_elig_membs_full_name(memb_count)
-				ReDim preserve emer_elig_membs_request_yn(memb_count)
-				ReDim preserve emer_elig_membs_code(memb_count)
-				ReDim preserve emer_elig_membs_info(memb_count)
-				ReDim preserve emer_elig_membs_fund_fact(memb_count)
-				ReDim preserve emer_elig_membs_adult_or_child(memb_count)
-				ReDim preserve emer_elig_membs_elig_status(memb_count)
-				ReDim preserve emer_elig_membs_12_month_test(memb_count)
-				ReDim preserve emer_elig_membs_last_emer_begin_date(memb_count)
+				ff_col = 59
+				ac_col = 64
+				es_col = 69
+				If emer_program = "EA" Then
+					rn_col = 6
+					fn_col = 9
+					rq_col = 33
+					mc_col = 38
+				End If
+				If emer_program = "EG" Then
+					rn_col = 8
+					fn_col = 13
+					rq_col = 37
+					mc_col = 44
+				End If
 
-				emer_elig_ref_numbs(memb_count) = ref_numb
-				EMReadScreen emer_elig_membs_full_name(memb_count), 		20, emer_row, fn_col
-				EMReadScreen emer_elig_membs_request_yn(memb_count), 		1, emer_row, rq_col
-				EMReadScreen emer_elig_membs_code(memb_count), 				1, emer_row, mc_col
-				If emer_program = "EA" Then EMReadScreen emer_elig_membs_fund_fact(memb_count), 		1, emer_row, ff_col
-				EMReadScreen emer_elig_membs_adult_or_child(memb_count), 	1, emer_row, ac_col
-				EMReadScreen emer_elig_membs_elig_status(memb_count), 		10, emer_row, es_col
-
-				If emer_elig_membs_code(memb_count) = "A" Then emer_elig_membs_info(memb_count) = "Counted Eligible"
-				If emer_elig_membs_code(memb_count) = "F" Then emer_elig_membs_info(memb_count) = "Counted Ineligible"
-				If emer_elig_membs_code(memb_count) = "N" Then emer_elig_membs_info(memb_count) = "Not Counted Ineligible"
-
-				If emer_elig_membs_adult_or_child(memb_count) = "A" Then emer_elig_membs_adult_or_child(memb_count) = "Adult"
-				If emer_elig_membs_adult_or_child(memb_count) = "C" Then emer_elig_membs_adult_or_child(memb_count) = "Child"
-
-				emer_elig_membs_full_name(memb_count) = trim((emer_elig_membs_full_name(memb_count)))
-				emer_elig_membs_elig_status(memb_count) = trim((emer_elig_membs_elig_status(memb_count)))
-
-				If emer_program = "EA" Then EMWriteScreen "X", emer_row, 4
-
-				memb_count = memb_count + 1
-				emer_row = emer_row + 1
-				EMReadScreen next_ref_numb, 2, emer_row, 6
-			Loop until next_ref_numb = "  "
-
-			transmit
-			If emer_program = "EA" Then
+				emer_row = 8
+				memb_count = 0
 				Do
-					EMReadScreen person_name, 20, 18, 18
-					person_name = trim(person_name)
-					For each_memb = 0 to UBound(emer_elig_ref_numbs)
-						If emer_elig_membs_full_name(each_memb) = person_name Then
-							EMReadScreen emer_elig_membs_12_month_test(each_memb), 6, 13, 26
-							EMReadScreen emer_elig_membs_last_emer_begin_date(each_memb), 8, 15, 29
+					EMReadScreen ref_numb, 2, emer_row, rn_col
 
-							emer_elig_membs_12_month_test(each_memb) = trim(emer_elig_membs_12_month_test(each_memb))
-							emer_elig_membs_last_emer_begin_date(each_memb) = trim(emer_elig_membs_last_emer_begin_date(each_memb))
-						End If
-					Next
+					ReDim preserve emer_elig_ref_numbs(memb_count)
+					ReDim preserve emer_elig_membs_full_name(memb_count)
+					ReDim preserve emer_elig_membs_request_yn(memb_count)
+					ReDim preserve emer_elig_membs_code(memb_count)
+					ReDim preserve emer_elig_membs_info(memb_count)
+					ReDim preserve emer_elig_membs_fund_fact(memb_count)
+					ReDim preserve emer_elig_membs_adult_or_child(memb_count)
+					ReDim preserve emer_elig_membs_elig_status(memb_count)
+					ReDim preserve emer_elig_membs_12_month_test(memb_count)
+					ReDim preserve emer_elig_membs_last_emer_begin_date(memb_count)
 
-					transmit
-					EMReadScreen emer_panel, 4, 3, 49
-				Loop until emer_panel = "EMCR"
+					emer_elig_ref_numbs(memb_count) = ref_numb
+					EMReadScreen emer_elig_membs_full_name(memb_count), 		20, emer_row, fn_col
+					EMReadScreen emer_elig_membs_request_yn(memb_count), 		1, emer_row, rq_col
+					EMReadScreen emer_elig_membs_code(memb_count), 				1, emer_row, mc_col
+					If emer_program = "EA" Then EMReadScreen emer_elig_membs_fund_fact(memb_count), 		1, emer_row, ff_col
+					EMReadScreen emer_elig_membs_adult_or_child(memb_count), 	1, emer_row, ac_col
+					EMReadScreen emer_elig_membs_elig_status(memb_count), 		10, emer_row, es_col
 
-				EMReadScreen emer_elig_case_test_citizenship, 		6, 8, 14
-				EMReadScreen emer_elig_case_test_coop_MFIP, 		6, 9, 14
-				EMReadScreen emer_elig_case_test_copayment, 		6, 10, 14
-				EMReadScreen emer_elig_case_test_cost_effective, 	6, 11, 14
-				EMReadScreen emer_elig_case_test_eligible_child, 	6, 12, 14
-				EMReadScreen emer_elig_case_test_emergency, 		6, 13, 14
+					If emer_elig_membs_code(memb_count) = "A" Then emer_elig_membs_info(memb_count) = "Counted Eligible"
+					If emer_elig_membs_code(memb_count) = "F" Then emer_elig_membs_info(memb_count) = "Counted Ineligible"
+					If emer_elig_membs_code(memb_count) = "N" Then emer_elig_membs_info(memb_count) = "Not Counted Ineligible"
 
-				EMReadScreen emer_elig_case_test_equitable_interest, 6, 8, 48
-				EMReadScreen emer_elig_case_test_residency, 		6, 9, 48
-				EMReadScreen emer_elig_case_test_resources, 		6, 10, 48
-				EMReadScreen emer_elig_case_test_verif, 			6, 11, 48
-				EMReadScreen emer_elig_case_test_12_month, 			6, 12, 48
+					If InStr(emer_elig_membs_info(memb_count), "Counted") <> 0 Then manual_hh_count = manual_hh_count + 1
 
-				emer_elig_case_test_citizenship = trim(emer_elig_case_test_citizenship)
-				emer_elig_case_test_coop_MFIP = trim(emer_elig_case_test_coop_MFIP)
-				emer_elig_case_test_copayment = trim(emer_elig_case_test_copayment)
-				emer_elig_case_test_cost_effective = trim(emer_elig_case_test_cost_effective)
-				emer_elig_case_test_eligible_child = trim(emer_elig_case_test_eligible_child)
-				emer_elig_case_test_emergency = trim(emer_elig_case_test_emergency)
+					If emer_elig_membs_adult_or_child(memb_count) = "A" Then emer_elig_membs_adult_or_child(memb_count) = "Adult"
+					If emer_elig_membs_adult_or_child(memb_count) = "C" Then emer_elig_membs_adult_or_child(memb_count) = "Child"
 
-				emer_elig_case_test_equitable_interest = trim(emer_elig_case_test_equitable_interest)
-				emer_elig_case_test_residency = trim(emer_elig_case_test_residency)
-				emer_elig_case_test_resources = trim(emer_elig_case_test_resources)
-				emer_elig_case_test_verif = trim(emer_elig_case_test_verif)
-				emer_elig_case_test_12_month = trim(emer_elig_case_test_12_month)
+					emer_elig_membs_full_name(memb_count) = trim((emer_elig_membs_full_name(memb_count)))
+					emer_elig_membs_elig_status(memb_count) = trim((emer_elig_membs_elig_status(memb_count)))
+
+					If emer_program = "EA" Then EMWriteScreen "X", emer_row, 4
+
+					memb_count = memb_count + 1
+					emer_row = emer_row + 1
+					EMReadScreen next_ref_numb, 2, emer_row, 6
+				Loop until next_ref_numb = "  "
+
+				transmit
+				If emer_program = "EA" Then
+					Do
+						EMReadScreen person_name, 20, 18, 18
+						person_name = trim(person_name)
+						For each_memb = 0 to UBound(emer_elig_ref_numbs)
+							If emer_elig_membs_full_name(each_memb) = person_name Then
+								EMReadScreen emer_elig_membs_12_month_test(each_memb), 6, 13, 26
+								EMReadScreen emer_elig_membs_last_emer_begin_date(each_memb), 8, 15, 29
+
+								emer_elig_membs_12_month_test(each_memb) = trim(emer_elig_membs_12_month_test(each_memb))
+								emer_elig_membs_last_emer_begin_date(each_memb) = trim(emer_elig_membs_last_emer_begin_date(each_memb))
+							End If
+						Next
+
+						transmit
+						EMReadScreen emer_panel, 4, 3, 49
+					Loop until emer_panel = "EMCR"
+
+					EMReadScreen emer_elig_case_test_citizenship, 		6, 8, 14
+					EMReadScreen emer_elig_case_test_coop_MFIP, 		6, 9, 14
+					EMReadScreen emer_elig_case_test_copayment, 		6, 10, 14
+					EMReadScreen emer_elig_case_test_cost_effective, 	6, 11, 14
+					EMReadScreen emer_elig_case_test_eligible_child, 	6, 12, 14
+					EMReadScreen emer_elig_case_test_emergency, 		6, 13, 14
+
+					EMReadScreen emer_elig_case_test_equitable_interest, 6, 8, 48
+					EMReadScreen emer_elig_case_test_residency, 		6, 9, 48
+					EMReadScreen emer_elig_case_test_resources, 		6, 10, 48
+					EMReadScreen emer_elig_case_test_verif, 			6, 11, 48
+					EMReadScreen emer_elig_case_test_12_month, 			6, 12, 48
+
+					emer_elig_case_test_citizenship = trim(emer_elig_case_test_citizenship)
+					emer_elig_case_test_coop_MFIP = trim(emer_elig_case_test_coop_MFIP)
+					emer_elig_case_test_copayment = trim(emer_elig_case_test_copayment)
+					emer_elig_case_test_cost_effective = trim(emer_elig_case_test_cost_effective)
+					emer_elig_case_test_eligible_child = trim(emer_elig_case_test_eligible_child)
+					emer_elig_case_test_emergency = trim(emer_elig_case_test_emergency)
+
+					emer_elig_case_test_equitable_interest = trim(emer_elig_case_test_equitable_interest)
+					emer_elig_case_test_residency = trim(emer_elig_case_test_residency)
+					emer_elig_case_test_resources = trim(emer_elig_case_test_resources)
+					emer_elig_case_test_verif = trim(emer_elig_case_test_verif)
+					emer_elig_case_test_12_month = trim(emer_elig_case_test_12_month)
+				End If
+
+				If emer_program = "EG" Then
+					EMReadScreen emer_elig_case_test_coop_work, 		6, 9, 7
+					EMReadScreen emer_elig_case_test_copayment, 		6, 10, 7
+					EMReadScreen emer_elig_case_test_cost_effective, 	6, 11, 7
+					EMReadScreen emer_elig_case_test_county_allocation, 6, 12, 7
+					EMReadScreen emer_elig_case_test_elig_other_program,6, 13, 7
+					EMReadScreen emer_elig_case_test_emergency, 		6, 14, 7
+
+					EMReadScreen emer_elig_case_test_equitable_interest, 6, 9, 49
+					EMReadScreen emer_elig_case_test_resources, 		6, 10, 49
+					EMReadScreen emer_elig_case_test_residency, 		6, 11, 49
+					EMReadScreen emer_elig_case_test_verif, 			6, 12, 49
+					EMReadScreen emer_elig_case_test_12_month, 			6, 13, 49
+					EMReadScreen emer_elig_case_test_200_percent_fpg, 	6, 14, 49
+
+					emer_elig_case_test_coop_work = trim(emer_elig_case_test_coop_work)
+					emer_elig_case_test_copayment = trim(emer_elig_case_test_copayment)
+					emer_elig_case_test_cost_effective = trim(emer_elig_case_test_cost_effective)
+					emer_elig_case_test_county_allocation = trim(emer_elig_case_test_county_allocation)
+					emer_elig_case_test_elig_other_program = trim(emer_elig_case_test_elig_other_program)
+					emer_elig_case_test_emergency = trim(emer_elig_case_test_emergency)
+
+					emer_elig_case_test_equitable_interest = trim(emer_elig_case_test_equitable_interest)
+					emer_elig_case_test_resources = trim(emer_elig_case_test_resources)
+					emer_elig_case_test_residency = trim(emer_elig_case_test_residency)
+					emer_elig_case_test_verif = trim(emer_elig_case_test_verif)
+					emer_elig_case_test_12_month = trim(emer_elig_case_test_12_month)
+					emer_elig_case_test_200_percent_fpg = trim(emer_elig_case_test_200_percent_fpg)
+				End If
+
+				transmit 		'going to EMAV'
+
+				EMReadScreen emer_elig_available_gross_earned_income, 	9, 7, 32
+				EMReadScreen emer_elig_available_actual_work_expense, 	9, 8, 32
+				EMReadScreen emer_elig_available_net_earned_income, 	9, 9, 32
+
+				EMReadScreen emer_elig_available_unearned_income, 		9, 7, 71
+				EMReadScreen emer_elig_available_assets, 				9, 8, 17
+				EMReadScreen emer_elig_available_other_assets, 			9, 9, 71
+				EMReadScreen emer_elig_available_total_income_assets, 	9, 10, 71
+
+				EMReadScreen emer_elig_expense_rent_mortgage, 		9, 13, 32
+				EMReadScreen emer_elig_expense_fuel,	 			9, 14, 32
+				EMReadScreen emer_elig_expense_electric, 			9, 15, 32
+				EMReadScreen emer_elig_expense_msa_standard, 		9, 16, 32
+
+				EMReadScreen emer_elig_expense_car_payment, 		9, 13, 71
+				EMReadScreen emer_elig_expense_phone, 				9, 14, 71
+				EMReadScreen emer_elig_expense_food, 				9, 15, 71
+				EMReadScreen emer_elig_expense_other, 				9, 16, 71
+				EMReadScreen emer_elig_total_basic_needs, 			9, 17, 71
+				EMReadScreen emer_elig_expense_net_income_assets, 	9, 18, 71
+
+				emer_elig_available_gross_earned_income = trim(emer_elig_available_gross_earned_income)
+				emer_elig_available_actual_work_expense = trim(emer_elig_available_actual_work_expense)
+				emer_elig_available_net_earned_income = trim(emer_elig_available_net_earned_income)
+				emer_elig_available_unearned_income = trim(emer_elig_available_unearned_income)
+				emer_elig_available_assets = trim(emer_elig_available_assets)
+				emer_elig_available_other_assets = trim(emer_elig_available_other_assets)
+				emer_elig_available_total_income_assets = trim(emer_elig_available_total_income_assets)
+				emer_elig_expense_rent_mortgage = trim(emer_elig_expense_rent_mortgage)
+				emer_elig_expense_fuel = trim(emer_elig_expense_fuel)
+				emer_elig_expense_electric = trim(emer_elig_expense_electric)
+				emer_elig_expense_msa_standard = trim(emer_elig_expense_msa_standard)
+				emer_elig_expense_car_payment = trim(emer_elig_expense_car_payment)
+				emer_elig_expense_phone = trim(emer_elig_expense_phone)
+				emer_elig_expense_food = trim(emer_elig_expense_food)
+				emer_elig_expense_other = trim(emer_elig_expense_other)
+				emer_elig_total_basic_needs = trim(emer_elig_total_basic_needs)
+				emer_elig_expense_net_income_assets = trim(emer_elig_expense_net_income_assets)
+
+				emer_elig_available_gross_earned_income = replace(emer_elig_available_gross_earned_income, "_", "")
+				emer_elig_available_actual_work_expense = replace(emer_elig_available_actual_work_expense, "_", "")
+				emer_elig_available_net_earned_income = replace(emer_elig_available_net_earned_income, "_", "")
+				emer_elig_available_unearned_income = replace(emer_elig_available_unearned_income, "_", "")
+				emer_elig_available_assets = replace(emer_elig_available_assets, "_", "")
+				emer_elig_available_other_assets = replace(emer_elig_available_other_assets, "_", "")
+				emer_elig_available_total_income_assets = replace(emer_elig_available_total_income_assets, "_", "")
+				emer_elig_expense_rent_mortgage = replace(emer_elig_expense_rent_mortgage, "_", "")
+				emer_elig_expense_fuel = replace(emer_elig_expense_fuel, "_", "")
+				emer_elig_expense_electric = replace(emer_elig_expense_electric, "_", "")
+				emer_elig_expense_msa_standard = replace(emer_elig_expense_msa_standard, "_", "")
+				emer_elig_expense_car_payment = replace(emer_elig_expense_car_payment, "_", "")
+				emer_elig_expense_phone = replace(emer_elig_expense_phone, "_", "")
+				emer_elig_expense_food = replace(emer_elig_expense_food, "_", "")
+				emer_elig_expense_other = replace(emer_elig_expense_other, "_", "")
+				emer_elig_total_basic_needs = replace(emer_elig_total_basic_needs, "_", "")
+				emer_elig_expense_net_income_assets = replace(emer_elig_expense_net_income_assets, "_", "")
+
+				transmit 'go to EMSM'
+
+				EMReadScreen emer_elig_approved_date, 			8, 3, 14
+				EMReadScreen emer_elig_process_date, 			8, 2, 73
+				EMReadScreen emer_elig_summ_date_last_approval, 8, 6, 32
+				EMReadScreen emer_elig_summ_current_program_status, 10, 7, 32
+				EMReadScreen emer_elig_summ_eligibility_result, 10, 8, 32
+				EMReadScreen emer_elig_summ_last_used, 			8, 9, 32
+
+				EMReadScreen emer_elig_summ_adults_in_unit, 	2, 6, 73
+				EMReadScreen emer_elig_summ_children_in_unit, 	2, 7, 73
+				EMReadScreen emer_elig_summ_begin_date, 		8, 8, 71
+				EMReadScreen emer_elig_summ_end_date, 			8, 9, 71
+
+				EMReadScreen emer_elig_summ_need_foreclosure, 	9, 11, 32
+				EMReadScreen emer_elig_summ_need_temp_shelter, 	9, 12, 32
+				EMReadScreen emer_elig_summ_need_other_shelter, 9, 13, 32
+				EMReadScreen emer_elig_summ_need_utility, 		9, 14, 32
+				EMReadScreen emer_elig_summ_need_other, 		9, 15, 32
+				EMReadScreen emer_elig_summ_need_total, 		9, 16, 32
+
+				EMReadScreen emer_elig_summ_payment, 			9, 13, 71
+
+				emer_elig_summ_date_last_approval = trim(emer_elig_summ_date_last_approval)
+				emer_elig_summ_current_program_status = trim(emer_elig_summ_current_program_status)
+				emer_elig_summ_last_used = trim(emer_elig_summ_last_used)
+
+				emer_elig_summ_adults_in_unit = trim(emer_elig_summ_adults_in_unit)
+				emer_elig_summ_children_in_unit = trim(emer_elig_summ_children_in_unit)
+
+				emer_elig_summ_eligibility_result = replace(emer_elig_summ_eligibility_result, "_", "")
+
+				emer_elig_summ_need_foreclosure = replace(emer_elig_summ_need_foreclosure, "_", "")
+				emer_elig_summ_need_temp_shelter = replace(emer_elig_summ_need_temp_shelter, "_", "")
+				emer_elig_summ_need_other_shelter = replace(emer_elig_summ_need_other_shelter, "_", "")
+				emer_elig_summ_need_utility = replace(emer_elig_summ_need_utility, "_", "")
+				emer_elig_summ_need_other = replace(emer_elig_summ_need_other, "_", "")
+
+				emer_elig_summ_need_total = trim(emer_elig_summ_need_total)
+				emer_elig_summ_payment = trim(emer_elig_summ_payment)
+
+				emer_elig_summ_adults_in_unit = emer_elig_summ_adults_in_unit * 1
+				emer_elig_summ_children_in_unit = emer_elig_summ_children_in_unit * 1
+
+				houshold_size = emer_elig_summ_adults_in_unit + emer_elig_summ_children_in_unit
+				emer_fpg_limit = 0
+				emer_inelig_fpg_limit = 0
+
+				If emer_program = "EG" Then
+					If houshold_size = 1 Then emer_fpg_limit = 2147
+					If houshold_size = 2 Then emer_fpg_limit = 2903
+					If houshold_size = 3 Then emer_fpg_limit = 3660
+					If houshold_size = 4 Then emer_fpg_limit = 4417
+					If houshold_size = 5 Then emer_fpg_limit = 5173
+					If houshold_size = 6 Then emer_fpg_limit = 5930
+					If houshold_size = 7 Then emer_fpg_limit = 6687
+					If houshold_size = 8 Then emer_fpg_limit = 7443
+					If houshold_size = 9 Then emer_fpg_limit = 8200
+					If houshold_size = 10 Then emer_fpg_limit = 8957
+					If houshold_size > 10 Then emer_fpg_limit = 8957 + ((houshold_size-10) * 757)
+					emer_fpg_limit = FormatNumber(emer_fpg_limit, 2, -1, 0, -1)
+
+					If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2147
+					If manual_hh_count = 2 Then emer_inelig_fpg_limit = 2903
+					If manual_hh_count = 3 Then emer_inelig_fpg_limit = 3660
+					If manual_hh_count = 4 Then emer_inelig_fpg_limit = 4417
+					If manual_hh_count = 5 Then emer_inelig_fpg_limit = 5173
+					If manual_hh_count = 6 Then emer_inelig_fpg_limit = 5930
+					If manual_hh_count = 7 Then emer_inelig_fpg_limit = 6687
+					If manual_hh_count = 8 Then emer_inelig_fpg_limit = 7443
+					If manual_hh_count = 9 Then emer_inelig_fpg_limit = 8200
+					If manual_hh_count = 10 Then emer_inelig_fpg_limit = 8957
+					If manual_hh_count > 10 Then emer_inelig_fpg_limit = 8957 + ((manual_hh_count-10) * 757)
+					emer_inelig_fpg_limit = FormatNumber(emer_inelig_fpg_limit, 2, -1, 0, -1)
+				End If
+
+				If emer_program = "EA" Then
+					If houshold_size = 1 Then emer_fpg_limit = 2265
+					If houshold_size = 2 Then emer_fpg_limit = 3052
+					If houshold_size = 3 Then emer_fpg_limit = 3838
+					If houshold_size = 4 Then emer_fpg_limit = 4625
+					If houshold_size = 5 Then emer_fpg_limit = 5412
+					If houshold_size = 6 Then emer_fpg_limit = 6198
+					If houshold_size = 7 Then emer_fpg_limit = 6985
+					If houshold_size = 8 Then emer_fpg_limit = 7772
+					If houshold_size = 9 Then emer_fpg_limit = 8558
+					If houshold_size = 10 Then emer_fpg_limit = 9345
+					If houshold_size > 10 Then emer_fpg_limit = 9345 + ((houshold_size-10) * 787)
+					emer_fpg_limit = FormatNumber(emer_fpg_limit, 2, -1, 0, -1)
+
+					If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2265
+					If manual_hh_count = 2 Then emer_inelig_fpg_limit = 3052
+					If manual_hh_count = 3 Then emer_inelig_fpg_limit = 3838
+					If manual_hh_count = 4 Then emer_inelig_fpg_limit = 4625
+					If manual_hh_count = 5 Then emer_inelig_fpg_limit = 5412
+					If manual_hh_count = 6 Then emer_inelig_fpg_limit = 6198
+					If manual_hh_count = 7 Then emer_inelig_fpg_limit = 6985
+					If manual_hh_count = 8 Then emer_inelig_fpg_limit = 7772
+					If manual_hh_count = 9 Then emer_inelig_fpg_limit = 8558
+					If manual_hh_count = 10 Then emer_inelig_fpg_limit = 9345
+					If manual_hh_count > 10 Then emer_inelig_fpg_limit = 9345 + ((manual_hh_count-10) * 787)
+					emer_inelig_fpg_limit = FormatNumber(emer_inelig_fpg_limit, 2, -1, 0, -1)
+				End If
+
 			End If
-
-			If emer_program = "EG" Then
-				EMReadScreen emer_elig_case_test_coop_work, 		6, 9, 7
-				EMReadScreen emer_elig_case_test_copayment, 		6, 10, 7
-				EMReadScreen emer_elig_case_test_cost_effective, 	6, 11, 7
-				EMReadScreen emer_elig_case_test_county_allocation, 6, 12, 7
-				EMReadScreen emer_elig_case_test_elig_other_program,6, 13, 7
-				EMReadScreen emer_elig_case_test_emergency, 		6, 14, 7
-
-				EMReadScreen emer_elig_case_test_equitable_interest, 6, 9, 49
-				EMReadScreen emer_elig_case_test_resources, 		6, 10, 49
-				EMReadScreen emer_elig_case_test_residency, 		6, 11, 49
-				EMReadScreen emer_elig_case_test_verif, 			6, 12, 49
-				EMReadScreen emer_elig_case_test_12_month, 			6, 13, 49
-				EMReadScreen emer_elig_case_test_200_percent_fpg, 	6, 14, 49
-
-				emer_elig_case_test_coop_work = trim(emer_elig_case_test_coop_work)
-				emer_elig_case_test_copayment = trim(emer_elig_case_test_copayment)
-				emer_elig_case_test_cost_effective = trim(emer_elig_case_test_cost_effective)
-				emer_elig_case_test_county_allocation = trim(emer_elig_case_test_county_allocation)
-				emer_elig_case_test_elig_other_program = trim(emer_elig_case_test_elig_other_program)
-				emer_elig_case_test_emergency = trim(emer_elig_case_test_emergency)
-
-				emer_elig_case_test_equitable_interest = trim(emer_elig_case_test_equitable_interest)
-				emer_elig_case_test_resources = trim(emer_elig_case_test_resources)
-				emer_elig_case_test_residency = trim(emer_elig_case_test_residency)
-				emer_elig_case_test_verif = trim(emer_elig_case_test_verif)
-				emer_elig_case_test_12_month = trim(emer_elig_case_test_12_month)
-				emer_elig_case_test_200_percent_fpg = trim(emer_elig_case_test_200_percent_fpg)
-			End If
-
-			transmit 		'going to EMAV'
-
-			EMReadScreen emer_elig_available_gross_earned_income, 	9, 7, 32
-			EMReadScreen emer_elig_available_actual_work_expense, 	9, 8, 32
-			EMReadScreen emer_elig_available_net_earned_income, 	9, 9, 32
-
-			EMReadScreen emer_elig_available_unearned_income, 		9, 7, 71
-			EMReadScreen emer_elig_available_assets, 				9, 8, 17
-			EMReadScreen emer_elig_available_other_assets, 			9, 9, 71
-			EMReadScreen emer_elig_available_total_income_assets, 	9, 10, 71
-
-			EMReadScreen emer_elig_expense_rent_mortgage, 		9, 13, 32
-			EMReadScreen emer_elig_expense_fuel,	 			9, 14, 32
-			EMReadScreen emer_elig_expense_electric, 			9, 15, 32
-			EMReadScreen emer_elig_expense_msa_standard, 		9, 16, 32
-
-			EMReadScreen emer_elig_expense_car_payment, 		9, 13, 71
-			EMReadScreen emer_elig_expense_phone, 				9, 14, 71
-			EMReadScreen emer_elig_expense_food, 				9, 15, 71
-			EMReadScreen emer_elig_expense_other, 				9, 16, 71
-			EMReadScreen emer_elig_total_basic_needs, 			9, 17, 71
-			EMReadScreen emer_elig_expense_net_income_assets, 	9, 18, 71
-
-			emer_elig_available_gross_earned_income = trim(emer_elig_available_gross_earned_income)
-			emer_elig_available_actual_work_expense = trim(emer_elig_available_actual_work_expense)
-			emer_elig_available_net_earned_income = trim(emer_elig_available_net_earned_income)
-			emer_elig_available_unearned_income = trim(emer_elig_available_unearned_income)
-			emer_elig_available_assets = trim(emer_elig_available_assets)
-			emer_elig_available_other_assets = trim(emer_elig_available_other_assets)
-			emer_elig_available_total_income_assets = trim(emer_elig_available_total_income_assets)
-			emer_elig_expense_rent_mortgage = trim(emer_elig_expense_rent_mortgage)
-			emer_elig_expense_fuel = trim(emer_elig_expense_fuel)
-			emer_elig_expense_electric = trim(emer_elig_expense_electric)
-			emer_elig_expense_msa_standard = trim(emer_elig_expense_msa_standard)
-			emer_elig_expense_car_payment = trim(emer_elig_expense_car_payment)
-			emer_elig_expense_phone = trim(emer_elig_expense_phone)
-			emer_elig_expense_food = trim(emer_elig_expense_food)
-			emer_elig_expense_other = trim(emer_elig_expense_other)
-			emer_elig_total_basic_needs = trim(emer_elig_total_basic_needs)
-			emer_elig_expense_net_income_assets = trim(emer_elig_expense_net_income_assets)
-
-			emer_elig_available_gross_earned_income = replace(emer_elig_available_gross_earned_income, "_", "")
-			emer_elig_available_actual_work_expense = replace(emer_elig_available_actual_work_expense, "_", "")
-			emer_elig_available_net_earned_income = replace(emer_elig_available_net_earned_income, "_", "")
-			emer_elig_available_unearned_income = replace(emer_elig_available_unearned_income, "_", "")
-			emer_elig_available_assets = replace(emer_elig_available_assets, "_", "")
-			emer_elig_available_other_assets = replace(emer_elig_available_other_assets, "_", "")
-			emer_elig_available_total_income_assets = replace(emer_elig_available_total_income_assets, "_", "")
-			emer_elig_expense_rent_mortgage = replace(emer_elig_expense_rent_mortgage, "_", "")
-			emer_elig_expense_fuel = replace(emer_elig_expense_fuel, "_", "")
-			emer_elig_expense_electric = replace(emer_elig_expense_electric, "_", "")
-			emer_elig_expense_msa_standard = replace(emer_elig_expense_msa_standard, "_", "")
-			emer_elig_expense_car_payment = replace(emer_elig_expense_car_payment, "_", "")
-			emer_elig_expense_phone = replace(emer_elig_expense_phone, "_", "")
-			emer_elig_expense_food = replace(emer_elig_expense_food, "_", "")
-			emer_elig_expense_other = replace(emer_elig_expense_other, "_", "")
-			emer_elig_total_basic_needs = replace(emer_elig_total_basic_needs, "_", "")
-			emer_elig_expense_net_income_assets = replace(emer_elig_expense_net_income_assets, "_", "")
-
-			transmit 'go to EMSM'
-
-			EMReadScreen emer_elig_approved_date, 			8, 3, 14
-			EMReadScreen emer_elig_process_date, 			8, 2, 73
-			EMReadScreen emer_elig_summ_date_last_approval, 8, 6, 32
-			EMReadScreen emer_elig_summ_current_program_status, 10, 7, 32
-			EMReadScreen emer_elig_summ_eligibility_result, 10, 8, 32
-			EMReadScreen emer_elig_summ_last_used, 			8, 9, 32
-
-			EMReadScreen emer_elig_summ_adults_in_unit, 	2, 6, 73
-			EMReadScreen emer_elig_summ_children_in_unit, 	2, 7, 73
-			EMReadScreen emer_elig_summ_begin_date, 		8, 8, 71
-			EMReadScreen emer_elig_summ_end_date, 			8, 9, 71
-
-			EMReadScreen emer_elig_summ_need_foreclosure, 	9, 11, 32
-			EMReadScreen emer_elig_summ_need_temp_shelter, 	9, 12, 32
-			EMReadScreen emer_elig_summ_need_other_shelter, 9, 13, 32
-			EMReadScreen emer_elig_summ_need_utility, 		9, 14, 32
-			EMReadScreen emer_elig_summ_need_other, 		9, 15, 32
-			EMReadScreen emer_elig_summ_need_total, 		9, 16, 32
-
-			EMReadScreen emer_elig_summ_payment, 			9, 13, 71
-
-			emer_elig_summ_date_last_approval = trim(emer_elig_summ_date_last_approval)
-			emer_elig_summ_current_program_status = trim(emer_elig_summ_current_program_status)
-			emer_elig_summ_last_used = trim(emer_elig_summ_last_used)
-
-			emer_elig_summ_adults_in_unit = trim(emer_elig_summ_adults_in_unit)
-			emer_elig_summ_children_in_unit = trim(emer_elig_summ_children_in_unit)
-
-			emer_elig_summ_eligibility_result = replace(emer_elig_summ_eligibility_result, "_", "")
-
-			emer_elig_summ_need_foreclosure = replace(emer_elig_summ_need_foreclosure, "_", "")
-			emer_elig_summ_need_temp_shelter = replace(emer_elig_summ_need_temp_shelter, "_", "")
-			emer_elig_summ_need_other_shelter = replace(emer_elig_summ_need_other_shelter, "_", "")
-			emer_elig_summ_need_utility = replace(emer_elig_summ_need_utility, "_", "")
-			emer_elig_summ_need_other = replace(emer_elig_summ_need_other, "_", "")
-
-			emer_elig_summ_need_total = trim(emer_elig_summ_need_total)
-			emer_elig_summ_payment = trim(emer_elig_summ_payment)
-
 			''TODO - open foreclosure and utility pop-up
 		End If
 
@@ -10508,6 +10936,7 @@ class hc_eligibility_detail
 						hc_prog_elig_appd(hc_prog_count) = False
 					Else
 						EMReadScreen current_version, 2, hc_row, 58
+						' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
 						If current_version = "01" Then
 							hc_prog_elig_appd(hc_prog_count) = False
 						Else
@@ -11097,7 +11526,10 @@ class hc_eligibility_detail
 			' 		End If
 			' 	End If
 			' End If
-
+			Do
+				EMReadScreen hhmm_check, 4, 3, 51
+				If hhmm_check <> "HHMM" Then PF3
+			Loop Until hhmm_check = "HHMM"
 			hc_prog_count = hc_prog_count + 1
 			hc_row = hc_row + 1
 			EMReadScreen next_ref_numb, 2, hc_row, 3
@@ -15560,6 +15992,10 @@ If numb_EMER_versions <> " " Then
 
 	If EMER_ELIG_APPROVAL.approved_today = True then
 		enter_CNOTE_for_EMER = True
+		If EMER_ELIG_APPROVAL.mony_check_found = False and EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
+			enter_CNOTE_for_EMER = False
+			end_msg_info = end_msg_info & vbCr & "NO MONY/CHCKs ISSUED for EA/EGA. Complete all MONY/CHCKs for the emergency first and then run the script." & vbCr & "This script gathers details about the emergency approvals from MONY Transations and this helps to ensure that the MONY/CHCKs are created timely."
+		End if
 	End If
 	' transactions = ""
 	' for each_tx = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
@@ -16495,7 +16931,7 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' If script_user_is_a_tester = False Then enter_CNOTE_for_GA = False
 If script_user_is_a_tester = False Then enter_CNOTE_for_MSA = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_MSA = False
-enter_CNOTE_for_EMER = False
+If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_EMER = False
 enter_CNOTE_for_GRH = False
 enter_CNOTE_for_DENY = False
 enter_CNOTE_for_HC = False
@@ -16561,6 +16997,7 @@ approval_note_found_for_DENY = False
 approval_note_found_for_GRH = False
 approval_note_found_for_SNAP = False
 approval_note_found_for_HC = False
+approval_note_found_for_EMER = False
 approval_note_found = False
 
 Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
@@ -16594,7 +17031,7 @@ Do
 		' If approval_note_found_for_HC = True Then approval_note_found = True
 
 	End If
-
+	'TODO - add a place to read for the EMER header to prevent duplicate notes
 
 	note_row = note_row + 1
 	if note_row = 19 then
@@ -17563,6 +18000,111 @@ If enter_CNOTE_for_GA = True Then
 
 End If
 
+If enter_CNOTE_for_EMER = True Then
+	confirm_emer_budget_selection = ""
+	emer_past_due_rent_checkbox = ""
+	emer_new_housing_checkbox = ""
+	emer_moving_exp_checkbox = ""
+	emer_utility_checkbox = ""
+	emer_bus_checkbox = ""
+	emer_foreclosure_checkbox = ""
+	emer_property_tax_checkbox = ""
+	emer_home_repair_checkbox = ""
+	emer_fire_replace_checkbox = ""
+	emer_storage_checkbox = ""
+
+	emer_ongoing_mothly_income = ""
+	emer_ongoing_shelter_expense = ""
+	emer_ongoing_utility_expense = ""
+	emer_past_30_days_income = ""
+	emer_excel_account_number = ""
+	emer_available_assets = ""
+	emer_emer_resolve_notes = ""
+
+	emer_test_coop_work_detail = ""
+	emer_test_copayment_detail = ""
+	emer_test_elig_other_prog_detail = ""
+	emer_test_equitable_interest_detail = ""
+	emer_test_date_residency_starte = ""
+	emer_verif_reqquest_date = ""
+	emer_test_verif_detail = ""
+
+	Do
+		call define_emer_elig_dialog
+
+		dialog Dialog1
+		cancel_confirmation
+
+		err_msg = ""
+
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" and confirm_emer_budget_selection <> "No - I need to complete a new Approval" then
+			If Isdate(emer_verif_reqquest_date) = False Then
+				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
+			Else
+				If DateDiff("d", emer_verif_reqquest_date, date) < 10 AND confirm_emer_budget_selection = "Yes - budget is Accurate" Then
+					If expedited_package_approved = False Then
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  emer_verif_reqquest_date & " is less than 10 days ago and we should not be taking action yet."
+						confirm_emer_budget_selection = "No - I need to complete a new Approval"
+					End If
+				End If
+			End If
+		End If
+
+		If err_msg <> "" and ButtonPressed < 1100 Then
+			MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+
+		End If
+
+		If ButtonPressed = nav_stat_elig_btn Then
+			ft_mo = left(EMER_ELIG_APPROVAL.elig_footer_month, 2)
+			ft_yr = right(EMER_ELIG_APPROVAL.elig_footer_year, 2)
+			Call back_to_SELF
+			call navigate_to_MAXIS_screen("ELIG", "EMER")
+			EMWriteScreen ft_mo, 20, 55
+			EMWriteScreen ft_yr, 20, 58
+			Call find_last_approved_ELIG_version(20, 79, vrs_numb, vrs_dt, vrs_rslt, approval_found)
+			err_msg = "LOOP"
+			' transmit
+		End If
+
+
+		If confirm_emer_budget_selection = "Indicate if the Budget is Accurate" Then
+			MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review the approval details and indicate if they are correct before the scrript can continue."
+		End If
+		' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+		' Next
+
+	Loop until confirm_emer_budget_selection <> "Indicate if the Budget is Accurate" and err_msg = ""
+
+	emergecny_to_resolve_details = False
+	affordability_details = False
+	income_limit_details = False
+
+	If emer_past_due_rent_checkbox = checked Then emergecny_to_resolve_details = True
+	If emer_new_housing_checkbox = checked Then emergecny_to_resolve_details = True
+	If emer_moving_exp_checkbox = checked Then emergecny_to_resolve_details = True
+	If emer_utility_checkbox = checked Then emergecny_to_resolve_details = True
+	If emer_bus_checkbox = checked Then emergecny_to_resolve_details = True
+	If emer_foreclosure_checkbox = checked Then emergecny_to_resolve_details = True
+	If emer_property_tax_checkbox = checked Then emergecny_to_resolve_details = True
+	If emer_home_repair_checkbox = checked Then emergecny_to_resolve_details = True
+	If emer_fire_replace_checkbox = checked Then emergecny_to_resolve_details = True
+	If emer_storage_checkbox = checked Then emergecny_to_resolve_details = True
+	If trim(emer_available_assets) <> "" Then emergecny_to_resolve_details = True
+	If trim(emer_emer_resolve_notes) <> "" Then emergecny_to_resolve_details = True
+
+	If trim(emer_ongoing_mothly_income) <> "" Then affordability_details = True
+	If trim(emer_ongoing_shelter_expense) <> "" Then affordability_details = True
+	If trim(emer_ongoing_utility_expense) <> "" Then affordability_details = True
+
+	If trim(emer_past_30_days_income) <> "" Then income_limit_details = True
+
+	If snap_approval_is_incorrect = True Then
+		enter_CNOTE_for_SNAP = False
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for SNAP Approvals from " & first_SNAP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+	End if
+End If
+
 'Determining SNAP unique approvals
 If enter_CNOTE_for_SNAP = True Then												'This means at least one approval from today was found
 	last_earned_income = ""														'we will use these variables to compare each month of approval to see if there are changes and determine if a new package should be started.'
@@ -18079,6 +18621,16 @@ if enter_CNOTE_for_GA = True Then
 		' MsgBox GA_UNIQUE_APPROVALS(months_in_approval, unique_app)
 		PF3
 	Next
+End If
+
+If enter_CNOTE_for_EMER = True Then
+	due_date = ""
+	If IsDate(emer_verif_reqquest_date) = True Then due_date = DateAdd("d", 10, emer_verif_reqquest_date)
+
+	Call emer_elig_case_note
+	MsgBox "PAUSE HERE"
+	PF3
+
 End If
 
 If enter_CNOTE_for_SNAP = True Then
