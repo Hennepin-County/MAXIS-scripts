@@ -1097,7 +1097,7 @@ function define_emer_elig_dialog()
 			For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
 				Text 20, y_pos, 400, 10, "$ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - EMER Program: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck)
 				y_pos = y_pos + 10
-				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 Then
+				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then
 					Text 30, y_pos+5, 85, 10, "XCEL Account Number:"
 					EditBox 115, y_pos, 75, 15, emer_excel_account_number
 					y_pos = y_pos + 10
@@ -1113,14 +1113,14 @@ function define_emer_elig_dialog()
 			Text 15, 140, 85, 10, "Emergency to Resolve:"
 			CheckBox 100, 140, 100, 10, "Eviction - Past Due Balance", emer_past_due_rent_checkbox
 			CheckBox 210, 140, 100, 10, "New Housing", emer_new_housing_checkbox
-			CheckBox 310, 140, 100, 10, "Moving Expenses", emer_moving_exp_checkbox
-			CheckBox 390, 140, 100, 10, "Utility Shut-Off", emer_utility_checkbox
+			CheckBox 310, 140, 80, 10, "Moving Expenses", emer_moving_exp_checkbox
+			CheckBox 390, 140, 90, 10, "Utility Shut-Off", emer_utility_checkbox
 			CheckBox 480, 140, 45, 10, "Bus Ticket", emer_bus_checkbox
 
 			CheckBox 100, 155, 100, 10, "Mortgage Balance", emer_foreclosure_checkbox
 			CheckBox 210, 155, 100, 10, "Delinquent Prop Tax", emer_property_tax_checkbox
-			CheckBox 310, 155, 100, 10, "Home Repairs", emer_home_repair_checkbox
-			CheckBox 390, 155, 100, 10, "Replcmt due to Fire", emer_fire_replace_checkbox
+			CheckBox 310, 155, 80, 10, "Home Repairs", emer_home_repair_checkbox
+			CheckBox 390, 155, 90, 10, "Replcmt due to Fire", emer_fire_replace_checkbox
 			CheckBox 480, 155, 45, 10, "Storage", emer_storage_checkbox
 
 			Text 15, 175, 100, 10, "Household Available Assets:   $"
@@ -3104,8 +3104,8 @@ function emer_elig_case_note()
 	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("============================= MONY/CHCK ISSUED ==============================")
 		For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
-			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
-			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number)
+			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") = 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
+			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number)
 			Call write_variable_in_CASE_NOTE("           for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - PROGRAM: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck))
 		Next
 
@@ -16212,16 +16212,14 @@ For each footer_month in MONTHS_ARRAY
 	' MsgBox "Footer Month - " & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month & "/" & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year & vbCr &_
 	' 	   "HC Eligibility: " & vbCr &_
 	' 	   elig_list
-	If approval_found_for_this_month = True Then
-		ReDim preserve STAT_INFORMATION(month_count)
+	ReDim preserve STAT_INFORMATION(month_count)
 
-		Set STAT_INFORMATION(month_count) = new stat_detail
+	Set STAT_INFORMATION(month_count) = new stat_detail
 
-		STAT_INFORMATION(month_count).footer_month = MAXIS_footer_month
-		STAT_INFORMATION(month_count).footer_year = MAXIS_footer_year
+	STAT_INFORMATION(month_count).footer_month = MAXIS_footer_month
+	STAT_INFORMATION(month_count).footer_year = MAXIS_footer_year
 
-		Call STAT_INFORMATION(month_count).gather_stat_info
-	End If
+	Call STAT_INFORMATION(month_count).gather_stat_info
 
 	'NOW WE ADD THE STAT INFORMATION to each Program
 	If numb_DWP_versions <> " " Then
