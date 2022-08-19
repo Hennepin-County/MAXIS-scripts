@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/19/2022", "Additional Program support added: ELIG/MSA and ELIG/EMER.##~## ##~##The script can now support determinations made in: ##~##ELIG/SNAP ##~##ELIG/MFIP ##~##ELIG/GA ##~##ELIG/MSA ##~##ELIG/EMER ##~##REPT/PND2 Denials.##~## ##~##We are still working on ELIG/DENY, ELIG/GRH, ELIG/HC, and ELIG/DWP.", "Casey Love, Hennepin County")
 call changelog_update("07/21/2022", "TESTING UPDATE ##~## ##~##CASE NOTE Added - for REVW Completion. If an approval is completed and that program has a REVW code of 'A', the script will create a seperate CASE/NOTE to document the completion of the RERVW.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/19/2022", "TESTING UPDATE ##~## ##~##MFIP ELIGIBILITY APPROVALS are now handled in the script run!##~## ##~##This script now handles for SNAP and MFIP Approvals in ELIG. It will also handle for denials from REPT/PND2.##~## ##~##As MFIP fucntionality is new, there may be bugs, please let us know if anything doesn't work or seems weird in the wording.##~## ##~##We will be continuing to add new programs to the functionality. Please note that while MFIP works, Cash Denials do NOT work.##~## ##~##The error reporting default will be turned off for SNAP only cases as that functionality seems to be well tested. Please send a report on a SNAP only approval case if you run in to any issues or errors.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/12/2022", "TESTING UPDATE ##~## ##~##We have added some detail to the end message about the actions the script has taken and the status of the case.##~## ##~##Adjustments made to the script layout that should help to speed up some of the script runs. We know this script takes a bit of time to gather the details needed, but we hope the level of detail and the small amount of input required in the script balances these longer run times.##~##", "Casey Love, Hennepin County")
@@ -1096,8 +1097,7 @@ function define_emer_elig_dialog()
 			For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
 				Text 20, y_pos, 400, 10, "$ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - EMER Program: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck)
 				y_pos = y_pos + 10
-				'TODO - add IF NO MONY CHCKS THEN STOP AND TRY AGAIN'
-				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then
+				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 Then
 					Text 30, y_pos+5, 85, 10, "XCEL Account Number:"
 					EditBox 115, y_pos, 75, 15, emer_excel_account_number
 					y_pos = y_pos + 10
@@ -1137,11 +1137,11 @@ function define_emer_elig_dialog()
 			Text 230, 255, 95, 10, "Ongoing Utility Expense:   $"
 			EditBox 325, 250, 75, 15, emer_ongoing_utility_expense
 
-			' If EMER_ELIG_APPROVAL.emer_program = "EG" Then
+			' If EMER_ELIG_APPROVAL.emer_program = "EGA" Then
 			GroupBox 5, 280, 425, 50, "Income Limit"
 			Text 15, 295, 300, 10, "Income Limit Details:"
 			Text 20, 310, 95, 10, "Income Application Month:   $"
-			If EMER_ELIG_APPROVAL.emer_program = "EG" Then Text 20, 310, 145, 10, "NET Income in the application month:   $"
+			If EMER_ELIG_APPROVAL.emer_program = "EGA" Then Text 20, 310, 145, 10, "NET Income in the application month:   $"
 			If EMER_ELIG_APPROVAL.emer_program = "EA" Then Text 20, 310, 150, 10, "GROSS Income in 30 Days before Application:   $"
 			EditBox 175, 305, 75, 15, emer_past_30_days_income
 			Text 300, 310, 100, 10, "200% FPG: $ " & EMER_ELIG_APPROVAL.emer_fpg_limit
@@ -1170,7 +1170,7 @@ function define_emer_elig_dialog()
 			  	Text 235, 95, 100, 10, "12 Month:                  " & EMER_ELIG_APPROVAL.emer_elig_case_test_12_month			'gather from ELIG
 			End If
 
-			If EMER_ELIG_APPROVAL.emer_program = "EG" Then
+			If EMER_ELIG_APPROVAL.emer_program = "EGA" Then
 				Text 15, 55, 100, 10, "Cooperation/Work:     " & EMER_ELIG_APPROVAL.emer_elig_case_test_coop_work
 				Text 15, 65, 100, 10, "Copayment:                 " & EMER_ELIG_APPROVAL.emer_elig_case_test_copayment
 				Text 15, 75, 100, 10, "Cost Effective:            " & EMER_ELIG_APPROVAL.emer_elig_case_test_cost_effective
@@ -1269,7 +1269,7 @@ function define_emer_elig_dialog()
 				' EditBox 15, y_pos, 425, 15, emer_test__detail
 				y_pos = y_pos + 20
 
-				If EMER_ELIG_APPROVAL.emer_program = "EG" Then Text 20, y_pos, 145, 10, "NET Income in the application month:   $"
+				If EMER_ELIG_APPROVAL.emer_program = "EGA" Then Text 20, y_pos, 145, 10, "NET Income in the application month:   $"
 				If EMER_ELIG_APPROVAL.emer_program = "EA" Then Text 20, y_pos, 150, 10, "GROSS Income in 30 Days before Application:   $"
 				EditBox 175, y_pos-5, 75, 15, emer_past_30_days_income
 				Text 300, y_pos, 200, 10, "200% FPG: $ " & EMER_ELIG_APPROVAL.emer_inelig_fpg_limit & "  -  Household Size: " & EMER_ELIG_APPROVAL.manual_hh_count
@@ -3104,8 +3104,8 @@ function emer_elig_case_note()
 	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("============================= MONY/CHCK ISSUED ==============================")
 		For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
-			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
-			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number)
+			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
+			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number)
 			Call write_variable_in_CASE_NOTE("           for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - PROGRAM: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck))
 		Next
 
@@ -3208,7 +3208,7 @@ function emer_elig_case_note()
 			Call write_variable_in_CASE_NOTE(" - The income for this case exceeds 200% FPG.")
 			If trim(emer_past_30_days_income) <> "" Then
 				Call write_variable_in_CASE_NOTE("   200% FPG: $ " & EMER_ELIG_APPROVAL.emer_inelig_fpg_limit & "  -  Household Size: " & EMER_ELIG_APPROVAL.manual_hh_count)
-				If EMER_ELIG_APPROVAL.emer_program = "EG" Then Call write_variable_in_CASE_NOTE("   NET Income in Application Month: $ " & emer_past_30_days_income)
+				If EMER_ELIG_APPROVAL.emer_program = "EGA" Then Call write_variable_in_CASE_NOTE("   NET Income in Application Month: $ " & emer_past_30_days_income)
 				If EMER_ELIG_APPROVAL.emer_program = "EA" Then Call write_variable_in_CASE_NOTE("   GROSS Income in 30 Days before Application: $ " & emer_past_30_days_income)
 			End if
 		End If
@@ -8992,7 +8992,7 @@ class emer_eligibility_detail
 	public emer_elig_membs_last_emer_begin_date()
 
 	public sub read_elig()
-		approved_today = False			'TODO EMER - handling for approved_today'
+		approved_today = False
 		approved_version_found = False
 		mony_check_found = False
 
@@ -9324,12 +9324,14 @@ class emer_eligibility_detail
 		call navigate_to_MAXIS_screen("ELIG", "EMER")
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		manual_hh_count = 0
+		If approved_version_found = False Then approved_today = False
+
 		If approved_version_found = True Then
 
 			If IsDate(elig_version_date) = True Then
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-				If DateDiff("d", #8/16/2022#, elig_version_date) = 0 Then approved_today = True
-				If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
+				' If DateDiff("d", #8/16/2022#, elig_version_date) = 0 Then approved_today = True
+				' If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
 			End if
 
 			if approved_today = True Then
@@ -9349,6 +9351,7 @@ class emer_eligibility_detail
 					fn_col = 13
 					rq_col = 37
 					mc_col = 44
+					emer_program = "EGA"
 				End If
 
 				emer_row = 8
@@ -9440,7 +9443,7 @@ class emer_eligibility_detail
 					emer_elig_case_test_12_month = trim(emer_elig_case_test_12_month)
 				End If
 
-				If emer_program = "EG" Then
+				If emer_program = "EGA" Then
 					EMReadScreen emer_elig_case_test_coop_work, 		6, 9, 7
 					EMReadScreen emer_elig_case_test_copayment, 		6, 10, 7
 					EMReadScreen emer_elig_case_test_cost_effective, 	6, 11, 7
@@ -9577,7 +9580,7 @@ class emer_eligibility_detail
 				emer_fpg_limit = 0
 				emer_inelig_fpg_limit = 0
 
-				If emer_program = "EG" Then
+				If emer_program = "EGA" Then
 					If houshold_size = 1 Then emer_fpg_limit = 2147
 					If houshold_size = 2 Then emer_fpg_limit = 2903
 					If houshold_size = 3 Then emer_fpg_limit = 3660
@@ -15979,7 +15982,6 @@ const final_const				= 40
 Dim REPORTING_COMPLETE_ARRAY()
 ReDim REPORTING_COMPLETE_ARRAY(final_const, 0)
 
-'TODO figure out EMER Date handling'
 If numb_EMER_versions <> " " Then
 	Set EMER_ELIG_APPROVAL = new emer_eligibility_detail
 	EMER_ELIG_APPROVAL.elig_footer_month = CM_mo
@@ -15994,7 +15996,7 @@ If numb_EMER_versions <> " " Then
 		enter_CNOTE_for_EMER = True
 		If EMER_ELIG_APPROVAL.mony_check_found = False and EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
 			enter_CNOTE_for_EMER = False
-			end_msg_info = end_msg_info & vbCr & "NO MONY/CHCKs ISSUED for EA/EGA. Complete all MONY/CHCKs for the emergency first and then run the script." & vbCr & "This script gathers details about the emergency approvals from MONY Transations and this helps to ensure that the MONY/CHCKs are created timely."
+			end_msg_info = end_msg_info & vbCr & EMER_ELIG_APPROVAL.emer_program & " Approval has not been reviewed as the approval appears incomplete." & vbCr & vbCr & "*** NO MONY/CHCKs ISSUED for " & EMER_ELIG_APPROVAL.emer_program & ". ***" & vbCr & "Complete all MONY/CHCKs for the emergency first and then run the script." & vbCr & vbCr & "This script gathers details about the emergency approvals from MONY Transactions and this helps to ensure that the MONY/CHCKs are created timely." & vbCr
 		End if
 	End If
 	' transactions = ""
@@ -16929,9 +16931,9 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' If enter_CNOTE_for_MFIP = True Then testing_run = True
 ' enter_CNOTE_for_GA = False
 ' If script_user_is_a_tester = False Then enter_CNOTE_for_GA = False
-If script_user_is_a_tester = False Then enter_CNOTE_for_MSA = False
+' If script_user_is_a_tester = False Then enter_CNOTE_for_MSA = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_MSA = False
-If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_EMER = False
+' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_EMER = False
 enter_CNOTE_for_GRH = False
 enter_CNOTE_for_DENY = False
 enter_CNOTE_for_HC = False
@@ -17015,23 +17017,27 @@ Do
 		' If InStr(note_title, "DWP") <> 0 Then approval_note_found_for_DWP = True
 		If InStr(note_title, "MFIP") <> 0 Then approval_note_found_for_MFIP = True
 		If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
-		If InStr(note_title, "GA") <> 0 Then approval_note_found_for_GA = True
+		If InStr(note_title, " GA") <> 0 Then approval_note_found_for_GA = True
 		' If InStr(note_title, "DENY") <> 0 Then approval_note_found_for_DENY = True
 		' If InStr(note_title, "GRH") <> 0 Then approval_note_found_for_GRH = True
 		If InStr(note_title, "SNAP") <> 0 Then approval_note_found_for_SNAP = True
 		' If InStr(note_title, "HC") <> 0 Then approval_note_found_for_HC = True
-
-		' If approval_note_found_for_DWP = True Then approval_note_found = True
-		If approval_note_found_for_MFIP = True Then approval_note_found = True
-		If approval_note_found_for_MSA = True Then approval_note_found = True
-		If approval_note_found_for_GA = True Then approval_note_found = True
-		' If approval_note_found_for_DENY = True Then approval_note_found = True
-		' If approval_note_found_for_GRH = True Then approval_note_found = True
-		If approval_note_found_for_SNAP = True Then approval_note_found = True
-		' If approval_note_found_for_HC = True Then approval_note_found = True
-
+		If InStr(note_title, " EA ") <> 0 Then approval_note_found_for_EMER = True
+		If InStr(note_title, " EGA ") <> 0 Then approval_note_found_for_EMER = True
+		If InStr(note_title, "EMER") <> 0 Then approval_note_found_for_EMER = True
 	End If
-	'TODO - add a place to read for the EMER header to prevent duplicate notes
+
+	If left(note_title, 23) = "*-*-* EMER ISSUED *-*-*" and DateDiff("d", date, note_date) = 0 Then approval_note_found_for_EMER = True
+
+	' If approval_note_found_for_DWP = True Then approval_note_found = True
+	If approval_note_found_for_MFIP = True Then approval_note_found = True
+	If approval_note_found_for_MSA = True Then approval_note_found = True
+	If approval_note_found_for_GA = True Then approval_note_found = True
+	' If approval_note_found_for_DENY = True Then approval_note_found = True
+	' If approval_note_found_for_GRH = True Then approval_note_found = True
+	If approval_note_found_for_SNAP = True Then approval_note_found = True
+	' If approval_note_found_for_HC = True Then approval_note_found = True
+	If approval_note_found_for_EMER = True Then approval_note_found = True
 
 	note_row = note_row + 1
 	if note_row = 19 then
@@ -17054,6 +17060,7 @@ If approval_note_found = True Then
 	If approval_note_found_for_GRH = True Then dlg_len = dlg_len + 20
 	If approval_note_found_for_SNAP = True Then dlg_len = dlg_len + 20
 	If approval_note_found_for_HC = True Then dlg_len = dlg_len + 20
+	If approval_note_found_for_EMER = True Then dlg_len = dlg_len + 20
 
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 536, dlg_len, "APPROVAL CASE/NOTE found for Today"
@@ -17099,6 +17106,11 @@ If approval_note_found = True Then
 		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_HC
 		  y_pos = y_pos + 20
 	  End If
+	  If approval_note_found_for_EMER = True Then
+		  Text 15, y_pos+5, 310, 10, "EMER Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_EMER
+		  y_pos = y_pos + 20
+	  End If
 	  ButtonGroup ButtonPressed
 		OkButton 425, y_pos, 50, 15
 		CancelButton 480, y_pos, 50, 15
@@ -17119,6 +17131,7 @@ If approval_note_found = True Then
 		If approval_note_found_for_GRH = True and add_new_note_for_GRH = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for GRH Eligibility should be Reviewed and Entered into MAXIS."
 		If approval_note_found_for_SNAP = True and add_new_note_for_SNAP = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for SNAP Eligibility should be Reviewed and Entered into MAXIS."
 		If approval_note_found_for_HC = True and add_new_note_for_HC = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for HC Eligibility should be Reviewed and Entered into MAXIS."
+		If approval_note_found_for_EMER = True and add_new_note_for_EMER = "Select One..." Then err_msg = err_msg & vbCr & "* Indicate if a new CASE/NOTE for Emergency Eligibility should be Reviewed and Entered into MAXIS."
 
 		If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbCr & "Please resolve to continue:" & vbCr & err_msg
 	Loop until err_msg = ""
@@ -17163,6 +17176,13 @@ If approval_note_found = True Then
 		end_msg_info = end_msg_info & vbCr & "HC had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
 	End If
 	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for HC, it was requested to enter a new note about eligibility for HC."
+	If add_new_note_for_EMER = "No - Eligibility is the same - No NOTE Needed" Then
+		enter_CNOTE_for_EMER = False
+		end_msg_info = end_msg_info & vbCr & "EMER had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
+	End If
+	If add_new_note_for_EMER = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for EMER, it was requested to enter a new note about eligibility for EMER."
+
+
 
 End If
 
@@ -18628,7 +18648,7 @@ If enter_CNOTE_for_EMER = True Then
 	If IsDate(emer_verif_reqquest_date) = True Then due_date = DateAdd("d", 10, emer_verif_reqquest_date)
 
 	Call emer_elig_case_note
-	MsgBox "PAUSE HERE"
+	' MsgBox "PAUSE HERE"
 	PF3
 
 End If
@@ -18745,7 +18765,6 @@ End If
 
 If denials_found_on_pnd2 = True Then
 	denial_accurate = ""
-	' testing_run = True
 
 	Do
 		Call rept_pnd2_dialog
@@ -18956,7 +18975,6 @@ End If
 
 For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 	If REPORTING_COMPLETE_ARRAY(er_revw_completed_const, each_month) = True Then
-		' testing_run = True
 		If left(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), 1) = "/" Then REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = right(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), len(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month))-1)
 
 		Call start_a_blank_CASE_NOTE
@@ -19004,7 +19022,6 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 
 
 	If REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, each_month) = True Then
-		' testing_run = True
 		If left(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), 1) = "/" Then REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month) = right(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), len(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month))-1)
 
 		Call start_a_blank_CASE_NOTE
@@ -19060,15 +19077,19 @@ script_run_lowdown = script_run_lowdown & vbCr & "case_status - " & case_status
 script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Active Programs:" & vbCr & list_active_programs
 script_run_lowdown = script_run_lowdown & vbCr & "Pending Programs:" & vbCr & list_pending_programs
 
-If user_ID_for_validation = "AMST002" Then testing_run = False
-If user_ID_for_validation = "CALO001" Then testing_run = False
-
-If CASE_NOTE_entered = False Then end_msg_info = end_msg_info & vbCr & vbCr & "The script did NOT enter a CASE/NOTE as it could not find any ELIG results that were generated and approved today. This script is to NOTE already completed approval. If this case has a program that is ready to approve, ensure the ELIG results were generated today and the approval was completed."
+If CASE_NOTE_entered = False Then end_msg_info = vbCr & "No CASE/NOTE created." & vbCr & " - NO ELIG results generated AND approved today." & vbCr & " - This script for already completed approvals" & vbCr & vbCr &"If this case has a program that is ready to approve, ensure the ELIG results were generated today and the approval was completed." & vbCr & vbCr & end_msg_info
 If pnd2_display_limit_hit = True AND denials_found_on_pnd2 = False Then end_msg_info = end_msg_info & vbCr & vbCr & "The script could not read REPT/PND2 because the X-Number it is in has hit the MAXIS REPT/PND2 display limit. If you are trying to deny the case via REPT/PND2, the case will need to be in an X-Number that is not at the REPT/PND2 display limit."
 end_msg_info = end_msg_info & vbCr
-If list_active_programs <> "" Then end_msg_info = end_msg_info & vbCr & "This case currently has the following active programs: " & list_active_programs
-If list_pending_programs <> "" Then end_msg_info = end_msg_info & vbCr & "This case currently has the following pending programs: " & list_pending_programs
+If list_active_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Active programs: " & list_active_programs
+If list_pending_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Pending programs: " & list_pending_programs
 If list_active_programs = "" and list_pending_programs = "" Then end_msg_info = end_msg_info & vbCr & "This case currently has no pending or active programs."
+
+end_msg_info = end_msg_info & vbCr & vbCr & "**** This script is currently in testing. ****" & vbCr & "Given testing status information from the following programs will NOT work in this script yet:"
+end_msg_info = end_msg_info & vbCr & " - ELIG/DENY"
+end_msg_info = end_msg_info & vbCr & " - ELIG/GRH"
+end_msg_info = end_msg_info & vbCr & " - ELIG/HC"
+end_msg_info = end_msg_info & vbCr & " - ELIG/DWP"
+end_msg_info = end_msg_info & vbCr & "Stay tuned! More functionality is in development."
 
 Call script_end_procedure_with_error_report("All approval information has been reviewed." & vbCr & end_msg_info)
 
