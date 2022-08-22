@@ -365,7 +365,7 @@ function define_mfip_elig_dialog()
 				End If
 			Next
 		Else
-			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Intial Income Limit of " &  MFIP_ELIG_APPROVALS(approval).mfip_case_budg_family_wage_level & " (which is the same as the Family Wage Level)."
+			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Intial Income Limit of " &  MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_family_wage_level & " (which is the same as the Family Wage Level)."
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MFIP Standard and no benefit to be issued."
 		End If
 
@@ -1084,6 +1084,163 @@ function define_ga_elig_dialog()
 
 		Next
 
+	EndDialog
+end function
+
+function define_deny_elig_dialog()
+	BeginDialog Dialog1, 0, 0, 555, 385, "CASH Denial Approval Packages"
+	  ButtonGroup ButtonPressed
+	    PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+	    PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		Text 10, 10, 180, 10, "This case is not eligible for any CASH Program."
+		Text 355, 10, 95, 10, "Application Date: mm/dd/yy"
+
+		y_pos = 25
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = False Then dwp_grp_len = 30
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = True Then
+			dwp_grp_len = 40	'TODO calculate how to figure all group lengths'
+		End If
+		GroupBox 10, y_pos, 440, dwp_grp_len, "DWP"
+		y_pos = y_pos + 15
+		Text 20, y_pos, 425, 10, "Denial Reason: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = False Then
+			y_pos = y_pos + 20
+		Else
+			y_pos = y_pos + 10
+			Text 20, y_pos, 125, 10, "MORE DETAIL"
+			y_pos = y_pos + 20
+		End If
+		' GroupBox 10, 25, 440, 50, "DWP"
+		' Text 20, 40, 125, 10, "There is no eligibile child for DWP"
+		' Text 20, 50, 125, 10, "There is no eligibile child for DWP"
+		' Text 20, 60, 125, 10, "There is no eligibile child for DWP"
+
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_details_exists = False Then mfip_grp_len = 30
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_details_exists = True Then
+			mfip_grp_len = 40
+		End If
+		GroupBox 10, y_pos, 440, mfip_grp_len, "MFIP"
+		y_pos = y_pos + 15
+		Text 20, y_pos, 425, 10, "Denial Reason: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_details_exists = False Then
+			y_pos = y_pos + 20
+		Else
+			y_pos = y_pos + 10
+			Text 20, y_pos, 125, 10, "MORE DETAIL"
+			y_pos = y_pos + 20
+		End If
+		' GroupBox 10, 80, 440, 30, "MFIP"
+		' Text 20, 95, 125, 10, "There is no eligibile child for DWP"
+
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_details_exists = False Then msa_grp_len = 30
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_details_exists = True Then
+			msa_grp_len = 30
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_applicant_eligible = "FAILED" Then msa_grp_len = msa_grp_len + 10
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_application_withdrawn = "FAILED" Then msa_grp_len = msa_grp_len + 10
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_eligible_member = "FAILED" Then msa_grp_len = msa_grp_len + 10
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_fail_file = "FAILED" Then msa_grp_len = msa_grp_len + 10
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_gross_income = "FAILED" Then msa_grp_len = msa_grp_len + 10
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_net_income = "FAILED" Then msa_grp_len = msa_grp_len + 10
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_residence = "FAILED" Then msa_grp_len = msa_grp_len + 10
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_assets = "FAILED" Then msa_grp_len = msa_grp_len + 10
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_retro_net_income = "FAILED" Then msa_grp_len = msa_grp_len + 10
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then msa_grp_len = msa_grp_len + 10
+		End If
+		GroupBox 10, y_pos, 440, msa_grp_len, "MSA"
+		y_pos = y_pos + 15
+		Text 20, y_pos, 425, 10, "Denial Reason: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_details_exists = False Then
+			y_pos = y_pos + 20
+		Else
+			y_pos = y_pos + 10
+
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_applicant_eligible = "FAILED" Then
+				Text 20, y_pos, 425, 10, "The applicant is not MSA Eligibile"
+				y_pos = y_pos + 10
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_application_withdrawn = "FAILED" Then
+				Text 20, y_pos, 425, 10, "The application has been withdrawn."
+				y_pos = y_pos + 10
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_eligible_member = "FAILED" Then
+				Text 20, y_pos, 425, 10, "There is no household member eligible for MSA."
+				y_pos = y_pos + 10
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_fail_file = "FAILED" Then
+				Text 20, y_pos, 425, 10, "The household has not completed a report."
+				y_pos = y_pos + 10
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_gross_income = "FAILED" Then
+				Text 20, y_pos, 425, 10, "The household has exceeded the Gross Income Limit."
+				y_pos = y_pos + 10
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_net_income = "FAILED" Then
+				Text 20, y_pos, 425, 10, "The household has exceeded the Net Income Limit"
+				y_pos = y_pos + 10
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_residence = "FAILED" Then
+				Text 20, y_pos, 425, 10, "The household has does not have 30 days of MN residency."
+				y_pos = y_pos + 10
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_assets = "FAILED" Then
+				Text 20, y_pos, 425, 10, "The houshold has assets that exceed the asst limit."
+				y_pos = y_pos + 10
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_retro_net_income = "FAILED" Then
+				Text 20, y_pos, 425, 10, "The household has exceeded the Net Income Limit."
+				y_pos = y_pos + 10
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then
+				Text 20, y_pos, 425, 10, "The household has not provided required verifications."
+				y_pos = y_pos + 10
+				verifs_missing = ""
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_acct = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_addr = "FAILED" Then verifs_missing = verifs_missing & ", Address"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_busi = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_cars = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_jobs = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_lump = "FAILED" Then verifs_missing = verifs_missing & ", Lump Sum Income"
+				' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_pact = "FAILED" Then verifs_missing = verifs_missing & ", "
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_rbic = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_secu = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_spon = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_stin = "FAILED" Then verifs_missing = verifs_missing & ", Student Income"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_unea = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
+				If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing-2))
+				Text 25, y_pos, 420, 10, "Verifications missing: " & verifs_missing
+				y_pos = y_pos + 10
+
+			End If
+
+			' Text 20, y_pos, 125, 10, "MORE DETAIL"
+			y_pos = y_pos + 10
+		End If
+		' GroupBox 10, 115, 440, 80, "MSA"
+		' Text 20, 130, 125, 10, "There is no eligibile child for DWP"
+		' Text 20, 140, 125, 10, "There is no eligibile child for DWP"
+		' Text 20, 150, 125, 10, "There is no eligibile child for DWP"
+		' Text 20, 160, 125, 10, "There is no eligibile child for DWP"
+		' Text 20, 170, 125, 10, "There is no eligibile child for DWP"
+		' Text 20, 180, 125, 10, "There is no eligibile child for DWP"
+
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_details_exists = False Then ga_grp_len = 30
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_details_exists = True Then
+			ga_grp_len = 40
+		End If
+		GroupBox 10, y_pos, 440, ga_grp_len, "GA"
+		y_pos = y_pos + 15
+		Text 20, y_pos, 425, 10, "Denial Reason: " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_details_exists = False Then
+			y_pos = y_pos + 20
+		Else
+			y_pos = y_pos + 10
+			Text 20, y_pos, 125, 10, "MORE DETAIL"
+			y_pos = y_pos + 20
+		End If
+		' GroupBox 10, 200, 30, ga_grp_len, "GA"
+		' Text 20, 215, 125, 10, "There is no eligibile child for DWP"
+
+		GroupBox 460, 10, 85, 165, "DENY Approvals"
 	EndDialog
 end function
 
@@ -7273,6 +7430,43 @@ class deny_eligibility_detail
 	public deny_cash_mfip_reason_info
 	public deny_cash_msa_reason_info
 	public deny_cash_ga_reason_info
+	public deny_cash_dwp_selection_line
+	public deny_cash_mfip_selection_line
+	public deny_cash_ga_selection_line
+	public deny_cash_msa_selection_line
+	public deny_cash_dwp_details_exists
+	public deny_cash_mfip_details_exists
+	public deny_cash_msa_details_exists
+	public deny_cash_ga_details_exists
+
+
+
+	public deny_msa_elig_case_test_applicant_eligible
+	public deny_msa_elig_case_test_application_withdrawn
+	public deny_msa_elig_case_test_eligible_member
+	public deny_msa_elig_case_test_fail_file
+	public deny_msa_elig_case_test_prosp_gross_income
+	public deny_msa_elig_case_test_prosp_net_income
+	public deny_msa_elig_case_test_residence
+	public deny_msa_elig_case_test_assets
+	public deny_msa_elig_case_test_retro_net_income
+	public deny_msa_elig_case_test_verif
+	public deny_msa_elig_case_shared_hh_yn
+	public deny_msa_elig_case_test_verif_acct
+	public deny_msa_elig_case_test_verif_addr
+	public deny_msa_elig_case_test_verif_busi
+	public deny_msa_elig_case_test_verif_cars
+	public deny_msa_elig_case_test_verif_jobs
+	public deny_msa_elig_case_test_verif_lump
+	public deny_msa_elig_case_test_verif_pact
+	public deny_msa_elig_case_test_verif_rbic
+	public deny_msa_elig_case_test_verif_secu
+	public deny_msa_elig_case_test_verif_spon
+	public deny_msa_elig_case_test_verif_stin
+	public deny_msa_elig_case_test_verif_unea
+	public deny_msa_elig_budg_need_standard
+	public deny_msa_elig_budg_net_income
+
 	public deny_cash_worker_message_one
 	public deny_cash_worker_message_two
 	public deny_cash_worker_message_three
@@ -7287,6 +7481,7 @@ class deny_eligibility_detail
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			approved_today = True
 		End If
 		If approved_today = True Then
 			ReDim deny_cash_membs_ref_numbs(0)
@@ -7560,6 +7755,111 @@ class deny_eligibility_detail
 			If deny_cash_ga_reason_code = "26" Then deny_cash_ga_reason_info = "Program Active"
 			If deny_cash_ga_reason_code = "29" Then deny_cash_ga_reason_info = "Lump Sum"
 			If deny_cash_ga_reason_code = "99" Then deny_cash_ga_reason_info = "PND2 Denial System Entered"
+
+			EMReadScreen deny_cash_dwp_selection_line, 1, 8, 20
+			EMReadScreen deny_cash_mfip_selection_line, 1, 9, 20
+			EMReadScreen deny_cash_msa_selection_line, 1, 12, 20
+			EMReadScreen deny_cash_ga_selection_line, 1, 13, 20
+
+			deny_cash_dwp_details_exists = False
+			deny_cash_mfip_details_exists = False
+			deny_cash_msa_details_exists = False
+			deny_cash_ga_details_exists = False
+
+			If deny_cash_dwp_selection_line = "_" Then
+				Call write_value_and_transmit("X", 8, 20)
+				deny_cash_dwp_details_exists = True
+				' MsgBox "DWP Pop-Up"
+
+				PF3
+			End if
+			If deny_cash_mfip_selection_line = "_" Then
+				Call write_value_and_transmit("X", 9, 20)
+				deny_cash_mfip_details_exists = True
+				' MsgBox "MFIP Pop-Up"
+
+				PF3
+			End if
+			If deny_cash_msa_selection_line = "_" Then
+				Call write_value_and_transmit("X", 12, 20)
+				deny_cash_msa_details_exists = True
+				' MsgBox "MSA Pop-Up"
+				transmit
+
+				EMReadScreen deny_msa_elig_case_test_applicant_eligible, 	6, 6, 7
+				EMReadScreen deny_msa_elig_case_test_application_withdrawn, 6, 7, 7
+				EMReadScreen deny_msa_elig_case_test_eligible_member, 		6, 8, 7
+				EMReadScreen deny_msa_elig_case_test_fail_file, 			6, 9, 7
+				EMReadScreen deny_msa_elig_case_test_prosp_gross_income, 	6, 10, 7
+
+				EMReadScreen deny_msa_elig_case_test_prosp_net_income, 	6, 6, 45
+				EMReadScreen deny_msa_elig_case_test_residence, 		6, 7, 45
+				EMReadScreen deny_msa_elig_case_test_assets, 			6, 8, 45
+				EMReadScreen deny_msa_elig_case_test_retro_net_income, 	6, 9, 45
+				EMReadScreen deny_msa_elig_case_test_verif, 			6, 10, 45
+
+				EMReadScreen deny_msa_elig_case_shared_hh_yn, 1, 13, 61
+
+				deny_msa_elig_case_test_applicant_eligible = trim(msa_elig_case_test_applicant_eligible)
+				deny_msa_elig_case_test_application_withdrawn = trim(msa_elig_case_test_application_withdrawn)
+				deny_msa_elig_case_test_eligible_member = trim(msa_elig_case_test_eligible_member)
+				deny_msa_elig_case_test_fail_file = trim(msa_elig_case_test_fail_file)
+				deny_msa_elig_case_test_prosp_gross_income = trim(msa_elig_case_test_prosp_gross_income)
+
+				deny_msa_elig_case_test_prosp_net_income = trim(deny_msa_elig_case_test_prosp_net_income)
+				deny_msa_elig_case_test_residence = trim(deny_msa_elig_case_test_residence)
+				deny_msa_elig_case_test_assets = trim(deny_msa_elig_case_test_assets)
+				deny_msa_elig_case_test_retro_net_income = trim(deny_msa_elig_case_test_retro_net_income)
+				deny_msa_elig_case_test_verif = trim(deny_msa_elig_case_test_verif)
+
+				If msa_elig_case_test_verif <> "NA" Then
+					Call write_value_and_transmit("X", 10, 43)
+
+					EMReadScreen deny_msa_elig_case_test_verif_acct, 6, 6, 32
+					EMReadScreen deny_msa_elig_case_test_verif_addr, 6, 7, 32
+					EMReadScreen deny_msa_elig_case_test_verif_busi, 6, 8, 32
+					EMReadScreen deny_msa_elig_case_test_verif_cars, 6, 9, 32
+					EMReadScreen deny_msa_elig_case_test_verif_jobs, 6, 10, 32
+					EMReadScreen deny_msa_elig_case_test_verif_lump, 6, 11, 32
+					EMReadScreen deny_msa_elig_case_test_verif_pact, 6, 12, 32
+					EMReadScreen deny_msa_elig_case_test_verif_rbic, 6, 13, 32
+					EMReadScreen deny_msa_elig_case_test_verif_secu, 6, 14, 32
+					EMReadScreen deny_msa_elig_case_test_verif_spon, 6, 15, 32
+					EMReadScreen deny_msa_elig_case_test_verif_stin, 6, 16, 32
+					EMReadScreen deny_msa_elig_case_test_verif_unea, 6, 17, 32
+
+					deny_msa_elig_case_test_verif_acct = trim(deny_msa_elig_case_test_verif_acct)
+					deny_msa_elig_case_test_verif_addr = trim(deny_msa_elig_case_test_verif_addr)
+					deny_msa_elig_case_test_verif_busi = trim(deny_msa_elig_case_test_verif_busi)
+					deny_msa_elig_case_test_verif_cars = trim(deny_msa_elig_case_test_verif_cars)
+					deny_msa_elig_case_test_verif_jobs = trim(deny_msa_elig_case_test_verif_jobs)
+					deny_msa_elig_case_test_verif_lump = trim(deny_msa_elig_case_test_verif_lump)
+					deny_msa_elig_case_test_verif_pact = trim(deny_msa_elig_case_test_verif_pact)
+					deny_msa_elig_case_test_verif_rbic = trim(deny_msa_elig_case_test_verif_rbic)
+					deny_msa_elig_case_test_verif_secu = trim(deny_msa_elig_case_test_verif_secu)
+					deny_msa_elig_case_test_verif_spon = trim(deny_msa_elig_case_test_verif_spon)
+					deny_msa_elig_case_test_verif_stin = trim(deny_msa_elig_case_test_verif_stin)
+					deny_msa_elig_case_test_verif_unea = trim(deny_msa_elig_case_test_verif_unea)
+					transmit
+				End If
+				transmit 		'going to the next panel - MSCB
+
+				EMReadScreen deny_msa_elig_budg_need_standard, 	9, 6, 72
+				EMReadScreen deny_msa_elig_budg_net_income, 	9, 7, 72
+
+				deny_msa_elig_budg_need_standard = trim(deny_msa_elig_budg_need_standard)
+				deny_msa_elig_budg_net_income = trim(deny_msa_elig_budg_net_income)
+
+				PF3
+			End if
+			If deny_cash_ga_selection_line = "_" Then
+				Call write_value_and_transmit("X", 13, 20)
+				deny_cash_ga_details_exists = True
+				' MsgBox "GA Pop-Up"
+
+
+				PF3
+			End if
 
 			EMReadScreen deny_cash_worker_message_one, 75, 16, 2
 			EMReadScreen deny_cash_worker_message_two, 75, 17, 2
@@ -16933,7 +17233,7 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_MSA = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_EMER = False
 enter_CNOTE_for_GRH = False
-enter_CNOTE_for_DENY = False
+If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DENY = False
 enter_CNOTE_for_HC = False
 enter_CNOTE_for_DWP = False
 
@@ -16985,6 +17285,9 @@ ReDim MSA_UNIQUE_APPROVALS(approval_confirmed, 0)
 
 Dim GA_UNIQUE_APPROVALS()
 ReDim GA_UNIQUE_APPROVALS(approval_confirmed, 0)
+
+Dim DENY_UNIQUE_APPROVALS()
+ReDim DENY_UNIQUE_APPROVALS(approval_confirmed, 0)
 
 Dim SNAP_UNIQUE_APPROVALS()
 ReDim SNAP_UNIQUE_APPROVALS(approval_confirmed, 0)
@@ -18017,6 +18320,99 @@ If enter_CNOTE_for_GA = True Then
 	End if
 
 End If
+
+If enter_CNOTE_for_DENY = True Then
+
+last_budget_cycle = ""
+
+	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
+	unique_app_count = 0
+	For approval = 0 to UBound(CASH_DENIAL_APPROVALS)
+		If CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year = first_DENY_approval Then start_capturing_approvals = True
+		If start_capturing_approvals = True Then
+			If unique_app_count = 0 Then
+				ReDim preserve DENY_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
+
+				DENY_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year
+				DENY_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year
+				DENY_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
+				DENY_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+				DENY_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
+				DENY_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+
+				last_dwp_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code
+				last_mfip_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code
+				last_msa_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_code
+				last_ga_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_code
+
+				unique_app_count = unique_app_count + 1
+			Else
+				match_last_benefit_amounts = True
+
+				If last_dwp_reason_code_result <> CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code Then match_last_benefit_amounts = False
+				If last_mfip_reason_code_result <> CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code Then match_last_benefit_amounts = False
+				If last_msa_reason_code_result <> CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_code Then match_last_benefit_amounts = False
+				If last_ga_reason_code_result <> CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_code Then match_last_benefit_amounts = False
+
+				If match_last_benefit_amounts = True Then
+					DENY_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = DENY_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year
+					DENY_UNIQUE_APPROVALS(last_mo_const, unique_app_count-1) = CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year
+				End If
+				If match_last_benefit_amounts = False Then
+					ReDim preserve DENY_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
+
+					DENY_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year
+					DENY_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year
+					DENY_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
+					DENY_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+					DENY_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
+					DENY_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+
+					last_dwp_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code
+					last_mfip_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code
+					last_msa_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_code
+					last_ga_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_code
+
+					unique_app_count = unique_app_count + 1
+				End If
+			End If
+		End If
+	Next
+
+	all_deny_approvals_confirmed = False
+	approval_selected = 0
+
+	Do
+
+		first_month = left(DENY_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
+		elig_ind = ""
+		month_ind = ""
+		For approval = 0 to UBound(CASH_DENIAL_APPROVALS)
+			' MsgBox "APPROVALS MO - " & CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year & vbCr & "approval - " & approval & vbCr & "first_month - " & first_month
+			If CASH_DENIAL_APPROVALS(approval).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
+		Next
+		For each_month = 0 to UBound(STAT_INFORMATION)
+			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
+		Next
+
+
+		call define_deny_elig_dialog
+
+		dialog Dialog1
+		cancel_confirmation
+
+		err_msg = ""
+
+		deny_approval_is_incorrect = False
+
+	Loop until (ButtonPressed = app_confirmed_btn and all_deny_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
+
+	If deny_approval_is_incorrect = True Then
+		enter_CNOTE_for_GA = False
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for Cash DENY Approvals from " & first_DENY_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+	End if
+
+End if
 
 If enter_CNOTE_for_EMER = True Then
 	confirm_emer_budget_selection = ""
