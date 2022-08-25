@@ -2928,7 +2928,7 @@ ElseIf renewal_option = "Send Appointment Letters" Then
 						If len(programs) < 11 Then
 							CALL write_variable_in_SPEC_MEMO("**  Your " & programs & " case will close on " & last_day_of_recert & " unless  **")
 						ElseIf len(programs) > 14 Then
-							CALL write_variable_in_SPEC_MEMO("*Your " & programs & " case will close on " & last_day_of_recert & " unless*")
+							CALL write_variable_in_SPEC_MEMO("*Your " & programs & " case will close on " & last_day_of_recert & " unless")
 						ElseIf len(programs) > 10 Then
 							CALL write_variable_in_SPEC_MEMO("* Your " & programs & " case will close on " & last_day_of_recert & " unless *")
 						End If
