@@ -193,10 +193,10 @@ IF ADDR_actions <> "no response received" THEN
        	EditBox 220, 135, 215, 15, received_error_confirmation
 		Text 5, 100, 40, 10, "Other notes:"
   		EditBox 90, 95, 190, 15, other_notes
+		EditBox 90, 115, 190, 15, notes_on_address
   		Text 5, 120, 65, 10, "Notes on address:"
-  		EditBox 90, 115, 190, 15, notes_on_address
       ELSE
-      	Text 5, 100, 85, 10, "Verification(s) pending:"
+      	Text 5, 100, 85, 10, "Verification(s) requested:"
       	Text 5, 140, 35, 10, "Due date:"
 		Text 5, 120, 40, 10, "Other notes:"
 		Text 290, 120, 65, 10, "Notes on address:"
@@ -362,7 +362,7 @@ END IF 'no response received '
     '----------------------------------------------------------------------------------------------------TIKL
 IF ADDR_actions = "forwarding address provided" or ADDR_actions = "no forwarding address provided" THEN
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    Call create_TIKL("Returned mail rec'd contact from the resident should have occurred regarding address change. If no response-verbal or written, please take appropriate action.", 10, date, True, TIKL_note_text)
+    Call create_TIKL("Returned mail received, contact from resident should have occurred re: address change. If no response-verbal or written, please take appropriate action.", 10, date, True, TIKL_note_text)
 END IF
 'if there is no forwarding address is provided the only step we can take is to ensure we are sending out a request for verifications and closing in  timely manner"'
 'starts a blank case note
@@ -384,22 +384,22 @@ IF residential_address_confirmed = "YES" THEN
 	If resi_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                                             " & resi_addr_line_two)
 	CALL write_variable_in_CASE_NOTE("                                             " & resi_addr_city & ", " & resi_addr_state & " " & resi_addr_zip)
 END IF
-IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household reported as homeless")
+IF homeless_addr = "Yes" Then Call write_variable_in_CASE_NOTE("* Household reported as homeless.")
 IF reservation_addr = "Yes" THEN CALL write_variable_in_CASE_NOTE("* Reservation " & reservation_name)
 CALL write_bullet_and_variable_in_CASE_NOTE("Address detail", notes_on_address)
 CALL write_bullet_and_variable_in_case_note("Verification(s) requested", verifications_requested)
 CALL write_bullet_and_variable_in_case_note("Verification(s) due", due_date)
 IF ADDR_actions = "forwarding address provided" THEN
-	CALL write_variable_in_CASE_NOTE("* Forwarding address was on returned mail")
+	CALL write_variable_in_CASE_NOTE("* Forwarding address was on returned mail.")
 	CALL write_variable_in_CASE_NOTE("* Mailing address updated:  " & new_addr_line_one)
 	If new_addr_line_two <> "" Then CALL write_variable_in_CASE_NOTE("                            " & new_addr_line_two)
 	CALL write_variable_in_CASE_NOTE("                            " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
-	CALL write_variable_in_case_note("* Resident must be provided 10 days to return requested verifications")
+	CALL write_variable_in_case_note("* Resident must be provided 10 days to return requested verifications.")
 ELSEIF ADDR_actions = "no response received" THEN
-	CALL write_variable_in_CASE_NOTE ("* ECF reviewed for requested verifications")
+	CALL write_variable_in_CASE_NOTE ("* ECF reviewed for requested verifications.")
 	CALL write_variable_in_CASE_NOTE("* Date verification(s) requested: " & date_verifications_requested)
-	CALL write_variable_in_case_note("* Resident was provided 10 days to return requested verifications")
-	IF snap_or_cash_case = True THEN CALL write_variable_in_CASE_NOTE ("* PACT panel entered per POLI/TEMP TE02.13.10")
+	CALL write_variable_in_case_note("* Resident was provided 10 days to return requested verifications.")
+	IF snap_or_cash_case = True THEN CALL write_variable_in_CASE_NOTE ("* PACT panel entered per POLI/TEMP TE02.13.10.")
 	IF ma_case = True THEN CALL write_variable_in_CASE_NOTE ("* Cannot close HC cases for whereabouts unknown during the COVID-19 emergency.")
 END IF
 CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
