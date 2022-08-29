@@ -10676,7 +10676,7 @@ class emer_eligibility_detail
 
 			If IsDate(elig_version_date) = True Then
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-				If DateDiff("d", #8/26/2022#, elig_version_date) = 0 Then approved_today = True
+				' If DateDiff("d", #8/26/2022#, elig_version_date) = 0 Then approved_today = True
 				' If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
 			End if
 
