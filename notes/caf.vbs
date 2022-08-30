@@ -9301,6 +9301,7 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
 
         		objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
         		objTextStream.WriteLine "WORKER NAME ^*^*^" & worker_name
+                objTextStream.WriteLine "WORKER USER ID ^*^*^" & user_ID_for_validation
         		objTextStream.WriteLine "CASE X NUMBER  ^*^*^" & case_pw
                 If IsDate(CAF_datestamp) = True Then CAF_datestamp = DateAdd("d", 0, CAF_datestamp)
         		objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & CAF_datestamp
