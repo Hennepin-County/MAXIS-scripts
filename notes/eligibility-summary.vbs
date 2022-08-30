@@ -4061,7 +4061,7 @@ function deny_elig_case_note()
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_gross_income = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has exceeded the Gross Income Limit.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has exceeded the Net Income Limit")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_retro_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has exceeded the Net Income Limit.")
-	If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+	If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("       | MSA Need Standard: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_need_standard, 10) & " |")
 		Call write_variable_in_CASE_NOTE("       | MSA Net Income:    $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income, 10) & " |")
 	End If
@@ -4194,7 +4194,7 @@ function deny_elig_case_note()
 			CALL write_variable_in_CASE_NOTE("    Available only for households without children.")
 		Else
 			Call write_variable_in_CASE_NOTE("No MSA eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_memo_info)
-			If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then CALL write_variable_in_CASE_NOTE(" - Income limit exceeded. Counted Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_need_standard & ", Income Limit: $ " &  CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income)
+			If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then CALL write_variable_in_CASE_NOTE(" - Income limit exceeded. Counted Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_need_standard & ", Income Limit: $ " &  CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income)
 			Call write_variable_in_CASE_NOTE("No GA eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_memo_info)
 		End if
 	End if
@@ -18763,7 +18763,7 @@ If approval_note_found = True Then
 	End If
 	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for GA, it was requested to enter a new note about eligibility for GA."
 	If add_new_note_for_DENY = "No - Eligibility is the same - No NOTE Needed" Then
-		enter_CNOTE_for_NDY = False
+		enter_CNOTE_for_DENY = False
 		end_msg_info = end_msg_info & vbCr & "Cash DENY had a CASE/NOTE entered prior to this script run. No additional NOTE was requested."
 	End If
 	If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then end_msg_info = end_msg_info & vbCr & "Though there is a CASE/NOTE for Cash DENY, it was requested to enter a new note about eligibility for Cash DENY."
@@ -20663,7 +20663,7 @@ If enter_CNOTE_for_DENY = True Then
 								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_gross_income = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
 								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_net_income = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
 								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_retro_net_income = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
-								If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+								If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = True Then
 									CALL write_variable_in_SPEC_MEMO(" - Income limit exceeded.")
 									CALL write_variable_in_SPEC_MEMO("   Counted Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income & ", Income Limit: $ " &  CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_need_standard)
 								End If
@@ -20719,6 +20719,9 @@ If enter_CNOTE_for_DENY = True Then
 		Call deny_elig_case_note
 
 		' MsgBox "PAUSE HERE"
+		' PF10
+		' MsgBox "DENY Gone?"
+
 		PF3
 	Next
 End if
@@ -20772,7 +20775,7 @@ If enter_CNOTE_for_SNAP = True Then
 			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
 		End If
 		due_date = ""
-		If IsDate(SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = True Then due_date = DateAdd("d", 10, SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+		If IsDate(SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
 
 		'This is the WCOM part
 		If SNAP_UNIQUE_APPROVALS(wcom_needed, unique_app) = True Then
@@ -20836,7 +20839,9 @@ If enter_CNOTE_for_SNAP = True Then
 
 		'Here we entere the CASENOTE
 		Call snap_elig_case_note
-
+		' MsgBox "SNAP NOTE REVIEW"
+		' PF10
+		' MsgBox "SNAP Gone?"
 		' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
 		PF3
 	Next
