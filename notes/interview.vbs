@@ -13046,6 +13046,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 
 				objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
 				objTextStream.WriteLine "WORKER NAME ^*^*^" & worker_name
+                objTextStream.WriteLine "WORKER USER ID ^*^*^" & user_ID_for_validation
 				objTextStream.WriteLine "CASE X NUMBER  ^*^*^" & case_pw
                 CAF_datestamp_new_one = CAF_datestamp
                 If IsDate(CAF_datestamp) = True Then CAF_datestamp_new_one = DateAdd("d", 0, CAF_datestamp)
