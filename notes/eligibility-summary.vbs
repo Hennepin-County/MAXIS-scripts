@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("08/30/2022", "Additional Program support added: ELIG/DENY - for Cash Denials.##~## ##~##The script can now support determinations made in: ##~##ELIG/SNAP ##~##ELIG/MFIP ##~##ELIG/GA ##~##ELIG/MSA ##~##ELIG/EMER ##~##ELIG/DENY ##~##REPT/PND2 Denials.##~## ##~##We are still working on ELIG/GRH, ELIG/HC, and ELIG/DWP.", "Casey Love, Hennepin County")
 call changelog_update("08/19/2022", "Additional Program support added: ELIG/MSA and ELIG/EMER.##~## ##~##The script can now support determinations made in: ##~##ELIG/SNAP ##~##ELIG/MFIP ##~##ELIG/GA ##~##ELIG/MSA ##~##ELIG/EMER ##~##REPT/PND2 Denials.##~## ##~##We are still working on ELIG/DENY, ELIG/GRH, ELIG/HC, and ELIG/DWP.", "Casey Love, Hennepin County")
 call changelog_update("07/21/2022", "TESTING UPDATE ##~## ##~##CASE NOTE Added - for REVW Completion. If an approval is completed and that program has a REVW code of 'A', the script will create a seperate CASE/NOTE to document the completion of the RERVW.##~##", "Casey Love, Hennepin County")
 call changelog_update("07/19/2022", "TESTING UPDATE ##~## ##~##MFIP ELIGIBILITY APPROVALS are now handled in the script run!##~## ##~##This script now handles for SNAP and MFIP Approvals in ELIG. It will also handle for denials from REPT/PND2.##~## ##~##As MFIP fucntionality is new, there may be bugs, please let us know if anything doesn't work or seems weird in the wording.##~## ##~##We will be continuing to add new programs to the functionality. Please note that while MFIP works, Cash Denials do NOT work.##~## ##~##The error reporting default will be turned off for SNAP only cases as that functionality seems to be well tested. Please send a report on a SNAP only approval case if you run in to any issues or errors.##~##", "Casey Love, Hennepin County")
@@ -1094,7 +1095,7 @@ function define_deny_elig_dialog()
 
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = False Then dwp_grp_len = 30
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = True Then
-			dwp_grp_len = 30	'TODO calculate how to figure all group lengths'
+			dwp_grp_len = 30
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_application_withdrawn = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_assets = "FAILED" Then dwp_grp_len = dwp_grp_len + 70
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
@@ -1110,7 +1111,7 @@ function define_deny_elig_dialog()
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_vendor_info = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
 
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then dwp_grp_len = dwp_grp_len + 70
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then dwp_grp_len = dwp_grp_len + 50
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_MFIP_conversion = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_residence = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_strike = "FAILED" Then dwp_grp_len = dwp_grp_len + 10
@@ -1197,16 +1198,16 @@ function define_deny_elig_dialog()
 				Text 20, y_pos, 425, 10, "Household Income exceeds the Initial Income Level."
 				y_pos = y_pos + 10
 
-				Text 30, y_pos, 425, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income
+				Text 30, y_pos, 425, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income & "                          Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense
 				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense
-				y_pos = y_pos + 10
+				' Text 30, y_pos, 425, 10, "Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense
+				' y_pos = y_pos + 10
 				Text 30, y_pos, 425, 10, "Counted Unearned Income:     $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_unearned_income
 				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "Counted Deemed Income:        $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_deemed_income
+				Text 30, y_pos, 425, 10, "Counted Deemed Income:        $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_deemed_income & "                          Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_child_support_exclusion
 				y_pos = y_pos + 10
-				Text 30, y_pos, 425, 10, "Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_child_support_exclusion
-				y_pos = y_pos + 10
+				' Text 30, y_pos, 425, 10, "Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_child_support_exclusion
+				' y_pos = y_pos + 10
 				Text 30, y_pos, 425, 10, "Total Counted Income:             $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_total_counted_income & "                          Family Wage Level: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level
 				y_pos = y_pos + 10
 			End If
@@ -1239,7 +1240,7 @@ function define_deny_elig_dialog()
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity or Adults"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity of Adults"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
@@ -1275,7 +1276,7 @@ function define_deny_elig_dialog()
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_elig_child = "FAILED" Then mfip_grp_len = mfip_grp_len + 10
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then mfip_grp_len = mfip_grp_len + 10
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_file = "FAILED" Then mfip_grp_len = mfip_grp_len + 10
-			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then mfip_grp_len = mfip_grp_len + 70
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then mfip_grp_len = mfip_grp_len + 50
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_minor_liv_arrange = "FAILED" Then mfip_grp_len = mfip_grp_len + 10
 
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_monthly_income = "FAILED" Then mfip_grp_len = mfip_grp_len + 10
@@ -1341,16 +1342,16 @@ function define_deny_elig_dialog()
 				Text 20, y_pos, 425, 10, "Household Income exceeds the Initial Income Level."
 				y_pos = y_pos + 10
 
-				Text 30, y_pos, 400, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_earned
+				Text 30, y_pos, 400, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_earned & "                          Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care
 				y_pos = y_pos + 10
-				Text 30, y_pos, 400, 10, "Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care
-				y_pos = y_pos + 10
+				' Text 30, y_pos, 400, 10, "Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care
+				' y_pos = y_pos + 10
 				Text 30, y_pos, 400, 10, "Counted Unearned Income:     $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_unearned
 				y_pos = y_pos + 10
-				Text 30, y_pos, 400, 10, "Counted Deemed Income:        $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deemed
+				Text 30, y_pos, 400, 10, "Counted Deemed Income:        $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deemed & "                          Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_cses_exclusion
 				y_pos = y_pos + 10
-				Text 30, y_pos, 400, 10, "Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_cses_exclusion
-				y_pos = y_pos + 10
+				' Text 30, y_pos, 400, 10, "Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_cses_exclusion
+				' y_pos = y_pos + 10
 				Text 30, y_pos, 400, 10, "Total Counted Income:             $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_total & "                          Family Wage Level: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_family_wage_level
 				y_pos = y_pos + 10
 			End If
@@ -1396,7 +1397,7 @@ function define_deny_elig_dialog()
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
-				If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity or Adults"
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity of Adults"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
 				If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
@@ -1480,7 +1481,7 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_assets = "FAILED" Then
-				Text 20, y_pos, 425, 10, "The houshold has assets that exceed the asst limit."
+				Text 20, y_pos, 425, 10, "The houshold has assets that exceed the asset limit."
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_retro_net_income = "FAILED" Then
@@ -1541,7 +1542,6 @@ function define_deny_elig_dialog()
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_details_exists = False Then
 			y_pos = y_pos + 20
 		Else
-			'TODO - just an an explanation field here'
 			y_pos = y_pos + 10
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info = "Net Income" Then Text 25, y_pos, 250, 10, "Explain Details of Case Income and Income Limits:"
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info = "Verification" Then Text 25, y_pos, 250, 10, "Explain Verifications not Received:"
@@ -1554,11 +1554,21 @@ function define_deny_elig_dialog()
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info = "Eligible Other Benefits" Then Text 25, y_pos, 250, 10, "Detail the Other Benefits the Household is Eligible For:"
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info = "Lump Sum" Then Text 25, y_pos, 250, 10, "Detail the Lump Sum Income:"
 
-
 			y_pos = y_pos + 10
 			EditBox 25, y_pos, 420, 15, TEMP_VAR_deny_ga_elig_explanation
 			y_pos = y_pos + 20
 
+		End If
+
+		If DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True Then
+			' y_pos = y_pos + 5
+			Text 10, y_pos, 300, 10, "The denial was due to verifications not recieved. Detail the verification request."
+			y_pos = y_pos + 15
+
+			Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
+			Editbox 180, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
+			y_pos = y_pos + 15
 		End If
 		' GroupBox 10, 200, 30, ga_grp_len, "GA"
 		' Text 20, 215, 125, 10, "There is no eligibile child for DWP"
@@ -1608,7 +1618,7 @@ function define_deny_elig_dialog()
 		' y_pos = 230
 		' y_pos_2 = 230
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -1617,7 +1627,7 @@ function define_deny_elig_dialog()
 				End If
 				y_pos = y_pos + 20
 			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_two_job_ended(each_memb) = False Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -1626,7 +1636,7 @@ function define_deny_elig_dialog()
 				End If
 				y_pos = y_pos + 20
 			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_three_job_ended(each_memb) = False Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -1635,7 +1645,7 @@ function define_deny_elig_dialog()
 				End If
 				y_pos = y_pos + 20
 			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_four_job_ended(each_memb) = False Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -1644,7 +1654,7 @@ function define_deny_elig_dialog()
 				End If
 				y_pos = y_pos + 20
 			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_jobs_five_job_ended(each_memb) = False Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_prosp_monthly_gross_wage(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
 				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -1654,7 +1664,7 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 
-			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) = "" Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
 				If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -1663,7 +1673,7 @@ function define_deny_elig_dialog()
 				End If
 				y_pos = y_pos + 20
 			End If
-			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb) = "" Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
 				If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -1672,7 +1682,7 @@ function define_deny_elig_dialog()
 				End If
 				y_pos = y_pos + 20
 			End If
-			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb) = "" Then
 				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_net_inc(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
 				If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
 					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
@@ -1682,7 +1692,7 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 20
 			End If
 
-			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb) = "" Then
 				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
@@ -1690,7 +1700,7 @@ function define_deny_elig_dialog()
 					y_pos_2 = y_pos_2 + 10
 				End If
 			End If
-			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb) = "" Then
 				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
@@ -1698,7 +1708,7 @@ function define_deny_elig_dialog()
 					y_pos_2 = y_pos_2 + 10
 				End If
 			End If
-			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb) = "" Then
 				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
@@ -1706,7 +1716,7 @@ function define_deny_elig_dialog()
 					y_pos_2 = y_pos_2 + 10
 				End If
 			End If
-			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb) = "" Then
 				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
@@ -1714,7 +1724,7 @@ function define_deny_elig_dialog()
 					y_pos_2 = y_pos_2 + 10
 				End If
 			End If
-			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
+			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb) = "" Then
 				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monhtly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
 				y_pos_2 = y_pos_2 + 10
 				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
@@ -3864,181 +3874,334 @@ end function
 
 function deny_elig_case_note()
 
-	' CASE_NOTE_entered = True
-	' end_msg_info = end_msg_info & "NOTE entered for CASH DENY - " & EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result & " eff " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & vbCr
-	'
-	' Call start_a_blank_case_note
-	'
-	' Call write_variable_in_CASE_NOTE("APPROVAL - CASH INELIGIBLE - Denied eff " & first_month)
-	'
-	' Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", SNAP_ELIG_APPROVALS(elig_ind).snap_approved_date)
-	'
-	' If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
-	' Call write_variable_in_CASE_NOTE("* Case has no eligibility for any CASH Program.")
-	'
-	' Call write_variable_in_CASE_NOTE("============================= CASH PROGRAMS DETAIL ==========================")
-	' Call write_variable_in_CASE_NOTE("RCA  : Processed by Contracted Agency for Residents of Hennepin County.")
-	' 'DWP
-	' Call write_variable_in_CASE_NOTE("DWP  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_assets = "FAILED" Then
-	' 	Call write_variable_in_CASE_NOTE("     * ")
-	' 	Text 30, y_pos, 425, 10, "CASH Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_CASH
-	' 	Text 30, y_pos, 425, 10, "ACCT Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_ACCT
-	' 	Text 30, y_pos, 425, 10, "SECU Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_SECU
-	' 	Text 30, y_pos, 425, 10, "CARS Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_CARS
-	' 	Text 30, y_pos, 425, 10, "SPON Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_SPON
-	' 	Text 30, y_pos, 425, 10, "Total Assets:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_total & "                          Asset Maximum: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_maximum
-	'
-	' End If
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_fail_coop = "FAILED" Then
-	' 	Call write_variable_in_CASE_NOTE("     * ")
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_applied_other_benefits = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_provide_requested_info = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_IEVS = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_vendor_info = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' End If
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then
-	' 	Call write_variable_in_CASE_NOTE("     * ")
-	' 	Text 30, y_pos, 425, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income
-	' 	Text 30, y_pos, 425, 10, "Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense
-	' 	Text 30, y_pos, 425, 10, "Counted Unearned Income:     $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_unearned_income
-	' 	Text 30, y_pos, 425, 10, "Counted Deemed Income:        $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_deemed_income
-	' 	Text 30, y_pos, 425, 10, "Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_child_support_exclusion
-	' 	Text 30, y_pos, 425, 10, "Total Counted Income:             $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_total_counted_income & "                          Family Wage Level: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level
-	' End If
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_MFIP_conversion = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_strike = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_TANF_time_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_transfer_of_assets = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_verif = "FAILED" Then
-	' 	Call write_variable_in_CASE_NOTE("     * ")
-	' 	verifs_missing = ""
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ACCT = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_BUSI = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity or Adults"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ADDR = "FAILED" Then verifs_missing = verifs_missing & ", Address"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SCHL = "FAILED" Then verifs_missing = verifs_missing & ", School Attendance"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SECU = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SPON = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_UNEA = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
-	' 	If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
-	' End If
-	'
-	'
-	' 'MFIP
-	' Call write_variable_in_CASE_NOTE("MFIP : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_appl_withdraw = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_asset = "FAILED" Then
-	' 	Text 30, y_pos, 400, 10, "CASH Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_CASH
-	' 	Text 30, y_pos, 400, 10, "ACCT Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_ACCT
-	' 	Text 30, y_pos, 400, 10, "SECU Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_SECU
-	' 	Text 30, y_pos, 400, 10, "CARS Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_CARS
-	' 	Text 30, y_pos, 400, 10, "SPON Assets:       $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_SPON
-	' 	Text 30, y_pos, 400, 10, "Total Assets:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_total & "                          Asset Maximum: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_max
-	' End If
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_death_applicant = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_dupl_assist = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_elig_child = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_file = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then
-	' 	Text 30, y_pos, 400, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_earned
-	' 	Text 30, y_pos, 400, 10, "Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care
-	' 	Text 30, y_pos, 400, 10, "Counted Unearned Income:     $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_unearned
-	' 	Text 30, y_pos, 400, 10, "Counted Deemed Income:        $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deemed
-	' 	Text 30, y_pos, 400, 10, "Child Support Exclusion:       (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_cses_exclusion
-	' 	Text 30, y_pos, 400, 10, "Total Counted Income:             $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_total & "                          Family Wage Level: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_family_wage_level
-	' End If
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_minor_liv_arrange = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_monthly_income = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_post_60_disq = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_residence = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_sanction_limit = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_strike = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_TANF_time_limit = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_transfer_asset = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_verif = "FAILED" Then
-	' 	verifs_missing = ""
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_ACCT = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_BUSI = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity or Adults"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_ADDR = "FAILED" Then verifs_missing = verifs_missing & ", Address"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_SCHL = "FAILED" Then verifs_missing = verifs_missing & ", School Attendance"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_SECU = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_SPON = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_UNEA = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMI = "FAILED" Then verifs_missing = verifs_missing & ", State Residence"
-	' 	If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
-	' End If
-	'
-	' 'MSA
-	' Call write_variable_in_CASE_NOTE("MSA  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info)
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_applicant_eligible = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_application_withdrawn = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_eligible_member = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_fail_file = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_residence = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_assets = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_gross_income = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_net_income = "FAILED" Then
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_retro_net_income = "FAILED" Then
-	' If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
-	' 	Text 25, y_pos, 420, 10, "MSA Need Standard: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_need_standard
-	' 	Text 25, y_pos, 420, 10, "MSA Net Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income
-	' End If
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then
-	' 	CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation
-	' End If
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then
-	' 	verifs_missing = ""
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_acct = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_addr = "FAILED" Then verifs_missing = verifs_missing & ", Address"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_busi = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_cars = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_jobs = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_lump = "FAILED" Then verifs_missing = verifs_missing & ", Lump Sum Income"
-	' 	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_pact = "FAILED" Then verifs_missing = verifs_missing & ", "
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_rbic = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_secu = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_spon = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_stin = "FAILED" Then verifs_missing = verifs_missing & ", Student Income"
-	' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_unea = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
-	' 	If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
-	' 	Text 25, y_pos, 420, 10, "Verifications missing: " & verifs_missing
-	' End If
-	' 'GA
-	' Call write_variable_in_CASE_NOTE("GA   : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info)
-	' If CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation <> "" Then
-	' 	CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation
-	' End If
-	'
-	' Call write_variable_in_CASE_NOTE("WB   : This program benefits ended 12/1/2014 and is not available.")
-	'
-	' If DENY_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True Then
-	' 	Call write_variable_in_CASE_NOTE("======================= WCOM of DENIAL INFORMATION ADDED ====================")
-	'
-	' End if
-	' Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
+	CASE_NOTE_entered = True
+	end_msg_info = end_msg_info & "NOTE entered for CASH DENY - INELIGIBLE eff " & CASH_DENIAL_APPROVALS(elig_ind).elig_footer_month & "/" & CASH_DENIAL_APPROVALS(elig_ind).elig_footer_year & vbCr
+
+	Call start_a_blank_case_note
+
+	Call write_variable_in_CASE_NOTE("APPROVAL - CASH INELIGIBLE - Denied eff " & first_month)
+
+	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", CASH_DENIAL_APPROVALS(elig_ind).elig_version_date)
+
+	If add_new_note_for_DENY = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	Call write_variable_in_CASE_NOTE("* Case has no eligibility for any CASH Program.")
+
+	Call write_variable_in_CASE_NOTE("============================= CASH PROGRAMS DETAIL ==========================")
+	Call write_variable_in_CASE_NOTE("RCA Denial Info  : Processed by Contracted Agency for Residents of Hennepin.")
+	'DWP
+	Call write_variable_in_CASE_NOTE("DWP Denial Info  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The Cash request has been Withdrawn")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_assets = "FAILED" Then
+		Call write_variable_in_CASE_NOTE("     * The household is over the asset limit for DWP (and all Cash Programs).")
+		Call write_variable_in_CASE_NOTE("       | CASH Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_CASH, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | ACCT Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_ACCT, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | SECU Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_SECU, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | CARS Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_CARS, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | SPON Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_SPON, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | Total Assets:$ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_total, 10) & " - Asset Maximum: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_maximum, 10) & "|")
+
+	End If
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with Child Support Requirements.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Applicant on this case has died.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household are receiving Cash Assistance on another case.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household does not have a child that meets the requirements for family cash benefits.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not complied with the Employment Services Requirements.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_fail_coop = "FAILED" Then
+		Call write_variable_in_CASE_NOTE("     * This houshoeld has not complied with all requirements for Family Cash Assistance.")
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_applied_other_benefits = "FAILED" Then Call write_variable_in_CASE_NOTE("       Failed to apply for other benefits.")
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_provide_requested_info = "FAILED" Then Call write_variable_in_CASE_NOTE("       Failed to provide requested information.")
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_IEVS = "FAILED" Then Call write_variable_in_CASE_NOTE("       Failed to cooperate with the IEVS process.")
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_vendor_info = "FAILED" Then Call write_variable_in_CASE_NOTE("       Failed to provide vendor information.")
+	End If
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has used all 4 DWP months.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then
+		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level.")
+		Call write_variable_in_CASE_NOTE("       | Counted Earned Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income, 10) & "                                  |")
+		Call write_variable_in_CASE_NOTE("       | Dependent Care Exp: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense, 10) & " (-)                              |")
+		Call write_variable_in_CASE_NOTE("       | Counted UNEA Inc:   $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_unearned_income, 10) & "                                  |")
+		Call write_variable_in_CASE_NOTE("       | Counted Deemed Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_deemed_income, 10) & "                                  |")
+		Call write_variable_in_CASE_NOTE("       | Child Support Excl: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_child_support_exclusion, 10) & " (-)                              |")
+		Call write_variable_in_CASE_NOTE("       | Total Counted Inc:  $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_total_counted_income, 10) & " - Family Wage Level: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level, 10) & "|")
+	End If
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_MFIP_conversion = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This case is better served by the MFIP program and is unlikely to benefit from DWP.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has not met state residency requirements.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_strike = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has a member on strike and is not eligiblity for public assistance.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_TANF_time_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has used all TANF months and is not eligible for an extension.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_transfer_of_assets = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household have transferred assets in a way that does not comply with cash assistance rules.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_verif = "FAILED" Then
+		Call write_variable_in_CASE_NOTE("     * The household has not provided required verifications.")
+		verifs_missing = ""
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ACCT = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_BUSI = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity of Adults"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ADDR = "FAILED" Then verifs_missing = verifs_missing & ", Address"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SCHL = "FAILED" Then verifs_missing = verifs_missing & ", School Attendance"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SECU = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SPON = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_UNEA = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
+		If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
+		If len(verifs_missing) < 56 Then
+			Call write_variable_in_CASE_NOTE("       Verifications: " & verifs_missing)
+		Else
+			verifs_array = split(verifs_missing, " ")
+			row_1_verifs = ""
+			row_2_verifs = "                      "
+			row_3_verifs = "                      "
+			for each word in verifs_array
+				If len(row_1_verifs) + len(word) + 1 < 56 Then
+					row_1_verifs = row_1_verifs & " " & word
+				ElseIf len(row_2_verifs) + len(word) + 1 < 78 Then
+					row_1_verifs = left(row_1_verifs & spaces_55, 55)
+					row_2_verifs = row_2_verifs & " " & word
+				ElseIf len(row_3_verifs) + len(word) + 1 < 78 Then
+					row_2_verifs = left(row_2_verifs & spaces_78, 55)
+					row_3_verifs = row_3_verifs & " " & word
+				End If
+			next
+			Call write_variable_in_CASE_NOTE("       Verifications: " & row_1_verifs)
+			If row_2_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_2_verifs)
+			If row_3_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_3_verifs)
+		End if
+	End If
+
+
+	'MFIP
+	Call write_variable_in_CASE_NOTE("MFIP Denial Info : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_appl_withdraw = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The Cash request has been Withdrawn.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_asset = "FAILED" Then
+		Call write_variable_in_CASE_NOTE("     * The household is over the asset limit for DWP (and all Cash Programs).")
+		Call write_variable_in_CASE_NOTE("       | CASH Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_CASH, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | ACCT Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_ACCT, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | SECU Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_SECU, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | CARS Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_CARS, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | SPON Assets: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_SPON, 10) & "                              |")
+		Call write_variable_in_CASE_NOTE("       | Total Assets:$ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_total, 10) & " - Asset Maximum: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_max, 10) & "|")
+
+	End If
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_death_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Applicant on this case has died.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_dupl_assist = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household are receiving Cash Assistance on another case.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_elig_child = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household does not have a child that meets the requirements for family cash benefits.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This houshoeld has not complied with all requirements for Family Cash Assistance.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_file = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This case has failed to complete a required report process.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then
+		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level.")
+		Call write_variable_in_CASE_NOTE("       | Counted Earned Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_earned, 10) & "                                  |")
+		Call write_variable_in_CASE_NOTE("       | Dependent Care Exp: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care, 10) & " (-)                              |")
+		Call write_variable_in_CASE_NOTE("       | Counted UNEA Inc:   $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_unearned, 10) & "                                  |")
+		Call write_variable_in_CASE_NOTE("       | Counted Deemed Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deemed, 10) & "                                  |")
+		Call write_variable_in_CASE_NOTE("       | Child Support Excl: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_cses_exclusion, 10) & " (-)                              |")
+		Call write_variable_in_CASE_NOTE("       | Total Counted Inc:  $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_total, 10) & " - Family Wage Level: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_family_wage_level, 10) & "|")
+
+	End If
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_minor_liv_arrange = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This minors on this case do not meet the required living arrangement review.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_monthly_income = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Monthly Income Limit.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_post_60_disq = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Member(s) of this household have been disqualified during TANF extension months.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has not met state residency requirements.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_sanction_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * Member(s) of this household have reached the sanction limit.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_strike = "FAILED" Then Call write_variable_in_CASE_NOTE("     * his household has a member on strike and is not eligiblity for public assistance.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_TANF_time_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has used all TANF months and is not eligible for an extension.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_transfer_asset = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The members of this household have transferred assets in a way that does not comply with cash assistance rules.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_verif = "FAILED" Then
+		Call write_variable_in_CASE_NOTE("     * The household has not provided required verifications.")
+		verifs_missing = ""
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_ACCT = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_BUSI = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity of Adults"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_ADDR = "FAILED" Then verifs_missing = verifs_missing & ", Address"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_SCHL = "FAILED" Then verifs_missing = verifs_missing & ", School Attendance"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_SECU = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_SPON = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_UNEA = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMI = "FAILED" Then verifs_missing = verifs_missing & ", State Residence"
+		If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
+		If len(verifs_missing) < 56 Then
+			Call write_variable_in_CASE_NOTE("       Verifications: " & verifs_missing)
+		Else
+			verifs_array = split(verifs_missing, " ")
+			row_1_verifs = ""
+			row_2_verifs = "                      "
+			row_3_verifs = "                      "
+			for each word in verifs_array
+				If len(row_1_verifs) + len(word) + 1 < 56 Then
+					row_1_verifs = row_1_verifs & " " & word
+				ElseIf len(row_2_verifs) + len(word) + 1 < 78 Then
+					row_1_verifs = left(row_1_verifs & spaces_55, 55)
+					row_2_verifs = row_2_verifs & " " & word
+				ElseIf len(row_3_verifs) + len(word) + 1 < 78 Then
+					row_2_verifs = left(row_2_verifs & spaces_78, 55)
+					row_3_verifs = row_3_verifs & " " & word
+				End If
+			next
+			Call write_variable_in_CASE_NOTE("       Verifications: " & row_1_verifs)
+			If row_2_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_2_verifs)
+			If row_3_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_3_verifs)
+		End if
+	End If
+
+	'MSA
+	Call write_variable_in_CASE_NOTE("MSA Denial Info  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info)
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_applicant_eligible = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The applicant is not MSA Eligibile")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The application has been withdrawn.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_eligible_member = "FAILED" Then Call write_variable_in_CASE_NOTE("     * There is no household member eligible for MSA.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_fail_file = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not completed a report.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_residence = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has does not have 30 days of MN residency.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_assets = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The houshold has assets that exceed the asset limit.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_gross_income = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has exceeded the Gross Income Limit.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has exceeded the Net Income Limit")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_retro_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has exceeded the Net Income Limit.")
+	If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+		Call write_variable_in_CASE_NOTE("       | MSA Need Standard: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_need_standard, 10) & " |")
+		Call write_variable_in_CASE_NOTE("       | MSA Net Income:    $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income, 10) & " |")
+	End If
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" OR CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not provided required verifications.")
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then
+		Text 25, y_pos, 125, 10, "Explain Verifications not Received:"
+		Call write_variable_in_CASE_NOTE("       Verifications missing: " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation)
+	End If
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then
+		verifs_missing = ""
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_acct = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_addr = "FAILED" Then verifs_missing = verifs_missing & ", Address"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_busi = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_cars = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_jobs = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_lump = "FAILED" Then verifs_missing = verifs_missing & ", Lump Sum Income"
+		' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_pact = "FAILED" Then verifs_missing = verifs_missing & ", "
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_rbic = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_secu = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_spon = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_stin = "FAILED" Then verifs_missing = verifs_missing & ", Student Income"
+		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_unea = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
+		If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
+		If len(verifs_missing) < 56 Then
+			Call write_variable_in_CASE_NOTE("       Verifications: " & verifs_missing)
+		Else
+			verifs_array = split(verifs_missing, " ")
+			row_1_verifs = ""
+			row_2_verifs = "                     "
+			row_3_verifs = "                     "
+			for each word in verifs_array
+				' MsgBox word
+				If len(row_1_verifs) + len(word) + 1 < 56 Then
+					row_1_verifs = row_1_verifs & " " & word
+				ElseIf len(row_2_verifs) + len(word) + 1 < 78 Then
+					row_1_verifs = left(row_1_verifs & spaces_55, 55)
+					row_2_verifs = row_2_verifs & " " & word
+				ElseIf len(row_3_verifs) + len(word) + 1 < 78 Then
+					row_2_verifs = left(row_2_verifs & spaces_78, 55)
+					row_3_verifs = row_3_verifs & " " & word
+				End If
+			next
+			Call write_variable_in_CASE_NOTE("       Verifications: " & row_1_verifs)
+			If row_2_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_2_verifs)
+			If row_3_verifs <> "                      " Then Call write_variable_in_CASE_NOTE(row_3_verifs)
+		End if
+	End If
+	'GA
+	Call write_variable_in_CASE_NOTE("GA Denial Info   : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_reason_info)
+	If CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation <> "" Then
+		Call write_variable_in_CASE_NOTE("     * Details: " & CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation)
+	End If
+
+	Call write_variable_in_CASE_NOTE("WB Denial Info   : This program has ended 12/1/2014 and is not available.")
+
+	If DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app) = True Then
+		Call write_variable_in_CASE_NOTE("=============================================================================")
+		Call write_variable_in_CASE_NOTE("Cash Denial due to Verifications not received.")
+		Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+	End If
+
+	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
+		End if
+
+		If STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
+		End if
+
+		If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
+		End if
+		If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
+		End if
+	Next
+
+	If DENY_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True Then
+		Call write_variable_in_CASE_NOTE("======================= WCOM of DENIAL INFORMATION ADDED ====================")
+		Call write_variable_in_CASE_NOTE("* WCOM added to Denial Notice to detail Denial Information.")
+		Call write_variable_in_CASE_NOTE("Information added:")
+		CALL write_variable_in_CASE_NOTE("RCA: Refugee Cash apply at your resettlement agency.")
+		If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
+			CALL write_variable_in_CASE_NOTE("DWP/MFIP: Family cash programs.")
+			CALL write_variable_in_CASE_NOTE("    Requires an eligible child/pregnant person to be elig.")
+		Else
+			Call write_variable_in_CASE_NOTE("No DWP eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_memo_info)
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_assets = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Assets exceed limit. Counted assets: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_total & ", Limit: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_maximum)
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_fail_coop = "FAILED" Then
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_applied_other_benefits = "FAILED" Then Call write_variable_in_CASE_NOTE(" - You failed to apply for other benefits you may be eligible for.")
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_provide_requested_info = "FAILED" Then Call write_variable_in_CASE_NOTE(" - You failed to provide requested information.")
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_IEVS = "FAILED" Then Call write_variable_in_CASE_NOTE(" - You failed to reply to a request about an income data source.")
+				If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_vendor_info = "FAILED" Then Call write_variable_in_CASE_NOTE(" - You failed to provide information about a vendor.")
+			End If
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Income limit exceeded. Counted Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_total_counted_income & ", Income Limit: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level)
+			Call write_variable_in_CASE_NOTE("No MFIP eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_memo_info)
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_asset = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Assets exceed limit. Counted assets: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_total & ", Limit: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_max)
+			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then  Call write_variable_in_CASE_NOTE(" - Income limit exceeded. Counted Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_total & ", Income Limit: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_family_wage_level)
+		End If
+		If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
+			CALL write_variable_in_CASE_NOTE("GA/MSA: Adult cash programs.")
+			CALL write_variable_in_CASE_NOTE("    Available only for households without children.")
+		Else
+			Call write_variable_in_CASE_NOTE("No MSA eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_memo_info)
+			If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then CALL write_variable_in_CASE_NOTE(" - Income limit exceeded. Counted Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_need_standard & ", Income Limit: $ " &  CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income)
+			Call write_variable_in_CASE_NOTE("No GA eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_memo_info)
+		End if
+	End if
+	Call write_variable_in_CASE_NOTE("=============================================================================")
+
+	' Call write_variable_in_CASE_NOTE("---")
+	Call write_variable_in_CASE_NOTE(worker_signature)
 end function
 
 function snap_elig_case_note()
@@ -8093,6 +8256,10 @@ class deny_eligibility_detail
 	public deny_cash_mfip_reason_info
 	public deny_cash_msa_reason_info
 	public deny_cash_ga_reason_info
+	public deny_cash_dwp_memo_info
+	public deny_cash_mfip_memo_info
+	public deny_cash_msa_memo_info
+	public deny_cash_ga_memo_info
 	public deny_cash_dwp_selection_line
 	public deny_cash_mfip_selection_line
 	public deny_cash_msa_selection_line
@@ -8246,7 +8413,7 @@ class deny_eligibility_detail
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-			approved_today = True
+			' approved_today = True
 		End If
 		If approved_today = True Then
 			ReDim deny_cash_membs_ref_numbs(0)
@@ -8460,6 +8627,25 @@ class deny_eligibility_detail
 			If deny_cash_dwp_reason_code = "23" Then deny_cash_dwp_reason_info = "Duplicate Assistance"
 			If deny_cash_dwp_reason_code = "99" Then deny_cash_dwp_reason_info = "PND2 Denial"
 			If deny_cash_dwp_reason_code = "TL" Then deny_cash_dwp_reason_info = "TANF Time Limit"
+			If deny_cash_dwp_reason_code = "" Then deny_cash_dwp_memo_info = ""
+			If deny_cash_dwp_reason_code = "01" Then deny_cash_dwp_memo_info = "this case does not have an eligible child."
+			If deny_cash_dwp_reason_code = "02" Then deny_cash_dwp_memo_info = "you withdrew your request for Cash Assistance."
+			If deny_cash_dwp_reason_code = "03" Then deny_cash_dwp_memo_info = "your income exceeds the income limit."
+			If deny_cash_dwp_reason_code = "04" Then deny_cash_dwp_memo_info = "your assets exceed the asset limit."
+			If deny_cash_dwp_reason_code = "05" Then deny_cash_dwp_memo_info = "you did not comply with all the program requirements."
+			If deny_cash_dwp_reason_code = "06" Then deny_cash_dwp_memo_info = "you need to cooperate with Child Support requirements."
+			If deny_cash_dwp_reason_code = "07" Then deny_cash_dwp_memo_info = "you need to cooperate with Employment Services requirements."
+			If deny_cash_dwp_reason_code = "08" Then deny_cash_dwp_memo_info = "the applicant has died."
+			If deny_cash_dwp_reason_code = "09" Then deny_cash_dwp_memo_info = "you must be a resident of Minnesota for 30 days."
+			If deny_cash_dwp_reason_code = "10" Then deny_cash_dwp_memo_info = "you transferred assets."
+			If deny_cash_dwp_reason_code = "11" Then deny_cash_dwp_memo_info = "you did not provide required verifications."
+			If deny_cash_dwp_reason_code = "12" Then deny_cash_dwp_memo_info = "you have a household member on strike."
+			If deny_cash_dwp_reason_code = "13" Then deny_cash_dwp_memo_info = "you have another program active."
+			If deny_cash_dwp_reason_code = "14" Then deny_cash_dwp_memo_info = "you have used all 4 months of DWP."
+			If deny_cash_dwp_reason_code = "15" Then deny_cash_dwp_memo_info = "this case does not appear likely to benefit from DWP."
+			If deny_cash_dwp_reason_code = "23" Then deny_cash_dwp_memo_info = "you already have cash assistance."
+			If deny_cash_dwp_reason_code = "99" Then deny_cash_dwp_memo_info = "you did not complete the application process."
+			If deny_cash_dwp_reason_code = "TL" Then deny_cash_dwp_memo_info = "you have used all 60 TANF months available."
 
 			If deny_cash_mfip_reason_code = "" Then deny_cash_mfip_reason_info = ""
 			If deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_reason_info = "No Eligible Child"
@@ -8483,6 +8669,28 @@ class deny_eligibility_detail
 			If deny_cash_mfip_reason_code = "34" Then deny_cash_mfip_reason_info = "Sanction Period"
 			If deny_cash_mfip_reason_code = "35" Then deny_cash_mfip_reason_info = "Sanction Date Compliance"
 			If deny_cash_mfip_reason_code = "99" Then deny_cash_mfip_reason_info = "PND2 Denial System Entered"
+			If deny_cash_mfip_reason_code = "" Then deny_cash_mfip_memo_info = ""
+			If deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_memo_info = "this case does not have an eligible child."
+			If deny_cash_mfip_reason_code = "02" Then deny_cash_mfip_memo_info = "you withdrew your request for Cash Assistance."
+			If deny_cash_mfip_reason_code = "03" Then deny_cash_mfip_memo_info = "your income exceeds the income limit."
+			If deny_cash_mfip_reason_code = "04" Then deny_cash_mfip_memo_info = "your income exceeds the income limit."
+			If deny_cash_mfip_reason_code = "05" Then deny_cash_mfip_memo_info = "your assets exceed the asset limit."
+			If deny_cash_mfip_reason_code = "06" Then deny_cash_mfip_memo_info = "you did not comply with all the program requirements."
+			If deny_cash_mfip_reason_code = "07" Then deny_cash_mfip_memo_info = "you did not comply with a request about an income data source."
+			If deny_cash_mfip_reason_code = "08" Then deny_cash_mfip_memo_info = "the applicant has died."
+			If deny_cash_mfip_reason_code = "09" Then deny_cash_mfip_memo_info = "you must be a resident of Minnesota for 30 days."
+			If deny_cash_mfip_reason_code = "10" Then deny_cash_mfip_memo_info = "you transferred assets."
+			If deny_cash_mfip_reason_code = "11" Then deny_cash_mfip_memo_info = "you did not provide required verifications."
+			If deny_cash_mfip_reason_code = "12" Then deny_cash_mfip_memo_info = "you have a household member on strike."
+			If deny_cash_mfip_reason_code = "13" Then deny_cash_mfip_memo_info = "you did not complete required reports."
+			If deny_cash_mfip_reason_code = "14" Then deny_cash_mfip_memo_info = "you have another program active."
+			If deny_cash_mfip_reason_code = "23" Then deny_cash_mfip_memo_info = "you already have cash assistance."
+			If deny_cash_mfip_reason_code = "24" Then deny_cash_mfip_memo_info = "the living arrangment of minors in the home has not been approved."
+			If deny_cash_mfip_reason_code = "TL" Then deny_cash_mfip_memo_info = "you have used all 60 TANF months available."
+			If deny_cash_mfip_reason_code = "33" Then deny_cash_mfip_memo_info = "this case appears to be likely to benefit from DWP."
+			If deny_cash_mfip_reason_code = "34" Then deny_cash_mfip_memo_info = "you are currently in MFIP Sanction."
+			If deny_cash_mfip_reason_code = "35" Then deny_cash_mfip_memo_info = "you have not complied to avoid sanction in time."
+			If deny_cash_mfip_reason_code = "99" Then deny_cash_mfip_memo_info = "you did not complete the application process."
 
 			If deny_cash_msa_reason_code = "" Then deny_cash_msa_reason_info = ""
 			If deny_cash_msa_reason_code = "01" Then deny_cash_msa_reason_info = "No Eligible Member"
@@ -8496,6 +8704,17 @@ class deny_eligibility_detail
 			If deny_cash_msa_reason_code = "30" Then deny_cash_msa_reason_info = "Prospective Gross Income"
 			If deny_cash_msa_reason_code = "31" Then deny_cash_msa_reason_info = "Prospective Net Income"
 			If deny_cash_msa_reason_code = "99" Then deny_cash_msa_reason_info = "PND2 Denial System Entered"
+			If deny_cash_msa_reason_code = "01" Then deny_cash_msa_memo_info = "no one in the household meets MSA eligibility criteria."
+			If deny_cash_msa_reason_code = "03" Then deny_cash_msa_memo_info = "you did not provide required verifications."
+			If deny_cash_msa_reason_code = "08" Then deny_cash_msa_memo_info = "you withdrew your request for Cash Assistance."
+			If deny_cash_msa_reason_code = "10" Then deny_cash_msa_memo_info = "you must be a resident of Minnesota for 30 days."
+			If deny_cash_msa_reason_code = "11" Then deny_cash_msa_memo_info = "your assets exceed the asset limit."
+			If deny_cash_msa_reason_code = "24" Then deny_cash_msa_memo_info = "you have another program active."
+			If deny_cash_msa_reason_code = "28" Then deny_cash_msa_memo_info = "you did not complete required reports."
+			If deny_cash_msa_reason_code = "29" Then deny_cash_msa_memo_info = "Applicant Eligible"
+			If deny_cash_msa_reason_code = "30" Then deny_cash_msa_memo_info = "your income exceeds the income limit."
+			If deny_cash_msa_reason_code = "31" Then deny_cash_msa_memo_info = "your income exceeds the income limit."
+			If deny_cash_msa_reason_code = "99" Then deny_cash_msa_memo_info = "you did not complete the application process."
 
 			If deny_cash_ga_reason_code = "" Then deny_cash_ga_reason_info = ""
 			If deny_cash_ga_reason_code = "01" Then deny_cash_ga_reason_info = "No Eligible Person"
@@ -8520,6 +8739,28 @@ class deny_eligibility_detail
 			If deny_cash_ga_reason_code = "26" Then deny_cash_ga_reason_info = "Program Active"
 			If deny_cash_ga_reason_code = "29" Then deny_cash_ga_reason_info = "Lump Sum"
 			If deny_cash_ga_reason_code = "99" Then deny_cash_ga_reason_info = "PND2 Denial System Entered"
+			If deny_cash_ga_reason_code = "01" Then deny_cash_ga_memo_info = "no one in the household meets GA eligibility criteria."
+			If deny_cash_ga_reason_code = "02" Then deny_cash_ga_memo_info = "your income exceeds the income limit."
+			If deny_cash_ga_reason_code = "03" Then deny_cash_ga_memo_info = "you did not provide required verifications."
+			If deny_cash_ga_reason_code = "04" Then deny_cash_ga_memo_info = "you did not comply with all the program requirements."
+			If deny_cash_ga_reason_code = "06" Then deny_cash_ga_memo_info = "you may have access to other benefits."
+			If deny_cash_ga_reason_code = "07" Then deny_cash_ga_memo_info = "your address is unknown."
+			If deny_cash_ga_reason_code = "08" Then deny_cash_ga_memo_info = "you withdrew your request for Cash Assistance."
+			If deny_cash_ga_reason_code = "09" Then deny_cash_ga_memo_info = "you withdrew your request for Cash Assistance."
+			If deny_cash_ga_reason_code = "10" Then deny_cash_ga_memo_info = "you must be a resident of Minnesota for 30 days."
+			If deny_cash_ga_reason_code = "11" Then deny_cash_ga_memo_info = "your assets exceed the asset limit."
+			If deny_cash_ga_reason_code = "12" Then deny_cash_ga_memo_info = "you transferred assets."
+			If deny_cash_ga_reason_code = "14" Then deny_cash_ga_memo_info = "you did not complete the Interim Assistance Agreements."
+			If deny_cash_ga_reason_code = "15" Then deny_cash_ga_memo_info = "you are not residing in Hennepin County."
+			If deny_cash_ga_reason_code = "16" Then deny_cash_ga_memo_info = "you have been disqualified from receipt of Cash Assistance."
+			If deny_cash_ga_reason_code = "17" Then deny_cash_ga_memo_info = "you did not complete the application interview."
+			If deny_cash_ga_reason_code = "19" Then deny_cash_ga_memo_info = "you did not complete required reports."
+			If deny_cash_ga_reason_code = "21" Then deny_cash_ga_memo_info = "you already have cash assistance."
+			If deny_cash_ga_reason_code = "22" Then deny_cash_ga_memo_info = "the applicant has died."
+			If deny_cash_ga_reason_code = "23" Then deny_cash_ga_memo_info = "you may have access to other benefits."
+			If deny_cash_ga_reason_code = "26" Then deny_cash_ga_memo_info = "you have another program active."
+			If deny_cash_ga_reason_code = "29" Then deny_cash_ga_memo_info = "you have received a lump sum income making you ineligible."
+			If deny_cash_ga_reason_code = "99" Then deny_cash_ga_memo_info = "you did not complete the application process."
 
 			EMReadScreen deny_cash_dwp_selection_line, 1, 8, 20
 			EMReadScreen deny_cash_mfip_selection_line, 1, 9, 20
@@ -8866,7 +9107,7 @@ class deny_eligibility_detail
 				deny_msa_elig_case_test_retro_net_income = trim(deny_msa_elig_case_test_retro_net_income)
 				deny_msa_elig_case_test_verif = trim(deny_msa_elig_case_test_verif)
 
-				If msa_elig_case_test_verif <> "NA" Then
+				If deny_msa_elig_case_test_verif <> "NA" Then
 					Call write_value_and_transmit("X", 10, 43)
 
 					EMReadScreen deny_msa_elig_case_test_verif_acct, 6, 6, 32
@@ -17186,7 +17427,8 @@ script_user_is_a_tester = False
 For each tester in tester_array
 	If user_ID_for_validation = tester.tester_id_number Then script_user_is_a_tester = True
 Next
-
+spaces_55 = "                                                       "
+spaces_78 = "                                                                              "
 '===========================================================================================================================
 EMConnect ""
 Call check_for_MAXIS(True)
@@ -18295,7 +18537,7 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_MSA = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_EMER = False
 enter_CNOTE_for_GRH = False
-If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DENY = False
+' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DENY = False
 enter_CNOTE_for_HC = False
 enter_CNOTE_for_DWP = False
 
@@ -18336,8 +18578,9 @@ const pact_wcom_sent				= 18
 const snap_over_130_wcom_needed		= 19
 const snap_over_130_wcom_sent		= 20
 const snap_130_percent_fpg_amt		= 21
+const denial_due_to_verif			= 22
 
-const approval_confirmed			= 22
+const approval_confirmed			= 23
 
 Dim MFIP_UNIQUE_APPROVALS()
 ReDim MFIP_UNIQUE_APPROVALS(approval_confirmed, 0)
@@ -18381,7 +18624,7 @@ Do
 		If InStr(note_title, "MFIP") <> 0 Then approval_note_found_for_MFIP = True
 		If InStr(note_title, "MSA") <> 0 Then approval_note_found_for_MSA = True
 		If InStr(note_title, " GA") <> 0 Then approval_note_found_for_GA = True
-		If InStr(note_title, "DENY") <> 0 Then approval_note_found_for_DENY = True
+		If InStr(note_title, "CASH") <> 0 Then approval_note_found_for_DENY = True
 		' If InStr(note_title, "GRH") <> 0 Then approval_note_found_for_GRH = True
 		If InStr(note_title, "SNAP") <> 0 Then approval_note_found_for_SNAP = True
 		' If InStr(note_title, "HC") <> 0 Then approval_note_found_for_HC = True
@@ -18426,57 +18669,57 @@ If approval_note_found = True Then
 	If approval_note_found_for_EMER = True Then dlg_len = dlg_len + 20
 
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 536, dlg_len, "APPROVAL CASE/NOTE found for Today"
+	BeginDialog Dialog1, 0, 0, 555, dlg_len, "APPROVAL CASE/NOTE found for Today"
 	  Text 10, 10, 385, 10, "APPROVAL CASE/NOTEs from today have been found. Determine if a new CASE/NOTE is needed for the program(s)."
 	  y_pos = 25
 	  If approval_note_found_for_DWP = True Then
-		  Text 15, y_pos+5, 310, 10, "DWP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DWP
+		  Text 15, y_pos+5, 330, 10, "DWP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DWP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MFIP = True Then
-		  Text 15, y_pos+5, 310, 10, "MFIP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFIP
+		  Text 15, y_pos+5, 330, 10, "MFIP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MFIP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_MSA = True Then
-		  Text 15, y_pos+5, 310, 10, "MSA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MSA
+		  Text 15, y_pos+5, 330, 10, "MSA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_MSA
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_GA = True Then
-		  Text 15, y_pos+5, 310, 10, "GA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GA
+		  Text 15, y_pos+5, 330, 10, "GA Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GA
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_DENY = True Then
-		  Text 15, y_pos+5, 310, 10, "Cash DENY Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DENY
+		  Text 15, y_pos+5, 330, 10, "Cash DENY Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_DENY
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_GRH = True Then
-		  Text 15, y_pos+5, 310, 10, "GRH Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GRH
+		  Text 15, y_pos+5, 330, 10, "GRH Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_GRH
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_SNAP = True Then
-		  Text 15, y_pos+5, 310, 10, "SNAP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_SNAP
+		  Text 15, y_pos+5, 330, 10, "SNAP Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_SNAP
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_HC = True Then
-		  Text 15, y_pos+5, 310, 10, "HC Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_HC
+		  Text 15, y_pos+5, 330, 10, "HC Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_HC
 		  y_pos = y_pos + 20
 	  End If
 	  If approval_note_found_for_EMER = True Then
-		  Text 15, y_pos+5, 310, 10, "EMER Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
-		  DropListBox 330, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_EMER
+		  Text 15, y_pos+5, 330, 10, "EMER Approval CASE/NOTE Found.   Do you need to enter a new CASE/NOTE of APPROVAL?"
+		  DropListBox 350, y_pos, 200, 45, "Select One..."+chr(9)+"Yes - Eligiblity has changed - Enter a new NOTE"+chr(9)+"No - Eligibility is the same - No NOTE Needed", add_new_note_for_EMER
 		  y_pos = y_pos + 20
 	  End If
 	  ButtonGroup ButtonPressed
-		OkButton 425, y_pos, 50, 15
-		CancelButton 480, y_pos, 50, 15
+		OkButton 445, y_pos, 50, 15
+		CancelButton 500, y_pos, 50, 15
 	EndDialog
 
 	Do
@@ -19405,6 +19648,15 @@ If enter_CNOTE_for_DENY = True Then
 				DENY_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
 				DENY_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
 				DENY_UNIQUE_APPROVALS(wcom_needed, unique_app_count) = True
+				DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = False
+				If CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+				If CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+				If CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+				If CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+
+				If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+				If CASH_DENIAL_APPROVALS(approval).deny_mfip_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+				If CASH_DENIAL_APPROVALS(approval).deny_msa_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 
 				last_dwp_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code
 				last_mfip_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code
@@ -19433,7 +19685,16 @@ If enter_CNOTE_for_DENY = True Then
 					DENY_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 					DENY_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
 					DENY_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
-					DENY_UNIQUE_APPROVALS(wcom_needed, , unique_app_count) = True
+					DENY_UNIQUE_APPROVALS(wcom_needed, unique_app_count) = True
+					DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = False
+					If CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+					If CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+					If CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+					If CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+
+					If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+					If CASH_DENIAL_APPROVALS(approval).deny_mfip_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+					If CASH_DENIAL_APPROVALS(approval).deny_msa_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 
 					last_dwp_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code
 					last_mfip_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code
@@ -19512,7 +19773,16 @@ If enter_CNOTE_for_DENY = True Then
 		CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation = trim(TEMP_VAR_deny_msa_elig_explanation)
 
 		err_msg = ""
-
+		If DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True Then
+			If Isdate(DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
+			Else
+				If DateDiff("d", DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
+					err_msg = err_msg & vbNewLine & "* The verification request date: " &  DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+					DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+				End If
+			End If
+		End if
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_details_exists = True Then
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation = "" Then err_msg = err_msg & vbCr & "* The GA Denial Reason required additional detail. Add information about the GA Denial."
 		End if
@@ -19589,7 +19859,7 @@ If enter_CNOTE_for_DENY = True Then
 		End If
 
 	Loop until (ButtonPressed = app_confirmed_btn and all_deny_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
-	MsgBox "STOP HERE NO NOTE IS READY YET."
+	' MsgBox "STOP HERE NO NOTE IS READY YET."
 	If deny_approval_is_incorrect = True Then
 		enter_CNOTE_for_DENY = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for Cash DENY Approvals from " & first_DENY_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
@@ -20238,9 +20508,11 @@ If enter_CNOTE_for_DENY = True Then
 		For each_month = 0 to UBound(STAT_INFORMATION)
 			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 		Next
+		due_date = ""
+		If IsDate(DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
 
 		'This is the WCOM part
-		DENY_UNIQUE_APPROVALS(wcom_needed, unique_app) = False
+		' DENY_UNIQUE_APPROVALS(wcom_needed, unique_app) = False
 		If DENY_UNIQUE_APPROVALS(wcom_needed, unique_app) = True Then
 			ft_mo = left(first_month, 2)
 			ft_yr = right(first_month, 2)
@@ -20266,32 +20538,175 @@ If enter_CNOTE_for_DENY = True Then
 
 						PF9
 						EMReadScreen wcom_line, 60, 3, 15
+						' MsgBox "~" & wcom_line & "~"
 						If trim(wcom_line) = "" Then
 							DENY_UNIQUE_APPROVALS(pact_wcom_sent, unique_app) = True
 							CALL write_variable_in_SPEC_MEMO("Explanation of CASH DENIALS:")
 							CALL write_variable_in_SPEC_MEMO("RCA: Refugee Cash apply at your resettlement agency.")
 							If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" Then
-								CALL write_variable_in_SPEC_MEMO("DWP/MFIP: Family cash programs.")
+								CALL write_variable_in_SPEC_MEMO("DWP/MFIP: These are Family Cash programs.")
 								CALL write_variable_in_SPEC_MEMO("    Requires an eligible child/pregnant person to be elig.")
 							Else
 								' CALL write_variable_in_SPEC_MEMO()
 								' CALL write_variable_in_SPEC_MEMO()
+								'DWP
+								Call write_variable_in_SPEC_MEMO("DWP: No DWP eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_memo_info)
+
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE("     * ")
+								If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_assets = "FAILED" Then
+									Call write_variable_in_SPEC_MEMO(" - Assets exceed limit.")
+									Call write_variable_in_SPEC_MEMO("   Counted assets: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_total & ", Limit: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_asset_maximum)
+								End If
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_CS_disqualification = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_dupl_assistance = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_eligible_child = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_ES_disqualification = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_fail_coop = "FAILED" Then
+									' Call write_variable_in_CASE_NOTE(" - ")
+									If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_applied_other_benefits = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - You failed to apply for other benefits you may be eligible for.")
+									If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_provide_requested_info = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - You failed to provide requested information.")
+									If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_IEVS = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - You failed to reply to a request about an income data source.")
+									If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_fail_coop_vendor_info = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - You failed to provide information about a vendor.")
+								End If
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then
+									Call write_variable_in_SPEC_MEMO(" - Income limit exceeded.")
+									Call write_variable_in_SPEC_MEMO("   Counted Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_total_counted_income & ", Income Limit: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_family_wage_level)
+								End if
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_MFIP_conversion = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_residence = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_strike = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - Someone in the household is on strike.")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_TANF_time_limit = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_transfer_of_assets = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_verif = "FAILED" Then
+								' 	Call write_variable_in_SPEC_MEMO(" - ")
+								' 	verifs_missing = ""
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ACCT = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_BUSI = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity of Adults"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_ADDR = "FAILED" Then verifs_missing = verifs_missing & ", Address"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SCHL = "FAILED" Then verifs_missing = verifs_missing & ", School Attendance"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SECU = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_SPON = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_test_verif_UNEA = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
+								' 	If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
+								' End If
+
+
+								'MFIP
+								Call write_variable_in_SPEC_MEMO("MFIP: No MFIP eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_memo_info)
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_appl_withdraw = "FAILED" Then Call write_variable_in_SPEC_MEMO(" - ")
+								If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_asset = "FAILED" Then
+									Call write_variable_in_SPEC_MEMO(" - Assets exceed limit.")
+									Call write_variable_in_SPEC_MEMO("   Counted assets: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_total & ", Limit: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_counted_asset_max)
+								End If
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_death_applicant = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_dupl_assist = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_elig_child = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_file = "FAILED" Then
+								If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then
+									Call write_variable_in_SPEC_MEMO(" - Income limit exceeded.")
+									Call write_variable_in_SPEC_MEMO("Counted Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_total & ", Income Limit: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_family_wage_level)
+								End if
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_minor_liv_arrange = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_monthly_income = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_post_60_disq = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_residence = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_sanction_limit = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_strike = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_TANF_time_limit = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_transfer_asset = "FAILED" Then
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_verif = "FAILED" Then
+								' 	verifs_missing = ""
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_ACCT = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_BUSI = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_CARS = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_JOBS = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMB_dob = "FAILED" Then verifs_missing = verifs_missing & ", Date of Birth of all Household Members"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMB_id = "FAILED" Then verifs_missing = verifs_missing & ", Identity of Adults"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_PARE = "FAILED" Then verifs_missing = verifs_missing & ", Relationship of Children to Adults"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_PREG = "FAILED" Then verifs_missing = verifs_missing & ", Pregnancy"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_RBIC = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_ADDR = "FAILED" Then verifs_missing = verifs_missing & ", Address"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_SCHL = "FAILED" Then verifs_missing = verifs_missing & ", School Attendance"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_SECU = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_SPON = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_UNEA = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_verif_MEMI = "FAILED" Then verifs_missing = verifs_missing & ", State Residence"
+								' 	If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
+								' End If
+
 							End If
 							If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" Then
-								CALL write_variable_in_SPEC_MEMO("GA/MSA: Adult cash programs.")
+								CALL write_variable_in_SPEC_MEMO("GA/MSA: These are Adult Cash programs.")
 								CALL write_variable_in_SPEC_MEMO("    Available only for households without children.")
 							Else
 								' CALL write_variable_in_SPEC_MEMO()
 								' CALL write_variable_in_SPEC_MEMO()
+
+								Call write_variable_in_SPEC_MEMO("MSA: No MSA eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_memo_info)
+
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_applicant_eligible = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_application_withdrawn = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_eligible_member = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_fail_file = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_residence = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_assets = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_gross_income = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_prosp_net_income = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_retro_net_income = "FAILED" Then CALL write_variable_in_SPEC_MEMO("")
+								If DENY_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+									CALL write_variable_in_SPEC_MEMO(" - Income limit exceeded.")
+									CALL write_variable_in_SPEC_MEMO("   Counted Income: $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income & ", Income Limit: $ " &  CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_need_standard)
+								End If
+
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then
+								' 	CALL write_variable_in_SPEC_MEMO("")
+								' 	CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation
+								' End If
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then
+								' 	verifs_missing = ""
+								' 	CALL write_variable_in_SPEC_MEMO("")
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_acct = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_addr = "FAILED" Then verifs_missing = verifs_missing & ", Address"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_busi = "FAILED" Then verifs_missing = verifs_missing & ", Self Employment Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_cars = "FAILED" Then verifs_missing = verifs_missing & ", Vehicle"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_jobs = "FAILED" Then verifs_missing = verifs_missing & ", Job Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_lump = "FAILED" Then verifs_missing = verifs_missing & ", Lump Sum Income"
+								' 	' If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_pact = "FAILED" Then verifs_missing = verifs_missing & ", "
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_rbic = "FAILED" Then verifs_missing = verifs_missing & ", Roomer/Boarder Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_secu = "FAILED" Then verifs_missing = verifs_missing & ", Security Asset"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_spon = "FAILED" Then verifs_missing = verifs_missing & ", Sponsor Income or Assets"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_stin = "FAILED" Then verifs_missing = verifs_missing & ", Student Income"
+								' 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_unea = "FAILED" Then verifs_missing = verifs_missing & ", Unearned Income"
+								' 	If left(verifs_missing, 1) = "," Then verifs_missing = right(verifs_missing, len(verifs_missing)-2)
+								' 	Text 25, y_pos, 420, 10, "Verifications missing: " & verifs_missing
+								' End If
+
+								Call write_variable_in_SPEC_MEMO("GA: No GA eligibility because " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_ga_memo_info)
+								' If CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation <> "" Then
+								' 	CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation
+								' End If
+
 							End if
 							' CALL write_variable_in_SPEC_MEMO()
 							' CALL write_variable_in_SPEC_MEMO()
 							' CALL write_variable_in_SPEC_MEMO()
 							' CALL write_variable_in_SPEC_MEMO()
 							' CALL write_variable_in_SPEC_MEMO()
-
+							' MsgBox "Pause 1"
 							PF4
+							' MsgBox "Pause 2"
 							PF3
+							' MsgBox "Pause 3"
 						End If
 						Exit Do
 					End If
@@ -20303,7 +20718,7 @@ If enter_CNOTE_for_DENY = True Then
 
 		Call deny_elig_case_note
 
-		MsgBox "PAUSE HERE"
+		' MsgBox "PAUSE HERE"
 		PF3
 	Next
 End if
