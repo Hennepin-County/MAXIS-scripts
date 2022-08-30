@@ -2401,6 +2401,7 @@ If developer_mode = False Then
 
 		objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
 		objTextStream.WriteLine "WORKER NAME ^*^*^" & worker_name
+        objTextStream.WriteLine "WORKER USER ID ^*^*^" & user_ID_for_validation
 		objTextStream.WriteLine "CASE X NUMBER  ^*^*^" & case_pw
 		If IsDate(date_of_application) = True Then date_of_application = DateAdd("d", 0, date_of_application)
 		objTextStream.WriteLine "DATE OF APPLICATION ^*^*^" & date_of_application
