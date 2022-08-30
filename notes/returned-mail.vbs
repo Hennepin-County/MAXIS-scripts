@@ -180,8 +180,8 @@ IF ADDR_actions <> "no response received" THEN
       Text 10, 15, 210, 10, "Is this the address that the agency attempted to deliver mail to?"
       IF addr_future_date <> "" THEN Text 10, 55, 50, 10, "Future Date:"
       Text 60, 55, 70, 10, addr_future_date
-      Text 290, 55, 50, 10, "Effective Date:"
       Text 345, 55, 70, 10, addr_eff_date
+	  Text 290, 55, 50, 10, "Effective Date:"
       Text 5, 80, 65, 10, "What was returned:"
       GroupBox 5, 5, 275, 65, "Residential Address"
       GroupBox 285, 70, 275, 35, "Note:"
@@ -191,9 +191,9 @@ IF ADDR_actions <> "no response received" THEN
       IF ADDR_actions = "address confirmed - received in error" THEN
       	Text 5, 140, 200, 10, "How did you confirm the returned mail was received in error?"
        	EditBox 220, 135, 215, 15, received_error_confirmation
-		Text 5, 100, 40, 10, "Other notes:"
-  		EditBox 90, 95, 190, 15, other_notes
+		EditBox 90, 95, 190, 15, other_notes
 		EditBox 90, 115, 190, 15, notes_on_address
+		Text 5, 100, 40, 10, "Other notes:"
   		Text 5, 120, 65, 10, "Notes on address:"
       ELSE
       	Text 5, 100, 85, 10, "Verification(s) requested:"
@@ -201,11 +201,11 @@ IF ADDR_actions <> "no response received" THEN
 		Text 5, 120, 40, 10, "Other notes:"
 		Text 290, 120, 65, 10, "Notes on address:"
       	EditBox 90, 95, 190, 15, verifications_requested
+		EditBox 90, 115, 190, 15, other_notes
       	EditBox 90, 135, 45, 15, due_date
-      	EditBox 90, 115, 190, 15, other_notes
       	EditBox 365, 115, 195, 15, notes_on_address
       END IF
-      ButtonGroup ButtonPressed
+       ButtonGroup ButtonPressed
        PushButton 220, 50, 55, 15, "CASE/ADHI", ADHI_button
        PushButton 500, 50, 55, 15, "HSR Manual", HSR_manual_button
        CancelButton 505, 135, 55, 15
@@ -223,6 +223,8 @@ IF ADDR_actions <> "no response received" THEN
             LOOP until ButtonPressed = -1
  			IF residential_address_confirmed = "YES" and mailing_address_confirmed = "YES" THEN err_msg = err_msg & vbCr & "Please confirm what the address the agency attempted to deliver mail to."
     		IF mailing_address_confirmed = "NO" and residential_address_confirmed = "NO" THEN err_msg = err_msg & vbCr & "Please confirm what the address the agency attempted to deliver mail to."
+			IF mailing_address_confirmed = "YES" and mail_street_full = "" THEN err_msg = err_msg & vbCr & "Please confirm what mailing address the agency attempted to deliver mail to, this address appears to be blank."
+			IF residential_address_confirmed = "YES" and resi_addr_street_full = "" THEN err_msg = err_msg & vbCr & "Please confirm the residential address the agency attempted to deliver mail to, this address appears to be blank."
 			IF trim(returned_mail) = "" or len(returned_mail) < 3 THEN err_msg = err_msg & vbCr & "Please explain in detail what mail was returned."
 			IF ADDR_actions = "address confirmed - received in error" THEN
 				IF received_error_confirmation = "" or len(received_error_confirmation) < 5 THEN err_msg = err_msg & vbNewLine & "Please explain in detail how you confirmed the address on file is correct."
@@ -281,48 +283,51 @@ IF ADDR_actions <> "no response received" THEN
 		Call access_ADDR_panel("WRITE", notes_on_address, resi_addr_line_one, resi_addr_line_two, resi_street_full, resi_addr_city, resi_addr_state, resi_addr_zip, county_code, addr_verif, homeless_addr, reservation_addr, living_situation, reservation_name, new_addr_line_one, new_addr_line_two, new_addr_street_full, new_addr_city, new_addr_state, new_addr_zip, begining_of_footer_month, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
 	END IF
 END IF 'forwarding address provided
+
 IF ADDR_actions = "no response received" THEN
-    IF snap_or_cash_case = TRUE THEN 'per POLI/TEMP this only pertains to active cash and snap '
-	    Dialog1 = "" 'Blanking out previous dialog detail
-	    BeginDialog Dialog1, 0, 0, 351, 160, "Request for Contact to the resident with no response-Refused/Failed"
-	     EditBox 105, 5, 50, 15, date_verifications_requested
-	     ButtonGroup ButtonPressed
-	       PushButton 5, 140, 65, 15, "PACT TE02.13.10", POLI_TEMP_PACT_button
-	       OkButton 240, 140, 50, 15
-	       CancelButton 295, 140, 50, 15
-	     Text 5, 10, 100, 10, "Date Verifications Requested:"
-	     Text 5, 25, 305, 10, "Allow 10 days for the resident to respond to the Verification Request before terminating benefits."
-	     Text 5, 40, 330, 10, "Approve ineligible results in ELIG. Send a closing notice 10 days before the effective date of closing."
-	     Text 5, 55, 340, 35, "Remember to enter a worker comment in SPEC/WCOM to add a detailed explanation of closure to the notice.  DHS suggested text for the SPEC/WCOM: Your mail has been returned to our agency.  On (insert date) you were sent a request to contact this agency because of this returned mail.  You can avoid having your case closed if you contact this agency by (insert the closing date deadline)."
-	     Text 20, 95, 295, 10, "SNAP the script will enter code 4 when mail to the resident has been returned to the agency."
-	     Text 20, 110, 265, 10, "CASH the script will enter code 3 in the Close/Deny field on the STAT/PACT Panel."
-	     Text 20, 125, 225, 10, "Health Care cannot be denied at this time for whereabouts unknown."
-	    EndDialog
+	Dialog1 = "" 'Blanking out previous dialog detail
+	BeginDialog Dialog1, 0, 0, 351, 185, "Request for contact to the resident with no response-refused/failed"
+  	 EditBox 105, 5, 50, 15, date_verifications_requested
+  	 EditBox 55, 145, 285, 15, other_notes
+  	 ButtonGroup ButtonPressed
+    	 PushButton 235, 5, 105, 15, "PACT TE02.13.10", POLI_TEMP_PACT_button
+    	 OkButton 235, 165, 50, 15
+    	 CancelButton 290, 165, 50, 15
+  	 Text 5, 10, 100, 10, "Date Verifications Requested:"
+  	 Text 5, 25, 320, 10, "Allow 10 days for the resident to respond to the Verification Request before terminating benefits."
+  	 Text 5, 40, 330, 10, "Approve ineligible results in ELIG. Send a closing notice 10 days before the effective date of closing."
+  	 Text 5, 55, 340, 35, "Remember to enter a worker comment in SPEC/WCOM to add a detailed explanation of closure to the notice.  DHS suggested text for the SPEC/WCOM: Your mail has been returned to our agency.  On (insert date) you were sent a request to contact this agency because of this returned mail.  You can avoid having your case closed if you contact this agency by (insert the closing date deadline)."
+  	 Text 15, 110, 265, 10, "CASH the script will enter code 3 in the Close/Deny field on the STAT/PACT Panel."
+  	 Text 15, 125, 320, 20, "Health Care cannot be denied at this time for whereabouts unknown. Script will navigate directly to CASE/NOTE for HC only cases."
+  	 Text 15, 95, 295, 10, "SNAP the script will enter code 4 when mail to the resident has been returned to the agency."
+  	 Text 10, 150, 45, 10, "Other Notes:"
+	EndDialog
 
+	DO
 		DO
-			DO
-	   			err_msg = ""
-			    DIALOG Dialog1
-			    cancel_without_confirmation
-			    IF IsDate(date_verifications_requested) = FALSE THEN
-			    	err_msg = err_msg & vbnewline & "Please enter the date the verifications were requested."
-			    ELSE
-			    	IF DateDiff("d", date_verifications_requested, date) < 10 THEN err_msg = err_msg & vbnewline & "You must allow 10 days for the resident to respond to the Verification Request before terminating benefits."
-			    END IF
-			    IF ButtonPressed = POLI_TEMP_PACT_button THEN
-			    	CALL view_poli_temp("02", "13", "10", "") 'TE02.13.10' STAT:  PACT
-			    	err_msg = "LOOP"
-		        END IF                                        	'If the instructions button was NOT pressed, we want to display the error message if it exists.
-			    IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-			LOOP UNTIL err_msg = ""
-	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to password back into MAXIS
-	    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+	  		err_msg = ""
+		    DIALOG Dialog1
+		    cancel_without_confirmation
+		    IF IsDate(date_verifications_requested) = FALSE THEN
+		    	err_msg = err_msg & vbnewline & "Please enter the date the verifications were requested."
+		    ELSE
+		    	IF DateDiff("d", date_verifications_requested, date) < 10 THEN err_msg = err_msg & vbnewline & "You must allow 10 days for the resident to respond to the Verification Request before terminating benefits."
+		    END IF
+		    IF ButtonPressed = POLI_TEMP_PACT_button THEN
+		    	CALL view_poli_temp("02", "13", "10", "") 'TE02.13.10' STAT:  PACT
+		    	err_msg = "LOOP"
+	        END IF                                        	'If the instructions button was NOT pressed, we want to display the error message if it exists.
+		    IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+		LOOP UNTIL err_msg = ""
+	   	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not pass worded out of MAXIS, allows user to password back into MAXIS
+	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
+	IF snap_or_cash_case = TRUE THEN 'per POLI/TEMP this only pertains to active cash and snap '
 		CALL back_to_self ' so that we done with POLI/TEMP'
        	CALL MAXIS_background_check
 		CALL navigate_to_MAXIS_screen("STAT", "PACT") 	'Checking to see if the PACT panel is empty, if not it create a new panel'
        	EMReadScreen panel_number, 1, 02, 73
-       	If panel_number = "0" then
+       	IF panel_number = "0" then
        		EMWriteScreen "NN", 20,79 'cursor is automatically set to 06, 58'
        		TRANSMIT
        	ELSE
