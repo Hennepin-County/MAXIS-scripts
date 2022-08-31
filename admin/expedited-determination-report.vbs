@@ -53,45 +53,46 @@ changelog_display
 'DECLARATIONS BLOCK ========================================================================================================
 const case_number_col_const 				= 1
 const worker_col_const 						= 2
-const xnumber_col_const 					= 3
-const date_of_appl_col_const 				= 4
-const appt_notc_date_col_const				= 5
-const date_of_appt_col_const				= 6
-const date_of_intve_col_const 				= 7
-const screen_status_col_const 				= 8
-const det_status_col_const 					= 9
-const det_income_col_const 					= 10
-const det_asset_col_const 					= 11
-const det_shel_col_const 					= 12
-const det_hest_col_const 					= 13
-const date_of_appr_col_const 				= 14
-const date_of_deny_col_const 				= 15
-const deny_reason_col_const 				= 16
-const id_on_file_col_const 					= 17
-const outstate_action_col_const 			= 18
-const outstate_state_col_const 				= 19
-const outstate_end_date_rept_col_const 		= 20
-const outstate_openended_col_const 			= 21
-const outstate_end_date_verif_col_const 	= 22
-const mn_elig_begin_col_const 				= 23
-const prev_post_delay_col_const 			= 24
-const prev_post_prev_date_of_appl_col_const = 25
-const prev_post_list_col_const 				= 26
-const prev_post_curr_verif_post_col_const 	= 27
-const prev_post_reg_snap_app_col_const 		= 28
-const prev_post_verifs_recvd_col_const 		= 29
-const expl_appr_delay_col_const 			= 30
-const post_verifs_yn_col_const 				= 31
-const post_verifs_list_col_const 			= 32
-const faci_delay_col_const 					= 33
-const faci_deny_col_const 					= 34
-const faci_name_col_const 					= 35
-const faci_snap_inelig_col_const 			= 36
-const faci_entry_col_const 					= 37
-const faci_release_col_const 				= 38
-const faci_release_in_30_col_const 			= 39
-const script_run_date_col_const 			= 40
-const script_run_col_const					= 41
+const worker_user_id_col_const				= 3
+const xnumber_col_const 					= 4
+const date_of_appl_col_const 				= 5
+const appt_notc_date_col_const				= 6
+const date_of_appt_col_const				= 7
+const date_of_intve_col_const 				= 8
+const screen_status_col_const 				= 9
+const det_status_col_const 					= 10
+const det_income_col_const 					= 11
+const det_asset_col_const 					= 12
+const det_shel_col_const 					= 13
+const det_hest_col_const 					= 14
+const date_of_appr_col_const 				= 15
+const date_of_deny_col_const 				= 16
+const deny_reason_col_const 				= 17
+const id_on_file_col_const 					= 18
+const outstate_action_col_const 			= 19
+const outstate_state_col_const 				= 20
+const outstate_end_date_rept_col_const 		= 21
+const outstate_openended_col_const 			= 22
+const outstate_end_date_verif_col_const 	= 23
+const mn_elig_begin_col_const 				= 24
+const prev_post_delay_col_const 			= 25
+const prev_post_prev_date_of_appl_col_const = 26
+const prev_post_list_col_const 				= 27
+const prev_post_curr_verif_post_col_const 	= 28
+const prev_post_reg_snap_app_col_const 		= 29
+const prev_post_verifs_recvd_col_const 		= 30
+const expl_appr_delay_col_const 			= 31
+const post_verifs_yn_col_const 				= 32
+const post_verifs_list_col_const 			= 33
+const faci_delay_col_const 					= 34
+const faci_deny_col_const 					= 35
+const faci_name_col_const 					= 36
+const faci_snap_inelig_col_const 			= 37
+const faci_entry_col_const 					= 38
+const faci_release_col_const 				= 39
+const faci_release_in_30_col_const 			= 40
+const script_run_date_col_const 			= 41
+const script_run_col_const					= 42
 
 const work_case_nbr_col_const 			= 1
 const work_worker_col_const 			= 2
@@ -138,6 +139,7 @@ EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 Call check_for_MAXIS(true)
+send_hss_emails_checkbox = checked
 
 'Declaring the only dialog
 Do
@@ -175,7 +177,8 @@ txt_file_archive_path = t_drive & "\Eligibility Support\Assignments\Expedited In
 report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination Report Out.xlsx"
 worklist_template_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Exp Det Worklists\"
 worklist_review_file = worklist_template_path & "Worklist Review Report.xlsx"
-hss_report_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination HSS Report.xlsx"
+' hss_report_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination HSS Report.xlsx"
+hss_report_file = t_drive & "\IPA\Restricted\DMA\PowerBIData\ES QI\Expedited Email Report\EXP Determination HSS Report.xlsx"
 
 'OPEN the Worklist Report and check for approvals.
 'Open the worklist report
@@ -332,36 +335,44 @@ const hss_rept_application_date_col		= 3
 const hss_rept_interview_date_col		= 4
 const hss_rept_approval_delay_detail_col= 5
 const hss_rept_script_user_col			= 6
-const hss_rept_hss_name_col				= 7
-const hss_rept_hss_email_col			= 8
-const hss_rept_pm_name_col				= 9
-const hss_rept_pm_email_col				= 10
-const hss_rept_total_report_row_col		= 11
+const hss_rept_script_user_id_col		= 7
+const hss_rept_hss_name_col				= 8
+const hss_rept_hss_email_col			= 9
+const hss_rept_pm_name_col				= 10
+const hss_rept_pm_email_col				= 11
+const hss_rept_total_report_row_col		= 12
 
-const worker_col 	= 1
-const hss_name_col 	= 2
-const hss_email_col = 3
-const pm_name_col 	= 4
-const pm_email_col 	= 5
+const worker_name_col 	= 1
+const worker_mx_id_col 	= 2
+const worker_hc_id_col 	= 3
+const worker_email_col 	= 4
+const hss_name_col 		= 5
+const hss_email_col 	= 6
+const pm_name_col 		= 7
+const pm_email_col 		= 8
 
 const hsr_name_const 	= 0
-const hss_name_const 	= 1
-const hsr_email_const 	= 2
-const pm_name_const 	= 3
-const pm_email_const 	= 4
+const hsr_mx_id_const 	= 1
+const hsr_hc_id_const	= 2
+const hss_name_const 	= 3
+const hsr_email_const 	= 4
+const pm_name_const 	= 5
+const pm_email_const 	= 6
 
 'This is where we get the information about HSRs and HSSs - we need to determine the data source and update this functionality once received - currently it is using a sheet in the HSS report out Excel File
 Dim WORKER_ARRAY()
 ReDim WORKER_ARRAY(pm_email_const, 0)
 
-ObjHSSExcel.worksheets("Worker List").Activate
+ObjHSSExcel.worksheets("HSS List").Activate
 
 excel_row = 2
 worker_count = 0
 Do
 	ReDim preserve WORKER_ARRAY(pm_email_const, worker_count)
 
-	WORKER_ARRAY(hsr_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_col))
+	WORKER_ARRAY(hsr_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
+	WORKER_ARRAY(hsr_mx_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_mx_id_col))
+	WORKER_ARRAY(hsr_hc_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_hc_id_col))
 	WORKER_ARRAY(hss_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_name_col))
 	WORKER_ARRAY(hsr_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_email_col))
 	WORKER_ARRAY(pm_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, pm_name_col))
@@ -369,15 +380,18 @@ Do
 
 	excel_row = excel_row + 1
 	worker_count = worker_count + 1
-	next_worker_info = trim(ObjHSSExcel.Cells(excel_row, worker_col))
+	next_worker_info = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
 Loop until next_worker_info = ""
+
+' Msgbox "excel_row - " & excel_row & vbCr & "hss_name_const - " & WORKER_ARRAY(hss_name_const, worker_count-1) & vbCr & "pm_email_const - " & WORKER_ARRAY(pm_email_const, worker_count-1)
 
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
 'Now we are going to read all of the txt files generated from the Expedited Determination script runs. If they need review, they will be added to the report out file - otherwise they will be saved in the large Excel list
-this_month_worklist = MonthName(DatePart("m", date)) & " " & DatePart("yyyy", date)			'finding the right sheet for the HSS report out excel'
-ObjHSSExcel.worksheets(this_month_worklist).Activate							'activating the sheet
+' this_month_worklist = MonthName(DatePart("m", date)) & " " & DatePart("yyyy", date)			'finding the right sheet for the HSS report out excel'
+' ObjHSSExcel.worksheets(this_month_worklist).Activate							'activating the sheet
+ObjHSSExcel.worksheets("Case Email List").Activate							'activating the sheet
 
 'finding the last row of the HSS Report Out ffile
 hss_excel_row = 1																'default to the first row
@@ -385,7 +399,7 @@ Do
 	hss_excel_row = hss_excel_row + 1
 	this_case_number = trim(ObjHSSExcel.Cells(hss_excel_row, 2).Value)
 Loop Until this_case_number = ""
-
+' MsgBox "hss_excel_row - " & hss_excel_row
 'Now we need to find the last row in the 'ALL CASES' sheet so we don't overwrite anything
 total_excel_row = 1																'default to the first row
 Do
@@ -424,6 +438,7 @@ For Each objFile in colFiles																'looping through each file
 
 				If line_info(0) = "CASE NUMBER"                             Then ObjExcel.Cells(total_excel_row, case_number_col_const).Value  = line_info(1)
 				If line_info(0) = "WORKER NAME"                             Then ObjExcel.Cells(total_excel_row, worker_col_const).Value  = line_info(1)
+				If line_info(0) = "WORKER USER ID"                          Then ObjExcel.Cells(total_excel_row, worker_user_id_col_const).Value  = line_info(1)
 				If line_info(0) = "CASE X NUMBER"                           Then ObjExcel.Cells(total_excel_row, xnumber_col_const).Value  = line_info(1)
 				If line_info(0) = "DATE OF APPLICATION"                     Then ObjExcel.Cells(total_excel_row, date_of_appl_col_const).Value  = line_info(1)
 				If line_info(0) = "APPT NOTC SENT DATE"                     Then ObjExcel.Cells(total_excel_row, appt_notc_date_col_const).Value  = line_info(1)
@@ -501,10 +516,11 @@ For Each objFile in colFiles																'looping through each file
 					If line_info(0) = "DATE OF APPLICATION" 	Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_application_date_col).Value  = line_info(1)
 					If line_info(0) = "DATE OF INTERVIEW" 		Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_interview_date_col).Value = line_info(1)
 					If line_info(0) = "EXPLAIN APPROVAL DELAYS" Then ObjHSSExcel.Cells(hss_excel_row, hss_rept_approval_delay_detail_col).Value = line_info(1)
-					If line_info(0) = "WORKER NAME" Then
-						ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = line_info(1)
+					If line_info(0) = "WORKER USER ID" Then
+						ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_id_col).Value = line_info(1)
 						For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
-							If WORKER_ARRAY(hsr_name_const, each_wrkr) = line_info(1) Then
+							If WORKER_ARRAY(hsr_hc_id_const, each_wrkr) = line_info(1) Then
+								ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = WORKER_ARRAY(hsr_name_const, each_wrkr)
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value = WORKER_ARRAY(hss_name_const, each_wrkr)
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value = WORKER_ARRAY(pm_name_const, each_wrkr)
@@ -527,7 +543,6 @@ For Each objFile in colFiles																'looping through each file
 		objFSO.MoveFile this_file_path , txt_file_archive_path & "\" & this_file_name & ".txt"    'moving each file to the archive file
 	End If
 Next
-
 objWorkbook.Save()		'saving the excel
 objHSSWorkbook.Save()		'saving the excel
 
@@ -615,11 +630,11 @@ If send_hss_emails_checkbox = checked Then
 		'Now we write the email for this particular HSS
 		email_body = "Good morning " & email_name & ", "
 		email_body = email_body & vbCr & vbCr & "This is an automated email to provide a list of cases that require review and action. "
-		email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligibility for Expedited SNAP but are still in a PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necessary support to complete processing on these case(s) today."
+		email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligible for Expedited SNAP but are still in a SNAP PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necessary support to complete processing on these case(s) today."
 		email_body = email_body & report_details
-		email_body = email_body & vbCr & vbCr & "Cases that meet expedited criteria can have all verifications except identity of the applicant postponed. No other verifications should hold up processing of Expedited SNAP (this included immigration verification - do not hold cases us for immigration verification)."
-		email_body = email_body & vbCr & "The only other instances in which we cannot approve expedited right away is in the case of a resident still in a facility or if the last issueance of SNAP was Expedited with postponed verifications and there are currently postponed verifications. "
-		email_body = email_body & vbCr & "If the worker beleives the case cannot be processed at this time, ensure they check with Knowledge Now. Any other policy or procedural questions should also go to Knowledge Now."
+		email_body = email_body & vbCr & vbCr & "Cases that meet expedited criteria can have all verifications except identity of the applicant postponed. No other verifications should hold up processing of Expedited SNAP (this includes immigration verification - do not hold cases up for immigration verification)."
+		email_body = email_body & vbCr & "The only other instances in which we cannot approve expedited right away is in the case of a resident still in a facility or if the last issuance of SNAP was Expedited with postponed verifications and there are currently postponed verifications. "
+		email_body = email_body & vbCr & "If the worker believes the case cannot be processed at this time, ensure they check with Knowledge Now. Any other policy or procedural questions should also go to Knowledge Now."
 		email_body = email_body & vbCr & vbCr & "*** Remember cases that are Expedited do NOT have a 30 Day application processing period, they have a 5 Business Day/7 Calendar Day application processing period. ***"
 		email_body = email_body & vbCr & vbCr & "Please connect with QI Leadership or the BlueZone Script Team with any questions about this report."
 		email_body = email_body & vbCr & vbCr & "Thank you for your dedication to our residents and quality processing."
@@ -631,11 +646,12 @@ If send_hss_emails_checkbox = checked Then
 	'here we send the large all report email
 	email_body = "These are all the cases identified by the Expedited Determination Report Process"
 	email_body = email_body & vbCr & vbCr & "This is an automated email to provide a list of cases that require review and action. "
-	email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligibility for Expedited SNAP but are still in a PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necessary support to complete processing on these case(s) today."
+	email_body = email_body & vbCr & "The case(s) listed in this email were determined as eligible for Expedited SNAP but are still in a PENDING status. The case(s) were worked on yesterday and action was likely required at that time. Reach out to the worker(s) and ensure they have the necessary support to complete processing on these case(s) today."
 	email_body = email_body & vbCr & all_repts_list
 	Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, "", False)
 End If
 
+' MsgBox "Stop here for now"
 If leave_excel_open = "No - Close the file" Then
 	ObjHSSExcel.ActiveWorkbook.Close
 
