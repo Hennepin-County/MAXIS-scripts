@@ -177,7 +177,7 @@ END IF
 EMReadScreen EMPS_Fin_Ori_check, 57, 6, 20
 If EMPS_Fin_Ori_check = "REVIEW EMPS PANEL FOR FINANCIAL ORIENT DATE OR GOOD CAUSE" then
     match_found = TRUE
-    call run_from_GitHub(script_repository & "dail/financial-orientation-missing.vbs")
+    call run_from_GitHub(script_repository & "dail/mfip-orientation-dail.vbs")
 END IF
 
 'Client can receive an FMED deduction for SNAP (loads FMED DEDUCTION)
