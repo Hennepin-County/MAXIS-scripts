@@ -1750,7 +1750,7 @@ function define_emer_elig_dialog()
 				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then
 					Text 30, y_pos+5, 85, 10, "XCEL Account Number:"
 					EditBox 115, y_pos, 75, 15, emer_excel_account_number
-					y_pos = y_pos + 10
+					y_pos = y_pos + 20
 
 				End If
 			Next
@@ -3754,7 +3754,7 @@ function emer_elig_case_note()
 	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("============================= MONY/CHCK ISSUED ==============================")
 		For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
-			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") = 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
+			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") = 0 AND Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
 			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number)
 			Call write_variable_in_CASE_NOTE("           for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - PROGRAM: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck))
 		Next
@@ -13273,6 +13273,7 @@ class stat_detail
 	public stat_jobs_one_job_counted_for_deny()
 	public stat_jobs_one_job_counted_for_emer()
 	public stat_jobs_one_job_deemed_for_mfip()
+	public stat_jobs_one_job_deemed_for_ga()
 	public stat_jobs_one_mfip_gross_amt()
 	public stat_jobs_one_ga_gross_amt()
 	public stat_jobs_one_mfip_counted_amt()
@@ -13304,6 +13305,7 @@ class stat_detail
 	public stat_jobs_two_job_counted_for_deny()
 	public stat_jobs_two_job_counted_for_emer()
 	public stat_jobs_two_job_deemed_for_mfip()
+	public stat_jobs_two_job_deemed_for_ga()
 	public stat_jobs_two_mfip_gross_amt()
 	public stat_jobs_two_ga_gross_amt()
 	public stat_jobs_two_mfip_counted_amt()
@@ -13335,6 +13337,7 @@ class stat_detail
 	public stat_jobs_three_job_counted_for_deny()
 	public stat_jobs_three_job_counted_for_emer()
 	public stat_jobs_three_job_deemed_for_mfip()
+	public stat_jobs_three_job_deemed_for_ga()
 	public stat_jobs_three_mfip_gross_amt()
 	public stat_jobs_three_ga_gross_amt()
 	public stat_jobs_three_mfip_counted_amt()
@@ -13366,6 +13369,7 @@ class stat_detail
 	public stat_jobs_four_job_counted_for_deny()
 	public stat_jobs_four_job_counted_for_emer()
 	public stat_jobs_four_job_deemed_for_mfip()
+	public stat_jobs_four_job_deemed_for_ga()
 	public stat_jobs_four_mfip_gross_amt()
 	public stat_jobs_four_ga_gross_amt()
 	public stat_jobs_four_mfip_counted_amt()
@@ -13397,6 +13401,7 @@ class stat_detail
 	public stat_jobs_five_job_counted_for_deny()
 	public stat_jobs_five_job_counted_for_emer()
 	public stat_jobs_five_job_deemed_for_mfip()
+	public stat_jobs_five_job_deemed_for_ga()
 	public stat_jobs_five_mfip_gross_amt()
 	public stat_jobs_five_ga_gross_amt()
 	public stat_jobs_five_mfip_counted_amt()
@@ -13408,6 +13413,14 @@ class stat_detail
 	public stat_unea_three_deemed_for_mfip()
 	public stat_unea_four_deemed_for_mfip()
 	public stat_unea_five_deemed_for_mfip()
+	public stat_busi_one_deemed_for_ga()
+	public stat_busi_two_deemed_for_ga()
+	public stat_busi_three_deemed_for_ga()
+	public stat_unea_one_deemed_for_ga()
+	public stat_unea_two_deemed_for_ga()
+	public stat_unea_three_deemed_for_ga()
+	public stat_unea_four_deemed_for_ga()
+	public stat_unea_five_deemed_for_ga()
 	public stat_busi_one_exists()
 	public stat_busi_one_type()
 	public stat_busi_one_counted_for_snap()
@@ -13956,6 +13969,7 @@ class stat_detail
 		ReDim stat_jobs_one_job_counted_for_deny(0)
 		ReDim stat_jobs_one_job_counted_for_emer(0)
 		ReDim stat_jobs_one_job_deemed_for_mfip(0)
+		ReDim stat_jobs_one_job_deemed_for_ga(0)
 		ReDim stat_jobs_one_mfip_gross_amt(0)
 		ReDim stat_jobs_one_ga_gross_amt(0)
 		ReDim stat_jobs_one_mfip_counted_amt(0)
@@ -13987,6 +14001,7 @@ class stat_detail
 		ReDim stat_jobs_two_job_counted_for_deny(0)
 		ReDim stat_jobs_two_job_counted_for_emer(0)
 		ReDim stat_jobs_two_job_deemed_for_mfip(0)
+		ReDim stat_jobs_two_job_deemed_for_ga(0)
 		ReDim stat_jobs_two_mfip_gross_amt(0)
 		ReDim stat_jobs_two_ga_gross_amt(0)
 		ReDim stat_jobs_two_mfip_counted_amt(0)
@@ -14018,6 +14033,7 @@ class stat_detail
 		ReDim stat_jobs_three_job_counted_for_deny(0)
 		ReDim stat_jobs_three_job_counted_for_emer(0)
 		ReDim stat_jobs_three_job_deemed_for_mfip(0)
+		ReDim stat_jobs_three_job_deemed_for_ga(0)
 		ReDim stat_jobs_three_mfip_gross_amt(0)
 		ReDim stat_jobs_three_ga_gross_amt(0)
 		ReDim stat_jobs_three_mfip_counted_amt(0)
@@ -14049,6 +14065,7 @@ class stat_detail
 		ReDim stat_jobs_four_job_counted_for_deny(0)
 		ReDim stat_jobs_four_job_counted_for_emer(0)
 		ReDim stat_jobs_four_job_deemed_for_mfip(0)
+		ReDim stat_jobs_four_job_deemed_for_ga(0)
 		ReDim stat_jobs_four_mfip_gross_amt(0)
 		ReDim stat_jobs_four_ga_gross_amt(0)
 		ReDim stat_jobs_four_mfip_counted_amt(0)
@@ -14080,6 +14097,7 @@ class stat_detail
 		ReDim stat_jobs_five_job_counted_for_deny(0)
 		ReDim stat_jobs_five_job_counted_for_emer(0)
 		ReDim stat_jobs_five_job_deemed_for_mfip(0)
+		ReDim stat_jobs_five_job_deemed_for_ga(0)
 		ReDim stat_jobs_five_mfip_gross_amt(0)
 		ReDim stat_jobs_five_ga_gross_amt(0)
 		ReDim stat_jobs_five_mfip_counted_amt(0)
@@ -14094,6 +14112,7 @@ class stat_detail
 		ReDim stat_busi_one_counted_for_deny(0)
 		ReDim stat_busi_one_counted_for_emer(0)
 		ReDim stat_busi_one_deemed_for_mfip(0)
+		ReDim stat_busi_one_deemed_for_ga(0)
 		ReDim stat_busi_one_type_info(0)
 		ReDim stat_busi_one_inc_start_date(0)
 		ReDim stat_busi_one_inc_end_date(0)
@@ -14131,6 +14150,7 @@ class stat_detail
 		ReDim stat_busi_two_counted_for_deny(0)
 		ReDim stat_busi_two_counted_for_emer(0)
 		ReDim stat_busi_two_deemed_for_mfip(0)
+		ReDim stat_busi_two_deemed_for_ga(0)
 		ReDim stat_busi_two_type_info(0)
 		ReDim stat_busi_two_inc_start_date(0)
 		ReDim stat_busi_two_inc_end_date(0)
@@ -14168,6 +14188,7 @@ class stat_detail
 		ReDim stat_busi_three_counted_for_deny(0)
 		ReDim stat_busi_three_counted_for_emer(0)
 		ReDim stat_busi_three_deemed_for_mfip(0)
+		ReDim stat_busi_three_deemed_for_ga(0)
 		ReDim stat_busi_three_type_info(0)
 		ReDim stat_busi_three_inc_start_date(0)
 		ReDim stat_busi_three_inc_end_date(0)
@@ -14204,6 +14225,7 @@ class stat_detail
 		ReDim stat_unea_one_counted_for_deny(0)
 		ReDim stat_unea_one_counted_for_emer(0)
 		ReDim stat_unea_one_deemed_for_mfip(0)
+		ReDim stat_unea_one_deemed_for_ga(0)
 		ReDim stat_unea_one_type_code(0)
 		ReDim stat_unea_one_type_info(0)
 		ReDim stat_unea_one_verif_code(0)
@@ -14227,6 +14249,7 @@ class stat_detail
 		ReDim stat_unea_two_counted_for_deny(0)
 		ReDim stat_unea_two_counted_for_emer(0)
 		ReDim stat_unea_two_deemed_for_mfip(0)
+		ReDim stat_unea_two_deemed_for_ga(0)
 		ReDim stat_unea_two_type_code(0)
 		ReDim stat_unea_two_type_info(0)
 		ReDim stat_unea_two_verif_code(0)
@@ -14250,6 +14273,7 @@ class stat_detail
 		ReDim stat_unea_three_counted_for_deny(0)
 		ReDim stat_unea_three_counted_for_emer(0)
 		ReDim stat_unea_three_deemed_for_mfip(0)
+		ReDim stat_unea_three_deemed_for_ga(0)
 		ReDim stat_unea_three_type_code(0)
 		ReDim stat_unea_three_type_info(0)
 		ReDim stat_unea_three_verif_code(0)
@@ -14273,6 +14297,7 @@ class stat_detail
 		ReDim stat_unea_four_counted_for_deny(0)
 		ReDim stat_unea_four_counted_for_emer(0)
 		ReDim stat_unea_four_deemed_for_mfip(0)
+		ReDim stat_unea_four_deemed_for_ga(0)
 		ReDim stat_unea_four_type_code(0)
 		ReDim stat_unea_four_type_info(0)
 		ReDim stat_unea_four_verif_code(0)
@@ -14296,6 +14321,7 @@ class stat_detail
 		ReDim stat_unea_five_counted_for_deny(0)
 		ReDim stat_unea_five_counted_for_emer(0)
 		ReDim stat_unea_five_deemed_for_mfip(0)
+		ReDim stat_unea_five_deemed_for_ga(0)
 		ReDim stat_unea_five_type_code(0)
 		ReDim stat_unea_five_type_info(0)
 		ReDim stat_unea_five_verif_code(0)
@@ -14520,6 +14546,7 @@ class stat_detail
 			ReDim preserve stat_jobs_one_job_counted_for_deny(memb_count)
 			ReDim preserve stat_jobs_one_job_counted_for_emer(memb_count)
 			ReDim preserve stat_jobs_one_job_deemed_for_mfip(memb_count)
+			ReDim preserve stat_jobs_one_job_deemed_for_ga(memb_count)
 			ReDim preserve stat_jobs_one_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_one_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_one_mfip_counted_amt(memb_count)
@@ -14551,6 +14578,7 @@ class stat_detail
 			ReDim preserve stat_jobs_two_job_counted_for_deny(memb_count)
 			ReDim preserve stat_jobs_two_job_counted_for_emer(memb_count)
 			ReDim preserve stat_jobs_two_job_deemed_for_mfip(memb_count)
+			ReDim preserve stat_jobs_two_job_deemed_for_ga(memb_count)
 			ReDim preserve stat_jobs_two_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_two_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_two_mfip_counted_amt(memb_count)
@@ -14582,6 +14610,7 @@ class stat_detail
 			ReDim preserve stat_jobs_three_job_counted_for_deny(memb_count)
 			ReDim preserve stat_jobs_three_job_counted_for_emer(memb_count)
 			ReDim preserve stat_jobs_three_job_deemed_for_mfip(memb_count)
+			ReDim preserve stat_jobs_three_job_deemed_for_ga(memb_count)
 			ReDim preserve stat_jobs_three_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_three_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_three_mfip_counted_amt(memb_count)
@@ -14613,6 +14642,7 @@ class stat_detail
 			ReDim preserve stat_jobs_four_job_counted_for_deny(memb_count)
 			ReDim preserve stat_jobs_four_job_counted_for_emer(memb_count)
 			ReDim preserve stat_jobs_four_job_deemed_for_mfip(memb_count)
+			ReDim preserve stat_jobs_four_job_deemed_for_ga(memb_count)
 			ReDim preserve stat_jobs_four_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_four_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_four_mfip_counted_amt(memb_count)
@@ -14644,6 +14674,7 @@ class stat_detail
 			ReDim preserve stat_jobs_five_job_counted_for_deny(memb_count)
 			ReDim preserve stat_jobs_five_job_counted_for_emer(memb_count)
 			ReDim preserve stat_jobs_five_job_deemed_for_mfip(memb_count)
+			ReDim preserve stat_jobs_five_job_deemed_for_ga(memb_count)
 			ReDim preserve stat_jobs_five_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_five_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_five_mfip_counted_amt(memb_count)
@@ -14658,6 +14689,7 @@ class stat_detail
 			ReDim preserve stat_busi_one_counted_for_deny(memb_count)
 			ReDim preserve stat_busi_one_counted_for_emer(memb_count)
 			ReDim preserve stat_busi_one_deemed_for_mfip(memb_count)
+			ReDim preserve stat_busi_one_deemed_for_ga(memb_count)
 			ReDim preserve stat_busi_one_type_info(memb_count)
 			ReDim preserve stat_busi_one_inc_start_date(memb_count)
 			ReDim preserve stat_busi_one_inc_end_date(memb_count)
@@ -14695,6 +14727,7 @@ class stat_detail
 			ReDim preserve stat_busi_two_counted_for_deny(memb_count)
 			ReDim preserve stat_busi_two_counted_for_emer(memb_count)
 			ReDim preserve stat_busi_two_deemed_for_mfip(memb_count)
+			ReDim preserve stat_busi_two_deemed_for_ga(memb_count)
 			ReDim preserve stat_busi_two_type_info(memb_count)
 			ReDim preserve stat_busi_two_inc_start_date(memb_count)
 			ReDim preserve stat_busi_two_inc_end_date(memb_count)
@@ -14732,6 +14765,7 @@ class stat_detail
 			ReDim preserve stat_busi_three_counted_for_deny(memb_count)
 			ReDim preserve stat_busi_three_counted_for_emer(memb_count)
 			ReDim preserve stat_busi_three_deemed_for_mfip(memb_count)
+			ReDim preserve stat_busi_three_deemed_for_ga(memb_count)
 			ReDim preserve stat_busi_three_type_info(memb_count)
 			ReDim preserve stat_busi_three_inc_start_date(memb_count)
 			ReDim preserve stat_busi_three_inc_end_date(memb_count)
@@ -14768,6 +14802,7 @@ class stat_detail
 			ReDim preserve stat_unea_one_counted_for_deny(memb_count)
 			ReDim preserve stat_unea_one_counted_for_emer(memb_count)
 			ReDim preserve stat_unea_one_deemed_for_mfip(memb_count)
+			ReDim preserve stat_unea_one_deemed_for_ga(memb_count)
 			ReDim preserve stat_unea_one_type_code(memb_count)
 			ReDim preserve stat_unea_one_type_info(memb_count)
 			ReDim preserve stat_unea_one_verif_code(memb_count)
@@ -14791,6 +14826,7 @@ class stat_detail
 			ReDim preserve stat_unea_two_counted_for_deny(memb_count)
 			ReDim preserve stat_unea_two_counted_for_emer(memb_count)
 			ReDim preserve stat_unea_two_deemed_for_mfip(memb_count)
+			ReDim preserve stat_unea_two_deemed_for_ga(memb_count)
 			ReDim preserve stat_unea_two_type_code(memb_count)
 			ReDim preserve stat_unea_two_type_info(memb_count)
 			ReDim preserve stat_unea_two_verif_code(memb_count)
@@ -14814,6 +14850,7 @@ class stat_detail
 			ReDim preserve stat_unea_three_counted_for_deny(memb_count)
 			ReDim preserve stat_unea_three_counted_for_emer(memb_count)
 			ReDim preserve stat_unea_three_deemed_for_mfip(memb_count)
+			ReDim preserve stat_unea_three_deemed_for_ga(memb_count)
 			ReDim preserve stat_unea_three_type_code(memb_count)
 			ReDim preserve stat_unea_three_type_info(memb_count)
 			ReDim preserve stat_unea_three_verif_code(memb_count)
@@ -14837,6 +14874,7 @@ class stat_detail
 			ReDim preserve stat_unea_four_counted_for_deny(memb_count)
 			ReDim preserve stat_unea_four_counted_for_emer(memb_count)
 			ReDim preserve stat_unea_four_deemed_for_mfip(memb_count)
+			ReDim preserve stat_unea_four_deemed_for_ga(memb_count)
 			ReDim preserve stat_unea_four_type_code(memb_count)
 			ReDim preserve stat_unea_four_type_info(memb_count)
 			ReDim preserve stat_unea_four_verif_code(memb_count)
@@ -14860,6 +14898,7 @@ class stat_detail
 			ReDim preserve stat_unea_five_counted_for_deny(memb_count)
 			ReDim preserve stat_unea_five_counted_for_emer(memb_count)
 			ReDim preserve stat_unea_five_deemed_for_mfip(memb_count)
+			ReDim preserve stat_unea_five_deemed_for_ga(memb_count)
 			ReDim preserve stat_unea_five_type_code(memb_count)
 			ReDim preserve stat_unea_five_type_info(memb_count)
 			ReDim preserve stat_unea_five_verif_code(memb_count)
@@ -15174,6 +15213,7 @@ class stat_detail
 				stat_jobs_one_job_counted_for_emer(each_memb) = stat_jobs_one_job_counted_for_snap(each_memb)
 
 				stat_jobs_one_job_deemed_for_mfip(each_memb) = False
+				stat_jobs_one_job_deemed_for_ga(each_memb) = False
 
 				If stat_jobs_one_main_pay_freq(each_memb) = "1" Then stat_jobs_one_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_one_main_pay_freq(each_memb) = "2" Then stat_jobs_one_main_pay_freq(each_memb) = "Semi-Monthly"
@@ -15266,6 +15306,7 @@ class stat_detail
 				stat_jobs_two_job_counted_for_emer(each_memb) = stat_jobs_two_job_counted_for_snap(each_memb)
 
 				stat_jobs_two_job_deemed_for_mfip(each_memb) = False
+				stat_jobs_two_job_deemed_for_ga(each_memb) = False
 
 				If stat_jobs_two_main_pay_freq(each_memb) = "1" Then stat_jobs_two_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_two_main_pay_freq(each_memb) = "2" Then stat_jobs_two_main_pay_freq(each_memb) = "Semi-Monthly"
@@ -15358,6 +15399,7 @@ class stat_detail
 				stat_jobs_three_job_counted_for_emer(each_memb) = stat_jobs_three_job_counted_for_snap(each_memb)
 
 				stat_jobs_three_job_deemed_for_mfip(each_memb) = False
+				stat_jobs_three_job_deemed_for_ga(each_memb) = False
 
 				If stat_jobs_three_main_pay_freq(each_memb) = "1" Then stat_jobs_three_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_three_main_pay_freq(each_memb) = "2" Then stat_jobs_three_main_pay_freq(each_memb) = "Semi-Monthly"
@@ -15450,6 +15492,7 @@ class stat_detail
 				stat_jobs_four_job_counted_for_emer(each_memb) = stat_jobs_four_job_counted_for_snap(each_memb)
 
 				stat_jobs_four_job_deemed_for_mfip(each_memb) = False
+				stat_jobs_four_job_deemed_for_ga(each_memb) = False
 
 				If stat_jobs_four_main_pay_freq(each_memb) = "1" Then stat_jobs_four_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_four_main_pay_freq(each_memb) = "2" Then stat_jobs_four_main_pay_freq(each_memb) = "Semi-Monthly"
@@ -15542,6 +15585,7 @@ class stat_detail
 				stat_jobs_five_job_counted_for_emer(each_memb) = stat_jobs_five_job_counted_for_snap(each_memb)
 
 				stat_jobs_five_job_deemed_for_mfip(each_memb) = False
+				stat_jobs_five_job_deemed_for_ga(each_memb) = False
 
 				If stat_jobs_five_main_pay_freq(each_memb) = "1" Then stat_jobs_five_main_pay_freq(each_memb) = "Monthly"
 				If stat_jobs_five_main_pay_freq(each_memb) = "2" Then stat_jobs_five_main_pay_freq(each_memb) = "Semi-Monthly"
