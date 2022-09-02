@@ -45,7 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("08/03/2022", "Remove ability to select both residential and mailing address. Created an option for received in error.", "MiKayla Handley, Hennepin County") '#427 & #365 '
+call changelog_update("08/03/2022", "Remove ability to select both residential and mailing address. Created an option for received in error and address HC only handling.", "MiKayla Handley, Hennepin County") '#927 '
 call changelog_update("06/03/2022", "Updates for HC active/pending procedure and added handling for entering PACT panel.", "MiKayla Handley, Hennepin County") '#427 & #365 '
 call changelog_update("03/12/2021", "Updated handling for current address confirmation.", "MiKayla Handley, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris, Hennepin County")
