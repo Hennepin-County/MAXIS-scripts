@@ -72,7 +72,7 @@ SNAP_POLI_TEMP_button, CASH_POLI_TEMP_button, one_source_button, err_msg, are_we
 msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, _
 emer_type, case_status, list_active_programs, list_pending_programs, ADHI_button, HSR_manual_button, new_addr_line_one, new_addr_line_two, new_addr_city, new_addr_state, _
 new_addr_zip, new_addr_street_full, begining_of_footer_month, resi_street_full, county_code, date_verifications_requested, error_message, mets_addr_correspondence, open_cash1, open_cash2, _
-pact_pop_up, closing_message, end_msg, received_error_confirmation
+pact_pop_up, closing_message, end_msg, received_error_confirmation, HC_only
 
 EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
@@ -157,6 +157,23 @@ If family_cash_case = True Then snap_or_cash_case = True
 If adult_cash_case = True Then snap_or_cash_case = True
 If grh_case = True Then snap_or_cash_case = True
 If snap_case = True Then snap_or_cash_case = True
+
+If ma_case = True or msp_case = true then
+    'If other programs are active/pending then no notice is necessary
+    If  family_cash_case = True OR _
+        mfip_case = True OR _
+        dwp_case = True OR _
+        adult_cash_case = True OR _
+        ga_case = True OR _
+        msa_case = True OR _
+        grh_case = True OR _
+        snap_case = True OR _
+        emer_case = True then
+        HC_only = False
+    Else
+        HC_only = True
+    End if
+End if
 
 '-------------------------------------------------------------------------------------------------DIALOG
 IF ADDR_actions <> "no response received" THEN
@@ -308,11 +325,13 @@ IF ADDR_actions = "no response received" THEN
 	  		err_msg = ""
 		    DIALOG Dialog1
 		    cancel_without_confirmation
-		    IF IsDate(date_verifications_requested) = FALSE THEN
-		    	err_msg = err_msg & vbnewline & "Please enter the date the verifications were requested."
-		    ELSE
-		    	IF DateDiff("d", date_verifications_requested, date) < 10 THEN err_msg = err_msg & vbnewline & "You must allow 10 days for the resident to respond to the Verification Request before terminating benefits."
-		    END IF
+            If HC_only = False then
+                IF IsDate(date_verifications_requested) = FALSE THEN
+		    	    err_msg = err_msg & vbnewline & "Please enter the date the verifications were requested."
+		        ELSE
+		    	    IF DateDiff("d", date_verifications_requested, date) < 10 THEN err_msg = err_msg & vbnewline & "You must allow 10 days for the resident to respond to the Verification Request before terminating benefits."
+		        END IF
+            End if
 		    IF ButtonPressed = POLI_TEMP_PACT_button THEN
 		    	CALL view_poli_temp("02", "13", "10", "") 'TE02.13.10' STAT:  PACT
 		    	err_msg = "LOOP"
