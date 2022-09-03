@@ -11,6 +11,7 @@
 '--All variables are CASE:NOTEing (if required)---------------------------------
 '--CASE:NOTE Header doesn't look funky------------------------------------------
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
