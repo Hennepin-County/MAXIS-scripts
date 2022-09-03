@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/03/2022", "Replaced Jennifer Frey's email contact with Tanya Payne, new HSS for QI.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -286,7 +287,7 @@ function create_u_code_worklist(cash_col, snap_col, recvd_date_col, intvw_date_c
 	email_body = email_body & vbCr & "<" & "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\QI project reports\REVW and MONT Cases Coded with U\REVW " & date_for_excel & " U Code Worklist.xlsx" & ">"
 	email_body = email_body & vbCr & vbCr & "-This email is automated from a script."
 
-	Call create_outlook_email("jennifer.frey@hennepin.us", "", email_subject, email_body, "", True)
+	Call create_outlook_email("tanya.payne@hennepin.us", "", email_subject, email_body, "", True)
 
 	If end_msg = "" Then
 		end_msg = "Worklist of U Code cases created."
