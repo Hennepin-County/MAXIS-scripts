@@ -43,7 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/01/2022", "Initial version.", "Casey Love, Hennepin County")
+call changelog_update("09/06/2022", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -54,6 +54,7 @@ changelog_display
 'NO CHANGES ERE MADE TO THIS FUNCTION FROM NOTES - INTERVIEW - ONCE WE ARE READY TO PULL THIS INTO THE FUNCTIONS LIBRARY WE SHOULD NOT NEED TO MAKE ANY COMPARRISON BETWEEN THE TWO SCRIPTS.
 function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_name_const, memb_age_const, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
 'DO NOT CHANGE THIS FUNCTION - IT IS DUPLICATED IN AANOTHER SCRIPT AND WE DO NOT WANT TO HAVE TO COMPARE
+'*************IMPORTANT - when pulling for FuncLic use the version in DAIL as there are slight changes'
 
 	'first - assess if caregiver meets an exemption
 		'- Single parent household employed at least 35 hours per week
