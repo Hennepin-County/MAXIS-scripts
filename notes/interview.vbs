@@ -2249,6 +2249,7 @@ End Function
 
 function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_name_const, memb_age_const, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
 'DO NOT CHANGE THIS FUNCTION - IT IS DUPLICATED IN AANOTHER SCRIPT AND WE DO NOT WANT TO HAVE TO COMPARE
+'*************IMPORTANT - when pulling for FuncLic use the version in DAIL as there are slight changes'
 
 	'first - assess if caregiver meets an exemption
 		'- Single parent household employed at least 35 hours per week
