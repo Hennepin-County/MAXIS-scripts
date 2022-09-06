@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/01/2022", "Initial version.", "Casey Love, Hennepin County")
+call changelog_update("09/06/2022", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -74,6 +74,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		person_list = person_list+chr(9)+CAREGIVER_ARRAY(memb_name_const, person)
 		second_person_list = second_person_list+chr(9)+CAREGIVER_ARRAY(memb_name_const, person)
 	Next
+    If UBound(CAREGIVER_ARRAY, 2) = 0 Then caregiver_two = "No Second Caregiver"
 	caregiver_one = CAREGIVER_ARRAY(memb_name_const, 0)
 
 	Do
@@ -85,9 +86,15 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		  DropListBox 65, 65, 140, 45, person_list, caregiver_one
 		  DropListBox 330, 65, 45, 45, "Yes"+chr(9)+"No"+chr(9)+"Not Elig", caregiver_one_req_cash
 		  EditBox 430, 65, 30, 15, caregiver_one_hours_per_week
-		  DropListBox 65, 85, 140, 45, second_person_list, caregiver_two
-		  DropListBox 330, 85, 45, 45, "Yes"+chr(9)+"No"+chr(9)+"Not Elig", caregiver_two_req_cash
-		  EditBox 430, 85, 30, 15, caregiver_two_hours_per_week
+		  If UBound(CAREGIVER_ARRAY, 2) = 0 Then
+            Text 65, 90, 140, 10, caregiver_two
+            Text 330, 90, 45, 10, "N/A"
+            Text 430, 90, 30, 10, "N/A"
+          Else
+            DropListBox 65, 85, 140, 45, second_person_list, caregiver_two
+            DropListBox 330, 85, 45, 45, "Yes"+chr(9)+"No"+chr(9)+"Not Elig", caregiver_two_req_cash
+            EditBox 430, 85, 30, 15, caregiver_two_hours_per_week
+          End If
 		  Text 15, 125, 450, 20, "These questions will identify if these caregivers need an MFIP orientation. See CM 05.12.12.06   to see the reasons that a caregiver would not need an MFIP Orientation. The script will use this information to determine if the MFIP Orientation Functionality should be run."
 		  ButtonGroup ButtonPressed
 			OkButton 490, 125, 50, 15
@@ -317,7 +324,6 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 		'NINTH - CCAP'
 		'TENTH - Incentives'
 		'ELEVENTH - Health Care'
-
 		' all_mfip_orientation_info_viewed = False
 		For caregiver = 0 to UBound(CAREGIVER_ARRAY, 2)
 
@@ -697,7 +703,7 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 
 				dialog Dialog1
 
-				Call start_a_blank_CASE_NOTE        'QUESTION - I believe we are going to lose the tie to the DAIL here - do we care?'
+				Call start_a_blank_CASE_NOTE        'QUESTION - I believe we are going to lose the tie to the DAIL here - do we care? We could update the function 'navigat5e_to_MAXIS_screen' to support usng PF4 to get to CNOTE from STAT.
 
 				If CAREGIVER_ARRAY(orientation_done_const, caregiver) = True Then
 
@@ -717,11 +723,12 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 					Call write_bullet_and_variable_in_CASE_NOTE("Exemption Reason", CAREGIVER_ARRAY(exemption_reason_const, caregiver))
 					Call write_variable_in_CASE_NOTE("---")
 					Call write_variable_in_CASE_NOTE(worker_signature)
-
 				End If
+
 				PF3
 
-                call back_to_SELF
+                'We leave the CNOTE becaose this runs in a loop and may have more than one note.
+                call back_to_SELF       'QUESTION This will definitely lose the tie to the DAIL - Again - do we care?'
 
 			End If
 			' MsgBox CAREGIVER_ARRAY(memb_name_const, caregiver) & " - DONE"
@@ -750,7 +757,8 @@ const choice_form_done_const	= 13
 const orientation_notes			= 14
 const last_const				= 15
 
-Dim HH_MEMB_ARRAY(last_const, 0)        'This is set up like an array but only works for the person the DAIL is for.
+Dim HH_MEMB_ARRAY()
+ReDim HH_MEMB_ARRAY(last_const, 0)        'This is set up like an array but only works for the person the DAIL is for.
 '============================================================================================================================
 
 
@@ -772,6 +780,8 @@ If other_person = 0 Then
 	Else 																		'If so - reads first name
 		EMReadScreen first_name, dash_loc - comma_loc - 3, 5, comma_loc + 5
 	End If
+    HH_MEMB_ARRAY(ref_number, 0) = "01"
+
 'This is for if the message is for a different HH Member
 Else
 	end_other = InStr(name_for_dail, ")--")
@@ -783,17 +793,54 @@ Else
 	Else
 		EMReadScreen first_name, end_other - comma_loc - 1, 5, comma_loc + 5
 	End If
-    HH_MEMB_ARRAY(ref_number, 0) = "01"
 End If
 HH_MEMB_ARRAY(full_name_const, 0) = first_name & " " & last_name		'putting the name into one string
+
+'Inital dialog to capture the case number and worker signature
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 221, 150, "MFIP Orientation"
+  EditBox 65, 110, 150, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 110, 130, 50, 15
+    CancelButton 165, 130, 50, 15
+    PushButton 90, 90, 125, 15, "MFIP Orientation Script Instructions", mfip_orientation_instructions_btn
+  Text 5, 10, 205, 20, "This script will facilitate the MFIP Orientation, guiding through all of the information needed during the MFIP Orientation."
+  Text 5, 35, 205, 25, "This script was started from the DAIL and will run for only one caregiver, whichever caregiver the DAIL listed.                           The script will run for:"
+  Text 15, 65, 145, 10, "Case Number: " & MAXIS_case_number
+  Text 25, 75, 145, 10, "  Caregiver: " & HH_MEMB_ARRAY(full_name_const, 0)
+  Text 5, 115, 60, 10, "Worker Signature"
+EndDialog
+
+Do
+	DO
+		err_msg = ""                                       'Blanks this out every time the loop runs. If mandatory fields aren't entered, this variable is updated below with messages, which then display for the worker.
+		Dialog Dialog1                               'The Dialog command shows the dialog. Replace sample_dialog with your actual dialog pasted above.
+		cancel_without_confirmation
+
+	    'Handling for error messaging (in the case of mandatory fields or fields requiring a specific format)-----------------------------------
+		' Call validate_MAXIS_case_number(err_msg, "*")																	'case number is mandatory here
+		IF worker_signature = ""           THEN err_msg = err_msg & vbNewLine & "* You must sign your case note!"       'worker_signature is usually also a mandatory field
+
+		If ButtonPressed = mfip_orientation_instructions_btn Then				'This button will open the instructions and then reshow the dialog
+			err_msg = "LOOP"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20MFIP%20ORIENTATION.docx"
+		End If
+	    'If the error message isn't blank or if the instructions button wasn't pressed, it'll pop up a message telling you what to do!
+		IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue."     '
+	LOOP UNTIL err_msg = ""     'It only exits the loop when all mandatory fields are resolved!
+	call check_for_password(are_we_passworded_out)		'ensuring we did not become passworded out while the dialog was up
+Loop until are_we_passworded_out = False
 
 'Goes to STAT
 EMSendKey "S"
 transmit
 
-Call EMWriteScreen "MEMB", 20, 71
+EMWriteScreen "MEMB", 20, 71
 transmit
 EMWriteScreen "01", 20, 76
+transmit
+
+ref_num_list = "Select One..."
 
 If HH_MEMB_ARRAY(ref_number, 0) = "01" Then
     EMReadScreen HH_MEMB_ARRAY(age, 0), 3, 8, 76					'Reading the name and age if there was not 'Access Denied' issue
@@ -803,11 +850,11 @@ Else
         EMReadscreen memb_first_name_const, 12, 6, 63
         memb_last_name_const = trim(replace(memb_last_name_const, "_", ""))
         memb_first_name_const = trim(replace(memb_first_name_const, "_", ""))
-
+        EMReadScreen temp_ref_numb, 2, 4, 33
+        ref_num_list = ref_num_list+chr(9)+temp_ref_numb
         If memb_first_name_const & " " & memb_last_name_const = HH_MEMB_ARRAY(full_name_const, 0) Then
             EMReadScreen HH_MEMB_ARRAY(age, 0), 3, 8, 76					'Reading the name and age if there was not 'Access Denied' issue
-            EMReadScreen HH_MEMB_ARRAY(ref_number, 0), 2, 4, 33
-            Exit Do
+            HH_MEMB_ARRAY(ref_number, 0) = temp_ref_numb
         End If
         transmit      'Going to the next MEMB panel
     	Emreadscreen edit_check, 7, 24, 2 'looking to see if we are at the last member
@@ -815,14 +862,50 @@ Else
 
 End If
 
-HH_MEMB_ARRAY(age, clt_count) = trim(HH_MEMB_ARRAY(age, clt_count))			'formatting the age and name information.
+'If the script is unable to find the Ref Numb using the name listed on DAIL, a dialog will allow the user to select the reference number.
+If HH_MEMB_ARRAY(ref_number, 0) = "" Then
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 171, 100, "MFIP Orientation"                     'defining the dialog'
+      DropListBox 105, 60, 60, 45, ref_num_list, selected_ref_numb
+      ButtonGroup ButtonPressed
+        OkButton 60, 80, 50, 15
+        CancelButton 115, 80, 50, 15
+      Text 5, 10, 140, 20, "The script could not match the name to the Reference Number for this MAXIS Case."
+      Text 10, 35, 140, 20, "Please select the Reference Number for " & HH_MEMB_ARRAY(full_name_const, 0)
+      Text 10, 65, 90, 10, "Reference Number: MEMB "
+    EndDialog
+
+    Do
+        Do
+            err_msg = ""
+
+            dialog Dialog1
+            cancel_confirmation
+
+            If selected_ref_numb = "Select One..." Then err_msg = err_msg & vbCr & "* Select which reference number is for the household member named " & HH_MEMB_ARRAY(full_name_const, 0)
+
+            If err_msg <> "" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue."
+
+        Loop until err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = False
+
+    HH_MEMB_ARRAY(ref_number, 0) = selected_ref_numb                            'setting the reference number to whatever was selected
+
+    EMWriteScreen "MEMB", 20, 71                                                'gathering the age based on the selected reference number
+    transmit
+    EMWriteScreen HH_MEMB_ARRAY(ref_number, 0), 20, 76
+    EMReadScreen HH_MEMB_ARRAY(age, 0), 3, 8, 76
+End If
+
+HH_MEMB_ARRAY(age, clt_count) = trim(HH_MEMB_ARRAY(age, clt_count))			    'formatting the age and name information.
 If HH_MEMB_ARRAY(age, clt_count) = "" Then HH_MEMB_ARRAY(age, clt_count) = 0
 HH_MEMB_ARRAY(age, clt_count) = HH_MEMB_ARRAY(age, clt_count) * 1
 
 
 family_cash_program = "MFIP"			'defaulting to MFIP as the program selection.
 
-'this iswhere the main functionality of this script is called.
+'this is where the main functionality of this script is called.
 'We are using a function because this needs to match the experiance in other scripts.
 'This function will call dialogs and enter CASE/NOTEs - eventually it may update EMPS panels
 Call complete_MFIP_orientation(HH_MEMB_ARRAY, ref_number, full_name_const, age, memb_is_caregiver, cash_request_const, hours_per_week_const, exempt_from_ed_const, comply_with_ed_const, orientation_needed_const, orientation_done_const, orientation_exempt_const, exemption_reason_const, emps_exemption_code_const, choice_form_done_const, orientation_notes, family_cash_program)
