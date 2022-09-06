@@ -72,7 +72,7 @@ SNAP_POLI_TEMP_button, CASH_POLI_TEMP_button, one_source_button, err_msg, are_we
 msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, _
 emer_type, case_status, list_active_programs, list_pending_programs, ADHI_button, HSR_manual_button, new_addr_line_one, new_addr_line_two, new_addr_city, new_addr_state, _
 new_addr_zip, new_addr_street_full, begining_of_footer_month, resi_street_full, county_code, date_verifications_requested, error_message, mets_addr_correspondence, open_cash1, open_cash2, _
-pact_pop_up, closing_message, end_msg, received_error_confirmation, HC_only
+pact_pop_up, closing_message, end_msg, received_error_confirmation, HC_only, row, col
 
 EMConnect ""                                        'Connecting to BlueZone
 CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabbing the CASE Number
@@ -303,7 +303,7 @@ END IF 'forwarding address provided
 
 IF ADDR_actions = "no response received" THEN
 	Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 351, 185, "Request for contact to the resident with no response-refused/failed"
+	BeginDialog Dialog1, 0, 0, 351, 185, "Request for contact to the resident with no response"
   	 EditBox 105, 5, 50, 15, date_verifications_requested
   	 EditBox 55, 145, 285, 15, other_notes
   	 ButtonGroup ButtonPressed
@@ -366,20 +366,25 @@ IF ADDR_actions = "no response received" THEN
 		END IF
    		IF grh_case = True THEN EMWriteScreen "3", 10, 58 'Enter code "3" (Refused/Failed Required Info)'
        	TRANSMIT
-
-		Do
-			EMReadScreen pact_pop_up, 45, 13, 16 'this always comes up to confirm '
-			IF pact_pop_up = "IS IT CORRECT POLICY TO USE A PACT PANEL? Y/N" THEN
-				EMWriteScreen "Y", 13, 64 ' this is a pop up box asking if the selection is correct per poli/temp SEE TEMP TE02.13.10'
-				TRANSMIT
-			END IF
-		Loop until trim(pact_pop_up) = "*" 'it wil never equal blank '
-		EMReadScreen panel_number_check, 1, 02, 73
-		IF panel_number_check = "0" THEN
-			closing_message = "Unable to verify that the PACT panel was updated. Please verify and notify the BlueZone Script team."
-		END IF
-		EMReadScreen error_message,  74, 24, 02 'for script_run_lowdown-reading for messages that might be missed if they are not inhibiting'
-		error_message = trim(error_message)
+		row = 13
+		col = 14
+		EMSearch "IS IT", row, col
+ 	    If row <> 0 Then
+	    	Do
+	    		EMReadScreen pact_pop_up, 45, row, col 'this always comes up to confirm but moves if there was a panel previously '
+	    		IF pact_pop_up = "IS IT CORRECT POLICY TO USE A PACT PANEL? Y/N" THEN
+					EMSearch "_", row, col
+	    			EMWriteScreen "Y", row, col ' this is a pop up box asking if the selection is correct per poli/temp SEE TEMP TE02.13.10'
+	    			TRANSMIT
+	    		END IF
+	       	Loop until trim(pact_pop_up) = "*" 'it wil never equal blank '
+	    	EMReadScreen panel_number_check, 1, 02, 73
+	    	IF panel_number_check = "0" THEN
+	    		closing_message = "Unable to verify that the PACT panel was updated. Please verify and notify the BlueZone Script team."
+	    	END IF
+	    	EMReadScreen error_message,  74, 24, 02 'for script_run_lowdown-reading for messages that might be missed if they are not inhibiting'
+	    	error_message = trim(error_message)
+  	    END IF
     END IF 'if snap or cash are true'
     'we cannot close HC currently but this is the place for that handling'
 END IF 'no response received '
@@ -481,10 +486,11 @@ CALL script_end_procedure_with_error_report(closing_message)
 '--comment Code-----------------------------------------------------------------06/14/2022
 '--Update Changelog for release/update------------------------------------------06/14/2022
 '--Remove testing message boxes-------------------------------------------------06/14/2022
-'--Remove testing code/unnecessary code-----------------------------------------06/14/2022
+'--Remove testing code/unnecessary code-----------------------------------------09/06/2022
 '--Review/update SharePoint instructions----------------------------------------06/14/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/14/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/14/2022
 '--Complete misc. documentation (if applicable)---------------------------------06/14/2022
 '--Update project team/issue contact (if applicable)----------------------------06/14/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---09/06/2022
 '--Other Note-------------------------------------------------------------------'SNAP 2. On STAT/ADDR, enter the new address from the returned mail envelope.  Enter "OT" in the verification field. We are not updating OT as it is in the residential area of the script
