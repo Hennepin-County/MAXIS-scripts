@@ -52,6 +52,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/03/2022", "Replaced Jennifer Frey's email contact with Tanya Payne, new HSS for QI.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2022", "Added checkbox option in the main dialog to select if user wants Excel output warning message.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/01/2022", "Added Excel output warning message.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/01/2022", "Updated the Appointment Notice and NOMI to have information for residents about in person support.", "Casey Love, Hennepin County")
@@ -2762,9 +2763,9 @@ objStatsWorkbook.Save
 ObjStatsExcel.Quit
 ' MsgBox "Step Six - The emails, the emails, what what, the emails"
 qi_member_email = replace(qi_member_on_ONDEMAND, " ", ".") & "@hennepin.us"
-cc_email = "jennifer.frey@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
+cc_email = "tanya.payne@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
 cc_email = "hsph.ews.bluezonescripts@hennepin.us"
-If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; jennifer.frey@hennepin.us"
+If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; tanya.payne@hennepin.us"
 
 email_subject = "On Demand List is Ready"
 If qi_worklist_threshold_reached = True Then email_subject = email_subject & " - HELP NEEDED"
