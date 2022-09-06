@@ -478,7 +478,7 @@ call excel_open(working_excel_file_path, True, True, ObjWorkExcel, objWorkWorkbo
 
 date_working_excel_list_updated = ObjWorkExcel.Cells(1, list_update_date_col).value
 date_working_excel_list_updated = DateAdd("d", 0, date_working_excel_list_updated)
-date_working_excel_list_updated = #9/1/22#
+' date_working_excel_list_updated = #9/1/22#
 If date_working_excel_list_updated <> date Then
 
 	'Setting constants
