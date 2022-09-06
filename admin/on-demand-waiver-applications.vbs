@@ -255,27 +255,21 @@ MAXIS_footer_year = CM_plus_1_yr
 current_date = date
 
 'Call ONLY_create_MAXIS_friendly_date(current_date)			'reformatting the dates to be MM/DD/YY format to measure against the panel dates
-file_date = replace(current_date, "/", "-")   'Changing the format of the date to use as file path selection default
-daily_case_list_folder = right("0" & DatePart("m", file_date), 2) & "-" & DatePart("yyyy", file_date)
-file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/" & daily_case_list_folder & "/" & file_date & ".xlsx" 'single assignment file
 
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 316, 190, "Select the source file"
+BeginDialog Dialog1, 0, 0, 316, 135, "Select the source file"
   DropListBox 185, 75, 125, 45, "Select One..."+chr(9)+"Amber Stone"+chr(9)+"Brooke Reilley"+chr(9)+"Deborah Lechner"+chr(9)+"Jacob Arco"+chr(9)+"Jessica Hall"+chr(9)+"Keith Semmelink"+chr(9)+"Kerry Walsh"+chr(9)+"Louise Kinzer"+chr(9)+"Mandora Young"+chr(9)+"MiKayla Handley"+chr(9)+"Ryan Kierth"+chr(9)+"Yeng Yang", qi_member_on_ONDEMAND
-  CheckBox 5, 175, 230, 10, "Check here for warning message before Excel output/email creation.", warning_checkbox
+  CheckBox 5, 120, 230, 10, "Check here for warning message before Excel output/email creation.", warning_checkbox
   ButtonGroup ButtonPressed
-    OkButton 205, 155, 50, 15
-    CancelButton 260, 155, 50, 15
-    PushButton 270, 125, 40, 15, "Browse...", select_a_file_button
-  Text 5, 150, 195, 20, "Reminder, do not use Excel during the time the script is running. The script needs to use Excel."
+    OkButton 205, 100, 50, 15
+    CancelButton 260, 100, 50, 15
+  Text 5, 95, 195, 20, "Reminder, do not use Excel during the time the script is running. The script needs to use Excel."
   Text 5, 5, 305, 25, "This script will send Appointment Notices and NOMIs after reviewing cases from the BOBI for today. Once completed, this script will create a WorkList for QI to complete any additional manual review or updates."
   Text 5, 35, 80, 10, "Scrript Requirements:"
   Text 10, 50, 45, 10, "- Production"
   Text 10, 60, 75, 10, "- Heavy use of Excel"
   Text 10, 80, 175, 10, "Select the QI Member assigned to On Demand today:"
-  Text 5, 105, 295, 20, "Click the BROWSE button and select the BOBI report for today. Once selected, click 'OK'. There will be no additional input needed until the script run is complete."
-  EditBox 5, 125, 260, 15, file_selection_path
 EndDialog
 
 
@@ -286,12 +280,8 @@ Do
         err_msg = ""
         dialog Dialog1
         cancel_without_confirmation
-        If ButtonPressed = select_a_file_button then
-			call file_selection_system_dialog(file_selection_path, ".xlsx")
-			err_msg = "LOOP"
-		End If
+
 		If qi_member_on_ONDEMAND = "Select One..." Then err_msg = err_msg & vbcr & "* Indicate which member of QI is assigned to On Demand today."
-        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."
         If err_msg <> "" and left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbCr & err_msg
     Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -323,7 +313,9 @@ const appointment_date		= 21
 const next_action_needed    = 22
 const on_working_list       = 23
 const questionable_intv     = 24
-const take_action_today     = 25
+const data_day_30			= 25
+const data_days_pend		= 26
+const take_action_today     = 27
 
 const worker_name_one       = 26
 const sup_name_one          = 27
@@ -486,30 +478,33 @@ call excel_open(working_excel_file_path, True, True, ObjWorkExcel, objWorkWorkbo
 
 date_working_excel_list_updated = ObjWorkExcel.Cells(1, list_update_date_col).value
 date_working_excel_list_updated = DateAdd("d", 0, date_working_excel_list_updated)
-
+date_working_excel_list_updated = #9/1/22#
 If date_working_excel_list_updated <> date Then
 
-	'Opening today's list
-	Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
-	objExcel.worksheets("Report 1").Activate                                 'Activates the initial BOBI report
+	'Setting constants
+	Const adOpenStatic = 3
+	Const adLockOptimistic = 3
 
-	'Activates worksheet based on user selection
-	objExcel.worksheets("Report 1").Activate
+	'declare the SQL statement that will query the database
+	objSQL = "SELECT * FROM ES.ES_OnDemandCashAndSnap"
 
-	next_working_day = DateAdd("d", 1, date)
-	Call change_date_to_soonest_working_day(next_working_day, "FORWARD")
-	number_of_days_until_next_working_day = DateDiff("d", date, next_working_day)
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open objSQL, objConnection
 
 	'Setting a starting value for a list of cases so that every case is bracketed by * on both sides.
 	todays_cases_list = "*"
 	case_entry = 0      'Setting an incrementor for the array to be filled
-	row = 5             'The BOBI report has cases starting at row 5
 
-	'Goes through the list, and creates an array of all cases - removing duplicates and removing cases with an interview date already listed
-	Do
-	    anything_number = trim(objExcel.Cells(row, 3).value)            'anything_number is just a placeholder for looking at the case numbers
-	    case_basket = trim(objExcel.Cells(row, 2).value)
-	    'MsgBox left(case_basket, 4)
+	Do While NOT objRecordSet.Eof
+		anything_number = objRecordSet("CaseNumber")
+		case_basket = objRecordSet("WorkerID")
+
 	    If left(case_basket, 4) = "X127" then
 	        If instr(todays_cases_list, "*" & anything_number & "*") = 0 then       'This indicates that the case number was not already found on the BOBI
 	            'MsgBox anything_number
@@ -517,27 +512,38 @@ If date_working_excel_list_updated <> date Then
 	            ReDim Preserve TODAYS_CASES_ARRAY(error_notes, case_entry)          'resizing the array to add this case to the array
 
 	            'Saving each piece of case information from the BOBI to the array
-	            TODAYS_CASES_ARRAY(worker_ID, case_entry) = trim(objExcel.Cells(row, 2).value)
-	            TODAYS_CASES_ARRAY(case_number, case_entry) = trim(objExcel.Cells(row, 3).value)
-	            TODAYS_CASES_ARRAY(excel_row, case_entry) = row
-	            TODAYS_CASES_ARRAY(client_name, case_entry) = trim(objExcel.cells(row, 4).value) 'storing all of the excel information
-	            TODAYS_CASES_ARRAY(application_date, case_entry) = trim(objExcel.cells(row, 7).value)
-	            TODAYS_CASES_ARRAY(interview_date, case_entry) = trim(objExcel.cells(row, 8).value)
+	            TODAYS_CASES_ARRAY(worker_ID, case_entry) = objRecordSet("WorkerID")
+	            TODAYS_CASES_ARRAY(case_number, case_entry) = objRecordSet("CaseNumber")
+	            ' TODAYS_CASES_ARRAY(excel_row, case_entry) = row
+	            TODAYS_CASES_ARRAY(client_name, case_entry) = objRecordSet("CaseName")
+	            TODAYS_CASES_ARRAY(application_date, case_entry) = objRecordSet("ApplDate")
+				TODAYS_CASES_ARRAY(application_date, case_entry) = DateAdd("d", 0, TODAYS_CASES_ARRAY(application_date, case_entry))
+	            TODAYS_CASES_ARRAY(interview_date, case_entry) = ""
+				TODAYS_CASES_ARRAY(data_day_30, case_entry) = objRecordSet("Day_30")
+				TODAYS_CASES_ARRAY(data_days_pend, case_entry) = objRecordSet("DaysPending")
 	            TODAYS_CASES_ARRAY(on_working_list, case_entry) = FALSE         'defaulting this to FALSE
 
 	            current_number = anything_number    'saving the case number that is being looked at for the next loop because these are sorted by case number
 	            case_entry = case_entry + 1         'incrementing for the array to resize on the next loop
-	        ElseIf anything_number = current_number Then    'this is if we are looking at the same case still
-	            'Checking to see if one of the later lines for the case indicates no interview = this will make the array show no interview if EITHER Cash or SNAP have no interview indicated in PROG
-	            If trim(objExcel.cells(row, 8).value) = "" Then TODAYS_CASES_ARRAY(interview_date, case_entry-1) = ""
+	        ' ElseIf anything_number = current_number Then    'this is if we are looking at the same case still
+	        '     'Checking to see if one of the later lines for the case indicates no interview = this will make the array show no interview if EITHER Cash or SNAP have no interview indicated in PROG
+	        '     If trim(objExcel.cells(row, 8).value) = "" Then TODAYS_CASES_ARRAY(interview_date, case_entry-1) = ""
 	        End If
 	        stats_counter = stats_counter + 1       'incrementing for stats
 	    End If
-	    row = row + 1   'Going to the next row
-	    next_case_number = trim(objExcel.Cells(row, 3).Value)
-	loop until next_case_number = ""
+		objRecordSet.MoveNext
+	Loop
 
-	objExcel.quit       'Once the array is created - we no longer need this Excel sheet open, and since we are going to open another one, it is safer to close it.
+	'close the connection and recordset objects to free up resources
+	objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
+
+	' MsgBox "Today we found " & UBound(TODAYS_CASES_ARRAY, 2) & " pending apps"
+	' For each_case = 0 to UBound(TODAYS_CASES_ARRAY, 2)
+	' 	MsgBox  TODAYS_CASES_ARRAY(worker_ID, each_case) & " - " & TODAYS_CASES_ARRAY(case_number, each_case) & " - " & TODAYS_CASES_ARRAY(client_name, each_case)
+	' Next
 
 	case_entry = 0      'incrementor to add a case to ALL_PENDING_CASES_ARRAY
 	case_removed = 0    'incrementor to add a case to CASES_NO_LONGER_WORKING
@@ -555,61 +561,7 @@ If date_working_excel_list_updated <> date Then
 	            TODAYS_CASES_ARRAY(on_working_list, each_case) = TRUE                   'Idetifying in the list of the cases on the BOBI that this case was also on the working list - and so won't need to be added later
 	            found_case_on_todays_list = TRUE                                        'Identifying that this row on the working list was also found on the BOBI - so it won't necessarily have to be removed from the working list later
 	            'MsgBox "Excel case number: " & case_number_to_assess & vbNewLine & "Array case number: " & TODAYS_CASES_ARRAY(case_number, each_case)
-	            If TODAYS_CASES_ARRAY(interview_date, each_case) <> "" Then             'If the BOBI reported indicated that an interview has been completed for all programs for a case on the Working lise
-	                'Remove from working sheet and add to list of cases removed
-	                'MsgBox "Interview Date: " & TODAYS_CASES_ARRAY(interview_date, each_case)
-	                ReDim Preserve CASES_NO_LONGER_WORKING(error_notes, case_removed)       'It is removed from the working list and added to an ARRAY of all the cases removed from the working list that day.
-	                CASES_NO_LONGER_WORKING(worker_ID, case_removed) = TODAYS_CASES_ARRAY(worker_ID, each_case)
-	                CASES_NO_LONGER_WORKING(case_number, case_removed) = TODAYS_CASES_ARRAY(case_number, each_case)
-	                CASES_NO_LONGER_WORKING(excel_row, case_removed) = row
-	                CASES_NO_LONGER_WORKING(client_name, case_removed) = TODAYS_CASES_ARRAY(client_name, each_case)
-	                CASES_NO_LONGER_WORKING(application_date, case_removed) = ObjWorkExcel.Cells(row, app_date_col)
-	                'CASES_NO_LONGER_WORKING(interview_date, case_removed) = ObjWorkExcel.Cells(row, intvw_date_col)
-	                CASES_NO_LONGER_WORKING(interview_date, case_removed) = TODAYS_CASES_ARRAY(interview_date, each_case)
-	                CASES_NO_LONGER_WORKING(CASH_status, case_removed) = ObjWorkExcel.Cells(row, cash_stat_col)
-	                CASES_NO_LONGER_WORKING(SNAP_status, case_removed) = ObjWorkExcel.Cells(row, snap_stat_col)
-
-	                CASES_NO_LONGER_WORKING(appt_notc_sent, case_removed) = ObjWorkExcel.Cells(row, appt_notc_date_col)
-	                CASES_NO_LONGER_WORKING(appt_notc_confirm, case_removed) = ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
-	                CASES_NO_LONGER_WORKING(appointment_date, case_removed) = ObjWorkExcel.Cells(row, appt_date_col)
-					CASES_NO_LONGER_WORKING(additional_app_date, case_removed) = ObjWorkExcel.Cells(row, second_app_date_col)
-					CASES_NO_LONGER_WORKING(rept_pnd2_listed_days, case_removed) = ObjWorkExcel.Cells(row, rept_pnd2_days_col)
-	                CASES_NO_LONGER_WORKING(nomi_sent, case_removed) = ObjWorkExcel.Cells(row, nomi_date_col)
-	                CASES_NO_LONGER_WORKING(nomi_confirm, case_removed) = ObjWorkExcel.Cells(row, nomi_confirm_col)
-	                CASES_NO_LONGER_WORKING(next_action_needed, case_removed) = ObjWorkExcel.Cells(row, next_action_col)
-	                CASES_NO_LONGER_WORKING(questionable_intv, case_removed) = ObjWorkExcel.Cells(row, quest_intvw_date_col)
-
-					CASES_NO_LONGER_WORKING(case_in_other_co, case_removed) = ObjWorkExcel.Cells(row, other_county_col)
-					CASES_NO_LONGER_WORKING(case_closed_in_30, case_removed) = ObjWorkExcel.Cells(row, closed_in_30_col)
-
-					' CASES_NO_LONGER_WORKING(intvw_quest_resolve, case_removed) = ObjWorkExcel.Cells(row, resolve_quest_intvw_col)
-
-
-	                CASES_NO_LONGER_WORKING(worker_name_one, case_removed) = ObjWorkExcel.Cells(row, worker_name_one_col)
-	                CASES_NO_LONGER_WORKING(sup_name_one, case_removed) = ObjWorkExcel.Cells(row, sup_name_one_col)
-	                CASES_NO_LONGER_WORKING(issue_item_one, case_removed) = ObjWorkExcel.Cells(row, issue_item_one_col)
-	                CASES_NO_LONGER_WORKING(email_ym_one, case_removed) = ObjWorkExcel.Cells(row, email_ym_one_col)
-	                CASES_NO_LONGER_WORKING(qi_worker_one, case_removed) = ObjWorkExcel.Cells(row, qi_worker_one_col)
-
-	                CASES_NO_LONGER_WORKING(worker_name_two, case_removed) = ObjWorkExcel.Cells(row, worker_name_two_col)
-	                CASES_NO_LONGER_WORKING(sup_name_two, case_removed) = ObjWorkExcel.Cells(row, sup_name_two_col)
-	                CASES_NO_LONGER_WORKING(issue_item_two, case_removed) = ObjWorkExcel.Cells(row, issue_item_two_col)
-	                CASES_NO_LONGER_WORKING(email_ym_two, case_removed) = ObjWorkExcel.Cells(row, email_ym_two_col)
-	                CASES_NO_LONGER_WORKING(qi_worker_two, case_removed) = ObjWorkExcel.Cells(row, qi_worker_two_col)
-
-	                CASES_NO_LONGER_WORKING(worker_name_three, case_removed) = ObjWorkExcel.Cells(row, worker_name_three_col)
-	                CASES_NO_LONGER_WORKING(sup_name_three, case_removed) = ObjWorkExcel.Cells(row, sup_name_three_col)
-	                CASES_NO_LONGER_WORKING(issue_item_three, case_removed) = ObjWorkExcel.Cells(row, issue_item_three_col)
-	                CASES_NO_LONGER_WORKING(email_ym_three, case_removed) = ObjWorkExcel.Cells(row, email_ym_three_col)
-	                CASES_NO_LONGER_WORKING(qi_worker_three, case_removed) = ObjWorkExcel.Cells(row, qi_worker_three_col)
-
-	                CASES_NO_LONGER_WORKING(error_notes, case_removed) = "Interview Completed on " & TODAYS_CASES_ARRAY(interview_date, each_case)  'This field is used on the removed cases list to indicate WHY it no longer needs to be on the working list
-
-	                case_removed = case_removed + 1     'increasing the incrementer for the removed cases ARRAY
-	                'DELETING THE ROW FOR THIS CASE FROM THE WORKING LIST- notice that ROW does not increase as the curent row is now new
-	                SET objRange = ObjWorkExcel.Cells(row, 1).EntireRow
-	                objRange.Delete
-	            ElseIf ObjWorkExcel.Cells(row, next_action_col) = "REMOVE FROM LIST" Then       'These cases were flagged on the Working Excel to be removed - usually because neither CASH or SNAP are pending any more.
+	            If ObjWorkExcel.Cells(row, next_action_col) = "REMOVE FROM LIST" Then       'These cases were flagged on the Working Excel to be removed - usually because neither CASH or SNAP are pending any more.
 	                'MsgBox "REMOVE FROM LIST"
 	                ReDim Preserve CASES_NO_LONGER_WORKING(error_notes, case_removed)           'It is removed from the working list and added to an ARRAY of all the cases removed from the working list that day.
 	                CASES_NO_LONGER_WORKING(worker_ID, case_removed) = ObjWorkExcel.Cells(row, worker_id_col)
@@ -777,7 +729,8 @@ If date_working_excel_list_updated <> date Then
 	        ObjWorkExcel.Cells(row, case_name_col) = TODAYS_CASES_ARRAY(client_name, case_entry)
 	        ObjWorkExcel.Cells(row, app_date_col) = TODAYS_CASES_ARRAY(application_date, case_entry)
 	        ObjWorkExcel.Cells(row, intvw_date_col) = TODAYS_CASES_ARRAY(interview_date, case_entry)
-
+			ObjWorkExcel.Cells(row, rept_pnd2_days_col) = TODAYS_CASES_ARRAY(data_days_pend, case_entry)
+			ObjWorkExcel.Cells(row, day_30_col) = TODAYS_CASES_ARRAY(data_day_30, case_entry)
 	        'ObjWorkExcel.Cells(row, ) = TODAYS_CASES_ARRAY(, case_entry)
 
 	        ReDim Preserve ALL_PENDING_CASES_ARRAY(error_notes, add_a_case)         'resizing the array of the Working Excel
@@ -2386,7 +2339,45 @@ objWorkListWorkbook.Save
 ObjDailyWorkListExcel.Quit
 ' MsgBox "Step Four - Worklist DONE"
 'Now the script reopens the daily list that was identified in the beginning
-call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
+file_date = replace(current_date, "/", "-")   'Changing the format of the date to use as file path selection default
+daily_case_list_folder = right("0" & DatePart("m", file_date), 2) & "-" & DatePart("yyyy", file_date)
+file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Daily case lists/" & daily_case_list_folder & "/" & file_date & ".xlsx" 'single assignment file
+
+' call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)
+'Opening the Excel file, (now that the dialog is done)
+'creating a new file to create the 'Daily List'
+Set objExcel = CreateObject("Excel.Application")
+objExcel.Visible = True
+Set objWorkbook = objExcel.Workbooks.Add()
+objExcel.DisplayAlerts = True
+
+'Changes name of Excel sheet to "Case information"
+ObjExcel.ActiveSheet.Name = "Report 1"
+
+ObjExcel.Cells(2, 4) = "Report 1"
+ObjExcel.Cells(4, 2) = "Case Worker ID"
+ObjExcel.Cells(4, 3) = "Case Number"
+ObjExcel.Cells(4, 4) = "Case Name"
+ObjExcel.Cells(4, 5) = "Program ID"
+ObjExcel.Cells(4, 6) = "Program Status"
+ObjExcel.Cells(4, 7) = "Program Application Date"
+ObjExcel.Cells(4, 8) = "Interview Date"
+ObjExcel.Range("B4:H4").Interior.ColorIndex = 5
+ObjExcel.Range("B4:H4").Font.ColorIndex = 2
+ObjExcel.Range("B4:H4").Font.Bold = True
+
+rept_one_row = 5
+For each_case = 0 to UBound(TODAYS_CASES_ARRAY, 2)
+	ObjExcel.Cells(rept_one_row, 2) = TODAYS_CASES_ARRAY(worker_ID, each_case)
+	ObjExcel.Cells(rept_one_row, 3) = TODAYS_CASES_ARRAY(case_number, each_case)
+	ObjExcel.Cells(rept_one_row, 4) = TODAYS_CASES_ARRAY(client_name, each_case)
+	ObjExcel.Cells(rept_one_row, 7) = TODAYS_CASES_ARRAY(application_date, each_case)
+	rept_one_row = rept_one_row + 1
+Next
+
+For col_to_autofit =2 to  8
+    ObjExcel.Columns(col_to_autofit).AutoFit()
+Next
 
 'It creates a new worksheet and names it
 ObjExcel.Worksheets.Add().Name = "Cases Removed From Working LIST"
@@ -2694,7 +2685,10 @@ For col_to_autofit =1 to  worker_notes_col      'formatting the sheet
 Next
 
 'Saving the Daily List
-objWorkbook.Save
+ObjExcel.ActiveWorkbook.SaveAs file_selection_path
+ObjExcel.Quit
+
+' objWorkbook.Save
 ' MsgBox "Step Five - going to do the stats"
 this_year = DatePart("yyyy", date)
 this_month = MonthName(Month(date))
