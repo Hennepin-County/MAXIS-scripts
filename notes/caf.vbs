@@ -10175,8 +10175,8 @@ If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It w
 
 save_your_work
 
-revw_pending_table = False                                           'Now we need to determine if this case needs an appointment letter based on the program(s) pending
-If unknown_cash_pending = True Then revw_pending_table = True
+revw_pending_table = False                                                      'Determining if we should be adding this case to the CasesPending SQL Table
+If unknown_cash_pending = True Then revw_pending_table = True                   'case should be pending cash or snap and NOT have SNAP active
 If ga_status = "PENDING" Then revw_pending_table = True
 If msa_status = "PENDING" Then revw_pending_table = True
 If mfip_status = "PENDING" Then revw_pending_table = True
@@ -10186,12 +10186,11 @@ If snap_status = "PENDING" Then revw_pending_table = True
 If snap_status = "ACTIVE" Then revw_pending_table = False
 
 'Here we go to ensure this case is listed in the CasesPending table for ES Workflow
-If developer_mode = False AND revw_pending_table = True Then
-' If revw_pending_table = True Then
+If developer_mode = False AND revw_pending_table = True Then                    'Only do this if not in training region.
 
-    eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)
+    eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
 
-    If unknown_cash_pending = True Then cash_stat_code = "P"
+    If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
 
     If ma_status = "INACTIVE" Or ma_status = "APP CLOSE" Then hc_stat_code = "I"
     If ma_status = "ACTIVE" Or ma_status = "APP OPEN" Then hc_stat_code = "A"
@@ -10228,9 +10227,7 @@ If developer_mode = False AND revw_pending_table = True Then
     If snap_status = "ACTIVE" Or snap_status = "APP OPEN" Then snap_stat_code = "A"
     If snap_status = "INACTIVE" Or snap_status = "APP CLOSE" Then snap_stat_code = "I"
 
-    ' worker_id_for_data_table
-
-    appears_expedited_for_data_table = 1
+    appears_expedited_for_data_table = 1                                        'Setting if case is Expedited or not based on information in the Determination.
     If is_elig_XFS = False Then appears_expedited_for_data_table = 0
 
     'Setting constants
@@ -10244,17 +10241,21 @@ If developer_mode = False AND revw_pending_table = True Then
     Set objConnection = CreateObject("ADODB.Connection")
     Set objRecordSet = CreateObject("ADODB.Recordset")
 
+    'This is the BZST connection to SQL Database'
     objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
     objRecordSet.Open objSQL, objConnection
 
+    'looping through all the records in the CasesPending SQL table to see if one is already entered for this case.
     current_case_record_found = False
     Do While NOT objRecordSet.Eof
         If objRecordSet("CaseNumber") = eight_digit_case_number Then current_case_record_found = True
         objRecordSet.MoveNext
     Loop
     objRecordSet.Close
+    'if one was found we are going to delete that record
     If current_case_record_found = True Then objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
 
+    'Add a new record with this case information'
     objRecordSet.Open "INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
                       "VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & date_of_application & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & appears_expedited_for_data_table & "', '" & date & "')", objConnection, adOpenStatic, adLockOptimistic
 
