@@ -860,8 +860,8 @@ END IF
 '	PF3
 'END IF
 
-revw_pending_table = False                                           'Now we need to determine if this case needs an appointment letter based on the program(s) pending
-If unknown_cash_pending = True Then revw_pending_table = True
+revw_pending_table = False                                           'Determining if we should be adding this case to the CasesPending SQL Table
+If unknown_cash_pending = True Then revw_pending_table = True       'case should be pending cash or snap and NOT have SNAP active
 If ga_status = "PENDING" Then revw_pending_table = True
 If msa_status = "PENDING" Then revw_pending_table = True
 If mfip_status = "PENDING" Then revw_pending_table = True
@@ -869,12 +869,12 @@ If dwp_status = "PENDING" Then revw_pending_table = True
 If grh_status = "PENDING" Then revw_pending_table = True
 If snap_status = "PENDING" Then revw_pending_table = True
 If snap_status = "ACTIVE" Then revw_pending_table = False
-If trim(mx_region) = "TRAINING" Then revw_pending_table = False
+If trim(mx_region) = "TRAINING" Then revw_pending_table = False     'we do NOT want TRAINING cases in the SQL Table.
 
 If revw_pending_table = True Then
-    eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)
+    eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
 
-    If unknown_cash_pending = True Then cash_stat_code = "P"
+    If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
 
     If ma_status = "INACTIVE" Or ma_status = "APP CLOSE" Then hc_stat_code = "I"
     If ma_status = "ACTIVE" Or ma_status = "APP OPEN" Then hc_stat_code = "A"
@@ -911,7 +911,7 @@ If revw_pending_table = True Then
     If snap_status = "ACTIVE" Or snap_status = "APP OPEN" Then snap_stat_code = "A"
     If snap_status = "INACTIVE" Or snap_status = "APP CLOSE" Then snap_stat_code = "I"
 
-    If no_transfer_checkbox = checked Then worker_id_for_data_table = initial_pw_for_data_table
+    If no_transfer_checkbox = checked Then worker_id_for_data_table = initial_pw_for_data_table     'determining the X-Number for table entry
     If no_transfer_checkbox = unchecked Then worker_id_for_data_table = transfer_to_worker
     'Setting constants
     Const adOpenStatic = 3
@@ -924,11 +924,11 @@ If revw_pending_table = True Then
     Set objConnection = CreateObject("ADODB.Connection")
     Set objRecordSet = CreateObject("ADODB.Recordset")
 
-    'This is the file path for the statistics Access database.
-    ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+    'This is the BZST connection to SQL Database'
     objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
     objRecordSet.Open objSQL, objConnection
 
+    'looping through all the records in the CasesPending SQL table to see if one is already entered for this case.
     current_case_record_found = False
     Do While NOT objRecordSet.Eof
         If objRecordSet("CaseNumber") = eight_digit_case_number Then
@@ -937,20 +937,14 @@ If revw_pending_table = True Then
         objRecordSet.MoveNext
     Loop
     objRecordSet.Close
-    If current_case_record_found = True Then
+    If current_case_record_found = True Then                                    'if one was found we are going to delete that record
         objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-        ' objRecordSet.Open "UPDATE ES.ES_CasesPending SET ApplDate = '" & application_date & "', FSStatusCode = '" & snap_stat_code & "',CashStatusCode = '" & cash_stat_code & "',HCStatusCode = '" & hc_stat_code & "',GAStatusCode = '" & ga_stat_code & "',GRStatusCode = '" & grh_stat_code & "',EAStatusCode = '" & emer_stat_code & "',MFStatusCode = '" & mfip_stat_code & "',IsExpSnap = '" & 1 & "',UpdateDate = '" & date & "'" &  _
-        '                   "WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection, adOpenStatic, adLockOptimistic
     End If
-    ' If current_case_record_found = False Then
-    ' End if
+    'Add a new record with this case information'
     objRecordSet.Open "INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
                       "VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & application_date & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & 1 & "', '" & date & "')", objConnection, adOpenStatic, adLockOptimistic
 
-
-
     'close the connection and recordset objects to free up resources
-    ' objRecordSet.Close
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
