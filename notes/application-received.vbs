@@ -869,7 +869,7 @@ If dwp_status = "PENDING" Then revw_pending_table = True
 If grh_status = "PENDING" Then revw_pending_table = True
 If snap_status = "PENDING" Then revw_pending_table = True
 If snap_status = "ACTIVE" Then revw_pending_table = False
- ' If trim(mx_region) = "TRAINING" Then revw_pending_table = False
+If trim(mx_region) = "TRAINING" Then revw_pending_table = False
 
 If revw_pending_table = True Then
     eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)
