@@ -14,7 +14,7 @@ FOR uc_membs = 0 to uBound(uc_members_array, 2) ' uc_membs = incrementor '
 FMCAMAM1 = Case Notes (NOTE)
 FMCAMAM2 = Case Notes (NOTE) inside case note
 FMKDLAM6 = DAIL report
-FMCADAM1 =  Edit Summary (SUMM)
+FMCADAM1 = Edit Summary (SUMM)
 FMACAAM1 = Case Status Display  (CASE)
 FMBDAAM9 = Household Member (MEMB)
 FMCAHAP1 = Stat Panel Personal Summary (PNLP)
@@ -26,7 +26,8 @@ FMCDJAME = Work Registration (WREG)
 FMCCKDMD = Case Reviews (REVW)
 FMLVCAM2 = Income Verifications To Do (IEVC)
 FMLWIAM3 = Verification Log Update (IULA)
-FMKHTAM1 = Current Statuses Display  (CURR) 
+FMKHTAM1 = Current Statuses Display  (CURR)
+FMCHBAM1 = Absent Parent Status (ABPS)
 IF STAT_note_check = "NOTE" THEN
     EMReadScreen screen_code 8, 1, 72
     IF screen_code = "FMCAMAM2" THEN 'FMCAMAM2 = Case Notes (NOTE) inside case note
