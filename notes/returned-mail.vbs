@@ -466,6 +466,8 @@ CALL script_end_procedure_with_error_report(closing_message)
 '--All variables are CASE:NOTEing (if required)---------------------------------05/11/2022
 '--CASE:NOTE Header doesn't look funky------------------------------------------05/11/2022
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------06/14/2022
+'--write_variable_in_CASE_NOTE function: confirm proper punctuation is used-----09/06/2022
+
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/11/2022
 '--MAXIS_background_check reviewed (if applicable)------------------------------05/11/2022
@@ -473,7 +475,8 @@ CALL script_end_procedure_with_error_report(closing_message)
 '--Out-of-County handling reviewed----------------------------------------------05/11/2022	discussed with Ilse
 '--script_end_procedures (w/ or w/o error messaging)----------------------------05/11/2022
 '--BULK - review output of statistics and run time/count (if applicable)--------05/11/2022
-'
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---09/06/2022
+
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------05/14/2022
 '--Incrementors reviewed (if necessary)-----------------------------------------N/A
@@ -482,9 +485,9 @@ CALL script_end_procedure_with_error_report(closing_message)
 '--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------06/14/2022
-'--comment Code-----------------------------------------------------------------06/14/2022
-'--Update Changelog for release/update------------------------------------------06/14/2022
+'--Confirm all GitHub tasks are complete----------------------------------------09/06/2022
+'--Comment code-----------------------------------------------------------------06/14/2022
+'--Update changelog for release/update------------------------------------------06/14/2022
 '--Remove testing message boxes-------------------------------------------------06/14/2022
 '--Remove testing code/unnecessary code-----------------------------------------09/06/2022
 '--Review/update SharePoint instructions----------------------------------------06/14/2022
@@ -492,5 +495,4 @@ CALL script_end_procedure_with_error_report(closing_message)
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/14/2022
 '--Complete misc. documentation (if applicable)---------------------------------06/14/2022
 '--Update project team/issue contact (if applicable)----------------------------06/14/2022
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---09/06/2022
-'--Other Note-------------------------------------------------------------------'SNAP 2. On STAT/ADDR, enter the new address from the returned mail envelope.  Enter "OT" in the verification field. We are not updating OT as it is in the residential area of the script
+'--Other Note-------------------------------------------------------------------SNAP 2. On STAT/ADDR, enter the new address from the returned mail envelope.  Enter "OT" in the verification field. We are not updating OT as it is in the residential area of the script
