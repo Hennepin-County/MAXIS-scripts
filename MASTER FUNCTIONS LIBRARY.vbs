@@ -7769,12 +7769,12 @@ Function hest_standards(heat_AC_amt, electric_amt, phone_amt, date_variable)
 '~~~~~ phone_amt: Phone expense variable. Recommended to keep as phone_amt.
 '~~~~~ date_variable: This is the date you need to compare to when measuring against the October date. Generally this is the application_date.
 '===== Keywords: MAXIS, member, array, dialog
-    If DateDiff("d",date_variable,#10/01/2021#) <= 0 then
+    If DateDiff("d",date_variable,#10/01/2022#) <= 0 then
         'October 2022 -- Amounts for applications on or AFTER 10/01/2022
         heat_AC_amt = 586
         electric_amt = 185
         phone_amt = 55
-    Elseif DateDiff("d",date_variable,#10/01/2021#) > 0 then
+    Elseif DateDiff("d",date_variable,#10/01/2022#) > 0 then
         'October 2021 -- Amounts for applications BEFORE 10/01/2022
         heat_AC_amt = 488
         electric_amt = 149
