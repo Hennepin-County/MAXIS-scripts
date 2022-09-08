@@ -2905,6 +2905,8 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 					Call write_variable_in_CASE_NOTE("---")
 					Call write_variable_in_CASE_NOTE(CAREGIVER_ARRAY(memb_name_const, caregiver) & " did not meet an exemption from completing an MFIP Orientation")
 					Call write_variable_in_CASE_NOTE("---")
+                    Call write_bullet_and_variable_in_CASE_NOTE("Notes on Program Selection", famliy_cash_notes)
+                    Call write_variable_in_CASE_NOTE("---")
 					Call write_variable_in_CASE_NOTE(worker_signature)
 
 				ElseIf CAREGIVER_ARRAY(orientation_exempt_const, caregiver) = True Then
@@ -2913,6 +2915,8 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 					Call write_bullet_and_variable_in_CASE_NOTE("Assessment Completed", date)
 					Call write_bullet_and_variable_in_CASE_NOTE("Exemption Reason", CAREGIVER_ARRAY(exemption_reason_const, caregiver))
 					Call write_variable_in_CASE_NOTE("---")
+                    Call write_bullet_and_variable_in_CASE_NOTE("Notes on Program Selection", famliy_cash_notes)
+                    Call write_variable_in_CASE_NOTE("---")
 					Call write_variable_in_CASE_NOTE(worker_signature)
 
 				End If
@@ -3578,6 +3582,7 @@ function save_your_work()
 
             objTextStream.WriteLine "MFIP - ORNT - " & MFIP_orientation_assessed_and_completed
             objTextStream.WriteLine "MFIP - DWP - " & family_cash_program
+            objTextStream.WriteLine "FMCA - 01 - " & famliy_cash_notes
 
 			objTextStream.WriteLine "PROG - CASH - " & cash_other_req_detail
 			objTextStream.WriteLine "PROG - SNAP - " & snap_other_req_detail
@@ -4104,7 +4109,8 @@ function save_your_work()
 			script_run_lowdown = ""
 			script_run_lowdown = script_run_lowdown & vbCr & "TIME SPENT - "	& timer - start_time & vbCr & vbCr
             script_run_lowdown = script_run_lowdown & vbCr & "MFIP - ORNT - " & MFIP_orientation_assessed_and_completed & vbCr & vbCr
-            script_run_lowdown = script_run_lowdown & vbCr & "MFIP - DWP - " & family_cash_program & vbCr & vbCr
+            script_run_lowdown = script_run_lowdown & vbCr & "MFIP - DWP - " & family_cash_program
+            script_run_lowdown = script_run_lowdown & vbCr & "FMCA - 01 - " & famliy_cash_notes & vbCr & vbCr
 
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - CASH - " & cash_other_req_detail
 			script_run_lowdown = script_run_lowdown & vbCr & "PROG - SNAP - " & snap_other_req_detail
@@ -4659,6 +4665,7 @@ function restore_your_work(vars_filled)
                     If UCase(MFIP_orientation_assessed_and_completed) = "TRUE" Then MFIP_orientation_assessed_and_completed = True
                     If UCase(MFIP_orientation_assessed_and_completed) = "FALSE" Then MFIP_orientation_assessed_and_completed = False
                     If left(text_line, 10) = "MFIP - DWP" Then family_cash_program = Mid(text_line, 14)
+                    If left(text_line, 9) = "FMCA - 01" Then famliy_cash_notes = Mid(text_line, 13)
 
 					If left(text_line, 11) = "PROG - CASH" Then cash_other_req_detail = Mid(text_line, 15)
 					If left(text_line, 11) = "PROG - SNAP" Then snap_other_req_detail = Mid(text_line, 15)
@@ -6422,6 +6429,12 @@ function write_interview_CASE_NOTE()
 		CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
 	End If
     Call write_bullet_and_variable_in_CASE_NOTE("Case Information", case_summary)
+    If cash_request = True and the_process_for_cash = "Application" and type_of_cash = "Family" Then
+        Call write_variable_in_CASE_NOTE("Family Cash Program Selection Details")
+        CALL write_bullet_and_variable_in_CASE_NOTE("Program selected", family_cash_program)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Selection Notes", famliy_cash_notes)
+    End If
+
 	CALL write_variable_in_CASE_NOTE("Completed with " & who_are_we_completing_the_interview_with & " via " & how_are_we_completing_the_interview)
 	If trim(interpreter_information) <> "" AND interpreter_information <> "No Interpreter Used" Then
 		CALL write_variable_in_CASE_NOTE("Interview had interpreter: " & interpreter_information)
@@ -8544,7 +8557,7 @@ Dim resi_addr_city, resi_addr_state, resi_addr_zip, reservation_yn, reservation_
 Dim phone_two_type, phone_three_number, phone_three_type, address_change_date, resi_addr_county, CAF_datestamp, all_the_clients, err_msg, interpreter_information, interpreter_language, arep_interview_id_information, non_applicant_interview_info
 Dim intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, intv_exp_pay_none_checkbox
 Dim id_verif_on_file, snap_active_in_other_state, last_snap_was_exp, how_are_we_completing_the_interview
-Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail, family_cash_program
+Dim cash_other_req_detail, snap_other_req_detail, emer_other_req_detail, family_cash_program, famliy_cash_notes
 
 Dim question_1_yn, question_1_notes, question_1_verif_yn, question_1_verif_details, question_1_interview_notes
 Dim question_2_yn, question_2_notes, question_2_verif_yn, question_2_verif_details, question_2_interview_notes
