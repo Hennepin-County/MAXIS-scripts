@@ -708,7 +708,9 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 					Call write_bullet_and_variable_in_CASE_NOTE("Orientation Notes", CAREGIVER_ARRAY(orientation_notes, caregiver))
 					If CAREGIVER_ARRAY(choice_form_done_const, caregiver) = True Then Call write_variable_in_CASE_NOTE("* ESP Choice Sheet: Completed in Case File ")
 					Call write_variable_in_CASE_NOTE("---")
-					Call write_variable_in_CASE_NOTE(CAREGIVER_ARRAY(memb_name_const, caregiver) & " did not meet an exemption from completing an MFIP Orientation")
+					Call write_variable_in_CASE_NOTE(CAREGIVER_ARRAY(memb_name_const, caregiver) & " did not meet an exemption from completing an MFIP Orientation.")
+					Call write_variable_in_CASE_NOTE("---")
+					Call write_bullet_and_variable_in_CASE_NOTE("Notes on Program Selection", famliy_cash_notes)
 					Call write_variable_in_CASE_NOTE("---")
 					Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -717,6 +719,8 @@ function complete_MFIP_orientation(CAREGIVER_ARRAY, memb_ref_numb_const, memb_na
 					Call write_variable_in_CASE_NOTE(CAREGIVER_ARRAY(memb_name_const, caregiver) & " is Exempt from MFIP Orientation")
 					Call write_bullet_and_variable_in_CASE_NOTE("Assessment Completed", date)
 					Call write_bullet_and_variable_in_CASE_NOTE("Exemption Reason", CAREGIVER_ARRAY(exemption_reason_const, caregiver))
+					Call write_variable_in_CASE_NOTE("---")
+					Call write_bullet_and_variable_in_CASE_NOTE("Notes on Program Selection", famliy_cash_notes)
 					Call write_variable_in_CASE_NOTE("---")
 					Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -795,7 +799,7 @@ Do
 
 		If ButtonPressed = mfip_orientation_instructions_btn Then				'This button will open the instructions and then reshow the dialog
 			err_msg = "LOOP"
-			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20MFIP%20ORIENTATION.docx"
+			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20MFIP%20ORIENTATION.docx"
 		End If
 	    'If the error message isn't blank or if the instructions button wasn't pressed, it'll pop up a message telling you what to do!
 		IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue."     '
@@ -821,7 +825,7 @@ If is_this_priv = True Then Call script_end_procedure("It appears that this case
 EMWriteScreen "01", 20, 76
 transmit
 
-EMReadScreen case_pw_county, 2, 21, 19											'check to see if the case is in another county
+EMReadScreen case_pw_county, 2, 21, 23											'check to see if the case is in another county
 If case_pw_county <> "27" Then Call script_end_procedure("This case is not in Hennepin County and the script cannot take action on a case in another county. The script will now end.")
 
 DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
@@ -927,6 +931,8 @@ script_end_procedure_with_error_report(end_msg)
 '--All variables are CASE:NOTEing (if required)---------------------------------08/31/2022
 '--CASE:NOTE Header doesn't look funky------------------------------------------08/31/2022
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function:
+'    confirm that proper punctuation is used -----------------------------------09/08/2022
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------08/31/2022
@@ -950,7 +956,7 @@ script_end_procedure_with_error_report(end_msg)
 '--Update Changelog for release/update------------------------------------------08/31/2022
 '--Remove testing message boxes-------------------------------------------------08/31/2022
 '--Remove testing code/unnecessary code-----------------------------------------08/31/2022					There is still some testing code in the function - this will behandled when moved to FuncLib
-'--Review/update SharePoint instructions----------------------------------------08/31/2022					QUESTION - the instructions are connected to interview - should I make 2? or remove the Interview specific identifier
+'--Review/update SharePoint instructions----------------------------------------08/31/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------							TODO - Once initial testing is done - add feedback to add the script to the HSR manual page
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------TODO
 '--Complete misc. documentation (if applicable)---------------------------------N/A
