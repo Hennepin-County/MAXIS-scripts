@@ -5482,11 +5482,6 @@ If CAF_form = "CAF Addendum (DHS-5223C)" Then
     Call run_from_GitHub(script_repository & "notes/caf-addendum.vbs")
 End If
 
-Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, active_programs, programs_applied_for)
-EMReadScreen worker_id_for_data_table, 7, 21, 14
-EMReadScreen case_name_for_data_table, 25, 21, 40
-case_name_for_data_table = trim(case_name_for_data_table)
-
 vars_filled = False
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
 
@@ -10174,94 +10169,5 @@ end_msg = "Success! " & CAF_form & " has been successfully noted. Please remembe
 If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
 
 save_your_work
-
-revw_pending_table = False                                                      'Determining if we should be adding this case to the CasesPending SQL Table
-If unknown_cash_pending = True Then revw_pending_table = True                   'case should be pending cash or snap and NOT have SNAP active
-If ga_status = "PENDING" Then revw_pending_table = True
-If msa_status = "PENDING" Then revw_pending_table = True
-If mfip_status = "PENDING" Then revw_pending_table = True
-If dwp_status = "PENDING" Then revw_pending_table = True
-If grh_status = "PENDING" Then revw_pending_table = True
-If snap_status = "PENDING" Then revw_pending_table = True
-If snap_status = "ACTIVE" Then revw_pending_table = False
-
-'Here we go to ensure this case is listed in the CasesPending table for ES Workflow
-If developer_mode = False AND revw_pending_table = True Then                    'Only do this if not in training region.
-
-    eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
-
-    If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
-
-    If ma_status = "INACTIVE" Or ma_status = "APP CLOSE" Then hc_stat_code = "I"
-    If ma_status = "ACTIVE" Or ma_status = "APP OPEN" Then hc_stat_code = "A"
-    If ma_status = "REIN" Then hc_stat_code = "R"
-    If ma_status = "PENDING" Then hc_stat_code = "P"
-    If msp_status = "INACTIVE" Or msp_status = "APP CLOSE" Then hc_stat_code = "I"
-    If msp_status = "ACTIVE" Or msp_status = "APP OPEN" Then hc_stat_code = "A"
-    If msp_status = "REIN" Then hc_stat_code = "R"
-    If msp_status = "PENDING" Then hc_stat_code = "P"
-    If unknown_hc_pending = True Then hc_stat_code = "P"
-
-    If ga_status = "PENDING" Then ga_stat_code = "P"
-    If ga_status = "REIN" Then ga_stat_code = "R"
-    If ga_status = "ACTIVE" Or ga_status = "APP OPEN" Then ga_stat_code = "A"
-    If ga_status = "INACTIVE" Or ga_status = "APP CLOSE" Then ga_stat_code = "I"
-
-    If grh_status = "PENDING" Then grh_stat_code = "P"
-    If grh_status = "REIN" Then grh_stat_code = "R"
-    If grh_status = "ACTIVE" Or grh_status = "APP OPEN" Then grh_stat_code = "A"
-    If grh_status = "INACTIVE" Or grh_status = "APP CLOSE" Then grh_stat_code = "I"
-
-    If emer_status = "PENDING" Then emer_stat_code = "P"
-    If emer_status = "REIN" Then emer_stat_code = "R"
-    If emer_status = "ACTIVE" Or emer_status = "APP OPEN" Then emer_stat_code = "A"
-    If emer_status = "INACTIVE" Or emer_status = "APP CLOSE" Then emer_stat_code = "I"
-
-    If mfip_status = "PENDING" Then mfip_stat_code = "P"
-    If mfip_status = "REIN" Then mfip_stat_code = "R"
-    If mfip_status = "ACTIVE" Or mfip_status = "APP OPEN" Then mfip_stat_code = "A"
-    If mfip_status = "INACTIVE" Or mfip_status = "APP CLOSE" Then mfip_stat_code = "I"
-
-    If snap_status = "PENDING" Then snap_stat_code = "P"
-    If snap_status = "REIN" Then snap_stat_code = "R"
-    If snap_status = "ACTIVE" Or snap_status = "APP OPEN" Then snap_stat_code = "A"
-    If snap_status = "INACTIVE" Or snap_status = "APP CLOSE" Then snap_stat_code = "I"
-
-    appears_expedited_for_data_table = 1                                        'Setting if case is Expedited or not based on information in the Determination.
-    If is_elig_XFS = False Then appears_expedited_for_data_table = 0
-
-    'Setting constants
-    Const adOpenStatic = 3
-    Const adLockOptimistic = 3
-
-    'declare the SQL statement that will query the database
-    objSQL = "SELECT * FROM ES.ES_CasesPending"
-
-    'Creating objects for Access
-    Set objConnection = CreateObject("ADODB.Connection")
-    Set objRecordSet = CreateObject("ADODB.Recordset")
-
-    'This is the BZST connection to SQL Database'
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-    objRecordSet.Open objSQL, objConnection
-
-    'looping through all the records in the CasesPending SQL table to see if one is already entered for this case.
-    current_case_record_found = False
-    Do While NOT objRecordSet.Eof
-        If objRecordSet("CaseNumber") = eight_digit_case_number Then current_case_record_found = True
-        objRecordSet.MoveNext
-    Loop
-    objRecordSet.Close
-    'if one was found we are going to delete that record
-    If current_case_record_found = True Then objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-
-    'Add a new record with this case information'
-    objRecordSet.Open "INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
-                      "VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & date_of_application & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & appears_expedited_for_data_table & "', '" & date & "')", objConnection, adOpenStatic, adLockOptimistic
-
-    objConnection.Close
-    Set objRecordSet=nothing
-    Set objConnection=nothing
-End If
 
 script_end_procedure_with_error_report(end_msg)

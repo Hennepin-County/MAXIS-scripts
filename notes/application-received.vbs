@@ -153,8 +153,6 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "SUMM", is_this_priv)
 IF is_this_priv = True THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again. ")
 MAXIS_background_check      'Making sure we are out of background.
-EMReadScreen initial_pw_for_data_table, 7, 21, 17
-EMReadScreen case_name_for_data_table, 20, 21, 46
 
 'Grabbing case and program status information from MAXIS.
 'For tis script to work correctly, these must be correct BEFORE running the script.
@@ -168,12 +166,6 @@ If case_status = "CAF1 PENDING" OR case_pending = False Then                    
 End If
 
 call back_to_SELF           'resetting
-EMReadScreen mx_region, 10, 22, 48
-
-If mx_region = "INQUIRY DB" Then
-    ' continue_in_inquiry = MsgBox("It appears you are attempting to have the script send notices for these cases." & vbNewLine & vbNewLine & "However, you appear to be in MAXIS Inquiry." &vbNewLine & "*************************" & vbNewLine & "Do you want to continue?", vbQuestion + vbYesNo, "Confirm Inquiry")
-    ' If continue_in_inquiry = vbNo Then script_end_procedure("Live script run was attempted in Inquiry and aborted.")
-End If
 
 multiple_app_dates = False                          'defaulting the boolean about multiple application dates to FALSE
 EMWriteScreen MAXIS_case_number, 18, 43             'now we are going to try to get to REPT/PND2 for the case to read the application date.
@@ -859,96 +851,6 @@ END IF
 '  	CALL write_variable_in_CASE_NOTE (worker_signature)
 '	PF3
 'END IF
-
-revw_pending_table = False                                           'Determining if we should be adding this case to the CasesPending SQL Table
-If unknown_cash_pending = True Then revw_pending_table = True       'case should be pending cash or snap and NOT have SNAP active
-If ga_status = "PENDING" Then revw_pending_table = True
-If msa_status = "PENDING" Then revw_pending_table = True
-If mfip_status = "PENDING" Then revw_pending_table = True
-If dwp_status = "PENDING" Then revw_pending_table = True
-If grh_status = "PENDING" Then revw_pending_table = True
-If snap_status = "PENDING" Then revw_pending_table = True
-If snap_status = "ACTIVE" Then revw_pending_table = False
-If trim(mx_region) = "TRAINING" Then revw_pending_table = False     'we do NOT want TRAINING cases in the SQL Table.
-
-If revw_pending_table = True Then
-    eight_digit_case_number = right("00000000"&MAXIS_case_number, 8)            'The SQL table functionality needs the leading 0s added to the Case Number
-
-    If unknown_cash_pending = True Then cash_stat_code = "P"                    'determining the program codes for the table entry
-
-    If ma_status = "INACTIVE" Or ma_status = "APP CLOSE" Then hc_stat_code = "I"
-    If ma_status = "ACTIVE" Or ma_status = "APP OPEN" Then hc_stat_code = "A"
-    If ma_status = "REIN" Then hc_stat_code = "R"
-    If ma_status = "PENDING" Then hc_stat_code = "P"
-    If msp_status = "INACTIVE" Or msp_status = "APP CLOSE" Then hc_stat_code = "I"
-    If msp_status = "ACTIVE" Or msp_status = "APP OPEN" Then hc_stat_code = "A"
-    If msp_status = "REIN" Then hc_stat_code = "R"
-    If msp_status = "PENDING" Then hc_stat_code = "P"
-    If unknown_hc_pending = True Then hc_stat_code = "P"
-
-    If ga_status = "PENDING" Then ga_stat_code = "P"
-    If ga_status = "REIN" Then ga_stat_code = "R"
-    If ga_status = "ACTIVE" Or ga_status = "APP OPEN" Then ga_stat_code = "A"
-    If ga_status = "INACTIVE" Or ga_status = "APP CLOSE" Then ga_stat_code = "I"
-
-    If grh_status = "PENDING" Then grh_stat_code = "P"
-    If grh_status = "REIN" Then grh_stat_code = "R"
-    If grh_status = "ACTIVE" Or grh_status = "APP OPEN" Then grh_stat_code = "A"
-    If grh_status = "INACTIVE" Or grh_status = "APP CLOSE" Then grh_stat_code = "I"
-
-    If emer_status = "PENDING" Then emer_stat_code = "P"
-    If emer_status = "REIN" Then emer_stat_code = "R"
-    If emer_status = "ACTIVE" Or emer_status = "APP OPEN" Then emer_stat_code = "A"
-    If emer_status = "INACTIVE" Or emer_status = "APP CLOSE" Then emer_stat_code = "I"
-
-    If mfip_status = "PENDING" Then mfip_stat_code = "P"
-    If mfip_status = "REIN" Then mfip_stat_code = "R"
-    If mfip_status = "ACTIVE" Or mfip_status = "APP OPEN" Then mfip_stat_code = "A"
-    If mfip_status = "INACTIVE" Or mfip_status = "APP CLOSE" Then mfip_stat_code = "I"
-
-    If snap_status = "PENDING" Then snap_stat_code = "P"
-    If snap_status = "REIN" Then snap_stat_code = "R"
-    If snap_status = "ACTIVE" Or snap_status = "APP OPEN" Then snap_stat_code = "A"
-    If snap_status = "INACTIVE" Or snap_status = "APP CLOSE" Then snap_stat_code = "I"
-
-    If no_transfer_checkbox = checked Then worker_id_for_data_table = initial_pw_for_data_table     'determining the X-Number for table entry
-    If no_transfer_checkbox = unchecked Then worker_id_for_data_table = transfer_to_worker
-    'Setting constants
-    Const adOpenStatic = 3
-    Const adLockOptimistic = 3
-
-    'declare the SQL statement that will query the database
-    objSQL = "SELECT * FROM ES.ES_CasesPending"
-
-    'Creating objects for Access
-    Set objConnection = CreateObject("ADODB.Connection")
-    Set objRecordSet = CreateObject("ADODB.Recordset")
-
-    'This is the BZST connection to SQL Database'
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-    objRecordSet.Open objSQL, objConnection
-
-    'looping through all the records in the CasesPending SQL table to see if one is already entered for this case.
-    current_case_record_found = False
-    Do While NOT objRecordSet.Eof
-        If objRecordSet("CaseNumber") = eight_digit_case_number Then
-            current_case_record_found = True
-        End If
-        objRecordSet.MoveNext
-    Loop
-    objRecordSet.Close
-    If current_case_record_found = True Then                                    'if one was found we are going to delete that record
-        objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-    End If
-    'Add a new record with this case information'
-    objRecordSet.Open "INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
-                      "VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & application_date & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & 1 & "', '" & date & "')", objConnection, adOpenStatic, adLockOptimistic
-
-    'close the connection and recordset objects to free up resources
-    objConnection.Close
-    Set objRecordSet=nothing
-    Set objConnection=nothing
-End If
 
 'Now we create some messaging to explain what happened in the script run.
 end_msg = "Application Received has been noted."
