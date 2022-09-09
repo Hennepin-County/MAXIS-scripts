@@ -2168,6 +2168,20 @@ script_array(script_num).used_for_elig			= False
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "MFIP Orientation"
+' script_array(script_num).description 			= "Template and email support for when METS retro coverage has been requested."
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Application", "MFIP")
+script_array(script_num).dlg_keys               = array("Cn")
+script_array(script_num).subcategory            = array("M-Z")
+script_array(script_num).release_date           = #09/10/2022#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name			= "MFIP Sanction"
 ' script_array(script_num).description 			= "Pulls a list of active MFIP cases with identified info into an Excel spreadsheet."
 script_array(script_num).category               = "BULK"
