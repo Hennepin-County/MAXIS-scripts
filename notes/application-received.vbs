@@ -913,6 +913,8 @@ If revw_pending_table = True Then
 
     If no_transfer_checkbox = checked Then worker_id_for_data_table = initial_pw_for_data_table     'determining the X-Number for table entry
     If no_transfer_checkbox = unchecked Then worker_id_for_data_table = transfer_to_worker
+    If len(worker_id_for_data_table) = 3 Then worker_id_for_data_table = "X127" & worker_id_for_data_table
+    
     'Setting constants
     Const adOpenStatic = 3
     Const adLockOptimistic = 3
