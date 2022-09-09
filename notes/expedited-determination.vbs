@@ -2696,7 +2696,6 @@ If note_case_situation_details = True Then
 			If IsDate(faci_entry_date) = True Then Call write_variable_in_case_note ("      - Facility Entry Date: " & faci_entry_date)
 			If IsDate(faci_release_date) = True Then Call write_variable_in_case_note ("      - Release Date: " & faci_release_date)
 			If release_date_unknown_checkbox = checked Then Call write_variable_in_case_note ("      - Release date is not known but is expected to be before " & day_30_from_application & ".")
-			Call write_variable_in_case_note ("      - ")
 
 		ElseIf deny_snap_due_to_faci = True Then
 			Call write_variable_in_case_note ("* Resident is in a facility ")
