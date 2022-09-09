@@ -7769,15 +7769,15 @@ Function hest_standards(heat_AC_amt, electric_amt, phone_amt, date_variable)
 '~~~~~ phone_amt: Phone expense variable. Recommended to keep as phone_amt.
 '~~~~~ date_variable: This is the date you need to compare to when measuring against the October date. Generally this is the application_date.
 '===== Keywords: MAXIS, member, array, dialog
-    If DateDiff("d",date_variable,#10/01/2021#) <= 0 then
-        'October 2021 -- Amounts for applications on or AFTER 10/01/2021
+    If DateDiff("d",date_variable,#10/01/2022#) <= 0 then
+        'October 2022 -- Amounts for applications on or AFTER 10/01/2022
+        heat_AC_amt = 586
+        electric_amt = 185
+        phone_amt = 55
+    Elseif DateDiff("d",date_variable,#10/01/2022#) > 0 then
+        'October 2021 -- Amounts for applications BEFORE 10/01/2022
         heat_AC_amt = 488
         electric_amt = 149
-        phone_amt = 56
-    Elseif DateDiff("d",date_variable,#10/01/2021#) > 0 then
-        'October 2020 -- Amounts for applications on or BEFORE 10/01/2021
-        heat_AC_amt = 496
-        electric_amt = 154
         phone_amt = 56
     End if
 End Function
@@ -9320,6 +9320,7 @@ function navigate_to_MMIS_region(group_security_selection)
 			transmit
 
 		End Select
+        EMWaitReady 0, 0
 	End If
 end function
 
