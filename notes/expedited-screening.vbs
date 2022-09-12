@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/12/2022", "Updated EBT card availibilty in the office direction. Per DHS, counties should use head of household codes.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/29/2021", "Updated Standard Utility Allowances for 10/2021.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/13/2020", "Enhanced date evaluation functionality when which determining HEST standards to use.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
@@ -58,10 +59,12 @@ changelog_display
 
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 EMConnect ""    'Connecting to BlueZone
+Call check_for_MAXIS(FALSE) 'checking for an active MAXIS session
 call MAXIS_case_number_finder(MAXIS_case_number) 'It will search for a case number.
 ' application_date = date & ""
 If MAXIS_case_number <> "" Then
-    Call navigate_to_MAXIS_screen("STAT", "PROG")
+    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
+    IF is_this_priv = True THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again.")
     EMReadScreen snap_pend_check, 4, 10, 74
     If snap_pend_check = "PEND" Then
         EMReadScreen snap_app_date, 8, 10, 33
@@ -116,8 +119,6 @@ Do
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-Call check_for_MAXIS(FALSE) 'checking for an active MAXIS session
 
 'LOGIC AND CALCULATIONS----------------------------------------------------------------------------------------------------
 'Logic for figuring out utils. The highest priority for the if...then is heat/AC, followed by electric and phone, followed by phone and electric separately.
@@ -190,4 +191,47 @@ else
 	If expedited_status = "client appears expedited" then closing_message = "This client appears expedited. A same day interview needs to be offered."
 	If expedited_status = "client does not appear expedited" then closing_message = "This client does not appear expedited. A same day interview does not need to be offered."
 End if
-script_end_procedure(closing_message)
+script_end_procedure_with_error_report(closing_message)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs --------------------------------------------------09/12/2022
+'--Tab orders reviewed & confirmed-----------------------------------------------09/12/2022
+'--Mandatory fields all present & Reviewed---------------------------------------09/12/2022
+'--All variables in dialog match mandatory fields--------------------------------09/12/2022
+'-
+'-----CASE:NOTE--------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)----------------------------------09/12/2022
+'--CASE:NOTE Header doesn't look funky-------------------------------------------09/12/2022
+'--Leave CASE:NOTE in edit mode if applicable------------------------------------09/12/2022
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-09/12/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/12/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------09/12/2022
+'--PRIV Case handling reviewed -------------------------------------------------09/12/2022
+'--Out-of-County handling reviewed----------------------------------------------09/12/2022--------------Handled in case/note
+'--script_end_procedures (w/ or w/o error messaging)----------------------------09/12/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------09/12/2022--------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---09/12/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------09/12/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------09/12/2022--------------N/A
+'--Denomination reviewed -------------------------------------------------------09/12/2022--------------N/A
+'--Script name reviewed---------------------------------------------------------09/12/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------09/12/2022--------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------09/12/2022
+'--comment Code-----------------------------------------------------------------09/12/2022
+'--Update Changelog for release/update------------------------------------------09/12/2022
+'--Remove testing message boxes-------------------------------------------------09/12/2022
+'--Remove testing code/unnecessary code-----------------------------------------09/12/2022
+'--Review/update SharePoint instructions----------------------------------------09/12/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/12/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/12/2022
+'--Complete misc. documentation (if applicable)---------------------------------09/12/2022
+'--Update project team/issue contact (if applicable)----------------------------09/12/2022
