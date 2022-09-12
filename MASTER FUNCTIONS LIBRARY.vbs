@@ -82,15 +82,6 @@ OK = -1			'Value for OK button in dialogs
 blank = ""
 t_drive = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team"
 
-'LOADING LIST OF TESTERS====================================================================================================
-tester_list_URL = t_drive & "\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
-'END LIST OF TESTERS BLOCK==================================================================================================
-
 'The following code looks to find the user name of the user running the script---------------------------------------------------------------------------------------------
 'This is used in arrays that specify functionality to specific workers
 Set objNet = CreateObject("WScript.NetWork")
@@ -98,7 +89,7 @@ windows_user_ID = objNet.UserName
 user_ID_for_validation = ucase(windows_user_ID)
 
 'Global function to actually RUN'
-Call confirm_tester_information
+If IsArray(tester_array) = True Then Call confirm_tester_information
 
 'Time arrays which can be used to fill an editbox with the convert_array_to_droplist_items function
 time_array_15_min = array("7:00 AM", "7:15 AM", "7:30 AM", "7:45 AM", "8:00 AM", "8:15 AM", "8:30 AM", "8:45 AM", "9:00 AM", "9:15 AM", "9:30 AM", "9:45 AM", "10:00 AM", "10:15 AM", "10:30 AM", "10:45 AM", "11:00 AM", "11:15 AM", "11:30 AM", "11:45 AM", "12:00 PM", "12:15 PM", "12:30 PM", "12:45 PM", "1:00 PM", "1:15 PM", "1:30 PM", "1:45 PM", "2:00 PM", "2:15 PM", "2:30 PM", "2:45 PM", "3:00 PM", "3:15 PM", "3:30 PM", "3:45 PM", "4:00 PM", "4:15 PM", "4:30 PM", "4:45 PM", "5:00 PM", "5:15 PM", "5:30 PM", "5:45 PM", "6:00 PM")
