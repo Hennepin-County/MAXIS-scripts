@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/12/2022", "The script will now output the PIC information from JOBS and UNEA, and BUSI Calculation when selected.", "Casey Love, Hennepin County")	'#735 & #969'
 call changelog_update("08/04/2021", "Updated to work. Previously the script errored with every run", "Casey Love, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -513,7 +514,7 @@ script_end_procedure_with_error_report("Success! Word Document created and opene
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------08/09/2021
-'--Tab orders reviewed & confirmed----------------------------------------------08/09/2021
+'--Tab orders reviewed & confirmed----------------------------------------------09/12/2022
 '--Mandatory fields all present & Reviewed--------------------------------------08/09/2021
 '--All variables in dialog match mandatory fields-------------------------------08/09/2021
 '
@@ -532,18 +533,18 @@ script_end_procedure_with_error_report("Success! Word Document created and opene
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------08/09/2021
-'--Incrementors reviewed (if necessary)-----------------------------------------08/09/2021
+'--Incrementors reviewed (if necessary)-----------------------------------------09/12/2022
 '--Denomination reviewed -------------------------------------------------------08/09/2021
 '--Script name reviewed---------------------------------------------------------08/09/2021
 '--BULK - remove 1 incrementor at end of script reviewed------------------------08/09/2021
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------08/09/2021
-'--comment Code-----------------------------------------------------------------08/09/2021
-'--Update Changelog for release/update------------------------------------------08/09/2021
-'--Remove testing message boxes-------------------------------------------------08/09/2021
-'--Remove testing code/unnecessary code-----------------------------------------08/09/2021
-'--Review/update SharePoint instructions----------------------------------------07/15/2021
+'--Confirm all GitHub taks are complete-----------------------------------------09/12/2022
+'--comment Code-----------------------------------------------------------------09/12/2022
+'--Update Changelog for release/update------------------------------------------09/12/2022
+'--Remove testing message boxes-------------------------------------------------09/12/2022
+'--Remove testing code/unnecessary code-----------------------------------------09/12/2022
+'--Review/update SharePoint instructions----------------------------------------09/12/2022
 '--Review Best Practices using BZS page ----------------------------------------08/09/2021
 '--Review script information on SharePoint BZ Script List-----------------------08/09/2021
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------08/09/2021
