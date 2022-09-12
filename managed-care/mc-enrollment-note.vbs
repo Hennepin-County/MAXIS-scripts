@@ -426,19 +426,4 @@ PF4 'Going back to see case note
 ' END IF
 
 MAXIS_case_number = MMIS_case_number
-
-' 'REMOVING ESSO CODE AS WE ARE UPGRADING BZ AND A BUCH OF STUFF _ WILL REVIEW LATER
-' 'End of script code for restarting ESSO
-' IF using_ESSO = TRUE THEN
-'   'MsgBox "End of script reached. Because ESSO was previously found on your computer, attempting to start ESSO in the background..."
-'   SET ObjShell = CreateObject("Wscript.Shell")
-'   ObjShell.Run """C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Oracle\ESSO-LM\ESSO-LM.lnk"""
-'   vgo_msg = "ESSO started, the ESSO icon should be added back to the system tray."
-' ELSE
-'   vgo_msg = "End of script reached. Because ESSO was not previously found on your computer, there is no need to try to start ESSO."
-' END IF
-'
-' end_msg = "Success! NOTE entered in to MMIS of enrollment processed." &vbNewLine & vbNewLine & vgo_msg
-' script_end_procedure(end_msg)
-
 script_end_procedure("Success! NOTE entered in to MMIS of enrollment processed.")
