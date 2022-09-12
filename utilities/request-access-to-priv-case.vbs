@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/12/2022", "Clarified message box verbiage.", "MiKayla Handley, Hennepin County")'#941
 call changelog_update("08/19/2020", "PRIV Case Access script will now review for Foster Care and Safe at Home restricted baskets to provide the correct email action for the case entered. Additionally, script will no longer send an email if it is indicated that the resident is on the phone, these requests are more timely when completed in Teams.", "Casey Love, Hennepin County")
 call changelog_update("08/19/2020", "Initial version.", "Casey Love, Hennepin County")
 
@@ -55,7 +56,6 @@ changelog_display
 EMConnect ""
 
 Call find_user_name(worker_name)						'defaulting the name of the suer running the script
-' Call check_for_MAXIS(True)								'make sure we are in MAXIS
 CALL MAXIS_case_number_finder (MAXIS_case_number)		'try to find the case number
 EMReadScreen SELF_check, 4, 2, 50		'Does this to check to see if we're on SELF screen
 IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coordinates
@@ -63,43 +63,41 @@ IF SELF_check = "SELF" THEN				'if on the self screen then x # is read from coor
 End If
 If x_number = "" Then x_number = "x127"
 
-'One and only dialog for this script
+
 DO
-	email_body = ""
-	email_subject = ""
-    DO
-		err_msg = ""
+	DO
+    	email_body = ""
+	    email_subject = ""
+        DO
+        	err_msg = ""
+            Dialog1 = "" 'Blanking out previous dialog detail
+            BeginDialog Dialog1, 0, 0, 306, 95, "PRIV Case Access"
+              EditBox 80, 15, 55, 15, MAXIS_case_number
+              CheckBox 160, 15, 125, 10, "Check here if you are on the phone", resident_on_phone_checkbox
+              EditBox 80, 35, 55, 15, x_number
+              EditBox 80, 55, 210, 15, notes
+              EditBox 80, 75, 115, 15, worker_name
+              ButtonGroup ButtonPressed
+                OkButton 200, 75, 45, 15
+                CancelButton 245, 75, 45, 15
+              Text 170, 25, 60, 10, "with the resident."
+              Text 10, 5, 280, 10, "Request Knowledge Now to update MAXIS to allow you access to a privileged case."
+              Text 10, 20, 70, 10, "PRIV Case Number:"
+              Text 10, 40, 55, 10, "Your X-Number:"
+              Text 10, 60, 60, 10, "Other Notes:"
+              Text 10, 80, 55, 10, "Sign Your Email:"
+            EndDialog
 
-		Dialog1 = "" 'Blanking out previous dialog detail
-		BeginDialog Dialog1, 0, 0, 306, 110, "PRIV Case Access"
-		  EditBox 80, 25, 60, 15, MAXIS_case_number
-		  CheckBox 160, 30, 125, 10, "Check here if you are on the phone", resident_on_phone_checkbox
-		  EditBox 80, 45, 60, 15, x_number
-		  EditBox 80, 65, 200, 15, notes
-		  EditBox 80, 90, 115, 15, worker_name
-		  ButtonGroup ButtonPressed
-		    OkButton 200, 90, 50, 15
-		    CancelButton 255, 90, 50, 15
-		  Text 10, 10, 280, 10, "Request Knowledge Now to update MAXIS to allow you access to a privileged case."
-		  Text 10, 30, 70, 10, "PRIV Case Number:"
-		  Text 170, 40, 60, 10, "with the resident."
-		  Text 20, 50, 55, 10, "Your X-Number:"
-		  Text 15, 70, 60, 10, "Information/Notes:"
-		  Text 20, 95, 55, 10, "Sign your Email"
-		EndDialog
-
-        Dialog Dialog1					'displaying the dialog
-        cancel_without_confirmation
-
-		x_number = trim(x_number)
-
-		Call validate_MAXIS_case_number(err_msg, "*")
-		If len(x_number) <> 7 Then err_msg = err_msg & vbNewLine & "* Review the worker number entered, it is not the right length"
-		If ucase(left(x_number, 4)) <> "X127" Then err_msg = err_msg & vbNewLine & "* Review the worker number entered, it does not start with 'x127'."
-
-		If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
-	Loop until err_msg = ""
-
+            Dialog Dialog1					'displaying the dialog
+            cancel_without_confirmation
+	        x_number = trim(x_number)
+	    	Call validate_MAXIS_case_number(err_msg, "*")
+	    	If len(x_number) <> 7 Then err_msg = err_msg & vbNewLine & "* Review the worker number entered, it is not the right length"
+	    	If ucase(left(x_number, 4)) <> "X127" Then err_msg = err_msg & vbNewLine & "* Review the worker number entered, it does not start with 'x127'."
+	    	If err_msg <> "" Then MsgBox "*** NOTICE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+	    Loop until err_msg = ""
+	    CALL check_for_password(are_we_passworded_out)
+	LOOP UNTIL are_we_passworded_out = false
 	Call back_to_SELF								'trying to get in to the case in STAT
 	Call navigate_to_MAXIS_screen("STAT", "SUMM")
 
@@ -169,7 +167,7 @@ DO
 				email_body = email_body & "---" & vbCr
 				If worker_name <> "" Then email_body = email_body & "Signed, " & vbCr & worker_name
 
-				message_confirmed = MsgBox("REVIEW THE WORDING OF YOUR EMAIL ABOUT THIS PRIVILEGED CASE:" & vbCr & vbCr & email_subject & vbCr & vbCr & email_body, vbQuestion + vbYesNo, email_subject)
+				message_confirmed = MsgBox("REVIEW OF YOUR EMAIL ABOUT THIS PRIVILEGED CASE:" & vbCr & vbCr & email_subject & vbCr & vbCr & email_body & vbCr & vbCr & "DO YOU WANT TO SEND THIS EMAIL?", vbQuestion + vbYesNo, email_subject)
 
 				end_msg = "Thank you!" & vbCr & "Your request for access has been sent to " & priv_case_worker_name & "." & vbCr & vbCr
 				end_msg = end_msg & "Content of your Email:" & vbCr & "----------------------------------------------------------" & vbCr
@@ -193,19 +191,18 @@ DO
 
 	'If the user checked the box that they are on the phone, the script brings up this dialog to recommend to use Teams for the request.
 	If resident_on_phone_checkbox = checked Then
-		BeginDialog Dialog1, 0, 0, 191, 110, "Request Access to Case via Teams"
-		  ButtonGroup ButtonPressed
-		    PushButton 55, 70, 130, 15, "View Knowledge Now Page", open_knowledge_now_btn
-		    PushButton 55, 90, 130, 15, "Complete Script Run", somplete_script_btn
-		  Text 10, 10, 175, 20, "Requests for access to a PRIV Case while on the phone with the resident is best completed via Teams"
-		  Text 10, 40, 155, 10, "This script can only request access via Email."
-		  Text 15, 50, 175, 10, "Email requests are ideal for other case processing."
-		EndDialog
+	'---------------------------------------------------------------------DIALOG
+        BeginDialog phone_dialog, 0, 0, 191, 100, "Request PRIV Access to Case via Teams"
+          ButtonGroup ButtonPressed
+            PushButton 25, 60, 130, 15, "View Knowledge Now Page", open_knowledge_now_btn
+            PushButton 25, 80, 130, 15, "Complete Script Run", complete_script_btn 'this button doesnt do much'
+          Text 10, 5, 175, 20, "Requests for access to a PRIV Case while on the phone with the resident is best completed via Teams"
+          Text 15, 30, 155, 10, "This script can only request access via Email."
+          Text 10, 40, 175, 10, "Email requests are ideal for other case processing."
+        EndDialog
 
-		dialog Dialog1
-
+		dialog phone_dialog
 		If ButtonPressed = open_knowledge_now_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/Lists/Knowledge%20Now/calendar.aspx"
-
 		end_msg = "Script Run complete." & vbCr & vbCr & "No Email sent." & vbCr & vbCr & "Please reach out via Teams to Knowledge Now for access to the case."
 		call script_end_procedure_with_error_report(end_msg)			'ending the script run here since we should not continue to the email.
 	End If
@@ -223,8 +220,7 @@ DO
 	If notes <> "" Then email_body = email_body & "Notes: " & notes & vbCr & vbCr
 	email_body = email_body & "---" & vbCr
 	If worker_name <> "" Then email_body = email_body & "Signed, " & vbCr & worker_name
-
-	message_confirmed = MsgBox("REVIEW THE WORDING OF YOUR EMAIL TO KNOWLEDGE NOW:" & vbCr & vbCr & email_subject & vbCr & vbCr & email_body, vbQuestion + vbYesNo, email_subject)
+	message_confirmed = MsgBox("REVIEW THE WORDING OF YOUR EMAIL TO KNOWLEDGE NOW:" & vbCr & vbCr & email_subject & vbCr & vbCr & email_body & vbCr & vbCr & "DO YOU WANT TO SEND THIS EMAIL?", vbQuestion + vbYesNo, email_subject)
 Loop until message_confirmed = vbYes
 
 email_body = "~~This email is generated from completion of the 'Request Access to PRIV Case' Script.~~" & vbCr & vbCr & email_body
@@ -243,9 +239,9 @@ call script_end_procedure_with_error_report(end_msg)
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------11/09/2021
-'--Tab orders reviewed & confirmed----------------------------------------------11/09/2021
+'--Tab orders reviewed & confirmed----------------------------------------------09/12/2022
 '--Mandatory fields all present & Reviewed--------------------------------------11/09/2021
-'--All variables in dialog match mandatory fields-------------------------------
+'--All variables in dialog match mandatory fields-------------------------------09/12/2022
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------N/A
@@ -258,6 +254,7 @@ call script_end_procedure_with_error_report(end_msg)
 '--Out-of-County handling reviewed----------------------------------------------N/A
 '--script_end_procedures (w/ or w/o error messaging)----------------------------11/09/2021
 '--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--write_variable_in_CASE_NOTE: confirm that proper punctuation is used --------N/A
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------11/09/2021
