@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/12/2022", "Clarified message box verbiage.", "MiKayla Handley, Hennepin County")'#941
 call changelog_update("08/19/2020", "PRIV Case Access script will now review for Foster Care and Safe at Home restricted baskets to provide the correct email action for the case entered. Additionally, script will no longer send an email if it is indicated that the resident is on the phone, these requests are more timely when completed in Teams.", "Casey Love, Hennepin County")
 call changelog_update("08/19/2020", "Initial version.", "Casey Love, Hennepin County")
 
