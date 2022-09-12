@@ -148,11 +148,9 @@ If (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >
 '----------------------------------------------------------------------------------------------------
 
 'Navigates to STAT/DISQ using current month as footer month. If it can't get in to the current month due to CAF received in a different month, it'll find that month and navigate to it.
+Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
 Call navigate_to_MAXIS_screen("STAT", "DISQ")
-Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year) 'grabbing footer month and year
-
-'Reads the DISQ info for the case note.
-EMReadScreen DISQ_member_check, 34, 24, 2
+EMReadScreen DISQ_member_check, 34, 24, 2   'Reads the DISQ info for the case note.
 If DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" then
 	has_DISQ = False
 Else
@@ -169,34 +167,27 @@ IF expedited_status = "client appears expedited" THEN
 End if
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
-	call navigate_to_MAXIS_screen("case", "note")
-	PF9
-
-	EMReadScreen case_note_check, 17, 2, 33
-	EMReadScreen mode_check, 1, 20, 09
-	If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then    'this will account for those cases when the script is run on an out of county case.
-		msgbox "The script can't open a case note. You may be in inquiry or entered a case number that is in another county." &_
-		vbNewLine & vbNewLine & "This result for this case is " & expedited_status & vbNewLine & vbNewLine & "Please run the script again if you were in inquiry to add a case note."
-		script_end_procedure("")
-	else
-		'Body of the case note
-        Call write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
-		call write_variable_in_CASE_NOTE("---")
-		call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
-		call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
-		call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
-		call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
-		call write_variable_in_CASE_NOTE("---")
-		If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
-		If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
-	    If in_office_card = False then Call write_variable_in_CASE_NOTE("Recipient will NOT be able to get an EBT card in an agency office. An EBT card has previously been provided to the household.")
-		call write_variable_in_CASE_NOTE("---")
-		call write_variable_in_CASE_NOTE(worker_signature)
-		If expedited_status = "client appears expedited" then
-			MsgBox "This client appears expedited. A same day interview needs to be offered."
-		End if
-		If expedited_status = "client does not appear expedited" then
-			MsgBox "This client does not appear expedited. A same day interview does not need to be offered."
-		End if
-	End if
-script_end_procedure("")
+Call start_a_blank_CASE_NOTE
+EMReadScreen case_note_check, 17, 2, 33
+EMReadScreen mode_check, 1, 20, 09
+If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then    'this will account for those cases when the script is run on an out of county case.
+	closing_message = "The script can't open a case note. You may be in inquiry or entered a case number that is in another county." &_
+	vbNewLine & vbNewLine & "This result for this case is " & expedited_status & vbNewLine & vbNewLine & "Please run the script again if you were in inquiry to add a case note."
+else
+	'Body of the case note
+    Call write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
+	call write_variable_in_CASE_NOTE("---")
+	call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
+	call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
+	call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
+	call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
+	call write_variable_in_CASE_NOTE("---")
+	If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
+	If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
+    If in_office_card = False then Call write_variable_in_CASE_NOTE("Recipient will NOT be able to get an EBT card in an agency office. An EBT card has previously been provided to the household.")
+	call write_variable_in_CASE_NOTE("---")
+	call write_variable_in_CASE_NOTE(worker_signature)
+	If expedited_status = "client appears expedited" then closing_message = "This client appears expedited. A same day interview needs to be offered."
+	If expedited_status = "client does not appear expedited" then closing_message = "This client does not appear expedited. A same day interview does not need to be offered."
+End if
+script_end_procedure(closing_message)
