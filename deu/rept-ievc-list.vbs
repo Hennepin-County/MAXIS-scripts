@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/12/2022", "Removed VGO verbiage.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("06/21/2018", "Updated with requested enhancements.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("05/18/2018", "Updated coordinates for writing stats in excel.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -51,20 +52,17 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 266, 85, "REPT/IEVC"
-  ButtonGroup ButtonPressed
-    OkButton 150, 65, 50, 15
-    CancelButton 205, 65, 50, 15
-  Text 15, 25, 135, 10, "This script will gather match information."
-  GroupBox 10, 10, 245, 50, "About this script:"
-  Text 20, 40, 225, 10, " Please shut down your VGO (not pause it), and press OK to continue."
-EndDialog
-
 'Connects to MAXIS
 EMConnect ""
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 296, 60, "Pull Income Verifications To Do (IEVC) data into Excel dialog"
+  ButtonGroup ButtonPressed
+    OkButton 190, 40, 45, 15
+    CancelButton 245, 40, 45, 15
+  Text 5, 20, 290, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. Do not type when the script is writing to excel. "
+  Text 5, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
+EndDialog
 
 DO
     DO

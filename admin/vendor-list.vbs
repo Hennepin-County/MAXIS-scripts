@@ -37,20 +37,29 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/12/2022", "Removed VGO verbiage.", "MiKayla Handley, Hennepin County")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 'The script----------------------------------------------------------------------------------------------------
 EMConnect ""		'Connecting to BlueZone
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 296, 105, "Vendor list"
-  DropListBox 100, 75, 75, 15, "Select one..."+chr(9)+"GRH vendors"+chr(9)+"GRH vendor info"+chr(9)+"Non-GRH vendors", option_list
+BeginDialog Dialog1, 0, 0, 291, 85, "Vendor list"
+  DropListBox 200, 35, 75, 15, "Select one..."+chr(9)+"GRH vendors"+chr(9)+"GRH vendor info"+chr(9)+"Non-GRH vendors", option_list
   ButtonGroup ButtonPressed
-    OkButton 185, 75, 50, 15
-    CancelButton 240, 75, 50, 15
-  GroupBox 10, 10, 280, 55, "About this script:"
-  Text 15, 25, 265, 20, "This script will gather the vendors for a specific county. Duplicates may appear. You will want to remove them from Excel."
-  Text 35, 50, 225, 10, " Please shut down your VGO (not pause it), and press OK to continue."
-  Text 20, 80, 75, 10, "Select a vendor option:"
+    OkButton 190, 65, 45, 15
+    CancelButton 240, 65, 45, 15
+  GroupBox 5, 5, 280, 55, "About this script:"
+  Text 10, 15, 265, 20, "This script will gather the vendors for a specific county. Duplicates may appear. You will want to filter and remove them from excel."
+  Text 115, 40, 75, 10, "Select a vendor option:"
 EndDialog
 
 'The main dialog
