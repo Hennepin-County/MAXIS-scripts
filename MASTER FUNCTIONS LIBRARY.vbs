@@ -1535,12 +1535,13 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 			If left(addr_email, 1) = "_" Then addr_email = right(addr_email, len(addr_email) - 1)
 		Loop until right(addr_email, 1) <> "_" AND  left(addr_email, 1) <> "_"
 
-        notes_on_address = "Address effective: " & addr_eff_date & "."
+        notes_on_address = "Address effective on " & addr_eff_date & "."
         ' If mail_line_one <> "" Then
         '     If mail_line_two = "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
         '     If mail_line_two <> "" Then notes_on_address = notes_on_address & " Mailing address: " & mail_line_one & " " & mail_line_two & " " & mail_city_line & ", " & mail_state_line & " " & mail_zip_line
         ' End If
         If addr_future_date <> "" Then notes_on_address = notes_on_address & "; ** Address will update effective " & addr_future_date & "."
+		notes_on_address = notes_on_address & "; "
 
         phone_one = replace(phone_one, " ) ", "-")								'formatting phone numbers
         phone_one = replace(phone_one, " ", "-")
