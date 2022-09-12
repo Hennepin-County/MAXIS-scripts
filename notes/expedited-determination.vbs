@@ -2510,10 +2510,12 @@ Call start_a_blank_case_note
 Call write_variable_in_case_note (case_note_header_text)
 If interview_date <> "" Then Call write_variable_in_case_note (" - Interview completed on: " & interview_date & " and full Expedited Determination Done")
 IF exp_screening_note_found = TRUE Then
-	Call write_variable_in_case_note ("Expedited Screening found: " & xfs_screening)
+	Call write_variable_in_case_note ("Info from INITIAL EXPEDTIED SCREENING (resident reported on Application)")
+    Call write_variable_in_case_note ("Expedited Screening found: " & xfs_screening)
 	Call write_variable_in_case_note ("  Based on: Income:  $ " & right("        " & caf_one_income, 8) & ", Assets:    $ " & right("        " & caf_one_assets, 8)    & ", Totaling: $ " & right("        " & caf_one_resources, 8))
 	Call write_variable_in_case_note ("            Shelter: $ " & right("        " & caf_one_rent, 8)   & ", Utilities: $ " & right("        " & caf_one_utilities, 8) & ", Totaling: $ " & right("        " & caf_one_expenses, 8))
 
+    Call write_variable_in_case_note ("Upon conversation with resident, the details have been evaluated and recalculated.")
 	Call write_variable_in_case_note ("---")
 End If
 If IsDate(snap_denial_date) = TRUE Then
@@ -2526,6 +2528,7 @@ If IsDate(snap_denial_date) = TRUE Then
 	End If
 	Call write_bullet_and_variable_in_CASE_NOTE("Explanation of Denial", snap_denial_explain)
 Else
+    Call write_variable_in_case_note ("Info from Interview - Expedited Determination")
 	IF is_elig_XFS = TRUE Then
 		Call write_variable_in_case_note ("Case is determined to meet criteria for Expedited SNAP.")
 		If IsDate(approval_date) = False AND delay_explanation <> "" Then
