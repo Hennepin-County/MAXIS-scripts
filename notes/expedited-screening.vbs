@@ -159,11 +159,14 @@ Else
 	has_DISQ = True
 End if
 
-'Reads MONY/DISB to see if EBT account is open
+'Reads MONY/DISB 'Head of Household" coding to see if a card has been issued. B or H codes mean that a resident has already received a card and cannot get another in office.
+'DHS webinar meeting 07/20/2022
+in_office_card = True   'Defaulting to true
 IF expedited_status = "client appears expedited" THEN
 	Call navigate_to_MAXIS_screen("MONY", "DISB")
-	EMReadScreen EBT_account_status, 1, 14, 27
-END IF
+    EmReadscreen HoH_card_status, 1, 15, 27
+    If HoH_card_status = "B" or HoH_card_status = "H" then in_office_card = False
+End if
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 	call navigate_to_MAXIS_screen("case", "note")
@@ -186,8 +189,7 @@ END IF
 		call write_variable_in_CASE_NOTE("---")
 		If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
 		If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
-		If expedited_status = "client appears expedited" AND EBT_account_status = "Y" then call write_variable_in_CASE_NOTE("* EBT Account IS open. Recipient will NOT be able to get a replacement card in the agency.  Rapid Electronic Issuance (REI) with caution.")
-		If expedited_status = "client appears expedited" AND EBT_account_status = "N" then call write_variable_in_CASE_NOTE("* EBT Account is NOT open. Recipient is able to get initial card in the agency. Rapid Electronic Issuance (REI) can be used, but only to avoid an emergency issuance or to meet EXP criteria.")
+	    If in_office_card = False then Call write_variable_in_CASE_NOTE("Recipient will NOT be able to get an EBT card in an agency office. An EBT card has previously been provided to the household.")
 		call write_variable_in_CASE_NOTE("---")
 		call write_variable_in_CASE_NOTE(worker_signature)
 		If expedited_status = "client appears expedited" then
