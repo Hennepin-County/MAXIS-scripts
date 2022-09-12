@@ -498,13 +498,18 @@ If snap_status = "PENDING" Then
     	has_DISQ = True
     End if
 
-    'Reads MONY/DISB 'Head of Household" coding to see if a card has been issued. B or H codes mean that a resident has already received a card and cannot get another in office.
+    'Reads MONY/DISB 'Head of Household" coding to see if a card has been issued. B, H, p and R codes mean that a resident has already received a card and cannot get another in office.
     'DHS webinar meeting 07/20/2022
     in_office_card = True   'Defaulting to true
     IF expedited_status = "client appears expedited" THEN
-    	Call navigate_to_MAXIS_screen("MONY", "DISB")
+        Call navigate_to_MAXIS_screen("MONY", "DISB")
         EmReadscreen HoH_card_status, 1, 15, 27
-        If HoH_card_status = "B" or HoH_card_status = "H" then in_office_card = False
+        If HoH_card_status = "B" or _
+           HoH_card_status = "H" or _
+           HoH_card_status = "P" or _
+           HoH_card_status = "R" then
+           in_office_card = False
+        End if
     End if
 End If
 
