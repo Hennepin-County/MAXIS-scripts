@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/12/2022", "Added support for MEMB 00 messages.", "Ilse Ferris, Hennepin County") ''#900
 call changelog_update("07/11/2022", "Bug fix in reading the MAXIS Case Number.", "Ilse Ferris, Hennepin County") ''#900
 call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County") ''#814
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
@@ -123,6 +124,8 @@ Else
     EmReadScreen HH_memb, 2, 9, 35
 End if
 PF3
+
+If HH_memb = "00" then script_end_procedure_with_error_report("MEMB 00 message do not need to be acted on as they are system errors. Please delete the DAIL. No CASE/NOTE is required.")
 
 'GOING TO STAT
 Call write_value_and_transmit("S", 6, 3)
