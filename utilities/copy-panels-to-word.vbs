@@ -258,6 +258,8 @@ BeginDialog Dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
   Next
   Checkbox 310, 45, 65, 10, "ALL PANELS", all_panels_check
   Checkbox 310, 60, 65, 10, "ALL EXISTING", all_existing_panels_check
+  Text 310, 85, 60, 20, "For income panels, include PIC?"
+  DropListBox 310, 105, 50, 45, "Yes"+chr(9)+"No", include_pics
   Text 320, 70, 50, 10, "PANELS"
   ButtonGroup ButtonPressed
     OkButton 310, 5, 50, 15
@@ -492,6 +494,92 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 						For each line in screentest
 							objSelection.TypeText line & Chr(11)
 						Next
+
+						If include_pics = "Yes" Then
+							If ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "JOBS" Then
+								Call write_value_and_transmit("X", 19, 38)		'SNAP PIC'
+
+								'Determines if the Word doc needs a new page
+								If screen_on_page = "" or screen_on_page = 1 then
+									screen_on_page = 2
+									objSelection.TypeText vbCr & vbCr
+								Elseif screen_on_page = 2 then
+									screen_on_page = 1
+									objSelection.InsertBreak(7)
+								End if
+
+								call copy_screen_to_array(screentest)
+
+								'Adds current screen to Word doc
+								For each line in screentest
+									objSelection.TypeText line & Chr(11)
+								Next
+								STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+								PF3
+
+								Call write_value_and_transmit("X", 19, 71)		'GRH PIC'
+
+								'Determines if the Word doc needs a new page
+								If screen_on_page = "" or screen_on_page = 1 then
+									screen_on_page = 2
+									objSelection.TypeText vbCr & vbCr
+								Elseif screen_on_page = 2 then
+									screen_on_page = 1
+									objSelection.InsertBreak(7)
+								End if
+
+								call copy_screen_to_array(screentest)
+
+								'Adds current screen to Word doc
+								For each line in screentest
+									objSelection.TypeText line & Chr(11)
+								Next
+								STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+								PF3
+							End If
+							If ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "UNEA" Then
+								Call write_value_and_transmit("X", 10, 26)		'SNAP PIC'
+
+								'Determines if the Word doc needs a new page
+								If screen_on_page = "" or screen_on_page = 1 then
+									screen_on_page = 2
+									objSelection.TypeText vbCr & vbCr
+								Elseif screen_on_page = 2 then
+									screen_on_page = 1
+									objSelection.InsertBreak(7)
+								End if
+
+								call copy_screen_to_array(screentest)
+
+								'Adds current screen to Word doc
+								For each line in screentest
+									objSelection.TypeText line & Chr(11)
+								Next
+								STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+								PF3
+							End If
+							If ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "BUSI" Then
+								Call write_value_and_transmit("X", 6, 26)		'Calculation Pop Up'
+
+								'Determines if the Word doc needs a new page
+								If screen_on_page = "" or screen_on_page = 1 then
+									screen_on_page = 2
+									objSelection.TypeText vbCr & vbCr
+								Elseif screen_on_page = 2 then
+									screen_on_page = 1
+									objSelection.InsertBreak(7)
+								End if
+
+								call copy_screen_to_array(screentest)
+
+								'Adds current screen to Word doc
+								For each line in screentest
+									objSelection.TypeText line & Chr(11)
+								Next
+								STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+								PF3
+							End If
+						End If
 
 						'Determines if the Word doc needs a new page
 						If screen_on_page = "" or screen_on_page = 1 then
