@@ -51,8 +51,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/12/2022", "Updated handling POLI/TEMP button is pushed in the main dialog.", "MiKayla Handley, Hennepin County") '#952
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
-call changelog_update("06/24/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley") '#493
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -88,12 +88,16 @@ Do
         DIALOG Dialog1  'Calling a dialog without a assigned variable will call the most recently defined dialog
 		cancel_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
-		IF ButtonPressed = POLI_TEMP_ERDS_button THEN CALL view_poli_temp("02", "08", "127", "") 'TE02.08.127 ELECTRONIC DISQUALIFIED RECIPIENT SYSTEM
-        IF err_msg <> "" THEN MsgBox "*** Resolve to Continue: " & vbNewLine & err_msg
-    Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = FALSE
-
+		IF ButtonPressed = POLI_TEMP_ERDS_button THEN
+            CALL view_poli_temp("02", "08", "127", "") 'TE02.08.127 ELECTRONIC DISQUALIFIED RECIPIENT SYSTEM
+			err_msg = "LOOP"
+		Else                                                'If the instructions button was NOT pressed, we want to display the error message if it exists.
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+		End If
+	Loop until err_msg = ""
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = False					'loops until user passwords back in
+CALL back_to_self ' this is for if the worker has used the POLI/TEMP navigation'
 'Creating a custom dialog for determining who the HH members are
 call HH_member_custom_dialog(HH_member_array)
 
