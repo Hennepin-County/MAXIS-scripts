@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("09/12/2022", "Updated EBT card availibilty in the office direction. Per DHS, counties should use head of household codes. Added calculation-only option for PRIV cases.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("09/12/2022", "Updated EBT card availibilty in the office direction information for expedited cases. Added calculation-only option for PRIV cases.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/29/2021", "Updated Standard Utility Allowances for 10/2021.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/13/2020", "Enhanced date evaluation functionality when which determining HEST standards to use.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
@@ -63,22 +63,17 @@ Call check_for_MAXIS(FALSE) 'checking for an active MAXIS session
 call MAXIS_case_number_finder(MAXIS_case_number) 'It will search for a case number.
 ' application_date = date & ""
 If MAXIS_case_number <> "" Then
-    Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
-    IF is_this_priv = True THEN
-        priv_choice = msgbox ("This case is privileged. Do you still want to run the script to caluculate the expedited screening? The script would not case note.", vbQuestion + VbYesNo, "Privliedge Case.")
-        If priv_choice = vbNo then script_end_procedure("~PT User Pressed Cancel. Priv case.")
-    Else
-        EMReadScreen snap_pend_check, 4, 10, 74
-        If snap_pend_check = "PEND" Then
-            EMReadScreen snap_app_date, 8, 10, 33
-            application_date = replace(snap_app_date, " ", "/")
-        End If
-        transmit
-        EMReadScreen check_for_hcre, 4, 2, 50
-        If check_for_hcre = "HCRE" Then
-            PF10
-        End If
-    End if
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+    EMReadScreen snap_pend_check, 4, 10, 74
+    If snap_pend_check = "PEND" Then
+        EMReadScreen snap_app_date, 8, 10, 33
+        application_date = replace(snap_app_date, " ", "/")
+    End If
+    transmit
+    EMReadScreen check_for_hcre, 4, 2, 50
+    If check_for_hcre = "HCRE" Then
+        PF10
+    End If
 End If
 
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -153,12 +148,15 @@ If (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >
 '----------------------------------------------------------------------------------------------------
 
 'Output if case is priv and user selects to run the script.
-If priv_choice = vbYes then
-    closing_message = ("This result of the expedited screening is: " & expedited_status & ".")
+
+'Navigates to STAT/DISQ using current month as footer month. If it can't get in to the current month due to CAF received in a different month, it'll find that month and navigate to it.
+Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "DISQ", is_this_priv)
+IF is_this_priv = True THEN
+    priv_choice = msgbox ("This case is privileged. Do you still want to run the script to caluculate the expedited screening? The script would not case note.", vbQuestion + VbYesNo, "Privliedge Case.")
+    If priv_choice = vbNo then script_end_procedure("~PT User Pressed Cancel. Priv case. Case note not created.")
+    If priv_choice = vbYes then closing_message = ("This result of the expedited screening is: " & expedited_status & ". Case note not created.")
 Else
-    'Navigates to STAT/DISQ using current month as footer month. If it can't get in to the current month due to CAF received in a different month, it'll find that month and navigate to it.
-    Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
-    Call navigate_to_MAXIS_screen("STAT", "DISQ")
     EMReadScreen DISQ_member_check, 34, 24, 2   'Reads the DISQ info for the case note.
     If DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" then
     	has_DISQ = False
@@ -205,7 +203,6 @@ Else
     	If expedited_status = "client does not appear expedited" then closing_message = "This client does not appear expedited. A same day interview does not need to be offered."
     End if
 End if
-
 script_end_procedure_with_error_report(closing_message)
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
