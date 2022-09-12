@@ -63,7 +63,7 @@ Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 291, 160, "Application Received for EMERGENCY MEDICAL ASSISTANCE"
   EditBox 80, 5, 55, 15, MAXIS_case_number
   EditBox 80, 25, 55, 15, application_date
-  EditBox 80, 45, 55, 15, start_date
+  EditBox 80, 45, 55, 15, begin_date
   EditBox 80, 65, 55, 15, end_date
   DropListBox 210, 5, 75, 15, "Select One:"+chr(9)+"Health Jeopardy"+chr(9)+"Serious Impairment"+chr(9)+"Serious Dysfunction", consequence_type
   DropListBox 210, 25, 75, 15, "Select One:"+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Incomplete", application_status
@@ -78,7 +78,7 @@ BeginDialog Dialog1, 0, 0, 291, 160, "Application Received for EMERGENCY MEDICAL
     CancelButton 240, 125, 45, 15
   Text 30, 10, 50, 10, "Case Number:"
   Text 20, 30, 55, 10, "Application Date:"
-  Text 10, 50, 70, 10, "Coverage Start Date:"
+  Text 5, 50, 75, 10, "Coverage Begin Date:"
   Text 40, 70, 35, 10, "End Date:"
   Text 160, 10, 50, 10, "Consequence:"
   Text 145, 30, 65, 10, "Application Status:"
@@ -96,14 +96,13 @@ Do
 	    Dialog Dialog1
 	    cancel_without_confirmation
 	    CALL validate_MAXIS_case_number(err_msg, "*")
-		IF isdate(start_date) = FALSE THEN
-			err_msg = err_msg & vbnewline & "Please enter the start date."
-		Else
-			IF Cdate(start_date) > cdate(date) = TRUE THEN err_msg = err_msg & vbnewline & "You must enter an actual date that is not in the future and is in the footer month that you are working in."
-		End If
-	    IF consequence_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select type of consequence."
+		IF isdate(begin_date) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the begin date."
+		IF end_date <> "" THEN
+			IF isdate(end_date) = FALSE THEN err_msg = err_msg & vbnewline & "Please enter the end date."
+		END IF
 	    IF IsDate(application_date) = False Then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the date the application was received."
-	    IF application_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the application status."
+		IF consequence_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select type of consequence."
+		IF application_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the application status."
 		IF application_status = "Approved" and TIKL_check = CHECKED THEN err_msg = err_msg & vbNewLine & "* Please check the application status and TIKL request, you indicated the case will be approved this TIKL is for denial."
 		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature, for help see utilities."
 	    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -121,7 +120,7 @@ If TIKL_check = 1 then Call create_TIKL("EMA pending 45 days. Evaluate for possi
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
 CALL write_variable_in_CASE_NOTE ("~ EMA Application received for " & application_date & " ~")										'writes title in case note
-CALL write_bullet_and_variable_in_case_note("EMMA begin date", start_date)							' writes the date the EMA began
+CALL write_bullet_and_variable_in_case_note("EMMA begin date", begin_date)							' writes the date the EMA began
 CALL write_bullet_and_variable_in_case_note("EMMA end date", end_date)
 CALL write_bullet_and_variable_in_case_note("Consequencee", consequence_type)		' writes how EMA affects clients health
 CALL write_bullet_and_variable_in_case_note("HH Comp", HH_comp)										' writes the number of people in HH
