@@ -988,12 +988,25 @@ script_array(script_num).used_for_elig			= False
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	   'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name		    = "Copy Case Note to Word"
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Support", "Utility", "SNAP", "MFIP", "DWP", "Adult Cash", "HS/GRH", "Health Care", "EMER")
+script_array(script_num).dlg_keys               = array("Wrd")
+script_array(script_num).subcategory            = array("")
+script_array(script_num).release_date           = #09/12/2022#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+
+script_num = script_num + 1							   'Increment by one
+ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	   'Set this array element to be a new script. Script details below...
 script_array(script_num).script_name		    = "Copy Panels to Word"
 ' script_array(script_num).description		    = "Copies MAXIS panels to Word en masse for a case for easier review."
 script_array(script_num).category               = "UTILITIES"
 script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("SNAP", "MFIP", "Health Care", "Adult Cash")
-script_array(script_num).dlg_keys               = array("Ex")
+script_array(script_num).tags                   = array("Support", "Utility", "SNAP", "MFIP", "DWP", "Adult Cash", "HS/GRH", "Health Care", "EMER")
+script_array(script_num).dlg_keys               = array("Wrd")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
