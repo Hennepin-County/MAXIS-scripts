@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("09/12/2022", "Updated EBT card availibilty in the office direction. Per DHS, counties should use head of household codes.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/24/2022", "CASE/NOTE format updated to exclude the 'How App Received' detail. This information is important for the script operation, but is not necessary to be included in the CASE/NOTE", "Casey Love, Hennepin County")   '#799
 call changelog_update("05/01/2022", "Updated the Appointment Notice to have information for residents about in person support.", "Casey Love, Hennepin County")
 call changelog_update("04/27/2022", "The Application Received script is updated to check cases to find if the ADDR panel is missing or has an error. The script will stop if it discovers a possible issue with an ADDR panel as that is a mandatory panel for all cases.", "Casey Love, Hennepin County")
@@ -486,6 +487,25 @@ If snap_status = "PENDING" Then
         expedited_status = "Client Appears Expedited"                           'setting a variable with expedited information
     End If
     IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN expedited_status = "Client Does Not Appear Expedited"
+
+    'Navigates to STAT/DISQ using current month as footer month. If it can't get in to the current month due to CAF received in a different month, it'll find that month and navigate to it.
+    Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
+    Call navigate_to_MAXIS_screen("STAT", "DISQ")
+    EMReadScreen DISQ_member_check, 34, 24, 2   'Reads the DISQ info for the case note.
+    If DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" then
+    	has_DISQ = False
+    Else
+    	has_DISQ = True
+    End if
+
+    'Reads MONY/DISB 'Head of Household" coding to see if a card has been issued. B or H codes mean that a resident has already received a card and cannot get another in office.
+    'DHS webinar meeting 07/20/2022
+    in_office_card = True   'Defaulting to true
+    IF expedited_status = "client appears expedited" THEN
+    	Call navigate_to_MAXIS_screen("MONY", "DISB")
+        EmReadscreen HoH_card_status, 1, 15, 27
+        If HoH_card_status = "B" or HoH_card_status = "H" then in_office_card = False
+    End if
 End If
 
 'if the case is determined to need an appointment letter the script will default the interview date
@@ -745,6 +765,10 @@ If snap_status = "PENDING" Then
     CALL write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
     CALL write_variable_in_CASE_NOTE("        Utilities (AMT/HEST claimed): $" & utilities)
     CALL write_variable_in_CASE_NOTE("---")
+    If has_DISQ = True then CALL write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
+    If has_DISQ = False then CALL write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
+    If in_office_card = False then CALL write_variable_in_CASE_NOTE("Recipient will NOT be able to get an EBT card in an agency office. An EBT card has previously been provided to the household.")
+    CALL write_variable_in_CASE_NOTE("---")
     IF expedited_status = "Client Does Not Appear Expedited" THEN CALL write_variable_in_CASE_NOTE("Client does not appear expedited. Application sent to ECF.")
     IF expedited_status = "Client Appears Expedited" THEN CALL write_variable_in_CASE_NOTE("Client appears expedited. Application sent to ECF.")
     CALL write_variable_in_CASE_NOTE("---")
@@ -914,7 +938,7 @@ If revw_pending_table = True Then
     If no_transfer_checkbox = checked Then worker_id_for_data_table = initial_pw_for_data_table     'determining the X-Number for table entry
     If no_transfer_checkbox = unchecked Then worker_id_for_data_table = transfer_to_worker
     If len(worker_id_for_data_table) = 3 Then worker_id_for_data_table = "X127" & worker_id_for_data_table
-    
+
     'Setting constants
     Const adOpenStatic = 3
     Const adLockOptimistic = 3
