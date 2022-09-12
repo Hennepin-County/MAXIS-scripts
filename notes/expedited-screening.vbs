@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("09/12/2022", "Updated EBT card availibilty in the office direction. Per DHS, counties should use head of household codes.", "Ilse Ferris, Hennepin County")
+CALL changelog_update("09/12/2022", "Updated EBT card availibilty in the office direction. Per DHS, counties should use head of household codes. Added calculation-only option for PRIV cases.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/29/2021", "Updated Standard Utility Allowances for 10/2021.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/13/2020", "Enhanced date evaluation functionality when which determining HEST standards to use.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/01/2020", "Updated Standard Utility Allowances for 10/2020.", "Ilse Ferris, Hennepin County")
@@ -64,17 +64,21 @@ call MAXIS_case_number_finder(MAXIS_case_number) 'It will search for a case numb
 ' application_date = date & ""
 If MAXIS_case_number <> "" Then
     Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
-    IF is_this_priv = True THEN script_end_procedure_with_error_report("This case is privileged. Please request access before running the script again.")
-    EMReadScreen snap_pend_check, 4, 10, 74
-    If snap_pend_check = "PEND" Then
-        EMReadScreen snap_app_date, 8, 10, 33
-        application_date = replace(snap_app_date, " ", "/")
-    End If
-    transmit
-    EMReadScreen check_for_hcre, 4, 2, 50
-    If check_for_hcre = "HCRE" Then
-        PF10
-    End If
+    IF is_this_priv = True THEN
+        priv_choice = msgbox ("This case is privileged. Do you still want to run the script to caluculate the expedited screening? The script would not case note.", vbQuestion + VbYesNo, "Privliedge Case.")
+        If priv_choice = vbNo then script_end_procedure("~PT User Pressed Cancel. Priv case.")
+    Else
+        EMReadScreen snap_pend_check, 4, 10, 74
+        If snap_pend_check = "PEND" Then
+            EMReadScreen snap_app_date, 8, 10, 33
+            application_date = replace(snap_app_date, " ", "/")
+        End If
+        transmit
+        EMReadScreen check_for_hcre, 4, 2, 50
+        If check_for_hcre = "HCRE" Then
+            PF10
+        End If
+    End if
 End If
 
 '-------------------------------------------------------------------------------------------------DIALOG
@@ -148,49 +152,60 @@ If (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < 
 If (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) then expedited_status = "client does not appear expedited"
 '----------------------------------------------------------------------------------------------------
 
-'Navigates to STAT/DISQ using current month as footer month. If it can't get in to the current month due to CAF received in a different month, it'll find that month and navigate to it.
-Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
-Call navigate_to_MAXIS_screen("STAT", "DISQ")
-EMReadScreen DISQ_member_check, 34, 24, 2   'Reads the DISQ info for the case note.
-If DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" then
-	has_DISQ = False
+'Output if case is priv and user selects to run the script.
+If priv_choice = vbYes then
+    closing_message = ("This result of the expedited screening is: " & expedited_status & ".")
 Else
-	has_DISQ = True
+    'Navigates to STAT/DISQ using current month as footer month. If it can't get in to the current month due to CAF received in a different month, it'll find that month and navigate to it.
+    Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)
+    Call navigate_to_MAXIS_screen("STAT", "DISQ")
+    EMReadScreen DISQ_member_check, 34, 24, 2   'Reads the DISQ info for the case note.
+    If DISQ_member_check = "DISQ DOES NOT EXIST FOR ANY MEMBER" then
+    	has_DISQ = False
+    Else
+    	has_DISQ = True
+    End if
+
+    'Reads MONY/DISB 'Head of Household" coding to see if a card has been issued. B, H, p and R codes mean that a resident has already received a card and cannot get another in office.
+    'DHS webinar meeting 07/20/2022
+    in_office_card = True   'Defaulting to true
+    IF expedited_status = "client appears expedited" THEN
+    	Call navigate_to_MAXIS_screen("MONY", "DISB")
+        EmReadscreen HoH_card_status, 1, 15, 27
+        If HoH_card_status = "B" or _
+           HoH_card_status = "H" or _
+           HoH_card_status = "P" or _
+           HoH_card_status = "R" then
+           in_office_card = False
+        End if
+    End if
+
+    'THE CASE NOTE----------------------------------------------------------------------------------------------------
+    Call start_a_blank_CASE_NOTE
+    EMReadScreen case_note_check, 17, 2, 33
+    EMReadScreen mode_check, 1, 20, 09
+    If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then    'this will account for those cases when the script is run on an out of county case.
+    	closing_message = "The script can't open a case note. You may be in inquiry or entered a case number that is in another county." &_
+    	vbNewLine & vbNewLine & "This result for this case is " & expedited_status & vbNewLine & vbNewLine & "Please run the script again if you were in inquiry to add a case note."
+    else
+    	'Body of the case note
+        Call write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
+    	call write_variable_in_CASE_NOTE("---")
+    	call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
+    	call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
+    	call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
+    	call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
+    	call write_variable_in_CASE_NOTE("---")
+    	If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
+    	If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
+        If in_office_card = False then Call write_variable_in_CASE_NOTE("Recipient will NOT be able to get an EBT card in an agency office. An EBT card has previously been provided to the household.")
+    	call write_variable_in_CASE_NOTE("---")
+    	call write_variable_in_CASE_NOTE(worker_signature)
+    	If expedited_status = "client appears expedited" then closing_message = "This client appears expedited. A same day interview needs to be offered."
+    	If expedited_status = "client does not appear expedited" then closing_message = "This client does not appear expedited. A same day interview does not need to be offered."
+    End if
 End if
 
-'Reads MONY/DISB 'Head of Household" coding to see if a card has been issued. B or H codes mean that a resident has already received a card and cannot get another in office.
-'DHS webinar meeting 07/20/2022
-in_office_card = True   'Defaulting to true
-IF expedited_status = "client appears expedited" THEN
-	Call navigate_to_MAXIS_screen("MONY", "DISB")
-    EmReadscreen HoH_card_status, 1, 15, 27
-    If HoH_card_status = "B" or HoH_card_status = "H" then in_office_card = False
-End if
-
-'THE CASE NOTE----------------------------------------------------------------------------------------------------
-Call start_a_blank_CASE_NOTE
-EMReadScreen case_note_check, 17, 2, 33
-EMReadScreen mode_check, 1, 20, 09
-If case_note_check <> "Case Notes (NOTE)" or mode_check <> "A" then    'this will account for those cases when the script is run on an out of county case.
-	closing_message = "The script can't open a case note. You may be in inquiry or entered a case number that is in another county." &_
-	vbNewLine & vbNewLine & "This result for this case is " & expedited_status & vbNewLine & vbNewLine & "Please run the script again if you were in inquiry to add a case note."
-else
-	'Body of the case note
-    Call write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
-	call write_variable_in_CASE_NOTE("---")
-	call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
-	call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
-	call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
-	call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
-	call write_variable_in_CASE_NOTE("---")
-	If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
-	If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
-    If in_office_card = False then Call write_variable_in_CASE_NOTE("Recipient will NOT be able to get an EBT card in an agency office. An EBT card has previously been provided to the household.")
-	call write_variable_in_CASE_NOTE("---")
-	call write_variable_in_CASE_NOTE(worker_signature)
-	If expedited_status = "client appears expedited" then closing_message = "This client appears expedited. A same day interview needs to be offered."
-	If expedited_status = "client does not appear expedited" then closing_message = "This client does not appear expedited. A same day interview does not need to be offered."
-End if
 script_end_procedure_with_error_report(closing_message)
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
