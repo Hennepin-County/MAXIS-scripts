@@ -1028,6 +1028,16 @@ function save_your_work()
             objTextStream.WriteLine "interview_type" & "^~^~^~^~^~^~^" & interview_type
             objTextStream.WriteLine "verifications_requested_case_note_found" & "^~^~^~^~^~^~^" & verifications_requested_case_note_found
             objTextStream.WriteLine "verifs_needed" & "^~^~^~^~^~^~^" & verifs_needed
+            If verif_snap_checkbox = checked then objTextStream.WriteLine "verif_snap_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If verif_cash_checkbox = checked then objTextStream.WriteLine "verif_cash_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If verif_mfip_checkbox = checked then objTextStream.WriteLine "verif_mfip_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If verif_dwp_checkbox = checked then objTextStream.WriteLine "verif_dwp_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If verif_msa_checkbox = checked then objTextStream.WriteLine "verif_msa_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If verif_ga_checkbox = checked then objTextStream.WriteLine "verif_ga_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If verif_grh_checkbox = checked then objTextStream.WriteLine "verif_grh_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If verif_emer_checkbox = checked then objTextStream.WriteLine "verif_emer_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If verif_hc_checkbox = checked then objTextStream.WriteLine "verif_hc_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+
             objTextStream.WriteLine "caf_qualifying_questions_case_note_found" & "^~^~^~^~^~^~^" & caf_qualifying_questions_case_note_found
             objTextStream.WriteLine "qual_question_one" & "^~^~^~^~^~^~^" & qual_question_one
             objTextStream.WriteLine "qual_memb_one" & "^~^~^~^~^~^~^" & qual_memb_one
@@ -1397,6 +1407,24 @@ function save_your_work()
             script_run_lowdown = script_run_lowdown & vbCr & "interview_type" & ": " & interview_type
             script_run_lowdown = script_run_lowdown & vbCr & "verifications_requested_case_note_found" & ": " & verifications_requested_case_note_found
             script_run_lowdown = script_run_lowdown & vbCr & "verifs_needed" & ": " & verifs_needed
+            If verif_snap_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_snap_checkbox" & ":" & "CHECKED"
+            If verif_cash_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_cash_checkbox" & ":" & "CHECKED"
+            If verif_mfip_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_mfip_checkbox" & ":" & "CHECKED"
+            If verif_dwp_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_dwp_checkbox" & ":" & "CHECKED"
+            If verif_msa_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_msa_checkbox" & ":" & "CHECKED"
+            If verif_ga_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_ga_checkbox" & ":" & "CHECKED"
+            If verif_grh_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_grh_checkbox" & ":" & "CHECKED"
+            If verif_emer_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_emer_checkbox" & ":" & "CHECKED"
+            If verif_hc_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_hc_checkbox" & ":" & "CHECKED"
+            If verif_snap_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_snap_checkbox" & ":" & "UNCHECKED"
+            If verif_cash_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_cash_checkbox" & ":" & "UNCHECKED"
+            If verif_mfip_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_mfip_checkbox" & ":" & "UNCHECKED"
+            If verif_dwp_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_dwp_checkbox" & ":" & "UNCHECKED"
+            If verif_msa_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_msa_checkbox" & ":" & "UNCHECKED"
+            If verif_ga_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_ga_checkbox" & ":" & "UNCHECKED"
+            If verif_grh_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_grh_checkbox" & ":" & "UNCHECKED"
+            If verif_emer_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_emer_checkbox" & ":" & "UNCHECKED"
+            If verif_hc_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "verif_hc_checkbox" & ":" & "UNCHECKED"
             script_run_lowdown = script_run_lowdown & vbCr & "caf_qualifying_questions_case_note_found" & ": " & caf_qualifying_questions_case_note_found
             script_run_lowdown = script_run_lowdown & vbCr & "qual_question_one" & ": " & qual_question_one
             script_run_lowdown = script_run_lowdown & vbCr & "qual_memb_one" & ": " & qual_memb_one
@@ -1868,6 +1896,15 @@ function restore_your_work(vars_filled)
                         If UCase(verifications_requested_case_note_found) = "TRUE" Then verifications_requested_case_note_found = True
                         If UCase(verifications_requested_case_note_found) = "FALSE" Then verifications_requested_case_note_found = False
                         If line_info(0) = "verifs_needed" Then verifs_needed = line_info(1)
+                        If line_info(0) = "verif_snap_checkbox" and line_info(1) = "CHECKED" then verif_snap_checkbox = checked
+                        If line_info(0) = "verif_cash_checkbox" and line_info(1) = "CHECKED" then verif_cash_checkbox = checked
+                        If line_info(0) = "verif_mfip_checkbox" and line_info(1) = "CHECKED" then verif_mfip_checkbox = checked
+                        If line_info(0) = "verif_dwp_checkbox" and line_info(1) = "CHECKED" then verif_dwp_checkbox = checked
+                        If line_info(0) = "verif_msa_checkbox" and line_info(1) = "CHECKED" then verif_msa_checkbox = checked
+                        If line_info(0) = "verif_ga_checkbox" and line_info(1) = "CHECKED" then verif_ga_checkbox = checked
+                        If line_info(0) = "verif_grh_checkbox" and line_info(1) = "CHECKED" then verif_grh_checkbox = checked
+                        If line_info(0) = "verif_emer_checkbox" and line_info(1) = "CHECKED" then verif_emer_checkbox = checked
+                        If line_info(0) = "verif_hc_checkbox" and line_info(1) = "CHECKED" then verif_hc_checkbox = checked
                         If line_info(0) = "caf_qualifying_questions_case_note_found" Then caf_qualifying_questions_case_note_found = line_info(1)
                         If UCase(caf_qualifying_questions_case_note_found) = "TRUE" Then caf_qualifying_questions_case_note_found = True
                         If UCase(caf_qualifying_questions_case_note_found) = "FALSE" Then caf_qualifying_questions_case_note_found = False
@@ -4486,17 +4523,30 @@ function verification_dialog()
               Text 280, 10, 120, 10, "Date Verification Request Form Sent:"
               EditBox 400, 5, 50, 15, verif_req_form_sent_date
 
-              Groupbox 5, 35, 555, 130, "Personal and Household Information"
+              GroupBox 530, 35, 75, 145, "PROGRAM(S):"
+              Text 535, 48, 65, 40, "Check all programs that require any of the listed verifications:"
+              CheckBox 540, 85, 45, 10, "SNAP", verif_snap_checkbox
+              CheckBox 540, 95, 45, 10, "CASH", verif_cash_checkbox
+              CheckBox 540, 105, 45, 10, "MFIP", verif_mfip_checkbox
+              CheckBox 540, 115, 45, 10, "DWP", verif_dwp_checkbox
+              CheckBox 540, 125, 45, 10, "MSA", verif_msa_checkbox
+              CheckBox 540, 135, 45, 10, "GA", verif_ga_checkbox
+              CheckBox 540, 145, 45, 10, "GRH", verif_grh_checkbox
+              CheckBox 540, 155, 45, 10, "EMER", verif_emer_checkbox
+              CheckBox 540, 165, 45, 10, "HC", verif_hc_checkbox
+              ' CheckBox 540, 50, 45, 10, "SNAP", verif_snap_checkbox
+
+              Groupbox 5, 35, 520, 130, "Personal and Household Information"
 
               CheckBox 10, 50, 75, 10, "Verification of ID for ", id_verif_checkbox
               ComboBox 90, 45, 150, 45, verification_memb_list, id_verif_memb
               CheckBox 300, 50, 100, 10, "Social Security Number for ", ssn_checkbox
-              ComboBox 405, 45, 150, 45, verification_memb_list, ssn_verif_memb
+              ComboBox 405, 45, 110, 45, verification_memb_list, ssn_verif_memb
 
               CheckBox 10, 70, 70, 10, "US Citizenship for ", us_cit_status_checkbox
               ComboBox 85, 65, 150, 45, verification_memb_list, us_cit_verif_memb
               CheckBox 300, 70, 85, 10, "Immigration Status for", imig_status_checkbox
-              ComboBox 390, 65, 150, 45, verification_memb_list, imig_verif_memb
+              ComboBox 390, 65, 125, 45, verification_memb_list, imig_verif_memb
 
               CheckBox 10, 90, 90, 10, "Proof of relationship for ", relationship_checkbox
               ComboBox 105, 85, 150, 45, verification_memb_list, relationship_one_verif_memb
@@ -4516,21 +4566,21 @@ function verification_dialog()
               Text 285, 150, 30, 10, "verifying:"
               EditBox 320, 145, 150, 15, disa_verif_type
 
-              GroupBox 5, 165, 555, 50, "Income Information"
+              GroupBox 5, 165, 520, 50, "Income Information"
 
               CheckBox 10, 180, 45, 10, "Income for ", income_checkbox
-              ComboBox 60, 175, 150, 45, verification_memb_list, income_verif_memb
-              Text 215, 180, 15, 10, "from"
-              ComboBox 235, 175, 150, 45, income_source_list, income_verif_source
-              Text 390, 180, 10, 10, "for"
-              EditBox 405, 175, 150, 15, income_verif_time
+              ComboBox 60, 175, 140, 45, verification_memb_list, income_verif_memb
+              Text 205, 180, 15, 10, "from"
+              ComboBox 225, 175, 125, 45, income_source_list, income_verif_source
+              Text 355, 180, 10, 10, "for"
+              EditBox 370, 175, 145, 15, income_verif_time
 
               CheckBox 10, 200, 85, 10, "Employment Status for ", employment_status_checkbox
               ComboBox 100, 195, 150, 45, verification_memb_list, emp_status_verif_memb
               Text 255, 200, 10, 10, "at"
               ComboBox 270, 195, 150, 45, employment_source_list, emp_status_verif_source
 
-              GroupBox 5, 215, 555, 50, "Expense Information"
+              GroupBox 5, 215, 520, 50, "Expense Information"
 
               CheckBox 10, 230, 105, 10, "Educational Funds/Costs for", educational_funds_cost_checkbox
               ComboBox 120, 225, 150, 45, verification_memb_list, stin_verif_memb
@@ -5351,6 +5401,7 @@ Dim snap_other_req_detail, emer_other_req_detail, adult_cash, family_cash, the_p
 Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, CAF_type, CAF_datestamp, interview_date, SNAP_recert_is_likely_24_months, exp_screening_note_found, interview_required
 Dim xfs_screening, xfs_screening_display, caf_one_income, caf_one_assets, caf_one_resources, caf_one_rent, caf_one_utilities, caf_one_expenses, exp_det_case_note_found
 Dim snap_exp_yn, snap_denial_date, interview_completed_case_note_found, interview_with, interview_type, verifications_requested_case_note_found, verifs_needed, caf_qualifying_questions_case_note_found
+Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
 Dim qual_question_one, qual_memb_one, qual_question_two, qual_memb_two, qual_question_three, qual_memb_three, qual_question_four, qual_memb_four, qual_question_five, qual_memb_five, appt_notc_sent_on
 Dim appt_date_in_note, addr_line_one, addr_line_two, city, state, zip, addr_county, homeless_yn, reservation_yn, addr_verif, living_situation, addr_eff_date, addr_future_date, mail_line_one
 Dim mail_line_two, mail_city_line, mail_state_line, mail_zip_line, notes_on_address, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three
@@ -9718,6 +9769,19 @@ If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False
         verifs_array = array(verifs_needed)
     End If
 
+    programs_verifs_apply_to = ""
+    If verif_snap_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", SNAP"
+    If verif_cash_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", CASH"
+    If verif_mfip_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MFIP"
+    If verif_dwp_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", DWP"
+    If verif_msa_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MSA"
+    If verif_ga_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GA"
+    If verif_grh_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GRH"
+    If verif_emer_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", EMER"
+    If verif_hc_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", HC"
+    If left(programs_verifs_apply_to, 1) = "," Then programs_verifs_apply_to = right(programs_verifs_apply_to, len(programs_verifs_apply_to)-1)
+    programs_verifs_apply_to = trim(programs_verifs_apply_to)
+
     case_notes_information = case_notes_information & "Verifs NOTE Attempted %^%"
     case_notes_information = case_notes_information & "Script Header - " & "VERIFICATIONS REQUESTED" & " %^%"
     Call start_a_blank_CASE_NOTE
@@ -9735,7 +9799,10 @@ If trim(verifs_needed) <> "" AND verifications_requested_case_note_found = False
         verif_counter = verif_counter + 1
         Call write_variable_with_indent_in_CASE_NOTE(verif_item)
     Next
-
+    If programs_verifs_apply_to <> "" Then
+        Call write_variable_in_CASE_NOTE("---")
+        Call write_variable_in_CASE_NOTE("Verifications are needed for " & programs_verifs_apply_to & ".")
+    End If
     If verifs_postponed_checkbox = checked Then
         Call write_variable_in_CASE_NOTE("---")
         Call write_variable_in_CASE_NOTE("There may be verifications that are postponed to allow for the approval of Expedited SNAP.")
