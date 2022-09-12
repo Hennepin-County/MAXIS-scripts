@@ -65,6 +65,19 @@ Function copy_screen_to_array(output_array)
 	output_array = split(output_array, "UUDDLRLRBA")
 End function
 
+function insert_page_break_after_two_panels(screen_on_page)
+	'Determines if the Word doc needs a new page
+	'screen_on_page - This is a running counter that is updated in this function
+	If screen_on_page = "" or screen_on_page = 1 then							'if we are at 1, we need to add some spaces and increment the counter'
+		screen_on_page = 2
+		objSelection.TypeText vbCr & vbCr
+	Elseif screen_on_page = 2 then												'if we are at 2, we need to insert a page breakk and reset the counter
+		screen_on_page = 1
+		objSelection.InsertBreak(7)
+	End if
+	STATS_counter = STATS_counter + 1											'also using this to increment the stats counter since we do this with every panel we read.'
+end function
+
 'VARIABLES TO DECLARE----------------------------------------------------------------------------------------------------
 'These are all the panels as they are laid out in STAT/SPAN
 'This layout is to make these easier to review and update as needed.
@@ -165,6 +178,8 @@ const SSRT_const = 71
 Dim ALL_THE_PANELS_ARRAY()
 ReDim ALL_THE_PANELS_ARRAY(panel_last_const, SSRT_const)
 
+screen_on_page = 1
+
 'THE SCRIPT----------------------------------------------------------------------------------------------------
 
 'Connects to BlueZone
@@ -179,16 +194,16 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'Inital Dialog for capturing case number'
 Dialog1 = ""
-BeginDialog dialog1, 0, 0, 161, 65, "Copy Panels to Word Inital Dialog"
+BeginDialog dialog1, 0, 0, 166, 65, "Copy Panels to Word Inital Dialog"
   Text 5, 10, 85, 10, "Enter your case number:"
-  EditBox 95, 5, 60, 15, MAXIS_case_number
-  Text 15, 30, 50, 10, "Footer month:"
-  EditBox 65, 25, 25, 15, MAXIS_footer_month
-  Text 95, 30, 20, 10, "Year:"
-  EditBox 120, 25, 25, 15, MAXIS_footer_year
+  EditBox 95, 5, 65, 15, MAXIS_case_number
+  Text 40, 30, 50, 10, "Footer month:"
+  EditBox 95, 25, 20, 15, MAXIS_footer_month
+  Text 120, 30, 20, 10, "Year:"
+  EditBox 140, 25, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 25, 45, 50, 15
-    CancelButton 85, 45, 50, 15
+    OkButton 50, 45, 50, 15
+    CancelButton 110, 45, 50, 15
 EndDialog
 
 'Shows case number dialog
@@ -256,14 +271,14 @@ BeginDialog Dialog1, 0, 0, 371, 190, "All MAXIS panels dialog"
 		y_pos = y_pos + 15
 	End If
   Next
-  Checkbox 310, 45, 65, 10, "ALL PANELS", all_panels_check
-  Checkbox 310, 60, 65, 10, "ALL EXISTING", all_existing_panels_check
-  Text 310, 85, 60, 20, "For income panels, include PIC?"
-  DropListBox 310, 105, 50, 45, "Yes"+chr(9)+"No", include_pics
-  Text 320, 70, 50, 10, "PANELS"
+  Checkbox 310, 5, 65, 10, "ALL PANELS", all_panels_check
+  Checkbox 310, 20, 65, 10, "ALL EXISTING", all_existing_panels_check
+  Text 320, 30, 50, 10, "PANELS"
+  Text 310, 40, 60, 20, "For income panels, include PIC?"
+  DropListBox 310, 60, 50, 45, "Yes"+chr(9)+"No", include_pics
   ButtonGroup ButtonPressed
-    OkButton 310, 5, 50, 15
-    CancelButton 310, 25, 50, 15
+    OkButton 315, 150, 50, 15
+    CancelButton 315, 170, 50, 15
 EndDialog
 
 Do
@@ -317,23 +332,14 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 		ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "HCRE" OR _
 		ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "ABPS" THEN
 			call navigate_to_MAXIS_screen("STAT", ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter))
-					call copy_screen_to_array(screentest)
+			call copy_screen_to_array(screentest)
 
-					'Adds current screen to Word doc
-					For each line in screentest
-						objSelection.TypeText line & Chr(11)
-					Next
+			'Adds current screen to Word doc
+			For each line in screentest
+				objSelection.TypeText line & Chr(11)
+			Next
 
-					'Determines if the Word doc needs a new page
-					If screen_on_page = "" or screen_on_page = 1 then
-						screen_on_page = 2
-						objSelection.TypeText vbCr & vbCr
-					Elseif screen_on_page = 2 then
-						screen_on_page = 1
-						objSelection.InsertBreak(7)
-					End if
-					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-
+			Call insert_page_break_after_two_panels(screen_on_page)
 		ELSE		'the rest of the panels have person association.
 
 			FOR EACH HH_member IN (HH_member_array)
@@ -351,16 +357,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 						For each line in screentest
 							objSelection.TypeText line & Chr(11)
 						Next
-
-						'Determines if the Word doc needs a new page
-						If screen_on_page = "" or screen_on_page = 1 then
-							screen_on_page = 2
-							objSelection.TypeText vbCr & vbCr
-						Elseif screen_on_page = 2 then
-							screen_on_page = 1
-							objSelection.InsertBreak(7)
-						End if
-						STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+						Call insert_page_break_after_two_panels(screen_on_page)
 
 				ELSEIF ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "BILS" THEN			'BILS works a little different
 					call navigate_to_MAXIS_screen("STAT", "BILS")
@@ -371,32 +368,14 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 							For each line in screentest
 								objSelection.TypeText line & Chr(11)
 							Next
-
-							'Determines if the Word doc needs a new page
-							If screen_on_page = "" or screen_on_page = 1 then
-								screen_on_page = 2
-								objSelection.TypeText vbCr & vbCr
-							Elseif screen_on_page = 2 then
-								screen_on_page = 1
-								objSelection.InsertBreak(7)
-							End if
-							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+							Call insert_page_break_after_two_panels(screen_on_page)
 						ELSEIF total_bils_panel = "1" THEN
 							call copy_screen_to_array(screentest)
 							'Adds current screen to Word doc
 							For each line in screentest
 								objSelection.TypeText line & Chr(11)
 							Next
-
-							'Determines if the Word doc needs a new page
-							If screen_on_page = "" or screen_on_page = 1 then
-								screen_on_page = 2
-								objSelection.TypeText vbCr & vbCr
-							Elseif screen_on_page = 2 then
-								screen_on_page = 1
-								objSelection.InsertBreak(7)
-							End if
-							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+							Call insert_page_break_after_two_panels(screen_on_page)
 						ELSEIF total_bils_panel <> "0" AND total_bils_panel <> "1" THEN
 							DO
 								EMReadScreen last_bils_screen, 9, 19, 66
@@ -405,17 +384,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 								For each line in screentest
 									objSelection.TypeText line & Chr(11)
 								Next
-
-								'Determines if the Word doc needs a new page
-								If screen_on_page = "" or screen_on_page = 1 then
-									screen_on_page = 2
-									objSelection.TypeText vbCr & vbCr
-								Elseif screen_on_page = 2 then
-									screen_on_page = 1
-									objSelection.InsertBreak(7)
-								End if
-								PF20
-								STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+								Call insert_page_break_after_two_panels(screen_on_page)
 							LOOP until last_bils_screen = "More:   -"
 						END IF
 
@@ -428,16 +397,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 							For each line in screentest
 								objSelection.TypeText line & Chr(11)
 							Next
-
-							'Determines if the Word doc needs a new page
-							If screen_on_page = "" or screen_on_page = 1 then
-								screen_on_page = 2
-								objSelection.TypeText vbCr & vbCr
-							Elseif screen_on_page = 2 then
-								screen_on_page = 1
-								objSelection.InsertBreak(7)
-							End if
-							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+							Call insert_page_break_after_two_panels(screen_on_page)
 						ELSEIF more_fmed_screens = "More: +" THEN
 							EMReadScreen more_fmed_screens, 7, 15, 68
 							call copy_screen_to_array(screentest)
@@ -445,15 +405,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 							For each line in screentest
 								objSelection.TypeText line & Chr(11)
 							Next
-
-							'Determines if the Word doc needs a new page
-							If screen_on_page = "" or screen_on_page = 1 then
-								screen_on_page = 2
-								objSelection.TypeText vbCr & vbCr
-							Elseif screen_on_page = 2 then
-								screen_on_page = 1
-								objSelection.InsertBreak(7)
-							End if
+							Call insert_page_break_after_two_panels(screen_on_page)
 							PF20
 
 							EMReadScreen more_fmed_screens, 7, 15, 68
@@ -462,16 +414,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 							For each line in screentest
 								objSelection.TypeText line & Chr(11)
 							Next
-
-							'Determines if the Word doc needs a new page
-							If screen_on_page = "" or screen_on_page = 1 then
-								screen_on_page = 2
-								objSelection.TypeText vbCr & vbCr
-							Elseif screen_on_page = 2 then
-								screen_on_page = 1
-								objSelection.InsertBreak(7)
-							End if
-							STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
+							Call insert_page_break_after_two_panels(screen_on_page)
 						END IF
 
 				ELSE				'All the other panels
@@ -499,14 +442,7 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 							If ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "JOBS" Then
 								Call write_value_and_transmit("X", 19, 38)		'SNAP PIC'
 
-								'Determines if the Word doc needs a new page
-								If screen_on_page = "" or screen_on_page = 1 then
-									screen_on_page = 2
-									objSelection.TypeText vbCr & vbCr
-								Elseif screen_on_page = 2 then
-									screen_on_page = 1
-									objSelection.InsertBreak(7)
-								End if
+								Call insert_page_break_after_two_panels(screen_on_page)
 
 								call copy_screen_to_array(screentest)
 
@@ -514,19 +450,11 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 								For each line in screentest
 									objSelection.TypeText line & Chr(11)
 								Next
-								STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 								PF3
 
 								Call write_value_and_transmit("X", 19, 71)		'GRH PIC'
 
-								'Determines if the Word doc needs a new page
-								If screen_on_page = "" or screen_on_page = 1 then
-									screen_on_page = 2
-									objSelection.TypeText vbCr & vbCr
-								Elseif screen_on_page = 2 then
-									screen_on_page = 1
-									objSelection.InsertBreak(7)
-								End if
+								Call insert_page_break_after_two_panels(screen_on_page)
 
 								call copy_screen_to_array(screentest)
 
@@ -534,20 +462,12 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 								For each line in screentest
 									objSelection.TypeText line & Chr(11)
 								Next
-								STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 								PF3
 							End If
 							If ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "UNEA" Then
 								Call write_value_and_transmit("X", 10, 26)		'SNAP PIC'
 
-								'Determines if the Word doc needs a new page
-								If screen_on_page = "" or screen_on_page = 1 then
-									screen_on_page = 2
-									objSelection.TypeText vbCr & vbCr
-								Elseif screen_on_page = 2 then
-									screen_on_page = 1
-									objSelection.InsertBreak(7)
-								End if
+								Call insert_page_break_after_two_panels(screen_on_page)
 
 								call copy_screen_to_array(screentest)
 
@@ -555,20 +475,12 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 								For each line in screentest
 									objSelection.TypeText line & Chr(11)
 								Next
-								STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 								PF3
 							End If
 							If ALL_THE_PANELS_ARRAY(panel_name_const, panel_counter) = "BUSI" Then
 								Call write_value_and_transmit("X", 6, 26)		'Calculation Pop Up'
 
-								'Determines if the Word doc needs a new page
-								If screen_on_page = "" or screen_on_page = 1 then
-									screen_on_page = 2
-									objSelection.TypeText vbCr & vbCr
-								Elseif screen_on_page = 2 then
-									screen_on_page = 1
-									objSelection.InsertBreak(7)
-								End if
+								Call insert_page_break_after_two_panels(screen_on_page)
 
 								call copy_screen_to_array(screentest)
 
@@ -576,22 +488,12 @@ For panel_counter = 0 to UBound(ALL_THE_PANELS_ARRAY, 2)
 								For each line in screentest
 									objSelection.TypeText line & Chr(11)
 								Next
-								STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 								PF3
 							End If
 						End If
-
-						'Determines if the Word doc needs a new page
-						If screen_on_page = "" or screen_on_page = 1 then
-							screen_on_page = 2
-							objSelection.TypeText vbCr & vbCr
-						Elseif screen_on_page = 2 then
-							screen_on_page = 1
-							objSelection.InsertBreak(7)
-						End if
+						Call insert_page_break_after_two_panels(screen_on_page)
 
 						current_panel = current_panel + 1
-						STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 					LOOP UNTIL (left(number_of_panels, 1) = "0") OR (current_panel = (number_of_panels + 1))
 				END IF
 			NEXT
