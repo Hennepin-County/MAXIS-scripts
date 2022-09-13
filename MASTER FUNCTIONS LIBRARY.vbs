@@ -9392,6 +9392,7 @@ Function non_actionable_dails(actionable_dail)
         instr(dail_msg, "APPROVED MSA VERSION EXISTS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SNAP: RECERT/SR DUE FOR JANUARY - NOT AUTO") or _
         instr(dail_msg, "GRH: STATUS IS REIN, PENDING OR SUSPEND - NOT AUTO") OR _
+        instr(dail_msg, "SDNH NEW JOB DETAILS FOR MEMB 00") OR _
         instr(dail_msg, "SNAP: PENDING OR STAT EDITS EXIST") OR _
         instr(dail_msg, "SNAP: REIN STATUS - NOT AUTO-APPROVED") OR _
         instr(dail_msg, "SNAP: APPROVED VERSION ALREADY EXISTS - NOT AUTO-APPROVED") OR _

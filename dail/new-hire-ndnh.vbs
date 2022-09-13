@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/12/2022", "Added support for MEMB 00 messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/11/2022", "Bug fix in reading the MAXIS Case Number.", "Ilse Ferris, Hennepin County") ''#900
 call changelog_update("05/07/2022", "Fixed bug for NDNH new HIRE DAIL's with SSN's in message. There is still a MAXIS system issue that is prohibiting NDNH messages without SSN's to be cleared in INFC. DHS has not provided an update to date.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County")
@@ -82,29 +83,36 @@ Else
     EmReadscreen fed_match, 4, 6, 20
     If left(fed_match, 4) = "NDNH" then SSN_present = False
     SSN_present = False
+    EMReadScreen full_message, 60, 6, 20
+    full_message = trim(full_message)
 End if
 
-'DIALOGS----------------------------------------------------------------------------------------------
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 236, 70, "National Directory of New Hires"
-  DropListBox 150, 5, 80, 15, "Select One:"+chr(9)+"NO-RUN NEW HIRE"+chr(9)+"YES-INFC clear match", match_answer_droplist
-  ButtonGroup ButtonPressed
-    OkButton 125, 50, 50, 15
-    CancelButton 180, 50, 50, 15
-  Text 10, 10, 140, 10, "Has this match been acted on previously?"
-  Text 30, 25, 190, 20, "Reminder that client must be provided 10 days to return                             requested verification(s)"
-EndDialog
+If right(full_message, 2) = "00" then
+    clear_DAIL = msgbox ("MEMB 00 message are system errors, and only need to be cleared in INFC. Would you like the script to clear this match in INFC?", vbQuestion, vbYesNo, "Non-Actionable DAIL found:")
+    If clear_DAIL = vbNo then script_end_procedure("The script will not end. Process the MEMB 00 HIRE message in INFC manually.")
+Else
+    'DIALOGS----------------------------------------------------------------------------------------------
+    Dialog1 = ""
+    BeginDialog Dialog1, 0, 0, 236, 70, "National Directory of New Hires"
+      DropListBox 150, 5, 80, 15, "Select One:"+chr(9)+"NO-RUN NEW HIRE"+chr(9)+"YES-INFC clear match", match_answer_droplist
+      ButtonGroup ButtonPressed
+        OkButton 125, 50, 50, 15
+        CancelButton 180, 50, 50, 15
+      Text 10, 10, 140, 10, "Has this match been acted on previously?"
+      Text 30, 25, 190, 20, "Reminder that client must be provided 10 days to return                             requested verification(s)"
+    EndDialog
 
-Do
-	DO
-		err_msg = ""
-		Dialog Dialog1
-		Cancel_without_confirmation
-		IF match_answer_droplist = "Select One:" THEN err_msg = error_msg & ("You must select an answer.")
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+    Do
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		Cancel_without_confirmation
+    		IF match_answer_droplist = "Select One:" THEN err_msg = error_msg & ("You must select an answer.")
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
+End if
 
 'SELECTS THE DAIL MESSAGE AND READS THE RESPONSE
 EMSendKey "X"
@@ -373,7 +381,21 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	LOOP UNTIL case_number = ""
 	IF hire_match <> TRUE THEN script_end_procedure("No pending HIRE match found for: " & employer & "." & vbcr & "Please review case for potential manual updates.")
 
-    'This is a dialog asking if the job is known to the agency.
+    If clear_DAIL = vbYes then
+        'entering the INFC/HIRE match '
+        Call write_value_and_transmit("U", match_row, 3)
+        EMReadscreen panel_check, 4, 2, 49
+        IF panel_check <> "NHMD" THEN msgbox "We did not enter to clear the match"
+        EMWriteScreen "N", 16, 54
+        EMWriteScreen "NA", 17, 54
+        TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
+        TRANSMIT 'this confirms the cleared status'
+        PF3
+        EMReadscreen cleared_confirmation, 1, match_row, 61
+        IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
+        PF3' this takes us back to DAIL/DAIL
+    Else
+        'This is a dialog asking if the job is known to the agency.
         Dialog1 = ""
         BeginDialog Dialog1, 0, 0, 281, 190, "NDNH Match Resolution Information"
           CheckBox 10, 15, 265, 10, "Check here to verify that ECF has been reviewed and acted upon appropriately", ECF_checkbox
@@ -382,7 +404,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
           EditBox 220, 75, 45, 15, cost_savings
           EditBox 55, 95, 210, 15, other_notes
           CheckBox 10, 125, 260, 10, "Check here if 10 day cutoff has passed - TIKL will be set for following month", tenday_checkbox
-		  CheckBox 10, 150, 260, 10, "SNAP or MFIP Federal Food only - add Claim Referral Tracking on STAT/MISC", claim_referral_tracking_checkbox
+	      CheckBox 10, 150, 260, 10, "SNAP or MFIP Federal Food only - add Claim Referral Tracking on STAT/MISC", claim_referral_tracking_checkbox
           ButtonGroup ButtonPressed
             OkButton 170, 170, 50, 15
             CancelButton 225, 170, 50, 15
@@ -394,110 +416,111 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
           GroupBox 5, 115, 270, 25, "10 day cutoff for closure"
           GroupBox 5, 140, 270, 25, "Claim Referral Tracking"
         EndDialog
-	DO
-		DO
-			err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
-			Dialog Dialog1
-			cancel_confirmation
-			IF ECF_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* You must check that you reviewed ECF and the HIRE was acted on appropriately."
-			IF Emp_known_droplist = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select yes or no for was this employment known to the agency?"
-			IF (Emp_known_droplist = "YES-No Further Action" AND Action_taken_droplist <> "Select One:") THEN err_msg = err_msg & vbCr & "* The employment is known and no selection needs to made for action taken."
-			IF (Emp_known_droplist = "NO-See Next Question" AND Action_taken_droplist = "Select One:") THEN err_msg = err_msg & vbCr & "* You must select an action taken."
-			IF (Action_taken_droplist = "NA-No Action Taken" AND cost_savings <> "") THEN err_msg = err_msg & vbCr & "* Please remove Cost savings information or make another selection"
-			IF (Action_taken_droplist = "BR-Benefits Reduced" OR Action_taken_droplist = "CC-Case Closed") AND cost_savings = "" THEN err_msg = err_msg & vbCr & "* Enter the 1st month's cost savings for this case."
-			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-	'entering the INFC/HIRE match '
-	EMWriteScreen "U", match_row, 3
-	transmit
-	EMReadscreen panel_check, 4, 2, 49
-	IF panel_check <> "NHMD" THEN msgbox "We did not enter to clear the match"
-	IF Emp_known_droplist = "NO-See Next Question" THEN EMWriteScreen "N", 16, 54
-	IF Emp_known_droplist = "YES-No Further Action" THEN EMWriteScreen "Y", 16, 54
-	IF Action_taken_droplist = "NA-No Action Taken" THEN EMWriteScreen "NA", 17, 54
-	IF Action_taken_droplist = "BR-Benefits Reduced" THEN EMWriteScreen "BR", 17, 54
-	IF Action_taken_droplist = "CC-Case Closed" THEN EMWriteScreen "CC", 17, 54
-	IF cost_savings <> "" THEN
-		cost_savings = round(cost_savings)
-		EMWriteScreen cost_savings, 18, 54
-	END IF
-	TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
-	TRANSMIT 'this confirms the cleared status'
-	PF3
-	EMReadscreen cleared_confirmation, 1, match_row, 61
-	IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
-	PF3' this takes us back to DAIL/DAIL
+	    DO
+	    	DO
+	    		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
+	    		Dialog Dialog1
+	    		cancel_confirmation
+	    		IF ECF_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* You must check that you reviewed ECF and the HIRE was acted on appropriately."
+	    		IF Emp_known_droplist = "Select One:" THEN err_msg = err_msg & vbCr & "* You must select yes or no for was this employment known to the agency?"
+	    		IF (Emp_known_droplist = "YES-No Further Action" AND Action_taken_droplist <> "Select One:") THEN err_msg = err_msg & vbCr & "* The employment is known and no selection needs to made for action taken."
+	    		IF (Emp_known_droplist = "NO-See Next Question" AND Action_taken_droplist = "Select One:") THEN err_msg = err_msg & vbCr & "* You must select an action taken."
+	    		IF (Action_taken_droplist = "NA-No Action Taken" AND cost_savings <> "") THEN err_msg = err_msg & vbCr & "* Please remove Cost savings information or make another selection"
+	    		IF (Action_taken_droplist = "BR-Benefits Reduced" OR Action_taken_droplist = "CC-Case Closed") AND cost_savings = "" THEN err_msg = err_msg & vbCr & "* Enter the 1st month's cost savings for this case."
+	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+	    'entering the INFC/HIRE match '
+	    EMWriteScreen "U", match_row, 3
+	    transmit
+	    EMReadscreen panel_check, 4, 2, 49
+	    IF panel_check <> "NHMD" THEN msgbox "We did not enter to clear the match"
+	    IF Emp_known_droplist = "NO-See Next Question" THEN EMWriteScreen "N", 16, 54
+	    IF Emp_known_droplist = "YES-No Further Action" THEN EMWriteScreen "Y", 16, 54
+	    IF Action_taken_droplist = "NA-No Action Taken" THEN EMWriteScreen "NA", 17, 54
+	    IF Action_taken_droplist = "BR-Benefits Reduced" THEN EMWriteScreen "BR", 17, 54
+	    IF Action_taken_droplist = "CC-Case Closed" THEN EMWriteScreen "CC", 17, 54
+	    IF cost_savings <> "" THEN
+	    	cost_savings = round(cost_savings)
+	    	EMWriteScreen cost_savings, 18, 54
+	    END IF
+	    TRANSMIT 'enters the information then a warning message comes up WARNING: ARE YOU SURE YOU WANT TO UPDATE? PF3 TO CANCEL OR TRANSMIT TO UPDATE '
+	    TRANSMIT 'this confirms the cleared status'
+	    PF3
+	    EMReadscreen cleared_confirmation, 1, match_row, 61
+	    IF cleared_confirmation = "" THEN MsgBox "the match did not appear to clear"
+	    PF3' this takes us back to DAIL/DAIL
 
-	IF claim_referral_tracking_checkbox = CHECKED Then
-	    Call navigate_to_MAXIS_screen ("STAT", "MISC")
-	    Row = 6
+	    IF claim_referral_tracking_checkbox = CHECKED Then
+	        Call navigate_to_MAXIS_screen ("STAT", "MISC")
+	        Row = 6
 
-	    EmReadScreen panel_number, 1, 02, 78
-	    If panel_number = "0" then
-	    	EMWriteScreen "NN", 20,79
-	    	TRANSMIT
-	    ELSE
-	    	Do
-	    		'Checking to see if the MISC panel is empty, if not it will find a new line'
-	    		EmReadScreen MISC_description, 25, row, 30
-	    		MISC_description = replace(MISC_description, "_", "")
-	    		If trim(MISC_description) = "" then
-	    			PF9
-	    			EXIT DO
-	    		Else
-	    			row = row + 1
-	    		End if
-	    	Loop Until row = 17
-	    	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
-	    End if
-		'writing in the action taken and date to the MISC panel
-	 	IF Action_taken_droplist = "CC-Case Closed" or  Action_taken_droplist = "BR-Benefits Reduced"  THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
-		IF Action_taken_droplist = "NA-No Action Taken" THEN MISC_action_taken = "Determination-No Savings"
-		IF Emp_known_droplist = "YES-No Further Action" THEN MISC_action_taken = "Determination-No Savings"
-	    EMWriteScreen MISC_action_taken, Row, 30
-	    Call write_value_and_transmit(date, Row, 66)
+	        EmReadScreen panel_number, 1, 02, 78
+	        If panel_number = "0" then
+	        	EMWriteScreen "NN", 20,79
+	        	TRANSMIT
+	        ELSE
+	        	Do
+	        		'Checking to see if the MISC panel is empty, if not it will find a new line'
+	        		EmReadScreen MISC_description, 25, row, 30
+	        		MISC_description = replace(MISC_description, "_", "")
+	        		If trim(MISC_description) = "" then
+	        			PF9
+	        			EXIT DO
+	        		Else
+	        			row = row + 1
+	        		End if
+	        	Loop Until row = 17
+	        	If row = 17 then MsgBox("There is not a blank field in the MISC panel. Please delete a line(s), and run script again or update manually.")
+	        End if
+	    	'writing in the action taken and date to the MISC panel
+	     	IF Action_taken_droplist = "CC-Case Closed" or  Action_taken_droplist = "BR-Benefits Reduced"  THEN MISC_action_taken =  "Determination-OP Entered" '"Claim Determination 25 character available
+	    	IF Action_taken_droplist = "NA-No Action Taken" THEN MISC_action_taken = "Determination-No Savings"
+	    	IF Emp_known_droplist = "YES-No Further Action" THEN MISC_action_taken = "Determination-No Savings"
+	        EMWriteScreen MISC_action_taken, Row, 30
+	        Call write_value_and_transmit(date, Row, 66)
+
+            Call start_a_blank_CASE_NOTE
+	        Call write_variable_in_case_note("-----Claim Referral Tracking-----")
+	    	Call write_variable_in_case_note("* NDNH new hire information received - " & MISC_action_taken )
+	        Call write_bullet_and_variable_in_case_note("Action Date", date)
+	        Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
+	        Call write_variable_in_case_note("-----")
+	        Call write_variable_in_case_note(worker_signature)
+	    END IF
+
+        IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
 
         Call start_a_blank_CASE_NOTE
-	    Call write_variable_in_case_note("-----Claim Referral Tracking-----")
-		Call write_variable_in_case_note("* NDNH new hire information received - " & MISC_action_taken )
-	    Call write_bullet_and_variable_in_case_note("Action Date", date)
-	    Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
-	    Call write_variable_in_case_note("-----")
-	    Call write_variable_in_case_note(worker_signature)
-	END IF
-
-    IF tenday_checkbox = 1 THEN Call create_TIKL("Unable to close due to 10 day cutoff. Verification of job via NEW HIRE should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
-
-    Call start_a_blank_CASE_NOTE
-	IF Emp_known_droplist = "YES-No Further Action" THEN
-		CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Reported-")
-		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
-		CALL write_variable_in_case_note("EMPLOYER: " & employer)
-		CALL write_variable_in_case_note(new_hire_third_line)
-		CALL write_variable_in_case_note(new_hire_fourth_line)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note("* Reviewed ECF for requested verifications and MAXIS for correctly budgeted income.")
-		CALL write_variable_in_case_note("* Cleared match in INFC/HIRE - Previously reported to agency.")
-	ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
-		CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Unreported-")
-		CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
-		CALL write_variable_in_case_note("EMPLOYER: " & employer)
-		CALL write_variable_in_case_note(new_hire_third_line)
-		CALL write_variable_in_case_note(new_hire_fourth_line)
-		CALL write_variable_in_case_note("---")
-		CALL write_variable_in_case_note("* Reviewed ECF for requested verifications updated INFC/HIRE accordingly")
-		IF Action_taken_droplist = "NA-No Action Taken" THEN CALL write_variable_in_case_note("* No futher action taken on this match at this time")
-		IF Action_taken_droplist = "BR-Benefits Reduced" THEN CALL write_variable_in_case_note("* Action taken: Benefits Reduced")
-		IF Action_taken_droplist = "CC-Case Closed" THEN CALL write_variable_in_case_note("* Action taken: Case Closed (allowing for 10 day cutoff if applicable)")
-		IF cost_savings <> "" THEN CALL write_variable_in_case_note("* First Month Cost Savings: $" & cost_savings)
-    End IF
-	CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
-	CALL write_variable_in_case_note("---")
-	CALL write_variable_in_case_note(worker_signature)
-
-	script_end_procedure_with_error_report("Success! The NDNH HIRE message has been cleared. Please start overpayment process if necessary.")
+	    IF Emp_known_droplist = "YES-No Further Action" THEN
+	    	CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Reported-")
+	    	CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+	    	CALL write_variable_in_case_note("EMPLOYER: " & employer)
+	    	CALL write_variable_in_case_note(new_hire_third_line)
+	    	CALL write_variable_in_case_note(new_hire_fourth_line)
+	    	CALL write_variable_in_case_note("---")
+	    	CALL write_variable_in_case_note("* Reviewed ECF for requested verifications and MAXIS for correctly budgeted income.")
+	    	CALL write_variable_in_case_note("* Cleared match in INFC/HIRE - Previously reported to agency.")
+	    ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
+	    	CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Unreported-")
+	    	CALL write_variable_in_case_note("DATE HIRED: " & date_hired)
+	    	CALL write_variable_in_case_note("EMPLOYER: " & employer)
+	    	CALL write_variable_in_case_note(new_hire_third_line)
+	    	CALL write_variable_in_case_note(new_hire_fourth_line)
+	    	CALL write_variable_in_case_note("---")
+	    	CALL write_variable_in_case_note("* Reviewed ECF for requested verifications updated INFC/HIRE accordingly")
+	    	IF Action_taken_droplist = "NA-No Action Taken" THEN CALL write_variable_in_case_note("* No futher action taken on this match at this time")
+	    	IF Action_taken_droplist = "BR-Benefits Reduced" THEN CALL write_variable_in_case_note("* Action taken: Benefits Reduced")
+	    	IF Action_taken_droplist = "CC-Case Closed" THEN CALL write_variable_in_case_note("* Action taken: Case Closed (allowing for 10 day cutoff if applicable)")
+	    	IF cost_savings <> "" THEN CALL write_variable_in_case_note("* First Month Cost Savings: $" & cost_savings)
+        End IF
+	    CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
+	    CALL write_variable_in_case_note("---")
+	    CALL write_variable_in_case_note(worker_signature)
+        closing_message = "Success! The NDNH HIRE message has been cleared. Please start overpayment process if necessary."
+	    script_end_procedure_with_error_report(closing_message)
+    End if
 END IF
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation

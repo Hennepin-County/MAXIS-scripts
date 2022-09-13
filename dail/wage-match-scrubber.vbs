@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/12/2022", "Added support for MEMB 00 messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/16/2022", "Added fix for WAGE match scrubber while DHS interface with SSN is being repaired.", "05/16/2022, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -414,55 +415,91 @@ EMReadScreen wage, 4, 6, 6
 IF wage <> "WAGE" THEN script_end_procedure("Your cursor is not set on a WAGE message type. Please select an appropriate DAIL message and try again.")
 
 'Grabbibng the SSN for the member
-EmReadscreen member_number, 2, 6, 25
-CALL write_value_and_transmit("S", 6, 3)
-'PRIV Handling
-EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
-If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
-EMWriteScreen "MEMB", 20, 71
-EMWriteScreen member_number, 20, 76
-Call write_value_and_transmit("01", 20, 79)
-EmReadscreen client_SSN, 11, 7, 42
-client_SSN = replace(client_SSN, " ", "")
-
-PF3 ' back to the DAIL
-
-'Navigating deeper into the match interface
-CALL write_value_and_transmit("I", 6, 3)
-EMReadScreen MAXIS_case_number, 8, 20, 38
+EmReadscreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
-MAXIS_case_number = replace(MAXIS_case_number, "_", "")
-EMWriteScreen client_SSN, 3, 63
+EmReadscreen member_number, 2, 6, 25
+If member_number = "00" then
+    send_PF11 = msgbox("MEMB 00 message are system errors, and require a PF11 request for DHS to clear the message. Would you like the script to send a PF11?", vbQuestion + vbYesNo, "Non-Actionable DAIL found:")
+    If send_PF11 = vbNo then script_end_procedure("The script will not end. Send the PF11 to the state manually.")
+    If send_PF11 = vbYes then
+        EmReadscreen dail_month, 5, 6, 11
+        EmReadscreen full_message, 55, 6, 20
+        CALL write_value_and_transmit("S", 6, 3)
+        'PRIV Handling
+        EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+        If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+        PF11    'Sending the PF11
+        EMReadScreen nav_check, 4, 1, 27    'Problem Reporting
+        IF nav_check = "Prob" THEN
+            EMWriteScreen "MEMB 00", 3, 13
+            EMWriteScreen  "Non-actionable DAIL for case number: " & MAXIS_case_number, 05, 07
+            EMWriteScreen "DAIL Month: " & dail_month, 06, 07
+            EMWriteScreen "DAIL Message: " & trim(full_message), 07, 07
+            EMWriteScreen "MEMB 00 case cannot be cleared at county level.", 8, 7
+            Transmit
+            EMReadScreen task_number, 7, 3, 27
+            Transmit
+            PF3 'back to DAIL
 
-CALL write_value_and_transmit("IEVP", 20, 71)
-EMSendKey "D"
-transmit
-EMReadScreen all_programs, 10, 7, 13
-all_programs = trim(all_programs)
-PF3
+            reminder_date = dateadd("d", 5, date)
+            Call change_date_to_soonest_working_day(reminder_date, "BACK")
+            Call create_outlook_appointment(reminder_date, "08:00 AM", "08:00 AM", "PF11 check for WAGE for " & MAXIS_case_number, "", "", TRUE, 5, "")
+            closing_message = "PF11 sent and Outlook Calendar reminder set."
+        ELSE
+            closing message = "Could not reach PF11." & PF11_actions & " has not been sent."
+        END IF
+        script_end_procedure(closing_message)
+    END IF
+Else
+    'gathering match information
+    CALL write_value_and_transmit("S", 6, 3)
+    'PRIV Handling
+    EMReadScreen priv_check, 6, 24, 14              'If it can't get into the case then it's a priv case
+    If priv_check = "PRIVIL" THEN script_end_procedure("This case is priviledged. The script will now end.")
+    EMWriteScreen "MEMB", 20, 71
+    EMWriteScreen member_number, 20, 76
+    Call write_value_and_transmit("01", 20, 79)
+    EmReadscreen client_SSN, 11, 7, 42
+    client_SSN = replace(client_SSN, " ", "")
 
-'Reading match information
-CALL write_value_and_transmit("WAGE", 19, 69)
-EMReadScreen client_name, 30, 4, 25
-client_name = trim(client_name)
-EMReadScreen quarterly_wage, 9, 8, 6
-quarterly_wage = trim(quarterly_wage)
-EMReadScreen quarter, 1, 8, 16
-EMReadScreen match_employer, 20, 8, 25
-match_employer = trim(match_employer)
-EMReadScreen match_year, 4, 8, 19
-PF3
+    PF3 ' back to the DAIL
 
-'declaring the m-d array...20 is completely arbitrary, but oh well
-ReDim income_matrix_array(20, 6)
-CALL income_matrix(income_matrix_array, client_name, match_employer, quarter, quarterly_wage, match_year, all_programs)
-CALL check_for_MAXIS(false)
-'Returning the user back to DAIL
-CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+    'Navigating deeper into the match interface
+    CALL write_value_and_transmit("I", 6, 3)
+    EMReadScreen MAXIS_case_number, 8, 20, 38
+    MAXIS_case_number = trim(MAXIS_case_number)
+    MAXIS_case_number = replace(MAXIS_case_number, "_", "")
+    EMWriteScreen client_SSN, 3, 63
 
-STATS_counter = STATS_counter - 1 'for acuurate counts
-script_end_procedure("")
+    CALL write_value_and_transmit("IEVP", 20, 71)
+    EMSendKey "D"
+    transmit
+    EMReadScreen all_programs, 10, 7, 13
+    all_programs = trim(all_programs)
+    PF3
 
+    'Reading match information
+    CALL write_value_and_transmit("WAGE", 19, 69)
+    EMReadScreen client_name, 30, 4, 25
+    client_name = trim(client_name)
+    EMReadScreen quarterly_wage, 9, 8, 6
+    quarterly_wage = trim(quarterly_wage)
+    EMReadScreen quarter, 1, 8, 16
+    EMReadScreen match_employer, 20, 8, 25
+    match_employer = trim(match_employer)
+    EMReadScreen match_year, 4, 8, 19
+    PF3
+
+    'declaring the m-d array...20 is completely arbitrary, but oh well
+    ReDim income_matrix_array(20, 6)
+    CALL income_matrix(income_matrix_array, client_name, match_employer, quarter, quarterly_wage, match_year, all_programs)
+    CALL check_for_MAXIS(false)
+    'Returning the user back to DAIL
+    CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
+
+    STATS_counter = STATS_counter - 1 'for acuurate counts
+    script_end_procedure("")
+End if
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
