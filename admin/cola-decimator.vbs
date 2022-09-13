@@ -44,6 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+
+call changelog_update("09/13/2022", "Added RCA Messages, updated DAIL selection from COLA to INFO and added closing issue documentation.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/09/2019", "Updated for 01/20 COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/10/2019", "Updated for 07/19 GRH COLA messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/04/2019", "Updated for 03/19 COLA messages.", "Ilse Ferris, Hennepin County")
@@ -55,10 +57,10 @@ changelog_display
 
 Function dail_selection
 	'selecting the type of DAIl message
-	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
+	EMWriteScreen "X", 4, 12		'transmits to the PICK screen
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
-    EmWriteScreen "X", 8, 39        'Selects COLA
+    'EmWriteScreen "X", 8, 39        'Selects COLA
     EmWriteScreen "X", 13, 39       'Selects INFO as some COLA messages are there.
     transmit
 End Function
@@ -67,6 +69,14 @@ End Function
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+dail_to_decimate = "INFO"    'defaults to all. Some x-numbers don't select the DAIL hence the default.
+all_workers_check = 1
+
+'Finding the right folder to automatically save the file
+month_folder = "DAIL " & CM_mo & "-" & DatePart("yyyy", date) & ""
+this_month = CM_mo & " " & CM_yr
+decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
+report_date = replace(date, "/", "-")
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, 95, "COLA Decimator dialog"
@@ -118,7 +128,7 @@ Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
 'Changes name of Excel sheet to "DAIL List"
-ObjExcel.ActiveSheet.Name = "Deleted DAILS - COLA"
+ObjExcel.ActiveSheet.Name = "CCD - Auto Approvals"
 
 'Excel headers and formatting the columns
 objExcel.Cells(1, 1).Value = "X NUMBER"
@@ -157,7 +167,6 @@ For each worker in worker_array
 	transmit 'transmit past 'not your dail message'
 
 	Call dail_selection
-
 	EMReadScreen number_of_dails, 1, 3, 67		'Reads where the count of DAILs is listed
 
 	DO
@@ -189,6 +198,7 @@ For each worker in worker_array
             If instr(dail_msg, "GA: NEW PERSONAL NEEDS STANDARD AUTO-APPROVED FOR JANUARY") or _
                 instr(dail_msg, "GRH: NEW VERSION AUTO-APPROVED") or _
                 instr(dail_msg, "NEW MSA ELIG AUTO-APPROVED") or _
+                instr(dail_msg, "RCA MASS CHANGE AUTO-APPROVED") or _
                 instr(dail_msg, "SNAP: NEW VERSION AUTO-APPROVED") or _
                 instr(dail_msg, "SNAP: AUTO-APPROVED - PREVIOUS UNAPPROVED VERSION EXISTS") or _
                 instr(dail_msg, "NEW MFIP ELIG AUTO-APPROVED") then
@@ -196,7 +206,7 @@ For each worker in worker_array
             Else
                 add_to_excel = False
             End if
-            
+
 			IF add_to_excel = True then
 				EMReadScreen maxis_case_number, 8, dail_row - 1, 73
 				EMReadScreen dail_month, 8, dail_row, 11
@@ -245,21 +255,21 @@ Next
 dail_msg = ""
 excel_row = 2
 
-Do 
+Do
     MAXIS_case_number = ObjExcel.Cells(excel_row, 2).Value
     MAXIS_case_number = trim(MAXIS_case_number)
 
     dail_msg = ObjExcel.Cells(excel_row, 5).Value
     dail_msg = trim(dail_msg)
-    'Cleaning up the DAIL messages for the case note 
+    'Cleaning up the DAIL messages for the case note
     If right(dail_msg, 9) = "-SEE PF12" THEN dail_msg = left(dail_msg, len(dail_msg) - 9)
     If right(dail_msg, 1) = "*" THEN dail_msg = left(dail_msg, len(dail_msg) - 1)
     dail_msg = trim(dail_msg)
-    
+
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
-    
-    If PRIV_check = "PRIV" then 
+
+    If PRIV_check = "PRIV" then
         objExcel.Cells(excel_row, 6).Value = "PRIV, unable to case note."
         'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
     	Do
@@ -271,19 +281,19 @@ Do
     	transmit
     Else
         EmReadscreen county_check, 2, 21, 16
-        If county_check <> "27" then 
+        If county_check <> "27" then
             objExcel.Cells(excel_row, 6).Value = "Out of county case."
-        Else 
+        Else
             PF9
             CALL write_variable_in_case_note(dail_msg)
             CALL write_variable_in_case_note("")
             CALL write_variable_in_case_note("This DAIL message regarding DHS action/auto-approval process has been case noted. No action taken at county level for this approval.")
             PF3 ' save message
             objExcel.Cells(excel_row, 6).Value = "Case note created."
-        End if 
-    End If 
-    excel_row = excel_row + 1     
-Loop until ObjExcel.Cells(excel_row, 2).Value = ""    
+        End if
+    End If
+    excel_row = excel_row + 1
+Loop until ObjExcel.Cells(excel_row, 2).Value = ""
 
 STATS_counter = STATS_counter - 1
 'Enters info about runtime for the benefit of folks using the script
@@ -305,5 +315,10 @@ objExcel.Cells(7, 8).Value = STATS_counter
 FOR i = 1 to 8
 	objExcel.Columns(i).AutoFit()
 NEXT
+
+'saving the Excel file
+file_info = month_folder & "\" & decimator_folder & "\" & report_date & " CCD " & deleted_dails
+'Saves and closes the most recent Excel workbook with the Task based cases to process.
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 
 script_end_procedure("Success! Please review the list created for accuracy.")
