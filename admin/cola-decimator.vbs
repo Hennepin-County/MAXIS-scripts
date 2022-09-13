@@ -3,7 +3,7 @@ name_of_script = "BULK - COLA DECIMATOR.vbs"
 start_time = timer
 STATS_counter = 1                       'sets the stats counter at one
 STATS_manualtime = 20
-STATS_denomination = "C"       			'C is for each CASE
+STATS_denomination = "I"       			'C is for each CASE
 'END OF stats block==============================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -54,6 +54,7 @@ call changelog_update("06/11/2018", "Initial version.", "Ilse Ferris, Hennepin C
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 
 Function dail_selection
 	'selecting the type of DAIl message
@@ -64,8 +65,6 @@ Function dail_selection
     EmWriteScreen "X", 13, 39       'Selects INFO as some COLA messages are there.
     transmit
 End Function
-
-'END CHANGELOG BLOCK =======================================================================================================
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
@@ -266,19 +265,9 @@ Do
     If right(dail_msg, 1) = "*" THEN dail_msg = left(dail_msg, len(dail_msg) - 1)
     dail_msg = trim(dail_msg)
 
-    Call navigate_to_MAXIS_screen("CASE", "NOTE")
-    EMReadScreen PRIV_check, 4, 24, 14					'if case is a priv case then it gets added to priv case list
-
-    If PRIV_check = "PRIV" then
+    Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+    If is_this_priv = True then
         objExcel.Cells(excel_row, 6).Value = "PRIV, unable to case note."
-        'This DO LOOP ensure that the user gets out of a PRIV case. It can be fussy, and mess the script up if the PRIV case is not cleared.
-    	Do
-    		back_to_self
-    		EMReadScreen SELF_screen_check, 4, 2, 50	'DO LOOP makes sure that we're back in SELF menu
-    		If SELF_screen_check <> "SELF" then PF3
-    	LOOP until SELF_screen_check = "SELF"
-    	EMWriteScreen "________", 18, 43		'clears the MAXIS case number
-    	transmit
     Else
         EmReadscreen county_check, 2, 21, 16
         If county_check <> "27" then
@@ -290,6 +279,7 @@ Do
             CALL write_variable_in_case_note("This DAIL message regarding DHS action/auto-approval process has been case noted. No action taken at county level for this approval.")
             PF3 ' save message
             objExcel.Cells(excel_row, 6).Value = "Case note created."
+            STATS_counter = STATS_counter + 1   'adding another item
         End if
     End If
     excel_row = excel_row + 1
@@ -322,3 +312,46 @@ file_info = month_folder & "\" & decimator_folder & "\" & report_date & " CCD " 
 objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\" & file_info & ".xlsx"
 
 script_end_procedure("Success! Please review the list created for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------09/13/2022
+'--Tab orders reviewed & confirmed----------------------------------------------09/13/2022
+'--Mandatory fields all present & Reviewed--------------------------------------09/13/2022
+'--All variables in dialog match mandatory fields-------------------------------09/13/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)----------------------------------09/13/2022
+'--CASE:NOTE Header doesn't look funky-------------------------------------------09/13/2022
+'--Leave CASE:NOTE in edit mode if applicable------------------------------------09/13/2022-----------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-09/13/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/13/2022-----------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------09/13/2022-----------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------09/13/2022
+'--Out-of-County handling reviewed----------------------------------------------09/13/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------09/13/2022-----------------N/A
+'--BULK - review output of statistics and run time/count (if applicable)--------09/13/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---09/13/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------09/13/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------09/13/2022
+'--Denomination reviewed -------------------------------------------------------09/13/2022
+'--Script name reviewed---------------------------------------------------------09/13/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------09/13/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------09/13/2022
+'--comment Code-----------------------------------------------------------------09/13/2022
+'--Update Changelog for release/update------------------------------------------09/13/2022
+'--Remove testing message boxes-------------------------------------------------09/13/2022
+'--Remove testing code/unnecessary code-----------------------------------------09/13/2022
+'--Review/update SharePoint instructions----------------------------------------09/13/2022----------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/13/2022----------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/13/2022
+'--Complete misc. documentation (if applicable)---------------------------------09/13/2022
+'--Update project team/issue contact (if applicable)----------------------------09/13/2022
