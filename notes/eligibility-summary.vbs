@@ -131,6 +131,44 @@ function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_13
 
 end function
 
+function write_long_variable_in_DENY_note(variable)
+	spaces_58 = "                                                          "
+	spaces_78 = "                                                                              "
+	If len(variable) < 59 Then
+		Call write_variable_in_CASE_NOTE("    DENY Reason  : " & variable
+	Else
+		reason_array = split(variable, " ")
+		row_1_reason = ""
+		row_2_reason = "                  "
+		row_3_reason = "                  "
+		row_4_reason = "                  "
+		row_5_reason = "                  "
+
+		for each word in reason_array
+			If len(row_1_reason) + len(word) + 1 < 59 Then
+				row_1_reason = row_1_reason & " " & word
+			ElseIf len(row_2_reason) + len(word) + 1 < 78 Then
+				row_1_reason = left(row_1_reason & spaces_58, 58)
+				row_2_reason = row_2_reason & " " & word
+			ElseIf len(row_3_reason) + len(word) + 1 < 78 Then
+				row_2_reason = left(row_2_reason & spaces_78, 77)
+				row_3_reason = row_3_reason & " " & word
+			ElseIf len(row_4_reason) + len(word) + 1 < 78 Then
+				row_3_reason = left(row_3_reason & spaces_78, 77)
+				row_4_reason = row_4_reason & " " & word
+			ElseIf len(row_5_reason) + len(word) + 1 < 78 Then
+				row_4_reason = left(row_4_reason & spaces_78, 77)
+				row_5_reason = row_5_reason & " " & word
+			End If
+		next
+		Call write_variable_in_CASE_NOTE("    DENY Reason  :" & row_1_reason)
+		If row_2_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_2_reason)
+		If row_3_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_3_reason)
+		If row_4_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_4_reason)
+		If row_5_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_5_reason)
+	End If
+end function
+
 function display_approval_packages_dialog()
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 401, 320, "Approval Packages"
@@ -1588,10 +1626,12 @@ function define_deny_elig_dialog()
 			y_pos = y_pos + 15
 
 			Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
-			Editbox 180, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
-			Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
-			y_pos = y_pos + 15
+		Else
+			Text 15, y_pos, 165, 10, "If a verification request was sent, what date was it sent? "
 		End If
+		Editbox 180, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+		Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
+		y_pos = y_pos + 15
 		' GroupBox 10, 200, 30, ga_grp_len, "GA"
 		' Text 20, 215, 125, 10, "There is no eligibile child for DWP"
 		If STAT_INFORMATION(month_ind).stat_prog_cash_I_status = "DENY" Then
@@ -3923,39 +3963,7 @@ function deny_elig_case_note()
 	'DWP
 	Call write_variable_in_CASE_NOTE("DWP Denial Info  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_reason_info)
 	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation <> "" Then
-		If len(CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation) < 59 Then
-			Call write_variable_in_CASE_NOTE("    DENY Reason  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation)
-		Else
-		 	reason_array = split(CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation, " ")
-			row_1_reason = ""
-			row_2_reason = "                  "
-			row_3_reason = "                  "
-			row_4_reason = "                  "
-			row_5_reason = "                  "
-
-			for each word in reason_array
-				If len(row_1_reason) + len(word) + 1 < 59 Then
-					row_1_reason = row_1_reason & " " & word
-				ElseIf len(row_2_reason) + len(word) + 1 < 78 Then
-					row_1_reason = left(row_1_reason & spaces_58, 58)
-					row_2_reason = row_2_reason & " " & word
-				ElseIf len(row_3_reason) + len(word) + 1 < 78 Then
-					row_2_reason = left(row_2_reason & spaces_78, 77)
-					row_3_reason = row_3_reason & " " & word
-				ElseIf len(row_4_reason) + len(word) + 1 < 78 Then
-					row_3_reason = left(row_3_reason & spaces_78, 77)
-					row_4_reason = row_4_reason & " " & word
-				ElseIf len(row_5_reason) + len(word) + 1 < 78 Then
-					row_4_reason = left(row_4_reason & spaces_78, 77)
-					row_5_reason = row_5_reason & " " & word
-				End If
-			next
-			Call write_variable_in_CASE_NOTE("    DENY Reason  :" & row_1_reason)
-			If row_2_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_2_reason)
-			If row_3_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_3_reason)
-			If row_4_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_4_reason)
-			If row_5_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_5_reason)
-		End If
+		Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_explanation)
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The Cash request has been Withdrawn")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_assets = "FAILED" Then
@@ -4041,39 +4049,7 @@ function deny_elig_case_note()
 	'MFIP
 	Call write_variable_in_CASE_NOTE("MFIP Denial Info : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_mfip_reason_info)
 	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Family" and CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation <> "" Then
-		If len(CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation) < 59 Then
-			Call write_variable_in_CASE_NOTE("    DENY Reason  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation)
-		Else
-			reason_array = split(CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation, " ")
-			row_1_reason = ""
-			row_2_reason = "                  "
-			row_3_reason = "                  "
-			row_4_reason = "                  "
-			row_5_reason = "                  "
-
-			for each word in reason_array
-				If len(row_1_reason) + len(word) + 1 < 59 Then
-					row_1_reason = row_1_reason & " " & word
-				ElseIf len(row_2_reason) + len(word) + 1 < 78 Then
-					row_1_reason = left(row_1_reason & spaces_58, 58)
-					row_2_reason = row_2_reason & " " & word
-				ElseIf len(row_3_reason) + len(word) + 1 < 78 Then
-					row_2_reason = left(row_2_reason & spaces_78, 77)
-					row_3_reason = row_3_reason & " " & word
-				ElseIf len(row_4_reason) + len(word) + 1 < 78 Then
-					row_3_reason = left(row_3_reason & spaces_78, 77)
-					row_4_reason = row_4_reason & " " & word
-				ElseIf len(row_5_reason) + len(word) + 1 < 78 Then
-					row_4_reason = left(row_4_reason & spaces_78, 77)
-					row_5_reason = row_5_reason & " " & word
-				End If
-			next
-			Call write_variable_in_CASE_NOTE("    DENY Reason  :" & row_1_reason)
-			If row_2_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_2_reason)
-			If row_3_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_3_reason)
-			If row_4_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_4_reason)
-			If row_5_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_5_reason)
-		End If
+		Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_elig_explanation)
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_appl_withdraw = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The Cash request has been Withdrawn.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_asset = "FAILED" Then
@@ -4155,39 +4131,7 @@ function deny_elig_case_note()
 	'MSA
 	Call write_variable_in_CASE_NOTE("MSA Denial Info  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info)
 	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" and CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation <> "" Then
-		If len(CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation) < 59 Then
-			Call write_variable_in_CASE_NOTE("    DENY Reason  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation)
-		Else
-			reason_array = split(CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation, " ")
-			row_1_reason = ""
-			row_2_reason = "                  "
-			row_3_reason = "                  "
-			row_4_reason = "                  "
-			row_5_reason = "                  "
-
-			for each word in reason_array
-				If len(row_1_reason) + len(word) + 1 < 59 Then
-					row_1_reason = row_1_reason & " " & word
-				ElseIf len(row_2_reason) + len(word) + 1 < 78 Then
-					row_1_reason = left(row_1_reason & spaces_58, 58)
-					row_2_reason = row_2_reason & " " & word
-				ElseIf len(row_3_reason) + len(word) + 1 < 78 Then
-					row_2_reason = left(row_2_reason & spaces_78, 77)
-					row_3_reason = row_3_reason & " " & word
-				ElseIf len(row_4_reason) + len(word) + 1 < 78 Then
-					row_3_reason = left(row_3_reason & spaces_78, 77)
-					row_4_reason = row_4_reason & " " & word
-				ElseIf len(row_5_reason) + len(word) + 1 < 78 Then
-					row_4_reason = left(row_4_reason & spaces_78, 77)
-					row_5_reason = row_5_reason & " " & word
-				End If
-			next
-			Call write_variable_in_CASE_NOTE("    DENY Reason  :" & row_1_reason)
-			If row_2_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_2_reason)
-			If row_3_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_3_reason)
-			If row_4_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_4_reason)
-			If row_5_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_5_reason)
-		End If
+		Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation)
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_applicant_eligible = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The applicant is not MSA Eligibile")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_application_withdrawn = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The application has been withdrawn.")
@@ -4253,39 +4197,7 @@ function deny_elig_case_note()
 	' 	Call write_variable_in_CASE_NOTE("     * Details: " & CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation)
 	' End If
 	If CASH_DENIAL_APPROVALS(elig_ind).cash_family_or_adult = "Adult" and CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation <> "" Then
-		If len(CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation) < 59 Then
-			Call write_variable_in_CASE_NOTE("    DENY Reason  : " & CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation)
-		Else
-			reason_array = split(CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation, " ")
-			row_1_reason = ""
-			row_2_reason = "                  "
-			row_3_reason = "                  "
-			row_4_reason = "                  "
-			row_5_reason = "                  "
-
-			for each word in reason_array
-				If len(row_1_reason) + len(word) + 1 < 59 Then
-					row_1_reason = row_1_reason & " " & word
-				ElseIf len(row_2_reason) + len(word) + 1 < 78 Then
-					row_1_reason = left(row_1_reason & spaces_58, 58)
-					row_2_reason = row_2_reason & " " & word
-				ElseIf len(row_3_reason) + len(word) + 1 < 78 Then
-					row_2_reason = left(row_2_reason & spaces_78, 77)
-					row_3_reason = row_3_reason & " " & word
-				ElseIf len(row_4_reason) + len(word) + 1 < 78 Then
-					row_3_reason = left(row_3_reason & spaces_78, 77)
-					row_4_reason = row_4_reason & " " & word
-				ElseIf len(row_5_reason) + len(word) + 1 < 78 Then
-					row_4_reason = left(row_4_reason & spaces_78, 77)
-					row_5_reason = row_5_reason & " " & word
-				End If
-			next
-			Call write_variable_in_CASE_NOTE("    DENY Reason  :" & row_1_reason)
-			If row_2_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_2_reason)
-			If row_3_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_3_reason)
-			If row_4_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_4_reason)
-			If row_5_reason <> "                  " Then Call write_variable_in_CASE_NOTE(row_5_reason)
-		End If
+		Call write_long_variable_in_DENY_note(CASH_DENIAL_APPROVALS(elig_ind).deny_ga_elig_explanation)
 	End If
 
 	Call write_variable_in_CASE_NOTE("WB Denial Info   : This program has ended 12/1/2014 and is not available.")
@@ -6024,6 +5936,9 @@ class mfip_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
+				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 Then approved_today = True
+			End If
 		End If
 		If approved_today = True Then
 			ReDim mfip_elig_ref_numbs(0)
@@ -11649,6 +11564,9 @@ class snap_eligibility_detail
 		' approved_today = DateAdd("d", 0, approved_today)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
+				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 Then approved_today = True
+			End If
 		End If
 		If approved_today = True Then
 			row = 7
@@ -20960,9 +20878,9 @@ If enter_CNOTE_for_DENY = True Then
 
 		Call deny_elig_case_note
 
-		MsgBox "PAUSE HERE"
-		PF10
-		MsgBox "DENY Gone?"
+		' MsgBox "PAUSE HERE"
+		' PF10
+		' MsgBox "DENY Gone?"
 
 		PF3
 	Next
@@ -21412,7 +21330,6 @@ If list_pending_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Pendin
 If list_active_programs = "" and list_pending_programs = "" Then end_msg_info = end_msg_info & vbCr & "This case currently has no pending or active programs."
 
 end_msg_info = end_msg_info & vbCr & vbCr & "**** This script is currently in testing. ****" & vbCr & "Given testing status information from the following programs will NOT work in this script yet:"
-end_msg_info = end_msg_info & vbCr & " - ELIG/DENY"
 end_msg_info = end_msg_info & vbCr & " - ELIG/GRH"
 end_msg_info = end_msg_info & vbCr & " - ELIG/HC"
 end_msg_info = end_msg_info & vbCr & " - ELIG/DWP"
