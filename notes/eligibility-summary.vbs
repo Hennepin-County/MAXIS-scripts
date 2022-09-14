@@ -135,7 +135,7 @@ function write_long_variable_in_DENY_note(variable)
 	spaces_58 = "                                                          "
 	spaces_78 = "                                                                              "
 	If len(variable) < 59 Then
-		Call write_variable_in_CASE_NOTE("    DENY Reason  : " & variable
+		Call write_variable_in_CASE_NOTE("    DENY Reason  : " & variable)
 	Else
 		reason_array = split(variable, " ")
 		row_1_reason = ""
@@ -1236,7 +1236,7 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then
-				Text 20, y_pos, 425, 10, "Household Income exceeds the Initial Income Level."
+				Text 20, y_pos, 425, 10, "Household Income exceeds the Initial Income Level (Family Wage Level)."
 				y_pos = y_pos + 10
 
 				Text 30, y_pos, 425, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income & "                          Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense
@@ -1384,7 +1384,7 @@ function define_deny_elig_dialog()
 				y_pos = y_pos + 10
 			End If
 			If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then
-				Text 20, y_pos, 425, 10, "Household Income exceeds the Initial Income Level."
+				Text 20, y_pos, 425, 10, "Household Income exceeds the Initial Income Level (Family Wage Level)."
 				y_pos = y_pos + 10
 
 				Text 30, y_pos, 400, 10, "Counted Earned Income:         $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_earned & "                          Dependent Care Expense:   (-) $ " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care
@@ -1626,11 +1626,15 @@ function define_deny_elig_dialog()
 			y_pos = y_pos + 15
 
 			Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
+			Editbox 180, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
+			' y_pos = y_pos + 15
 		Else
-			Text 15, y_pos, 165, 10, "If a verification request was sent, what date was it sent? "
+			y_pos = y_pos + 10
+			Text 15, y_pos, 185, 10, "If a verification request was sent, what date was it sent? "
+			Editbox 200, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Text 255, y_pos, 150, 10, "(due date is 10 days from this request date)"
 		End If
-		Editbox 180, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
-		Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
 		y_pos = y_pos + 15
 		' GroupBox 10, 200, 30, ga_grp_len, "GA"
 		' Text 20, 215, 125, 10, "There is no eligibile child for DWP"
@@ -3990,7 +3994,7 @@ function deny_elig_case_note()
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_four_month_limit = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This household has used all 4 DWP months.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_case_test_initial_income = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level.")
+		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level (Family Wage Level).")
 		Call write_variable_in_CASE_NOTE("       | Counted Earned Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_earned_income, 10) & "                                  |")
 		Call write_variable_in_CASE_NOTE("       | Dependent Care Exp: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_dependent_care_expense, 10) & " (-)                              |")
 		Call write_variable_in_CASE_NOTE("       | Counted UNEA Inc:   $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_dwp_elig_initial_counted_unearned_income, 10) & "                                  |")
@@ -4068,7 +4072,7 @@ function deny_elig_case_note()
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_coop = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This houshoeld has not complied with all requirements for Family Cash Assistance.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_fail_file = "FAILED" Then Call write_variable_in_CASE_NOTE("     * This case has failed to complete a required report process.")
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_case_test_initial_income = "FAILED" Then
-		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level.")
+		Call write_variable_in_CASE_NOTE("     * Household Income exceeds the Initial Income Level (Family Wage Level).")
 		Call write_variable_in_CASE_NOTE("       | Counted Earned Inc: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_earned, 10) & "                                  |")
 		Call write_variable_in_CASE_NOTE("       | Dependent Care Exp: $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_deoendant_care, 10) & " (-)                              |")
 		Call write_variable_in_CASE_NOTE("       | Counted UNEA Inc:   $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_mfip_initial_income_unearned, 10) & "                                  |")
@@ -4201,14 +4205,24 @@ function deny_elig_case_note()
 	End If
 
 	Call write_variable_in_CASE_NOTE("WB Denial Info   : This program has ended 12/1/2014 and is not available.")
-
+	verif_header = False
 	If DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("=============================================================================")
 		Call write_variable_in_CASE_NOTE("Cash Denial due to Verifications not received.")
 		Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+		verif_header = True
+	ElseIf trim(DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) <> "" Then
+		Call write_variable_in_CASE_NOTE("=============================================================================")
+		Call write_variable_in_CASE_NOTE("A request for information/docummentation was sent.")
+		Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+		verif_header = True
 	End If
 
 	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+		If verif_header = False Then
+			Call write_variable_in_CASE_NOTE("=============================================================================")
+			Call write_variable_in_CASE_NOTE("Information not verified on this case:")
+		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
 		End if
@@ -17560,10 +17574,6 @@ ReDim HC_ELIG_APPROVALS(0)
 Dim STAT_INFORMATION()
 ReDim STAT_INFORMATION(0)
 
-script_user_is_a_tester = False
-For each tester in tester_array
-	If user_ID_for_validation = tester.tester_id_number Then script_user_is_a_tester = True
-Next
 spaces_55 = "                                                       "
 spaces_58 = "                                                          "
 spaces_78 = "                                                                              "
@@ -18680,8 +18690,6 @@ enter_CNOTE_for_HC = False
 enter_CNOTE_for_DWP = False
 
 If enter_CNOTE_for_DWP = True Then testing_run = True
-If enter_CNOTE_for_MSA = True Then testing_run = True
-If enter_CNOTE_for_GA = True Then testing_run = True
 If enter_CNOTE_for_DENY = True Then testing_run = True
 If enter_CNOTE_for_GRH = True Then testing_run = True
 If enter_CNOTE_for_HC = True Then testing_run = True
@@ -19936,6 +19944,16 @@ If enter_CNOTE_for_DENY = True Then
 		If DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True Then
 			If Isdate(DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
 				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
+			Else
+				If DateDiff("d", DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
+					err_msg = err_msg & vbNewLine & "* The verification request date: " &  DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+					DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+				End If
+			End If
+		ElseIf trim(DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) <> "" Then
+
+			If Isdate(DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+				err_msg = err_msg & vbNewLine & "* Information has been entered into the Verification Request Date, but it does not appear to be a date. Either remove the information or make sure it is a date."
 			Else
 				If DateDiff("d", DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
 					err_msg = err_msg & vbNewLine & "* The verification request date: " &  DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
