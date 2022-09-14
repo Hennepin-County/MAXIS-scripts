@@ -8518,7 +8518,6 @@ class deny_eligibility_detail
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-			approved_today = True
 		End If
 		If approved_today = True Then
 			ReDim deny_cash_membs_ref_numbs(0)
