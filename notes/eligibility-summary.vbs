@@ -3372,36 +3372,113 @@ function ga_elig_case_note()
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
 		For approval = 0 to UBound(GA_ELIG_APPROVALS)
 			If InStr(GA_UNIQUE_APPROVALS(months_in_approval, unique_app), GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
-				If GA_ELIG_APPROVALS(approval).ga_elig_faci_file_unit_type_code = " " Then
-					payment_standard = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_standard
-					payment_subtotal = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal
-					prorate_begin = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
-					prorate_end = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
+				' If GA_ELIG_APPROVALS(approval).ga_elig_faci_file_unit_type_code = " " Then
+				' 	payment_standard = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_standard
+				' 	payment_subtotal = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal
+				' 	prorate_begin = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
+				' 	prorate_end = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
+				' 	prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_grant_subtotal
+				' Else
+				' 	payment_standard = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_standard
+				' 	payment_subtotal = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal
+				' 	prorate_begin = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_from, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
+				' 	prorate_end = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_to, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
+				' 	prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_grant_subtotal
+				' End If
+
+				' begining_info = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_combined_payment_subtotal, 8) & " |"
+				amt_issued_info = ""
+				recoup_info = ""
+				issued__to_resident_info = "| Issued to Resident: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_summ_amount_to_be_paid, 8) & "         " & GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year
+
+				If GA_ELIG_APPROVALS(approval).ga_elig_amt_already_issued <> "" Then amt_issued_info = "| Amt Already Issued: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_amt_already_issued, 8) & "  (-)"
+				If GA_ELIG_APPROVALS(approval).ga_elig_recoupmment <> "" Then recoup_info = "|         Recoupment: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_recoupmment, 8) & "  (-)"
+
+				ga_reg_benefit_line = ""
+				ga_pers_nds_benefit_line = ""
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal <> "0.00" Then
+					prorate_begin = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_from
+					prorate_end = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_prorated_to
 					prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_grant_subtotal
-				Else
-					payment_standard = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_standard
-					payment_subtotal = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal
-					prorate_begin = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_from, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
-					prorate_end = replace(GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_to, "/" & GA_ELIG_APPROVALS(approval).elig_footer_year, "")
+					' subtotal_line_end = right("        " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_grant_subtotal, 8)
+					ga_reg_benefit_line = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year & "  GA Benefit : $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal, 8) & " "
+					If prorate_begin <> "" OR prorate_end <> "" Then
+						ga_reg_benefit_line = ga_reg_benefit_line & "|           Prorated: $ " & right("        " & prorate_amt, 8) & " " & prorate_begin & " - " & prorate_end
+						reg_prorate_begin = prorate_begin & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year
+						If IsDate(reg_prorate_begin) = True Then
+							reg_prorate_begin = DateAdd("d", 0, reg_prorate_begin)
+						End If
+					End If
+
+				End If
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
+					prorate_begin = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_from
+					prorate_end = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_prorated_to
 					prorate_amt = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_grant_subtotal
+					' subtotal_line_end = right("        " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_grant_subtotal, 8)
+					ga_pers_nds_benefit_line = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year & "  Persnl Need: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal, 8) & " "
+					If prorate_begin <> "" OR prorate_end <> "" Then
+						ga_pers_nds_benefit_line = ga_pers_nds_benefit_line & "|           Prorated: $ " & right("        " & prorate_amt, 8) & " " & prorate_begin & " - " & prorate_end
+						pers_nds_prorate_begin = prorate_begin & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year
+						If IsDate(pers_nds_prorate_begin) = True Then
+							pers_nds_prorate_begin = DateAdd("d", 0, pers_nds_prorate_begin)
+						End If
+					End If
 				End If
 
-				begining_info = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year & ": Entitlement: $ " & right("       " & payment_subtotal, 8) & " |"
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal <> "0.00" AND GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
+					If IsDate(reg_prorate_begin) = True and IsDate(pers_nds_prorate_begin) = True Then
+						If DateDiff("d", reg_prorate_begin, pers_nds_prorate_begin) >=0 Then
+							Call write_variable_in_CASE_NOTE(ga_reg_benefit_line)
+							Call write_variable_in_CASE_NOTE(ga_pers_nds_benefit_line)
+						Else
+							Call write_variable_in_CASE_NOTE(ga_pers_nds_benefit_line)
+							Call write_variable_in_CASE_NOTE(ga_reg_benefit_line)
+						End If
+					Else
+						Call write_variable_in_CASE_NOTE(ga_reg_benefit_line)
+						Call write_variable_in_CASE_NOTE(ga_pers_nds_benefit_line)
+					End If
+					Call write_variable_in_CASE_NOTE("                               |  Total Entitlement: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_ga_grant_amount, 8))
+				Else
+					If ga_reg_benefit_line <> "" Then
+						If InStr(ga_reg_benefit_line, "Prorated") = 0 Then
+							If amt_issued_info <> "" Then
+								ga_reg_benefit_line = ga_reg_benefit_line & amt_issued_info
+								amt_issued_info = ""
+							ElseIf recoup_info <> "" Then
+								ga_reg_benefit_line = ga_reg_benefit_line & recoup_info
+								recoup_info = ""
+							Else
+								ga_reg_benefit_line = ga_reg_benefit_line & issued__to_resident_info
+								issued__to_resident_info = ""
+							End If
+						End If
+						Call write_variable_in_CASE_NOTE(ga_reg_benefit_line)
+					End If
+					If ga_pers_nds_benefit_line <> "" Then
+						If InStr(ga_pers_nds_benefit_line, "Prorated") = 0 Then
+							If amt_issued_info <> "" Then
+								ga_pers_nds_benefit_line = ga_pers_nds_benefit_line & amt_issued_info
+								amt_issued_info = ""
+							ElseIf recoup_info <> "" Then
+								ga_pers_nds_benefit_line = ga_pers_nds_benefit_line & recoup_info
+								recoup_info = ""
+							Else
+								ga_pers_nds_benefit_line = ga_pers_nds_benefit_line & issued__to_resident_info
+								issued__to_resident_info = ""
+							End If
+						End If
+						Call write_variable_in_CASE_NOTE(ga_pers_nds_benefit_line)
+					End If
 
-				If prorate_begin <> "" OR prorate_end <> "" Then
-					Call write_variable_in_CASE_NOTE(begining_info & "           Prorated: $ " & right("        " & prorate_amt, 8) & " " & prorate_begin & " - " & prorate_end)
-					begining_info = "                               |"
 				End If
-				If GA_ELIG_APPROVALS(approval).ga_elig_amt_already_issued <> "" Then
-					Call write_variable_in_CASE_NOTE(begining_info & " Amt Already Issued: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_amt_already_issued, 8) & "  (-)")
-					begining_info = "                               |"
-				End If
-				If GA_ELIG_APPROVALS(approval).ga_elig_recoupmment <> "" Then
-					Call write_variable_in_CASE_NOTE(begining_info & "         Recoupment: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_recoupmment, 8) & "  (-)")
-					begining_info = "                               |"
-				End If
-				Call write_variable_in_CASE_NOTE(begining_info & " Issued to Resident: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_summ_amount_to_be_paid, 8) & "         " & GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year)
-				If GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year <> last_month and begining_info = "                               |"Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+				If amt_issued_info <> "" Then Call write_variable_in_CASE_NOTE("                               " & amt_issued_info)
+				If recoup_info <> "" Then Call write_variable_in_CASE_NOTE("                               " & recoup_info)
+				If issued__to_resident_info <> "" Then Call write_variable_in_CASE_NOTE("                               " & issued__to_resident_info)
+				' 316437 & 2216651 - CASE EXAMPLES
+
+				If GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
 			End If
 		Next
 	End If
@@ -7787,6 +7864,8 @@ class ga_eligibility_detail
 	public ga_elig_case_budg_pers_needs_prorated_to
 	public ga_elig_case_budg_pers_needs_grant_subtotal
 	public ga_elig_case_budg_total_ga_grant_amount
+	public ga_combined_payment_standard
+	public ga_combined_payment_subtotal
 
 	public ga_elig_summ_approved_date
 	public ga_elig_summ_process_date
@@ -7810,6 +7889,7 @@ class ga_eligibility_detail
 	public ga_elig_summ_standards
 	public ga_elig_summ_counted_income
 	public ga_elig_amt_already_issued		'TODO - find a case with amt already issued and with recoup'
+	public ga_elig_supplement_amt
 	public ga_elig_recoupmment
 	public ga_elig_summ_monthly_grant
 	public ga_elig_summ_amount_to_be_paid
@@ -7831,6 +7911,7 @@ class ga_eligibility_detail
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			' If DateDiff("d", #7/25/2022#, elig_version_date) = 0 Then approved_today = True
+			' approved_today = True
 		End If
 		If approved_today = True Then
 	 		EMReadScreen ga_elig_case_status, 12, 18, 23
@@ -8149,24 +8230,31 @@ class ga_eligibility_detail
 			ga_elig_case_budg_pers_needs_grant_subtotal = trim(ga_elig_case_budg_pers_needs_grant_subtotal)
 			ga_elig_case_budg_total_ga_grant_amount = trim(ga_elig_case_budg_total_ga_grant_amount)
 
+			number_reg_stndrd = ga_elig_case_budg_payment_standard
+			number_reg_subtotal = ga_elig_case_budg_payment_subtotal
+			If number_reg_stndrd = "" Then number_reg_stndrd = 0
+			number_reg_stndrd = number_reg_stndrd * 1
+			If number_reg_subtotal = "" Then number_reg_subtotal = 0
+			number_reg_subtotal = number_reg_subtotal * 1
+
+			number_pers_needs_stndrd = ga_elig_case_budg_pers_needs_payment_standard
+			number_pers_needs_subtotal = ga_elig_case_budg_pers_needs_payment_subtotal
+			If number_pers_needs_stndrd = "" Then number_pers_needs_stndrd = 0
+			number_pers_needs_stndrd = number_pers_needs_stndrd * 1
+			If number_pers_needs_subtotal = "" Then number_pers_needs_subtotal = 0
+			number_pers_needs_subtotal = number_pers_needs_subtotal * 1
+
+			ga_combined_payment_standard = number_reg_stndrd + number_pers_needs_stndrd
+			ga_combined_payment_subtotal = number_reg_subtotal + number_pers_needs_subtotal
+			ga_combined_payment_standard = FormatNumber(ga_combined_payment_standard, 2, -1, 0, -1)
+			ga_combined_payment_subtotal = FormatNumber(ga_combined_payment_subtotal, 2, -1, 0, -1)
+
 			' MsgBox "ga_elig_case_budg_pers_needs_payment_standard - " & ga_elig_case_budg_pers_needs_payment_standard & vbCr & "ga_elig_case_budg_total_ga_grant_amount - " & ga_elig_case_budg_total_ga_grant_amount
 
-			If ga_elig_case_budg_prorated_from <> "" Then
-				ga_elig_case_budg_prorated_from = replace(ga_elig_case_budg_prorated_from, " ", "/")
-				ga_elig_case_budg_prorated_from = ga_elig_case_budg_prorated_from & "/" & elig_footer_year
-			End If
-			If ga_elig_case_budg_prorated_to <> "" Then
-				ga_elig_case_budg_prorated_to = replace(ga_elig_case_budg_prorated_to, " ", "/")
-				ga_elig_case_budg_prorated_to = ga_elig_case_budg_prorated_to & "/" & elig_footer_year
-			End If
-			If ga_elig_case_budg_pers_needs_prorated_from <> "" Then
-				ga_elig_case_budg_pers_needs_prorated_from = replace(ga_elig_case_budg_pers_needs_prorated_from, " ", "/")
-				ga_elig_case_budg_pers_needs_prorated_from = ga_elig_case_budg_pers_needs_prorated_from & "/" & elig_footer_year
-			End If
-			If ga_elig_case_budg_pers_needs_prorated_to <> "" Then
-				ga_elig_case_budg_pers_needs_prorated_to = replace(ga_elig_case_budg_pers_needs_prorated_to, " ", "/")
-				ga_elig_case_budg_pers_needs_prorated_to = ga_elig_case_budg_pers_needs_prorated_to & "/" & elig_footer_year
-			End If
+			If ga_elig_case_budg_prorated_from <> "" Then ga_elig_case_budg_prorated_from = replace(ga_elig_case_budg_prorated_from, " ", "/")
+			If ga_elig_case_budg_prorated_to <> "" Then ga_elig_case_budg_prorated_to = replace(ga_elig_case_budg_prorated_to, " ", "/")
+			If ga_elig_case_budg_pers_needs_prorated_from <> "" Then ga_elig_case_budg_pers_needs_prorated_from = replace(ga_elig_case_budg_pers_needs_prorated_from, " ", "/")
+			If ga_elig_case_budg_pers_needs_prorated_to <> "" Then ga_elig_case_budg_pers_needs_prorated_to = replace(ga_elig_case_budg_pers_needs_prorated_to, " ", "/")
 
 			transmit 		'going to the next panel - GASM
 			' MsgBox "Back to GASM"
@@ -8191,6 +8279,8 @@ class ga_eligibility_detail
 			EMReadScreen ga_elig_summ_standards, 10, 7, 71
 			EMReadScreen ga_elig_summ_counted_income, 10, 8, 71
 			EMReadScreen ga_elig_summ_monthly_grant, 10, 9, 71
+			EMReadScreen ga_elig_amt_already_issued, 10, 12, 71
+			EMReadScreen ga_elig_supplement_amt, 10, 13, 71
 			EMReadScreen ga_elig_summ_amount_to_be_paid, 10, 14, 71
 			EMReadScreen ga_elig_summ_action_code, 1, 15, 53
 			EMReadScreen ga_elig_summ_reason_code, 2, 16, 53
@@ -8222,6 +8312,8 @@ class ga_eligibility_detail
 			ga_elig_summ_standards = trim(ga_elig_summ_standards)
 			ga_elig_summ_counted_income = trim(ga_elig_summ_counted_income)
 			ga_elig_summ_monthly_grant = trim(ga_elig_summ_monthly_grant)
+			ga_elig_amt_already_issued = trim(ga_elig_amt_already_issued)
+			ga_elig_supplement_amt = trim(ga_elig_supplement_amt)
 			ga_elig_summ_amount_to_be_paid = trim(ga_elig_summ_amount_to_be_paid)
 
 			If ga_elig_summ_action_code = "1" Then ga_elig_summ_action_info = "Open"
@@ -20662,8 +20754,9 @@ if enter_CNOTE_for_GA = True Then
 		'Here we entere the CASENOTE
 		' Call snap_elig_case_note
 		Call ga_elig_case_note
-
-		' MsgBox GA_UNIQUE_APPROVALS(months_in_approval, unique_app)
+		' MsgBox "PAUSE HERE"
+		' PF10
+		' MsgBox "DENY Gone?"
 		PF3
 	Next
 End If
