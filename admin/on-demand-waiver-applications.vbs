@@ -477,7 +477,7 @@ call excel_open(working_excel_file_path, True, True, ObjWorkExcel, objWorkWorkbo
 
 date_working_excel_list_updated = ObjWorkExcel.Cells(1, list_update_date_col).value
 date_working_excel_list_updated = DateAdd("d", 0, date_working_excel_list_updated)
-' date_working_excel_list_updated = #9/1/22#
+date_working_excel_list_updated = #9/1/22#		'REMOVE'
 If date_working_excel_list_updated <> date Then
 
 	'Setting constants
@@ -542,7 +542,7 @@ If date_working_excel_list_updated <> date Then
 	Set objRecordSet=nothing
 	Set objConnection=nothing
 
-	' MsgBox "Today we found " & UBound(TODAYS_CASES_ARRAY, 2) & " pending apps"
+	MsgBox "Today we found " & UBound(TODAYS_CASES_ARRAY, 2) & " pending apps"
 	' For each_case = 0 to UBound(TODAYS_CASES_ARRAY, 2)
 	' 	MsgBox  TODAYS_CASES_ARRAY(worker_ID, each_case) & " - " & TODAYS_CASES_ARRAY(case_number, each_case) & " - " & TODAYS_CASES_ARRAY(client_name, each_case)
 	' Next
@@ -863,6 +863,7 @@ If date_working_excel_list_updated <> date Then
 	End If
 
 Else
+	MsgBox "STOP!!!"
 	case_entry = 0      'incrementor to add a case to ALL_PENDING_CASES_ARRAY
 	row = 2             'Working Excel sheet starts with cases on row 2
 
