@@ -7005,7 +7005,7 @@ class mfip_eligibility_detail
 
 			EMReadScreen mfip_case_last_approval_date, 8, 5, 31
 			EMReadScreen mfip_case_current_prog_status, 12, 6, 31
-			EMReadScreen mfip_case_eligibility_result, 12,  7, 31
+			EMReadScreen mfip_case_eligibility_result, 12, 7, 31
 			EMReadScreen mfip_case_hrf_reporting, 12, 8, 31
 			EMReadScreen mfip_case_source_of_info, 4, 9, 31
 			EMReadScreen mfip_case_benefit_impact, 12, 10, 31
@@ -20588,6 +20588,7 @@ If enter_CNOTE_for_MFIP = True Then
 		ElseIf MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "SUSPENDED" Then
 			elig_info = "SUSPENDED"
 		ElseIf MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result = "INELIGIBLE" Then
+			elig_info = "INELIGIBLE"
 			If mfip_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
 			If mfip_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
 			If mfip_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
@@ -20655,6 +20656,9 @@ If enter_CNOTE_for_MFIP = True Then
 
 		Call mfip_elig_case_note
 
+		' MsgBox "STOP HERE AND DELETE THE NOTE" & vbCr & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result
+		' PF10
+		' Msgbox "You forgot - but the NOTE is gone"
 		' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
 		PF3
 	Next
@@ -20693,6 +20697,7 @@ if enter_CNOTE_for_MSA = True Then
 			elig_info = "ELIGIBLE"
 			one_month_is_elig = True
 		ElseIf MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "INELIGIBLE" Then
+			elig_info = "INELIGIBLE"
 			If msa_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
 			If msa_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
 			If msa_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
@@ -20743,6 +20748,7 @@ if enter_CNOTE_for_GA = True Then
 			elig_info = "ELIGIBLE"
 			one_month_is_elig = True
 		ElseIf GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result = "INELIGIBLE" Then
+			elig_info = "INELIGIBLE"
 			If ga_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
 			If ga_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
 			If ga_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
@@ -21040,6 +21046,7 @@ If enter_CNOTE_for_SNAP = True Then
 			elig_info = "ELIGIBLE"
 			one_month_is_elig = True
 		ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "INELIGIBLE" Then
+			elig_info = "INELIGIBLE"
 			If snap_status = "INACTIVE" Then elig_info = "INELIGIBLE - Denied"
 			If snap_status = "APP OPEN" Then elig_info = "INELIGIBLE - Denied"
 			If snap_status = "APP CLOSE" Then elig_info = "INELIGIBLE - Closed"
