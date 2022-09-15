@@ -752,7 +752,7 @@ do_we_create_u_code_worklists = False
 'DISPLAYS DIALOG
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 100, "Review Report"
-  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist", renewal_option
+  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist"+chr(9)+ "Check for NOMIs", renewal_option
   CheckBox 90, 55, 90, 10, "Select to create U code", create_u_code_worklist_checkbox
   CheckBox 5, 70, 70, 10, "Select all agency.", all_workers_check
   CheckBox 5, 85, 70, 10, "Select for CM + 2.", CM_plus_two_checkbox
@@ -3472,6 +3472,130 @@ ElseIf renewal_option = "Create Worklist" Then
 ElseIf renewal_option <> "Send NOMIs" Then
     end_msg = "Report not available yet."
 End if
+
+If renewal_option = "Check for NOMIs" Then
+	MAXIS_footer_month = CM_plus_1_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
+	MAXIS_footer_year = CM_plus_1_yr
+
+	'creating a last day of recert variable - for NOMI this is the last day of the current month - which is determined here
+	last_day_of_recert = CM_plus_1_mo & "/01/" & CM_plus_1_yr
+	last_day_of_recert = dateadd("D", -1, last_day_of_recert)
+
+	'Activates worksheet based on user selection
+	objExcel.worksheets(scenario_dropdown).Activate
+
+	'Finding the last column that has something in it so we can add to the end.
+	col_to_use = 0
+	Do
+		col_to_use = col_to_use + 1
+		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+		If col_header = "NOMI Sent" Then notc_col = col_to_use
+		If col_header = "NOMI Date" Then notc_date_col = col_to_use
+		If col_header = "APPT NOTC Sent" Then appt_notc_col = col_to_use
+		If col_header = "APPT NOTC Date" Then last_apt_notc_col = col_to_use + 1
+	Loop until col_header = ""
+
+	' MsgBox "NOTC Col - " & notc_col & vbCr & "NOTC Date Col - " & notc_date_col
+	If notc_col = "" OR notc_date_col = "" Then
+		last_apt_notc_col_letter = convert_digit_to_excel_column(last_apt_notc_col)
+
+		'Insert columns in excel for additional information to be added
+		column_place = last_apt_notc_col_letter & "1"
+		Set objRange = objExcel.Range(column_place).EntireColumn
+
+		If notc_date_col = "" Then objRange.Insert(xlShiftToRight)			'We neeed one more columns
+		If notc_col = "" Then objRange.Insert(xlShiftToRight)			'We neeed one more columns
+
+		If notc_date_col = "" Then
+			' objRange.Insert(xlShiftToRight)			'We neeed one more columns
+			notc_date_col = last_apt_notc_col + 1		'Setting the column to individual variables so we enter the found information in the right place
+
+			ObjExcel.Cells(1, notc_date_col).Value = "NOMI Date"			'creating the column headers for the statistics information for the day of the run.
+			objExcel.Cells(1, notc_date_col).Font.Bold = True		'bold font'
+			ObjExcel.columns(notc_date_col).NumberFormat = "m/d/yy" 		'formatting as text
+			ObjExcel.columns(notc_date_col).AutoFit() 						'fsizing the columns'
+		End If
+		If notc_col = "" Then
+			' objRange.Insert(xlShiftToRight)			'We neeed one more columns
+			notc_col = last_apt_notc_col 		'Setting the column to individual variables so we enter the found information in the right place
+			' col_to_use = col_to_use + 1
+
+			ObjExcel.Cells(1, notc_col).Value = "NOMI Sent"			'creating the column headers for the statistics information for the day of the run.
+			objExcel.Cells(1, notc_col).Font.Bold = True		'bold font'
+			ObjExcel.columns(notc_col).NumberFormat = "@" 		'formatting as text
+			ObjExcel.columns(notc_col).AutoFit() 				'sizing the columns'
+		End If
+
+	End If
+	' MsgBox "NOMI Sent Col - " & notc_col & vbCr &_
+	' 	   "NOMI Date Col - " & notc_date_col & vbCr &_
+	' 	   "APPT Sent Col - " & appt_notc_col & vbCr &_
+	' 	   "APPT Date Col - " & last_apt_notc_col
+	col_to_use = 1
+	Do
+		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
+		If col_header = "CASH (" & date_header & ")" Then cash_stat_excel_col = col_to_use
+		If col_header = "SNAP (" & date_header & ")" Then snap_stat_excel_col = col_to_use
+		If col_header = "HC (" & date_header & ")" Then hc_stat_excel_col = col_to_use
+		If col_header = "MAGI (" & date_header & ")" Then magi_stat_excel_col = col_to_use
+		If col_header = "CAF Date (" & date_header & ")" Then recvd_date_excel_col = col_to_use
+		If col_header = "Intvw Date (" & date_header & ")" Then intvw_date_excel_col = col_to_use
+
+		col_to_use = col_to_use + 1
+	Loop until col_header = ""
+
+	today_mo = DatePart("m", date)
+	today_mo = right("00" & today_mo, 2)
+
+	today_day = DatePart("d", date)
+	today_day = right("00" & today_day, 2)
+
+	today_yr = DatePart("yyyy", date)
+	today_yr = right(today_yr, 2)
+	today_date = today_mo & "/" & today_day & "/" & today_yr
+	too_old_date = DateAdd("m", -1, today_date)
+	found_nomis = 0
+
+	'Now we loop through the whole Excel List and sending notices on the right cases
+	excel_row = "2"		'starts at row 2'
+	Do
+		notc_col_info = trim(ObjExcel.Cells(excel_row, notc_col).Value)
+		MAXIS_case_number 	= trim(ObjExcel.Cells(excel_row,  2).Value)			'getting the case number from the spreadsheet
+		' MsgBox "row - " & excel_row & vbCr & "col - " & notc_col & vbCr & "val - *" & notc_col_info & "*"
+		If notc_col_info = "" AND MAXIS_case_number <> "" Then
+
+			Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+			If is_this_priv = False Then
+
+				note_row = 5
+				Do
+					EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+
+					EMReadScreen note_title, 55, note_row, 25               'reading the note header
+					note_title = trim(note_title)
+					If note_title = "*** NOMI Sent for " & REPT_month & "/" & REPT_year & " Recertification***" Then
+						ObjExcel.Cells(excel_row, notc_col).Value = "Y"         		'Setting this as N if the MEMO failed
+						ObjExcel.Cells(excel_row, notc_date_col).Value = note_date     'If we've found this then no reason to keep looking.
+						found_nomis = found_nomis + 1                 					'For statistical purposes
+					End If
+					if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
+
+			        note_row = note_row + 1
+			        if note_row = 19 then
+			            note_row = 5
+			            PF8
+			            EMReadScreen check_for_last_page, 9, 24, 14
+			            If check_for_last_page = "LAST PAGE" Then Exit Do
+			        End If
+			        EMReadScreen next_note_date, 8, note_row, 6
+			        if next_note_date = "        " then Exit Do
+			    Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+			End If
+		End If
+		excel_row = excel_row + 1
+	Loop until MAXIS_case_number = ""
+	end_msg = end_msg & vbCr & "Found some NOMIs - " & found_nomis & " to be exact."
+End If
 
 If renewal_option = "Send NOMIs" Then
 	MAXIS_footer_month = CM_plus_1_mo							'Setting the footer month and year based on the review month. We do not run statistics in CM + 2
