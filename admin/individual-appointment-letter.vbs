@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("05/01/2022", "Updated the Appointment Notice to have information for residents about in person support.", "Casey Love, Hennepin County")
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/01/2021", "Changed the notices sent in 2 ways:##~## ##~## - Updated verbiage on how to submit documents to Hennepin.##~## ##~## - Appointment Notices will now be sent with a date of 5 days from the date of application.##~##", "Casey Love, Hennepin County")
@@ -62,29 +63,27 @@ Call check_for_MAXIS(TRUE)
 Call MAXIS_case_number_finder (MAXIS_case_number)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 131, 45, "Case Number"
-  EditBox 60, 5, 65, 15, MAXIS_case_number
+BeginDialog Dialog1, 0, 0, 176, 65, "Case number"
+  EditBox 70, 5, 50, 15, MAXIS_case_number
+  EditBox 70, 25, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 55, 25, 35, 15
-    CancelButton 95, 25, 30, 15
-  Text 10, 10, 50, 10, "Case Number:"
+    OkButton 70, 45, 50, 15
+    CancelButton 125, 45, 45, 15
+  Text 5, 10, 50, 10, "Case number:"
+  Text 5, 30, 60, 10, "Worker signature:"
 EndDialog
 
 Do
     err_msg = ""
-
     Dialog Dialog1
     cancel_without_confirmation
-
-    If len(MAXIS_case_number) >8 Then err_msg = err_msg & vbNewLine & "* Case numbers should not be more than 8 numbers long."
-    If IsNumeric(MAXIS_case_number) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the case number, it appears to be invalid."
-
+	Call validate_MAXIS_case_number(err_msg, "*")
+	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
     If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
 Loop until err_msg = ""
 
 'grabs CAF date, turns CAF date into string for variable
 call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
-
 
 interview_date = dateadd("d", 5, application_date)
 If interview_date <= date then interview_date = dateadd("d", 5, date)
