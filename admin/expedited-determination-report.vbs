@@ -337,12 +337,13 @@ const hss_rept_application_date_col		= 3
 const hss_rept_interview_date_col		= 4
 const hss_rept_approval_delay_detail_col= 5
 const hss_rept_script_user_col			= 6
-const hss_rept_script_user_id_col		= 7
-const hss_rept_hss_name_col				= 8
-const hss_rept_hss_email_col			= 9
-const hss_rept_pm_name_col				= 10
-const hss_rept_pm_email_col				= 11
-const hss_rept_total_report_row_col		= 12
+const hss_rept_hsr_email_col			= 7
+const hss_rept_script_user_id_col		= 8
+const hss_rept_hss_name_col				= 9
+const hss_rept_hss_email_col			= 10
+const hss_rept_pm_name_col				= 11
+const hss_rept_pm_email_col				= 12
+const hss_rept_total_report_row_col		= 13
 
 const worker_name_col 	= 1
 const worker_mx_id_col 	= 2
@@ -356,10 +357,11 @@ const pm_email_col 		= 8
 const hsr_name_const 	= 0
 const hsr_mx_id_const 	= 1
 const hsr_hc_id_const	= 2
-const hss_name_const 	= 3
-const hsr_email_const 	= 4
-const pm_name_const 	= 5
-const pm_email_const 	= 6
+const hsr_email_const 	= 3
+const hss_name_const 	= 4
+const hss_email_const 	= 5
+const pm_name_const 	= 6
+const pm_email_const 	= 7
 
 'This is where we get the information about HSRs and HSSs - we need to determine the data source and update this functionality once received - currently it is using a sheet in the HSS report out Excel File
 Dim WORKER_ARRAY()
@@ -375,8 +377,9 @@ Do
 	WORKER_ARRAY(hsr_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
 	WORKER_ARRAY(hsr_mx_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_mx_id_col))
 	WORKER_ARRAY(hsr_hc_id_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_hc_id_col))
+	WORKER_ARRAY(hsr_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, worker_email_col))
 	WORKER_ARRAY(hss_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_name_col))
-	WORKER_ARRAY(hsr_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_email_col))
+	WORKER_ARRAY(hss_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, hss_email_col))
 	WORKER_ARRAY(pm_name_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, pm_name_col))
 	WORKER_ARRAY(pm_email_const, worker_count) = trim(ObjHSSExcel.Cells(excel_row, pm_email_col))
 
@@ -400,6 +403,14 @@ hss_excel_row = 1																'default to the first row
 Do
 	hss_excel_row = hss_excel_row + 1
 	this_case_number = trim(ObjHSSExcel.Cells(hss_excel_row, 2).Value)
+
+	If trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value) = "" Then
+		For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
+			If WORKER_ARRAY(hsr_hc_id_const, each_wrkr) = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_id_col).Value) Then
+				ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
+			End If
+		Next
+	End If
 Loop Until this_case_number = ""
 ' MsgBox "hss_excel_row - " & hss_excel_row
 'Now we need to find the last row in the 'ALL CASES' sheet so we don't overwrite anything
@@ -523,8 +534,9 @@ For Each objFile in colFiles																'looping through each file
 						For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
 							If WORKER_ARRAY(hsr_hc_id_const, each_wrkr) = line_info(1) Then
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = WORKER_ARRAY(hsr_name_const, each_wrkr)
+								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value = WORKER_ARRAY(hss_name_const, each_wrkr)
-								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
+								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value = WORKER_ARRAY(hss_email_const, each_wrkr)
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value = WORKER_ARRAY(pm_name_const, each_wrkr)
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value = WORKER_ARRAY(pm_email_const, each_wrkr)
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_total_report_row_col).Value = total_excel_row
