@@ -178,7 +178,9 @@ report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improv
 worklist_template_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\Exp Det Worklists\"
 worklist_review_file = worklist_template_path & "Worklist Review Report.xlsx"
 ' hss_report_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination HSS Report.xlsx"
-hss_report_file = t_drive & "\IPA\Restricted\DMA\PowerBIData\ES QI\Expedited Email Report\EXP Determination HSS Report.xlsx"
+' hss_report_file = t_drive & "\IPA\Restricted\DMA\PowerBIData\ES QI\Expedited Email Report\EXP Determination HSS Report.xlsx"
+' hss_report_file = "C:\Users\calo001\Hennepin County\ES Management - Documents\Case Review\EXP Determination HSS Report.xlsx"
+hss_report_file = "C:\Users\" & user_ID_for_validation & "\Hennepin County\ES Management - Documents\Case Review\EXP Determination HSS Report.xlsx"
 
 'OPEN the Worklist Report and check for approvals.
 'Open the worklist report
