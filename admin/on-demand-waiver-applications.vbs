@@ -2232,6 +2232,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 		Else
 			ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
 		End If
+		If ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) <> "Pending" AND ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) <> "Pending" Then ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
 
 		IF ALL_PENDING_CASES_ARRAY(deny_day30, case_entry) = TRUE THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
 		IF ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) <> "" THEN ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = TRUE
