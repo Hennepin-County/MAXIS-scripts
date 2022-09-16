@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("09/03/2022", "Replaced Jennifer Frey's email contact with Tanya Payne, new HSS for QI.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -751,19 +752,20 @@ do_we_create_u_code_worklists = False
 
 'DISPLAYS DIALOG
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 186, 100, "Review Report"
-  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist"+chr(9)+ "Check for NOMIs", renewal_option
-  CheckBox 90, 55, 90, 10, "Select to create U code", create_u_code_worklist_checkbox
-  CheckBox 5, 70, 70, 10, "Select all agency.", all_workers_check
-  CheckBox 5, 85, 70, 10, "Select for CM + 2.", CM_plus_two_checkbox
-  ButtonGroup ButtonPressed
-	OkButton 95, 80, 40, 15
-	CancelButton 140, 80, 40, 15
+BeginDialog Dialog1, 0, 0, 186, 130, "Review Report"
   EditBox 70, 5, 110, 15, worker_number
-  Text 5, 10, 60, 10, "Worker number(s):"
-  Text 5, 20, 175, 10, "Enter the fulll 7-digit worker #(s), comma separated."
+  DropListBox 90, 35, 90, 15, "Select one..."+chr(9)+"Create Renewal Report"+chr(9)+"Discrepancy Run"+chr(9)+"Collect Statistics"+chr(9)+"Send Appointment Letters"+chr(9)+"Send NOMIs"+chr(9)+"End of Processing Month"+chr(9)+"Create Worklist"+chr(9)+"Check for NOMIs", renewal_option
+  CheckBox 10, 55, 115, 10, "Select to create U code worklist", create_u_code_worklist_checkbox
+  CheckBox 10, 65, 70, 10, "Select all agency.", all_workers_check
+  CheckBox 10, 75, 70, 10, "Select for CM + 2.", CM_plus_two_checkbox
+  EditBox 70, 90, 110, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 75, 110, 50, 15
+    CancelButton 130, 110, 50, 15
+  Text 10, 25, 170, 10, "Enter the fulll 7-digit worker #(s), comma separated."
   Text 5, 40, 85, 10, "Select a reporting option:"
-  Text 102, 65, 50, 10, "worklist"
+  Text 5, 95, 60, 10, "Worker signature:"
+  Text 5, 10, 60, 10, "Worker number(s):"
 EndDialog
 
 DO
@@ -775,6 +777,7 @@ DO
         If worker_number = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Enter a valid worker number."
 		If worker_number <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Enter a worker number OR select the entire agency, not both."
 		If (CM_plus_two_checkbox = 1 and datePart("d", date) < 16) then err_msg = err_msg & VbNewLine & "* This is not a valid time period for REPT/REVS until the 16th of the month. Please select a new time period."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
