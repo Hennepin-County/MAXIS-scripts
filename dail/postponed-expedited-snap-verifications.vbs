@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -97,10 +98,11 @@ BeginDialog Dialog1, 0, 0, 401, 70, "Verifications Needed"
 EndDialog
 
 'Runs the dialog to allow workers to sign and to list verifications needed
-Do 
+Do
     Do
     	Dialog Dialog1
-    	Cancel_without_confirmation
+    	cancel_without_confirmation
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
     Loop until ButtonPressed = OK
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -120,7 +122,6 @@ call write_variable_in_case_note(case_note_header)
 call write_bullet_and_variable_in_case_note("Reason for closure", "Delayed verifications were not submitted and Expedited SNAP Autoclosed.")
 If verifs_needed <> "" then call write_bullet_and_variable_in_case_note("Verifs needed", verifs_needed)
 If case_noting_intake_dates = True or case_noting_intake_dates = "" then call write_bullet_and_variable_in_case_note("Last SNAP REIN date", SNAP_last_REIN_date & SNAP_followup_text)
-
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
