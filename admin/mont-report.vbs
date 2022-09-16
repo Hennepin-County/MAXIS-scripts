@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("09/03/2022", "Replaced Jennifer Frey's email contact with Tanya Payne, new HSS for QI.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/15/2020", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -756,22 +757,23 @@ If open_existing_review_report = TRUE Then
 
 	'If we are collecting statistics, we may be running on a current or past month, we need to clarify which month we are looking at.'
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 115, 55, "Select REVW Month for Information"
-	  EditBox 75, 10, 15, 15, REPT_month
-	  EditBox 95, 10, 15, 15, REPT_year
-	  Text 10, 10, 60, 20, "Which REVW Month?"
-	  ButtonGroup ButtonPressed
-		OkButton 25, 35, 40, 15
-		CancelButton 70, 35, 40, 15
-	EndDialog
+    BeginDialog Dialog1, 0, 0, 176, 70, "Select REVW Month for Information"
+      EditBox 80, 10, 15, 15, REPT_month
+      EditBox 100, 10, 15, 15, REPT_year
+      EditBox 80, 30, 85, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 80, 50, 40, 15
+        CancelButton 125, 50, 40, 15
+      Text 5, 15, 75, 10, "Which REVW Month?"
+      Text 5, 30, 60, 10, "Worker signature:"
+    EndDialog
 
 	Do
 		Do
 			err_msg = ""
-
 			dialog Dialog1
 			cancel_without_confirmation
-
+			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		Loop Until err_msg = ""
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = FALSE
