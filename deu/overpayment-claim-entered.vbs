@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/31/2020", "Removed agency overpayment for cash verbiage.", "MiKayla Handley, Hennepin County")
@@ -105,6 +106,7 @@ BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
   EditBox 70, 220, 160, 15, EVF_used
   EditBox 310, 220, 45, 15, income_rcvd_date
   EditBox 70, 240, 285, 15, Reason_OP
+  EditBox 70, 260, 160, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 260, 260, 45, 15
     CancelButton 310, 260, 45, 15
@@ -154,6 +156,7 @@ BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
   Text 165, 70, 10, 10, "To:"
   GroupBox 5, 45, 350, 100, "Overpayment Information"
   Text 105, 70, 20, 10, "From:"
+  Text 5, 265, 65, 10, "Worker Signature:"
 EndDialog
 
 Do
@@ -185,7 +188,8 @@ Do
 		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
 		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
 	END IF
-    	IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
+    IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
+	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 LOOP UNTIL err_msg = ""
 CALL check_for_password_without_transmit(are_we_passworded_out)
