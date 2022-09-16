@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/30/2019", "Removed FSS Data Team from automated emails per request.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/29/2018", "Updated to correct for member # error.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/08/2017", "Updated to add first name of memb to casenote.", "MiKayla Handley, Hennepin County")
@@ -60,25 +61,28 @@ memb_number = "01"
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1 , 0, 0, 166, 75, "ADH INFORMATION"
+BeginDialog Dialog1, 0, 0, 176, 85, "ADH INFORMATION"
   EditBox 55, 5, 45, 15, MAXIS_case_number
-  EditBox 135, 5, 25, 15, memb_number
-  DropListBox 80, 30, 80, 15, "Select One:"+chr(9)+"ADH waiver signed"+chr(9)+"Hearing Held", ADH_option
+  EditBox 145, 5, 25, 15, memb_number
+  DropListBox 90, 25, 80, 15, "Select One:"+chr(9)+"ADH waiver signed"+chr(9)+"Hearing Held", ADH_option
+  EditBox 65, 45, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 55, 55, 50, 15
-    CancelButton 110, 55, 50, 15
-  Text 5, 35, 75, 10, "Select an ADH option:"
+    OkButton 65, 65, 50, 15
+    CancelButton 120, 65, 50, 15
   Text 5, 10, 45, 10, "Case number:"
-  Text 105, 10, 30, 10, "Memb#:"
+  Text 110, 10, 30, 10, "Memb#:"
+  Text 5, 30, 75, 10, "Select an ADH option:"
+  Text 5, 50, 60, 10, "Worker signature:"
 EndDialog
+
 
 Do
 	Do
         err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-		IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-		IF IsNumeric(memb_number) = false or len(memb_number) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid two-digit member number."
+        Call validate_MAXIS_case_number(err_msg, "*")
+        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF ADH_option = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select an ADH action."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
@@ -255,6 +259,7 @@ IF ADH_option = "Hearing Held" THEN
 	 CALL write_variable_in_case_note("* Email sent to team: L. Bloomquist, and TTL.")
      CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 	 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
+     CALL write_variable_in_CASE_NOTE(worker_signature)
 	 CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
      PF3
 	 'Drafting an email. Does not send the email!!!!
