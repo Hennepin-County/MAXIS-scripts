@@ -18852,7 +18852,7 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' If script_user_is_a_tester = False Then enter_CNOTE_for_MSA = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_MSA = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_EMER = False
-enter_CNOTE_for_GRH = False
+If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_GRH = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DENY = False
 enter_CNOTE_for_HC = False
 enter_CNOTE_for_DWP = False
@@ -18908,6 +18908,9 @@ ReDim GA_UNIQUE_APPROVALS(approval_confirmed, 0)
 
 Dim DENY_UNIQUE_APPROVALS()
 ReDim DENY_UNIQUE_APPROVALS(approval_confirmed, 0)
+
+Dim GRH_UNIQUE_APPROVALS()
+ReDim GRH_UNIQUE_APPROVALS(approval_confirmed, 0)
 
 Dim SNAP_UNIQUE_APPROVALS()
 ReDim SNAP_UNIQUE_APPROVALS(approval_confirmed, 0)
@@ -19296,7 +19299,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 		cancel_confirmation
 
 		err_msg = ""
-
+		move_from_dialog = False
 
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" and MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
 			If Isdate(MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
@@ -19353,16 +19356,6 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				MFIP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
 			End If
 
-			If ButtonPressed = -1 Then
-				If approval_selected = UBound(MFIP_UNIQUE_APPROVALS, 2) Then
-					ButtonPressed = app_confirmed_btn
-				ElseIf mfip_approval_is_incorrect = True Then
-					ButtonPressed = app_incorrect_btn
-				Else
-					ButtonPressed = next_approval_btn
-				End If
-			End If
-
 			not_confirmed_pckg_list = ""
 			first_unconfirmmed_month = ""
 			for each_app = 0 to UBound(MFIP_UNIQUE_APPROVALS, 2)
@@ -19375,6 +19368,16 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If MFIP_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then mfip_approval_is_incorrect = True
 			Next
 
+			If ButtonPressed = -1 Then
+				If approval_selected = UBound(MFIP_UNIQUE_APPROVALS, 2) Then
+					ButtonPressed = app_confirmed_btn
+				ElseIf mfip_approval_is_incorrect = True Then
+					ButtonPressed = app_incorrect_btn
+				Else
+					ButtonPressed = next_approval_btn
+				End If
+			End If
+
 			If ButtonPressed = next_approval_btn Then
 				approval_selected = approval_selected + 1
 				If approval_selected > UBound(MFIP_UNIQUE_APPROVALS, 2) Then
@@ -19386,11 +19389,15 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				End If
 			End If
 		End If
-		If ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = False Then
+		If ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = True Then move_from_dialog = True
+		If mfip_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
+		If ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = False and move_from_dialog = False Then
 			MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
 			approval_selected = first_unconfirmmed_month
 		End If
-	Loop until (ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
+
+	Loop until move_from_dialog = True
+	' Loop until (ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
 
 	If mfip_approval_is_incorrect = True Then
 		enter_CNOTE_for_MFIP = False
@@ -20215,6 +20222,101 @@ If enter_CNOTE_for_DENY = True Then
 	End if
 
 End if
+
+If enter_CNOTE_for_GRH = True Then
+	last_elig_result = ""
+
+	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
+	unique_app_count = 0
+	For approval = 0 to UBound(GRH_ELIG_APPROVALS)
+		If GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year = first_GA_approval Then start_capturing_approvals = True
+		If start_capturing_approvals = True Then
+			If unique_app_count = 0 Then
+				ReDim preserve GRH_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
+
+				GA_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year
+				GA_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year
+				GA_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
+				GA_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+				GA_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
+				GA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+
+				last_elig_result = GA_ELIG_APPROVALS(approval).grh_elig_eligibility_result
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_memb_elig_type_info
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_budg_total_deductions
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_budg_counted_income
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_budg_personal_needs
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_budg_vendor_number_one
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_payment_grh_state_amount_one
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_payment_total_one
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_budg_vendor_number_two
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_payment_grh_state_amount_two
+				last_ = GA_ELIG_APPROVALS(approval).grh_elig_payment_total_two
+				' last_ = GA_ELIG_APPROVALS(approval).
+				' last_ = GA_ELIG_APPROVALS(approval).
+				' last_ = GA_ELIG_APPROVALS(approval).
+				' last_ = GA_ELIG_APPROVALS(approval).
+				' last_ = GA_ELIG_APPROVALS(approval).
+
+				unique_app_count = unique_app_count + 1
+			Else
+				match_last_benefit_amounts = True
+
+				If last_elig_result <> GRH_ELIG_APPROVALS(approval).grh_elig_eligibility_result Then match_last_benefit_amounts = False
+
+				If match_last_benefit_amounts = True Then
+					GRH_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = GRH_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year
+					GRH_UNIQUE_APPROVALS(last_mo_const, unique_app_count-1) = GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year
+				End If
+				If match_last_benefit_amounts = False Then
+					ReDim preserve GRH_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
+
+					GA_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year
+					GA_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year
+					GA_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
+					GA_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+					GA_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
+					GA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+
+					last_elig_result = GA_ELIG_APPROVALS(approval).grh_elig_eligibility_result
+
+					unique_app_count = unique_app_count + 1
+				End If
+			End If
+		End If
+	Next
+
+	all_ga_approvals_confirmed = False
+	approval_selected = 0
+
+	Do
+
+		first_month = left(GRH_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
+		elig_ind = ""
+		month_ind = ""
+		For approval = 0 to UBound(GRH_ELIG_APPROVALS)
+			' MsgBox "APPROVALS MO - " & GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year & vbCr & "approval - " & approval & vbCr & "first_month - " & first_month
+			If GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
+		Next
+		For each_month = 0 to UBound(STAT_INFORMATION)
+			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
+		Next
+
+
+
+
+
+
+
+
+	Loop until (ButtonPressed = app_confirmed_btn and all_ga_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
+
+	If ga_approval_is_incorrect = True Then
+		enter_CNOTE_for_GA = False
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for GA Approvals from " & first_GA_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+	End if
+
+End If
 
 If enter_CNOTE_for_EMER = True Then
 	confirm_emer_budget_selection = ""
