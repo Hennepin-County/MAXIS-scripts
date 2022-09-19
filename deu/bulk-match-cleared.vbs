@@ -56,6 +56,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("07/26/2022", "Updated handling for claim referral tracking.", "MiKayla Handley, Hennepin County") '#991
 CALL changelog_update("06/30/2022", "Updated handling for new upervisor.", "MiKayla Handley, Hennepin County") '#498
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
@@ -519,6 +520,7 @@ For item = 0 to UBound(match_based_array, 2)
     	        IF IULB_notes = "BO-Other" THEN CALL write_variable_in_case_note("* No review due during the match period.  Per DHS, reporting requirements are waived during pandemic.")
     	        CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
     	        CALL write_variable_in_case_note("----- ----- ----- ----- -----")
+				CALL write_variable_in_case_note(worker_signature)
     	        CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
     	        PF3 'to save casenote'
     	    	match_based_array(comments_const, item) = "Match Cleared and Case Noted."
