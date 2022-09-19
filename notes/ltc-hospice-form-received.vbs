@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("01/06/2020", "Updated initial dialog to make footer month and footer year mandatory.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/14/2018", "Initial version.", "Casey Love, Hennepin County")
 
@@ -233,6 +234,7 @@ DO
         If client_in_hospice = "Select" Then err_msg = err_msg & vbNewLine & "* Select the client that is in hospice."
         If trim(hospice_name) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the Hospice the client entered."       'hospice name required
         If IsDate(hospice_entry_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Enter a valide date for the Hospice Entry."   'entry date also required
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         If err_msg <> "" Then MsgBox "Please resolve the following to conitune:" & vbNewLine & err_msg
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
