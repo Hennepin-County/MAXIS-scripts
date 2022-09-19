@@ -1836,7 +1836,7 @@ function define_emer_elig_dialog()
 			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used <> "" Then Text 15, 100, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: " & EMER_ELIG_APPROVAL.emer_elig_summ_last_used
 			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used = "" Then Text 15, 100, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: Never"
 
-			GroupBox 5, 125, 525, 90, "Emergency"
+			GroupBox 5, 125, 535, 90, "Emergency"
 			Text 15, 140, 85, 10, "Emergency to Resolve:"
 			CheckBox 100, 140, 100, 10, "Eviction - Past Due Balance", emer_past_due_rent_checkbox
 			CheckBox 210, 140, 100, 10, "New Housing", emer_new_housing_checkbox
@@ -1855,14 +1855,19 @@ function define_emer_elig_dialog()
 			Text 15, 195, 100, 10, "Resolving Emergency Notes:"
 			EditBox 120, 190, 300, 15, emer_emer_resolve_notes
 
-			GroupBox 5, 220, 425, 55, "Cost Effectivness"
+			GroupBox 5, 220, 535, 55, "Cost Effectivness"
 			Text 15, 235, 185, 10, "Details to determine affordability:"
 			Text 20, 255, 100, 10, "Ongoing Monthly NET Income:   $"
 			EditBox 130, 250, 75, 15, emer_ongoing_mothly_income
-			Text 230, 235, 95, 10, "Ongoing Sheler Expense:   $"
+			Text 230, 235, 95, 10, "Ongoing Shelter Expense:   $"
 			EditBox 325, 230, 75, 15, emer_ongoing_shelter_expense
 			Text 230, 255, 95, 10, "Ongoing Utility Expense:   $"
 			EditBox 325, 250, 75, 15, emer_ongoing_utility_expense
+			Text 410, 240, 100, 10, "Current SUA Amounts"
+			Text 410, 250, 65, 10, "     Heat/AC: $ " & heat_AC_amt
+			Text 410, 260, 65, 10, "Elec+Phone: $ " & electric_amt + phone_amt
+			Text 480, 250, 50, 10, "Electric: $ " & electric_amt
+			Text 480, 260, 50, 10, "  Phone: $ " & phone_amt
 
 			' If EMER_ELIG_APPROVAL.emer_program = "EGA" Then
 			GroupBox 5, 280, 425, 50, "Income Limit"
@@ -1946,6 +1951,11 @@ function define_emer_elig_dialog()
 				y_pos = y_pos + 20
 				Text 230, y_pos, 95, 10, "Ongoing Utility Expense:   $"
 				EditBox 325, y_pos-5, 75, 15, emer_ongoing_utility_expense
+				Text 410, y_pos-20, 100, 10, "Current SUA Amounts"
+				Text 410, y_pos-10, 65, 10, "     Heat/AC: $ " & heat_AC_amt
+				Text 410, y_pos, 65, 10, "Elec+Phone: $ " & electric_amt + phone_amt
+				Text 480, y_pos-10, 50, 10, "Electric: $ " & electric_amt
+				Text 480, y_pos, 50, 10, "  Phone: $ " & phone_amt
 				y_pos = y_pos + 20
 			End If
 			If EMER_ELIG_APPROVAL.emer_elig_case_test_elig_other_program = "FAILED" Then
@@ -11115,6 +11125,7 @@ class emer_eligibility_detail
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 				' If DateDiff("d", #8/26/2022#, elig_version_date) = 0 Then approved_today = True
 				' If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
+				' approved_today = True
 			End if
 
 			if approved_today = True Then
@@ -17709,6 +17720,7 @@ spaces_78 = "                                                                   
 EMConnect ""
 Call check_for_MAXIS(True)
 
+Call hest_standards(heat_AC_amt, electric_amt, phone_amt, date)		'Currently only used in EMER for a reference.'
 end_msg_info = ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
