@@ -78,16 +78,14 @@ MAXIS_footer_year = CM_yr
 worker_county_code = "X127"
 match_type = "WAGE"
 'This can only be run by DEU Supervisor or script team member
-IF user_ID_for_validation <> "WF7329" THEN
-	IF user_ID_for_validation <> "WFO119" THEN
-		IF user_ID_for_validation <> "WFS395" THEN
-        	IF user_ID_for_validation <> "ILFE001" THEN
-				IF user_ID_for_validation <> "CALO001" THEN
-		    		script_end_procedure("This is restricted to use by a supervisor only. Please contact your supervisor to run.")
-				END IF
+IF user_ID_for_validation <> "WFO119" THEN
+	IF user_ID_for_validation <> "WFS395" THEN
+       	IF user_ID_for_validation <> "ILFE001" THEN
+			IF user_ID_for_validation <> "CALO001" THEN
+	    		script_end_procedure("This is restricted to use by a supervisor only. Please contact your supervisor to run.")
 			END IF
-        END IF
-	END IF
+		END IF
+    END IF
 END IF
 
 Do
