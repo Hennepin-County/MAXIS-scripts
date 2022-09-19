@@ -61,16 +61,17 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 'Dialog to gather the case number and footer month and year
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 156, 70, "Case number dialog"
-  EditBox 60, 5, 90, 15, MAXIS_case_number
-  EditBox 60, 25, 30, 15, MAXIS_footer_month
-  EditBox 120, 25, 30, 15, MAXIS_footer_year
+BeginDialog Dialog1, 0, 0, 171, 85, "Case number dialog"
+  EditBox 65, 5, 50, 15, MAXIS_case_number
+  EditBox 65, 25, 20, 15, MAXIS_footer_month
+  EditBox 90, 25, 20, 15, MAXIS_footer_year
+  EditBox 65, 45, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 40, 50, 50, 15
-    CancelButton 100, 50, 50, 15
-  Text 10, 10, 50, 10, "Case number:"
-  Text 10, 30, 50, 10, "Footer month:"
-  Text 95, 30, 20, 10, "Year:"
+    OkButton 65, 65, 50, 15
+    CancelButton 115, 65, 50, 15
+  Text 5, 10, 50, 10, "Case number:"
+  Text 5, 30, 50, 10, "Footer MM/YY:"
+  Text 5, 50, 60, 10, "Worker Signature:"
 EndDialog
 
 'Showing the case number dialog
@@ -82,6 +83,7 @@ DO
 		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
         If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
         If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
