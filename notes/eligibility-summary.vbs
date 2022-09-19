@@ -15836,13 +15836,6 @@ class stat_detail
 
 			If stat_busi_one_exists(each_memb) = True Then
 				stat_busi_one_counted_for_snap(each_memb) = True
-				stat_busi_one_counted_for_mfip(each_memb) = True
-				stat_busi_one_counted_for_dwp(each_memb) = True
-				stat_busi_one_counted_for_ga(each_memb) = True
-				stat_busi_one_counted_for_msa(each_memb) = True
-				stat_busi_one_counted_for_grh(each_memb) = True
-				stat_busi_one_counted_for_deny(each_memb) = True
-				stat_busi_one_counted_for_emer(each_memb) = True
 
 				EMReadScreen stat_busi_one_type(each_memb), 2, 5, 37
 				EMReadScreen stat_busi_one_inc_start_date(each_memb), 8, 5, 55
@@ -15863,6 +15856,18 @@ class stat_detail
 				stat_busi_one_inc_start_date(each_memb) = replace(stat_busi_one_inc_start_date(each_memb), " ", "/")
 				stat_busi_one_inc_end_date(each_memb) = replace(stat_busi_one_inc_end_date(each_memb), " ", "/")
 				If stat_busi_one_inc_end_date(each_memb) = "__/__/__" Then stat_busi_one_inc_end_date(each_memb) = ""
+
+				If IsDate(stat_busi_one_inc_end_date(each_memb)) = True Then
+					If DateDiff("d", stat_busi_one_inc_end_date(each_memb), current_month) > 0 Then stat_busi_one_counted_for_snap(each_memb) = False
+				End If
+
+				stat_busi_one_counted_for_mfip(each_memb) = stat_busi_one_counted_for_snap(each_memb)
+				stat_busi_one_counted_for_dwp(each_memb) = stat_busi_one_counted_for_snap(each_memb)
+				stat_busi_one_counted_for_ga(each_memb) = stat_busi_one_counted_for_snap(each_memb)
+				stat_busi_one_counted_for_msa(each_memb) = stat_busi_one_counted_for_snap(each_memb)
+				stat_busi_one_counted_for_grh(each_memb) = stat_busi_one_counted_for_snap(each_memb)
+				stat_busi_one_counted_for_deny(each_memb) = stat_busi_one_counted_for_snap(each_memb)
+				stat_busi_one_counted_for_emer(each_memb) = stat_busi_one_counted_for_snap(each_memb)
 
 				stat_busi_one_method_date(each_memb) = replace(stat_busi_one_method_date(each_memb), " ", "/")
 				If stat_busi_one_method_date(each_memb) = "__/__/__" Then stat_busi_one_method_date(each_memb) = ""
@@ -15918,13 +15923,6 @@ class stat_detail
 
 			If stat_busi_two_exists(each_memb) = True Then
 				stat_busi_two_counted_for_snap(each_memb) = True
-				stat_busi_two_counted_for_mfip(each_memb) = True
-				stat_busi_two_counted_for_dwp(each_memb) = True
-				stat_busi_two_counted_for_ga(each_memb) = True
-				stat_busi_two_counted_for_msa(each_memb) = True
-				stat_busi_two_counted_for_grh(each_memb) = True
-				stat_busi_two_counted_for_deny(each_memb) = True
-				stat_busi_two_counted_for_emer(each_memb) = True
 
 				EMReadScreen stat_busi_two_type(each_memb), 2, 5, 37
 				EMReadScreen stat_busi_two_inc_start_date(each_memb), 8, 5, 55
@@ -15945,6 +15943,18 @@ class stat_detail
 				stat_busi_two_inc_start_date(each_memb) = replace(stat_busi_two_inc_start_date(each_memb), " ", "/")
 				stat_busi_two_inc_end_date(each_memb) = replace(stat_busi_two_inc_end_date(each_memb), " ", "/")
 				If stat_busi_two_inc_end_date(each_memb) = "__/__/__" Then stat_busi_two_inc_end_date(each_memb) = ""
+
+				If IsDate(stat_busi_two_inc_end_date(each_memb)) = True Then
+					If DateDiff("d", stat_busi_two_inc_end_date(each_memb), current_month) > 0 Then stat_busi_two_counted_for_snap(each_memb) = False
+				End If
+
+				stat_busi_two_counted_for_mfip(each_memb) = stat_busi_two_counted_for_snap(each_memb)
+				stat_busi_two_counted_for_dwp(each_memb) = stat_busi_two_counted_for_snap(each_memb)
+				stat_busi_two_counted_for_ga(each_memb) = stat_busi_two_counted_for_snap(each_memb)
+				stat_busi_two_counted_for_msa(each_memb) = stat_busi_two_counted_for_snap(each_memb)
+				stat_busi_two_counted_for_grh(each_memb) = stat_busi_two_counted_for_snap(each_memb)
+				stat_busi_two_counted_for_deny(each_memb) = stat_busi_two_counted_for_snap(each_memb)
+				stat_busi_two_counted_for_emer(each_memb) = stat_busi_two_counted_for_snap(each_memb)
 
 				stat_busi_two_method_date(each_memb) = replace(stat_busi_two_method_date(each_memb), " ", "/")
 				If stat_busi_two_method_date(each_memb) = "__/__/__" Then stat_busi_two_method_date(each_memb) = ""
@@ -16001,13 +16011,6 @@ class stat_detail
 
 			If stat_busi_three_exists(each_memb) = True Then
 				stat_busi_three_counted_for_snap(each_memb) = True
-				stat_busi_three_counted_for_mfip(each_memb) = True
-				stat_busi_three_counted_for_dwp(each_memb) = True
-				stat_busi_three_counted_for_ga(each_memb) = True
-				stat_busi_three_counted_for_msa(each_memb) = True
-				stat_busi_three_counted_for_grh(each_memb) = True
-				stat_busi_three_counted_for_deny(each_memb) = True
-				stat_busi_three_counted_for_emer(each_memb) = True
 
 				EMReadScreen stat_busi_three_type(each_memb), 2, 5, 37
 				EMReadScreen stat_busi_three_inc_start_date(each_memb), 8, 5, 55
@@ -16028,6 +16031,18 @@ class stat_detail
 				stat_busi_three_inc_start_date(each_memb) = replace(stat_busi_three_inc_start_date(each_memb), " ", "/")
 				stat_busi_three_inc_end_date(each_memb) = replace(stat_busi_three_inc_end_date(each_memb), " ", "/")
 				If stat_busi_three_inc_end_date(each_memb) = "__/__/__" Then stat_busi_three_inc_end_date(each_memb) = ""
+
+				If IsDate(stat_busi_three_inc_end_date(each_memb)) = True Then
+					If DateDiff("d", stat_busi_three_inc_end_date(each_memb), current_month) > 0 Then stat_busi_three_counted_for_snap(each_memb) = False
+				End If
+
+				stat_busi_three_counted_for_mfip(each_memb) = stat_busi_three_counted_for_snap(each_memb)
+				stat_busi_three_counted_for_dwp(each_memb) = stat_busi_three_counted_for_snap(each_memb)
+				stat_busi_three_counted_for_ga(each_memb) = stat_busi_three_counted_for_snap(each_memb)
+				stat_busi_three_counted_for_msa(each_memb) = stat_busi_three_counted_for_snap(each_memb)
+				stat_busi_three_counted_for_grh(each_memb) = stat_busi_three_counted_for_snap(each_memb)
+				stat_busi_three_counted_for_deny(each_memb) = stat_busi_three_counted_for_snap(each_memb)
+				stat_busi_three_counted_for_emer(each_memb) = stat_busi_three_counted_for_snap(each_memb)
 
 				stat_busi_three_method_date(each_memb) = replace(stat_busi_three_method_date(each_memb), " ", "/")
 				If stat_busi_three_method_date(each_memb) = "__/__/__" Then stat_busi_three_method_date(each_memb) = ""
@@ -16145,6 +16160,10 @@ class stat_detail
 				stat_unea_one_inc_end_date(each_memb) = replace(stat_unea_one_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_one_inc_end_date(each_memb) = "__/__/__" Then stat_unea_one_inc_end_date(each_memb) = ""
 
+				If IsDate(stat_unea_one_inc_end_date(each_memb)) = True Then
+					If DateDiff("d", stat_unea_one_inc_end_date(each_memb), current_month) > 0 Then stat_unea_one_counted_for_snap(each_memb) = False
+				End If
+
 				EMReadScreen stat_unea_one_retro_monthly_gross_income(each_memb), 8, 18, 39
 				EMReadScreen stat_unea_one_prosp_monthly_gross_income(each_memb), 8, 18, 68
 
@@ -16243,6 +16262,10 @@ class stat_detail
 				stat_unea_two_inc_start_date(each_memb) = replace(stat_unea_two_inc_start_date(each_memb), " ", "/")
 				stat_unea_two_inc_end_date(each_memb) = replace(stat_unea_two_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_two_inc_end_date(each_memb) = "__/__/__" Then stat_unea_two_inc_end_date(each_memb) = ""
+
+				If IsDate(stat_unea_two_inc_end_date(each_memb)) = True Then
+					If DateDiff("d", stat_unea_two_inc_end_date(each_memb), current_month) > 0 Then stat_unea_two_counted_for_snap(each_memb) = False
+				End If
 
 				EMReadScreen stat_unea_two_retro_monthly_gross_income(each_memb), 8, 18, 39
 				EMReadScreen stat_unea_two_prosp_monthly_gross_income(each_memb), 8, 18, 68
@@ -16343,6 +16366,11 @@ class stat_detail
 				stat_unea_three_inc_end_date(each_memb) = replace(stat_unea_three_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_three_inc_end_date(each_memb) = "__/__/__" Then stat_unea_three_inc_end_date(each_memb) = ""
 
+				If IsDate(stat_unea_three_inc_end_date(each_memb)) = True Then
+					If DateDiff("d", stat_unea_three_inc_end_date(each_memb), current_month) > 0 Then stat_unea_three_counted_for_snap(each_memb) = False
+				End If
+
+
 				EMReadScreen stat_unea_three_retro_monthly_gross_income(each_memb), 8, 18, 39
 				EMReadScreen stat_unea_three_prosp_monthly_gross_income(each_memb), 8, 18, 68
 
@@ -16442,6 +16470,10 @@ class stat_detail
 				stat_unea_four_inc_end_date(each_memb) = replace(stat_unea_four_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_four_inc_end_date(each_memb) = "__/__/__" Then stat_unea_four_inc_end_date(each_memb) = ""
 
+				If IsDate(stat_unea_four_inc_end_date(each_memb)) = True Then
+					If DateDiff("d", stat_unea_four_inc_end_date(each_memb), current_month) > 0 Then stat_unea_four_counted_for_snap(each_memb) = False
+				End If
+
 				EMReadScreen stat_unea_four_retro_monthly_gross_income(each_memb), 8, 18, 39
 				EMReadScreen stat_unea_four_prosp_monthly_gross_income(each_memb), 8, 18, 68
 
@@ -16540,6 +16572,10 @@ class stat_detail
 				stat_unea_five_inc_start_date(each_memb) = replace(stat_unea_five_inc_start_date(each_memb), " ", "/")
 				stat_unea_five_inc_end_date(each_memb) = replace(stat_unea_five_inc_end_date(each_memb), " ", "/")
 				iF stat_unea_five_inc_end_date(each_memb) = "__/__/__" Then stat_unea_five_inc_end_date(each_memb) = ""
+
+				If IsDate(stat_unea_five_inc_end_date(each_memb)) = True Then
+					If DateDiff("d", stat_unea_five_inc_end_date(each_memb), current_month) > 0 Then stat_unea_five_counted_for_snap(each_memb) = False
+				End If
 
 				EMReadScreen stat_unea_five_retro_monthly_gross_income(each_memb), 8, 18, 39
 				EMReadScreen stat_unea_five_prosp_monthly_gross_income(each_memb), 8, 18, 68
