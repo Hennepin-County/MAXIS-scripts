@@ -1820,17 +1820,27 @@ function define_emer_elig_dialog()
 		If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
 			GroupBox 5, 10, 425, 105, "Approval Detail for " & EMER_ELIG_APPROVAL.emer_program & " - ELIGIBLE"
 			y_pos = 40
-			Text 15, 25, 250, 10, "MONY/CHCK Issued for Emergency Assistance:"
-			For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
-				Text 20, y_pos, 400, 10, "$ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - EMER Program: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck)
-				y_pos = y_pos + 10
-				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then
-					Text 30, y_pos+5, 85, 10, "XCEL Account Number:"
-					EditBox 115, y_pos, 75, 15, emer_excel_account_number
-					y_pos = y_pos + 20
+			If EMER_ELIG_APPROVAL.mony_check_found = True Then
+				Text 15, 25, 250, 10, "MONY/CHCK Issued for Emergency Assistance:"
+				For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+					Text 20, y_pos, 400, 10, "$ " & EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - EMER Program: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck)
+					y_pos = y_pos + 10
+					If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then
+						Text 30, y_pos+5, 85, 10, "XCEL Account Number:"
+						EditBox 115, y_pos, 75, 15, emer_excel_account_number
+						y_pos = y_pos + 20
 
-				End If
-			Next
+					End If
+				Next
+			End If
+			If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then
+				Text 15, 25, 250, 10, "Amount issued for Emergency Assistance:"
+				Text 20, y_pos, 400, 10, "$ " & EMER_ELIG_APPROVAL.emer_elig_summ_need_other & " approved for " & EMER_ELIG_APPROVAL.elig_version_date & " for Bus Ticket - EMER Program: " & EMER_ELIG_APPROVAL.emer_program
+				y_pos = y_pos + 10
+				Text 30, y_pos+5, 65, 10, "Bus Ticket Detail:"
+				EditBox 95, y_pos, 325, 15, TEMP_bus_ticket_info
+				y_pos = y_pos + 20
+			End If
 			Text 15, 80, 250, 10, "Emergency Begin Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_begin_date & " - Emergency End Date: " & EMER_ELIG_APPROVAL.emer_elig_summ_end_date
 			Text 15, 90, 150, 10, "Household: Adults - " & EMER_ELIG_APPROVAL.emer_elig_summ_adults_in_unit & ", Children - " & EMER_ELIG_APPROVAL.emer_elig_summ_children_in_unit
 			If EMER_ELIG_APPROVAL.emer_elig_summ_last_used <> "" Then Text 15, 100, 150, 10, EMER_ELIG_APPROVAL.emer_program & " last used: " & EMER_ELIG_APPROVAL.emer_elig_summ_last_used
@@ -3916,12 +3926,20 @@ function emer_elig_case_note()
 
 
 	If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
-		Call write_variable_in_CASE_NOTE("============================= MONY/CHCK ISSUED ==============================")
-		For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
-			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") = 0 AND Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
-			If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number)
-			Call write_variable_in_CASE_NOTE("           for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - PROGRAM: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck))
-		Next
+		If EMER_ELIG_APPROVAL.mony_check_found = True Then
+			Call write_variable_in_CASE_NOTE("============================= MONY/CHCK ISSUED ==============================")
+			For each_chck = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
+				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") = 0 AND Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") = 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck))
+				If Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "XCEL") <> 0 OR Instr(EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck), "NSP") <> 0 Then Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_check_transaction_amount(each_chck)&"        ", 8) & " issued on " & EMER_ELIG_APPROVAL.emer_check_issue_date(each_chck) & " to " & EMER_ELIG_APPROVAL.emer_check_payment_to_name(each_chck) & " for " & emer_excel_account_number)
+				Call write_variable_in_CASE_NOTE("           for " & EMER_ELIG_APPROVAL.emer_check_payment_reason(each_chck) & " - PROGRAM: " & EMER_ELIG_APPROVAL.emer_check_program(each_chck))
+			Next
+		End If
+		If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then
+			' Call write_variable_in_CASE_NOTE("============================= MONY/CHCK ISSUED ==============================")
+			Call write_variable_in_CASE_NOTE("=========================== EMER AMOUNT ISSUED ==============================")
+			Call write_variable_in_CASE_NOTE("$ " & left(EMER_ELIG_APPROVAL.emer_elig_summ_need_other&"        ", 8) & " approved for " & EMER_ELIG_APPROVAL.elig_version_date & " for Bus Ticket(s).")
+			Call write_variable_in_CASE_NOTE("           Bus Ticket Detail: " & EMER_ELIG_APPROVAL.bus_ticket_detail)
+		End If
 
 		If emergecny_to_resolve_details = True OR affordability_details = True OR income_limit_details = True Then
 			Call write_variable_in_CASE_NOTE("============================= APPROVAL DETAILS ==============================")
@@ -10653,6 +10671,8 @@ class emer_eligibility_detail
 	public emer_fpg_limit
 	public emer_inelig_fpg_limit
 	public mony_check_found
+	public bus_ticket_approval
+	public bus_ticket_detail
 
 	public emer_check_issue_date()
 	public emer_check_program()
@@ -17882,11 +17902,18 @@ If numb_EMER_versions <> " " Then
 
 	EMER_ELIG_APPROVAL.read_elig
 
+	EMER_ELIG_APPROVAL.bus_ticket_approval = False
 	If EMER_ELIG_APPROVAL.approved_today = True then
 		enter_CNOTE_for_EMER = True
 		If EMER_ELIG_APPROVAL.mony_check_found = False and EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
-			enter_CNOTE_for_EMER = False
-			end_msg_info = end_msg_info & vbCr & EMER_ELIG_APPROVAL.emer_program & " Approval has not been reviewed as the approval appears incomplete." & vbCr & vbCr & "*** NO MONY/CHCKs ISSUED for " & EMER_ELIG_APPROVAL.emer_program & ". ***" & vbCr & "Complete all MONY/CHCKs for the emergency first and then run the script." & vbCr & vbCr & "This script gathers details about the emergency approvals from MONY Transactions and this helps to ensure that the MONY/CHCKs are created timely." & vbCr
+			If EMER_ELIG_APPROVAL.emer_elig_summ_need_other = EMER_ELIG_APPROVAL.emer_elig_summ_need_total Then
+				ask_if_bus_ticket = MsgBox("It appears that Emergency was approved and no MONY/CHCK was issued." &vbCr & vbCr &"The only amount that was approved was in the 'Other' need. This could be an approval for a Bus Ticket only, which does not require a MONY/CHCK to be completed." & vbCr & vbCr & "Is this EMER approval for a Bus Ticket?", vbQuestion + vbYesNo, "EMER Bus Ticket Approval")
+				If ask_if_bus_ticket = vbYes Then EMER_ELIG_APPROVAL.bus_ticket_approval = True
+			End If
+			If EMER_ELIG_APPROVAL.bus_ticket_approval = False Then
+				enter_CNOTE_for_EMER = False
+				end_msg_info = end_msg_info & vbCr & EMER_ELIG_APPROVAL.emer_program & " Approval has not been reviewed as the approval appears incomplete." & vbCr & vbCr & "*** NO MONY/CHCKs ISSUED for " & EMER_ELIG_APPROVAL.emer_program & ". ***" & vbCr & "Complete all MONY/CHCKs for the emergency first and then run the script." & vbCr & vbCr & "This script gathers details about the emergency approvals from MONY Transactions and this helps to ensure that the MONY/CHCKs are created timely." & vbCr
+			End If
 		End if
 	End If
 	' transactions = ""
@@ -20216,6 +20243,8 @@ If enter_CNOTE_for_EMER = True Then
 	emer_test_date_residency_starte = ""
 	emer_verif_reqquest_date = ""
 	emer_test_verif_detail = ""
+	TEMP_bus_ticket_info = EMER_ELIG_APPROVAL.bus_ticket_detail
+	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then emer_bus_checkbox = checked
 
 	Do
 		call define_emer_elig_dialog
@@ -20263,6 +20292,7 @@ If enter_CNOTE_for_EMER = True Then
 		' Next
 
 	Loop until confirm_emer_budget_selection <> "Indicate if the Budget is Accurate" and err_msg = ""
+	EMER_ELIG_APPROVAL.bus_ticket_detail = TEMP_bus_ticket_info
 
 	emergecny_to_resolve_details = False
 	affordability_details = False
