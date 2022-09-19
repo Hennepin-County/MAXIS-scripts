@@ -82,6 +82,7 @@ Do
 		Dialog Dialog1
 		cancel_confirmation
         Call validate_MAXIS_case_number(err_msg, "*")
+		IF IsNumeric(memb_number) = false or len(memb_number) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid two-digit member number."
         IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF ADH_option = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select an ADH action."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
