@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("10/23/2019", "New functionality added to the Vendor script to pull vendor information from MAXIS.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/21/2019", "Initial version.", "Casey Love, Hennepin County")
 
@@ -238,8 +239,8 @@ Do
             CancelButton 625, y_pos, 50, 15
         EndDialog
 
-        dialog Dialog1                  'showing the dialog
-        cancel_confirmation             'cancel the run
+		Dialog Dialog1   'showing the dialog
+		cancel_confirmation 'cancel the run
 
         If ButtonPressed = add_another_button Then      'This increases the large array and adds another line to the dialog for manual entry of vendor information if no number was listed
             err_msg = "LOOP" & err_msg                  'making sure the dialog reappears'\
@@ -253,6 +254,7 @@ Do
         Next
         If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg     'Showing the error message
     Loop until err_msg = ""
+   	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
     Call check_for_password(are_we_passworded_out)          'password handling
 Loop until are_we_passworded_out = False
 
