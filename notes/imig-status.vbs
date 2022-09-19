@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("08/31/2020", "Updated email information gathering and output functionality for additional stability.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/25/2020", "Added handling to ensure the member number is entered as a 2 digit number for readability.", "Casey Love, Hennepin County")
 call changelog_update("07/29/2020", "Updated coding to email HPImmigration and handling for when a client is reported as Lawfully Residing.", "MiKayla Handley, Hennepin County")
@@ -204,7 +205,6 @@ Do
 		IF LPR_status_dropdown = "27 Non-immigrant" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client was a Non-immigrant please specify status in other notes."
 		IF LPR_status_dropdown = "28 Undocumented" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client was Undocumented please specify status in other notes."
 		IF LPR_status_dropdown = "50 Other Lawfully Residing" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* You selected that the client was Lawfully Residing please specify status in other notes."
-
 		IF immig_status_dropdown = "22 Asylee" or immig_status_dropdown = "23 Deport/Remove Withheld" Then
 			If isdate(status_date) = FALSE then err_msg = err_msg & vbnewline & "* Status Date is required for persons with Asylee or Deportation/Removal Withheld statuses."
 		END IF
@@ -224,6 +224,7 @@ Do
 		IF yes_sponsored = CHECKED and sponsor_name = "" then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information."
 		IF yes_sponsored = CHECKED and not_sponsored = CHECKED then err_msg = err_msg & vbNewLine & "* You indicated a sponsor for this case please complete sponsor information and uncheck no."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
