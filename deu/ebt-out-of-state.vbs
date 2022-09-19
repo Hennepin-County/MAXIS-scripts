@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("02/22/2021", "Removed handling for other option.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/14/2021", "Updated handling for review case to update for overpayment at a later date.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/30/2018", "Initial version.", "MiKayla Handley, Hennepin County")
@@ -59,23 +60,26 @@ date_due = dateadd("d", 10, date)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 281, 85, "EBT OUT OF STATE "
-  EditBox 60, 5, 40, 15, maxis_case_number
-  EditBox 190, 5, 50, 15, bene_date
-  EditBox 60, 25, 40, 15, MEMB_number
-  EditBox 190, 25, 25, 15, out_of_state
-  DropListBox 60, 45, 65, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Inactive", case_status
-  DropListBox 190, 45, 85, 15, "Select One:"+chr(9)+"Initial review"+chr(9)+"Client responds to request"+chr(9)+"No response received", action_taken
+BeginDialog Dialog1, 0, 0, 291, 85, "EBT OUT OF STATE "
+  EditBox 65, 5, 40, 15, maxis_case_number
+  EditBox 200, 5, 50, 15, bene_date
+  EditBox 65, 25, 40, 15, MEMB_number
+  EditBox 200, 25, 50, 15, out_of_state
+  DropListBox 65, 45, 65, 15, "Select One:"+chr(9)+"Active"+chr(9)+"Inactive", case_status
+  DropListBox 200, 45, 85, 15, "Select One:"+chr(9)+"Initial review"+chr(9)+"Client responds to request"+chr(9)+"No response received", action_taken
+  EditBox 65, 65, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 170, 65, 50, 15
-    CancelButton 225, 65, 50, 15
-  Text 105, 10, 80, 10, "Date accessing benefits:"
-  Text 145, 50, 45, 10, "Action taken:"
+    OkButton 180, 65, 50, 15
+    CancelButton 235, 65, 50, 15
   Text 5, 10, 50, 10, "Case number:"
-  Text 15, 50, 45, 10, "Case status:"
-  Text 160, 30, 30, 10, "State(s):"
+  Text 115, 10, 80, 10, "Date accessing benefits:"
   Text 5, 30, 50, 10, "MEMB number:"
+  Text 170, 30, 30, 10, "State(s):"
+  Text 5, 50, 45, 10, "Case status:"
+  Text 155, 50, 45, 10, "Action taken:"
+  Text 5, 70, 60, 10, "Worker signature:"
 EndDialog
+
 
 DO
 	DO
@@ -85,6 +89,7 @@ DO
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF Isdate(bene_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the date the client was accessing the benefits."
 		If out_of_state = ""  then err_msg = err_msg & vbNewLine & "* Enter the state(s) that the client has used benefits in."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)
@@ -221,5 +226,6 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	END IF
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
+    CALL write_variable_in_CASE_NOTE(worker_signature)
 	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 script_end_procedure_with_error_report("EBT out of state case note complete.")
