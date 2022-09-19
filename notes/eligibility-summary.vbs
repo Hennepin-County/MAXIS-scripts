@@ -19929,9 +19929,10 @@ If enter_CNOTE_for_DENY = True Then
 				If CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				If CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 
-				If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
-				If CASH_DENIAL_APPROVALS(approval).deny_mfip_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
-				If CASH_DENIAL_APPROVALS(approval).deny_msa_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+				'QUESTION - Currently commented out. I believe that verifs are only listed on the Notice (WCOM) if the main reason for denial is Verirication
+				' If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+				' If CASH_DENIAL_APPROVALS(approval).deny_mfip_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+				' If CASH_DENIAL_APPROVALS(approval).deny_msa_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 
 				last_dwp_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code
 				last_mfip_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code
@@ -19967,9 +19968,10 @@ If enter_CNOTE_for_DENY = True Then
 					If CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 					If CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 
-					If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
-					If CASH_DENIAL_APPROVALS(approval).deny_mfip_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
-					If CASH_DENIAL_APPROVALS(approval).deny_msa_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+					'QUESTION - Currently commented out. I believe that verifs are only listed on the Notice (WCOM) if the main reason for denial is Verirication
+					' If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+					' If CASH_DENIAL_APPROVALS(approval).deny_mfip_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+					' If CASH_DENIAL_APPROVALS(approval).deny_msa_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 
 					last_dwp_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_dwp_reason_code
 					last_mfip_reason_code_result = CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_code
@@ -20000,21 +20002,22 @@ If enter_CNOTE_for_DENY = True Then
 		ei_count = 0
 		unea_count = 0
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-		  If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_two_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_three_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_four_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_five_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-
-		  If STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-
-		  If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
-		  If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  'QUESTION - Currently commented out. I believe that verifs are only listed on the Notice (WCOM) if the main reason for denial is Verirication
+		  ' If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_two_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_three_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_four_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_five_job_ended(each_memb) = False Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  '
+		  ' If STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  '
+		  ' If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
+		  ' If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb) = "" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True
 
 
 		  If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then ei_count = ei_count + 1
