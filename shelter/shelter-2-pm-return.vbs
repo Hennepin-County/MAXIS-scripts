@@ -67,8 +67,9 @@ BeginDialog Dialog1, 0, 0, 186, 105, " 2pm Return "
   Text 5, 10, 50, 10, "Case Number:"
   Text 5, 50, 65, 10, "Items Still Needed:"
   Text 5, 30, 40, 10, "Comments:"
-  Text 5, 75, 60, 10, "Worker signature:"
+  Text 5, 70, 60, 10, "Worker signature:"
 EndDialog
+
 DO
 	Do
         err_msg = ""
