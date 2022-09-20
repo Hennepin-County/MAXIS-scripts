@@ -37,6 +37,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("08/01/2017", "Initial version.", "MiKayla Handley, Hennepin County")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -44,31 +57,33 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 291, 230, "Bus Ticket Issuances"
-  EditBox 60, 5, 60, 15, MAXIS_case_number
+BeginDialog Dialog1, 0, 0, 291, 245, "Bus Ticket Issuances"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
   EditBox 225, 5, 50, 15, ticket_amount
   EditBox 120, 30, 155, 15, what_city
-  DropListBox 195, 55, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South"+chr(9)+"South Suburban"+chr(9)+"West", region_issued
+  DropListBox 195, 50, 80, 15, "Select one..."+chr(9)+"Central/NE"+chr(9)+"North"+chr(9)+"Northwest"+chr(9)+"South"+chr(9)+"South Suburban"+chr(9)+"West", region_issued
   EditBox 75, 90, 200, 15, staying_with_name
   EditBox 75, 110, 200, 15, staying_with_address
   EditBox 75, 130, 100, 15, staying_with_phone
   EditBox 180, 160, 60, 15, bag_lunches
   DropListBox 180, 180, 60, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", HSM_authorized
-  EditBox 50, 205, 125, 15, other_notes
+  EditBox 70, 205, 215, 15, other_notes
+  EditBox 70, 225, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 180, 205, 50, 15
-    CancelButton 235, 205, 50, 15
-  Text 10, 55, 180, 10, "Regional Accountiung Office Where Ticket Was  Issued:"
-  Text 45, 95, 25, 10, "Name:"
-  Text 10, 35, 105, 10, "Bus ticket destination City/State:"
-  Text 35, 115, 35, 10, "Address:"
-  Text 45, 185, 125, 10, "EA/ACF Issuance authorized by HSM:"
-  Text 15, 135, 50, 10, "Phone Number:"
-  GroupBox 5, 75, 280, 80, "Client will be staying with:"
-  Text 5, 165, 170, 10, "Number of Bag Lunches Issued for pick up at PSP:"
-  Text 5, 210, 40, 10, "Other notes:"
+    OkButton 180, 225, 50, 15
+    CancelButton 235, 225, 50, 15
+  Text 5, 10, 50, 10, "Case Number:"
   Text 155, 10, 70, 10, "Bus Ticket Amount: $"
-  Text 10, 10, 45, 10, "Case number:"
+  Text 10, 35, 105, 10, "Bus ticket destination City/State:"
+  Text 10, 55, 180, 10, "Regional Accountiung Office Where Ticket Was  Issued:"
+  GroupBox 5, 75, 280, 80, "Client will be staying with:"
+  Text 45, 95, 25, 10, "Name:"
+  Text 35, 115, 35, 10, "Address:"
+  Text 15, 135, 50, 10, "Phone Number:"
+  Text 5, 165, 170, 10, "Number of Bag Lunches Issued for pick up at PSP:"
+  Text 45, 185, 125, 10, "EA/ACF Issuance authorized by HSM:"
+  Text 5, 210, 50, 10, "Other Notes:"
+  Text 5, 230, 60, 10, "Worker Signature:"
 EndDialog
 
 DO
@@ -85,6 +100,7 @@ DO
 		If staying_with_phone = "" then err_msg = err_msg & vbNewLine & "* Enter the phone number of the person the client will be staying with."
 		If bag_lunches = "" then err_msg = err_msg & vbNewLine & "* Enter the number of bag lunches issued to the client."
 		If HSM_authorized = "Select one..." then err_msg = err_msg & vbNewLine & "* Was EA/ACF approved by HSM?"
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
