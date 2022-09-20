@@ -161,23 +161,24 @@ IF ADH_option = "ADH waiver signed" THEN
 
 'The 1st case note-------------------------------------------------------------------------------------------------
  	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
-	 CALL write_variable_in_case_note("-----1st Fraud DISQ/Claims (" & memb_name & ") ADH Waiver Signed-----")
-	 CALL write_variable_in_case_note("Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance. This disqualification is not for any other household member and does not affect MA eligibility.")
-	 CALL write_variable_in_case_note("* Programs: " & program_droplist)
-	 CALL write_variable_in_case_note("* Period of Offense: " & start_date & " - " & end_date)
-	 CALL write_variable_in_case_note("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & " - "  & DISQ_end_date & ".")
-	 IF program_droplist <> "SNAP"  THEN CALL write_variable_in_case_note("* Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
-	 IF fraud_claim_number <> "" THEN
-		 CALL write_variable_in_case_note("----- ----- -----")
-		 CALL write_bullet_and_variable_in_case_note("Fraud claim number", fraud_claim_number)
-		 CALL write_bullet_and_variable_in_case_note("Fraud Investigator", Fraud_investigator)
-	 END IF
-	 CALL write_variable_in_case_note("* Email sent to team: L. Bloomquist, and TTL")
-     CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-	 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
- 	 CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-	 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	 CALL create_outlook_email("Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Waiver Signed for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance." & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
+	CALL write_variable_in_case_note("-----1st Fraud DISQ/Claims (" & memb_name & ") ADH Waiver Signed-----")
+	CALL write_variable_in_case_note("Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance. This disqualification is not for any other household member and does not affect MA eligibility.")
+	CALL write_variable_in_case_note("* Programs: " & program_droplist)
+	CALL write_variable_in_case_note("* Period of Offense: " & start_date & " - " & end_date)
+	CALL write_variable_in_case_note("* Client is subject to a " & months_disq & " month DISQ from " & DISQ_begin_date & " - "  & DISQ_end_date & ".")
+	IF program_droplist <> "SNAP"  THEN CALL write_variable_in_case_note("* Because member " & memb_number & " is DQ'd from MFIP, client is also barred from FS for that same period of time.")
+	IF fraud_claim_number <> "" THEN
+	 CALL write_variable_in_case_note("----- ----- -----")
+	 CALL write_bullet_and_variable_in_case_note("Fraud claim number", fraud_claim_number)
+	 CALL write_bullet_and_variable_in_case_note("Fraud Investigator", Fraud_investigator)
+	END IF
+	CALL write_variable_in_case_note("* Email sent to team: L. Bloomquist, and TTL")
+    CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
+	CALL write_variable_in_case_note("----- ----- ----- ----- -----")
+    CALL write_variable_in_CASE_NOTE(worker_signature)
+ 	CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+	CALL create_outlook_email("Lea.Bloomquist@hennepin.us", "HSPH.ES.TEAM.TTL@hennepin.us;" & fraud_email, "1st Fraud DISQ/Claims--ADH Waiver Signed for #" &  MAXIS_case_number, "Member #: " & memb_number & vbcr & "Client signed ADH waiver on: " & date_waiver_signed & " waiving his/her right to an Administrative Disqualification Hearing for wrongfully obtaining public assistance." & vbcr & "Programs: " & program_droplist & vbcr & "Period of Offense: " & start_date & " - " & end_date & vbcr & "See case notes for further details.", "", False)
 END IF
 
 IF ADH_option = "Hearing Held" THEN

@@ -911,6 +911,7 @@ IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
 END IF
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_case_note(worker_signature)
 CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'to save casenote'
 

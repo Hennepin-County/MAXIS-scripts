@@ -433,6 +433,7 @@ CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_case_note(worker_signature)
 CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'to save casenote'
 
@@ -498,6 +499,7 @@ CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note("* DHS 2776E - Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CCOL_note("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_CCOL_note(worker_signature)
 CALL write_variable_in_CCOL_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3'
 

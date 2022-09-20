@@ -459,6 +459,7 @@ Call write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_re
 Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 Call write_bullet_and_variable_in_case_note("Reason for overpayment", overpayment_reason)
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_CASE_NOTE(worker_signature)
 CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'have to PF3 because more steps are taken'
 'gathering the case note for the email'
