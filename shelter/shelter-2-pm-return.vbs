@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -55,25 +56,31 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 186, 85, " 2pm Return "
-  EditBox 70, 5, 65, 15, maxis_case_number
+BeginDialog Dialog1, 0, 0, 186, 105, " 2pm Return "
+  EditBox 70, 5, 50, 15, maxis_case_number
   EditBox 70, 25, 110, 15, Comments_notes
   EditBox 70, 45, 110, 15, items_still_needed
+  EditBox 70, 65, 110, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 75, 65, 50, 15
-    CancelButton 130, 65, 50, 15
-  Text 30, 30, 40, 10, "Comments:"
-  Text 20, 10, 50, 10, "Case Number:"
+    OkButton 70, 85, 50, 15
+    CancelButton 130, 85, 50, 15
+  Text 5, 10, 50, 10, "Case Number:"
   Text 5, 50, 65, 10, "Items Still Needed:"
+  Text 5, 30, 40, 10, "Comments:"
+  Text 5, 75, 60, 10, "Worker signature:"
 EndDialog
 DO
 	Do
+        err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS case number."
-	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+		Call validate_MAXIS_case_number(err_msg, "*")
+        If worker_signature = "" then err_msg = err_msg & vbnewline & "* Enter your signature."
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+	Loop until err_msg = ""
+    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
+
 back_to_SELF
 EMWriteScreen "________", 18, 43
 EMWriteScreen case_number, 18, 43
