@@ -37,7 +37,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -47,33 +58,34 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 review_date = date & ""
 
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 301, 245, "311"
-  EditBox 85, 10, 55, 15, MAXIS_case_number
-  EditBox 235, 10, 55, 15, review_date
-  DropListBox 195, 30, 95, 15, "Select one..."+chr(9)+"Called 311"+chr(9)+"Called city"+chr(9)+"Checked website", property_reviewed
-  EditBox 85, 50, 205, 15, property_address
-  EditBox 85, 75, 205, 15, open_work_orders
-  EditBox 85, 100, 205, 15, rental_license
-  EditBox 85, 125, 205, 15, rep_name
-  EditBox 85, 150, 205, 15, violations
-  DropListBox 85, 175, 90, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Inspection pending", passed_inspection
+  EditBox 55, 5, 55, 15, MAXIS_case_number
+  EditBox 235, 5, 55, 15, review_date
+  DropListBox 195, 25, 95, 15, "Select one..."+chr(9)+"Called 311"+chr(9)+"Called city"+chr(9)+"Checked website", property_reviewed
+  EditBox 80, 50, 205, 15, property_address
+  EditBox 80, 75, 205, 15, open_work_orders
+  EditBox 80, 95, 205, 15, rental_license
+  EditBox 80, 125, 205, 15, rep_name
+  EditBox 80, 150, 205, 15, violations
+  DropListBox 80, 175, 90, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Inspection pending", passed_inspection
   EditBox 225, 175, 65, 15, vendor_number
-  EditBox 85, 200, 205, 15, other_notes
+  EditBox 80, 200, 205, 15, other_notes
+  EditBox 80, 225, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 185, 225, 50, 15
+    OkButton 190, 225, 50, 15
     CancelButton 240, 225, 50, 15
-  Text 10, 105, 75, 10, "Current rental license:"
-  Text 15, 180, 70, 10, "Passed inspection?:"
-  Text 150, 15, 80, 10, "Date of property review:"
-  Text 20, 55, 60, 10, "Property address:"
-  Text 35, 205, 45, 10, "Other notes: "
-  Text 10, 130, 75, 10, "Representative name:"
-  Text 45, 155, 35, 10, "Violations:"
-  Text 35, 15, 45, 10, "Case number:"
-  Text 35, 35, 145, 10, "What was the source of the property review:"
+  Text 5, 105, 75, 10, "Current rental license:"
+  Text 5, 180, 70, 10, "Passed inspection?:"
+  Text 150, 10, 80, 10, "Date of property review:"
+  Text 5, 55, 60, 10, "Property address:"
+  Text 5, 205, 45, 10, "Other notes: "
+  Text 5, 130, 75, 10, "Representative name:"
+  Text 5, 155, 35, 10, "Violations:"
+  Text 5, 10, 45, 10, "Case number:"
+  Text 5, 30, 145, 10, "What was the source of the property review:"
   Text 190, 180, 35, 10, "Vendor #:"
-  Text 20, 80, 60, 10, "Open work orders:"
+  Text 5, 80, 60, 10, "Open work orders:"
+  Text 5, 230, 60, 10, "Worker Signature:"
 EndDialog
 
 'Running the initial dialog
@@ -92,6 +104,7 @@ DO
 		If violations = "" then err_msg = err_msg & vbNewLine & "* Enter the household's net income."
 		If passed_inspection = "Select one..." then err_msg = err_msg & vbNewLine & "* Has the property passed the inspection?"
 		If vendor_number = "" then err_msg = err_msg & vbNewLine & "* Enter the property's vendor #."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
