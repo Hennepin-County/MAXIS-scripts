@@ -49,6 +49,11 @@ call changelog_update("06/20/2017", "Initial version.", "MiKayla Handley")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+'--------------------------------------------------------------------------------------------------THE SCRIPT
+
+EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number)
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 246, 135, "Shelter Refund"
@@ -71,11 +76,6 @@ BeginDialog Dialog1, 0, 0, 246, 135, "Shelter Refund"
     CancelButton 190, 115, 50, 15
   Text 20, 100, 60, 10, "Worker Signature:"
 EndDialog
-
-'--------------------------------------------------------------------------------------------------THE SCRIPT
-
-EMConnect ""
-CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 'updates the "when contact was made" variable to show the current date & time
 when_contact_was_made = date & ""
