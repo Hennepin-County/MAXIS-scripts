@@ -44,7 +44,6 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("07/30/2019", "Updated to include 'VerifyMN INTERFACE' as ID proof option.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -119,7 +118,6 @@ Do
       Else
 		can_move_on = True
 	End if
-	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 	If can_move_on = False then MsgBox "You must select a cit and ID proof for each client whose name you've typed."
 Loop until can_move_on = True
 
