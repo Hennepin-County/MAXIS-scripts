@@ -62,6 +62,7 @@ BeginDialog Dialog1, 0, 0, 171, 125, "Personal Needs for " & CM_plus_1_mo & "/" 
   EditBox 65, 25, 40, 15, amt_issued
   DropListBox 65, 45, 100, 15, "Select One:"+chr(9)+"CS"+chr(9)+"DWP"+chr(9)+"Earned Income"+chr(9)+"MFIP"+chr(9)+"Per Capita"+chr(9)+"RSDI"+chr(9)+"SSI"+chr(9)+"Other(please explain)", income_source
   EditBox 65, 65, 100, 15, other_notes
+  EditBox 65, 85, 100, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 65, 105, 50, 15
     CancelButton 115, 105, 50, 15
@@ -71,7 +72,6 @@ BeginDialog Dialog1, 0, 0, 171, 125, "Personal Needs for " & CM_plus_1_mo & "/" 
   Text 5, 50, 50, 10, "Income Source: "
   Text 5, 10, 50, 10, "Case Number: "
   Text 5, 90, 60, 10, "Worker signature:"
-  EditBox 65, 85, 100, 15, worker_signature
 EndDialog
 
 'Running the initial dialog
