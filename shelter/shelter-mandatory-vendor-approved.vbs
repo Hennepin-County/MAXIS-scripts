@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("03/01/2020", "Updated TIKL functionality and updated functionality to create SPEC/MEMO.", "Ilse Ferris")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC/MEMO. Updated script to support change.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/01/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -58,20 +59,22 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 306, 125, "Mandatory vendors approved"
-  EditBox 60, 10, 55, 15, MAXIS_case_number
-  DropListBox 215, 10, 85, 15, "Select one..."+chr(9)+"Using ACF"+chr(9)+"Using County shelters", vendor_reason
-  CheckBox 20, 35, 280, 10, "Referred client to Luther Social Services for budgeting classes at 1 (888) 577-2227.", client_referred
-  EditBox 55, 105, 135, 15, other_notes
-  CheckBox 20, 70, 140, 10, "Send mandatory vendor MEMO to client.", send_MEMO_checkbox
-  CheckBox 20, 85, 215, 10, "Set TIKL for 11 months to re-evaluate mandatory vendor status.", Set_TIKL
+BeginDialog Dialog1, 0, 0, 296, 120, "Mandatory vendors approved"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  DropListBox 205, 5, 85, 15, "Select one..."+chr(9)+"Using ACF"+chr(9)+"Using County shelters", vendor_reason
+  CheckBox 10, 25, 280, 10, "Referred to Luther Social Services for budgeting classes at 1 (888) 577-2227.", client_referred
+  CheckBox 10, 50, 140, 10, "Send mandatory vendor MEMO to client.", send_MEMO_checkbox
+  CheckBox 10, 60, 215, 10, "Set TIKL for 11 months to re-evaluate mandatory vendor status.", Set_TIKL
+  EditBox 55, 80, 135, 15, other_notes
+  EditBox 65, 100, 125, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 195, 105, 50, 15
-    CancelButton 250, 105, 50, 15
-  Text 10, 15, 45, 10, "Case number:"
-  Text 10, 110, 40, 10, "Other notes: "
-  Text 125, 15, 90, 10, "Mandatory vendor reason:"
-  GroupBox 5, 55, 295, 45, "Actions:"
+    OkButton 190, 100, 50, 15
+    CancelButton 240, 100, 50, 15
+  Text 5, 85, 40, 10, "Other notes: "
+  Text 115, 10, 90, 10, "Mandatory vendor reason:"
+  GroupBox 5, 40, 285, 35, "Actions:"
+  Text 5, 105, 60, 10, "Worker signature:"
+  Text 5, 10, 45, 10, "Case number:"
 EndDialog
 
 'Running the initial dialog
@@ -82,6 +85,7 @@ DO
         cancel_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF vendor_reason = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a vendor reason."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
@@ -89,7 +93,6 @@ LOOP UNTIL check_for_password(are_we_passworded_out) = False
 
 IF send_MEMO_checkbox = 1 then
     Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)	'navigates to spec/memo and opens into edit mode
-	
 	Call write_variable_in_SPEC_MEMO("************************************************************")
 	Call write_variable_in_SPEC_MEMO("Call 1 (888) 577-2227 to get more information or enroll. You will be placed on mandatory vendor because you have used shelter or have requested assistance for housing issues.")
 	Call write_variable_in_SPEC_MEMO(" ")
