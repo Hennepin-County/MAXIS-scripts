@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("06/18/2018", "Updated requested HH comp information.", "MiKayla Handley, Hennepin County")
 call changelog_update("03/27/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -55,28 +56,29 @@ changelog_display
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 296, 105, "EA Approved"
-  EditBox 60, 5, 55, 15, MAXIS_case_number
-  EditBox 155, 5, 20, 15, numb_adults
-  EditBox 220, 5, 20, 15, numb_child
-  DropListBox 60, 25, 55, 15, "Select One:"+chr(9)+"1st"+chr(9)+"2nd", approval_number
-  EditBox 190, 25, 100, 15, approval_dates
-  DropListBox 60, 45, 85, 15, "Select One:"+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
-  EditBox 60, 65, 230, 15, other_notes
-  CheckBox 10, 90, 140, 10, "Send mandatory vendor MEMO to client.", send_MEMO_checkbox
+  EditBox 65, 5, 50, 15, MAXIS_case_number
+  EditBox 205, 5, 20, 15, numb_adults
+  EditBox 270, 5, 20, 15, numb_child
+  DropListBox 65, 25, 50, 15, "Select One:"+chr(9)+"1st"+chr(9)+"2nd", approval_number
+  EditBox 235, 25, 55, 15, approval_dates
+  DropListBox 65, 45, 85, 15, "Select One:"+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
+  CheckBox 170, 45, 115, 10, "Send mandatory vendor MEMO.", send_MEMO_checkbox
+  EditBox 65, 65, 225, 15, other_notes
+  EditBox 65, 85, 100, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 185, 85, 50, 15
     CancelButton 240, 85, 50, 15
-  Text 10, 50, 50, 10, "Shelter Name:"
-  Text 125, 30, 65, 10, "EA Approval Dates:"
-  Text 10, 30, 40, 10, "Approval #:"
-  Text 10, 10, 50, 10, "Case Number:"
-  Text 180, 10, 35, 10, "# Children:"
-  Text 10, 70, 45, 10, "Other Notes: "
-  Text 125, 10, 30, 10, "# Adults:"
+  Text 170, 30, 65, 10, "EA Approval Dates:"
+  Text 5, 30, 40, 10, "Approval #:"
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 230, 10, 35, 10, "# Children:"
+  Text 5, 70, 45, 10, "Other Notes: "
+  Text 175, 10, 30, 10, "# Adults:"
+  Text 5, 90, 60, 10, "Worker signature:"
+  Text 5, 50, 50, 10, "Shelter Name:"
 EndDialog
 
 'Running the initial dialog
@@ -91,6 +93,7 @@ DO
 		IF numb_child = "" then err_msg = err_msg & vbNewLine & "* Please enter the number of children."
 		IF numb_adults = "" then err_msg = err_msg & vbNewLine & "* Please enter the number of adults."
 		If shelter_droplist = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select the name of the shelter."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
