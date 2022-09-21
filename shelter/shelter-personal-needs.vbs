@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("10/31/2019", "Updated script as the footer month and year were having issues populating correctly. The script will now use current month plus one to determine footer month and year for the dialog title and case note.", "Casey Love, Hennepin County")
 CALL changelog_update("07/29/2019", "Updated script per request. Removed ELIG vs INELIG and updated case note.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("11/14/2017", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -53,23 +54,24 @@ changelog_display
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
-' Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 156, 105, "Personal Needs for " & CM_plus_1_mo & "/" & CM_plus_1_yr
-  EditBox 60, 5, 40, 15, MAXIS_case_number
-  EditBox 135, 5, 15, 15, HH_size
-  EditBox 60, 25, 40, 15, amt_issued
-  DropListBox 60, 45, 90, 15, "Select One:"+chr(9)+"CS"+chr(9)+"DWP"+chr(9)+"Earned Income"+chr(9)+"MFIP"+chr(9)+"Per Capita"+chr(9)+"RSDI"+chr(9)+"SSI"+chr(9)+"Other(please explain)", income_source
-  EditBox 60, 65, 90, 15, other_notes
+BeginDialog Dialog1, 0, 0, 171, 125, "Personal Needs for " & CM_plus_1_mo & "/" & CM_plus_1_yr
+  EditBox 65, 5, 40, 15, MAXIS_case_number
+  EditBox 150, 5, 15, 15, HH_size
+  EditBox 65, 25, 40, 15, amt_issued
+  DropListBox 65, 45, 100, 15, "Select One:"+chr(9)+"CS"+chr(9)+"DWP"+chr(9)+"Earned Income"+chr(9)+"MFIP"+chr(9)+"Per Capita"+chr(9)+"RSDI"+chr(9)+"SSI"+chr(9)+"Other(please explain)", income_source
+  EditBox 65, 65, 100, 15, other_notes
   ButtonGroup ButtonPressed
-    OkButton 70, 85, 40, 15
-    CancelButton 115, 85, 35, 15
+    OkButton 65, 105, 50, 15
+    CancelButton 115, 105, 50, 15
   Text 5, 30, 55, 10, "Amount Eligible: "
-  Text 15, 70, 45, 10, "Other Notes: "
-  Text 105, 10, 30, 10, "HH Size: "
+  Text 5, 70, 45, 10, "Other Notes: "
+  Text 120, 10, 30, 10, "HH Size: "
   Text 5, 50, 50, 10, "Income Source: "
   Text 5, 10, 50, 10, "Case Number: "
+  Text 5, 90, 60, 10, "Worker signature:"
+  EditBox 65, 85, 100, 15, worker_signature
 EndDialog
 
 'Running the initial dialog
@@ -85,6 +87,7 @@ DO
 		IF income_source = "Other" Then
 			If other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please complete the other notes section to explain the income source."
 		END IF
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
