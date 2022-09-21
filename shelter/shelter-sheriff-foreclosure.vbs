@@ -37,6 +37,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -46,27 +57,30 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 date_checked = date & ""
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 286, 175, "Sheriff forclosure"
-  EditBox 55, 10, 55, 15, MAXIS_case_number
-  EditBox 210, 10, 70, 15, date_checked
-  EditBox 70, 35, 210, 15, property_address
-  EditBox 60, 60, 100, 15, owner_name
-  EditBox 225, 60, 55, 15, foreclosure_date
-  EditBox 70, 85, 100, 15, occupant_name
-  EditBox 95, 110, 185, 15, occupants_whereabouts
-  EditBox 50, 135, 230, 15, other_notes
+BeginDialog Dialog1, 0, 0, 286, 145, "Sheriff forclosure"
+  EditBox 55, 5, 55, 15, MAXIS_case_number
+  EditBox 230, 5, 45, 15, date_checked
+  EditBox 70, 25, 210, 15, property_address
+  EditBox 70, 45, 100, 15, owner_name
+  EditBox 235, 45, 45, 15, foreclosure_date
+  EditBox 70, 65, 100, 15, occupant_name
+  EditBox 95, 85, 185, 15, occupants_whereabouts
+  EditBox 50, 105, 230, 15, other_notes
+  EditBox 70, 125, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 175, 155, 50, 15
-    CancelButton 230, 155, 50, 15
-  Text 5, 65, 55, 10, "Owner(s) name:"
-  Text 5, 90, 60, 10, "Occupant(s) name:"
-  Text 125, 15, 80, 10, "Date of property review:"
-  Text 5, 40, 60, 10, "Property address:"
-  Text 5, 140, 40, 10, "Other notes: "
-  Text 170, 65, 55, 10, "Forclosure date:"
-  Text 5, 115, 85, 10, "Occupant(s) whereabouts:"
-  Text 5, 15, 45, 10, "Case number:"
+    OkButton 180, 125, 50, 15
+    CancelButton 230, 125, 50, 15
+  Text 5, 50, 55, 10, "Owner(s) name:"
+  Text 5, 70, 60, 10, "Occupant(s) name:"
+  Text 120, 10, 80, 10, "Date of property review:"
+  Text 5, 30, 60, 10, "Property address:"
+  Text 5, 110, 40, 10, "Other notes: "
+  Text 175, 50, 55, 10, "Forclosure date:"
+  Text 5, 90, 85, 10, "Occupant(s) whereabouts:"
+  Text 5, 10, 45, 10, "Case number:"
+  Text 5, 130, 60, 10, "Worker Signature:"
 EndDialog
+
 'commented out the foreclosure_date test at reqwust of hennepin shelter Team'
 DO
 	DO
@@ -77,9 +91,9 @@ DO
 		If IsDate(date_checked) = False then err_msg = err_msg & vbNewLine & "* Enter the property review date."
 		If property_address = "" then err_msg = err_msg & vbNewLine & "* Enter the property address."
 		If owner_name = "" then err_msg = err_msg & vbNewLine & "* Enter the property owner's name."
-		'If IsDate(foreclosure_date) = False then err_msg = err_msg & vbNewLine & "* Enter the property's forclosure date."
 		If occupant_name = "" then err_msg = err_msg & vbNewLine & "* Enter the occupant's name."
 		If occupants_whereabouts = "" then err_msg = err_msg & vbNewLine & "* Enter the occupant's current whereabouts."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
