@@ -37,6 +37,19 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+''CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("09/23/2017", "Initial version.", "MiKayla Handley, Hennepin County")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
+
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -45,37 +58,38 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 'Running the initial dialog
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-
-BeginDialog Dialog1, 0, 0, 301, 245, "Client Sheltered Window A"
-  DropListBox 200, 5, 90, 15, "Select one..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
-  EditBox 75, 25, 65, 15, voucher_date
-  EditBox 260, 25, 30, 15, nights_housed
-  EditBox 110, 45, 30, 15, adults_vouchered
-  EditBox 260, 45, 30, 15, children_vouchered
-  CheckBox 10, 65, 130, 10, "Check here if any adults are pregnant", PX_check
-  EditBox 110, 80, 180, 15, reason_for_homelessness
-  EditBox 60, 115, 230, 15, name_of_person_verifying
-  EditBox 60, 135, 230, 15, relationship
-  EditBox 60, 155, 230, 15, phone_number
-  CheckBox 15, 180, 280, 10, "Informed client that they will need to see Rapid ReHousing Screener first, then see ", informed_client_checkbox
-  EditBox 70, 205, 220, 15, other_notes
+BeginDialog Dialog1, 0, 0, 271, 220, "Client Sheltered"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  DropListBox 170, 5, 90, 15, "Select one..."+chr(9)+"FMF"+chr(9)+"PSP"+chr(9)+"St. Anne's"+chr(9)+"The Drake", shelter_droplist
+  EditBox 80, 25, 45, 15, voucher_date
+  EditBox 240, 25, 20, 15, nights_housed
+  EditBox 105, 45, 20, 15, adults_vouchered
+  EditBox 240, 45, 20, 15, children_vouchered
+  CheckBox 5, 65, 130, 10, "Check here if any adults are pregnant", PX_check
+  EditBox 105, 80, 155, 15, reason_for_homelessness
+  EditBox 55, 115, 205, 15, name_of_person_verifying
+  EditBox 55, 135, 95, 15, relationship
+  EditBox 210, 135, 50, 15, phone_number
+  Text 5, 205, 60, 10, "Worker signature:"
+  EditBox 55, 180, 210, 15, other_notes
+  EditBox 65, 200, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 185, 225, 50, 15
-    CancelButton 240, 225, 50, 15
-  Text 35, 120, 25, 10, "Name:"
-  Text 15, 140, 45, 10, "Relationship:"
-  Text 10, 160, 50, 10, "Phone Number:"
-  Text 25, 210, 40, 10, "Other notes:"
-  Text 10, 50, 100, 10, "Number of Aduilts vouchered:"
-  Text 195, 30, 60, 10, "How many nights?"
-  Text 155, 50, 105, 10, "Number of Children vouchered:"
-  GroupBox 5, 100, 290, 75, "Homelessness verified by contacting:"
-  Text 15, 85, 90, 10, "Reason for homelessness:"
-  Text 25, 190, 150, 10, "the Shelter team for interview and revoucher."
-  Text 150, 10, 45, 10, "Shelter name:"
-  Text 25, 10, 45, 10, "Case number:"
-  EditBox 75, 5, 65, 15, MAXIS_case_number
+    OkButton 175, 200, 45, 15
+    CancelButton 220, 200, 45, 15
+  Text 5, 10, 45, 10, "Case number:"
+  Text 120, 10, 45, 10, "Shelter name:"
   Text 5, 30, 70, 10, "Shelter voucher date:"
+  Text 175, 30, 60, 10, "Number of nights:"
+  Text 5, 50, 95, 10, "Number of adults vouchered:"
+  Text 135, 50, 105, 10, "Number of Children vouchered:"
+  Text 5, 85, 90, 10, "Reason for homelessness:"
+  GroupBox 5, 100, 260, 55, "Homelessness verified by contacting:"
+  Text 10, 120, 25, 10, "Name:"
+  Text 10, 140, 45, 10, "Relationship:"
+  Text 155, 140, 50, 10, "Phone number:"
+  CheckBox 10, 160, 250, 10, "Informed client that they will need to see Rapid ReHousing Screener first,", informed_client_checkbox
+  Text 20, 170, 185, 10, "then see the Shelter team for interview and revoucher."
+  Text 5, 185, 40, 10, "Other notes:"
 EndDialog
 
 DO
@@ -93,6 +107,7 @@ DO
 		If name_of_person_verifying = "" then err_msg = err_msg & vbNewLine & "* Enter the name of the person who verified client's homelessness"
 		If relationship = "" then err_msg = err_msg & vbNewLine & "* Enter the relationship to the client of the person who verified client's homelessness"
 		If phone_number = "" then err_msg = err_msg & vbNewLine & "* Enter the phone number of the person who verified client's homelessness"
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
