@@ -37,77 +37,87 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
-
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 416, 330, "Permanent Housing Found"
-  EditBox 120, 10, 55, 15, MAXIS_case_number
-  EditBox 225, 10, 55, 15, move_date
-  EditBox 350, 10, 55, 15, monthly_rent
-  EditBox 120, 35, 55, 15, vendored_to_HCEA
-  EditBox 225, 35, 55, 15, shelter_cost
-  EditBox 360, 35, 45, 15, num_nights
-  EditBox 100, 95, 55, 15, rent_needed
-  EditBox 100, 115, 55, 15, DD_needed
-  EditBox 235, 70, 55, 15, balance_HCEA_acct
-  EditBox 235, 90, 55, 15, client_funds
-  EditBox 235, 110, 55, 15, rent_subsidy_paid
-  EditBox 235, 130, 55, 15, vendor_to_LL
-  EditBox 180, 150, 135, 15, additional_funds
-  EditBox 350, 70, 55, 15, other_partners
-  EditBox 350, 90, 55, 15, earned_income
-  EditBox 350, 110, 55, 15, rent_subsidy
-  EditBox 350, 130, 55, 15, MFIP_DWP_income
-  EditBox 350, 150, 55, 15, UNEA_income
-  EditBox 75, 185, 145, 15, LL_name
-  EditBox 60, 205, 200, 15, LL_ADDR
-  EditBox 130, 225, 130, 15, ESP
-  EditBox 130, 245, 130, 15, REW
-  EditBox 130, 265, 80, 15, closed_servicepoint
-  EditBox 350, 185, 55, 15, mand_vend_date
-  EditBox 350, 205, 55, 15, client_phone
-  EditBox 350, 225, 55, 15, client_work_phone
-  EditBox 350, 245, 55, 15, TANF_months
-  EditBox 350, 265, 55, 15, num_days_shelter
-  EditBox 130, 285, 275, 15, other_notes
+BeginDialog Dialog1, 0, 0, 416, 310, "Permanent Housing Found"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 160, 5, 40, 15, move_date
+  EditBox 255, 5, 40, 15, monthly_rent
+  EditBox 160, 25, 40, 15, vendored_to_HCEA
+  EditBox 255, 25, 40, 15, shelter_cost
+  EditBox 370, 25, 20, 15, num_nights
+  EditBox 100, 75, 40, 15, rent_needed
+  EditBox 100, 95, 40, 15, DD_needed
+  EditBox 215, 55, 40, 15, balance_HCEA_acct
+  EditBox 225, 75, 40, 15, client_funds
+  EditBox 225, 95, 40, 15, rent_subsidy_paid
+  EditBox 185, 115, 40, 15, vendor_to_LL
+  EditBox 185, 135, 40, 15, additional_funds
+  EditBox 350, 55, 40, 15, other_partners
+  EditBox 350, 75, 40, 15, earned_income
+  EditBox 350, 95, 40, 15, rent_subsidy
+  EditBox 350, 115, 40, 15, MFIP_DWP_income
+  EditBox 350, 135, 40, 15, UNEA_income
+  EditBox 75, 165, 145, 15, LL_name
+  EditBox 75, 185, 145, 15, LL_ADDR
+  EditBox 120, 205, 100, 15, ESP
+  EditBox 120, 225, 130, 15, REW
+  EditBox 120, 245, 80, 15, closed_servicepoint
+  EditBox 350, 165, 50, 15, mand_vend_date
+  EditBox 350, 185, 50, 15, client_phone
+  EditBox 350, 205, 50, 15, client_work_phone
+  EditBox 350, 225, 50, 15, TANF_months
+  EditBox 350, 245, 50, 15, num_days_shelter
+  EditBox 120, 265, 280, 15, other_notes
+  EditBox 120, 285, 165, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 300, 310, 50, 15
-    CancelButton 355, 310, 50, 15
-  Text 285, 40, 70, 10, "for number of nights:"
-  Text 285, 250, 65, 10, "TANF months used:"
-  Text 300, 230, 45, 10, "Client work #:"
-  Text 15, 95, 80, 10, "Rent needed to move in:"
-  Text 180, 15, 45, 10, "Move in date:"
-  Text 10, 115, 90, 10, "DD amt needed to move in:"
-  Text 160, 95, 75, 10, "Client funds available:"
-  Text 80, 290, 45, 10, "Other notes: "
-  Text 160, 115, 75, 10, "Rent subsidy paid by:"
-  Text 70, 15, 45, 10, "Case number:"
-  Text 65, 135, 170, 10, "Balance in HCEA Shelter acct to be vendored to LL:"
-  Text 305, 15, 45, 10, "Monthly rent:"
-  Text 225, 190, 120, 10, "Mandatory vendor changed effective:"
-  Text 35, 270, 90, 10, "ServicePoint closed out on:"
-  Text 15, 230, 105, 10, "Employ. Service Provider (ESP):"
-  Text 30, 75, 205, 10, "Balance in HCEA Shelter acct available toward rent and/or DD:"
-  Text 295, 75, 55, 10, "Other partners:"
-  Text 5, 190, 65, 10, "LL name/Vendor #: "
-  Text 40, 250, 85, 10, "Rapid Exit Worker (REW):"
-  Text 300, 210, 50, 10, "Client phone #:"
-  Text 300, 115, 45, 10, "Rent subsidy:"
-  Text 5, 210, 55, 10, "Landlord ADDR:"
-  Text 635, 40, 10, 0, "-10"
-  Text 5, 40, 115, 10, "Amt vendored to HCEA sheltet acct:"
-  Text 295, 95, 55, 10, "Earned income:"
-  Text 180, 40, 45, 10, "Shelter cost:"
-  Text 325, 155, 25, 10, "UNEA:"
-  Text 10, 155, 170, 10, "Balance of funds owed to the LL will be issued from:"
-  Text 280, 270, 65, 10, "# of days in shelter:"
-  GroupBox 5, 60, 405, 115, "Resources for shelter funds:"
-  Text 295, 135, 55, 10, "MFIP/DWP/HG:"
+    OkButton 295, 285, 50, 15
+    CancelButton 350, 285, 50, 15
+  Text 310, 30, 60, 10, "number of nights:"
+  Text 285, 230, 65, 10, "TANF months used:"
+  Text 300, 210, 45, 10, "Client work #:"
+  Text 10, 80, 80, 10, "Rent needed to move in:"
+  Text 110, 10, 45, 10, "Move in date:"
+  Text 10, 100, 90, 10, "DD amt needed to move in:"
+  Text 150, 80, 75, 10, "Client funds available:"
+  Text 10, 270, 45, 10, "Other notes: "
+  Text 150, 100, 75, 10, "Rent subsidy paid by:"
+  Text 5, 10, 45, 10, "Case number:"
+  Text 10, 120, 170, 10, "Balance in HCEA Shelter acct to be vendored to LL:"
+  Text 205, 10, 45, 10, "Monthly rent:"
+  Text 225, 170, 120, 10, "Mandatory vendor changed effective:"
+  Text 10, 250, 90, 10, "ServicePoint closed out on:"
+  Text 10, 210, 105, 10, "Employ. Service Provider (ESP):"
+  Text 10, 60, 205, 10, "Balance in HCEA Shelter acct available toward rent and/or DD:"
+  Text 295, 60, 55, 10, "Other partners:"
+  Text 10, 170, 65, 10, "LL name/Vendor #: "
+  Text 10, 230, 85, 10, "Rapid Exit Worker (REW):"
+  Text 295, 190, 50, 10, "Client phone #:"
+  Text 300, 100, 45, 10, "Rent subsidy:"
+  Text 10, 190, 55, 10, "Landlord ADDR:"
+  Text 40, 30, 115, 10, "Amt vendored to HCEA sheltet acct:"
+  Text 295, 80, 55, 10, "Earned income:"
+  Text 210, 30, 45, 10, "Shelter cost:"
+  Text 325, 140, 25, 10, "UNEA:"
+  Text 10, 140, 170, 10, "Balance of funds owed to the LL will be issued from:"
+  Text 280, 250, 65, 10, "# of days in shelter:"
+  GroupBox 5, 45, 395, 115, "Resources for shelter funds:"
+  Text 295, 120, 55, 10, "MFIP/DWP/HG:"
+  Text 10, 290, 60, 10, "Worker Signature:"
 EndDialog
 
 'Running the initial dialog
@@ -139,6 +149,7 @@ DO
 		If client_phone = "" then err_msg = err_msg & vbNewLine & "* Enter the client's phone number."
 		If isNumeric(TANF_months) = False then err_msg = err_msg & vbNewLine & "* Enter numeric number of TANF months used."
 		If isNumeric(num_days_shelter) = False then err_msg = err_msg & vbNewLine & "* Enter the numeric number of days in shelter."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
