@@ -37,7 +37,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -45,21 +55,25 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 191, 80, "Special EA extended"
-  EditBox 70, 10, 55, 15, MAXIS_case_number
-  EditBox 70, 35, 110, 15, other_notes
+BeginDialog Dialog1, 0, 0, 176, 85, "Special EA extended"
+  EditBox 65, 5, 50, 15, MAXIS_case_number
+  EditBox 65, 25, 105, 15, other_notes
+  EditBox 65, 45, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 75, 60, 50, 15
-    CancelButton 130, 60, 50, 15
-  Text 10, 40, 60, 10, "Special EA notes:"
-  Text 10, 15, 45, 10, "Case number:"
+    OkButton 65, 65, 50, 15
+    CancelButton 120, 65, 50, 15
+  Text 5, 30, 60, 10, "Special EA notes:"
+  Text 5, 10, 45, 10, "Case number:"
+  Text 5, 50, 60, 10, "Worker signature:"
 EndDialog
+
 DO
 	DO
 		err_msg = ""
 		Dialog Dialog1
         cancel_confirmation
-		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		Call validate_MAXIS_case_number(err_msg, "*")
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)
