@@ -37,7 +37,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -45,34 +55,36 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 296, 125, "### Reimbursement from shelter account ###"
-  EditBox 65, 10, 55, 15, MAXIS_case_number
-  EditBox 240, 10, 50, 15, amt_to_client
-  EditBox 240, 30, 50, 15, amt_to_LL
-  EditBox 65, 55, 225, 15, refund_reason
-  CheckBox 10, 80, 280, 10, "Informed client funds are being released for basic needs for the month, and shelter", client_checkbox
-  EditBox 50, 105, 125, 15, other_notes
+BeginDialog Dialog1, 0, 0, 271, 120, "### Reimbursement from shelter account ###"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 225, 5, 40, 15, amt_to_client
+  EditBox 225, 25, 40, 15, amt_to_LL
+  EditBox 70, 45, 195, 15, refund_reason
+  CheckBox 5, 60, 240, 10, "Informed client funds are being released for basic needs for the month,", client_checkbox
+  EditBox 70, 80, 195, 15, other_notes
+  EditBox 70, 100, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 185, 105, 50, 15
-    CancelButton 240, 105, 50, 15
-  Text 155, 15, 80, 10, "Amt released to client $:"
-  Text 10, 110, 40, 10, "Comments: "
-  Text 10, 15, 45, 10, "Case number:"
-  Text 20, 90, 140, 10, "will not be available for the entire month."
-  Text 105, 35, 125, 10, "Amt vendored to LL for rent/deposit $:"
-  Text 10, 60, 50, 10, "Refund reason:"
+    OkButton 175, 100, 45, 15
+    CancelButton 220, 100, 45, 15
+  Text 145, 10, 80, 10, "Amt released to client $:"
+  Text 5, 85, 40, 10, "Comments: "
+  Text 5, 10, 45, 10, "Case number:"
+  Text 15, 70, 175, 10, "and shelter will not be available for the entire month."
+  Text 100, 30, 125, 10, "Amt vendored to LL for rent/deposit $:"
+  Text 5, 50, 50, 10, "Refund reason:"
+  Text 5, 105, 60, 10, "Worker signature:"
 EndDialog
-
 'Running the initial dialog
 DO
 	DO
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		If amt_to_client = "" then err_msg = err_msg & vbNewLine & "* Enter the amount released to the client."
-		If amt_to_LL = "" then err_msg = err_msg & vbNewLine & "* Enter the amount vendored to the landlord."
-		If refund_reason = "" then err_msg = err_msg & vbNewLine & "* Enter the refund reason."
+		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		If amt_to_client = "" then err_msg = err_msg & vbNewLine & "* Please enter the amount released to the client."
+		If amt_to_LL = "" then err_msg = err_msg & vbNewLine & "* Please enter the amount vendored to the landlord."
+		If refund_reason = "" then err_msg = err_msg & vbNewLine & "* Please enter the refund reason."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
