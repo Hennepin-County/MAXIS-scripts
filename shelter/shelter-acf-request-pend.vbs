@@ -127,7 +127,7 @@ EMWriteScreen CM_yr, 20, 46
 'The case note'
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("### All County Funds Request Pending ###")
-Call write_bullet_and_variable_in_CASE_NOTE("Request was sent to HSS JW and GLA on", date_request_sent)
+Call write_bullet_and_variable_in_CASE_NOTE("Request was sent to HSS on", date_request_sent)
 Call write_bullet_and_variable_in_CASE_NOTE("Monthly Rent Amount", monthly_rent)
 Call write_bullet_and_variable_in_CASE_NOTE("Damage Deposit", damage_deposit)
 Call write_bullet_and_variable_in_CASE_NOTE("Amount Vendored", amount_vendored)
