@@ -55,20 +55,22 @@ CALL MAXIS_case_number_finder (MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 261, 90, "ACF Used for Shelter Stay"
-  EditBox 75, 10, 50, 15, Shelter_stay_bgn
-  EditBox 140, 10, 50, 15, Shelter_stay_end
-  EditBox 75, 30, 50, 15, EA_avail_date
-  EditBox 75, 50, 180, 15, Comments_notes
-  EditBox 75, 70, 70, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 261, 85, "ACF Used for Shelter Stay"
+  EditBox 75, 5, 50, 15, MAXIS_case_number
+  EditBox 75, 25, 50, 15, Shelter_stay_bgn
+  EditBox 150, 25, 50, 15, Shelter_stay_end
+  EditBox 205, 5, 50, 15, EA_avail_date
+  EditBox 75, 45, 180, 15, Comments_notes
+  EditBox 75, 65, 70, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 155, 70, 50, 15
-    CancelButton 205, 70, 50, 15
-  Text 130, 15, 10, 10, "to"
-  Text 5, 15, 65, 10, "Shelter Stay Dates:"
-  Text 5, 55, 40, 10, "Comments: "
-  Text 5, 35, 70, 10, "EA will be available:"
-  Text 5, 75, 60, 10, "Worker signature:"
+    OkButton 155, 65, 50, 15
+    CancelButton 205, 65, 50, 15
+  Text 135, 30, 10, 10, "to"
+  Text 5, 30, 65, 10, "Shelter stay dates:"
+  Text 5, 50, 40, 10, "Comments: "
+  Text 135, 10, 70, 10, "EA will be available:"
+  Text 5, 70, 60, 10, "Worker signature:"
+  Text 5, 10, 50, 10, "Case number: "
 EndDialog
 Do
 	Do
