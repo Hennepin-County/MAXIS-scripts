@@ -51,7 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("04/22/2022", "Suggested Q-Flow populations updated to support LTC+ and Housing Supports roll out.", "Ilse Ferris, Hennepin County")
+call changelog_update("09/19/2022", "Suggested Q-Flow populations updated for X127EJ4 from LTC+ to Housing Supports. Removed baskets that are no longer supported through Q-Flow.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/03/2022", "Suggested Q-Flow population basket information added for EGA: X127EP3.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/10/2021", "Suggested Q-Flow population basket information added for FAD GRH: X127EZ2.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/03/2021", "Suggested Q-Flow population basket information added for EGA: X127EQ2 and X127EP8.", "Ilse Ferris, Hennepin County")
@@ -95,12 +95,6 @@ End if
 '----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. needed during the COVID-19 PEACETIME STATE OF EMERGENCY
 EmReadscreen basket_number, 7, 21, 21    'Reading basket number
 suggested_population = ""                'Blanking this out. Will default to no suggestions if x number is not in this this.
-
-'----------------------------------------------------------------------------------------------------ADS
-If basket_number = "X127EF8" then suggested_population = "1800"
-If basket_number = "X127EF9" then suggested_population = "1800"
-If basket_number = "X127EG9" then suggested_population = "1800"
-If basket_number = "X127EG0" then suggested_population = "1800"
 
 If basket_number = "X127ED8" then suggested_population = "Adults"
 If basket_number = "X127EE1" then suggested_population = "Adults"
@@ -146,14 +140,6 @@ If basket_number = "X127EX9" then suggested_population = "Adults"
 If basket_number = "X127F3D" then suggested_population = "Adults"
 If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adults Basket
 
-If basket_number = "X127EY8" then suggested_population = "DWP"
-If basket_number = "X127FE7" then suggested_population = "DWP"
-If basket_number = "X127FE8" then suggested_population = "DWP"
-If basket_number = "X127FE9" then suggested_population = "DWP"
-
-If basket_number = "X127EP8" then suggested_population = "EGA"
-If basket_number = "X127EQ2" then suggested_population = "EGA"
-
 If basket_number = "X127ES1" then suggested_population = "Families"
 If basket_number = "X127ES2" then suggested_population = "Families"
 If basket_number = "X127ES3" then suggested_population = "Families"
@@ -188,48 +174,12 @@ If basket_number = "X127EZ2" then suggested_population = "FAD GRH"
 If basket_number = "X127EG5" then suggested_population = "Housing Supports"
 If basket_number = "X127FG3" then suggested_population = "Housing Supports"
 If basket_number = "X127EH2" then suggested_population = "Housing Supports"
+If basket_number = "X127EJ4" then suggested_population = "Housing Supports"
 If basket_number = "X127EJ7" then suggested_population = "Housing Supports"
 If basket_number = "X127EK5" then suggested_population = "Housing Supports"
 If basket_number = "X127EM1" then suggested_population = "Housing Supports"
 If basket_number = "X127EM8" then suggested_population = "Housing Supports"
 If basket_number = "X127EP4" then suggested_population = "Housing Supports"
-
-If basket_number = "X127EH1" then suggested_population = "LTC+"
-If basket_number = "X127EH3" then suggested_population = "LTC+"
-If basket_number = "X127EH4" then suggested_population = "LTC+"
-If basket_number = "X127EH5" then suggested_population = "LTC+"
-If basket_number = "X127EH6" then suggested_population = "LTC+"
-If basket_number = "X127EH7" then suggested_population = "LTC+"
-If basket_number = "X127EJ4" then suggested_population = "LTC+"
-If basket_number = "X127EJ8" then suggested_population = "LTC+"
-If basket_number = "X127EK1" then suggested_population = "LTC+"
-If basket_number = "X127EK2" then suggested_population = "LTC+"
-If basket_number = "X127EK3" then suggested_population = "LTC+"
-If basket_number = "X127EK4" then suggested_population = "LTC+"
-If basket_number = "X127EK6" then suggested_population = "LTC+"
-If basket_number = "X127EK7" then suggested_population = "LTC+"
-If basket_number = "X127EK8" then suggested_population = "LTC+"
-If basket_number = "X127EK9" then suggested_population = "LTC+"
-If basket_number = "X127EM9" then suggested_population = "LTC+"
-If basket_number = "X127EN6" then suggested_population = "LTC+"
-If basket_number = "X127EP5" then suggested_population = "LTC+"
-If basket_number = "X127EP9" then suggested_population = "LTC+"
-If basket_number = "X127EZ5" then suggested_population = "LTC+"
-If basket_number = "X127F3F" then suggested_population = "LTC+"
-If basket_number = "X127FE5" then suggested_population = "LTC+"
-If basket_number = "X127FH4" then suggested_population = "LTC+"
-If basket_number = "X127FH5" then suggested_population = "LTC+"
-If basket_number = "X127FI2" then suggested_population = "LTC+"
-If basket_number = "X127FI7" then suggested_population = "LTC+"
-'Contacted Case Mgt
-If basket_number = "X127FG6" then suggested_population = "LTC+"           '"Kristen Kasem"
-If basket_number = "X127FG7" then suggested_population = "LTC+"           '"Kristen Kasem"
-If basket_number = "X127EM3" then suggested_population = "LTC+"           '"True L. or Gina G."
-If basket_number = "X127EM4" then suggested_population = "LTC+"            '"True L. or Gina G."
-If basket_number = "X127EW7" then suggested_population = "LTC+"            '"Kimberly Hill"
-If basket_number = "X127EW8" then suggested_population = "LTC+"            '"Kimberly Hill"
-If basket_number = "X127FF4" then suggested_population = "LTC+"            '"Alyssa Taylor"
-If basket_number = "X127FF5" then suggested_population = "LTC+"            '"Alyssa Taylor"
 
 If basket_number = "X127EH9" then suggested_population = "LTH"
 If basket_number = "X127EJ1" then suggested_population = "LTH"

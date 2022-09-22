@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/19/2022", "Suggested Q-Flow populations updated for X127EJ4 from LTC+ to Housing Supports.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/22/2022", "Suggested Q-Flow populations updated to support LTC+ and Housing Supports roll out.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/03/2022", "Updated baskets including new EGA basket, X127EP3.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/16/2020", "Added multi-case search functionalty.", "Ilse Ferris, Hennepin County")
@@ -189,6 +190,7 @@ Do
     If basket_number = "X127EG5" then suggested_population = "Housing Supports"
     If basket_number = "X127FG3" then suggested_population = "Housing Supports"
     If basket_number = "X127EH2" then suggested_population = "Housing Supports"
+    If basket_number = "X127EJ4" then suggested_population = "Housing Supports"
     If basket_number = "X127EJ7" then suggested_population = "Housing Supports"
     If basket_number = "X127EK5" then suggested_population = "Housing Supports"
     If basket_number = "X127EM1" then suggested_population = "Housing Supports"
@@ -201,7 +203,6 @@ Do
     If basket_number = "X127EH5" then suggested_population = "LTC+"
     If basket_number = "X127EH6" then suggested_population = "LTC+"
     If basket_number = "X127EH7" then suggested_population = "LTC+"
-    If basket_number = "X127EJ4" then suggested_population = "LTC+"
     If basket_number = "X127EJ8" then suggested_population = "LTC+"
     If basket_number = "X127EK1" then suggested_population = "LTC+"
     If basket_number = "X127EK2" then suggested_population = "LTC+"
