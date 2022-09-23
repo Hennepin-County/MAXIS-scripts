@@ -58,24 +58,24 @@ date_checked = date & ""
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 286, 145, "Sheriff Foreclosure"
-  EditBox 55, 5, 55, 15, MAXIS_case_number
+  EditBox 70, 5, 55, 15, MAXIS_case_number
   EditBox 230, 5, 45, 15, date_checked
   EditBox 70, 25, 210, 15, property_address
-  EditBox 70, 45, 100, 15, owner_name
-  EditBox 235, 45, 45, 15, foreclosure_date
-  EditBox 70, 65, 100, 15, occupant_name
+  EditBox 70, 45, 90, 15, owner_name
+  EditBox 230, 45, 45, 15, foreclosure_date
+  EditBox 70, 65, 90, 15, occupant_name
   EditBox 95, 85, 185, 15, occupants_whereabouts
-  EditBox 50, 105, 230, 15, other_notes
+  EditBox 95, 105, 185, 15, other_notes
   EditBox 70, 125, 105, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 180, 125, 50, 15
     CancelButton 230, 125, 50, 15
   Text 5, 50, 55, 10, "Owner(s) name:"
   Text 5, 70, 60, 10, "Occupant(s) name:"
-  Text 120, 10, 80, 10, "Date of property review:"
+  Text 150, 10, 80, 10, "Date of property review:"
   Text 5, 30, 60, 10, "Property address:"
   Text 5, 110, 40, 10, "Other notes: "
-  Text 175, 50, 55, 10, "Foreclosure  date:"
+  Text 165, 50, 65, 10, "Foreclosure  date:"
   Text 5, 90, 85, 10, "Occupant(s) whereabouts:"
   Text 5, 10, 45, 10, "Case number:"
   Text 5, 130, 60, 10, "Worker Signature:"
