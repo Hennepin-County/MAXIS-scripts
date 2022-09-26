@@ -90,7 +90,7 @@ DO
 		Call validate_MAXIS_case_number(err_msg, "*")
 	    IF MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
 	    IF MAXIS_footer_year = "" THEN err_msg = "Please enter a footer year to continue."
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
 	    IF err_msg <> "" THEN msgbox "*** Error Check ***" & vbNewLine & err_msg
 		LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
