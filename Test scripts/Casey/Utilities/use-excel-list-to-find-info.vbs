@@ -149,117 +149,157 @@ file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Expedited Deter
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Expedited Determination\Cases Still Pending from Exp Exch.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Aug 9.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\Cash Cases 8-1-22.xlsx"
+file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Sept 16.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 ' Call navigate_to_MAXIS_screen("CCOL", "CLIC")
-MAXIS_footer_month = "08"
+MAXIS_footer_month = "09"
 MAXIS_footer_year = "22"
 excel_row = 2
 Do
-	deny_cash_dwp_reason_info = ""
-	deny_cash_mfip_reason_info = ""
-	deny_cash_msa_reason_info = ""
-	deny_cash_ga_reason_info = ""
-	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
-	MAXIS_case_number = left(MAXIS_case_number & "       ", 8)
-	Call write_value_and_transmit(MAXIS_case_number, 4, 8)
+	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
 
-	call navigate_to_MAXIS_screen("ELIG", "DENY")
-	EMWriteScreen "08", 19, 54
-	EMWriteScreen "22", 19, 57
-	Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
-	transmit
+	call navigate_to_MAXIS_screen("ELIG", "GRH ")
+	EmReadScreen at_grh_elig, 16, 2, 33
+	If at_grh_elig = "GRH ELIG Results" Then
+		' EMWriteScreen MAXIS_footer_month, 20, 55
+		' EMWriteScreen MAXIS_footer_year, 20, 58
+		' transmit
+		Call find_last_approved_ELIG_version(20, 79, version_number, version_date, version_result, approval_found)
 
-	EMReadScreen deny_cash_dwp_reason_code, 2, 8, 46
-	EMReadScreen deny_cash_mfip_reason_code, 2, 9, 46
-	EMReadScreen deny_cash_msa_reason_code, 2, 12, 46
-	EMReadScreen deny_cash_ga_reason_code, 2, 13, 46
+		EMReadScreen grh_elig_type, 2, 6, 53
+		EMReadScreen grh_elig_case_test_assets, 6, 8, 45
+		EMReadScreen grh_elig_case_test_fail_file, 6, 11, 8
+		EMReadScreen grh_elig_case_test_verif, 6, 13, 45
+		EMReadScreen grh_elig_case_test_income, 6, 11, 45
+		' MsgBox "grh_elig_type - " & grh_elig_type
+		' MsgBox "grh_elig_case_test_assets - " & grh_elig_case_test_assets & vbCr & "grh_elig_case_test_fail_file - " & grh_elig_case_test_fail_file & vbCr & "grh_elig_case_test_verif - " & grh_elig_case_test_verif
 
-	If deny_cash_dwp_reason_code = "" Then deny_cash_dwp_reason_info = ""
-	If deny_cash_dwp_reason_code = "01" Then deny_cash_dwp_reason_info = "No Eligible Child"
-	If deny_cash_dwp_reason_code = "02" Then deny_cash_dwp_reason_info = "Application Withdrawn"
-	If deny_cash_dwp_reason_code = "03" Then deny_cash_dwp_reason_info = "Initial Income"
-	If deny_cash_dwp_reason_code = "04" Then deny_cash_dwp_reason_info = "Assets"
-	If deny_cash_dwp_reason_code = "05" Then deny_cash_dwp_reason_info = "Fail To Cooperate"
-	If deny_cash_dwp_reason_code = "06" Then deny_cash_dwp_reason_info = "Child Support Disqualification"
-	If deny_cash_dwp_reason_code = "07" Then deny_cash_dwp_reason_info = "Employment Services Disqualification"
-	If deny_cash_dwp_reason_code = "08" Then deny_cash_dwp_reason_info = "Death"
-	If deny_cash_dwp_reason_code = "09" Then deny_cash_dwp_reason_info = "Residence"
-	If deny_cash_dwp_reason_code = "10" Then deny_cash_dwp_reason_info = "Transfer of Resources"
-	If deny_cash_dwp_reason_code = "11" Then deny_cash_dwp_reason_info = "Verification"
-	If deny_cash_dwp_reason_code = "12" Then deny_cash_dwp_reason_info = "Strike"
-	If deny_cash_dwp_reason_code = "13" Then deny_cash_dwp_reason_info = "Program Active"
-	If deny_cash_dwp_reason_code = "14" Then deny_cash_dwp_reason_info = "4 Month Limit"
-	If deny_cash_dwp_reason_code = "15" Then deny_cash_dwp_reason_info = "MFIP Conversion"
-	If deny_cash_dwp_reason_code = "23" Then deny_cash_dwp_reason_info = "Duplicate Assistance"
-	If deny_cash_dwp_reason_code = "99" Then deny_cash_dwp_reason_info = "PND2 Denial"
-	If deny_cash_dwp_reason_code = "TL" Then deny_cash_dwp_reason_info = "TANF Time Limit"
 
-	If deny_cash_mfip_reason_code = "" Then deny_cash_mfip_reason_info = ""
-	If deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_reason_info = "No Eligible Child"
-	If deny_cash_mfip_reason_code = "02" Then deny_cash_mfip_reason_info = "Application Withdrawn"
-	If deny_cash_mfip_reason_code = "03" Then deny_cash_mfip_reason_info = "Initial Income"
-	If deny_cash_mfip_reason_code = "04" Then deny_cash_mfip_reason_info = "Monthly Income"
-	If deny_cash_mfip_reason_code = "05" Then deny_cash_mfip_reason_info = "Assets"
-	If deny_cash_mfip_reason_code = "06" Then deny_cash_mfip_reason_info = "Fail To Cooperate"
-	If deny_cash_mfip_reason_code = "07" Then deny_cash_mfip_reason_info = "Fail To Cooperate with IEVS"
-	If deny_cash_mfip_reason_code = "08" Then deny_cash_mfip_reason_info = "Death"
-	If deny_cash_mfip_reason_code = "09" Then deny_cash_mfip_reason_info = "Residence"
-	If deny_cash_mfip_reason_code = "10" Then deny_cash_mfip_reason_info = "Transfer of Resources"
-	If deny_cash_mfip_reason_code = "11" Then deny_cash_mfip_reason_info = "Verification"
-	If deny_cash_mfip_reason_code = "12" Then deny_cash_mfip_reason_info = "Strike"
-	If deny_cash_mfip_reason_code = "13" Then deny_cash_mfip_reason_info = "Fail To File"
-	If deny_cash_mfip_reason_code = "14" Then deny_cash_mfip_reason_info = "Program Active"
-	If deny_cash_mfip_reason_code = "23" Then deny_cash_mfip_reason_info = "Duplicate Assistance"
-	If deny_cash_mfip_reason_code = "24" Then deny_cash_mfip_reason_info = "Minor Living Arrangement"
-	If deny_cash_mfip_reason_code = "TL" Then deny_cash_mfip_reason_info = "TANF Time Limit"
-	If deny_cash_mfip_reason_code = "33" Then deny_cash_mfip_reason_info = "Diversionary Work Program"
-	If deny_cash_mfip_reason_code = "34" Then deny_cash_mfip_reason_info = "Sanction Period"
-	If deny_cash_mfip_reason_code = "35" Then deny_cash_mfip_reason_info = "Sanction Date Compliance"
-	If deny_cash_mfip_reason_code = "99" Then deny_cash_mfip_reason_info = "PND2 Denial System Entered"
+		' If grh_elig_type = "01" Then  grh_elig_type_info = "SSI"
+	 	' If grh_elig_type = "02" Then  grh_elig_type_info = "MFIP"
+	 	' If grh_elig_type = "03" Then  grh_elig_type_info = "Blind"
+	 	' If grh_elig_type = "04" Then  grh_elig_type_info = "Disabled"
+	 	' If grh_elig_type = "05" Then  grh_elig_type_info = "Aged"
+	 	' If grh_elig_type = "06" Then  grh_elig_type_info = "Adult"
+	 	' If grh_elig_type = "07" Then  grh_elig_type_info = "None"
+	 	' If grh_elig_type = "08" Then  grh_elig_type_info = "Residential Treatment"
+		'
+		' Call write_value_and_transmit("GRFB", 20, 71)
+		'
+	 	' EMReadScreen grh_elig_budg_vendor_number_one, 	8, 6, 25
+	 	' EMReadScreen grh_elig_budg_vendor_number_two, 	8, 6, 44
+		' MsgBox "grh_elig_budg_vendor_number_one - " & grh_elig_budg_vendor_number_one
+		ObjExcel.Cells(excel_row, 5).Value = grh_elig_case_test_assets
+		ObjExcel.Cells(excel_row, 6).Value = grh_elig_case_test_fail_file
+		ObjExcel.Cells(excel_row, 7).Value = grh_elig_case_test_verif
+		ObjExcel.Cells(excel_row, 8).Value = grh_elig_case_test_income
+	End If
 
-	If deny_cash_msa_reason_code = "" Then deny_cash_msa_reason_info = ""
-	If deny_cash_msa_reason_code = "01" Then deny_cash_msa_reason_info = "No Eligible Member"
-	If deny_cash_msa_reason_code = "03" Then deny_cash_msa_reason_info = "Verification"
-	If deny_cash_msa_reason_code = "08" Then deny_cash_msa_reason_info = "Application Withdrawn"
-	If deny_cash_msa_reason_code = "10" Then deny_cash_msa_reason_info = "Residence"
-	If deny_cash_msa_reason_code = "11" Then deny_cash_msa_reason_info = "Assets"
-	If deny_cash_msa_reason_code = "24" Then deny_cash_msa_reason_info = "Program Active"
-	If deny_cash_msa_reason_code = "28" Then deny_cash_msa_reason_info = "Fail To File"
-	If deny_cash_msa_reason_code = "29" Then deny_cash_msa_reason_info = "Applicant Eligible"
-	If deny_cash_msa_reason_code = "30" Then deny_cash_msa_reason_info = "Prospective Gross Income"
-	If deny_cash_msa_reason_code = "31" Then deny_cash_msa_reason_info = "Prospective Net Income"
-	If deny_cash_msa_reason_code = "99" Then deny_cash_msa_reason_info = "PND2 Denial System Entered"
-
-	If deny_cash_ga_reason_code = "" Then deny_cash_ga_reason_info = ""
-	If deny_cash_ga_reason_code = "01" Then deny_cash_ga_reason_info = "No Eligible Person"
-	If deny_cash_ga_reason_code = "02" Then deny_cash_ga_reason_info = "Net Income"
-	If deny_cash_ga_reason_code = "03" Then deny_cash_ga_reason_info = "Verification"
-	If deny_cash_ga_reason_code = "04" Then deny_cash_ga_reason_info = "Non Cooperation"
-	If deny_cash_ga_reason_code = "06" Then deny_cash_ga_reason_info = "Other Benefits"
-	If deny_cash_ga_reason_code = "07" Then deny_cash_ga_reason_info = "Address Unknown"
-	If deny_cash_ga_reason_code = "08" Then deny_cash_ga_reason_info = "Application Withdrawn"
-	If deny_cash_ga_reason_code = "09" Then deny_cash_ga_reason_info = "Client Request"
-	If deny_cash_ga_reason_code = "10" Then deny_cash_ga_reason_info = "Residence"
-	If deny_cash_ga_reason_code = "11" Then deny_cash_ga_reason_info = "Assets"
-	If deny_cash_ga_reason_code = "12" Then deny_cash_ga_reason_info = "Transfer of Resource"
-	If deny_cash_ga_reason_code = "14" Then deny_cash_ga_reason_info = "Interim Assistance Agreement"
-	If deny_cash_ga_reason_code = "15" Then deny_cash_ga_reason_info = "Out Of County"
-	If deny_cash_ga_reason_code = "16" Then deny_cash_ga_reason_info = "Disqualify"
-	If deny_cash_ga_reason_code = "17" Then deny_cash_ga_reason_info = "Interview"
-	If deny_cash_ga_reason_code = "19" Then deny_cash_ga_reason_info = "Fail to File"
-	If deny_cash_ga_reason_code = "21" Then deny_cash_ga_reason_info = "Duplicate Assistance"
-	If deny_cash_ga_reason_code = "22" Then deny_cash_ga_reason_info = "Death"
-	If deny_cash_ga_reason_code = "23" Then deny_cash_ga_reason_info = "Eligible Other Benefits"
-	If deny_cash_ga_reason_code = "26" Then deny_cash_ga_reason_info = "Program Active"
-	If deny_cash_ga_reason_code = "29" Then deny_cash_ga_reason_info = "Lump Sum"
-	If deny_cash_ga_reason_code = "99" Then deny_cash_ga_reason_info = "PND2 Denial System Entered"
-
-	ObjExcel.Cells(excel_row, 8).Value = deny_cash_dwp_reason_info
-	ObjExcel.Cells(excel_row, 9).Value = deny_cash_mfip_reason_info
-	ObjExcel.Cells(excel_row, 10).Value = deny_cash_msa_reason_info
-	ObjExcel.Cells(excel_row, 11).Value = deny_cash_ga_reason_info
+	' deny_cash_dwp_reason_info = ""
+	' deny_cash_mfip_reason_info = ""
+	' deny_cash_msa_reason_info = ""
+	' deny_cash_ga_reason_info = ""
+	' MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+	' MAXIS_case_number = left(MAXIS_case_number & "       ", 8)
+	' Call write_value_and_transmit(MAXIS_case_number, 4, 8)
+	'
+	' call navigate_to_MAXIS_screen("ELIG", "DENY")
+	' EMWriteScreen "08", 19, 54
+	' EMWriteScreen "22", 19, 57
+	' Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+	' transmit
+	'
+	' EMReadScreen deny_cash_dwp_reason_code, 2, 8, 46
+	' EMReadScreen deny_cash_mfip_reason_code, 2, 9, 46
+	' EMReadScreen deny_cash_msa_reason_code, 2, 12, 46
+	' EMReadScreen deny_cash_ga_reason_code, 2, 13, 46
+	'
+	' If deny_cash_dwp_reason_code = "" Then deny_cash_dwp_reason_info = ""
+	' If deny_cash_dwp_reason_code = "01" Then deny_cash_dwp_reason_info = "No Eligible Child"
+	' If deny_cash_dwp_reason_code = "02" Then deny_cash_dwp_reason_info = "Application Withdrawn"
+	' If deny_cash_dwp_reason_code = "03" Then deny_cash_dwp_reason_info = "Initial Income"
+	' If deny_cash_dwp_reason_code = "04" Then deny_cash_dwp_reason_info = "Assets"
+	' If deny_cash_dwp_reason_code = "05" Then deny_cash_dwp_reason_info = "Fail To Cooperate"
+	' If deny_cash_dwp_reason_code = "06" Then deny_cash_dwp_reason_info = "Child Support Disqualification"
+	' If deny_cash_dwp_reason_code = "07" Then deny_cash_dwp_reason_info = "Employment Services Disqualification"
+	' If deny_cash_dwp_reason_code = "08" Then deny_cash_dwp_reason_info = "Death"
+	' If deny_cash_dwp_reason_code = "09" Then deny_cash_dwp_reason_info = "Residence"
+	' If deny_cash_dwp_reason_code = "10" Then deny_cash_dwp_reason_info = "Transfer of Resources"
+	' If deny_cash_dwp_reason_code = "11" Then deny_cash_dwp_reason_info = "Verification"
+	' If deny_cash_dwp_reason_code = "12" Then deny_cash_dwp_reason_info = "Strike"
+	' If deny_cash_dwp_reason_code = "13" Then deny_cash_dwp_reason_info = "Program Active"
+	' If deny_cash_dwp_reason_code = "14" Then deny_cash_dwp_reason_info = "4 Month Limit"
+	' If deny_cash_dwp_reason_code = "15" Then deny_cash_dwp_reason_info = "MFIP Conversion"
+	' If deny_cash_dwp_reason_code = "23" Then deny_cash_dwp_reason_info = "Duplicate Assistance"
+	' If deny_cash_dwp_reason_code = "99" Then deny_cash_dwp_reason_info = "PND2 Denial"
+	' If deny_cash_dwp_reason_code = "TL" Then deny_cash_dwp_reason_info = "TANF Time Limit"
+	'
+	' If deny_cash_mfip_reason_code = "" Then deny_cash_mfip_reason_info = ""
+	' If deny_cash_mfip_reason_code = "01" Then deny_cash_mfip_reason_info = "No Eligible Child"
+	' If deny_cash_mfip_reason_code = "02" Then deny_cash_mfip_reason_info = "Application Withdrawn"
+	' If deny_cash_mfip_reason_code = "03" Then deny_cash_mfip_reason_info = "Initial Income"
+	' If deny_cash_mfip_reason_code = "04" Then deny_cash_mfip_reason_info = "Monthly Income"
+	' If deny_cash_mfip_reason_code = "05" Then deny_cash_mfip_reason_info = "Assets"
+	' If deny_cash_mfip_reason_code = "06" Then deny_cash_mfip_reason_info = "Fail To Cooperate"
+	' If deny_cash_mfip_reason_code = "07" Then deny_cash_mfip_reason_info = "Fail To Cooperate with IEVS"
+	' If deny_cash_mfip_reason_code = "08" Then deny_cash_mfip_reason_info = "Death"
+	' If deny_cash_mfip_reason_code = "09" Then deny_cash_mfip_reason_info = "Residence"
+	' If deny_cash_mfip_reason_code = "10" Then deny_cash_mfip_reason_info = "Transfer of Resources"
+	' If deny_cash_mfip_reason_code = "11" Then deny_cash_mfip_reason_info = "Verification"
+	' If deny_cash_mfip_reason_code = "12" Then deny_cash_mfip_reason_info = "Strike"
+	' If deny_cash_mfip_reason_code = "13" Then deny_cash_mfip_reason_info = "Fail To File"
+	' If deny_cash_mfip_reason_code = "14" Then deny_cash_mfip_reason_info = "Program Active"
+	' If deny_cash_mfip_reason_code = "23" Then deny_cash_mfip_reason_info = "Duplicate Assistance"
+	' If deny_cash_mfip_reason_code = "24" Then deny_cash_mfip_reason_info = "Minor Living Arrangement"
+	' If deny_cash_mfip_reason_code = "TL" Then deny_cash_mfip_reason_info = "TANF Time Limit"
+	' If deny_cash_mfip_reason_code = "33" Then deny_cash_mfip_reason_info = "Diversionary Work Program"
+	' If deny_cash_mfip_reason_code = "34" Then deny_cash_mfip_reason_info = "Sanction Period"
+	' If deny_cash_mfip_reason_code = "35" Then deny_cash_mfip_reason_info = "Sanction Date Compliance"
+	' If deny_cash_mfip_reason_code = "99" Then deny_cash_mfip_reason_info = "PND2 Denial System Entered"
+	'
+	' If deny_cash_msa_reason_code = "" Then deny_cash_msa_reason_info = ""
+	' If deny_cash_msa_reason_code = "01" Then deny_cash_msa_reason_info = "No Eligible Member"
+	' If deny_cash_msa_reason_code = "03" Then deny_cash_msa_reason_info = "Verification"
+	' If deny_cash_msa_reason_code = "08" Then deny_cash_msa_reason_info = "Application Withdrawn"
+	' If deny_cash_msa_reason_code = "10" Then deny_cash_msa_reason_info = "Residence"
+	' If deny_cash_msa_reason_code = "11" Then deny_cash_msa_reason_info = "Assets"
+	' If deny_cash_msa_reason_code = "24" Then deny_cash_msa_reason_info = "Program Active"
+	' If deny_cash_msa_reason_code = "28" Then deny_cash_msa_reason_info = "Fail To File"
+	' If deny_cash_msa_reason_code = "29" Then deny_cash_msa_reason_info = "Applicant Eligible"
+	' If deny_cash_msa_reason_code = "30" Then deny_cash_msa_reason_info = "Prospective Gross Income"
+	' If deny_cash_msa_reason_code = "31" Then deny_cash_msa_reason_info = "Prospective Net Income"
+	' If deny_cash_msa_reason_code = "99" Then deny_cash_msa_reason_info = "PND2 Denial System Entered"
+	'
+	' If deny_cash_ga_reason_code = "" Then deny_cash_ga_reason_info = ""
+	' If deny_cash_ga_reason_code = "01" Then deny_cash_ga_reason_info = "No Eligible Person"
+	' If deny_cash_ga_reason_code = "02" Then deny_cash_ga_reason_info = "Net Income"
+	' If deny_cash_ga_reason_code = "03" Then deny_cash_ga_reason_info = "Verification"
+	' If deny_cash_ga_reason_code = "04" Then deny_cash_ga_reason_info = "Non Cooperation"
+	' If deny_cash_ga_reason_code = "06" Then deny_cash_ga_reason_info = "Other Benefits"
+	' If deny_cash_ga_reason_code = "07" Then deny_cash_ga_reason_info = "Address Unknown"
+	' If deny_cash_ga_reason_code = "08" Then deny_cash_ga_reason_info = "Application Withdrawn"
+	' If deny_cash_ga_reason_code = "09" Then deny_cash_ga_reason_info = "Client Request"
+	' If deny_cash_ga_reason_code = "10" Then deny_cash_ga_reason_info = "Residence"
+	' If deny_cash_ga_reason_code = "11" Then deny_cash_ga_reason_info = "Assets"
+	' If deny_cash_ga_reason_code = "12" Then deny_cash_ga_reason_info = "Transfer of Resource"
+	' If deny_cash_ga_reason_code = "14" Then deny_cash_ga_reason_info = "Interim Assistance Agreement"
+	' If deny_cash_ga_reason_code = "15" Then deny_cash_ga_reason_info = "Out Of County"
+	' If deny_cash_ga_reason_code = "16" Then deny_cash_ga_reason_info = "Disqualify"
+	' If deny_cash_ga_reason_code = "17" Then deny_cash_ga_reason_info = "Interview"
+	' If deny_cash_ga_reason_code = "19" Then deny_cash_ga_reason_info = "Fail to File"
+	' If deny_cash_ga_reason_code = "21" Then deny_cash_ga_reason_info = "Duplicate Assistance"
+	' If deny_cash_ga_reason_code = "22" Then deny_cash_ga_reason_info = "Death"
+	' If deny_cash_ga_reason_code = "23" Then deny_cash_ga_reason_info = "Eligible Other Benefits"
+	' If deny_cash_ga_reason_code = "26" Then deny_cash_ga_reason_info = "Program Active"
+	' If deny_cash_ga_reason_code = "29" Then deny_cash_ga_reason_info = "Lump Sum"
+	' If deny_cash_ga_reason_code = "99" Then deny_cash_ga_reason_info = "PND2 Denial System Entered"
+	'
+	' ObjExcel.Cells(excel_row, 8).Value = deny_cash_dwp_reason_info
+	' ObjExcel.Cells(excel_row, 9).Value = deny_cash_mfip_reason_info
+	' ObjExcel.Cells(excel_row, 10).Value = deny_cash_msa_reason_info
+	' ObjExcel.Cells(excel_row, 11).Value = deny_cash_ga_reason_info
 
 	' Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 	'
@@ -452,7 +492,6 @@ Do
 		elig_hc_row = elig_hc_row + 1
 	Loop until hc_prog = ""
 
-	'
 	' call navigate_to_MAXIS_screen("ELIG", "GRH ")
 	' Call write_value_and_transmit("GRFB", 20, 71)
 	' ' EMWriteScreen "06", 20, 55
