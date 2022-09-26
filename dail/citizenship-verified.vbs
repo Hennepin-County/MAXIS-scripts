@@ -153,13 +153,16 @@ BeginDialog Dialog1, 0, 0, 201, 45, "Dialog"
     OkButton 85, 25, 50, 15
     CancelButton 135, 25, 50, 15
 EndDialog
-
+Do
 	Do
 		err_msg = ""
 		Dialog Dialog1
-		cancel_without_confirmation
+		cancel_confirmation
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-	Loop until err_msg = ""
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 STATS_counter = STATS_counter - 1 'Had to -1 at the end of the script because the counter starts at 1 and Veronica has reasons why we should not change it to 0.
 
 'Case note section-----------------------------------------------------------------------------------------------------------
