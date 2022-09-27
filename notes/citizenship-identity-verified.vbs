@@ -58,9 +58,9 @@ EMConnect ""
 call MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 346, 222, "CIT-ID dialog"
-  Text 5, 10, 50, 10, "Case number:"
+BeginDialog Dialog1, 0, 0, 346, 222, "CITIZENSHIP-IDENTITY"
   EditBox 60, 5, 75, 15, MAXIS_case_number
+  Text 5, 10, 50, 10, "Case number:"
   Text 20, 25, 45, 10, "HH member"
   Text 85, 25, 55, 10, "Exempt reason"
   Text 200, 25, 35, 10, "Cit proof"
@@ -104,28 +104,30 @@ BeginDialog Dialog1, 0, 0, 346, 222, "CIT-ID dialog"
 	CancelButton 250, 200, 50, 15
 EndDialog
 'Show the dialog, determine if it's filled out correctly (at least one line must be filled out)
-Do
-    Dialog Dialog1
-	cancel_confirmation
-	If (HH_memb_01 <> "" and (exempt_reason_01 = "(select or type here)" and (cit_proof_01 = "(select or type here)" or ID_proof_01 = "(select or type here)"))) or _
-	   (HH_memb_02 <> "" and (exempt_reason_02 = "(select or type here)" and (cit_proof_02 = "(select or type here)" or ID_proof_02 = "(select or type here)"))) or _
-	   (HH_memb_03 <> "" and (exempt_reason_03 = "(select or type here)" and (cit_proof_03 = "(select or type here)" or ID_proof_03 = "(select or type here)"))) or _
-	   (HH_memb_04 <> "" and (exempt_reason_04 = "(select or type here)" and (cit_proof_04 = "(select or type here)" or ID_proof_04 = "(select or type here)"))) or _
-	   (HH_memb_05 <> "" and (exempt_reason_05 = "(select or type here)" and (cit_proof_05 = "(select or type here)" or ID_proof_05 = "(select or type here)"))) or _
-	   (HH_memb_06 <> "" and (exempt_reason_06 = "(select or type here)" and (cit_proof_06 = "(select or type here)" or ID_proof_06 = "(select or type here)"))) or _
-	   (HH_memb_07 <> "" and (exempt_reason_07 = "(select or type here)" and (cit_proof_07 = "(select or type here)" or ID_proof_07 = "(select or type here)"))) or _
-	   (HH_memb_08 <> "" and (exempt_reason_08 = "(select or type here)" and (cit_proof_08 = "(select or type here)" or ID_proof_08 = "(select or type here)"))) then
-		can_move_on = False
-      Else
-		can_move_on = True
-	End if
-	If can_move_on = False then MsgBox "You must select a cit and ID proof for each client whose name you've typed."
-	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-Loop until can_move_on = True
-
-'checking for active MAXIS session
-Call check_for_MAXIS(False)
-
+DO
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+	    If (HH_memb_01 <> "" and (exempt_reason_01 = "(select or type here)" and (cit_proof_01 = "(select or type here)" or ID_proof_01 = "(select or type here)"))) or _
+	       (HH_memb_02 <> "" and (exempt_reason_02 = "(select or type here)" and (cit_proof_02 = "(select or type here)" or ID_proof_02 = "(select or type here)"))) or _
+	       (HH_memb_03 <> "" and (exempt_reason_03 = "(select or type here)" and (cit_proof_03 = "(select or type here)" or ID_proof_03 = "(select or type here)"))) or _
+	       (HH_memb_04 <> "" and (exempt_reason_04 = "(select or type here)" and (cit_proof_04 = "(select or type here)" or ID_proof_04 = "(select or type here)"))) or _
+	       (HH_memb_05 <> "" and (exempt_reason_05 = "(select or type here)" and (cit_proof_05 = "(select or type here)" or ID_proof_05 = "(select or type here)"))) or _
+	       (HH_memb_06 <> "" and (exempt_reason_06 = "(select or type here)" and (cit_proof_06 = "(select or type here)" or ID_proof_06 = "(select or type here)"))) or _
+	       (HH_memb_07 <> "" and (exempt_reason_07 = "(select or type here)" and (cit_proof_07 = "(select or type here)" or ID_proof_07 = "(select or type here)"))) or _
+	       (HH_memb_08 <> "" and (exempt_reason_08 = "(select or type here)" and (cit_proof_08 = "(select or type here)" or ID_proof_08 = "(select or type here)"))) then
+	    	can_move_on = False
+          Else
+	    	can_move_on = True
+	    End if
+	    If can_move_on = False then MsgBox "You must select a cit and ID proof for each client whose name you've typed."
+		Call validate_MAXIS_case_number(err_msg, "*")
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 'Case noting & navigating to a new case note
 Call start_a_blank_CASE_NOTE
 EMSendKey "***CITIZENSHIP/IDENTITY***" & "<newline>"
