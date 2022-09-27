@@ -73,14 +73,17 @@ BeginDialog Dialog1, 0, 0, 176, 65, "Case number"
   Text 5, 30, 60, 10, "Worker signature:"
 EndDialog
 
-Do
-    err_msg = ""
-    Dialog Dialog1
-    cancel_without_confirmation
-	Call validate_MAXIS_case_number(err_msg, "*")
-	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-    If err_msg <> "" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-Loop until err_msg = ""
+DO
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+		Call validate_MAXIS_case_number(err_msg, "*")
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 'grabs CAF date, turns CAF date into string for variable
 call autofill_editbox_from_MAXIS(HH_member_array, "PROG", application_date)
