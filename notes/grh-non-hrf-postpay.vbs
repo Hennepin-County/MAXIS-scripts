@@ -212,6 +212,10 @@ objExcel.Cells(7,1) = "=MAX(A6:E6)" 		'this cell holds the earliest discharge da
 'Grabbing case number and putting in the month and year entered from dialog box.
 call MAXIS_case_number_finder(MAXIS_case_number)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
+'Delcares the variable GRH_process_date = footer month/01/year. this is needed to check if FACI outdates for postpay are in the processing footer month/year. If end dates matches processing footer month/year, workers may need to process post pay for that footer month/year.
+GRH_process_date = Maxis_footer_month & "/" & "01" & "/" & MAXIS_footer_year
+MAXIS_footer_month_confirmation									'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 'First Dialog that asks for case number and footer month.
@@ -240,25 +244,18 @@ EndDialog
 'First Dialog. Showing case number, postpay month & year...checking for valid entries of these info.  It'll loop until workers enter the right condition.
 Do
 	DO
-	     err_msg = ""
+	    err_msg = ""
 	    Dialog Dialog1
 	    cancel_confirmation
-	    If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
-	    If len(MAXIS_case_number) > 8 then err_msg = err_msg & vbCr & "Your case number need to be 8 digits or less."
-	    If MAXIS_footer_month = "" OR len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid month value of: MM"
+	    Call validate_MAXIS_case_number(err_msg, "*")
+		If MAXIS_footer_month = "" OR len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid month value of: MM"
 	    If MAXIS_footer_year = "" OR len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid year value of: YY"
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-    LOOP UNTIL err_msg = ""
+	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
 
-'Delcares the variable GRH_process_date = footer month/01/year. this is needed to check if FACI outdates for postpay are in the processing footer month/year. If end dates matches processing footer month/year, workers may need to process post pay for that footer month/year.
-GRH_process_date = Maxis_footer_month & "/" & "01" & "/" & MAXIS_footer_year
-call check_for_MAXIS(False)										'checking for an active MAXIS session
-MAXIS_footer_month_confirmation									'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
-
-MAXIS_background_check
 'navigating to FACI panel. reads if there are FACI panel or not. If none, then the script stop and closes active background excel sheets
 CALL navigate_to_MAXIS_screen ("STAT", "FACI")
 EMReadScreen faci_pnls, 1, 2, 78			'counts faci pnls
