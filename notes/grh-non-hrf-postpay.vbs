@@ -513,11 +513,11 @@ DO
 			LOOP UNTIL ButtonPressed = -1 OR ButtonPressed = previous_button
 			err_msg = ""
 			IF addr_faci_vnds_status = "" THEN err_msg = err_msg & vbCr & "* You must indicate a facility status within the 'Recent(Post Pay)Faci' field."
-			IF actions_taken = "" THEN 		err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
+			IF actions_taken = "" THEN err_msg = err_msg & vbCr & "* Please indicate the actions you have taken."
+			IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 			IF err_msg <> "" AND ButtonPressed = -1 THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		LOOP UNTIL err_msg = "" OR ButtonPressed = previous_button
 	LOOP WHILE ButtonPressed = previous_button
-	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
