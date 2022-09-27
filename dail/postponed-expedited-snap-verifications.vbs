@@ -86,26 +86,30 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 401, 70, "Verifications Needed"
   EditBox 90, 5, 305, 15, verifs_needed
   EditBox 305, 30, 90, 15, worker_signature
+  Text 95, 50, 75, 10, MAXIS_case_number
+  Text 95, 35, 90, 10, SNAP_application_date
   ButtonGroup ButtonPressed
     OkButton 295, 50, 50, 15
     CancelButton 345, 50, 50, 15
   Text 235, 35, 65, 10, "Sign your case note"
   Text 10, 10, 70, 10, "Verifications Needed:"
   Text 10, 35, 65, 10, "Date of application"
-  Text 95, 35, 90, 10, SNAP_application_date
   Text 10, 50, 50, 10, "Case Number"
-  Text 95, 50, 75, 10, MAXIS_case_number
-EndDialog
+  EndDialog
 
 'Runs the dialog to allow workers to sign and to list verifications needed
-Do
-    Do
-    	Dialog Dialog1
-    	cancel_without_confirmation
+DO
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+		Call validate_MAXIS_case_number(err_msg, "*")
+		IF verifs_needed = "" THEN err_msg = err_msg & vbCr & "* Please enter the postponed verifications requested."
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-    Loop until ButtonPressed = OK
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-Loop until are_we_passworded_out = false					'loops until user passwords back in
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 'The script checks to make sure it is on the NOTES main list
 EMReadScreen notes_check, 9, 2, 33
