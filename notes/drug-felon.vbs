@@ -132,7 +132,7 @@ DO
     	If case_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "Indicate what the case status is."
     	If action_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "Chose what process you are noting."
     	If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
     Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
@@ -155,7 +155,7 @@ Case "Initial Information Received"
 Dialog1 = "" 'Blanking out previous dialog detail
 'Dialog is defined here as the HH dropdown needs to be defined before the dialog is
 BeginDialog Dialog1, 0, 0, 196, 85, "Update FSS Information from the Status Update"
-  DropListBox 85, 5, 105, 15, "HH_Memb_DropDown", clt_to_update
+  DropListBox 85, 5, 105, 15, HH_Memb_DropDown, clt_to_update
   ComboBox 85, 25, 105, 15, "Assesed as not needing drug treatment."+chr(9)+"Currently in drug treatment."+chr(9)+"Successful completion of drug treatment.", docs_dropdown
   EditBox 85, 45, 105, 15, more_notes
   ButtonGroup ButtonPressed
@@ -233,16 +233,20 @@ Case "Initial Information Not Received"
       Text 5, 50, 55, 10, "Additional Notes:"
       Text 5, 70, 60, 10, "Worker Signature:"
     EndDialog'Running the dialog
-	Do
-	    err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-		If clt_to_update = "Select One..." Then err_msg = err_msg & vbNewLine & "Please pick the client you are processing DFLN information for."
-		If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-	Loop until err_msg = ""
-	clt_ref_num = left(clt_to_update, 2)	'Setting the reference number
 
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+    		If clt_to_update = "Select One..." Then err_msg = err_msg & vbNewLine & "Please pick the client you are processing DFLN information for."
+    		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+	clt_ref_num = left(clt_to_update, 2)	'Setting the reference number
 	'Checks MAXIS for password prompt
 	Call check_for_MAXIS(FALSE)
 	'Writes the case note
@@ -287,18 +291,18 @@ Case "Testing Follow Up"
 	Text 5, 30, 60, 10, "Probation Officer:"
 	Text 5, 80, 30, 10, "UA Date:"
 	EndDialog
-	DO
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must sign your case note"
-		IF IsNumeric(MAXIS_case_number)= FALSE THEN err_msg = err_msg & vbNewLine & "You must type a valid numeric case number."
-		If UA_results = "select one..." THEN err_msg = err_msg & vbNewLine & "You must select 'UA results field'"
-		If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-	LOOP UNTIL err_msg = ""
 
-	'Checks MAXIS for password prompt
-	Call check_for_MAXIS(FALSE)
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+      		If UA_results = "select one..." THEN err_msg = err_msg & vbNewLine & "You must select 'UA results field'"
+    		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 	'Writes the case note
 	start_a_blank_CASE_NOTE
