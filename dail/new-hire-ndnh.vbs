@@ -236,15 +236,16 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     EndDialog
 
 'Show dialog
-	DO
-	    DO
-	    	Dialog dialog1
-	    	cancel_confirmation
-	    	MAXIS_dialog_navigation
-			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-	    LOOP UNTIL ButtonPressed = -1
-	    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-    LOOP UNTIL are_we_passworded_out = false
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+       		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+    	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
     EMWriteScreen "JOBS", 20, 71    'Ensuring we're on JOBS for the right member still post dialog
 	Call write_value_and_transmit(HH_memb, 20, 76)
@@ -259,7 +260,6 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     'Now it will create a new JOBS panel for this case.
 	If create_JOBS_checkbox = checked then
     	Call write_value_and_transmit("NN", 20, 79)				'Creates new panel
-
         EmReadscreen closed_case_msg, 27, 20, 79    '??? Not sure if this is how we want to handle these.
         If closed_case_msg = "MAXIS PROGRAMS ARE INACTIVE" then script_end_procedure_with_error_report("This case is inactive. The script will now end.")
 
