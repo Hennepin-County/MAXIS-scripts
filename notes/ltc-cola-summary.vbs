@@ -93,10 +93,10 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
+		Call validate_MAXIS_case_number(err_msg, "*")
         If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
         If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -107,7 +107,6 @@ Call MAXIS_footer_month_confirmation
 
 If approval_summary_check = 1 then
     Call navigate_to_MAXIS_screen("STAT", "HCMI")
-
     EMReadScreen spenddown_option, 2, 10, 57
     If spenddown_option <> "__" then
         Call write_value_and_transmit ("FACI", 20, 71)
@@ -276,20 +275,19 @@ If approval_summary_check = 1 then
       EditBox 285, 5, 85, 15, recipient_amt
       EditBox 285, 25, 85, 15, ma_epd_premium_amt
       EditBox 90, 45, 280, 15, income
-      EditBox 50, 65, 320, 15, deductions
-      EditBox 85, 85, 185, 15, designated_provider
-      If BBUD_check = "BBUD" then
-        Text 280, 85, 25, 10, "NAV to:"
-        ButtonGroup ButtonPressed
-          PushButton 310, 85, 55, 10, "STAT/BILS", BILS_button_COLADLG
-          PushButton 310, 95, 55, 10, "ELIG/BBUD", BBUD_button
-      End If
+      EditBox 90, 65, 280, 15, deductions
+      EditBox 90, 85, 185, 15, designated_provider
       CheckBox 5, 110, 65, 10, "Updated RSPL?", updated_RSPL_check
       CheckBox 85, 110, 110, 10, "Approved new MAXIS results?", approved_check
       CheckBox 210, 110, 70, 10, "Sent DHS-3050?", DHS_3050_check
-      CheckBox 295, 110, 70, 10, "MADE Email Sent", made_email_checkbox
-      EditBox 75, 125, 295, 15, other
-      EditBox 80, 145, 120, 15, worker_signature
+      CheckBox 295, 110, 75, 10, "Email Sent to MADE", made_email_checkbox
+      EditBox 90, 125, 275, 15, other
+      If BBUD_check = "BBUD" then
+       Text 280, 85, 25, 10, "NAV to:"
+        ButtonGroup ButtonPressed
+        PushButton 310, 85, 55, 10, "STAT/BILS", BILS_button_COLADLG
+        PushButton 310, 95, 55, 10, "ELIG/BBUD", BBUD_button
+      End If
       ButtonGroup ButtonPressed
         OkButton 265, 145, 50, 15
         CancelButton 320, 145, 50, 15
@@ -300,8 +298,7 @@ If approval_summary_check = 1 then
       Text 5, 50, 80, 10, "Total countable income:"
       Text 5, 70, 45, 10, "Deductions:"
       Text 5, 90, 70, 10, "Designated provider:"
-      Text 5, 130, 65, 10, "Other (if applicable):"
-      Text 5, 150, 70, 10, "Sign your case note:"
+      Text 5, 130, 45, 10, "Other Notes:"
     EndDialog
 
     Do
@@ -322,7 +319,6 @@ If approval_summary_check = 1 then
             col = 1
             EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
             If row = 0 then script_end_procedure("A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background.")
-
             EMReadScreen elig_type, 2, 12, col - 2
             EMReadScreen budget_type, 1, 13, col + 2
             EMWriteScreen "x", 9, col + 2
@@ -339,7 +335,6 @@ If approval_summary_check = 1 then
     Loop until buttonpressed = OK
 
     Call start_a_blank_CASE_NOTE
-
     If ma_epd_premium_amt <> "" Then
     Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " - EPD Premium $" & ma_epd_premium_amt)
     else
