@@ -496,33 +496,35 @@ If income_summary_check = 1 then
 
     'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 391, 200, "COLA income dialog"
-      EditBox 30, 15, 350, 15, unearned_income
-      EditBox 30, 35, 350, 15, earned_income
-      EditBox 80, 55, 300, 15, medicare_part_B
-      EditBox 30, 100, 350, 15, unearned_income_spouse
-      EditBox 30, 120, 350, 15, earned_income_spouse
-      EditBox 50, 155, 335, 15, other_notes
-      EditBox 200, 175, 65, 15, worker_signature
+    BeginDialog Dialog1, 0, 0, 371, 180, "COLA income dialog"
+      EditBox 75, 15, 285, 15, unearned_income
+      EditBox 75, 35, 285, 15, earned_income
+      EditBox 75, 55, 285, 15, medicare_part_B
+      EditBox 75, 90, 285, 15, unearned_income_spouse
+      EditBox 75, 110, 285, 15, earned_income_spouse
+      EditBox 75, 140, 285, 15, other_notes
       ButtonGroup ButtonPressed
-        OkButton 275, 175, 50, 15
-        CancelButton 330, 175, 50, 15
-      GroupBox 5, 5, 380, 75, "Member 01"
-      Text 15, 20, 15, 10, "UI:"
-      Text 15, 40, 15, 10, "EI:"
-      Text 15, 60, 60, 10, "Medicare Part B:"
-      GroupBox 5, 90, 380, 55, "Spouse"
-      Text 15, 105, 15, 10, "UI:"
-      Text 15, 125, 15, 10, "EI:"
-      Text 5, 160, 45, 10, "Other notes:"
-      Text 135, 175, 60, 15, "Worker signature:"
+        OkButton 260, 160, 50, 15
+        CancelButton 310, 160, 50, 15
+      GroupBox 5, 5, 360, 75, "Member 01"
+      Text 10, 20, 65, 10, "Unearned Income:"
+      Text 10, 40, 55, 10, "Earned Income:"
+      Text 10, 60, 60, 10, "Medicare Part B:"
+      GroupBox 5, 80, 360, 55, "Spouse"
+      Text 10, 95, 65, 10, "Unearned Income:"
+      Text 10, 115, 55, 10, "Earned Income:"
+      Text 10, 145, 45, 10, "Other Notes:"
     EndDialog
 
-    Do
-        Dialog Dialog1
-        cancel_confirmation
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
     call start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE ("===COLA INCOME SUMMARY for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "===")
