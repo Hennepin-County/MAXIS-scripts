@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/28/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/08/2020", "Updated BUG when clearing match BO-Other added back IULB notes per DEU request.", "MiKayla Handley, Hennepin County") '#922
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("08/24/2021", "Remove mandatory handling from other notes variable.", "MiKayla Handley, Hennepin County") '#571 '
@@ -75,46 +76,50 @@ changelog_display
 'THE SCRIPT=================================================================================================================
 'Connecting to MAXIS, and grabbing the case number and footer month'
 EMConnect ""
-CALL check_for_maxis(FALSE) 'checking for passord out, brings up dialog'
+CALL check_for_maxis(FALSE) 'checking for password out, brings up dialog'
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 If MAXIS_case_number <> "" Then 		'If a case number is found the script will get the list of
 	Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
 End If
-'Running the dialog for case number and client
-Do
-	err_msg = ""
-    Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 201, 90, "Match Cleared"
-	  EditBox 55, 5, 45, 15, MAXIS_case_number
-	  DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
-	  EditBox 80, 45, 115, 15, worker_signature
-	  ButtonGroup ButtonPressed
-	    OkButton 100, 70, 45, 15
-	    CancelButton 150, 70, 45, 15
-	  Text 5, 10, 45, 10, "Case number:"
-	  Text 5, 30, 70, 10, "Household member:"
-	  Text 5, 50, 60, 10, "Worker signature:"
-	  ButtonGroup ButtonPressed
-	    PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
-	EndDialog
+'Running the initial dialog to confirm what type match is being cleared and the specifics about the case
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+DO
+	DO
+	   err_msg = ""
+       Dialog1 = ""
+       BeginDialog Dialog1, 0, 0, 201, 85, "Match Cleared"
+         EditBox 55, 5, 45, 15, MAXIS_case_number
+         DropListBox 80, 25, 115, 15, HH_Memb_DropDown, clt_to_update
+         EditBox 80, 45, 115, 15, worker_signature
+         ButtonGroup ButtonPressed
+           PushButton 110, 5, 85, 15, "HH MEMB SEARCH", search_button
+           OkButton 90, 65, 50, 15
+           CancelButton 145, 65, 50, 15
+         Text 5, 30, 70, 10, "Household member:"
+         Text 5, 50, 60, 10, "Worker signature:"
+         Text 5, 10, 45, 10, "Case number:"
+       EndDialog
 
-	Dialog Dialog1
-	IF ButtonPressed = cancel Then StopScript
-	IF ButtonPressed = search_button Then
-		If MAXIS_case_number = "" Then
-			MsgBox "Cannot search without a case number, please try again."
-		Else
-			HH_Memb_DropDown = ""
-			Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
-			err_msg = err_msg & "Start Over"
-		End If
-	End If
-	IF MAXIS_case_number = "" Then err_msg = err_msg & vbNewLine & "Please enter a valid case number."
-	IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please select a client to update."
-	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "Please enter your worker signature."
-	IF err_msg <> "" AND left(err_msg, 10) <> "Start Over" Then MsgBox "Please resolve the following to continue:" & vbNewLine & err_msg
-Loop until err_msg = ""
+	    Dialog Dialog1
+	    cancel_confirmation
+	    Call validate_MAXIS_case_number(err_msg, "*")
+	    IF ButtonPressed = search_button Then 'this will check for if the worker is on the DAIL and the script cant find a case number'
+	    	IF MAXIS_case_number = "" Then
+	    		MsgBox "Cannot search without a case number, please try again."
+	    	Else
+	    		HH_Memb_DropDown = ""
+	    		Call Generate_Client_List(HH_Memb_DropDown, "Select One:")
+	    		err_msg = err_msg & "Start Over"
+	    	End If
+	    End If
+		IF clt_to_update = "Select One:" Then err_msg = err_msg & vbNewLine & "Please select a client to update."
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
@@ -328,7 +333,7 @@ IF notice_sent = "N" THEN
 		IF other_checkbox = CHECKED and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please ensure you are completing other notes"
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
-	CALL check_for_password_without_transmit(are_we_passworded_out)
+	CALL check_for_password_without_transmit(are_we_passworded_out) 'this cannot have a trasnmit due to navigation in IUL screens'
 END IF
 
 IF difference_notice_action_dropdown =  "YES" THEN '--------------------------------------------------------------------sending the notice in IULA
