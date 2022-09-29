@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("11/12/2020", "Updated HSR Manual link for Facility List due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("01/27/2020", "Removed handling for the DAIL deletion.", "MiKayla Handley, Hennepin County")
@@ -130,6 +131,7 @@ IF dail_check = "DAIL" THEN
 		    PushButton 265, 5, 100, 15, "HSR Manual - FACI", HSR_manual_button
 		    PushButton 265, 25, 100, 15, "Inmate Locator", inmate_locator_button
 		  DropListBox 265, 45, 100, 15, "Select One:"+chr(9)+"County Correctional Facility"+chr(9)+"Non-County Adult Correctional", faci_type
+		  EditBox 95, 165, 100, 15, worker_signature
 		  ButtonGroup ButtonPressed
 		    OkButton 260, 165, 50, 15
 		    CancelButton 315, 165, 50, 15
@@ -142,6 +144,7 @@ IF dail_check = "DAIL" THEN
 		  Text 10, 15, 240, 20, full_message
 		  Text 5, 130, 75, 10, "Verification(s) Needed:"
 		  Text 5, 150, 45, 10, "Other Notes:"
+		  Text 5, 170, 60, 10, "Worker signature:"
 		EndDialog
 
         when_contact_was_made = date & ", " & time
@@ -155,6 +158,7 @@ IF dail_check = "DAIL" THEN
 					If ButtonPressed = inmate_locator_button then CreateObject("WScript.Shell").Run("https://www.bop.gov/inmateloc/")
 					If ButtonPressed = HSR_manual_button then CreateObject("WScript.Shell").Run("https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Facility_List.aspx")
 				Loop until ButtonPressed = -1
+				IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 				If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
 				IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 			LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -162,10 +166,10 @@ IF dail_check = "DAIL" THEN
 		Loop until are_we_passworded_out = false					'loops until user passwords back in
     	Call check_for_MAXIS(False)
     END IF
-    
+
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     IF tikl_checkbox = CHECKED THEN Call create_TIKL("Check status of HH member " & hh_member & "'s incarceration at " & facility_contact & ". Incarceration Start Date was " & confinement_start_date & ".", 0, date_out, False, TIKL_note_text)
-    
+
     'THE CASENOTE----------------------------------------------------------------------------------------------------
     Call navigate_to_MAXIS_screen("CASE", "NOTE")
     PF9 'edit mode

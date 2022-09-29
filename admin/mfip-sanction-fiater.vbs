@@ -125,28 +125,25 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 'first dialog'
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 356, 115, "Sanction"
-  EditBox 100, 5, 65, 15, MAXIS_case_number
-  EditBox 105, 30, 20, 15, MAXIS_footer_month
-  EditBox 135, 30, 20, 15, MAXIS_footer_year
-  EditBox 95, 55, 105, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 191, 120, "Sanction"
+  EditBox 70, 5, 65, 15, MAXIS_case_number
+  EditBox 70, 25, 20, 15, MAXIS_footer_month
+  EditBox 95, 25, 20, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
-    OkButton 60, 85, 50, 15
-    CancelButton 115, 85, 50, 15
-  Text 70, 10, 25, 10, "Case #:"
-  Text 130, 35, 5, 10, "/"
-  Text 15, 35, 80, 10, "sanction month (mm/yy):"
-  Text 30, 60, 65, 10, "Worker's Signature:"
-  GroupBox 205, 5, 145, 95, "Note:"
-  Text 215, 20, 125, 60, "Please make sure you update EMPS or ABPS panels correctly before running the FIAT SANCTION script. Cancel script if you need to update the panels."
+    OkButton 70, 45, 50, 15
+    CancelButton 120, 45, 50, 15
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 30, 60, 10, "Sanction MM/YY:"
+  GroupBox 5, 60, 180, 55, "Note:"
+  Text 15, 70, 170, 25, "Please make sure you update EMPS or ABPS panels correctly before running the FIAT SANCTION script."
+  Text 15, 100, 155, 10, " Cancel script if you need to update the panels."
 EndDialog
 
 Do
 	err_msg = ""
 	Dialog Dialog1
 	cancel_confirmation
-	If MAXIS_case_number = "" then err_msg = err_msg & vbCr & "You must have a case number to continue."
-	If len(MAXIS_case_number) > 8 then err_msg = err_msg & vbCr & "Your case number need to be 8 digits or less."
+	Call validate_MAXIS_case_number(err_msg, "*")
 	If MAXIS_footer_month = "" OR len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid month value of: MM"
 	If MAXIS_footer_year = "" OR len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbCr & "You must enter a valid year value of: YY"
 	'If Cint(MAXIS_footer_month) > Cint(month(date()) + 2) then err_msg = err_msg & vbCr & "You cannot sanction for more than 2 months in the future"

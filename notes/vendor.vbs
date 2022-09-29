@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("10/23/2019", "New functionality added to the Vendor script to pull vendor information from MAXIS.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/21/2019", "Initial version.", "Casey Love, Hennepin County")
 
@@ -71,31 +72,33 @@ Call MAXIS_case_number_finder(MAXIS_case_number)            'Pulling the case nu
 Do
     Do
         err_msg = ""
-
         'Case number and Vendor Number Dialog - finding the information needed to autofill
         'This has to be defined within the loop because there is another dialog in this loop - the search function
 		'-------------------------------------------------------------------------------------------------DIALOG
 		Dialog1 = "" 'Blanking out previous dialog detail
-        BeginDialog Dialog1, 0, 0, 331, 105, "Vendor Numbers to NOTE"
-          EditBox 275, 15, 50, 15, MAXIS_case_number
-          EditBox 110, 35, 215, 15, vendor_number_list
+        BeginDialog Dialog1, 0, 0, 326, 95, "Vendor Numbers to NOTE"
+          EditBox 60, 5, 50, 15, MAXIS_case_number
+          EditBox 105, 25, 215, 15, vendor_number_list
+          EditBox 70, 75, 135, 15, worker_signature
           ButtonGroup ButtonPressed
-            PushButton 265, 70, 60, 10, "Vendor Search", vendor_search_button
-            OkButton 220, 85, 50, 15
-            CancelButton 275, 85, 50, 15
-          Text 10, 10, 195, 20, "This script will enter a CASE/NOTE with Vendor Information for a case. Mutiple vendors can be noted at a time."
-          Text 220, 20, 50, 10, "Case Number:"
-          Text 10, 40, 100, 10, "Established Vendor Numbers:"
-          Text 115, 55, 210, 10, "*Enter vendor numbers separated by commas if more than one."
-          Text 10, 75, 140, 25, "There will be a place to add vendor information for a vendor that does not yet have a vendor number in the next dialog."
+            PushButton 260, 45, 60, 15, "Vendor Search", vendor_search_button
+            OkButton 215, 75, 50, 15
+            CancelButton 270, 75, 50, 15
+          Text 5, 10, 50, 10, "Case Number:"
+          Text 5, 30, 100, 10, "Established Vendor Numbers:"
+          Text 5, 45, 210, 10, "*Enter vendor numbers separated by commas if more than one."
+          Text 5, 55, 245, 20, "There will be a place to add vendor information for a vendor that does not yet have a vendor number in the next dialog."
+          Text 5, 80, 60, 10, "Worker signature:"
+          Text 120, 5, 195, 20, "This script will enter a CASE/NOTE with Vendor Information for a case. Mutiple vendors can be noted at a time."
         EndDialog
 
 		DO
 		    DO
 		    	err_msg = ""
-		    	DIALOG Dialog1
+		    		DIALOG Dialog1
 		    		cancel_without_confirmation
 		    		IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
+					IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		    	LOOP UNTIL err_msg = ""
 		    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -251,6 +254,7 @@ Do
             If trim(VENDOR_INFO_ARRAY(vnds_name, each_vendor)) = "" Then err_msg = err_msg & vbNewLine & "* Enter the name of the vendor."          'VENDOR NAME
             If trim(VENDOR_INFO_ARRAY(vnds_type, each_vendor)) = "" OR trim(VENDOR_INFO_ARRAY(vnds_type, each_vendor)) = "Select or Type" Then err_msg = err_msg & vbNewLine & "* Enter the type of vendor"     'VENDOR TYPE
         Next
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg     'Showing the error message
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)          'password handling

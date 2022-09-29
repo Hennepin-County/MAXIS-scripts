@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("02/10/2022", "Removed confirmation when hitting cancel. Added handing for subsequent applications. ", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/01/2021", "GitHub #189 Updated script to remove correction email process.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("01/31/2020", "Initial version.", "MiKayla Handley, Hennepin County")
@@ -86,6 +87,7 @@ BeginDialog Dialog1, 0, 0, 286, 145, "Notes On Demand"
   CheckBox 55, 80, 170, 10, "Interview not needed for MFIP to SNAP transition", MTAF_checkbox
   CheckBox 55, 90, 90, 10, "Other(please describe)", other_notes_checkbox
   EditBox 55, 105, 170, 15, other_notes
+  EditBox 70, 125, 100, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 180, 125, 50, 15
     CancelButton 235, 125, 50, 15
@@ -93,7 +95,9 @@ BeginDialog Dialog1, 0, 0, 286, 145, "Notes On Demand"
   Text 5, 10, 50, 10, "Case number:"
   Text 5, 110, 45, 10, "Other notes:"
   Text 110, 10, 65, 10, "Date of application:"
+  Text 5, 130, 60, 10, "Worker signature:"
 EndDialog
+
 
 'Runs the first dialog - which confirms the case number
 Do
@@ -102,13 +106,14 @@ Do
 		Dialog Dialog1
 		cancel_without_confirmation
 		CALL MAXIS_dialog_navigation()
-		IF IsNumeric(maxis_case_number) = FALSE or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
+		Call validate_MAXIS_case_number(err_msg, "*")
 		IF IsDate(application_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date."
 		IF other_notes_checkbox = CHECKED THEN
 			case_status = "Other"
 			IF case_status = "Other(please describe)" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter a description of what occurred."
 		END IF
-		IF ButtonPressed = NOTE_button or ButtonPressed = PROG_button THEN 'need the error message to not be blank so that it wont message box but it will not leave '
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+ 		IF ButtonPressed = NOTE_button or ButtonPressed = PROG_button THEN 'need the error message to not be blank so that it wont message box but it will not leave '
 			err_msg = "Loop"
 		ELSE
 			IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine 'error message including instruction on what needs to be fixed from each mandatory field if incorrect

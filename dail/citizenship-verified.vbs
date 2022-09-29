@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("08/07/2019", "Updated coding to enter the citizenship verif code at new location due to MEMI panel changes associated with New Spouse Income Policy.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -53,9 +54,7 @@ changelog_display
 
 'custom function for this script---------------------------------------------------------------------------------
 Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
-
-	CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
-
+CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
 	DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
 		EMReadscreen ref_nbr, 3, 4, 33
 		EMReadscreen last_name, 5, 6, 30
@@ -82,7 +81,7 @@ Function HH_member_custom_dialog_cit_id_ver(HH_member_array)
 		all_clients_array(x, 0) = Interim_array(x)
 		all_clients_array(x, 1) = 0			'Defaulting to update none persons so the user has to update them thar persons
 	NEXT
-    
+
     Dialog1 = ""
 	BEGINDIALOG Dialog1, 0, 0, 191, (35 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
 		Text 10, 5, 105, 10, "Household members to update:"
@@ -147,16 +146,23 @@ Next
 
 'Dialog to get worker signature----------------------------------------------------------------------------------------------
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 201, 50, "Dialog"
-  EditBox 50, 10, 150, 15, worker_signature
-  Text 5, 5, 40, 20, "Worker Signature:"
+BeginDialog Dialog1, 0, 0, 201, 45, "Dialog"
+  EditBox 75, 5, 120, 15, worker_signature
+  Text 5, 10, 65, 10, "Worker Signature:"
   ButtonGroup ButtonPressed
-    OkButton 85, 30, 50, 15
-    CancelButton 140, 30, 50, 15
+    OkButton 85, 25, 50, 15
+    CancelButton 135, 25, 50, 15
 EndDialog
-
-Dialog Dialog1 
-Cancel_without_confirmation
+Do
+	Do
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 STATS_counter = STATS_counter - 1 'Had to -1 at the end of the script because the counter starts at 1 and Veronica has reasons why we should not change it to 0.
 
 'Case note section-----------------------------------------------------------------------------------------------------------

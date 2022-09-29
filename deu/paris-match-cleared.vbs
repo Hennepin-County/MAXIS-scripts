@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("06/23/2022", "Added fix for PARIS matches that were not the 1st DAIL message for a case.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2022", "Added fix for PARI DAIL's while DHS interface with SSN is being repaired. Also made some functional changes to support the user experience.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/15/2019", "Updated script to copy case note to CCOL and clear matches FR.", "MiKayla Handley, Hennepin County")
@@ -294,12 +295,10 @@ IF paris_action = "Yes, send the notice" then
     	Text 10, 35, 110, 10, "Match month: "   & Match_Month
     	Text 165, 35, 175, 10, "MN active program(s): "   & MN_active_programs
     GroupBox 5, 50, 360, 75, "PARIS MATCH INFORMATION:"
-
     	    Text 10, 60, 75, 10, "Match State: "   & state_array(state_name, 0)
     	    Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, 0)
     	    Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, 0)
     	    Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, 0)
-
     	If multi_state = True then
     	    Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, 1)
     	    Text 185, 90, 185, 10, "2nd Match Active Programs: "   & state_array(progs, 1)
@@ -318,6 +317,8 @@ IF paris_action = "Yes, send the notice" then
       CheckBox 210, 160, 70, 10, "Proof of Residency", proof_residency_CHECKBOX
       CheckBox 290, 160, 70, 10, "School Verification", schl_verf_CHECKBOX
       EditBox 120, 195, 245, 15, Other_Notes
+  	  EditBox 70, 215, 140, 15, worker_signature
+  	  Text 5, 220, 60, 10, "Worker Signature:"
       Text 75, 200, 40, 10, "Other notes:"
     ButtonGroup ButtonPressed
         OkButton 220, 215, 70, 15
@@ -333,7 +334,8 @@ IF paris_action = "Yes, send the notice" then
     		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
     		IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
     		IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     	LOOP UNTIL err_msg = ""
     	CALL check_for_password(are_we_passworded_out)
     LOOP UNTIL are_we_passworded_out = false
@@ -376,6 +378,7 @@ IF paris_action = "Yes, send the notice" then
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
     CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+	CALL write_variable_in_CASE_NOTE(worker_signature)
     CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
     closing_msg = "Success, the difference notice was sent to this resident."
@@ -393,12 +396,12 @@ Else
      Text 10, 75, 135, 10, "Match State Case Number: "   & state_array(match_case_num, 0)
      Text 10, 90, 155, 10, "Match State Active Programs: " & state_array(progs, 0)
      Text 10, 105, 360, 15, "Match State Contact Info: " & state_array(contact_info, 0)
-    If multi_state = True then
+     If multi_state = True then
         Text 185, 60, 110, 10, "2nd Match State: "   &  state_array(state_name, 1)
         Text 185, 90, 185, 10, "2nd Match Active Programs: "   & state_array(progs, 1)
         Text 185, 75, 175, 10, "2nd Match State Case Number: " & state_array(match_case_num, 1)
         Text 185, 105, 175, 15, "2nd Match Contact Info: "  & state_array(contact_info, 1)
-    End if
+     End if
   	 Text 10, 140, 110, 10, "Accessing benefits in other state:"
      DropListBox 120, 135, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", bene_other_state
      DropListBox 120, 155, 55, 15, "Select One:"+chr(9)+"YES"+chr(9)+"NO", contact_other_state
@@ -409,11 +412,13 @@ Else
      CheckBox 210, 160, 70, 10, "Proof of Residency", proof_residency_CHECKBOX
      CheckBox 290, 160, 70, 10, "School Verification", schl_verf_CHECKBOX
      DropListBox 210, 195, 155, 15, "Select One:"+chr(9)+"PR - Person Removed From Household"+chr(9)+"HM - Household Moved Out Of State"+chr(9)+"RV - Residency Verified, Person in MN"+chr(9)+"FR - Failed Residency Verification Request"+chr(9)+"PC - Person Closed, Not PARIS Interstate"+chr(9)+"CC - Case Closed, Not PARIS Interstate", resolution_status
-     EditBox 210, 220, 155, 15, Other_Notes
-     Text 150, 200, 60, 10, "Resolution Status:"
+  	 EditBox 210, 220, 155, 15, Other_Notes
+	 EditBox 75, 240, 140, 15, worker_signature
+	 Text 150, 200, 60, 10, "Resolution Status:"
      Text 170, 225, 40, 10, "Other notes:"
-	 Text 60, 180, 60, 10, "Referral to Fraud:  "
-	 Text 55, 160, 65, 10, "Contact other State:  "
+	 Text 60, 180, 60, 10, "Referral to Fraud:"
+	 Text 55, 160, 65, 10, "Contact other State:"
+     Text 5, 245, 60, 10, "Worker Signature:"
   	 ButtonGroup ButtonPressed
      	OkButton 220, 240, 70, 15
      	CancelButton 295, 240, 70, 15
@@ -427,7 +432,8 @@ Else
     		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
     		IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
 			IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     	LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)
 	LOOP UNTIL are_we_passworded_out = false
@@ -486,6 +492,7 @@ Else
 	CALL write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
     CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+	CALL write_variable_in_CASE_NOTE(worker_signature)
     CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
     closing_msg = "Success, your PARIS match has been resolved and case noted."
 END IF

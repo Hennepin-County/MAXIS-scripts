@@ -38,6 +38,18 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("06/26/2017", "Initial version.", "MiKayla Handley")
+
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -47,36 +59,38 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 date_request_sent = date & ""
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 281, 215, "ACF Request Pending"
-  EditBox 50, 5, 55, 15, MAXIS_case_number
+BeginDialog Dialog1, 0, 0, 281, 205, "ACF Request Pending"
+  EditBox 55, 5, 55, 15, MAXIS_case_number
   EditBox 225, 5, 50, 15, date_request_sent
-  EditBox 50, 30, 55, 15, monthly_rent
-  EditBox 225, 30, 50, 15, damage_deposit
-  EditBox 225, 55, 50, 15, amount_vendored
-  EditBox 225, 80, 50, 15, account_balance
-  EditBox 70, 105, 50, 15, earned_income
-  EditBox 225, 105, 50, 15, unearned_income
-  EditBox 70, 125, 50, 15, mfip
-  EditBox 225, 125, 50, 15, dwp
-  EditBox 115, 150, 160, 15, income_used_for
-  EditBox 80, 170, 195, 15, reason_for_issuance
-  EditBox 50, 195, 110, 15, other_notes
+  EditBox 55, 25, 55, 15, monthly_rent
+  EditBox 225, 25, 50, 15, damage_deposit
+  EditBox 225, 45, 50, 15, amount_vendored
+  EditBox 225, 65, 50, 15, account_balance
+  EditBox 60, 85, 50, 15, earned_income
+  EditBox 225, 85, 50, 15, unearned_income
+  EditBox 60, 105, 50, 15, mfip
+  EditBox 225, 105, 50, 15, dwp
+  EditBox 115, 125, 160, 15, income_used_for
+  EditBox 80, 145, 195, 15, reason_for_issuance
+  EditBox 80, 165, 195, 15, other_notes
+  EditBox 80, 185, 90, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 170, 195, 50, 15
-    CancelButton 225, 195, 50, 15
-  Text 5, 35, 45, 10, "Monthly rent: "
-  Text 25, 85, 195, 10, "Balance in HCEA shelter account available towards rent/DD:"
-  Text 80, 60, 140, 10, "Amount vendored to HCEA shelter account:"
-  Text 15, 110, 55, 10, "Earned Income:"
-  Text 155, 110, 60, 10, "Unearned Income:"
-  Text 5, 155, 105, 10, "Income this month was used for:"
+    OkButton 175, 185, 50, 15
+    CancelButton 225, 185, 50, 15
+  Text 25, 70, 195, 10, "Balance in HCEA shelter account available towards rent/DD:"
+  Text 85, 50, 140, 10, "Amount vendored to HCEA shelter account:"
+  Text 5, 90, 55, 10, "Earned Income:"
+  Text 165, 90, 60, 10, "Unearned Income:"
+  Text 5, 130, 105, 10, "Income this month was used for:"
   Text 115, 10, 110, 10, "Request sent to HSS JW/GLA on:"
-  Text 45, 125, 20, 10, "MFIP:"
-  Text 195, 130, 20, 10, "DWP:"
-  Text 20, 10, 25, 10, "Case #"
-  Text 5, 175, 70, 10, "Reason for Issuance:"
-  Text 160, 35, 55, 10, "Damage deposit:"
-  Text 5, 200, 40, 10, "Other notes:"
+  Text 35, 110, 20, 10, "MFIP:"
+  Text 205, 110, 20, 10, "DWP:"
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 150, 70, 10, "Reason for Issuance:"
+  Text 165, 30, 55, 10, "Damage deposit:"
+  Text 5, 170, 40, 10, "Other notes:"
+  Text 5, 30, 45, 10, "Monthly rent: "
+  Text 5, 190, 60, 10, "Worker Signature:"
 EndDialog
 
 'Running the initial dialog
@@ -97,6 +111,7 @@ DO
 		If dwp = "" then err_msg = err_msg & vbNewLine & "* Enter the DWP amount."
 		If income_used_for = "" then err_msg = err_msg & vbNewLine & "* Enter what the applicant income was used for."
 		If reason_for_issuance = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for Issuance."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -112,7 +127,7 @@ EMWriteScreen CM_yr, 20, 46
 'The case note'
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("### All County Funds Request Pending ###")
-Call write_bullet_and_variable_in_CASE_NOTE("Request was sent to HSS JW and GLA on", date_request_sent)
+Call write_bullet_and_variable_in_CASE_NOTE("Request was sent to HSS on", date_request_sent)
 Call write_bullet_and_variable_in_CASE_NOTE("Monthly Rent Amount", monthly_rent)
 Call write_bullet_and_variable_in_CASE_NOTE("Damage Deposit", damage_deposit)
 Call write_bullet_and_variable_in_CASE_NOTE("Amount Vendored", amount_vendored)

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("11/27/2019", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -118,7 +119,8 @@ Do
 		IF replacement_status <> "Pending Complete DHS-1609" and IsDate(dhs1609_sig_date) <> TRUE or dhs1609_sig_date = "" Then err_msg = err_msg & vbCr & "* Please complete the date the client signed the form or write N/A."
     	IF TSS_BENE_sent_checkbox = UNCHECKED and replacement_status = "Submitted Request to TSS BENE" THEN err_msg = err_msg & vbCr & "* Please check that the TSS BENE Webform has been completed."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-    LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+ 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 

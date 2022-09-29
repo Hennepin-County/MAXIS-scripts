@@ -44,32 +44,34 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("08/01/2017", "Initial version.", "MiKayla Handley, Hennepin County")
-
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 EMConnect ""
-
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-memb_number = "01"
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 231, 90, "ACF Used for Shelter Stay"
-  EditBox 110, 10, 50, 15, Shelter_stay_bgn
-  EditBox 175, 10, 50, 15, Shelter_stay_end
-  EditBox 75, 30, 50, 15, EA_avail_date
-  EditBox 45, 50, 180, 15, Comments_notes
+BeginDialog Dialog1, 0, 0, 261, 85, "ACF Used for Shelter Stay"
+  EditBox 75, 5, 50, 15, MAXIS_case_number
+  EditBox 75, 25, 50, 15, Shelter_stay_bgn
+  EditBox 150, 25, 50, 15, Shelter_stay_end
+  EditBox 205, 5, 50, 15, EA_avail_date
+  EditBox 75, 45, 180, 15, Comments_notes
+  EditBox 75, 65, 70, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 120, 70, 50, 15
-    CancelButton 175, 70, 50, 15
-  Text 5, 35, 70, 10, "EA will be available:"
-  Text 165, 15, 10, 10, "to"
-  Text 5, 15, 105, 10, "Use ACF for Shelter Stay Dates:"
-  Text 5, 55, 40, 10, "Comments: "
+    OkButton 155, 65, 50, 15
+    CancelButton 205, 65, 50, 15
+  Text 135, 30, 10, 10, "to"
+  Text 5, 30, 65, 10, "Shelter stay dates:"
+  Text 5, 50, 40, 10, "Comments: "
+  Text 135, 10, 70, 10, "EA will be available:"
+  Text 5, 70, 60, 10, "Worker signature:"
+  Text 5, 10, 50, 10, "Case number: "
 EndDialog
-
 Do
 	Do
 		err_msg = ""
@@ -79,16 +81,18 @@ Do
 		IF isdate(Shelter_stay_bgn) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of for the start of shelter stay."
 		IF isdate(shelter_stay_end) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of for the end of shelter stay."
         IF isdate(EA_avail_date) = False then err_msg = err_msg & vbnewline & "* Enter a valid date of for EA availablity."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 start_a_blank_CASE_NOTE
-	Call write_variable_in_CASE_NOTE ("### ACF Used for Shelter Stay " & Shelter_stay_bgn & "-" & Shelter_stay_end & " ###")
-	Call write_bullet_and_variable_in_CASE_NOTE("EA will be available", EA_avail_date)
-	Call write_bullet_and_variable_in_case_note("Comments", Comments_Notes)
-	Call write_variable_in_CASE_NOTE ("-----")
-	Call write_variable_in_CASE_NOTE ("Hennepin County Shelter Team")
+Call write_variable_in_CASE_NOTE ("### ACF Used for Shelter Stay " & Shelter_stay_bgn & "-" & Shelter_stay_end & " ###")
+Call write_bullet_and_variable_in_CASE_NOTE("EA will be available", EA_avail_date)
+Call write_bullet_and_variable_in_case_note("Comments", Comments_Notes)
+Call write_variable_in_CASE_NOTE ("---")
+Call write_variable_in_CASE_NOTE(worker_signature)
+Call write_variable_in_CASE_NOTE ("Hennepin County Shelter Team")
 
 script_end_procedure ("")

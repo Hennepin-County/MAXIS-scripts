@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 call changelog_update("02/22/2018", "Added option to send QURY for covered quarters.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -89,7 +90,8 @@ Do
         cancel_without_confirmation
         member_number = trim(member_number)
         call validate_MAXIS_case_number(err_msg, "*")
-        If member_number = "" Then err_msg = err_msg & vbNewLine & "* Enter the member number that needs a SVES sent."
+        If member_number = "" Then err_msg = err_msg & vbNewLine & "* Please enter the member number that needs a SVES sent."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         If err_msg <> "" Then MsgBox "*** Please Resolve to Continue: " & vbNewLine & err_msg
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
@@ -288,7 +290,7 @@ script_end_procedure("")
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------05/25/2022
 '--Tab orders reviewed & confirmed----------------------------------------------05/25/2022
-'--Mandatory fields all present & Reviewed--------------------------------------05/25/2022
+'--Mandatory fields all present & reviewed--------------------------------------09/16/2022
 '--All variables in dialog match mandatory fields-------------------------------05/25/2022
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------

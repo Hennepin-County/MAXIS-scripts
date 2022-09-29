@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("01/09/2020", "Restructured and updated the back end of script.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/25/2017", "Added header to be specific to the MAXIS footer month/year approved.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/29/2016", "Added header update for 2017 in case notes, and made this a variable year vs. hard coding this information into the script, and needing yearly updates.", "Ilse Ferris, Hennepin County")
@@ -70,18 +71,20 @@ MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 171, 125, "COLA case number dialog"
+BeginDialog Dialog1, 0, 0, 171, 140, "COLA case number dialog"
   EditBox 100, 10, 60, 15, MAXIS_case_number
   EditBox 115, 30, 20, 15, MAXIS_footer_month
   EditBox 140, 30, 20, 15, MAXIS_footer_year
   CheckBox 50, 65, 75, 10, "Approval Summary", approval_summary_check
-  CheckBox 50, 80, 70, 10, "Income Summary", income_summary_check
+  CheckBox 50, 75, 70, 10, "Income Summary", income_summary_check
+  EditBox 70, 100, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 30, 100, 50, 15
-    CancelButton 95, 100, 50, 15
-  Text 5, 35, 105, 10, "Approval Month/Year (MM/YY):"
-  Text 10, 15, 85, 10, "Enter your case number:"
+    OkButton 70, 120, 50, 15
+    CancelButton 120, 120, 50, 15
+  Text 5, 15, 85, 10, "Enter your case number:"
   GroupBox 30, 55, 110, 40, "COLA case note types"
+  Text 5, 35, 105, 10, "Approval Month/Year (MM/YY):"
+  Text 5, 105, 60, 10, "Worker signature:"
 EndDialog
 
 'Showing the case number dialog
@@ -90,9 +93,10 @@ DO
 		err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
 		dialog Dialog1				'main dialog
 		cancel_without_confirmation
-		IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "* Enter a valid case number."		'mandatory fields
+		Call validate_MAXIS_case_number(err_msg, "*")
         If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
         If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -103,7 +107,6 @@ Call MAXIS_footer_month_confirmation
 
 If approval_summary_check = 1 then
     Call navigate_to_MAXIS_screen("STAT", "HCMI")
-
     EMReadScreen spenddown_option, 2, 10, 57
     If spenddown_option <> "__" then
         Call write_value_and_transmit ("FACI", 20, 71)
@@ -146,10 +149,10 @@ If approval_summary_check = 1 then
           End if
         Next
     End if
-    
+
     back_to_self
     Call navigate_to_MAXIS_screen("ELIG", "HC  ")
-    
+
     'checks if the first person has HC if not it selects person 02.
     EMReadScreen person_check, 2, 8, 31
     If person_check = "NO" then
@@ -157,7 +160,7 @@ If approval_summary_check = 1 then
         EMWriteScreen "x", 9, 26
     End if
     If person_check <> "NO" then Call write_value_and_transmit("x", 8, 26)
-    
+
     row = 3
     col = 1
     EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
@@ -167,7 +170,7 @@ If approval_summary_check = 1 then
     EMReadScreen budget_type, 1, 12, col + 3
     EMWriteScreen "x", 9, col + 2
     transmit
-    
+
     'Reads which BUD screen it ended up on and then acts accordingly
     EMReadScreen LBUD_check, 4, 3, 45
     If LBUD_check = "LBUD" then
@@ -232,7 +235,7 @@ If approval_summary_check = 1 then
     If BBUD_check = "BBUD" then
         EMReadScreen income, 10, 12, 32
         income = "$" & trim(income)
-            
+
         '-------------------------------------------------------------------------------------------------BBUD DIALOG
         Dialog1 = "" 'Blanking out previous dialog detail
         BeginDialog Dialog1, 0, 0, 191, 76, "BBUD"
@@ -241,17 +244,17 @@ If approval_summary_check = 1 then
             PushButton 20, 25, 70, 15, "Jump to STAT/BILS", BILS_button
             PushButton 100, 25, 70, 15, "Stay in ELIG/HC", ELIG_button
             CancelButton 135, 55, 50, 15
-        EndDialog    
+        EndDialog
         Do
             Dialog Dialog1
             If ButtonPressed = ELIG_button then exit do
-            If ButtonPressed = BILS_Button then 
+            If ButtonPressed = BILS_Button then
                 PF3
                 Call navigate_to_MAXIS_screen("STAT", "BILS")
                 EMReadScreen BILS_check, 4, 2, 54
                 If BILS_check <> "BILS" then transmit
                 exit do
-            End if 
+            End if
       	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
         Loop until are_we_passworded_out = false					'loops until user passwords back inn
     End if
@@ -272,20 +275,19 @@ If approval_summary_check = 1 then
       EditBox 285, 5, 85, 15, recipient_amt
       EditBox 285, 25, 85, 15, ma_epd_premium_amt
       EditBox 90, 45, 280, 15, income
-      EditBox 50, 65, 320, 15, deductions
-      EditBox 85, 85, 185, 15, designated_provider
-      If BBUD_check = "BBUD" then
-        Text 280, 85, 25, 10, "NAV to:"
-        ButtonGroup ButtonPressed
-          PushButton 310, 85, 55, 10, "STAT/BILS", BILS_button_COLADLG
-          PushButton 310, 95, 55, 10, "ELIG/BBUD", BBUD_button
-      End If
+      EditBox 90, 65, 280, 15, deductions
+      EditBox 90, 85, 185, 15, designated_provider
       CheckBox 5, 110, 65, 10, "Updated RSPL?", updated_RSPL_check
       CheckBox 85, 110, 110, 10, "Approved new MAXIS results?", approved_check
       CheckBox 210, 110, 70, 10, "Sent DHS-3050?", DHS_3050_check
-      CheckBox 295, 110, 70, 10, "MADE Email Sent", made_email_checkbox
-      EditBox 75, 125, 295, 15, other
-      EditBox 80, 145, 120, 15, worker_signature
+      CheckBox 295, 110, 75, 10, "Email Sent to MADE", made_email_checkbox
+      EditBox 90, 125, 275, 15, other
+      If BBUD_check = "BBUD" then
+       Text 280, 85, 25, 10, "NAV to:"
+        ButtonGroup ButtonPressed
+        PushButton 310, 85, 55, 10, "STAT/BILS", BILS_button_COLADLG
+        PushButton 310, 95, 55, 10, "ELIG/BBUD", BBUD_button
+      End If
       ButtonGroup ButtonPressed
         OkButton 265, 145, 50, 15
         CancelButton 320, 145, 50, 15
@@ -296,12 +298,11 @@ If approval_summary_check = 1 then
       Text 5, 50, 80, 10, "Total countable income:"
       Text 5, 70, 45, 10, "Deductions:"
       Text 5, 90, 70, 10, "Designated provider:"
-      Text 5, 130, 65, 10, "Other (if applicable):"
-      Text 5, 150, 70, 10, "Sign your case note:"
+      Text 5, 130, 45, 10, "Other Notes:"
     EndDialog
 
     Do
-        Dialog Dialog1 
+        Dialog Dialog1
         cancel_without_confirmation
         If buttonpressed = BBUD_button then
             Call check_for_MAXIS(False)
@@ -318,13 +319,12 @@ If approval_summary_check = 1 then
             col = 1
             EMSearch MAXIS_footer_month & "/" & MAXIS_footer_year, row, col
             If row = 0 then script_end_procedure("A " & MAXIS_footer_month & "/" & MAXIS_footer_year & " span could not be found. Try this again. You may need to run the case through background.")
-               
             EMReadScreen elig_type, 2, 12, col - 2
             EMReadScreen budget_type, 1, 13, col + 2
             EMWriteScreen "x", 9, col + 2
             transmit
         End if
-        
+
         If buttonpressed = BILS_button_COLADLG then
             call check_for_MAXIS(False)
             back_to_self
@@ -333,9 +333,8 @@ If approval_summary_check = 1 then
             If BILS_check <> "BILS" then transmit  'ERR checking
         End if
     Loop until buttonpressed = OK
-    
-    Call start_a_blank_CASE_NOTE
 
+    Call start_a_blank_CASE_NOTE
     If ma_epd_premium_amt <> "" Then
     Call write_variable_in_CASE_NOTE("Approved COLA updates " & MAXIS_footer_month & "/" & MAXIS_footer_year & ": " & elig_type & "-" & budget_type & " - EPD Premium $" & ma_epd_premium_amt)
     else
@@ -358,7 +357,7 @@ If approval_summary_check = 1 then
     Call write_variable_in_CASE_NOTE(worker_signature)
 End if
 
-If income_summary_check = 1 then 
+If income_summary_check = 1 then
     'Creating a custom dialog for determining who the HH members are
     Call HH_member_custom_dialog(HH_member_array)
 
@@ -497,34 +496,36 @@ If income_summary_check = 1 then
 
     'CASE NOTE DIALOG--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 391, 200, "COLA income dialog"
-      EditBox 30, 15, 350, 15, unearned_income
-      EditBox 30, 35, 350, 15, earned_income
-      EditBox 80, 55, 300, 15, medicare_part_B
-      EditBox 30, 100, 350, 15, unearned_income_spouse
-      EditBox 30, 120, 350, 15, earned_income_spouse
-      EditBox 50, 155, 335, 15, other_notes
-      EditBox 200, 175, 65, 15, worker_signature
+    BeginDialog Dialog1, 0, 0, 371, 180, "COLA income dialog"
+      EditBox 75, 15, 285, 15, unearned_income
+      EditBox 75, 35, 285, 15, earned_income
+      EditBox 75, 55, 285, 15, medicare_part_B
+      EditBox 75, 90, 285, 15, unearned_income_spouse
+      EditBox 75, 110, 285, 15, earned_income_spouse
+      EditBox 75, 140, 285, 15, other_notes
       ButtonGroup ButtonPressed
-        OkButton 275, 175, 50, 15
-        CancelButton 330, 175, 50, 15
-      GroupBox 5, 5, 380, 75, "Member 01"
-      Text 15, 20, 15, 10, "UI:"
-      Text 15, 40, 15, 10, "EI:"
-      Text 15, 60, 60, 10, "Medicare Part B:"
-      GroupBox 5, 90, 380, 55, "Spouse"
-      Text 15, 105, 15, 10, "UI:"
-      Text 15, 125, 15, 10, "EI:"
-      Text 5, 160, 45, 10, "Other notes:"
-      Text 135, 175, 60, 15, "Worker signature:"
+        OkButton 260, 160, 50, 15
+        CancelButton 310, 160, 50, 15
+      GroupBox 5, 5, 360, 75, "Member 01"
+      Text 10, 20, 65, 10, "Unearned Income:"
+      Text 10, 40, 55, 10, "Earned Income:"
+      Text 10, 60, 60, 10, "Medicare Part B:"
+      GroupBox 5, 80, 360, 55, "Spouse"
+      Text 10, 95, 65, 10, "Unearned Income:"
+      Text 10, 115, 55, 10, "Earned Income:"
+      Text 10, 145, 45, 10, "Other Notes:"
     EndDialog
-    
-    Do 
-        Dialog Dialog1
-        cancel_confirmation
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in    
-    
+
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
     call start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE ("===COLA INCOME SUMMARY for " & MAXIS_footer_month & "/" & MAXIS_footer_year & "===")
     call write_bullet_and_variable_in_case_note("Unearned income", unearned_income)
@@ -535,6 +536,6 @@ If income_summary_check = 1 then
     call write_bullet_and_variable_in_case_note("Other notes", other_notes)
     call write_variable_in_CASE_NOTE("---")
     call write_variable_in_CASE_NOTE(worker_signature)
-End if     
+End if
 
 script_end_procedure("")

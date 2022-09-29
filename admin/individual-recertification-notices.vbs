@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("12/17/2021", "Updated new MNBenefits website from MNBenefits.org to MNBenefits.mn.gov.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/02/2021", "Update EZ Info Phone hours from 9-4 pm to 8-4:30 pm.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/9/2018", "Initial version.", "Casey Love, Hennepin County")
@@ -114,18 +115,15 @@ EndDialog
 Do
     Do
         err_msg = ""
-
         dialog Dialog1
         cancel_without_confirmation
-        if IsNumeric(MAXIS_case_number) = FALSE Then err_msg = err_msg & vbNewLine & "Invalid MAXIS Case Number"
-        if len(MAXIS_case_number) > 8 Then err_msg = err_msg & vbNewLine & "Invalid MAXIS Case Number"
+		Call validate_MAXIS_case_number(err_msg, "*")
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         If memo_to_send = "Select One..." Then err_msg = err_msg & vbNewLine & "Pick Notice"
-
         If err_msg <> "" Then MsgBox "Fix:" & vbNewLine & err_msg
     Loop until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
 
 written_lang = "99"         '07, 01, 02, 06, 99'
 Select Case select_language

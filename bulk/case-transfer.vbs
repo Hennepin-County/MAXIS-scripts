@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("07/02/2021", "BUG on BULK Case Transfer that was pulling too many pending cases into the list. Fixed now.", "Casey Love, Hennepin County")
 CALL changelog_update("04/16/2020", "Updated BULK Case Transfer to accomodate pending cases better.", "Casey Love, Hennepin County")
 CALL changelog_update("10/04/2019", "Added functionality to read cases from PND2 as well.##~## ##~## As this is new functionality and testing ability is limited, please report any issues are errors to the BlueZone Script Team.##~##", "Casey Love, Hennepin County")
@@ -1273,6 +1274,7 @@ Do
 		If cases_to_xfer_numb = "" THEN cases_to_xfer_numb = 0
 		IF transfer_check = checked AND worker_receiving_cases = "" then err_msg = err_msg & vbCR & "You must enter a worker number to transfer cases to"
 		IF abs(cases_to_xfer_numb) > abs(cases_found) then err_msg = err_msg & vbCr & "You cannot transfer more cases than were found to transfer"
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		If err_msg <> "" then MsgBox err_msg
 	Loop until err_msg = ""
 	IF transfer_check = unchecked AND query_check = unchecked THEN MsgBox "You must select an option"

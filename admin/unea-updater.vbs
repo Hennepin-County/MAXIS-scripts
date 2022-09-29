@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("11/01/2020", "Removed COLA information, it's not applicable, and updated data columns.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/16/2019", "Updated data columns based on current data pull.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/12/2019", "Updated text for case note re: veterans services.", "Ilse Ferris, Hennepin County")
@@ -73,12 +74,15 @@ current_date = date
 Call ONLY_create_MAXIS_friendly_date(current_date)			'reformatting the dates to be MM/DD/YY format to measure against the panel dates
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 221, 50, "Select the UNEA income source file"
-    ButtonGroup ButtonPressed
-    PushButton 175, 10, 40, 15, "Browse...", select_a_file_button
-    OkButton 110, 30, 50, 15
-    CancelButton 165, 30, 50, 15
-    EditBox 5, 10, 165, 15, file_selection_path
+BeginDialog Dialog1, 0, 0, 286, 50, "Select the UNEA income source file"
+  EditBox 5, 10, 165, 15, file_selection_path
+  ButtonGroup ButtonPressed
+  PushButton 175, 10, 50, 15, "Browse...", select_a_file_button
+  EditBox 70, 30, 100, 15, worker_signature
+  ButtonGroup ButtonPressed
+    OkButton 175, 30, 50, 15
+    CancelButton 230, 30, 50, 15
+  Text 5, 35, 60, 10, "Worker signature:"
 EndDialog
 
 'dialog and dialog DO...Loop
@@ -91,6 +95,7 @@ Do
     	cancel_without_confirmation
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
         If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         If err_msg <> "" Then MsgBox err_msg
     Loop until ButtonPressed = OK and file_selection_path <> ""
     If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
@@ -356,7 +361,6 @@ For i = 0 to Ubound(UNEA_array, 2)
 	    Call write_variable_in_CASE_NOTE("* VA income: $" & UNEA_array(unea_amt, i) & " monthly grant.")
 		Call write_variable_in_CASE_NOTE("* VA income has been verified via phone by Hennepin County Veterans Service Office staff.")
 		call write_variable_in_case_note("* SPEC/MEMO sent to promote Hennepin County Veterans Service Office.")
-
 		call write_variable_in_case_note("---")
 		call write_variable_in_case_note(worker_signature)
 

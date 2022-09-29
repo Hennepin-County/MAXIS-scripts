@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -59,7 +60,7 @@ EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 366, 290, "Verifications Still Needed"
+BeginDialog Dialog1, 0, 0, 366, 300, "Verifications Still Needed"
   EditBox 55, 5, 40, 15, MAXIS_case_number
   CheckBox 15, 20, 320, 15, "Check here to case note that 2919 A/B or other DHS approved form was used for initial request.", twentynine_nineteen_requested_CHECKBOX
   EditBox 30, 40, 150, 15, address_verification
@@ -74,6 +75,7 @@ BeginDialog Dialog1, 0, 0, 366, 290, "Verifications Still Needed"
   EditBox 45, 220, 135, 15, subsidy_verification
   EditBox 30, 240, 150, 15, insa_verification
   EditBox 55, 260, 125, 15, other_proof_verification
+  EditBox 55, 280, 125, 15, worker_signature
   Text 5, 10, 50, 10, "Case Number:"
   Text 200, 50, 150, 45, "*2919 IS MANDATORY:                               This script is NOT a replacement for the DHS-2919 (Verification Request Form A/B or other DHS approved request form) which must be used to initially request verifications. "
   Text 200, 100, 160, 35, "*REMEMBER:                                                    We cannot require a client to provide a specific form of verification. We must accept any form of verification that meets policy requirements."
@@ -93,6 +95,7 @@ BeginDialog Dialog1, 0, 0, 366, 290, "Verifications Still Needed"
   Text 5, 245, 20, 10, "INSA:"
   Text 5, 265, 45, 10, "Other Proofs:"
   GroupBox 190, 35, 170, 230, "IMPORTANT REMINDERS:"
+  Text 5, 285, 45, 10, "Worker Sig:"
   ButtonGroup ButtonPressed
     OkButton 255, 270, 50, 15
     CancelButton 310, 270, 50, 15
@@ -106,6 +109,7 @@ DO      'Password DO loop
 		cancel_confirmation
 		IF IsNumeric(MAXIS_case_number) = FALSE or len(MAXIS_case_number) > 8 	THEN err_msg = err_msg & vbNewLine & "* You must type a valid numeric case number."     'MAXIS_case_number should be mandatory in most cases. Bulk or nav scripts are likely the only exceptions
 		IF twentynine_nineteen_requested_CHECKBOX = unchecked THEN err_msg = err_msg & vbNewLine & "* If DHS-2919 (or other DHS approved form) was not used for initial verification request, take appropriate action. Do not proceed with this script. Verifications NEED to be requested using DHS-2919 or other DHS approved form."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)                                 'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS

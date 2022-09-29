@@ -37,7 +37,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -45,30 +55,32 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 301, 180, "Shelter Alternative"
-  EditBox 55, 5, 60, 15, MAXIS_case_number
-  EditBox 210, 5, 20, 15, number_of_adults_sheltered
-  EditBox 255, 5, 20, 15, number_of_children_sheltered
-  EditBox 55, 30, 225, 15, reason_not_authorized
+BeginDialog Dialog1, 0, 0, 296, 195, "Shelter Alternative"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 195, 5, 20, 15, number_of_adults_sheltered
+  EditBox 240, 5, 20, 15, number_of_children_sheltered
+  EditBox 55, 25, 225, 15, reason_not_authorized
   EditBox 30, 65, 250, 15, needed_one
   EditBox 30, 85, 250, 15, needed_two
   EditBox 30, 105, 250, 15, needed_three
   EditBox 30, 125, 250, 15, needed_four
-  EditBox 45, 155, 135, 15, other_notes
+  EditBox 45, 155, 235, 15, other_notes
+  EditBox 70, 175, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 185, 155, 50, 15
-    CancelButton 240, 155, 50, 15
-  Text 20, 35, 35, 10, "Situation:"
-  Text 125, 10, 85, 10, "Client seeking shelter for"
-  Text 235, 10, 20, 10, "A and"
+    OkButton 180, 175, 50, 15
+    CancelButton 230, 175, 50, 15
+  Text 5, 30, 35, 10, "Situation:"
+  Text 110, 10, 85, 10, "Client seeking shelter for"
+  Text 220, 10, 20, 10, "A and"
   Text 5, 10, 45, 10, "Case number:"
   Text 15, 70, 10, 10, "1."
   GroupBox 5, 50, 285, 100, "What is needed for shelter?"
   Text 15, 90, 10, 10, "2."
-  Text 280, 10, 10, 10, "C"
+  Text 265, 10, 10, 10, "C"
   Text 15, 110, 10, 10, "3."
   Text 5, 160, 40, 10, "Comments:"
   Text 15, 130, 10, 10, "4."
+  Text 5, 180, 60, 10, "Worker Signature:"
 EndDialog
 DO
 	DO
@@ -79,6 +91,7 @@ DO
 		If IsNumeric(number_of_adults_sheltered) = False then err_msg = err_msg & vbNewLine & "* Enter the nubmer of adults sheltered"
 		If IsNumeric(number_of_children_sheltered) = False then err_msg = err_msg & vbNewLine & "* Enter the number of children sheltered"
 		If reason_not_authorized = "" then err_msg = err_msg & vbNewLine & "* Enter reason not authorized"
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter N/A in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS

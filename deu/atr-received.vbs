@@ -496,6 +496,7 @@ IF notice_sent = "Y" THEN CALL write_variable_in_CASE_NOTE("* IEVP updated as re
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 IF DISQ_action <> "Pending verif" THEN CALL write_variable_in_CASE_NOTE("---The case may be elligble for REIN if all necessary paperwork has been received")
 CALL write_variable_in_CASE_NOTE ("----- ----- ----- ----- -----")
+CALL write_variable_in_case_note(worker_signature)
 CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
 script_end_procedure_with_error_report("ATR case note updated successfully." & vbNewLine & "Please remember to update/delete the DISQ panel")

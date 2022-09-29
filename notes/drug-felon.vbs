@@ -44,7 +44,8 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("12/29/2016", "Adding functionality to case note the return of required documenttion when a drug felon match is reported.", "Casey Love, Ramsey County")
+CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("12/29/2016", "Adding functionality to case note the return of required documentation when a drug felon match is reported.", "Casey Love, Ramsey County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -108,17 +109,20 @@ End If
 'Running the initial dialog to confirm what type of DFLN note is needed and the specifics about the case
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 186, 100, "Case Number and Information"
+BeginDialog Dialog1, 0, 0, 186, 105, "Case Number and Information"
   EditBox 75, 5, 70, 15, MAXIS_case_number
-  DropListBox 75, 30, 105, 45, "Select one..."+chr(9)+"Active Family Cash"+chr(9)+"Active Adult Cash"+chr(9)+"Active but NO Cash"+chr(9)+"Closed", case_status_dropdown
-  DropListBox 75, 55, 105, 45, "Select one..."+chr(9)+"Initial Information Received"+chr(9)+"Initial Information Not Received"+chr(9)+"Testing Follow Up", action_dropdown
+  DropListBox 75, 25, 105, 15, "Select one..."+chr(9)+"Active Family Cash"+chr(9)+"Active Adult Cash"+chr(9)+"Active but NO Cash"+chr(9)+"Closed", case_status_dropdown
+  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Initial Information Received"+chr(9)+"Initial Information Not Received"+chr(9)+"Testing Follow Up", action_dropdown
+  EditBox 75, 65, 105, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 75, 80, 50, 15
-	CancelButton 130, 80, 50, 15
-  Text 10, 10, 50, 10, "Case Number:"
-  Text 10, 35, 45, 10, "Case Status:"
-  Text 10, 60, 60, 10, "Action to Process:"
+    OkButton 75, 85, 50, 15
+    CancelButton 130, 85, 50, 15
+  Text 5, 30, 45, 10, "Case Status:"
+  Text 5, 50, 60, 10, "Action to Process:"
+  Text 5, 10, 50, 10, "Case Number:"
+  Text 5, 70, 60, 10, "Worker signature:"
 EndDialog
+
 DO
     Do
     	err_msg = ""
@@ -128,6 +132,7 @@ DO
     	If case_status_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "Indicate what the case status is."
     	If action_dropdown = "Select one..." Then err_msg = err_msg & vbNewLine & "Chose what process you are noting."
     	If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
     Loop until err_msg = ""
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
@@ -149,19 +154,18 @@ Case "Initial Information Received"
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 'Dialog is defined here as the HH dropdown needs to be defined before the dialog is
-BeginDialog Dialog1, 0, 0, 191, 105, "Update FSS Information from the Status Update"
-  DropListBox 80, 5, 105, 45, HH_Memb_DropDown, clt_to_update
-  ComboBox 85, 25, 100, 45, ""+chr(9)+"Assesed as not needing drug treatment."+chr(9)+"Currently in drug treatment."+chr(9)+"Successful completion of drug treatment.", docs_dropdown
-  EditBox 75, 45, 110, 15, more_notes
-  EditBox 75, 65, 110, 15, worker_signature
+BeginDialog Dialog1, 0, 0, 196, 85, "Update FSS Information from the Status Update"
+  DropListBox 85, 5, 105, 15, HH_Memb_DropDown, clt_to_update
+  ComboBox 85, 25, 105, 15, "Assesed as not needing drug treatment."+chr(9)+"Currently in drug treatment."+chr(9)+"Successful completion of drug treatment.", docs_dropdown
+  EditBox 85, 45, 105, 15, more_notes
   ButtonGroup ButtonPressed
-	OkButton 115, 85, 35, 15
-	CancelButton 155, 85, 30, 15
-  Text 5, 10, 70, 10, "Household member:"
+    OkButton 85, 65, 50, 15
+    CancelButton 140, 65, 50, 15
   Text 5, 30, 75, 10, "Information Received:"
   Text 5, 50, 55, 10, "Additional Notes:"
-  Text 5, 70, 60, 10, "Worker Signature:"
+  Text 5, 10, 70, 10, "Household member:"
 EndDialog
+
 'Runs the dialog
 	Do
 	   	err_msg = ""
@@ -202,7 +206,6 @@ EndDialog
 
 	'case noting
 	start_a_blank_CASE_NOTE
-
 	CALL write_variable_in_case_note("***Drug Felon***")
 	CALL write_variable_in_case_note("* MEMB " & clt_ref_num & " has cooperated with Drug Felon Notice.")
 	Call write_bullet_and_variable_in_case_note ("Client has reported/supplied verification", docs_dropdown)
@@ -230,15 +233,20 @@ Case "Initial Information Not Received"
       Text 5, 50, 55, 10, "Additional Notes:"
       Text 5, 70, 60, 10, "Worker Signature:"
     EndDialog'Running the dialog
-	Do
-	    err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-		If clt_to_update = "Select One..." Then err_msg = err_msg & vbNewLine & "Please pick the client you are processing DFLN information for."
-		If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-	Loop until err_msg = ""
-	clt_ref_num = left(clt_to_update, 2)	'Setting the reference number
 
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+    		If clt_to_update = "Select One..." Then err_msg = err_msg & vbNewLine & "Please pick the client you are processing DFLN information for."
+    		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+	clt_ref_num = left(clt_to_update, 2)	'Setting the reference number
 	'Checks MAXIS for password prompt
 	Call check_for_MAXIS(FALSE)
 	'Writes the case note
@@ -283,18 +291,18 @@ Case "Testing Follow Up"
 	Text 5, 30, 60, 10, "Probation Officer:"
 	Text 5, 80, 30, 10, "UA Date:"
 	EndDialog
-	DO
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "You must sign your case note"
-		IF IsNumeric(MAXIS_case_number)= FALSE THEN err_msg = err_msg & vbNewLine & "You must type a valid numeric case number."
-		If UA_results = "select one..." THEN err_msg = err_msg & vbNewLine & "You must select 'UA results field'"
-		If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-	LOOP UNTIL err_msg = ""
 
-	'Checks MAXIS for password prompt
-	Call check_for_MAXIS(FALSE)
+    DO
+    	DO
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+      		If UA_results = "select one..." THEN err_msg = err_msg & vbNewLine & "You must select 'UA results field'"
+    		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+    	LOOP UNTIL err_msg = ""						'loops until all errors are resolved
+    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 	'Writes the case note
 	start_a_blank_CASE_NOTE

@@ -37,7 +37,17 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
 
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, grabbing case number
 EMConnect ""
@@ -46,7 +56,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 331, 200, "Utilities information"
-  EditBox 70, 5, 60, 15, MAXIS_case_number
+  EditBox 55, 5, 60, 15, MAXIS_case_number
   DropListBox 10, 60, 115, 15, "Select one..."+chr(9)+"CenterPoint Energy (VN #44)"+chr(9)+"Xcel Energy (VN #59499)"+chr(9)+"Water Company, MPLS (VN #394)"+chr(9)+"Other", vendor_type_1
   EditBox 140, 60, 60, 15, acct_number_1
   EditBox 210, 60, 45, 15, balance_1
@@ -63,17 +73,19 @@ BeginDialog Dialog1, 0, 0, 331, 200, "Utilities information"
   EditBox 140, 150, 60, 15, acct_number_4
   EditBox 210, 150, 45, 15, balance_4
   EditBox 265, 150, 50, 15, date_4
-  EditBox 50, 180, 160, 15, other_information
+  EditBox 165, 5, 150, 15, other_information
+  EditBox 75, 180, 140, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 220, 180, 50, 15
     CancelButton 275, 180, 50, 15
   Text 150, 40, 35, 10, "Account #"
-  Text 15, 10, 50, 10, "Case Number"
+  Text 5, 10, 50, 10, "Case Number"
   Text 30, 40, 55, 10, "Utility company"
   Text 220, 40, 30, 10, "Balance"
-  Text 10, 185, 40, 10, "Comments:"
+  Text 125, 10, 40, 10, "Comments:"
   Text 265, 40, 45, 10, "Balance date"
   GroupBox 5, 25, 320, 150, "Complete for each of the client(s) utility:"
+  Text 5, 185, 60, 10, "Worker Signature:"
 EndDialog
 
 DO
@@ -87,6 +99,7 @@ DO
 		IF (vendor_type_2 <> "Select one..." AND (vendor_number_2 = "" AND acct_number_2 = "" AND balance_2 = "" AND date_2 = "")) THEN err_msg = err_msg & vbCr & "*All vendor information must be completed for the 2nd vendor selected."
 		IF (vendor_type_3 <> "Select one..." AND (vendor_number_3 = "" AND acct_number_3 = "" AND balance_3 = "" AND date_3 = "")) THEN err_msg = err_msg & vbCr & "*All vendor information must be completed for the 3rd vendor selected."
 		IF (vendor_type_4 <> "Select one..." AND (vendor_number_4 = "" AND acct_number_4 = "" AND balance_4 = "" AND date_4 = "")) THEN err_msg = err_msg & vbCr & "*All vendor information must be completed for the 4th vendor selected."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)

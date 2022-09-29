@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/31/2020", "Removed agency overpayment for cash verbiage.", "MiKayla Handley, Hennepin County")
@@ -105,6 +106,7 @@ BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
   EditBox 70, 220, 160, 15, EVF_used
   EditBox 310, 220, 45, 15, income_rcvd_date
   EditBox 70, 240, 285, 15, Reason_OP
+  EditBox 70, 260, 160, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 260, 260, 45, 15
     CancelButton 310, 260, 45, 15
@@ -154,41 +156,45 @@ BeginDialog Dialog1, 0, 0, 361, 280, "Overpayment Claim Entered"
   Text 165, 70, 10, 10, "To:"
   GroupBox 5, 45, 350, 100, "Overpayment Information"
   Text 105, 70, 20, 10, "From:"
+  Text 5, 265, 65, 10, "Worker Signature:"
 EndDialog
 
-Do
-	err_msg = ""
-	dialog Dialog1
-	cancel_without_confirmation
-	IF memb_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the member number."
-	Call validate_MAXIS_case_number(err_msg, "*")
-    IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
-	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
-	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
-	IF OP_program_II <> "Select:" THEN
-		IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred II."
-		IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-		IF Claim_amount_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	END IF
-	IF OP_program_III <> "Select:" THEN
-		IF OP_from_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred III."
-		IF Claim_number_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-		IF Claim_amount_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	END IF
-	IF OP_program_IV <> "Select:" THEN
-		IF OP_from_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred IV."
-		IF Claim_number_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
-		IF Claim_amount_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	END IF
-	IF HC_claim_number <> "" THEN
-		IF HC_from = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment started."
-		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
-		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
-	END IF
-    	IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-LOOP UNTIL err_msg = ""
-CALL check_for_password_without_transmit(are_we_passworded_out)
+DO
+    DO
+    	err_msg = ""
+    	dialog Dialog1
+    	cancel_without_confirmation
+    	IF memb_number = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the member number."
+    	Call validate_MAXIS_case_number(err_msg, "*")
+        IF select_quarter = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a match period entry."
+    	IF fraud_referral = "Select:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
+    	IF trim(Reason_OP) = "" or len(Reason_OP) < 5 THEN err_msg = err_msg & vbnewline & "* You must enter a reason for the overpayment please provide as much detail as possible (min 5)."
+    	IF OP_program_II <> "Select:" THEN
+    		IF OP_from_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred II."
+    		IF Claim_number_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
+    		IF Claim_amount_II = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
+    	END IF
+    	IF OP_program_III <> "Select:" THEN
+    		IF OP_from_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred III."
+    		IF Claim_number_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
+    		IF Claim_amount_III = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
+    	END IF
+    	IF OP_program_IV <> "Select:" THEN
+    		IF OP_from_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment occurred IV."
+    		IF Claim_number_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the claim number."
+    		IF Claim_amount_IV = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
+    	END IF
+    	IF HC_claim_number <> "" THEN
+    		IF HC_from = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment started."
+    		IF HC_to = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the month and year overpayment ended."
+    		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
+    	END IF
+        IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
+    	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+  		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_self
 '----------------------------------------------------------------------------------------------------STAT
@@ -429,6 +435,7 @@ CALL write_bullet_and_variable_in_case_note("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_case_note(worker_signature)
 CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3 'to save casenote'
 
@@ -494,6 +501,7 @@ CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note("* DHS 2776E - Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CCOL_note("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_CCOL_note(worker_signature)
 CALL write_variable_in_CCOL_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 PF3'
 

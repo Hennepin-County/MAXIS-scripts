@@ -61,17 +61,19 @@ Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 136, 105, "Change Reported"
-  EditBox 70, 5, 35, 15, MAXIS_case_number
-  EditBox 70, 25, 15, 15, MAXIS_footer_month
-  EditBox 90, 25, 15, 15, MAXIS_footer_year
-  DropListBox 20, 65, 85, 15, "Select:"+chr(9)+"Address"+chr(9)+"Baby Born"+chr(9)+"HHLD Comp"+chr(9)+"Income"+chr(9)+"Shelter Cost"+chr(9)+"Other(please specify)", nature_change
+BeginDialog Dialog1, 0, 0, 231, 65, "Change Reported"
+  EditBox 65, 5, 60, 15, MAXIS_case_number
+  EditBox 185, 5, 15, 15, MAXIS_footer_month
+  EditBox 205, 5, 15, 15, MAXIS_footer_year
+  DropListBox 130, 25, 90, 15, "Select:"+chr(9)+"Address"+chr(9)+"Baby Born"+chr(9)+"HHLD Comp"+chr(9)+"Income"+chr(9)+"Shelter Cost"+chr(9)+"Other(please specify)", nature_change
+  EditBox 65, 45, 60, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 45, 85, 40, 15
-    CancelButton 90, 85, 40, 15
+    OkButton 130, 45, 45, 15
+    CancelButton 175, 45, 45, 15
+  Text 130, 10, 50, 10, "Footer MM/YY: "
+  Text 5, 30, 105, 10, "Select the nature of the change:"
+  Text 5, 50, 60, 10, "Worker signature:"
   Text 5, 10, 50, 10, "Case number:"
-  Text 5, 30, 65, 10, "Footer month/year: "
-  Text 5, 50, 130, 10, "Please select the nature of the change:"
 EndDialog
 
 'Finds the benefit month
@@ -93,6 +95,7 @@ DO
         IF len(MAXIS_footer_month) > 2 or isnumeric(MAXIS_footer_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial month."
 		IF len(MAXIS_footer_year) > 2 or isnumeric(MAXIS_footer_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial year."
         IF nature_change = "Select:" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	Loop Until err_msg = ""
 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'

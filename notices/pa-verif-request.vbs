@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("02/24/2022", "Two updates to PA Verif Request:##~## ##~## - Bug fix to prevent the 'start month' from being after the 'end month'. ##~## ##~## - Added functionality to specifically resend the Tax Refund Notice from any of the past 7 years.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/12/2021", "Fixed some BUGS on PA Verif Request when creating Word Documents. These have been updated and the script should now be correctly creating word documents for residents in person or requesting a FAX.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/21/2021", "Multiple updates to PA Verif Request:##~## ##~##1. Added support for DWP. The script can now resend DWP WCOMs of Eligibility Notices and create MEMOs of benefits issued for a certain month range.##~## ##~##2. Added functionality to create a WORD DOCUMENT of the WCOMs resent or MEMOs created for local printing or faxing.##~## ##~##3. The INQX screens have a page display limit that can preven the script from reading the issuance information correctly. Added a functionality to review if that display limit has been reached and return to the selection area for a reduction in the range of months.##~## ##~##4. Added a review to ensure the requested months do not include issuances that have been archived.##~## ##~##5. The script will ignore WCOMs that have been cancelled as these should not be resent.##~##", "Casey Love, Hennepin County")
@@ -627,7 +628,7 @@ Do
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Verification-of-public-assistance.aspx"
 			err_msg = "LOOP"
 		End If
-
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		If err_msg <> "LOOP" and err_msg <> "" Then MsgBox "****** NOTICE ******" & vbCr & vbCr & "Please resolve to continue:" & vbCr & err_msg		'showing any errors
 	Loop until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
@@ -3931,7 +3932,6 @@ If grh_resent_wcom = True OR grh_verification_method = "Create New MEMO with ran
 If left(pa_verif_programs, 1) = "/" Then pa_verif_programs = right(pa_verif_programs, len(pa_verif_programs)-1)
 
 Call start_a_blank_CASE_NOTE			'Now we are CASE:NOTING
-
 ' Call write_variable_in_CASE_NOTE("Verification of " & pa_verif_programs & " Assistance sent")
 Call write_variable_in_CASE_NOTE("Verification of Public Assistance Requested")
 Call write_variable_in_CASE_NOTE("Requested by: " & verif_request_by)
@@ -3988,7 +3988,6 @@ If contact_type = "Resident in Person (or AREP)" Then Call write_variable_in_CAS
 If clt_requestes_fax_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Word Doc created to be faxed per resident request.")
 Call write_variable_in_CASE_NOTE("---")
 Call write_variable_in_CASE_NOTE(worker_signature)
-
 end_msg = "Notice sent for PA Verif Request"
 If contact_type = "Resident in Person (or AREP)" OR clt_requestes_fax_checkbox = checked Then end_msg = end_msg & vbCr & vbCr & "WORD DOCUMENT(S) created of the notices that were generated/resent."
 script_end_procedure_with_error_report(end_msg)

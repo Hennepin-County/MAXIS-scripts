@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("07/05/2018", "Initial version.", "MiKayla Handley, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -57,17 +58,18 @@ referral_date = date & ""
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 251, 85, "Diversion Program Referral Result"
-  EditBox 55, 5, 40, 15, maxis_case_number
-  DropListBox 30, 25, 50, 15, "Select:"+chr(9)+"will"+chr(9)+"will not", will_checkbox
-  EditBox 45, 45, 200, 15, other_notes
+BeginDialog Dialog1, 0, 0, 251, 90, "Diversion Program Referral Result"
+  EditBox 60, 5, 45, 15, maxis_case_number
+  CheckBox 5, 25, 225, 10, "Resident WILL be working with the Diversion Navigation Program", will_checkbox
+  CheckBox 5, 35, 240, 10, "Resident WILL NOT be working with the Diversion Navigation Program", will_not_checkbox
+  EditBox 50, 50, 195, 15, other_notes
+  EditBox 70, 70, 65, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 140, 65, 50, 15
-    CancelButton 195, 65, 50, 15
-  Text 85, 30, 165, 10, "be working with the Diversion Navigation Program"
+    OkButton 140, 70, 50, 15
+    CancelButton 195, 70, 50, 15
+  Text 5, 75, 60, 10, "Worker signature:"
   Text 5, 10, 50, 10, "Case Number:"
-  Text 5, 30, 20, 10, "Client"
-  Text 5, 50, 40, 10, "Comments: "
+  Text 5, 55, 40, 10, "Comments: "
 EndDialog
 
 'Running the initial dialog
@@ -77,6 +79,8 @@ DO
 		Dialog Dialog1
 		cancel_without_confirmation
 		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
+		IF will_checkbox <> CHECKED and will_not_checkbox <> CHECKED THEN err_msg = err_msg & vbCr & "* Please select if the resident will participate with DNP."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -92,7 +96,8 @@ EMWriteScreen CM_yr, 20, 46
 'The case note'
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("### Diversion Program Referral Result ###")
-Call write_variable_in_CASE_NOTE("Client " & will_checkbox & " be working with the Diversion Navigation Program ")
+IF will_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("Resident will be working with the Diversion Navigation Program.")
+IF will_not_checkbox = CHECKED THEN Call write_variable_in_CASE_NOTE("Resident will not be working with the Diversion Navigation Program.") 
 Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 Call write_variable_in_CASE_NOTE ("---")
 Call write_variable_in_CASE_NOTE(worker_signature)

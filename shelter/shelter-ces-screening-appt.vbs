@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("01/05/2018", "Updates to CES-Screening Appt per shelter team request..", "MiKayla Handley")
 call changelog_update("09/23/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -57,19 +58,21 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 341, 90, "CES Referral Sent"
-  EditBox 55, 10, 55, 15, MAXIS_case_number
-  EditBox 165, 10, 55, 15, appt_date
-  EditBox 280, 10, 55, 15, worker_name
-  EditBox 55, 50, 280, 15, other_notes
-  Text 5, 15, 45, 10, "Case number:"
-  Text 115, 15, 45, 10, "Referral date:"
-  Text 225, 15, 55, 10, "Worker's name:"
-  Text 25, 35, 300, 10, "Notified client that CES appointment is mandatory, and CES worker will be contacting them"
-  Text 5, 55, 40, 10, "Comments:"
+BeginDialog Dialog1, 0, 0, 336, 85, "CES Referral Sent"
+  EditBox 60, 5, 50, 15, MAXIS_case_number
+  EditBox 165, 5, 50, 15, appt_date
+  EditBox 280, 5, 50, 15, worker_name
+  EditBox 120, 45, 210, 15, other_notes
+  EditBox 120, 65, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 230, 70, 50, 15
-    CancelButton 285, 70, 50, 15
+    OkButton 225, 65, 50, 15
+    CancelButton 280, 65, 50, 15
+  Text 20, 30, 300, 10, "Notified client that CES appointment is mandatory, and CES worker will be contacting them"
+  Text 75, 50, 40, 10, "Comments:"
+  Text 115, 10, 45, 10, "Referral date:"
+  Text 220, 10, 55, 10, "Worker's name:"
+  Text 5, 10, 45, 10, "Case number:"
+  Text 60, 70, 60, 10, "Worker signature:"
 EndDialog
 DO
 	DO
@@ -78,6 +81,7 @@ DO
         cancel_without_confirmation
 		IF len(MAXIS_case_number) > 8 or IsNumeric(MAXIS_case_number) = False THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
 		IF worker_name = "" then err_msg = err_msg & vbNewLine & "* Enter the worker's name."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
  Call check_for_password(are_we_passworded_out)

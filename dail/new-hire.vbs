@@ -47,6 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("09/12/2022", "Added support for MEMB 00 messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/11/2022", "Bug fix in reading the MAXIS Case Number.", "Ilse Ferris, Hennepin County") ''#900
 call changelog_update("05/03/2022", "Updated script functionality to support IEVS message updates. This DAIL scrubber will work on both older message with SSN's and new messages without.", "Ilse Ferris, Hennepin County") ''#814
@@ -195,13 +196,15 @@ EndDialog
 
 'Show dialog
 DO
-    DO
-    	Dialog dialog1
-    	cancel_confirmation
-    	MAXIS_dialog_navigation
-    LOOP UNTIL ButtonPressed = -1
-    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 
 EMWriteScreen "JOBS", 20, 71
 Call write_value_and_transmit(HH_memb, 20, 76)

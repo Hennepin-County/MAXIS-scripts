@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("09/09/2019", "Handling for edit mode on ABPS panel.", "MiKayla Handley, Hennepin County")
 call changelog_update("06/13/2018", "Updated incomplete forms and dialog.", "MiKayla Handley, Hennepin County")
 call changelog_update("05/14/2018", "Updated per GC Committee requests.", "MiKayla Handley, Hennepin County")
@@ -69,24 +70,27 @@ IF priv_check = "INVA" THEN script_end_procedure_with_error_report("This case is
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 116, 65, "Case number"
-  EditBox 60, 5, 50, 15, MAXIS_case_number
-  EditBox 65, 25, 20, 15, MAXIS_footer_month
-  EditBox 90, 25, 20, 15, MAXIS_footer_year
+BeginDialog Dialog1, 0, 0, 176, 85, "Case number"
+  EditBox 70, 5, 50, 15, MAXIS_case_number
+  EditBox 70, 25, 20, 15, MAXIS_footer_month
+  EditBox 95, 25, 20, 15, MAXIS_footer_year
+  EditBox 70, 45, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 5, 45, 50, 15
-    CancelButton 60, 45, 50, 15
-  Text 5, 10, 50, 10, "Case Number:"
-  Text 5, 30, 45, 10, "Footer Month:"
+    OkButton 75, 65, 45, 15
+    CancelButton 125, 65, 45, 15
+  Text 5, 30, 65, 10, "Footer month/year:"
+  Text 5, 10, 50, 10, "Case number:"
+  Text 5, 50, 60, 10, "Worker signature:"
 EndDialog
 DO
 	DO
 	    err_msg = ""
 	    Dialog Dialog1
 	    cancel_confirmation
-	    IF MAXIS_case_number = "" THEN err_msg = "Please enter a case number to continue."
+		Call validate_MAXIS_case_number(err_msg, "*")
 	    IF MAXIS_footer_month = "" THEN err_msg = "Please enter a footer month to continue."
 	    IF MAXIS_footer_year = "" THEN err_msg = "Please enter a footer year to continue."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "Please sign your case note."
 	    IF err_msg <> "" THEN msgbox "*** Error Check ***" & vbNewLine & err_msg
 		LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -608,7 +612,7 @@ IF mets_info = "" THEN
 	IF FS_CHECKBOX = CHECKED and CASH_CHECKBOX = UNCHECKED and CCA_CHECKBOX = UNCHECKED and DWP_CHECKBOX = UNCHECKED and MFIP_CHECKBOX = UNCHECKED and HC_CHECKBOX = UNCHECKED and METS_CHECKBOX = UNCHECKED THEN memo_started = TRUE
 END IF
 IF memo_started = TRUE THEN
-	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)    
+	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)
 	EMsendkey("************************************************************")
 	Call write_variable_in_SPEC_MEMO("You recently applied for Food Support assistance and")
 	Call write_variable_in_SPEC_MEMO("requested Good Cause for Child Support.")

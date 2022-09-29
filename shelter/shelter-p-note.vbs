@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("11/28/2017", "Fixed bug for EA and ACF dates not pulling into pnotes", "MiKayla Handley, Hennepin County")
 call changelog_update("11/17/2017", "Updated dialog as requested by Shelter Team", "MiKayla Handley, Hennepin County")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -111,28 +112,30 @@ BeginDialog Dialog1, 0, 0, 311, 180, "P-NOTE"
   EditBox 55, 5, 45, 15, MAXIS_case_number
   EditBox 185, 5, 50, 15, shelter_stay_from
   EditBox 255, 5, 50, 15, shelter_stay_to
-  EditBox 100, 30, 75, 15, EA_date
-  EditBox 100, 50, 75, 15, ACF_date
+  EditBox 100, 25, 75, 15, EA_date
+  EditBox 100, 45, 75, 15, ACF_date
   EditBox 285, 25, 20, 15, number_nights
   EditBox 285, 45, 20, 15, number_tokens
   EditBox 285, 65, 20, 15, number_buscards
   EditBox 105, 85, 200, 15, reason_for_homelessness
   EditBox 105, 110, 200, 15, resolution_reason
   EditBox 105, 135, 200, 15, other_notes
+  EditBox 75, 160, 120, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 200, 160, 50, 15
     CancelButton 255, 160, 50, 15
   Text 5, 10, 45, 10, "Case number:"
   Text 110, 10, 70, 10, "Dates of shelter stay:"
   Text 240, 10, 10, 10, "to:"
-  Text 15, 35, 80, 10, " EA Dates (if applicable):"
-  Text 10, 55, 85, 10, " ACF Dates (if applicable):"
+  Text 5, 30, 80, 10, " EA Dates (if applicable):"
+  Text 5, 50, 85, 10, " ACF Dates (if applicable):"
   Text 225, 30, 60, 10, "Number of nights:"
   Text 205, 50, 80, 10, "Number of bus token(s):"
   Text 210, 70, 75, 10, "Number of bus card(s):"
   Text 10, 85, 85, 15, "Funds issued when client became homeless due to:"
   Text 60, 115, 40, 10, "Resolution:"
   Text 60, 140, 40, 10, "Other notes:"
+  Text 5, 165, 60, 10, "Worker Signature:"
 EndDialog
 
 'Running the initial dialog
@@ -142,11 +145,12 @@ DO
 		Dialog Dialog1
 		cancel_confirmation
 		IF MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Enter a valid case number."
-		IF number_nights = "" then err_msg = err_msg & vbNewLine & "* Enter the number of nights of shelter"
+		IF number_nights = "" then err_msg = err_msg & vbNewLine & "* Please enter the number of nights of shelter"
 		IF shelter_stay_from = "" then err_msg = err_msg & vbNewLine & "* Please enter the dates of shelter"
 		IF shelter_stay_to = "" then err_msg = err_msg & vbNewLine & "* Please enter the dates of shelter"
-		IF reason_for_homelessness = "" then err_msg = err_msg & vbNewLine & "* Enter the reason for homelessness."
-		IF resolution_reason = "" then err_msg = err_msg & vbNewLine & "* Enter the resolution."
+		IF reason_for_homelessness = "" then err_msg = err_msg & vbNewLine & "* Please enter the reason for homelessness."
+		IF resolution_reason = "" then err_msg = err_msg & vbNewLine & "* Please enter the resolution."
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & "(enter NA in all fields that do not apply)" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS

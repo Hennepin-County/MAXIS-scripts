@@ -37,32 +37,48 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+'CHANGELOG BLOCK ===========================================================================================================
+'Starts by defining a changelog array
+changelog = array()
+'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
+'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("09/21/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
+call changelog_update("06/19/2017", "Initial version.", "MiKayla Handley")
+'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
+changelog_display
+'END CHANGELOG BLOCK =======================================================================================================
 '--------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
 CALL MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 246, 100, "Voucher Extended"
-  EditBox 55, 5, 65, 15, MAXIS_case_number
-  EditBox 75, 30, 65, 15, extended_to
-  EditBox 175, 30, 65, 15, because_why
-  EditBox 45, 55, 195, 15, Comments_notes
+BeginDialog Dialog1, 0, 0, 246, 85, "Voucher Extended"
+  EditBox 55, 5, 45, 15, MAXIS_case_number
+  EditBox 75, 25, 50, 15, extended_to
+  EditBox 175, 25, 65, 15, because_why
+  EditBox 45, 45, 195, 15, Comments_notes
+  EditBox 70, 65, 75, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 135, 80, 50, 15
-    CancelButton 190, 80, 50, 15
-  Text 145, 35, 30, 10, "because"
+    OkButton 150, 65, 45, 15
+    CancelButton 195, 65, 45, 15
   Text 5, 10, 45, 10, "Case number:"
-  Text 5, 60, 40, 10, "Comments:"
-  Text 5, 35, 70, 10, "Voucher extended to:"
+  Text 5, 50, 40, 10, "Comments:"
+  Text 5, 30, 70, 10, "Voucher extended to:"
+  Text 5, 70, 60, 10, "Worker signature:"
+  Text 140, 30, 30, 10, "because"
 EndDialog
 DO
-	Do
+	DO
+		err_msg = ""
 		Dialog Dialog1
-		cancel_confirmation
-		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then MsgBox "You must enter either a valid MAXIS case number."
-	Loop until (isnumeric(MAXIS_case_number) = True) or (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) = 8)
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+        cancel_confirmation
+		Call validate_MAXIS_case_number(err_msg, "*")
+		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	LOOP UNTIL err_msg = ""
+ Call check_for_password(are_we_passworded_out)
+LOOP UNTIL check_for_password(are_we_passworded_out) = False
+
 back_to_SELF
 EMWriteScreen "________", 18, 43
 EMWriteScreen case_number, 18, 43
