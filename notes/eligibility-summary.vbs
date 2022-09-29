@@ -12878,12 +12878,12 @@ class snap_eligibility_detail
 		EMWriteScreen elig_footer_month, 19, 54
 		EMWriteScreen elig_footer_year, 19, 57
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
-		' EMReadScreen approved_today, 8, 3, 14
-		' approved_today = DateAdd("d", 0, approved_today)
 		If approved_version_found = True Then
+			EMReadScreen confirm_approved_today, 8, 3, 14		'this is the actual approcal date - not the process date'
+			confirm_approved_today = DateAdd("d", 0, confirm_approved_today)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
-				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 Then approved_today = True
+				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, confirm_approved_today) = 0 Then approved_today = True
 			End If
 		End If
 		If approved_today = True Then
