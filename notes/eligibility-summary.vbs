@@ -368,7 +368,7 @@ function define_mfip_elig_dialog()
 			GroupBox 5, 105, 450, 60, "Ineligible Details"
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" or (MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_coop = "FAILED" and STAT_INFORMATION(month_ind).stat_pact_exists = True) Then
 				Text 15, 120, 165, 10, "What is the date the verification request was sent? "
-				Editbox 180, 115, 50, 15, MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+				Editbox 180, 115, 50, 15, MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 				Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
 
 				If show_pact = True Then
@@ -690,7 +690,7 @@ function define_msa_elig_dialog()
 		GroupBox 5, 105, 450, 60, "Ineligible Details"
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" Then
 			Text 15, 120, 165, 10, "What is the date the verification request was sent? "
-			Editbox 180, 115, 50, 15, MSA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Editbox 180, 115, 50, 15, MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
 		Else
 			Text 15, 125, 300, 20, "This case is ineligible because it hasn't met the requirements for GA Eligibility. The case tests above show what requirements have not been met."
@@ -967,7 +967,7 @@ function define_ga_elig_dialog()
 		GroupBox 5, 105, 450, 60, "Ineligible Details"
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" Then
 			Text 15, 120, 165, 10, "What is the date the verification request was sent? "
-			Editbox 180, 115, 50, 15, GA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Editbox 180, 115, 50, 15, GA_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
 		Else
 			Text 15, 125, 300, 20, "This case is ineligible because it hasn't met the requirements for GA Eligibility. The case tests above show what requirements have not been met."
@@ -1660,13 +1660,13 @@ function define_deny_elig_dialog()
 			y_pos = y_pos + 15
 
 			Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
-			Editbox 180, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Editbox 180, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
 			' y_pos = y_pos + 15
 		Else
 			y_pos = y_pos + 10
 			Text 15, y_pos, 185, 10, "If a verification request was sent, what date was it sent? "
-			Editbox 200, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Editbox 200, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 255, y_pos, 150, 10, "(due date is 10 days from this request date)"
 		End If
 		y_pos = y_pos + 15
@@ -2108,7 +2108,7 @@ function define_grh_elig_dialog()
 					End If
 
 					Text 15, y_pos+5, 165, 10, "What is the date the verification request was sent? "
-					Editbox 180, y_pos, 50, 15, GRH_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+					Editbox 180, y_pos, 50, 15, GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 					Text 235, y_pos+5, 150, 10, "(due date is 10 days from this request date)"
 					y_pos = y_pos + 20
 
@@ -2562,7 +2562,7 @@ function define_emer_elig_dialog()
 				GroupBox 10, y_pos, 525, 55, "Ineligibility due to VERIFICATIONS"
 				y_pos = y_pos + 15
 				Text 230, y_pos, 95, 10, "Date Verif Request Sent:"
-				EditBox 325, y_pos-5, 75, 15, emer_verif_reqquest_date
+				EditBox 325, y_pos-5, 75, 15, emer_verif_request_date
 				y_pos = y_pos + 10
 				Text 15, y_pos, 250, 10, "List all verifications that were required and not received:"
 				y_pos = y_pos + 10
@@ -2685,7 +2685,7 @@ function define_snap_elig_dialog()
 	  	GroupBox 5, 100, 450, 60, "Ineligible Details"
 	  	If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" then
 			Text 15, 115, 165, 10, "What is the date the verification request was sent? "
-			Editbox 180, 110, 50, 15, SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)
+			Editbox 180, 110, 50, 15, SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 235, 115, 150, 10, "(due date is 10 days from this request date)"
 			If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test_PACT = "FAILED" then
 				Text 15, 135, 120, 10, "List PACT reason(s) for ineligibility: "
@@ -3357,7 +3357,7 @@ function mfip_elig_case_note()
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_transfer_asset = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case is not qualified due to improper trransfer of assets. (TRANSFER OF ASSETS)")
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
-			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & MFIP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & MFIP_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_ACCT = "FAILED" Then Call write_variable_in_CASE_NOTE("   - Bank account not verified.")
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_verif_BUSI = "FAILED" Then
 				Call write_variable_in_CASE_NOTE("   - Self Employment not verified.")
@@ -3782,7 +3782,7 @@ function msa_elig_case_note()
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_retro_net_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - . ()")
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
-			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & MSA_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & MSA_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
 			first_job_not_verified = True
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
@@ -4328,7 +4328,7 @@ function ga_elig_case_note()
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_eligible_other_prgm = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case appears potentially Eligible for another program. (ELIG OTHER PRGM)")
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
-			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & GA_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & GA_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
 
 			first_job_not_verified = True
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -4803,7 +4803,7 @@ function grh_elig_case_note()
 		End If
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Resident has not provided all required verifications for HS/GRH")
-			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & GRH_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & GRH_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
 			Call write_variable_in_CASE_NOTE("   Missing Verifications:")
 
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif_ACCT = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Bank Acccount - ACCT")
@@ -4985,7 +4985,7 @@ function emer_elig_case_note()
 		End If
 		If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Not all required verifications have been provided.")
-			Call write_variable_in_CASE_NOTE("   Verification Request Form Sent on " & emer_verif_reqquest_date & ", due by: " & due_date)
+			Call write_variable_in_CASE_NOTE("   Verification Request Form Sent on " & emer_verif_request_date & ", due by: " & due_date)
 			If trim(emer_test_verif_detail) <> "" Then Call write_variable_in_CASE_NOTE("   Verifications Needed: " & emer_test_verif_detail)
 		End If
 		If EMER_ELIG_APPROVAL.emer_elig_case_test_12_month = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Emergency Funds have been issued on this case in the past 12 months.")
@@ -5268,12 +5268,12 @@ function deny_elig_case_note()
 	If DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app) = True Then
 		Call write_variable_in_CASE_NOTE("=============================================================================")
 		Call write_variable_in_CASE_NOTE("Cash Denial due to Verifications not received.")
-		Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+		Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
 		verif_header = True
-	ElseIf trim(DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) <> "" Then
+	ElseIf trim(DENY_UNIQUE_APPROVALS(verif_request_date, unique_app)) <> "" Then
 		Call write_variable_in_CASE_NOTE("=============================================================================")
 		Call write_variable_in_CASE_NOTE("A request for information/docummentation was sent.")
-		Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+		Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
 		verif_header = True
 	End If
 
@@ -5872,7 +5872,7 @@ function snap_elig_case_note()
 		End If
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
-			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app) & ", due by: " & due_date)
+			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & SNAP_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
 			If expedited_package_approved = True Then
 				Call write_variable_in_CASE_NOTE("   Verifications postponed for Expedited Approval of previous month(s)")
 				Call write_variable_in_CASE_NOTE("   - if provided eligibility for this month can be redetermined")
@@ -7039,8 +7039,8 @@ class mfip_eligibility_detail
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
 				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, confirm_approved_today) = 0 Then approved_today = True
-				' approved_today = True
 			End If
+			' approved_today = True
 		End If
 		If approved_today = True Then
 			ReDim mfip_elig_ref_numbs(0)
@@ -8040,8 +8040,8 @@ class mfip_eligibility_detail
 			mfip_elig_budg_total_countable_housing_subsidy = trim(mfip_elig_budg_total_countable_housing_subsidy)
 			mfip_elig_budg_housing_subsidy_exempt = trim(mfip_elig_budg_housing_subsidy_exempt)
 
+			row = 8
 			Do
-				row = 8
 				EMReadScreen memb_ref_numb, 2, row, 6
 				For case_memb = 0 to UBound(mfip_elig_ref_numbs)
 					If memb_ref_numb = mfip_elig_ref_numbs(case_memb) Then
@@ -9529,7 +9529,7 @@ class ga_eligibility_detail
 			If ga_elig_summ_reason_code = "23" Then ga_elig_summ_reason_info = "Assets over the GA Limit"
 			If ga_elig_summ_reason_code = "24" Then ga_elig_summ_reason_info = "Tranfer of Assets - No GA Eligiblity"
 			If ga_elig_summ_reason_code = "27" Then ga_elig_summ_reason_info = "Fail To Sign Interim Assistance Agreemnt"
-			If ga_elig_summ_reason_code = "28" Then ga_elig_summ_reason_info = "Program Reqquirements Have Been Met"
+			If ga_elig_summ_reason_code = "28" Then ga_elig_summ_reason_info = "Program Requirements Have Been Met"
 			If ga_elig_summ_reason_code = "30" Then ga_elig_summ_reason_info = "Household Size Change"
 			If ga_elig_summ_reason_code = "31" Then ga_elig_summ_reason_info = "Review - No Change"
 			If ga_elig_summ_reason_code = "32" Then ga_elig_summ_reason_info = "Begin Recoupment"
@@ -12887,6 +12887,7 @@ class snap_eligibility_detail
 			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
 				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, confirm_approved_today) = 0 Then approved_today = True
 			End If
+			' approved_today = true
 		End If
 		If approved_today = True Then
 			row = 7
@@ -17344,7 +17345,7 @@ class stat_detail
 				If stat_unea_one_type_code(each_memb) = "26" Then stat_unea_one_type_info(each_memb) = "Strike Benefit"
 				If stat_unea_one_type_code(each_memb) = "27" Then stat_unea_one_type_info(each_memb) = "Contract for Deed"
 				If stat_unea_one_type_code(each_memb) = "28" Then stat_unea_one_type_info(each_memb) = "Illegal Income"
-				If stat_unea_one_type_code(each_memb) = "29" Then stat_unea_one_type_info(each_memb) = "Other Countable"
+				If stat_unea_one_type_code(each_memb) = "29" Then stat_unea_one_type_info(each_memb) = "Other Countable Income"
 				If stat_unea_one_type_code(each_memb) = "30" Then stat_unea_one_type_info(each_memb) = "Infrequent, <30, Not Counted"
 				If stat_unea_one_type_code(each_memb) = "31" Then stat_unea_one_type_info(each_memb) = "Other SNAP Only"
 				If stat_unea_one_type_code(each_memb) = "08" Then stat_unea_one_type_info(each_memb) = "Direct Child Support"
@@ -17447,7 +17448,7 @@ class stat_detail
 				If stat_unea_two_type_code(each_memb) = "26" Then stat_unea_two_type_info(each_memb) = "Strike Benefit"
 				If stat_unea_two_type_code(each_memb) = "27" Then stat_unea_two_type_info(each_memb) = "Contract for Deed"
 				If stat_unea_two_type_code(each_memb) = "28" Then stat_unea_two_type_info(each_memb) = "Illegal Income"
-				If stat_unea_two_type_code(each_memb) = "29" Then stat_unea_two_type_info(each_memb) = "Other Countable"
+				If stat_unea_two_type_code(each_memb) = "29" Then stat_unea_two_type_info(each_memb) = "Other Countable Income"
 				If stat_unea_two_type_code(each_memb) = "30" Then stat_unea_two_type_info(each_memb) = "Infrequent, <30, Not Counted"
 				If stat_unea_two_type_code(each_memb) = "31" Then stat_unea_two_type_info(each_memb) = "Other SNAP Only"
 				If stat_unea_two_type_code(each_memb) = "08" Then stat_unea_two_type_info(each_memb) = "Direct Child Support"
@@ -17550,7 +17551,7 @@ class stat_detail
 				If stat_unea_three_type_code(each_memb) = "26" Then stat_unea_three_type_info(each_memb) = "Strike Benefit"
 				If stat_unea_three_type_code(each_memb) = "27" Then stat_unea_three_type_info(each_memb) = "Contract for Deed"
 				If stat_unea_three_type_code(each_memb) = "28" Then stat_unea_three_type_info(each_memb) = "Illegal Income"
-				If stat_unea_three_type_code(each_memb) = "29" Then stat_unea_three_type_info(each_memb) = "Other Countable"
+				If stat_unea_three_type_code(each_memb) = "29" Then stat_unea_three_type_info(each_memb) = "Other Countable Income"
 				If stat_unea_three_type_code(each_memb) = "30" Then stat_unea_three_type_info(each_memb) = "Infrequent, <30, Not Counted"
 				If stat_unea_three_type_code(each_memb) = "31" Then stat_unea_three_type_info(each_memb) = "Other SNAP Only"
 				If stat_unea_three_type_code(each_memb) = "08" Then stat_unea_three_type_info(each_memb) = "Direct Child Support"
@@ -17654,7 +17655,7 @@ class stat_detail
 				If stat_unea_four_type_code(each_memb) = "26" Then stat_unea_four_type_info(each_memb) = "Strike Benefit"
 				If stat_unea_four_type_code(each_memb) = "27" Then stat_unea_four_type_info(each_memb) = "Contract for Deed"
 				If stat_unea_four_type_code(each_memb) = "28" Then stat_unea_four_type_info(each_memb) = "Illegal Income"
-				If stat_unea_four_type_code(each_memb) = "29" Then stat_unea_four_type_info(each_memb) = "Other Countable"
+				If stat_unea_four_type_code(each_memb) = "29" Then stat_unea_four_type_info(each_memb) = "Other Countable Income"
 				If stat_unea_four_type_code(each_memb) = "30" Then stat_unea_four_type_info(each_memb) = "Infrequent, <30, Not Counted"
 				If stat_unea_four_type_code(each_memb) = "31" Then stat_unea_four_type_info(each_memb) = "Other SNAP Only"
 				If stat_unea_four_type_code(each_memb) = "08" Then stat_unea_four_type_info(each_memb) = "Direct Child Support"
@@ -17757,7 +17758,7 @@ class stat_detail
 				If stat_unea_five_type_code(each_memb) = "26" Then stat_unea_five_type_info(each_memb) = "Strike Benefit"
 				If stat_unea_five_type_code(each_memb) = "27" Then stat_unea_five_type_info(each_memb) = "Contract for Deed"
 				If stat_unea_five_type_code(each_memb) = "28" Then stat_unea_five_type_info(each_memb) = "Illegal Income"
-				If stat_unea_five_type_code(each_memb) = "29" Then stat_unea_five_type_info(each_memb) = "Other Countable"
+				If stat_unea_five_type_code(each_memb) = "29" Then stat_unea_five_type_info(each_memb) = "Other Countable Income"
 				If stat_unea_five_type_code(each_memb) = "30" Then stat_unea_five_type_info(each_memb) = "Infrequent, <30, Not Counted"
 				If stat_unea_five_type_code(each_memb) = "31" Then stat_unea_five_type_info(each_memb) = "Other SNAP Only"
 				If stat_unea_five_type_code(each_memb) = "08" Then stat_unea_five_type_info(each_memb) = "Direct Child Support"
@@ -20121,7 +20122,7 @@ app_incorrect_btn		= 120
 
 const months_in_approval			= 0
 ' const wcom_needed 					= 4
-const verif_reqquest_date			= 5
+const verif_request_date			= 5
 const pact_inelig_reasons			= 6
 const package_is_expedited_const 	= 7
 const include_budget_in_note_const	= 8
@@ -20554,12 +20555,12 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 		move_from_dialog = False
 
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_verif = "FAILED" and MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
-			If Isdate(MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+			If Isdate(MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 			Else
-				If DateDiff("d", MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+				If DateDiff("d", MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					If expedited_package_approved = False Then
-						err_msg = err_msg & vbNewLine & "* The verification request date: " &  MFIP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  MFIP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 						MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 					End If
 				End If
@@ -20956,12 +20957,12 @@ If enter_CNOTE_for_MSA = True Then
 		err_msg = ""
 
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_verif = "FAILED" and MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
-			If Isdate(MSA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+			If Isdate(MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 			Else
-				If DateDiff("d", MSA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+				If DateDiff("d", MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					If expedited_package_approved = False Then
-						err_msg = err_msg & vbNewLine & "* The verification request date: " &  MSA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  MSA_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 						MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 					End If
 				End If
@@ -21236,12 +21237,12 @@ If enter_CNOTE_for_GA = True Then
 		move_from_dialog = False
 
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_verif = "FAILED" and GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
-			If Isdate(GA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+			If Isdate(GA_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 			Else
-				If DateDiff("d", GA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+				If DateDiff("d", GA_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					If expedited_package_approved = False Then
-						err_msg = err_msg & vbNewLine & "* The verification request date: " &  GA_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  GA_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 						GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 					End If
 				End If
@@ -21494,21 +21495,21 @@ If enter_CNOTE_for_DENY = True Then
 		err_msg = ""
 		move_from_dialog = False
 		If DENY_UNIQUE_APPROVALS(denial_due_to_verif, approval_selected) = True Then
-			If Isdate(DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+			If Isdate(DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 			Else
-				If DateDiff("d", DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
-					err_msg = err_msg & vbNewLine & "* The verification request date: " &  DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+				If DateDiff("d", DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
+					err_msg = err_msg & vbNewLine & "* The verification request date: " &  DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 					DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 				End If
 			End If
-		ElseIf trim(DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) <> "" Then
+		ElseIf trim(DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected)) <> "" Then
 
-			If Isdate(DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+			If Isdate(DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 				err_msg = err_msg & vbNewLine & "* Information has been entered into the Verification Request Date, but it does not appear to be a date. Either remove the information or make sure it is a date."
 			Else
-				If DateDiff("d", DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
-					err_msg = err_msg & vbNewLine & "* The verification request date: " &  DENY_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+				If DateDiff("d", DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - approval is Accurate" Then
+					err_msg = err_msg & vbNewLine & "* The verification request date: " &  DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 					DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 				End If
 			End If
@@ -21805,12 +21806,12 @@ If enter_CNOTE_for_GRH = True Then
 
 
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif = "FAILED" and GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
-			If Isdate(GRH_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+			If Isdate(GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 			Else
-				If DateDiff("d", GRH_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+				If DateDiff("d", GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					If expedited_package_approved = False Then
-						err_msg = err_msg & vbNewLine & "* The verification request date: " &  GRH_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  GRH_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 						GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 					End If
 				End If
@@ -21929,7 +21930,7 @@ If enter_CNOTE_for_EMER = True Then
 	emer_test_elig_other_prog_detail = ""
 	emer_test_equitable_interest_detail = ""
 	emer_test_date_residency_starte = ""
-	emer_verif_reqquest_date = ""
+	emer_verif_request_date = ""
 	emer_test_verif_detail = ""
 	TEMP_bus_ticket_info = EMER_ELIG_APPROVAL.bus_ticket_detail
 	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then emer_bus_checkbox = checked
@@ -21943,12 +21944,12 @@ If enter_CNOTE_for_EMER = True Then
 		err_msg = ""
 
 		If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" and confirm_emer_budget_selection <> "No - I need to complete a new Approval" then
-			If Isdate(emer_verif_reqquest_date) = False Then
+			If Isdate(emer_verif_request_date) = False Then
 				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 			Else
-				If DateDiff("d", emer_verif_reqquest_date, date) < 10 AND confirm_emer_budget_selection = "Yes - budget is Accurate" Then
+				If DateDiff("d", emer_verif_request_date, date) < 10 AND confirm_emer_budget_selection = "Yes - budget is Accurate" Then
 					If expedited_package_approved = False Then
-						err_msg = err_msg & vbNewLine & "* The verification request date: " &  emer_verif_reqquest_date & " is less than 10 days ago and we should not be taking action yet."
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  emer_verif_request_date & " is less than 10 days ago and we should not be taking action yet."
 						confirm_emer_budget_selection = "No - I need to complete a new Approval"
 					End If
 				End If
@@ -22216,12 +22217,12 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 
 		If right(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected), 1) = "." Then SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected) = left(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected), len(SNAP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected))- 1)
 		If SNAP_ELIG_APPROVALS(elig_ind).snap_case_verif_test = "FAILED" and SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
-			If Isdate(SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected)) = False Then
+			If Isdate(SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
 				err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
 			Else
-				If DateDiff("d", SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected), date) < 10 AND SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+				If DateDiff("d", SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 					If expedited_package_approved = False Then
-						err_msg = err_msg & vbNewLine & "* The verification request date: " &  SNAP_UNIQUE_APPROVALS(verif_reqquest_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  SNAP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
 						SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
 					End If
 				End If
@@ -22324,7 +22325,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 	End if
 
 End If
-
+' MsgBox "STOP HERE - THE NOTES ARE NEXT"
 If enter_CNOTE_for_MFIP = True Then
 	For unique_app = 0 to UBound(MFIP_UNIQUE_APPROVALS, 2)
 		first_month = left(MFIP_UNIQUE_APPROVALS(months_in_approval, unique_app), 5)
@@ -22367,7 +22368,7 @@ If enter_CNOTE_for_MFIP = True Then
 			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
 		End If
 		due_date = ""
-		If IsDate(MFIP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, MFIP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+		If IsDate(MFIP_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, MFIP_UNIQUE_APPROVALS(verif_request_date, unique_app))
 
 		'This is the WCOM part
 		If MFIP_UNIQUE_APPROVALS(wcom_needed, unique_app) = True Then
@@ -22475,7 +22476,7 @@ if enter_CNOTE_for_MSA = True Then
 			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
 		End If
 		due_date = ""
-		If IsDate(MSA_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, MSA_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+		If IsDate(MSA_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, MSA_UNIQUE_APPROVALS(verif_request_date, unique_app))
 
 		'Here we entere the CASENOTE
 		' Call snap_elig_case_note
@@ -22526,7 +22527,7 @@ if enter_CNOTE_for_GA = True Then
 			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
 		End If
 		due_date = ""
-		If IsDate(GA_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, GA_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+		If IsDate(GA_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, GA_UNIQUE_APPROVALS(verif_request_date, unique_app))
 
 		'Here we entere the CASENOTE
 		' Call snap_elig_case_note
@@ -22557,7 +22558,7 @@ If enter_CNOTE_for_DENY = True Then
 			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 		Next
 		due_date = ""
-		If IsDate(DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, DENY_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+		If IsDate(DENY_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, DENY_UNIQUE_APPROVALS(verif_request_date, unique_app))
 
 		'This is the WCOM part
 		' DENY_UNIQUE_APPROVALS(wcom_needed, unique_app) = False
@@ -22812,7 +22813,7 @@ If enter_CNOTE_for_GRH = True Then
 			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
 		End If
 		due_date = ""
-		If IsDate(GRH_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, GRH_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+		If IsDate(GRH_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, GRH_UNIQUE_APPROVALS(verif_request_date, unique_app))
 
 		'This is the WCOM part
 		' If GRH_UNIQUE_APPROVALS(wcom_needed, unique_app) = True Then
@@ -22882,7 +22883,7 @@ End If
 
 If enter_CNOTE_for_EMER = True Then
 	due_date = ""
-	If IsDate(emer_verif_reqquest_date) = True Then due_date = DateAdd("d", 10, emer_verif_reqquest_date)
+	If IsDate(emer_verif_request_date) = True Then due_date = DateAdd("d", 10, emer_verif_request_date)
 
 	Call emer_elig_case_note
 	' MsgBox "PAUSE HERE"
@@ -22930,7 +22931,7 @@ If enter_CNOTE_for_SNAP = True Then
 			If one_month_is_elig = True Then elig_info = "INELIGIBLE - Closed"
 		End If
 		due_date = ""
-		If IsDate(SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app)) = True Then due_date = DateAdd("d", 10, SNAP_UNIQUE_APPROVALS(verif_reqquest_date, unique_app))
+		If IsDate(SNAP_UNIQUE_APPROVALS(verif_request_date, unique_app)) = True Then due_date = DateAdd("d", 10, SNAP_UNIQUE_APPROVALS(verif_request_date, unique_app))
 
 		'This is the WCOM part
 		If SNAP_UNIQUE_APPROVALS(wcom_needed, unique_app) = True Then
