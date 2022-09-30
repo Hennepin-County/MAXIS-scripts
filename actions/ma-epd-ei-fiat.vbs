@@ -1,9 +1,9 @@
 'Required for statistical purposes==========================================================================================
 name_of_script = "ACTIONS - MA-EPD EI FIAT.vbs"
 start_time = timer
-STATS_counter = 1                     	'sets the stats counter at one
-STATS_manualtime = 600                	'manual run time in seconds
-STATS_denomination = "C"       		'C is for each CASE
+STATS_counter = 0                     	'sets the stats counter at one
+STATS_manualtime = 100                	'manual run time in seconds
+STATS_denomination = "I"       		'I is for Item - this is each MONTH that is FIATed
 'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("09/30/2022", "Added handling so the FIATer will work for budgets that are only partially MA-EPD. The script will recognize which months are MA-EPD and only average the income over the months that are coded 'DP'.##~##", "Casey Love, Henneppin County")
 call changelog_update("05/25/2022", "Updated the handling of the Footer Month for more stable script operation. For active MA EPD cases (the Update process) the script will read JOBS and UNEA informaiton from Current Month plus One as that is the most recent information available.", "Casey Love, Hennepin County")
 call changelog_update("06/25/2020", "Added handling to stop the script run if the income information is not updated fully or does not meet requiements for needing an MA-EPD FIAT.##~## If you have questions about use of the FIAT or necessary updates to JOBS and UNEA panels, please contact the BlueZone Script Team and we will direct you to the best resources.", "Casey Love, Hennepin County")
 call changelog_update("06/04/2020", "BUG FIX - Script was failing with the new functionality trying to correctly navigate to UNEA panels. It was causing an error on some cases that prevented the script from continuing. Bug should now be resolved.##~##", "Casey Love, Hennepin County")
@@ -834,9 +835,10 @@ EMReadScreen elig_type_check_fourth_month, 2, 12, 50
 EMReadScreen elig_type_check_fifth_month, 2, 12, 61
 EMReadScreen elig_type_check_sixth_month, 2, 12, 72
 
-'Script will end if not DP
+'There needs to be at least 1 month of MA-EPD Elig Results - the script will check each month and if all are NOT DP - the script will end.
 If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then script_end_procedure("Not all of the months of this case are MA-EPD. Process manually.")
 
+'This is determining the first month that MA-EPD is coded in the budget.
 If elig_type_check_first_month = "DP" Then
 	EMReadScreen first_month_and_year, 5, 6, 19
 ElseIf elig_type_check_second_month = "DP" Then
@@ -850,6 +852,8 @@ ElseIf elig_type_check_fifth_month = "DP" Then
 ElseIf elig_type_check_sixth_month = "DP" then
 	EMReadScreen first_month_and_year, 5, 6, 74
 End If
+'Worker should have indicated the first month of MA - EPD here. If that was not accurate, the STAT information already gathered may be incorrect
+'the script will end if the entered month and found month do not match
 If start_month_and_year <> first_month_and_year Then
 	end_msg = "The Beginning Month of MA-EPD that you entered into the start of the script run: " & start_month_and_year & " does not appear to be the first month of MA-EPD in this HC Budget." & vbCr & vbCr & "It appears the first month of MA-EPD is " & first_month_and_year & "." & vbCr & vbCr & "Please review the case and rerun the script, entering the correct Beginning Month of MA-EPD."
 	call script_end_procedure_with_error_report(end_msg)
@@ -866,7 +870,7 @@ If col = 0 Then script_end_procedure(end_msg)
 'Now looking at each month in ELIG
 number_of_months = 0        'setting this at - it will count the number of months to be FIATed
 Do
-	EMReadScreen elig_type_check, 2, 12, col-2
+	EMReadScreen elig_type_check, 2, 12, col-2	'ensuring the month is MA-EPD elig type'
 	If elig_type_check = "DP" Then
 	    EMWriteScreen "X", 9, col + 2       'opening the Budget for the month
 	    transmit
@@ -917,13 +921,15 @@ Do
 	        End If
 	    Loop until this_unea > UBOUND(UNEA_ARRAY, 2)
 	    transmit
-		number_of_months = number_of_months + 1
+		number_of_months = number_of_months + 1	'counting how many months meet the crieria for MA-EPD and should be used to average the income.
 		transmit
 	End If
 	col = col + 11
     ' transmit
 loop until col > 76
+'this should never be 0 with the code checking for DP BUT if it is, there will always be an overflow error and we don't want that.
 If number_of_months = 0 Then script_end_procedure("The script could not find MA-EPD months in the currently available HC Budget Span. The script will now end. Review STAT and ELIG to resovle.")
+'This will set the word to use in the dialog to indicate how many months the income has been averaged over.
 If number_of_months = 1 Then months_in_average = "one"
 If number_of_months = 2 Then months_in_average = "two"
 If number_of_months = 3 Then months_in_average = "three"
@@ -1080,8 +1086,9 @@ If FIAT_check <> "FIAT" then
 End if
 
 Do
-	EMReadScreen elig_type_check, 2, 12, col-2
+	EMReadScreen elig_type_check, 2, 12, col-2		'checking to be sure the month is MA-EPD before FIATing.
 	If elig_type_check = "DP" Then
+		STATS_counter = STATS_counter + 1	'we count each month that is FIATed for statistics
 	    EMWriteScreen "X", 9, col + 2       'opening the budget
 	    transmit
 	    EMWriteScreen "X", 13, 03           'opening the Earned Income line
@@ -1151,7 +1158,7 @@ script_end_procedure_with_error_report("Success! Please make sure to check eligi
 '--PRIV Case handling reviewed -------------------------------------------------05/25/2022
 '--Out-of-County handling reviewed----------------------------------------------05/25/2022
 '--script_end_procedures (w/ or w/o error messaging)----------------------------05/25/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--BULK - review output of statistics and run time/count (if applicable)--------09/30/2022
 '--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/25/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
@@ -1159,15 +1166,15 @@ script_end_procedure_with_error_report("Success! Please make sure to check eligi
 '--Incrementors reviewed (if necessary)-----------------------------------------05/25/2022
 '--Denomination reviewed -------------------------------------------------------05/25/2022
 '--Script name reviewed---------------------------------------------------------05/25/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+'--BULK - remove 1 incrementor at end of script reviewed------------------------09/30/2022
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------05/25/2022
-'--comment Code-----------------------------------------------------------------N/A
+'--comment Code-----------------------------------------------------------------09/30/2022
 '--Update Changelog for release/update------------------------------------------05/25/2022
 '--Remove testing message boxes-------------------------------------------------05/25/2022
 '--Remove testing code/unnecessary code-----------------------------------------05/25/2022
-'--Review/update SharePoint instructions----------------------------------------N/A
+'--Review/update SharePoint instructions----------------------------------------09/30/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
 '--Complete misc. documentation (if applicable)---------------------------------N/A
