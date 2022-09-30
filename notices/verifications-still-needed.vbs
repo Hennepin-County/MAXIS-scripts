@@ -158,8 +158,6 @@ objSelection.TypeText "FAX: 612-288-2981"
 objSelection.TypeParagraph
 objSelection.TypeText "Phone: 612-596-1300"
 objSelection.TypeParagraph
-objSelection.TypeText "Email: HHSEWS@hennepin.us"
-objSelection.TypeParagraph
 
 objSelection.ParagraphFormat.Alignment = 2
 objSelection.ParagraphFormat.LineSpacing = 12
@@ -182,13 +180,17 @@ objSelection.TypeParagraph()
 objSelection.Font.Bold = FALSE
 objSelection.TypeText("We recently received and processed some of your required verifications. Unfortunately, there is some information that is still needed. Failure to return this information may result in the closure and/or denial of your case.")
 objSelection.TypeParagraph()
-	objSelection.TypeText("You now have an option to use an email to return documents to Hennepin County.")
 objSelection.TypeParagraph()
-	objSelection.TypeText("Email: HHSEWS@hennepin.us")
+objSelection.TypeText("*** Submitting Documents:")
 objSelection.TypeParagraph()
-	objSelection.TypeText("Be sure to write the case number and full name associated with the case in the body of the email.")
+objSelection.TypeText("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
 objSelection.TypeParagraph()
-	objSelection.TypeText("Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure.")
+objSelection.TypeText("  Use InfoKeep to upload documents directly to your case.")
+objSelection.TypeParagraph()
+objSelection.TypeText("- Mail, Fax, or Drop Boxes at Service Centers.")
+objSelection.TypeParagraph()
+objSelection.TypeText("  More Info: https://www.hennepin.us/economic-supports")
+objSelection.TypeParagraph()
 objSelection.TypeParagraph()
 	objSelection.TypeText("To obtain information about your case please contact Hennepin County.")
 objSelection.TypeParagraph()
