@@ -172,6 +172,14 @@ ReDim COLUMN_ARRAY(assignment_list_col_number, 0)
 'Connects to BlueZone
 EMConnect ""
 
+run_by_QI_leadership = False
+If user_ID_for_validation = "TAPA002" then run_by_QI_leadership = True
+If user_ID_for_validation = "ILFE001" then run_by_QI_leadership = True
+If user_ID_for_validation = "WFS395" then run_by_QI_leadership = True
+If user_ID_for_validation = "CALO001" then run_by_QI_leadership = True
+If user_ID_for_validation = "WFX901" then run_by_QI_leadership = True
+If user_ID_for_validation = "WFU851" then run_by_QI_leadership = True
+
 'Checks to make sure we're in MAXIS
 call check_for_MAXIS(True)
 
@@ -181,28 +189,34 @@ assignment_month = MonthName(DatePart("m", date))
 
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 386, 190, "Create Assignment Lists from a Master List"
+BeginDialog Dialog1, 0, 0, 386, 235, "Create Assignment Lists from a Master List"
   EditBox 95, 25, 235, 15, master_excel_file_path
   ButtonGroup ButtonPressed
     PushButton 335, 25, 45, 15, "Browse...", select_a_file_button
   EditBox 180, 85, 175, 15, assignment_list_title
-  DropListBox 170, 120, 60, 45, "Select One..."+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", assignment_month
-  EditBox 240, 120, 35, 15, assignment_year
-  DropListBox 115, 145, 140, 45, "Select One..."+chr(9)+"Restart a Previous Run"+chr(9)+"Excel List"+chr(9)+"Manual Entry", worker_selection
-  CheckBox 10, 175, 260, 10, "Check here to have the script close the assignment lists at the end of the run.", close_assignment_lists_checkbox
+  DropListBox 165, 120, 60, 45, "Select One..."+chr(9)+"January"+chr(9)+"February"+chr(9)+"March"+chr(9)+"April"+chr(9)+"May"+chr(9)+"June"+chr(9)+"July"+chr(9)+"August"+chr(9)+"September"+chr(9)+"October"+chr(9)+"November"+chr(9)+"December", assignment_month
+  EditBox 235, 120, 35, 15, assignment_year
+  EditBox 95, 150, 285, 15, assignment_project_detail
+  If run_by_QI_leadership = True Then DropListBox 115, 180, 140, 45, "Select One..."+chr(9)+"Select from QI"+chr(9)+"Restart a Previous Run"+chr(9)+"Excel List"+chr(9)+"Manual Entry", worker_selection
+  If run_by_QI_leadership = False Then DropListBox 115, 180, 140, 45, "Select One..."+chr(9)+"Restart a Previous Run"+chr(9)+"Excel List"+chr(9)+"Manual Entry", worker_selection
+  CheckBox 10, 210, 260, 10, "Check here to have the script close the assignment lists at the end of the run.", close_assignment_lists_checkbox
+  CheckBox 10, 220, 200, 10, "Check here to have the script send assignment emails.", send_email_checkbox
   ButtonGroup ButtonPressed
-    OkButton 275, 170, 50, 15
-    CancelButton 330, 170, 50, 15
+    OkButton 275, 215, 50, 15
+    CancelButton 330, 215, 50, 15
   Text 10, 10, 365, 10, "This script will take a list of cases and create even assignment lists for a list of workers."
   Text 15, 30, 75, 10, "Select the Master List:"
   Text 95, 45, 280, 20, "The MASTER LIST must be an Excel document that has a list of cases to be assigned. The script will not filter or sort these cases at all, so be sure your list is accurate."
   Text 105, 65, 250, 15, "** Master list much include a column titled 'Assigned' to indicate if the case has been assigned by the script."
   Text 95, 90, 85, 10, "Title of Assignment Lists"
   Text 180, 105, 180, 10, "Will be added to the file names of the assignment list."
-  Text 100, 125, 65, 10, "Assignment Month: "
-  Text 5, 150, 110, 10, "How will the workers be selected:"
-  Text 120, 160, 125, 10, "Manual entry is limited to 15 workers."
+  Text 95, 125, 65, 10, "Assignment Month: "
+  Text 95, 140, 95, 10, "Assignment Project Detail:"
+  Text 95, 165, 155, 10, "(Information is for email of assignment only.)"
+  Text 5, 185, 110, 10, "How will the workers be selected:"
+  Text 120, 195, 125, 10, "Manual entry is limited to 15 workers."
 EndDialog
+
 Do
     Do
         err_msg = ""
@@ -220,7 +234,8 @@ Do
         If assignment_month = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select the month of the assignment."
         If assignment_year = "" Then err_msg = err_msg & vbNewLine & "* Enter the year of the assignment."
         If worker_selection = "" Then err_msg = err_msg & vbNewLine & "* Select how you would like to select the workers to assign this work to."
-        If ButtonPressed = select_a_file_button then
+		If send_email_checkbox = checked and trim(assignment_project_detail) = "" Then err_msg = err_msg & vbNewLine & "* Since you are sending Emails to the assignees, detail information about the assignments in the 'Project Assignment Detail' area."
+		If ButtonPressed = select_a_file_button then
             call file_selection_system_dialog(master_excel_file_path, ".xlsx")
             err_msg = err_msg & "LOOP"
         Else
@@ -235,7 +250,10 @@ call excel_open_pw(master_excel_file_path, True, False, ObjExcel, objWorkbook, "
 master_list_folder = ""
 folder_breadcrumbs = split(master_excel_file_path, "\")
 For each folder in folder_breadcrumbs
-    If right(folder, 5) <> ".xlsx" then master_list_folder = master_list_folder & folder & "\"
+    If right(folder, 5) <> ".xlsx" then
+		If folder = "T:" Then folder = t_drive
+		master_list_folder = master_list_folder & folder & "\"
+	End If
 Next
 
 xl_col = 1
@@ -261,18 +279,24 @@ Do
     End If
 Loop until col_header = ""
 
-dlg_hgt = 75 + UBound(COLUMN_ARRAY,2)*15
+dlg_hgt = 115 + UBound(COLUMN_ARRAY,2)*10
 y_pos = 30
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 281, dlg_hgt, "List of Workers to Assign"
   Text 10, 10, 365, 10, "Check each column from the master list you want to include on the assignment list"
   For each_column = 0 to UBound(COLUMN_ARRAY,2)
       CheckBox 15, y_pos, 225, 10, "Column " & COLUMN_ARRAY(master_list_col_letter, each_column) & "  -  " & COLUMN_ARRAY(column_header, each_column), COLUMN_ARRAY(include_column, each_column)
-      y_pos = y_pos + 15
+      y_pos = y_pos + 10
   Next
   y_pos = y_pos + 5
-  Text 15, y_pos + 5, 75, 10, "Assignment Column:"
-  DropListBox 95, y_pos, 75, 15, work_list_columns, assigned_selection
+  Text 10, y_pos, 365, 10, "Pick the column you want to use to track that the row has been assigned"
+  y_pos = y_pos + 10
+  Text 10, y_pos + 5, 70, 10, "Assignment Column:"
+  DropListBox 80, y_pos, 75, 15, work_list_columns, assigned_selection
+  y_pos = y_pos + 20
+  Text 10, y_pos, 365, 10, "If you have a column to track who it was assigned to, select it here:"
+  y_pos = y_pos + 10
+  DropListBox 10, y_pos, 75, 15, work_list_columns, assigned_to_worker_selection
   ButtonGroup ButtonPressed
     OkButton 225, y_pos, 50, 15
 EndDialog
@@ -293,6 +317,9 @@ For each_column = 0 to UBound(COLUMN_ARRAY,2)
     If COLUMN_ARRAY(column_header, each_column) = assigned_selection Then
         assigned_marked_col = COLUMN_ARRAY(master_list_col_number, each_column)
     End If
+	If COLUMN_ARRAY(column_header, each_column) = assigned_to_worker_selection Then
+		assigned_worker_col = COLUMN_ARRAY(master_list_col_number, each_column)
+	End If
     If COLUMN_ARRAY(include_column, each_column) = checked Then
 
     End If
@@ -451,6 +478,94 @@ If worker_selection = "Restart a Previous Run" Then
         Loop until err_msg = ""
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
+
+ElseIf worker_selection = "Select from QI" Then
+	new_lists_needed = TRUE
+	' If IsArray(tester_array) = False Then
+		Dim tester_array()
+		ReDim tester_array(0)
+
+		tester_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+		Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
+		text_from_the_other_script = fso_command.ReadAll
+		fso_command.Close
+		Execute text_from_the_other_script
+	' End If
+
+	const qi_worker_name_const 		= 0
+	const qi_worker_email_const		= 1
+	const qi_worker_checkbox_const	= 2
+	const qi_worker_first_name_const= 3
+	const qi_worker_last_const		= 10
+
+	Dim QI_WORKERS_ARRAY()
+	ReDim QI_WORKERS_ARRAY(qi_worker_last_const, 0)
+
+	qi_worker_count = 0
+	' MsgBox "Here we go"
+	For tester = 0 to UBound(tester_array)                         'looping through all of the testers
+		' MsgBox "tester - " & tester & vbCr & "tester_array(tester).tester_supervisor_name - " & tester_array(tester).tester_supervisor_name
+		If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then
+			RedIm preserve QI_WORKERS_ARRAY(qi_worker_last_const, qi_worker_count)
+
+			QI_WORKERS_ARRAY(qi_worker_name_const, qi_worker_count) = tester_array(tester).tester_full_name
+			QI_WORKERS_ARRAY(qi_worker_first_name_const, qi_worker_count) = tester_array(tester).tester_first_name
+			QI_WORKERS_ARRAY(qi_worker_email_const, qi_worker_count) = tester_array(tester).tester_email
+
+			qi_worker_count = qi_worker_count + 1
+		End If
+	Next
+	' MsgBox "qi_worker_count - " & qi_worker_count
+	dlg_len = 65 + qi_worker_count*10
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 416, dlg_len, "QI Worker Selection"
+	  Text 10, 5, 210, 10, "Select any of the QI Workers that you want to assign a list to."
+	  Text 10, 20, 50, 10, "Name"
+	  Text 120, 20, 50, 10, "Email"
+	  Text 265, 20, 130, 10, "Check all that you want to assign to"
+	  y_pos = 35
+	  For each_worker = 0 to UBound(QI_WORKERS_ARRAY, 2)
+		  Text 10, y_pos, 100, 10, QI_WORKERS_ARRAY(qi_worker_name_const, each_worker)
+		  Text 120, y_pos, 145, 10, QI_WORKERS_ARRAY(qi_worker_email_const, each_worker)
+		  CheckBox 265, y_pos, 125, 10, "Assign to " & QI_WORKERS_ARRAY(qi_worker_first_name_const, each_worker), QI_WORKERS_ARRAY(qi_worker_checkbox_const, each_worker)
+		  y_pos = y_pos + 10
+	  Next
+	  y_pos = y_pos + 10
+	  ' Text 10, 35, 100, 10, "Faughn Ramisch-Church"
+	  ' Text 120, 35, 145, 10, "faughn.ramisch-church@hennepin.us"
+	  ' CheckBox 265, 35, 125, 10, "Assign to WORKER", checkbox
+	  ' Text 10, 45, 100, 10, "Faughn Ramisch-Church"
+	  ' Text 120, 45, 145, 10, "faughn.ramisch-church@hennepin.us"
+	  ' CheckBox 265, 45, 125, 10, "Assign to WORKER", Check2
+	  ' Text 10, 55, 100, 10, "Faughn Ramisch-Church"
+	  ' Text 120, 55, 145, 10, "faughn.ramisch-church@hennepin.us"
+	  ' CheckBox 265, 55, 125, 10, "Assign to WORKER", Check3
+	  ' Text 10, 65, 100, 10, "Faughn Ramisch-Church"
+	  ' Text 120, 65, 145, 10, "faughn.ramisch-church@hennepin.us"
+	  ' CheckBox 265, 65, 125, 10, "Assign to WORKER", Check4
+	  ButtonGroup ButtonPressed
+	    OkButton 305, y_pos, 50, 15
+	    CancelButton 360, y_pos, 50, 15
+	EndDialog
+
+	Dialog Dialog1
+
+
+	assigned_workers = 0
+
+	For each_worker = 0 to UBound(QI_WORKERS_ARRAY, 2)
+		If QI_WORKERS_ARRAY(qi_worker_checkbox_const, each_worker) = checked Then
+			ReDim preserve ASSIGNMENT_LISTS_ARRAY(list_message, assigned_workers)
+
+			 ASSIGNMENT_LISTS_ARRAY(assigned_worker_name, assigned_workers) = QI_WORKERS_ARRAY(qi_worker_name_const, each_worker)
+			 ASSIGNMENT_LISTS_ARRAY(assigned_worker_email, assigned_workers) = QI_WORKERS_ARRAY(qi_worker_email_const, each_worker)
+			 ASSIGNMENT_LISTS_ARRAY(new_assignment, assigned_workers) = True
+			assigned_workers = assigned_workers + 1
+		End If
+	Next
+	' MsgBox "Wait Here"
 
 ElseIf worker_selection = "Excel List" Then
     new_lists_needed = TRUE
@@ -714,7 +829,7 @@ ElseIf worker_selection = "Manual Entry" Then
 End If
 
 If new_lists_needed = TRUE Then
-    If worker_selection = "Excel List" or worker_selection = "Manual Entry" Then
+    If worker_selection = "Excel List" or worker_selection = "Manual Entry" or worker_selection = "Select from QI" Then
         Set objTextStream = objFSO.OpenTextFile(assignment_status_path, ForWriting, true)
     Else
         Set objTextStream = objFSO.OpenTextFile(assignment_status_path, ForAppending, true)
@@ -934,6 +1049,7 @@ For list_row = 0 to UBound(MASTER_LIST_ALL_ROWS, 2)
         End If
         excel_row = ASSIGNMENT_LISTS_ARRAY(last_excel_row, worker_to_assign)
 
+		' MsgBox "ASSIGNMENT_LISTS_ARRAY(script_call_name, worker_to_assign) - " & ASSIGNMENT_LISTS_ARRAY(script_call_name, worker_to_assign)
         ASSIGNMENT_LISTS_ARRAY(script_call_name, worker_to_assign).worksheets("Assignment").Activate
 
         STATS_counter = STATS_counter + 1
@@ -955,13 +1071,14 @@ For list_row = 0 to UBound(MASTER_LIST_ALL_ROWS, 2)
         ASSIGNMENT_LISTS_ARRAY(script_call_name, worker_to_assign).Cells(4, 2).Value = excel_row - 1
         ASSIGNMENT_LISTS_ARRAY(script_call_name, worker_to_assign).worksheets("Assignment").Activate
 
-        worker_to_assign = worker_to_assign + 1
-        If worker_to_assign > last_of_assignment_lists Then worker_to_assign = 0
-
         MASTER_LIST_ALL_ROWS(row_already_assigned, list_row) = TRUE
 
         master_excel_row = MASTER_LIST_ALL_ROWS(master_xl_row, list_row)
         ObjExcel.Cells(master_excel_row, assigned_marked_col).Value = MASTER_LIST_ALL_ROWS(row_already_assigned, list_row)
+		ObjExcel.Cells(master_excel_row, assigned_worker_col).Value = ASSIGNMENT_LISTS_ARRAY(assigned_worker_name, worker_to_assign)
+
+		worker_to_assign = worker_to_assign + 1
+		If worker_to_assign > last_of_assignment_lists Then worker_to_assign = 0
     End If
 Next
 For each_assignment = 0 to UBound(ASSIGNMENT_LISTS_ARRAY, 2)
@@ -972,4 +1089,33 @@ For each_assignment = 0 to UBound(ASSIGNMENT_LISTS_ARRAY, 2)
     End If
 Next
 ObjExcel.ActiveWorkbook.Save
+
+'This part of the script will create emails to send information to the assignees if selected at the beginning of the script run.
+'These emails will send automatically if an email address is known.
+If send_email_checkbox = checked Then
+	Call find_user_name(the_person_running_the_script)							'getting the name of the person running the script for the email signature
+	For each_assignment = 0 to UBound(ASSIGNMENT_LISTS_ARRAY, 2)
+
+		email_body = "Hello " & ASSIGNMENT_LISTS_ARRAY(assigned_worker_name, each_assignment) & ", "
+		email_body = email_body & vbCr & ""
+		email_body = email_body & vbCr & "Your assignment worklist has been created. It is saved in an Excel File and is ready for work now."
+		email_body = email_body & vbCr & ""
+		email_body = email_body & vbCr & "The assignment can be found in this Excel File: "
+		email_body = email_body & vbCr & "<" & assignment_folder & ASSIGNMENT_LISTS_ARRAY(assignment_list_path, each_assignment) & ">" & vbCr
+		email_body = email_body & vbCr & ""
+		email_body = email_body & vbCr & "Information about this assignment: " & assignment_project_detail
+		email_body = email_body & vbCr & ""
+		email_body = email_body & vbCr & "If you have any questions about this assignment, please contact me."
+		email_body = email_body & vbCr & ""
+		email_body = email_body & vbCr & "Thank You"
+		email_body = email_body & vbCr & the_person_running_the_script
+
+		' Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
+		send_email = True
+		If ASSIGNMENT_LISTS_ARRAY(assigned_worker_email, each_assignment) = "" Then send_email = False
+		Call create_outlook_email(ASSIGNMENT_LISTS_ARRAY(assigned_worker_email, each_assignment), "", "Assignment List in Excel", email_body, "", send_email)
+
+	Next
+End If
+
 script_end_procedure("Assignments complete")
