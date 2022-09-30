@@ -835,74 +835,101 @@ EMReadScreen elig_type_check_fifth_month, 2, 12, 61
 EMReadScreen elig_type_check_sixth_month, 2, 12, 72
 
 'Script will end if not DP
-If elig_type_check_first_month <> "DP" or elig_type_check_second_month <> "DP" or elig_type_check_third_month <> "DP" or elig_type_check_fourth_month <> "DP" or elig_type_check_fifth_month <> "DP" or elig_type_check_sixth_month <> "DP" then script_end_procedure("Not all of the months of this case are MA-EPD. Process manually.")
+If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then script_end_procedure("Not all of the months of this case are MA-EPD. Process manually.")
+
+If elig_type_check_first_month = "DP" Then
+	EMReadScreen first_month_and_year, 5, 6, 19
+ElseIf elig_type_check_second_month = "DP" Then
+	EMReadScreen first_month_and_year, 5, 6, 30
+ElseIf elig_type_check_third_month = "DP" Then
+	EMReadScreen first_month_and_year, 5, 6, 41
+ElseIf elig_type_check_fourth_month = "DP" Then
+	EMReadScreen first_month_and_year, 5, 6, 52
+ElseIf elig_type_check_fifth_month = "DP" Then
+	EMReadScreen first_month_and_year, 5, 6, 63
+ElseIf elig_type_check_sixth_month = "DP" then
+	EMReadScreen first_month_and_year, 5, 6, 74
+End If
+If start_month_and_year <> first_month_and_year Then
+	end_msg = "The Beginning Month of MA-EPD that you entered into the start of the script run: " & start_month_and_year & " does not appear to be the first month of MA-EPD in this HC Budget." & vbCr & vbCr & "It appears the first month of MA-EPD is " & first_month_and_year & "." & vbCr & vbCr & "Please review the case and rerun the script, entering the correct Beginning Month of MA-EPD."
+	call script_end_procedure_with_error_report(end_msg)
+End If
 
 'Looking for the first month to FIAT
 row = 6
 col = 1
-EMSearch start_month_and_year, row, col
+EMSearch first_month_and_year, row, col
 
-end_msg = "The selected month " & start_month_and_year & " is not in the current version of HC, review the month selected and try the script again."
+end_msg = "The selected month " & first_month_and_year & " is not in the current version of HC, review the month selected and try the script again."
 If col = 0 Then script_end_procedure(end_msg)
 
 'Now looking at each month in ELIG
 number_of_months = 0        'setting this at - it will count the number of months to be FIATed
 Do
-    EMWriteScreen "X", 9, col + 2       'opening the Budget for the month
-    transmit
-    EMWriteScreen "X", 13, 03           'opening the earned income pop-up
-    transmit
+	EMReadScreen elig_type_check, 2, 12, col-2
+	If elig_type_check = "DP" Then
+	    EMWriteScreen "X", 9, col + 2       'opening the Budget for the month
+	    transmit
+	    EMWriteScreen "X", 13, 03           'opening the earned income pop-up
+	    transmit
 
-    this_job = 0                        'setting to loop through the rows and jobs
-    budg_row = 8
-    Do
-        EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
-        If inc_type = "__" Then Exit Do
-        If JOBS_ARRAY(est_pop_up, this_job) <> 0.00 Then    ''
-            If inc_type = "02" Then
-                EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
-                month_total = replace(month_total, "_", "")
-                month_total = trim(month_total)
-                month_total = month_total * 1
-                JOBS_ARRAY(six_month_total, this_job) = JOBS_ARRAY(six_month_total, this_job) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
-                this_job = this_job + 1     'going to the next job in the array
-            End If
-            budg_row = budg_row + 1     'looking at the next budget row
-        Else
-            this_job = this_job + 1     'going to the next job in the array
-        End If
-    Loop until this_job > UBOUND(JOBS_ARRAY, 2)
-    transmit
+	    this_job = 0                        'setting to loop through the rows and jobs
+	    budg_row = 8
+	    Do
+	        EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
+	        If inc_type = "__" Then Exit Do
+	        If JOBS_ARRAY(est_pop_up, this_job) <> 0.00 Then    ''
+	            If inc_type = "02" Then
+	                EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
+	                month_total = replace(month_total, "_", "")
+	                month_total = trim(month_total)
+	                month_total = month_total * 1
+	                JOBS_ARRAY(six_month_total, this_job) = JOBS_ARRAY(six_month_total, this_job) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
+	                this_job = this_job + 1     'going to the next job in the array
+	            End If
+	            budg_row = budg_row + 1     'looking at the next budget row
+	        Else
+	            this_job = this_job + 1     'going to the next job in the array
+	        End If
+	    Loop until this_job > UBOUND(JOBS_ARRAY, 2)
+	    transmit
 
-    EMWriteScreen "X", 9, 03           'opening the unearned income pop-up
-    transmit
+	    EMWriteScreen "X", 9, 03           'opening the unearned income pop-up
+	    transmit
 
-    this_unea = 0                        'setting to loop through the rows and jobs
-    budg_row  = 8
-    Do
-        EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
-        If inc_type = "__" Then Exit Do
-        If UNEA_ARRAY(est_pop_up, this_unea) <> 0.00 Then    ''
-            If inc_type = "12" Then
-                EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
-                month_total = replace(month_total, "_", "")
-                month_total = trim(month_total)
-                month_total = month_total * 1
-                UNEA_ARRAY(six_month_total, this_unea) = UNEA_ARRAY(six_month_total, this_unea) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
-                this_unea = this_unea + 1     'going to the next job in the array
-            End If
-            budg_row = budg_row + 1     'looking at the next budget row
-        Else
-            this_unea = this_unea + 1     'going to the next job in the array
-        End If
-    Loop until this_unea > UBOUND(UNEA_ARRAY, 2)
-    transmit
-
-    number_of_months = number_of_months + 1
-    col = col + 11
-    transmit
+	    this_unea = 0                        'setting to loop through the rows and jobs
+	    budg_row  = 8
+	    Do
+	        EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
+	        If inc_type = "__" Then Exit Do
+	        If UNEA_ARRAY(est_pop_up, this_unea) <> 0.00 Then    ''
+	            If inc_type = "12" Then
+	                EMReadScreen month_total, 11, budg_row, 43      'finding the income in that row of wages and formatting the amount
+	                month_total = replace(month_total, "_", "")
+	                month_total = trim(month_total)
+	                month_total = month_total * 1
+	                UNEA_ARRAY(six_month_total, this_unea) = UNEA_ARRAY(six_month_total, this_unea) + month_total     'adding this amount to the array - to create a sum of all the income listed for the job
+	                this_unea = this_unea + 1     'going to the next job in the array
+	            End If
+	            budg_row = budg_row + 1     'looking at the next budget row
+	        Else
+	            this_unea = this_unea + 1     'going to the next job in the array
+	        End If
+	    Loop until this_unea > UBOUND(UNEA_ARRAY, 2)
+	    transmit
+		number_of_months = number_of_months + 1
+		transmit
+	End If
+	col = col + 11
     ' transmit
 loop until col > 76
+If number_of_months = 0 Then script_end_procedure("The script could not find MA-EPD months in the currently available HC Budget Span. The script will now end. Review STAT and ELIG to resovle.")
+If number_of_months = 1 Then months_in_average = "one"
+If number_of_months = 2 Then months_in_average = "two"
+If number_of_months = 3 Then months_in_average = "three"
+If number_of_months = 4 Then months_in_average = "four"
+If number_of_months = 5 Then months_in_average = "five"
+If number_of_months = 6 Then months_in_average = "six"
 
 job_msg = ""
 continue_fiat = FALSE
@@ -910,7 +937,7 @@ jobs_to_fiat = FALSE
 unea_to_fiat = FALSE
 fail_message = ""
 For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
-    job_msg = job_msg & vbNewLine & JOBS_ARRAY(employer, the_job) & " - paid " & JOBS_ARRAY(job_frequency, the_job) & " on " & JOBS_ARRAY(pay_weekday, the_job) & " - total income for six-month budget period - $" & JOBS_ARRAY(six_month_total, the_job) & " - Average monthly income $" & JOBS_ARRAY(average_monthly_inc, the_job)
+    job_msg = job_msg & vbNewLine & JOBS_ARRAY(employer, the_job) & " - paid " & JOBS_ARRAY(job_frequency, the_job) & " on " & JOBS_ARRAY(pay_weekday, the_job) & " - total income for " & months_in_average & "-month budget period - $" & JOBS_ARRAY(six_month_total, the_job) & " - Average monthly income $" & JOBS_ARRAY(average_monthly_inc, the_job)
 	If JOBS_ARRAY(job_frequency, the_job) = "3" then
 		continue_fiat = TRUE
 		jobs_to_fiat = TRUE
@@ -961,7 +988,7 @@ BeginDialog Dialog1, 0, 0, 490, 140 + (UBOUND(JOBS_ARRAY, 2)*20) + (UBOUND(UNEA_
         'setting the average monthly income by taking the total of the income listed in the budget on ELIG, then dividing it by the number of months
         'then using format number to make this a number with 2 decimel points and then removing the commas from the number because ELIG/HC doesn't like commas
         JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(six_month_total, the_job)/number_of_months, 2,,,0) & ""
-        Text 20, y_pos + 5, 395, 10, JOBS_ARRAY(employer, the_job) & " - paid " & JOBS_ARRAY(job_frequency, the_job) & " on " & JOBS_ARRAY(pay_weekday, the_job) & " - total income for six-month budget period - $" & JOBS_ARRAY(six_month_total, the_job) & " - Average monthly income $"
+        Text 20, y_pos + 5, 395, 10, JOBS_ARRAY(employer, the_job) & " - paid " & JOBS_ARRAY(job_frequency, the_job) & " on " & JOBS_ARRAY(pay_weekday, the_job) & " - total income for " & months_in_average & "-month budget period - $" & JOBS_ARRAY(six_month_total, the_job) & " - Average monthly income $"
         EditBox 415, y_pos, 55, 15, JOBS_ARRAY(average_monthly_inc, the_job)
         y_pos = y_pos + 20
       Next
@@ -981,7 +1008,7 @@ BeginDialog Dialog1, 0, 0, 490, 140 + (UBOUND(JOBS_ARRAY, 2)*20) + (UBOUND(UNEA_
         'setting the average monthly income by taking the total of the income listed in the budget on ELIG, then dividing it by the number of months
         'then using format number to make this a number with 2 decimel points and then removing the commas from the number because ELIG/HC doesn't like commas
         UNEA_ARRAY(average_monthly_inc, the_unea) = FormatNumber(UNEA_ARRAY(six_month_total, the_unea)/number_of_months, 2,,,0) & ""
-        Text 20, y_pos + 5, 405, 10, UNEA_ARRAY(unea_type, the_unea) & " - paid " & UNEA_ARRAY(job_frequency, the_unea) & " on " & UNEA_ARRAY(pay_weekday, the_unea) & " - total income for six-month budget period - $" & UNEA_ARRAY(six_month_total, the_unea) & " - Average monthly income $"
+        Text 20, y_pos + 5, 405, 10, UNEA_ARRAY(unea_type, the_unea) & " - paid " & UNEA_ARRAY(job_frequency, the_unea) & " on " & UNEA_ARRAY(pay_weekday, the_unea) & " - total income for " & months_in_average & "-month budget period - $" & UNEA_ARRAY(six_month_total, the_unea) & " - Average monthly income $"
         EditBox 425, y_pos, 55, 15, UNEA_ARRAY(average_monthly_inc, the_unea)
         y_pos = y_pos + 20
       Next
@@ -1026,8 +1053,6 @@ Loop until are_we_passworded_out = FALSE
 
 Call back_to_SELF           'going back to SELF because footer month may had been changed
 
-start_month_and_year = MAXIS_footer_month & "/" & MAXIS_footer_year
-
 'NOW IT GOES TO ELIG/HC TO FIAT THE AMOUNTS
 Call navigate_to_MAXIS_screen("ELIG", "HC__")
 
@@ -1041,9 +1066,9 @@ transmit
 
 row = 6
 col = 1
-EMSearch start_month_and_year, row, col 'finding the right month to start with
+EMSearch first_month_and_year, row, col 'finding the right month to start with
 
-end_msg = "The selected month " & start_month_and_year & " is not in the current version of HC, review the month selected and try the script again."
+end_msg = "The selected month " & first_month_and_year & " is not in the current version of HC, review the month selected and try the script again."
 If col = 0 Then script_end_procedure(end_msg)
 
 'putting in the budget in edit mode to FIAT
@@ -1055,51 +1080,53 @@ If FIAT_check <> "FIAT" then
 End if
 
 Do
-    EMWriteScreen "X", 9, col + 2       'opening the budget
-    transmit
-    EMWriteScreen "X", 13, 03           'opening the Earned Income line
-    transmit
+	EMReadScreen elig_type_check, 2, 12, col-2
+	If elig_type_check = "DP" Then
+	    EMWriteScreen "X", 9, col + 2       'opening the budget
+	    transmit
+	    EMWriteScreen "X", 13, 03           'opening the Earned Income line
+	    transmit
 
-    budg_row = 8                        'reading each row to enter the information for each job
-    update_made = FALSE
-    For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
-        JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(average_monthly_inc, the_job), 2,,,0)    'making sure the number is formatted correctly, 2 decimal places and no commas
-        If JOBS_ARRAY(average_monthly_inc, the_job) <> 0.00 Then
-            EmWriteScreen "___________", budg_row, 43       'blanking out the current income amount
-            EmWriteScreen JOBS_ARRAY(average_monthly_inc, the_job), budg_row, 43        'writing in the new averaged amount
-            budg_row = budg_row + 1
-            update_made = TRUE
-        End If
-    Next
-    If update_made = TRUE Then transmit            'saving the earned income amount
-    transmit            'closing the earned income pop-up
+	    budg_row = 8                        'reading each row to enter the information for each job
+	    update_made = FALSE
+	    For the_job = 0 to UBOUND(JOBS_ARRAY, 2)
+	        JOBS_ARRAY(average_monthly_inc, the_job) = FormatNumber(JOBS_ARRAY(average_monthly_inc, the_job), 2,,,0)    'making sure the number is formatted correctly, 2 decimal places and no commas
+	        If JOBS_ARRAY(average_monthly_inc, the_job) <> 0.00 Then
+	            EmWriteScreen "___________", budg_row, 43       'blanking out the current income amount
+	            EmWriteScreen JOBS_ARRAY(average_monthly_inc, the_job), budg_row, 43        'writing in the new averaged amount
+	            budg_row = budg_row + 1
+	            update_made = TRUE
+	        End If
+	    Next
+	    If update_made = TRUE Then transmit            'saving the earned income amount
+	    transmit            'closing the earned income pop-up
 
-    EMWriteScreen "X", 9, 03           'opening the unearned income pop-up
-    transmit
+	    EMWriteScreen "X", 9, 03           'opening the unearned income pop-up
+	    transmit
 
-    budg_row  = 8
-    update_made = FALSE
-    For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)
-        Do
-            EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
-            If inc_type = "12" Then
-                UNEA_ARRAY(average_monthly_inc, the_unea) = FormatNumber(UNEA_ARRAY(average_monthly_inc, the_unea), 2,,,0)    'making sure the number is formatted correctly, 2 decimal places and no commas
-                If UNEA_ARRAY(average_monthly_inc, the_unea) <> 0.00 Then
-                    EmWriteScreen "__________", budg_row, 43       'blanking out the current income amount
-                    EmWriteScreen UNEA_ARRAY(average_monthly_inc, the_unea), budg_row, 43        'writing in the new averaged amount
-                    budg_row = budg_row + 1
-                    update_made = TRUE
-                End If
-            Else
-                budg_row = budg_row + 1
-            End If
-        Loop until inc_type = "__"
-    Next
-    If update_made = TRUE Then transmit            'saving the earned income amount
-    transmit            'closing the earned income pop-up
-
+	    budg_row  = 8
+	    update_made = FALSE
+	    For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)
+	        Do
+	            EMReadScreen inc_type, 2, budg_row, 8           'looking for wage information
+	            If inc_type = "12" Then
+	                UNEA_ARRAY(average_monthly_inc, the_unea) = FormatNumber(UNEA_ARRAY(average_monthly_inc, the_unea), 2,,,0)    'making sure the number is formatted correctly, 2 decimal places and no commas
+	                If UNEA_ARRAY(average_monthly_inc, the_unea) <> 0.00 Then
+	                    EmWriteScreen "__________", budg_row, 43       'blanking out the current income amount
+	                    EmWriteScreen UNEA_ARRAY(average_monthly_inc, the_unea), budg_row, 43        'writing in the new averaged amount
+	                    budg_row = budg_row + 1
+	                    update_made = TRUE
+	                End If
+	            Else
+	                budg_row = budg_row + 1
+	            End If
+	        Loop until inc_type = "__"
+	    Next
+	    If update_made = TRUE Then transmit            'saving the earned income amount
+	    transmit            'closing the earned income pop-up
+		transmit            'closing the budget pop-up
+	End If
     col = col + 11      'going to next month
-    transmit            'closing the budget pop-up
 loop until col > 76
 
 script_end_procedure_with_error_report("Success! Please make sure to check eligibility for any Medicare savings programs such as QMB or SLMB.")
