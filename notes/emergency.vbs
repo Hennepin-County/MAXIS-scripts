@@ -53,7 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("09/30/2022", "BUG Fix: EGA screening will now indicate that a case screens as potentially eligible for EGA if the net inocme is equal to the standard or if 70% of the net income is exactly equal to the shelter costs.##~####~##Previously if they were equal the script would screen as not eligible but did not give details around why the screening appears ineligble (there was no handling for situations where the amounts were exactly equal.)##~##", "Casey Love, Hennepin County")
+call changelog_update("09/30/2022", "BUG Fix: EGA screening will now indicate that a case screens as potentially eligible for EGA if the net inocme is equal to the standard or if 70% of the net income is exactly equal to the shelter costs.##~####~##Previously if they were equal the script would screen as not eligible but did not give details around why the screening appears ineligble (there was no handling for situations where the amounts were exactly equal.)##~####~##EGA screening was not correctly identifying if EGA was available/had already been used in the past 12 months.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/02/2022", "Updated 200% FPG for 2022.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/01/2021", "Updated 200% FPG for 2021.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/12/2020", "Updated HSR Manual link for EGA policy/procedure due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
@@ -214,7 +214,7 @@ If EGA_screening_check = 1 then
      	EMER_last_used_dates = "n/a"
     	EMER_available_date = "Currently available"
         emer_availble = True
-    Elseif datediff("D", EMER_elig_end_date, date) > 0 then
+    Elseif datediff("D", EMER_available_date, date) > 0 then
         emer_availble = True        'If emer was used but the elig end date has passed
     Else
         emer_availble = False       'not eligible
