@@ -91,7 +91,7 @@ If tikl_checkbox = CHECKED then Call create_TIKL("Has information on new baby/en
 
 IF spec_memo_CHECKBOX = CHECKED THEN
 	CALL start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, True)	'navigates to spec/memo and opens into edit mode
-	
+
 	CALL write_variable_in_SPEC_MEMO("Our records indicate your due date has passed and you did not report the birth of your child or the pregnancy end date. Please contact us within 10 days of this notice with the following information or your case may close:")
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO("* Date of the birth or pregnancy end date.")
@@ -102,7 +102,12 @@ IF spec_memo_CHECKBOX = CHECKED THEN
     CALL write_variable_in_SPEC_MEMO("* If so, does the father have a source of income?")
     CALL write_variable_in_SPEC_MEMO("  (If so, what is the source of income?)")
     CALL write_variable_in_SPEC_MEMO("* Is there other health insurance available through any       household member's employer, or privately?")
-	CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+	CALL write_variable_in_SPEC_MEMO("")
+	CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+	CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+	CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+	CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at Service Centers.")
+	CALL write_variable_in_SPEC_MEMO("  More Info: https://www.hennepin.us/economic-supports")
     CALL write_variable_in_SPEC_MEMO("")
     CALL write_variable_in_SPEC_MEMO("Thank you.")
     PF4
