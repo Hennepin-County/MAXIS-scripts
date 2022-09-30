@@ -507,7 +507,12 @@ IF edit_notice_check = 1 THEN
 				call write_variable_in_spec_memo("The following verifications were not provided: ")
 				call write_variable_in_spec_memo("")
 				call write_variable_in_spec_memo(verifs_needed)
-                CALL write_variable_in_SPEC_MEMO("You now have an option to use an email to return documents to Hennepin County. Write the case number and full name associated with the case in the body of the email. Only the following types are accepted PNG, JPG, TIFF, DOC, PDF, and HTML. You will not receive confirmation of receipt or failure. To obtain information about your case please contact your worker. EMAIL: hhsews@hennepin.us ")
+                call write_variable_in_spec_memo("")
+                CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+                CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+                CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+                CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at Service Centers.")
+                CALL write_variable_in_SPEC_MEMO("  More Info: https://www.hennepin.us/economic-supports")
 				notice_edited = true 'Setting this true lets us know that we successfully edited the notice
 				pf4
 				pf3
