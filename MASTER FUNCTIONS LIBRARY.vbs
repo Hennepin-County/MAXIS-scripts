@@ -9719,7 +9719,7 @@ function provide_resources_information(case_number_known, create_case_note, note
 					End If
 					If allow_cancel = FALSE Then CheckBox 60, 25, 140, 10, "Check here if no resources are needed.", no_resources_checkbox
 				    PushButton 150, 5, 50, 10, "Check All", check_all_button
-					CheckBox 15, 50, 145, 10, "Online Document Submission Options", client_virtual_dropox_checkbox
+					CheckBox 15, 50, 145, 10, "Document Submission Options", client_virtual_dropox_checkbox
 					CheckBox 15, 65, 140, 10, "Community Action Partnership - CAP", cap_checkbox
 					CheckBox 15, 80, 115, 10, "DHS MMIS Recipient HelpDesk", MMIS_helpdesk_checkbox
 					CheckBox 15, 95, 180, 10, "DHS MNSure Helpdesk   * NOT FOR MA CLIENTS", MNSURE_helpdesk_checkbox
@@ -9812,11 +9812,13 @@ function provide_resources_information(case_number_known, create_case_note, note
 			MEMO_LINES_ARRAY(0) = "  ----Outside Resources - current as of " & date & "----"
 
 			If client_virtual_dropox_checkbox = checked Then
-				array_counter = array_counter + 4
+				array_counter = array_counter + 6
 				ReDim Preserve MEMO_LINES_ARRAY(array_counter)
-				MEMO_LINES_ARRAY(array_counter-3) = "You can submit documents Online at www.MNbenefits.mn.gov or"
-				MEMO_LINES_ARRAY(array_counter-2) = "Email with document attachment. EMAIL: hhsews@hennepin.us"
-				MEMO_LINES_ARRAY(array_counter-1) = " (Only attach PNG, JPG, TIF, DOC, PDF, or HTM file types)"
+				MEMO_LINES_ARRAY(array_counter-5) = "*** Submitting Documents:"
+				MEMO_LINES_ARRAY(array_counter-4) = "- Online at infokeep.hennepin.us or MNBenefits.mn.gov"
+				MEMO_LINES_ARRAY(array_counter-3) = "  Use InfoKeep to upload documents directly to your case."
+				MEMO_LINES_ARRAY(array_counter-2) = "- Mail, Fax, or Drop Boxes at Service Centers."
+				MEMO_LINES_ARRAY(array_counter-1) = "  More Info: https://www.hennepin.us/economic-supports"
 				MEMO_LINES_ARRAY(array_counter) = "--   --   --   --   --   --   --   --   --   --   --"
 			End If
 			If cap_checkbox = checked Then
