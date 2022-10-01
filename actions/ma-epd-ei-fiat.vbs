@@ -836,7 +836,7 @@ EMReadScreen elig_type_check_fifth_month, 2, 12, 61
 EMReadScreen elig_type_check_sixth_month, 2, 12, 72
 
 'There needs to be at least 1 month of MA-EPD Elig Results - the script will check each month and if all are NOT DP - the script will end.
-If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then script_end_procedure("Not all of the months of this case are MA-EPD. Process manually.")
+If elig_type_check_first_month <> "DP" and elig_type_check_second_month <> "DP" and elig_type_check_third_month <> "DP" and elig_type_check_fourth_month <> "DP" and elig_type_check_fifth_month <> "DP" and elig_type_check_sixth_month <> "DP" then script_end_procedure("None of the months of this case are MA-EPD. Process manually.")
 
 'This is determining the first month that MA-EPD is coded in the budget.
 If elig_type_check_first_month = "DP" Then
