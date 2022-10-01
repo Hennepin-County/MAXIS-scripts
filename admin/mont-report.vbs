@@ -54,97 +54,99 @@ changelog_display
 
 function add_hrf_autoclose_case_note(mont_status_cash, mont_status_snap, hrf_form_date)
 	If add_case_note = True Then		'only run the details here if we are running the 'end of month processing'
-		If mont_status_cash = "T" OR mont_status_cash = "I" OR mont_status_cash = "U" OR mont_status_snap = "T" OR mont_status_snap = "I" OR mont_status_snap = "U" Then
-		'We only care if the review has been terminated by the system, which is only indicated if the REVW status is T, I or U'
-			Call navigate_to_MAXIS_screen("CASE", "NOTE")						'navigating to CASE:NOTE now
-			EMReadScreen pw_county, 2, 21, 16									'reading to make sure this is still in Hennepin Country
-			If pw_county = "27" Then
-				autoclosed_programs = ""										'resetting variables
-				cash_1_autoclosed = ""
-				cash_2_autoclosed = ""
-				snap_autoclosed = ""
-				hc_autoclosed = ""
-				n_code_programs = ""
+		If ObjExcel.Cells(excel_row, closure_note_col) = "" Then
+			If mont_status_cash = "T" OR mont_status_cash = "I" OR mont_status_cash = "U" OR mont_status_snap = "T" OR mont_status_snap = "I" OR mont_status_snap = "U" Then
+			'We only care if the review has been terminated by the system, which is only indicated if the REVW status is T, I or U'
+				Call navigate_to_MAXIS_screen("CASE", "NOTE")						'navigating to CASE:NOTE now
+				EMReadScreen pw_county, 2, 21, 16									'reading to make sure this is still in Hennepin Country
+				If pw_county = "27" Then
+					autoclosed_programs = ""										'resetting variables
+					cash_1_autoclosed = ""
+					cash_2_autoclosed = ""
+					snap_autoclosed = ""
+					hc_autoclosed = ""
+					n_code_programs = ""
 
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  5).value, MFIP_status)		'reading the program status information from the MONT Report information
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, DWP_status)
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, GA_status)
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, MSA_status)
-				Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, GRH_status)
-				Call read_boolean_from_excel(objExcel.cells(excel_row, 12).value, SNAP_status)
+					Call read_boolean_from_excel(objExcel.cells(excel_row,  5).value, MFIP_status)		'reading the program status information from the MONT Report information
+					Call read_boolean_from_excel(objExcel.cells(excel_row,  6).value, DWP_status)
+					Call read_boolean_from_excel(objExcel.cells(excel_row,  7).value, GA_status)
+					Call read_boolean_from_excel(objExcel.cells(excel_row,  8).value, MSA_status)
+					Call read_boolean_from_excel(objExcel.cells(excel_row,  9).value, GRH_status)
+					Call read_boolean_from_excel(objExcel.cells(excel_row, 12).value, SNAP_status)
 
-				MONT_full = REPT_month & "/" & REPT_year						'creating a string from the review month and year for comparing the information in the REVW columns of the MONT Report
+					MONT_full = REPT_month & "/" & REPT_year						'creating a string from the review month and year for comparing the information in the REVW columns of the MONT Report
 
-				'CASH is first - if the status is T, I, or U - we are going to look at program status to firgure out which program of cash that it actually is
-				If mont_status_cash = "T" OR mont_status_cash = "I" OR mont_status_cash = "U" Then
-					If MFIP_status = True Then
-						autoclosed_programs = autoclosed_programs & "/MFIP"
-						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MFIP HRF"
-						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP HRF"
+					'CASH is first - if the status is T, I, or U - we are going to look at program status to firgure out which program of cash that it actually is
+					If mont_status_cash = "T" OR mont_status_cash = "I" OR mont_status_cash = "U" Then
+						If MFIP_status = True Then
+							autoclosed_programs = autoclosed_programs & "/MFIP"
+							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MFIP HRF"
+							If cash_1_autoclosed = "" Then cash_1_autoclosed = "MFIP HRF"
+						End If
+						If GA_status = True Then
+							autoclosed_programs = autoclosed_programs & "/GA"
+							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GA HRF"
+							If cash_1_autoclosed = "" Then cash_1_autoclosed = "GA HRF"
+						End If
+						If MSA_status = True Then
+							autoclosed_programs = autoclosed_programs & "/MSA"
+							If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MSA HRF"
+							If cash_1_autoclosed = "" Then cash_1_autoclosed = "MSA HRF"
+						End If
 					End If
-					If GA_status = True Then
-						autoclosed_programs = autoclosed_programs & "/GA"
-						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "GA HRF"
-						If cash_1_autoclosed = "" Then cash_1_autoclosed = "GA HRF"
+					'Now looking at SNAP if the review status is T, I, or '
+					If mont_status_snap = "T" OR mont_status_snap = "I" OR mont_status_snap = "U" Then
+						If SNAP_status = True AND (SNAP_SR_Info = REPT_full OR SNAP_ER_Info = REPT_full) Then
+							autoclosed_programs = autoclosed_programs & "/SNAP"
+							If SNAP_SR_Info = REPT_full Then snap_autoclosed = "SNAP HRF"
+							If SNAP_ER_Info = REPT_full Then snap_autoclosed = "SNAP HRF"							'ER will overwirte SR
+						End If
 					End If
-					If MSA_status = True Then
-						autoclosed_programs = autoclosed_programs & "/MSA"
-						If cash_1_autoclosed <> "" Then cash_2_autoclosed = "MSA HRF"
-						If cash_1_autoclosed = "" Then cash_1_autoclosed = "MSA HRF"
+					' 'HC Cases not set up yet as no REVWs and we cannot test
+					' If revw_status_hc = "T" Then
+					' End If
+
+					'Now we check for any programs that have an 'N' as the review status so we can add a line about a program that may not be active.
+					If mont_status_cash = "N" Then
+						If MFIP_status = True Then n_code_programs = n_code_programs & "/MFIP"
+						If DWP_status = True Then n_code_programs = n_code_programs & "/DWP"
+						If GA_status = True Then n_code_programs = n_code_programs & "/GA"
+						If MSA_status = True Then n_code_programs = n_code_programs & "/MSA"
+						If GRH_status = True Then n_code_programs = n_code_programs & "/GRH"
+					End If
+					If mont_status_snap = "N" Then n_code_programs = n_code_programs & "/SNAP"
+
+					'If there is at least one 'autoclosed' program, we are going to enter the note.
+					If autoclosed_programs <> "" Then
+						If left(autoclosed_programs, 1) = "/" Then autoclosed_programs = right(autoclosed_programs, len(autoclosed_programs)-1)
+						If left(n_code_programs, 1) = "/" Then n_code_programs = right(n_code_programs, len(n_code_programs)-1)
+						If developer_mode = False Then
+							Call start_a_blank_case_note
+
+							Call write_variable_in_CASE_NOTE(autoclosed_programs & " AUTOCLOSED eff " & REPT_month & "/" & REPT_year & " for Incomplete HRF (Monthly Report)")
+							Call write_variable_in_CASE_NOTE("Monthly Reports Terminated:")
+							If cash_1_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_1_autoclosed)
+							If cash_2_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_2_autoclosed)
+							If snap_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & snap_autoclosed)
+							If hrf_form_date <> "" Then Call write_variable_in_CASE_NOTE("HRF Received on " & hrf_form_date)
+							Call write_variable_in_CASE_NOTE("Review case to determine additional actions to be taken.")
+							If n_code_programs <> "" Then Call write_variable_in_CASE_NOTE("Check previous CASE:NOTE information for status about: " & n_code_programs)
+							Call write_variable_in_CASE_NOTE("---")
+							Call write_variable_in_CASE_NOTE("This is an automated process to NOTE a system action and no manual review of the case was completed. The programs autoclosed because the HRF process was incomplete, no action taken at county level.")
+							Call write_variable_in_CASE_NOTE("---")
+							Call write_variable_in_CASE_NOTE(worker_signature)
+							' MsgBox "Look here"
+							PF3															'saving the CASE:NOTE
+						End If
+						' Adding the note informaiton to the MONT Report Excel
+						ObjExcel.Cells(excel_row, closure_note_col) = "Yes"
+						ObjExcel.Cells(excel_row, closure_progs_col) = autoclosed_programs
+						' ObjExcel.Cells(excel_row, closure_progs_col+1) = n_code_programs
+						' Msgbox "check"
 					End If
 				End If
-				'Now looking at SNAP if the review status is T, I, or '
-				If mont_status_snap = "T" OR mont_status_snap = "I" OR mont_status_snap = "U" Then
-					If SNAP_status = True AND (SNAP_SR_Info = REPT_full OR SNAP_ER_Info = REPT_full) Then
-						autoclosed_programs = autoclosed_programs & "/SNAP"
-						If SNAP_SR_Info = REPT_full Then snap_autoclosed = "SNAP HRF"
-						If SNAP_ER_Info = REPT_full Then snap_autoclosed = "SNAP HRF"							'ER will overwirte SR
-					End If
-				End If
-				' 'HC Cases not set up yet as no REVWs and we cannot test
-				' If revw_status_hc = "T" Then
-				' End If
-
-				'Now we check for any programs that have an 'N' as the review status so we can add a line about a program that may not be active.
-				If mont_status_cash = "N" Then
-					If MFIP_status = True Then n_code_programs = n_code_programs & "/MFIP"
-					If DWP_status = True Then n_code_programs = n_code_programs & "/DWP"
-					If GA_status = True Then n_code_programs = n_code_programs & "/GA"
-					If MSA_status = True Then n_code_programs = n_code_programs & "/MSA"
-					If GRH_status = True Then n_code_programs = n_code_programs & "/GRH"
-				End If
-				If mont_status_snap = "N" Then n_code_programs = n_code_programs & "/SNAP"
-
-				'If there is at least one 'autoclosed' program, we are going to enter the note.
-				If autoclosed_programs <> "" Then
-					If left(autoclosed_programs, 1) = "/" Then autoclosed_programs = right(autoclosed_programs, len(autoclosed_programs)-1)
-					If left(n_code_programs, 1) = "/" Then n_code_programs = right(n_code_programs, len(n_code_programs)-1)
-					If developer_mode = False Then
-						Call start_a_blank_case_note
-
-						Call write_variable_in_CASE_NOTE(autoclosed_programs & " AUTOCLOSED eff " & REPT_month & "/" & REPT_year & " for Incomplete HRF (Monthly Report)")
-						Call write_variable_in_CASE_NOTE("Monthly Reports Terminated:")
-						If cash_1_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_1_autoclosed)
-						If cash_2_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & cash_2_autoclosed)
-						If snap_autoclosed <> "" Then Call write_variable_in_CASE_NOTE("    " & REPT_month & "/" & REPT_year & " " & snap_autoclosed)
-						If hrf_form_date <> "" Then Call write_variable_in_CASE_NOTE("HRF Received on " & hrf_form_date)
-						Call write_variable_in_CASE_NOTE("Review case to determine additional actions to be taken.")
-						If n_code_programs <> "" Then Call write_variable_in_CASE_NOTE("Check previous CASE:NOTE information for status about: " & n_code_programs)
-						Call write_variable_in_CASE_NOTE("---")
-						Call write_variable_in_CASE_NOTE("This is an automated process to NOTE a system action and no manual review of the case was completed. The programs autoclosed because the HRF process was incomplete, no action taken at county level.")
-						Call write_variable_in_CASE_NOTE("---")
-						Call write_variable_in_CASE_NOTE(worker_signature)
-						' MsgBox "Look here"
-						PF3															'saving the CASE:NOTE
-					End If
-					' Adding the note informaiton to the MONT Report Excel
-					ObjExcel.Cells(excel_row, closure_note_col) = "Yes"
-					ObjExcel.Cells(excel_row, closure_progs_col) = autoclosed_programs
-					' ObjExcel.Cells(excel_row, closure_progs_col+1) = n_code_programs
-					' Msgbox "check"
-				End If
+				Call back_to_SELF
 			End If
-			Call back_to_SELF
 		End If
 	End If
 end function
@@ -1374,11 +1376,11 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 	Loop until col_header = ""
 	last_col_letter = convert_digit_to_excel_column(col_to_use)
 
-	If statistics_already_run_today = True Then
-		Continue_with_STATs_from_earlier_today = MsgBox("It appears statistics have already been run today. The script cannot process multiple statistics runs on the same day due to naming conventions. You can chose to continue the script without pulling new statistics (if you have functionality to run AFTER the statistics) or cancel the run." & vbCr & vbCr & "OK - continue the run without gathering new Statistics" & vbCr & "CANCEL - Cancel the script run", vbImportant + vbOkCancel, "Statistics already gathered for today")
-
-		If Continue_with_STATs_from_earlier_today = vbCancel Then call script_end_procedure("MONT Report Statistics cancelled as statistics were already gathered today.")
-	End if
+	' If statistics_already_run_today = True Then
+	' 	Continue_with_STATs_from_earlier_today = MsgBox("It appears statistics have already been run today. The script cannot process multiple statistics runs on the same day due to naming conventions. You can chose to continue the script without pulling new statistics (if you have functionality to run AFTER the statistics) or cancel the run." & vbCr & vbCr & "OK - continue the run without gathering new Statistics" & vbCr & "CANCEL - Cancel the script run", vbImportant + vbOkCancel, "Statistics already gathered for today")
+	'
+	' 	If Continue_with_STATs_from_earlier_today = vbCancel Then call script_end_procedure("MONT Report Statistics cancelled as statistics were already gathered today.")
+	' End if
 
 	If statistics_already_run_today = False Then
 		'Insert columns in excel for additional information to be added
@@ -1414,239 +1416,247 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 			ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 			objExcel.Columns(i).AutoFit()				'sizing the columns'
 		NEXT
-
-		recert_cases = 0	            'incrementor for the array
-
-		back_to_self    'We need to get back to SELF and manually update the footer month
-	    Call navigate_to_MAXIS_screen("REPT", "MRSR")		'going to REPT REVS where all the information is displayed'
-	    EMWriteScreen REPT_month, 20, 54					'going to the right month
-	    EMWriteScreen REPT_year, 20, 57
-	    transmit
-
-	    'We are going to look at REPT/REVS for each worker in Hennepin County
-	    For each worker in worker_array
-	    	worker = trim(worker)				'get to the right worker
-	        If worker = "" then exit for
-	    	Call write_value_and_transmit(worker, 21, 6)   'writing in the worker number in the correct col
-
-	        'Grabbing case numbers from REVS for requested worker
-	    	DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
-	    		row = 7	'Setting or resetting this to look at the top of the list
-	    		DO		'All of this loops until row = 19
-	    			'Reading case information (case number, SNAP status, and cash status)
-	    			EMReadScreen MAXIS_case_number, 8, row, 6
-	    			MAXIS_case_number = trim(MAXIS_case_number)
-					EMReadScreen cash_status, 1, row, 45
-	    			EMReadScreen SNAP_status, 1, row, 53
-					EMReadScreen recvd_date, 8, row, 72
-
-	    			'Navigates though until it runs out of case numbers to read
-	    			IF MAXIS_case_number = "" then exit do
-
-					ReDim Preserve mont_array(notes_const, recert_cases)		'resizing the array
-
-					'Adding the case information to the array
-					mont_array(worker_const, recert_cases) = worker
-					mont_array(case_number_const, recert_cases) = trim(MAXIS_case_number)
-					mont_array(cash_hrf_const, recert_cases) = cash_status
-					mont_array(snap_hrf_const, recert_cases) = SNAP_status
-					mont_array(review_recvd_const, recert_cases) = replace(recvd_date, " ", "/")
-					If mont_array(review_recvd_const, recert_cases) = "////////" Then mont_array(review_recvd_const, recert_cases) = ""
-					mont_array(saved_to_excel_const, recert_cases) = FALSE
-
-	                recert_cases = recert_cases + 1
-					STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
-
-	    			row = row + 1    'On the next loop it must look to the next row
-	    			MAXIS_case_number = "" 'Clearing variables before next loop
-	    		Loop until row = 19		'Last row in REPT/REVS
-	    		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
-	    		PF8
-	    		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
-	            'if max reviews are reached, the goes to next worker is applicable
-	    	Loop until last_page_check = "THIS IS THE LAST PAGE"
-	    next
-		Call back_to_SELF
-
-		'Now we are going to look at the Excel spreadsheet that has all of the reviews saved.
-		excel_row = "2"		'starts at row 2'
-		Do
-			case_number_to_check = trim(ObjExcel.Cells(excel_row, 2).Value)			'getting the case number from the spreadsheet
-			found_in_array = FALSE													'variale to identify if we have found this case in our array
-			MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
-			'Here we look through the entire array until we find a match
-			For revs_item = 0 to UBound(mont_array, 2)
-				If mont_array(saved_to_excel_const, revs_item) = FALSE Then
-					If case_number_to_check = mont_array(case_number_const, revs_item) Then		'if the case numbers match we have found our case.
-						'Entering information from the array into the excel spreadsheet
-						If mont_array(cash_hrf_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_mont_excel_col).Value = mont_array(cash_hrf_const, revs_item)
-						If mont_array(snap_hrf_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, stat_mont_excel_col).Value = mont_array(snap_hrf_const, revs_item)
-						If mont_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = mont_array(review_recvd_const, revs_item)
-						found_in_array = TRUE			'this lets the script know that this case was found in the array
-						mont_array(saved_to_excel_const, revs_item) = TRUE
-
-						Call add_hrf_autoclose_case_note(mont_array(cash_hrf_const, revs_item), mont_array(snap_hrf_const, revs_item), mont_array(review_recvd_const, revs_item))
-
-						Exit For						'if we found a match, we should stop looking
-					End If
-				End If
-			Next
-			'if the case was not found in the array, we need to look in STAT for the information
-			If found_in_array = FALSE AND case_number_to_check <> "" Then
-				Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
-
-				' MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
-				call navigate_to_MAXIS_screen_review_PRIV("STAT", "MONT", is_this_priv)		'Go to STAT REVW and be sure the case is not privleged.
-				If is_this_priv = FALSE Then
-					EMReadScreen recvd_date, 8, 6, 39										'Reading the CAF Received Date and format
-					recvd_date = replace(recvd_date, " ", "/")
-					if recvd_date = "__/__/__" then recvd_date = ""
-
-					EMReadScreen cash_mont_status, 1, 7, 40								'Reading the review status and format
-					EMReadScreen snap_mont_status, 1, 7, 60
-					If cash_review_status = "_" Then cash_review_status = ""
-					If snap_mont_status = "_" Then snap_mont_status = ""
-
-					If cash_mont_status <> "" Then ObjExcel.Cells(excel_row, cash_mont_excel_col).Value = cash_mont_status		'Enter all the information into Excel
-					If snap_mont_status <> "" Then ObjExcel.Cells(excel_row, stat_mont_excel_col).Value = snap_mont_status
-					If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
-
-					Call add_hrf_autoclose_case_note(cash_mont_status, snap_mont_status, recvd_date)
-
-				End If
-
-				Call back_to_SELF		'Back out in case we need to look into another case.
-			End If
-			excel_row = excel_row + 1		'going to the next excel
-		Loop until case_number_to_check = ""
-		excel_row = excel_row - 1
-
-		objExcel.worksheets("STATISTICS").Activate
-
-		excel_row = 4
-		Do
-			excel_row = excel_row + 1
-		Loop Until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
-
-
-		If DateDiff("d", last_processing_day, date) >= 0 Then
-			With ObjExcel.ActiveSheet.Range("A" & excel_row & ":C" & excel_row)
-				With .Borders(8)	'Top'
-					.LineStyle = 1
-					.Weight = 4
-					.ColorIndex = -4105
-				End With
-			End With
-			ObjExcel.Cells(excel_row, 1).Value = "Cases Terminated (" & date_header & ")"
-			ObjExcel.Cells(excel_row, 1).Font.Bold = True
-			ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], "&is_N&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_I&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_U&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_T&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_N&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_I&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_U&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_T&")"
-			ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
-			ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
-			excel_row = excel_row + 1
-
-			ObjExcel.Cells(excel_row, 1).Value = "CASH Terminated (" & date_header & ")"
-			ObjExcel.Cells(excel_row, 1).Font.Bold = True
-			ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], "&is_N&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_I&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_U&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_T&")"
-			ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
-			ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
-			excel_row = excel_row + 1
-
-			ObjExcel.Cells(excel_row, 1).Value = "SNAP Terminated (" & date_header & ")"
-			ObjExcel.Cells(excel_row, 1).Font.Bold = True
-			ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], "&is_N&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_I&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_U&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_T&")"
-			ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
-			ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
-			excel_row = excel_row + 1
-		End If
-
-		ObjExcel.Cells(excel_row, 1).Value = "HRFs Received (" & date_header & ")"
-		ObjExcel.Cells(excel_row, 1).Font.Bold = True
-		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[HRF Date (" & date_header & ")], " & chr(34) & "<>" & chr(34) & ")"
-		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
-		ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
-
-		excel_row = 2
-		Do
-			excel_row = excel_row + 1
-		Loop Until trim(ObjExcel.Cells(excel_row, 7).Value) = ""
-
-		bottom_edge = "E" & excel_row+1 & ":P" & excel_row+1
-		box_array = Array("G" & excel_row & ":H" & excel_row+1, "I" & excel_row & ":J" & excel_row+1, "K" & excel_row & ":L" & excel_row+1, "M" & excel_row & ":N" & excel_row+1, "O" & excel_row & ":P" & excel_row+1)
-
-		ObjExcel.Cells(excel_row, 5).Value = date
-		ObjExcel.Cells(excel_row, 6).Value = "CASH"
-		ObjExcel.Cells(excel_row+1, 6).Value = "SNAP"
-
-		ObjExcel.Cells(excel_row, 7).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_N & ")"
-		ObjExcel.Cells(excel_row+1, 7).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_N & ")"
-		ObjExcel.Cells(excel_row, 8).Value = "=G" & excel_row & "/B2"
-		ObjExcel.Cells(excel_row+1, 8).Value = "=G" & excel_row+1 & "/B3"
-		ObjExcel.Cells(excel_row, 8).NumberFormat = "0.00%"
-		ObjExcel.Cells(excel_row+1, 8).NumberFormat = "0.00%"
-
-		ObjExcel.Cells(excel_row, 9).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_A & ")"
-		ObjExcel.Cells(excel_row+1, 9).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_A & ")"
-		ObjExcel.Cells(excel_row, 10).Value = "=I" & excel_row & "/B2"
-		ObjExcel.Cells(excel_row+1, 10).Value = "=I" & excel_row+1 & "/B3"
-		ObjExcel.Cells(excel_row, 10).NumberFormat = "0.00%"
-		ObjExcel.Cells(excel_row+1, 10).NumberFormat = "0.00%"
-
-		ObjExcel.Cells(excel_row, 11).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_I & ")"
-		ObjExcel.Cells(excel_row+1, 11).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_I & ")"
-		ObjExcel.Cells(excel_row, 12).Value = "=K" & excel_row & "/B2"
-		ObjExcel.Cells(excel_row+1, 12).Value = "=K" & excel_row+1 & "/B3"
-		ObjExcel.Cells(excel_row, 12).NumberFormat = "0.00%"
-		ObjExcel.Cells(excel_row+1, 12).NumberFormat = "0.00%"
-
-		ObjExcel.Cells(excel_row, 13).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_U & ")"
-		ObjExcel.Cells(excel_row+1, 13).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_U & ")"
-		ObjExcel.Cells(excel_row, 14).Value = "=M" & excel_row & "/B2"
-		ObjExcel.Cells(excel_row+1, 14).Value = "=M" & excel_row+1 & "/B3"
-		ObjExcel.Cells(excel_row, 14).NumberFormat = "0.00%"
-		ObjExcel.Cells(excel_row+1, 14).NumberFormat = "0.00%"
-
-		ObjExcel.Cells(excel_row, 15).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_T & ")"
-		ObjExcel.Cells(excel_row+1, 15).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_T & ")"
-		ObjExcel.Cells(excel_row, 16).Value = "=O" & excel_row & "/B2"
-		ObjExcel.Cells(excel_row+1, 16).Value = "=O" & excel_row+1 & "/B3"
-		ObjExcel.Cells(excel_row, 16).NumberFormat = "0.00%"
-		ObjExcel.Cells(excel_row+1, 16).NumberFormat = "0.00%"
-
-		For each range in box_array
-			With ObjExcel.ActiveSheet.Range(range)
-				With .Borders(7)	'left'
-					.LineStyle = 1
-					.Weight = 2
-					.ColorIndex = -4105
-				End With
-				' With .Borders(8)	'Top'
-				' 	.LineStyle = 1
-				' 	.Weight = 2
-				' 	.ColorIndex = -4105
-				' End With
-				With .Borders(9)	'Bottom'
-					.LineStyle = 1
-					.Weight = 2
-					.ColorIndex = -4105
-				End With
-				With .Borders(10)	'Right'
-					.LineStyle = 1
-					.Weight = 2
-					.ColorIndex = -4105
-				End With
-			End With
+	Else
+		For each_col = 1 to col_to_use
+			If ObjExcel.Cells(1, each_col).Value = "CASH (" & date_header & ")" Then cash_mont_excel_col = each_col
+			If ObjExcel.Cells(1, each_col).Value = "SNAP (" & date_header & ")" Then stat_mont_excel_col = each_col
+			If ObjExcel.Cells(1, each_col).Value = "HRF Date (" & date_header & ")" Then recvd_date_excel_col = each_col
+			If ObjExcel.Cells(1, each_col).Value = "Close Note" Then closure_note_col = each_col
+			If ObjExcel.Cells(1, each_col).Value = "Progs Closed" Then closure_progs_col = each_col
 		Next
-		With ObjExcel.ActiveSheet.Range(bottom_edge)
-			With .Borders(9)	'Bottom'
+	End If
+
+	recert_cases = 0	            'incrementor for the array
+
+	back_to_self    'We need to get back to SELF and manually update the footer month
+    Call navigate_to_MAXIS_screen("REPT", "MRSR")		'going to REPT REVS where all the information is displayed'
+    EMWriteScreen REPT_month, 20, 54					'going to the right month
+    EMWriteScreen REPT_year, 20, 57
+    transmit
+
+    'We are going to look at REPT/REVS for each worker in Hennepin County
+    For each worker in worker_array
+    	worker = trim(worker)				'get to the right worker
+        If worker = "" then exit for
+    	Call write_value_and_transmit(worker, 21, 6)   'writing in the worker number in the correct col
+
+        'Grabbing case numbers from REVS for requested worker
+    	DO	'All of this loops until last_page_check = "THIS IS THE LAST PAGE"
+    		row = 7	'Setting or resetting this to look at the top of the list
+    		DO		'All of this loops until row = 19
+    			'Reading case information (case number, SNAP status, and cash status)
+    			EMReadScreen MAXIS_case_number, 8, row, 6
+    			MAXIS_case_number = trim(MAXIS_case_number)
+				EMReadScreen cash_status, 1, row, 45
+    			EMReadScreen SNAP_status, 1, row, 53
+				EMReadScreen recvd_date, 8, row, 72
+
+    			'Navigates though until it runs out of case numbers to read
+    			IF MAXIS_case_number = "" then exit do
+
+				ReDim Preserve mont_array(notes_const, recert_cases)		'resizing the array
+
+				'Adding the case information to the array
+				mont_array(worker_const, recert_cases) = worker
+				mont_array(case_number_const, recert_cases) = trim(MAXIS_case_number)
+				mont_array(cash_hrf_const, recert_cases) = cash_status
+				mont_array(snap_hrf_const, recert_cases) = SNAP_status
+				mont_array(review_recvd_const, recert_cases) = replace(recvd_date, " ", "/")
+				If mont_array(review_recvd_const, recert_cases) = "////////" Then mont_array(review_recvd_const, recert_cases) = ""
+				mont_array(saved_to_excel_const, recert_cases) = FALSE
+
+                recert_cases = recert_cases + 1
+				STATS_counter = STATS_counter + 1						'adds one instance to the stats counter
+
+    			row = row + 1    'On the next loop it must look to the next row
+    			MAXIS_case_number = "" 'Clearing variables before next loop
+    		Loop until row = 19		'Last row in REPT/REVS
+    		'Because we were on the last row, or exited the do...loop because the case number is blank, it PF8s, then reads for the "THIS IS THE LAST PAGE" message (if found, it exits the larger loop)
+    		PF8
+    		EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
+            'if max reviews are reached, the goes to next worker is applicable
+    	Loop until last_page_check = "THIS IS THE LAST PAGE"
+    next
+	Call back_to_SELF
+
+	'Now we are going to look at the Excel spreadsheet that has all of the reviews saved.
+	excel_row = "2"		'starts at row 2'
+	Do
+		case_number_to_check = trim(ObjExcel.Cells(excel_row, 2).Value)			'getting the case number from the spreadsheet
+		found_in_array = FALSE													'variale to identify if we have found this case in our array
+		MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
+		'Here we look through the entire array until we find a match
+		For revs_item = 0 to UBound(mont_array, 2)
+			If mont_array(saved_to_excel_const, revs_item) = FALSE Then
+				If case_number_to_check = mont_array(case_number_const, revs_item) Then		'if the case numbers match we have found our case.
+					'Entering information from the array into the excel spreadsheet
+					If mont_array(cash_hrf_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, cash_mont_excel_col).Value = mont_array(cash_hrf_const, revs_item)
+					If mont_array(snap_hrf_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, stat_mont_excel_col).Value = mont_array(snap_hrf_const, revs_item)
+					If mont_array(review_recvd_const, revs_item) <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = mont_array(review_recvd_const, revs_item)
+					found_in_array = TRUE			'this lets the script know that this case was found in the array
+					mont_array(saved_to_excel_const, revs_item) = TRUE
+
+					Call add_hrf_autoclose_case_note(mont_array(cash_hrf_const, revs_item), mont_array(snap_hrf_const, revs_item), mont_array(review_recvd_const, revs_item))
+
+					Exit For						'if we found a match, we should stop looking
+				End If
+			End If
+		Next
+		'if the case was not found in the array, we need to look in STAT for the information
+		If found_in_array = FALSE AND case_number_to_check <> "" Then
+			Call check_for_MAXIS(FALSE)		'making sure we haven't passworded out
+
+			' MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
+			call navigate_to_MAXIS_screen_review_PRIV("STAT", "MONT", is_this_priv)		'Go to STAT REVW and be sure the case is not privleged.
+			If is_this_priv = FALSE Then
+				EMReadScreen recvd_date, 8, 6, 39										'Reading the CAF Received Date and format
+				recvd_date = replace(recvd_date, " ", "/")
+				if recvd_date = "__/__/__" then recvd_date = ""
+
+				EMReadScreen cash_mont_status, 1, 7, 40								'Reading the review status and format
+				EMReadScreen snap_mont_status, 1, 7, 60
+				If cash_review_status = "_" Then cash_review_status = ""
+				If snap_mont_status = "_" Then snap_mont_status = ""
+
+				If cash_mont_status <> "" Then ObjExcel.Cells(excel_row, cash_mont_excel_col).Value = cash_mont_status		'Enter all the information into Excel
+				If snap_mont_status <> "" Then ObjExcel.Cells(excel_row, stat_mont_excel_col).Value = snap_mont_status
+				If recvd_date <> "" Then ObjExcel.Cells(excel_row, recvd_date_excel_col).Value = recvd_date
+
+				Call add_hrf_autoclose_case_note(cash_mont_status, snap_mont_status, recvd_date)
+
+			End If
+
+			Call back_to_SELF		'Back out in case we need to look into another case.
+		End If
+		excel_row = excel_row + 1		'going to the next excel
+	Loop until case_number_to_check = ""
+	excel_row = excel_row - 1
+
+	objExcel.worksheets("STATISTICS").Activate
+
+	excel_row = 4
+	Do
+		excel_row = excel_row + 1
+	Loop Until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
+
+
+	If DateDiff("d", last_processing_day, date) >= 0 Then
+		With ObjExcel.ActiveSheet.Range("A" & excel_row & ":C" & excel_row)
+			With .Borders(8)	'Top'
 				.LineStyle = 1
 				.Weight = 4
 				.ColorIndex = -4105
 			End With
 		End With
+		ObjExcel.Cells(excel_row, 1).Value = "Cases Terminated (" & date_header & ")"
+		ObjExcel.Cells(excel_row, 1).Font.Bold = True
+		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], "&is_N&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_I&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_U&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_T&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_N&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_I&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_U&")+COUNTIFS(Table1[Cash HRF],"&is_false&",Table1[SNAP (" & date_header & ")], "&is_T&")"
+		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+		ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
+		excel_row = excel_row + 1
 
-		objExcel.worksheets(report_date & " MRSR Report").Activate
-		end_msg = end_msg & vbCr & "STATISTICS Run complete for " & REPT_month & "/" & REPT_year & "."
+		ObjExcel.Cells(excel_row, 1).Value = "CASH Terminated (" & date_header & ")"
+		ObjExcel.Cells(excel_row, 1).Font.Bold = True
+		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], "&is_N&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_I&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_U&")+COUNTIF(Table1[CASH (" & date_header & ")], "&is_T&")"
+		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+		ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
+		excel_row = excel_row + 1
+
+		ObjExcel.Cells(excel_row, 1).Value = "SNAP Terminated (" & date_header & ")"
+		ObjExcel.Cells(excel_row, 1).Font.Bold = True
+		ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], "&is_N&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_I&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_U&")+COUNTIF(Table1[SNAP (" & date_header & ")], "&is_T&")"
+		ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+		ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
+		excel_row = excel_row + 1
 	End If
+
+	ObjExcel.Cells(excel_row, 1).Value = "HRFs Received (" & date_header & ")"
+	ObjExcel.Cells(excel_row, 1).Font.Bold = True
+	ObjExcel.Cells(excel_row, 2).Value = "=COUNTIF(Table1[HRF Date (" & date_header & ")], " & chr(34) & "<>" & chr(34) & ")"
+	ObjExcel.Cells(excel_row, 3).Value = "=B" & excel_row & "/B1"
+	ObjExcel.Cells(excel_row, 3).NumberFormat = "0.00%"
+
+	excel_row = 2
+	Do
+		excel_row = excel_row + 1
+	Loop Until trim(ObjExcel.Cells(excel_row, 7).Value) = ""
+
+	bottom_edge = "E" & excel_row+1 & ":P" & excel_row+1
+	box_array = Array("G" & excel_row & ":H" & excel_row+1, "I" & excel_row & ":J" & excel_row+1, "K" & excel_row & ":L" & excel_row+1, "M" & excel_row & ":N" & excel_row+1, "O" & excel_row & ":P" & excel_row+1)
+
+	ObjExcel.Cells(excel_row, 5).Value = date
+	ObjExcel.Cells(excel_row, 6).Value = "CASH"
+	ObjExcel.Cells(excel_row+1, 6).Value = "SNAP"
+
+	ObjExcel.Cells(excel_row, 7).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_N & ")"
+	ObjExcel.Cells(excel_row+1, 7).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_N & ")"
+	ObjExcel.Cells(excel_row, 8).Value = "=G" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 8).Value = "=G" & excel_row+1 & "/B3"
+	ObjExcel.Cells(excel_row, 8).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 8).NumberFormat = "0.00%"
+
+	ObjExcel.Cells(excel_row, 9).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_A & ")"
+	ObjExcel.Cells(excel_row+1, 9).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_A & ")"
+	ObjExcel.Cells(excel_row, 10).Value = "=I" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 10).Value = "=I" & excel_row+1 & "/B3"
+	ObjExcel.Cells(excel_row, 10).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 10).NumberFormat = "0.00%"
+
+	ObjExcel.Cells(excel_row, 11).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_I & ")"
+	ObjExcel.Cells(excel_row+1, 11).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_I & ")"
+	ObjExcel.Cells(excel_row, 12).Value = "=K" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 12).Value = "=K" & excel_row+1 & "/B3"
+	ObjExcel.Cells(excel_row, 12).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 12).NumberFormat = "0.00%"
+
+	ObjExcel.Cells(excel_row, 13).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_U & ")"
+	ObjExcel.Cells(excel_row+1, 13).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_U & ")"
+	ObjExcel.Cells(excel_row, 14).Value = "=M" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 14).Value = "=M" & excel_row+1 & "/B3"
+	ObjExcel.Cells(excel_row, 14).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 14).NumberFormat = "0.00%"
+
+	ObjExcel.Cells(excel_row, 15).Value = "=COUNTIF(Table1[CASH (" & date_header & ")], " & is_T & ")"
+	ObjExcel.Cells(excel_row+1, 15).Value = "=COUNTIF(Table1[SNAP (" & date_header & ")], " & is_T & ")"
+	ObjExcel.Cells(excel_row, 16).Value = "=O" & excel_row & "/B2"
+	ObjExcel.Cells(excel_row+1, 16).Value = "=O" & excel_row+1 & "/B3"
+	ObjExcel.Cells(excel_row, 16).NumberFormat = "0.00%"
+	ObjExcel.Cells(excel_row+1, 16).NumberFormat = "0.00%"
+
+	For each range in box_array
+		With ObjExcel.ActiveSheet.Range(range)
+			With .Borders(7)	'left'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+			' With .Borders(8)	'Top'
+			' 	.LineStyle = 1
+			' 	.Weight = 2
+			' 	.ColorIndex = -4105
+			' End With
+			With .Borders(9)	'Bottom'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+			With .Borders(10)	'Right'
+				.LineStyle = 1
+				.Weight = 2
+				.ColorIndex = -4105
+			End With
+		End With
+	Next
+	With ObjExcel.ActiveSheet.Range(bottom_edge)
+		With .Borders(9)	'Bottom'
+			.LineStyle = 1
+			.Weight = 4
+			.ColorIndex = -4105
+		End With
+	End With
+
+	objExcel.worksheets(report_date & " MRSR Report").Activate
+	end_msg = end_msg & vbCr & "STATISTICS Run complete for " & REPT_month & "/" & REPT_year & "."
 
 	If create_u_code_worklists = True Then
 		If statistics_already_run_today = False Then
