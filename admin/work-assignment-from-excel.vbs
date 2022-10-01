@@ -481,17 +481,17 @@ If worker_selection = "Restart a Previous Run" Then
 
 ElseIf worker_selection = "Select from QI" Then
 	new_lists_needed = TRUE
-	' If IsArray(tester_array) = False Then
-		Dim tester_array()
-		ReDim tester_array(0)
 
-		tester_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
-		Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-		Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
-		text_from_the_other_script = fso_command.ReadAll
-		fso_command.Close
-		Execute text_from_the_other_script
-	' End If
+	' 'THIS IS HERE IN CASE SCRIPTWRITERS ARE RUNNING IT WITH THE PLAY BUTTON - LEAVE IN PLACE FOR TESTING'
+	' Dim tester_array()
+	' ReDim tester_array(0)
+	'
+	' tester_list_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\COMPLETE LIST OF TESTERS.vbs"        'Opening the list of testers - which is saved locally for security
+	' Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+	' Set fso_command = run_another_script_fso.OpenTextFile(tester_list_URL)
+	' text_from_the_other_script = fso_command.ReadAll
+	' fso_command.Close
+	' Execute text_from_the_other_script
 
 	const qi_worker_name_const 		= 0
 	const qi_worker_email_const		= 1
@@ -1035,6 +1035,7 @@ If make_even = TRUE Then
     last_to_make_even = UBound(assign_first_list)
 End If
 worker_to_assign = 0
+end_msg = "Assignments Completed"
 
 For list_row = 0 to UBound(MASTER_LIST_ALL_ROWS, 2)
     If MASTER_LIST_ALL_ROWS(master_xl_row, list_row) >= row_to_start AND MASTER_LIST_ALL_ROWS(row_already_assigned, list_row) = FALSE Then
@@ -1081,19 +1082,23 @@ For list_row = 0 to UBound(MASTER_LIST_ALL_ROWS, 2)
 		If worker_to_assign > last_of_assignment_lists Then worker_to_assign = 0
     End If
 Next
+end_msg = end_msg & vbCr & vbCr & UBound(MASTER_LIST_ALL_ROWS, 2)+1 & " items have been assigned from the selected Excel File." & vbCr & vbCr & "These items have been assigned to:"
 For each_assignment = 0 to UBound(ASSIGNMENT_LISTS_ARRAY, 2)
     ASSIGNMENT_LISTS_ARRAY(script_call_name, each_assignment).ActiveWorkbook.Save
     If close_assignment_lists_checkbox = checked Then
         ASSIGNMENT_LISTS_ARRAY(script_call_name, each_assignment).ActiveWorkbook.Close
         ASSIGNMENT_LISTS_ARRAY(script_call_name, each_assignment).Application.Quit
     End If
+	end_msg = end_msg & vbCr & " - " & ASSIGNMENT_LISTS_ARRAY(assigned_worker_name, each_assignment)
 Next
 ObjExcel.ActiveWorkbook.Save
+end_msg = end_msg & vbCr & vbCr & "All assignment worklists can be found in the same folder as the original file with the items to assign:" & vbCr & assignment_folder
 
 'This part of the script will create emails to send information to the assignees if selected at the beginning of the script run.
 'These emails will send automatically if an email address is known.
 If send_email_checkbox = checked Then
 	Call find_user_name(the_person_running_the_script)							'getting the name of the person running the script for the email signature
+	end_msg = end_msg & vbCr & vbCr & "Emails have been sent of the assignments."
 	For each_assignment = 0 to UBound(ASSIGNMENT_LISTS_ARRAY, 2)
 
 		email_body = "Hello " & ASSIGNMENT_LISTS_ARRAY(assigned_worker_name, each_assignment) & ", "
@@ -1118,4 +1123,4 @@ If send_email_checkbox = checked Then
 	Next
 End If
 
-script_end_procedure("Assignments complete")
+script_end_procedure(end_msg)
