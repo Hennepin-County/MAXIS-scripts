@@ -54,8 +54,8 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status_hc, revw_form_date, revw_intvw_date)
-	If add_case_note = True Then
-		If ObjExcel.Cells(excel_row, closure_note_col) = "" Then		'only run the details here if we are running the 'end of month processing'
+	If add_case_note = True Then 'only run the details here if we are running the 'end of month processing'
+		If ObjExcel.Cells(excel_row, closure_note_col) = "" Then		
 			If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" OR revw_status_snap = "T" OR revw_status_snap = "I" OR revw_status_snap = "U" Then
 				'We only care if the review has been terminated by the system, which is only indicated if the REVW status is T, I or U'
 				Call navigate_to_MAXIS_screen("CASE", "NOTE")						'navigating to CASE:NOTE now
@@ -1570,7 +1570,8 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 
 			' MAXIS_case_number = case_number_to_check		'setting the case number for NAV functions
 			call navigate_to_MAXIS_screen_review_PRIV("STAT", "REVW", is_this_priv)		'Go to STAT REVW and be sure the case is not privleged.
-			If is_this_priv = FALSE Then
+			EMReadScreen are_we_at_SELF, 4, 2, 50
+			If is_this_priv = FALSE AND are_we_at_SELF <> "SELF" Then
 				EMReadScreen recvd_date, 8, 13, 37										'Reading the CAF Received Date and format
 				recvd_date = replace(recvd_date, " ", "/")
 				if recvd_date = "__/__/__" then recvd_date = ""
