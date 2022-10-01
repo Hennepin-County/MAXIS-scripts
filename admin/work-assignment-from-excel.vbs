@@ -172,6 +172,8 @@ ReDim COLUMN_ARRAY(assignment_list_col_number, 0)
 'Connects to BlueZone
 EMConnect ""
 
+'This is identifying if the script is being run by QI leadership.
+'This adds an option to the worker selection droplist to select from current QI members.
 run_by_QI_leadership = False
 If user_ID_for_validation = "TAPA002" then run_by_QI_leadership = True
 If user_ID_for_validation = "ILFE001" then run_by_QI_leadership = True
@@ -183,11 +185,12 @@ If user_ID_for_validation = "WFU851" then run_by_QI_leadership = True
 'Checks to make sure we're in MAXIS
 call check_for_MAXIS(True)
 
+'Setting some formats
 assignment_year = DatePart("yyyy", date)
 assignment_year = assignment_year & ""
 assignment_month = MonthName(DatePart("m", date))
 
-
+'Dialog where we select the master list for assignment and how were are going to choose the assignees.
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 386, 235, "Create Assignment Lists from a Master List"
   EditBox 95, 25, 235, 15, master_excel_file_path
@@ -246,30 +249,34 @@ Do
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
+'opening the master assignment list with all the items to assign
 call excel_open_pw(master_excel_file_path, True, False, ObjExcel, objWorkbook, "")
-master_list_folder = ""
+master_list_folder = ""												'Here we need to find the path of the folder of the assignment since that is where we are going to save the assignment lists.
 folder_breadcrumbs = split(master_excel_file_path, "\")
 For each folder in folder_breadcrumbs
     If right(folder, 5) <> ".xlsx" then
-		If folder = "T:" Then folder = t_drive
+		If folder = "T:" Then folder = t_drive						'we want to use the t drive variable we have saved.
 		master_list_folder = master_list_folder & folder & "\"
 	End If
 Next
 
+'Now we check the master list to find all the columns.
+'We need to know hich columns should be copied into the assignment lists
+'We also want to know where to store the details of if an item has been assignned and potentially who it will be assied to
 xl_col = 1
 col_array_counter = 0
-work_list_columns = "Select One..."
+work_list_columns = "Select One..."		'this is a variable for a droplist
 Do
-    col_header = trim(ObjExcel.Cells(1, xl_col).Value)
+    col_header = trim(ObjExcel.Cells(1, xl_col).Value)		'captureing the column header text
     If col_header <> "" Then
-        ReDim Preserve COLUMN_ARRAY(assignment_list_col_number, col_array_counter)
+        ReDim Preserve COLUMN_ARRAY(assignment_list_col_number, col_array_counter)		'adding the column headers to an array - we need them again.
         COLUMN_ARRAY(master_list_col_number, col_array_counter) = xl_col
         COLUMN_ARRAY(master_list_col_letter, col_array_counter) = convert_digit_to_excel_column(xl_col)
         COLUMN_ARRAY(column_header, col_array_counter) = col_header
         COLUMN_ARRAY(include_column, col_array_counter) = checked
 
-        work_list_columns = work_list_columns & chr(9) & COLUMN_ARRAY(column_header, col_array_counter)
-        If UCase(col_header) = "ASSIGNED" Then
+        work_list_columns = work_list_columns & chr(9) & COLUMN_ARRAY(column_header, col_array_counter)	'expanding our dialog variable
+        If UCase(col_header) = "ASSIGNED" Then		'If the column is titled 'Assigned' then it defaults to the assined column
             COLUMN_ARRAY(include_column, col_array_counter) = unchecked
             assigned_selection = COLUMN_ARRAY(column_header, col_array_counter)
             assigned_marked_col = xl_col
@@ -279,10 +286,11 @@ Do
     End If
 Loop until col_header = ""
 
+'dialog with checkboxes for each column to select which ones are copied to the assignment lists.
 dlg_hgt = 115 + UBound(COLUMN_ARRAY,2)*10
 y_pos = 30
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 281, dlg_hgt, "List of Workers to Assign"
+BeginDialog Dialog1, 0, 0, 281, dlg_hgt, "List of Columns to Copy"
   Text 10, 10, 365, 10, "Check each column from the master list you want to include on the assignment list"
   For each_column = 0 to UBound(COLUMN_ARRAY,2)
       CheckBox 15, y_pos, 225, 10, "Column " & COLUMN_ARRAY(master_list_col_letter, each_column) & "  -  " & COLUMN_ARRAY(column_header, each_column), COLUMN_ARRAY(include_column, each_column)
@@ -311,6 +319,7 @@ Do
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
+'Identifying wchich column is the assigned and assigned to columns of the master list.
 col_nbr = 1
 For each_column = 0 to UBound(COLUMN_ARRAY,2)
     ' MsgBox "Array header - " & COLUMN_ARRAY(column_header, each_column) & vbNewLine & "Assigned Selection - " & assigned_selection & "Col - " &
@@ -320,17 +329,14 @@ For each_column = 0 to UBound(COLUMN_ARRAY,2)
 	If COLUMN_ARRAY(column_header, each_column) = assigned_to_worker_selection Then
 		assigned_worker_col = COLUMN_ARRAY(master_list_col_number, each_column)
 	End If
-    If COLUMN_ARRAY(include_column, each_column) = checked Then
-
-    End If
 Next
 
-assignment_folder = master_list_folder
+assignment_folder = master_list_folder		'renaming this variable
 
-Dim objTextStream
+Dim objTextStream							'we use a text file to save the work we are doing
 assignment_status_path = assignment_folder & "assignment-status.txt"
 
-If worker_selection = "Restart a Previous Run" Then
+If worker_selection = "Restart a Previous Run" Then								'if a run was started, the information is saved in a txt file, we can retrieve it an continue
 
     With objFSO
         'Creating an object for the stream of text which we'll use frequently
@@ -344,7 +350,7 @@ If worker_selection = "Restart a Previous Run" Then
             'Splitting the text file contents into an array which will be sorted
             assignment_paths_array = split(every_line_in_text_file, vbNewLine)
 
-            lists_counter = 0
+            lists_counter = 0													'using the information in the txt file to refil the ASSIGNMENT_LISTS_ARRAY
             for i = 0 to ubound(assignment_paths_array)
                 If assignment_paths_array(i) <> "" then 'some are likely blank
                     ReDim Preserve ASSIGNMENT_LISTS_ARRAY(list_message, list_counter)
@@ -361,11 +367,10 @@ If worker_selection = "Restart a Previous Run" Then
         End If
     End With
 
-    If ASSIGNMENT_LISTS_ARRAY(assignment_list_path, 0) <> "" Then
+    If ASSIGNMENT_LISTS_ARRAY(assignment_list_path, 0) <> "" Then				'Now we are going to open each of the assignment lists and get them ready
         For each_list = 0 to UBound(ASSIGNMENT_LISTS_ARRAY, 2)
             assignment_files_known = TRUE
             excel_name = ASSIGNMENT_LISTS_ARRAY(script_call_name, each_list)
-            ' MsgBox "File Name - " & ASSIGNMENT_LISTS_ARRAY(assignment_list_path, each_list) & vbNewLine & "Call - " & ASSIGNMENT_LISTS_ARRAY(script_call_name, each_list)
             Call excel_open(assignment_folder & "\" & ASSIGNMENT_LISTS_ARRAY(assignment_list_path, each_list), TRUE, FALSE, ASSIGNMENT_LISTS_ARRAY(script_call_name, each_list), objWorkbook)
             ASSIGNMENT_LISTS_ARRAY(script_call_name, each_list).worksheets("Information").Activate
             ASSIGNMENT_LISTS_ARRAY(assigned_worker_name, each_list) = ASSIGNMENT_LISTS_ARRAY(script_call_name, each_list).Cells(1, 2). Value
@@ -379,10 +384,9 @@ If worker_selection = "Restart a Previous Run" Then
                 the_case_number = trim(the_case_number)
             Loop Until the_case_number = ""
             ASSIGNMENT_LISTS_ARRAY(last_excel_row, each_list) = xl_row
-            ' MsgBox ASSIGNMENT_LISTS_ARRAY(last_excel_row, each_list)
         Next
     End If
-    number_of_assignment_lists = UBound(ASSIGNMENT_LISTS_ARRAY,2)+ 1 & ""
+    number_of_assignment_lists = UBound(ASSIGNMENT_LISTS_ARRAY,2)+ 1 & ""		'confirming that this is the number of lists we want'
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 151, 90, "Number of Lists"
       EditBox 120, 45, 25, 15, number_of_assignment_lists
@@ -396,7 +400,7 @@ If worker_selection = "Restart a Previous Run" Then
     cancel_without_confirmation
 
     dlg_hgt = 90
-    number_of_assignment_lists = number_of_assignment_lists * 1
+    number_of_assignment_lists = number_of_assignment_lists * 1					'checking to see if more need to be added and expanding the array here
     If number_of_assignment_lists <> UBound(ASSIGNMENT_LISTS_ARRAY, 2) + 1 Then
         ReDim Preserve ASSIGNMENT_LISTS_ARRAY(list_message, number_of_assignment_lists-1)
         add_new = TRUE
@@ -404,7 +408,7 @@ If worker_selection = "Restart a Previous Run" Then
         dlg_hgt = dlg_hgt - 15
     End If
 
-    count_to_three = 1
+    count_to_three = 1															'there is some funny math happening here to make the next display look good'
     For each_worker = 0 to UBound(ASSIGNMENT_LISTS_ARRAY,2)
         If ASSIGNMENT_LISTS_ARRAY(assigned_worker_name, each_worker) <> "" Then
             If count_to_three = 1 Then dlg_hgt = dlg_hgt + 15
@@ -414,7 +418,7 @@ If worker_selection = "Restart a Previous Run" Then
             dlg_hgt = dlg_hgt + 20
         End If
     Next
-    Dialog1 = ""
+    Dialog1 = ""		'showing the assignments you have created.'
     BeginDialog Dialog1, 0, 0, 640, dlg_hgt, "Assignment Details"
       Text 10, 10, 440, 10, "Enter the details about the assignments to be created here:"
       Text 15, 30, 250, 10, "Previously Created Assignment Lists"
@@ -479,7 +483,7 @@ If worker_selection = "Restart a Previous Run" Then
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
 
-ElseIf worker_selection = "Select from QI" Then
+ElseIf worker_selection = "Select from QI" Then				'option for QI leadership to be able to chose from a list of current QI members
 	new_lists_needed = TRUE
 
 	' 'THIS IS HERE IN CASE SCRIPTWRITERS ARE RUNNING IT WITH THE PLAY BUTTON - LEAVE IN PLACE FOR TESTING'
@@ -503,9 +507,8 @@ ElseIf worker_selection = "Select from QI" Then
 	ReDim QI_WORKERS_ARRAY(qi_worker_last_const, 0)
 
 	qi_worker_count = 0
-	' MsgBox "Here we go"
 	For tester = 0 to UBound(tester_array)                         'looping through all of the testers
-		' MsgBox "tester - " & tester & vbCr & "tester_array(tester).tester_supervisor_name - " & tester_array(tester).tester_supervisor_name
+		' pulling QI members by supervisor from the Complete List of Testers
 		If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then
 			RedIm preserve QI_WORKERS_ARRAY(qi_worker_last_const, qi_worker_count)
 
@@ -516,9 +519,8 @@ ElseIf worker_selection = "Select from QI" Then
 			qi_worker_count = qi_worker_count + 1
 		End If
 	Next
-	' MsgBox "qi_worker_count - " & qi_worker_count
 	dlg_len = 65 + qi_worker_count*10
-
+	'dialog with checkboxes to select the QI workers'
 	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 416, dlg_len, "QI Worker Selection"
 	  Text 10, 5, 210, 10, "Select any of the QI Workers that you want to assign a list to."
@@ -533,18 +535,6 @@ ElseIf worker_selection = "Select from QI" Then
 		  y_pos = y_pos + 10
 	  Next
 	  y_pos = y_pos + 10
-	  ' Text 10, 35, 100, 10, "Faughn Ramisch-Church"
-	  ' Text 120, 35, 145, 10, "faughn.ramisch-church@hennepin.us"
-	  ' CheckBox 265, 35, 125, 10, "Assign to WORKER", checkbox
-	  ' Text 10, 45, 100, 10, "Faughn Ramisch-Church"
-	  ' Text 120, 45, 145, 10, "faughn.ramisch-church@hennepin.us"
-	  ' CheckBox 265, 45, 125, 10, "Assign to WORKER", Check2
-	  ' Text 10, 55, 100, 10, "Faughn Ramisch-Church"
-	  ' Text 120, 55, 145, 10, "faughn.ramisch-church@hennepin.us"
-	  ' CheckBox 265, 55, 125, 10, "Assign to WORKER", Check3
-	  ' Text 10, 65, 100, 10, "Faughn Ramisch-Church"
-	  ' Text 120, 65, 145, 10, "faughn.ramisch-church@hennepin.us"
-	  ' CheckBox 265, 65, 125, 10, "Assign to WORKER", Check4
 	  ButtonGroup ButtonPressed
 	    OkButton 305, y_pos, 50, 15
 	    CancelButton 360, y_pos, 50, 15
@@ -552,9 +542,8 @@ ElseIf worker_selection = "Select from QI" Then
 
 	Dialog Dialog1
 
-
 	assigned_workers = 0
-
+	'now each QI worker selected is added to the Assignment list array'
 	For each_worker = 0 to UBound(QI_WORKERS_ARRAY, 2)
 		If QI_WORKERS_ARRAY(qi_worker_checkbox_const, each_worker) = checked Then
 			ReDim preserve ASSIGNMENT_LISTS_ARRAY(list_message, assigned_workers)
@@ -565,12 +554,10 @@ ElseIf worker_selection = "Select from QI" Then
 			assigned_workers = assigned_workers + 1
 		End If
 	Next
-	' MsgBox "Wait Here"
-
-ElseIf worker_selection = "Excel List" Then
+ElseIf worker_selection = "Excel List" Then		' This option reads from an existing list of people to assign to.
     new_lists_needed = TRUE
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 386, 80, "List of Workers to Assign"
+    BeginDialog Dialog1, 0, 0, 386, 80, "List of Workers to Assign"				'Select the excel list with the workers to assign to.'
       EditBox 95, 25, 235, 15, workers_list_excel_path
       ButtonGroup ButtonPressed
         PushButton 335, 25, 45, 15, "Browse...", select_a_file_button
@@ -616,7 +603,7 @@ ElseIf worker_selection = "Excel List" Then
     worker_columns_list = "Select One..."
 
     excel_col = 1
-    Do
+    Do				'reading the columns to determine if we can figure out where the inofrmation is
         col_name = trim(ObjWorkersExcel.Cells(1, excel_col).Value)
         If col_name <> "" Then
             ReDim Preserve WORKERS_COL_ARRAY(wrk_col_detail, excel_col-1)
@@ -656,7 +643,7 @@ ElseIf worker_selection = "Excel List" Then
         last_name_selection = ""
     End If
 
-    Dialog1 = ""
+    Dialog1 = ""																'here you select each column to each type of information '
     BeginDialog Dialog1, 0, 0, 216, 150, "Identify Worker Information in Excel"
       DropListBox 60, 35, 150, 45, worker_columns_list, full_name_selection
       DropListBox 60, 65, 150, 45, worker_columns_list, first_name_selection
@@ -685,7 +672,7 @@ ElseIf worker_selection = "Excel List" Then
         Call check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = FALSE
 
-    full_name_provided = TRUE
+    full_name_provided = TRUE													'setting the locations of the information from the selections in the dialog
     If full_name_selection = "Select One..." Then full_name_provided = FALSE
 
     If full_name_provided = TRUE Then
@@ -713,7 +700,7 @@ ElseIf worker_selection = "Excel List" Then
 
     Next
 
-    excel_row = 2
+    excel_row = 2																'adding the information from the excel into the Assignt List Array'
     worker_counter = 0
     Do
 
@@ -743,7 +730,7 @@ ElseIf worker_selection = "Excel List" Then
         End If
     Next
 
-    Dialog1 = ""
+    Dialog1 = ""																'here we confirm the information'
     BeginDialog Dialog1, 0, 0, 640, dlg_hgt, "Assignment Details"
       Text 10, 10, 440, 10, "Enter the details about the assignments to be created here:"
       Text 15, 30, 250, 10, "List of Workers to Assign Cases"
@@ -768,9 +755,9 @@ ElseIf worker_selection = "Excel List" Then
     dialog Dialog1
     cancel_without_confirmation
 
-ElseIf worker_selection = "Manual Entry" Then
+ElseIf worker_selection = "Manual Entry" Then									'this option has a dialog to enter name and email
     new_lists_needed = TRUE
-    Dialog1 = ""
+    Dialog1 = ""																'enter the number of lists to create
     BeginDialog Dialog1, 0, 0, 151, 60, "Number of Lists"
       EditBox 120, 10, 25, 15, number_of_assignment_lists
       ButtonGroup ButtonPressed
@@ -783,7 +770,7 @@ ElseIf worker_selection = "Manual Entry" Then
 
     ReDim Preserve ASSIGNMENT_LISTS_ARRAY(list_message, number_of_assignment_lists-1)
 
-    dlg_hgt = 70 + number_of_assignment_lists*20
+    dlg_hgt = 70 + number_of_assignment_lists*20								'entering the information for the dialog'
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 400, dlg_hgt, "Assignment Details"
       Text 10, 10, 440, 10, "Enter the details about the assignments to be created here:"
@@ -828,6 +815,7 @@ ElseIf worker_selection = "Manual Entry" Then
     Loop until are_we_passworded_out = FALSE
 End If
 
+'Here is where we set the assignment list excel objects, create the lists and format them to be ready to get new cases added to them.
 If new_lists_needed = TRUE Then
     If worker_selection = "Excel List" or worker_selection = "Manual Entry" or worker_selection = "Select from QI" Then
         Set objTextStream = objFSO.OpenTextFile(assignment_status_path, ForWriting, true)
@@ -908,7 +896,7 @@ If new_lists_needed = TRUE Then
 
     objTextStream.Close
 Else
-    ASSIGNMENT_LISTS_ARRAY(script_call_name, 0).worksheets("Assignment").Activate
+    ASSIGNMENT_LISTS_ARRAY(script_call_name, 0).worksheets("Assignment").Activate		'This justs makes sure the excel sheets are set up correctly.'
 
     the_col = 1
     Do
@@ -929,7 +917,7 @@ End If
 each_line = 0
 excel_row = 2
 row_to_start = ""
-' MsgBox "Assigned Col - " & assigned_marked_col
+'Capturing all the information from the master list into an array'
 Do
 
     ReDim Preserve MASTER_LIST_ALL_ROWS(list_action, each_line)
@@ -963,7 +951,6 @@ Do
     If ucase(trim(ObjExcel.Cells(excel_row, assigned_marked_col).Value)) = "TRUE" Then MASTER_LIST_ALL_ROWS(row_already_assigned, each_line) = TRUE
     If ucase(trim(ObjExcel.Cells(excel_row, assigned_marked_col).Value)) = "FALSE" Then MASTER_LIST_ALL_ROWS(row_already_assigned, each_line) = FALSE
     If trim(ObjExcel.Cells(excel_row, assigned_marked_col).Value) = "" Then MASTER_LIST_ALL_ROWS(row_already_assigned, each_line) = FALSE
-    ' MsgBox "What does the col say? " & trim(ObjExcel.Cells(excel_row, assigned_marked_col).Value) & vbNewLine & "What is in the Array? " & MASTER_LIST_ALL_ROWS(row_already_assigned, each_line)
 
     If MASTER_LIST_ALL_ROWS(row_already_assigned, each_line) = FALSE AND row_to_start = "" Then row_to_start = excel_row
 
@@ -976,7 +963,7 @@ Loop until next_col_one = ""
 end_of_master_list = excel_row - 1
 If row_to_start = "" Then row_to_start = "2"
 row_to_start = row_to_start & ""
-
+'determining where to start in the master list for assignment'
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 126, 115, "Master List Row to Start"
   EditBox 95, 40, 25, 15, row_to_start
@@ -998,7 +985,7 @@ Do
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
-row_to_start = row_to_start * 1
+row_to_start = row_to_start * 1			'determining which worker to start with by who has the most and least
 assign_first_list = ""
 make_even = FALSE
 most_cases = 0
@@ -1029,7 +1016,7 @@ If assign_first_list <> "" Then
     make_even = TRUE
 End If
 
-last_of_assignment_lists = UBound(ASSIGNMENT_LISTS_ARRAY, 2)
+last_of_assignment_lists = UBound(ASSIGNMENT_LISTS_ARRAY, 2)					'how to even out the lists'
 If make_even = TRUE Then
     even_list_counter = 0
     last_to_make_even = UBound(assign_first_list)
@@ -1037,6 +1024,7 @@ End If
 worker_to_assign = 0
 end_msg = "Assignments Completed"
 
+'Here is where we actually put the items from the master list into the assignment lists.'
 For list_row = 0 to UBound(MASTER_LIST_ALL_ROWS, 2)
     If MASTER_LIST_ALL_ROWS(master_xl_row, list_row) >= row_to_start AND MASTER_LIST_ALL_ROWS(row_already_assigned, list_row) = FALSE Then
         If make_even = TRUE Then
@@ -1050,7 +1038,6 @@ For list_row = 0 to UBound(MASTER_LIST_ALL_ROWS, 2)
         End If
         excel_row = ASSIGNMENT_LISTS_ARRAY(last_excel_row, worker_to_assign)
 
-		' MsgBox "ASSIGNMENT_LISTS_ARRAY(script_call_name, worker_to_assign) - " & ASSIGNMENT_LISTS_ARRAY(script_call_name, worker_to_assign)
         ASSIGNMENT_LISTS_ARRAY(script_call_name, worker_to_assign).worksheets("Assignment").Activate
 
         STATS_counter = STATS_counter + 1
@@ -1058,7 +1045,6 @@ For list_row = 0 to UBound(MASTER_LIST_ALL_ROWS, 2)
             If COLUMN_ARRAY(include_column, master_column) = checked Then
                 master_col_to_use = COLUMN_ARRAY(master_list_col_number, master_column)
                 assign_col_to_use = COLUMN_ARRAY(assignment_list_col_number, master_column)
-                ' MsgBox "Excel Row - " & excel_row & vbNewLine & "assign col - " & assign_col_to_use & vbNewLine & "master col - " & master_col_to_use & vbNewLine & "list row - " & list_row
                 ASSIGNMENT_LISTS_ARRAY(script_call_name, worker_to_assign).Cells(excel_row, assign_col_to_use).Value = MASTER_LIST_ALL_ROWS(master_col_to_use, list_row)
             End If
         Next
@@ -1076,14 +1062,14 @@ For list_row = 0 to UBound(MASTER_LIST_ALL_ROWS, 2)
 
         master_excel_row = MASTER_LIST_ALL_ROWS(master_xl_row, list_row)
         ObjExcel.Cells(master_excel_row, assigned_marked_col).Value = MASTER_LIST_ALL_ROWS(row_already_assigned, list_row)
-		ObjExcel.Cells(master_excel_row, assigned_worker_col).Value = ASSIGNMENT_LISTS_ARRAY(assigned_worker_name, worker_to_assign)
+		If assigned_worker_col <> "" Then ObjExcel.Cells(master_excel_row, assigned_worker_col).Value = ASSIGNMENT_LISTS_ARRAY(assigned_worker_name, worker_to_assign)
 
 		worker_to_assign = worker_to_assign + 1
 		If worker_to_assign > last_of_assignment_lists Then worker_to_assign = 0
     End If
 Next
 end_msg = end_msg & vbCr & vbCr & UBound(MASTER_LIST_ALL_ROWS, 2)+1 & " items have been assigned from the selected Excel File." & vbCr & vbCr & "These items have been assigned to:"
-For each_assignment = 0 to UBound(ASSIGNMENT_LISTS_ARRAY, 2)
+For each_assignment = 0 to UBound(ASSIGNMENT_LISTS_ARRAY, 2)					'saving and closing the files if requested'
     ASSIGNMENT_LISTS_ARRAY(script_call_name, each_assignment).ActiveWorkbook.Save
     If close_assignment_lists_checkbox = checked Then
         ASSIGNMENT_LISTS_ARRAY(script_call_name, each_assignment).ActiveWorkbook.Close
