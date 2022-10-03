@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/03/2022", "Updated income standards for 130% FPG effective 10/22.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/29/2021", "Updated income standards for 130% FPG effective 10/21.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/01/2020", "Updated income standards for 130% FPG effective 10/20.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/01/2019", "Updated income standards for 130% FPG effective 10/19.", "Ilse Ferris, Hennepin County")
@@ -104,8 +105,19 @@ LOOP UNTIL are_we_passworded_out = false
 
 'Determines the income limits
 ' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG at: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
-If DateDiff("d",date,#10/01/2021#) <= 0 then
-    'October 2021 -- Amounts for applications on or AFTER 10/01/2021
+If DateDiff("d",date,#10/01/2022#) <= 0 then
+    'October 2022 -- Amounts for applications on or AFTER 10/01/2022
+    If sponsor_HH_size = 1 then income_limit = 1473
+    If sponsor_HH_size = 2 then income_limit = 1984
+    If sponsor_HH_size = 3 then income_limit = 2495
+    If sponsor_HH_size = 4 then income_limit = 3007
+    If sponsor_HH_size = 5 then income_limit = 3518
+    If sponsor_HH_size = 6 then income_limit = 4029
+    If sponsor_HH_size = 7 then income_limit = 4541
+    If sponsor_HH_size = 8 then income_limit = 5052
+    If sponsor_HH_size > 8 then income_limit = 5052 + (512 * (sponsor_HH_size - 8))
+Elseif DateDiff("d",date,#10/01/2022#) > 0 then
+    'October 2021 -- Amounts for applications on or BEFORE 10/01/2022
     If sponsor_HH_size = 1 then income_limit = 1396
     If sponsor_HH_size = 2 then income_limit = 1888
     If sponsor_HH_size = 3 then income_limit = 2379
@@ -115,17 +127,6 @@ If DateDiff("d",date,#10/01/2021#) <= 0 then
     If sponsor_HH_size = 7 then income_limit = 4347
     If sponsor_HH_size = 8 then income_limit = 4839
     If sponsor_HH_size > 8 then income_limit = 4839 + (492 * (sponsor_HH_size - 8))
-Elseif DateDiff("d",date,#10/01/2021#) > 0 then
-    'October 2020 -- Amounts for applications on or BEFORE 10/01/2021
-    If sponsor_HH_size = 1 then income_limit = 1383
-    If sponsor_HH_size = 2 then income_limit = 1868
-    If sponsor_HH_size = 3 then income_limit = 2353
-    If sponsor_HH_size = 4 then income_limit = 2839
-    If sponsor_HH_size = 5 then income_limit = 3324
-    If sponsor_HH_size = 6 then income_limit = 3809
-    If sponsor_HH_size = 7 then income_limit = 4295
-    If sponsor_HH_size = 8 then income_limit = 4780
-    If sponsor_HH_size > 8 then income_limit = 4780 + (486 * (sponsor_HH_size - 8))
 End if
 
 'If any income variables are not numeric, the script will convert them to a "0" for calculating
