@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/04/2022", "The script will now provide instruction on interacting with the dialog if there is more than one approval package. This is an informative message only.##~##", "Casey Love, Hennepin County")
 call changelog_update("09/29/2022", "Added support for allocations in MFIP budgets to display them in the budget and to enter them clearly in CASE/NOTE. MFIP approvals will initiate a testing response for the time being to ensure the functionality is working accurately.##~####~##Please provide any feedback you have about the script functionality or display in dialog or CASE/NOTE, your input is crucial..", "Casey Love, Hennepin County")
 call changelog_update("09/26/2022", "Additional Program support added: ELIG/GRH - for Housing Support Approvals.##~## ##~##The script can now support determinations made in: ##~##ELIG/SNAP ##~##ELIG/MFIP ##~##ELIG/GA ##~##ELIG/MSA ##~##ELIG/GRH ##~##ELIG/EMER ##~##ELIG/DENY ##~##REPT/PND2 Denials.##~## ##~##We are still working on ELIG/HC and ELIG/DWP.", "Casey Love, Hennepin County")
 call changelog_update("09/14/2022", "Functionality added to EMER functionality:##~## - Add text to dialog of current SUA (Standard Utility Allowance) amounts for reference.##~## - Functionality to support Bus Ticket approvals as these do not have MONY/CHCKs issued.##~##", "Casey Love, Hennepin County")
@@ -6068,6 +6069,7 @@ class dwp_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public approval_date
 
 	public dwp_elig_ref_numbs()
 	public dwp_elig_membs_full_name()
@@ -6708,6 +6710,7 @@ class mfip_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public approval_date
 	public revw_month
 	public hrf_month
 	public revw_status
@@ -8253,6 +8256,7 @@ class msa_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public approval_date
 	public revw_month
 	public revw_status
 	public revw_caf_date
@@ -8963,6 +8967,7 @@ class ga_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public approval_date
 	public revw_month
 	public hrf_month
 	public revw_status
@@ -9569,6 +9574,7 @@ class deny_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public approval_date
 	public cash_family_or_adult
 
 	public deny_cash_membs_ref_numbs()
@@ -10548,6 +10554,7 @@ class grh_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public approval_date
 	public revw_month
 	public hrf_month
 	public revw_status
@@ -11844,6 +11851,7 @@ class emer_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public approval_date
 
 	public initial_search_month
 	public initial_search_year
@@ -12654,6 +12662,7 @@ class snap_eligibility_detail
 	public elig_version_result
 	public approved_today
 	public approved_version_found
+	public approval_date
 	public revw_month
 	public hrf_month
 	public revw_status
@@ -12881,13 +12890,13 @@ class snap_eligibility_detail
 		EMWriteScreen elig_footer_year, 19, 57
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
-			EMReadScreen confirm_approved_today, 8, 3, 14		'this is the actual approval date - not the process date'
-			confirm_approved_today = DateAdd("d", 0, confirm_approved_today)
+			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
+			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
-				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, confirm_approved_today) = 0 Then approved_today = True
+				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, approval_date) = 0 Then approved_today = True
 			End If
-			' approved_today = true
+			' approved_today = true		'TESTING SETTING'
 		End If
 		If approved_today = True Then
 			row = 7
@@ -13440,6 +13449,7 @@ class hc_eligibility_detail
 	' public elig_version_result
 	public approved_today
 	public approved_version_found
+	public approval_date
 	public revw_month
 	public hrf_month
 	public revw_status
@@ -19119,6 +19129,7 @@ If numb_EMER_versions <> " " Then
 	' 		transactions
 End If
 
+approvals_not_created_today = ""
 For each footer_month in MONTHS_ARRAY
 	ReDim Preserve REPORTING_COMPLETE_ARRAY(final_const, month_count)
 	REPORTING_COMPLETE_ARRAY(month_const, month_count) = footer_month
@@ -19288,6 +19299,11 @@ For each footer_month in MONTHS_ARRAY
 		If SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_today = True Then
 			If first_SNAP_approval = "" Then first_SNAP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+		ElseIf SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_version_found = True Then
+			If DateDiff("d", date, SNAP_ELIG_APPROVALS(snap_elig_months_count).approval_date) = 0 Then
+				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " SNAP approved today." & vbCr
+				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_version_date & vbCr & vbCr
+			End If
 		End If
 
 	End If
@@ -19940,6 +19956,17 @@ Next
 
 EMWriteScreen MAXIS_case_number, 18, 43
 
+If approvals_not_created_today <> "" Then
+	cannot_note_msg = "It appears there were approvals commpleted today on ELIG Results that were created on a different day:" & vbCr & vbCr
+	cannot_note_msg = cannot_note_msg & approvals_not_created_today
+	cannot_note_msg = cannot_note_msg & "The date the results were created can be seen in the 'Process Date' field in ELIG." & vbCr
+	cannot_note_msg = cannot_note_msg & "This is the date the results came through background." & vbCr & vbCr
+	cannot_note_msg = cannot_note_msg & "ELIG Results should be generated, approved, and CASE/NOTEd on the same day." & vbCr & vbCr
+	cannot_note_msg = cannot_note_msg & "The script will continue but these results will not be included."
+
+	'TESTING LOGIC'
+	If user_ID_for_validation = "CALO001" Then MsgBox cannot_note_msg
+End If
 
 pnd2_display_limit_hit = False
 deny_app_one = False
@@ -20461,6 +20488,31 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 		End If
 	Next
 
+	If UBound(MFIP_UNIQUE_APPROVALS, 2) <> 0 Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 241, 215, UBound(MFIP_UNIQUE_APPROVALS, 2)+1 & " MFIP Approval Packages to be Reviewed"
+		  GroupBox 5, 10, 145, 40, "REVIEW ALL APPROVAL PACKAGES"
+		  Text 15, 25, 130, 20, "Each approval package will need to be revieswed and confirmed seperately."
+		  Text 10, 55, 95, 10, "For the case: " & MAXIS_case_number
+		  Text 10, 70, 150, 10, "The script found approvals for " & MFIP_UNIQUE_APPROVALS(first_mo_const, 0) & " - " & CM_plus_1_mo & "/" & CM_plus_1_yr
+		  Text 10, 85, 150, 20, "The script has found Eligibility Results that were created and approved today for MFIP."
+		  Text 10, 110, 145, 35, "The details of eligiblity are not the same for every month in the approvals. The script has grouped the months into approval packages based on the eligibilty details. "
+
+		  Text 5, 150, 230, 45, "The next dialog will display the details of the approval, you can switch between the approval packages in the buttons on the right. The layout may look similar but review the information, it will be different between each package. Confirm the approvals in the Drop List Selection at the bottom of the dialog."
+		  Text 160, 10, 80, 10, UBound(MFIP_UNIQUE_APPROVALS, 2)+1 & " Approval Packages"
+		  y_pos = 25
+		  For approval = 0 to UBound(MFIP_UNIQUE_APPROVALS, 2)
+			If MFIP_UNIQUE_APPROVALS(last_mo_const, approval) <> "" Then Text 185, y_pos, 50, 10, MFIP_UNIQUE_APPROVALS(first_mo_const, approval) & " - " & MFIP_UNIQUE_APPROVALS(last_mo_const, approval)
+			If MFIP_UNIQUE_APPROVALS(last_mo_const, approval) = "" Then Text 185, y_pos, 50, 10, MFIP_UNIQUE_APPROVALS(first_mo_const, approval)
+			y_pos = y_pos +10
+		  Next
+		  ButtonGroup ButtonPressed
+			OkButton 135, 195, 100, 15
+		EndDialog
+
+		dialog Dialog1
+	End If
+
 	all_mfip_approvals_confirmed = False
 	approval_selected = 0
 
@@ -20880,6 +20932,31 @@ If enter_CNOTE_for_MSA = True Then
 		End If
 	Next
 
+	If UBound(MSA_UNIQUE_APPROVALS, 2) <> 0 Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 241, 215, UBound(MSA_UNIQUE_APPROVALS, 2)+1 & " MSA Approval Packages to be Reviewed"
+		  GroupBox 5, 10, 145, 40, "REVIEW ALL APPROVAL PACKAGES"
+		  Text 15, 25, 130, 20, "Each approval package will need to be revieswed and confirmed seperately."
+		  Text 10, 55, 95, 10, "For the case: " & MAXIS_case_number
+		  Text 10, 70, 150, 10, "The script found approvals for " & MSA_UNIQUE_APPROVALS(first_mo_const, 0) & " - " & CM_plus_1_mo & "/" & CM_plus_1_yr
+		  Text 10, 85, 150, 20, "The script has found Eligibility Results that were created and approved today for MSA."
+		  Text 10, 110, 145, 35, "The details of eligiblity are not the same for every month in the approvals. The script has grouped the months into approval packages based on the eligibilty details. "
+
+		  Text 5, 150, 230, 45, "The next dialog will display the details of the approval, you can switch between the approval packages in the buttons on the right. The layout may look similar but review the information, it will be different between each package. Confirm the approvals in the Drop List Selection at the bottom of the dialog."
+		  Text 160, 10, 80, 10, UBound(MSA_UNIQUE_APPROVALS, 2)+1 & " Approval Packages"
+		  y_pos = 25
+		  For approval = 0 to UBound(MSA_UNIQUE_APPROVALS, 2)
+		  	If MSA_UNIQUE_APPROVALS(last_mo_const, approval) <> "" Then Text 185, y_pos, 50, 10, MSA_UNIQUE_APPROVALS(first_mo_const, approval) & " - " & MSA_UNIQUE_APPROVALS(last_mo_const, approval)
+		  	If MSA_UNIQUE_APPROVALS(last_mo_const, approval) = "" Then Text 185, y_pos, 50, 10, MSA_UNIQUE_APPROVALS(first_mo_const, approval)
+		  	y_pos = y_pos +10
+		  Next
+		  ButtonGroup ButtonPressed
+		    OkButton 135, 195, 100, 15
+		EndDialog
+
+		dialog Dialog1
+	End If
+
 	all_msa_approvals_confirmed = False
 	approval_selected = 0
 
@@ -21159,6 +21236,31 @@ If enter_CNOTE_for_GA = True Then
 		End If
 	Next
 
+	If UBound(GA_UNIQUE_APPROVALS, 2) <> 0 Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 241, 215, UBound(GA_UNIQUE_APPROVALS, 2)+1 & " GA Approval Packages to be Reviewed"
+		  GroupBox 5, 10, 145, 40, "REVIEW ALL APPROVAL PACKAGES"
+		  Text 15, 25, 130, 20, "Each approval package will need to be revieswed and confirmed seperately."
+		  Text 10, 55, 95, 10, "For the case: " & MAXIS_case_number
+		  Text 10, 70, 150, 10, "The script found approvals for " & GA_UNIQUE_APPROVALS(first_mo_const, 0) & " - " & CM_plus_1_mo & "/" & CM_plus_1_yr
+		  Text 10, 85, 150, 20, "The script has found Eligibility Results that were created and approved today for GA."
+		  Text 10, 110, 145, 35, "The details of eligiblity are not the same for every month in the approvals. The script has grouped the months into approval packages based on the eligibilty details. "
+
+		  Text 5, 150, 230, 45, "The next dialog will display the details of the approval, you can switch between the approval packages in the buttons on the right. The layout may look similar but review the information, it will be different between each package. Confirm the approvals in the Drop List Selection at the bottom of the dialog."
+		  Text 160, 10, 80, 10, UBound(GA_UNIQUE_APPROVALS, 2)+1 & " Approval Packages"
+		  y_pos = 25
+		  For approval = 0 to UBound(GA_UNIQUE_APPROVALS, 2)
+		  	If GA_UNIQUE_APPROVALS(last_mo_const, approval) <> "" Then Text 185, y_pos, 50, 10, GA_UNIQUE_APPROVALS(first_mo_const, approval) & " - " & GA_UNIQUE_APPROVALS(last_mo_const, approval)
+		  	If GA_UNIQUE_APPROVALS(last_mo_const, approval) = "" Then Text 185, y_pos, 50, 10, GA_UNIQUE_APPROVALS(first_mo_const, approval)
+		  	y_pos = y_pos +10
+		  Next
+		  ButtonGroup ButtonPressed
+		    OkButton 135, 195, 100, 15
+		EndDialog
+
+		dialog Dialog1
+	End If
+
 	all_ga_approvals_confirmed = False
 	approval_selected = 0
 
@@ -21404,6 +21506,31 @@ If enter_CNOTE_for_DENY = True Then
 			End If
 		End If
 	Next
+
+	If UBound(DENY_UNIQUE_APPROVALS, 2) <> 0 Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 241, 215, UBound(DENY_UNIQUE_APPROVALS, 2)+1 & " DENY Approval Packages to be Reviewed"
+		  GroupBox 5, 10, 145, 40, "REVIEW ALL APPROVAL PACKAGES"
+		  Text 15, 25, 130, 20, "Each approval package will need to be revieswed and confirmed seperately."
+		  Text 10, 55, 95, 10, "For the case: " & MAXIS_case_number
+		  Text 10, 70, 150, 10, "The script found approvals for " & DENY_UNIQUE_APPROVALS(first_mo_const, 0) & " - " & CM_plus_1_mo & "/" & CM_plus_1_yr
+		  Text 10, 85, 150, 20, "The script has found Eligibility Results that were created and approved today for DENY."
+		  Text 10, 110, 145, 35, "The details of eligiblity are not the same for every month in the approvals. The script has grouped the months into approval packages based on the eligibilty details. "
+
+		  Text 5, 150, 230, 45, "The next dialog will display the details of the approval, you can switch between the approval packages in the buttons on the right. The layout may look similar but review the information, it will be different between each package. Confirm the approvals in the Drop List Selection at the bottom of the dialog."
+		  Text 160, 10, 80, 10, UBound(DENY_UNIQUE_APPROVALS, 2)+1 & " Approval Packages"
+		  y_pos = 25
+		  For approval = 0 to UBound(DENY_UNIQUE_APPROVALS, 2)
+		  	If DENY_UNIQUE_APPROVALS(last_mo_const, approval) <> "" Then Text 185, y_pos, 50, 10, DENY_UNIQUE_APPROVALS(first_mo_const, approval) & " - " & DENY_UNIQUE_APPROVALS(last_mo_const, approval)
+		  	If DENY_UNIQUE_APPROVALS(last_mo_const, approval) = "" Then Text 185, y_pos, 50, 10, DENY_UNIQUE_APPROVALS(first_mo_const, approval)
+		  	y_pos = y_pos +10
+		  Next
+		  ButtonGroup ButtonPressed
+		    OkButton 135, 195, 100, 15
+		EndDialog
+
+		dialog Dialog1
+	End If
 
 	all_deny_approvals_confirmed = False
 	approval_selected = 0
@@ -21704,6 +21831,31 @@ If enter_CNOTE_for_GRH = True Then
 			End If
 		End If
 	Next
+
+	If UBound(GRH_UNIQUE_APPROVALS, 2) <> 0 Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 241, 215, UBound(GRH_UNIQUE_APPROVALS, 2)+1 & " HS/GRH Approval Packages to be Reviewed"
+		  GroupBox 5, 10, 145, 40, "REVIEW ALL APPROVAL PACKAGES"
+		  Text 15, 25, 130, 20, "Each approval package will need to be revieswed and confirmed seperately."
+		  Text 10, 55, 95, 10, "For the case: " & MAXIS_case_number
+		  Text 10, 70, 150, 10, "The script found approvals for " & GRH_UNIQUE_APPROVALS(first_mo_const, 0) & " - " & CM_plus_1_mo & "/" & CM_plus_1_yr
+		  Text 10, 85, 150, 20, "The script has found Eligibility Results that were created and approved today for HS/GRH."
+		  Text 10, 110, 145, 35, "The details of eligiblity are not the same for every month in the approvals. The script has grouped the months into approval packages based on the eligibilty details. "
+
+		  Text 5, 150, 230, 45, "The next dialog will display the details of the approval, you can switch between the approval packages in the buttons on the right. The layout may look similar but review the information, it will be different between each package. Confirm the approvals in the Drop List Selection at the bottom of the dialog."
+		  Text 160, 10, 80, 10, UBound(GRH_UNIQUE_APPROVALS, 2)+1 & " Approval Packages"
+		  y_pos = 25
+		  For approval = 0 to UBound(GRH_UNIQUE_APPROVALS, 2)
+		  	If GRH_UNIQUE_APPROVALS(last_mo_const, approval) <> "" Then Text 185, y_pos, 50, 10, GRH_UNIQUE_APPROVALS(first_mo_const, approval) & " - " & GRH_UNIQUE_APPROVALS(last_mo_const, approval)
+		  	If GRH_UNIQUE_APPROVALS(last_mo_const, approval) = "" Then Text 185, y_pos, 50, 10, GRH_UNIQUE_APPROVALS(first_mo_const, approval)
+		  	y_pos = y_pos +10
+		  Next
+		  ButtonGroup ButtonPressed
+		    OkButton 135, 195, 100, 15
+		EndDialog
+
+		dialog Dialog1
+	End If
 
 	all_ga_approvals_confirmed = False
 	approval_selected = 0
@@ -22110,6 +22262,30 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 
 	' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
 	' Next
+	If UBound(SNAP_UNIQUE_APPROVALS, 2) <> 0 Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 241, 215, UBound(SNAP_UNIQUE_APPROVALS, 2)+1 & " SNAP Approval Packages to be Reviewed"
+		  GroupBox 5, 10, 145, 40, "REVIEW ALL APPROVAL PACKAGES"
+		  Text 15, 25, 130, 20, "Each approval package will need to be revieswed and confirmed seperately."
+		  Text 10, 55, 95, 10, "For the case: " & MAXIS_case_number
+		  Text 10, 70, 150, 10, "The script found approvals for " & SNAP_UNIQUE_APPROVALS(first_mo_const, 0) & " - " & CM_plus_1_mo & "/" & CM_plus_1_yr
+		  Text 10, 85, 150, 20, "The script has found Eligibility Results that were created and approved today for SNAP."
+		  Text 10, 110, 145, 35, "The details of eligiblity are not the same for every month in the approvals. The script has grouped the months into approval packages based on the eligibilty details. "
+
+		  Text 5, 150, 230, 45, "The next dialog will display the details of the approval, you can switch between the approval packages in the buttons on the right. The layout may look similar but review the information, it will be different between each package. Confirm the approvals in the Drop List Selection at the bottom of the dialog."
+		  Text 160, 10, 80, 10, UBound(SNAP_UNIQUE_APPROVALS, 2)+1 & " Approval Packages"
+		  y_pos = 25
+		  For approval = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
+		  	If SNAP_UNIQUE_APPROVALS(last_mo_const, approval) <> "" Then Text 185, y_pos, 50, 10, SNAP_UNIQUE_APPROVALS(first_mo_const, approval) & " - " & SNAP_UNIQUE_APPROVALS(last_mo_const, approval)
+		  	If SNAP_UNIQUE_APPROVALS(last_mo_const, approval) = "" Then Text 185, y_pos, 50, 10, SNAP_UNIQUE_APPROVALS(first_mo_const, approval)
+		  	y_pos = y_pos +10
+		  Next
+		  ButtonGroup ButtonPressed
+		    OkButton 135, 195, 100, 15
+		EndDialog
+
+		dialog Dialog1
+	End If
 
 	all_snap_approvals_confirmed = False
 	approval_selected = 0
