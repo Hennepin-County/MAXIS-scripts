@@ -357,7 +357,7 @@ Next
 
 'If no jobs, there is no income to FIAT and script will end.
 If number_of_jobs = 0 AND list_of_unea_income_to_fiat = "" Then
-    end_msg = "Household Member " & member_number & " on this case has no JOBS panel and no UI UNEA panel. Please check the case, update JOBS if required and run the script again."
+    end_msg = "Household Member " & memb_number & " on this case has no JOBS panel and no UI UNEA panel. Please check the case, update JOBS if required and run the script again."
     script_end_procedure(end_msg)
 End If
 
@@ -739,7 +739,7 @@ If case_status = "Initial" Then
         If MAXIS_footer_month = CM_plus_2_mo AND MAXIS_footer_year = CM_plus_2_yr Then Exit For
 
         Call Navigate_to_MAXIS_screen("STAT", "JOBS")   'going to JOBS in that month for the member
-        EmWriteScreen member_number, 20, 76
+        EmWriteScreen memb_number, 20, 76
         transmit
 
         For the_job = 0 to UBOUND(JOBS_ARRAY, 2)        'Now this is going to each of the JOBS previously found
@@ -772,7 +772,7 @@ If case_status = "Initial" Then
         Next
 
         Call Navigate_to_MAXIS_screen("STAT", "UNEA")   'going to JOBS in that month for the member
-        EmWriteScreen member_number, 20, 76
+        EmWriteScreen memb_number, 20, 76
         transmit
 
         For the_unea = 0 to UBOUND(UNEA_ARRAY, 2)        'Now this is going to each of the JOBS previously found
