@@ -387,7 +387,7 @@ function define_mfip_elig_dialog()
 		If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 115, 50, 10, "View ELIG", nav_stat_elig_btn
 		If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 235, 60, 50, 10, "View ELIG", nav_stat_elig_btn
 
-		PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 
 		y_pos = 25
 		for each_app = 0 to UBound(MFIP_UNIQUE_APPROVALS, 2)
@@ -703,7 +703,7 @@ function define_msa_elig_dialog()
 		If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 80, 50, 10, "View ELIG", nav_stat_elig_btn
 		If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 145, 90, 50, 10, "View ELIG", nav_stat_elig_btn
 
-		PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 
 		y_pos = 25
 		for each_app = 0 to UBound(MSA_UNIQUE_APPROVALS, 2)
@@ -980,7 +980,7 @@ function define_ga_elig_dialog()
 		If GA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 80, 50, 10, "View ELIG", nav_stat_elig_btn
 		If GA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 235, 75, 50, 10, "View ELIG", nav_stat_elig_btn
 
-		PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 
 		y_pos = 25
 		for each_app = 0 to UBound(GA_UNIQUE_APPROVALS, 2)
@@ -1691,7 +1691,7 @@ function define_deny_elig_dialog()
 		Text 10, 370, 175, 10, "Confirm you have reviewed the approval for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", DENY_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
-		PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 		for each_app = 0 to UBound(DENY_UNIQUE_APPROVALS, 2)
 			If DENY_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
 				month_display = DENY_UNIQUE_APPROVALS(first_mo_const, each_app)
@@ -2203,7 +2203,7 @@ function define_grh_elig_dialog()
 
 
 
-		PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 
 		apprvs_y_pos = 25
 		for each_app = 0 to UBound(GRH_UNIQUE_APPROVALS, 2)
@@ -2592,7 +2592,7 @@ function define_emer_elig_dialog()
 			' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False Then PushButton 390, 115, 50, 10, "View ELIG", nav_stat_elig_btn
 			' If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 			PushButton 375, 20, 50, 10, "View ELIG", nav_stat_elig_btn
-			PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+			PushButton 440, 365, 110, 15, "Approval Confirmed", app_confirmed_btn
 			' If snap_approval_is_incorrect = True Then
 			' 	PushButton 440, 365, 110, 15, "Cancel Approval Noting", app_incorrect_btn
 			' ElseIf approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) or snap_approval_is_incorrect = True Then
@@ -2706,9 +2706,9 @@ function define_snap_elig_dialog()
 		If snap_approval_is_incorrect = True Then
 			PushButton 440, 365, 110, 15, "Cancel Approval Noting", app_incorrect_btn
 		ElseIf approval_selected = UBound(SNAP_UNIQUE_APPROVALS, 2) or snap_approval_is_incorrect = True Then
-			PushButton 440, 365, 110, 15, "Approvals Confirmed", app_confirmed_btn
+			PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 		Else
-			PushButton 440, 365, 110, 15, "Next Approval", next_approval_btn
+			PushButton 440, 365, 110, 15, "Continue", next_approval_btn
 		End If
 		If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then PushButton 360, 20, 85, 10, "Deductions Detail", deductions_detail_btn
 		' PushButton 200, 160, 70, 10, "HH COMP Detail", hh_comp_detail
