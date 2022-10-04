@@ -7043,7 +7043,7 @@ class mfip_eligibility_detail
 			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
 				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, confirm_approved_today) = 0 Then approved_today = True
 			End If
-			' approved_today = True
+			' approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
 			ReDim mfip_elig_ref_numbs(0)
@@ -8405,6 +8405,7 @@ class msa_eligibility_detail
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			' If DateDiff("d", #8/9/2022#, elig_version_date) = 0 Then approved_today = True
+			' approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
 			ReDim msa_elig_ref_numbs(0)
@@ -9098,7 +9099,7 @@ class ga_eligibility_detail
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			' If DateDiff("d", #7/25/2022#, elig_version_date) = 0 Then approved_today = True
-			' approved_today = True
+			' approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
 	 		EMReadScreen ga_elig_case_status, 12, 18, 23
@@ -9798,6 +9799,7 @@ class deny_eligibility_detail
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			' approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
 			ReDim deny_cash_membs_ref_numbs(0)
@@ -10786,7 +10788,7 @@ class grh_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-			' approved_today = True	'TODO - comment this out'
+			' approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
 			EMReadScreen grh_elig_memb_ref_numb, 2, 6, 3
@@ -12336,7 +12338,7 @@ class emer_eligibility_detail
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 				' If DateDiff("d", #8/26/2022#, elig_version_date) = 0 Then approved_today = True
 				' If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
-				' approved_today = True
+				' approved_today = True			'TESTING OPTION'
 			End if
 
 			if approved_today = True Then
@@ -12896,7 +12898,7 @@ class snap_eligibility_detail
 			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
 				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, approval_date) = 0 Then approved_today = True
 			End If
-			' approved_today = true		'TESTING SETTING'
+			' approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
 			row = 7
@@ -19084,7 +19086,7 @@ const hc_next_revw_const 		= 35
 const hc_elig_const 			= 36
 const hc_budg_cycle_const 		= 37
 
-' const mfip_revw_completed_const =
+const cash_revw_completed_const = 38
 ' const mfip_revw_completed_const =
 ' const mfip_revw_completed_const =
 
@@ -19367,6 +19369,7 @@ For each footer_month in MONTHS_ARRAY
 				MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				MFIP_ELIG_APPROVALS(mfip_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
 
+				REPORTING_COMPLETE_ARRAY(cash_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/MFIP"
@@ -19577,6 +19580,7 @@ For each footer_month in MONTHS_ARRAY
 				MSA_ELIG_APPROVALS(msa_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				MSA_ELIG_APPROVALS(msa_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
 
+				REPORTING_COMPLETE_ARRAY(cash_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(msa_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/MSA"
@@ -19634,6 +19638,7 @@ For each footer_month in MONTHS_ARRAY
 				GA_ELIG_APPROVALS(ga_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				GA_ELIG_APPROVALS(ga_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
 
+				REPORTING_COMPLETE_ARRAY(cash_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/GA"
@@ -19798,6 +19803,7 @@ For each footer_month in MONTHS_ARRAY
 				GRH_ELIG_APPROVALS(grh_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				GRH_ELIG_APPROVALS(grh_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
 
+				REPORTING_COMPLETE_ARRAY(cash_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, month_count) = True
 				REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
 				REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
@@ -22605,7 +22611,7 @@ If enter_CNOTE_for_MFIP = True Then
 
 		Call mfip_elig_case_note
 
-		' MsgBox "STOP HERE AND DELETE THE NOTE" & vbCr & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result
+		' MsgBox "STOP HERE AND DELETE THE NOTE" & vbCr & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_eligibility_result		'TESTING OPTION'
 		' PF10
 		' Msgbox "You forgot - but the NOTE is gone"
 		PF3
@@ -22657,7 +22663,9 @@ if enter_CNOTE_for_MSA = True Then
 		'Here we entere the CASENOTE
 		' Call snap_elig_case_note
 		Call msa_elig_case_note
-
+		' MsgBox "STOP HERE AND DELETE THE NOTE"		'TESTING OPTION'
+		' PF10
+		' Msgbox "You forgot - but the NOTE is gone"
 		' MsgBox MSA_UNIQUE_APPROVALS(months_in_approval, unique_app)
 		PF3
 	Next
@@ -22708,9 +22716,9 @@ if enter_CNOTE_for_GA = True Then
 		'Here we entere the CASENOTE
 		' Call snap_elig_case_note
 		Call ga_elig_case_note
-		' MsgBox "PAUSE HERE"
+		' MsgBox "STOP HERE AND DELETE THE NOTE"		'TESTING OPTION'
 		' PF10
-		' MsgBox "DENY Gone?"
+		' Msgbox "You forgot - but the NOTE is gone"
 		PF3
 	Next
 End If
@@ -22943,9 +22951,9 @@ If enter_CNOTE_for_DENY = True Then
 
 		Call deny_elig_case_note
 
-		' MsgBox "PAUSE HERE"
+		' MsgBox "STOP HERE AND DELETE THE NOTE"		'TESTING OPTION'
 		' PF10
-		' MsgBox "DENY Gone?"
+		' Msgbox "You forgot - but the NOTE is gone"
 
 		PF3
 	Next
@@ -23050,7 +23058,7 @@ If enter_CNOTE_for_GRH = True Then
 
 		Call grh_elig_case_note
 
-		' MsgBox "STOP HERE AND DELETE THE NOTE" & vbCr & GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result
+		' MsgBox "STOP HERE AND DELETE THE NOTE" & vbCr & GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result		'TESTING OPTION'
 		' PF10
 		' Msgbox "You forgot - but the NOTE is gone"
 		PF3
@@ -23062,7 +23070,9 @@ If enter_CNOTE_for_EMER = True Then
 	If IsDate(emer_verif_request_date) = True Then due_date = DateAdd("d", 10, emer_verif_request_date)
 
 	Call emer_elig_case_note
-	' MsgBox "PAUSE HERE"
+	' MsgBox "STOP HERE AND DELETE THE NOTE"		'TESTING OPTION'
+	' PF10
+	' Msgbox "You forgot - but the NOTE is gone"
 	PF3
 
 End If
@@ -23171,7 +23181,7 @@ If enter_CNOTE_for_SNAP = True Then
 
 		'Here we entere the CASENOTE
 		Call snap_elig_case_note
-		' MsgBox "SNAP NOTE REVIEW"
+		' MsgBox "SNAP NOTE REVIEW"			'TESTING OPTION'
 		' PF10
 		' MsgBox "SNAP Gone?"
 		' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
@@ -23391,6 +23401,103 @@ If denials_found_on_pnd2 = True Then
 End If
 
 For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
+	If REPORTING_COMPLETE_ARRAY(er_revw_completed_const, each_month) = True and REPORTING_COMPLETE_ARRAY(cash_revw_completed_const, each_month) = True Then
+
+		multiple_cash_programs_on_case = False
+		If mfip_status <> "INACTIVE" Then
+			If ga_status <> "INACTIVE" Then multiple_cash_programs_on_case = True
+			If msa_status <> "INACTIVE" Then multiple_cash_programs_on_case = True
+			If grh_status <> "INACTIVE" Then multiple_cash_programs_on_case = True
+		End If
+		If ga_status <> "INACTIVE" Then
+			If msa_status <> "INACTIVE" Then multiple_cash_programs_on_case = True
+			If grh_status <> "INACTIVE" Then multiple_cash_programs_on_case = True
+		End If
+		If msa_status <> "INACTIVE" and grh_status <> "INACTIVE" Then multiple_cash_programs_on_case = True
+
+		If REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, each_month) = True Then
+			mfip_checkbox = checked
+			If ga_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, each_month) = False Then multiple_cash_programs_on_case = True
+			If msa_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(msa_revw_completed_const, each_month) = False Then multiple_cash_programs_on_case = True
+			If grh_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, each_month) = False and InStr(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), "GRH") <> 0 Then multiple_cash_programs_on_case = True
+		End If
+
+		If REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, each_month) = True Then
+			ga_checkbox = checked
+			If mfip_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, each_month) = False Then multiple_cash_programs_on_case = True
+			If msa_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(msa_revw_completed_const, each_month) = False Then multiple_cash_programs_on_case = True
+			If grh_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, each_month) = False and InStr(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), "GRH") <> 0 Then multiple_cash_programs_on_case = True
+		End If
+		If REPORTING_COMPLETE_ARRAY(msa_revw_completed_const, each_month) = True Then
+			msa_checkbox = checked
+			If ga_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, each_month) = False Then multiple_cash_programs_on_case = True
+			If mfip_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, each_month) = False Then multiple_cash_programs_on_case = True
+			If grh_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, each_month) = False and InStr(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), "GRH") <> 0 Then multiple_cash_programs_on_case = True
+		End If
+		If REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, each_month) = True and InStr(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), "GRH") <> 0 Then
+			grh_checkbox = checked
+			If ga_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, each_month) = False Then multiple_cash_programs_on_case = True
+			If msa_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(msa_revw_completed_const, each_month) = False Then multiple_cash_programs_on_case = True
+			If mfip_status <> "INACTIVE" and  REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, each_month) = False Then multiple_cash_programs_on_case = True
+		End If
+
+		If multiple_cash_programs_on_case = True Then
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 176, 170, "Cash REVW Completed " & REPORTING_COMPLETE_ARRAY(month_const, each_month)
+			  CheckBox 20, 55, 50, 10, "MFIP", mfip_checkbox
+			  CheckBox 20, 65, 50, 10, "GA", ga_checkbox
+			  CheckBox 20, 75, 50, 10, "MSA", msa_checkbox
+			  CheckBox 20, 85, 50, 10, "HS/GRH", grh_checkbox
+			  DropListBox 10, 125, 160, 45, "Review was completed with Approval"+chr(9)+"No Review for Programs in this Approval", review_processed_selection
+			  ButtonGroup ButtonPressed
+			    OkButton 70, 150, 100, 15
+			  Text 10, 10, 175, 10, "STAT/REVW Indicates a completed CASH Review"
+			  Text 15, 30, 160, 20, "Confirm which CASH Programs had a Review commpleted for " & REPORTING_COMPLETE_ARRAY(month_const, each_month) & ":"
+			  Text 10, 105, 140, 20, "If you did NOT complete an approval for Revew processing, indicate that here:"
+			EndDialog
+
+			Do
+				err_msg = ""
+
+				dialog Dialog1
+
+				If mfip_checkbox = unchecked and ga_checkbox = unchecked and msa_checkbox = unchecked and grh_checkbox = unchecked and review_processed_selection ="Review was completed with Approval" Then err_msg = err_msg & vbCr & "You must select a program you are processing a ER for " & REPORTING_COMPLETE_ARRAY(month_const, each_month) & "." & vbCr & vbCr & "If there is no REVW program that you are approving, select 'No Review for Programs in this Approval'."
+				If err_msg <> "" Then MsgBox "*** NOTICE **" & vbCr & err_msg
+
+			Loop until err_msg = ""
+
+			If review_processed_selection = "No Review for Programs in this Approval" Then REPORTING_COMPLETE_ARRAY(er_revw_completed_const, each_month) = False
+			If mfip_checkbox = unchecked Then REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, each_month) = False
+			If ga_checkbox = unchecked Then REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, each_month) = False
+			If msa_checkbox = unchecked Then REPORTING_COMPLETE_ARRAY(msa_revw_completed_const, each_month) = False
+			If grh_checkbox = unchecked Then REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, each_month) = False
+			If review_processed_selection = "Review was completed with Approval" Then
+				include_snap = False
+				If InStr(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), "SNAP") <> 0 Then include_snap  True
+
+				REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = ""
+				If mfip_checkbox = checked Then
+					REPORTING_COMPLETE_ARRAY(mfip_revw_completed_const, each_month) = True
+					REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) & "/MFIP"
+				End If
+				If ga_checkbox = checked Then
+					REPORTING_COMPLETE_ARRAY(ga_revw_completed_const, each_month) = True
+					REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) & "/GA"
+				End if
+				If msa_checkbox = checked Then
+					REPORTING_COMPLETE_ARRAY(msa_revw_completed_const, each_month) = True
+					REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) & "/MSA"
+				End If
+				If grh_checkbox = checked Then
+					REPORTING_COMPLETE_ARRAY(grh_revw_completed_const, each_month) = True
+					REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) & "/GRH"
+				End if
+				' REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) & "/GRH"
+			End if
+
+		End If
+	End If
+
 	If REPORTING_COMPLETE_ARRAY(er_revw_completed_const, each_month) = True Then
 		If left(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), 1) = "/" Then REPORTING_COMPLETE_ARRAY(er_programs_const, each_month) = right(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month), len(REPORTING_COMPLETE_ARRAY(er_programs_const, each_month))-1)
 
@@ -23435,6 +23542,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 
 		Call write_variable_in_CASE_NOTE("---")
 		Call write_variable_in_CASE_NOTE(worker_signature)
+		' MsgBox "ER NOTE - STOP HERE"			'TESTING OPTION'
 	End If
 
 
