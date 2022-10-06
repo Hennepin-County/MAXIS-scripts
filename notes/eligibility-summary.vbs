@@ -19298,6 +19298,14 @@ If numb_EMER_versions <> " " Then
 				end_msg_info = end_msg_info & vbCr & EMER_ELIG_APPROVAL.emer_program & " Approval has not been reviewed as the approval appears incomplete." & vbCr & vbCr & "*** NO MONY/CHCKs ISSUED for " & EMER_ELIG_APPROVAL.emer_program & ". ***" & vbCr & "Complete all MONY/CHCKs for the emergency first and then run the script." & vbCr & vbCr & "This script gathers details about the emergency approvals from MONY Transactions and this helps to ensure that the MONY/CHCKs are created timely." & vbCr
 			End If
 		End if
+	ElseIf EMER_ELIG_APPROVAL.approved_version_found = True Then
+		If DateDiff("d", date, EMER_ELIG_APPROVAL.approval_date) = 0 Then
+			approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " EMER approved today." & vbCr
+			approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & EMER_ELIG_APPROVAL.elig_version_date & vbCr & vbCr
+			If first_month_not_created_today = "" Then first_month_not_created_today = MAXIS_footer_month
+			If first_year_not_created_today = "" Then first_year_not_created_today = MAXIS_footer_year
+			If first_prog_not_created_today = "" Then first_prog_not_created_today = "EMER"
+		End If
 	End If
 	' transactions = ""
 	' for each_tx = 0 to UBound(EMER_ELIG_APPROVAL.emer_check_program)
@@ -19312,6 +19320,9 @@ If numb_EMER_versions <> " " Then
 End If
 
 approvals_not_created_today = ""
+first_month_not_created_today = ""
+first_year_not_created_today = ""
+first_prog_not_created_today = ""
 For each footer_month in MONTHS_ARRAY
 	ReDim Preserve REPORTING_COMPLETE_ARRAY(final_const, month_count)
 	REPORTING_COMPLETE_ARRAY(month_const, month_count) = footer_month
@@ -19347,6 +19358,14 @@ For each footer_month in MONTHS_ARRAY
 		If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True Then
 			If first_DWP_approval = "" Then first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+		ElseIf DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_version_found = True Then
+			If DateDiff("d", date, DWP_ELIG_APPROVALS(dwp_elig_months_count).approval_date) = 0 Then
+				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " DWP approved today." & vbCr
+				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_version_date & vbCr & vbCr
+				If first_month_not_created_today = "" Then first_month_not_created_today = MAXIS_footer_month
+				If first_year_not_created_today = "" Then first_year_not_created_today = MAXIS_footer_year
+				If first_prog_not_created_today = "" Then first_prog_not_created_today = "DWP "
+			End If
 		End If
 		' MsgBox "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_month & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year - " & DWP_ELIG_APPROVALS(dwp_elig_months_count).elig_footer_year & vbCr &_
 		' "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_approved_date & vbCr & "DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount: " & DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_summary_grant_amount & vbCr &_
@@ -19368,6 +19387,14 @@ For each footer_month in MONTHS_ARRAY
 		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
 			If first_MFIP_approval = "" Then first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+		ElseIf MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_version_found = True Then
+			If DateDiff("d", date, MFIP_ELIG_APPROVALS(mfip_elig_months_count).approval_date) = 0 Then
+				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " MFIP approved today." & vbCr
+				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_version_date & vbCr & vbCr
+				If first_month_not_created_today = "" Then first_month_not_created_today = MAXIS_footer_month
+				If first_year_not_created_today = "" Then first_year_not_created_today = MAXIS_footer_year
+				If first_prog_not_created_today = "" Then first_prog_not_created_today = "MFIP"
+			End If
 		End If
 		' MsgBox "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_month & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year - " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).elig_footer_year & vbCr &_
 		' "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_approved_date & vbCr & "MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount: " & MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_summary_grant_amount & vbCr &_
@@ -19391,6 +19418,14 @@ For each footer_month in MONTHS_ARRAY
 		If MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today = True Then
 			If first_MSA_approval = "" Then first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+		ElseIf MSA_ELIG_APPROVALS(msa_elig_months_count).approved_version_found = True Then
+			If DateDiff("d", date, MSA_ELIG_APPROVALS(msa_elig_months_count).approval_date) = 0 Then
+				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " MSA approved today." & vbCr
+				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_version_date & vbCr & vbCr
+				If first_month_not_created_today = "" Then first_month_not_created_today = MAXIS_footer_month
+				If first_year_not_created_today = "" Then first_year_not_created_today = MAXIS_footer_year
+				If first_prog_not_created_today = "" Then first_prog_not_created_today = "MSA "
+			End If
 		End If
 		' MsgBox "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_month & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year - " & MSA_ELIG_APPROVALS(msa_elig_months_count).elig_footer_year & vbCr &_
 		' "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_approved_date & vbCr & "MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant: " & MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_grant & vbCr &_
@@ -19410,8 +19445,15 @@ For each footer_month in MONTHS_ARRAY
 		If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
 			If first_GA_approval = "" Then first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+		ElseIf GA_ELIG_APPROVALS(ga_elig_months_count).approved_version_found = True Then
+			If DateDiff("d", date, GA_ELIG_APPROVALS(ga_elig_months_count).approval_date) = 0 Then
+				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " GA approved today." & vbCr
+				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_version_date & vbCr & vbCr
+				If first_month_not_created_today = "" Then first_month_not_created_today = MAXIS_footer_month
+				If first_year_not_created_today = "" Then first_year_not_created_today = MAXIS_footer_year
+				If first_prog_not_created_today = "" Then first_prog_not_created_today = "GA  "
+			End If
 		End If
-
 		' MsgBox "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_month & vbCr & "GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year - " & GA_ELIG_APPROVALS(ga_elig_months_count).elig_footer_year & vbCr &_
 		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_approved_date: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_approved_date & vbCr & "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_monthly_grant: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_monthly_grant & vbCr &_
 		' "GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result: " & GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result
@@ -19430,6 +19472,14 @@ For each footer_month in MONTHS_ARRAY
 		If CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_today = True Then
 			If first_DENY_approval = "" Then first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+		ElseIf CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_version_found = True Then
+			If DateDiff("d", date, CASH_DENIAL_APPROVALS(cash_deny_months_count).approval_date) = 0 Then
+				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " CASH DENY approved today." & vbCr
+				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & CASH_DENIAL_APPROVALS(cash_deny_months_count).elig_version_date & vbCr & vbCr
+				If first_month_not_created_today = "" Then first_month_not_created_today = MAXIS_footer_month
+				If first_year_not_created_today = "" Then first_year_not_created_today = MAXIS_footer_year
+				If first_prog_not_created_today = "" Then first_prog_not_created_today = "DENY"
+			End If
 		End If
 		' members = ""
 		' for each_memb = 0 to UBound(CASH_DENIAL_APPROVALS(cash_deny_months_count).deny_cash_membs_ref_numbs)
@@ -19458,6 +19508,14 @@ For each footer_month in MONTHS_ARRAY
 		If GRH_ELIG_APPROVALS(grh_elig_months_count).approved_today = True Then
 			If first_GRH_approval = "" Then first_GRH_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+		ElseIf GRH_ELIG_APPROVALS(grh_elig_months_count).approved_version_found = True Then
+			If DateDiff("d", date, GRH_ELIG_APPROVALS(grh_elig_months_count).approval_date) = 0 Then
+				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " GRH approved today." & vbCr
+				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_version_date & vbCr & vbCr
+				If first_month_not_created_today = "" Then first_month_not_created_today = MAXIS_footer_month
+				If first_year_not_created_today = "" Then first_year_not_created_today = MAXIS_footer_year
+				If first_prog_not_created_today = "" Then first_prog_not_created_today = "GRH "
+			End If
 		End If
 		' MsgBox "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_month & vbCr & "GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year - " & GRH_ELIG_APPROVALS(grh_elig_months_count).elig_footer_year & vbCr &_
 		' "GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date: " & GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_approved_date & vbCr &_
@@ -19484,7 +19542,10 @@ For each footer_month in MONTHS_ARRAY
 		ElseIf SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, SNAP_ELIG_APPROVALS(snap_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " SNAP approved today." & vbCr
-				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_version_date & vbCr & vbCr
+				approvals_not_created_today = approvals_not_created_today & " - ELIG Results CREATED on " & SNAP_ELIG_APPROVALS(snap_elig_months_count).elig_version_date & vbCr ''& vbCr
+				If first_month_not_created_today = "" Then first_month_not_created_today = MAXIS_footer_month
+				If first_year_not_created_today = "" Then first_year_not_created_today = MAXIS_footer_year
+				If first_prog_not_created_today = "" Then first_prog_not_created_today = "FS  "
 			End If
 		End If
 
@@ -20143,8 +20204,13 @@ Next
 EMWriteScreen MAXIS_case_number, 18, 43
 
 If approvals_not_created_today <> "" Then
-	cannot_note_msg = "It appears there were approvals commpleted today on ELIG Results that were created on a different day:" & vbCr & vbCr
-	cannot_note_msg = cannot_note_msg & approvals_not_created_today
+	Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
+	Call write_value_and_transmit(first_month_not_created_today, 19, 56)
+	Call write_value_and_transmit(first_year_not_created_today, 19, 59)
+	Call Navigate_to_MAXIS_screen("ELIG", first_prog_not_created_today)
+
+	cannot_note_msg = "It appears there were approvals completed today on ELIG Results that were created on a different day:" & vbCr & vbCr
+	cannot_note_msg = cannot_note_msg & approvals_not_created_today & vbCr
 	cannot_note_msg = cannot_note_msg & "The date the results were created can be seen in the 'Process Date' field in ELIG." & vbCr
 	cannot_note_msg = cannot_note_msg & "This is the date the results came through background." & vbCr & vbCr
 	cannot_note_msg = cannot_note_msg & "ELIG Results should be generated, approved, and CASE/NOTEd on the same day." & vbCr & vbCr
@@ -23782,7 +23848,8 @@ script_run_lowdown = script_run_lowdown & vbCr & "case_status - " & case_status
 script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Active Programs:" & vbCr & list_active_programs
 script_run_lowdown = script_run_lowdown & vbCr & "Pending Programs:" & vbCr & list_pending_programs
 
-If CASE_NOTE_entered = False Then end_msg_info = vbCr & "No CASE/NOTE created." & vbCr & " - NO ELIG results generated AND approved today." & vbCr & " - This script for already completed approvals" & vbCr & vbCr &"If this case has a program that is ready to approve, ensure the ELIG results were generated today and the approval was completed." & vbCr & vbCr & end_msg_info
+If CASE_NOTE_entered = False Then end_msg_info = vbCr & "No CASE/NOTE created." & vbCr & " - NO ELIG results generated AND approved today." & vbCr & " - This script for already completed approvals" & vbCr & vbCr & end_msg_info & vbCr & "If this case has a program that is ready to approve, ensure the ELIG results were generated today and the approval was completed." & vbCr
+If approvals_not_created_today <> "" Then end_msg_info = end_msg_info & vbCr & "It appears there were approvals completed today on ELIG Results that were created on a different day:" & vbCr & approvals_not_created_today
 If pnd2_display_limit_hit = True AND denials_found_on_pnd2 = False Then end_msg_info = end_msg_info & vbCr & vbCr & "The script could not read REPT/PND2 because the X-Number it is in has hit the MAXIS REPT/PND2 display limit. If you are trying to deny the case via REPT/PND2, the case will need to be in an X-Number that is not at the REPT/PND2 display limit."
 end_msg_info = end_msg_info & vbCr
 If list_active_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Active programs: " & list_active_programs
