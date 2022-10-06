@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("06/23/2022", "Added fix for PARIS matches that were not the 1st DAIL message for a case.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/21/2022", "Added fix for PARI DAIL's while DHS interface with SSN is being repaired. Also made some functional changes to support the user experience.", "Ilse Ferris, Hennepin County")
@@ -334,7 +335,7 @@ IF paris_action = "Yes, send the notice" then
     		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
     		IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
     		IF fraud_referral = "Select One:" THEN err_msg = err_msg & vbnewline & "* You must select a fraud referral entry."
-			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+			IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     	LOOP UNTIL err_msg = ""
     	CALL check_for_password(are_we_passworded_out)
@@ -377,9 +378,8 @@ IF paris_action = "Yes, send the notice" then
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Requested", pending_verifs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Verification Due", Due_date)
     CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
-    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+    CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
-    CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
     closing_msg = "Success, the difference notice was sent to this resident."
 Else
@@ -432,7 +432,7 @@ Else
     		IF bene_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Is the client accessing benefits in other state?"
     		IF contact_other_state = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Did you contact the other state?"
 			IF resolution_status = "Select One:" THEN err_msg = err_msg & vbNewLine & "Please select a resolution status to continue."
-			IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+			IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     	LOOP UNTIL err_msg = ""
 		CALL check_for_password(are_we_passworded_out)
@@ -493,7 +493,6 @@ Else
     CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 	CALL write_variable_in_CASE_NOTE(worker_signature)
-    CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
     closing_msg = "Success, your PARIS match has been resolved and case noted."
 END IF
 
