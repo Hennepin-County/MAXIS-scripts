@@ -4460,6 +4460,7 @@ function grh_elig_case_note()
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", GRH_ELIG_APPROVALS(elig_ind).grh_elig_approved_date)
 	If add_new_note_for_GRH = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
+	Call write_bullet_and_variable_in_CASE_NOTE("Resident Requesting Housing Support", "Memb " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb & " - " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_full_name)
 
 	If GRH_ELIG_APPROVALS(elig_ind).grh_elig_eligibility_result = "ELIGIBLE" Then
 		Call write_variable_in_CASE_NOTE("=============================== PAYMENT DETAILS =============================")
@@ -4785,7 +4786,14 @@ function grh_elig_case_note()
 		End If
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_death_of_applicant = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The applicant has died.")
 
-		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_elig_type = "FAILED" Then Call write_variable_in_CASE_NOTE(" - The resident does not meet a HS/GRH basis of eligibility.")
+		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_elig_type = "FAILED" Then
+			Call write_variable_in_CASE_NOTE(" - The resident does not meet a HS/GRH basis of eligibility.")
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_disa_cash_verif_code(each_memb) = "N" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb = STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) Then
+					Call write_variable_in_CASE_NOTE("   Professional Statement of Need (PSN) required for Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - not received.")
+				End If
+			Next
+		End If
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_income = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Resident Income exceeds the total payment for the facility.")
 			Call write_variable_in_CASE_NOTE("   * Counted Income: $ " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_counted_income)
@@ -15223,6 +15231,26 @@ class stat_detail
 	public stat_disq_five_source()
 	public stat_disq_five_active()
 
+	public stat_disa_exists()
+	public stat_disa_begin_date()
+	public stat_disa_end_date()
+	public stat_disa_cert_begin_date()
+	public stat_disa_cert_end_date()
+	public stat_disa_cash_status_code()
+	public stat_disa_cash_status_info()
+	public stat_disa_cash_verif_code()
+	public stat_disa_cash_verif_info()
+	public stat_disa_snap_status_code()
+	public stat_disa_snap_status_info()
+	public stat_disa_snap_verif_code()
+	public stat_disa_snap_verif_info()
+	public stat_disa_hc_status_code()
+	public stat_disa_hc_status_info()
+	public stat_disa_hc_verif_code()
+	public stat_disa_hc_verif_info()
+	public stat_disa_waiver_code()
+	public stat_disa_waiver_detail()
+
 
 	public sub gather_stat_info()
 		MAXIS_footer_month = footer_month
@@ -15921,6 +15949,26 @@ class stat_detail
 		ReDim stat_disq_five_source(0)
 		ReDim stat_disq_five_active(0)
 
+		ReDim stat_disa_exists(0)
+		ReDim stat_disa_begin_date(0)
+		ReDim stat_disa_end_date(0)
+		ReDim stat_disa_cert_begin_date(0)
+		ReDim stat_disa_cert_end_date(0)
+		ReDim stat_disa_cash_status_code(0)
+		ReDim stat_disa_cash_status_info(0)
+		ReDim stat_disa_cash_verif_code(0)
+		ReDim stat_disa_cash_verif_info(0)
+		ReDim stat_disa_snap_status_code(0)
+		ReDim stat_disa_snap_status_info(0)
+		ReDim stat_disa_snap_verif_code(0)
+		ReDim stat_disa_snap_verif_info(0)
+		ReDim stat_disa_hc_status_code(0)
+		ReDim stat_disa_hc_status_info(0)
+		ReDim stat_disa_hc_verif_code(0)
+		ReDim stat_disa_hc_verif_info(0)
+		ReDim stat_disa_waiver_code(0)
+		ReDim stat_disa_waiver_detail(0)
+
 		stat_shel_prosp_all_total = 0
 		children_on_case = False
 
@@ -16498,6 +16546,26 @@ class stat_detail
 			ReDim preserve stat_disq_five_SNAP_offense_info(memb_count)
 			ReDim preserve stat_disq_five_source(memb_count)
 			ReDim preserve stat_disq_five_active(memb_count)
+
+			ReDim preserve stat_disa_exists(memb_count)
+			ReDim preserve stat_disa_begin_date(memb_count)
+			ReDim preserve stat_disa_end_date(memb_count)
+			ReDim preserve stat_disa_cert_begin_date(memb_count)
+			ReDim preserve stat_disa_cert_end_date(memb_count)
+			ReDim preserve stat_disa_cash_status_code(memb_count)
+			ReDim preserve stat_disa_cash_status_info(memb_count)
+			ReDim preserve stat_disa_cash_verif_code(memb_count)
+			ReDim preserve stat_disa_cash_verif_info(memb_count)
+			ReDim preserve stat_disa_snap_status_code(memb_count)
+			ReDim preserve stat_disa_snap_status_info(memb_count)
+			ReDim preserve stat_disa_snap_verif_code(memb_count)
+			ReDim preserve stat_disa_snap_verif_info(memb_count)
+			ReDim preserve stat_disa_hc_status_code(memb_count)
+			ReDim preserve stat_disa_hc_status_info(memb_count)
+			ReDim preserve stat_disa_hc_verif_code(memb_count)
+			ReDim preserve stat_disa_hc_verif_info(memb_count)
+			ReDim preserve stat_disa_waiver_code(memb_count)
+			ReDim preserve stat_disa_waiver_detail(memb_count)
 
 			EMReadScreen stat_memb_ref_numb(memb_count), 2, 4, 33
 			EMReadScreen stat_memb_last_name(memb_count), 25, 6, 30
@@ -18689,6 +18757,118 @@ class stat_detail
 				If IsDate(stat_disq_five_end_date(each_memb)) = True Then
 					If DateDiff("m", stat_disq_five_end_date(each_memb), current_month) >= 0 Then stat_disq_five_active(each_memb) = False
 				End If
+			End If
+		Next
+
+		call navigate_to_MAXIS_screen("STAT", "DISA")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			transmit
+			EMReadScreen existance_check, 1, 2, 73
+			stat_disa_exists(each_memb) = True
+			If existance_check = "0" Then stat_disa_exists(each_memb) = False
+
+			If stat_disa_exists(each_memb) = True Then
+				EMReadScreen stat_disa_begin_date(each_memb), 		10, 6, 47
+				EMReadScreen stat_disa_end_date(each_memb), 		10, 6, 69
+				EMReadScreen stat_disa_cert_begin_date(each_memb), 	10, 7, 47
+				EMReadScreen stat_disa_cert_end_date(each_memb), 	10, 7, 69
+				EMReadScreen stat_disa_cash_status_code(each_memb), 2, 11, 59
+				EMReadScreen stat_disa_cash_verif_code(each_memb), 	1, 11, 69
+				EMReadScreen stat_disa_snap_status_code(each_memb), 2, 12, 59
+				EMReadScreen stat_disa_snap_verif_code(each_memb), 	1, 12, 69
+				EMReadScreen stat_disa_hc_status_code(each_memb), 	2, 13, 59
+				EMReadScreen stat_disa_hc_verif_code(each_memb), 	1, 13, 69
+			 	EMReadScreen stat_disa_waiver_code(each_memb), 		1, 14, 59
+
+				If stat_disa_begin_date(each_memb) = "__ __ ____" Then stat_disa_begin_date(each_memb) = ""
+				stat_disa_begin_date(each_memb) = replace(stat_disa_begin_date(each_memb), " ", "/")
+				If stat_disa_end_date(each_memb) = "__ __ ____" Then stat_disa_end_date(each_memb) = ""
+				stat_disa_end_date(each_memb) = replace(stat_disa_end_date(each_memb), " ", "/")
+
+				If stat_disa_cert_begin_date(each_memb) = "__ __ ____" Then stat_disa_cert_begin_date(each_memb) = ""
+				stat_disa_cert_begin_date(each_memb) = replace(stat_disa_cert_begin_date(each_memb), " ", "/")
+				If stat_disa_cert_end_date(each_memb) = "__ __ ____" Then stat_disa_cert_end_date(each_memb) = ""
+				stat_disa_cert_end_date(each_memb) = replace(stat_disa_cert_end_date(each_memb), " ", "/")
+
+				If stat_disa_cash_status_code(each_memb) = "01" Then stat_disa_cash_status_info(each_memb) = "RSDI, Disability"
+				If stat_disa_cash_status_code(each_memb) = "02" Then stat_disa_cash_status_info(each_memb) = "RSDI, Blindness"
+				If stat_disa_cash_status_code(each_memb) = "03" Then stat_disa_cash_status_info(each_memb) = "SSI, Disability"
+				If stat_disa_cash_status_code(each_memb) = "04" Then stat_disa_cash_status_info(each_memb) = "SSI, Blindness"
+				If stat_disa_cash_status_code(each_memb) = "06" Then stat_disa_cash_status_info(each_memb) = "SMRT/SSA Pending"
+				If stat_disa_cash_status_code(each_memb) = "08" Then stat_disa_cash_status_info(each_memb) = "SMMRT Certified Blindness"
+				If stat_disa_cash_status_code(each_memb) = "09" Then stat_disa_cash_status_info(each_memb) = "Illness/Incapacity"
+				If stat_disa_cash_status_code(each_memb) = "10" Then stat_disa_cash_status_info(each_memb) = "SMRT Disability"
+
+				If stat_disa_snap_status_code(each_memb) = "01" Then stat_disa_snap_status_info(each_memb) = "RSDI, Disability"
+				If stat_disa_snap_status_code(each_memb) = "02" Then stat_disa_snap_status_info(each_memb) = "RSDI, Blindness"
+				If stat_disa_snap_status_code(each_memb) = "03" Then stat_disa_snap_status_info(each_memb) = "SSI, Disability"
+				If stat_disa_snap_status_code(each_memb) = "04" Then stat_disa_snap_status_info(each_memb) = "SSI, Blindness"
+				If stat_disa_snap_status_code(each_memb) = "06" Then stat_disa_snap_status_info(each_memb) = "SMRT/SSA Pending"
+				If stat_disa_snap_status_code(each_memb) = "08" Then stat_disa_snap_status_info(each_memb) = "SMMRT Certified Blindness"
+				If stat_disa_snap_status_code(each_memb) = "09" Then stat_disa_snap_status_info(each_memb) = "Illness/Incapacity"
+				If stat_disa_snap_status_code(each_memb) = "10" Then stat_disa_snap_status_info(each_memb) = "SMRT Disability"
+				If stat_disa_snap_status_code(each_memb) = "11" Then stat_disa_snap_status_info(each_memb) = "VA Disability, Pd 100%"
+				If stat_disa_snap_status_code(each_memb) = "12" Then stat_disa_snap_status_info(each_memb) = "VA Other Disability"
+				If stat_disa_snap_status_code(each_memb) = "13" Then stat_disa_snap_status_info(each_memb) = "RR Retirement Disability on Medicare"
+				If stat_disa_snap_status_code(each_memb) = "14" Then stat_disa_snap_status_info(each_memb) = "Other Program Disability Retirement"
+				If stat_disa_snap_status_code(each_memb) = "15" Then stat_disa_snap_status_info(each_memb) = "Disability from MINE List"
+				If stat_disa_snap_status_code(each_memb) = "16" Then stat_disa_snap_status_info(each_memb) = "Unable to Purchase/Prepare Own Meal"
+
+				If stat_disa_hc_status_code(each_memb) = "01" Then stat_disa_hc_status_info(each_memb) = "RSDI, Disability"
+				If stat_disa_hc_status_code(each_memb) = "02" Then stat_disa_hc_status_info(each_memb) = "RSDI, Blindness"
+				If stat_disa_hc_status_code(each_memb) = "03" Then stat_disa_hc_status_info(each_memb) = "SSI, Disability"
+				If stat_disa_hc_status_code(each_memb) = "04" Then stat_disa_hc_status_info(each_memb) = "SSI, Blindness"
+				If stat_disa_hc_status_code(each_memb) = "06" Then stat_disa_hc_status_info(each_memb) = "SMRT/SSA Pending"
+				If stat_disa_hc_status_code(each_memb) = "08" Then stat_disa_hc_status_info(each_memb) = "SMMRT Certified Blindness"
+				If stat_disa_hc_status_code(each_memb) = "09" Then stat_disa_hc_status_info(each_memb) = "Illness/Incapacity"
+				If stat_disa_hc_status_code(each_memb) = "10" Then stat_disa_hc_status_info(each_memb) = "SMRT Disability"
+				If stat_disa_hc_status_code(each_memb) = "11" Then stat_disa_hc_status_info(each_memb) = ""
+				If stat_disa_hc_status_code(each_memb) = "20" Then stat_disa_hc_status_info(each_memb) = ""
+				If stat_disa_hc_status_code(each_memb) = "21" Then stat_disa_hc_status_info(each_memb) = ""
+				If stat_disa_hc_status_code(each_memb) = "22" Then stat_disa_hc_status_info(each_memb) = ""
+				If stat_disa_hc_status_code(each_memb) = "23" Then stat_disa_hc_status_info(each_memb) = ""
+				If stat_disa_hc_status_code(each_memb) = "24" Then stat_disa_hc_status_info(each_memb) = ""
+				If stat_disa_hc_status_code(each_memb) = "26" Then stat_disa_hc_status_info(each_memb) = ""
+
+				If stat_disa_cash_verif_code(each_memb) = "1" Then stat_disa_cash_verif_info(each_memb) = "Doctor Statement"
+				If stat_disa_cash_verif_code(each_memb) = "2" Then stat_disa_cash_verif_info(each_memb) = "SMRT Certified"
+				If stat_disa_cash_verif_code(each_memb) = "3" Then stat_disa_cash_verif_info(each_memb) = "Certified RSDI/SSI"
+				If stat_disa_cash_verif_code(each_memb) = "6" Then stat_disa_cash_verif_info(each_memb) = "Other Document"
+				If stat_disa_cash_verif_code(each_memb) = "7" Then stat_disa_cash_verif_info(each_memb) = "Professional Statement of Need"
+				If stat_disa_cash_verif_code(each_memb) = "N" Then stat_disa_cash_verif_info(each_memb) = "No Verification Provided"
+
+				If stat_disa_snap_verif_code(each_memb) = "1" Then stat_disa_snap_verif_info(each_memb) = "Doctor Statement"
+				If stat_disa_snap_verif_code(each_memb) = "2" Then stat_disa_snap_verif_info(each_memb) = "SMRT Certified"
+				If stat_disa_snap_verif_code(each_memb) = "3" Then stat_disa_snap_verif_info(each_memb) = "Certified RSDI/SSI"
+				If stat_disa_snap_verif_code(each_memb) = "4" Then stat_disa_snap_verif_info(each_memb) = "Receipt of HC for Disa/Blind"
+				If stat_disa_snap_verif_code(each_memb) = "5" Then stat_disa_snap_verif_info(each_memb) = "Work Judgement"
+				If stat_disa_snap_verif_code(each_memb) = "6" Then stat_disa_snap_verif_info(each_memb) = "Other Document"
+				If stat_disa_snap_verif_code(each_memb) = "7" Then stat_disa_snap_verif_info(each_memb) = "Out of State Verif Pending"
+				If stat_disa_snap_verif_code(each_memb) = "N" Then stat_disa_snap_verif_info(each_memb) = "No Verification Provided"
+				If stat_disa_snap_verif_code(each_memb) = "?" Then stat_disa_snap_verif_info(each_memb) = "Ppostponed Verification"
+
+				If stat_disa_hc_verif_code(each_memb) = "1" Then stat_disa_hc_verif_info(each_memb) = "Doctor Statement"
+				If stat_disa_hc_verif_code(each_memb) = "2" Then stat_disa_hc_verif_info(each_memb) = "SMRT Certified"
+				If stat_disa_hc_verif_code(each_memb) = "3" Then stat_disa_hc_verif_info(each_memb) = "Certified RSDI/SSI"
+				If stat_disa_hc_verif_code(each_memb) = "6" Then stat_disa_hc_verif_info(each_memb) = "Other Document"
+				If stat_disa_hc_verif_code(each_memb) = "7" Then stat_disa_hc_verif_info(each_memb) = "Case Manager Setermmination"
+				If stat_disa_hc_verif_code(each_memb) = "8" Then stat_disa_hc_verif_info(each_memb) = "LTC Consult Services"
+				If stat_disa_hc_verif_code(each_memb) = "N" Then stat_disa_hc_verif_info(each_memb) = "No Verification Provided"
+
+				If stat_disa_waiver_code(each_memb) = "F" Then stat_disa_waiver_detail(each_memb) = "LTC CADI Conversion"
+				If stat_disa_waiver_code(each_memb) = "G" Then stat_disa_waiver_detail(each_memb) = "LTC CADI Diversion"
+				If stat_disa_waiver_code(each_memb) = "H" Then stat_disa_waiver_detail(each_memb) = "LTC CAC Conversion"
+				If stat_disa_waiver_code(each_memb) = "I" Then stat_disa_waiver_detail(each_memb) = "LTC CAC Diversion"
+				If stat_disa_waiver_code(each_memb) = "J" Then stat_disa_waiver_detail(each_memb) = "LTC EW Conversion"
+				If stat_disa_waiver_code(each_memb) = "K" Then stat_disa_waiver_detail(each_memb) = "LTC EW Diversion"
+				If stat_disa_waiver_code(each_memb) = "L" Then stat_disa_waiver_detail(each_memb) = "LTC TBI NF Conversion"
+				If stat_disa_waiver_code(each_memb) = "M" Then stat_disa_waiver_detail(each_memb) = "LTC TBI NF Diversion"
+				If stat_disa_waiver_code(each_memb) = "P" Then stat_disa_waiver_detail(each_memb) = "LTC TBI NB Conversion"
+				If stat_disa_waiver_code(each_memb) = "Q" Then stat_disa_waiver_detail(each_memb) = "LTC TBI NB Diversion"
+				If stat_disa_waiver_code(each_memb) = "R" Then stat_disa_waiver_detail(each_memb) = "DD Conversion"
+				If stat_disa_waiver_code(each_memb) = "S" Then stat_disa_waiver_detail(each_memb) = "DD Diversion"
+				If stat_disa_waiver_code(each_memb) = "Y" Then stat_disa_waiver_detail(each_memb) = "CSG Conversion"
 			End If
 		Next
 
