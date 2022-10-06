@@ -84,7 +84,7 @@ Do
 		IF IsNumeric(claim_number) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid claim number."
 		IF Isdate(effective_date) = false THEN err_msg = err_msg & vbNewLine & "* Please enter the effective date."
 		IF action_client_is_appealing = "" THEN err_msg = err_msg & vbNewLine & "* Please enter action that client is appealing."
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
  	Call check_for_password(are_we_passworded_out)
