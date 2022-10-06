@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
@@ -190,7 +191,7 @@ DO
     		IF HC_claim_amount = "" THEN err_msg = err_msg & vbNewLine &  "* Please enter the amount of claim."
     	END IF
         IF EVF_used = "" then err_msg = err_msg & vbNewLine & "* Please enter verification used for the income received. If no verification was received enter N/A."
-    	IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
   		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -403,7 +404,6 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
 	Call write_variable_in_case_note("-----")
 	Call write_variable_in_case_note(worker_signature)
-	PF3
 END IF
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
@@ -436,8 +436,6 @@ CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_re
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 CALL write_variable_in_case_note(worker_signature)
-CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-PF3 'to save casenote'
 
 IF HC_claim_number <> "" THEN
 	EmWriteScreen "x", 5, 3
@@ -500,9 +498,7 @@ CALL write_bullet_and_variable_in_CCOL_note("Date verification received", income
 CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
 CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note("* DHS 2776E - Agency Cash Error Overpayment Worksheet form completed in ECF")
-CALL write_variable_in_CCOL_note("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_CCOL_note("----- ----- ----- ----- -----")
 CALL write_variable_in_CCOL_note(worker_signature)
-CALL write_variable_in_CCOL_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-PF3'
 
 script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
