@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/28/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/08/2020", "Updated BUG when clearing match BO-Other added back IULB notes per DEU request.", "MiKayla Handley, Hennepin County") '#922
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
@@ -849,7 +850,6 @@ IF claim_referral_tracking_dropdown <> "Not Needed" THEN
     IF case_note_only = TRUE THEN CALL write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
     CALL write_variable_in_case_note("-----")
     CALL write_variable_in_case_note(worker_signature)
-    PF3
 END IF
 start_a_blank_case_note
 IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") " & cleared_header & header_note & "-----")
@@ -915,10 +915,8 @@ IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN
     CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 END IF
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-CALL write_variable_in_case_note("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 CALL write_variable_in_case_note(worker_signature)
-CALL write_variable_in_case_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-PF3 'to save casenote'
 
 IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-----------------------------------------------------------------------------------------OP CASENOTE
     IF HC_claim_number <> "" THEN
