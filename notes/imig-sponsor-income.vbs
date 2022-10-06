@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/03/2022", "Updated income standards for 130% FPG effective 10/22.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/29/2021", "Updated income standards for 130% FPG effective 10/21.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/01/2020", "Updated income standards for 130% FPG effective 10/20.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/01/2019", "Updated income standards for 130% FPG effective 10/19.", "Ilse Ferris, Hennepin County")
@@ -54,6 +55,12 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+'Connecting to BlueZone, and finding case number
+EMConnect ""
+Call check_for_MAXIS(False)
+Call MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -81,22 +88,17 @@ BeginDialog Dialog1, 0, 0, 216, 165, "Sponsor income calculation dialog"
   Text 5, 150, 65, 10, "Worker signature:"
 EndDialog
 
-'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-'Connecting to BlueZone, and finding case number
-EMConnect ""
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
 'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
 Do
 	Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-		If isnumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbCr & "* You must enter a valid case number."
+		Call validate_MAXIS_case_number(err_msg, "*")
 		If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False THEN err_msg = err_msg & vbCr & "* You must enter some income. You can enter a ''0'' if that is accurate."
 		If isnumeric(sponsor_HH_size) = False THEN err_msg = err_msg & vbCr & "* You must enter a sponsor HH size."
 		If isnumeric(number_of_sponsored_immigrants) = False THEN err_msg = err_msg & vbCr & "* You must enter the number of sponsored immigrants."
-		If worker_signature = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+		If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	LOOP UNTIL err_msg = ""
 call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
@@ -104,8 +106,19 @@ LOOP UNTIL are_we_passworded_out = false
 
 'Determines the income limits
 ' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG at: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
-If DateDiff("d",date,#10/01/2021#) <= 0 then
-    'October 2021 -- Amounts for applications on or AFTER 10/01/2021
+If DateDiff("d",date,#10/01/2022#) <= 0 then
+    'October 2022 -- Amounts for applications on or AFTER 10/01/2022
+    If sponsor_HH_size = 1 then income_limit = 1473
+    If sponsor_HH_size = 2 then income_limit = 1984
+    If sponsor_HH_size = 3 then income_limit = 2495
+    If sponsor_HH_size = 4 then income_limit = 3007
+    If sponsor_HH_size = 5 then income_limit = 3518
+    If sponsor_HH_size = 6 then income_limit = 4029
+    If sponsor_HH_size = 7 then income_limit = 4541
+    If sponsor_HH_size = 8 then income_limit = 5052
+    If sponsor_HH_size > 8 then income_limit = 5052 + (512 * (sponsor_HH_size - 8))
+Elseif DateDiff("d",date,#10/01/2022#) > 0 then
+    'October 2021 -- Amounts for applications on or BEFORE 10/01/2022
     If sponsor_HH_size = 1 then income_limit = 1396
     If sponsor_HH_size = 2 then income_limit = 1888
     If sponsor_HH_size = 3 then income_limit = 2379
@@ -115,17 +128,6 @@ If DateDiff("d",date,#10/01/2021#) <= 0 then
     If sponsor_HH_size = 7 then income_limit = 4347
     If sponsor_HH_size = 8 then income_limit = 4839
     If sponsor_HH_size > 8 then income_limit = 4839 + (492 * (sponsor_HH_size - 8))
-Elseif DateDiff("d",date,#10/01/2021#) > 0 then
-    'October 2020 -- Amounts for applications on or BEFORE 10/01/2021
-    If sponsor_HH_size = 1 then income_limit = 1383
-    If sponsor_HH_size = 2 then income_limit = 1868
-    If sponsor_HH_size = 3 then income_limit = 2353
-    If sponsor_HH_size = 4 then income_limit = 2839
-    If sponsor_HH_size = 5 then income_limit = 3324
-    If sponsor_HH_size = 6 then income_limit = 3809
-    If sponsor_HH_size = 7 then income_limit = 4295
-    If sponsor_HH_size = 8 then income_limit = 4780
-    If sponsor_HH_size > 8 then income_limit = 4780 + (486 * (sponsor_HH_size - 8))
 End if
 
 'If any income variables are not numeric, the script will convert them to a "0" for calculating
@@ -147,7 +149,7 @@ If sponsor_deeming_amount_other_programs < 0 then sponsor_deeming_amount_other_p
 
 'Case note the findings
 start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("~~~Sponsor deeming income calculation~~~")
+Call write_variable_in_CASE_NOTE("~~~Sponsor Deeming Income Calculation~~~")
 If primary_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor earned income", "$" & primary_sponsor_earned_income)
 If spousal_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor earned income", "$" & spousal_sponsor_earned_income)
 If primary_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor unearned income", "$" & primary_sponsor_unearned_income)
@@ -160,4 +162,47 @@ call write_bullet_and_variable_in_case_note("Sponsor deeming amount for other pr
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("")
+script_end_procedure_with_error_report("For MFIP/DWP, MAXIS will correctly pull the amount entered on the SPON into ELIG." & vbcr & vbcr & "For SNAP and all other cash programs, the amount will need to be FIATed into the ELIG budget.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/03/2022
+'--Tab orders reviewed & confirmed----------------------------------------------10/03/2022
+'--Mandatory fields all present & Reviewed--------------------------------------10/03/2022
+'--All variables in dialog match mandatory fields-------------------------------10/03/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/03/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/03/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/03/2022
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/03/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/03/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/03/2022--------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------10/03/2022--------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------10/03/2022--------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/03/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------10/03/2022--------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/03/2022--------------------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/03/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------10/03/2022--------------------N/A
+'--Denomination reviewed -------------------------------------------------------10/03/2022
+'--Script name reviewed---------------------------------------------------------10/03/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/03/2022--------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/03/2022
+'--comment Code-----------------------------------------------------------------10/03/2022
+'--Update Changelog for release/update------------------------------------------10/03/2022
+'--Remove testing message boxes-------------------------------------------------10/03/2022
+'--Remove testing code/unnecessary code-----------------------------------------10/03/2022
+'--Review/update SharePoint instructions----------------------------------------10/03/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/03/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/03/2022
+'--Complete misc. documentation (if applicable)---------------------------------10/03/2022
+'--Update project team/issue contact (if applicable)----------------------------10/03/2022
