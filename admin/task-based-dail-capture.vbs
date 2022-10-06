@@ -366,6 +366,8 @@ script_end_procedure("Success! Actionable DAIL's have been added to the database
 '--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022-------------------N/A
 '--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022-------------------N/A
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/12/2022-------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/06/2022-------------------N/A
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
 '--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022-------------------N/A
@@ -373,6 +375,7 @@ script_end_procedure("Success! Actionable DAIL's have been added to the database
 '--Out-of-County handling reviewed----------------------------------------------04/12/2022-------------------N/A
 '--script_end_procedures (w/ or w/o error messaging)----------------------------04/12/2022
 '--BULK - review output of statistics and run time/count (if applicable)--------04/12/2022-------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/06/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------04/12/2022
@@ -391,4 +394,4 @@ script_end_procedure("Success! Actionable DAIL's have been added to the database
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/12/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/12/2022
 '--Complete misc. documentation (if applicable)---------------------------------04/12/2022
-'--Update project team/issue contact (if applicable)----------------------------04/12/2022
+'--Update project team/issue contact (if applicable)----------------------------10/06/2022
