@@ -5403,6 +5403,7 @@ function deny_elig_case_note()
 		If verif_header = False Then
 			Call write_variable_in_CASE_NOTE("=============================================================================")
 			Call write_variable_in_CASE_NOTE("Information not verified on this case:")
+			verif_header = True
 		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
