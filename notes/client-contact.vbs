@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/07/2022", "Removed adults and families baskets that are no longer supported through Q-Flow. Any population not supported by Q-flow will now be 'N/A'.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/19/2022", "Suggested Q-Flow populations updated for X127EJ4 from LTC+ to Housing Supports. Removed baskets that are no longer supported through Q-Flow.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/03/2022", "Suggested Q-Flow population basket information added for EGA: X127EP3.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/10/2021", "Suggested Q-Flow population basket information added for FAD GRH: X127EZ2.", "Ilse Ferris, Hennepin County")
@@ -94,80 +95,7 @@ End if
 
 '----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. needed during the COVID-19 PEACETIME STATE OF EMERGENCY
 EmReadscreen basket_number, 7, 21, 21    'Reading basket number
-suggested_population = ""                'Blanking this out. Will default to no suggestions if x number is not in this this.
-
-If basket_number = "X127ED8" then suggested_population = "Adults"
-If basket_number = "X127EE1" then suggested_population = "Adults"
-If basket_number = "X127EE2" then suggested_population = "Adults"
-If basket_number = "X127EE3" then suggested_population = "Adults"
-If basket_number = "X127EE4" then suggested_population = "Adults"
-If basket_number = "X127EE5" then suggested_population = "Adults"
-If basket_number = "X127EE6" then suggested_population = "Adults"
-If basket_number = "X127EE7" then suggested_population = "Adults"
-If basket_number = "X127EG4" then suggested_population = "Adults"
-If basket_number = "X127EH8" then suggested_population = "Adults"
-If basket_number = "X127EJ1" then suggested_population = "Adults"
-If basket_number = "X127EL1" then suggested_population = "Adults"
-If basket_number = "X127EL2" then suggested_population = "Adults"
-If basket_number = "X127EL3" then suggested_population = "Adults"
-If basket_number = "X127EL4" then suggested_population = "Adults"
-If basket_number = "X127EL5" then suggested_population = "Adults"
-If basket_number = "X127EL6" then suggested_population = "Adults"
-If basket_number = "X127EL7" then suggested_population = "Adults"
-If basket_number = "X127EL8" then suggested_population = "Adults"
-If basket_number = "X127EL9" then suggested_population = "Adults"
-If basket_number = "X127EN1" then suggested_population = "Adults"
-If basket_number = "X127EN2" then suggested_population = "Adults"
-If basket_number = "X127EN3" then suggested_population = "Adults"
-If basket_number = "X127EN4" then suggested_population = "Adults"
-If basket_number = "X127EN5" then suggested_population = "Adults"
-If basket_number = "X127EN7" then suggested_population = "Adults"
-If basket_number = "X127EP6" then suggested_population = "Adults"
-If basket_number = "X127EP7" then suggested_population = "Adults"
-If basket_number = "X127EP8" then suggested_population = "Adults"
-If basket_number = "X127EQ1" then suggested_population = "Adults"
-If basket_number = "X127EQ3" then suggested_population = "Adults"
-If basket_number = "X127EQ4" then suggested_population = "Adults"
-If basket_number = "X127EQ5" then suggested_population = "Adults"
-If basket_number = "X127EQ8" then suggested_population = "Adults"
-If basket_number = "X127EQ9" then suggested_population = "Adults"
-If basket_number = "X127EX1" then suggested_population = "Adults"
-If basket_number = "X127EX2" then suggested_population = "Adults"
-If basket_number = "X127EX3" then suggested_population = "Adults"
-If basket_number = "X127EX7" then suggested_population = "Adults"
-If basket_number = "X127EX8" then suggested_population = "Adults"
-If basket_number = "X127EX9" then suggested_population = "Adults"
-If basket_number = "X127F3D" then suggested_population = "Adults"
-If basket_number = "X127F3P" then suggested_population = "Adults"   'MA-EPD Adults Basket
-
-If basket_number = "X127ES1" then suggested_population = "Families"
-If basket_number = "X127ES2" then suggested_population = "Families"
-If basket_number = "X127ES3" then suggested_population = "Families"
-If basket_number = "X127ES4" then suggested_population = "Families"
-If basket_number = "X127ES5" then suggested_population = "Families"
-If basket_number = "X127ES6" then suggested_population = "Families"
-If basket_number = "X127ES7" then suggested_population = "Families"
-If basket_number = "X127ES8" then suggested_population = "Families"
-If basket_number = "X127ES9" then suggested_population = "Families"
-If basket_number = "X127ET1" then suggested_population = "Families"
-If basket_number = "X127ET2" then suggested_population = "Families"
-If basket_number = "X127ET3" then suggested_population = "Families"
-If basket_number = "X127ET4" then suggested_population = "Families"
-If basket_number = "X127ET5" then suggested_population = "Families"
-If basket_number = "X127ET6" then suggested_population = "Families"
-If basket_number = "X127ET7" then suggested_population = "Families"
-If basket_number = "X127ET8" then suggested_population = "Families"
-If basket_number = "X127ET9" then suggested_population = "Families"
-If basket_number = "X127F4E" then suggested_population = "Families"
-If basket_number = "X127F3H" then suggested_population = "Families"
-If basket_number = "X127FB7" then suggested_population = "Families"
-If basket_number = "X127EZ1" then suggested_population = "Families"
-If basket_number = "X127EZ3" then suggested_population = "Families"
-If basket_number = "X127EZ4" then suggested_population = "Families"
-If basket_number = "X127EZ6" then suggested_population = "Families"
-If basket_number = "X127EZ7" then suggested_population = "Families"
-If basket_number = "X127EZ8" then suggested_population = "Families"
-If basket_number = "X127F3K" then suggested_population = "Families"  'MA-EPD FAD Basket
+suggested_population = "N/A"                'Blanking this out. Will default to no suggestions if x number is not in this this.
 
 If basket_number = "X127EZ2" then suggested_population = "FAD GRH"
 
@@ -192,8 +120,6 @@ If basket_number = "X127FA7" then suggested_population = "YET"
 If basket_number = "X127FA8" then suggested_population = "YET"
 If basket_number = "X127FB1" then suggested_population = "YET"
 If basket_number = "X127FA9" then suggested_population = "YET"
-
-If suggested_population = "" then suggested_population = "No suggestions available"
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -291,7 +217,7 @@ If county_code <> worker_county_code then script_end_procedure("This case is out
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE(contact_type & " " & contact_direction & " " & who_contacted & " re: " & regarding)
 If Used_interpreter_checkbox = checked THEN
-	CALL write_variable_in_CASE_NOTE("* Contact was made: " & when_contact_was_made & " w/ interpreter")
+	CALL write_variable_in_CASE_NOTE("* Contact was made: " & when_contact_was_made & " w/ interpreter.")
 Else
 	CALL write_bullet_and_variable_in_CASE_NOTE("Contact was made", when_contact_was_made)
 End if
@@ -335,6 +261,8 @@ script_end_procedure_with_error_report(end_msg)
 '--All variables are CASE:NOTEing (if required)---------------------------------10/07/2021
 '--CASE:NOTE Header doesn't look funky------------------------------------------10/07/2021
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/07/2021
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/07/2022 -----------------------------------
+
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/07/2021
 '--MAXIS_background_check reviewed (if applicable)------------------------------10/07/2021
