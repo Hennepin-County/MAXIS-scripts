@@ -4034,9 +4034,9 @@ function ga_elig_case_note()
 	If add_new_note_for_GA = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
 	' Call write_variable_in_CASE_NOTE("*** BENEFIT AMOUNT ***")
 	If GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
-		If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
-			If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal = "0.00" Then Call write_variable_in_CASE_NOTE("* The GA payment is from the Personal Needs Standard.")
-			If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal <> "0.00" Then Call write_variable_in_CASE_NOTE("* A portion of the GA payment is from the Personal Needs Standard.")
+		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_payment_subtotal = "0.00" Then Call write_variable_in_CASE_NOTE("* The GA payment is from the Personal Needs Standard.")
+			If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_payment_subtotal <> "0.00" Then Call write_variable_in_CASE_NOTE("* A portion of the GA payment is from the Personal Needs Standard.")
 			Call write_variable_in_CASE_NOTE("  Resident is in a facility.")
 		End If
 		Call write_variable_in_CASE_NOTE("================================ BENEFIT AMOUNT =============================")
@@ -4095,7 +4095,7 @@ function ga_elig_case_note()
 						End If
 					End If
 				End If
-
+				add_divider = false
 				If GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal <> "0.00" AND GA_ELIG_APPROVALS(approval).ga_elig_case_budg_pers_needs_payment_subtotal <> "0.00" Then
 					If IsDate(reg_prorate_begin) = True and IsDate(pers_nds_prorate_begin) = True Then
 						If DateDiff("d", reg_prorate_begin, pers_nds_prorate_begin) >=0 Then
@@ -4109,6 +4109,7 @@ function ga_elig_case_note()
 						Call write_variable_in_CASE_NOTE(ga_reg_benefit_line)
 						Call write_variable_in_CASE_NOTE(ga_pers_nds_benefit_line)
 					End If
+					add_divider = true
 					Call write_variable_in_CASE_NOTE("                               |  Total Entitlement: $ " & right("       " & GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_ga_grant_amount, 8))
 				Else
 					If ga_reg_benefit_line <> "" Then
@@ -4146,9 +4147,10 @@ function ga_elig_case_note()
 				If amt_issued_info <> "" Then Call write_variable_in_CASE_NOTE("                               " & amt_issued_info)
 				If recoup_info <> "" Then Call write_variable_in_CASE_NOTE("                               " & recoup_info)
 				If issued__to_resident_info <> "" Then Call write_variable_in_CASE_NOTE("                               " & issued__to_resident_info)
-				' 316437 & 2216651 - CASE EXAMPLES
+				If amt_issued_info <> "" or recoup_info <> "" or issued__to_resident_info <> "" Then add_divider = true
+				If GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year = last_month Then add_divider = false
 
-				If GA_ELIG_APPROVALS(approval).elig_footer_month & "/" & GA_ELIG_APPROVALS(approval).elig_footer_year <> last_month Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
+				If add_divider = true Then Call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
 			End If
 		Next
 	End If
@@ -9914,7 +9916,7 @@ class deny_eligibility_detail
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
-			approved_today = True			'TESTING OPTION'
+			' approved_today = True			'TESTING OPTION'
 		End If
 		If approved_today = True Then
 			ReDim deny_cash_membs_ref_numbs(0)
