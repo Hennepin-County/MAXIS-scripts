@@ -61,7 +61,7 @@ changelog_display
 
 Function HCRE_panel_bypass()
     'handling for cases that do not have a completed HCRE panel
-    PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
+    PF3		'exits PROG to prompt HCRE if HCRE insn't complete
     Do
         EMReadscreen HCRE_panel_check, 4, 2, 50
         If HCRE_panel_check = "HCRE" then
@@ -1760,13 +1760,15 @@ function define_deny_elig_dialog()
 			Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
 			Editbox 180, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
-			' y_pos = y_pos + 15
 		Else
 			y_pos = y_pos + 10
 			Text 15, y_pos, 185, 10, "If a verification request was sent, what date was it sent? "
 			Editbox 200, y_pos - 5, 50, 15, DENY_UNIQUE_APPROVALS(verif_request_date, approval_selected)
 			Text 255, y_pos, 150, 10, "(due date is 10 days from this request date)"
 		End If
+		y_pos = y_pos + 20
+		Text 15, y_pos, 50, 10, "Verifs Detail:"
+		Editbox 65, y_pos-5, 475, 15, DENY_UNIQUE_APPROVALS(verif_request_details, approval_selected)
 		y_pos = y_pos + 15
 		' GroupBox 10, 200, 30, ga_grp_len, "GA"
 		' Text 20, 215, 125, 10, "There is no eligibile child for DWP"
@@ -5062,7 +5064,7 @@ function emer_elig_case_note()
 
 
 		If EMER_ELIG_APPROVAL.emer_elig_case_test_citizenship = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case has not met Citizenship Requirements.")
-		If EMER_ELIG_APPROVAL.emer_elig_case_test_coop_MFIP = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case has not commplied with application for MFIP.")
+		If EMER_ELIG_APPROVAL.emer_elig_case_test_coop_MFIP = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case has not complied with application for MFIP.")
 		If EMER_ELIG_APPROVAL.emer_elig_case_test_coop_work = "FAILED" Then
 			Call write_variable_in_CASE_NOTE(" - Case has not met cooperation with work requirement.")
 			If trim(emer_test_coop_work_detail) <> "" Then Call write_variable_in_CASE_NOTE("   Coop/Work Detail: " & emer_test_coop_work_detail)
@@ -5330,10 +5332,10 @@ function deny_elig_case_note()
 		Call write_variable_in_CASE_NOTE("       | MSA Net Income:    $ " & right("          " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_budg_net_income, 10) & " |")
 	End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" OR CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then Call write_variable_in_CASE_NOTE("     * The household has not provided required verifications.")
-	If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then
-		Text 25, y_pos, 125, 10, "Explain Verifications not Received:"
-		Call write_variable_in_CASE_NOTE("       Verifications missing: " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation)
-	End If
+	' If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_msa_reason_info = "Verification" Then
+	' 	' Text 25, y_pos, 125, 10, "Explain Verifications not Received:"
+	' 	Call write_variable_in_CASE_NOTE("       Verifications missing: " & CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_explanation)
+	' End If
 	If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif = "FAILED" Then
 		verifs_missing = ""
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_msa_elig_case_test_verif_acct = "FAILED" Then verifs_missing = verifs_missing & ", Bank Account"
@@ -5391,11 +5393,13 @@ function deny_elig_case_note()
 		Call write_variable_in_CASE_NOTE("=============================================================================")
 		Call write_variable_in_CASE_NOTE("Cash Denial due to Verifications not received.")
 		Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
+		Call write_long_variable_with_indent("   Verifications: ", trim(DENY_UNIQUE_APPROVALS(verif_request_details, unique_app)))
 		verif_header = True
-	ElseIf trim(DENY_UNIQUE_APPROVALS(verif_request_date, unique_app)) <> "" Then
+	ElseIf trim(DENY_UNIQUE_APPROVALS(verif_request_date, unique_app)) <> "" or trim(DENY_UNIQUE_APPROVALS(verif_request_details, unique_app)) <> "" Then
 		Call write_variable_in_CASE_NOTE("=============================================================================")
-		Call write_variable_in_CASE_NOTE("A request for information/docummentation was sent.")
-		Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
+		Call write_variable_in_CASE_NOTE("A request for information/documentation was sent.")
+		If  trim(DENY_UNIQUE_APPROVALS(verif_request_date, unique_app)) <> "" Then Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & DENY_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
+		Call write_long_variable_with_indent("   Verifications: ", trim(DENY_UNIQUE_APPROVALS(verif_request_details, unique_app)))
 		verif_header = True
 	End If
 
@@ -7155,11 +7159,11 @@ class mfip_eligibility_detail
 		EMWriteScreen elig_footer_year, 20, 58
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
-			EMReadScreen confirm_approved_today, 8, 3, 14		'this is the actual approval date - not the process date'
-			confirm_approved_today = DateAdd("d", 0, confirm_approved_today)
+			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
+			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			If elig_footer_month = "10" AND elig_footer_year = "22" then 		'9/10/22 is the day that DHS created background results for MASS CHANGE for SNAP and we will allow this date to be used as the process date
-				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, confirm_approved_today) = 0 Then approved_today = True
+				If DateDiff("d", #9/10/2022#, elig_version_date) = 0 AND DateDiff("d", date, approval_date) = 0 Then approved_today = True
 			End If
 			' approved_today = True			'TESTING OPTION'
 		End If
@@ -8521,6 +8525,8 @@ class msa_eligibility_detail
 		EMWriteScreen elig_footer_year, 20, 59
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
+			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
+			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			' If DateDiff("d", #8/9/2022#, elig_version_date) = 0 Then approved_today = True
 			' approved_today = True			'TESTING OPTION'
@@ -9215,6 +9221,8 @@ class ga_eligibility_detail
 		EMWriteScreen elig_footer_year, 20, 57
 		Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
+			EMReadScreen approval_date, 8, 3, 15		'this is the actual approval date - not the process date'
+			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			' If DateDiff("d", #7/25/2022#, elig_version_date) = 0 Then approved_today = True
 			' approved_today = True			'TESTING OPTION'
@@ -9916,6 +9924,8 @@ class deny_eligibility_detail
 		EMWriteScreen elig_footer_year, 19, 57
 		Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
+			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
+			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			' approved_today = True			'TESTING OPTION'
 		End If
@@ -10905,6 +10915,8 @@ class grh_eligibility_detail
 		EMWriteScreen elig_footer_year, 20, 58
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		If approved_version_found = True Then
+			EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
+			approval_date = DateAdd("d", 0, approval_date)
 			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 			' approved_today = True			'TESTING OPTION'
 		End If
@@ -12453,6 +12465,8 @@ class emer_eligibility_detail
 		If approved_version_found = True Then
 
 			If IsDate(elig_version_date) = True Then
+				EMReadScreen approval_date, 8, 3, 14		'this is the actual approval date - not the process date'
+				approval_date = DateAdd("d", 0, approval_date)
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
 				' If DateDiff("d", #8/26/2022#, elig_version_date) = 0 Then approved_today = True
 				' If DateDiff("d", #8/17/2022#, elig_version_date) = 0 Then approved_today = True
@@ -18962,7 +18976,7 @@ class stat_detail
 				If stat_disa_hc_verif_code(each_memb) = "2" Then stat_disa_hc_verif_info(each_memb) = "SMRT Certified"
 				If stat_disa_hc_verif_code(each_memb) = "3" Then stat_disa_hc_verif_info(each_memb) = "Certified RSDI/SSI"
 				If stat_disa_hc_verif_code(each_memb) = "6" Then stat_disa_hc_verif_info(each_memb) = "Other Document"
-				If stat_disa_hc_verif_code(each_memb) = "7" Then stat_disa_hc_verif_info(each_memb) = "Case Manager Setermmination"
+				If stat_disa_hc_verif_code(each_memb) = "7" Then stat_disa_hc_verif_info(each_memb) = "Case Manager Determination"
 				If stat_disa_hc_verif_code(each_memb) = "8" Then stat_disa_hc_verif_info(each_memb) = "LTC Consult Services"
 				If stat_disa_hc_verif_code(each_memb) = "N" Then stat_disa_hc_verif_info(each_memb) = "No Verification Provided"
 
@@ -19237,6 +19251,7 @@ Call hest_standards(heat_AC_amt, electric_amt, phone_amt, date)		'Currently only
 end_msg_info = ""
 
 Call MAXIS_case_number_finder(MAXIS_case_number)
+ineligible_approval_exists = False
 
 Do
 	Do
@@ -19328,12 +19343,14 @@ month_count = 0
 
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
+MAXIS_footer_month = "09"
+MAXIS_footer_year = "22"
 Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 EMReadScreen numb_EMER_versions, 1, 16, 40
 
 const month_const 	= 0
 const er_revw_completed_const	= 1
-const sr_revw_commpleted_const	= 2
+const sr_revw_completed_const	= 2
 const hrf_completed_const		= 3
 const er_programs_const 		= 4
 const sr_programs_const 		= 5
@@ -19398,6 +19415,7 @@ If numb_EMER_versions <> " " Then
 	EMER_ELIG_APPROVAL.bus_ticket_approval = False
 	If EMER_ELIG_APPROVAL.approved_today = True then
 		enter_CNOTE_for_EMER = True
+		If EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
 		If EMER_ELIG_APPROVAL.mony_check_found = False and EMER_ELIG_APPROVAL.emer_elig_summ_eligibility_result = "ELIGIBLE" Then
 			If EMER_ELIG_APPROVAL.emer_elig_summ_need_other = EMER_ELIG_APPROVAL.emer_elig_summ_need_total Then
 				ask_if_bus_ticket = MsgBox("It appears that Emergency was approved and no MONY/CHCK was issued." &vbCr & vbCr &"The only amount that was approved was in the 'Other' need. This could be an approval for a Bus Ticket only, which does not require a MONY/CHCK to be completed." & vbCr & vbCr & "Is this EMER approval for a Bus Ticket?", vbQuestion + vbYesNo, "EMER Bus Ticket Approval")
@@ -19437,7 +19455,7 @@ For each footer_month in MONTHS_ARRAY
 	ReDim Preserve REPORTING_COMPLETE_ARRAY(final_const, month_count)
 	REPORTING_COMPLETE_ARRAY(month_const, month_count) = footer_month
 	REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = False
-	REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, month_count) = False
+	REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = False
 	REPORTING_COMPLETE_ARRAY(hrf_completed_const, month_count) = False
 
 	' MsgBox footer_month
@@ -19468,6 +19486,7 @@ For each footer_month in MONTHS_ARRAY
 		If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True Then
 			If first_DWP_approval = "" Then first_DWP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+			IF DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_case_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
 		ElseIf DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, DWP_ELIG_APPROVALS(dwp_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " DWP approved today." & vbCr
@@ -19497,6 +19516,7 @@ For each footer_month in MONTHS_ARRAY
 		If MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_today = True Then
 			If first_MFIP_approval = "" Then first_MFIP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+			If MFIP_ELIG_APPROVALS(mfip_elig_months_count).mfip_case_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
 		ElseIf MFIP_ELIG_APPROVALS(mfip_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, MFIP_ELIG_APPROVALS(mfip_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " MFIP approved today." & vbCr
@@ -19528,6 +19548,7 @@ For each footer_month in MONTHS_ARRAY
 		If MSA_ELIG_APPROVALS(msa_elig_months_count).approved_today = True Then
 			If first_MSA_approval = "" Then first_MSA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+			If MSA_ELIG_APPROVALS(msa_elig_months_count).msa_elig_summ_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
 		ElseIf MSA_ELIG_APPROVALS(msa_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, MSA_ELIG_APPROVALS(msa_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " MSA approved today." & vbCr
@@ -19555,6 +19576,7 @@ For each footer_month in MONTHS_ARRAY
 		If GA_ELIG_APPROVALS(ga_elig_months_count).approved_today = True Then
 			If first_GA_approval = "" Then first_GA_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+			If GA_ELIG_APPROVALS(ga_elig_months_count).ga_elig_summ_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
 		ElseIf GA_ELIG_APPROVALS(ga_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, GA_ELIG_APPROVALS(ga_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " GA approved today." & vbCr
@@ -19582,6 +19604,7 @@ For each footer_month in MONTHS_ARRAY
 		If CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_today = True Then
 			If first_DENY_approval = "" Then first_DENY_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+			ineligible_approval_exists = True
 		ElseIf CASH_DENIAL_APPROVALS(cash_deny_months_count).approved_version_found = True Then
 			If DateDiff("d", date, CASH_DENIAL_APPROVALS(cash_deny_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " CASH DENY approved today." & vbCr
@@ -19618,6 +19641,7 @@ For each footer_month in MONTHS_ARRAY
 		If GRH_ELIG_APPROVALS(grh_elig_months_count).approved_today = True Then
 			If first_GRH_approval = "" Then first_GRH_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+			If GRH_ELIG_APPROVALS(grh_elig_months_count).grh_elig_eligibility_result = "INELIGIBLE" Then ineligible_approval_exists = True
 		ElseIf GRH_ELIG_APPROVALS(grh_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, GRH_ELIG_APPROVALS(grh_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " GRH approved today." & vbCr
@@ -19649,6 +19673,7 @@ For each footer_month in MONTHS_ARRAY
 		If SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_today = True Then
 			If first_SNAP_approval = "" Then first_SNAP_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
 			approval_found_for_this_month = True
+			If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_result = "INELIGIBLE" Then ineligible_approval_exists = True
 		ElseIf SNAP_ELIG_APPROVALS(snap_elig_months_count).approved_version_found = True Then
 			If DateDiff("d", date, SNAP_ELIG_APPROVALS(snap_elig_months_count).approval_date) = 0 Then
 				approvals_not_created_today = approvals_not_created_today & MAXIS_footer_month & "/" & MAXIS_footer_year & " SNAP approved today." & vbCr
@@ -20168,7 +20193,7 @@ For each footer_month in MONTHS_ARRAY
 					REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/GRH"
 				ElseIf STAT_INFORMATION(month_count).stat_next_cash_revw_process = "ER" Then
 					GRH_ELIG_APPROVALS(grh_elig_months_count).revw_type = "SR"
-					REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, month_count) = True
+					REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
 					REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/GRH"
 				End If
 			End If
@@ -20209,7 +20234,7 @@ For each footer_month in MONTHS_ARRAY
 					REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/SNAP"
 				ElseIf STAT_INFORMATION(month_count).stat_next_snap_revw_process = "ER" Then
 					SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_type = "SR"
-					REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, month_count) = True
+					REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
 					REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/SNAP"
 				End If
 				SNAP_ELIG_APPROVALS(snap_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
@@ -20292,7 +20317,7 @@ For each footer_month in MONTHS_ARRAY
 	' 			REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/HC"
 	' 		ElseIf STAT_INFORMATION(month_count).stat_next_hc_revw_process = "ER" Then
 	' 			HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "SR"
-	' 			REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, month_count) = True
+	' 			REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
 	' 			REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/HC"
 	' 		End If
 	' 	End If
@@ -20329,6 +20354,186 @@ If approvals_not_created_today <> "" Then
 	'TESTING LOGIC'
 	MsgBox cannot_note_msg
 End If
+
+verifs_in_case_note = ""
+' MsgBox "ineligible_approval_exists - " & ineligible_approval_exists
+If ineligible_approval_exists = True Then
+	Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
+	too_old_date = DateAdd("D", -75, date)              'We don't need to read notes from before the CAF date
+
+	note_row = 5
+	in_note_row = 4
+	Do
+		EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+		EMReadScreen note_title, 55, note_row, 25               'reading the note header
+		note_title = trim(note_title)
+		' MsgBox "note_title - " & note_title
+		If InStr(note_title, "Application Check") <> 0 Then
+			Call write_value_and_transmit("X", note_row, 3)
+
+			Do
+				EMReadScreen note_header, 24, in_note_row, 3
+
+				If note_header = "* Pending Verifications:" Then
+					Do
+						EMReadScreen case_note_line, 78, in_note_row, 3
+						enter_new_line = False
+						' If right(case_note_line, 2) = "  " Then enter_new_line = True
+						' If right(case_note_line, 2) = ". " Then enter_new_line = True
+						' If right(case_note_line, 1) = "." Then enter_new_line = True
+						verifs_in_case_note = verifs_in_case_note & trim(replace(case_note_line, "* Pending Verifications:", ""))
+						If enter_new_line = True Then verifs_in_case_note = verifs_in_case_note & "; "
+
+						in_note_row = in_note_row + 1
+						If in_note_row = 18 Then
+							PF8
+							in_note_row = 4
+							EMReadScreen end_of_notes, 9, 24, 14
+							If end_of_notes = "LAST PAGE" Then Exit Do
+						End if
+						EMReadScreen next_header, 2, in_note_row, 3
+					Loop until next_header = "* " or next_header = "--"
+				End If
+
+				in_note_row = in_note_row + 1
+				If in_note_row = 18 Then
+					PF8
+					in_note_row = 4
+					EMReadScreen end_of_notes, 9, 24, 14
+					If end_of_notes = "LAST PAGE" Then Exit Do
+				End if
+				EMReadScreen next_case_note_line, 78, in_note_row, 3
+			Loop until trim(next_case_note_line) = ""
+
+			PF3
+		End If
+
+		If InStr(note_title, ">>>Verifications Requested<<<") <> 0 or InStr(note_title, ">>>POSTPONED VERIFICATIONS REQUESTED") <> 0 or InStr(note_title, "***Verifications Still Needed***") <> 0 Then
+			Call write_value_and_transmit("X", note_row, 3)
+
+			Do
+
+				EMReadScreen case_note_line, 78, in_note_row, 3
+
+				If left(case_note_line, 6) = "* ADDR" 				then case_note_line = trim(replace(case_note_line, "* ADDR: ", "")) & ", "
+				If left(case_note_line, 6) = "* FACI" 				then case_note_line = trim(replace(case_note_line, "* FACI: ", "")) & ";, "
+				If left(case_note_line, 16) = "* SCHL/STIN/STEC" 	then case_note_line = trim(replace(case_note_line, "* SCHL/STIN/STEC: ", "")) & ", "
+				If left(case_note_line, 6) = "* DISA" 				then case_note_line = trim(replace(case_note_line, "* DISA: ", "")) & ", "
+				If left(case_note_line, 6) = "* JOBS" 				then case_note_line = trim(replace(case_note_line, "* JOBS: ", "")) & ", "
+				If left(case_note_line, 6) = "* BUSI" 				then case_note_line = trim(replace(case_note_line, "* BUSI: ", "")) & ", "
+				If left(case_note_line, 11) = "* BUSI/RBIC" 		then case_note_line = trim(replace(case_note_line, "* BUSI/RBIC: ", "")) & ", "
+				If left(case_note_line, 6) = "* UNEA"				then case_note_line = trim(replace(case_note_line, "* UNEA: ", "")) & ", "
+				If left(case_note_line, 16) = "* UNEA (MEMB 01)" 	then case_note_line = trim(replace(case_note_line, "* UNEA (MEMB 01): ", "")) & ", "
+				If left(case_note_line, 20) = "* UNEA (other membs)"then case_note_line = trim(replace(case_note_line, "* UNEA (other membs): ", "")) & ", "
+				If left(case_note_line, 6) = "* ACCT" 				then case_note_line = trim(replace(case_note_line, "* ACCT: ", "")) & ", "
+				If left(case_note_line, 16) = "* ACCT (MEMB 01)" 	then case_note_line = trim(replace(case_note_line, "* ACCT (MEMB 01): ", "")) & ", "
+				If left(case_note_line, 20) = "* ACCT (other membs)"then case_note_line = trim(replace(case_note_line, "* ACCT (other membs): ", "")) & ", "
+				If left(case_note_line, 16) = "* SECU (MEMB 01)" 	then case_note_line = trim(replace(case_note_line, "* SECU (MEMB 01): ", "")) & ", "
+				If left(case_note_line, 20) = "* SECU (other membs)"then case_note_line = trim(replace(case_note_line, "* SECU (other membs): ", "")) & ", "
+				If left(case_note_line, 6) = "* CARS" 				then case_note_line = trim(replace(case_note_line, "* CARS: ", "")) & ", "
+				If left(case_note_line, 6) = "* REST" 				then case_note_line = trim(replace(case_note_line, "* REST: ", "")) & ", "
+				If left(case_note_line, 13) = "* Burial/OTHR" 		then case_note_line = trim(replace(case_note_line, "* Burial/OTHR: ", "")) & ", "
+				If left(case_note_line, 14) = "* Other assets" 		then case_note_line = trim(replace(case_note_line, "* Other assets: ", "")) & ", "
+				If left(case_note_line, 14) = "* Other Assets" 		then case_note_line = trim(replace(case_note_line, "* Other Assets: ", "")) & ", "
+				If left(case_note_line, 6) = "* SHEL" 				then case_note_line = trim(replace(case_note_line, "* SHEL: ", "")) & ", "
+				If left(case_note_line, 9) = "* Subsidy" 			then case_note_line = trim(replace(case_note_line, "* Subsidy: ", "")) & ", "
+				If left(case_note_line, 6) = "* INSA" 				then case_note_line = trim(replace(case_note_line, "* INSA: ", "")) & ", "
+				If left(case_note_line, 16) = "* Veteran's info" 	then case_note_line = trim(replace(case_note_line, "* Veteran's info: ", "")) & ", "
+				If left(case_note_line, 18) = "* Medical expenses" 	then case_note_line = trim(replace(case_note_line, "* Medical expenses: ", "")) & ", "
+				If left(case_note_line, 14) = "* Other proofs" 		then case_note_line = trim(replace(case_note_line, "* Other proofs: ", "")) & ", "
+				If left(case_note_line, 14) = "* Other Proofs" 		then case_note_line = trim(replace(case_note_line, "* Other Proofs: ", "")) & ", "
+
+				verifs_in_case_note = verifs_in_case_note & case_note_line
+
+				in_note_row = in_note_row + 1
+				If in_note_row = 18 Then
+					PF8
+					in_note_row = 4
+					EMReadScreen end_of_notes, 9, 24, 14
+					If end_of_notes = "LAST PAGE" Then Exit Do
+				End if
+				EMReadScreen next_case_note_line, 78, in_note_row, 3
+			Loop until trim(next_case_note_line) = ""
+
+			PF3
+		End If
+
+		If InStr(note_title, "VERIFICATIONS REQUESTED") <> 0 Then
+
+			Call write_value_and_transmit("X", note_row, 3)
+
+			Do
+				EMReadScreen note_header, 36, in_note_row, 3
+
+				If note_header = "List of all verifications requested:" Then
+					in_note_row = in_note_row + 1
+					Do
+						EMReadScreen case_note_line, 78, in_note_row, 3
+						enter_new_line = False
+						' If right(case_note_line, 2) = "  " Then enter_new_line = True
+						' If right(case_note_line, 2) = ". " Then enter_new_line = True
+						' If right(case_note_line, 1) = "." Then enter_new_line = True
+						verifs_in_case_note = verifs_in_case_note & trim(case_note_line)
+						If enter_new_line = True Then verifs_in_case_note = verifs_in_case_note & "; "
+
+						in_note_row = in_note_row + 1
+						If in_note_row = 18 Then
+							PF8
+							in_note_row = 4
+							EMReadScreen end_of_notes, 9, 24, 14
+							If end_of_notes = "LAST PAGE" Then Exit Do
+						End if
+						EMReadScreen next_header, 3, in_note_row, 3
+					Loop until next_header = "---"
+
+
+				End If
+
+				in_note_row = in_note_row + 1
+				If in_note_row = 18 Then
+					PF8
+					in_note_row = 4
+					EMReadScreen end_of_notes, 9, 24, 14
+					If end_of_notes = "LAST PAGE" Then Exit Do
+				End if
+				EMReadScreen next_case_note_line, 78, in_note_row, 3
+			Loop until trim(next_case_note_line) = ""
+
+			PF3
+
+
+
+		End If
+
+		If verifs_in_case_note <> "" Then
+			verifs_in_case_note = trim(verifs_in_case_note)
+			Do
+				verifs_in_case_note = replace(verifs_in_case_note, "  ", " ")
+			Loop until InStr(verifs_in_case_note, "  ") = 0
+			' If right(verifs_in_case_note, 1)  =";" Then
+			' 	verifs_in_case_note = verifs_in_case_note & " "
+			' ElseIf right(verifs_in_case_note, 2)  <>"; " Then
+			' 	verifs_in_case_note = verifs_in_case_note & "; "
+			' End If
+			Exit Do
+		End if
+
+		if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
+
+        note_row = note_row + 1
+        if note_row = 19 then
+            note_row = 5
+            PF8
+            EMReadScreen check_for_last_page, 9, 24, 14
+            If check_for_last_page = "LAST PAGE" Then Exit Do
+        End If
+        EMReadScreen next_note_date, 8, note_row, 6
+        if next_note_date = "        " then Exit Do
+    Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+
+End If
+
+' MsgBox "verifs_in_case_note - " & verifs_in_case_note
 
 pnd2_display_limit_hit = False
 deny_app_one = False
@@ -21169,13 +21374,13 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				End If
 
 				not_confirmed_pckg_list = ""
-				first_unconfirmmed_month = ""
+				first_unconfirmed_month = ""
 				for each_app = 0 to UBound(MFIP_UNIQUE_APPROVALS, 2)
 					If ButtonPressed = MFIP_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
 					If MFIP_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
 						all_mfip_approvals_confirmed = False
 						not_confirmed_pckg_list = not_confirmed_pckg_list & replace(MFIP_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
-						If first_unconfirmmed_month = "" Then first_unconfirmmed_month = each_app
+						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
 					End If
 					If MFIP_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then mfip_approval_is_incorrect = True
 				Next
@@ -21197,7 +21402,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 			If mfip_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
 			If ButtonPressed = app_confirmed_btn and all_mfip_approvals_confirmed = False and move_from_dialog = False Then
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
-				approval_selected = first_unconfirmmed_month
+				approval_selected = first_unconfirmed_month
 			End If
 
 		Loop until move_from_dialog = True
@@ -21450,13 +21655,13 @@ If enter_CNOTE_for_MSA = True Then
 				End If
 
 				not_confirmed_pckg_list = ""
-				first_unconfirmmed_month = ""
+				first_unconfirmed_month = ""
 				for each_app = 0 to UBound(MSA_UNIQUE_APPROVALS, 2)
 					If ButtonPressed = MSA_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
 					If MSA_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
 						all_msa_approvals_confirmed = False
 						not_confirmed_pckg_list = not_confirmed_pckg_list & replace(MSA_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
-						If first_unconfirmmed_month = "" Then first_unconfirmmed_month = each_app
+						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
 					End If
 					If MSA_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then msa_approval_is_incorrect = True
 				Next
@@ -21478,7 +21683,7 @@ If enter_CNOTE_for_MSA = True Then
 			If msa_approval_is_incorrect = True and ButtonPressed = app_confirmed_btn Then move_from_dialog = True
 			If ButtonPressed = app_confirmed_btn and all_msa_approvals_confirmed = False Then
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
-				approval_selected = first_unconfirmmed_month
+				approval_selected = first_unconfirmed_month
 			End If
 
 		Loop until move_from_dialog = True
@@ -21501,7 +21706,7 @@ If enter_CNOTE_for_GA = True Then
 	last_total_deductions = ""
 	last_unearned_income = ""
 	last_school_income = ""
-	last_deemed_incomme = ""
+	last_deemed_income = ""
 	last_countable_income = ""
 
 	last_elig_standard = ""
@@ -21528,6 +21733,9 @@ If enter_CNOTE_for_GA = True Then
 				GA_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 				GA_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
 				GA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+				If GA_ELIG_APPROVALS(approval).ga_elig_case_test_verif <> "FAILED" AND GA_ELIG_APPROVALS(approval).ga_elig_summ_reason_info = "No Proof Given" Then
+					GA_UNIQUE_APPROVALS(verif_request_details, approval_selected) = verifs_in_case_note
+				End If
 
 				last_elig_result = GA_ELIG_APPROVALS(approval).ga_elig_summ_eligibility_result
 				last_indv_unit_type = GA_ELIG_APPROVALS(approval).ga_elig_file_unit_type_info
@@ -21536,7 +21744,7 @@ If enter_CNOTE_for_GA = True Then
 				last_total_deductions = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_deductions
 				last_unearned_income = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_unearned_income
 				last_school_income = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_counted_school_income
-				last_deemed_incomme = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_deemed_income
+				last_deemed_income = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_deemed_income
 				last_countable_income = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_countable_income
 				last_elig_standard = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_standard
 				last_elig_payment = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal
@@ -21559,7 +21767,7 @@ If enter_CNOTE_for_GA = True Then
 				If last_total_deductions <> GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_deductions Then match_last_benefit_amounts = False
 				If last_unearned_income <> GA_ELIG_APPROVALS(approval).ga_elig_case_budg_unearned_income Then match_last_benefit_amounts = False
 				If last_school_income <> GA_ELIG_APPROVALS(approval).ga_elig_case_budg_counted_school_income Then match_last_benefit_amounts = False
-				If last_deemed_incomme <> GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_deemed_income Then match_last_benefit_amounts = False
+				If last_deemed_income <> GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_deemed_income Then match_last_benefit_amounts = False
 				If last_countable_income <> GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_countable_income Then match_last_benefit_amounts = False
 				If last_elig_standard <> GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_standard Then match_last_benefit_amounts = False
 				If last_elig_payment <> GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal Then match_last_benefit_amounts = False
@@ -21584,6 +21792,9 @@ If enter_CNOTE_for_GA = True Then
 					GA_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
 					GA_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
 					GA_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+					If GA_ELIG_APPROVALS(approval).ga_elig_case_test_verif <> "FAILED" AND GA_ELIG_APPROVALS(approval).ga_elig_summ_reason_info = "No Proof Given" Then
+						GA_UNIQUE_APPROVALS(verif_request_details, approval_selected) = verifs_in_case_note
+					End If
 
 					last_elig_result = GA_ELIG_APPROVALS(approval).ga_elig_summ_eligibility_result
 					last_indv_unit_type = GA_ELIG_APPROVALS(approval).ga_elig_file_unit_type_info
@@ -21592,7 +21803,7 @@ If enter_CNOTE_for_GA = True Then
 					last_total_deductions = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_deductions
 					last_unearned_income = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_unearned_income
 					last_school_income = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_counted_school_income
-					last_deemed_incomme = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_deemed_income
+					last_deemed_income = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_deemed_income
 					last_countable_income = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_total_countable_income
 					last_elig_standard = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_standard
 					last_elig_payment = GA_ELIG_APPROVALS(approval).ga_elig_case_budg_payment_subtotal
@@ -21760,13 +21971,13 @@ If enter_CNOTE_for_GA = True Then
 				End If
 
 				not_confirmed_pckg_list = ""
-				first_unconfirmmed_month = ""
+				first_unconfirmed_month = ""
 				for each_app = 0 to UBound(GA_UNIQUE_APPROVALS, 2)
 					If ButtonPressed = GA_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
 					If GA_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
 						all_ga_approvals_confirmed = False
 						not_confirmed_pckg_list = not_confirmed_pckg_list & replace(GA_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
-						If first_unconfirmmed_month = "" Then first_unconfirmmed_month = each_app
+						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
 					End If
 					If GA_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then ga_approval_is_incorrect = True
 				Next
@@ -21788,7 +21999,7 @@ If enter_CNOTE_for_GA = True Then
 			If ga_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
 			If ButtonPressed = app_confirmed_btn and all_ga_approvals_confirmed = False Then
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
-				approval_selected = first_unconfirmmed_month
+				approval_selected = first_unconfirmed_month
 			End If
 
 		' Loop until (ButtonPressed = app_confirmed_btn and all_ga_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
@@ -21830,7 +22041,7 @@ If enter_CNOTE_for_DENY = True Then
 				If CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				If CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				If CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
-
+				If DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True Then DENY_UNIQUE_APPROVALS(verif_request_details, unique_app_count) = verifs_in_case_note
 				'QUESTION - Currently commented out. I believe that verifs are only listed on the Notice (WCOM) if the main reason for denial is Verirication
 				' If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 				' If CASH_DENIAL_APPROVALS(approval).deny_mfip_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
@@ -21869,6 +22080,7 @@ If enter_CNOTE_for_DENY = True Then
 					If CASH_DENIAL_APPROVALS(approval).deny_cash_mfip_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 					If CASH_DENIAL_APPROVALS(approval).deny_cash_msa_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
 					If CASH_DENIAL_APPROVALS(approval).deny_cash_ga_reason_info = "Verification" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
+					If DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True Then DENY_UNIQUE_APPROVALS(verif_request_details, unique_app_count) = verifs_in_case_note
 
 					'QUESTION - Currently commented out. I believe that verifs are only listed on the Notice (WCOM) if the main reason for denial is Verirication
 					' If CASH_DENIAL_APPROVALS(approval).deny_dwp_elig_case_test_verif = "FAILED" Then DENY_UNIQUE_APPROVALS(denial_due_to_verif, unique_app_count) = True
@@ -22058,13 +22270,13 @@ If enter_CNOTE_for_DENY = True Then
 				End If
 
 				not_confirmed_pckg_list = ""
-				first_unconfirmmed_month = ""
+				first_unconfirmed_month = ""
 				for each_app = 0 to UBound(DENY_UNIQUE_APPROVALS, 2)
 					If ButtonPressed = DENY_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
 					If DENY_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
 						all_deny_approvals_confirmed = False
 						not_confirmed_pckg_list = not_confirmed_pckg_list & replace(DENY_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
-						If first_unconfirmmed_month = "" Then first_unconfirmmed_month = each_app
+						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
 					End If
 					If DENY_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then deny_approval_is_incorrect = True
 				Next
@@ -22086,7 +22298,7 @@ If enter_CNOTE_for_DENY = True Then
 			If deny_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
 			If ButtonPressed = app_confirmed_btn and all_deny_approvals_confirmed = False Then
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
-				approval_selected = first_unconfirmmed_month
+				approval_selected = first_unconfirmed_month
 			End If
 
 		' Loop until (ButtonPressed = app_confirmed_btn and all_deny_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
@@ -22113,9 +22325,9 @@ If enter_CNOTE_for_DENY = True Then
 
 					Dialog1 = ""
 					BeginDialog Dialog1, 0, 0, 496, 180, "WCOM information for DENY"
-					  EditBox 10, 80, 480, 15, deny_wcomm_info_one
-					  EditBox 10, 110, 480, 15, deny_wcomm_info_two
-					  EditBox 10, 140, 480, 15, deny_wcomm_info_three
+					  EditBox 10, 80, 480, 15, deny_wcom_info_one
+					  EditBox 10, 110, 480, 15, deny_wcom_info_two
+					  EditBox 10, 140, 480, 15, deny_wcom_info_three
 					  ButtonGroup ButtonPressed
 					    OkButton 415, 160, 75, 15
 					  If DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) <> "" Then Text 10, 10, 460, 10, "WCOM is needed for all CASH DENIALS to explain the reason for denial. Detail information for " & DENY_UNIQUE_APPROVALS(first_mo_const, unique_app) & " - " & DENY_UNIQUE_APPROVALS(last_mo_const, unique_app) & " ELIG/DENY Approval"
@@ -22133,14 +22345,14 @@ If enter_CNOTE_for_DENY = True Then
 					  Text 10, 70, 185, 10, "Detail the information about the denial for the WCOM:"
 					  Text 10, 100, 185, 10, "Second Reason for denial for the WCOM:"
 					  Text 10, 130, 185, 10, "Third Reason for denial for the WCOM:"
-					  Text 10, 165, 370, 10, "(All information should be phrased in commplete sentances as it will be added to the WCOM sent to the Resident.)"
+					  Text 10, 165, 370, 10, "(All information should be phrased in complete sentances as it will be added to the WCOM sent to the Resident.)"
 					EndDialog
 
 					dialog Dialog1
 					cancel_confirmation
-					If trim(deny_wcomm_info_one) = "" and trim(deny_wcomm_info_two) = "" and trim(deny_wcomm_info_three) = "" Then
+					If trim(deny_wcom_info_one) = "" and trim(deny_wcom_info_two) = "" and trim(deny_wcom_info_three) = "" Then
 						err_msg = err_msg & vbCr & "* WCOMs are required for all Cash DENY Approvals. Enter information into the dialog to explain cleearly to the resident why the Cash Request has been denied."
-					ElseIf len(deny_wcomm_info_one) < 30 and len(deny_wcomm_info_two) < 30 and len(deny_wcomm_info_three) < 30 and (len(deny_wcomm_info_one)+len(deny_wcomm_info_two)+len(deny_wcomm_info_three)) < 30 Then
+					ElseIf len(deny_wcom_info_one) < 30 and len(deny_wcom_info_two) < 30 and len(deny_wcom_info_three) < 30 and (len(deny_wcom_info_one)+len(deny_wcom_info_two)+len(deny_wcom_info_three)) < 30 Then
 						err_msg = err_msg & vbCr & "* WCOM information should be entered in full sentances and the amount of information entered does not appear to be long enough for sufficient explanation." & vbCr & vbCr & "Add more information to the dialog to explain the reason(s) for denials."
 					End If
 
@@ -22149,9 +22361,9 @@ If enter_CNOTE_for_DENY = True Then
 				Call check_for_password(are_we_passworded_out)
 			Loop until are_we_passworded_out = False
 
-			DENY_UNIQUE_APPROVALS(wcom_details_one, unique_app) = trim(deny_wcomm_info_one)
-			DENY_UNIQUE_APPROVALS(wcom_details_two, unique_app) = trim(deny_wcomm_info_two)
-			DENY_UNIQUE_APPROVALS(wcom_details_three, unique_app) = trim(deny_wcomm_info_three)
+			DENY_UNIQUE_APPROVALS(wcom_details_one, unique_app) = trim(deny_wcom_info_one)
+			DENY_UNIQUE_APPROVALS(wcom_details_two, unique_app) = trim(deny_wcom_info_two)
+			DENY_UNIQUE_APPROVALS(wcom_details_three, unique_app) = trim(deny_wcom_info_three)
 		Next
 	End If
 End if
@@ -22451,14 +22663,14 @@ If enter_CNOTE_for_GRH = True Then
 				End If
 
 				not_confirmed_pckg_list = ""
-				first_unconfirmmed_month = ""
+				first_unconfirmed_month = ""
 				for each_app = 0 to UBound(GRH_UNIQUE_APPROVALS, 2)
 					' MsgBox "GRH_UNIQUE_APPROVALS(approval_confirmed, each_app) - " & GRH_UNIQUE_APPROVALS(approval_confirmed, each_app) & vbCr & "each_app - " & each_app
 					If ButtonPressed = GRH_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
 					If GRH_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
 						all_grh_approvals_confirmed = False
 						not_confirmed_pckg_list = not_confirmed_pckg_list & replace(GRH_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
-						If first_unconfirmmed_month = "" Then first_unconfirmmed_month = each_app
+						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
 					End If
 					If GRH_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then grh_approval_is_incorrect = True
 				Next
@@ -22481,7 +22693,7 @@ If enter_CNOTE_for_GRH = True Then
 			If grh_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
 			If ButtonPressed = app_confirmed_btn and all_grh_approvals_confirmed = False and move_from_dialog = False Then
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
-				approval_selected = first_unconfirmmed_month
+				approval_selected = first_unconfirmed_month
 			End If
 
 		Loop until move_from_dialog = True
@@ -22525,6 +22737,7 @@ If enter_CNOTE_for_EMER = True Then
 	emer_test_verif_detail = ""
 	TEMP_bus_ticket_info = EMER_ELIG_APPROVAL.bus_ticket_detail
 	If EMER_ELIG_APPROVAL.bus_ticket_approval = True Then emer_bus_checkbox = checked
+	If EMER_ELIG_APPROVAL.emer_elig_case_test_verif = "FAILED" Then emer_test_verif_detail = verifs_in_case_note
 
 	Do
 		Do
@@ -22894,13 +23107,13 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 				End If
 
 				not_confirmed_pckg_list = ""
-				first_unconfirmmed_month = ""
+				first_unconfirmed_month = ""
 				for each_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
 					If ButtonPressed = SNAP_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
 					If SNAP_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
 						all_snap_approvals_confirmed = False
 						not_confirmed_pckg_list = not_confirmed_pckg_list & replace(SNAP_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
-						If first_unconfirmmed_month = "" Then first_unconfirmmed_month = each_app
+						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
 					End If
 					If SNAP_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then snap_approval_is_incorrect = True
 				Next
@@ -22930,7 +23143,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 			If snap_approval_is_incorrect = True and  ButtonPressed = app_incorrect_btn Then move_from_dialog = True
 			If ButtonPressed = app_confirmed_btn and all_snap_approvals_confirmed = False Then
 				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
-				approval_selected = first_unconfirmmed_month
+				approval_selected = first_unconfirmed_month
 			End If
 			' For unique_app = 0 to UBound(SNAP_UNIQUE_APPROVALS, 2)
 			' Next
@@ -23758,7 +23971,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 			  ButtonGroup ButtonPressed
 			    OkButton 70, 150, 100, 15
 			  Text 10, 10, 175, 10, "STAT/REVW Indicates a completed CASH Review"
-			  Text 15, 30, 160, 20, "Confirm which CASH Programs had a Review commpleted for " & REPORTING_COMPLETE_ARRAY(month_const, each_month) & ":"
+			  Text 15, 30, 160, 20, "Confirm which CASH Programs had a Review completed for " & REPORTING_COMPLETE_ARRAY(month_const, each_month) & ":"
 			  Text 10, 105, 140, 20, "If you did NOT complete an approval for Revew processing, indicate that here:"
 			EndDialog
 
@@ -23855,7 +24068,7 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 	End If
 
 
-	If REPORTING_COMPLETE_ARRAY(sr_revw_commpleted_const, each_month) = True Then
+	If REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, each_month) = True Then
 		If left(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), 1) = "/" Then REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month) = right(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month), len(REPORTING_COMPLETE_ARRAY(sr_programs_const, each_month))-1)
 
 		Call start_a_blank_CASE_NOTE
