@@ -74,7 +74,7 @@ changelog_display
 
 Function dail_selection
 	'selecting the type of DAIl message
-	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
+	EMWriteScreen "X", 4, 12		'transmits to the PICK screen
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
 
@@ -86,7 +86,7 @@ Function dail_selection
     IF dail_to_decimate = "PEPR" then selection_row = 18
     IF dail_to_decimate = "TIKL" then selection_row = 19
 
-	Call write_value_and_transmit("x", selection_row, 39)
+	Call write_value_and_transmit("X", selection_row, 39)
 End Function
 
 Function create_array_of_all_active_x_numbers_in_county_with_restart(array_name, two_digit_county_code, restart_status, restart_worker_number)
@@ -135,6 +135,7 @@ End function
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+Call check_for_MAXIS(False)
 dail_to_decimate = "ALL"
 all_workers_check = 1
 
@@ -416,3 +417,46 @@ objExcel.Application.Quit
 objExcel.Quit
 
 script_end_procedure("Success! Please review the list created for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/10/2022
+'--Tab orders reviewed & confirmed----------------------------------------------10/10/2022
+'--Mandatory fields all present & Reviewed--------------------------------------10/10/2022
+'--All variables in dialog match mandatory fields-------------------------------10/10/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/10/2022------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/10/2022------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/10/2022------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/10/2022------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/10/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/10/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------10/10/2022------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------10/10/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/10/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------10/10/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/10/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------
+'--Incrementors reviewed (if necessary)-----------------------------------------
+'--Denomination reviewed -------------------------------------------------------
+'--Script name reviewed---------------------------------------------------------
+'--BULK - remove 1 incrementor at end of script reviewed------------------------
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------
+'--Remove testing message boxes-------------------------------------------------
+'--Remove testing code/unnecessary code-----------------------------------------
+'--Review/update SharePoint instructions----------------------------------------
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--Complete misc. documentation (if applicable)---------------------------------
+'--Update project team/issue contact (if applicable)----------------------------
