@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/05/2022", "Ensured correct baskets are pulled for each population. Changed population verbiage (ADAD to adults, etc.)", "Ilse Ferris, Hennepin County")
 call changelog_update("07/25/2022", "Removed Laurie's email, added Mary McGuinness.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/02/2022", "Updated string for checking to see if no DAILs exist based on options selected (all vs. specified DAIL's).", "Ilse Ferris, Hennepin County")
 call changelog_update("04/11/2022", "Added additional handling for moving to another case load if no DAILs are present.", "Ilse Ferris, Hennepin County")
@@ -60,8 +61,8 @@ changelog_display
 EMConnect ""
 Call check_for_MAXIS(False)
 'Defaulting these populations to checked per current process.
-FAD_checkbox = 1
-ADAD_checkbox = 1
+families_checkbox = 1
+adults_checkbox = 1
 
 'Defaulting autochecks based on the ten day cut off schedule. On ten day and after, only TIKL's are pulled.
 If DateDiff("d", date, ten_day_cutoff_date) > 0 then
@@ -77,10 +78,10 @@ End if
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 251, 260, "Task-Based DAIL Capture Main Dialog"
-  CheckBox 55, 100, 85, 10, "All Population Baskets", all_baskets_checkbox
-  CheckBox 140, 100, 30, 10, "ADAD", ADAD_checkbox
-  CheckBox 175, 100, 30, 10, "ADS", ADS_checkbox
-  CheckBox 205, 100, 30, 10, "FAD", FAD_checkbox
+  CheckBox 10, 100, 85, 10, "All Population Baskets", all_baskets_checkbox
+  CheckBox 100, 100, 30, 10, "Adults", adults_checkbox
+  CheckBox 135, 100, 40, 10, "Families", families_checkbox
+  CheckBox 180, 100, 30, 10, "LTC+", LTC_checkbox
   CheckBox 10, 115, 145, 10, "OR check here to process for all workers.", all_workers_check
   CheckBox 10, 150, 25, 10, "ALL", all_check
   CheckBox 40, 150, 30, 10, "COLA", cola_check
@@ -99,7 +100,6 @@ BeginDialog Dialog1, 0, 0, 251, 260, "Task-Based DAIL Capture Main Dialog"
   ButtonGroup ButtonPressed
     OkButton 155, 185, 40, 15
     CancelButton 200, 185, 40, 15
-  Text 10, 100, 40, 10, "Population:"
   GroupBox 5, 80, 240, 50, "Step 1. Select the population"
   Text 65, 5, 95, 10, "---Task-Based DAIL Capture---"
   Text 10, 35, 220, 35, "This script will evaluate and capture actionable DAIL messages from the DAIL type and population selected below. Once the DAIL messages are evaluated, actionable DAIL messages are sent to a SQL Database which feeds the Big Scoop Report."
@@ -115,12 +115,12 @@ Do
   	    dialog Dialog1
   	    cancel_without_confirmation
         If all_baskets_checkbox = 1 then
-            If ADAD_checkbox = 1 or ADS_checkbox = 1 or FAD_checkbox = 1 then err_msg = err_msg & vbcr & "* You cannot select a population and all populations."
+            If adults_checkbox = 1 or LTC_checkbox = 1 or families_checkbox = 1 then err_msg = err_msg & vbcr & "* You cannot select a population and all populations."
         End if
         If all_workers_check = 1 then
-            If ADAD_checkbox = 1 or ADS_checkbox = 1 or FAD_checkbox = 1 or all_baskets_checkbox = 1 then err_msg = err_msg & vbcr & "* You cannot select a population(s) and all workers."
+            If adults_checkbox = 1 or LTC_checkbox = 1 or families_checkbox = 1 or all_baskets_checkbox = 1 then err_msg = err_msg & vbcr & "* You cannot select a population(s) and all workers."
         End if
-        If (all_baskets_checkbox = 0 and all_workers_check = 0 and ADAD_checkbox = 0 and ADS_checkbox = 0 and FAD_checkbox = 0 and all_baskets_checkbox = 0) then err_msg = err_msg & vbcr & "* You must select at least one population option."
+        If (all_baskets_checkbox = 0 and all_workers_check = 0 and adults_checkbox = 0 and LTC_checkbox = 0 and families_checkbox = 0 and all_baskets_checkbox = 0) then err_msg = err_msg & vbcr & "* You must select at least one population option."
         If (all_check = 0 and cola_check = 0 and clms_check = 0 and cses_check  = 0 and elig_check  = 0 and ievs_check = 0 and info_check = 0 and ive_check = 0 and ma_check = 0 and mec2_check = 0 and pari_chck = 0 and pepr_check = 0 and tikl_check = 0 and wf1_check = 0) then err_msg = err_msg & vbcr & "* You must select at least one DAIL type."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     Loop Until err_msg = ""
@@ -133,16 +133,16 @@ back_to_SELF 'navigates back to self in case the worker is working within the DA
 If all_workers_check = checked then
 	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 Else
-    ADAD_baskets = "X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EQ1,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EL9,X127ED8,X127EH8,X127EG4,X127EQ3,X127EQ2,X127EP6,X127EP7,X127EP8,X127EF8,X127EF9,"
-    ADS_baskets = "X127EH1,X127EH2,X127EH3,X127EH6,X127EJ4,X127EJ6,X127EJ7,X127EJ8,X127EK1,X127EK2,X127EK4,X127EK5,X127EK6,X127EK9,X127EM1,X127EM7,X127EM8,X127EM9,X127EN6,X127EP3,X127EP4,X127EP5,X127EP9,X127F3F,X127FE5,X127FG3,X127FH4,X127FH5,X127FI2,X127FI7,X127EJ5,"
-    FAD_baskets = "X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,X127FE7,X127FE8,X127FE9,X127FA5,X127FA9,X127FA6,X127FA7,X127FA8"
+    adults_baskets = "X127ED8,X127EE1,X127EE2,X127EE3,X127EE4,X127EE5,X127EE6,X127EE7,X127EG4,X127EH8,X127EL1,X127EL2,X127EL3,X127EL4,X127EL5,X127EL6,X127EL7,X127EL8,X127EL9,X127EN1,X127EN2,X127EN3,X127EN4,X127EN5,X127EN7,X127EP6,X127EP7,X127EQ1,X127EQ3,X127EQ4,X127EQ5,X127EQ8,X127EQ9,X127EX1,X127EX2,"
+    LTC_plus_baskets = "X127EH1,X127EH3,X127EH4,X127EH5,X127EH6,X127EH7,X127EJ4,X127EJ8,X127EK1,X127EK2,X127EK3,X127EK4,X127EK6,X127EK7,X127EK8,X127EK9,X127EM9,X127EN6,X127EP5,X127EP9,X127EZ5,X127F3F,X127FE5,X127FH4,X127FH5,X127FI2,X127FI7,"
+    families_baskets = "X127EA0,X127ES1,X127ES2,X127ES3,X127ES4,X127ES5,X127ES6,X127ES7,X127ES8,X127ES9,X127ET1,X127ET2,X127ET3,X127ET4,X127ET5,X127ET6,X127ET7,X127ET8,X127ET9,X127EZ1,X127EZ7,"
 
     worker_numbers = ""     'Creating and valuing incrementor variables
 
-    If ADAD_checkbox = 1 then worker_numbers = worker_numbers & ADAD_baskets
-    If ADS_checkbox = 1 then worker_numbers = worker_numbers & ADS_baskets
-    If FAD_checkbox = 1 then worker_numbers = worker_numbers & FAD_baskets
-    If all_baskets_checkbox = 1 then worker_numbers = ADAD_baskets & "," & ADS_baskets & "," & FAD_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
+    If adults_checkbox = 1 then worker_numbers = worker_numbers & adults_baskets
+    If families_checkbox = 1 then worker_numbers = worker_numbers & families_baskets
+    If LTC_checkbox = 1 then worker_numbers = worker_numbers & LTC_plus_baskets
+    If all_baskets_checkbox = 1 then worker_numbers = adults_baskets & families_baskets & LTC_plus_baskets  'conditional logic in do loop doesn't allow for populations and baskets to be selcted. Not incremented variable.
 
     x1s_from_dialog = split(worker_numbers, ",")	'Splits the worker array based on commas
 
@@ -366,6 +366,8 @@ script_end_procedure("Success! Actionable DAIL's have been added to the database
 '--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022-------------------N/A
 '--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022-------------------N/A
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/12/2022-------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/06/2022-------------------N/A
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
 '--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022-------------------N/A
@@ -373,6 +375,7 @@ script_end_procedure("Success! Actionable DAIL's have been added to the database
 '--Out-of-County handling reviewed----------------------------------------------04/12/2022-------------------N/A
 '--script_end_procedures (w/ or w/o error messaging)----------------------------04/12/2022
 '--BULK - review output of statistics and run time/count (if applicable)--------04/12/2022-------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/06/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------04/12/2022
@@ -391,4 +394,4 @@ script_end_procedure("Success! Actionable DAIL's have been added to the database
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/12/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/12/2022
 '--Complete misc. documentation (if applicable)---------------------------------04/12/2022
-'--Update project team/issue contact (if applicable)----------------------------04/12/2022
+'--Update project team/issue contact (if applicable)----------------------------10/06/2022
