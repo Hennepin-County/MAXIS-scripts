@@ -14531,7 +14531,7 @@ class hc_eligibility_detail
 								Exit Do
 							End If
 							hc_col = hc_col + 11
-							If hc_col = 85 Then hc_prog_elig_appd(hc_prog_count) = False
+							If hc_col = 83 Then hc_prog_elig_appd(hc_prog_count) = False
 						Loop until hc_col = 83
 					End If
 
@@ -20483,7 +20483,7 @@ If ineligible_approval_exists = True Then
 							PF8
 							in_note_row = 4
 							EMReadScreen end_of_notes, 9, 24, 14
-							MsgBox "end_of_notes - " & end_of_notes'' & vbCr & "in_note_row - "
+							' MsgBox "end_of_notes - " & end_of_notes'' & vbCr & "in_note_row - "
 							If end_of_notes = "LAST PAGE" Then Exit Do
 						End if
 						EMReadScreen next_header, 3, in_note_row, 3
