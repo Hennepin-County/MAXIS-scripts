@@ -977,9 +977,8 @@ IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-
     CALL write_bullet_and_variable_in_CCOL_NOTE("Date verification received", income_rcvd_date)
     CALL write_bullet_and_variable_in_CCOL_NOTE("Reason for overpayment", Reason_OP)
     CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
-    CALL write_variable_in_CCOL_note("----- ----- ----- ----- ----- ----- -----")
-    CALL write_variable_in_CCOL_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-    PF3 'to save CCOL casenote'
+	CALL write_variable_in_ccol_note("----- ----- ----- ----- -----")
+	CALL write_variable_in_ccol_note(worker_signature)
 
 	'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
 	IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
