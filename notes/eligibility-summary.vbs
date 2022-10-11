@@ -19687,33 +19687,34 @@ For each footer_month in MONTHS_ARRAY
 	End If
 
 	'TODO - add back in for HC functionality'
-	' reDim preserve HC_ELIG_APPROVALS(hc_elig_months_count)
-	'
-	' Set HC_ELIG_APPROVALS(hc_elig_months_count) = new hc_eligibility_detail
-	'
-	' HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month = MAXIS_footer_month
-	' HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year = MAXIS_footer_year
-	'
-	' Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
-	'
-	' If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
-	' 	If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
-	' 	approval_found_for_this_month = True
-	' End If
+	reDim preserve HC_ELIG_APPROVALS(hc_elig_months_count)
+
+	Set HC_ELIG_APPROVALS(hc_elig_months_count) = new hc_eligibility_detail
+
+	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month = MAXIS_footer_month
+	HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year = MAXIS_footer_year
+
+	Call HC_ELIG_APPROVALS(hc_elig_months_count).read_elig
+
+	If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
+		If first_HC_approval = "" Then first_HC_approval = MAXIS_footer_month & "/" & MAXIS_footer_year
+		approval_found_for_this_month = True
+	End If
 
 
 
-	' elig_list = ""
-	' for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
-	' 	If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_appd(hc_elig) = True Then
-	' 		elig_list = elig_list & "MEMB " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs(hc_elig) & ": " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_major_program(hc_elig) & " " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_elig_type(hc_elig) & "-" & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_elig_standard(hc_elig) & vbCr
-	' 	End If
-	' 	' MsgBox "hc_elig - " & hc_elig & vbCr & elig_list
-	' Next
-	'
+	elig_list = ""
+	for hc_elig = 0 to UBound(HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs)
+		If HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_appd(hc_elig) = True Then
+			elig_list = elig_list & "MEMB " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_elig_ref_numbs(hc_elig) & ": " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_major_program(hc_elig) & " " & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_elig_type(hc_elig) & "-" & HC_ELIG_APPROVALS(hc_elig_months_count).hc_prog_elig_elig_standard(hc_elig) & vbCr
+		End If
+		' MsgBox "hc_elig - " & hc_elig & vbCr & elig_list
+	Next
+
 	' MsgBox "Footer Month - " & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_month & "/" & HC_ELIG_APPROVALS(hc_elig_months_count).elig_footer_year & vbCr &_
 	' 	   "HC Eligibility: " & vbCr &_
 	' 	   elig_list
+
 	ReDim preserve STAT_INFORMATION(month_count)
 
 	Set STAT_INFORMATION(month_count) = new stat_detail
@@ -20290,43 +20291,43 @@ For each footer_month in MONTHS_ARRAY
 	End If
 
 	'TODO turn back on for HC functionality'
-	' If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
-	' 	HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = False
-	' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = False
-	'
-	' 	' REPORTING_COMPLETE_ARRAY(hc_next_revw_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_elig_revw_date
-	' 	' REPORTING_COMPLETE_ARRAY(hc_elig_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_elig_result
-	' 	' REPORTING_COMPLETE_ARRAY(hc_budg_cycle_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_budget_cycle
-	'
-	' 	If STAT_INFORMATION(month_count).stat_revw_hc_code = "A" Then
-	' 		HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = True
-	' 		HC_ELIG_APPROVALS(hc_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_hc_code
-	' 		HC_ELIG_APPROVALS(hc_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-	' 		HC_ELIG_APPROVALS(hc_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
-	'
-	' 		REPORTING_COMPLETE_ARRAY(hc_revw_completed_const, month_count) = True
-	' 		REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
-	' 		REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
-	'
-	' 		If IsDate(STAT_INFORMATION(month_count).stat_last_hc_revw_date) = True Then last_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_last_hc_revw_date)
-	' 		If IsDate(STAT_INFORMATION(month_count).stat_next_hc_revw_date) = True Then next_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_next_hc_revw_date)
-	'
-	' 		If next_revw_month = last_revw_month OR STAT_INFORMATION(month_count).stat_next_hc_revw_process = "SR" Then
-	' 			HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "ER"
-	' 			REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
-	' 			REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/HC"
-	' 		ElseIf STAT_INFORMATION(month_count).stat_next_hc_revw_process = "ER" Then
-	' 			HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "SR"
-	' 			REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
-	' 			REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/HC"
-	' 		End If
-	' 	End If
-	' 	' If STAT_INFORMATION(month_count).stat_mont_hc_status == "A" Then
-	' 	' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = True
-	' 	' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_hc_status
-	' 	' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
-	' 	' End If
-	' End If
+	If HC_ELIG_APPROVALS(hc_elig_months_count).approved_today = True Then
+		HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = False
+		HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = False
+
+		' REPORTING_COMPLETE_ARRAY(hc_next_revw_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_elig_revw_date
+		' REPORTING_COMPLETE_ARRAY(hc_elig_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_elig_result
+		' REPORTING_COMPLETE_ARRAY(hc_budg_cycle_const, month_count) = HC_ELIG_APPROVALS(hc_elig_months_count).snap_budget_cycle
+
+		If STAT_INFORMATION(month_count).stat_revw_hc_code = "A" Then
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_month = True
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_status = STAT_INFORMATION(month_count).stat_revw_hc_code
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_caf_date = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			HC_ELIG_APPROVALS(hc_elig_months_count).revw_interview_date = STAT_INFORMATION(month_count).stat_revw_interview_date
+
+			REPORTING_COMPLETE_ARRAY(hc_revw_completed_const, month_count) = True
+			REPORTING_COMPLETE_ARRAY(revw_form_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_form_recvd_date
+			REPORTING_COMPLETE_ARRAY(revw_intvw_date_const, month_count) = STAT_INFORMATION(month_count).stat_revw_interview_date
+
+			If IsDate(STAT_INFORMATION(month_count).stat_last_hc_revw_date) = True Then last_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_last_hc_revw_date)
+			If IsDate(STAT_INFORMATION(month_count).stat_next_hc_revw_date) = True Then next_revw_month = DatePart("m", STAT_INFORMATION(month_count).stat_next_hc_revw_date)
+
+			If next_revw_month = last_revw_month OR STAT_INFORMATION(month_count).stat_next_hc_revw_process = "SR" Then
+				HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "ER"
+				REPORTING_COMPLETE_ARRAY(er_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(er_programs_const, month_count) & "/HC"
+			ElseIf STAT_INFORMATION(month_count).stat_next_hc_revw_process = "ER" Then
+				HC_ELIG_APPROVALS(hc_elig_months_count).revw_type = "SR"
+				REPORTING_COMPLETE_ARRAY(sr_revw_completed_const, month_count) = True
+				REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) = REPORTING_COMPLETE_ARRAY(sr_programs_const, month_count) & "/HC"
+			End If
+		End If
+		' If STAT_INFORMATION(month_count).stat_mont_hc_status == "A" Then
+		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_month = True
+		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_status = STAT_INFORMATION(month_count).stat_mont_hc_status
+		' 	HC_ELIG_APPROVALS(hc_elig_months_count).hrf_doc_date = STAT_INFORMATION(month_count).stat_mont_form_recvd_date
+		' End If
+	End If
 	hc_elig_months_count = hc_elig_months_count + 1
 
 
@@ -20385,7 +20386,7 @@ If ineligible_approval_exists = True Then
 						If enter_new_line = True Then verifs_in_case_note = verifs_in_case_note & "; "
 
 						in_note_row = in_note_row + 1
-						If in_note_row = 18 Then
+						If in_note_row >= 18 Then
 							PF8
 							in_note_row = 4
 							EMReadScreen end_of_notes, 9, 24, 14
@@ -20395,8 +20396,9 @@ If ineligible_approval_exists = True Then
 					Loop until next_header = "* " or next_header = "--"
 				End If
 
+				If verifs_in_case_note <> "" Then Exit Do
 				in_note_row = in_note_row + 1
-				If in_note_row = 18 Then
+				If in_note_row >= 18 Then
 					PF8
 					in_note_row = 4
 					EMReadScreen end_of_notes, 9, 24, 14
@@ -20446,7 +20448,7 @@ If ineligible_approval_exists = True Then
 				verifs_in_case_note = verifs_in_case_note & case_note_line
 
 				in_note_row = in_note_row + 1
-				If in_note_row = 18 Then
+				If in_note_row >= 18 Then
 					PF8
 					in_note_row = 4
 					EMReadScreen end_of_notes, 9, 24, 14
@@ -20477,10 +20479,11 @@ If ineligible_approval_exists = True Then
 						If enter_new_line = True Then verifs_in_case_note = verifs_in_case_note & "; "
 
 						in_note_row = in_note_row + 1
-						If in_note_row = 18 Then
+						If in_note_row >= 18 Then
 							PF8
 							in_note_row = 4
 							EMReadScreen end_of_notes, 9, 24, 14
+							MsgBox "end_of_notes - " & end_of_notes'' & vbCr & "in_note_row - "
 							If end_of_notes = "LAST PAGE" Then Exit Do
 						End if
 						EMReadScreen next_header, 3, in_note_row, 3
@@ -20489,8 +20492,9 @@ If ineligible_approval_exists = True Then
 
 				End If
 
+				If verifs_in_case_note <> "" Then Exit Do
 				in_note_row = in_note_row + 1
-				If in_note_row = 18 Then
+				If in_note_row >= 18 Then
 					PF8
 					in_note_row = 4
 					EMReadScreen end_of_notes, 9, 24, 14
@@ -20693,7 +20697,7 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_EMER = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_GRH = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DENY = False
-enter_CNOTE_for_HC = False
+If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_HC = False
 enter_CNOTE_for_DWP = False
 
 If enter_CNOTE_for_DWP = True Then testing_run = True
