@@ -111,7 +111,6 @@ Function create_array_of_all_active_x_numbers_in_county_with_restart(array_name,
             If restart_status = True then
                 If trim(UCase(worker_ID)) = trim(UCase(restart_worker_number)) then
                     Found_restart_worker = True
-                    msgbox Found_restart_worker
                 End if
                 If Found_restart_worker = True then array_name = trim(array_name & " " & worker_ID)				'writing to variable
             Else
@@ -250,7 +249,6 @@ CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 'This for...next contains each worker indicated above
 For each worker in worker_array
     MAXIS_case_number = ""
-	'msgbox worker
 	DO
 		EMReadScreen dail_check, 4, 2, 48
 		If next_dail_check <> "DAIL" then
