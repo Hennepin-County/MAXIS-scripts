@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("10/10/2022", "Added restart functionality when using all workers option.", "Ilse Ferris, Hennepin County")
 call changelog_update("02/01/2021", "Updated boolean variable name for clarity.", "Ilse Ferris, Hennepin County")
 call changelog_update("06/10/2020", "Added TIKL DAIL selection.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/17/2019", "Added function to evaluate DAIL messages.", "Ilse Ferris, Hennepin County")
@@ -73,7 +74,7 @@ changelog_display
 
 Function dail_selection
 	'selecting the type of DAIl message
-	EMWriteScreen "x", 4, 12		'transmits to the PICK screen
+	EMWriteScreen "X", 4, 12		'transmits to the PICK screen
 	transmit
 	EMWriteScreen "_", 7, 39		'clears the all selection
 
@@ -84,14 +85,56 @@ Function dail_selection
 	IF dail_to_decimate = "INFO" then selection_row = 13
     IF dail_to_decimate = "PEPR" then selection_row = 18
     IF dail_to_decimate = "TIKL" then selection_row = 19
-    
-	Call write_value_and_transmit("x", selection_row, 39)
+
+	Call write_value_and_transmit("X", selection_row, 39)
 End Function
+
+Function create_array_of_all_active_x_numbers_in_county_with_restart(array_name, two_digit_county_code, restart_status, restart_worker_number)
+'--- This function is used to grab all active X numbers in a county
+'~~~~~ array_name: name of array that will contain all the x numbers
+'~~~~~ county_code: inserted by reading the county code under REPT/USER
+'===== Keywords: MAXIS, array, worker number, create
+	'Getting to REPT/USER
+	Call navigate_to_MAXIS_screen("REPT", "USER")
+	PF5 'Hitting PF5 to force sorting, which allows directly selecting a county
+	Call write_value_and_transmit(county_code, 21, 6)  	'Inserting county
+
+	MAXIS_row = 7  'Declaring the MAXIS row
+	array_name = ""    'Blanking out array_name in case this has been used already in the script
+
+    Found_restart_worker = False    'defaulting to false. Will become true when the X number is found.
+	Do
+		Do
+			'Reading MAXIS information for this row, adding to spreadsheet
+			EMReadScreen worker_ID, 8, MAXIS_row, 5					'worker ID
+			If worker_ID = "        " then exit do					'exiting before writing to array, in the event this is a blank (end of list)
+            If restart_status = True then
+                If trim(UCase(worker_ID)) = trim(UCase(restart_worker_number)) then
+                    Found_restart_worker = True
+                End if
+                If Found_restart_worker = True then array_name = trim(array_name & " " & worker_ID)				'writing to variable
+            Else
+                array_name = trim(array_name & " " & worker_ID)				'writing to variable
+            End if
+			MAXIS_row = MAXIS_row + 1
+		Loop until MAXIS_row = 19
+
+		'Seeing if there are more pages. If so it'll grab from the next page and loop around, doing so until there's no more pages.
+		EMReadScreen more_pages_check, 7, 19, 3
+		If more_pages_check = "More: +" then
+			PF8			'getting to next screen
+			MAXIS_row = 7	'redeclaring MAXIS row so as to start reading from the top of the list again
+		End if
+	Loop until more_pages_check = "More:  " or more_pages_check = "       "	'The or works because for one-page only counties, this will be blank
+
+    array_name = split(array_name)
+End function
 
 'END CHANGELOG BLOCK =======================================================================================================
 
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""
+Call check_for_MAXIS(False)
 dail_to_decimate = "ALL"
 all_workers_check = 1
 
@@ -105,26 +148,33 @@ decimator_folder = replace(this_month, " ", "-") & " DAIL Decimator"
 report_date = replace(date, "/", "-")
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 266, 110, "Dail Decimator dialog"
+BeginDialog Dialog1, 0, 0, 266, 140, "Dail Decimator dialog"
   DropListBox 80, 50, 60, 15, "Select one..."+chr(9)+"ALL"+chr(9)+"COLA"+chr(9)+"CSES"+chr(9)+"ELIG"+chr(9)+"INFO"+chr(9)+"PEPR"+chr(9)+"TIKL", dail_to_decimate
   EditBox 80, 70, 180, 15, worker_number
-  CheckBox 15, 95, 135, 10, "Check here to process for all workers.", all_workers_check
+  CheckBox 15, 90, 135, 10, "Check here to process for all workers.", all_workers_check
+  EditBox 210, 100, 50, 15, restart_worker_number
   ButtonGroup ButtonPressed
-    OkButton 155, 90, 50, 15
-    CancelButton 210, 90, 50, 15
-  Text 15, 75, 60, 10, "Worker number(s):"
+    OkButton 155, 120, 50, 15
+    CancelButton 210, 120, 50, 15
   GroupBox 10, 5, 250, 40, "Using the DAIL Decimator script"
   Text 20, 20, 235, 20, "This script should be used to remove DAIL messages that have been determined by Quality Improvement staff do not require action."
   Text 40, 55, 35, 10, "Dail type:"
+  Text 15, 75, 60, 10, "Worker number(s):"
+  Text 25, 105, 170, 10, "If restarting, what x number are you restarting from?"
 EndDialog
+
 Do
 	Do
   		err_msg = ""
   		dialog Dialog1
-  		If ButtonPressed = 0 then StopScript
+  		cancel_without_confirmation
   		If dail_to_decimate = "Select one..." then err_msg = err_msg & vbNewLine & "* Select the type of DAIL message to decimate!"
   		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
   		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
+        If trim(restart_worker_number) <> "" then
+            If all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* The restart option only works with the all workers option. Please update your selections."
+            If len(trim(restart_worker_number)) <> 7 then err_msg = err_msg & vbNewLine & "* Enter one 7-digit worker number to restart."
+        End if
   	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
   	LOOP until err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -132,9 +182,16 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_SELF 'navigates back to self in case the worker is working within the DAIL. All messages for a single number may not be captured otherwise.
 
+'determining if this is a restart or not  in function below when gathering the x numbers.
+If trim(restart_worker_number) = "" then
+    restart_status = False
+Else
+    restart_status = True
+End if
+
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
-	call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
+	Call create_array_of_all_active_x_numbers_in_county_with_restart(worker_array, two_digit_county_code, restart_status, restart_worker_number)
 Else
 	x1s_from_dialog = split(worker_number, ", ")	'Splits the worker array based on commas
 
@@ -192,7 +249,6 @@ CALL navigate_to_MAXIS_screen("DAIL", "DAIL")
 'This for...next contains each worker indicated above
 For each worker in worker_array
     MAXIS_case_number = ""
-	'msgbox worker
 	DO
 		EMReadScreen dail_check, 4, 2, 48
 		If next_dail_check <> "DAIL" then
@@ -201,8 +257,7 @@ For each worker in worker_array
 		End if
 	Loop until dail_check = "DAIL"
 
-	EMWriteScreen worker, 21, 6
-	transmit
+	Call write_value_and_transmit(worker, 21, 6)
 	transmit 'transmit past 'not your dail message'
 
 	Call dail_selection
@@ -234,10 +289,8 @@ For each worker in worker_array
             MAXIS_case_number = right("00000000" & MAXIS_case_number, 8) 'outputs in 8 digits format
 
             EMReadScreen dail_type, 4, dail_row, 6
-
             EMReadScreen dail_msg, 61, dail_row, 20
 			dail_msg = trim(dail_msg)
-
             EMReadScreen dail_month, 8, dail_row, 11
             dail_month = trim(dail_month)
 
@@ -245,7 +298,7 @@ For each worker in worker_array
             Call non_actionable_dails(actionable_dail) 'Function to evaluate the DAIL messages
 
             IF actionable_dail = False then
-				'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted. 
+				'--------------------------------------------------------------------actionable_dail = False will captured in Excel and deleted.
 				objExcel.Cells(excel_row, 1).Value = worker
 				objExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 				objExcel.Cells(excel_row, 3).Value = dail_type
@@ -258,7 +311,7 @@ For each worker in worker_array
 				If other_worker_error = "** WARNING **" then transmit
 				deleted_dails = deleted_dails + 1
 			else
-				actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.  
+				actionable_dail = True      'actionable_dail = True will NOT be deleted and will be captured and reported out as actionable.
 				dail_row = dail_row + 1
                 ReDim Preserve DAIL_array(4, DAIL_count)	'This resizes the array based on the number of rows in the Excel File'
             	DAIL_array(worker_const,	           DAIL_count) = worker
@@ -362,3 +415,46 @@ objExcel.Application.Quit
 objExcel.Quit
 
 script_end_procedure("Success! Please review the list created for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/10/2022
+'--Tab orders reviewed & confirmed----------------------------------------------10/10/2022
+'--Mandatory fields all present & Reviewed--------------------------------------10/10/2022
+'--All variables in dialog match mandatory fields-------------------------------10/10/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/10/2022------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/10/2022------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/10/2022------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/10/2022------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/10/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/10/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------10/10/2022------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------10/10/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/10/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------10/10/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/10/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------
+'--Incrementors reviewed (if necessary)-----------------------------------------
+'--Denomination reviewed -------------------------------------------------------
+'--Script name reviewed---------------------------------------------------------
+'--BULK - remove 1 incrementor at end of script reviewed------------------------
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------
+'--comment Code-----------------------------------------------------------------
+'--Update Changelog for release/update------------------------------------------
+'--Remove testing message boxes-------------------------------------------------
+'--Remove testing code/unnecessary code-----------------------------------------
+'--Review/update SharePoint instructions----------------------------------------
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--Complete misc. documentation (if applicable)---------------------------------
+'--Update project team/issue contact (if applicable)----------------------------
