@@ -40,6 +40,7 @@ END IF
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
+CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("10/20/2020", "Removed custom functions from script file. Functions have all been incorporated into the project's Function Library.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC.", "MiKayla Handley, Hennepin County")
@@ -423,7 +424,6 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
 	Call write_variable_in_case_note("-----")
 	Call write_variable_in_case_note(worker_signature)
-	PF3
 END IF
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_case_note
@@ -458,10 +458,8 @@ If out_state_checkbox = CHECKED THEN Call write_variable_in_case_note("Out of st
 Call write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_resp_memb)
 Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referral)
 Call write_bullet_and_variable_in_case_note("Reason for overpayment", overpayment_reason)
-CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
-CALL write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-PF3 'have to PF3 because more steps are taken'
 'gathering the case note for the email'
 IF HC_claim_number <> "" THEN
 	EMWriteScreen "x", 5, 3
@@ -529,9 +527,8 @@ If out_state_checkbox = CHECKED THEN Call write_variable_in_CCOL_note("Out of st
 Call write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
 Call write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
 Call write_bullet_and_variable_in_CCOL_note("Reason for overpayment", overpayment_reason)
-CALL write_variable_in_CCOL_note("----- ----- ----- ----- ----- ----- -----")
-CALL write_variable_in_CCOL_note("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
-PF3 'exit the case note because it is CCOL'
+CALL write_variable_in_CCOL_note("----- ----- ----- ----- -----")
+CALL write_variable_in_CCOL_note(worker_signature)
 script_end_procedure_with_error_report("Success PARIS match overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------

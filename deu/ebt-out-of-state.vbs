@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("02/22/2021", "Removed handling for other option.", "MiKayla Handley, Hennepin County")
 call changelog_update("01/14/2021", "Updated handling for review case to update for overpayment at a later date.", "MiKayla Handley, Hennepin County")
@@ -80,7 +81,6 @@ BeginDialog Dialog1, 0, 0, 291, 85, "EBT OUT OF STATE "
   Text 5, 70, 60, 10, "Worker signature:"
 EndDialog
 
-
 DO
 	DO
 		err_msg = ""
@@ -115,7 +115,8 @@ IF action_taken = "Initial review" THEN
       Text 5, 70, 45, 10, "Other notes: "
       Text 5, 10, 35, 10, "Date due:"
     EndDialog
-    Do
+
+ 	Do
     	Do
             err_msg = ""
     		Dialog Dialog1
@@ -146,6 +147,7 @@ IF action_taken = "Client responds to request" THEN
       GroupBox 5, 25, 185, 35, "Verification received: "
       Text 5, 70, 45, 10, "Other notes: "
     EndDialog
+
 	Do
     	Do
             err_msg = ""
@@ -179,7 +181,8 @@ IF action_taken = "No response received" THEN
       Text 5, 70, 55, 10, "Closure reason:"
       Text 5, 10, 45, 10, "Date closed:"
     EndDialog
-    Do
+
+	Do
     	Do
             err_msg = ""
     		Dialog Dialog1
@@ -227,5 +230,4 @@ start_a_blank_case_note      'navigates to case/note and puts case/note into edi
 	CALL write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
 	CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
     CALL write_variable_in_CASE_NOTE(worker_signature)
-	Call write_variable_in_CASE_NOTE("DEBT ESTABLISHMENT UNIT 612-348-4290 PROMPTS 1-1-1")
 script_end_procedure_with_error_report("EBT out of state case note complete.")

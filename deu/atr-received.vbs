@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement and closing documentation.", "MiKayla Handley, Hennepin County") '#493
 CALL changelog_update("01/02/2018", "Corrected IEVS match error due to new year.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/27/2017", "Corrected spelling error.", "MiKayla Handley, Hennepin County")
@@ -87,9 +88,9 @@ CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
 IF is_this_priv = TRUE THEN script_end_procedure("This case is privileged, the script will now end.")
 client_array = "Select One:" & "|"
 
-DO								'reads the reference number, last name, first name, and THEN puts it into a single string THEN into the array
-EMReadscreen ref_nbr, 3, 4, 33
-EMReadScreen access_denied_check, 13, 24, 2
+DO	'reads the reference number, last name, first name, and THEN puts it into a single string THEN into the array
+	EMReadscreen ref_nbr, 3, 4, 33
+	EMReadScreen access_denied_check, 13, 24, 2
 If access_denied_check = "ACCESS DENIED" Then
 	PF10
 	last_name = "UNABLE TO FIND"
@@ -472,7 +473,6 @@ IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	IF case_note_only = TRUE THEN CALL write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
 	CALL write_variable_in_case_note("-----")
 	CALL write_variable_in_case_note(worker_signature)
-	PF3
 END IF
 '-------------------------------------------------------------------------------------------------The case note
 start_a_blank_case_note
@@ -486,18 +486,17 @@ CALL write_bullet_and_variable_in_case_note("Period", IEVS_period)
 CALL write_bullet_and_variable_in_case_note("Active Programs", programs)
 CALL write_bullet_and_variable_in_case_note("Source of income", income_source)
 CALL write_variable_in_CASE_NOTE ("----- ----- ----- ----- -----")
-IF DISQ_action = "Pending verif" THEN CALL write_variable_in_CASE_NOTE("* Pending verification of income or asset")
-IF DISQ_action = "Deleted DISQ" THEN CALL write_variable_in_CASE_NOTE("* Updated DISQ panel")
+IF DISQ_action = "Pending verif" THEN CALL write_variable_in_CASE_NOTE("* Pending verification of income or asset.")
+IF DISQ_action = "Deleted DISQ" THEN CALL write_variable_in_CASE_NOTE("* Updated DISQ panel.")
 CALL write_bullet_and_variable_in_case_note("Verifications Received", pending_verifs)
 CALL write_bullet_and_variable_in_case_note("Source Address:", source_address)
 CALL write_bullet_and_variable_in_case_note("Fax/Phone:", source_phone)
 CALL write_bullet_and_variable_in_case_note("Response to Difference Notice", notice_sent)
 IF notice_sent = "Y" THEN CALL write_variable_in_CASE_NOTE("* IEVP updated as responded to difference notice")
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
-IF DISQ_action <> "Pending verif" THEN CALL write_variable_in_CASE_NOTE("---The case may be elligble for REIN if all necessary paperwork has been received")
+IF DISQ_action <> "Pending verif" THEN CALL write_variable_in_CASE_NOTE("---The case may be eligible for REIN if all necessary paperwork has been received.")
 CALL write_variable_in_CASE_NOTE ("----- ----- ----- ----- -----")
 CALL write_variable_in_case_note(worker_signature)
-CALL write_variable_in_CASE_NOTE ("DEBT ESTABLISHMENT UNIT 612-348-4290 EXT 1-1-1")
 
 script_end_procedure_with_error_report("ATR case note updated successfully." & vbNewLine & "Please remember to update/delete the DISQ panel")
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
@@ -536,7 +535,7 @@ script_end_procedure_with_error_report("ATR case note updated successfully." & v
 '--Update Changelog for release/update------------------------------------------06/24/2022
 '--Remove testing message boxes-------------------------------------------------06/24/2022
 '--Remove testing code/unnecessary code-----------------------------------------06/24/2022
-'--Review/update SharePoint instructions----------------------------------------06/24/2022 'TODO'
+'--Review/update SharePoint instructions----------------------------------------06/24/2022 
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/24/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/24/2022
 '--Complete misc. documentation (if applicable)---------------------------------06/24/2022
