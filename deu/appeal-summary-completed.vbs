@@ -96,7 +96,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("Claim number:", claim_number)
 Call write_bullet_and_variable_in_CASE_NOTE("Date appeal request received:", date_appeal_rcvd)
 Call write_bullet_and_variable_in_CASE_NOTE("Effective date of action being appealed:", effective_date)
 Call write_bullet_and_variable_in_CASE_NOTE("Action client is appealing:", action_client_is_appealing)
-Call write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
+Call write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure_with_error_report("Appeal Summary case note complete.")

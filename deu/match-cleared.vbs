@@ -850,7 +850,9 @@ IF claim_referral_tracking_dropdown <> "Not Needed" THEN
     IF case_note_only = TRUE THEN CALL write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
     CALL write_variable_in_case_note("-----")
     CALL write_variable_in_case_note(worker_signature)
+	PF3 ' to ensure a new case note is started'
 END IF
+
 start_a_blank_case_note
 IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") " & cleared_header & header_note & "-----")
 IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
@@ -917,6 +919,7 @@ END IF
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 CALL write_variable_in_case_note(worker_signature)
+PF3 ' to ensure we clear the case note for the next action'
 
 IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-----------------------------------------------------------------------------------------OP CASENOTE
     IF HC_claim_number <> "" THEN
@@ -979,7 +982,7 @@ IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-
     CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
 	CALL write_variable_in_ccol_note("----- ----- ----- ----- -----")
 	CALL write_variable_in_ccol_note(worker_signature)
-
+	PF3 ' to ensure we leave the CCOL case note'
 	'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
 	IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
 	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")

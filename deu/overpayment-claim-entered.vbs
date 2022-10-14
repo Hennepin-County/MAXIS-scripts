@@ -404,7 +404,9 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
 	Call write_variable_in_case_note("-----")
 	Call write_variable_in_case_note(worker_signature)
+	PF3 ' to ensure a new case note is started'
 END IF
+
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_CASE_NOTE
 IF IEVS_type = "WAGE" THEN CALL write_variable_in_CASE_NOTE("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & "(" & first_name & ") CLEARED CC-CLAIM ENTERED-----")
@@ -436,6 +438,7 @@ CALL write_bullet_and_variable_in_case_note("Other responsible member(s)", OT_re
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* DHS 2776E – Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- ----- ----- -----")
 CALL write_variable_in_case_note(worker_signature)
+PF3 ' to ensure we clear the case note for the next action'
 
 IF HC_claim_number <> "" THEN
 	EmWriteScreen "x", 5, 3
@@ -500,5 +503,5 @@ CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_re
 'IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note("* DHS 2776E - Agency Cash Error Overpayment Worksheet form completed in ECF")
 CALL write_variable_in_CCOL_note("----- ----- ----- ----- -----")
 CALL write_variable_in_CCOL_note(worker_signature)
-
+PF3 ' to ensure we leave the CCOL case note'
 script_end_procedure_with_error_report("Overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
