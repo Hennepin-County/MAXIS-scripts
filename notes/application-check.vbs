@@ -100,6 +100,8 @@ IF priv_check = "PRIV" then script_end_procedure("This case is privileged, and c
 
 'Ensuring that the user is in REPT/PND2
 Do
+    EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
+    If pnd2_disp_limit = "Display Limit" Then transmit
 	EMReadScreen PND2_check, 4, 2, 52
 	If PND2_check <> "PND2" then
 		back_to_SELF
