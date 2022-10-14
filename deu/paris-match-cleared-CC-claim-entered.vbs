@@ -424,7 +424,9 @@ IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_prog
 	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
 	Call write_variable_in_case_note("-----")
 	Call write_variable_in_case_note(worker_signature)
+	PF3 ' to ensure a new case note is started'
 END IF
+
 '-----------------------------------------------------------------------------------------CASENOTE
 start_a_blank_case_note
 CALL write_variable_in_CASE_NOTE ("-----" & INTM_period & " PARIS MATCH " & "(" & first_name &  ") CLEARED " & rez_status & " CLAIM ENTERED-----")

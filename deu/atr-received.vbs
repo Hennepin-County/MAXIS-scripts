@@ -473,6 +473,7 @@ IF claim_referral_tracking_dropdown <> "Not Needed" THEN
 	IF case_note_only = TRUE THEN CALL write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
 	CALL write_variable_in_case_note("-----")
 	CALL write_variable_in_case_note(worker_signature)
+	PF3 ' to ensure a new case note is started'
 END IF
 '-------------------------------------------------------------------------------------------------The case note
 start_a_blank_case_note
@@ -535,7 +536,7 @@ script_end_procedure_with_error_report("ATR case note updated successfully." & v
 '--Update Changelog for release/update------------------------------------------06/24/2022
 '--Remove testing message boxes-------------------------------------------------06/24/2022
 '--Remove testing code/unnecessary code-----------------------------------------06/24/2022
-'--Review/update SharePoint instructions----------------------------------------06/24/2022 
+'--Review/update SharePoint instructions----------------------------------------06/24/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------06/24/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------06/24/2022
 '--Complete misc. documentation (if applicable)---------------------------------06/24/2022

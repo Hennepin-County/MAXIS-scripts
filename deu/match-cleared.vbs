@@ -850,7 +850,9 @@ IF claim_referral_tracking_dropdown <> "Not Needed" THEN
     IF case_note_only = TRUE THEN CALL write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
     CALL write_variable_in_case_note("-----")
     CALL write_variable_in_case_note(worker_signature)
+	PF3 ' to ensure a new case note is started'
 END IF
+
 start_a_blank_case_note
 IF match_type = "WAGE" THEN CALL write_variable_in_case_note("-----" & IEVS_quarter & " QTR " & IEVS_year & " WAGE MATCH"  & " (" & first_name & ") " & cleared_header & header_note & "-----")
 IF match_type = "BEER" THEN CALL write_variable_in_case_note("-----" & IEVS_year & " NON-WAGE MATCH(" & match_type_letter & ")" & " (" & first_name & ") " & cleared_header & header_note & "-----")
