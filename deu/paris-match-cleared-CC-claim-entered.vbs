@@ -462,6 +462,7 @@ Call write_bullet_and_variable_in_case_note("Fraud referral made", fraud_referra
 Call write_bullet_and_variable_in_case_note("Reason for overpayment", overpayment_reason)
 CALL write_variable_in_CASE_NOTE("----- ----- ----- ----- -----")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+PF3 ' to ensure we leave the CCOL case note'
 'gathering the case note for the email'
 IF HC_claim_number <> "" THEN
 	EMWriteScreen "x", 5, 3
@@ -531,6 +532,7 @@ Call write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referra
 Call write_bullet_and_variable_in_CCOL_note("Reason for overpayment", overpayment_reason)
 CALL write_variable_in_CCOL_note("----- ----- ----- ----- -----")
 CALL write_variable_in_CCOL_note(worker_signature)
+PF3 ' to ensure we leave the CCOL case note'
 script_end_procedure_with_error_report("Success PARIS match overpayment case note entered and copied to CCOL please review case note to ensure accuracy.")
 '----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------

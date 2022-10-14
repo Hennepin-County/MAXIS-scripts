@@ -919,6 +919,7 @@ END IF
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_variable_in_case_note("----- ----- ----- ----- -----")
 CALL write_variable_in_case_note(worker_signature)
+PF3 ' to ensure we clear the case note for the next action'
 
 IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-----------------------------------------------------------------------------------------OP CASENOTE
     IF HC_claim_number <> "" THEN
