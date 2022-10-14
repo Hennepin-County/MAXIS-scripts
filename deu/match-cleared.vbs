@@ -981,7 +981,7 @@ IF resolution_status = "CC-Overpayment Only" or HC_OP_checkbox = CHECKED THEN '-
     CALL write_bullet_and_variable_in_CCOL_NOTE("Other responsible member(s)", OT_resp_memb)
 	CALL write_variable_in_ccol_note("----- ----- ----- ----- -----")
 	CALL write_variable_in_ccol_note(worker_signature)
-
+	PF3 ' to ensure we leave the CCOL case note'
 	'-------------------------------The following will generate a TIKL formatted date for 10 days from now, and add it to the TIKL
 	IF tenday_checkbox = CHECKED THEN CALL create_TIKL("Unable to close due to 10 day cutoff. Verification of match should have returned by now. If not received and processed, take appropriate action.", 0, date, True, TIKL_note_text)
 	script_end_procedure_with_error_report("Match has been acted on. Please take any additional action needed for your case.")
