@@ -57,26 +57,27 @@ changelog_display
 EMConnect ""
 Call check_for_MAXIS(end_script)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
-MAXIS_footer_month = right("0" &             DatePart("m",           DateAdd("m", -4, date)            ), 4)
-MAXIS_footer_year =  right(                  DatePart("yyyy",        DateAdd("m", -4, date)            ), 4)
+MAXIS_footer_month = right("0" & DatePart("m",    DateAdd("m", -4, date) ), 4) ' resetting the month to current month minus 4 '
+MAXIS_footer_year =  right(      DatePart("yyyy", DateAdd("m", -4, date) ), 4)
 
+'-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = "" 'Blanking out previous dialog detail
+BeginDialog Dialog1, 0, 0, 261, 60, "BULK INAC TRANSFER"
+  ButtonGroup ButtonPressed
+    PushButton 205, 5, 55, 15, "Instructions", hsr_instruction_button
+  EditBox 80, 40, 50, 15, excel_row_to_restart
+  ButtonGroup ButtonPressed
+    OkButton 160, 40, 50, 15
+    CancelButton 210, 40, 50, 15
+  Text 5, 5, 200, 35, "The script will add cases to an excel sheet (using BULK INAC/REPT) that have been closed for 4 months or more and review the caseload to determine the appropriate transfer actions."
+  Text 5, 45, 75, 10, "Excel row for restart:"
+EndDialog
 Do
 	Do
-		'The dialog is defined in the loop as it can change as buttons are pressed
-	    '-------------------------------------------------------------------------------------------------DIALOG
-	    Dialog1 = "" 'Blanking out previous dialog detail
-        BeginDialog Dialog1, 0, 0, 271, 55, "BULK INAC TRANSFER"
-          ButtonGroup ButtonPressed
-            PushButton 5, 35, 50, 15, "Instructions", hsr_instruction_button
-            OkButton 155, 35, 50, 15
-            CancelButton 210, 35, 50, 15
-          Text 5, 5, 260, 25, "The script will add cases to an excel sheet (using BULK INAC/REPT) that have been closed for 4 months or more and review the caseload to determine the appropriate transfer actions."
-        EndDialog
-	  	err_msg = ""
+		err_msg = ""
 		DIALOG Dialog1
 		cancel_confirmation
-		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(BULK_INAC_transfer_path, ".xlsx")
- 		If ButtonPressed = hsr_instruction_button Then
+		If ButtonPressed = hsr_instruction_button Then
 			err_msg = "LOOP"
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/ADMIN/ADMIN%20%E2%80%93%20BULK%20%E2%80%93%20INAC%20Transfer.docx?d=wa6d3e0f66e8940dfa57272414bfd1f76&csf=1&web=1&e=QOcxxB"
 		End If
@@ -84,9 +85,6 @@ Do
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
-'
-Call excel_open(BULK_INAC_transfer_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
-
 'setting the footer month to make the updates in'
 back_to_self 'resetting MAXIS back to self before getting started
 
@@ -95,6 +93,8 @@ query_start_time = timer
 
 'Checking for MAXIS
 Call check_for_MAXIS(false) 'one more time just in case '
+
+'Opens the excel spreadsheet. instead of having 12 different workbooks saving each month to the same work book makes more sense
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -115,11 +115,12 @@ ObjExcel.Cells(1, 5).Value = "INAC DATE"
 ObjExcel.Cells(1, 6).Value = "TRANSFERED"
 ObjExcel.Cells(1, 7).Value = "CONFRIM"
 
+two_digit_county_code =  "27"'
 'script will go to REPT/USER, and load all of the workers into an array.
-CALL create_array_of_all_active_x_numbers_by_supervisor
+call create_array_of_all_active_x_numbers_in_county(worker_array, two_digit_county_code)
 
 'Setting the variable for what's to come
-excel_row = 2
+If excel_row_to_restart <> "" THEN excel_row_to_restart = "2"
 all_case_numbers_array = "*"
 
 For each worker in worker_array
@@ -158,7 +159,7 @@ For each worker in worker_array
 				End if
 				MAXIS_row = MAXIS_row + 1
 				add_case_info_to_Excel = ""	'Blanking out variable
-				MAXIS_case_number = ""			'Blanking out variable
+				MAXIS_case_number = ""		'Blanking out variable
 			Loop until MAXIS_row = 19
 		 	PF8
 			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
@@ -166,12 +167,18 @@ For each worker in worker_array
 	End if
 	STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 next
-' this is the end ofcreating the BULK INAC list'
+' this is the end of creating the BULK INAC list'
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\BZ ongoing projects\CCL INAC Transfer " & file_info & ".xlsx"
+'TODO if I have to restart I need to make the path for the script to know where that file is found'
+'Call excel_open(BULK_INAC_transfer_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
 
-
-'Now the script adds all the clients on the excel list into an array
+'Now the script
 transfer_to_worker = "X127CCL" 'setting the worker to the closed basket'
 transfer_case_action = TRUE
+
+back_to_self 'resetting MAXIS back to self before getting started with the transfers
+'excel_row_to_restart = "2"
+Msgbox "this is where I am - need to engage the excel sheet and make sure we start from the correct place"
 Do
     previous_worker_number = objExcel.cells(excel_row_to_restart, 1).Value          're-establishing the worker number for functions to use
     If trim(previous_worker_number) = "" then exit do ' this will need to exit'
@@ -183,7 +190,7 @@ Do
 		action_completed = "Confirmed"
 	END IF
 
-	MAXIS_case_number 	 = objExcel.cells(excel_row_to_restart, 2).Value          're-establishing the case numbers for functions to use
+	MAXIS_case_number = objExcel.cells(excel_row_to_restart, 2).Value          're-establishing the case numbers for functions to use
     IF trim(MAXIS_case_number) = "" THEN EXIT DO 'this should end the script'
 
     IF transfer_case_action = TRUE THEN
@@ -245,6 +252,21 @@ For col_to_autofit = 1 to 10
 Next
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
+
+'formatting the cells
+FOR i = 1 to 8
+	objExcel.Columns(i).AutoFit()				'sizing the columns
+NEXT
+
+'saving the Excel file
+file_info = month_folder & "\" & year_folder
+
+'Saves and closes the most recent Excel.
+objExcel.ActiveWorkbook.SaveAs "T:\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Projects\BZ ongoing projects\CCL INAC Transfer " & file_info & ".xlsx"
+objExcel.ActiveWorkbook.Close
+objExcel.Application.Quit
+objExcel.Quit
+
 script_end_procedure("Success! The list is complete. Please review the cases that appear to be in error.")
 
 
