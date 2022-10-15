@@ -78,6 +78,17 @@ function ensure_variable_is_a_number(variable)
 	variable = variable + 0
 end function
 
+' - No proof provided for relationship with m04. No verification provided for
+'asset (account and car). No proof of applying for UC                        '
+
+function enter_verif_missing_header(verif_header)
+	If verif_header = False Then
+		Call write_variable_in_CASE_NOTE("=============================================================================")
+		Call write_variable_in_CASE_NOTE("Information not verified on this case:")
+		verif_header = True
+	End If
+end function
+
 function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, version_date, version_result, approval_found)
 	Call write_value_and_transmit("99", cmd_row, cmd_col)
 	approval_found = True
@@ -2246,6 +2257,10 @@ function define_grh_elig_dialog()
 					y_pos = y_pos + 20
 				End If
 			End if
+			Text 15, y_pos, 150, 10, "Explain details of reason for denial:"
+			EditBox 15, y_pos+10, 430, 15, GRH_UNIQUE_APPROVALS(inelig_details_notes, approval_selected)
+			y_pos = y_pos + 30
+
 			GroupBox 5, inelig_det_grp_y_pos, 445, y_pos-inelig_det_grp_y_pos+5, "Ineligible Details"
 			y_pos = y_pos + 10
 
@@ -2485,13 +2500,15 @@ function define_hc_elig_dialog()
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" Then
-			GroupBox 10, 10, 440, 95, "MEMB 01 - NAME GOES HERE - ELIGIBLE for MA"
+			GroupBox 10, 10, 440, 95, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) & " for MA"
 			GroupBox 15, 20, 140, 50, "Eligiblity for 05/22 - 11/22"
-		    Text 25, 35, 95, 10, "Elig Type: DX - Detail"
-		    Text 25, 45, 95, 10, "Standard: E - 100% FPG"
+		    Text 25, 35, 95, 10, "Elig Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) & " - Detail"
+		    Text 25, 45, 95, 10, "Standard: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_standard(memb_ind) & " - 100% FPG"
 		    Text 30, 55, 55, 10, "Method: B"
-			GroupBox 15, 70, 140, 30, "Waiver Approved"
-			Text 25, 85, 120, 10, "Type: F - INFORMATION"
+			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) <> "_" Then
+				GroupBox 15, 70, 140, 30, "Waiver Approved"
+				Text 25, 85, 120, 10, "Type: " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_waiver(memb_ind) & " - INFORMATION"
+			End If
 			If HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 			    Text 165, 20, 120, 10, "Unearned Inc .  .  .  . $ 1423.10"
 			    Text 165, 30, 120, 10, "Deemed UNEA .  .  .  $ 0.00 (+)"
@@ -2509,6 +2526,34 @@ function define_hc_elig_dialog()
 		End If
 
 
+
+
+		' BeginDialog Dialog1, 0, 0, 555, 385, "HC Approval Packages"
+		'   ButtonGroup ButtonPressed
+		'     PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
+		'   GroupBox 460, 10, 85, 105, "HC Approvals"
+		'   Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+		'   DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", GRH_UNIQUE_APPROVALS(confirm_budget_selection
+		'   GroupBox 10, 10, 440, 95, "MEMB 01 - NAME GOES HERE - ELIGIBLE for MA"
+		'   Text 25, 35, 95, 10, "Elig Type: DX - Detail"
+		'   Text 25, 45, 95, 10, "Standard: E - 100% FPG"
+		'   Text 30, 55, 55, 10, "Method: B"
+		'   GroupBox 15, 20, 140, 50, "Eligiblity for 05/22 - 11/22"
+		'   Text 165, 20, 120, 10, "Unearned Inc .  .  .  . $ 1423.10"
+		'   Text 165, 30, 120, 10, "Deemed UNEA .  .  .  $ 0.00 (+)"
+		'   Text 165, 40, 120, 10, "Excld UNEA  .  .  .  .   $ 0.00 (-)"
+		'   Text 165, 50, 120, 10, "UNEA Deduct  .  .  .  . $ 0.00 (-)"
+		'   Text 165, 65, 120, 10, "Net Unearned Inc  .  .  .  . $ 0.00"
+		'   Text 315, 20, 125, 10, "Earned Inc .  .  .  .  .  .  . $ 1423.10"
+		'   Text 315, 30, 120, 10, "Deemed Earned .  .  .  .  $ 0.00 (+)"
+		'   Text 315, 40, 120, 10, "Excld Earned .  .  .  .  .  .$ 0.00 (-)"
+		'   Text 315, 50, 120, 10, "Earned Deduct  .  .  .  .  .$ 0.00 (-)"
+		'   Text 315, 65, 130, 10, "Net Earned Inc  .  .  .  .  .  .  $ 0.00"
+		'   Text 325, 80, 120, 10, "Total Net Income .  .  .  .  $ 1019.00"
+		'   Text 325, 90, 120, 10, "Income Standard .  .  .  .  $ 1133.00"
+		'   GroupBox 15, 70, 140, 30, "Waiver Approved"
+		'   Text 25, 85, 120, 10, "Type: F - INFORMATION"
+		' EndDialog
 		If scnd_elig_ind <> "" Then
 
 		End If
@@ -4652,7 +4697,7 @@ function ga_elig_case_note()
 			Call write_variable_in_CASE_NOTE(" - Verifications were not received. (VERIFICATION)")
 			Call write_variable_in_CASE_NOTE("   VERIFICATION REQUEST FORM SENT: " & GA_UNIQUE_APPROVALS(verif_request_date, unique_app) & ", due by: " & due_date)
 			' If trim(GA_UNIQUE_APPROVALS(verif_request_details, unique_app)) <> "" Then Call write_variable_in_CASE_NOTE("   Missing Verifications: " & GA_UNIQUE_APPROVALS(verif_request_details, unique_app))
-			Call write_long_variable_in_DENY_note("   Missing Verifications: ", GA_UNIQUE_APPROVALS(verif_request_details, unique_app))
+			Call write_long_variable_with_indent("   Missing Verifications: ", GA_UNIQUE_APPROVALS(verif_request_details, unique_app))
 			first_job_not_verified = True
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
@@ -4732,7 +4777,7 @@ function ga_elig_case_note()
 		End if
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_lump_sum_payment = "FAILED" Then Call write_variable_in_CASE_NOTE(" - This case has not complied with Lump Sum Requirements. (LUMP SUM PAYMMENT)")
 		' If trim(GA_UNIQUE_APPROVALS(inelig_details_notes, unique_app)) <> "" Then Call write_variable_in_CASE_NOTE("   Inelig Reason: " & GA_UNIQUE_APPROVALS(inelig_details_notes, unique_app))
-		Call write_long_variable_in_DENY_note("   Inelig Reason: ", GA_UNIQUE_APPROVALS(inelig_details_notes, unique_app))
+		Call write_long_variable_with_indent("   Inelig Reason: ", GA_UNIQUE_APPROVALS(inelig_details_notes, unique_app))
 	End If
 
 	'312524'
@@ -5115,6 +5160,10 @@ function grh_elig_case_note()
 				If STAT_INFORMATION(month_ind).stat_disa_cash_verif_code(each_memb) = "N" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb = STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) Then
 					Call write_variable_in_CASE_NOTE("   Professional Statement of Need (PSN) required for Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - not received.")
 				End If
+				' If STAT_INFORMATION(month_ind).stat_disa_exists(each_memb) = False and GRH_ELIG_APPROVALS(elig_ind).grh_elig_memb_ref_numb = STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) Then
+				' 	Call write_variable_in_CASE_NOTE("   Professional Statement of Need (PSN) required for Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - not received.")
+				' End If
+				'QUESTION outstanding to K VS'
 			Next
 		End If
 		If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_income = "FAILED" Then
@@ -5184,6 +5233,7 @@ function grh_elig_case_note()
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif_TRTX_housing_instability = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Housing Instability - TRTX")
 			If GRH_ELIG_APPROVALS(elig_ind).grh_elig_case_test_verif_TRTX_psn_rate_2 = "FAILED" Then Call write_variable_in_CASE_NOTE("   * Facility PSN Rate 2 - TRTX")
 		End If
+		Call write_long_variable_with_indent("   Inelig Reason: ", GRH_UNIQUE_APPROVALS(inelig_details_notes, unique_app))
 	End If
 
 
@@ -5620,50 +5670,58 @@ function deny_elig_case_note()
 	End If
 
 	For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-		If verif_header = False Then
-			Call write_variable_in_CASE_NOTE("=============================================================================")
-			Call write_variable_in_CASE_NOTE("Information not verified on this case:")
-			verif_header = True
-		End If
 		If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_one_job_ended(each_memb) = False Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb) & " verif not received.")
 		End if
 		If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_two_job_ended(each_memb) = False Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb) & " verif not received.")
 		End if
 		If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_three_job_ended(each_memb) = False Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb) & " verif not received.")
 		End if
 		If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_four_job_ended(each_memb) = False Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb) & " verif not received.")
 		End if
 		If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_jobs_five_job_ended(each_memb) = False Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " employment at " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb) & " verif not received.")
 		End if
 
 		If (STAT_INFORMATION(month_ind).stat_busi_one_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_snap_expense_verif_code(each_memb) = "N") and STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) = "" Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
 		End if
 		If (STAT_INFORMATION(month_ind).stat_busi_two_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_snap_expense_verif_code(each_memb) = "N") and STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb) = "" Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
 		End if
 		If (STAT_INFORMATION(month_ind).stat_busi_three_snap_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_snap_expense_verif_code(each_memb) = "N") and STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb) = "" Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " Self Employment verif not received.")
 		End if
 
 		If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb) = "" Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & " verif not received.")
 		End if
 		If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb) = "" Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & " verif not received.")
 		End if
 		If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb) = "" Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & " verif not received.")
 		End if
 		If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb) = "" Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & " verif not received.")
 		End if
 		If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" and STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb) = "" Then
+			Call enter_verif_missing_header(verif_header)
 			Call write_variable_in_CASE_NOTE("     M " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " income from " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & " verif not received.")
 		End if
 	Next
@@ -12677,7 +12735,7 @@ class emer_eligibility_detail
 		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 		manual_hh_count = 0
 		If approved_version_found = False Then approved_today = False
-		MsgBox "approved_version_found - " & approved_version_found & vbCr & "elig_version_date - " & elig_version_date
+		' MsgBox "approved_version_found - " & approved_version_found & vbCr & "elig_version_date - " & elig_version_date
 		If approved_version_found = True Then
 
 			If IsDate(elig_version_date) = True Then
@@ -20933,10 +20991,10 @@ If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_HC = False
 enter_CNOTE_for_DWP = False
 
 If enter_CNOTE_for_DWP = True Then testing_run = True
-If enter_CNOTE_for_DENY = True Then testing_run = True
-If enter_CNOTE_for_GRH = True Then testing_run = True
+' If enter_CNOTE_for_DENY = True Then testing_run = True
+' If enter_CNOTE_for_GRH = True Then testing_run = True
 If enter_CNOTE_for_HC = True Then testing_run = True
-If enter_CNOTE_for_EMER = True Then testing_run = True
+' If enter_CNOTE_for_EMER = True Then testing_run = True
 
 deductions_detail_btn 	= 1010
 hh_comp_detail			= 1020
@@ -21446,7 +21504,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 
 			If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True and MFIP_ELIG_APPROVALS(elig_ind).mfip_counted_memb_allocation_exists = True or MFIP_ELIG_APPROVALS(elig_ind).mfip_deemer_allocation_exists = True Then
 				If trim(MFIP_UNIQUE_APPROVALS(allocation_notes, approval_selected)) = "" Then err_msg = err_msg & vbNewLine & "* Add allocation details about this budget. Since this budget includes an allocation of funds in Earned or Unearned income, details about how this allocations was calculated are required for CASE/NOTE."
-				testing_run = true
+				' testing_run = true
 			End If
 
 			If err_msg <> "" and ButtonPressed < 1000 Then
