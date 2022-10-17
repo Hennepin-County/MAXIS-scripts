@@ -11497,7 +11497,7 @@ If objFSO.FileExists(intvw_done_msg_file) = False then
 	objTextStream.WriteLine ""
 	objTextStream.WriteLine "The interview took " & interview_time & " minutes."
 	objTextStream.WriteLine "The script is currently creating your PDF, SPEC/MEMO, and CASE/NOTEs. DO NOT TRY TO TAKE ANY ACTION ON THE COMPUTER WHILE THIS FINISHES."
-	objTextStream.WriteLine "BE SURE TO ADD YOUR AGENCY SIGNATURE TO THE " & CAF_form & "."
+	objTextStream.WriteLine "Agency Siganture is not required on the " & CAF_form & "."
 	objTextStream.WriteLine ""
 	objTextStream.WriteLine ""
 	objTextStream.WriteLine "This is a great time to talk to the resident about: "
@@ -13507,7 +13507,7 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	o2Exec.Terminate()
 	'Now we ask if the worker would like the PDF to be opened by the script before the script closes
 	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
-	reopen_pdf_doc_msg = MsgBox("The information gathered in the interview has been saved as a PDF and will be added to ECF as a separate 'Interview Notes' document." & vbCr & vbCr & "This document will take the place of your CAF INTERVIEW ANNOTATIONS, with the exception of the AGENCY SIGNATURE on the " & CAF_form & ", be sure to add that manually." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
+	reopen_pdf_doc_msg = MsgBox("The information gathered in the interview has been saved as a PDF and will be added to ECF as a separate 'Interview Notes' document." & vbCr & vbCr & "This document will take the place of your CAF INTERVIEW ANNOTATIONS, as long as you have entered all interview notes to the script." & vbCr & "Agency Signature is not required on the application form." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
 	If reopen_pdf_doc_msg = vbYes Then
         If objFSO.FileExists(pdf_doc_path) = TRUE Then
     		run_path = chr(34) & pdf_doc_path & chr(34)
@@ -13522,7 +13522,8 @@ Else
 	end_msg = "Something has gone wrong - the CAF information has NOT been saved correctly to be processed." & vbCr & vbCr & "You can either save the Word Document that has opened as a PDF in the Assignment folder OR Close that document without saving and RERUN the script. Your details have been saved and the script can reopen them and attampt to create the files again. When the script is running, it is best to not interrupt the process."
 End If
 
-end_msg = end_msg & vbCr & vbCr & "REMINDER - be sure to add your AGENCY SIGNATURE to the " & CAF_form & "."
+end_msg = end_msg & vbCr & vbCr & "The documment created for the ECF Case File can serve in place of any annotations as long as you entered all of your interview notes into the script. If you have entered all of the interview notes for this interview, there is no need to annotate the application form in ECF."
+end_msg = end_msg & vbCr & vbCr & "Hennepin County does not require an Agency Signature to be added to the application form. Details can be found in the HSR Manual: https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx (Search: Applications)."
 objFSO.DeleteFile(intvw_done_msg_file)
 
 revw_pending_table = False                                                      'Determining if we should be adding this case to the CasesPending SQL Table
