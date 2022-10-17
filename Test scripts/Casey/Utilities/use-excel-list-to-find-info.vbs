@@ -150,52 +150,191 @@ file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Expedited Deter
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Aug 9.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\Cash Cases 8-1-22.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Sept 16.xlsx"
+file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Oct 6.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 ' Call navigate_to_MAXIS_screen("CCOL", "CLIC")
-MAXIS_footer_month = "09"
+MAXIS_footer_month = "10"
 MAXIS_footer_year = "22"
-excel_row = 2
+excel_row = 54998
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+	xl_col = 5
 
-	call navigate_to_MAXIS_screen("ELIG", "GRH ")
-	EmReadScreen at_grh_elig, 16, 2, 33
-	If at_grh_elig = "GRH ELIG Results" Then
-		' EMWriteScreen MAXIS_footer_month, 20, 55
-		' EMWriteScreen MAXIS_footer_year, 20, 58
-		' transmit
-		Call find_last_approved_ELIG_version(20, 79, version_number, version_date, version_result, approval_found)
+	call navigate_to_MAXIS_screen("ELIG", "HC  ")
+	EMWriteScreen MAXIS_footer_month, 19, 54
+	EMWriteScreen MAXIS_footer_year, 19, 57
+	transmit
 
-		EMReadScreen grh_elig_type, 2, 6, 53
-		EMReadScreen grh_elig_case_test_assets, 6, 8, 45
-		EMReadScreen grh_elig_case_test_fail_file, 6, 11, 8
-		EMReadScreen grh_elig_case_test_verif, 6, 13, 45
-		EMReadScreen grh_elig_case_test_income, 6, 11, 45
-		' MsgBox "grh_elig_type - " & grh_elig_type
-		' MsgBox "grh_elig_case_test_assets - " & grh_elig_case_test_assets & vbCr & "grh_elig_case_test_fail_file - " & grh_elig_case_test_fail_file & vbCr & "grh_elig_case_test_verif - " & grh_elig_case_test_verif
+	hc_row = 8
+	Do
+		EMReadScreen new_hc_elig_ref_numbs, 2, hc_row, 3
+		EMReadScreen new_hc_elig_full_name, 17, hc_row, 7
+
+		If new_hc_elig_ref_numbs = "  " Then
+			new_hc_elig_ref_numbs = hc_elig_ref_numbs
+			new_hc_elig_full_name = hc_elig_full_name
+		End If
+		hc_elig_ref_numbs = new_hc_elig_ref_numbs
+		hc_elig_full_name = new_hc_elig_full_name
+
+		hc_elig_full_name = trim(hc_elig_full_name)
+
+		EMReadScreen clt_hc_prog, 4, hc_row, 28
+		If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
+
+			EMReadScreen prog_status, 3, hc_row, 68
+			If prog_status <> "APP" Then                        'Finding the approved version
+				EMReadScreen total_versions, 2, hc_row, 64
+				If total_versions = "01" Then
+					hc_prog_elig_appd = False
+				Else
+					EMReadScreen current_version, 2, hc_row, 58
+					' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
+					If current_version = "01" Then
+						hc_prog_elig_appd = False
+					Else
+						prev_version = right ("00" & abs(current_version) - 1, 2)
+						EMWriteScreen prev_version, hc_row, 58
+						transmit
+						hc_prog_elig_appd = True
+					End If
+
+				End If
+			Else
+				hc_prog_elig_appd = True
+			End If
+		Else
+			hc_prog_elig_appd = False
+		End If
+
+		If hc_prog_elig_appd = True Then
+			EMReadScreen hc_prog_elig_major_program, 		4, hc_row, 28
+			EMReadScreen hc_prog_elig_eligibility_result, 	8, hc_row, 41
+			EMReadScreen hc_prog_elig_status, 				8, hc_row, 50
+			EMReadScreen hc_prog_elig_app_indc, 				6, hc_row, 68
+			EMReadScreen hc_prog_elig_magi_excempt, 			6, hc_row, 74
 
 
-		' If grh_elig_type = "01" Then  grh_elig_type_info = "SSI"
-	 	' If grh_elig_type = "02" Then  grh_elig_type_info = "MFIP"
-	 	' If grh_elig_type = "03" Then  grh_elig_type_info = "Blind"
-	 	' If grh_elig_type = "04" Then  grh_elig_type_info = "Disabled"
-	 	' If grh_elig_type = "05" Then  grh_elig_type_info = "Aged"
-	 	' If grh_elig_type = "06" Then  grh_elig_type_info = "Adult"
-	 	' If grh_elig_type = "07" Then  grh_elig_type_info = "None"
-	 	' If grh_elig_type = "08" Then  grh_elig_type_info = "Residential Treatment"
-		'
-		' Call write_value_and_transmit("GRFB", 20, 71)
-		'
-	 	' EMReadScreen grh_elig_budg_vendor_number_one, 	8, 6, 25
-	 	' EMReadScreen grh_elig_budg_vendor_number_two, 	8, 6, 44
-		' MsgBox "grh_elig_budg_vendor_number_one - " & grh_elig_budg_vendor_number_one
-		ObjExcel.Cells(excel_row, 5).Value = grh_elig_case_test_assets
-		ObjExcel.Cells(excel_row, 6).Value = grh_elig_case_test_fail_file
-		ObjExcel.Cells(excel_row, 7).Value = grh_elig_case_test_verif
-		ObjExcel.Cells(excel_row, 8).Value = grh_elig_case_test_income
-	End If
+			hc_prog_elig_major_program = trim(hc_prog_elig_major_program)
+
+			Call write_value_and_transmit("X", hc_row, 26)
+			' MsgBox "MOVING - 1" & vbCr & hc_prog_elig_major_program(hc_prog_count) & vbCr & "MEMB " & hc_elig_ref_numbs(hc_prog_count)
+			EMReadScreen hc_prog_elig_process_date, 8, 2, 73
+			hc_prog_elig_process_date = DateAdd("d", 0, hc_prog_elig_process_date)
+
+			' If DateDiff("'d", hc_prog_elig_process_date, date) = 0 Then
+			If hc_prog_elig_major_program = "HC D" Then
+				EMReadScreen hc_prog_elig_source_of_info, 		4, 9, 33
+				EMReadScreen hc_prog_elig_responsible_county, 	2, 8, 78
+				EMReadScreen hc_prog_elig_servicing_county, 	2, 9, 78
+
+				EMReadScreen hc_prog_elig_test_application_withdrawn, 			6, 13, 22
+				EMReadScreen hc_prog_elig_test_application_process_incomplete, 6, 14, 22
+				EMReadScreen hc_prog_elig_test_no_new_prog_eligibility, 		6, 15, 22
+				EMReadScreen hc_prog_elig_test_assistance_unit, 				6, 16, 22
+
+				EMReadScreen hc_prog_elig_worker_msg_one, 78, 19, 3
+			End If
+
+			If hc_prog_elig_major_program = "MA" or hc_prog_elig_major_program = "EMA" Then
+				hc_col = 17
+				Do
+					EMReadScreen budg_mo, 2, 6, hc_col + 2
+					EMReadScreen budg_yr, 2, 6, hc_col + 5
+					' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
+					If budg_mo = MAXIS_footer_month AND budg_yr = MAXIS_footer_year Then
+						EMReadScreen hc_prog_elig_elig_type, 		2, 12, hc_col
+						EMReadScreen hc_prog_elig_elig_standard, 	1, 12, hc_col + 5
+						EMReadScreen hc_prog_elig_method, 			1, 13, hc_col + 4
+						EMReadScreen hc_prog_elig_waiver, 			1, 14, hc_col + 4
+
+						EMReadScreen hc_prog_elig_total_net_income, 9, 15, hc_col
+						EMReadScreen hc_prog_elig_standard, 		9, 16, hc_col
+						EMReadScreen hc_prog_elig_excess_income, 	9, 17, hc_col
+						If trim(hc_prog_elig_total_net_income) = "" Then hc_prog_elig_total_net_income = "0.00"
+						Exit Do
+
+					End If
+					hc_col = hc_col + 11
+
+					If hc_col = 83 Then hc_prog_elig_appd = False
+				Loop until hc_col = 83
+			End If
+		End If
+
+		ObjExcel.Cells(excel_row, xl_col).Value = hc_elig_ref_numbs & " - " & hc_elig_full_name & " (" & clt_hc_prog & ")"
+		ObjExcel.Cells(excel_row, xl_col+1).Value = hc_prog_elig_appd
+		If hc_prog_elig_major_program <> "" Then ObjExcel.Cells(excel_row, xl_col+2).Value = hc_prog_elig_major_program & " - " & hc_prog_elig_eligibility_result & ", Status: " & hc_prog_elig_status & " - " & hc_prog_elig_app_indc
+		If hc_prog_elig_elig_type <> "" Then ObjExcel.Cells(excel_row, xl_col+3).Value = hc_prog_elig_elig_type & "-" &  hc_prog_elig_elig_standard & " method: " & hc_prog_elig_method
+		If hc_prog_elig_total_net_income <> "" Then ObjExcel.Cells(excel_row, xl_col+4).Value = "Income: " & hc_prog_elig_total_net_income & ", Standard: " & hc_prog_elig_standard
+
+		clt_hc_prog = ""
+		hc_prog_elig_appd = ""
+		hc_prog_elig_major_program = ""
+		hc_prog_elig_eligibility_result = ""
+		hc_prog_elig_status = ""
+		hc_prog_elig_app_indc = ""
+		hc_prog_elig_elig_type = ""
+		hc_prog_elig_elig_standard = ""
+		hc_prog_elig_method = ""
+		hc_prog_elig_total_net_income = ""
+		hc_prog_elig_standard = ""
+
+		Do
+			EMReadScreen hhmm_check, 4, 3, 51
+			If hhmm_check <> "HHMM" Then PF3
+		Loop Until hhmm_check = "HHMM"
+
+		xl_col = xl_col + 5
+		hc_row = hc_row + 1
+		EMReadScreen next_ref_numb, 2, hc_row, 3
+		EMReadScreen next_maj_prog, 4, hc_row, 28
+		' MsgBox "Row: " & hc_row & vbCr & "Next Ref Numb: " & next_ref_numb & vbCr & "Next Major Prog: " & next_maj_prog
+	Loop until next_ref_numb = "  " and next_maj_prog = "    "
+
+
+
+	Call Back_to_SELF
+
+	'
+	' call navigate_to_MAXIS_screen("ELIG", "GRH ")
+	' EmReadScreen at_grh_elig, 16, 2, 33
+	' If at_grh_elig = "GRH ELIG Results" Then
+	' 	' EMWriteScreen MAXIS_footer_month, 20, 55
+	' 	' EMWriteScreen MAXIS_footer_year, 20, 58
+	' 	' transmit
+	' 	Call find_last_approved_ELIG_version(20, 79, version_number, version_date, version_result, approval_found)
+	'
+	' 	EMReadScreen grh_elig_type, 2, 6, 53
+	' 	EMReadScreen grh_elig_case_test_assets, 6, 8, 45
+	' 	EMReadScreen grh_elig_case_test_fail_file, 6, 11, 8
+	' 	EMReadScreen grh_elig_case_test_verif, 6, 13, 45
+	' 	EMReadScreen grh_elig_case_test_income, 6, 11, 45
+	' 	' MsgBox "grh_elig_type - " & grh_elig_type
+	' 	' MsgBox "grh_elig_case_test_assets - " & grh_elig_case_test_assets & vbCr & "grh_elig_case_test_fail_file - " & grh_elig_case_test_fail_file & vbCr & "grh_elig_case_test_verif - " & grh_elig_case_test_verif
+	'
+	'
+	' 	' If grh_elig_type = "01" Then  grh_elig_type_info = "SSI"
+	'  	' If grh_elig_type = "02" Then  grh_elig_type_info = "MFIP"
+	'  	' If grh_elig_type = "03" Then  grh_elig_type_info = "Blind"
+	'  	' If grh_elig_type = "04" Then  grh_elig_type_info = "Disabled"
+	'  	' If grh_elig_type = "05" Then  grh_elig_type_info = "Aged"
+	'  	' If grh_elig_type = "06" Then  grh_elig_type_info = "Adult"
+	'  	' If grh_elig_type = "07" Then  grh_elig_type_info = "None"
+	'  	' If grh_elig_type = "08" Then  grh_elig_type_info = "Residential Treatment"
+	' 	'
+	' 	' Call write_value_and_transmit("GRFB", 20, 71)
+	' 	'
+	'  	' EMReadScreen grh_elig_budg_vendor_number_one, 	8, 6, 25
+	'  	' EMReadScreen grh_elig_budg_vendor_number_two, 	8, 6, 44
+	' 	' MsgBox "grh_elig_budg_vendor_number_one - " & grh_elig_budg_vendor_number_one
+	' 	ObjExcel.Cells(excel_row, 5).Value = grh_elig_case_test_assets
+	' 	ObjExcel.Cells(excel_row, 6).Value = grh_elig_case_test_fail_file
+	' 	ObjExcel.Cells(excel_row, 7).Value = grh_elig_case_test_verif
+	' 	ObjExcel.Cells(excel_row, 8).Value = grh_elig_case_test_income
+	' End If
 
 	' deny_cash_dwp_reason_info = ""
 	' deny_cash_mfip_reason_info = ""
