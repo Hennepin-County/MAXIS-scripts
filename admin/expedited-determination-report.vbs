@@ -428,7 +428,7 @@ If missing_HSRs <> "" Then
 
 	email_body = "The Expedited Determination Report script has run and was unable to match the HSR User ID in at least one instance. Review the Worker List sheet in the Report Excel and update to include the followin User ID(s):"
 	email_body = email_body & missing_HSRs
-	email_body = email_body & vbCr & vbCr "This email is automated as a part of the script run of ADMIN - Expedited Determination Report."
+	email_body = email_body & vbCr & vbCr & "This email is automated as a part of the script run of ADMIN - Expedited Determination Report."
 
 	send_email = True
 	Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", email_subject, email_body, "", send_email)
