@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/18/2022", "Removed Health Care renewal supports during the PHE. Health Care renewals remain paused.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/01/2022", "The functionality for Waiving an Interview has been removed. We can no longer waive SNAP Recertification Interviews.", "Casey Love, Hennepin County")
 call changelog_update("03/17/2022", "BUG FIX##~##There have been reports of some of the required CASE:NOTEs missing from the script run at the end. We have updated some of the background functionality in this script to keep this from happening. If you notice issues with CASE:NOTEs missing at the end of this script run, report them to the BlueZone Script Team.", "Casey Love, Hennepin County")
 call changelog_update("12/20/2021", "Removal of interview completed button. ", "MiKayla Handley")
@@ -5470,7 +5471,7 @@ BeginDialog Dialog1, 0, 0, 281, 185, "CAF Script Case number dialog"
   EditBox 40, 100, 220, 15, cash_other_req_detail
   EditBox 40, 120, 220, 15, snap_other_req_detail
   EditBox 40, 140, 220, 15, emer_other_req_detail
-  CheckBox 5, 165, 150, 10, "HC REVW Form is also being processed.", HC_checkbox
+  'CheckBox 5, 165, 150, 10, "HC REVW Form is also being processed.", HC_checkbox
   ButtonGroup ButtonPressed
     OkButton 175, 165, 50, 15
     CancelButton 225, 165, 50, 15
