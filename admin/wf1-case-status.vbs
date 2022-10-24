@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("10/20/2022", "Script updated to support household's with multiple members, fix out of county handling and to enhance background functionality and ", "Ilse Ferris, Hennepin County")
+call changelog_update("10/20/2022", "Script updated to support household's with multiple members, fix out of county handling, add person based SNAP status and enhance background functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/16/2018", "Removed default to current month for case status. Users can navigate the footer month/year they wish to review, then run the script.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/13/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -53,7 +53,8 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
-EMConnect "" 'Connects to BlueZone and establishing county name
+EMConnect "" 'Connects to BlueZone
+Call Check_for_MAXIS(False)
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, 110, "WF1 Case Status"
@@ -79,7 +80,6 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-'Opening today's list
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
 
 'ARRAY business----------------------------------------------------------------------------------------------------
@@ -108,7 +108,7 @@ Do                                                            'Loops until there
 	MAXIS_case_number = trim(objExcel.cells(excel_row, 3).Value)
     If MAXIS_case_number = "" then exit do
 
-	client_SSN  = trim(objExcel.cells(excel_row, 4).Value)		'Pulls the client's known information
+	client_SSN  = trim(objExcel.cells(excel_row, 4).Value)		'Pulls the SSN and reformats if 9 digits.
     If client_SSN <> "" then
 	    If len(client_SSN) = 9 then
            ssn_first = left(client_SSN, 3)
@@ -126,6 +126,7 @@ Do                                                            'Loops until there
 	CBO_array(MAXIS_case_number_const, entry_record) = MAXIS_case_number
 	CBO_array(excel_num_const, 		   entry_record) = excel_row
 	entry_record = entry_record + 1			'This increments to the next entry in the array
+    STATS_counter = STATS_counter + 1
 	excel_row = excel_row + 1
 
 	'blanking out variables
@@ -157,11 +158,12 @@ For item = 0 to UBound(CBO_array, 2)
                     pers_last_name = trim(pers_last_name)
                     pers_first_name = trim(pers_first_name)
                     If pers_last_name = "" then exit do
-
+                    'if the name is a match then exiting do (will read person info later)
                     If pers_last_name = CBO_array(last_name_const, item) and pers_first_name = CBO_array(first_name_const, item) then
                         member_found = True
                         Exit do
                     Elseif left(pers_last_name, 4) = left(CBO_array(last_name_const, item), 4) and left(pers_first_name, 4) = left(CBO_array(first_name_const, item), 4) then
+                        'if partial name match based on 1st 4 of 1st and last name: because names are long and get cut off.
                         worker_confirm = msgbox("Is this the member you are looking for? " & vbcr & vbcr & pers_first_name & " " & pers_last_name, vbQuestion + vbYesNo, "Confirm WF1 Member")
                         If vbYes then
                             member_found = True
@@ -177,7 +179,7 @@ For item = 0 to UBound(CBO_array, 2)
                     End if
                 End if
                 row = row + 3			'information is 3 rows apart. Will read for the next member.
-                'msgbox "new row: " & row
+
                 If row = 19 then
                     PF8
                     row = 10					'changes MAXIS row if more than one page exists
@@ -185,6 +187,7 @@ For item = 0 to UBound(CBO_array, 2)
                 EMReadScreen last_PERS_page, 21, 24, 2
             LOOP until last_PERS_page = "THIS IS THE LAST PAGE"
 
+            'Reading the person information for the multiple member_found = true scenarios above
             If member_found = true then
                 EmReadscreen memb_number, 2, row, 3
                 CBO_array(memb_number_const, item) = memb_number
@@ -227,3 +230,46 @@ NEXT
 
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
 script_end_procedure_with_error_report("Success! Review the spreadsheet for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/24/2022
+'--Tab orders reviewed & confirmed----------------------------------------------10/24/2022
+'--Mandatory fields all present & Reviewed--------------------------------------10/24/2022
+'--All variables in dialog match mandatory fields-------------------------------10/24/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/24/2022-----------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/24/2022-----------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/24/2022-----------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/24/2022-----------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/24/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/24/2022-----------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------10/24/2022
+'--Out-of-County handling reviewed----------------------------------------------10/24/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/24/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------10/24/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/24/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/24/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------10/24/2022
+'--Denomination reviewed -------------------------------------------------------10/24/2022
+'--Script name reviewed---------------------------------------------------------10/24/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/24/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/24/2022
+'--comment Code-----------------------------------------------------------------10/24/2022
+'--Update Changelog for release/update------------------------------------------10/24/2022
+'--Remove testing message boxes-------------------------------------------------10/24/2022
+'--Remove testing code/unnecessary code-----------------------------------------10/24/2022
+'--Review/update SharePoint instructions----------------------------------------10/24/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/24/2022-----------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/24/2022
+'--Complete misc. documentation (if applicable)---------------------------------10/24/2022
+'--Update project team/issue contact (if applicable)----------------------------10/24/2022
