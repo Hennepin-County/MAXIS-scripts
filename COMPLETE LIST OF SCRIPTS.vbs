@@ -2377,6 +2377,7 @@ script_array(script_num).tags                   = array("Adult Cash", "Communica
 script_array(script_num).dlg_keys               = array("Cn", "Wrd")
 script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).retirement_date		= #10/25/2022#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
