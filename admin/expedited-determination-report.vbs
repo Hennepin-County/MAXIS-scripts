@@ -168,9 +168,6 @@ Set colFiles = objFolder.Files																'Creates an array/collection of al
 txt_file_archive_path = t_drive & "\Eligibility Support\Assignments\Expedited Information\Archive"
 
 report_out_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination Report Out.xlsx"
-' hss_report_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\SNAP\EXP SNAP Project\EXP Determination HSS Report.xlsx"
-' hss_report_file = t_drive & "\IPA\Restricted\DMA\PowerBIData\ES QI\Expedited Email Report\EXP Determination HSS Report.xlsx"
-' hss_report_file = "C:\Users\calo001\Hennepin County\ES Management - Documents\Case Review\EXP Determination HSS Report.xlsx"
 hss_report_file = "C:\Users\" & user_ID_for_validation & "\Hennepin County\ES Management - Documents\Case Review\EXP Determination HSS Report.xlsx"
 
 'HERE we REVIEW ALL THE TXT FILES
@@ -236,31 +233,48 @@ Do
 	next_worker_info = trim(ObjHSSExcel.Cells(excel_row, worker_name_col))
 Loop until next_worker_info = ""
 
-' Msgbox "excel_row - " & excel_row & vbCr & "hss_name_const - " & WORKER_ARRAY(hss_name_const, worker_count-1) & vbCr & "pm_email_const - " & WORKER_ARRAY(pm_email_const, worker_count-1)
-
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
 'Now we are going to read all of the txt files generated from the Expedited Determination script runs. If they need review, they will be added to the report out file - otherwise they will be saved in the large Excel list
-' this_month_worklist = MonthName(DatePart("m", date)) & " " & DatePart("yyyy", date)			'finding the right sheet for the HSS report out excel'
-' ObjHSSExcel.worksheets(this_month_worklist).Activate							'activating the sheet
 ObjHSSExcel.worksheets("Case Email List").Activate							'activating the sheet
 
 'finding the last row of the HSS Report Out ffile
 hss_excel_row = 1																'default to the first row
 Do
-	hss_excel_row = hss_excel_row + 1
-	this_case_number = trim(ObjHSSExcel.Cells(hss_excel_row, 2).Value)
+	hss_excel_row = hss_excel_row + 1											'increment to the next row
+	this_case_number = trim(ObjHSSExcel.Cells(hss_excel_row, 2).Value)			'check to see if there is information on this row - if not, the script will leave the loop and know the first blank row
+	row_deleted = False															'defaulting the row to NOT being deleted.
 
-	If trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value) = "" Then
-		For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
-			If WORKER_ARRAY(hsr_hc_id_const, each_wrkr) = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_id_col).Value) Then
-				ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
-			End If
-		Next
+	'deleting old rows - historical information is not saved in this excel, just pulled from it and added to a sharepoint list.
+	report_day = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_report_day_col).Value)		'this is the day the row was created.
+	If report_day <> "" Then													'if the report day is not blank we are going to check and see if it is old.
+		report_day = DateAdd("d", 0, report_day)								'first we make sure it is a date
+		If DateDiff("d", report_day, date) >= 30 Then							'if that date was more than 30 days ago, we don't need it.
+			row_deleted = True													'if more than 30 days old, we are deleting the row
+			SET objRange = ObjHSSExcel.Cells(hss_excel_row, 1).EntireRow		'select the row
+			objRange.Delete														'delete the selection
+			hss_excel_row = hss_excel_row - 1									'now we go back a row, since this one no longer exists.
+		End If
 	End If
+	'here we are going to fill in the HSR information if it is missing
+	If row_deleted = False Then													'if the row was deleted, there is nothing else to do with it
+		If trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value) = "" Then	'if the email is blank, add it from the worker array'
+			For each_wrkr = 0 to UBound(WORKER_ARRAY, 2)			'here we need to use the data of HSRs and HSSs to fill in the appropriate HSS and PM based on Worker Name
+				If WORKER_ARRAY(hsr_hc_id_const, each_wrkr) = trim(ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_id_col).Value) Then
+					ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = WORKER_ARRAY(hsr_name_const, each_wrkr)
+					ObjHSSExcel.Cells(hss_excel_row, hss_rept_hsr_email_col).Value = WORKER_ARRAY(hsr_email_const, each_wrkr)
+					ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_name_col).Value = WORKER_ARRAY(hss_name_const, each_wrkr)
+					ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value = WORKER_ARRAY(hss_email_const, each_wrkr)
+					ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value = WORKER_ARRAY(pm_name_const, each_wrkr)
+					ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value = WORKER_ARRAY(pm_email_const, each_wrkr)
+				End If
+			Next
+		End If
+	End If
+	report_day = ""
 Loop Until this_case_number = ""
-' MsgBox "hss_excel_row - " & hss_excel_row
+
 'Now we need to find the last row in the 'ALL CASES' sheet so we don't overwrite anything
 total_excel_row = 1																'default to the first row
 Do
@@ -388,8 +402,6 @@ For Each objFile in colFiles																'looping through each file
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_hss_email_col).Value = WORKER_ARRAY(hss_email_const, each_wrkr)
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_name_col).Value = WORKER_ARRAY(pm_name_const, each_wrkr)
 								ObjHSSExcel.Cells(hss_excel_row, hss_rept_pm_email_col).Value = WORKER_ARRAY(pm_email_const, each_wrkr)
-								ObjHSSExcel.Cells(hss_excel_row, hss_rept_total_report_row_col).Value = total_excel_row
-								ObjHSSExcel.Cells(hss_excel_row, hss_rept_report_day_col).Value = date
 							End If
 						Next
 						If ObjHSSExcel.Cells(hss_excel_row, hss_rept_script_user_col).Value = "" Then missing_HSRs = missing_HSRs & vbCr & line_info(1)
@@ -397,6 +409,8 @@ For Each objFile in colFiles																'looping through each file
 
 				End If
 			Next
+			ObjHSSExcel.Cells(hss_excel_row, hss_rept_total_report_row_col).Value = total_excel_row
+			ObjHSSExcel.Cells(hss_excel_row, hss_rept_report_day_col).Value = date
 			hss_excel_row = hss_excel_row + 1
 		End If
 
@@ -410,7 +424,7 @@ Next
 objWorkbook.Save()		'saving the excel
 objHSSWorkbook.Save()		'saving the excel
 
-' MsgBox "Stop here for now"
+'closing all the files if requested'
 If leave_excel_open = "No - Close the file" Then
 	ObjHSSExcel.ActiveWorkbook.Close
 
@@ -423,6 +437,7 @@ If leave_excel_open = "No - Close the file" Then
 	objExcel.Quit
 End If
 
+'This will send an email if HSR information is missing in the data
 If missing_HSRs <> "" Then
 	email_subject = "Missing HSR Detial in HSS Expedited Report"
 
