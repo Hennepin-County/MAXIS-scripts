@@ -2,7 +2,7 @@
 name_of_script = "ACTIONS - TRANSFER CASE.vbs"
 start_time = timer
 STATS_counter = 1                  	'sets the stats counter at one
-STATS_manualtime = 229              'manual run time in seconds
+STATS_manualtime = 0              'manual run time in seconds
 STATS_denomination = "C"       		'C is for each CASE
 'END OF stats block=========================================================================================================
 
@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/26/2022", "Updated several functionalities to support enhanced experience for both inner and inter county transfer.", "Ilse Ferris, Hennepin County.")
 call changelog_update("04/01/2022", "There is no longer a case note for in-county transfers based on guidance provided by CASE NOTE III: CLAIMS/SYSTEMS/TRANSFERS TE02.08.095.", "MiKayla Handley, Hennepin County.")
 call changelog_update("03/28/2022", "Multiple updates made ensuring that the transfer is complete and removing the case from in-county transfers.", "MiKayla Handley, Hennepin County.")
 CALL changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
@@ -150,6 +151,7 @@ Else
     Call write_value_and_transmit(transfer_to_worker, 18, 61)           'entering the worker information & saving - this should then take us to the transfer menu
     EMReadScreen servicing_worker, 7, 24, 30  'if it is not the transfer_to_worker - the transfer failed.
 
+    STATS_manualtime = 120                      'manual run time in seconds
     'Script low down for innercounty transfer
     script_run_lowdown = script_run_lowdown & "transfer_out_of_county: " & transfer_out_of_county & vbCr & "worker_number: " & worker_number & vbCr & "transfer_to_worker: " & transfer_to_worker & vbCr & " Message: " & vbCr & error_message
     If servicing_worker <> transfer_to_worker THEN script_end_procedure_with_error_report("Transfer of this case to " & transfer_to_worker & " has failed.")
@@ -423,6 +425,7 @@ IF panel_check = "XCTY" THEN
     EMReadScreen servicing_worker, 7, 24, 30  'if it is not the transfer_to_worker - the transfer failed.
 End if
 
+STATS_manualtime = 300              'manual run time in seconds
 'Script low down for intercounty transfer
 script_run_lowdown = script_run_lowdown & "transfer_out_of_county: " & transfer_out_of_county & vbCr & "excluded_time_dropdown: " & excluded_time_dropdown & vbCr & "low_down_Excluded_Time_Begin_Date: " & low_down_Excluded_Time_Begin_Date & _
 vbCr & "Cash_I: " & Cash_I & vbCr & "Cash_II: " & Cash_II & vbCr & "GRH: " & GRH & vbCr &  "Health_Care: " & Health_Care & vbCr &  "MA_Excluded_Time: " & MA_Excluded_Time & vbCr & "IVE_Foster_Care: " & IVE_Foster_Care & vbCr & "cash_cfr: " & _
@@ -439,39 +442,41 @@ End if
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------04/12/2022
-'--Tab orders reviewed & confirmed----------------------------------------------04/12/2022
-'--Mandatory fields all present & Reviewed--------------------------------------04/12/2022
-'--All variables in dialog match mandatory fields-------------------------------04/12/2022
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/26/2022
+'--Tab orders reviewed & confirmed----------------------------------------------10/26/2022
+'--Mandatory fields all present & Reviewed--------------------------------------10/26/2022
+'--All variables in dialog match mandatory fields-------------------------------10/26/2022
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------04/12/2022
-'--CASE:NOTE Header doesn't look funky------------------------------------------04/12/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/24/2022-------------------N/A
+'--All variables are CASE:NOTEing (if required)---------------------------------10/26/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/26/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/26/2022------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/26/2022
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/12/2022
-'--MAXIS_background_check reviewed (if applicable)------------------------------04/12/2022
-'--PRIV Case handling reviewed -------------------------------------------------04/12/2022
-'--Out-of-County handling reviewed----------------------------------------------04/12/2022
-'--script_end_procedures(w/ or w/o error messaging)-----------------------------04/12/2022
-'--BULK - review output of statistics and run time/count (if applicable)--------04/12/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/26/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/26/2022
+'--PRIV Case handling reviewed -------------------------------------------------10/26/2022
+'--Out-of-County handling reviewed----------------------------------------------10/26/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/26/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------10/26/2022------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/26/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------04/12/2022
-'--Denomination reviewed -------------------------------------------------------04/12/2022
-'--Script name reviewed---------------------------------------------------------04/12/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------04/12/2022
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---05/24/2022
-'
+'--Manual time study reviewed --------------------------------------------------10/26/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------10/26/2022------------------N/A
+'--Denomination reviewed -------------------------------------------------------10/26/2022
+'--Script name reviewed---------------------------------------------------------10/26/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/26/2022------------------N/A
+
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------04/12/2022
-'--comment Code-----------------------------------------------------------------04/12/2022
-'--Update Changelog for release/update------------------------------------------04/12/2022
-'--Remove testing message boxes-------------------------------------------------04/12/2022
-'--Remove testing code/unnecessary code-----------------------------------------04/12/2022
-'--Review/update SharePoint instructions----------------------------------------04/12/2022
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/12/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/12/2022
-'--Complete misc. documentation (if applicable)---------------------------------04/12/2022
-'--Update project team/issue contact (if applicable)----------------------------04/12/2022
+'--Confirm all GitHub tasks are complete----------------------------------------10/26/2022
+'--comment Code-----------------------------------------------------------------10/26/2022
+'--Update Changelog for release/update------------------------------------------10/26/2022
+'--Remove testing message boxes-------------------------------------------------10/26/2022
+'--Remove testing code/unnecessary code-----------------------------------------10/26/2022
+'--Review/update SharePoint instructions----------------------------------------10/26/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/26/2022------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/26/2022
+'--Complete misc. documentation (if applicable)---------------------------------10/26/2022
+'--Update project team/issue contact (if applicable)----------------------------10/26/2022
