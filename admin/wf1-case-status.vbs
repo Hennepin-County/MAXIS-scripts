@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("10/20/2022", "Script updated to support household's with multiple members, fix out of county handling, add person based SNAP status and enhance background functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/16/2018", "Removed default to current month for case status. Users can navigate the footer month/year they wish to review, then run the script.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/13/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -52,85 +53,80 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
-'Connects to BlueZone and establishing county name
-EMConnect ""
-'Checks for county info from global variables, or asks if it is not already defined.
-get_county_code
+EMConnect "" 'Connects to BlueZone
+Call Check_for_MAXIS(False)
 
-'dialog and dialog DO...Loop
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 266, 110, "WF1 Case Status"
+    ButtonGroup ButtonPressed
+    PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
+    OkButton 145, 90, 50, 15
+    CancelButton 200, 90, 50, 15
+    EditBox 15, 45, 180, 15, file_selection_path
+    GroupBox 10, 5, 250, 80, "Using the WF1M Case Status script"
+    Text 20, 20, 235, 20, "This script should be used when E and T provides you with a list of recipeints that require a status update."
+    Text 15, 65, 230, 15, "Select the Excel file that contains the WF1 information by selecting the 'Browse' button, and finding the file."
+EndDialog
+
 Do
-	Do
-			'The dialog is defined in the loop as it can change as buttons are pressed
-            Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 266, 110, "WF1 Case Status"
-  				ButtonGroup ButtonPressed
-    			PushButton 200, 45, 50, 15, "Browse...", select_a_file_button
-    			OkButton 145, 90, 50, 15
-    			CancelButton 200, 90, 50, 15
-  				EditBox 15, 45, 180, 15, file_selection_path
-  				GroupBox 10, 5, 250, 80, "Using the WF1M Case Status script"
-  				Text 20, 20, 235, 20, "This script should be used when E and T provides you with a list of recipeints that require a status update."
-  				Text 15, 65, 230, 15, "Select the Excel file that contains the WF1 information by selecting the 'Browse' button, and finding the file."
-			EndDialog
-
-			err_msg = ""
-
-			Dialog Dialog1
-			cancel_confirmation
-			If ButtonPressed = select_a_file_button then
-				If file_selection_path <> "" then 'This is handling for if the BROWSE button is pushed more than once'
-					objExcel.Quit 'Closing the Excel file that was opened on the first push'
-					objExcel = "" 	'Blanks out the previous file path'
-				End If
-				call file_selection_system_dialog(file_selection_path, ".xlsx") 'allows the user to select the file'
-			End If
-			If file_selection_path = "" then err_msg = err_msg & vbNewLine & "Use the Browse Button to select the file that has your client data"
-			If err_msg <> "" Then MsgBox err_msg
-		Loop until err_msg = ""
-		If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
-		If err_msg <> "" Then MsgBox err_msg
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Do
+        err_msg = ""
+        dialog Dialog1
+        cancel_without_confirmation
+        If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
+        If trim(file_selection_path) = "" then err_msg = err_msg & vbcr & "* Select a file to continue."
+        If err_msg <> "" Then MsgBox err_msg
+    Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
 
 'ARRAY business----------------------------------------------------------------------------------------------------
 'Sets up the array to store all the information for each client'
 Dim CBO_array ()
-ReDim CBO_array (8, 0)
+ReDim CBO_array (error_reason_const, 0)
 
 'Sets constants for the array to make the script easier to read (and easier to code)'
-Const clt_SSN         	= 1			'Each of the case numbers will be stored at this position'
-Const memb_number		= 2
-Const case_number       = 3
-Const case_status       = 4
-Const error_reason		= 5
-Const make_referral 	= 6
-Const excel_num			= 7
-Const ABAWD_status		= 8
+Const last_name_const         = 0
+Const first_name_const        = 1
+Const MAXIS_case_number_const = 2
+Const client_SSN_const        = 3
+Const memb_number_const		  = 4
+Const snap_status_const       = 5
+Const excel_num_const		  = 6
+Const ABAWD_status_const	  = 7
+Const error_reason_const      = 8
 
 'Now the script adds all the clients on the excel list into an array for the appropriate county
-excel_row = 2 're-establishing the row to start checking the members for
+excel_row = 2 'starting row
 entry_record = 0
 
 Do                                                            'Loops until there are no more cases in the Excel list
-	Client_last_name = objExcel.cells(excel_row, 1).Value 'uses client last name since either case number or SSN can be provided
-	If trim(Client_last_name) = "" then exit do
+    last_name = UCASE(trim(objExcel.cells(excel_row, 1).Value)) 'uses client last name since either case number or SSN can be provided
+    first_name = UCASE(trim(objExcel.cells(excel_row, 2).Value)) 'uses client last name since either case number or SSN can be provided
+	MAXIS_case_number = trim(objExcel.cells(excel_row, 3).Value)
+    If MAXIS_case_number = "" then exit do
 
-	MAXIS_case_number = objExcel.cells(excel_row, 3).Value
-	MAXIS_case_number = trim(MAXIS_case_number)
-	client_SSN  = objExcel.cells(excel_row, 4).Value		'Pulls the client's known information
-	client_SSN = replace(client_SSN, "-", "")
+	client_SSN  = trim(objExcel.cells(excel_row, 4).Value)		'Pulls the SSN and reformats if 9 digits.
+    If client_SSN <> "" then
+	    If len(client_SSN) = 9 then
+           ssn_first = left(client_SSN, 3)
+           ssn_mid = right(left(client_SSN, 5), 2)
+           ssn_end = right(client_SSN, 4)
+           client_SSN = ssn_first & "-" & ssn_mid & "-" & ssn_end
+        End if
+    End if
 
 	'Adding client information to the array
-	ReDim Preserve CBO_array(8, entry_record)	'This resizes the array based on if the client is in the selected county
-	CBO_array (clt_SSN,     	entry_record) = client_SSN		'The client information is added to the array
-	CBO_array (case_number, 	entry_record) = MAXIS_case_number
-	CBO_array (case_status,  	entry_record) = true 			'defaults to true
-	CBO_array (error_reason, 	entry_record) = ""
-	CBO_array (make_referral, 	entry_record) = true				'defaulting to true for now
-	CBO_array (memb_number, 	entry_record) = "01"				'defaults to 01 until it gets to PROG
-	CBO_array (excel_num, 		entry_record) = excel_row
-	CBO_array (ABAWD_status, 	entry_record) = ""
+	ReDim Preserve CBO_array(error_reason_const, entry_record)	'This resizes the array based on if the client is in the selected county
+    CBO_array(last_name_const,         entry_record) = last_name
+    CBO_array(first_name_const,        entry_record) = first_name
+    CBO_array(client_SSN_const,        entry_record) = client_SSN		'The client information is added to the array
+	CBO_array(MAXIS_case_number_const, entry_record) = MAXIS_case_number
+	CBO_array(excel_num_const, 		   entry_record) = excel_row
 	entry_record = entry_record + 1			'This increments to the next entry in the array
+    STATS_counter = STATS_counter + 1
 	excel_row = excel_row + 1
 
 	'blanking out variables
@@ -138,168 +134,93 @@ Do                                                            'Loops until there
 	MAXIS_case_number = ""
 Loop
 
-If entry_record = 0 then script_end_procedure("No cases have been found on this list. The script wil now end.")
-
-back_to_self
+If entry_record = 0 then script_end_procedure_with_error_report("No cases have been found on this list. The script wil now end.")
 
 'Gathering info from MAXIS, and making the referrals and case notes if cases are found and active----------------------------------------------------------------------------------------------------
 For item = 0 to UBound(CBO_array, 2)
-	MAXIS_case_number = CBO_array(case_number, item)
-	client_SSN = CBO_array(clt_SSN, item)
+	MAXIS_case_number = CBO_array(MAXIS_case_number_const, item)
+    member_found = False    'defaulting to not found/false
 
-	If client_SSN <> "" then
-		CBO_array(make_referral, item) = False
-		call navigate_to_MAXIS_screen("pers", "____")
+    Call navigate_to_MAXIS_screen_review_PRIV("CASE", "PERS", is_this_priv)
+    If is_this_priv = True then
+        CBO_array(error_reason_const, item) = "PRIV case."
+    Else
+        EmReadscreen county_code, 4, 20, 14
+        If county_code <> UCASE(worker_county_code) then
+            CBO_array(error_reason_const, item) = "Out-of-county case. County code is: " & county_code
+        Else
+            row = 10 '1st row/person in CASE/PERS
+            Do
+                If CBO_array(client_SSN_const, item) = "" then
+                    'Read and connect name to member number
+                    EmReadscreen pers_last_name, 15, row, 6
+                    EmReadscreen pers_first_name, 11, row, 22
+                    pers_last_name = trim(pers_last_name)
+                    pers_first_name = trim(pers_first_name)
+                    If pers_last_name = "" then exit do
+                    'if the name is a match then exiting do (will read person info later)
+                    If pers_last_name = CBO_array(last_name_const, item) and pers_first_name = CBO_array(first_name_const, item) then
+                        member_found = True
+                        Exit do
+                    Elseif left(pers_last_name, 4) = left(CBO_array(last_name_const, item), 4) and left(pers_first_name, 4) = left(CBO_array(first_name_const, item), 4) then
+                        'if partial name match based on 1st 4 of 1st and last name: because names are long and get cut off.
+                        worker_confirm = msgbox("Is this the member you are looking for? " & vbcr & vbcr & pers_first_name & " " & pers_last_name, vbQuestion + vbYesNo, "Confirm WF1 Member")
+                        If vbYes then
+                            member_found = True
+                            Exit do
+                        End if
+                    End if
+                Else
+                    'using SSN to connect to member number
+                    EmReadscreen pers_SSN, 11, row + 1, 6
+                    If pers_SSN = CBO_array(client_SSN_const, item) then
+                        member_found = True
+                        Exit do
+                    End if
+                End if
+                row = row + 3			'information is 3 rows apart. Will read for the next member.
 
-		'changing the formating of the SSN from 123456789 to 123 45 6789 for STAT/MEMB
-		If len(client_SSN) < 9 then
-			CBO_array(make_referral, item) = False
-			CBO_array(case_status, item) = "Error"
-			CBO_array(error_reason, item) = "SSN not valid."		'Explanation for the rejected report'
-		Elseif len(client_SSN) = 9 then
-			left_SSN = Left(client_SSN, 3)
-			mid_SSN = mid(client_SSN, 4, 2)
-			right_SSN = Right(client_SSN, 4)
-			client_SSN = left_SSN & " " & mid_SSN & " " & right_SSN
-		END IF
+                If row = 19 then
+                    PF8
+                    row = 10					'changes MAXIS row if more than one page exists
+                END if
+                EMReadScreen last_PERS_page, 21, 24, 2
+            LOOP until last_PERS_page = "THIS IS THE LAST PAGE"
 
-		IF CBO_array(case_status, item) = True then
-		    EMWriteScreen left_SSN, 14, 36
-		    EMWriteScreen mid_SSN, 14, 40
-		    EMWriteScreen right_SSN, 14, 43
-		    Transmit
+            'Reading the person information for the multiple member_found = true scenarios above
+            If member_found = true then
+                EmReadscreen memb_number, 2, row, 3
+                CBO_array(memb_number_const, item) = memb_number
+                EmReadscreen FS_status, 1, row, 54
+                If FS_status = "A" then CBO_array(snap_status_const, item) = "Active"
+                If FS_status = "D" then CBO_array(snap_status_const, item) = "Denied"
+                If FS_status = "I" then CBO_array(snap_status_const, item) = "Inactive"
+                If FS_status = "P" then CBO_array(snap_status_const, item) = "Pending"
+                If FS_status = "R" then CBO_array(snap_status_const, item) = "Reinstatement"
 
-		    EMReadscreen DSPL_confirmation, 4, 2, 51
-		    If DSPL_confirmation <> "DSPL" then
-		    	CBO_array(make_referral, item) = False
-		    	CBO_array(case_status, item) = "Error"
-		    	CBO_array(error_reason, item) = "Unable to find person in SSN search or more than one PMI exists. Process manually."		'Explanation for the rejected report'
-		    Else
-
-		    	EMWriteScreen "FS", 7, 22	'Selects FS as the program
-		    	Transmit
-		    	'chekcing for an active case
-		    	MAXIS_row = 10
-		    	Do
-		    		EMReadscreen current_case, 7, MAXIS_row, 35
-		    		If current_case = "Current" then
-		    			EMReadscreen MAXIS_case_number, 8, MAXIS_row, 6
-		    			MAXIS_case_number = trim(MAXIS_case_number)
-		    			CBO_array(case_number, item) = MAXIS_case_number
-		    			CBO_array(make_referral, item) = true
-		    			Exit do
-		    		Else
-		    			MAXIS_row = MAXIS_row + 1
-		    			If MAXIS_row = 20 then
-		    				PF8
-		    				MAXIS_row = 10
-		    			END IF
-		    			EMReadScreen last_page_check, 21, 24, 2
-		    		END IF
-		    	LOOP until last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "THIS IS THE ONLY PAGE"
-		    	If CBO_array(make_referral, item) = False then
-		    		CBO_array(make_referral, item) = False
-		    		CBO_array(case_status, item) = "SNAP Inactive"
-				END IF
-		    END IF
-		END IF
-	Else
-	 	CBO_array(make_referral, item) = True
-		needs_PMI = true
-	End if
-
-	If CBO_array(make_referral, item) = True then
-	    'Checking the SNAP status
-	    Call navigate_to_MAXIS_screen("STAT", "PROG")
-		'Checking for PRIV cases
-		EMReadScreen priv_check, 6, 24, 14 			'If it can't get into the case needs to skip
-		IF priv_check = "PRIVIL" THEN
-			EMWriteScreen "________", 18, 43		'clears the case number
-			transmit
-			PF3
-			CBO_array(make_referral, item) = False
-			CBO_array(case_status, item) = "Error"
-			CBO_array(error_reason, item) = "Case is privileged, unable to access case information."	'Explanation for the rejected report'
-		ELse
-			EMReadscreen county_code, 2, 21, 23
-		    If county_code <> right(worker_county_code, 2) then CBO_array(error_reason, item) = "Out of county case. County code is: " & county_code	'Explanation for the rejected report'
-
-	        EMReadscreen SNAP_active, 4, 10, 74
-	        If SNAP_active = "ACTV" then
-	           	CBO_array(case_status, item) = "Active"
-		    Elseif SNAP_active = "REIN" then
-		    	CBO_array(case_status, item) = "Reinstatement"
-		    Elseif SNAP_active = "PEND" then
-		    	CBO_array(case_status, item) = "Pending"
-		    Else
-		    	CBO_array(case_status, item) = trim(SNAP_active)
-		    End if
-
-	        Call navigate_to_MAXIS_screen("STAT", "MEMB")
-		    if needs_PMI = true then
-		    	row = 5
-		    	HH_count = 0
-		    	Do
-		    		EMReadScreen member_number, 2, row, 3
-		    		HH_count = HH_count + 1
-		    		transmit
-		    		EMReadScreen MEMB_error, 5, 24, 2
-		    	Loop until MEMB_error = "ENTER"
-
-		    	If HH_count = 1 then
-		    		CBO_array(memb_number, item) = member_number
-		    		CBO_array(make_referral, item) = True
-		    	Else
-		    		CBO_array(make_referral, item) = False
-		    		CBO_array(case_status, item) = "Error"
-		    		CBO_array(error_reason, item) = "Process manually, more than one person in HH & SSN not provided."	'Explanation for the rejected report'
-		    	End if
-		    Else
-	            Do
-	            	EMReadscreen member_SSN, 11, 7, 42
-		        	member_SSN = replace(member_SSN, " ", "")
-	            	If member_SSN = CBO_array(clt_SSN, item) then
-	            		EMReadscreen member_number, 2, 4, 33
-	            		CBO_array(memb_number, item) = member_number
-	            		CBO_array(make_referral, item) = True
-	            		exit do
-	            	Else
-	            		transmit
-		  	    		CBO_array(make_referral, item) = False
-						EMReadScreen MEMB_error, 5, 24, 2
-		        	END IF
-	            Loop until member_SSN = CBO_array(clt_SSN, item) or MEMB_error = "ENTER"
-		    End if
-
-		    IF CBO_array(make_referral, item) = True then
-		        'STAT WREG PORTION
-		        Call navigate_to_MAXIS_screen("STAT", "WREG")
-		        EMWriteScreen member_number, 20, 76				'enters member number
-		        transmit
-		        EMReadScreen fset_code, 2, 8, 50
-		        EMReadScreen abawd_code, 2, 13, 50
-		        WREG_codes = fset_code & "-" & abawd_code
-		        If WREG_codes = "30-11" then
-		    		CBO_array(ABAWD_status, item) = "Volunatary"
-		        Elseif WREG_codes = "30-10" then
-		        	CBO_array(ABAWD_status, item) = "Mandatory - ABAWD"
-		        Elseif WREG_codes = "30-13" then
-		        	CBO_array(ABAWD_status, item) = "Mandatory - Banked Months"
-		        Else
-		        	CBO_array(ABAWD_status, item) = "Exempt"
-		        End if
-		    End if
-		End if
-	END IF
-Next
-
-'Updating the Excel spreadsheet based on what's happening in MAXIS----------------------------------------------------------------------------------------------------
-For item = 0 to UBound(CBO_array, 2)
-	excel_row = CBO_array(excel_num, item)
-	objExcel.cells(excel_row, 3).Value = CBO_array(case_number,		item)
-	objExcel.cells(excel_row, 5).Value = CBO_array(case_status, 	item)
-	objExcel.cells(excel_row, 6).Value = CBO_array(ABAWD_status, 	item)
-	objExcel.cells(excel_row, 7).Value = CBO_array(error_reason, 	item)
+                Call navigate_to_MAXIS_screen("STAT", "WREG")
+                Call write_value_and_transmit(CBO_array(memb_number_const, item), 20, 76)
+                EMReadScreen fset_code, 2, 8, 50
+                EMReadScreen abawd_code, 2, 13, 50
+                WREG_codes = fset_code & "-" & abawd_code
+                If WREG_codes = "30-11" then
+                    CBO_array(ABAWD_status_const, item) = "Volunatary"
+                Elseif WREG_codes = "30-10" then
+                    CBO_array(ABAWD_status_const, item) = "Mandatory - ABAWD"
+                ElseIf WREG_codes = "30-13" then
+                    CBO_array(ABAWD_status_const, item) = "Mandatory - Banked Months"
+                Else
+                    CBO_array(ABAWD_status_const, item) = "Exempt"
+                End if
+            Else
+                If CBO_array(memb_number_const, item) = "" then CBO_array(error_reason_const, item) = "Unable to find MEMB in CASE/PERS"
+            End if
+        End if
+    End if
+    'Excel Output
+    objExcel.cells(CBO_array(excel_num_const, item), 5).Value = CBO_array(snap_status_const,  item)
+	objExcel.cells(CBO_array(excel_num_const, item), 6).Value = CBO_array(ABAWD_status_const, item)
+	objExcel.cells(CBO_array(excel_num_const, item), 7).Value = CBO_array(error_reason_const, item)
 Next
 
 'Formatting the column width.
@@ -308,4 +229,47 @@ FOR i = 1 to 7
 NEXT
 
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
-script_end_procedure("Success! Review the spreadsheet for accuracy.")
+script_end_procedure_with_error_report("Success! Review the spreadsheet for accuracy.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------10/24/2022
+'--Tab orders reviewed & confirmed----------------------------------------------10/24/2022
+'--Mandatory fields all present & Reviewed--------------------------------------10/24/2022
+'--All variables in dialog match mandatory fields-------------------------------10/24/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------10/24/2022-----------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------10/24/2022-----------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/24/2022-----------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/24/2022-----------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/24/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------10/24/2022-----------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------10/24/2022
+'--Out-of-County handling reviewed----------------------------------------------10/24/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------10/24/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------10/24/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/24/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------10/24/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------10/24/2022
+'--Denomination reviewed -------------------------------------------------------10/24/2022
+'--Script name reviewed---------------------------------------------------------10/24/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------10/24/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------10/24/2022
+'--comment Code-----------------------------------------------------------------10/24/2022
+'--Update Changelog for release/update------------------------------------------10/24/2022
+'--Remove testing message boxes-------------------------------------------------10/24/2022
+'--Remove testing code/unnecessary code-----------------------------------------10/24/2022
+'--Review/update SharePoint instructions----------------------------------------10/24/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/24/2022-----------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/24/2022
+'--Complete misc. documentation (if applicable)---------------------------------10/24/2022
+'--Update project team/issue contact (if applicable)----------------------------10/24/2022
