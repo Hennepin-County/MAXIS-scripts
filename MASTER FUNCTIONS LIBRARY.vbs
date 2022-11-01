@@ -96,7 +96,7 @@ time_array_15_min = array("7:00 AM", "7:15 AM", "7:30 AM", "7:45 AM", "8:00 AM",
 time_array_30_min = array("7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM")
 
 'Array of all the upcoming holidays
-HOLIDAYS_ARRAY = Array(#11/11/21#, #11/25/21#, #11/26/21#, #12/24/21#, #12/31/21#, #1/17/22#, #2/21/22#, #5/30/22#, #6/20/22#, #7/4/22#, #9/5/22#, #11/11/22#, #11/24/22#, #11/25/22#, #12/26/22#)
+HOLIDAYS_ARRAY = Array(#11/11/22#, #11/24/22#, #11/25/22#, #12/26/22#, #01/02/23#, #1/16/23#, #2/20/23#, #5/29/23#, #6/19/23#, #7/4/23#, #9/4/23#, #11/10/23#, #11/23/23#, #11/24/23#, #12/25/23#)
 
 'Determines CM and CM+1 month and year using the two rightmost chars of both the month and year. Adds a "0" to all months, which will only pull over if it's a single-digit-month
 Dim CM_mo, CM_yr, CM_plus_1_mo, CM_plus_1_yr, CM_plus_2_mo, CM_plus_2_yr
