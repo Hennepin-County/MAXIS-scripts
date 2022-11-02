@@ -6478,6 +6478,10 @@ function snap_elig_case_note()
 
 		Call write_variable_in_CASE_NOTE("                                            |    Total Gross Inc: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc, 8))
 
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "INELIGIBLE" Then
+			Call write_variable_in_CASE_NOTE("                                         ** Maximum Gross Income: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_gross_inc, 8))
+		End If
+
 		deduction_detail_one = ""
 		deduction_detail_two = ""
 		deduction_detail_three = ""
@@ -6583,12 +6587,18 @@ function snap_elig_case_note()
 		Call write_variable_in_CASE_NOTE("                                      |--------------------------|")
 		Call write_variable_in_CASE_NOTE("                                            |  (-)Allow Shel Exp: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_shel_expenses, 8))
 		Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc, 8))
-		Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
-		Call write_variable_in_CASE_NOTE("                               |    Thrifty Food Plan: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan, ".00", "")&"        ", 8) & "|")
-		Call write_variable_in_CASE_NOTE("                               |(-)30% of Net Adj Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc, ".00", "")&"        ", 8) & "|")
-		Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
-		Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot, 8))
+		If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
+			Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+			Call write_variable_in_CASE_NOTE("                               |    Thrifty Food Plan: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_budg_thrifty_food_plan, ".00", "")&"        ", 8) & "|")
+			Call write_variable_in_CASE_NOTE("                               |(-)30% of Net Adj Inc: $ " & left(replace(SNAP_ELIG_APPROVALS(elig_ind).snap_bug_30_percent_net_adj_inc, ".00", "")&"        ", 8) & "|")
+			Call write_variable_in_CASE_NOTE("                               |---------------------------------|")
+			Call write_variable_in_CASE_NOTE("                                            |   SNAP Entitlement: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_benefit_monthly_fs_allot, 8))
+		ElseIf SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "INELIGIBLE" Then
+			' "Max Net Adjusted Inc......... $  3,493.00"
+			' Call write_variable_in_CASE_NOTE("                                            |Net Adjusted Income: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_net_adj_inc, 8))
+			Call write_variable_in_CASE_NOTE("                                         ** Max Net Adjusted Inc: $ " & right("        " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_max_net_adj_inc, 8))
 
+		End If
 		If SNAP_UNIQUE_APPROVALS(snap_over_130_wcom_sent, unique_app) = True Then
 			Call write_variable_in_CASE_NOTE("SNAP Budgeted Gross Income of  $ " & SNAP_ELIG_APPROVALS(elig_ind).snap_budg_total_gross_inc & " exceeds 130% FPG of $ " & FormatNumber(SNAP_UNIQUE_APPROVALS(snap_130_percent_fpg_amt, unique_app), 2, -1, 0, -1))
 
@@ -21578,7 +21588,7 @@ For each footer_month in MONTHS_ARRAY
 							STAT_INFORMATION(month_count).stat_unea_four_counted_for_snap(each_stat_memb) = False
 							STAT_INFORMATION(month_count).stat_unea_five_counted_for_snap(each_stat_memb) = False
 						End If
-						If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_eligibility(each_elig_memb) = "ELIGIBLE" Then
+						If SNAP_ELIG_APPROVALS(snap_elig_months_count).snap_elig_membs_code(each_elig_memb) = "A" Then
 							If STAT_INFORMATION(month_count).stat_memb_age(each_stat_memb) > 21 Then
 								SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap = SNAP_ELIG_APPROVALS(snap_elig_months_count).adults_recv_snap + 1
 							Else
@@ -25328,7 +25338,6 @@ If enter_CNOTE_for_SNAP = True Then
 		' MsgBox "SNAP NOTE REVIEW"			'TESTING OPTION'
 		' PF10
 		' MsgBox "SNAP Gone?"
-		' MsgBox SNAP_UNIQUE_APPROVALS(months_in_approval, unique_app)
 		PF3
 	Next
 
