@@ -295,7 +295,7 @@ row = 1
 col = 1
 EMSearch "MFIP:", row, col
 If row <> 0 then
-	EMReadScreen mf_status, 7, row, 9			'checking for pending status
+	EMReadScreen mf_status, 7, row, 9			'checking for pending or REIN status
 	If mf_status = "PENDING" Then 				'MFIP cases that are pending are NOT typically retrospecively budgeted and the script process does not handly prospective budgeting for MFIP cases
 		objExcel.DisplayAlerts = False			'Close the Excel
 		objExcel.Workbooks.Close
@@ -303,6 +303,13 @@ If row <> 0 then
 		objExcel.DisplayAlerts = True
 		PF3										'Back to DAIL
 		script_end_procedure("MFIP is pending and anticipated income should be determined manually at initial request. Process manually or if appropriate, approve MFIP and run the script again.")
+	ElseIf left(mf_status, 4) = "REIN" Then
+		objExcel.DisplayAlerts = False		'close the Excel
+		objExcel.Workbooks.Close
+		objExcel.quit
+		objExcel.DisplayAlerts = True
+		PF3									'Back to DAIL
+		script_end_procedure("MFIP is in REIN and anticipated income should be determined manually for reinstated cases. Process manually or if appropriate, approve MFIP and run the script again.")
 	Else
 		MFIP_active = True
 	End If
@@ -315,7 +322,7 @@ row = 1
 col = 1
 EMSearch "FS:", row, col
 If row <> 0 then
-	EMReadScreen fs_status, 7, row, 9		'Checking for pending status
+	EMReadScreen fs_status, 7, row, 9		'Checking for pending or REIN status
 	If fs_status = "PENDING" Then 			'SNAP pending cases should have the CS budget determined manually as the realm needs to be set
 		objExcel.DisplayAlerts = False		'close the Excel
 		objExcel.Workbooks.Close
@@ -323,6 +330,13 @@ If row <> 0 then
 		objExcel.DisplayAlerts = True
 		PF3									'Back to DAIL
 		script_end_procedure("SNAP is pending and anticipated income should be determined manually at initial request. Process manually or if appropriate, approve SNAP and run the script again.")
+	ElseIf left(fs_status, 4) = "REIN" Then	'SNAP REIN cases should have the CS budget determined manually as the realm needs to be set
+		objExcel.DisplayAlerts = False		'close the Excel
+		objExcel.Workbooks.Close
+		objExcel.quit
+		objExcel.DisplayAlerts = True
+		PF3									'Back to DAIL
+		script_end_procedure("SNAP is in REIN and anticipated income should be determined manually for reinstated cases. Process manually or if appropriate, approve SNAP and run the script again.")
 	Else
 		SNAP_active = True
 	End If
@@ -649,47 +663,54 @@ If SNAP_active = TRUE Then
 	Loop Until row = 6
 	EMWriteScreen approval_version, 18, 54
 	transmit
-	EMWriteScreen "FSB1", 19, 70
-	transmit
-	EMReadScreen BUDG_JOBS,	8, 5 , 33
-	EMReadScreen BUDG_BUSI,	8, 6 , 33
-	EMReadScreen BUDG_PA,   8, 10, 33
-	EMReadScreen BUDG_RSDI, 8, 11, 33
-	EMReadScreen BUDG_SSI,  8, 12, 33
-	EMReadScreen BUDG_VA,   8, 13, 33
-	EMReadScreen BUDG_UCWC, 8, 14, 33
-	EMReadScreen BUDG_CSES, 8, 15, 33
-	EMReadScreen BUDG_OTHR, 8, 16, 33
 
-	If BUDG_JOBS = "        " Then BUDG_JOBS = 0
-	If BUDG_BUSI = "        " Then BUDG_BUSI = 0
-	If BUDG_PA   = "        " Then BUDG_PA   = 0
-	If BUDG_RSDI = "        " Then BUDG_RSDI = 0
-	If BUDG_SSI  = "        " Then BUDG_SSI  = 0
-	If BUDG_VA   = "        " Then BUDG_VA   = 0
-	If BUDG_UCWC = "        " Then BUDG_UCWC = 0
-	If BUDG_CSES = "        " Then BUDG_CSES = 0
-	If BUDG_OTHR = "        " Then BUDG_OTHR = 0
-
-	EMWriteScreen "FSB2", 19, 70
-	transmit
-
-	EMReadScreen FPG_130, 8, 8, 73
-	If FPG_130 = "        " THEN FPG_130 = "9999"
-	transmit
-	EMReadScreen REPT_status, 9, 8, 31
-	amount_CS_reported = 0
 	CS_Change = FALSE
 	Exceed_130 = FALSE
+	EMReadScreen check_we_are_at_FS_ELIG, 4, 3, 48		'making sure we are in an approved version of SNAP.
+	If check_we_are_at_FS_ELIG = "FSPR" Then
 
-	For i = 0 to ubound(message_array)
-		amount_CS_reported = amount_CS_reported + message_array(i).AmtAlloted
-	Next
+		EMWriteScreen "FSB1", 19, 70
+		transmit
+		EMReadScreen BUDG_JOBS,	8, 5 , 33
+		EMReadScreen BUDG_BUSI,	8, 6 , 33
+		EMReadScreen BUDG_PA,   8, 10, 33
+		EMReadScreen BUDG_RSDI, 8, 11, 33
+		EMReadScreen BUDG_SSI,  8, 12, 33
+		EMReadScreen BUDG_VA,   8, 13, 33
+		EMReadScreen BUDG_UCWC, 8, 14, 33
+		EMReadScreen BUDG_CSES, 8, 15, 33
+		EMReadScreen BUDG_OTHR, 8, 16, 33
 
-	New_BUDG = abs(BUDG_JOBS) + abs(BUDG_BUSI) + abs(BUDG_PA) + abs(BUDG_RSDI) + abs(BUDG_SSI) + abs(BUDG_VA) + abs(BUDG_UCWC) + abs(BUDG_OTHR) + amount_CS_reported
+		If BUDG_JOBS = "        " Then BUDG_JOBS = 0
+		If BUDG_BUSI = "        " Then BUDG_BUSI = 0
+		If BUDG_PA   = "        " Then BUDG_PA   = 0
+		If BUDG_RSDI = "        " Then BUDG_RSDI = 0
+		If BUDG_SSI  = "        " Then BUDG_SSI  = 0
+		If BUDG_VA   = "        " Then BUDG_VA   = 0
+		If BUDG_UCWC = "        " Then BUDG_UCWC = 0
+		If BUDG_CSES = "        " Then BUDG_CSES = 0
+		If BUDG_OTHR = "        " Then BUDG_OTHR = 0
 
-	If abs(BUDG_CSES) <> amount_CS_reported Then CS_Change = TRUE
-	IF New_BUDG >= abs(FPG_130) Then Exceed_130 = TRUE
+		EMWriteScreen "FSB2", 19, 70
+		transmit
+
+		EMReadScreen FPG_130, 8, 8, 73
+		If FPG_130 = "        " THEN FPG_130 = "9999"
+		transmit
+		EMReadScreen REPT_status, 9, 8, 31
+		amount_CS_reported = 0
+
+		For i = 0 to ubound(message_array)
+			amount_CS_reported = amount_CS_reported + message_array(i).AmtAlloted
+		Next
+
+		New_BUDG = abs(BUDG_JOBS) + abs(BUDG_BUSI) + abs(BUDG_PA) + abs(BUDG_RSDI) + abs(BUDG_SSI) + abs(BUDG_VA) + abs(BUDG_UCWC) + abs(BUDG_OTHR) + amount_CS_reported
+
+		If abs(BUDG_CSES) <> amount_CS_reported Then CS_Change = TRUE
+		IF New_BUDG >= abs(FPG_130) Then Exceed_130 = TRUE
+	Else
+		CS_Change = TRUE
+	End If
 
 	'MsgBox ("New budget is: " & New_BUDG & vbNewLine & "CS Reported is: " & amount_CS_reported & vbNewLine & "CS Change: " & CS_Change &vbNewLine & "Exceed 130%: " & Exceed_130)
 	PF3
