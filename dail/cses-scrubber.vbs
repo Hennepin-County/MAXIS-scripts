@@ -191,7 +191,7 @@ For MAXIS_row = 6 to 19			'<<<<<CHECK THIS AGAINST A FULL, ACTUAL FACTUAL DAIL
 	If type_37_check = "37" OR type_40_check = "40" Then spousal_support_messages_exist = True		'knowing that we have a spousal support message.
 	If type_36_check = "36" OR type_39_check = "39" Then											'knowing that we have a child support message.
 		child_support_messages_exist = True
-	    EMWriteScreen "x", MAXIS_row, 3									'Puts an 'X' on the DAIL message
+	    EMWriteScreen "X", MAXIS_row, 3									'Puts an 'X' on the DAIL message
 		transmit														'Transmits
 		STATS_counter = STATS_counter + 1								'we increment the stats counter for each DAIL message
 		'READS THE TYPE
@@ -270,7 +270,7 @@ End If
 objExcel.Visible = true						'showing the Excel now that we know we have information we can work on
 '===================================================================================================================================DETERMINING WHAT PROGRAMS ARE OPEN
 'Navigates to CASE/CURR directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
-EMWriteScreen "h", 6, 3
+EMWriteScreen "H", 6, 3
 transmit
 
 'First, checks for inactive cases and just shuts down if it finds one
@@ -368,8 +368,8 @@ END IF
 '===================================================================================================================================ASSOCIATING PMIS WITH HH MEMBER NUMBERS
 'Now it has to get to STAT/MEMB to associate the HH members with the PMIs
 'We do this manually instead of using funclib to maintain the tie to DAIL/DAIL for navigating efficiency while processing many DAILs
-EMWriteScreen "stat", 20, 22
-EMWriteScreen "memb", 20, 69
+EMWriteScreen "STAT", 20, 22
+EMWriteScreen "MEMB", 20, 69
 If message_type_code = "TIKL" then			'If we're using a TIKL, the month will be all wrong, and it needs to compensate :(
 	EMWriteScreen CM_plus_1_mo, 20, 54
 	EMWriteScreen CM_plus_1_yr, 20, 57
@@ -645,9 +645,9 @@ If SNAP_active = TRUE Then
 			call navigate_to_MAXIS_screen("DAIL", "DAIL")
 		END IF
 	END IF
-	EMWriteScreen "e", 6, 3
+	EMWriteScreen "E", 6, 3
 	transmit
-	EMWriteScreen "fs", 20, 71
+	EMWriteScreen "FS", 20, 71
 	transmit
 	EMWriteScreen "99", 19, 78
 	transmit
@@ -728,7 +728,7 @@ If SNAP_active = true then
 		END IF
 	END IF
 
-	EMWriteScreen "s", 6, 3
+	EMWriteScreen "S", 6, 3
 	transmit
 
 	'We're going to start by creating a new "MFIP budget" sheet
@@ -991,7 +991,7 @@ If SNAP_active = true AND UNEA_review_checkbox = checked then
 			call navigate_to_MAXIS_screen("DAIL", "DAIL")
 		END IF
 	END IF
-	EMWriteScreen "s", 6, 3
+	EMWriteScreen "S", 6, 3
 	transmit
 	counter = 0
 
@@ -1115,7 +1115,7 @@ If MFIP_active = true then
 	END IF
 
 	'Navigates to STAT directly (the DAIL doesn't easily go back to the case-in-question when we use the custom function)
-	EMWriteScreen "s", 6, 3
+	EMWriteScreen "S", 6, 3
 	transmit
 
 	'We're going to start by creating a new "MFIP budget" sheet
@@ -1363,7 +1363,7 @@ If MFIP_active = TRUE then
 			call navigate_to_MAXIS_screen("DAIL", "DAIL")
 		END IF
 	END IF
-	EMWriteScreen "e", 6, 3
+	EMWriteScreen "E", 6, 3
 	transmit
 	EMWriteScreen MAXIS_footer_month, 20, 55		'Go to the correct footer month for ELIG
 	EMWriteScreen MAXIS_footer_year, 20, 58
@@ -1398,7 +1398,7 @@ If developer_mode <> TRUE Then
 			call navigate_to_MAXIS_screen("DAIL", "DAIL")
 		END IF
 	END IF
-	EMWriteScreen "n", 6, 3
+	EMWriteScreen "N", 6, 3
 	transmit
 
 	PF9
