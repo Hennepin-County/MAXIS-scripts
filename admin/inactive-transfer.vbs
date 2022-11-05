@@ -240,6 +240,7 @@ Do
             EMReadScreen servicing_worker, 7, 24, 30
             If servicing_worker <> transfer_to_worker THEN     'if it is not the transfer_to_worker - the transfer failed.
 				EMReadScreen MISC_error_check,  74, 24, 02
+                transfer_case_action = FALSE
 				action_completed = trim(MISC_error_check)
 	        Else
 				action_completed = "Successful transfer."
@@ -263,7 +264,7 @@ ObjExcel.Cells(2, 8).Value = "Query runtime (in seconds):"	'Goes back one, as th
 ObjExcel.Cells(2, 9).Value = timer - query_start_time
 
 FOR i = 1 to 9
-	objExcel.Columns(i).AutoFit()				'sizing the columns 
+	objExcel.Columns(i).AutoFit()				'sizing the columns
 NEXT
 
 objWorkbook.Save()  'keeping open to review
