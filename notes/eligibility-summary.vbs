@@ -2579,6 +2579,15 @@ function define_hc_elig_dialog()
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_coop(memb_ind) = "FAILED" Then
 					Text 20, y_pos+add_to_y_pos, 400, 10, "Not all cooperation requirements have been met. -COOPERATION"
 					add_to_y_pos = add_to_y_pos + 10
+					' EMReadScreen hc_prog_elig_test_coop_pben_cash(hc_prog_count), 			6, 10, 31
+					' EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
+					' EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
+					' EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
+					' EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
+					' EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
+					' EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
+					' EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
+					' EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
 				End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_correctional_faci(memb_ind) = "FAILED" Then
 					Text 20, y_pos+add_to_y_pos, 400, 10, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " is in a correctional facility. -CORRECT FACI"
@@ -2631,6 +2640,15 @@ function define_hc_elig_dialog()
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_verif(memb_ind) = "FAILED" Then
 					Text 20, y_pos+add_to_y_pos, 400, 10, "Not all VERIFICATIONS have been provided. -VERIFICATION"
 					add_to_y_pos = add_to_y_pos + 10
+					Text 20, y_pos+add_to_y_pos+5, 165, 10, "What is the date the verification request was sent? "
+					Editbox 185, y_pos+add_to_y_pos, 50, 15, HC_UNIQUE_APPROVALS(verif_request_date, approval_selected)
+					Text 240, y_pos+add_to_y_pos+5, 150, 10, "(due date is 10 days from this request date)"
+					add_to_y_pos = add_to_y_pos + 15
+					Text 20, y_pos+add_to_y_pos, 175, 10, "Detail the Verifications NOT Received and Needed:"
+					EditBox 20, y_pos+add_to_y_pos+10, 420, 15, HC_UNIQUE_APPROVALS(verif_request_details, approval_selected)
+					add_to_y_pos = add_to_y_pos + 25
+
+
 				End If
 				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_test_withdrawn(memb_ind) = "FAILED" Then
 					Text 20, y_pos+add_to_y_pos, 400, 10, "Request for Health Care has been withdrawn or requested closed. -WITHDRAWAL"
@@ -2764,6 +2782,28 @@ function define_hc_elig_dialog()
 					Text 315, y_pos+120, 120, 10, "LTC Spenddown .  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_LTC_spenddown(memb_ind)
 					y_pos = y_pos + 145
 				ElseIf HC_ELIG_APPROVALS(elig_ind).hc_budget_type(memb_ind) = "SBUD" Then
+					Text 20, y_pos+10, 120, 10, "Gross Unearned Inc .  .  .  . $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_gross_unearned(memb_ind)
+					Text 20, y_pos+20, 130, 10, "Countable Earned Inc  .  .   $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_countable_earrned_income(memb_ind)
+					' Text 175, y_pos+55, 130, 10, "Net Earned Inc  .  .  .  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_subtotal_countable_income(memb_ind)
+					Text 20, y_pos+30, 130, 10, "VA Aid & Attend  .  .  .  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_va_aid_attendincome(memb_ind)
+					Text 20, y_pos+40, 130, 10, "Tot Countable Inc  .  .  .  .  .$ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_total_countable_income(memb_ind)
+
+					Text 175, y_pos+10, 125, 10, "LTC Exclsn  .  .  .  .  .  .  .  . (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_LTC_exclusions(memb_ind)
+					Text 175, y_pos+20, 125, 10, "Medicare Premium  .  .  .  .  (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_medicare_premium(memb_ind)
+					' Text 175, y_pos+30, 125, 10, "Pers/Cloth Needs  .  .  .  .  .(-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_person_clothing_needs(memb_ind)
+					Text 175, y_pos+40, 125, 10, "Home Maint Alloww  .  .  .  .(-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_maint_needs_allowance(memb_ind)
+					Text 175, y_pos+50, 125, 10, "Guard/Rep Payee Fee  .  . (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_guardian_rep_payee_fee(memb_ind)
+					Text 175, y_pos+60, 125, 10, "Spousal Allocation  .  .  .  .  (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_spousal_allocation(memb_ind)
+					Text 175, y_pos+70, 125, 10, "Family Allocation  .  .  .  .  .  (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_family_allocation(memb_ind)
+					Text 175, y_pos+80, 125, 10, "Health Ins Prem  .  .  .  .  .  .(-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_health_ins_premium(memb_ind)
+					Text 175, y_pos+90, 125, 10, "Other Med Expense  .  .  .  .(-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_other_medical_expense(memb_ind)
+					Text 175, y_pos+100, 125, 10, "SSI 1611 Benefits  .  .  .  .  .(-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_SSI_1611_benefit(memb_ind)
+					Text 175, y_pos+110, 125, 10, "Other Deductions  .  .  .  .  . (-) $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_other_deductions(memb_ind)
+
+					Text 315, y_pos+110, 120, 10, "Total Net Income .  .  .  . $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_total_net_income(memb_ind)
+					Text 315, y_pos+120, 120, 10, "Waiver Obligation .  .  .  .  $ " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_budg_waiver_obligation(memb_ind)
+					y_pos = y_pos + 145
+
 				End If
 
 				GroupBox 15, bugd_grp_box_y_pos, 430, y_pos-bugd_grp_box_y_pos-10, "BUDGET DETAILS"
