@@ -689,20 +689,6 @@ script_array(script_num).retirement_date        = #09/29/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 
-script_num = script_num + 1							'Increment by one
-ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
-Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
-script_array(script_num).script_name			= "Inactive Transfer"													'Script name
-' script_array(script_num).description 			= "Script to transfer inactive cases via SPEC/XFER"
-script_array(script_num).category               = "ADMIN"
-script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("BZ", "Monthly Tasks", "DWP", "EMER", "Health Care", "HS/GRH", "LTC", "MFIP", "SNAP", "Adult Cash")
-script_array(script_num).dlg_keys               = array("Up", "Ex", "Ev")
-script_array(script_num).subcategory            = array("")
-script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).hot_topic_link			= ""
-script_array(script_num).used_for_elig			= False
-
 script_num = script_num + 1							   'Increment by one
 ReDim Preserve script_array(script_num)	    'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	   'Set this array element to be a new script. Script details below...
@@ -1719,6 +1705,20 @@ script_array(script_num).workflows              = ""
 script_array(script_num).tags                   = array("Adult Cash", "Application", "Communication", "DWP", "EMER", "Health Care", "HS/GRH", "LTC", "MFIP", "Reviews", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Up", "Oe", "Oa")
 script_array(script_num).subcategory            = array("IMIG")
+script_array(script_num).release_date           = #10/01/2000#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+
+script_num = script_num + 1							'Increment by one
+ReDim Preserve script_array(script_num)	'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script. Script details below...
+script_array(script_num).script_name			= "Inactive Transfer"													'Script name
+' script_array(script_num).description 			= "Script to transfer inactive cases via SPEC/XFER"
+script_array(script_num).category               = "ADMIN"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("BZ", "Monthly Tasks", "DWP", "EMER", "Health Care", "HS/GRH", "LTC", "MFIP", "SNAP", "Adult Cash")
+script_array(script_num).dlg_keys               = array("Up", "Ex", "Ev")
+script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
