@@ -976,6 +976,9 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 	If UCase(ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry)) = "FALSE" Then ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = False
 	If UCase(ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry)) = "FALSE" Then ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry) = False
 
+	If  ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI" Then  ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""
+	If  ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual Appt Notice" Then  ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = ""
+
 	' If ALL_PENDING_CASES_ARRAY(line_update_date, case_entry) <> date Then
 
 		MAXIS_case_number = ALL_PENDING_CASES_ARRAY(case_number, case_entry)        'setting this so that nav functionality works
