@@ -151,13 +151,28 @@ file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Sum
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\Cash Cases 8-1-22.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Sept 16.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Oct 6.xlsx"
+file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Nov 8.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 ' Call navigate_to_MAXIS_screen("CCOL", "CLIC")
-MAXIS_footer_month = "10"
+count = 1
+xl_col = 5
+Do
+	ObjExcel.Cells(1, xl_col).Value = "ELIGIBILITY - " & count
+	ObjExcel.Cells(1, xl_col+1).Value = "ELIG TYPE - " & count
+	ObjExcel.Cells(1, xl_col+2).Value = "INCOME - " & count
+	ObjExcel.Cells(1, xl_col+3).Value = "PERSON and PROG - " & count
+	ObjExcel.Cells(1, xl_col+4).Value = "APPROVED? - " & count
+
+	xl_col = xl_col + 5
+	count = count + 1
+Loop Until count = 8
+
+
+MAXIS_footer_month = "11"
 MAXIS_footer_year = "22"
-excel_row = 54998
+excel_row = 2
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
 	xl_col = 5
@@ -226,6 +241,8 @@ Do
 
 			' If DateDiff("'d", hc_prog_elig_process_date, date) = 0 Then
 			If hc_prog_elig_major_program = "HC D" Then
+				EMReadScreen hc_prog_elig_app_date, 8, 3, 73
+
 				EMReadScreen hc_prog_elig_source_of_info, 		4, 9, 33
 				EMReadScreen hc_prog_elig_responsible_county, 	2, 8, 78
 				EMReadScreen hc_prog_elig_servicing_county, 	2, 9, 78
@@ -239,6 +256,9 @@ Do
 			End If
 
 			If hc_prog_elig_major_program = "MA" or hc_prog_elig_major_program = "EMA" Then
+				transmit
+				EMReadScreen hc_prog_elig_app_date, 8, 4, 73
+				PF3
 				hc_col = 17
 				Do
 					EMReadScreen budg_mo, 2, 6, hc_col + 2
@@ -262,10 +282,15 @@ Do
 					If hc_col = 83 Then hc_prog_elig_appd = False
 				Loop until hc_col = 83
 			End If
+
+			If hc_prog_elig_major_program = "QMB" or hc_prog_elig_major_program = "SLMB" or hc_prog_elig_major_program = "QI1" Then
+				transmit
+				EMReadScreen hc_prog_elig_app_date, 8, 4, 73
+			End If
 		End If
 
 		ObjExcel.Cells(excel_row, xl_col).Value = hc_elig_ref_numbs & " - " & hc_elig_full_name & " (" & clt_hc_prog & ")"
-		ObjExcel.Cells(excel_row, xl_col+1).Value = hc_prog_elig_appd
+		ObjExcel.Cells(excel_row, xl_col+1).Value = hc_prog_elig_appd & " - " & hc_prog_elig_app_date
 		If hc_prog_elig_major_program <> "" Then ObjExcel.Cells(excel_row, xl_col+2).Value = hc_prog_elig_major_program & " - " & hc_prog_elig_eligibility_result & ", Status: " & hc_prog_elig_status & " - " & hc_prog_elig_app_indc
 		If hc_prog_elig_elig_type <> "" Then ObjExcel.Cells(excel_row, xl_col+3).Value = hc_prog_elig_elig_type & "-" &  hc_prog_elig_elig_standard & " method: " & hc_prog_elig_method
 		If hc_prog_elig_total_net_income <> "" Then ObjExcel.Cells(excel_row, xl_col+4).Value = "Income: " & hc_prog_elig_total_net_income & ", Standard: " & hc_prog_elig_standard
