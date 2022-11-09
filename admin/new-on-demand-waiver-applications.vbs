@@ -1418,7 +1418,7 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 			ALL_PENDING_CASES_ARRAY(take_action_today, case_entry) = TRUE   'If we are going to be denying tomorrow, we need some additional information
 			ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL"
 		End If
-		If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "" Then MsgBox "Case Number: " & ALL_PENDING_CASES_ARRAY(case_number, case_entry) & vbNewLine & "Does not have an action to take!!!"           'This is here for testing but has never come up
+		' If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "" Then MsgBox "Case Number: " & ALL_PENDING_CASES_ARRAY(case_number, case_entry) & vbNewLine & "Does not have an action to take!!!"           'This is here for testing but has never come up
 
 	End If
 Next
@@ -1666,91 +1666,94 @@ For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 				ALL_PENDING_CASES_ARRAY(script_action_taken, case_entry) = True
 
 			ElseIf ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" Then       'These cases need NOMIs
-				nomi_last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the date to enter on the NOMI of the day of denial
-				'ensuring that we have given the client an additional10days fromt he day nomi sent'
-				IF DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), nomi_last_contact_day) < 1 then nomi_last_contact_day = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
-
-				Call start_a_new_spec_memo(memo_started, True, forms_to_arep, forms_to_swkr, "N", other_name, other_street, other_city, other_state, other_zip, False)
-				IF memo_started = True THEN
-					'TODO - add languages in when we can'
-
-					Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
-					Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) & ".")
-					Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
-					Call write_variable_in_SPEC_MEMO(" ")
-					Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
-					Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
-					Call write_variable_in_SPEC_MEMO(" ")
-					Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
-					Call write_variable_in_SPEC_MEMO(" ")
-					Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
-					Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
-					Call write_variable_in_SPEC_MEMO(" ")
-					CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
-					CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
-					CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
-					CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
-					CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
-					CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
-					CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
-					CALL write_variable_in_SPEC_MEMO("")
-					CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
-					CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
-					CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
-					CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
-
-					PF4
-				Else
-					ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "N"   'if the MEMO didn't start then setting this for the ARRAY and Working Excel.
-				End If
-
-				If ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) <> "N" Then Call confirm_memo_waiting(ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry))     'reading the SPEC/MEMO page to see that a MEMO for today is waiting.
-
-				'Resetting the next action needed based on message success and writing the case note if successful
-				If ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "N" Then
+				If IsDate(ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)) = False Then
 					ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI"
-					ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = ""
-				ElseIf ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "Y" Then
-					ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30"
-					ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
-
-					Call start_a_blank_case_note
-					Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent ~ ")
-					Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview. ")
-					Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
-					Call write_variable_in_CASE_NOTE("* A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
-					Call write_variable_in_CASE_NOTE("---")
-					Call write_variable_in_CASE_NOTE(worker_signature)
-					'MsgBox "What casenote was sent?"
-					PF3
 				Else
-					ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???"           'this is for testing - this has never come up
+					nomi_last_contact_day = dateadd("d", 30, ALL_PENDING_CASES_ARRAY(application_date, case_entry))       'setting the date to enter on the NOMI of the day of denial
+					'ensuring that we have given the client an additional10days fromt he day nomi sent'
+					IF DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry), nomi_last_contact_day) < 1 then nomi_last_contact_day = dateadd("d", 10, ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry))
+
+					Call start_a_new_spec_memo(memo_started, True, forms_to_arep, forms_to_swkr, "N", other_name, other_street, other_city, other_state, other_zip, False)
+					IF memo_started = True THEN
+						'TODO - add languages in when we can'
+
+						Call write_variable_in_SPEC_MEMO("You recently applied for assistance on " & ALL_PENDING_CASES_ARRAY(application_date, case_entry) & ".")
+						Call write_variable_in_SPEC_MEMO("Your interview should have been completed by " & ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) & ".")
+						Call write_variable_in_SPEC_MEMO("An interview is required to process your application.")
+						Call write_variable_in_SPEC_MEMO(" ")
+						Call write_variable_in_SPEC_MEMO("To complete a phone interview, call the EZ Info Line at")
+						Call write_variable_in_SPEC_MEMO("612-596-1300 between 8:00am and 4:30pm Monday thru Friday.")
+						Call write_variable_in_SPEC_MEMO(" ")
+						Call write_variable_in_SPEC_MEMO("* You may be able to have SNAP benefits issued within 24 hours of the interview.")
+						Call write_variable_in_SPEC_MEMO(" ")
+						Call write_variable_in_SPEC_MEMO("  ** If we do not hear from you by " & last_contact_day & " **")
+						Call write_variable_in_SPEC_MEMO("  **    your application will be denied.     **") 'add 30 days
+						Call write_variable_in_SPEC_MEMO(" ")
+						CALL write_variable_in_SPEC_MEMO("All interviews are completed via phone. If you do not have a phone, go to one of our Digital Access Spaces at any Hennepin County Library or Service Center. No processing, no interviews are completed at these sites. Some Options:")
+						CALL write_variable_in_SPEC_MEMO(" - 7051 Brooklyn Blvd Brooklyn Center 55429")
+						CALL write_variable_in_SPEC_MEMO(" - 1011 1st St S Hopkins 55343")
+						CALL write_variable_in_SPEC_MEMO(" - 1001 Plymouth Ave N Minneapolis 55411")
+						CALL write_variable_in_SPEC_MEMO(" - 2215 East Lake Street Minneapolis 55407")
+						CALL write_variable_in_SPEC_MEMO(" (Hours are 8 - 4:30 Monday - Friday)")
+						CALL write_variable_in_SPEC_MEMO(" More detail can be found at hennepin.us/economic-supports")
+						CALL write_variable_in_SPEC_MEMO("")
+						CALL write_variable_in_SPEC_MEMO("*** Submitting Documents:")
+						CALL write_variable_in_SPEC_MEMO("- Online at infokeep.hennepin.us or MNBenefits.mn.gov")
+						CALL write_variable_in_SPEC_MEMO("  Use InfoKeep to upload documents directly to your case.")
+						CALL write_variable_in_SPEC_MEMO("- Mail, Fax, or Drop Boxes at service centers(listed above)")
+
+						PF4
+					Else
+						ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "N"   'if the MEMO didn't start then setting this for the ARRAY and Working Excel.
+					End If
+
+					If ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) <> "N" Then Call confirm_memo_waiting(ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry))     'reading the SPEC/MEMO page to see that a MEMO for today is waiting.
+
+					'Resetting the next action needed based on message success and writing the case note if successful
+					If ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "N" Then
+						ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI"
+						ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = ""
+					ElseIf ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) = "Y" Then
+						ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30"
+						ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = date
+
+						Call start_a_blank_case_note
+						Call write_variable_in_CASE_NOTE("~ Client has not completed application interview, NOMI sent ~ ")
+						Call write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview. ")
+						Call write_variable_in_CASE_NOTE("* Households failing to complete the interview within 30 days of the date they file an application will receive a denial notice")
+						Call write_variable_in_CASE_NOTE("* A link to the domestic violence brochure sent to client in SPEC/MEMO as a part of interview notice.")
+						Call write_variable_in_CASE_NOTE("---")
+						Call write_variable_in_CASE_NOTE(worker_signature)
+						'MsgBox "What casenote was sent?"
+						PF3
+					Else
+						ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "???"           'this is for testing - this has never come up
+					End If
+					Call back_to_SELF
+
+					'Adding this case to the list of cases that we took action on today
+					ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
+					ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
+					ACTION_TODAY_CASES_ARRAY(client_name, todays_cases)         = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
+					ACTION_TODAY_CASES_ARRAY(worker_ID, todays_cases)           = ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
+					ACTION_TODAY_CASES_ARRAY(SNAP_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
+					ACTION_TODAY_CASES_ARRAY(CASH_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
+					ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
+					ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
+					ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
+					ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
+					ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
+					ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
+					ACTION_TODAY_CASES_ARRAY(nomi_sent, todays_cases)           = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
+					ACTION_TODAY_CASES_ARRAY(nomi_confirm, todays_cases)        = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
+					ACTION_TODAY_CASES_ARRAY(deny_day30, todays_cases)          = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry)
+					ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
+					ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
+					ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = "NOMI Sent today"
+					todays_cases = todays_cases + 1
+
+					ALL_PENDING_CASES_ARRAY(script_action_taken, case_entry) = True
 				End If
-				Call back_to_SELF
-
-				'Adding this case to the list of cases that we took action on today
-				ReDim Preserve ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)
-				ACTION_TODAY_CASES_ARRAY(case_number, todays_cases)         = ALL_PENDING_CASES_ARRAY(case_number, case_entry)
-				ACTION_TODAY_CASES_ARRAY(client_name, todays_cases)         = ALL_PENDING_CASES_ARRAY(client_name, case_entry)
-				ACTION_TODAY_CASES_ARRAY(worker_ID, todays_cases)           = ALL_PENDING_CASES_ARRAY(worker_ID, case_entry)
-				ACTION_TODAY_CASES_ARRAY(SNAP_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry)
-				ACTION_TODAY_CASES_ARRAY(CASH_status, todays_cases)         = ALL_PENDING_CASES_ARRAY(CASH_status, case_entry)
-				ACTION_TODAY_CASES_ARRAY(application_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(application_date, case_entry)
-				ACTION_TODAY_CASES_ARRAY(interview_date, todays_cases)      = ALL_PENDING_CASES_ARRAY(interview_date, case_entry)
-				ACTION_TODAY_CASES_ARRAY(questionable_intv, todays_cases)   = ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry)
-				ACTION_TODAY_CASES_ARRAY(appt_notc_sent, todays_cases)      = ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)
-				ACTION_TODAY_CASES_ARRAY(appt_notc_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry)
-				ACTION_TODAY_CASES_ARRAY(appointment_date, todays_cases)    = ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)
-				ACTION_TODAY_CASES_ARRAY(nomi_sent, todays_cases)           = ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)
-				ACTION_TODAY_CASES_ARRAY(nomi_confirm, todays_cases)        = ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry)
-				ACTION_TODAY_CASES_ARRAY(deny_day30, todays_cases)          = ALL_PENDING_CASES_ARRAY(deny_day30, case_entry)
-				ACTION_TODAY_CASES_ARRAY(deny_memo_confirm, todays_cases)   = ALL_PENDING_CASES_ARRAY(deny_memo_confirm, case_entry)
-				ACTION_TODAY_CASES_ARRAY(next_action_needed, todays_cases)  = ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry)
-				ACTION_TODAY_CASES_ARRAY(error_notes, todays_cases)         = "NOMI Sent today"
-				todays_cases = todays_cases + 1
-
-				ALL_PENDING_CASES_ARRAY(script_action_taken, case_entry) = True
-
 			ElseIf ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30" Then
 				IF datediff("d", ALL_PENDING_CASES_ARRAY(application_date, case_entry), date) >= 30 and ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = "" Then
 					ALL_PENDING_CASES_ARRAY(case_over_30_days, case_entry) = True
