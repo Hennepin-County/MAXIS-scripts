@@ -165,6 +165,13 @@ Do
 	ObjExcel.Cells(1, xl_col+3).Value = "PERSON and PROG - " & count
 	ObjExcel.Cells(1, xl_col+4).Value = "APPROVED? - " & count
 
+
+	ObjExcel.Columns(xl_col).AutoFit()
+	ObjExcel.Columns(xl_col+1).AutoFit()
+	ObjExcel.Columns(xl_col+2).AutoFit()
+	ObjExcel.Columns(xl_col+3).AutoFit()
+ 	ObjExcel.Columns(xl_col+4).AutoFit()
+
 	xl_col = xl_col + 5
 	count = count + 1
 Loop Until count = 8
@@ -172,7 +179,7 @@ Loop Until count = 8
 
 MAXIS_footer_month = "11"
 MAXIS_footer_year = "22"
-excel_row = 2
+excel_row = 34284
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
 	xl_col = 5
@@ -628,6 +635,10 @@ Do
 	' Loop until trim(next_claim_pd) = ""
 	excel_row = excel_row + 1
 Loop until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
+
+for xl_col = 1 to 30
+	ObjExcel.Columns(xl_col).AutoFit()
+Next
 
 MsgBox "STOP HERE"
 
