@@ -248,7 +248,7 @@ If right(active_programs, 1) = "," THEN active_programs = left(active_programs, 
 '----------------------------------------------------------------------------------------------------Pending programs
 programs_applied_for = ""   'Creates a variable that lists all pening cases.
 additional_programs_applied_for = ""
-interview_completed = True
+interview_completed = False     'reading for interview information in case we are at Day 30
 'cash I
 IF cash1_status_check = "PEND" then
     If cash1_app_date = application_date THEN
@@ -258,7 +258,10 @@ IF cash1_status_check = "PEND" then
     Else
         additional_programs_applied_for = additional_programs_applied_for & "CASH, "
 	End if
-    If cash1_intvw_date = "__/__/__" Then interview_completed = False
+    If cash1_intvw_date <> "__/__/__" Then
+        interview_completed = True
+        interview_date = cash1_intvw_date
+    End If
 End if
 'cash II
 IF cash2_status_check = "PEND" then
@@ -269,7 +272,10 @@ IF cash2_status_check = "PEND" then
     Else
         additional_programs_applied_for = additional_programs_applied_for & "CASH, "
     End if
-    If cash2_intvw_date = "__/__/__" Then interview_completed = False
+    If cash2_intvw_date <> "__/__/__" Then
+        interview_completed = True
+        interview_date = cash2_intvw_date
+    End If
 End if
 'SNAP
 IF snap_status_check  = "PEND" then
@@ -280,7 +286,10 @@ IF snap_status_check  = "PEND" then
     else
         additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
     end if
-    If snap_intvw_date = "__/__/__" Then interview_completed = False
+    If snap_intvw_date <> "__/__/__" Then
+        interview_completed = True
+        interview_date = snap_intvw_date
+    End If
 End if
 'GRH
 IF grh_status_check = "PEND" then
@@ -291,7 +300,10 @@ IF grh_status_check = "PEND" then
     else
         additional_programs_applied_for = additional_programs_applied_for & "GRH, "
     End if
-    If grh_intvw_date = "__/__/__" Then interview_completed = False
+    If grh_intvw_date <> "__/__/__" Then
+        interview_completed = True
+        interview_date = grh_intvw_date
+    End If
 End if
 'I-VE
 IF ive_status_check = "PEND" then
@@ -333,7 +345,10 @@ If emer_status_check = "PEND" then
         IF emer_prog_check = "EG" THEN additional_programs_applied_for = additional_programs_applied_for & "EGA, "
         IF emer_prog_check = "EA" THEN additional_programs_applied_for = additional_programs_applied_for & "EA, "
     End if
-    If emer_intvw_date = "__/__/__" Then interview_completed = False
+    If emer_intvw_date <> "__/__/__" Then
+        interview_completed = True
+        interview_date = emer_intvw_date
+    End If
 End if
 
 programs_applied_for = trim(programs_applied_for)       'trims excess spaces of programs_applied_for
@@ -389,6 +404,9 @@ Elseif DateDiff("d", application_date, date) > 60 then
 	reminder_text = "Post day 60"
     caf_programs_denial = True
 END IF
+
+'Determining if a CAF based program is pending
+IF cash1_status_check <> "PEND" and cash2_status_check <> "PEND" and snap_status_check  <> "PEND" and grh_status_check <> "PEND" and emer_status_check <> "PEND" Then caf_programs_denial = False
 
 '--------------------------------------------------------------------------------------------------------------------------------------Health Care Screening Portion
 IF HC_pending = True then
@@ -642,14 +660,15 @@ IF HC_pending = True then
     End if
 End if
 
+'If a CAF Based program is pending and the case is at or past Day 30, the script will pull this special Functionality
+'The standard functionality for Application Checkk will NOT run if this case is at CAF programs denial
 If caf_programs_denial = True Then
-
-    interview_completed = False
+    If interview_completed = True Then interview_completed = "Yes"      'defaulting based on what is listed in PROG.'
+    If interview_completed = False Then interview_completed = "No"
     day_30 = dateadd("d", 30, application_date)
-    day_before_app = DateAdd("d", -1, WORKING_LIST_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date'
+    day_before_app = DateAdd("d", -1, application_date) 'will set the date one day prior to app date'
 
-
-    Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")       'Reading CASE NOTE for notice dates.
 
     note_row = 5            'resetting the variables on the loop
     note_date = ""
@@ -663,6 +682,7 @@ If caf_programs_denial = True Then
         EMReadScreen note_title, 55, note_row, 25   'reading the note header
         note_title = trim(note_title)
 
+        'These are Appointment Notice Headers
         IF left(note_title, 35) = "~ Appointment letter sent in MEMO ~" then
             appt_notc_date = note_date
         ElseIF left(note_title, 42) = "~ Appointment letter sent in MEMO for SNAP" then
@@ -675,6 +695,7 @@ If caf_programs_denial = True Then
             'MsgBox WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)
         END IF
 
+        'These are NOMI Headers'
         IF note_title = "~ Client missed application interview, NOMI sent via sc" then nomi_date = note_date
         IF left(note_title, 32) = "**Client missed SNAP interview**" then nomi_date = note_date
         IF left(note_title, 32) = "**Client missed CASH interview**" then nomi_date = note_date
@@ -693,54 +714,383 @@ If caf_programs_denial = True Then
         IF next_note_date = "        " then Exit Do
     Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
 
+    'Now we ask about the application steps.
+    'Forst is the interivew
+    Do
+        Do
+            err_msg = ""
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 346, 175, "Case May Be Ready for Denial"
+              DropListBox 170, 110, 40, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", interview_completed
+              EditBox 170, 130, 50, 15, interview_date
+              ButtonGroup ButtonPressed
+                OkButton 230, 155, 50, 15
+                CancelButton 285, 155, 50, 15
+                PushButton 160, 65, 165, 15, "CM 05.12.15 - Application Processing Standards", cm_05_12_15_btn
+              GroupBox 5, 10, 330, 80, "Application Check: " & application_check
+              Text 15, 25, 290, 10, "Programs Applied for: " & programs_applied_for
+              Text 15, 40, 285, 10, "Cases at Day 30 for CAF based programs should be reviewed for possible denial."
+              Text 15, 50, 315, 10, "A determination for eligibility should be made no later than 30 days from the Date of Application."
+              Text 25, 65, 115, 10, "Application Date: " & application_date
+              Text 25, 75, 115, 10, "Day 30: " & day_30
+              Text 50, 115, 115, 10, "Has an Interview been completed?"
+              Text 15, 135, 150, 10, "If so, what date was the interview completed?"
+              GroupBox 5, 95, 330, 55, "SNAP, CASH, GRH, and EMER Require an interivew."
+            EndDialog
 
-    BeginDialog Dialog1, 0, 0, 346, 175, "Case May Be Ready for Denial"
-      DropListBox 170, 110, 40, 45, "", interview_completed
-      EditBox 170, 130, 50, 15, interview_date
-      ButtonGroup ButtonPressed
-        OkButton 230, 155, 50, 15
-        CancelButton 285, 155, 50, 15
-        PushButton 160, 65, 165, 15, "CM 05.12.15 - Application Processing Standards", Button3
-      GroupBox 5, 10, 330, 80, "Application Check:   & application_check"
-      Text 15, 25, 290, 10, "Programs Applied for: & programs_applied_for"
-      Text 15, 40, 285, 10, "Cases at Day 30 for CAF based programs should be reviewed for possible denial."
-      Text 15, 50, 315, 10, "A determination for eligibility should be made no later than 30 days from the Date of Application."
-      Text 25, 65, 115, 10, "Application Date: & application_date"
-      Text 25, 75, 115, 10, "Day 30: & day_30"
-      Text 50, 115, 115, 10, "Has an Interview been completed?"
-      Text 15, 135, 150, 10, "If so, what date was the interview completed?"
-      GroupBox 5, 95, 330, 55, "SNAP, CASH, GRH, and EMER Require an interivew."
-    EndDialog
+            dialog Dialog1
+            cancel_confirmation
 
+            If interview_completed = "Select..."Then err_msg = err_msg & vbCr & "* Indicate if there was an interview completed."
+            If interview_completed = "Yes" Then
+                If IsDate(interview_date) = False Then
+                    err_msg = err_msg & vbCr & "* Indicate the date that the interview was completed."
+                ElseIf DateDiff("d", interview_date, application_date) > 0 Then
+                    err_msg = err_msg & vbCr & "* The date entered is before the date of application, the interview can only be on or after the initial date of application."
+                End If
+            End If
+            If ButtonPressed = cm_05_12_15_btn Then
+                err_msg = "LOOP"
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00051215"
+            End If
+            If err_msg <> "" and err_msg <> "LOOP" Then MsgBox "****  PLEASE RESOLVE TO CONTINUE ****" & vbCr & err_msg
 
+        Loop until err_msg = ""
+        Call check_for_password(are_we_passworded_out)
+    Loop until are_we_passworded_out = False
 
-    BeginDialog Dialog1, 0, 0, 346, 275, "Case May Be Ready for Denial"
-      DropListBox 110, 145, 60, 45, "", verifs_needed
-      DropListBox 175, 175, 60, 45, "", verifs_sent
-      EditBox 175, 195, 50, 15, verifs_sent_date
-      DropListBox 175, 215, 60, 45, "", verifs_received
-      ButtonGroup ButtonPressed
-        OkButton 230, 250, 50, 15
-        CancelButton 285, 250, 50, 15
-        PushButton 160, 65, 165, 15, "CM 05.12.15 - Application Processing Standards", Button3
-      GroupBox 5, 10, 330, 80, ""Application Check: "  & application_check"
-      Text 15, 25, 290, 10, "Programs Applied for: & programs_applied_for"
-      Text 15, 40, 285, 10, "Cases at Day 30 for CAF based programs should be reviewed for possible denial."
-      Text 15, 50, 315, 10, "A determination for eligibility should be made no later than 30 days from the Date of Application."
-      Text 25, 65, 115, 10, "Application Date: & application_date"
-      Text 25, 75, 115, 10, "Day 30: & day_30"
-      GroupBox 5, 100, 330, 30, "SNAP, CASH, GRH, and EMER Require an interivew."
-      Text 20, 115, 155, 10, "Interview Completed on: interview_date"
-      GroupBox 5, 135, 330, 105, "Verifications may be Needed"
-      Text 15, 150, 95, 10, "Were Verifications Needed?"
-      GroupBox 20, 165, 240, 70, "If Verifications were Needed:"
-      Text 35, 180, 140, 10, "Was a Verification Request sent via ECF?"
-      Text 40, 200, 135, 10, "What Date was the request sent in ECF?"
-      Text 30, 220, 140, 10, "Were all mandatory verifications received?"
-    EndDialog
+    'If the interview was not completed, we ask about the notices'
+    If interview_completed = "No" Then
+        Do
+            Do
+                err_msg = ""
+                Dialog1 = ""
+                BeginDialog Dialog1, 0, 0, 346, 260, "Case May Be Ready for Denial"
+                  EditBox 125, 175, 50, 15, appt_notc_date
+                  EditBox 125, 195, 50, 15, nomi_date
+                  ButtonGroup ButtonPressed
+                    OkButton 230, 235, 50, 15
+                    CancelButton 285, 235, 50, 15
+                    PushButton 160, 65, 165, 15, "CM 05.12.15 - Application Processing Standards", cm_05_12_15_btn
+                  GroupBox 5, 10, 330, 80, "Application Check: " & application_check
+                  Text 15, 25, 290, 10, "Programs Applied for: " & programs_applied_for
+                  Text 15, 40, 285, 10, "Cases at Day 30 for CAF based programs should be reviewed for possible denial."
+                  Text 15, 50, 315, 10, "A determination for eligibility should be made no later than 30 days from the Date of Application."
+                  Text 25, 65, 115, 10, "Application Date: " & application_date
+                  Text 25, 75, 115, 10, "Day 30: " & day_30
+                  GroupBox 5, 100, 330, 30, "SNAP, CASH, GRH, and EMER Require an interivew."
+                  Text 20, 115, 155, 10, "INTERVIEW NOT COMPLETED"
+                  GroupBox 5, 135, 330, 95, "Interview Notification Required"
+                  Text 15, 150, 300, 20, "Two seperate NOTICES should have been sent to the resident for the interview notification. The resident should have received an Appointment Letter and a NOMI."
+                  Text 25, 180, 100, 10, "Date Appointment Notice Sent:"
+                  Text 70, 200, 55, 10, "Date NOMI Sent:"
+                  Text 15, 215, 200, 10, "If these notices were not sent, leave these date fields blank."
+                EndDialog
 
+                dialog Dialog1
+                cancel_confirmation
 
-"https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00051215"
+                If trim(appt_notc_date) <> "" and IsDate(appt_notc_date) = False Then err_msg = err_msg & vbCr & "* The date of the appointment notice does not appear to be a valid date. Please review and update."
+                If trim(nomi_date) <> "" and IsDate(nomi_date) = False Then err_msg = err_msg & vbCr & "* The date of the NOMI does not appear to be a valid date. Please review and update."
+
+                If ButtonPressed = cm_05_12_15_btn Then
+                    err_msg = "LOOP"
+                    run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00051215"
+                End If
+                If err_msg <> "" and err_msg <> "LOOP" Then MsgBox "****  PLEASE RESOLVE TO CONTINUE ****" & vbCr & err_msg
+
+            Loop until err_msg = ""
+            Call check_for_password(are_we_passworded_out)
+        Loop until are_we_passworded_out = False
+    End If
+
+    'If the interview was completed, we ask about verifications.
+    If interview_completed = "Yes" Then
+        Do
+            Do
+                err_msg = ""
+                Dialog1 = ""
+                BeginDialog Dialog1, 0, 0, 346, 275, "Case May Be Ready for Denial"
+                  DropListBox 110, 145, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", verifs_needed
+                  DropListBox 175, 175, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", verifs_sent
+                  EditBox 175, 195, 50, 15, verifs_sent_date
+                  DropListBox 175, 215, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", verifs_received
+                  ButtonGroup ButtonPressed
+                    OkButton 230, 250, 50, 15
+                    CancelButton 285, 250, 50, 15
+                    PushButton 160, 65, 165, 15, "CM 05.12.15 - Application Processing Standards", cm_05_12_15_btn
+                  GroupBox 5, 10, 330, 80, "Application Check: " & application_check
+                  Text 15, 25, 290, 10, "Programs Applied for: " & programs_applied_for
+                  Text 15, 40, 285, 10, "Cases at Day 30 for CAF based programs should be reviewed for possible denial."
+                  Text 15, 50, 315, 10, "A determination for eligibility should be made no later than 30 days from the Date of Application."
+                  Text 25, 65, 115, 10, "Application Date: " & application_date
+                  Text 25, 75, 115, 10, "Day 30: " & day_30
+                  GroupBox 5, 100, 330, 30, "SNAP, CASH, GRH, and EMER Require an interivew."
+                  Text 20, 115, 155, 10, "Interview Completed on: " & interview_date
+                  GroupBox 5, 135, 330, 105, "Verifications may be Needed"
+                  Text 15, 150, 95, 10, "Were Verifications Needed?"
+                  GroupBox 20, 165, 240, 70, "If Verifications were Needed:"
+                  Text 35, 180, 140, 10, "Was a Verification Request sent via ECF?"
+                  Text 40, 200, 135, 10, "What Date was the request sent in ECF?"
+                  Text 30, 220, 140, 10, "Were all mandatory verifications received?"
+                EndDialog
+
+                dialog Dialog1
+                cancel_confirmation
+
+                If verifs_needed = "Select..."Then err_msg = err_msg & vbCr & "* Indicate if verifications were needed for this case."
+                If verifs_needed = "Yes" Then
+                    If verifs_sent = "Select..."Then err_msg = err_msg & vbCr & "* Was the verification request form sent via ECF?."
+                    If verifs_sent = "Yes" Then
+                        If IsDate(verifs_sent_date) = False Then
+                            err_msg = err_msg & vbCr & "* Enter the date the verification request form was sent from ECF."
+                        ElseIf DateDiff("d", verifs_sent_date, application_date) > 0 Then
+                            err_msg = err_msg & vbCr & "* The date entered for the verification sent date is prior to the date of application. The verifications cannot have been requested prior to the application receive date.."
+                        End If
+                    End If
+                    If verifs_received = "Select..."Then err_msg = err_msg & vbCr & "* Indicate if all mandatory verifications have been received."
+                End If
+                If verifs_received = "Yes" Then err_msg = ""
+
+                If ButtonPressed = cm_05_12_15_btn Then
+                    err_msg = "LOOP"
+                    run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00051215"
+                End If
+                If err_msg <> "" and err_msg <> "LOOP" Then MsgBox "****  PLEASE RESOLVE TO CONTINUE ****" & vbCr & err_msg
+
+            Loop until err_msg = ""
+            Call check_for_password(are_we_passworded_out)
+        Loop until are_we_passworded_out = False
+    End If
+
+    'This is the logic bit to see what should happen to this case.
+    should_deny_today = False
+    complete_determination_today = False
+    reason_cannot_deny = ""
+
+    If interview_completed = "No" Then
+        If IsDate(appt_notc_date) = True and IsDate(nomi_date) = True Then
+            If DateDiff("d", nomi_date, day_30) > 0 Then
+                should_deny_today = True                                        'DENY - No Interview, all notices sent and NOMI sent before Day 30'
+            ElseIf DateDiff("d", nomi_date, date) >= 10 Then
+                should_deny_today = True                                        'DENY - No Interview, all notices sent and it has been 10 days since NOMI sent
+            Else
+                reason_cannot_deny = "Interview Notices Not Timely"             'Delay denial - NOMI sent after Day 30 and has not been 10 days'
+            End if
+        End If
+        If trim(appt_notc_date) = "" or trim(nomi_date) = "" Then
+            reason_cannot_deny = "Missing Interview Notices"                    'Delay denial - No Interview - Notices not all sent
+        End If
+    Else
+        If verifs_received = "Yes" Then
+            complete_determination_today = True                                 'PROCESS - Interview done and Verifs Received'
+        ElseIf verifs_needed = "Yes" Then
+            If verifs_sent = "No" Then
+                reason_cannot_deny = "Missing Verification Request"             'Delay Denial - Verifs Needed, no request sent'
+            ElseIf IsDate(verifs_sent_date) = True Then
+                If DateDiff("d", verifs_sent_date, date) >= 10 Then
+                    should_deny_today = True                                    'DENY - Interview and Verif request sent at least 10 days ago'
+                Else
+                    reason_cannot_deny = "Verification Request Not Timely"      'Delay Denial - It has not been 10 days since mandaorty verifs requested'
+                End If
+            End If
+        ElseIf verifs_needed = "No" Then
+            complete_determination_today = True                                 'PROCESS - Interview done and No Verifs Needed'
+        End If
+    End If
+
+    'saving information for error reporting'
+    script_run_lowdown = script_run_lowdown & "application_check - " & application_check & vbCr
+    script_run_lowdown = script_run_lowdown & "application_date - " & application_date & vbCr
+    script_run_lowdown = script_run_lowdown & "day_30 - " & day_30 & vbCr
+    script_run_lowdown = script_run_lowdown & "pending_progs - " & pending_progs & vbCr
+    script_run_lowdown = script_run_lowdown & "programs_applied_for - " & programs_applied_for & vbCr
+    script_run_lowdown = script_run_lowdown & "additional_programs_applied_for - " & additional_programs_applied_for & vbCr
+    script_run_lowdown = script_run_lowdown & "interview_completed - " & interview_completed & vbCr
+    script_run_lowdown = script_run_lowdown & "interview_date - " & interview_date & vbCr
+    script_run_lowdown = script_run_lowdown & "appt_notc_date - " & appt_notc_date & vbCr
+    script_run_lowdown = script_run_lowdown & "nomi_date - " & nomi_date & vbCr
+    script_run_lowdown = script_run_lowdown & "verifs_needed - " & verifs_needed & vbCr
+    script_run_lowdown = script_run_lowdown & "verifs_sent - " & verifs_sent & vbCr
+    script_run_lowdown = script_run_lowdown & "verifs_sent_date - " & verifs_sent_date & vbCr
+    script_run_lowdown = script_run_lowdown & "verifs_received - " & verifs_received & vbCr
+    script_run_lowdown = script_run_lowdown & "should_deny_today - " & should_deny_today & vbCr
+    script_run_lowdown = script_run_lowdown & "complete_determination_today - " & complete_determination_today & vbCr
+    script_run_lowdown = script_run_lowdown & "reason_cannot_deny - " & reason_cannot_deny & vbCr
+
+    'Creating the messages for the script_en_procedure to explain DENY or PROCESS discovery
+    next_step_msg = ""
+    If should_deny_today = True Then
+        next_step_msg = "*** This case should be denied today. ***" & vbCr & vbCr
+        next_step_msg = next_step_msg & "Application Processing standard is to complete determining within 30 days." & vbCr & vbCr
+        next_step_msg = next_step_msg & " - Day 30 for this case: " & day_30 & "." & vbCr & vbCr
+        If interview_completed = "No" Then
+            next_step_msg = next_step_msg & "The interview has not been completed at this time." & vbCr
+            next_step_msg = next_step_msg & "We do not need to give more time for the completion of the interview. Notification of the interview requrement was sent to the resident per the requirements." & vbCr
+            next_step_msg = next_step_msg & "Appointment Notice on " & appt_notc_date & "." & vbCr
+            next_step_msg = next_step_msg & "NOMI on " & nomi_date & "." & vbCr
+            next_step_msg = next_step_msg & "Denial should be completed via REPT/PND2, denying for no interview." & vbCr & vbCr
+        End if
+        If verifs_received = "No" and verifs_needed = "Yes" and verifs_sent = "Yes" Then
+            next_step_msg = next_step_msg & "The interview has been completed for this case." & vbCr
+            next_step_msg = next_step_msg & "Verifications were required and requested on " & verifs_sent_date & "." & vbCr
+            next_step_msg = next_step_msg & "Verifications have not been received." & vbCr
+            next_step_msg = next_step_msg & "We do not need to povide more time for the submission of verifications. 10 days have been allowed for the return of verifications." & vbCr
+            next_step_msg = next_step_msg & "Denial should be completed in STAT and ELIG." & vbCr & vbCr
+        End If
+        next_step_msg = next_step_msg & "Once the denial is processed the script NOTES - Eligibility Summary will support the CASE/NOTE completion." & vbCr & vbCr
+        next_step_msg = next_step_msg & "Contact QI Knowledge Now for assistance with processing this denial if needed."
+    End If
+
+    If complete_determination_today = True Then
+        next_step_msg = "*** Complete a Determination for this case today. ***" & vbCr & vbCr
+        next_step_msg = next_step_msg & "This case:" & vbCr
+        next_step_msg = next_step_msg & " - Has completed an interview." & vbCr
+        If verifs_received = "Yes" Then
+            next_step_msg = next_step_msg & " - All verifications have been received." & vbCr
+        ElseIf verifs_needed = "No" Then
+            next_step_msg = next_step_msg & " - Does not require any verifications." & vbCr
+        End If
+        next_step_msg = next_step_msg & vbCr
+        next_step_msg = next_step_msg & "Review all case information and complete a determination by updating STAT and approving in ELIG." & vbCr & vbCr
+        next_step_msg = next_step_msg & "Once the case is processed the script NOTES - Eligibility Summary will support the CASE/NOTE completion." & vbCr & vbCr
+        next_step_msg = next_step_msg & "Contact QI Knowledge Now for assistance with processing this denial if needed."
+    End If
+    If next_step_msg <> "" Then
+
+        closing_message = replace(closing_message, "Application check completed, a case note made, and a TIKL has been set.", "")
+
+        If closing_message <> "" Then closing_message = next_step_msg & "----------------------------------------" & vbCr & closing_message
+        If closing_message = "" Then closing_message = next_step_msg
+
+        script_end_procedure_with_error_report(closing_message)     'end script -  NO CASE/NOTE
+    End If
+
+    'If there is a Delay Denial, the Application Check dialog has been mosified to explain details of the delay and allow for other information in a CASE NOTE
+    If reason_cannot_deny <> "" Then
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 386, 250, "Application Check: "  & application_check
+          Text 15, 60, 300, 10, "Denials should happen on Day 30. This denial must be delayed."
+          If Instr(reason_cannot_deny, "Interview") <> 0 Then
+              GroupBox 5, 45, 375, 95, "Denial Delay"
+              Text 25, 85, 135, 10, "Appointment Notice Date: " & appt_notc_date
+              Text 70, 95, 120, 10, "NOMI Date: " & nomi_date
+              If reason_cannot_deny = "Missing Interview Notices" Then
+                  Text 15, 75, 280, 10, "Denial cannot be completed as the correct notices have not been sent to the resident."
+                  Text 15, 110, 355, 10, "No interview has been completed but the resident has not been fully informed of the interview requirement."
+                  Text 15, 125, 220, 10, "CONTACT QI KNOWLEDGE NOW TO HAVE THE NOTICES SENT."
+              End if
+              If reason_cannot_deny = "Interview Notices Not Timely" Then
+                  Text 15, 75, 280, 10, "Denial cannot be completed as the NOMI was not sent before day 30."
+                  Text 15, 110, 360, 10, "We must waint until 10 days from the date the NOMI is sent to deny this case., since it was not sent before Day 30."
+                  Text 15, 125, 310, 10, "Contact QI Knowledge Now if you have questions or concerns about the notices on this case."
+              End If
+          End If
+          If Instr(reason_cannot_deny, "Verification") <> 0 Then
+              GroupBox 5, 45, 375, 95, "Denial Delay"
+              If reason_cannot_deny = "Missing Verification Request" Then
+                  Text 15, 75, 345, 10, "Denial cannot be completed as the verification request was not sent for mandatory verifications."
+                  ' Text 25, 85, 165, 10, "Verification Request Sent: " & verifs_sent_date
+                  Text 15, 90, 355, 10, "SEND THE VERIFICATION REQUEST THROUGH ECF."
+                  CheckBox 30, 100, 275, 10, "Check here to confirm you have sent the correct verification request in ECF.", verif_request_sent_via_ecf_checkkbox
+                  Text 15, 115, 310, 10, "We must give the resident 10 days to provide mandatory verifications before denying."
+              End If
+              If reason_cannot_deny = "Verification Request Not Timely" Then
+                  Text 15, 75, 345, 10, "Denial cannot be completed as it has not been 10 days since the Verification Request Form was sent."
+                  Text 25, 85, 165, 10, "Verification Request Sent: " & verifs_sent_date
+                  Text 15, 105, 310, 10, "We must give the resident 10 days to provide mandatory verifications before denying."
+              End If
+          End If
+          EditBox 95, 150, 285, 15, verifs_rcvd
+          EditBox 95, 170, 285, 15, verifs_missing
+          EditBox 95, 190, 285, 15, actions_taken
+          EditBox 95, 210, 285, 15, other_notes
+          EditBox 95, 230, 125, 15, worker_signature
+          ButtonGroup ButtonPressed
+            OkButton 280, 230, 45, 15
+            CancelButton 330, 230, 45, 15
+            PushButton 240, 15, 30, 10, "AREP", AREP_button
+            PushButton 345, 15, 30, 10, "JOBS", JOBS_button
+            PushButton 240, 25, 30, 10, "PROG", PROG_button
+            PushButton 275, 25, 30, 10, "REVW", REVW_button
+            PushButton 310, 25, 30, 10, "SHEL", SHEL_button
+            PushButton 345, 25, 30, 10, "UNEA", UNEA_button
+            PushButton 275, 15, 30, 10, "DISA", DISA_button
+            PushButton 310, 15, 30, 10, "HCRE", HCRE_button
+          Text 5, 155, 75, 10, "Verifications received:"
+          Text 5, 175, 75, 10, "Pending verifications:"
+          Text 5, 195, 50, 10, "Actions taken:"
+          Text 5, 215, 45, 10, "Other notes:"
+          Text 5, 235, 60, 10, "Worker signature:"
+          GroupBox 235, 5, 145, 35, "MAXIS navigation"
+          Text 5, 10, 205, 10, "Application Date: " & application_date
+          Text 5, 20, 205, 10, "Day 30: " & day_30
+          Text 5, 30, 220, 10, "Programs Applied for: " & programs_applied_for
+
+        EndDialog
+
+        Do
+        	Do
+        		err_msg = ""
+        		dialog dialog1
+        		cancel_confirmation
+        		MAXIS_dialog_navigation
+                If verifs_needed = "Yes" and verifs_received = "No" and trim(verifs_missing) = "" Then err_msg = err_msg & vbCr & "* List the pending verirications that have not been returned."
+                IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+                IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        	LOOP UNTIL err_msg = ""
+        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+        Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+        'THE CASENOTE----------------------------------------------------------------------------------------------------
+        start_a_blank_CASE_NOTE
+        CALL write_variable_in_CASE_NOTE("Application Denial Delayed")
+        If reason_cannot_deny = "Missing Interview Notices" Then
+            CALL write_variable_in_CASE_NOTE("No Interview has been completed.")
+            CALL write_variable_in_CASE_NOTE("Resident has not received all notices ")
+            CALL write_bullet_and_variable_in_CASE_NOTE("Appointment Notice Date", appt_notc_date)
+            If trim(appt_notc_date) = "" Then CALL write_variable_in_CASE_NOTE("* NO Appointment Notice Sent.")
+            CALL write_bullet_and_variable_in_CASE_NOTE("NOMI Date", nomi_date)
+            If trim(nomi_date) = "" Then CALL write_variable_in_CASE_NOTE("* NO NOMI Sent.")
+        End If
+        If reason_cannot_deny = "Interview Notices Not Timely" Then
+            CALL write_variable_in_CASE_NOTE("No Interview has been completed.")
+            CALL write_variable_in_CASE_NOTE("NOMI was not sent before Day 30 so Denial cannot be completed until 10 days from the NOMI.")
+            CALL write_bullet_and_variable_in_CASE_NOTE("Appointment Notice Date", appt_notc_date)
+            CALL write_bullet_and_variable_in_CASE_NOTE("NOMI Date", nomi_date)
+        End If
+        If reason_cannot_deny = "Missing Verification Request" Then
+            CALL write_variable_in_CASE_NOTE("Verifications were required for this case to complete a determination.")
+            CALL write_variable_in_CASE_NOTE("Verification Request Form not found in ECF.")
+            If verif_request_sent_via_ecf_checkkbox = checked Then
+                Call write_variable_in_CASE_NOTE("* Verification Request form sent today, " & date & ".")
+                Call write_variable_in_CASE_NOTE("  10 days provided for return of verifications.")
+                Call write_variable_in_CASE_NOTE("  Verifications due by: " & DateAdd("d", 10, date))
+            End If
+
+        End if
+        If reason_cannot_deny = "Verification Request Not Timely" Then
+            CALL write_variable_in_CASE_NOTE("Verifications were required for this case to complete a determination.")
+            CALL write_variable_in_CASE_NOTE("We must provide 10 days for the return of Verifications.")
+            CALL write_bullet_and_variable_in_CASE_NOTE("Verification Request Sent", verifs_sent_date)
+            CALL write_variable_in_CASE_NOTE("  Verifications due by " & DateAdd("d", 10, verifs_sent_date))
+        End if
+        CALL write_bullet_and_variable_in_CASE_NOTE("Application Date", application_date)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Day 30", day_30)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Program(s) Applied For", programs_applied_for)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Other Pending Programs", additional_programs_applied_for)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", active_programs)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Received", verifs_rcvd)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Pending Verifications", verifs_needed)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
+        Call write_bullet_and_variable_in_case_note("Reason Health Care Interview Not Attempted", no_call_reason)
+        CALL write_variable_in_CASE_NOTE("---")
+        CALL write_variable_in_CASE_NOTE (worker_signature)
+
+        closing_message = replace(closing_message, ", a case note made, and a TIKL has been set.", " and a case note made.")
+        script_end_procedure_with_error_report(closing_message)
+    End If
 End If
 
 '----------------------------------------------------------------------------------------------------dialogs
@@ -836,3 +1186,46 @@ CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE (worker_signature)
 
 script_end_procedure_with_error_report(closing_message)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/10/2022
+'--Tab orders reviewed & confirmed----------------------------------------------11/10/2022
+'--Mandatory fields all present & Reviewed--------------------------------------11/10/2022
+'--All variables in dialog match mandatory fields-------------------------------11/10/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------                            The program checkboxes are not doing anything BUT we should review that later
+'--CASE:NOTE Header doesn't look funky------------------------------------------11/10/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/10/2022
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------11/10/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------                            No, but there is a dialog before any movement and passowrd handling there
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/10/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---11/10/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------                            Complete this later at process review
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------11/10/2022
+'--Script name reviewed---------------------------------------------------------11/10/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------11/10/2022
+'--comment Code-----------------------------------------------------------------11/10/2022
+'--Update Changelog for release/update------------------------------------------11/10/2022
+'--Remove testing message boxes-------------------------------------------------11/10/2022
+'--Remove testing code/unnecessary code-----------------------------------------11/10/2022
+'--Review/update SharePoint instructions----------------------------------------11/10/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
