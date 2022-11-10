@@ -174,15 +174,25 @@ IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must b
 
 'Reading the app date from PROG
 EMReadScreen cash1_app_date, 8, 6, 33
+EMReadScreen cash1_intvw_date, 8, 6, 55
 cash1_app_date = replace(cash1_app_date, " ", "/")
+cash1_intvw_date = replace(cash1_intvw_date, " ", "/")
 EMReadScreen cash2_app_date, 8, 7, 33
+EMReadScreen cash2_intvw_date, 8, 7, 55
 cash2_app_date = replace(cash2_app_date, " ", "/")
+cash2_intvw_date = replace(cash2_intvw_date, " ", "/")
 EMReadScreen emer_app_date, 8, 8, 33
+EMReadScreen emer_intvw_date, 8, 8, 55
 emer_app_date = replace(emer_app_date, " ", "/")
+emer_intvw_date = replace(emer_intvw_date, " ", "/")
 EMReadScreen grh_app_date, 8, 9, 33
+EMReadScreen grh_intvw_date, 8, 9, 55
 grh_app_date = replace(grh_app_date, " ", "/")
+grh_intvw_date = replace(grh_intvw_date, " ", "/")
 EMReadScreen snap_app_date, 8, 10, 33
+EMReadScreen snap_intvw_date, 8, 10, 55
 snap_app_date = replace(snap_app_date, " ", "/")
+snap_intvw_date = replace(snap_intvw_date, " ", "/")
 EMReadScreen ive_app_date, 8, 11, 33
 ive_app_date = replace(ive_app_date, " ", "/")
 EMReadScreen hc_app_date, 8, 12, 33
@@ -238,6 +248,7 @@ If right(active_programs, 1) = "," THEN active_programs = left(active_programs, 
 '----------------------------------------------------------------------------------------------------Pending programs
 programs_applied_for = ""   'Creates a variable that lists all pening cases.
 additional_programs_applied_for = ""
+interview_completed = True
 'cash I
 IF cash1_status_check = "PEND" then
     If cash1_app_date = application_date THEN
@@ -247,6 +258,7 @@ IF cash1_status_check = "PEND" then
     Else
         additional_programs_applied_for = additional_programs_applied_for & "CASH, "
 	End if
+    If cash1_intvw_date = "__/__/__" Then interview_completed = False
 End if
 'cash II
 IF cash2_status_check = "PEND" then
@@ -257,6 +269,7 @@ IF cash2_status_check = "PEND" then
     Else
         additional_programs_applied_for = additional_programs_applied_for & "CASH, "
     End if
+    If cash2_intvw_date = "__/__/__" Then interview_completed = False
 End if
 'SNAP
 IF snap_status_check  = "PEND" then
@@ -267,6 +280,7 @@ IF snap_status_check  = "PEND" then
     else
         additional_programs_applied_for = additional_programs_applied_for & "SNAP, "
     end if
+    If snap_intvw_date = "__/__/__" Then interview_completed = False
 End if
 'GRH
 IF grh_status_check = "PEND" then
@@ -277,6 +291,7 @@ IF grh_status_check = "PEND" then
     else
         additional_programs_applied_for = additional_programs_applied_for & "GRH, "
     End if
+    If grh_intvw_date = "__/__/__" Then interview_completed = False
 End if
 'I-VE
 IF ive_status_check = "PEND" then
@@ -318,6 +333,7 @@ If emer_status_check = "PEND" then
         IF emer_prog_check = "EG" THEN additional_programs_applied_for = additional_programs_applied_for & "EGA, "
         IF emer_prog_check = "EA" THEN additional_programs_applied_for = additional_programs_applied_for & "EA, "
     End if
+    If emer_intvw_date = "__/__/__" Then interview_completed = False
 End if
 
 programs_applied_for = trim(programs_applied_for)       'trims excess spaces of programs_applied_for
@@ -329,6 +345,7 @@ If right(additional_programs_applied_for, 1) = "," THEN additional_programs_appl
 pending_progs = trim(pending_progs) 'trims excess spaces of pending_progs
 'takes the last comma off of pending_progs when autofilled into dialog if more more than one app date is found and additional app is selected
 If right(pending_progs, 1) = "," THEN pending_progs = left(pending_progs, len(pending_progs) - 1)
+caf_programs_denial = False
 
 'Determines which application check the user is at----------------------------------------------------------------------------------------------------
 If DateDiff("d", application_date, date) = 0 then
@@ -355,18 +372,22 @@ Elseif (DateDiff("d", application_date, date) => 30 AND DateDiff("d", applicatio
 	application_check = "Day 30"
 	reminder_date = dateadd("d", 45, application_date)
 	reminder_text = "Day 45"
+    caf_programs_denial = True
 Elseif (DateDiff("d", application_date, date) => 45 AND DateDiff("d", application_date, date) < 60) then
 	application_check = "Day 45"
 	reminder_date = dateadd("d", 60, application_date)
 	reminder_text = "Day 60"
+    caf_programs_denial = True
 Elseif DateDiff("d", application_date, date) = 60 then
 	application_check = "Day 60"
 	reminder_date = dateadd("d", 10, date)
 	reminder_text = "Post day 60"
+    caf_programs_denial = True
 Elseif DateDiff("d", application_date, date) > 60 then
 	application_check = "Over 60 days"
 	reminder_date = dateadd("d", 10, date)
 	reminder_text = "Post day 60"
+    caf_programs_denial = True
 END IF
 
 '--------------------------------------------------------------------------------------------------------------------------------------Health Care Screening Portion
@@ -620,6 +641,107 @@ IF HC_pending = True then
         End if
     End if
 End if
+
+If caf_programs_denial = True Then
+
+    interview_completed = False
+    day_30 = dateadd("d", 30, application_date)
+    day_before_app = DateAdd("d", -1, WORKING_LIST_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date'
+
+
+    Call navigate_to_MAXIS_screen("CASE", "NOTE")       'First to case note to find what has ahppened'
+
+    note_row = 5            'resetting the variables on the loop
+    note_date = ""
+    note_title = ""
+    appt_date = ""
+    appt_notc_date = ""
+    nomi_date = ""
+
+    Do
+        EMReadScreen note_date, 8, note_row, 6      'reading the note date
+        EMReadScreen note_title, 55, note_row, 25   'reading the note header
+        note_title = trim(note_title)
+
+        IF left(note_title, 35) = "~ Appointment letter sent in MEMO ~" then
+            appt_notc_date = note_date
+        ElseIF left(note_title, 42) = "~ Appointment letter sent in MEMO for SNAP" then
+            appt_notc_date = note_date
+        ElseIF left(note_title, 37) = "~ Appointment letter sent in MEMO for" then
+            EMReadScreen appt_date, 10, note_row, 63
+            appt_date = replace(appt_date, "~", "")
+            appt_date = trim(appt_date)
+            appt_notc_date = note_date
+            'MsgBox WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)
+        END IF
+
+        IF note_title = "~ Client missed application interview, NOMI sent via sc" then nomi_date = note_date
+        IF left(note_title, 32) = "**Client missed SNAP interview**" then nomi_date = note_date
+        IF left(note_title, 32) = "**Client missed CASH interview**" then nomi_date = note_date
+        IF left(note_title, 37) = "**Client missed SNAP/CASH interview**" then nomi_date = note_date
+        IF note_title = "~ Client has not completed application interview, NOMI" then nomi_date = note_date
+        IF note_title = "~ Client has not completed CASH APP interview, NOMI sen" then nomi_date = note_date
+        IF note_title = "* A notice was previously sent to client with detail ab" then nomi_date = note_date
+
+
+        note_row = note_row + 1
+        IF note_row = 19 THEN
+            PF8
+            note_row = 5
+        END IF
+        EMReadScreen next_note_date, 8, note_row, 6
+        IF next_note_date = "        " then Exit Do
+    Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
+
+
+    BeginDialog Dialog1, 0, 0, 346, 175, "Case May Be Ready for Denial"
+      DropListBox 170, 110, 40, 45, "", interview_completed
+      EditBox 170, 130, 50, 15, interview_date
+      ButtonGroup ButtonPressed
+        OkButton 230, 155, 50, 15
+        CancelButton 285, 155, 50, 15
+        PushButton 160, 65, 165, 15, "CM 05.12.15 - Application Processing Standards", Button3
+      GroupBox 5, 10, 330, 80, "Application Check:   & application_check"
+      Text 15, 25, 290, 10, "Programs Applied for: & programs_applied_for"
+      Text 15, 40, 285, 10, "Cases at Day 30 for CAF based programs should be reviewed for possible denial."
+      Text 15, 50, 315, 10, "A determination for eligibility should be made no later than 30 days from the Date of Application."
+      Text 25, 65, 115, 10, "Application Date: & application_date"
+      Text 25, 75, 115, 10, "Day 30: & day_30"
+      Text 50, 115, 115, 10, "Has an Interview been completed?"
+      Text 15, 135, 150, 10, "If so, what date was the interview completed?"
+      GroupBox 5, 95, 330, 55, "SNAP, CASH, GRH, and EMER Require an interivew."
+    EndDialog
+
+
+
+    BeginDialog Dialog1, 0, 0, 346, 275, "Case May Be Ready for Denial"
+      DropListBox 110, 145, 60, 45, "", verifs_needed
+      DropListBox 175, 175, 60, 45, "", verifs_sent
+      EditBox 175, 195, 50, 15, verifs_sent_date
+      DropListBox 175, 215, 60, 45, "", verifs_received
+      ButtonGroup ButtonPressed
+        OkButton 230, 250, 50, 15
+        CancelButton 285, 250, 50, 15
+        PushButton 160, 65, 165, 15, "CM 05.12.15 - Application Processing Standards", Button3
+      GroupBox 5, 10, 330, 80, ""Application Check: "  & application_check"
+      Text 15, 25, 290, 10, "Programs Applied for: & programs_applied_for"
+      Text 15, 40, 285, 10, "Cases at Day 30 for CAF based programs should be reviewed for possible denial."
+      Text 15, 50, 315, 10, "A determination for eligibility should be made no later than 30 days from the Date of Application."
+      Text 25, 65, 115, 10, "Application Date: & application_date"
+      Text 25, 75, 115, 10, "Day 30: & day_30"
+      GroupBox 5, 100, 330, 30, "SNAP, CASH, GRH, and EMER Require an interivew."
+      Text 20, 115, 155, 10, "Interview Completed on: interview_date"
+      GroupBox 5, 135, 330, 105, "Verifications may be Needed"
+      Text 15, 150, 95, 10, "Were Verifications Needed?"
+      GroupBox 20, 165, 240, 70, "If Verifications were Needed:"
+      Text 35, 180, 140, 10, "Was a Verification Request sent via ECF?"
+      Text 40, 200, 135, 10, "What Date was the request sent in ECF?"
+      Text 30, 220, 140, 10, "Were all mandatory verifications received?"
+    EndDialog
+
+
+"https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00051215"
+End If
 
 '----------------------------------------------------------------------------------------------------dialogs
 If trim(attested_verifs) <> "" then verifs_rcvd = attested_verifs & "(**These are attested verifs.)" 'Carrying over the information from the attested verification field to be entered intot he verif rec'd field
