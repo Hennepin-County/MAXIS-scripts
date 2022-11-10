@@ -635,7 +635,7 @@ If first_item_date <> date Then
 
 		objYestWorkbook.Worksheets("Statistics").visible = True
 		objYestWorkbook.worksheets("Statistics").Activate
-		yesterday_worker = ObjYestExcel.Cells(2, 2).Value
+		' yesterday_worker = ObjYestExcel.Cells(2, 2).Value
 
 		objYestWorkbook.worksheets(previous_worksheet_header).Activate
 
@@ -700,11 +700,12 @@ If first_item_date <> date Then
 					ALL_PENDING_CASES_ARRAY(subsqt_appl_resolve, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(subsqt_appl_resolve, yest_entry)
 
 
-					yesterdays_notes = YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yest_entry)
 					If ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) <> "" Then YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yest_entry) = replace(YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yest_entry), ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry),"")
+					yesterdays_notes = YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yest_entry)
 					If ALL_PENDING_CASES_ARRAY(subsqt_appl_resolve, case_entry) <> "" Then yesterdays_notes = "Subsqnt APPL: " & ALL_PENDING_CASES_ARRAY(subsqt_appl_resolve, case_entry) & " - " & yesterdays_notes
 					yesterdays_action_info = YESTERDAYS_PENDING_CASES_ARRAY(yesterday_action_taken, yest_entry)
-					If yesterday_worker = qi_member_on_ONDEMAND Then ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = yesterdays_action_info & " - " & yesterdays_notes
+					' If yesterday_worker = qi_member_on_ONDEMAND Then
+					ALL_PENDING_CASES_ARRAY(error_notes, case_entry) = yesterdays_action_info & " - " & yesterdays_notes
 					yesterdays_action_info = UCase(yesterdays_action_info)
 					If InStr(yesterdays_action_info, "FOLLOW UP NEEDED") <> 0 Then
 						ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
@@ -1044,6 +1045,7 @@ If first_item_date <> date Then
 	For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 		' If ALL_PENDING_CASES_ARRAY(line_update_date, case_entry) <> date and ALL_PENDING_CASES_ARRAY(priv_case, case_entry) = False Then
 		If ALL_PENDING_CASES_ARRAY(deleted_today, case_entry) = False Then
+			If ALL_PENDING_CASES_ARRAY(add_to_daily_worklist, case_entry) = True Then ALL_PENDING_CASES_ARRAY(last_wl_date, case_entry) = date
 
 			objWorkRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed (CaseNumber, CaseName, ApplDate, InterviewDate, Day_30, DaysPending, SnapStatus, CashStatus, SecondApplicationDate, REPT_PND2Days, QuestionableInterview, Resolved, ApptNoticeDate, ApptDate, Confirmation, NOMIDate, Confirmation2, DenialNeeded, NextActionNeeded, AddedtoWorkList)" & _
 							  "VALUES ('" & ALL_PENDING_CASES_ARRAY(case_number, case_entry) &  "', '" & _
@@ -1375,14 +1377,7 @@ Do While NOT objWorkRecordSet.Eof
         WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry) 				= objWorkRecordSet("NOMIDate") 				'ObjWorkExcel.Cells(row, nomi_date_col)
         WORKING_LIST_CASES_ARRAY(nomi_confirm, case_entry) 			= objWorkRecordSet("Confirmation2") 		'ObjWorkExcel.Cells(row, nomi_confirm_col)
         WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) 	= objWorkRecordSet("NextActionNeeded") 			'ObjWorkExcel.Cells(row, next_action_col)
-		' WORKING_LIST_CASES_ARRAY(error_notes, case_entry)			= trim(array_of_script_notes(1))
-		' WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry)		= script_notes_var
-		' WORKING_LIST_CASES_ARRAY(case_in_other_co, case_entry)		= trim(array_of_script_notes(3))
-		' WORKING_LIST_CASES_ARRAY(case_closed_in_30, case_entry)		= trim(array_of_script_notes(4))
-		' WORKING_LIST_CASES_ARRAY(priv_case, case_entry)				= trim(array_of_script_notes(5))
-		' WORKING_LIST_CASES_ARRAY(out_of_co_resolve, case_entry)		= trim(array_of_script_notes(6))
-		' WORKING_LIST_CASES_ARRAY(closed_in_30_resolve, case_entry)	= trim(array_of_script_notes(7))
-		' WORKING_LIST_CASES_ARRAY(subsqt_appl_resolve, case_entry)	= trim(array_of_script_notes(8))
+
 
         WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry) 		= objWorkRecordSet("QuestionableInterview") 'ObjWorkExcel.Cells(row, quest_intvw_date_col)
 		WORKING_LIST_CASES_ARRAY(intvw_quest_resolve, case_entry)	= objWorkRecordSet("Resolved")
@@ -1400,9 +1395,13 @@ Do While NOT objWorkRecordSet.Eof
         'Defaulting this values at this time as we will determine them to be different as the script proceeds.
         WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = FALSE
 		WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
-		array_of_script_notes = ""
-		actions_detail_var = ""
-		script_notes_var = ""
+
+		For case_info = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
+			If ALL_PENDING_CASES_ARRAY(case_number, case_info) = WORKING_LIST_CASES_ARRAY(case_number, case_entry) Then
+				WORKING_LIST_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_info)
+			End If
+		Next
+
 
         case_entry = case_entry + 1     'increasing the count for '
 	End If
@@ -1451,6 +1450,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 	Else
 		WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = ""
 	End if
+	If WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = date Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	' If WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) = date_zero Then WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) = ""
 	' If WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) = date_zero Then WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) = ""
 	' If WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = date_zero Then WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = ""
@@ -1702,58 +1702,56 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		MAXIS_case_number	= WORKING_LIST_CASES_ARRAY(case_number, case_entry)        'setting this so that nav functionality wor
 		day_before_app = DateAdd("d", -1, WORKING_LIST_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date'
 
-		'Here we only go in to STAT to look at cases that need attention
-		If WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = TRUE Then
-			'these are for cases where the appointemnt notice sent date is found but the actual appointment date was not found
-			'the script will go in to MEMO to read the appointment date from the actual memo.
-			If WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) <> "" AND WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = "" Then
-				Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
 
-				'defining the right month to look for the MEMO for as this doesn't work with the NAV functions
-				memo_mo = DatePart("m", WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry))
-				memo_mo = right("00"&memo_mo, 2)
-				memo_yr = DatePart("yyyy", WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry))
-				memo_yr = right(memo_yr, 2)
+		'these are for cases where the appointemnt notice sent date is found but the actual appointment date was not found
+		'the script will go in to MEMO to read the appointment date from the actual memo.
+		If WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) <> "" AND WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = "" Then
+			Call navigate_to_MAXIS_screen ("SPEC", "MEMO")
 
-				EmWriteScreen memo_mo, 3, 48        'writing in the correct footer month and year and going there
-				EmWriteScreen memo_yr, 3, 53
-				transmit
+			'defining the right month to look for the MEMO for as this doesn't work with the NAV functions
+			memo_mo = DatePart("m", WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry))
+			memo_mo = right("00"&memo_mo, 2)
+			memo_yr = DatePart("yyyy", WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry))
+			memo_yr = right(memo_yr, 2)
 
-				'creating a variable in the MM/DD/YY format to compare with date read from MAXIS
-				look_date = WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry)
-				CAll convert_to_mainframe_date(look_date, 2)
+			EmWriteScreen memo_mo, 3, 48        'writing in the correct footer month and year and going there
+			EmWriteScreen memo_yr, 3, 53
+			transmit
 
-				'Loop through all the lines
-				Do
-					EMReadScreen create_date, 8, memo_row, 19                 'Reading the date of each memo and the status
-					EMReadScreen print_status, 7, memo_row, 67
-					'MsgBox print_status
-					IF create_date = look_date AND print_status = "Printed" Then   'MEMOs created the date the appointment notice was noted and has been printed is likely out memo
-						EmWriteScreen "X", memo_row, 16         'opening the memo
-						transmit
-						PF8                                     'going to the next page
+			'creating a variable in the MM/DD/YY format to compare with date read from MAXIS
+			look_date = WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry)
+			CAll convert_to_mainframe_date(look_date, 2)
 
-						EMReadScreen start_of_msg, 35, 13, 12    'reading the first line of the message to see if it is the right one
-						If start_of_msg = "You applied for assistance in Henne"	Then		'pin County on " & WORKING_LIST_CASES_ARRAY(application_date, case_entry) & "")
-						' If start_of_msg = "You recently applied for assistance" Then    'this is how the appt notices start
-							EMReadScreen date_in_memo, 10, 16, 50                       'reading the date that was listed in the memo
-							date_in_memo = trim(date_in_memo)                           'this formats the date because sometimes dates are 10 chacters and sometimges they are 8
-							date_in_memo = replace(date_in_memo, ".", "")
-							date_in_memo = replace(date_in_memo, "*", "")
-							date_in_memo = trim(date_in_memo)                           'this formats the date because sometimes dates are 10 chacters and sometimges they are 8
-							WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = date_in_memo
-							If IsDate(WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)) = False Then WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) =  ""
-							WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)  = DateAdd("d", 0, WORKING_LIST_CASES_ARRAY(appointment_date, case_entry))
-							Pf3                     'leaving the message and the loop
-							Exit Do
-						End If
-						PF3
+			'Loop through all the lines
+			Do
+				EMReadScreen create_date, 8, memo_row, 19                 'Reading the date of each memo and the status
+				EMReadScreen print_status, 7, memo_row, 67
+				'MsgBox print_status
+				IF create_date = look_date AND print_status = "Printed" Then   'MEMOs created the date the appointment notice was noted and has been printed is likely out memo
+					EmWriteScreen "X", memo_row, 16         'opening the memo
+					transmit
+					PF8                                     'going to the next page
+
+					EMReadScreen start_of_msg, 35, 13, 12    'reading the first line of the message to see if it is the right one
+					If start_of_msg = "You applied for assistance in Henne"	Then		'pin County on " & WORKING_LIST_CASES_ARRAY(application_date, case_entry) & "")
+					' If start_of_msg = "You recently applied for assistance" Then    'this is how the appt notices start
+						EMReadScreen date_in_memo, 10, 16, 50                       'reading the date that was listed in the memo
+						date_in_memo = trim(date_in_memo)                           'this formats the date because sometimes dates are 10 chacters and sometimges they are 8
+						date_in_memo = replace(date_in_memo, ".", "")
+						date_in_memo = replace(date_in_memo, "*", "")
+						date_in_memo = trim(date_in_memo)                           'this formats the date because sometimes dates are 10 chacters and sometimges they are 8
+						WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = date_in_memo
+						If IsDate(WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)) = False Then WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) =  ""
+						WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)  = DateAdd("d", 0, WORKING_LIST_CASES_ARRAY(appointment_date, case_entry))
+						Pf3                     'leaving the message and the loop
+						Exit Do
 					End If
-					memo_row = memo_row + 1           'Looking at next row'
-				Loop Until create_date = "        "
-			End If
-
+					PF3
+				End If
+				memo_row = memo_row + 1           'Looking at next row'
+			Loop Until create_date = "        "
 		End If
+
 
         WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = FALSE      'default this for all cases so that there is no carryover from the previous loop
         If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" AND WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = "" Then PENDING_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI"
@@ -1767,7 +1765,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" AND IsDate(WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)) = False Then
 			WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "Send Manual NOMI"     'If we have to send a NOMI and it is the day before the appointment date - we need to get some additional informaion
 		ElseIf IsDate(WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)) = True Then
-			If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" AND DateDiff("d", date, WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)) <= 1 Then WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = TRUE     'If we have to send a NOMI and it is the day before the appointment date - we need to get some additional informaion
+			If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "SEND NOMI" AND DateDiff("d", date, WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)) <= 0 Then WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = TRUE     'If we have to send a NOMI and it is the day before the appointment date - we need to get some additional informaion
 		End If
 		If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30" and DateDiff("d", next_working_day, WORKING_LIST_CASES_ARRAY(data_day_30, case_entry)) = 0 Then
 			WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = TRUE   'If we are going to be denying tomorrow, we need some additional information
