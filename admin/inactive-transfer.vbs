@@ -114,17 +114,21 @@ all_case_numbers_array = "*"
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-    Call MAXIS_footer_month_confirmation
 	Call navigate_to_MAXIS_screen("REPT", "INAC")
-	Call write_value_and_transmit(worker, 21, 16)
+	EMWriteScreen worker, 21, 16
+	EMWriteScreen MAXIS_footer_month, 20, 54
+	EMWriteScreen MAXIS_footer_year, 20, 57
+	transmit
 
-	EMReadScreen has_content_check, 1, 7, 10   	'Skips workers with no info
+	'Skips workers with no info
+	EMReadScreen has_content_check, 1, 7, 10
 	If has_content_check <> " " then
 		'Grabbing each case number on screen
 		Do
+			If worker = "X127CCL" then exit do
 			MAXIS_row = 7    'Set variable for next do...loop
 			Do
-				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3		'Reading case number
+				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 3			'Reading case number
 				EMReadScreen client_name, 25, MAXIS_row, 14		'Reading client name
 				EMReadScreen appl_date, 8, MAXIS_row, 39		'Reading appl date
 				EMReadScreen inac_date, 8, MAXIS_row, 49		'Reading inactive date
@@ -132,22 +136,23 @@ For each worker in worker_array
 				MAXIS_case_number = trim(MAXIS_case_number)
 				If MAXIS_case_number <> "" and instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") <> 0 then exit do
 				all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*")
+
 				If MAXIS_case_number = "" then exit do			'Exits do if we reach the end
 
-                'Adding the case to Excel
+				'Adding the case to Excel
 				ObjExcel.Cells(excel_row, 1).Value = worker
 				ObjExcel.Cells(excel_row, 2).Value = MAXIS_case_number
 				ObjExcel.Cells(excel_row, 3).Value = client_name
 				ObjExcel.Cells(excel_row, 4).Value = appl_date
 				ObjExcel.Cells(excel_row, 5).Value = inac_date
 
-        		excel_row = excel_row + 1
+                excel_row = excel_row + 1
 				MAXIS_row = MAXIS_row + 1
                 STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
-                MAXIS_case_number = ""		'Blanking out variable
+				MAXIS_case_number = ""			'Blanking out variable
 			Loop until MAXIS_row = 19
 		 	PF8
-			EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
+		    EMReadScreen last_page_check, 21, 24, 2	'checking to see if we're at the end
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
 	End if
 next
@@ -256,9 +261,9 @@ STATS_counter = STATS_counter - 1                      'subtracts one from the s
 
 'Query date/time/runtime info
 objExcel.Cells(1, 8).Font.Bold = TRUE
+objExcel.Cells(2, 8).Font.Bold = TRUE
 ObjExcel.Cells(1, 8).Value = "Query date and time:"	'Goes back one, as this is on the next row
 ObjExcel.Cells(1, 9).Value = now
-objExcel.Cells(1, 8).Font.Bold = TRUE
 ObjExcel.Cells(2, 8).Value = "Query runtime (in seconds):"	'Goes back one, as this is on the next row
 ObjExcel.Cells(2, 9).Value = timer - query_start_time
 
