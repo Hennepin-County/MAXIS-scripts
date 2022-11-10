@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("11/10/2022", "Added new functionality to specifically support the review of cases with Cash, SNAP, GRH, or EMER pending that are at or after Day 30. These cases have reached the end of the Application Processing Period and should be reviewed for determination action, which may include denial. These updates better support the actions required for cases at this point.##~##", "Casey Love, Hennepin County") ''#1042
 CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("03/29/2022", "Removed ApplyMN as application option.", "Ilse Ferris")
 call changelog_update("01/15/2021", "Added support for the pending Health Care application screening requirements.", "Ilse Ferris")
