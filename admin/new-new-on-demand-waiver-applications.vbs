@@ -694,10 +694,10 @@ If first_item_date <> date Then
 					ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(case_in_other_co, yest_entry)
 					ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(case_closed_in_30, yest_entry)
 
-					ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(questionable_intv, yesterday_case_list)
-					ALL_PENDING_CASES_ARRAY(intvw_quest_resolve, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(intvw_quest_resolve, yesterday_case_list)
-					ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(additional_app_date, yesterday_case_list)
-					ALL_PENDING_CASES_ARRAY(subsqt_appl_resolve, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(subsqt_appl_resolve, yesterday_case_list)
+					ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(questionable_intv, yest_entry)
+					ALL_PENDING_CASES_ARRAY(intvw_quest_resolve, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(intvw_quest_resolve, yest_entry)
+					ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(additional_app_date, yest_entry)
+					ALL_PENDING_CASES_ARRAY(subsqt_appl_resolve, case_entry) = YESTERDAYS_PENDING_CASES_ARRAY(subsqt_appl_resolve, yest_entry)
 
 
 					yesterdays_notes = YESTERDAYS_PENDING_CASES_ARRAY(error_notes, yest_entry)
