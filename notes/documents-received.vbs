@@ -81,6 +81,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/14/2022", "Added a review of PROG for an interview date for the MTAF option selection.", "Casey Love, Hennepin County")
 call changelog_update("03/16/2022", "Removed Interview Date field and added a link to supports for the MFIP Orientation.", "Casey Love, Hennepin County")
 call changelog_update("03/03/2022", "Removed DVD Orientation option in the MTAF form supports.", "Ilse Ferris")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
@@ -2387,7 +2388,7 @@ If mtaf_form_checkbox = checked Then
             If ButtonPressed = mfip_orientation_info_btn Then
                 run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MFIP_Orientation.aspx"
                 err_msg = "LOOP" & err_msg
-            End If 
+            End If
 
             If ButtonPressed = 0 then err_msg = "LOOP" & err_msg
             If skip_mtaf = TRUE Then
@@ -2459,6 +2460,37 @@ If mtaf_form_checkbox = checked Then
 End If
 
 If mtaf_form_checkbox = checked Then
+
+    Call navigate_to_MAXIS_screen("STAT", "PROG")
+    EMReadScreen prog_cash_1_status, 4, 6, 74
+	If prog_cash_1_status = "PEND" Then
+		EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
+		prog_cash_1_intvw_date = replace(prog_cash_1_intvw_date, " ", "/")
+		If prog_cash_1_intvw_date = "__/__/__" Then prog_cash_1_intvw_date = ""
+		If prog_cash_1_intvw_date = "" Then update_prog = True
+	End If
+	EMReadScreen prog_cash_2_status, 4, 7, 74
+	If prog_cash_2_status = "PEND" Then
+		EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
+		prog_cash_2_intvw_date = replace(prog_cash_2_intvw_date, " ", "/")
+		If prog_cash_2_intvw_date = "__/__/__" Then prog_cash_2_intvw_date = ""
+		If prog_cash_2_intvw_date = "" Then update_prog = True
+	End If
+    If update_prog = True Then
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 251, 140, "Update Interview Date in STAT"
+          ButtonGroup ButtonPressed
+            OkButton 195, 120, 50, 15
+          Text 30, 10, 200, 10, "It appears that PROG is not updated with an Interview Date."
+          GroupBox 10, 30, 230, 45, "UPDATE PROG NOW"
+          Text 30, 50, 200, 10, "Update PROG with and Interview Date for PENDING CASH."
+          Text 10, 85, 230, 35, "To prevent unnecessary notices, we code the interview date for any pending program that does not require an interview. match the Interview Date to the Application Date for the CASH program pending with no interview date."
+          Text 10, 125, 115, 10, "Press OK when PROG is Updated."
+        EndDialog
+
+        dialog Dialog1
+    End If
+
     end_msg = end_msg & vbNewLine & "MTAF Information entered."
     If MTAF_note_only_checkbox = checked Then
         need_final_note = FALSE
