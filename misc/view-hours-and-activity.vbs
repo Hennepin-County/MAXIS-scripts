@@ -139,7 +139,7 @@ end function
 '===========================================================================================================================
 the_year = DatePart("yyyy", date)
 
-pay_period_begin_date = #9/11/2022#
+pay_period_begin_date = #9/11/2022#		'hard coded as a known start date to a pay period. The script will loop forward to find the current ppay period.
 current_pay_period = pay_period_begin_date
 Do while DateDiff("d", current_pay_period, date) > 13
 	current_pay_period = DateAdd("d", 14, current_pay_period)
@@ -163,7 +163,7 @@ Loop
 sunday_date = sunday_of_current_week
 saturday_date = DateAdd("d", 6, sunday_date)
 
-Do
+Do																				'finding each week
 	sunday_month = MonthName(DatePart("m", sunday_date))
 	saturday_month = MonthName(DatePart("m", saturday_date))
 	If InStr(month_list, sunday_month) = 0 Then month_list = month_list+chr(9)+sunday_month
@@ -180,7 +180,7 @@ week_array = split(week_list, chr(9))
 biweek_list = "Select"
 sunday_date = current_pay_period_start
 saturday_date = current_pay_period_end
-Do
+Do																				'finding each pay period'
 	week_string = sunday_date & " - " & saturday_date
 	biweek_list = biweek_list+chr(9)+week_string
 
@@ -323,7 +323,7 @@ Loop until next_row_date = ""
 view_excel = True
 objExcel.Visible = view_excel
 
-If old_items_to_move = True Then
+If old_items_to_move = True Then			'If we find that some of the activities are older, we want to take them back.
 	TIME_TRACKING_ARRAY(activity_date_const, 0) = DateAdd("d", 0, TIME_TRACKING_ARRAY(activity_date_const, 0))
 	year_to_check = DatePart("yyyy", TIME_TRACKING_ARRAY(activity_date_const, 0))
 	year_to_check = year_to_check & ""
@@ -333,7 +333,7 @@ If old_items_to_move = True Then
 		year_sheet_xl_row = year_sheet_xl_row + 1
 	Loop
 
-	For each_activity = 0 to UBound(TIME_TRACKING_ARRAY, 2)
+	For each_activity = 0 to UBound(TIME_TRACKING_ARRAY, 2)						'saving the information into Excel'
 		TIME_TRACKING_ARRAY(activity_date_const, each_activity) = DateAdd("d", 0, TIME_TRACKING_ARRAY(activity_date_const, each_activity))
 		If DateDiff("d", TIME_TRACKING_ARRAY(activity_date_const, each_activity), active_period_start) > 0 Then
 			TIME_TRACKING_ARRAY(moved_item, each_activity) = True
@@ -357,26 +357,24 @@ If old_items_to_move = True Then
 
 		End If
 	Next
-	MsgBox "All Old things moved"
 
-	ObjExcel.worksheets("Active Time Tracking").Activate
+	ObjExcel.worksheets("Active Time Tracking").Activate						'back to the main sheet'
 
-	For each_activity = UBound(TIME_TRACKING_ARRAY, 2) to 0 Step -1
+	For each_activity = UBound(TIME_TRACKING_ARRAY, 2) to 0 Step -1				'deleting the old items that wwere copued FROM THE BOTTOM UP'
 		If TIME_TRACKING_ARRAY(moved_item, each_activity) = True Then
 			SET objRange = ObjExcel.Cells(TIME_TRACKING_ARRAY(item_xlrow, each_activity), 1).EntireRow
 			objRange.Delete
 		End If
 	Next
-	MsgBox "All old things deleted"
 
 	objWorkbook.Save									'saving the file to 'My Documents'
 	objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
 
-	ReDim TIME_TRACKING_ARRAY(last_const, 0)
+	ReDim TIME_TRACKING_ARRAY(last_const, 0)									'reset the array because we are going to read it fresh after the deleting
 
 	row_filled_with_end_time = " "
 
-	'Here we read the entire excel file and save it into an array
+	'Here we read the entire excel file AGAIN and save it into an array
 	excel_row = 2			'start of the excel file information
 	activity_count = 0		'starting of the counter of the array
 	Do
