@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/14/2022", "Removed all handling for Interviews.##~## ##~##This script is not built to support the details of an interview or the documentation requirements. This script requires that an interview date has already been entered or that a CASE/NOTE has been created with NOTES - Interview. This script will end if interview date cannot be found on a case that an interview is required to process a CAF.", "Casey Love, Hennepin County")
 call changelog_update("10/18/2022", "Removed Health Care renewal supports during the PHE. Health Care renewals remain paused.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/01/2022", "The functionality for Waiving an Interview has been removed. We can no longer waive SNAP Recertification Interviews.", "Casey Love, Hennepin County")
 call changelog_update("03/17/2022", "BUG FIX##~##There have been reports of some of the required CASE:NOTEs missing from the script run at the end. We have updated some of the background functionality in this script to keep this from happening. If you notice issues with CASE:NOTEs missing at the end of this script run, report them to the BlueZone Script Team.", "Casey Love, Hennepin County")
@@ -1010,6 +1011,7 @@ function save_your_work()
             objTextStream.WriteLine "CAF_type" & "^~^~^~^~^~^~^" & CAF_type
             objTextStream.WriteLine "CAF_datestamp" & "^~^~^~^~^~^~^" & CAF_datestamp
             objTextStream.WriteLine "interview_date" & "^~^~^~^~^~^~^" & interview_date
+            objTextStream.WriteLine "case_details_and_notes_about_process" & "^~^~^~^~^~^~^" & case_details_and_notes_about_process
             objTextStream.WriteLine "SNAP_recert_is_likely_24_months" & "^~^~^~^~^~^~^" & SNAP_recert_is_likely_24_months
             objTextStream.WriteLine "exp_screening_note_found" & "^~^~^~^~^~^~^" & exp_screening_note_found
             objTextStream.WriteLine "interview_required" & "^~^~^~^~^~^~^" & interview_required
@@ -1389,6 +1391,7 @@ function save_your_work()
             script_run_lowdown = script_run_lowdown & vbCr & "CAF_type" & ": " & CAF_type
             script_run_lowdown = script_run_lowdown & vbCr & "CAF_datestamp" & ": " & CAF_datestamp
             script_run_lowdown = script_run_lowdown & vbCr & "interview_date" & ": " & interview_date
+            script_run_lowdown = script_run_lowdown & vbCr & "case_details_and_notes_about_process" & ": " & case_details_and_notes_about_process
             script_run_lowdown = script_run_lowdown & vbCr & "SNAP_recert_is_likely_24_months" & ": " & SNAP_recert_is_likely_24_months
             script_run_lowdown = script_run_lowdown & vbCr & "exp_screening_note_found" & ": " & exp_screening_note_found
             script_run_lowdown = script_run_lowdown & vbCr & "interview_required" & ": " & interview_required
@@ -1866,6 +1869,7 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "CAF_type" Then CAF_type = line_info(1)
                         If line_info(0) = "CAF_datestamp" Then CAF_datestamp = line_info(1)
                         If line_info(0) = "interview_date" Then interview_date = line_info(1)
+                        If line_info(0) = "case_details_and_notes_about_process" Then case_details_and_notes_about_process = line_info(1)
                         If line_info(0) = "SNAP_recert_is_likely_24_months" Then SNAP_recert_is_likely_24_months = line_info(1)
                         If UCase(SNAP_recert_is_likely_24_months) = "TRUE" Then SNAP_recert_is_likely_24_months = True
                         If UCase(SNAP_recert_is_likely_24_months) = "FALSE" Then SNAP_recert_is_likely_24_months = False
@@ -5391,15 +5395,10 @@ ReDim UNEA_INCOME_ARRAY(budget_notes, 0)
 manual_amount_used = FALSE
 
 'variables
-' Dim EATS, row, col, total_shelter_amount, full_shelter_details, shelter_details, shelter_details_two, shelter_details_three, hest_information, addr_line_one, relationship_detail
-' Dim addr_line_two, city, state, zip, address_confirmation_checkbox, addr_county, homeless_yn, addr_verif, reservation_yn, living_situation, number_verifs_checkbox, verifs_postponed_checkbox
-' Dim notes_on_address, notes_on_wreg, full_abawd_info, notes_on_busi, notes_on_abawd, notes_on_abawd_two, notes_on_abawd_three, verifs_needed, verif_req_form_sent_date
-' Dim other_uc_income_notes, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, notes_on_other_UNEA, notes_on_cses, verification_memb_list, notes_on_time, notes_on_sanction, applicant_id_on_file_yn
-
 Dim row, col, number_verifs_checkbox, verifs_postponed_checkbox, notes_on_cses
 Dim MAXIS_footer_month, MAXIS_footer_year, CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox, cash_checkbox, SNAP_checkbox, EMER_checkbox, HC_checkbox, CAF_form, cash_other_req_detail
 Dim snap_other_req_detail, emer_other_req_detail, adult_cash, family_cash, the_process_for_cash, type_of_cash, cash_recert_mo, cash_recert_yr, the_process_for_snap, snap_recert_mo, snap_recert_yr
-Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, CAF_type, CAF_datestamp, interview_date, SNAP_recert_is_likely_24_months, exp_screening_note_found, interview_required
+Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, CAF_type, CAF_datestamp, interview_date, case_details_and_notes_about_process, SNAP_recert_is_likely_24_months, exp_screening_note_found, interview_required
 Dim xfs_screening, xfs_screening_display, caf_one_income, caf_one_assets, caf_one_resources, caf_one_rent, caf_one_utilities, caf_one_expenses, exp_det_case_note_found
 Dim snap_exp_yn, snap_denial_date, interview_completed_case_note_found, interview_with, interview_type, verifications_requested_case_note_found, verifs_needed, caf_qualifying_questions_case_note_found
 Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
@@ -5743,11 +5742,6 @@ If vars_filled = False Then
         End If
     End If
     If EMER_checkbox = checked Then CAF_type = "Application"
-
-    ' If interview_required = TRUE Then
-    '     Interview_notice = MsgBox("Has an interview been completed?" &vbNewLine & vbNewLine & "                *~* WITHOUT AN INTERVIEW *~* " & vbNewLine & "             *~* A CAF CANNOT BE PROCESSED *~*" & vbNewLine & vbNewLine & "If you have not completed an interview, do not use this script as you cannot process a CAF without an interview.  There are a couple scripts that may be useful for noting review of a case with a CAF received before the interview has been completed:" & vbNewLine & "          NOTES - Application Check" & vbNewLine & "          NOTES - Client Contact" & vbNewLine & vbNewLine & "Press OK if you completed an interview (or are processing one of the two exceptions)." & vbNewLine & "Press Cancel if you have not interviewed yet.", vbExclamation + vbOkCancel, "Have you done an interview?")
-    '     If Interview_notice = vbCancel Then script_end_procedure_with_error_report("The script has been cancelled as no interview has been completed.")
-    ' End If
 
     If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
     	' call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
@@ -6343,6 +6337,7 @@ If vars_filled = False Then
         interview_memb_list = interview_memb_list+chr(9)+"AREP - " & arep_name
     End If
 End If
+'This script is to support work after the interview and is not built to support the intervieww. script ill end if intervie date is not found.
 If interview_required = True and interview_date = "" Then
     end_early_mgs = "This script (NOTES - CAF) does not support details about an interview and should only be run once STAT panels are updated."
     end_early_mgs = end_early_mgs & vbCr & vbCr & "The script could not find details about the interview date. Update PROG or REVW with the correct interview date. Ensure all other STAT panels are updated and run NOTES - CAF again to document details about the information entered into STAT."
@@ -6378,22 +6373,9 @@ Do
                                               If interview_required = False Then Text 5, 25, 300, 10, "No intervieww required for this CAF to be processed."
                                               If interview_required = True Then Text 5, 25, 300, 10, "Interview has been completed and documented previously."
                                               Text 5, 35, 300, 10, "Information about Case and Process Details:"
-                                              ' If interview_required = TRUE Then Text 5, 10, 300, 10,  "* CAF datestamp:                             * Interview type:"
-                                              ' If interview_required = FALSE Then Text 5, 10, 300, 10, "* CAF datestamp:                             Interview type:"
-                                              ' If interview_required = TRUE Then Text 5, 30, 300, 10,  "* Interview date:"
-                                              ' If interview_required = FALSE Then Text 5, 30, 300, 10, "  Interview date:"
-                                              ' If interview_required = TRUE Then Text 5, 50, 400, 10, "* Interview completed with:                                                                                     If AREP Intvw, ID Info:"
-                                              ' If interview_required = FALSE Then Text 5, 50, 85, 10, "Interview completed with: "
 
                                               EditBox 60, 5, 50, 15, CAF_datestamp
                                               EditBox 5, 45, 455, 15, case_details_and_notes_about_process
-                                              ' Text 60, 30, 50, 10, interview_date
-                                              ' ComboBox 175, 5, 70, 15, "Select or Type"+chr(9)+"phone"+chr(9)+"office"+chr(9)+interview_type, interview_type
-                                              ' CheckBox 255, 10, 65, 10, "Used Interpreter", Used_Interpreter_checkbox
-                                              ' ComboBox 90, 45, 150, 45, interview_memb_list+chr(9)+interview_with, interview_with
-                                              ' ButtonGroup ButtonPressed
-                                              '   PushButton 240, 45, 15, 15, "!", tips_and_tricks_interview_button
-                                              ' If interview_required = TRUE Then EditBox 335, 45, 125, 15, arep_id_info
 
                                               Text 5, 65, 450, 10, "Member Name                         ID Type                              Detail                                                                                   Required"
                                               y_pos = 80
@@ -8153,11 +8135,7 @@ Do
                     'DIALOG 1
                     'New error message formatting for ease of reading.
                     If IsDate(CAF_datestamp) = FALSE Then full_err_msg = full_err_msg & "~!~" & "1^* CAF DATESTAMP ##~##   - Enter a valid date for the CAF datestamp.##~##"
-                    ' If interview_required = TRUE Then
-                    '     If interview_type = "Select or Type" OR trim(interview_type) = "" Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW TYPE ##~##   - This case requires and interview to process the CAF - enter the interview type.##~##"
-                    '     If IsDate(interview_date) = False Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW DATE ##~##   - This case requires and interview to process the CAF - enter the interview date.##~##"
-                    '     If interview_with = "Select or Type" OR trim(interview_with) = "" Then full_err_msg = full_err_msg & "~!~1^* INTERVIEW COMPLETED WITH ##~##   - This case requires and interview to process the CAF - indicate who the interview was completed with.##~##"
-                    ' End If
+
                     For the_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
                       If ALL_MEMBERS_ARRAY(gather_detail, the_member) = TRUE Then
                           ' MsgBox "Name: " & ALL_MEMBERS_ARRAY(clt_name, the_member) & vbNewLine & "Age: " & ALL_MEMBERS_ARRAY(clt_age, the_member)
@@ -8262,7 +8240,8 @@ Do
 
                     'DIALOG 6
                     If SNAP_checkbox = checked and trim(notes_on_wreg) = "" Then full_err_msg = full_err_msg & "~!~6^* WREG Notes ##~##   - Update WREG detail as this is a SNAP case."
-                    If living_situation = "Blank" or living_situation = "  " Then full_err_msg = full_err_msg & "~!~6^* LIVING SITUATION ##~##   - Living situation needs to be entered for each case. 'Blank' is not valid."
+                    ' Removing reqqquirement of living situation because this should be handled during interview.
+                    ' If living_situation = "Blank" or living_situation = "  " Then full_err_msg = full_err_msg & "~!~6^* LIVING SITUATION ##~##   - Living situation needs to be entered for each case. 'Blank' is not valid."
                     'We are not erroring for if ADDR verification is 'NO' or '?' - if we get additional policy information that this is necessary - add it here
 
                     'DIALOG 7
@@ -8280,49 +8259,6 @@ Do
                     If CAF_status = "Select or Type" Then full_err_msg = full_err_msg & "~!~8^* CAF STATUS ##~##   - Indicate the CAF Status."
                     If the_process_for_snap = "Application" AND exp_det_case_note_found = FALSE Then
                         If full_determination_done = False Then full_err_msg = full_err_msg & "~!~8^* COMPLETE EXPEDITED DETERMINATION ##~##   - This is a a SNAP case at application. We must complete the expedited determination. Press the button labeled 'COMPLETE EXPEDITED DETERMINATION' and complete all steps of this functionality to create an expedited determination."
-                        ' If trim(snap_denial_date) <> "" AND IsDate(snap_denial_date) = FALSE Then
-                        '     full_err_msg = full_err_msg & "~!~8^* SNAP DENIAL DATE ##~##   - This is a a SNAP case at application. You entered something in the SNAP denial date but it does not appear to be a date. Please list the date that SNAP will be denied if SNAP is being denied."
-                        ' ElseIf IsDate(snap_denial_date) = TRUE Then
-                        '     If DateDiff("d", date, snap_denial_date) > 0 Then full_err_msg = full_err_msg & "~!~8^* SNAP DENIAL DATE ##~##   - The denial date is listed as a future date. Review the date entered in the SNAP denial date field."
-                        ' ElseIf trim(snap_denial_date) = "" Then
-                        '     If snap_exp_yn = "?" Then
-                        '         full_err_msg = full_err_msg & "~!~8^* IS THIS SNAP APPLICATION EXPEDITED ##~##   - This is a a SNAP case at application. Indicate if this case has been determined to be expedited SNAP or not."
-                        '     Else
-                        '         If IsNumeric(app_month_income) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - INCOME ##~##   - Enter the income for the application month as a number."
-                        '         If IsNumeric(app_month_assets) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - ASSETS ##~##   - Enter the liquid assets for the application month as a number."
-                        '         If IsNumeric(app_month_expenses) = FALSE Then full_err_msg = full_err_msg & "~!~8^* APP MONTH - EXPENSES ##~##   - Enter the expenses (shelter and utilities) for the application month as a number."
-                        '
-                        '         case_should_be_xfs = FALSE
-                        '         If IsNumeric(app_month_income) = TRUE AND IsNumeric(app_month_assets) = TRUE AND IsNumeric(app_month_expenses) = TRUE Then
-                        '             If app_month_assets <=100 AND app_month_income < 150 Then
-                        '                 case_should_be_xfs = TRUE
-                        '                 ' MsgBox "low resources"
-                        '             End If
-                        '             app_month_assets = app_month_assets * 1
-                        '             app_month_income = app_month_income * 1
-                        '             app_month_expenses = app_month_expenses * 1
-                        '             app_month_resources = app_month_assets + app_month_income
-                        '             If app_month_resources < app_month_expenses Then
-                        '                 case_should_be_xfs = TRUE
-                        '                 ' MsgBox "insufficient resources" & vbCR & "Resources - " & app_month_resources & vbCR & "Expenses - " & app_month_expenses
-                        '             End If
-                        '
-                        '             If snap_exp_yn = "Yes" and case_should_be_xfs = FALSE Then full_err_msg = full_err_msg & "~!~8^* SNAP EXPEDITED ##~##   - This is indicated as Expedited, though based on app month details it appears to be NOT Expedited. ##~## App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
-                        '             If snap_exp_yn = "No" AND case_should_be_xfs = TRUE Then full_err_msg = full_err_msg & "~!~8^* SNAP EXPEDITED ##~##   - This is indicated as NOT Expedited, though based on app month details it appears to be EXPEDITED. ##~## App Month: Income - $" & app_month_income & ". Assets - $" & app_month_assets & ". Expenses - $" & app_month_expenses & "."
-                        '         End If
-                        '         If snap_exp_yn = "Yes" Then
-                        '             If IsDate(exp_snap_approval_date) = TRUE Then
-                        '                 If DateDiff("d", date, exp_snap_approval_date) > 0 Then
-                        '                     full_err_msg = full_err_msg & "~!~8^* EXP APPROVAL DATE ##~##   - The date listed in the expedited approval date is a future date. Please review the date listed and reenter if necessary."
-                        '                 ElseIf DateDiff("d", CAF_datestamp, exp_snap_approval_date) > 7 AND trim(exp_snap_delays) = "" Then
-                        '                     full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since Expedited SNAP is not approved within 7 days of the date of application, pease explain the reason for the delay."
-                        '                 End If
-                        '             Else
-                        '                 If trim(exp_snap_delays) = "" Then full_err_msg = full_err_msg & "~!~8^* EXPLAIN DELAYS ##~##   - Since the Expedited SNAP does not have an approval date yet, either explain the reason for the delay or indicate the date of Expedited SNAP Approval."
-                        '             End If
-                        '         End If
-                        '     End If
-                        ' End If
                     End If
                     If trim(actions_taken) = "" Then full_err_msg = full_err_msg & "~!~8^* ACTIONS TAKEN ##~##   - Indicate what actions were taken when processing this CAF."
                     prev_err_msg = full_err_msg
@@ -8392,286 +8328,6 @@ If dialog_liv_sit_code <> panel_living_sit OR dialog_liv_sit_code = "__" Then
     EmReadscreen addr_error, 21, 24, 2
     If addr_error = "ONLY ONE FUTURE PANEL" then transmit   'error message that needs to be bypassed if other changes occur in that footer month/year.
 End If
-
-
-' 'This code will update the interview date in PROG.
-' If CAF_type = "Application" Then        'Interview date is not on PROG for recertifications or addendums
-'     If SNAP_checkbox = checked OR cash_checkbox = checked Then          'Interviews are only required for Cash and SNAP
-'         intv_date_needed = FALSE
-'         Call navigate_to_MAXIS_screen("STAT", "PROG")                   'Going to STAT to check to see if there is already an interview indicated.
-'
-'         If SNAP_checkbox = checked Then                                 'If the script is being run for a SNAP interview
-'             EMReadScreen entered_intv_date, 8, 10, 55                   'REading what is entered in the SNAP interview
-'             'MsgBox "SNAP interview date - " & entered_intv_date
-'             If entered_intv_date = "__ __ __" Then intv_date_needed = TRUE  'If this is blank - the script needs to prompt worker to update it
-'         End If
-'
-'         If cash_checkbox = checked THen                             'If the script is bring run for a Cash interview
-'             EMReadScreen cash_one_app, 8, 6, 33                     'First the script needs to identify if it is cash 1 or cash 2 that has the application information
-'             EMReadScreen cash_two_app, 8, 7, 33
-'             EMReadScreen grh_cash_app, 8, 9, 33
-'
-'             cash_one_app = replace(cash_one_app, " ", "/")          'Turning this in to a date format
-'             cash_two_app = replace(cash_two_app, " ", "/")
-'             grh_cash_app = replace(grh_cash_app, " ", "/")
-'
-'             If cash_one_app <> "__/__/__" Then      'Error handling - VB doesn't like date comparisons with non-dates
-'                 If IsDate(cash_one_app) = TRUE Then
-'                     if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6     'If date of application on PROG matches script date of applicaton
-'                 End If
-'             End If
-'             If cash_two_app <> "__/__/__" Then
-'                 If IsDate(cash_two_app) = TRUE Then
-'                     if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
-'                 End If
-'             End If
-'
-'             If grh_cash_app <> "__/__/__" Then
-'                 If IsDate(grh_cash_app) = TRUE THen
-'                     if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
-'                 End If
-'             End If
-'
-'             EMReadScreen entered_intv_date, 8, prog_row, 55                     'Reading the right interview date with row defined above
-'             'MsgBox "Cash interview date - " & entered_intv_date
-'             If entered_intv_date = "__ __ __" Then intv_date_needed = TRUE      'If this is blank - script needs to prompt worker to have it updated
-'         End If
-'
-'         If intv_date_needed = TRUE Then         'If previous code has determined that PROG needs to be updated
-'             If the_process_for_snap = "Application" Then prog_update_SNAP_checkbox = checked     'Auto checking based on the programs the script is being run for.
-'             If the_process_for_cash = "Application" Then prog_update_cash_checkbox = checked
-'
-'             'Dialog code
-'             Dialog1 = ""
-'             BeginDialog Dialog1, 0, 0, 231, 130, "Update PROG?"
-'               OptionGroup RadioGroup1
-'                 RadioButton 10, 10, 155, 10, "YES! Update PROG with the Interview Date", confirm_update_prog
-'                 RadioButton 10, 60, 90, 10, "No, do not update PROG", do_not_update_prog
-'               EditBox 165, 5, 50, 15, interview_date
-'               CheckBox 25, 25, 30, 10, "SNAP", prog_update_SNAP_checkbox
-'               CheckBox 25, 40, 30, 10, "CASH", prog_update_cash_checkbox
-'               Text 20, 75, 200, 10, "Reason PROG should not be updated with the Interview Date:"
-'               EditBox 20, 90, 195, 15, no_update_reason
-'               ButtonGroup ButtonPressed
-'                 OkButton 175, 110, 50, 15
-'             EndDialog
-'
-'             'Running the dialog
-'             Do
-'                 Do
-'                     err_msg = ""
-'                     Dialog Dialog1
-'                     'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
-'                     If do_not_update_prog = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If PROG is not to be updated, please explain why PROG should not be updated."
-'                     IF confirm_update_prog = 1 AND prog_update_SNAP_checkbox = unchecked AND prog_update_cash_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* Select either CASH or SNAP to have updated on PROG."
-'
-'                     If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-'                 Loop until err_msg = ""
-'                 Call check_for_password(are_we_passworded_out)
-'             Loop until are_we_passworded_out = FALSE
-'
-'             If confirm_update_prog = 1 Then     'If the dialog selects to have PROG updated
-'                 CALL back_to_SELF               'Need to do this because we need to go to the footer month of the application and we may be in a different month
-'
-'                 keep_footer_month = MAXIS_footer_month      'Saving the footer month and year that was determined earlier in the script. It needs t obe changed for nav functions to work correctly
-'                 keep_footer_year = MAXIS_footer_year
-'
-'                 app_month = DatePart("m", CAF_datestamp)    'Setting the footer month and year to the app month.
-'                 app_year = DatePart("yyyy", CAF_datestamp)
-'
-'                 MAXIS_footer_month = right("00" & app_month, 2)
-'                 MAXIS_footer_year = right(app_year, 2)
-'
-'                 Call back_to_SELF
-'                 CALL navigate_to_MAXIS_screen ("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
-'                 PF9                                             'Edit
-'
-'                 intv_mo = DatePart("m", interview_date)     'Setting the date parts to individual variables for ease of writing
-'                 intv_day = DatePart("d", interview_date)
-'                 intv_yr = DatePart("yyyy", interview_date)
-'
-'                 intv_mo = right("00"&intv_mo, 2)            'formatting variables in to 2 digit strings - because MAXIS
-'                 intv_day = right("00"&intv_day, 2)
-'                 intv_yr = right(intv_yr, 2)
-'                 intv_date_to_check = intv_mo & " " & intv_day & " " & intv_yr
-'
-'                 If prog_update_SNAP_checkbox = checked Then     'If it was selected to SNAP interview to be updated
-'                     programs_w_interview = "SNAP"               'Setting a variable for case noting
-'
-'                     EMWriteScreen intv_mo, 10, 55               'SNAP is easy because there is only one area for interview - the variables go there
-'                     EMWriteScreen intv_day, 10, 58
-'                     EMWriteScreen intv_yr, 10, 61
-'                 End If
-'
-'                 If prog_update_cash_checkbox = checked Then     'If it was selected to update for Cash
-'                     If programs_w_interview = "" Then programs_w_interview = "CASH"     'variable for the case note
-'                     If programs_w_interview <> "" Then programs_w_interview = "SNAP and CASH"
-'                     EMReadScreen cash_one_app, 8, 6, 33     'Reading app dates of both cash lines
-'                     EMReadScreen cash_two_app, 8, 7, 33
-'                     EMReadScreen grh_cash_app, 8, 9, 33
-'
-'                     cash_one_app = replace(cash_one_app, " ", "/")      'Formatting as dates
-'                     cash_two_app = replace(cash_two_app, " ", "/")
-'                     grh_cash_app = replace(grh_cash_app, " ", "/")
-'
-'                     If cash_one_app <> "__/__/__" Then              'Comparing them to the date of application to determine which row to use
-'                         If IsDate(cash_one_app) = TRUE Then
-'                             if DateDiff("d", cash_one_app, CAF_datestamp) = 0 then prog_row = 6
-'                         End If
-'                     End If
-'                     If cash_two_app <> "__/__/__" Then
-'                         If IsDate(cash_two_app) = TRUE Then
-'                             if DateDiff("d", cash_two_app, CAF_datestamp) = 0 then prog_row = 7
-'                         End If
-'                     End If
-'
-'                     If grh_cash_app <> "__/__/__" Then
-'                         If IsDate(grh_cash_app) = TRUE Then
-'                             if DateDiff("d", grh_cash_app, CAF_datestamp) = 0 then prog_row = 9
-'                         End If
-'                     End If
-'
-'                     EMWriteScreen intv_mo, prog_row, 55     'Writing the interview date in
-'                     EMWriteScreen intv_day, prog_row, 58
-'                     EMWriteScreen intv_yr, prog_row, 61
-'                 End If
-'
-'                 transmit                                    'Saving the panel
-'
-'                 Call HCRE_panel_bypass
-'                 Call back_to_SELF
-'                 Call MAXIS_background_check
-'
-'                 MAXIS_footer_month = keep_footer_month      'resetting the footer month and year so the rest of the script uses the worker identified footer month and year.
-'                 MAXIS_footer_year = keep_footer_year
-'             End If
-'         ENd If
-'
-'         If intv_date_needed = TRUE and confirm_update_prog = 1 Then         'If previous code has determined that PROG needs to be updated
-'             snap_intv_date_updated = FALSE
-'             cash_intv_date_updated = FALSE
-'             show_prog_update_failure = FALSE
-'             Call back_to_SELF
-'             CALL navigate_to_MAXIS_screen ("STAT", "PROG")  'Now we can navigate to PROG in the application footer month and year
-'             If prog_update_SNAP_checkbox = checked Then
-'                 EMReadScreen new_snap_intv_date, 8, 10, 55
-'                 If new_snap_intv_date = intv_date_to_check Then snap_intv_date_updated = TRUE
-'                 If snap_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
-'             End If
-'             If prog_update_cash_checkbox = checked Then
-'                 EMReadScreen new_cash_intv_date, 8, prog_row, 55
-'                 If new_cash_intv_date = intv_date_to_check Then cash_intv_date_updated = TRUE
-'                 If cash_intv_date_updated = FALSE Then show_prog_update_failure = TRUE
-'             End If
-'
-'             If show_prog_update_failure = TRUE Then
-'                 fail_msg = "You have requested the script update PROG for "
-'                 If prog_update_SNAP_checkbox = checked AND prog_update_cash_checkbox = checked Then
-'                     fail_msg = fail_msg & "Cash and SNAP "
-'                 ElseIf prog_update_SNAP_checkbox = checked Then
-'                     fail_msg = fail_msg & "SNAP "
-'                 ElseIf prog_update_cash_checkbox = checked Then
-'                     fail_msg = fail_msg & "Cash "
-'                 End If
-'
-'                 fail_msg = fail_msg & "to enter the interview date on PROG." & vbCr & vbCr & "The script was unable to update PROG completely." & vbCr
-'
-'                 If prog_update_SNAP_checkbox = checked Then
-'                     fail_msg = fail_msg & " - The SNAP Interview Date was not entered." & vbCr
-'                 ElseIf prog_update_cash_checkbox = checked Then
-'                     fail_msg = fail_msg & " - The Cash Interview Date was not entered." & vbCr
-'                 End If
-'                 fail_msg = fail_msg & vbCr & "The PROG panel will need to be updated manually with the interview information."
-'
-'                 MsgBox fail_msg
-'             End If
-'         End If
-'     End If
-' End If
-
-' If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then
-'     If interview_required = TRUE Then
-'         revw_panel_update_needed = FALSE
-'         Call Navigate_to_MAXIS_screen("STAT", "REVW")
-'         EMReadScreen STAT_REVW_caf_date, 8, 13, 37
-'         EMReadScreen STAT_REVW_intvw_date, 8, 15, 37
-'         If STAT_REVW_caf_date = "__ __ __" Then revw_panel_update_needed = TRUE
-'         If STAT_REVW_intvw_date = "__ __ __" Then revw_panel_update_needed = TRUE
-'
-'         If revw_panel_update_needed = TRUE Then
-'             EMReadScreen cash_stat_revw_status, 1, 7, 40
-'             EMReadScreen snap_stat_revw_status, 1, 7, 60
-'
-'             Dialog1 = ""
-'             BeginDialog Dialog1, 0, 0, 241, 165, "Update REVW"
-'               OptionGroup RadioGroup1
-'                 RadioButton 10, 10, 185, 10, "YES! Update REVW with the Interview Date/CAF Date", confirm_update_revw
-'                 RadioButton 10, 95, 100, 10, "No, do not update REVW", do_not_update_revw
-'               EditBox 70, 25, 45, 15, interview_date
-'               EditBox 70, 45, 45, 15, caf_datestamp
-'               EditBox 20, 125, 215, 15, no_update_reason
-'               ButtonGroup ButtonPressed
-'                 OkButton 185, 145, 50, 15
-'               Text 20, 30, 50, 10, "Interview Date:"
-'               Text 35, 50, 35, 10, "CAF Date:"
-'               Text 20, 70, 175, 20, "If the REVW Status has not been updated already, it will be changed to an 'I' when the dates are entered."
-'               Text 20, 110, 220, 10, "Reason REVW should not be updated with the Interview/CAF Date:"
-'             EndDialog
-'
-'             'Running the dialog
-'             Do
-'                 Do
-'                     err_msg = ""
-'                     Dialog Dialog1
-'                     'Requiring a reason for not updating PROG and making sure if confirm is updated that a program is selected.
-'                     If do_not_update_revw = 1 AND no_update_reason = "" Then err_msg = err_msg & vbNewLine & "* If REVW is not to be updated, please explain why REVW should not be updated."
-'                     IF confirm_update_revw = 1 Then
-'                         If IsDate(interview_date) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the Interview Date as it appears invalid."
-'                         If IsDate(caf_datestamp) = FALSE Then err_msg = err_msg & vbNewLine & "* Check the CAF Date as it appears invalid."
-'                     End If
-'
-'                     If err_msg <> "" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg
-'                 Loop until err_msg = ""
-'                 Call check_for_password(are_we_passworded_out)
-'             Loop until are_we_passworded_out = FALSE
-'
-'             IF confirm_update_revw = 1 Then
-'                 Call Navigate_to_MAXIS_screen("STAT", "REVW")
-'                 PF9
-'                 Call create_mainframe_friendly_date(CAF_datestamp, 13, 37, "YY")
-'                 Call create_mainframe_friendly_date(interview_date, 15, 37, "YY")
-'
-'                 If cash_stat_revw_status = "N" Then EMWriteScreen "I", 7, 40
-'                 If snap_stat_revw_status = "N" Then EMWriteScreen "I", 7, 60
-'
-'                 attempt_count = 1
-'                 Do
-'                     transmit
-'                     EMReadScreen actually_saved, 7, 24, 2
-'                     attempt_count = attempt_count + 1
-'                     If attempt_count = 20 Then
-'                         PF10
-'                         revw_panel_updated = FALSE
-'                         Exit Do
-'                     End If
-'                 Loop until actually_saved = "ENTER A"
-'
-'                 revw_intv_date_updated = FALSE
-'                 Call back_to_SELF
-'                 Call Navigate_to_MAXIS_screen("STAT", "REVW")
-'
-'                 EMReadScreen updated_intv_date, 8, 15, 37
-'                 If IsDate(updated_intv_date) = TRUE Then
-'                     updated_intv_date = DateAdd("d", 0, updated_intv_date)
-'                     If updated_intv_date = interview_date Then revw_intv_date_updated = TRUE
-'
-'                     fail_msg = "You have requested the script update REVW with the interview date." & vbCr & vbCr & "The script was unable to update REVW completely." & vbCr & vbCr & "The REVW panel will need to be updated manually with the interview information."
-'                     If revw_intv_date_updated = FALSE Then MsgBox fail_msg
-'                 End If
-'             End If
-'         End If
-'     End If
-' End If
 
 Do
     Do
@@ -9664,105 +9320,6 @@ If the_process_for_snap = "Application" AND exp_det_case_note_found = False Then
         PF3
     End If
 End If
-' interview_note = FALSE
-
-'Interview Incomfation Detail Case Note
-'Navigates to case note, and checks to make sure we aren't in inquiry.
-' If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then
-
-' If interview_required = False or interview_completed_case_note_found = True Then
-'     case_notes_information = case_notes_information & "No Interview Completed NOTE Attempted "
-'     If interview_required = False Then case_notes_information = case_notes_information & "- interview required is false"
-'     If interview_completed_case_note_found = True Then case_notes_information = case_notes_information & "- interview completed case note was found"
-'     case_notes_information = case_notes_information & " %^% %^%"
-' End If
-' If interview_required = TRUE AND interview_completed_case_note_found = False Then
-'     interview_note = TRUE
-'     case_notes_information = case_notes_information & "Interview Completed NOTE Attempted %^%"
-'     case_notes_information = case_notes_information & "Script Header - " & "~ Interview Completed on " & interview_date & " ~" & " %^%"
-'     Call start_a_blank_CASE_NOTE
-'
-'     CALL write_variable_in_CASE_NOTE("~ Interview Completed on " & interview_date & " ~")
-'     Call write_bullet_and_variable_in_CASE_NOTE("Form Datestamp", caf_datestamp)
-'     Call write_variable_in_CASE_NOTE("* Interview details:")
-'
-'     Call write_variable_with_indent_in_CASE_NOTE("Conducted via " & interview_type)
-'     Call write_variable_with_indent_in_CASE_NOTE("Interview was completed with " & interview_with)
-'     If Used_Interpreter_checkbox = checked Then Call write_variable_with_indent_in_CASE_NOTE("Used interpreter to complete the interview.")
-'     Call write_variable_with_indent_in_CASE_NOTE("Interview completed on " & interview_date)
-'
-'     Call write_bullet_and_variable_in_CASE_NOTE("AREP ID Info", arep_id_info)
-'
-'     If confirm_update_prog = 1 Then
-'         If snap_intv_date_updated = TRUE AND cash_intv_date_updated = TRUE Then
-'             prog_updated_for_programs = "SNAP and Cash"
-'         ElseIf snap_intv_date_updated = TRUE Then
-'             prog_updated_for_programs = "SNAP"
-'         ElseIf cash_intv_date_updated = TRUE Then
-'             prog_updated_for_programs = "Cash"
-'         End If
-'         If snap_intv_date_updated = TRUE OR cash_intv_date_updated = TRUE Then CALL write_variable_in_CASE_NOTE("* Interview date entered on PROG for " & prog_updated_for_programs)
-'     End If
-'     If do_not_update_prog = 1 Then CALL write_bullet_and_variable_in_CASE_NOTE("PROG WAS NOT UPDATED WITH INTERVIEW DATE, because", no_update_reason)
-'
-'     Call write_variable_in_CASE_NOTE("----- Programs requested " & progs_list & " -----")
-'
-'     If CASH_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", Cash"
-'     If SNAP_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", SNAP"
-'     If EMER_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", EMER"
-'     If CAF_progs <> "" Then
-'         CAF_progs = right(CAF_progs, len(CAF_progs) - 2)
-'     Else
-'         CAF_progs = "None"
-'     End If
-'     Call write_bullet_and_variable_in_CASE_NOTE("Programs requested in writing on the form", CAF_progs)
-'     Call write_bullet_and_variable_in_CASE_NOTE("Cash requested", cash_other_req_detail)
-'     Call write_bullet_and_variable_in_CASE_NOTE("SNAP requested", snap_other_req_detail)
-'     Call write_bullet_and_variable_in_CASE_NOTE("EMER requested", emer_other_req_detail)
-'     If family_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for FAMILY programs.")
-'     If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for ADULT programs.")
-'
-'     Call write_variable_in_CASE_NOTE("---")
-'
-'     If SNAP_checkbox = checked Then
-'         Call write_variable_in_CASE_NOTE("* SNAP unit consists of " & total_snap_count & " people - " & adult_snap_count & " adults and " & child_snap_count & " children.")
-'         If included_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on SNAP grant: " & included_snap_members)
-'         If counted_snap_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for SNAP: " & counted_snap_members)
-'         If EATS <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Information on EATS: " & EATS)
-'     End If
-'     If cash_checkbox = checked Then
-'         Call write_variable_in_CASE_NOTE("* CASH unit consists of " & total_cash_count & " people - " & adult_cash_count & " adults and " & child_cash_count & " children.")
-'         If pregnant_caregiver_checkbox = checked Then Call write_variable_in_CASE_NOTE("* Pregnant Caregiver on Grant.")
-'         If included_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members on CASH grant: " & included_cash_members)
-'         If counted_cash_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for CASH: " & counted_cash_members)
-'     End If
-'     If EMER_checkbox = checked Then
-'         Call write_variable_in_CASE_NOTE("* EMER unit consists of " & total_emer_count & " people - " & adult_emer_count & " adults and " & child_emer_count & " children.")
-'         Call write_variable_with_indent_in_CASE_NOTE("Members on EMER grant: " & included_emer_members)
-'         If counted_emer_members <> "" Then Call write_variable_with_indent_in_CASE_NOTE("Members with income counted ONLY for EMER: " & counted_emer_members)
-'     End If
-'     Call write_bullet_and_variable_in_CASE_NOTE("Relationships", relationship_detail)
-'
-'     Call write_variable_in_CASE_NOTE("---")
-'
-'     IF recert_period_checkbox = checked THEN call write_variable_in_CASE_NOTE("* Informed client of recert period.")
-'     IF R_R_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Rights and Responsibilities explained to client.")
-'     IF E_and_T_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* Client requests to participate with E&T.")
-'     If elig_req_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Explained eligbility requirements to client.")
-'     If benefit_payment_explained_checkbox Then CALL write_variable_in_CASE_NOTE("* Benefits and Payment information explained to client")
-'
-'     ' Call write_variable_with_indent_in_CASE_NOTE
-'
-'     Call write_variable_in_CASE_NOTE("---")
-'     Call write_variable_in_CASE_NOTE(worker_signature)
-'
-'     PF3
-'     EMReadScreen top_note_header, 55, 5, 25
-'     case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
-'     save_your_work
-'
-'     Call back_to_SELF
-' End If
 
 'Verification NOTE
 verifs_needed = replace(verifs_needed, "[Information here creates a SEPARATE CASE/NOTE.]", "")
@@ -9889,8 +9446,7 @@ Call write_bullet_and_variable_in_CASE_NOTE("SNAP requested", snap_other_req_det
 Call write_bullet_and_variable_in_CASE_NOTE("EMER requested", emer_other_req_detail)
 If family_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for FAMILY programs.")
 If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for ADULT programs.")
-
-
+Call write_bullet_and_variable_in_CASE_NOTE("Info", case_details_and_notes_about_process)
 'Household and personal information
 If SNAP_checkbox = checked Then
     Call write_variable_in_CASE_NOTE("* SNAP unit consists of " & total_snap_count & " people - " & adult_snap_count & " adults and " & child_snap_count & " children.")
