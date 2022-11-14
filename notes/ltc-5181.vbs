@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/14/2022", "Enhanced script to only update SWKR/Case Manager information that is added. Previously all information was cleared before updating the SWKR/case manager info.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2022", "Fixed bug that was clearing all ADDR information.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Removed TIKL option to identify that 5181 has been rec'd.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/06/2020", "Updated error message handling and password handling around the dialogs.", "Ilse Ferris, Hennepin County")
@@ -560,20 +561,20 @@ IF does_not_meet_waiver_LOC_check = 1 THEN Call write_variable_in_case_note ("* 
 Call write_bullet_and_variable_in_case_note ("Ongoing case manager is", ongoing_waiver_case_manager)
 'LTCF
 Call write_bullet_and_variable_in_case_note ("LTCF Assessment Date", LTCF_assessment_date)
-IF meets_MALOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client meets the LOC requirement")
+IF meets_MALOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client meets the LOC requirement.")
 Call write_bullet_and_variable_in_case_note("Ongoing case manager is", ongoing_case_manager)
-IF ongoing_case_manager_not_available_check = 1 THEN Call write_variable_in_case_note ("* Ongoing Case Manager not available")
+IF ongoing_case_manager_not_available_check = 1 THEN Call write_variable_in_case_note ("* Ongoing Case Manager not available.")
 IF does_not_meet_MALTC_LOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client does not meet LOC requirements for LTCF's.")
 IF requested_1503_check = 1 THEN Call write_variable_in_case_note ("* A DHS-1503 has been requested from the LTCF.")
 IF onfile_1503_check = 1 THEN Call write_variable_in_case_note ("A DHS-1503 has been provided.")
 'MA requests/applications
-IF client_applied_MA_check = 1 THEN Call write_variable_in_case_note ("* Client has applied for MA")
+IF client_applied_MA_check = 1 THEN Call write_variable_in_case_note ("* Client has applied for MA.")
 Call write_bullet_and_variable_in_case_note ("Client is an MA enrollee. Assessor provided a DHS-3543 on", Client_MA_enrollee)
-IF completed_3543_3531_check = 1 THEN Call write_variable_in_case_note ("* Completed DHS-3543 or DHS-3531 attached to DHS 5181")
+IF completed_3543_3531_check = 1 THEN Call write_variable_in_case_note ("* Completed DHS-3543 or DHS-3531 attached to DHS 5181.")
 Call write_bullet_and_variable_in_case_note ("Completed DHS-3543 or DHS-3531 faxed to county on", completed_3543_3531_faxed)
 IF please_send_3543_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested that a DHS-3543 be sent to the MA enrollee or AREP.")
 Call write_bullet_and_variable_in_case_note ("* Case manager has requested that a DHS-3531 be sent to a non-MA enrollee at", please_send_3531)
-IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested an Asset Assessment, DHS 3340, be send to the client or AREP")
+IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested an Asset Assessment, DHS 3340, be send to the client or AREP.")
 'changes completed by the assessor
 Call write_bullet_and_variable_in_case_note ("Client no longer meets LOC - Effective date should be no sooner than", client_no_longer_meets_LOC_efffective_date)
 IF from_droplist <> "Select one..." AND to_droplist <> "Select one.." THEN Call write_bullet_and_variable_in_case_note ("Waiver program changed from", from_droplist & " to: " & to_droplist & ". Effective date: " & waiver_program_change_effective_date)
@@ -581,7 +582,7 @@ IF from_droplist <> "Select one..." AND to_droplist <> "Select one.." THEN Call 
 'Information from DHS 5181 Dialog 3
 'changes
 IF exited_waiver_program_check = 1 THEN Call write_variable_in_case_note("* Exited waiver program.  Effective date: " & exit_waiver_end_date)
-IF client_choice_check = 1 THEN Call write_variable_in_case_note ("* Client has chosen to exit the waiver program")
+IF client_choice_check = 1 THEN Call write_variable_in_case_note ("* Client has chosen to exit the waiver program.")
 IF client_deceased_check = 1 THEN Call write_variable_in_case_note ("* Client is deceased.  Date of death: " & date_of_death)
 IF client_moved_to_LTCF_check = 1 THEN Call write_variable_in_case_note ("* Client moved to LTCF on" & client_moved_to_LTCF)
 Call write_bullet_and_variable_in_case_note ("Facility name", client_moved_to_LTCF)
@@ -611,6 +612,7 @@ script_end_procedure_with_error_report("Success! Please make sure your DISA and 
 '--All variables are CASE:NOTEing (if required)---------------------------------07/21/2022
 '--CASE:NOTE Header doesn't look funky------------------------------------------07/21/2022
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/21/2022
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/14/2022
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/21/2022
@@ -629,13 +631,13 @@ script_end_procedure_with_error_report("Success! Please make sure your DISA and 
 '--BULK - remove 1 incrementor at end of script reviewed------------------------07/21/2022-----------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------07/21/2022
+'--Confirm all GitHub tasks are complete----------------------------------------11/14/2022
 '--comment Code-----------------------------------------------------------------07/21/2022
-'--Update Changelog for release/update------------------------------------------07/21/2022
+'--Update Changelog for release/update------------------------------------------11/14/2022
 '--Remove testing message boxes-------------------------------------------------07/21/2022
 '--Remove testing code/unnecessary code-----------------------------------------07/21/2022
-'--Review/update SharePoint instructions----------------------------------------07/21/2022
+'--Review/update SharePoint instructions----------------------------------------11/14/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/21/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/21/2022
 '--Complete misc. documentation (if applicable)---------------------------------07/21/2022
-'--Update project team/issue contact (if applicable)----------------------------07/21/2022
+'--Update project team/issue contact (if applicable)----------------------------11/14/2022
