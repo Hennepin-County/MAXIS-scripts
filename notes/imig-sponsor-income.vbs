@@ -181,7 +181,7 @@ script_end_procedure_with_error_report("For MFIP/DWP, MAXIS will correctly pull 
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------10/03/2022
-'--Tab orders reviewed & confirmed----------------------------------------------10/03/2022
+'--Tab orders reviewed & confirmed----------------------------------------------11/14/2022
 '--Mandatory fields all present & Reviewed--------------------------------------10/03/2022
 '--All variables in dialog match mandatory fields-------------------------------10/03/2022
 '
@@ -192,7 +192,7 @@ script_end_procedure_with_error_report("For MFIP/DWP, MAXIS will correctly pull 
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/03/2022
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/03/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/14/2022--------------------N/A
 '--MAXIS_background_check reviewed (if applicable)------------------------------10/03/2022--------------------N/A
 '--PRIV Case handling reviewed -------------------------------------------------10/03/2022--------------------N/A
 '--Out-of-County handling reviewed----------------------------------------------10/03/2022--------------------N/A
@@ -202,19 +202,19 @@ script_end_procedure_with_error_report("For MFIP/DWP, MAXIS will correctly pull 
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------10/03/2022
-'--Incrementors reviewed (if necessary)-----------------------------------------10/03/2022--------------------N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------11/14/2022
 '--Denomination reviewed -------------------------------------------------------10/03/2022
 '--Script name reviewed---------------------------------------------------------10/03/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------10/03/2022--------------------N/A
+'--BULK - remove 1 incrementor at end of script reviewed------------------------11/14/2022
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------10/03/2022
+'--Confirm all GitHub tasks are complete----------------------------------------11/14/2022
 '--comment Code-----------------------------------------------------------------10/03/2022
-'--Update Changelog for release/update------------------------------------------10/03/2022
-'--Remove testing message boxes-------------------------------------------------10/03/2022
-'--Remove testing code/unnecessary code-----------------------------------------10/03/2022
-'--Review/update SharePoint instructions----------------------------------------10/03/2022
+'--Update Changelog for release/update------------------------------------------11/14/2022
+'--Remove testing message boxes-------------------------------------------------11/14/2022
+'--Remove testing code/unnecessary code-----------------------------------------11/14/2022
+'--Review/update SharePoint instructions----------------------------------------11/14/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/03/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/03/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/14/2022
 '--Complete misc. documentation (if applicable)---------------------------------10/03/2022
 '--Update project team/issue contact (if applicable)----------------------------10/03/2022
