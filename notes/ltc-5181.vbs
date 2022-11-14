@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/14/2022", "Enhanced script to only update SWKR/Case Manager information that is added. Previously all information was cleared before updating the SWKR/case manager info.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/21/2022", "Fixed bug that was clearing all ADDR information.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Removed TIKL option to identify that 5181 has been rec'd.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/06/2020", "Updated error message handling and password handling around the dialogs.", "Ilse Ferris, Hennepin County")
@@ -122,7 +123,7 @@ Do
                       EditBox 95, 105, 25, 15, phone_second_four
                       EditBox 140, 105, 25, 15, phone_extension
                       EditBox 190, 105, 80, 15, fax
-                      CheckBox 275, 105, 80, 15, "Update SWRK panel ", update_SWKR_info_checkbox
+                      CheckBox 275, 105, 80, 15, "Update SWRK panel", update_SWKR_info_checkbox
                       CheckBox 60, 140, 115, 15, "Have script update ADDR panel", update_addr_checkbox
                       EditBox 70, 160, 140, 15, name_of_facility
                       EditBox 285, 160, 65, 15, date_of_admission
@@ -172,6 +173,19 @@ Do
                 If isdate(date_5181) = False or trim(date_5181) = "" then err_msg = err_msg & vbcr & "* Enter a valid 5181 date."
                 If isdate(date_received) = False or trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the 5181 was received."
                 IF trim(lead_agency) = "" then err_msg = err_msg & vbcr & "* Enter the Lead Agency Name."		'Requires the user to select a waiver
+                'case manager info
+                If trim(casemgr_ADDR_line_01) <> "" then
+                    If trim(casemgr_city) = "" then err_msg = err_msg & vBcr & "* Update the case manager's city."
+                    If trim(casemgr_state) = "" then err_msg = err_msg & vBcr & "* Update the case manager's state."
+                    If trim(casemgr_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the case manager's zip code."
+                End if
+                'phone number
+                If trim(phone_area_code) <> "" or trim(phone_prefix) <> "" or trim(phone_second_four) <> "" or trim(phone_extension) <> "" then
+                    If trim(phone_area_code) = "" or len(phone_area_code) <> 3 then err_msg = err_msg & vBcr & "* Enter the case's managers 3-digit area code."
+                    If trim(phone_prefix) = "" or len(phone_prefix) <> 3 then err_msg = err_msg & vBcr & "* Enter the case's managers 3-digit phone number prefix code."
+                    If trim(phone_second_four) = "" or len(phone_second_four) <> 4 then err_msg = err_msg & vBcr & "* Enter the case's managers 4-digit phone number line code."
+                End if
+                'facility info
                 IF update_addr_checkbox = 1 then
                     If isdate(date_of_admission) = False then err_msg = err_msg & vBcr & "* Enter the date of admission."
                     If trim(facility_address_line_01) = "" then err_msg = err_msg & vBcr & "* Update the faci address line 1."
@@ -442,8 +456,8 @@ END If
 
 'Updates SWKR panel with Name, address and phone number if checked on DIALOG 1
 If update_SWKR_info_checkbox = 1 THEN
-	'Go to STAT/SWKR
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")
+
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
 	'creates a new panel if one doesn't exist, and will needs new if there is not one
 	EMReadScreen panel_exists_check, 1, 2, 73
 	IF panel_exists_check = "0" THEN
@@ -453,60 +467,70 @@ If update_SWKR_info_checkbox = 1 THEN
 		PF9	'putting panel into edit mode
 	END IF
 
-	'Blanks out the old info
-	EMWriteScreen "___________________________________", 6, 32
-	EMWriteScreen "______________________", 8, 32
-	EMWriteScreen "______________________", 9, 32
-	EMWriteScreen "_______________", 10, 32
-	EMWriteScreen "__", 10, 54
-	EMWriteScreen "_____", 10,63
-	EMWriteScreen "___", 12, 34
-	EMWriteScreen "___", 12, 40
-	EMWriteScreen "____", 12, 44
-	EMWriteScreen "____", 12, 54
+	'Blanks out the old info and writes in the new info into the SWKR panel if updated in the dialog
+    If trim(lead_agency_assessor) <> "" then
+        call clear_line_of_text(6, 32)
+        EMWriteScreen lead_agency_assessor, 6, 32
+    End if
 
-	'Writes in the new info into the SWKR panel
-	EMWriteScreen lead_agency_assessor, 6, 32
-	EMWriteScreen casemgr_ADDR_line_01, 8, 32
-	EMWriteScreen casemgr_ADDR_line_02, 9, 32
-	EMWriteScreen casemgr_city, 10, 32
-	EMWriteScreen casemgr_state, 10, 54
-	EMWriteScreen casemgr_zip_code, 10, 63
-	EMWriteScreen phone_area_code, 12, 34
-	EMWriteScreen phone_prefix, 12, 40
-	EMWriteScreen phone_second_four, 12, 44
-	EMWriteScreen phone_extension, 12, 54
+    'updating all the ADDR info together
+    If trim(casemgr_ADDR_line_01) <> "" then
+        call clear_line_of_text(8, 32)
+        call clear_line_of_text(9, 32)
+        EMWriteScreen casemgr_ADDR_line_01, 8, 32
+        EMWriteScreen casemgr_ADDR_line_02, 9, 32
+    End if
+
+    If trim(casemgr_city) <> "" then
+        call clear_line_of_text(10, 32)
+        EMWriteScreen casemgr_city, 10, 32
+    End if
+
+    If trim(casemgr_state) <> "" then
+        call clear_line_of_text(10, 54)
+        EMWriteScreen casemgr_state, 10, 54
+    End if
+
+    If trim(casemgr_zip_code) <> "" then
+        call clear_line_of_text(10, 63)
+        EMWriteScreen casemgr_zip_code, 10, 63
+    End if
+
+    'Updating all the phone number info together
+    If trim(phone_area_code) <> "" then
+        call clear_line_of_text(12, 34)
+        call clear_line_of_text(12, 40)
+        call clear_line_of_text(12, 44)
+        call clear_line_of_text(12, 54)
+        EMWriteScreen phone_area_code, 12, 34
+        EMWriteScreen phone_prefix, 12, 40
+        EMWriteScreen phone_second_four, 12, 44
+        EMWriteScreen phone_extension, 12, 54
+    End if
+
 	EMWriteScreen "Y", 15, 63
 	transmit
 	transmit
 	PF3
 END IF
 
-'Updates SWKR panel with ongoing case manager assigned
-If ongoing_waiver_case_manager_check = 1 THEN
-	'Go to STAT/SWKR
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")
-	'Go into edit mode
-	PF9
-	'Blanks out the old info
-	EMWriteScreen "___________________________________", 6, 32
-	'Writes in new case manager name
-	EMWriteScreen ongoing_waiver_case_manager, 6, 32
+'Updates SWKR panel with ongoing waiver case manager assigned
+If trim(ongoing_waiver_case_manager) <> "" then
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
+	PF9    'Go into edit mode
+	Call clear_line_of_text(6, 32) 'Blanks out the old info
+	EMWriteScreen ongoing_waiver_case_manager, 6, 32   'Writes in new case manager name
 	transmit
 	transmit
 	PF3
 END IF
 
 'Updates SWKR panel with ongoing case manager assigned
-If ongoing_case_manager_check = 1 THEN
-	'Go to STAT/SWKR
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")
-	'Go into edit mode
-	PF9
-	'Blanks out the old info
-	EMWriteScreen "___________________________________", 6, 32
-	'Writes in new case manager name
-	EMWriteScreen ongoing_case_manager, 6, 32
+If trim(ongoing_case_manager) <> "" then
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
+	PF9    	'Go into edit mode
+	Call clear_line_of_text(6, 32) 'Blanks out the old info
+	EMWriteScreen ongoing_case_manager, 6, 32 'Writes in new case manager name
 	transmit
 	transmit
 	PF3
@@ -522,7 +546,7 @@ Call write_bullet_and_variable_in_case_note ("Date received", date_received)
 Call write_bullet_and_variable_in_case_note ("Lead Agency", lead_agency)
 Call write_bullet_and_variable_in_case_note ("Lead Agency Assessor/Case Manager",lead_agency_assessor)
 Call write_bullet_and_variable_in_case_note ("Address", casemgr_ADDR_line_01 & " " & casemgr_ADDR_line_02 & " " & casemgr_city & " " & casemgr_state & " " & casemgr_zip_code)
-Call write_bullet_and_variable_in_case_note ("Phone", phone_area_code & " " & phone_prefix & " " & phone_second_four & " " & phone_extension)
+Call write_bullet_and_variable_in_case_note ("Phone", phone_area_code & "-" & phone_prefix & "-" & phone_second_four & " " & phone_extension)
 Call write_bullet_and_variable_in_case_note ("Fax", fax)
 'STATUS
 Call write_bullet_and_variable_in_case_note ("Name of Facility", name_of_facility)
@@ -540,20 +564,20 @@ IF does_not_meet_waiver_LOC_check = 1 THEN Call write_variable_in_case_note ("* 
 Call write_bullet_and_variable_in_case_note ("Ongoing case manager is", ongoing_waiver_case_manager)
 'LTCF
 Call write_bullet_and_variable_in_case_note ("LTCF Assessment Date", LTCF_assessment_date)
-IF meets_MALOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client meets the LOC requirement")
+IF meets_MALOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client meets the LOC requirement.")
 Call write_bullet_and_variable_in_case_note("Ongoing case manager is", ongoing_case_manager)
-IF ongoing_case_manager_not_available_check = 1 THEN Call write_variable_in_case_note ("* Ongoing Case Manager not available")
+IF ongoing_case_manager_not_available_check = 1 THEN Call write_variable_in_case_note ("* Ongoing Case Manager not available.")
 IF does_not_meet_MALTC_LOC_check = 1 THEN Call write_variable_in_case_note ("* LTCF Assessment determines that client does not meet LOC requirements for LTCF's.")
 IF requested_1503_check = 1 THEN Call write_variable_in_case_note ("* A DHS-1503 has been requested from the LTCF.")
 IF onfile_1503_check = 1 THEN Call write_variable_in_case_note ("A DHS-1503 has been provided.")
 'MA requests/applications
-IF client_applied_MA_check = 1 THEN Call write_variable_in_case_note ("* Client has applied for MA")
+IF client_applied_MA_check = 1 THEN Call write_variable_in_case_note ("* Client has applied for MA.")
 Call write_bullet_and_variable_in_case_note ("Client is an MA enrollee. Assessor provided a DHS-3543 on", Client_MA_enrollee)
-IF completed_3543_3531_check = 1 THEN Call write_variable_in_case_note ("* Completed DHS-3543 or DHS-3531 attached to DHS 5181")
+IF completed_3543_3531_check = 1 THEN Call write_variable_in_case_note ("* Completed DHS-3543 or DHS-3531 attached to DHS 5181.")
 Call write_bullet_and_variable_in_case_note ("Completed DHS-3543 or DHS-3531 faxed to county on", completed_3543_3531_faxed)
 IF please_send_3543_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested that a DHS-3543 be sent to the MA enrollee or AREP.")
 Call write_bullet_and_variable_in_case_note ("* Case manager has requested that a DHS-3531 be sent to a non-MA enrollee at", please_send_3531)
-IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested an Asset Assessment, DHS 3340, be send to the client or AREP")
+IF please_send_3340_check = 1 THEN Call write_variable_in_case_note ("* Case manager has requested an Asset Assessment, DHS 3340, be send to the client or AREP.")
 'changes completed by the assessor
 Call write_bullet_and_variable_in_case_note ("Client no longer meets LOC - Effective date should be no sooner than", client_no_longer_meets_LOC_efffective_date)
 IF from_droplist <> "Select one..." AND to_droplist <> "Select one.." THEN Call write_bullet_and_variable_in_case_note ("Waiver program changed from", from_droplist & " to: " & to_droplist & ". Effective date: " & waiver_program_change_effective_date)
@@ -561,7 +585,7 @@ IF from_droplist <> "Select one..." AND to_droplist <> "Select one.." THEN Call 
 'Information from DHS 5181 Dialog 3
 'changes
 IF exited_waiver_program_check = 1 THEN Call write_variable_in_case_note("* Exited waiver program.  Effective date: " & exit_waiver_end_date)
-IF client_choice_check = 1 THEN Call write_variable_in_case_note ("* Client has chosen to exit the waiver program")
+IF client_choice_check = 1 THEN Call write_variable_in_case_note ("* Client has chosen to exit the waiver program.")
 IF client_deceased_check = 1 THEN Call write_variable_in_case_note ("* Client is deceased.  Date of death: " & date_of_death)
 IF client_moved_to_LTCF_check = 1 THEN Call write_variable_in_case_note ("* Client moved to LTCF on" & client_moved_to_LTCF)
 Call write_bullet_and_variable_in_case_note ("Facility name", client_moved_to_LTCF)
@@ -591,6 +615,7 @@ script_end_procedure_with_error_report("Success! Please make sure your DISA and 
 '--All variables are CASE:NOTEing (if required)---------------------------------07/21/2022
 '--CASE:NOTE Header doesn't look funky------------------------------------------07/21/2022
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/21/2022
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/14/2022
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/21/2022
@@ -609,13 +634,13 @@ script_end_procedure_with_error_report("Success! Please make sure your DISA and 
 '--BULK - remove 1 incrementor at end of script reviewed------------------------07/21/2022-----------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------07/21/2022
+'--Confirm all GitHub tasks are complete----------------------------------------11/14/2022
 '--comment Code-----------------------------------------------------------------07/21/2022
-'--Update Changelog for release/update------------------------------------------07/21/2022
+'--Update Changelog for release/update------------------------------------------11/14/2022
 '--Remove testing message boxes-------------------------------------------------07/21/2022
 '--Remove testing code/unnecessary code-----------------------------------------07/21/2022
-'--Review/update SharePoint instructions----------------------------------------07/21/2022
+'--Review/update SharePoint instructions----------------------------------------11/14/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/21/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/21/2022
 '--Complete misc. documentation (if applicable)---------------------------------07/21/2022
-'--Update project team/issue contact (if applicable)----------------------------07/21/2022
+'--Update project team/issue contact (if applicable)----------------------------11/14/2022
