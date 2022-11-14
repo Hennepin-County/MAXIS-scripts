@@ -122,7 +122,7 @@ Do
                       EditBox 95, 105, 25, 15, phone_second_four
                       EditBox 140, 105, 25, 15, phone_extension
                       EditBox 190, 105, 80, 15, fax
-                      CheckBox 275, 105, 80, 15, "Update SWRK panel ", update_SWKR_info_checkbox
+                      CheckBox 275, 105, 80, 15, "Update SWRK panel", update_SWKR_info_checkbox
                       CheckBox 60, 140, 115, 15, "Have script update ADDR panel", update_addr_checkbox
                       EditBox 70, 160, 140, 15, name_of_facility
                       EditBox 285, 160, 65, 15, date_of_admission
@@ -482,31 +482,23 @@ If update_SWKR_info_checkbox = 1 THEN
 	PF3
 END IF
 
-'Updates SWKR panel with ongoing case manager assigned
-If ongoing_waiver_case_manager_check = 1 THEN
-	'Go to STAT/SWKR
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")
-	'Go into edit mode
-	PF9
-	'Blanks out the old info
-	EMWriteScreen "___________________________________", 6, 32
-	'Writes in new case manager name
-	EMWriteScreen ongoing_waiver_case_manager, 6, 32
+'Updates SWKR panel with ongoing waiver case manager assigned
+If trim(ongoing_waiver_case_manager) <> "" then
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
+	PF9    'Go into edit mode
+	Call clear_line_of_text(6, 32) 'Blanks out the old info
+	EMWriteScreen ongoing_waiver_case_manager, 6, 32   'Writes in new case manager name
 	transmit
 	transmit
 	PF3
 END IF
 
 'Updates SWKR panel with ongoing case manager assigned
-If ongoing_case_manager_check = 1 THEN
-	'Go to STAT/SWKR
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")
-	'Go into edit mode
-	PF9
-	'Blanks out the old info
-	EMWriteScreen "___________________________________", 6, 32
-	'Writes in new case manager name
-	EMWriteScreen ongoing_case_manager, 6, 32
+If trim(ongoing_case_manager) <> "" then
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
+	PF9    	'Go into edit mode
+	Call clear_line_of_text(6, 32) 'Blanks out the old info
+	EMWriteScreen ongoing_case_manager, 6, 32 'Writes in new case manager name
 	transmit
 	transmit
 	PF3
