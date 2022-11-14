@@ -1699,7 +1699,7 @@ script_array(script_num).used_for_elig			= False
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
-script_array(script_num).script_name 			= "IMIG - STATUS"
+script_array(script_num).script_name 			= "IMIG - Status"
 ' script_array(script_num).description 			= "Template for the SAVE system for verifying immigration status."
 script_array(script_num).category               = "NOTES"
 script_array(script_num).workflows              = ""
