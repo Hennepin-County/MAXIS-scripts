@@ -442,8 +442,8 @@ END If
 
 'Updates SWKR panel with Name, address and phone number if checked on DIALOG 1
 If update_SWKR_info_checkbox = 1 THEN
-	'Go to STAT/SWKR
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")
+
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")  'Go to STAT/SWKR
 	'creates a new panel if one doesn't exist, and will needs new if there is not one
 	EMReadScreen panel_exists_check, 1, 2, 73
 	IF panel_exists_check = "0" THEN
@@ -453,29 +453,57 @@ If update_SWKR_info_checkbox = 1 THEN
 		PF9	'putting panel into edit mode
 	END IF
 
-	'Blanks out the old info
-	EMWriteScreen "___________________________________", 6, 32
-	EMWriteScreen "______________________", 8, 32
-	EMWriteScreen "______________________", 9, 32
-	EMWriteScreen "_______________", 10, 32
-	EMWriteScreen "__", 10, 54
-	EMWriteScreen "_____", 10,63
-	EMWriteScreen "___", 12, 34
-	EMWriteScreen "___", 12, 40
-	EMWriteScreen "____", 12, 44
-	EMWriteScreen "____", 12, 54
+	'Blanks out the old info and writes in the new info into the SWKR panel if updated in the dialog
+    If trim(lead_agency_assessor) <> "" then
+        call clear_line_of_text(6, 32)
+        EMWriteScreen lead_agency_assessor, 6, 32
+    End if
 
-	'Writes in the new info into the SWKR panel
-	EMWriteScreen lead_agency_assessor, 6, 32
-	EMWriteScreen casemgr_ADDR_line_01, 8, 32
-	EMWriteScreen casemgr_ADDR_line_02, 9, 32
-	EMWriteScreen casemgr_city, 10, 32
-	EMWriteScreen casemgr_state, 10, 54
-	EMWriteScreen casemgr_zip_code, 10, 63
-	EMWriteScreen phone_area_code, 12, 34
-	EMWriteScreen phone_prefix, 12, 40
-	EMWriteScreen phone_second_four, 12, 44
-	EMWriteScreen phone_extension, 12, 54
+    If trim(casemgr_ADDR_line_01) <> "" then
+        call clear_line_of_text(8, 32)
+        EMWriteScreen casemgr_ADDR_line_01, 8, 32
+    End if
+
+    If trim(casemgr_ADDR_line_02) <> "" then
+        call clear_line_of_text(9, 32)
+        EMWriteScreen casemgr_ADDR_line_02, 9, 32
+    End if
+
+    If trim(casemgr_city) <> "" then
+        call clear_line_of_text(10, 32)
+        EMWriteScreen casemgr_city, 10, 32
+    End if
+
+    If trim(casemgr_state) <> "" then
+        call clear_line_of_text(10, 54)
+        EMWriteScreen casemgr_state, 10, 54
+    End if
+
+    If trim(casemgr_zip_code) <> "" then
+        call clear_line_of_text(10, 63)
+        EMWriteScreen casemgr_zip_code, 10, 63
+    End if
+
+    If trim(phone_area_code) <> "" then
+        call clear_line_of_text(12, 34)
+        EMWriteScreen phone_area_code, 12, 34
+    End if
+
+    If trim(phone_prefix) <> "" then
+        call clear_line_of_text(12, 40)
+        EMWriteScreen phone_prefix, 12, 40
+    End if
+
+    If trim(phone_second_four) <> "" then
+        call clear_line_of_text(12, 44)
+        EMWriteScreen phone_second_four, 12, 44
+    End if
+
+    If trim(phone_extension) <> "" then
+        call clear_line_of_text(12, 54)
+        EMWriteScreen phone_extension, 12, 54
+    End if
+
 	EMWriteScreen "Y", 15, 63
 	transmit
 	transmit
