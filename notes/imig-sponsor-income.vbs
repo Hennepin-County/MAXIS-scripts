@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/14/2022", "Added checkbox option for multiple sponsors.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/03/2022", "Updated income standards for 130% FPG effective 10/22.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/29/2021", "Updated income standards for 130% FPG effective 10/21.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/01/2020", "Updated income standards for 130% FPG effective 10/20.", "Ilse Ferris, Hennepin County")
@@ -59,108 +60,126 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 'Connecting to BlueZone, and finding case number
 EMConnect ""
-Call check_for_MAXIS(False)
 Call MAXIS_case_number_finder(MAXIS_case_number)
 
-'-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 216, 165, "Sponsor income calculation dialog"
-  EditBox 65, 10, 70, 15, MAXIS_case_number
-  EditBox 40, 45, 55, 15, primary_sponsor_earned_income
-  EditBox 150, 45, 55, 15, spousal_sponsor_earned_income
-  EditBox 40, 80, 55, 15, primary_sponsor_unearned_income
-  EditBox 150, 80, 55, 15, spousal_sponsor_unearned_income
-  EditBox 70, 105, 30, 15, sponsor_HH_size
-  EditBox 120, 125, 30, 15, number_of_sponsored_immigrants
-  EditBox 70, 145, 80, 15, worker_signature
-  ButtonGroup ButtonPressed
-    OkButton 160, 125, 50, 15
-    CancelButton 160, 145, 50, 15
-  Text 10, 15, 50, 10, "Case number:"
-  GroupBox 5, 35, 205, 30, "Earned income to deem:"
-  Text 10, 50, 30, 10, "Primary:"
-  Text 120, 50, 30, 10, "Spousal:"
-  GroupBox 5, 70, 205, 30, "Unearned income to deem:"
-  Text 10, 85, 30, 10, "Primary:"
-  Text 120, 85, 30, 10, "Spousal:"
-  Text 5, 110, 60, 10, "Sponsor HH size:"
-  Text 5, 130, 115, 10, "Number of sponsored immigrants:"
-  Text 5, 150, 65, 10, "Worker signature:"
-EndDialog
-
-'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
 Do
-	Do
-		err_msg = ""
-		Dialog Dialog1
-		cancel_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-		If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False THEN err_msg = err_msg & vbCr & "* You must enter some income. You can enter a ''0'' if that is accurate."
-		If isnumeric(sponsor_HH_size) = False THEN err_msg = err_msg & vbCr & "* You must enter a sponsor HH size."
-		If isnumeric(number_of_sponsored_immigrants) = False THEN err_msg = err_msg & vbCr & "* You must enter the number of sponsored immigrants."
-		If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	LOOP UNTIL err_msg = ""
-call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+    multiple_spon_checkbox = 0  'Defaults to unchecked
+    '-------------------------------------------------------------------------------------------------DIALOG
+    Dialog1 = "" 'Blanking out previous dialog detail
+    BeginDialog Dialog1, 0, 0, 216, 170, "Sponsor Income Calculation Dialog"
+      Text 5, 10, 50, 10, "Case number:"
+      EditBox 55, 5, 50, 15, MAXIS_case_number
+      CheckBox 110, 10, 100, 10, "Check if multiple sponsors.", multiple_spon_checkbox
+      GroupBox 5, 30, 205, 30, "Earned income to deem:"
+      Text 10, 45, 30, 10, "Primary:"
+      EditBox 40, 40, 55, 15, primary_sponsor_earned_income
+      Text 120, 45, 30, 10, "Spousal:"
+      EditBox 150, 40, 55, 15, spousal_sponsor_earned_income
+      GroupBox 5, 70, 205, 30, "Unearned income to deem:"
+      Text 10, 85, 30, 10, "Primary:"
+      EditBox 40, 80, 55, 15, primary_sponsor_unearned_income
+      Text 120, 85, 30, 10, "Spousal:"
+      EditBox 150, 80, 55, 15, spousal_sponsor_unearned_income
+      Text 20, 115, 60, 10, "Sponsor HH size:"
+      EditBox 80, 110, 15, 15, sponsor_HH_size
+      Text 105, 115, 90, 10, "# of sponsored immigrants:"
+      EditBox 190, 110, 15, 15, number_of_sponsored_immigrants
+      Text 5, 135, 60, 10, "Worker signature:"
+      EditBox 65, 130, 140, 15, worker_signature
+      ButtonGroup ButtonPressed
+        OkButton 120, 150, 40, 15
+        CancelButton 165, 150, 40, 15
+    EndDialog
 
-'Determines the income limits
-' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG at: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
-If DateDiff("d",date,#10/01/2022#) <= 0 then
-    'October 2022 -- Amounts for applications on or AFTER 10/01/2022
-    If sponsor_HH_size = 1 then income_limit = 1473
-    If sponsor_HH_size = 2 then income_limit = 1984
-    If sponsor_HH_size = 3 then income_limit = 2495
-    If sponsor_HH_size = 4 then income_limit = 3007
-    If sponsor_HH_size = 5 then income_limit = 3518
-    If sponsor_HH_size = 6 then income_limit = 4029
-    If sponsor_HH_size = 7 then income_limit = 4541
-    If sponsor_HH_size = 8 then income_limit = 5052
-    If sponsor_HH_size > 8 then income_limit = 5052 + (512 * (sponsor_HH_size - 8))
-Elseif DateDiff("d",date,#10/01/2022#) > 0 then
-    'October 2021 -- Amounts for applications on or BEFORE 10/01/2022
-    If sponsor_HH_size = 1 then income_limit = 1396
-    If sponsor_HH_size = 2 then income_limit = 1888
-    If sponsor_HH_size = 3 then income_limit = 2379
-    If sponsor_HH_size = 4 then income_limit = 2871
-    If sponsor_HH_size = 5 then income_limit = 3363
-    If sponsor_HH_size = 6 then income_limit = 3855
-    If sponsor_HH_size = 7 then income_limit = 4347
-    If sponsor_HH_size = 8 then income_limit = 4839
-    If sponsor_HH_size > 8 then income_limit = 4839 + (492 * (sponsor_HH_size - 8))
-End if
 
-'If any income variables are not numeric, the script will convert them to a "0" for calculating
-If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0
-If IsNumeric(spousal_sponsor_earned_income) = False then spousal_sponsor_earned_income = 0
-If IsNumeric(primary_sponsor_unearned_income) = False then primary_sponsor_unearned_income = 0
-If IsNumeric(spousal_sponsor_unearned_income) = False then spousal_sponsor_unearned_income = 0
+    'Dialog is presented. Requires all sections other than spousal sponsor income to be filled out.
+    Do
+    	Do
+    		err_msg = ""
+    		Dialog Dialog1
+    		cancel_confirmation
+    		Call validate_MAXIS_case_number(err_msg, "*")
+    		If isnumeric(primary_sponsor_earned_income) = False and isnumeric(spousal_sponsor_earned_income) = False and isnumeric(primary_sponsor_unearned_income) = False and isnumeric(spousal_sponsor_unearned_income) = False THEN err_msg = err_msg & vbCr & "* You must enter some income. You can enter a ''0'' if that is accurate."
+    		If isnumeric(sponsor_HH_size) = False THEN err_msg = err_msg & vbCr & "* You must enter a sponsor HH size."
+    		If isnumeric(number_of_sponsored_immigrants) = False THEN err_msg = err_msg & vbCr & "* You must enter the number of sponsored immigrants."
+    		If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    	LOOP UNTIL err_msg = ""
+    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    LOOP UNTIL are_we_passworded_out = false
 
-'Determines the sponsor deeming amount for SNAP
-SNAP_EI_disregard = (abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income)) * 0.2
-sponsor_deeming_amount_SNAP = ((((abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income)) - SNAP_EI_disregard) + (abs(primary_sponsor_unearned_income) + abs(spousal_sponsor_unearned_income)) - income_limit)/abs(number_of_sponsored_immigrants))
+    'Determines the income limits
+    ' >> Income limits from CM 19.06 - MAXIS Gross Income 130% FPG at: https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_001906
+    If DateDiff("d",date,#10/01/2022#) <= 0 then
+        'October 2022 -- Amounts for applications on or AFTER 10/01/2022
+        If sponsor_HH_size = 1 then income_limit = 1473
+        If sponsor_HH_size = 2 then income_limit = 1984
+        If sponsor_HH_size = 3 then income_limit = 2495
+        If sponsor_HH_size = 4 then income_limit = 3007
+        If sponsor_HH_size = 5 then income_limit = 3518
+        If sponsor_HH_size = 6 then income_limit = 4029
+        If sponsor_HH_size = 7 then income_limit = 4541
+        If sponsor_HH_size = 8 then income_limit = 5052
+        If sponsor_HH_size > 8 then income_limit = 5052 + (512 * (sponsor_HH_size - 8))
+    Elseif DateDiff("d",date,#10/01/2022#) > 0 then
+        'October 2021 -- Amounts for applications on or BEFORE 10/01/2022
+        If sponsor_HH_size = 1 then income_limit = 1396
+        If sponsor_HH_size = 2 then income_limit = 1888
+        If sponsor_HH_size = 3 then income_limit = 2379
+        If sponsor_HH_size = 4 then income_limit = 2871
+        If sponsor_HH_size = 5 then income_limit = 3363
+        If sponsor_HH_size = 6 then income_limit = 3855
+        If sponsor_HH_size = 7 then income_limit = 4347
+        If sponsor_HH_size = 8 then income_limit = 4839
+        If sponsor_HH_size > 8 then income_limit = 4839 + (492 * (sponsor_HH_size - 8))
+    End if
 
-'Determines the sponsor deeming amount for other programs
-sponsor_deeming_amount_other_programs = abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income) + abs(primary_sponsor_unearned_income) + abs(spousal_sponsor_unearned_income)
+    'If any income variables are not numeric, the script will convert them to a "0" for calculating
+    If IsNumeric(primary_sponsor_earned_income) = False then primary_sponsor_earned_income = 0
+    If IsNumeric(spousal_sponsor_earned_income) = False then spousal_sponsor_earned_income = 0
+    If IsNumeric(primary_sponsor_unearned_income) = False then primary_sponsor_unearned_income = 0
+    If IsNumeric(spousal_sponsor_unearned_income) = False then spousal_sponsor_unearned_income = 0
 
-'If the deeming amounts are less than 0 they need to show a 0
-If sponsor_deeming_amount_SNAP < 0 then sponsor_deeming_amount_SNAP = 0
-If sponsor_deeming_amount_other_programs < 0 then sponsor_deeming_amount_other_programs = 0
+    'Determines the sponsor deeming amount for SNAP
+    SNAP_EI_disregard = (abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income)) * 0.2
+    sponsor_deeming_amount_SNAP = ((((abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income)) - SNAP_EI_disregard) + (abs(primary_sponsor_unearned_income) + abs(spousal_sponsor_unearned_income)) - income_limit)/abs(number_of_sponsored_immigrants))
 
-'Case note the findings
-start_a_blank_CASE_NOTE
-Call write_variable_in_CASE_NOTE("~~~Sponsor Deeming Income Calculation~~~")
-If primary_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor earned income", "$" & primary_sponsor_earned_income)
-If spousal_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor earned income", "$" & spousal_sponsor_earned_income)
-If primary_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor unearned income", "$" & primary_sponsor_unearned_income)
-If spousal_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor unearned income", "$" & spousal_sponsor_unearned_income)
-If SNAP_EI_disregard <> 0 then call write_bullet_and_variable_in_case_note("20% diregard of EI for SNAP", "$" & SNAP_EI_disregard)
-call write_bullet_and_variable_in_case_note("Sponsor HH size and income limit", sponsor_HH_size & ", $" & income_limit)
-call write_bullet_and_variable_in_case_note("Number of sponsored immigrants", number_of_sponsored_immigrants)
-call write_bullet_and_variable_in_case_note("Sponsor deeming amount for SNAP", "$" & sponsor_deeming_amount_SNAP)
-call write_bullet_and_variable_in_case_note("Sponsor deeming amount for other programs", "$" & sponsor_deeming_amount_other_programs)
-call write_variable_in_CASE_NOTE("---")
-call write_variable_in_CASE_NOTE(worker_signature)
+    'Determines the sponsor deeming amount for other programs
+    sponsor_deeming_amount_other_programs = abs(primary_sponsor_earned_income) + abs(spousal_sponsor_earned_income) + abs(primary_sponsor_unearned_income) + abs(spousal_sponsor_unearned_income)
+
+    'If the deeming amounts are less than 0 they need to show a 0
+    If sponsor_deeming_amount_SNAP < 0 then sponsor_deeming_amount_SNAP = 0
+    If sponsor_deeming_amount_other_programs < 0 then sponsor_deeming_amount_other_programs = 0
+
+    'Case note the findings
+    start_a_blank_CASE_NOTE
+    Call write_variable_in_CASE_NOTE("~~~Sponsor Deeming Income Calculation~~~")
+    If primary_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor earned income", "$" & primary_sponsor_earned_income)
+    If spousal_sponsor_earned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor earned income", "$" & spousal_sponsor_earned_income)
+    If primary_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Primary sponsor unearned income", "$" & primary_sponsor_unearned_income)
+    If spousal_sponsor_unearned_income <> 0 then call write_bullet_and_variable_in_case_note("Spousal sponsor unearned income", "$" & spousal_sponsor_unearned_income)
+    If SNAP_EI_disregard <> 0 then call write_bullet_and_variable_in_case_note("20% diregard of EI for SNAP", "$" & SNAP_EI_disregard)
+    call write_bullet_and_variable_in_case_note("Sponsor HH size and income limit", sponsor_HH_size & ", $" & income_limit)
+    call write_bullet_and_variable_in_case_note("Number of sponsored immigrants", number_of_sponsored_immigrants)
+    call write_bullet_and_variable_in_case_note("Sponsor deeming amount for SNAP", "$" & sponsor_deeming_amount_SNAP)
+    call write_bullet_and_variable_in_case_note("Sponsor deeming amount for other programs", "$" & sponsor_deeming_amount_other_programs)
+    call write_variable_in_CASE_NOTE("---")
+    call write_variable_in_CASE_NOTE(worker_signature)
+
+    If multiple_spon_checkbox = 0 then
+        exit do
+    Else
+        PF3 'save case note
+        'blanking out variables for the next unique sponsor
+        primary_sponsor_earned_income = ""
+        spousal_sponsor_earned_income = ""
+        primary_sponsor_unearned_income = ""
+        spousal_sponsor_unearned_income = ""
+        sponsor_HH_size = ""
+        number_of_sponsored_immigrants = ""
+    End if
+    STATS_counter = STATS_counter + 1
+Loop
 
 script_end_procedure_with_error_report("For MFIP/DWP, MAXIS will correctly pull the amount entered on the SPON into ELIG." & vbcr & vbcr & "For SNAP and all other cash programs, the amount will need to be FIATed into the ELIG budget.")
 
@@ -169,7 +188,7 @@ script_end_procedure_with_error_report("For MFIP/DWP, MAXIS will correctly pull 
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------10/03/2022
-'--Tab orders reviewed & confirmed----------------------------------------------10/03/2022
+'--Tab orders reviewed & confirmed----------------------------------------------11/14/2022
 '--Mandatory fields all present & Reviewed--------------------------------------10/03/2022
 '--All variables in dialog match mandatory fields-------------------------------10/03/2022
 '
@@ -180,7 +199,7 @@ script_end_procedure_with_error_report("For MFIP/DWP, MAXIS will correctly pull 
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/03/2022
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/03/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/14/2022--------------------N/A
 '--MAXIS_background_check reviewed (if applicable)------------------------------10/03/2022--------------------N/A
 '--PRIV Case handling reviewed -------------------------------------------------10/03/2022--------------------N/A
 '--Out-of-County handling reviewed----------------------------------------------10/03/2022--------------------N/A
@@ -190,19 +209,19 @@ script_end_procedure_with_error_report("For MFIP/DWP, MAXIS will correctly pull 
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------10/03/2022
-'--Incrementors reviewed (if necessary)-----------------------------------------10/03/2022--------------------N/A
+'--Incrementors reviewed (if necessary)-----------------------------------------11/14/2022
 '--Denomination reviewed -------------------------------------------------------10/03/2022
 '--Script name reviewed---------------------------------------------------------10/03/2022
-'--BULK - remove 1 incrementor at end of script reviewed------------------------10/03/2022--------------------N/A
+'--BULK - remove 1 incrementor at end of script reviewed------------------------11/14/2022
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------10/03/2022
+'--Confirm all GitHub tasks are complete----------------------------------------11/14/2022
 '--comment Code-----------------------------------------------------------------10/03/2022
-'--Update Changelog for release/update------------------------------------------10/03/2022
-'--Remove testing message boxes-------------------------------------------------10/03/2022
-'--Remove testing code/unnecessary code-----------------------------------------10/03/2022
-'--Review/update SharePoint instructions----------------------------------------10/03/2022
+'--Update Changelog for release/update------------------------------------------11/14/2022
+'--Remove testing message boxes-------------------------------------------------11/14/2022
+'--Remove testing code/unnecessary code-----------------------------------------11/14/2022
+'--Review/update SharePoint instructions----------------------------------------11/14/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/03/2022
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/03/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/14/2022
 '--Complete misc. documentation (if applicable)---------------------------------10/03/2022
 '--Update project team/issue contact (if applicable)----------------------------10/03/2022
