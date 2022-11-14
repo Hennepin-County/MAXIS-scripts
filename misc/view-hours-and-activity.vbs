@@ -137,160 +137,57 @@ function create_time_spent_totals(start_date, end_date, sort_type, total_hours, 
 	Next
 end function
 '===========================================================================================================================
+the_year = DatePart("yyyy", date)
 
+pay_period_begin_date = #9/11/2022#
+current_pay_period = pay_period_begin_date
+Do while DateDiff("d", current_pay_period, date) > 13
+	current_pay_period = DateAdd("d", 14, current_pay_period)
+Loop
+
+current_pay_period_start = current_pay_period
+current_pay_period_end = DateAdd("d", 13, current_pay_period)
+
+active_period_start = DateAdd("ww", -6, current_pay_period_start)
+active_period_end = current_pay_period_end
+
+' MSGBOX "FOUND IT" & vbCr & vbCr & "Current PAY Pd:" & vbCr  & current_pay_period_start & vbCr & current_pay_period_end & vbCr & vbCr & "Current ACTIVE Pd:" & vbCr & active_period_start & vbCr & active_period_end
 'DECLARATIONS===============================================================================================================
 'Lists for Dialogs
+month_list = "Select"
 week_list = "Select"
-' week_list = week_list+chr(9)+"12/27/2020 - 1/2/2021"
-' week_list = week_list+chr(9)+"1/3/2021 - 1/9/2021"
-' week_list = week_list+chr(9)+"1/10/2021 - 1/16/2021"
-' week_list = week_list+chr(9)+"1/17/2021 - 1/23/2021"
-' week_list = week_list+chr(9)+"1/24/2021 - 1/30/2021"
-' week_list = week_list+chr(9)+"1/31/2021 - 2/6/2021"
-' week_list = week_list+chr(9)+"2/7/2021 - 2/13/2021"
-' week_list = week_list+chr(9)+"2/14/2021 - 2/20/2021"
-' week_list = week_list+chr(9)+"2/21/2021 - 2/27/2021"
-' week_list = week_list+chr(9)+"2/28/2021 - 3/6/2021"
-' week_list = week_list+chr(9)+"3/7/2021 - 3/13/2021"
-' week_list = week_list+chr(9)+"3/14/2021 - 3/20/2021"
-' week_list = week_list+chr(9)+"3/21/2021 - 3/27/2021"
-' week_list = week_list+chr(9)+"3/28/2021 - 4/3/2021"
-' week_list = week_list+chr(9)+"4/4/2021 - 4/10/2021"
-' week_list = week_list+chr(9)+"4/11/2021 - 4/17/2021"
-' week_list = week_list+chr(9)+"4/18/2021 - 4/24/2021"
-' week_list = week_list+chr(9)+"4/25/2021 - 5/1/2021"
-' week_list = week_list+chr(9)+"5/2/2021 - 5/8/2021"
-' week_list = week_list+chr(9)+"5/9/2021 - 5/15/2021"
-' week_list = week_list+chr(9)+"5/16/2021 - 5/22/2021"
-' week_list = week_list+chr(9)+"5/23/2021 - 5/29/2021"
-' week_list = week_list+chr(9)+"5/30/2021 - 6/5/2021"
-' week_list = week_list+chr(9)+"6/6/2021 - 6/12/2021"
-' week_list = week_list+chr(9)+"6/13/2021 - 6/19/2021"
-' week_list = week_list+chr(9)+"6/20/2021 - 6/26/2021"
-' week_list = week_list+chr(9)+"6/27/2021 - 7/3/2021"
-' week_list = week_list+chr(9)+"7/4/2021 - 7/10/2021"
-' week_list = week_list+chr(9)+"7/11/2021 - 7/17/2021"
-' week_list = week_list+chr(9)+"7/18/2021 - 7/24/2021"
-' week_list = week_list+chr(9)+"7/25/2021 - 7/31/2021"
-' week_list = week_list+chr(9)+"8/1/2021 - 8/7/2021"
-' week_list = week_list+chr(9)+"8/8/2021 - 8/14/2021"
-' week_list = week_list+chr(9)+"8/15/2021 - 8/21/2021"
-' week_list = week_list+chr(9)+"8/22/2021 - 8/28/2021"
-' week_list = week_list+chr(9)+"8/29/2021 - 9/4/2021"
-' week_list = week_list+chr(9)+"9/5/2021 - 9/11/2021"
-' week_list = week_list+chr(9)+"9/12/2021 - 9/18/2021"
-' week_list = week_list+chr(9)+"9/19/2021 - 9/25/2021"
-' week_list = week_list+chr(9)+"9/26/2021 - 10/2/2021"
-' week_list = week_list+chr(9)+"10/3/2021 - 10/9/2021"
-' week_list = week_list+chr(9)+"10/10/2021 - 10/16/2021"
-' week_list = week_list+chr(9)+"10/17/2021 - 10/23/2021"
-' week_list = week_list+chr(9)+"10/24/2021 - 10/30/2021"
-' week_list = week_list+chr(9)+"10/31/2021 - 11/6/2021"
-' week_list = week_list+chr(9)+"11/7/2021 - 11/13/2021"
-' week_list = week_list+chr(9)+"11/14/2021 - 11/20/2021"
-' week_list = week_list+chr(9)+"11/21/2021 - 11/27/2021"
-' week_list = week_list+chr(9)+"11/28/2021 - 12/4/2021"
-' week_list = week_list+chr(9)+"12/5/2021 - 12/11/2021"
-' week_list = week_list+chr(9)+"12/12/2021 - 12/18/2021"
-' week_list = week_list+chr(9)+"12/19/2021 - 12/25/2021"
-' week_list = week_list+chr(9)+"12/26/2021 - 1/1/2022"
-week_list = week_list+chr(9)+"1/2/2022 - 1/8/2022"
-week_list = week_list+chr(9)+"1/9/2022 - 1/15/2022"
-week_list = week_list+chr(9)+"1/16/2022 - 1/22/2022"
-week_list = week_list+chr(9)+"1/23/2022 - 1/29/2022"
-week_list = week_list+chr(9)+"1/30/2022 - 2/5/2022"
-week_list = week_list+chr(9)+"2/6/2022 - 2/12/2022"
-week_list = week_list+chr(9)+"2/13/2022 - 2/19/2022"
-week_list = week_list+chr(9)+"2/20/2022 - 2/26/2022"
-week_list = week_list+chr(9)+"2/27/2022 - 3/5/2022"
-week_list = week_list+chr(9)+"3/6/2022 - 3/12/2022"
-week_list = week_list+chr(9)+"3/13/2022 - 3/19/2022"
-week_list = week_list+chr(9)+"3/20/2022 - 3/26/2022"
-week_list = week_list+chr(9)+"3/27/2022 - 4/2/2022"
-week_list = week_list+chr(9)+"4/3/2022 - 4/9/2022"
-week_list = week_list+chr(9)+"4/10/2022 - 4/16/2022"
-week_list = week_list+chr(9)+"4/17/2022 - 4/23/2022"
-week_list = week_list+chr(9)+"4/24/2022 - 4/30/2022"
-week_list = week_list+chr(9)+"5/1/2022 - 5/7/2022"
-week_list = week_list+chr(9)+"5/8/2022 - 5/14/2022"
-week_list = week_list+chr(9)+"5/15/2022 - 5/21/2022"
-week_list = week_list+chr(9)+"5/22/2022 - 5/28/2022"
-week_list = week_list+chr(9)+"5/29/2022 - 6/4/2022"
-week_list = week_list+chr(9)+"6/5/2022 - 6/11/2022"
-week_list = week_list+chr(9)+"6/12/2022 - 6/18/2022"
-week_list = week_list+chr(9)+"6/19/2022 - 6/25/2022"
-week_list = week_list+chr(9)+"6/26/2022 - 7/2/2022"
-week_list = week_list+chr(9)+"7/3/2022 - 7/9/2022"
-week_list = week_list+chr(9)+"7/10/2022 - 7/16/2022"
-week_list = week_list+chr(9)+"7/17/2022 - 7/23/2022"
-week_list = week_list+chr(9)+"7/24/2022 - 7/30/2022"
-week_list = week_list+chr(9)+"7/31/2022 - 8/6/2022"
-week_list = week_list+chr(9)+"8/7/2022 - 8/13/2022"
-week_list = week_list+chr(9)+"8/14/2022 - 8/20/2022"
-week_list = week_list+chr(9)+"8/21/2022 - 8/27/2022"
-week_list = week_list+chr(9)+"8/28/2022 - 9/3/2022"
-week_list = week_list+chr(9)+"9/4/2022 - 9/10/2022"
-week_list = week_list+chr(9)+"9/11/2022 - 9/17/2022"
-week_list = week_list+chr(9)+"9/18/2022 - 9/24/2022"
-week_list = week_list+chr(9)+"9/25/2022 - 10/1/2022"
-week_list = week_list+chr(9)+"10/2/2022 - 10/8/2022"
-week_list = week_list+chr(9)+"10/9/2022 - 10/15/2022"
-week_list = week_list+chr(9)+"10/16/2022 - 10/22/2022"
-week_list = week_list+chr(9)+"10/23/2022 - 10/29/2022"
-week_list = week_list+chr(9)+"10/30/2022 - 11/5/2022"
-week_list = week_list+chr(9)+"11/6/2022 - 11/12/2022"
-week_list = week_list+chr(9)+"11/13/2022 - 11/19/2022"
-week_list = week_list+chr(9)+"11/20/2022 - 11/26/2022"
-week_list = week_list+chr(9)+"11/27/2022 - 12/3/2022"
-week_list = week_list+chr(9)+"12/4/2022 - 12/10/2022"
-week_list = week_list+chr(9)+"12/11/2022 - 12/17/2022"
-week_list = week_list+chr(9)+"12/18/2022 - 12/24/2022"
-week_list = week_list+chr(9)+"12/25/2022 - 12/31/2022"
+sunday_of_current_week = date
+Do while WeekdayName(Weekday(sunday_of_current_week)) <> "Sunday"
+	sunday_of_current_week = DateAdd("d", -1, sunday_of_current_week)
+Loop
+sunday_date = sunday_of_current_week
+saturday_date = DateAdd("d", 6, sunday_date)
+
+Do
+	sunday_month = MonthName(DatePart("m", sunday_date))
+	saturday_month = MonthName(DatePart("m", saturday_date))
+	If InStr(month_list, sunday_month) = 0 Then month_list = month_list+chr(9)+sunday_month
+	If InStr(month_list, saturday_month) = 0 Then month_list = month_list+chr(9)+saturday_month
+
+	week_string = sunday_date & " - " & saturday_date
+	week_list = week_list+chr(9)+week_string
+
+	sunday_date = DateAdd("d", -7, sunday_date)
+	saturday_date = DateAdd("d", 6, sunday_date)
+Loop Until DateDiff("d", sunday_date, active_period_start) > 0
 week_array = split(week_list, chr(9))
 
 biweek_list = "Select"
-biweek_list = biweek_list+chr(9)+"1/2/2022 - 1/15/2022"
-biweek_list = biweek_list+chr(9)+"1/16/2022 - 1/29/2022"
-biweek_list = biweek_list+chr(9)+"1/30/2022 - 2/12/2022"
-biweek_list = biweek_list+chr(9)+"2/13/2022 - 2/26/2022"
-biweek_list = biweek_list+chr(9)+"2/27/2022 - 3/12/2022"
-biweek_list = biweek_list+chr(9)+"3/13/2022 - 3/26/2022"
-biweek_list = biweek_list+chr(9)+"3/27/2022 - 4/9/2022"
-biweek_list = biweek_list+chr(9)+"4/10/2022 - 4/23/2022"
-biweek_list = biweek_list+chr(9)+"4/24/2022 - 5/7/2022"
-biweek_list = biweek_list+chr(9)+"5/8/2022 - 5/21/2022"
-biweek_list = biweek_list+chr(9)+"5/22/2022 - 6/4/2022"
-biweek_list = biweek_list+chr(9)+"6/5/2022 - 6/18/2022"
-biweek_list = biweek_list+chr(9)+"6/19/2022 - 7/2/2022"
-biweek_list = biweek_list+chr(9)+"7/3/2022 - 7/16/2022"
-biweek_list = biweek_list+chr(9)+"7/17/2022 - 7/30/2022"
-biweek_list = biweek_list+chr(9)+"7/31/2022 - 8/13/2022"
-biweek_list = biweek_list+chr(9)+"8/14/2022 - 8/27/2022"
-biweek_list = biweek_list+chr(9)+"8/28/2022 - 9/10/2022"
-biweek_list = biweek_list+chr(9)+"9/11/2022 - 9/24/2022"
-biweek_list = biweek_list+chr(9)+"9/25/2022 - 10/8/2022"
-biweek_list = biweek_list+chr(9)+"10/9/2022 - 10/22/2022"
-biweek_list = biweek_list+chr(9)+"10/23/2022 - 11/5/2022"
-biweek_list = biweek_list+chr(9)+"11/6/2022 - 11/19/2022"
-biweek_list = biweek_list+chr(9)+"11/20/2022 - 12/3/2022"
-biweek_list = biweek_list+chr(9)+"12/4/2022 - 12/17/2022"
-biweek_list = biweek_list+chr(9)+"12/18/2022 - 12/31/2022"
-biweek_list = biweek_list+chr(9)+"1/1/2023 - 1/14/2023"
-biweek_array = split(biweek_list, chr(9))
+sunday_date = current_pay_period_start
+saturday_date = current_pay_period_end
+Do
+	week_string = sunday_date & " - " & saturday_date
+	biweek_list = biweek_list+chr(9)+week_string
 
-month_list = "Select"
-month_list = month_list+chr(9)+"January"
-month_list = month_list+chr(9)+"February"
-month_list = month_list+chr(9)+"March"
-month_list = month_list+chr(9)+"April"
-month_list = month_list+chr(9)+"May"
-month_list = month_list+chr(9)+"June"
-month_list = month_list+chr(9)+"July"
-month_list = month_list+chr(9)+"August"
-month_list = month_list+chr(9)+"September"
-month_list = month_list+chr(9)+"October"
-month_list = month_list+chr(9)+"November"
-month_list = month_list+chr(9)+"December"
+	sunday_date = DateAdd("d", -14, sunday_date)
+	saturday_date = DateAdd("d", 13, sunday_date)
+Loop Until DateDiff("d", sunday_date, active_period_start) > 0
+biweek_array = split(biweek_list, chr(9))
 
 'Constants and arrays
 const activity_date_const 		= 00
@@ -305,7 +202,9 @@ const activity_gh_issue_numb	= 07
 const activity_gh_issue_url		= 08
 const activity_project			= 09
 const activity_paid_yn			= 10
-const last_const 				= 12
+const moved_item				= 11
+const item_xlrow				= 12
+const last_const 				= 13
 
 Dim TIME_TRACKING_ARRAY()
 ReDim TIME_TRACKING_ARRAY(last_const, 0)
@@ -354,25 +253,22 @@ hide_excel_button = 5001
 
 'Defining the excel files for when running the script
 excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking"
-the_year = DatePart("yyyy", date)
 
 If user_ID_for_validation = "CALO001" Then
-	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking " & the_year & ".xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking " & the_year & ".xlsx"
+	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking.xlsx"
 End If
 If user_ID_for_validation = "ILFE001" Then
-	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking " & the_year & ".xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking " & the_year & ".xlsx"
-End If
-If user_ID_for_validation = "WFS395" Then
-	t_drive_excel_file_path = excel_file_path & "\MiKayla Time Tracking " & the_year & ".xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "MiKayla Time Tracking " & the_year & ".xlsx"
+	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking.xlsx"
 End If
 
 view_excel = True		'this variable allows us to set
 Call excel_open(my_docs_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file
+ObjExcel.worksheets("Active Time Tracking").Activate
 
 row_filled_with_end_time = " "
+old_items_to_move = False
 
 'Here we read the entire excel file and save it into an array
 excel_row = 2			'start of the excel file information
@@ -411,6 +307,11 @@ Do
 	End If
 	TIME_TRACKING_ARRAY(activity_project, activity_count) 		= trim(ObjExcel.Cells(excel_row, 9).Value)			'the project of the activity
 	TIME_TRACKING_ARRAY(activity_paid_yn, activity_count) 		= ObjExcel.Cells(excel_row, 10).Value				'if this is paid time
+	TIME_TRACKING_ARRAY(moved_item, activity_count) = False
+	TIME_TRACKING_ARRAY(item_xlrow, activity_count) = excel_row
+
+	TIME_TRACKING_ARRAY(activity_date_const, activity_count) = DateAdd("d", 0, TIME_TRACKING_ARRAY(activity_date_const, activity_count))
+	If DateDiff("d", TIME_TRACKING_ARRAY(activity_date_const, activity_count), active_period_start) > 0 Then old_items_to_move = True
 
 	activity_count = activity_count + 1					'incrementing the array
 	excel_row = excel_row + 1							'go to the next excel row
@@ -421,6 +322,103 @@ Loop until next_row_date = ""
 'This is particularly for TESTING and we can remove this in the future
 view_excel = True
 objExcel.Visible = view_excel
+
+If old_items_to_move = True Then
+	TIME_TRACKING_ARRAY(activity_date_const, 0) = DateAdd("d", 0, TIME_TRACKING_ARRAY(activity_date_const, 0))
+	year_to_check = DatePart("yyyy", TIME_TRACKING_ARRAY(activity_date_const, 0))
+	year_to_check = year_to_check & ""
+	ObjExcel.worksheets(year_to_check).Activate
+	year_sheet_xl_row = 2
+	Do while ObjExcel.Cells(year_sheet_xl_row, 1).Value <> ""
+		year_sheet_xl_row = year_sheet_xl_row + 1
+	Loop
+
+	For each_activity = 0 to UBound(TIME_TRACKING_ARRAY, 2)
+		TIME_TRACKING_ARRAY(activity_date_const, each_activity) = DateAdd("d", 0, TIME_TRACKING_ARRAY(activity_date_const, each_activity))
+		If DateDiff("d", TIME_TRACKING_ARRAY(activity_date_const, each_activity), active_period_start) > 0 Then
+			TIME_TRACKING_ARRAY(moved_item, each_activity) = True
+			ObjExcel.Cells(year_sheet_xl_row, 1).Value = TIME_TRACKING_ARRAY(activity_date_const, each_activity)
+			ObjExcel.Cells(year_sheet_xl_row, 2).Value = TIME_TRACKING_ARRAY(activity_start_time, each_activity)
+			ObjExcel.Cells(year_sheet_xl_row, 3).Value = TIME_TRACKING_ARRAY(activity_end_time, each_activity)
+			ObjExcel.Cells(year_sheet_xl_row, 4).Value = "=TEXT([@[End Time]]-[@[Start Time]],"+chr(34)+"h:mm"+chr(34)+")"
+			ObjExcel.Cells(year_sheet_xl_row, 5).Value = TIME_TRACKING_ARRAY(activity_category, each_activity)
+			ObjExcel.Cells(year_sheet_xl_row, 6).Value = TIME_TRACKING_ARRAY(activity_meeting, each_activity)
+			ObjExcel.Cells(year_sheet_xl_row, 7).Value = TIME_TRACKING_ARRAY(activity_detail, each_activity)
+			If TIME_TRACKING_ARRAY(activity_gh_issue_url, each_activity) = "" Then
+				ObjExcel.Cells(year_sheet_xl_row, 8).Value = TIME_TRACKING_ARRAY(activity_gh_issue_numb, each_activity)
+			Else
+				If TIME_TRACKING_ARRAY(activity_gh_issue_numb, each_activity) <> "" Then
+					ObjExcel.Cells(year_sheet_xl_row, 8).Value = "=HYPERLINK(" & chr(34) & "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & TIME_TRACKING_ARRAY(activity_gh_issue_numb, each_activity) & chr(34) & ", " & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_numb, each_activity) & chr(34) & ")"
+				End If
+			End If
+			ObjExcel.Cells(year_sheet_xl_row, 9).Value = TIME_TRACKING_ARRAY(activity_project, each_activity)
+			ObjExcel.Cells(year_sheet_xl_row, 10).Value= TIME_TRACKING_ARRAY(activity_paid_yn, each_activity)
+			year_sheet_xl_row = year_sheet_xl_row + 1
+
+		End If
+	Next
+	MsgBox "All Old things moved"
+
+	ObjExcel.worksheets("Active Time Tracking").Activate
+
+	For each_activity = UBound(TIME_TRACKING_ARRAY, 2) to 0 Step -1
+		If TIME_TRACKING_ARRAY(moved_item, each_activity) = True Then
+			SET objRange = ObjExcel.Cells(TIME_TRACKING_ARRAY(item_xlrow, each_activity), 1).EntireRow
+			objRange.Delete
+		End If
+	Next
+	MsgBox "All old things deleted"
+
+	objWorkbook.Save									'saving the file to 'My Documents'
+	objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
+
+	ReDim TIME_TRACKING_ARRAY(last_const, 0)
+
+	row_filled_with_end_time = " "
+
+	'Here we read the entire excel file and save it into an array
+	excel_row = 2			'start of the excel file information
+	activity_count = 0		'starting of the counter of the array
+	Do
+		ReDim Preserve TIME_TRACKING_ARRAY(last_const, activity_count)				'resize the array
+		TIME_TRACKING_ARRAY(activity_date_const, activity_count) 	= ObjExcel.Cells(excel_row, 1).Value				'date of the activity
+		TIME_TRACKING_ARRAY(activity_start_time, activity_count) 	= ObjExcel.Cells(excel_row, 2).Value				'start time of the activity
+		TIME_TRACKING_ARRAY(activity_end_time, activity_count) 		= ObjExcel.Cells(excel_row, 3).Value				'the end time of the activity
+		If TIME_TRACKING_ARRAY(activity_end_time, activity_count) = "" Then			'If there is no end time we put in the current time so that math works
+			curr_hour = DatePart("h", time)
+			curr_min = DatePart("n", time)
+			ObjExcel.Cells(excel_row, 3).Value = TimeSerial(curr_hour, curr_min, 0)
+			ObjExcel.Cells(excel_row, 4).Value = "=TEXT([@[End Time]]-[@[Start Time]],"+chr(34)+"h:mm"+chr(34)+")"		'adding the calculation of elapsed time for a line that didn't have an end time
+			row_filled_with_end_time = row_filled_with_end_time & excel_row & " "	'saving this so we can remove it later if the file is left open
+			TIME_TRACKING_ARRAY(activity_end_time, activity_count) 		= ObjExcel.Cells(excel_row, 3).Value
+		End If
+		TIME_TRACKING_ARRAY(activity_time_spent, activity_count) 	= ObjExcel.Cells(excel_row, 4).Value				'the elapsed time in a format that can be read
+		If TIME_TRACKING_ARRAY(activity_time_spent, activity_count) <> "" Then
+			time_spent_hour = DatePart("h", TIME_TRACKING_ARRAY(activity_time_spent, activity_count))					'here we create a number of the time spend so we can add it together
+			time_spent_min = DatePart("n", TIME_TRACKING_ARRAY(activity_time_spent, activity_count))
+			time_spent_min = time_spent_min/60
+			TIME_TRACKING_ARRAY(activity_time_spent_val, activity_count) = time_spent_hour + time_spent_min				'saving the time spent value into the array
+		End If
+		TIME_TRACKING_ARRAY(activity_category, activity_count) 		= ObjExcel.Cells(excel_row, 5).Value				'the activity category
+		TIME_TRACKING_ARRAY(activity_meeting, activity_count) 		= ObjExcel.Cells(excel_row, 6).Value				'the Yes/No of if this activity is a meeting
+		TIME_TRACKING_ARRAY(activity_detail, activity_count) 		= ObjExcel.Cells(excel_row, 7).Value				'the detail of the activity
+		TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = trim(ObjExcel.Cells(excel_row, 8).Value)			'the Git Hub issue information
+		If TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) <> "" AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "&") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), ",") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "/") = 0 AND InStr(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "\") = 0 AND ucase(trim(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count))) <> "MULTIPLE" Then
+			' ObjExcel.Cells(excel_row, 8).Value = ""
+			TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "#", "")			''here we are reading the GH Issue information and making sure we are reading only a number and then making it a URL
+			TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = replace(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count), "Issue", "")
+			TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) = trim(TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count))
+			TIME_TRACKING_ARRAY(activity_gh_issue_url, activity_count) = "https://github.com/Hennepin-County/MAXIS-scripts/issues/" & TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count)
+			' ObjExcel.Cells(excel_row, 8).Value = "=HYPERLINK(" & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_url, activity_count) & chr(34) & ", " & chr(34) & TIME_TRACKING_ARRAY(activity_gh_issue_numb, activity_count) & chr(34) & ")"
+		End If
+		TIME_TRACKING_ARRAY(activity_project, activity_count) 		= trim(ObjExcel.Cells(excel_row, 9).Value)			'the project of the activity
+		TIME_TRACKING_ARRAY(activity_paid_yn, activity_count) 		= ObjExcel.Cells(excel_row, 10).Value				'if this is paid time
+
+		activity_count = activity_count + 1					'incrementing the array
+		excel_row = excel_row + 1							'go to the next excel row
+		next_row_date = ObjExcel.Cells(excel_row, 1).Value	'reading if there is more information on the next row.
+	Loop until next_row_date = ""
+End If
 
 'Setting some defaults for the dialog
 hours_in_time_pd = 0
@@ -615,8 +613,9 @@ Do
 		If view_excel = False Then PushButton 5, y_pos, 100, 15, "Show Excel", show_excel_button
 		If view_excel = True Then
 			PushButton 5, y_pos, 100, 15, "Hide Excel", hide_excel_button
-			CheckBox 110, y_pos + 5, 100, 10, "Leave Excel Open", leave_excel_open_checkbox
+			CheckBox 110, y_pos + 5, 75, 10, "Leave Excel Open", leave_excel_open_checkbox
 		End If
+		Text 200, y_pos + 5, 150, 10, "Active Time Period: " &  active_period_start & " - " & active_period_end
 		OkButton 405, y_pos, 50, 15
 		' CancelButton 305, y_pos, 50, 15
 	EndDialog
