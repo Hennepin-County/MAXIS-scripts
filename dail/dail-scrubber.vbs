@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/14/2022", "Added DAIL Scrubber support for additional ABAWD/WREG messages.", "Ilse Ferris, Hennepin County")
 Call changelog_update("05/23/2022", "Added DAIL Scrubber support for SVES covered quarters DAIL messages.", "Ilse Ferris, Hennepin County")
 Call changelog_update("04/17/2020", "DAILs for COLA - Review and Approve can now call Approved Programs or Closed Programs if the approval is not for Health Care.", "Casey Love, Hennepin County")
 Call changelog_update("06/13/2019", "Added support for the following COLA message: CLAIM NUMBER XXXXXXXXXX NOT MATCHED - REVIEW CLAIM NUMBER AND CORRECT UNEA", "Ilse Ferris, Hennepin County")
@@ -240,9 +241,12 @@ If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") or instr(full_message,
     call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
 END IF
 
-'FS Eligibility Ending for ABAWD
-EMReadScreen ABAWD_elig_end, 32, 6, 20
-IF ABAWD_elig_end = "SNAP ABAWD ELIGIBILITY HAS EXPIR" THEN
+'ABAWD Exemption DAIL Messages
+If instr(full_message, "FSET WORK STATUS SHOWS UNDER AGE 16 FOR MEMBER 16 OR OLDER") or _
+   instr(full_message, "SNAP ABAWD ELIGIBILITY HAS EXPIR") or _
+   instr(full_message, "SNAP MEMBERS AGE IS 50 OR OLDER-REVIEW FOR ABAWD EXEMPTION") or _
+   instr(full_message, "WREG PANEL INDICATES SNAP DISABILITY BUT DISA PANEL DOES NOT") or _
+   instr(full_message, "WREG PANEL INDICATES UNEMP INS BUT UNEA PANEL DOES NOT") then
 	match_found = TRUE
 	CALL run_from_GitHub(script_repository & "dail/abawd-fset-exemption-check.vbs")
 END IF
