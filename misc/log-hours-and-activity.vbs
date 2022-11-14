@@ -66,6 +66,8 @@ end_work_day_button  = 1004
 request_time_off_button = 1005
 insert_leave = 1006
 approve_leave_button = 1007
+i_approve_thee_button = 1008
+request_additional_detail_button = 1009
 
 task_category_list = "Select One..."
 task_category_list = task_category_list+chr(9)+"Admin"
@@ -78,7 +80,7 @@ task_category_list = task_category_list+chr(9)+"Other"
 task_category_list = task_category_list+chr(9)+"Personal Skills Development"
 task_category_list = task_category_list+chr(9)+"PTO"
 task_category_list = task_category_list+chr(9)+"Sick Time"
-task_category_list = task_category_list+chr(9)+"Teachhing"
+task_category_list = task_category_list+chr(9)+"Teaching"
 task_category_list = task_category_list+chr(9)+"Team Strategy Development"
 task_category_list = task_category_list+chr(9)+"Training"
 task_category_list = task_category_list+chr(9)+"Travel"
@@ -115,47 +117,43 @@ the_year = DatePart("yyyy", date)
 excel_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking"
 
 If user_ID_for_validation = "CALO001" Then
-	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking " & the_year & ".xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking " & the_year & ".xlsx"
+	t_drive_excel_file_path = excel_file_path & "\Casey Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Casey Time Tracking.xlsx"
 	bz_member = "Casey Love"
-	bz_leave_type = "Vacation"
+	leave_request_type = "Vacation"
 End If
 If user_ID_for_validation = "ILFE001" Then
-	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking " & the_year & ".xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking " & the_year & ".xlsx"
+	t_drive_excel_file_path = excel_file_path & "\Ilse Time Tracking.xlsx"
+	my_docs_excel_file_path = user_myDocs_folder & "Ilse Time Tracking.xlsx"
 	bz_member = "Ilse Ferris"
-	bz_leave_type = "PTO"
+	leave_request_type = "PTO"
 End If
-If user_ID_for_validation = "WFS395" Then
-	t_drive_excel_file_path = excel_file_path & "\MiKayla Time Tracking " & the_year & ".xlsx"
-	my_docs_excel_file_path = user_myDocs_folder & "MiKayla Time Tracking " & the_year & ".xlsx"
-	bz_member = "MiKayla Handley"
-	bz_leave_type = "Vacation"
-End If
-
-time_off_excel_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking\BZST Time Off.xlsx"
+If my_docs_excel_file_path = "" Then Call script_end_procedure("We have not set up your Time Trackking Worksheet yet!")
+If objFSO.FileExists(my_docs_excel_file_path) = False Then Call script_end_procedure("We have not set up your Time Trackking Worksheet yet!")
 
 view_excel = True		'this variable allows us to set
 Call excel_open(my_docs_excel_file_path, view_excel, False, ObjExcel, objWorkbook)		'opening the excel file
-ObjExcel.worksheets("Time Tracking List").Activate
+ObjExcel.worksheets("Active Time Tracking").Activate
 
-time_off_requestes_for_approval = False
-If user_ID_for_validation = "ILFE001" Then
-	view_excel = False		'this variable allows us to set
-	Call excel_open(time_off_excel_path, view_excel, False, ObjTimeOffExcel, objTimeOffWorkbook)		'opening the excel file
-	excel_row = 2
-	Do
-		If ObjTimeOffExcel.Cells(excel_row, 1).Value <> "" Then
-			Call read_boolean_from_excel(ObjTimeOffExcel.Cells(excel_row, 9).Value, case_approved_variable)
-			If case_approved_variable = False Then
-				time_off_requestes_for_approval = True
-				Exit Do
-			End If
-		End If
-		excel_row = excel_row + 1
-	Loop until ObjTimeOffExcel.Cells(excel_row, 1).Value = ""
-	ObjTimeOffExcel.Quit
-End If
+' 'COMMENTING THIS OUT AS WE ARE NOT USING IT. NOT DELETING AS WE MAY DECIDE TO BRING IT BACK.
+' time_off_excel_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking\BZST Time Off.xlsx"
+' time_off_requestes_for_approval = False
+' ' If user_ID_for_validation = "ILFE001" Then
+' 	view_excel = False		'this variable allows us to set
+' 	Call excel_open(time_off_excel_path, view_excel, False, ObjTimeOffExcel, objTimeOffWorkbook)		'opening the excel file
+' 	excel_row = 2
+' 	Do
+' 		If ObjTimeOffExcel.Cells(excel_row, 1).Value <> "" Then
+' 			Call read_boolean_from_excel(ObjTimeOffExcel.Cells(excel_row, 9).Value, case_approved_variable)
+' 			If case_approved_variable = False Then
+' 				time_off_requestes_for_approval = True
+' 				Exit Do
+' 			End If
+' 		End If
+' 		excel_row = excel_row + 1
+' 	Loop until ObjTimeOffExcel.Cells(excel_row, 1).Value = ""
+' 	ObjTimeOffExcel.Quit
+' ' End If
 
 on_task = False						'default the booleans
 current_task_from_today = False
@@ -303,6 +301,7 @@ If on_task = True and current_task_from_today = True Then						'If we are on a t
 	'Dialog with information and buttons only to select the next steps
 	Do
 		err_msg = ""
+		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 361, 150, "Log Activity"
 		  GroupBox 10, 25, 345, 100, "Activity in Progress"
 		  Text 25, 45, 85, 10, "Date: " & row_date
@@ -317,9 +316,9 @@ If on_task = True and current_task_from_today = True Then						'If we are on a t
 		    PushButton 135, 5, 65, 15, "Switch Activity", switch_activity_button
 		    PushButton 205, 5, 60, 15, "Start Break", start_break_button
 		    PushButton 270, 5, 85, 15, "End Work Day", end_work_day_button
-			PushButton 10, 130, 70, 15, "Request Time Off", request_time_off_button
+			' PushButton 10, 130, 70, 15, "Request Time Off", request_time_off_button													' 'COMMENTING THIS OUT AS WE ARE NOT USING IT. NOT DELETING AS WE MAY DECIDE TO BRING IT BACK.
 			' PushButton 85, 130, 60, 15, "Insert Leave", insert_leave
-			If time_off_requestes_for_approval = True Then PushButton 150, 130, 60, 15, "Approve Leave", approve_leave_button
+			' If time_off_requestes_for_approval = True Then PushButton 150, 130, 60, 15, "Approve Leave", approve_leave_button			' 'COMMENTING THIS OUT AS WE ARE NOT USING IT. NOT DELETING AS WE MAY DECIDE TO BRING IT BACK.
 		    OkButton 255, 130, 50, 15
 		    CancelButton 305, 130, 50, 15
 		EndDialog
@@ -332,65 +331,365 @@ If on_task = True and current_task_from_today = True Then						'If we are on a t
 			run "C:\Program Files\Google\Chrome\Application\chrome.exe https://github.com/Hennepin-County/MAXIS-scripts/issues/" & current_gh_issue
 			err_msg = "LOOP"
 		End If
+
+		' 'COMMENTING THIS OUT AS WE ARE NOT USING IT. NOT DELETING AS WE MAY DECIDE TO BRING IT BACK.
+		' If ButtonPressed = approve_leave_button Then
+		' 	err_msg = "LOOP"
+		' 	view_excel = True 		'this variable allows us to set
+		' 	Call excel_open(time_off_excel_path, view_excel, False, ObjTimeOffExcel, objTimeOffWorkbook)		'opening the excel file
+		' 	excel_row = 2
+		' 	Do
+		' 		If ObjTimeOffExcel.Cells(excel_row, 1).Value <> "" Then
+		' 			Call read_boolean_from_excel(ObjTimeOffExcel.Cells(excel_row, 9).Value, case_approved_variable)
+		' 			If case_approved_variable = False Then
+		'
+		' 				bz_member = ObjTimeOffExcel.Cells(excel_row, 1).Value
+		' 				leave_request_start_date = ObjTimeOffExcel.Cells(excel_row, 2).Value
+		' 				leave_request_start_time = ObjTimeOffExcel.Cells(excel_row, 3).Value & ""
+		' 				leave_request_end_date = ObjTimeOffExcel.Cells(excel_row, 4).Value
+		' 				leave_request_end_time = ObjTimeOffExcel.Cells(excel_row, 5).Value & ""
+		' 				leave_request_days_off = ObjTimeOffExcel.Cells(excel_row, 6).Value & ""
+		' 				' ObjTimeOffExcel.Cells(excel_row, 7).Value =
+		' 				leave_request_type = ObjTimeOffExcel.Cells(excel_row, 8).Value
+		' 				leave_request_notes = ObjTimeOffExcel.Cells(excel_row, 10).Value & ""
+		'
+		' 				Dialog1 = ""
+		' 				BeginDialog Dialog1, 0, 0, 381, 170, "Time Off Request"
+		' 				  EditBox 5, 125, 370, 15, email_comments
+		' 				  ButtonGroup ButtonPressed
+		' 				    PushButton 305, 150, 70, 15, "I Approve Thee", i_approve_thee_button
+		' 				    PushButton 5, 150, 95, 15, "Request More Info", request_additional_detail_button
+		' 				  GroupBox 5, 5, 370, 105, "Leave Request Information"
+		' 				  Text 15, 20, 60, 10, "Request Person:"
+		' 				  Text 75, 20, 60, 10, bz_member
+		' 				  Text 30, 30, 40, 10, "Leave Type:"
+		' 				  Text 75, 30, 60, 10, leave_request_type
+		' 				  Text 155, 30, 75, 10, "Total WORK Days off:"
+		' 				  Text 235, 30, 25, 10, leave_request_days_off
+		' 				  Text 15, 45, 40, 10, "Start Date:"
+		' 				  Text 55, 45, 50, 10, leave_request_start_date
+		' 				  Text 25, 55, 40, 10, "Start Time:"
+		' 				  Text 65, 55, 50, 10, leave_request_start_time
+		' 				  Text 145, 45, 35, 10, "End Date:"
+		' 				  Text 180, 45, 50, 10, leave_request_end_date
+		' 				  Text 155, 55, 35, 10, "End Time:"
+		' 				  Text 195, 55, 50, 10, leave_request_end_time
+		' 				  Text 15, 70, 30, 10, "Notes:"
+		' 				  Text 15, 80, 355, 25, leave_request_notes
+		' 				  Text 5, 115, 80, 10, "Comments for the Email"
+		' 				EndDialog
+		'
+		' 				dialog Dialog1
+		'
+		' 				If ButtonPressed = i_approve_thee_button Then
+		'
+		' 					'Creating a document of the request
+		' 					Set objWord = CreateObject("Word.Application")
+		'
+		' 					objWord.Caption = "Leaave Request - " & bz_member & " - " & leave_request_start_date & " thru " & leave_request_end_date
+		'
+		' 					objWord.Visible = True														'Let the worker see the document
+		'
+		' 					Set objDoc = objWord.Documents.Add()										'Start a new document
+		' 					Set objSelection = objWord.Selection										'This is kind of the 'inside' of the document
+		'
+		' 					objSelection.Font.Name = "Arial"											'Setting the font before typing
+		' 					objSelection.Font.Size = "20"
+		' 					objSelection.Font.Bold = TRUE
+		' 					objSelection.TypeText "Leave Request"
+		' 					objSelection.TypeParagraph()
+		' 					objSelection.Font.Size = "14"
+		' 					objSelection.Font.Bold = FALSE
+		'
+		' 					objSelection.Font.ColorIndex = 2
+		' 					objSelection.TypeText "Check One:"
+		' 					objSelection.Font.ColorIndex = 1
+		' 					objSelection.TypeParagraph()
+		'
+		' 					If leave_request_type = "Sick" Then objSelection.TypeText ChrW(9746)
+		' 					If leave_request_type <> "Sick" Then objSelection.TypeText ChrW(9744)
+		' 					objSelection.TypeText " Sick"
+		' 					objSelection.TypeText Chr(9)
+		'
+		' 					If leave_request_type = "Vacation" Then objSelection.TypeText ChrW(9746)
+		' 					If leave_request_type <> "Vacation" Then objSelection.TypeText ChrW(9744)
+		' 					objSelection.TypeText " Vacation"
+		' 					objSelection.TypeText Chr(9)
+		' 					objSelection.TypeText Chr(9)
+		'
+		' 					objSelection.TypeText ChrW(9744)
+		' 					objSelection.TypeText " * Conference"
+		' 					objSelection.TypeText Chr(9)
+		'
+		' 					If leave_request_type = "Unpaid" Then objSelection.TypeText ChrW(9746)
+		' 					If leave_request_type <> "Unpaid" Then objSelection.TypeText ChrW(9744)
+		' 					objSelection.TypeText " SLWOP"
+		' 					objSelection.TypeText Chr(9)
+		'
+		' 					If leave_request_type = "PTO" OR leave_request_type = "FMLA"  OR leave_request_type = "Holiday" Then objSelection.TypeText ChrW(9746)
+		' 					If leave_request_type <> "PTO" AND leave_request_type <> "FMLA"  AND leave_request_type <> "Holiday" Then objSelection.TypeText ChrW(9744)
+		' 					objSelection.TypeText " * Other"
+		' 					objSelection.TypeParagraph()
+		'
+		' 					objSelection.Font.ColorIndex = 2
+		' 					objSelection.TypeText "1 day or less - Date: "
+		' 					objSelection.Font.ColorIndex = 0
+		' 					If DateDiff("d", leave_request_start_date, leave_request_end_date) = 0 Then
+		' 						leave_request_start_date = leave_request_start_date & ""
+		' 						objSelection.TypeText leave_request_start_date
+		' 					Else
+		' 						objSelection.TypeText Chr(9)
+		' 						objSelection.TypeText Chr(9)
+		' 					End If
+		' 					objSelection.TypeText Chr(9)
+		' 					objSelection.Font.ColorIndex = 2
+		' 					objSelection.TypeText "Time: From "
+		' 					objSelection.Font.ColorIndex = 0
+		' 					' MsgBox leave_request_start_time
+		' 					objSelection.TypeText leave_request_start_time
+		' 					If leave_request_start_time = "" Then
+		' 						objSelection.TypeText Chr(9)
+		' 						objSelection.TypeText Chr(9)
+		' 					End If
+		' 					objSelection.Font.ColorIndex = 2
+		' 					objSelection.TypeText "to "
+		' 					objSelection.Font.ColorIndex = 0
+		' 					objSelection.TypeText leave_request_end_time
+		' 					If leave_request_end_time = "" Then
+		' 						objSelection.TypeText Chr(9)
+		' 						objSelection.TypeText Chr(9)
+		' 					End If
+		' 					objSelection.TypeParagraph()
+		'
+		' 					objSelection.Font.ColorIndex = 2
+		' 					objSelection.TypeText "If more than 1 Day - Date: "
+		' 					objSelection.Font.ColorIndex = 0
+		' 					If DateDiff("d", leave_request_start_date, leave_request_end_date) <> 0 Then
+		' 						leave_request_start_date = leave_request_start_date & ""
+		' 						leave_request_end_date = leave_request_end_date & ""
+		' 						objSelection.TypeText leave_request_start_date
+		' 						objSelection.TypeText Chr(9)
+		' 						objSelection.Font.ColorIndex = 2
+		' 						objSelection.TypeText "Through "
+		' 						objSelection.Font.ColorIndex = 0
+		' 						objSelection.TypeText leave_request_end_date
+		' 					End If
+		' 					objSelection.TypeParagraph()
+		'
+		' 					objSelection.Font.ColorIndex = 2
+		' 					objSelection.TypeText "Total number of work days off ( "
+		' 					objSelection.Font.ColorIndex = 0
+		' 					objSelection.TypeText leave_request_days_off
+		' 					objSelection.Font.ColorIndex = 2
+		' 					objSelection.TypeText " ) "
+		' 					objSelection.Font.ColorIndex = 0
+		' 					objSelection.TypeParagraph()
+		'
+		' 					objSelection.Font.ColorIndex = 2
+		' 					objSelection.TypeText "* Explain Conference or Other"
+		' 					objSelection.Font.ColorIndex = 0
+		' 					objSelection.TypeParagraph()
+		' 					objSelection.TypeParagraph()
+		' 					objSelection.TypeParagraph()
+		'
+		' 					objSelection.Font.Bold = TRUE
+		' 					objSelection.Font.Underline = 1
+		' 					objSelection.TypeText "SUPERVISOR WILL RESPOND BY EDITING SENDER'S E-MAIL"
+		' 					objSelection.Font.Underline = 0
+		' 					objSelection.TypeParagraph()
+		' 					objSelection.TypeText ChrW(9746)
+		' 					objSelection.TypeText Chr(9)
+		' 					objSelection.TypeText "Approved (Approval is conditional upon having sufficient leave hours at the time the leave is taken.)"
+		' 					objSelection.TypeParagraph()
+		' 					objSelection.TypeText ChrW(9744)
+		' 					objSelection.TypeText Chr(9)
+		' 					objSelection.TypeText "Denied"
+		' 					objSelection.Font.Bold = False
+		' 					objSelection.TypeParagraph()
+		'
+		' 					objSelection.Font.ColorIndex = 2
+		' 					objSelection.TypeText "Reason for Denial:"
+		' 					objSelection.TypeParagraph()
+		' 					objSelection.TypeParagraph()
+		'
+		' 					objSelection.TypeText "This request fits the Family Medical Leave Act eligibility criteria."
+		' 					objSelection.TypeParagraph()
+		' 					objSelection.Font.ColorIndex = 0
+		' 					objSelection.Font.Bold = TRUE
+		' 					If leave_request_type = "FMLA" Then objSelection.TypeText ChrW(9673)
+		' 					If leave_request_type <> "FMLA" Then objSelection.TypeText ChrW(9678)
+		' 					objSelection.TypeText " Yes"
+		' 					objSelection.TypeText Chr(9)
+		' 					objSelection.TypeText Chr(9)
+		' 					objSelection.TypeText ChrW(9678)
+		' 					objSelection.TypeText " No"
+		' 					objSelection.Font.Bold = False
+		'
+		' 					objSelection.TypeParagraph()
+		'
+		' 					MsgBox "PAUSE 1"
+		'
+		'
+		' 					'We set the file path and name based on case number and date. We can add other criteria if important.
+		' 					'This MUST have the 'pdf' file extension to work
+		' 					start_date_for_doc_file = replace(leave_request_start_date, "/", "-")
+		' 					end_date_forr_doc_file = replace(leave_request_end_date, "/", "-")
+		' 					pdf_doc_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\BZ scripts project\Time Tracking\Leave Time Documents\" & "Leaave Request - " & bz_member & " - " & start_date_for_doc_file & " thru " & end_date_forr_doc_file & ".pdf"
+		'
+		' 					'Now we save the document.
+		' 					'MS Word allows us to save directly as a PDF instead of a DOC.
+		' 					'the file path must be PDF
+		' 					'The number '17' is a Word Ennumeration that defines this should be saved as a PDF.
+		' 					objDoc.SaveAs pdf_doc_path, 17
+		'
+		' 					If objFSO.FileExists(pdf_doc_path) = TRUE Then
+		' 						'This allows us to close without any changes to the Word Document. Since we have the PDF we do not need the Word Doc
+		' 						objDoc.Close wdDoNotSaveChanges
+		' 						objWord.Quit						'close Word Application instance we opened. (any other word instances will remain)
+		' 					End If
+		'
+		' 					ObjTimeOffExcel.Cells(excel_row, 9).Value = True
+		'
+		' 					objTimeOffWorkbook.Save
+		'
+		' 					' Call create_outlook_appointment(appt_date, appt_start_time, appt_end_time, appt_subject, appt_body, appt_location, appt_reminder, reminder_in_minutes, appt_category)
+		'
+		' 					time_specific = True
+		' 					If leave_request_start_time = "" OR leave_request_end_time = "" Then time_specific = False
+		'
+		' 					'Assigning needed numbers as variables for readability
+		' 					olAppointmentItem = 1
+		' 					olRecursDaily = 0
+		'
+		' 					'Creating an Outlook object item
+		' 					Set objOutlook = CreateObject("Outlook.Application")
+		' 					Set objAppointment = objOutlook.CreateItem(olAppointmentItem)
+		'
+		' 					'Assigning individual appointment options
+		' 					If time_specific = True Then
+		' 						objAppointment.Start = leave_request_start_date & " " & leave_request_start_time	'Start date and time are carried over from parameters
+		' 						objAppointment.End = leave_request_end_date & " " & leave_request_end_time			'End date and time are carried over from parameters
+		' 						objAppointment.AllDayEvent = False 													'Defaulting to false for this. Perhaps someday this can be true. Who knows.
+		' 					Else
+		' 						objAppointment.Start = leave_request_start_date & " 7:00"
+		' 						objAppointment.End = leave_request_end_date & " 17:00"
+		' 						objAppointment.AllDayEvent = True 													'Defaulting to false for this. Perhaps someday this can be true. Who knows.
+		' 					End If
+		'
+		' 					objAppointment.BusyStatus = 0 'Free
+		'
+		' 					' olBusy	2	The user is busy.
+		' 					' olFree	0	The user is available.
+		' 					' olOutOfOffice	3	The user is out of office.
+		' 					' olTentative	1	The user has a tentative appointment scheduled.
+		' 					' olWorkingElsewhere	4	The user is working in a location away from the office.
+		'
+		' 					objAppointment.Sensitivity = 0	'Normal
+		'
+		' 					' olConfidential	3	Confidential
+		' 					' olNormal	0	Normal sensitivity
+		' 					' olPersonal	1	Personal
+		' 					' olPrivate	2	Private
+		'
+		' 					objAppointment.Categories = "Staff Leave"
+		'
+		' 					If time_specific = True Then objAppointment.Subject = bz_member & " Out"
+		' 					If time_specific = False Then objAppointment.Subject = bz_member & " OFD"							'Defining the subject from parameters
+		' 					' objAppointment.Body = appt_body									'Defining the body from parameters
+		' 					' objAppointment.Location = appt_location							'Defining the location from parameters
+		' 					objAppointment.ReminderSet = False
+		'
+		' 					' objAppointment.Categories = appt_category						'Defines a category
+		' 					objAppointment.Save												'Saves the appointment
+		'
+		' 					MsgBox "PAUSE 2"
+		' 				End If
+		'
+		' 				If ButtonPressed = request_additional_detail_button Then
+		'
+		' 				End If
+		'
+		' 			End If
+		' 		End If
+		' 		excel_row = excel_row + 1
+		' 	Loop until ObjTimeOffExcel.Cells(excel_row, 1).Value = ""
+		' 	ObjTimeOffExcel.Quit
+		' End If
 	Loop until err_msg = ""
 End If
 
-If ButtonPressed = request_time_off_button Then
-	ObjExcel.Quit
-	Do
-		err_msg = ""
-		BeginDialog Dialog1, 0, 0, 266, 115, "Time Off Request"
-		  EditBox 90, 20, 50, 15, leave_request_start_date
-		  EditBox 195, 20, 50, 15, leave_request_start_time
-		  EditBox 90, 55, 50, 15, leave_request_end_date
-		  EditBox 195, 55, 50, 15, leave_request_end_time
-		  EditBox 90, 90, 25, 15, leave_request_days_off
-		  ButtonGroup ButtonPressed
-		    CancelButton 155, 90, 50, 15
-		    OkButton 205, 90, 50, 15
-		  GroupBox 5, 5, 255, 105, "Enter details about the time off you are requesting"
-		  Text 50, 25, 40, 10, "Start Date:"
-		  Text 155, 25, 40, 10, "Start Time:"
-		  Text 120, 40, 130, 10, "(Date is required but time can be blank)"
-		  Text 50, 60, 40, 10, "End Date:"
-		  Text 155, 60, 40, 10, "End Time:"
-		  Text 120, 75, 130, 10, "(Date is required but time can be blank)"
-		  Text 15, 95, 75, 10, "Total WORK Days off:"
-		EndDialog
 
-		dialog Dialog1
-		cancel_without_confirmation
 
-	Loop until err_msg = ""
+	'Display the Leave information
 
-	view_excel = False		'this variable allows us to set
-	Call excel_open(time_off_excel_path, view_excel, False, ObjTimeOffExcel, objTimeOffWorkbook)		'opening the excel file
+	'Document the approval
+	'Update the Excel
+	'Create a PDF of the leave
 
-	excel_row = 2
-	Do
-		If ObjTimeOffExcel.Cells(excel_row, 1).Value = "" Then
-			ObjTimeOffExcel.Cells(excel_row, 1).Value = bz_member
-			ObjTimeOffExcel.Cells(excel_row, 2).Value = leave_request_start_date
-			ObjTimeOffExcel.Cells(excel_row, 3).Value = leave_request_start_time
-			ObjTimeOffExcel.Cells(excel_row, 4).Value = leave_request_end_date
-			ObjTimeOffExcel.Cells(excel_row, 5).Value = leave_request_end_time
-			ObjTimeOffExcel.Cells(excel_row, 6).Value = leave_request_days_off
-			' ObjTimeOffExcel.Cells(excel_row, 7).Value =
-			ObjTimeOffExcel.Cells(excel_row, 8).Value = bz_leave_type
-			ObjTimeOffExcel.Cells(excel_row, 9).Value = False
-			Exit Do
-		End If
-		excel_row = excel_row + 1
-	Loop
-	objTimeOffWorkbook.Save
-	ObjTimeOffExcel.Quit
-	end_msg = "Your request for time off has been added to the list for approval:" & vbCr & vbCr & "Start Date: " & leave_request_start_date & vbCr &_
-			  "Start Time: " & leave_request_start_time & vbCr &_
-			  "End Date: " & leave_request_end_date & vbCr &_
-			  "End Time: " & leave_request_end_time & vbCr & vbCr &_
-			  "Number of days off: " & leave_request_days_off
-	Call script_end_procedure(end_msg)
-End If
+	'Create a calendar obect
+
+' 'COMMENTING THIS OUT AS WE ARE NOT USING IT. NOT DELETING AS WE MAY DECIDE TO BRING IT BACK.
+' If ButtonPressed = request_time_off_button Then
+' 	ObjExcel.Quit
+' 	Do
+' 		err_msg = ""
+' 		BeginDialog Dialog1, 0, 0, 256, 165, "Time Off Request"
+' 		  EditBox 90, 20, 50, 15, leave_request_start_date
+' 		  EditBox 195, 20, 50, 15, leave_request_start_time
+' 		  EditBox 90, 55, 50, 15, leave_request_end_date
+' 		  EditBox 195, 55, 50, 15, leave_request_end_time
+' 		  DropListBox 60, 90, 60, 45, "Vacation"+chr(9)+"PTO"+chr(9)+"Holiday"+chr(9)+"Sick"+chr(9)+"FMLA"+chr(9)+"Unpaid", leave_request_type
+' 		  EditBox 220, 90, 25, 15, leave_request_days_off
+' 		  EditBox 15, 120, 230, 15, leave_request_notes
+' 		  ButtonGroup ButtonPressed
+' 		    CancelButton 145, 140, 50, 15
+' 		    OkButton 195, 140, 50, 15
+' 		  GroupBox 5, 5, 245, 155, "Enter details about the time off you are requesting"
+' 		  Text 50, 25, 40, 10, "Start Date:"
+' 		  Text 155, 25, 40, 10, "Start Time:"
+' 		  Text 120, 40, 130, 10, "(Date is required but time can be blank)"
+' 		  Text 50, 60, 40, 10, "End Date:"
+' 		  Text 155, 60, 40, 10, "End Time:"
+' 		  Text 120, 75, 130, 10, "(Date is required but time can be blank)"
+' 		  Text 15, 95, 40, 10, "Leave Type:"
+' 		  Text 145, 95, 75, 10, "Total WORK Days off:"
+' 		  Text 15, 110, 30, 10, "Notes:"
+' 		EndDialog
+'
+' 		dialog Dialog1
+' 		cancel_without_confirmation
+'
+' 	Loop until err_msg = ""
+'
+' 	view_excel = False		'this variable allows us to set
+' 	Call excel_open(time_off_excel_path, view_excel, False, ObjTimeOffExcel, objTimeOffWorkbook)		'opening the excel file
+'
+' 	excel_row = 2
+' 	Do
+' 		If ObjTimeOffExcel.Cells(excel_row, 1).Value = "" Then
+' 			ObjTimeOffExcel.Cells(excel_row, 1).Value = bz_member
+' 			ObjTimeOffExcel.Cells(excel_row, 2).Value = leave_request_start_date
+' 			ObjTimeOffExcel.Cells(excel_row, 3).Value = leave_request_start_time
+' 			ObjTimeOffExcel.Cells(excel_row, 4).Value = leave_request_end_date
+' 			ObjTimeOffExcel.Cells(excel_row, 5).Value = leave_request_end_time
+' 			ObjTimeOffExcel.Cells(excel_row, 6).Value = leave_request_days_off
+' 			' ObjTimeOffExcel.Cells(excel_row, 7).Value =
+' 			ObjTimeOffExcel.Cells(excel_row, 8).Value = leave_request_type
+' 			ObjTimeOffExcel.Cells(excel_row, 9).Value = False
+' 			ObjTimeOffExcel.Cells(excel_row, 10).Value = leave_request_notes
+' 			Exit Do
+' 		End If
+' 		excel_row = excel_row + 1
+' 	Loop
+' 	objTimeOffWorkbook.Save
+' 	ObjTimeOffExcel.Quit
+' 	end_msg = "Your request for time off has been added to the list for approval:" & vbCr & vbCr & "Start Date: " & leave_request_start_date & vbCr &_
+' 			  "Start Time: " & leave_request_start_time & vbCr &_
+' 			  "End Date: " & leave_request_end_date & vbCr &_
+' 			  "End Time: " & leave_request_end_time & vbCr & vbCr &_
+' 			  "Number of days off: " & leave_request_days_off
+' 	Call script_end_procedure(end_msg)
+' End If
 
 If on_task = False Then					'If we are not currently on a task, this will start a new activity only
 	next_date = date & ""				'defaulting the end time and date
@@ -450,9 +749,10 @@ If on_task = False Then					'If we are not currently on a task, this will start 
 	End If
 End If
 
-If ButtonPressed = insert_leave Then
-
-End If
+' 'COMMENTING THIS OUT AS WE ARE NOT USING IT. NOT DELETING AS WE MAY DECIDE TO BRING IT BACK.
+' If ButtonPressed = insert_leave Then
+'
+' End If
 
 'If the on task option selected was to take a new action - this will start that
 If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button or ButtonPressed = end_work_day_button Then
@@ -551,6 +851,7 @@ If ButtonPressed = switch_activity_button or ButtonPressed = start_break_button 
 		End If
 		ObjExcel.Cells(next_blank_row, 1).Value = date							'entering the date and 'Break' category in the next line
 		ObjExcel.Cells(next_blank_row, 5).Value = "Break"						'the start time does not need to be entered because it fills in from the end time on the previous line
+		ObjExcel.Cells(next_blank_row, 8).Value = ""							'blanking out of the GH Issue Line'
 	End If
 
 	If ButtonPressed = switch_activity_button Then								'ending one activity and starting another.'
