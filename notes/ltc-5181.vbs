@@ -173,6 +173,19 @@ Do
                 If isdate(date_5181) = False or trim(date_5181) = "" then err_msg = err_msg & vbcr & "* Enter a valid 5181 date."
                 If isdate(date_received) = False or trim(date_received) = "" then err_msg = err_msg & vbcr & "* Enter the date the 5181 was received."
                 IF trim(lead_agency) = "" then err_msg = err_msg & vbcr & "* Enter the Lead Agency Name."		'Requires the user to select a waiver
+                'case manager info
+                If trim(casemgr_ADDR_line_01) <> "" then
+                    If trim(casemgr_city) = "" then err_msg = err_msg & vBcr & "* Update the case manager's city."
+                    If trim(casemgr_state) = "" then err_msg = err_msg & vBcr & "* Update the case manager's state."
+                    If trim(casemgr_zip_code) = "" then err_msg = err_msg & vBcr & "* Update the case manager's zip code."
+                End if
+                'phone number
+                If trim(phone_area_code) <> "" or trim(phone_prefix) <> "" or trim(phone_second_four) <> "" or trim(phone_extension) <> "" then
+                    If trim(phone_area_code) = "" or len(phone_area_code) <> 3 then err_msg = err_msg & vBcr & "* Enter the case's managers 3-digit area code."
+                    If trim(phone_prefix) = "" or len(phone_prefix) <> 3 then err_msg = err_msg & vBcr & "* Enter the case's managers 3-digit phone number prefix code."
+                    If trim(phone_second_four) = "" or len(phone_second_four) <> 4 then err_msg = err_msg & vBcr & "* Enter the case's managers 4-digit phone number line code."
+                End if
+                'facility info
                 IF update_addr_checkbox = 1 then
                     If isdate(date_of_admission) = False then err_msg = err_msg & vBcr & "* Enter the date of admission."
                     If trim(facility_address_line_01) = "" then err_msg = err_msg & vBcr & "* Update the faci address line 1."
@@ -460,13 +473,11 @@ If update_SWKR_info_checkbox = 1 THEN
         EMWriteScreen lead_agency_assessor, 6, 32
     End if
 
+    'updating all the ADDR info together
     If trim(casemgr_ADDR_line_01) <> "" then
         call clear_line_of_text(8, 32)
-        EMWriteScreen casemgr_ADDR_line_01, 8, 32
-    End if
-
-    If trim(casemgr_ADDR_line_02) <> "" then
         call clear_line_of_text(9, 32)
+        EMWriteScreen casemgr_ADDR_line_01, 8, 32
         EMWriteScreen casemgr_ADDR_line_02, 9, 32
     End if
 
@@ -485,23 +496,15 @@ If update_SWKR_info_checkbox = 1 THEN
         EMWriteScreen casemgr_zip_code, 10, 63
     End if
 
+    'Updating all the phone number info together
     If trim(phone_area_code) <> "" then
         call clear_line_of_text(12, 34)
-        EMWriteScreen phone_area_code, 12, 34
-    End if
-
-    If trim(phone_prefix) <> "" then
         call clear_line_of_text(12, 40)
-        EMWriteScreen phone_prefix, 12, 40
-    End if
-
-    If trim(phone_second_four) <> "" then
         call clear_line_of_text(12, 44)
-        EMWriteScreen phone_second_four, 12, 44
-    End if
-
-    If trim(phone_extension) <> "" then
         call clear_line_of_text(12, 54)
+        EMWriteScreen phone_area_code, 12, 34
+        EMWriteScreen phone_prefix, 12, 40
+        EMWriteScreen phone_second_four, 12, 44
         EMWriteScreen phone_extension, 12, 54
     End if
 
@@ -543,7 +546,7 @@ Call write_bullet_and_variable_in_case_note ("Date received", date_received)
 Call write_bullet_and_variable_in_case_note ("Lead Agency", lead_agency)
 Call write_bullet_and_variable_in_case_note ("Lead Agency Assessor/Case Manager",lead_agency_assessor)
 Call write_bullet_and_variable_in_case_note ("Address", casemgr_ADDR_line_01 & " " & casemgr_ADDR_line_02 & " " & casemgr_city & " " & casemgr_state & " " & casemgr_zip_code)
-Call write_bullet_and_variable_in_case_note ("Phone", phone_area_code & " " & phone_prefix & " " & phone_second_four & " " & phone_extension)
+Call write_bullet_and_variable_in_case_note ("Phone", phone_area_code & "-" & phone_prefix & "-" & phone_second_four & " " & phone_extension)
 Call write_bullet_and_variable_in_case_note ("Fax", fax)
 'STATUS
 Call write_bullet_and_variable_in_case_note ("Name of Facility", name_of_facility)
