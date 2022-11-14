@@ -309,10 +309,10 @@ script_end_procedure_with_error_report("You are not on a supported DAIL message.
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------05/23/2022
 '--comment Code-----------------------------------------------------------------05/23/2022
-'--Update Changelog for release/update------------------------------------------05/23/2022------------------N/A
+'--Update Changelog for release/update------------------------------------------11/14/2022
 '--Remove testing message boxes-------------------------------------------------05/23/2022
 '--Remove testing code/unnecessary code-----------------------------------------05/23/2022
-'--Review/update SharePoint instructions----------------------------------------05/23/2022
+'--Review/update SharePoint instructions----------------------------------------11/14/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/23/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/23/2022
 '--Complete misc. documentation (if applicable)---------------------------------05/23/2022
