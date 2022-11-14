@@ -10930,8 +10930,8 @@ If snap_case = True OR pend_snap_on_case = "Yes" OR mfip_status <> "INACTIVE" Th
 																	   "  - A change in the source of income, including starting or stopping a " & vbCr &_
 																	   "    job, if the change in employment is accompanied by a change in " & vbCr &_
 																	   "    income." & vbCr &_
-																	   "  - A change in more than $100 per month in gross earned income." & vbCr &_
-																	   "  - A change of more than $100 in the amount of unearned income, " & vbCr &_
+																	   "  - A change in more than $125 per month in gross earned income." & vbCr &_
+																	   "  - A change of more than $125 in the amount of unearned income, " & vbCr &_
 																	   "    EXCEPT changes related to public assistance." & vbCr &_
 																	   "  - A change in unit composition." & vbCr &_
 																	   "  - A change in residence." & vbCr &_
