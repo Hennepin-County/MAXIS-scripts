@@ -259,46 +259,109 @@ If EGA_screening_check = 1 then
 
     'determining if client is potentially elig for EMER or not'
 	If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_availble = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
-        screening_determination = "potentially eligible for EGA."
+        ega_results_dlg_len = 220
 	Else
         screening_determination = "NOT eligible for EGA for the following reasons:" & vbcr
+        ega_results_dlg_len = 220
         'if client is not elig, reason(s) for not being elig will be listed in the msgbox
-        If crisis = "no crisis given" then screening_determination = screening_determination & vbNewLine & "* No crisis meeting program requirements."
-        If abs(seventy_percent_income) < abs(shelter_costs) then screening_determination = screening_determination & vbNewLine & "* The HH's shelter costs are more than 70% of the HH's net income."
-	    IF meets_residency = "No" then screening_determination = screening_determination & vbNewLine & "* No one in the household has met 30 day residency requirements."
-        If abs(net_income) > abs(monthly_standard) then screening_determination = screening_determination & vbNewLine & "* Net income exceeds program guidelines."
-        IF net_income = "0" then screening_determination = screening_determination & vbNewLine & "* Household does not have current/ongoing income."
-        If EMER_last_used_dates <> "n/a" then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
+        If crisis = "no crisis given" then ega_results_dlg_len = ega_results_dlg_len + 10
+        If abs(seventy_percent_income) < abs(shelter_costs) then ega_results_dlg_len = ega_results_dlg_len + 10'"* The HH's shelter costs are more than 70% of the HH's net income."
+	    IF meets_residency = "No" then ega_results_dlg_len = ega_results_dlg_len + 10'"* No one in the household has met 30 day residency requirements."
+        If abs(net_income) > abs(monthly_standard) then ega_results_dlg_len = ega_results_dlg_len + 10'"* Net income exceeds program guidelines."
+        IF net_income = "0" then ega_results_dlg_len = ega_results_dlg_len + 10'"* Household does not have current/ongoing income."
+        If EMER_last_used_dates <> "n/a" then ega_results_dlg_len = ega_results_dlg_len + 10'"* Emergency funds were used within the last year from the eligibility period."
 		'If EMER_available_date = > Cdate then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
     End if
 
-    'Msgbox with screening results. Will give the user the option to cancel the script, case note the results, or use the EMER notes script
-    Screening_options = MsgBox ("Based on the information provided, this HH appears to " & screening_determination & vbNewLine & vbNewLine &"The last date emergency funds were used was: " & EMER_last_used_dates & "." & _
-    vbNewLine & "Emergency programs are available to the HH effective: " & EMER_available_date & "." & vbNewLine & vbNewLine & "Would you like to start the NOTES - EMERGENCY script?" , vbYesNoCancel, "Screening results dialog")
+    ega_screening_note_made = False
+    Do
+        Dialog1 = ""
+        BeginDialog Dialog1, 0, 0, 301, ega_results_dlg_len, "EGA Screening Results"
+          ButtonGroup ButtonPressed
+            If ega_screening_note_made = False Then
+                PushButton 185, ega_results_dlg_len-60, 110, 15, "Enter Screening in CASE/NOTE", enter_screening_note_btn
+                PushButton 80, ega_results_dlg_len-40, 215, 15, "Do NOT CASE/NOTE Screening - Continue to Emergency Script", continue_to_emer_script_btn
+                PushButton 140, ega_results_dlg_len-20, 155, 15, "Do NOT CASE/NOTE Screening - End Script", end_script_btn
+            End If
+            If ega_screening_note_made = True Then
+                ' PushButton 185, ega_results_dlg_len-60, 110, 15, "Enter Screening in CASE/NOTE", enter_screening_note_btn
+                PushButton 80, ega_results_dlg_len-40, 215, 15, "CASE/NOTE Created - Continue to Emergency Script", continue_to_emer_script_btn
+                PushButton 140, ega_results_dlg_len-20, 155, 15, "CASE/NOTE Created - End Script", end_script_btn
+            End If
+          GroupBox 10, 10, 285, 110, "EGA Screening Details"
+          Text 20, 25, 270, 10, "Crisis: " & crisis
+          Text 30, 40, 125, 10, "Shelter Expense: $ " & shelter_costs
+          Text 25, 50, 125, 10, "Household Income: $ " & net_income & "  (net)"
+          Text 140, 50, 115, 10, " 70% of HH Income: $ " & seventy_percent_income
+          Text 25, 60, 75, 10, "  # of HH Members: " & HH_members
+          Text 130, 60, 115, 10, "EGA Monthly Standard: $ " & monthly_standard
+          Text 30, 70, 120, 10, " State Residency: " & meets_residency
+          Text 35, 90, 130, 10, "  EMER Last Used: " & EMER_last_used_dates
+          Text 25, 100, 130, 10, "EMER Available Date: " & EMER_available_date
+          Text 10, 130, 75, 10, "Case " & MAXIS_case_number & " is:"
+          If crisis <> "no crisis given" AND meets_residency = "Yes" AND abs(net_income) =< abs(monthly_standard) AND net_income <> "0" AND emer_availble = True AND abs(seventy_percent_income) >= abs(shelter_costs) then
 
-    IF Screening_options = vbCancel then script_end_procedure("")	'ends the script
-    IF Screening_options = vbNO then
-    	'The case note
-    	Call start_a_blank_CASE_NOTE
-    	Call write_variable_in_CASE_NOTE("--//--Emergency Programs Screening--//--")
-    	Call write_bullet_and_variable_in_CASE_NOTE("Number of HH members", HH_members)
-    	Call  write_bullet_and_variable_in_CASE_NOTE("Crisis/Type of Emergency", crisis)
-    	Call write_bullet_and_variable_in_CASE_NOTE("Living situation is", affordbable_housing)
-    	Call write_bullet_and_variable_in_CASE_NOTE("Does any member of the HH meet 30 day residency requirements", meets_residency)
-    	Call write_bullet_and_variable_in_CASE_NOTE("Shelter cost for HH", shelter_costs)
-		Call write_bullet_and_variable_in_CASE_NOTE("Net income for HH", net_income)
-    	IF screening_determination = "potentially eligible for emergency programs." then
-    		Call write_variable_in_CASE_NOTE("* HH is potentially eligible for EMER programs.")
-    	Else
-    		Call write_variable_in_CASE_NOTE("* HH does not appear eligible for EMER programs.")
-    	END IF
-    	Call write_variable_in_CASE_NOTE("---")
-    	Call write_bullet_and_variable_in_CASE_NOTE("Last date EMER programs were used", EMER_last_used_dates)
-    	Call write_variable_in_CASE_NOTE("* Date EMER programs will be available to HH: " & EMER_available_date)
-    	Call write_variable_in_CASE_NOTE("---")
-    	Call write_variable_in_CASE_NOTE(worker_signature)
-		script_end_procedure("")
-	END IF
+            Text 20, 140, 125, 10, "POTENTIALLY ELIGIBLE FOR EGA"
+          Else
+            y_pos = 140
+            Text 20, y_pos, 250, 10, "NOT eligible for EGA for the following reasons:"
+            y_pos = y_pos + 10
+            If crisis = "no crisis given" then
+                Text 25, y_pos, 250, 10, "* No crisis meeting program requirements."
+                y_pos = y_pos + 10
+            End If
+            If abs(seventy_percent_income) < abs(shelter_costs) then
+                Text 25, y_pos, 250, 10, "* The HH's shelter costs are more than 70% of the HH's net income."
+                y_pos = y_pos + 10
+            End If
+            IF meets_residency = "No" then
+                Text 25, y_pos, 250, 10, "* No one in the household has met 30 day residency requirements."
+                y_pos = y_pos + 10
+            End If
+            If abs(net_income) > abs(monthly_standard) then
+                Text 25, y_pos, 250, 10, "* Net income exceeds program guidelines."
+                y_pos = y_pos + 10
+            End If
+            IF net_income = "0" then
+                Text 25, y_pos, 250, 10, "* Household does not have current/ongoing income."
+                y_pos = y_pos + 10
+            End If
+            If EMER_last_used_dates <> "n/a" then
+                Text 25, y_pos, 250, 10, "* Emergency funds were used within the last year from the eligibility period."
+                y_pos = y_pos + 10
+            End If
+
+          End If
+        EndDialog
+
+        dialog Dialog1
+        cancel_without_confirmation
+
+        If ButtonPressed = end_script_btn Then Call script_end_procedure("EGA Screening completed, script ended per your request.")
+
+        If ButtonPressed = enter_screening_note_btn Then
+            'The case note
+            ega_screening_note_made = True
+        	Call start_a_blank_CASE_NOTE
+        	Call write_variable_in_CASE_NOTE("--//--Emergency Programs Screening--//--")
+        	Call write_bullet_and_variable_in_CASE_NOTE("Number of HH members", HH_members)
+        	Call  write_bullet_and_variable_in_CASE_NOTE("Crisis/Type of Emergency", crisis)
+        	Call write_bullet_and_variable_in_CASE_NOTE("Living situation is", affordbable_housing)
+        	Call write_bullet_and_variable_in_CASE_NOTE("Does any member of the HH meet 30 day residency requirements", meets_residency)
+        	Call write_bullet_and_variable_in_CASE_NOTE("Shelter cost for HH", shelter_costs)
+    		Call write_bullet_and_variable_in_CASE_NOTE("Net income for HH", net_income)
+        	IF screening_determination = "potentially eligible for emergency programs." then
+        		Call write_variable_in_CASE_NOTE("* HH is potentially eligible for EMER programs.")
+        	Else
+        		Call write_variable_in_CASE_NOTE("* HH does not appear eligible for EMER programs.")
+        	END IF
+        	Call write_variable_in_CASE_NOTE("---")
+        	Call write_bullet_and_variable_in_CASE_NOTE("Last date EMER programs were used", EMER_last_used_dates)
+        	Call write_variable_in_CASE_NOTE("* Date EMER programs will be available to HH: " & EMER_available_date)
+        	Call write_variable_in_CASE_NOTE("---")
+        	Call write_variable_in_CASE_NOTE(worker_signature)
+        End If
+    Loop until ButtonPressed = continue_to_emer_script_btn
 END IF
 'End of EMER screening code----------------------------------------------------------------------------------------------------
 
