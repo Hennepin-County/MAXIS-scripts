@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/14/2022", "Added button to link to the interpreter service request. Removed 'Used Interpreter' checkbox that was inactive.", "Casey Love, Hennepin County")
 call changelog_update("10/07/2022", "Removed adults and families baskets that are no longer supported through Q-Flow. Any population not supported by Q-flow will now be 'N/A'.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/19/2022", "Suggested Q-Flow populations updated for X127EJ4 from LTC+ to Housing Supports. Removed baskets that are no longer supported through Q-Flow.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/03/2022", "Suggested Q-Flow population basket information added for EGA: X127EP3.", "Ilse Ferris, Hennepin County")
@@ -128,67 +129,68 @@ Do
         err_msg = ""
         Do
             BeginDialog Dialog1, 0, 0, 391, 345, "Client contact"
-            ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter"+chr(9)+contact_type, contact_type
-            DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
-            ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+"AREP"+chr(9)+"SWKR"+chr(9)+who_contacted, who_contacted
-            EditBox 245, 65, 135, 15, regarding
-            ComboBox 75, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
-            EditBox 245, 85, 135, 15, when_contact_was_made
-            EditBox 75, 105, 65, 15, MAXIS_case_number
-            CheckBox 165, 110, 65, 10, "Used Interpreter", used_interpreter_checkbox
-            EditBox 315, 105, 65, 15, METS_IC_number
-            EditBox 75, 125, 305, 15, contact_reason
-            EditBox 70, 155, 310, 15, actions_taken
-            EditBox 60, 195, 320, 15, verifs_needed
-            EditBox 60, 215, 320, 15, case_status
-            EditBox 60, 235, 320, 15, other_notes
-            CheckBox 5, 260, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
-            CheckBox 5, 275, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
-            CheckBox 5, 290, 255, 10, "TEXT OPT OUT: Client wishes to opt out renewal text message notifications.", Opt_out_checkbox
-            CheckBox 5, 305, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
-            CheckBox 270, 260, 125, 10, "Needs follow up/hand off.", follow_up_needed_checkbox
-            EditBox 340, 275, 40, 15, ticket_number                             'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
-            EditBox 70, 325, 205, 15, worker_signature
-            ButtonGroup ButtonPressed
-            OkButton 280, 325, 50, 15
-            CancelButton 335, 325, 50, 15
-            PushButton 10, 20, 25, 10, "ADDR", ADDR_button
-            PushButton 35, 20, 25, 10, "AREP", AREP_button
-            PushButton 60, 20, 25, 10, "MEMB", MEMB_button
-            PushButton 85, 20, 25, 10, "REVW", REVW_button
-            PushButton 110, 20, 25, 10, "SWKR", SWKR_Button
-            PushButton 150, 20, 50, 10, "CASE/CURR", CURR_button
-            PushButton 200, 20, 50, 10, "CASE/NOTE", NOTE_button
-            PushButton 250, 20, 50, 10, "ELIG/SUMM", ELIG_SUMM_button
-            PushButton 300, 20, 40, 10, "MEMO", MEMO_button
-            PushButton 340, 20, 40, 10, "WCOM", WCOM_button
-            Text 20, 110, 50, 10, "Case number: "
-            Text 10, 130, 65, 10, "Reason for contact:"
-            Text 20, 160, 50, 10, "Actions taken: "
-            GroupBox 5, 180, 380, 75, "Additional information about case (not mandatory):"
-            Text 10, 200, 50, 10, "Verifs needed: "
-            Text 15, 220, 45, 10, "Case status: "
-            Text 10, 330, 60, 10, "Worker signature:"
-            GroupBox 5, 10, 135, 25, "STAT Navigation"
-            GroupBox 5, 40, 380, 110, "Contact Information:"
-            Text 30, 55, 40, 10, "Contact type"
-            Text 100, 55, 30, 10, "From/To"
-            Text 150, 55, 65, 10, "Who was contacted"
-            Text 275, 55, 70, 10, "For case note header"
-            Text 230, 70, 15, 10, "Re:"
-            GroupBox 145, 10, 240, 25, "CASE Navigation"
-            Text 15, 90, 50, 10, "Phone Number:"
-            Text 20, 245, 40, 10, "Other notes:"
-            GroupBox 260, 295, 125, 25, "Suggested Q-Flow Population:"          'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
-            Text 280, 305, 100, 10, suggested_population                        'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
-            Text 285, 280, 55, 10, "Q-Flow Ticket #:"                           'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
-            Text 170, 90, 75, 10, "Date/Time of Contact:"
-            Text 255, 110, 60, 10, "METS IC number:"
+              ButtonGroup ButtonPressed
+                ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter"+chr(9)+contact_type, contact_type
+                DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
+                ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+"AREP"+chr(9)+"SWKR"+chr(9)+who_contacted, who_contacted
+                EditBox 245, 65, 135, 15, regarding
+                ComboBox 75, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
+                EditBox 245, 85, 135, 15, when_contact_was_made
+                EditBox 75, 105, 45, 15, MAXIS_case_number
+                PushButton 130, 105, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
+                EditBox 315, 105, 65, 15, METS_IC_number
+                EditBox 75, 125, 305, 15, contact_reason
+                EditBox 70, 155, 310, 15, actions_taken
+                EditBox 60, 195, 320, 15, verifs_needed
+                EditBox 60, 215, 320, 15, case_status
+                EditBox 60, 235, 320, 15, other_notes
+                CheckBox 5, 260, 255, 10, "Check here if you want to TIKL out for this case after the case note is done.", TIKL_check
+                CheckBox 5, 275, 255, 10, "Check here if you reminded client about the importance of the CAF 1.", caf_1_check
+                CheckBox 5, 290, 255, 10, "TEXT OPT OUT: Client wishes to opt out renewal text message notifications.", Opt_out_checkbox
+                CheckBox 5, 305, 95, 10, "Forms were sent to AREP.", Sent_arep_checkbox
+                CheckBox 270, 260, 125, 10, "Needs follow up/hand off.", follow_up_needed_checkbox
+                EditBox 340, 275, 40, 15, ticket_number                             'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+                EditBox 70, 325, 205, 15, worker_signature
+                OkButton 280, 325, 50, 15
+                CancelButton 335, 325, 50, 15
+                PushButton 10, 20, 25, 10, "ADDR", ADDR_button
+                PushButton 35, 20, 25, 10, "AREP", AREP_button
+                PushButton 60, 20, 25, 10, "MEMB", MEMB_button
+                PushButton 85, 20, 25, 10, "REVW", REVW_button
+                PushButton 110, 20, 25, 10, "SWKR", SWKR_Button
+                PushButton 150, 20, 50, 10, "CASE/CURR", CURR_button
+                PushButton 200, 20, 50, 10, "CASE/NOTE", NOTE_button
+                PushButton 250, 20, 50, 10, "ELIG/SUMM", ELIG_SUMM_button
+                PushButton 300, 20, 40, 10, "MEMO", MEMO_button
+                PushButton 340, 20, 40, 10, "WCOM", WCOM_button
+                Text 20, 110, 50, 10, "Case number: "
+                Text 10, 130, 65, 10, "Reason for contact:"
+                Text 20, 160, 50, 10, "Actions taken: "
+                GroupBox 5, 180, 380, 75, "Additional information about case (not mandatory):"
+                Text 10, 200, 50, 10, "Verifs needed: "
+                Text 15, 220, 45, 10, "Case status: "
+                Text 10, 330, 60, 10, "Worker signature:"
+                GroupBox 5, 10, 135, 25, "STAT Navigation"
+                GroupBox 5, 40, 380, 110, "Contact Information:"
+                Text 30, 55, 40, 10, "Contact type"
+                Text 100, 55, 30, 10, "From/To"
+                Text 150, 55, 65, 10, "Who was contacted"
+                Text 275, 55, 70, 10, "For case note header"
+                Text 230, 70, 15, 10, "Re:"
+                GroupBox 145, 10, 240, 25, "CASE Navigation"
+                Text 15, 90, 50, 10, "Phone Number:"
+                Text 20, 245, 40, 10, "Other notes:"
+                GroupBox 260, 295, 125, 25, "Suggested Q-Flow Population:"          'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+                Text 280, 305, 100, 10, suggested_population                        'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+                Text 285, 280, 55, 10, "Q-Flow Ticket #:"                           'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
+                Text 170, 90, 75, 10, "Date/Time of Contact:"
+                Text 255, 110, 60, 10, "METS IC number:"
             EndDialog
 
 		    DIALOG Dialog1
 		    cancel_confirmation
             MAXIS_dialog_navigation
+            If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
         Loop until ButtonPressed = -1
         If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
         If trim(contact_type) = "" or contact_type = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the contact type."
