@@ -6337,7 +6337,7 @@ If vars_filled = False Then
         interview_memb_list = interview_memb_list+chr(9)+"AREP - " & arep_name
     End If
 End If
-'This script is to support work after the interview and is not built to support the intervieww. script ill end if intervie date is not found.
+'This script is to support work after the interview and is not built to support the intervieww. Script will end if interview date is not found.
 If interview_required = True and interview_date = "" Then
     end_early_mgs = "This script (NOTES - CAF) does not support details about an interview and should only be run once STAT panels are updated."
     end_early_mgs = end_early_mgs & vbCr & vbCr & "The script could not find details about the interview date. Update PROG or REVW with the correct interview date. Ensure all other STAT panels are updated and run NOTES - CAF again to document details about the information entered into STAT."
