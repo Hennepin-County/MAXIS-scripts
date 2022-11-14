@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/14/2022", "Created button to link to the interpreter service request.", "Casey Love, Hennepin County")
 call changelog_update("10/17/2022", "Update messaging on Agency Signature on Application Forms. Hennepin County does not require an Agency Signature on any application form. ##~## ##~##See the HSR Manual for more Information - on the Applications Page. ##~##", "Casey Love, Hennepin County")
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement.", "MiKayla Handley, Hennepin County") '#493
 call changelog_update("03/29/2022", "Removed ApplyMN as application type option.", "Ilse Ferris, Hennepin County")
@@ -479,7 +480,8 @@ function define_main_dialog()
 			EditBox 120, 50, 50, 15, interview_date
 			ComboBox 120, 70, 340, 45, "No Interpreter Used"+chr(9)+"Language Line Interpreter Used"+chr(9)+"Interpreter through Henn Co. OMS (Office of Multi-Cultural Services)"+chr(9)+"Interviewer speaks Resident Language"+chr(9)+interpreter_information, interpreter_information
 			ComboBox 120, 90, 205, 45, "English"+chr(9)+"Somali"+chr(9)+"Spanish"+chr(9)+"Hmong"+chr(9)+"Russian"+chr(9)+"Oromo"+chr(9)+"Vietnamese"+chr(9)+interpreter_language, interpreter_language
-			EditBox 120, 110, 340, 15, arep_interview_id_information
+            PushButton 330, 90, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
+            EditBox 120, 110, 340, 15, arep_interview_id_information
 			EditBox 10, 155, 450, 15, non_applicant_interview_info
 
 		    EditBox 325, 205, 50, 15, exp_q_1_income_this_month
@@ -8770,6 +8772,7 @@ msg_show_instructions_btn = 104
 msg_script_messaging_btn = 105
 msg_show_quick_start_guide_btn = 106
 msg_show_faq_btn = 107
+interpreter_servicves_btn = 108
 
 'Showing the case number dialog
 Do
@@ -8797,6 +8800,7 @@ Do
 		    CancelButton 315, 300, 50, 15
 		    PushButton 205, 20, 155, 15, "Press HERE to see what this script will do", msg_what_script_does_btn
 		    PushButton 205, 35, 155, 15, "Press HERE for details on using this script", msg_script_interaction_btn
+            PushButton 220, 65, 120, 15, "Open Interpreter Services Link", interpreter_servicves_btn
 		    PushButton 165, 175, 195, 15, "Press HERE to learn more about 'SAVE YOUR WORK'", msg_save_your_work_btn
 		    PushButton 80, 245, 210, 15, "Press HERE for more details on script messaging", msg_script_messaging_btn
 		    PushButton 10, 300, 50, 15, "Instructions", msg_show_instructions_btn
@@ -8825,7 +8829,8 @@ Do
 
 			If ButtonPressed = msg_what_script_does_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20OVERVIEW.docx"
 			If ButtonPressed = msg_script_interaction_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20HOW%20TO%20USE.docx"
-			If ButtonPressed = msg_save_your_work_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SAVE%20YOUR%20WORK.docx"
+			If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
+            If ButtonPressed = msg_save_your_work_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SAVE%20YOUR%20WORK.docx"
 			If ButtonPressed = msg_script_messaging_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW%20-%20SCRIPT%20MESSAGING.docx"
 
 			If ButtonPressed = msg_show_instructions_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20INTERVIEW.docx"
@@ -9563,7 +9568,11 @@ Do
 				Call verification_dialog
 				Call check_for_errors(interview_questions_clear)
 				' If show_err_msg_during_movement = FALSE AND ButtonPressed <> finish_interview_btn Then err_msg = ""
-				Call display_errors(err_msg, False, show_err_msg_during_movement)
+                If ButtonPressed = interpreter_servicves_btn Then
+                    run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
+                Else
+                    Call display_errors(err_msg, False, show_err_msg_during_movement)
+                End If
 				' If err_msg <> "" Then MsgBox "*** Please resolve to Continue: ***" & vbNewLine & err_msg
 
 				If snap_status <> "ACTIVE" Then Call evaluate_for_expedited(intv_app_month_income, intv_app_month_asset, intv_app_month_housing_expense, intv_exp_pay_heat_checkbox, intv_exp_pay_ac_checkbox, intv_exp_pay_electricity_checkbox, intv_exp_pay_phone_checkbox, app_month_utilities_cost, app_month_expenses, case_is_expedited)
