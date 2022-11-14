@@ -170,6 +170,13 @@ Do
         exit do
     Else
         PF3 'save case note
+        'blanking out variables for the next unique sponsor
+        primary_sponsor_earned_income = ""
+        spousal_sponsor_earned_income = ""
+        primary_sponsor_unearned_income = ""
+        spousal_sponsor_unearned_income = ""
+        sponsor_HH_size = ""
+        number_of_sponsored_immigrants = ""
     End if
     STATS_counter = STATS_counter + 1
 Loop
