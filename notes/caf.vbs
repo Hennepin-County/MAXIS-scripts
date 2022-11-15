@@ -5995,7 +5995,6 @@ If vars_filled = False Then
 
             If in_correct_note = "~ Interview Completed on" Then
                 in_note_row = 5
-                interview_date = ""
                 Do
                     EMReadScreen first_part_of_line, 12, in_note_row, 3                         'Reading the header portion
                     EMReadScreen whole_note_line, 77, in_note_row, 3                            'Reading all the line information
