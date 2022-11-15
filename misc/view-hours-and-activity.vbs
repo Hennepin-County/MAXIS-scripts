@@ -150,8 +150,8 @@ current_pay_period_end = DateAdd("d", 13, current_pay_period)
 
 active_period_start = DateAdd("ww", -6, current_pay_period_start)
 active_period_end = current_pay_period_end
+first_date = active_period_start & ""
 
-' MSGBOX "FOUND IT" & vbCr & vbCr & "Current PAY Pd:" & vbCr  & current_pay_period_start & vbCr & current_pay_period_end & vbCr & vbCr & "Current ACTIVE Pd:" & vbCr & active_period_start & vbCr & active_period_end
 'DECLARATIONS===============================================================================================================
 'Lists for Dialogs
 month_list = "Select"
@@ -168,9 +168,11 @@ Do																				'finding each week
 	saturday_month = MonthName(DatePart("m", saturday_date))
 	If InStr(month_list, sunday_month) = 0 Then month_list = month_list+chr(9)+sunday_month
 	If InStr(month_list, saturday_month) = 0 Then month_list = month_list+chr(9)+saturday_month
+	first_month = sunday_month			'this is going to keep being redefined until we get to the first one'
 
 	week_string = sunday_date & " - " & saturday_date
 	week_list = week_list+chr(9)+week_string
+	first_week = week_string & ""			'this is going to keep being redefined until we get to the first one'
 
 	sunday_date = DateAdd("d", -7, sunday_date)
 	saturday_date = DateAdd("d", 6, sunday_date)
@@ -181,8 +183,9 @@ biweek_list = "Select"
 sunday_date = current_pay_period_start
 saturday_date = current_pay_period_end
 Do																				'finding each pay period'
-	week_string = sunday_date & " - " & saturday_date
-	biweek_list = biweek_list+chr(9)+week_string
+	biweek_string = sunday_date & " - " & saturday_date
+	biweek_list = biweek_list+chr(9)+biweek_string
+	first_pay_pd = biweek_string & ""			'this is going to keep being redefined until we get to the first one'
 
 	sunday_date = DateAdd("d", -14, sunday_date)
 	saturday_date = DateAdd("d", 13, sunday_date)
@@ -194,7 +197,6 @@ const activity_date_const 		= 00
 const activity_start_time		= 01
 const activity_end_time			= 02
 const activity_time_spent		= 03
-const activity_time_spent_val	= 11
 const activity_category			= 04
 const activity_meeting			= 05
 const activity_detail			= 06
@@ -202,9 +204,10 @@ const activity_gh_issue_numb	= 07
 const activity_gh_issue_url		= 08
 const activity_project			= 09
 const activity_paid_yn			= 10
-const moved_item				= 11
-const item_xlrow				= 12
-const last_const 				= 13
+const activity_time_spent_val	= 11
+const moved_item				= 12
+const item_xlrow				= 13
+const last_const 				= 14
 
 Dim TIME_TRACKING_ARRAY()
 ReDim TIME_TRACKING_ARRAY(last_const, 0)
@@ -442,11 +445,6 @@ For each biweek_item in biweek_array
 	End If
 Next
 current_month = MonthName(DatePart("m", date))
-
-first_date = "1/1/2022"
-first_week = "1/2/2022 - 1/8/2022"
-first_pay_pd = "1/2/2022 - 1/15/2022"
-first_month = "January"
 
 selected_date = current_day
 dialog_view = day_view
