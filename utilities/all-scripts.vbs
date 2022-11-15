@@ -676,21 +676,29 @@ Do
         ObjExcel.Cells(1, 8).Value = "Keywords"
         ObjExcel.Cells(1, 9).Value = "Release Date"
         ObjExcel.Cells(1, 10).Value = "Hot Topic Date"
+		link_col = 11
         If user_is_tester = True Then
 			ObjExcel.Cells(1, 11).Value = "In Testing"
 	        ObjExcel.Cells(1, 12).Value = "Testing Category"
 	        ObjExcel.Cells(1, 13).Value = "Testing Criteria"
+			link_col = 14
 		End If
 		If user_is_BZ = True Then ObjExcel.Cells(1, 14).Value = "Retired Date"
+		If user_is_BZ = True Then link_col = 15
+
+		ObjExcel.Cells(1, link_col).Value = "Policy References"
+
         'ADD MORE PROPERTIES HERE - these more properties will likely NOT be on the dialog
 
         ObjExcel.Rows(1).Font.Bold = TRUE           'format the headers to be bold
 
         row_to_use = 2                              'start at row 2 with information
+		last_col = link_col
 
         For each script_item in script_array        'look at each script
             If script_item.show_script = TRUE Then  'if in the logic above they have been determined to meet the critera this will be set to true and we will add the detail of that script to the excel
-                ObjExcel.Cells(row_to_use, 1).Value = script_item.category              'this is adding each script that is selected to the excel
+				ref_col = link_col
+				ObjExcel.Cells(row_to_use, 1).Value = script_item.category              'this is adding each script that is selected to the excel
                 ObjExcel.Cells(row_to_use, 2).Value = script_item.script_name
                 ObjExcel.Cells(row_to_use, 3).Value = script_item.description
 				ObjExcel.Cells(row_to_use, 4).Value = "=HYPERLINK(" & chr(34) &  script_item.SharePoint_instructions_URL & chr(34) & ", " & chr(34) & script_item.script_name & chr(34) & ")"
@@ -708,12 +716,57 @@ Do
 				End If
 				If user_is_BZ = True Then ObjExcel.Cells(row_to_use, 14).Value = script_item.retirement_date
 
+				for poli_info = 0 to UBound(script_item.policy_references)
+					if script_item.policy_references(poli_info) <> "" Then
+						details_array = ""
+						details_array = split(script_item.policy_references(poli_info))
+						reference_name = replace(details_array(1), "_", " ")
+
+						Select Case details_array(0)
+							Case "CM"
+								reference_name = "CM " & details_array(2) & " - " & reference_name
+								reference_link = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_00" & replace(details_array(2), ".", "")
+							Case "TE"
+								reference_name = "TE " & details_array(2) & " - " & reference_name
+								reference_link = "NULL"
+							Case "SHAREPOINT"
+								reference_name = reference_name & " - Henn Co Sharepoint"
+								reference_link = details_array(2)
+							Case "SIR"
+								reference_name = reference_name & " - DHS SIR"
+								reference_link = details_array(2)
+							Case "ONESOURCE"
+								reference_name = reference_name & " - OneSource"
+								reference_link = details_array(2)
+							Case "EPM"
+								reference_name = reference_name & " - HCPM-EPM"
+								reference_link = details_array(2)
+							Case "BULLETIN"
+								reference_name = reference_name & " - Bulletin"
+								reference_link = details_array(2)
+						End Select
+						' MsgBox "script_item.policy_links" & vbCr & "~" & script_item.policy_links & "~"
+
+
+						If reference_link = "NULL" Then
+							ObjExcel.Cells(row_to_use, ref_col).Value = reference_name
+						Else
+							ObjExcel.Cells(row_to_use, ref_col).Value = "=HYPERLINK(" & chr(34) & reference_link & chr(34) & ", " & chr(34) & reference_name & chr(34) & ")"
+						End If
+
+						reference_name = ""
+						reference_link = ""
+						If ref_col > last_col Then last_col = ref_col
+						ref_col = ref_col + 1
+					End If
+				Next
+
                 row_to_use = row_to_use + 1     'go to the next row for the next script
             End If
         Next
 
         'Autofitting columns
-        For col_to_autofit = 1 to 14
+        For col_to_autofit = 1 to last_col
             ObjExcel.columns(col_to_autofit).AutoFit()
         Next
     End If
