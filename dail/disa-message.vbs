@@ -55,53 +55,117 @@ changelog_display
 '------------------As such, it does NOT include protections to be ran independently.
 
 EMConnect ""
-EMSendKey "s"
-transmit
-EMSendKey "disa"
-transmit
-
-Call MAXIS_case_number_finder(MAXIS_case_number)
-
-'HH member dialog to select who's job this is.
-BeginDialog Dialog1, 0, 0, 191, 70, "HH member"
-  EditBox 50, 25, 25, 15, HH_memb
-  ButtonGroup ButtonPressed
-    OkButton 145, 10, 40, 15
-    CancelButton 145, 30, 40, 15
-  EditBox 65, 50, 120, 15, worker_signature
-  Text 5, 10, 125, 15, "Which HH member is this for? (ex: 01)"
-  Text 0, 55, 60, 10, "Worker Signature:"
-EndDialog
+EmReadscreen MAXIS_case_number, 8, 5, 73
+MAXIS_case_number = trim(MAXIS_case_number)
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+PF3 'back to DAIL
+Call write_value_and_transmit("S", 6, 3)
+Call write_value_and_transmit("DISA", 20, 71)
 
 HH_memb = "01"
 
-Do 
-    Do 
+'HH member dialog to select who's job this is.
+dialog1 = ""
+BeginDialog Dialog1, 0, 0, 196, 70, "Select DISA HH Member"
+  Text 35, 10, 125, 15, "Which HH member is this for? (ex: 01)"
+  EditBox 165, 5, 25, 15, HH_memb
+  Text 10, 30, 60, 10, "Worker Signature:"
+  EditBox 70, 25, 120, 15, worker_signature
+  ButtonGroup ButtonPressed
+    PushButton 5, 45, 95, 15, "Temp or Perm Illness - HSR", HSR_manual_button
+    OkButton 105, 45, 40, 15
+    CancelButton 150, 45, 40, 15
+EndDialog
+
+Do
+    Do
         err_msg = ""
-        Dialog Dialog1
-        Cancel_without_confirmation
-        If (isnumeric(HH_memb) = False and len(HH_memb) > 2) then err_msg = err_msg & vbcr & "* Please Enter a valid member number."
-    	If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Please ensure your case note is signed."
+        Do
+            Dialog Dialog1
+            Cancel_without_confirmation
+            If ButtonPressed = HSR_manual_button then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Temporary_or_Permanent_Illness.aspx"
+        Loop until ButtonPressed = -1
+        If (isnumeric(HH_memb) = False and len(HH_memb) <> 2) then err_msg = err_msg & vbcr & "* Enter a 2-digit member number."
+    	If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Enter your worker signature."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-EMWriteScreen HH_memb, 20, 76
-transmit
+Call write_value_and_transmit(HH_memb, 20, 76)
+EmReadscreen disa_error, 60, 24, 2
+If trim(disa_error) <> "" then script_end_procedure_with_error_report("An error occurred. Review the case and run the script again if applicable. Error messgae: " & disa_error)
 
-EMReadScreen cash_disa_status, 1, 11, 69
-If cash_disa_status <> "1" then script_end_procedure("This type of DISA status is not yet supported. It could be a SMRT or some other type of verif needed. Process manually at this time.")
+'CASH/Housing Supports
+If adult_cash_case = True or family_cash_case = True then
+    EMReadScreen cash_disa_status, 1, 11, 69
+    If  cash_disa_status = "1" or _
+        cash_disa_status = "6" or _
+        cash_disa_status = "7" then
+        cash_request = True
+    Else
+        cash_request = False
+        closing_msg = closing_msg & "This type of Cash DISA status is not yet supported. DISA Code: " & cash_disa_status & ". It could be a SMRT or some other type of verif needed. Process manually at this time." & VbCR & vbCR
+    End if
+End if
+'SNAP
+If snap_case = True then
+    EMReadScreen snap_disa_status, 1, 12, 69
+    IF  snap_disa_status = "1" or _
+        snap_disa_status = "5" or _
+        snap_disa_status = "6" or _
+        snap_disa_status = "7" then
+        snap_request = True
+    Else
+        snap_request = False
+        closing_msg = closing_msg & "This type of SNAP DISA status is not yet supported. DISA Code: " & snap_disa_status & ". It could be a SMRT or some other type of verif needed. Process manually at this time." & VbCR & vbCR
+    End if
+End if
+'Health Care Supports
+If ma_case = True or msp_case = True then
+    EMReadScreen HC_disa_status, 1, 13, 69
+    If HC_disa_status = "1" or _
+       HC_disa_status = "6" or _
+       HC_disa_status = "7" or _
+       HC_disa_status = "8" then
+        HC_request = True
+    Else
+        HC_request = False
+        closing_msg = closing_msg & "This type of Health Care DISA status is not yet supported. DISA Code: " & hc_disa_status & ". It could be a SMRT or some other type of verif needed. Process manually at this time." & VbCR & vbCR
+    End if
+End if
 
-'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-Call create_TIKL("Medical Opinion Form sent 30 days ago. Please review case, and send another request/MOF if applicable.", 30, date, False, TIKL_note_text)
+'Verif descriptions for case notes
+If cash_disa_status = "1" or snap_disa_status = "1" or HC_disa_status = "1" then verif_description = "Dr. Statement/MOF"
+If cash_disa_status = "2" or snap_disa_status = "2" or HC_disa_status = "2" then verif_description = "SMRT Certified"
+If cash_disa_status = "3" or snap_disa_status = "3" or HC_disa_status = "3" then verif_description = "Certified for RSDI Or SSI"
+If cash_disa_status = "4" or snap_disa_status = "4" or HC_disa_status = "4" then verif_description = "Receipt Of HC For Disa/Blind"
+If snap_disa_status = "5" then verif_description = "Wrk Judgement"  'SNAP Only: Worker Judgement
+If cash_disa_status = "6" or snap_disa_status = "6" or HC_disa_status = "6" then verif_description = "Other Document"
+If cash_disa_status = "7" then verif_description = "Professional Stmt of Need"
+If snap_disa_status = "7" then verif_description = "Out Of State Ver Pending"
+If HC_disa_status = "7" then verif_description = "Case Manager Determination"
+If HC_disa_status = "8" then verif_description = "LTC Consult Services" 'HC Only
 
-Call navigate_to_MAXIS_screen("CASE", "NOTE")
-PF9
-Call write_variable_in_CASE_NOTE("DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS")
-If cash_disa_status = 1 then Call write_variable_in_CASE_NOTE("* Client needs a new Medical Opinion Form. Created using " & EDMS_choice & " and sent to client.")
-Call write_variable_in_CASE_NOTE(TIKL_note_text)
-Call write_variable_in_CASE_NOTE("---")
-Call write_variable_in_CASE_NOTE(worker_signature)
+If cash_request = True or snap_request = True or HC_request = True then
+    'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+    Call create_TIKL("Disability verifs sent 30 days ago. Please review case, case note, and send another request if applicable.", 30, date, False, TIKL_note_text)
+    'CASE/NOTE
+    Call start_a_blank_CASE_NOTE
+    Call write_variable_in_CASE_NOTE("MEMB " & HH_memb & ": DISABILITY IS ENDING IN 60 DAYS - REVIEW DISA STATUS")
+    Call write_variable_in_CASE_NOTE("* DAIL Message receieved and processed for the following programs:")
+    'Call write_three_columns_in_CASE_NOTE(col_01_start_point, col_01_variable, col_02_start_point, col_02_variable, col_03_start_point, col_03_variable)
+    Call write_three_columns_in_CASE_NOTE(3, "Program", 19, "DISA Description", 50, "DISA Code")
+    Call write_variable_in_CASE_NOTE("--------------------------------------------------------")
+    If cash_request = True then Call write_three_columns_in_CASE_NOTE(3, "Cash", 19, verif_description, 50, cash_disa_status)
+    If snap_request = True then Call write_three_columns_in_CASE_NOTE(3, "SNAP", 19, verif_description, 50, snap_disa_status)
+    If HC_request = True then Call write_three_columns_in_CASE_NOTE(3, "Health Care", 19, verif_description, 50, HC_disa_status)
+    Call write_variable_in_CASE_NOTE("* Sent verification request and disability forms to resident.")
+    Call write_variable_in_CASE_NOTE(TIKL_note_text)
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
 
-script_end_procedure("Case note and TIKL made. Send a Medical Opinion Form and verification request form using " & EDMS_choice & ".")
+    closing_msg = closing_msg & "Case note and TIKL created. Send verification request and all applicable disability forms/packet(s) to the resident via ECF."
+End if
+
+script_end_procedure_with_error_report(closing_msg)
