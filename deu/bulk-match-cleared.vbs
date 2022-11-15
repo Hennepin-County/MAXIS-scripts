@@ -56,6 +56,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/15/2022", "Resolved bug in excel row incrementor which was previously skipping cases.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("07/26/2022", "Updated handling for claim referral tracking.", "MiKayla Handley, Hennepin County") '#991
@@ -76,17 +77,15 @@ changelog_display
 EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
-worker_county_code = "X127"
 match_type = "WAGE"
-'This can only be run by DEU Supervisor or script team member
+
+'This can only be run by DEU Supervisor or script team member - Victoria, Ilse or Casey
 IF user_ID_for_validation <> "WFO119" THEN
-	IF user_ID_for_validation <> "WFS395" THEN
-       	IF user_ID_for_validation <> "ILFE001" THEN
-			IF user_ID_for_validation <> "CALO001" THEN
-	    		script_end_procedure("This is restricted to use by a supervisor only. Please contact your supervisor to run.")
-			END IF
+    IF user_ID_for_validation <> "ILFE001" THEN
+		IF user_ID_for_validation <> "CALO001" THEN
+	   		script_end_procedure("This is restricted to use by a supervisor only. Please contact your supervisor to run.")
 		END IF
-    END IF
+	END IF
 END IF
 
 Do
@@ -162,6 +161,7 @@ const excel_col_atr_signed				 = 19 'S' Date signed ATR
 const excel_col_evf_rcvd				 = 20 'T' Date EVF Received
 const excel_col_other_note				 = 21 'U Other Notes
 const excel_col_comments				 = 22 'V Comments
+
 'Now the script adds all the clients on the excel list into an array
 excel_row = 2 're-establishing the row to start based on when picking up the information
 entry_record = 0 'incrementor for the array and count
@@ -206,37 +206,36 @@ Do 'purpose is to read each excel row and to add into each excel array '
 	MAXIS_case_number = trim(MAXIS_case_number)
     IF MAXIS_case_number = "" THEN EXIT DO
 	IF trim(objExcel.cells(excel_row, excel_col_period).Value) <> "" THEN
-        IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) <> "" THEN
-			add_to_array = TRUE
-	    ELSE
+        IF trim(objExcel.cells(excel_row, excel_col_resolution_status).Value) = "" THEN
 			match_based_array(comments_const, item) = "No resolution status could be found."
-			excel_row = excel_row + 1
-		END IF
+	    ELSE
+		    add_to_array = TRUE
+     	    ReDim Preserve match_based_array(comments_const, entry_record)	'This resizes the array based on the number of cases
+	   	    match_based_array(maxis_case_number_const,  entry_record)	 = MAXIS_case_number
+	   	    match_based_array(client_ssn_const, 		entry_record)	 = trim(replace(objExcel.cells(excel_row, excel_col_client_ssn), "-", ""))
+		    match_based_array(program_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_program).Value)
+		    match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
+            match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), "$", "")
+            match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), ",", "")
+            match_based_array(amount_const, 		    entry_record)    = FormatNumber(match_based_array(amount_const, entry_record), 2, 0, 0, 0) 'this is formating to help the script read the number as a number'
+            match_based_array(amount_const, 		    entry_record)    = match_based_array(amount_const, entry_record) *1 'this is so the amount wil be read as a number'
+       	    match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
+	   	    match_based_array(notice_sent_date_const,  	entry_record)    = trim(objExcel.cells(excel_row, excel_date_notice_sent).Value)
+	   	    match_based_array(resolution_status_const,  entry_record)    = trim(UCASE(objExcel.cells(excel_row, excel_col_resolution_status).Value)) 'does it matter I repeat this'
+	   	    match_based_array(date_cleared_const,       entry_record)    = trim(objExcel.cells(excel_row, excel_col_date_cleared).Value)	' = 14 'N' Date cleared
+	   	    match_based_array(numb_match_type_const,    entry_record)    = trim(objExcel.cells(excel_row, excel_col_numb_match_type).Value)   ' = 17 'Q  case note to check match cleared
+	   	    match_based_array(period_const, 			entry_record)	 = replace(objExcel.cells(excel_row, excel_col_period).Value, "-", "/") ' the format that the excel sheet has is 10/21-12/21 maxis has
+		    match_based_array(match_cleared_const,      entry_record)    = False    'Defaulting to false
+		    match_based_array(other_notes_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_other_note).Value)
+		    match_based_array(excel_row_const, entry_record) = excel_row
+      	    entry_record = entry_record + 1			'This increments to the next entry in the array
+        End If
 	END IF
-
-	IF add_to_array = TRUE THEN   'Adding client information to the array - this is for READING FROM the excel
-     	ReDim Preserve match_based_array(comments_const, entry_record)	'This resizes the array based on the number of cases
-	   	match_based_array(maxis_case_number_const,  entry_record)	 = MAXIS_case_number
-	   	match_based_array(client_ssn_const, 		entry_record)	 = trim(replace(objExcel.cells(excel_row, excel_col_client_ssn), "-", ""))
-		match_based_array(program_const,  			entry_record)    = trim(objExcel.cells(excel_row, excel_col_program).Value)
-		match_based_array(amount_const, 			entry_record) 	 = trim(objExcel.cells(excel_row, excel_col_amount).Value)
-        match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), "$", "")
-        match_based_array(amount_const, 		    entry_record)    = replace(match_based_array(amount_const, entry_record), ",", "")
-        match_based_array(amount_const, 		    entry_record)    = FormatNumber(match_based_array(amount_const, entry_record), 2, 0, 0, 0) 'this is formating to help the script read the number as a number'
-        match_based_array(amount_const, 		    entry_record)    = match_based_array(amount_const, entry_record) *1 'this is so the amount wil be read as a number'
-       	match_based_array(income_source_const, 		entry_record)    = trim(objExcel.cells(excel_row, excel_col_income_source).Value)
-	   	match_based_array(notice_sent_date_const,  	entry_record)    = trim(objExcel.cells(excel_row, excel_date_notice_sent).Value)
-	   	match_based_array(resolution_status_const,  entry_record)    = trim(UCASE(objExcel.cells(excel_row, excel_col_resolution_status).Value)) 'does it matter I repeat this'
-	   	match_based_array(date_cleared_const,       entry_record)    = trim(objExcel.cells(excel_row, excel_col_date_cleared).Value)	' = 14 'N' Date cleared
-	   	match_based_array(numb_match_type_const,    entry_record)    = trim(objExcel.cells(excel_row, excel_col_numb_match_type).Value)   ' = 17 'Q  case note to check match cleared
-	   	match_based_array(period_const, 			entry_record)	 = replace(objExcel.cells(excel_row, excel_col_period).Value, "-", "/") ' the format that the excel sheet has is 10/21-12/21 maxis has
-		match_based_array(match_cleared_const,      entry_record)    = False    'Defaulting to false
-		match_based_array(other_notes_const,  		entry_record)    = trim(objExcel.cells(excel_row, excel_col_other_note).Value)
-		match_based_array(excel_row_const, entry_record) = excel_row
-      	entry_record = entry_record + 1			'This increments to the next entry in the array
-	   	excel_row = excel_row + 1
-	END IF
+    excel_row = excel_row + 1
 Loop
+
+If entry_record = 0 then script_end_procedure_with_error_report("No information could be found on the Excel template. Please review/update the Excel workbook and run the script again. The script will now end.")
+
 'Loading of cases is complete. Reviewing the cases in the array.
 For item = 0 to UBound(match_based_array, 2)
 	MAXIS_case_number = match_based_array(maxis_case_number_const, item)
@@ -550,7 +549,9 @@ objExcel.Cells(1, 19).Value    = "DATE ATR RCVD"	'S Date ATR on file
 objExcel.Cells(1, 20).Value    = "DATE EVF SIGNED"	'T Date EVF Received
 objExcel.Cells(1, 21).Value    = "OTHER NOTES"		'U Other Notes
 objExcel.Cells(1, 22).Value    = "COMMENTS"		    'V Comments
-MsgBox "Writing to excel- please dont touch the keyboard!" 'this is working as a ready wait'
+
+MsgBox "Writing to excel- please dont touch the keyboard until list is fully updated. You'll receive a closing success message." 'this is working as a ready wait'
+
 For item = 0 to UBound(match_based_array, 2)
  	excel_row = match_based_array(excel_row_const, item)
  	objExcel.Cells(excel_row, excel_col_comments).Value 	= match_based_array(comments_const, item)
@@ -583,6 +584,8 @@ script_end_procedure_with_error_report("Success your list has been updated, plea
 '--All variables are CASE:NOTEing (if required)---------------------------------03/11/2022
 '--CASE:NOTE Header doesn't look funky------------------------------------------03/11/2022
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/11/2022
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/15/2022
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/11/2022
 '--MAXIS_background_check reviewed (if applicable)------------------------------03/11/2022
