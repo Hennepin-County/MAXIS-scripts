@@ -222,6 +222,17 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
         CALL check_for_password(are_we_passworded_out)
     Loop until are_we_passworded_out = False
 
+    'Creating an array of all the claims to claim note for each one
+    all_claim_numbers = ""
+    If trim(Claim_number) <> "" then all_claim_numbers = all_claim_numbers & trim(Claim_number) & "|"
+    If trim(Claim_number_II) <> "" then all_claim_numbers = all_claim_numbers & trim(Claim_number_II) & "|"
+    If trim(Claim_number_II) <> "" then all_claim_numbers = all_claim_numbers & trim(Claim_number_II) & "|"
+    If trim(Claim_number_IV) <> "" then all_claim_numbers = all_claim_numbers & trim(Claim_number_IV) & "|"
+    If trim(HC_claim_number) <> "" then all_claim_numbers = all_claim_numbers & trim(HC_claim_number) & "|"
+    If trim(HC_claim_number_II) <> "" then all_claim_numbers = all_claim_numbers & trim(HC_claim_number_II) & "|"
+
+    claim_array = split(all_claim_numbers, "|")
+
 	'---------------------------------------------------------------------------------------------'client information
 	back_to_self
 	CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
@@ -343,46 +354,51 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     END IF
 
     '---------------------------------------------------------------writing the CCOL case note'
-    Call navigate_to_MAXIS_screen("CCOL", "CLSM")
-    Call write_value_and_transmit(Claim_number, 4, 9)
-    EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
-    error_check = trim(error_check)
-    If error_check <> "" then script_end_procedure_with_error_report(error_check & ". Unable to update this case. Please review case, and run the script again if applicable.")
-    PF4
-    EMReadScreen existing_case_note, 1, 5, 6
-    IF existing_case_note = "" THEN
-    	PF4
-    ELSE
-    	PF9
-    END IF
+    For each unique_claim in claim_array
+        Call navigate_to_MAXIS_screen("CCOL", "CLSM")
+        Call write_value_and_transmit(unique_claim, 4, 9)
 
-    Call write_variable_in_CCOL_note("OVERPAYMENT CLAIM ENTERED" & " (" & client_name & ") ")
-    CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
-    CALL write_bullet_and_variable_in_CCOL_note("Active Programs", programs)
-    CALL write_bullet_and_variable_in_CCOL_note("Source of income", income_source)
-    Call write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-    IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-    IF OP_program_III <> "Select:" then	Call write_variable_in_CCOL_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-    IF OP_program_IV <> "Select:" then Call write_variable_in_CCOL_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
-    'health care
-    IF HC_claim_number <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amount $" & HC_Claim_amount)
-    IF HC_claim_number_II <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " Amount $" & HC_claim_amount_II)
-    Call write_bullet_and_variable_in_CCOL_note("Health Care responsible members", HC_resp_memb)
-    Call write_bullet_and_variable_in_CCOL_note("Total Federal Health Care amount", Fed_HC_AMT)
-    If HC_claim_number <> "" or HC_claim_number_II <> "" then
-        Call write_variable_in_CCOL_note("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+        Call navigate_to_MAXIS_screen("CCOL", "CLSM")
+        Call write_value_and_transmit(Claim_number, 4, 9)
+        EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
+        error_check = trim(error_check)
+        If error_check <> "" then script_end_procedure_with_error_report(error_check & ". Unable to update this case. Please review case, and run the script again if applicable.")
+        PF4
+        EMReadScreen existing_case_note, 1, 5, 6
+        IF existing_case_note = "" THEN
+        	PF4
+        ELSE
+        	PF9
+        END IF
+
+        Call write_variable_in_CCOL_note("OVERPAYMENT CLAIM ENTERED" & " (" & client_name & ") ")
+        CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
+        CALL write_bullet_and_variable_in_CCOL_note("Active Programs", programs)
+        CALL write_bullet_and_variable_in_CCOL_note("Source of income", income_source)
+        Call write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+        IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+        IF OP_program_III <> "Select:" then	Call write_variable_in_CCOL_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+        IF OP_program_IV <> "Select:" then Call write_variable_in_CCOL_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
+        'health care
+        IF HC_claim_number <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amount $" & HC_Claim_amount)
+        IF HC_claim_number_II <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " Amount $" & HC_claim_amount_II)
+        Call write_bullet_and_variable_in_CCOL_note("Health Care responsible members", HC_resp_memb)
+        Call write_bullet_and_variable_in_CCOL_note("Total Federal Health Care amount", Fed_HC_AMT)
+        If HC_claim_number <> "" or HC_claim_number_II <> "" then
+            Call write_variable_in_CCOL_note("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+            CALL write_variable_in_CCOL_note("---")
+        End if
+        'Income and OP reasons/info
+        Call write_bullet_and_variable_in_CCOL_note("Earned Income Disregard Applied?", EI_disregard)
+        CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
+        CALL write_bullet_and_variable_in_CCOL_note("Income verification received", EVF_used)
+        CALL write_bullet_and_variable_in_CCOL_note("Date verification received", income_rcvd_date)
+        CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
+        CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
         CALL write_variable_in_CCOL_note("---")
-    End if
-    'Income and OP reasons/info
-    Call write_bullet_and_variable_in_CCOL_note("Earned Income Disregard Applied?", EI_disregard)
-    CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
-    CALL write_bullet_and_variable_in_CCOL_note("Income verification received", EVF_used)
-    CALL write_bullet_and_variable_in_CCOL_note("Date verification received", income_rcvd_date)
-    CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
-    CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
-    CALL write_variable_in_CCOL_note("---")
-    CALL write_variable_in_CCOL_note(worker_signature)
-    PF3 'to save claim notes
+        CALL write_variable_in_CCOL_note(worker_signature)
+        PF3 'to save claim notes
+    Next
 END IF
 
 IF claim_actions = "Requested Claim Adjustment" THEN
@@ -569,3 +585,4 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 END IF
 
 script_end_procedure_with_error_report(closing_message)
+'TODO: active programs - how is this entered?
