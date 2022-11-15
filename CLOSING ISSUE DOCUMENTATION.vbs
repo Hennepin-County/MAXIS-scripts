@@ -38,5 +38,6 @@
 '--Review/update SharePoint instructions----------------------------------------
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------
 '--Complete misc. documentation (if applicable)---------------------------------
 '--Update project team/issue contact (if applicable)----------------------------
