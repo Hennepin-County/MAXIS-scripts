@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/15/2022", "Enhanced CCOL Notes to make notes in all claims vs. only 1st claim. Updated background functioning.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/18/2020", "GitHub issue #381 Added Requested Claim Adjustment per project request.", "MiKayla Handley")
 call changelog_update("03/04/2020", "Removed agency error OP worksheet as the form is now obsolete.", "MiKayla Handley")
 call changelog_update("08/05/2019", "Updated the term claim referral to use the action taken on MISC as well as to read for active programs.", "MiKayla Handley")
@@ -66,6 +67,7 @@ discovery_date = "" & date
 closing_message = "Overpayment case note entered, copied to CCOL and the claims team has been emailed. Please review case & claim notes to ensure accuracy."
 
 '-------------------------------------------------------------------------------------------------DIALOG
+Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 171, 135, "Overpayment/Claim"
   EditBox 60, 55, 45, 15, MAXIS_case_number
   DropListBox 60, 75, 105, 15, "Select One:"+chr(9)+"Intial Overpayment/Claim"+chr(9)+"Requested Claim Adjustment", claim_actions
@@ -250,6 +252,9 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
 	mid_initial = replace(mid_initial, "_", "")
 	client_name = MEMB_number & " - " & last_name &  ", " & first_name & " " & mid_initial
     client_name = trim(client_name)
+
+    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+
     '-----------------------------------------------------------------------------------------CASENOTE
     IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_program_IV = "FS" or OP_program = "MF" or OP_program_II = "MF" or OP_program_III = "MF" or OP_program_IV = "MF" THEN
     	'Going to the MISC panel to add claim referral tracking information
@@ -296,7 +301,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     	Call write_variable_in_case_note("-----Claim Referral Tracking - Claim Determination-----")
     	IF case_note_only = TRUE THEN Call write_variable_in_case_note("Maxis case is inactive unable to add or update MISC panel")
     	Call write_bullet_and_variable_in_case_note("Action Date", date)
-    	Call write_bullet_and_variable_in_case_note("Program(s)", programs)
+    	Call write_bullet_and_variable_in_case_note("Active Program(s)", list_active_programs)
     	Call write_variable_in_case_note("* Entries for these potential claims must be retained until further notice.")
         Call write_variable_in_case_note("---")
     	Call write_variable_in_case_note(worker_signature)
@@ -306,7 +311,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     start_a_blank_CASE_NOTE
     Call write_variable_in_CASE_NOTE("OVERPAYMENT CLAIM ENTERED" & " (" & client_name & ") ")
     CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
-    CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", programs)
+    CALL write_bullet_and_variable_in_CASE_NOTE("Active Program(s)", list_active_programs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
     Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
     IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
@@ -373,7 +378,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
 
         Call write_variable_in_CCOL_note("OVERPAYMENT CLAIM ENTERED" & " (" & client_name & ") ")
         CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
-        CALL write_bullet_and_variable_in_CCOL_note("Active Programs", programs)
+        CALL write_bullet_and_variable_in_CCOL_note("Active Program(s)", list_active_programs)
         CALL write_bullet_and_variable_in_CCOL_note("Source of income", income_source)
         Call write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
         IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
@@ -402,6 +407,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
 END IF
 
 IF claim_actions = "Requested Claim Adjustment" THEN
+    Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 221, 165, "Requested Claim Adjustment"
       EditBox 65, 5, 50, 15, claim_number
       EditBox 75, 25, 40, 15, original_claim_amount
@@ -450,6 +456,7 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	LOOP UNTIL are_we_passworded_out = false
 
 	IF MFIP_Claim_checkbox = CHECKED THEN
+        Dialog1 = ""
 	    BeginDialog Dialog1, 0, 0, 276, 125, "MFIP Amount Adjustment "
 	      EditBox 90, 20, 40, 15, tanf_elig_cash
 	      EditBox 90, 40, 40, 15, tanf_housing_grant
@@ -538,7 +545,7 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 		If note_row = 18 then 									'End of a single page of the case note
 			EMReadScreen next_page, 7, note_row, 3
 			If next_page = "More: +" Then 						'This indicates there is another page of the case note
-				PF8												'goes to the next line and resets the row to read'\
+				PF8												'goes to the next line and resets the row to read'
 				note_row = 4
 			End If
 		End If
@@ -585,4 +592,46 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 END IF
 
 script_end_procedure_with_error_report(closing_message)
-'TODO: active programs - how is this entered?
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/15/2022
+'--Tab orders reviewed & confirmed----------------------------------------------11/15/2022
+'--Mandatory fields all present & Reviewed--------------------------------------11/15/2022
+'--All variables in dialog match mandatory fields-------------------------------11/15/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------11/15/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------11/15/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/15/2022--------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/15/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/15/2022--------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------11/15/2022--------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------11/15/2022
+'--Out-of-County handling reviewed----------------------------------------------11/15/2022--------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/15/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------11/15/2022--------------------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---11/15/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------11/15/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------11/15/2022
+'--Denomination reviewed -------------------------------------------------------11/15/2022
+'--Script name reviewed---------------------------------------------------------11/15/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------11/15/2022--------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------11/15/2022
+'--comment Code-----------------------------------------------------------------11/15/2022
+'--Update Changelog for release/update------------------------------------------11/15/2022
+'--Remove testing message boxes-------------------------------------------------11/15/2022
+'--Remove testing code/unnecessary code-----------------------------------------11/15/2022
+'--Review/update SharePoint instructions----------------------------------------11/15/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/15/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/15/2022
+'--Complete misc. documentation (if applicable)---------------------------------11/15/2022
+'--Update project team/issue contact (if applicable)----------------------------11/15/2022
