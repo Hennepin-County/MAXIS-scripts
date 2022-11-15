@@ -36,166 +36,6 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 		Execute text_from_the_other_script
 	END IF
 END IF
-'FUNCTIONS LIBRARY BLOCK================================================================================================
-FUNCTION write_variable_in_CCOL_note_test(variable)
-    ''--- This function writes a variable in CCOL note
-    '~~~~~ variable: information to be entered into CASE note from script/edit box
-    '===== Keywords: MAXIS, CASE note
-    If trim(variable) <> "" THEN
-    	EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-    	'msgbox varible & vbcr & "noting_row " & noting_row
-        noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
-    	'The following figures out if we need a new page, or if we need a new case note entirely as well.
-    	Do
-    		EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-    		character_test = trim(character_test)
-    		If character_test <> "" or noting_row >= 19 then
-                noting_row = noting_row + 1
-    		    'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
-    			If noting_row >= 19 then
-    				PF8
-                    'msgbox "sent PF8"
-    				EMReadScreen next_page_confirmation, 4, 19, 3
-                    'msgbox "next_page_confirmation " & next_page_confirmation
-    				IF next_page_confirmation = "More" THEN
-    					next_page = TRUE
-                        noting_row = 5
-    				Else
-						next_page = FALSE
-    				End If
-                    'msgbox "next_page " & next_page
-    			Else
-    				noting_row = noting_row + 1
-    			End if
-    		End if
-    	Loop until character_test = ""
-
-    	'Splits the contents of the variable into an array of words
-    	variable_array = split(variable, " ")
-
-        For each word in variable_array
-            'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
-            If len(word) + noting_col > 80 then
-                noting_row = noting_row + 1
-                noting_col = 3
-            End if
-
-            'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
-            If noting_row >= 19 then
-                PF8
-                noting_row = 5
-                'Msgbox "what's Happening? Noting row: " & noting_row
-            End if
-
-            'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
-            If noting_col = 3 then
-                EMWriteScreen space(indent_length), noting_row, noting_col
-                noting_col = noting_col + indent_length
-            End if
-
-            'Writes the word and a space using EMWriteScreen
-            EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
-
-            'If a semicolon is seen (we use this to mean "go down a row", it will kick the noting row down by one and add more indent again.
-            If right(word, 1) = ";" then
-                noting_row = noting_row + 1
-                noting_col = 3
-                EMWriteScreen space(indent_length), noting_row, noting_col
-                noting_col = noting_col + indent_length
-            End if
-            'Increases noting_col the length of the word + 1 (for the space)
-            noting_col = noting_col + (len(word) + 1)
-        Next
-        'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
-    	EMSetCursor noting_row + 1, 3
-    End if
-END FUNCTION
-
-function write_bullet_and_variable_in_CCOL_note_test(bullet, variable)
-'--- This function creates an asterisk, a bullet, a colon then a variable to style CCOL notes
-'~~~~~ bullet: name of the field to update. Put bullet in "".
-'~~~~~ variable: variable from script to be written into CCOL note
-'===== Keywords: MAXIS, bullet, CCOL note
-    If trim(variable) <> "" THEN
-        EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
-        'msgbox varible & vbcr & "noting_row " & noting_row
-        noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
-        'The following figures out if we need a new page, or if we need a new case note entirely as well.
-        Do
-            EMReadScreen character_test, 40, noting_row, noting_col 	'Reads a single character at the noting row/col. If there's a character there, it needs to go down a row, and look again until there's nothing. It also needs to trigger these events if it's at or above row 18 (which means we're beyond case note range).
-            character_test = trim(character_test)
-            If character_test <> "" or noting_row >= 19 then
-                noting_row = noting_row + 1
-                'If we get to row 19 (which can't be read here), it will go to the next panel (PF8).
-                If noting_row >= 19 then
-                    PF8
-                    'msgbox "sent PF8"
-                    EMReadScreen next_page_confirmation, 4, 19, 3
-                    'msgbox "next_page_confirmation " & next_page_confirmation
-                    IF next_page_confirmation = "More" THEN
-                        next_page = TRUE
-                        noting_row = 5
-                    Else
-                        next_page = FALSE
-                    End If
-                    'msgbox "next_page " & next_page
-                Else
-                    noting_row = noting_row + 1
-                End if
-            End if
-        Loop until character_test = ""
-
-        'Looks at the length of the bullet. This determines the indent for the rest of the info. Going with a maximum indent of 18.
-        If len(bullet) >= 14 then
-            indent_length = 18	'It's four more than the bullet text to account for the asterisk, the colon, and the spaces.
-        Else
-            indent_length = len(bullet) + 4 'It's four more for the reason explained above.
-        End if
-
-        'Writes the bullet
-        EMWriteScreen "* " & bullet & ": ", noting_row, noting_col
-        'Determines new noting_col based on length of the bullet length (bullet + 4 to account for asterisk, colon, and spaces).
-        noting_col = noting_col + (len(bullet) + 4)
-        'Splits the contents of the variable into an array of words
-        variable_array = split(variable, " ")
-
-        For each word in variable_array
-            'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
-            If len(word) + noting_col > 80 then
-                noting_row = noting_row + 1
-                noting_col = 3
-            End if
-
-            'If the next line is row 18 (you can't write to row 18), it will PF8 to get to the next page
-            If noting_row >= 19 then
-                PF8
-                noting_row = 5
-                'Msgbox "what's Happening? Noting row: " & noting_row
-            End if
-
-            'Adds spaces (indent) if we're on col 3 since it's the beginning of a line. We also have to increase the noting col in these instances (so it doesn't overwrite the indent).
-            If noting_col = 3 then
-                EMWriteScreen space(indent_length), noting_row, noting_col
-                noting_col = noting_col + indent_length
-            End if
-
-            'Writes the word and a space using EMWriteScreen
-            EMWriteScreen replace(word, ";", "") & " ", noting_row, noting_col
-
-            'If a semicolon is seen (we use this to mean "go down a row", it will kick the noting row down by one and add more indent again.
-            If right(word, 1) = ";" then
-                noting_row = noting_row + 1
-                noting_col = 3
-                EMWriteScreen space(indent_length), noting_row, noting_col
-                noting_col = noting_col + indent_length
-            End if
-            'Increases noting_col the length of the word + 1 (for the space)
-            noting_col = noting_col + (len(word) + 1)
-        Next
-        'After the array is processed, set the cursor on the following row, in col 3, so that the user can enter in information here (just like writing by hand). If you're on row 18 (which isn't writeable), hit a PF8. If the panel is at the very end (page 5), it will back out and go into another case note, as we did above.
-    	EMSetCursor noting_row + 1, 3
-    End if
-end function
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 'CHANGELOG BLOCK ===========================================================================================================
@@ -524,35 +364,35 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     	PF9
     END IF
 
-    Call write_variable_in_CCOL_note_test("OVERPAYMENT CLAIM ENTERED" & " (" & client_name & ") ")
-    CALL write_bullet_and_variable_in_CCOL_note_test("Discovery date", discovery_date)
-    CALL write_bullet_and_variable_in_CCOL_note_test("Active Programs", programs)
-    CALL write_bullet_and_variable_in_CCOL_note_test("Source of income", income_source)
-    IF OP_program <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-    IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-    IF OP_program_III <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-    IF OP_program_IV <> "Select:" then Call write_variable_in_CCOL_note_test(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
+    Call write_variable_in_CCOL_note("OVERPAYMENT CLAIM ENTERED" & " (" & client_name & ") ")
+    CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
+    CALL write_bullet_and_variable_in_CCOL_note("Active Programs", programs)
+    CALL write_bullet_and_variable_in_CCOL_note("Source of income", income_source)
+    IF OP_program <> "Select:" then Call write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
+    IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
+    IF OP_program_III <> "Select:" then Call write_variable_in_CCOL_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
+    IF OP_program_IV <> "Select:" then Call write_variable_in_CCOL_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
     IF HC_claim_number <> "" THEN
-    	Call write_variable_in_CCOL_note_test("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
-    	Call write_bullet_and_variable_in_CCOL_note_test("Health Care responsible members", HC_resp_memb)
-    	Call write_bullet_and_variable_in_CCOL_note_test("Total Federal Health Care amount", Fed_HC_AMT)
-    	Call write_variable_in_CCOL_note_test("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+    	Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amt $" & HC_Claim_amount)
+    	Call write_bullet_and_variable_in_CCOL_note("Health Care responsible members", HC_resp_memb)
+    	Call write_bullet_and_variable_in_CCOL_note("Total Federal Health Care amount", Fed_HC_AMT)
+    	Call write_variable_in_CCOL_note("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
     END IF
     IF HC_claim_number_II <> "" THEN
-    	Call write_variable_in_CCOL_note_test("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " Amount $" & HC_claim_amount_II)
-    	Call write_bullet_and_variable_in_CCOL_note_test("Health Care responsible members", HC_resp_memb)
-    	Call write_bullet_and_variable_in_CCOL_note_test("Total Federal Health Care amount", Fed_HC_AMT)
-    	Call write_variable_in_CCOL_note_test("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
+    	Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " Amount $" & HC_claim_amount_II)
+    	Call write_bullet_and_variable_in_CCOL_note("Health Care responsible members", HC_resp_memb)
+    	Call write_bullet_and_variable_in_CCOL_note("Total Federal Health Care amount", Fed_HC_AMT)
+    	Call write_variable_in_CCOL_note("* Emailed HSPHD Accounts Receivable for the medical overpayment(s)")
     END IF
-    IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note_test("* Earned Income Disregard Allowed")
-    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_note_test("* Earned Income Disregard Not Allowed")
-    CALL write_bullet_and_variable_in_CCOL_note_test("Fraud referral made", fraud_referral)
-    CALL write_bullet_and_variable_in_CCOL_note_test("Income verification received", EVF_used)
-    CALL write_bullet_and_variable_in_CCOL_note_test("Date verification received", income_rcvd_date)
-    CALL write_bullet_and_variable_in_CCOL_note_test("Reason for overpayment", Reason_OP)
-    CALL write_bullet_and_variable_in_CCOL_note_test("Other responsible member(s)", OT_resp_memb)
-    CALL write_variable_in_CCOL_note_test("----- ----- -----")
-    CALL write_variable_in_CCOL_note_test(worker_signature)
+    IF EI_checkbox = CHECKED THEN CALL write_variable_in_CCOL_note("* Earned Income Disregard Allowed")
+    IF EI_checkbox = UNCHECKED THEN CALL write_variable_in_CCOL_note("* Earned Income Disregard Not Allowed")
+    CALL write_bullet_and_variable_in_CCOL_note("Fraud referral made", fraud_referral)
+    CALL write_bullet_and_variable_in_CCOL_note("Income verification received", EVF_used)
+    CALL write_bullet_and_variable_in_CCOL_note("Date verification received", income_rcvd_date)
+    CALL write_bullet_and_variable_in_CCOL_note("Reason for overpayment", Reason_OP)
+    CALL write_bullet_and_variable_in_CCOL_note("Other responsible member(s)", OT_resp_memb)
+    CALL write_variable_in_CCOL_note("----- ----- -----")
+    CALL write_variable_in_CCOL_note(worker_signature)
     PF3 'to save casenote'
 END IF
 
@@ -690,23 +530,23 @@ IF claim_actions = "Requested Claim Adjustment" THEN
     	PF9
     END IF
 
-	Call write_variable_in_CCOL_note_test("Requested Claim Adjustment")
-	CALL write_variable_in_CCOL_note_test("* Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number)
-	CALL write_bullet_and_variable_in_CCOL_note_test("Original Amount", original_claim_amount)
-	Call write_bullet_and_variable_in_CCOL_note_test("Correct Amount", corrected_claim_amount)
-	Call write_bullet_and_variable_in_CCOL_note_test("Adjustment Amount",  adjustment_amount)
-	Call write_bullet_and_variable_in_CCOL_note_test("Reason for correction", reason_correction)
-	Call write_bullet_and_variable_in_CCOL_note_test("Requested verifications", requested_verif)
-	Call write_bullet_and_variable_in_CCOL_note_test("Other notes", other_notes)
-	Call write_bullet_and_variable_in_CCOL_note_test("TANF Cash", tanf_elig_cash)
-	Call write_bullet_and_variable_in_CCOL_note_test("TANF Housing Grant", tanf_housing_grant)
-	Call write_bullet_and_variable_in_CCOL_note_test("Federal Food", federal_food)
-	Call write_bullet_and_variable_in_CCOL_note_test("State Cash", state_funds_cash)
-	Call write_bullet_and_variable_in_CCOL_note_test("State Housing", state_housing_grant)
-	Call write_bullet_and_variable_in_CCOL_note_test("State Food", state_food)
-	Call write_bullet_and_variable_in_CCOL_note_test("Total", total_amount)
+	Call write_variable_in_CCOL_note("Requested Claim Adjustment")
+	CALL write_variable_in_CCOL_note("* Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number)
+	CALL write_bullet_and_variable_in_CCOL_note("Original Amount", original_claim_amount)
+	Call write_bullet_and_variable_in_CCOL_note("Correct Amount", corrected_claim_amount)
+	Call write_bullet_and_variable_in_CCOL_note("Adjustment Amount",  adjustment_amount)
+	Call write_bullet_and_variable_in_CCOL_note("Reason for correction", reason_correction)
+	Call write_bullet_and_variable_in_CCOL_note("Requested verifications", requested_verif)
+	Call write_bullet_and_variable_in_CCOL_note("Other notes", other_notes)
+	Call write_bullet_and_variable_in_CCOL_note("TANF Cash", tanf_elig_cash)
+	Call write_bullet_and_variable_in_CCOL_note("TANF Housing Grant", tanf_housing_grant)
+	Call write_bullet_and_variable_in_CCOL_note("Federal Food", federal_food)
+	Call write_bullet_and_variable_in_CCOL_note("State Cash", state_funds_cash)
+	Call write_bullet_and_variable_in_CCOL_note("State Housing", state_housing_grant)
+	Call write_bullet_and_variable_in_CCOL_note("State Food", state_food)
+	Call write_bullet_and_variable_in_CCOL_note("Total", total_amount)
 	CALL write_variable_in_CASE_NOTE("----- ----- -----")
-	CALL write_variable_in_CCOL_note_test(worker_signature)
+	CALL write_variable_in_CCOL_note(worker_signature)
 	PF3
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, "CASE NOTE" & vbcr & message_array,"", False)
