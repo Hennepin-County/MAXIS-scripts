@@ -1082,7 +1082,7 @@ If caf_programs_denial = True Then
         CALL write_bullet_and_variable_in_CASE_NOTE("Other Pending Programs", additional_programs_applied_for)
         CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", active_programs)
         CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Received", verifs_rcvd)
-        CALL write_bullet_and_variable_in_CASE_NOTE("Pending Verifications", verifs_needed)
+        CALL write_bullet_and_variable_in_CASE_NOTE("Pending Verifications", verifs_missing)
         CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
         CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
         Call write_bullet_and_variable_in_case_note("Reason Health Care Interview Not Attempted", no_call_reason)
