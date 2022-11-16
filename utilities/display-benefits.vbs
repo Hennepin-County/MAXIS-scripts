@@ -1,8 +1,8 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "UTILITIES - Display Benefits.vbs"
+name_of_script = "UTILITIES - DISPLAY BENEFITS.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 500                     'manual run time in seconds
+STATS_manualtime = 180                     'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block================================================================================
 
@@ -84,14 +84,58 @@ Do
         dialog Dialog1
 
         cancel_without_confirmation
-        Call validate_MAXIS_case_number("*", MAXIS_case_number)
+        Call validate_MAXIS_case_number("*", MAXIS_case_number)                 'case number is only required information'
     Loop until err_msg = ""
     Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
 
-months_to_go_back = 6
-run_from_client_contact = False
+months_to_go_back = 6                   'defaulting the settings
+run_from_client_contact = False         'this is not client contact'
 
+'all functionality is in this function
 Call gather_case_benefits_details(months_to_go_back, run_from_client_contact)
 
 Call script_end_procedure("")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/16/2022
+'--Tab orders reviewed & confirmed----------------------------------------------11/16/2022
+'--Mandatory fields all present & Reviewed--------------------------------------N/A
+'--All variables in dialog match mandatory fields-------------------------------N/A
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/16/2022                  'dialog is first, using dialog functionality to check or password'
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/16/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---11/16/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------11/16/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------11/16/2022
+'--Script name reviewed---------------------------------------------------------11/16/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------11/16/2022
+'--comment Code-----------------------------------------------------------------11/16/2022
+'--Update Changelog for release/update------------------------------------------11/16/2022
+'--Remove testing message boxes-------------------------------------------------11/16/2022
+'--Remove testing code/unnecessary code-----------------------------------------11/16/2022
+'--Review/update SharePoint instructions----------------------------------------11/16/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
