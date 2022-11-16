@@ -60,7 +60,7 @@ Call check_for_MAXIS(False)
 transfer_to_worker = "X127CCL" 'setting the worker to the closed basket
 excel_row = 2 'default
 
-MAXIS_footer_month = right("0" & DatePart("m", DateAdd("m", -4, date) ), 4) ' resetting the month to current month minus 4
+MAXIS_footer_month = right("0" & DatePart("m", DateAdd("m", -4, date) ), 2) ' resetting the month to current month minus 4
 MAXIS_footer_year =  right(DatePart("yyyy", DateAdd("m", -4, date) ), 2)
 
 '-------------------------------------------------------------------------------------------------DIALOG
