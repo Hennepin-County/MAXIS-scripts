@@ -153,16 +153,16 @@ Do
                 EditBox 70, 325, 205, 15, worker_signature
                 OkButton 280, 325, 50, 15
                 CancelButton 335, 325, 50, 15
-                PushButton 10, 20, 25, 10, "ADDR", ADDR_button
-                PushButton 35, 20, 25, 10, "AREP", AREP_button
-                PushButton 60, 20, 25, 10, "MEMB", MEMB_button
-                PushButton 85, 20, 25, 10, "REVW", REVW_button
-                PushButton 110, 20, 25, 10, "SWKR", SWKR_Button
-                PushButton 150, 20, 50, 10, "CASE/CURR", CURR_button
-                PushButton 200, 20, 50, 10, "CASE/NOTE", NOTE_button
-                PushButton 250, 20, 50, 10, "ELIG/SUMM", ELIG_SUMM_button
-                PushButton 300, 20, 40, 10, "MEMO", MEMO_button
-                PushButton 340, 20, 40, 10, "WCOM", WCOM_button
+                PushButton 10, 15, 25, 10, "ADDR", ADDR_button
+                PushButton 35, 15, 25, 10, "AREP", AREP_button
+                PushButton 60, 15, 25, 10, "MEMB", MEMB_button
+                PushButton 85, 15, 25, 10, "REVW", REVW_button
+                PushButton 110, 15, 25, 10, "SWKR", SWKR_Button
+                PushButton 150, 15, 50, 10, "CASE/CURR", CURR_button
+                PushButton 200, 15, 50, 10, "CASE/NOTE", NOTE_button
+                PushButton 250, 15, 50, 10, "ELIG/SUMM", ELIG_SUMM_button
+                PushButton 300, 15, 40, 10, "MEMO", MEMO_button
+                PushButton 340, 15, 40, 10, "WCOM", WCOM_button
                 Text 20, 110, 50, 10, "Case number: "
                 Text 10, 130, 65, 10, "Reason for contact:"
                 Text 20, 160, 50, 10, "Actions taken: "
@@ -170,14 +170,14 @@ Do
                 Text 10, 200, 50, 10, "Verifs needed: "
                 Text 15, 220, 45, 10, "Case status: "
                 Text 10, 330, 60, 10, "Worker signature:"
-                GroupBox 5, 10, 135, 25, "STAT Navigation"
+                GroupBox 5, 5, 135, 25, "STAT Navigation"
                 GroupBox 5, 40, 380, 110, "Contact Information:"
                 Text 30, 55, 40, 10, "Contact type"
                 Text 100, 55, 30, 10, "From/To"
                 Text 150, 55, 65, 10, "Who was contacted"
                 Text 275, 55, 70, 10, "For case note header"
                 Text 230, 70, 15, 10, "Re:"
-                GroupBox 145, 10, 240, 25, "CASE Navigation"
+                GroupBox 145, 5, 240, 25, "CASE Navigation"
                 Text 15, 90, 50, 10, "Phone Number:"
                 Text 20, 245, 40, 10, "Other notes:"
                 GroupBox 260, 295, 125, 25, "Suggested Q-Flow Population:"          'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
@@ -185,12 +185,26 @@ Do
                 Text 285, 280, 55, 10, "Q-Flow Ticket #:"                           'needed during the COVID-19 PEACETIME STATE OF EMERGENCY
                 Text 170, 90, 75, 10, "Date/Time of Contact:"
                 Text 255, 110, 60, 10, "METS IC number:"
+                PushButton 300, 35, 85, 15, "Display Benefits", display_benefits_btn
             EndDialog
 
 		    DIALOG Dialog1
 		    cancel_confirmation
             MAXIS_dialog_navigation
             If ButtonPressed = interpreter_servicves_btn Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://itwebpw026/content/forms/af/_internal/hhs/human_services/initial_contact_access/AF10196.html"
+            If ButtonPressed = display_benefits_btn Then
+                display_ben_err_msg = ""
+                Call validate_MAXIS_case_number(display_ben_err_msg, "*")
+
+                If display_ben_err_msg = "" Then
+                    If months_to_go_back = "" Then months_to_go_back = 3
+                    run_from_client_contact = True
+                    Call gather_case_benefits_details(months_to_go_back, run_from_client_contact)
+                Else
+                    MsgBox "Cannot display benefits details as the Case Number is not entered." & vbCr &  display_ben_err_msg
+                End If
+                ButtonPressed = 100
+            End If
         Loop until ButtonPressed = -1
         If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
         If trim(contact_type) = "" or contact_type = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the contact type."

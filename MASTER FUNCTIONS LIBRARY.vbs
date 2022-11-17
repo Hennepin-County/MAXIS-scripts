@@ -7234,6 +7234,46 @@ function find_variable(opening_string, variable_name, length_of_variable)
   If row <> 0 then EMReadScreen variable_name, length_of_variable, row, col + len(opening_string)
 end function
 
+function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, version_date, version_result, approval_found)
+'--- Function to find and navigate to the last approved version of ELIG. YOU SHOULD NAVIGATE TO THE CORRECT ELIG RESULTS FIRST
+'~~~~~ cmd_row: NUMBER enter the row the COMMAND line is on (this is different for different programs)
+'~~~~~ cmd_col: NUMBER enter the column thhe COMMAND Line is on (this is different for different programs)
+'~~~~~ version_number: outputs a the version number that it found as the last approved
+'~~~~~ version_date: outputs the process date for the version it found
+'~~~~~ version_result: outputs the ELIG/INELIG information for the approved version
+'~~~~~ approval_found: BOOLEAN - If an appoved version was found
+'===== Keywords: MAXIS, find, ELIG
+	Call write_value_and_transmit("99", cmd_row, cmd_col)			'opening the pop-up with all versions listed.
+	approval_found = True											'default the approval to being found
+
+	row = 7															'this is  the first row of the pop-up'
+	Do
+		EMReadScreen elig_version, 2, row, 22						'reading the information about the version
+		EMReadScreen elig_date, 8, row, 26
+		EMReadScreen elig_result, 10, row, 37
+		EMReadScreen approval_status, 10, row, 50
+
+		elig_version = trim(elig_version)
+		elig_result = trim(elig_result)
+		approval_status = trim(approval_status)
+
+		If approval_status = "APPROVED" Then Exit Do				'If it was 'APPROVED' this is the most recent version that is appoved and we have all the information
+
+		row = row + 1												'go to the next row'
+	Loop until approval_status = ""									'once we hit a blank, there are no more vversions
+
+	Call clear_line_of_text(18, 54)									''erasing the version entry as it defaults when the pop-up opens
+	If approval_status = "" Then									'if no APPROVAL was found, then we leave without navigating and changing the found to false
+		approval_found = false
+		PF3
+	Else
+		Call write_value_and_transmit(elig_version, 18, 54)			'if an approval was found, we navigate to it and save the information to the output variables.
+		version_number = "0" & elig_version
+		version_date = elig_date
+		version_result = elig_result
+	End If
+end function
+
 function find_MAXIS_worker_number(x_number)
 '--- This function finds a MAXIS worker's X number
 '~~~~~ x_number: worker number variable
@@ -7337,6 +7377,556 @@ Function generate_client_list(list_for_dropdown, initial_text)
 		list_for_dropdown = list_for_dropdown & chr(9) & person
 	Next
 End Function
+
+function gather_case_benefits_details(months_to_go_back, run_from_client_contact)
+'--- This function reviews a case to read and display issuance information for current and past months.
+'~~~~~ months_to_go_back: A number that counts how many past months to review
+'~~~~~ run_from_client_contact: determining if this is being run from client contact
+'===== Keywords: MAXIS, DIALOG, CLIENTS
+
+	'setting the constants for the array used wihin the function. These are not passed through.
+    const fn_footer_month_const    = 0
+    const fn_footer_year_const     = 1
+    const fn_snap_issued_const     = 2
+    const fn_snap_recoup_const     = 3
+    const fn_ga_issued_const       = 4
+    const fn_ga_recoup_const       = 5
+    const fn_msa_issued_const      = 6
+    const fn_msa_recoup_const      = 7
+    const fn_mf_mf_issued_const    = 8
+    const fn_mf_mf_recoup_const    = 9
+    const fn_mf_fs_issued_const    = 10
+    const fn_mf_hg_issued_const    = 11
+    const fn_dwp_issued_const      = 12
+    const fn_dwp_recoup_const      = 13
+    const fn_emer_issued_const     = 14
+    const fn_emer_prog_const       = 15
+    const fn_grh_issued_const      = 16
+    const fn_grh_recoup_const      = 17
+    const fn_no_issuance_const     = 18
+    const fn_last_const            = 25
+
+    Dim ISSUED_BENEFITS_ARRAY()			'defning the array used in the function to save the past benefits amounts
+
+    complete_script_run_btn = 50				'defning the button numbers to ensure they don't get mixed up
+    run_pa_verif_reqquest_btn = 100
+    run_client_contact_btn = 110
+    change_lookback_month_count_btn = 200
+    elig_fs_btn = 300
+    elig_ga_btn = 310
+    elig_msa_btn = 320
+    elig_mfip_btn = 340
+    elig_dwp_btn = 350
+    elig_grh_btn = 360
+    view_by_month_btn = 400
+    view_by_prog_btn = 410
+
+	'this function will gather details from INQQB and save them into the defined array.
+    Call read_inqb_for_all_issuances(months_to_go_back, beginning_footer_month, ISSUED_BENEFITS_ARRAY, fn_footer_month_const, fn_footer_year_const, fn_snap_issued_const, fn_snap_recoup_const, fn_ga_issued_const, fn_ga_recoup_const, fn_msa_issued_const, fn_msa_recoup_const, fn_mf_mf_issued_const, fn_mf_mf_recoup_const, fn_mf_fs_issued_const, fn_mf_hg_issued_const, fn_dwp_issued_const, fn_dwp_recoup_const, fn_emer_issued_const, fn_emer_prog_const, fn_grh_issued_const, fn_grh_recoup_const, fn_no_issuance_const, fn_last_const, snap_found, ga_found, msa_found, mfip_found, dwp_found, grh_found)
+
+    MAXIS_footer_month = CM_plus_1_mo                              'setting the footermonth to the current month
+    MAXIS_footer_year = CM_plus_1_yr
+
+	'determining the program information
+    Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+    Call Back_to_SELF
+
+	'This section will read ELIG for CM+1 for any program that is ACTIVE or will be ACTIVE next month. This will display the ongoing benefit in the dialog
+    If snap_status = "ACTIVE" or snap_status = "APP OPEN" Then					'SNAP'
+        call navigate_to_MAXIS_screen("ELIG", "FS  ")
+        Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        Call write_value_and_transmit("FSSM", 19, 70)
+
+        EMReadScreen snap_benefit_monthly_fs_allotment, 10, 8, 71
+        EMReadScreen snap_benefit_prorated_amt, 		10, 9, 71
+        EMReadScreen snap_benefit_prorated_date,		8, 9, 58
+        EMReadScreen snap_benefit_amt, 					10, 13, 71
+
+        snap_benefit_monthly_fs_allotment = trim(snap_benefit_monthly_fs_allotment)
+        snap_benefit_prorated_amt = trim(snap_benefit_prorated_amt)
+        snap_benefit_prorated_date = trim(snap_benefit_prorated_date)
+        ongoing_snap_amount = trim(snap_benefit_amt)
+
+        Call Back_to_SELF
+    End If
+    If ga_status = "ACTIVE" or ga_status = "APP OPEN" Then						'GA
+        call navigate_to_MAXIS_screen("ELIG", "GA  ")
+        Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        Call write_value_and_transmit("GASM", 20, 70)
+
+        EMReadScreen ga_elig_summ_monthly_grant, 10, 9, 71
+        EMReadScreen ga_elig_summ_amount_to_be_paid, 10, 14, 71
+
+        ga_elig_summ_monthly_grant = trim(ga_elig_summ_monthly_grant)
+        ongoing_ga_amount = trim(ga_elig_summ_amount_to_be_paid)
+
+        Call Back_to_SELF
+    End If
+    If msa_status = "ACTIVE" or msa_status = "APP OPEN" Then					'MMSA
+        call navigate_to_MAXIS_screen("ELIG", "MSA ")
+        Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        Call write_value_and_transmit("MSSM", 20, 71)
+
+        EMReadScreen msa_elig_summ_grant, 9, 11, 72
+        EMReadScreen msa_elig_summ_current_payment, 9, 17, 72
+
+        msa_elig_summ_grant = trim(msa_elig_summ_grant)
+        ongoing_msa_amount = trim(msa_elig_summ_current_payment)
+
+        Call Back_to_SELF
+    End If
+    If mfip_status = "ACTIVE" or mfip_status = "APP OPEN" Then					'MFIP
+        call navigate_to_MAXIS_screen("ELIG", "MFIP")
+        Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        Call write_value_and_transmit("MFSM", 20, 71)
+
+        EMReadScreen mfip_case_summary_grant_amount, 10, 11, 71
+        EMReadScreen mfip_case_summary_net_grant_amount, 10, 13, 71
+        EMReadScreen mfip_case_summary_cash_portion, 10, 14, 71
+        EMReadScreen mfip_case_summary_food_portion, 10, 15, 71
+        EMReadScreen mfip_case_summary_housing_grant, 10, 16, 71
+
+        mfip_case_summary_grant_amount = trim(mfip_case_summary_grant_amount)
+        mfip_case_summary_net_grant_amount = trim(mfip_case_summary_net_grant_amount)
+        ongoing_mfip_cash_amount = trim(mfip_case_summary_cash_portion)
+        ongoing_mfip_food_amount = trim(mfip_case_summary_food_portion)
+        ongoing_mfip_hg_amount = trim(mfip_case_summary_housing_grant)
+
+        Call Back_to_SELF
+    End If
+    If dwp_status = "ACTIVE" or dwp_status = "APP OPEN" Then					'DWP
+        call navigate_to_MAXIS_screen("ELIG", "DWP ")
+        Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        Call write_value_and_transmit("DWSM", 20, 71)
+
+
+        EMReadScreen dwp_case_summary_grant_amount, 10, 10, 71
+        EMReadScreen dwp_case_summary_net_grant_amount, 10, 12, 71
+        EMReadScreen dwp_case_summary_shelter_benefit_portion, 10, 13, 71
+        EMReadScreen dwp_case_summary_personal_needs_portion, 10, 14, 71
+
+        dwp_case_summary_grant_amount = trim(dwp_case_summary_grant_amount)
+        ongoing_dwp_amount = trim(dwp_case_summary_net_grant_amount)
+        dwp_case_summary_shelter_benefit_portion = trim(dwp_case_summary_shelter_benefit_portion)
+        dwp_case_summary_personal_needs_portion = trim(dwp_case_summary_personal_needs_portion)
+
+        Call Back_to_SELF
+    End If
+    If grh_status = "ACTIVE" or ga_stagrh_statustus = "APP OPEN" Then			'GRH
+        call navigate_to_MAXIS_screen("ELIG", "GRH ")
+        Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        Call write_value_and_transmit("GRSM", 20, 71)
+
+        EMReadScreen ongoing_grh_amount_one, 		9, 12, 31
+        EMReadScreen ongoing_grh_amount_two, 		9, 12, 50
+
+        ongoing_grh_amount_one = trim(ongoing_grh_amount_one)
+        ongoing_grh_amount_two = trim(ongoing_grh_amount_two)
+
+        Call Back_to_SELF
+    End If
+
+	'the dialog can show information either sorted by program or by month. This defaults it to sorting by program and sets the functionality to switch.
+    view_by_program = 1
+    view_by_month = 2
+    dialog_history_view = view_by_program
+	'Looping to show the dialog
+    Do
+        Do
+            programs_with_no_cm_plus_one_issuance = ""							'setting up a list of programs with no issuance next month'
+            If ongoing_snap_amount = "" Then programs_with_no_cm_plus_one_issuance = programs_with_no_cm_plus_one_issuance & ", SNAP"
+            If ongoing_ga_amount = "" Then programs_with_no_cm_plus_one_issuance = programs_with_no_cm_plus_one_issuance & ", GA"
+            If ongoing_msa_amount = "" Then programs_with_no_cm_plus_one_issuance = programs_with_no_cm_plus_one_issuance & ", MSA"
+            If ongoing_mfip_cash_amount = "" and ongoing_mfip_food_amount = "" and ongoing_mfip_hg_amount = "" Then programs_with_no_cm_plus_one_issuance = programs_with_no_cm_plus_one_issuance & ", MFIP"
+            If ongoing_dwp_amount = "" Then programs_with_no_cm_plus_one_issuance = programs_with_no_cm_plus_one_issuance & ", DWP"
+            If ongoing_grh_amount_one = "" Then programs_with_no_cm_plus_one_issuance = programs_with_no_cm_plus_one_issuance & ", GRH"
+            if left(programs_with_no_cm_plus_one_issuance, 1) = "," Then programs_with_no_cm_plus_one_issuance = right(programs_with_no_cm_plus_one_issuance, len(programs_with_no_cm_plus_one_issuance)-1)
+            programs_with_no_cm_plus_one_issuance = trim(programs_with_no_cm_plus_one_issuance)
+
+            programs_with_no_past_issuance = ""									'setting up a list of programs with no issuance in past months
+            If snap_found = False Then programs_with_no_past_issuance = programs_with_no_past_issuance & ", SNAP"
+            If ga_found = False Then programs_with_no_past_issuance = programs_with_no_past_issuance & ", GA"
+            If msa_found = False Then programs_with_no_past_issuance = programs_with_no_past_issuance & ", MSA"
+            If mfip_found = False Then programs_with_no_past_issuance = programs_with_no_past_issuance & ", MFIP"
+            If dwp_found = False Then programs_with_no_past_issuance = programs_with_no_past_issuance & ", DWP"
+            If grh_found = False Then programs_with_no_past_issuance = programs_with_no_past_issuance & ", GRH"
+            if left(programs_with_no_past_issuance, 1) = "," Then programs_with_no_past_issuance = right(programs_with_no_past_issuance, len(programs_with_no_past_issuance)-1)
+            programs_with_no_past_issuance = trim(programs_with_no_past_issuance)
+
+			'This part is to determine the size of the groupbox and the dialog length
+            prog_count = 1
+            If mfip_found = True Then prog_count = prog_count + 1
+            If snap_found = True Then prog_count = prog_count + 1
+            If ga_found = True Then prog_count = prog_count + 1
+            If msa_found = True Then prog_count = prog_count + 1
+            If dwp_found = True Then prog_count = prog_count + 1
+            If grh_found = True Then prog_count = prog_count + 1
+            prog_len_multiplier = prog_count/2
+            prog_len_multiplier = INT(prog_len_multiplier)
+
+            If dialog_history_view = view_by_program Then
+                grp_bx_len = 45
+                grp_bx_len = grp_bx_len + prog_len_multiplier * 15
+                no_issuance_months = ""
+                For each_inqb_item = 0 to UBound(ISSUED_BENEFITS_ARRAY, 2)
+                    If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_inqb_item) = False Then grp_bx_len = grp_bx_len + 10 * prog_len_multiplier
+                    If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_inqb_item) = True Then no_issuance_months = no_issuance_months & ", " & ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_inqb_item) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_inqb_item)
+                Next
+                If left(no_issuance_months, 1) = "," Then no_issuance_months = right(no_issuance_months, len(no_issuance_months)-1)
+                no_issuance_months = trim(no_issuance_months)
+                If no_issuance_months <> "" Then grp_bx_len = grp_bx_len + 15
+            End If
+
+
+            If dialog_history_view = view_by_month Then
+                grp_bx_len = 55
+                no_issuance_months = ""
+                For each_inqb_item = 0 to UBound(ISSUED_BENEFITS_ARRAY, 2)
+                    If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_inqb_item) = False Then grp_bx_len = grp_bx_len + 10
+                    If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_inqb_item) = True Then no_issuance_months = no_issuance_months & ", " & ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_inqb_item) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_inqb_item)
+                Next
+                If left(no_issuance_months, 1) = "," Then no_issuance_months = right(no_issuance_months, len(no_issuance_months)-1)
+                no_issuance_months = trim(no_issuance_months)
+                If no_issuance_months <> "" Then grp_bx_len = grp_bx_len + 15
+            End If
+            dlg_len = 160 + grp_bx_len
+
+			'defining the dialog
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 441, dlg_len, "Case " & MAXIS_case_number & " Issuance Details"
+             ButtonGroup ButtonPressed
+                EditBox 500, 600, 50, 15, fake_edit_box
+                GroupBox 10, 10, 420, 105, "Current Approval Amounts"
+                Text 20, 25, 180, 10, "Based on ELIG for current month plus 1  (" & CM_plus_1_mo & "/" & CM_plus_1_yr &")"
+
+                x_pos = 30
+                If ongoing_snap_amount <> "" Then
+                    Text x_pos, 40, 25, 10, "SNAP"
+                    Text x_pos+5, 50, 30, 10, "$ " & ongoing_snap_amount
+                    PushButton x_pos, 80, 35, 10, "ELIG/FS", elig_fs_btn
+                    x_pos = x_pos + 60
+                End If
+                If ongoing_ga_amount <> "" Then
+                    Text x_pos, 40, 25, 10, "GA"
+                    Text x_pos+5, 50, 30, 10, "$ " & ongoing_ga_amount
+                    PushButton x_pos, 80, 35, 10, "ELIG/GA", elig_ga_btn
+                    x_pos = x_pos + 60
+                End If
+                If ongoing_msa_amount <> "" Then
+                    Text x_pos, 40, 25, 10, "MSA"
+                    Text x_pos+5, 50, 30, 10, "$ " & ongoing_msa_amount
+                    PushButton x_pos, 80, 40, 10, "ELIG/MSA", elig_msa_btn
+                    x_pos = x_pos + 65
+                End If
+                If ongoing_mfip_cash_amount <> "" or ongoing_mfip_food_amount <> "" or ongoing_mfip_hg_amount <> "" Then
+                    Text x_pos, 40, 25, 10, "MFIP"
+                    Text x_pos+5, 50, 60, 10, "MF - $ " & ongoing_mfip_cash_amount
+                    Text x_pos+5, 60, 60, 10, "FS - $ " & ongoing_mfip_food_amount
+                    Text x_pos+5, 70, 60, 10, "HG - $ " & ongoing_mfip_hg_amount
+                    PushButton x_pos, 80, 45, 10, "ELIG/MFIP", elig_mfip_btn
+                    x_pos = x_pos + 70
+                End If
+                If ongoing_dwp_amount <> "" Then
+                    Text x_pos, 40, 25, 10, "DWP"
+                    Text 300, 50, 30, 10, "$ " & ongoing_dwp_amount
+                    PushButton x_pos, 80, 40, 10, "ELIG/DWP", elig_dwp_btn
+                    x_pos = x_pos + 65
+                End If
+                If ongoing_grh_amount_one <> "" Then
+                    Text x_pos, 40, 25, 10, "GRH"
+                    Text x_pos+5, 50, 45, 10, "One - $ " & ongoing_grh_amount_one
+                    if ongoing_grh_amount_two <> "" Then Text x_pos+5, 60, 45, 10, "Two - $ " & ongoing_grh_amount_two
+                    PushButton x_pos, 80, 40, 10, "ELIG/GRH", elig_grh_btn
+                End If
+                Text 140, 100, 280, 10, "No Eligibility for: " & programs_with_no_cm_plus_one_issuance
+                '
+                GroupBox 10, 125, 420, grp_bx_len, "Past Issuance Amounts"
+                Text 25, 140, 200, 10, "Information going back " & months_to_go_back & " months from " & beginning_footer_month & " to " & CM_mo & "/" & CM_yr
+                PushButton 265, 135, 160, 15, "Change the Number of Months to Go Back", change_lookback_month_count_btn
+
+                x_pos = 30
+                y_pos = 155
+                no_issue_month_found = false
+                If no_issuance_months <> "" Then
+                    no_issue_month_found = True
+                    Text 30, y_pos, 200, 10, "No issuances for " & no_issuance_months
+                    y_pos = y_pos + 15
+                End If
+
+                If dialog_history_view = view_by_program Then
+                    y_pos_reset = y_pos
+
+                    If mfip_found = True Then
+                        Text x_pos, y_pos, 35, 10, "MFIP"
+                        y_pos = y_pos + 10
+
+                        For each_mf_issue = 0 to UBound(ISSUED_BENEFITS_ARRAY, 2)
+                            If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_mf_issue) = False Then
+                                month_info = ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_mf_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_mf_issue)
+                                If ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, each_mf_issue) = "" and ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, each_mf_issue) = "" and ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, each_mf_issue) = "" Then
+                                    Text x_pos+10, y_pos, 150, 10, month_info & "  .  . None"
+                                Else
+                                    If ISSUED_BENEFITS_ARRAY(fn_mf_mf_recoup_const, each_mf_issue) <> "" Then Text x_pos+10, y_pos, 200, 10, month_info & "  .  . Cash $ " & ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, each_mf_issue) & "  -  Food $  " & ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, each_mf_issue) & "  -  HG $  " & ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, each_mf_issue) & "        Recoup: $ " & ISSUED_BENEFITS_ARRAY(fn_mf_mf_recoup_const, each_mf_issue)
+                                    If ISSUED_BENEFITS_ARRAY(fn_mf_mf_recoup_const, each_mf_issue) = "" Then Text x_pos+10, y_pos, 200, 10, month_info & "  .  . Cash $ " & ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, each_mf_issue) & "  -  Food $  " & ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, each_mf_issue) & "  -  HG $  " & ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, each_mf_issue)
+                                End If
+                                y_pos = y_pos + 10
+                            End If
+                        Next
+                        y_pos_end = y_pos
+                        If x_pos = 30 Then
+                            x_pos = 260
+                            y_pos = y_pos_reset
+                        ElseIf x_pos = 260 Then
+                            x_pos = 30
+                            y_pos_reset = y_pos + 5
+                            y_pos = y_pos_reset
+                        End If
+                    End If
+
+                    If snap_found = True Then
+                        Text x_pos, y_pos, 35, 10, "SNAP"
+                        y_pos = y_pos + 10
+
+                        For each_fs_issue = 0 to UBound(ISSUED_BENEFITS_ARRAY, 2)
+                            If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_fs_issue) = False Then
+                                If ISSUED_BENEFITS_ARRAY(fn_snap_issued_const, each_fs_issue) = "" Then
+                                    Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_fs_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_fs_issue) & "  .  .  .  None"
+                                Else
+                                    If ISSUED_BENEFITS_ARRAY(fn_snap_recoup_const, each_fs_issue) <> "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_fs_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_fs_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_snap_issued_const, each_fs_issue) & "        Recoup: $ " & ISSUED_BENEFITS_ARRAY(fn_snap_recoup_const, each_fs_issue)
+                                    If ISSUED_BENEFITS_ARRAY(fn_snap_recoup_const, each_fs_issue) = "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_fs_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_fs_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_snap_issued_const, each_fs_issue)
+                                End If
+                                y_pos = y_pos + 10
+                            End If
+                        Next
+                        y_pos_end = y_pos
+                        If x_pos = 30 Then
+                            x_pos = 260
+                            y_pos = y_pos_reset
+                        ElseIf x_pos = 260 Then
+                            x_pos = 30
+                            y_pos_reset = y_pos + 5
+                            y_pos = y_pos_reset
+                        End If
+                    End If
+
+                    If ga_found = True Then
+                        Text x_pos, y_pos, 35, 10, "GA"
+                        y_pos = y_pos + 10
+
+                        For each_ga_issue = 0 to UBound(ISSUED_BENEFITS_ARRAY, 2)
+                            If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_ga_issue) = False Then
+                                If ISSUED_BENEFITS_ARRAY(fn_ga_issued_const, each_ga_issue) = "" Then
+                                    Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_ga_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_ga_issue) & "  .  .  .  None"
+                                Else
+                                    If ISSUED_BENEFITS_ARRAY(fn_ga_recoup_const, each_ga_issue) <> "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_ga_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_ga_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_ga_issued_const, each_ga_issue) & "        Recoup: $ " & ISSUED_BENEFITS_ARRAY(fn_ga_recoup_const, each_ga_issue)
+                                    If ISSUED_BENEFITS_ARRAY(fn_ga_recoup_const, each_ga_issue) = "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_ga_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_ga_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_ga_issued_const, each_ga_issue)
+                                End If
+                                y_pos = y_pos + 10
+                            End If
+                        Next
+                        y_pos_end = y_pos
+                        If x_pos = 30 Then
+                            x_pos = 260
+                            y_pos = y_pos_reset
+                        ElseIf x_pos = 260 Then
+                            x_pos = 30
+                            y_pos_reset = y_pos + 5
+                            y_pos = y_pos_reset
+                        End If
+                    End If
+
+                    If msa_found = True Then
+                        Text x_pos, y_pos, 35, 10, "MSA"
+                        y_pos = y_pos + 10
+
+                        For each_msa_issue = 0 to UBound(ISSUED_BENEFITS_ARRAY, 2)
+                            If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_msa_issue) = False Then
+                                If ISSUED_BENEFITS_ARRAY(fn_msa_issued_const, each_msa_issue) = "" Then
+                                    Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_msa_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_msa_issue) & "  .  .  .  None"
+                                Else
+                                    If ISSUED_BENEFITS_ARRAY(fn_msa_recoup_const, each_msa_issue) <> "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_msa_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_msa_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_msa_issued_const, each_msa_issue) & "        Recoup: $ " & ISSUED_BENEFITS_ARRAY(fn_msa_recoup_const, each_msa_issue)
+                                    If ISSUED_BENEFITS_ARRAY(fn_msa_recoup_const, each_msa_issue) = "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_msa_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_msa_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_msa_issued_const, each_msa_issue)
+                                End If
+                                y_pos = y_pos + 10
+                            End If
+                        Next
+                        y_pos_end = y_pos
+                        If x_pos = 30 Then
+                            x_pos = 260
+                            y_pos = y_pos_reset
+                        ElseIf x_pos = 260 Then
+                            x_pos = 30
+                            y_pos_reset = y_pos + 5
+                            y_pos = y_pos_reset
+                        End If
+                    End If
+
+                    If dwp_found = True Then
+                        Text x_pos, y_pos, 35, 10, "DWP"
+                        y_pos = y_pos + 10
+
+                        For each_dwp_issue = 0 to UBound(ISSUED_BENEFITS_ARRAY, 2)
+                            If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_dwp_issue) = False Then
+                                If ISSUED_BENEFITS_ARRAY(fn_dwp_issued_const, each_dwp_issue) = "" Then
+                                    Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_dwp_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_dwp_issue) & "  .  .  .  None"
+                                Else
+                                    If ISSUED_BENEFITS_ARRAY(fn_dwp_recoup_const, each_dwp_issue) <> "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_dwp_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_dwp_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_dwp_issued_const, each_dwp_issue) & "        Recoup: $ " & ISSUED_BENEFITS_ARRAY(fn_dwp_recoup_const, each_dwp_issue)
+                                    If ISSUED_BENEFITS_ARRAY(fn_dwp_recoup_const, each_dwp_issue) = "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_dwp_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_dwp_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_dwp_issued_const, each_dwp_issue)
+                                End If
+                                y_pos = y_pos + 10
+                            End If
+                        Next
+                        y_pos_end = y_pos
+                        If x_pos = 30 Then
+                            x_pos = 260
+                            y_pos = y_pos_reset
+                        ElseIf x_pos = 260 Then
+                            x_pos = 30
+                            y_pos_reset = y_pos + 5
+                            y_pos = y_pos_reset
+                        End If
+                    End If
+
+                    If grh_found = True Then
+                        Text x_pos, y_pos, 35, 10, "GRH"
+                        y_pos = y_pos + 10
+
+                        For each_grh_issue = 0 to UBound(ISSUED_BENEFITS_ARRAY, 2)
+                            If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_grh_issue) = False Then
+                                If ISSUED_BENEFITS_ARRAY(fn_grh_issued_const, each_grh_issue) = "" Then
+                                    Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_grh_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_grh_issue) & "  .  .  .  None"
+                                Else
+                                    If ISSUED_BENEFITS_ARRAY(fn_grh_recoup_const, each_grh_issue) <> "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_grh_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_grh_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_grh_issued_const, each_grh_issue) & "        Recoup: $ " & ISSUED_BENEFITS_ARRAY(fn_grh_recoup_const, each_grh_issue)
+                                    If ISSUED_BENEFITS_ARRAY(fn_grh_recoup_const, each_grh_issue) = "" Then Text x_pos+10, y_pos, 150, 10, ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_grh_issue) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_grh_issue) & "  .  .  .  $ " & ISSUED_BENEFITS_ARRAY(fn_grh_issued_const, each_grh_issue)
+                                End If
+                                y_pos = y_pos + 10
+                            End If
+                        Next
+                        y_pos_end = y_pos
+                        If x_pos = 30 Then
+                            x_pos = 260
+                            y_pos = y_pos_reset
+                        ElseIf x_pos = 260 Then
+                            x_pos = 30
+                            y_pos_reset = y_pos + 5
+                            y_pos = y_pos_reset
+                        End If
+                    End If
+                End If
+
+                If dialog_history_view = view_by_month Then
+                    For each_issue_mo = 0 to UBound(ISSUED_BENEFITS_ARRAY, 2)
+                        If ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, each_issue_mo) = False Then
+                            month_info = ISSUED_BENEFITS_ARRAY(fn_footer_month_const, each_issue_mo) & "/" & ISSUED_BENEFITS_ARRAY(fn_footer_year_const, each_issue_mo)
+                            beneits_info = ""
+                            If ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, each_issue_mo) <> "" OR ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, each_issue_mo) <> "" OR ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, each_issue_mo) <> "" Then beneits_info = beneits_info & "  MFIP - (MF $ " & ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, each_issue_mo) & ", FS $  " & ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, each_issue_mo) & ", HG $  " & ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, each_issue_mo) & ")    |  "
+                            If ISSUED_BENEFITS_ARRAY(fn_snap_issued_const, each_issue_mo) <> "" Then beneits_info = beneits_info & "  SNAP - $ " & ISSUED_BENEFITS_ARRAY(fn_snap_issued_const, each_issue_mo) & "    |  "
+                            If ISSUED_BENEFITS_ARRAY(fn_ga_issued_const, each_issue_mo) <> "" Then beneits_info = beneits_info & "  GA - $ " & ISSUED_BENEFITS_ARRAY(fn_ga_issued_const, each_issue_mo) & "    |  "
+                            If ISSUED_BENEFITS_ARRAY(fn_msa_issued_const, each_issue_mo) <> "" Then beneits_info = beneits_info & "  MSA - $ " & ISSUED_BENEFITS_ARRAY(fn_msa_issued_const, each_issue_mo) & "    |  "
+                            If ISSUED_BENEFITS_ARRAY(fn_dwp_issued_const, each_issue_mo) <> "" Then beneits_info = beneits_info & "  DWP - $ " & ISSUED_BENEFITS_ARRAY(fn_dwp_issued_const, each_issue_mo) & "    |  "
+                            If ISSUED_BENEFITS_ARRAY(fn_grh_issued_const, each_issue_mo) <> "" Then beneits_info = beneits_info & "  GRH - $ " & ISSUED_BENEFITS_ARRAY(fn_grh_issued_const, each_issue_mo) & "    |  "
+                            If right(beneits_info, 7) = "    |  " Then beneits_info = left(beneits_info, len(beneits_info)-7)
+                            Text 20, y_pos, 400, 10, month_info & "  .  .  .  " & beneits_info
+
+                            y_pos = y_pos + 10
+
+                        End If
+                    Next
+                    y_pos = y_pos + 5
+                End if
+                Text 135, 110+grp_bx_len, 295, 10, "No Issuances for: " & programs_with_no_past_issuance
+
+                If dialog_history_view = view_by_program Then PushButton 20, 110+grp_bx_len, 100, 12, "View History by Month", view_by_month_btn
+                If dialog_history_view = view_by_month Then PushButton 20, 110+grp_bx_len, 100, 12, "View History by Program", view_by_prog_btn
+
+                If run_from_client_contact = False Then
+                    PushButton 15, dlg_len-25, 160, 15, "Run NOTICES - PA Verifications Request", run_pa_verif_reqquest_btn
+                    PushButton 185, dlg_len-25, 135, 15, "Run NOTES - Client Contact", run_client_contact_btn
+					PushButton 330, dlg_len-25, 100, 15, "End Script Run", complete_script_run_btn
+                End If
+				If run_from_client_contact = True Then
+					PushButton 330, dlg_len-25, 100, 15, "Return to Client Contact", complete_script_run_btn
+				End If
+            EndDialog
+
+            dialog Dialog1
+            If run_from_client_contact = False Then cancel_without_confirmation
+			If run_from_client_contact = True Then cancel_confirmation
+
+            If ButtonPressed = view_by_month_btn Then dialog_history_view = view_by_month
+            If ButtonPressed = view_by_prog_btn Then dialog_history_view = view_by_program
+
+            If ButtonPressed = run_pa_verif_reqquest_btn Then Call run_from_GitHub(script_repository & "notices/pa-verif-request.vbs" )
+            If ButtonPressed = run_client_contact_btn Then Call run_from_GitHub(script_repository & "notes/client-contact.vbs" )
+            If ButtonPressed = complete_script_run_btn Then ButtonPressed = -1
+
+            Call check_for_password(are_we_passworded_out)
+        Loop until are_we_passworded_out = False			'anything after here within the function moves in MAXIS and we must be passworded in.
+
+        If ButtonPressed = change_lookback_month_count_btn Then					'if the button is pressed to change the number of months, a small dialog appars to enter a new number in.
+            months_to_go_back = months_to_go_back & ""							'dialogs need strings
+            Do
+                Do
+                    Dialog1 = ""
+                    BeginDialog Dialog1, 0, 0, 141, 80, "Lookback Months Update"
+                      EditBox 100, 35, 25, 15, months_to_go_back
+                      ButtonGroup ButtonPressed
+                        OkButton 75, 55, 50, 15
+                      Text 10, 10, 130, 15, "How many months should the script search for issuance amounts?"
+                      Text 30, 40, 70, 10, "Months to look back:"
+                    EndDialog
+
+                    dialog Dialog1
+                    cancel_confirmation
+
+                    If IsNumeric(months_to_go_back) = False Then MsgBox "****** NOTICE ******" & vbCr & vbCr & "Please review the number of months you have entered." & vbCr & vbCr &"This needs to be a number."
+
+                Loop until IsNumeric(months_to_go_back) = True
+                Call check_for_password(are_we_passworded_out)
+            Loop until are_we_passworded_out = False
+            months_to_go_back = months_to_go_back * 1							'math needs number
+
+			'rereading INQB and creating a new array of the past issuance information
+            Call read_inqb_for_all_issuances(months_to_go_back, beginning_footer_month, ISSUED_BENEFITS_ARRAY, fn_footer_month_const, fn_footer_year_const, fn_snap_issued_const, fn_snap_recoup_const, fn_ga_issued_const, fn_ga_recoup_const, fn_msa_issued_const, fn_msa_recoup_const, fn_mf_mf_issued_const, fn_mf_mf_recoup_const, fn_mf_fs_issued_const, fn_mf_hg_issued_const, fn_dwp_issued_const, fn_dwp_recoup_const, fn_emer_issued_const, fn_emer_prog_const, fn_grh_issued_const, fn_grh_recoup_const, fn_no_issuance_const, fn_last_const, snap_found, ga_found, msa_found, mfip_found, dwp_found, grh_found)
+
+            ButtonPressed = change_lookback_month_count_btn						'reset the button to make sure the dialog doesn't end.
+        End If
+
+        MAXIS_footer_month = CM_plus_1_mo                              'setting the footermonth to the current month
+        MAXIS_footer_year = CM_plus_1_yr
+		'Goind to ELIG for any program if the ELIG button was pressed.
+        If ButtonPressed = elig_fs_btn Then
+            call navigate_to_MAXIS_screen("ELIG", "FS  ")
+            Call find_last_approved_ELIG_version(19, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        End If
+
+        If ButtonPressed = elig_ga_btn Then
+            call navigate_to_MAXIS_screen("ELIG", "GA  ")
+            Call find_last_approved_ELIG_version(20, 78, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        End If
+
+        If ButtonPressed = elig_msa_btn Then
+            call navigate_to_MAXIS_screen("ELIG", "MSA ")
+            Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        End If
+
+        If ButtonPressed = elig_mfip_btn Then
+            call navigate_to_MAXIS_screen("ELIG", "MFIP")
+            Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        End If
+
+        If ButtonPressed = elig_dwp_btn Then
+            call navigate_to_MAXIS_screen("ELIG", "DWP ")
+            Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        End If
+
+        If ButtonPressed = elig_grh_btn Then
+            call navigate_to_MAXIS_screen("ELIG", "GRH ")
+            Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+        End If
+    Loop until ButtonPressed = -1												'This will keep going until 'Enter' is pressed or one of the 'End' buttons
+	'No output - the dialog just ends - this is why there is no pass through
+end function
 
 function get_county_code()
 '--- This function determines county_name from worker_county_code, and asks for it if it's blank
@@ -10135,6 +10725,151 @@ function read_boolean_from_excel(excel_place, script_variable)
 	If script_variable = "TRUE" Then script_variable = True
 	If script_variable = "FALSE" Then script_variable = False
 	'If this is not TRUE or FALSE, then it will just output what was in the cell all uppercase
+end function
+
+function read_inqb_for_all_issuances(months_to_go_back, beginning_footer_month, ISSUED_BENEFITS_ARRAY, fn_footer_month_const, fn_footer_year_const, fn_snap_issued_const, fn_snap_recoup_const, fn_ga_issued_const, fn_ga_recoup_const, fn_msa_issued_const, fn_msa_recoup_const, fn_mf_mf_issued_const, fn_mf_mf_recoup_const, fn_mf_fs_issued_const, fn_mf_hg_issued_const, fn_dwp_issued_const, fn_dwp_recoup_const, fn_emer_issued_const, fn_emer_prog_const, fn_grh_issued_const, fn_grh_recoup_const, fn_no_issuance_const, fn_last_const, snap_found, ga_found, msa_found, mfip_found, dwp_found, grh_found)
+'--- This function works in association with gather_case_benefits_details to read hisoical issuance information from INQB
+'~~~~~ months_to_go_back: NUMBER - information with how many months back to look
+'~~~~~ beginning_footer_month - string of the first month to display in the dialog
+'~~~~~ ISSUED_BENEFITS_ARRAY - This is the name of the array used to store past information
+'~~~~~ fn_footer_month_const - CONSTANT for array details
+'~~~~~ fn_footer_year_const - CONSTANT for array details
+'~~~~~ fn_snap_issued_const - CONSTANT for array details
+'~~~~~ fn_snap_recoup_const - CONSTANT for array details
+'~~~~~ fn_ga_issued_const - CONSTANT for array details
+'~~~~~ fn_ga_recoup_const - CONSTANT for array details
+'~~~~~ fn_msa_issued_const - CONSTANT for array details
+'~~~~~ fn_msa_recoup_const - CONSTANT for array details
+'~~~~~ fn_mf_mf_issued_const - CONSTANT for array details
+'~~~~~ fn_mf_mf_recoup_const - CONSTANT for array details
+'~~~~~ fn_mf_fs_issued_const - CONSTANT for array details
+'~~~~~ fn_mf_hg_issued_const - CONSTANT for array details
+'~~~~~ fn_dwp_issued_const - CONSTANT for array details
+'~~~~~ fn_dwp_recoup_const - CONSTANT for array details
+'~~~~~ fn_emer_issued_const - CONSTANT for array details
+'~~~~~ fn_emer_prog_const - CONSTANT for array details
+'~~~~~ fn_grh_issued_const - CONSTANT for array details
+'~~~~~ fn_grh_recoup_const - CONSTANT for array details
+'~~~~~ fn_no_issuance_const - CONSTANT for array details
+'~~~~~ fn_last_const - CONSTANT for array details
+'~~~~~ snap_found - BOOLEAN - detailing if SNAP was found
+'~~~~~ ga_found - BOOLEAN - detailing if SNAP was found
+'~~~~~ msa_found - BOOLEAN - detailing if SNAP was found
+'~~~~~ mfip_found - BOOLEAN - detailing if SNAP was found
+'~~~~~ dwp_found - BOOLEAN - detailing if SNAP was found
+'~~~~~ grh_found - BOOLEAN - detailing if SNAP was found
+'===== Keywords: MAXIS, DIALOG, CLIENT
+
+    ReDim ISSUED_BENEFITS_ARRAY(fn_last_const, 0)								'reset the array to blank it out from a previous run
+
+    now_month = CM_mo & "/1/" & CM_yr											'setting the month from the footer months to have it start at the 1st
+    now_month = DateAdd("d", 0, now_month)
+
+    subtract_months = 0-months_to_go_back										'making this number negativ
+    start_month = DateAdd("m", subtract_months, now_month)						'finding the first month to look at
+    start_month_mo = right("00"&DatePart("m", start_month), 2)					'setting the footer month to start'
+    start_month_yr = right(DatePart("yyyy", start_month), 2)
+    beginning_footer_month = start_month_mo & "/" & start_month_yr				'string for display'
+    month_to_review = start_month
+
+    snap_found = False		'setting the default of these booleans'
+    ga_found = False
+    msa_found = False
+    mfip_found = False
+    dwp_found = False
+    grh_found = False
+
+    count_months = 0		'this is the array incrementer
+    Do
+        ReDim Preserve ISSUED_BENEFITS_ARRAY(fn_last_const, count_months)		'resize the array
+        Call convert_date_into_MAXIS_footer_month(month_to_review, MAXIS_footer_month, MAXIS_footer_year)
+        year_to_search = DatePart("yyyy", month_to_review)						'finding the month namme and year to search in INQB as these are written out
+        year_to_search = year_to_search & ""
+        month_to_search = MonthName(DatePart("m", month_to_review))
+        ISSUED_BENEFITS_ARRAY(fn_footer_month_const, count_months) = MAXIS_footer_month		'saving the month information to the array
+        ISSUED_BENEFITS_ARRAY(fn_footer_year_const, count_months) = MAXIS_footer_year
+        ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = True
+
+        Call back_to_SELF														'Navigating to INQB
+        Call navigate_to_MAXIS_screen("MONY", "INQB")
+		'We are going to read each row to find the corrent month and read the programs and amounts
+        inqb_row = 6
+        Do
+            EMReadScreen inqb_month, 12, inqb_row, 3							'reading the month and year
+            EMReadScreen inqb_year, 4, inqb_row, 16
+            inqb_month = trim(inqb_month)
+            If inqb_month = month_to_search and inqb_year = year_to_search Then	'if the month and year on the row match the ones we are looking for.
+                EMReadScreen inqb_prog, 2, inqb_row, 23							'reading the details
+                EMReadScreen inqb_amt, 10, inqb_row, 38
+                EMReadScreen inqb_recoup, 10, inqb_row, 53
+                EMReadScreen inqb_food, 10, inqb_row, 69
+                EMReadScreen inqb_full, 77, inqb_row, 3							'I had to read the whole row to get the PROG information for some reason.
+
+                If InStr(inqb_full, "FS") <> 0 Then								'If FS is listed, the script will add this detail to the SNAP place in the array
+                    ISSUED_BENEFITS_ARRAY(fn_snap_issued_const, count_months) = trim(inqb_amt)
+                    ISSUED_BENEFITS_ARRAY(fn_snap_recoup_const, count_months) = trim(inqb_recoup)
+                    ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = False
+                    snap_found = True
+                End If
+                If InStr(inqb_full, "GA") <> 0 Then								'If GA is listed, the script will add this detail to the GA place in the array
+                    ISSUED_BENEFITS_ARRAY(fn_ga_issued_const, count_months) = trim(inqb_amt)
+                    ISSUED_BENEFITS_ARRAY(fn_ga_recoup_const, count_months) = trim(inqb_recoup)
+                    ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = False
+                    ga_found = True
+                End If
+                If InStr(inqb_full, "MS") <> 0 Then								'If MS is listed, the script will add this detail to the MMSA place in the array
+                    ISSUED_BENEFITS_ARRAY(fn_msa_issued_const, count_months) = trim(inqb_amt)
+                    ISSUED_BENEFITS_ARRAY(fn_msa_recoup_const, count_months) = trim(inqb_recoup)
+                    ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = False
+                    msa_found = True
+                End If
+                If InStr(inqb_full, "MF-MF") <> 0 Then							'If MF-MF is listed, the script will add this detail to the MFIP - MFF place in the array
+                    ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, count_months) = trim(inqb_amt)
+                    ISSUED_BENEFITS_ARRAY(fn_mf_mf_recoup_const, count_months) = trim(inqb_recoup)
+                    ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = False
+                    mfip_found = True
+                End If
+                If InStr(inqb_full, "MF-FS") <> 0 Then							'If MF-FS is listed, the script will add this detail to the MFIP - FS place in the array
+                    ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, count_months) = trim(inqb_amt)
+                    ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = False
+                    mfip_found = True
+                End If
+                If InStr(inqb_full, "MF-HG") <> 0 Then							'If MF-HG is listed, the script will add this detail to the MFIP - HG place in the array
+                    ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, count_months) = trim(inqb_amt)
+                    ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = False
+                    mfip_found = True
+                End If
+                If InStr(inqb_full, "DW") <> 0 Then								'If DW is listed, the script will add this detail to the DWP place in the array
+                    ISSUED_BENEFITS_ARRAY(fn_dwp_issued_const, count_months) = trim(inqb_amt)
+                    ISSUED_BENEFITS_ARRAY(fn_dwp_recoup_const, count_months) = trim(inqb_recoup)
+                    ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = False
+                    dwp_found = True
+                End If
+                If InStr(inqb_full, "GR") <> 0 Then								'If GR is listed, the script will add this detail to the GRH place in the array
+                    ISSUED_BENEFITS_ARRAY(fn_grh_issued_const, count_months) = trim(inqb_amt)
+                    ISSUED_BENEFITS_ARRAY(fn_grh_recoup_const, count_months) = trim(inqb_recoup)
+                    ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = False
+                    grh_found = True
+                End If
+                If InStr(inqb_full, "EA") <> 0 Then								'If EA is listed, the script will add this detail to the AMER place in the array
+                    ISSUED_BENEFITS_ARRAY(fn_emer_issued_const, count_months) = trim(inqb_amt)
+                    ISSUED_BENEFITS_ARRAY(fn_no_issuance_const, count_months) = False
+                End If
+            End If
+
+            inqb_row = inqb_row + 1												'going to the row
+            EMReadScreen next_prog, 2, inqb_row, 23								'read for if we are at the end of the list
+        Loop until next_prog = "  "
+		'setting MFIP information to 0 if one is blank (IE MF-FS was issued but no MF-MF)
+        If ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, count_months) = "" and (ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, count_months) <> "" OR ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, count_months) <> "") Then ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, count_months) = "0.00"
+        If ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, count_months) = "" and (ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, count_months) <> "" OR ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, count_months) <> "") Then ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, count_months) = "0.00"
+        If ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, count_months) = "" and (ISSUED_BENEFITS_ARRAY(fn_mf_fs_issued_const, count_months) <> "" OR ISSUED_BENEFITS_ARRAY(fn_mf_mf_issued_const, count_months) <> "") Then ISSUED_BENEFITS_ARRAY(fn_mf_hg_issued_const, count_months) = "0.00"
+		PF3
+
+        month_to_review = DateAdd("m", 1, month_to_review)						'going to the next month
+        count_months = count_months + 1											'incrementing the Array
+    Loop Until DateDiff("d", now_month, month_to_review) > 0					'going until we ahve read the currnt month
+	Call Back_to_SELF
 end function
 
 function read_total_SHEL_on_case(ref_numbers_with_panel, paid_to, rent_amt, rent_verif, lot_rent_amt, lot_rent_verif, mortgage_amt, mortgage_verif, insurance_amt, insurance_verif, taxes_amt, taxes_verif, room_amt, room_verif, garage_amt, garage_verif, subsidy_amt, subsidy_verif, total_shelter_expense, original_information)
