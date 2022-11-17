@@ -64,31 +64,34 @@ enrollment_month = CM_plus_1_mo
 enrollment_year = CM_plus_1_yr
 
 this_month = monthname(month(date))
+this_year = year(date)
 Select Case this_month
 	Case "January"
-		cut_off_date = #01/20/2022#
+		cut_off_date = #01/20/2023#
 	Case "February"
-		cut_off_date = #02/16/2022#
+		cut_off_date = #02/16/2023#
 	Case "March"
-		cut_off_date = #03/22/2022#
+		cut_off_date = #03/22/2023#
 	Case "April"
-		cut_off_date = #04/20/2022#
+		cut_off_date = #04/19/2023#
 	Case "May"
-		cut_off_date = #05/19/2022#
+		cut_off_date = #05/19/2023#
 	Case "June"
-		cut_off_date = #06/21/2022#
+		cut_off_date = #06/21/2023#
 	Case "July"
-		cut_off_date = #07/20/2022#
+		cut_off_date = #07/20/2023#
 	Case "August"
-		cut_off_date = #08/22/2022#
+		cut_off_date = #08/22/2023#
 	Case "September"
-		cut_off_date = #09/21/2022#
+		cut_off_date = #09/20/2023#
 	Case "October"
-		cut_off_date = #10/20/2022#
+		cut_off_date = #10/20/2023#
 	Case "November"
-		cut_off_date = #11/17/2022#
+		if this_year = 2022 Then cut_off_date = #11/17/2022#
+		if this_year = 2023 Then cut_off_date = #11/17/2023#
 	Case "December"
-		cut_off_date = #12/20/2022#
+		if this_year = 2022 Then cut_off_date = #12/20/2022#
+		if this_year = 2023 Then cut_off_date = #12/19/2023#
 End Select
 'MsgBox cut_off_date
 If cut_off_date <> "" Then
