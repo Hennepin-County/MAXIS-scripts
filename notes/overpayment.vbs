@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/17/2022", "Updated bug in script where claim # and claim amt were transposed.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/15/2022", "Enhanced CCOL Notes to make notes in all claims vs. only 1st claim. Updated background functioning.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/18/2020", "GitHub issue #381 Added Requested Claim Adjustment per project request.", "MiKayla Handley")
 call changelog_update("03/04/2020", "Removed agency error OP worksheet as the form is now obsolete.", "MiKayla Handley")
@@ -113,23 +114,23 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
         DropListBox 60, 60, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
         EditBox 130, 60, 30, 15, OP_from
         EditBox 180, 60, 30, 15, OP_to
-        EditBox 235, 60, 35, 15, Claim_number
-        EditBox 285, 60, 45, 15, Claim_amount
+        EditBox 235, 60, 35, 15, Claim_amount
+        EditBox 285, 60, 45, 15, Claim_number
         DropListBox 60, 80, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
         EditBox 130, 80, 30, 15, OP_from_II
         EditBox 180, 80, 30, 15, OP_to_II
-        EditBox 235, 80, 35, 15, Claim_number_II
-        EditBox 285, 80, 45, 15, Claim_amount_II
+        EditBox 235, 80, 35, 15, Claim_amount_II
+        EditBox 285, 80, 45, 15, Claim_number_II
         DropListBox 60, 100, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
         EditBox 130, 100, 30, 15, OP_from_III
         EditBox 180, 100, 30, 15, OP_to_III
-        EditBox 235, 100, 35, 15, claim_number_III
-        EditBox 285, 100, 45, 15, Claim_amount_III
+        EditBox 235, 100, 35, 15, Claim_amount_III
+        EditBox 285, 100, 45, 15, claim_number_III
         DropListBox 60, 120, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_IV
         EditBox 130, 120, 30, 15, OP_from_IV
         EditBox 180, 120, 30, 15, OP_to_IV
-        EditBox 235, 120, 35, 15, claim_number_IV
-        EditBox 285, 120, 45, 15, Claim_amount_IV
+        EditBox 235, 120, 35, 15, Claim_amount_IV
+        EditBox 285, 120, 45, 15, claim_number_IV
         EditBox 130, 165, 30, 15, HC_from
         EditBox 180, 165, 30, 15, HC_to
         EditBox 235, 165, 35, 15, HC_claim_amount
@@ -515,8 +516,8 @@ IF claim_actions = "Requested Claim Adjustment" THEN
     Call write_variable_in_CASE_NOTE("Requested Claim Adjustment")
     CALL write_variable_in_CASE_NOTE("* Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number)
 	CALL write_bullet_and_variable_in_CASE_NOTE("Original Amount", original_claim_amount)
-	Call write_bullet_and_variable_in_CASE_NOTE("Correct Amount",  correct_claim_amount)
-	Call write_bullet_and_variable_in_CASE_NOTE("Adjustment Amount",  adjustment_amount)
+	Call write_bullet_and_variable_in_CASE_NOTE("Correct Amount", correct_claim_amount)
+	Call write_bullet_and_variable_in_CASE_NOTE("Adjustment Amount", adjustment_amount)
 	Call write_bullet_and_variable_in_CASE_NOTE("Reason for correction", reason_correction)
 	Call write_bullet_and_variable_in_CASE_NOTE("Requested verifications", requested_verif)
 	Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
