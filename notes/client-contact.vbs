@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/17/2022", "Added button to view issuance details for a case from the main dialog. This will support providing information to the resident while talking to them. This functionality does not interrupt the script run.##~####~##Look for the button that says 'Display Benefits'.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/14/2022", "Added button to link to the interpreter service request. Removed 'Used Interpreter' checkbox that was inactive.", "Casey Love, Hennepin County")
 call changelog_update("10/07/2022", "Removed adults and families baskets that are no longer supported through Q-Flow. Any population not supported by Q-flow will now be 'N/A'.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/19/2022", "Suggested Q-Flow populations updated for X127EJ4 from LTC+ to Housing Supports. Removed baskets that are no longer supported through Q-Flow.", "Ilse Ferris, Hennepin County")

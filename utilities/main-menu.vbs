@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/17/2022", "***** NEW SCRIPT *****##~## UTILITIES - Display Benefits##~##This script will display the issuances for SNAP/Cash/GRH in the past months and the ongoing amounts. This can hhelp reviewing a case and providing information to the resident.", "Casey Love, Hennepin County")
 call changelog_update("09/12/2022", "***** NEW SCRIPT *****##~## UTILITIES - Copy Case Note to Word##~## ##~##This script will take all the text from a single CASE/NOTE and create a formatted Word Documnet of it.", "Casey Love, Hennepin County")
 call changelog_update("04/02/2022", "Retired Script - UTILITIES - LOST APPLYMN. This has been replaced by UTILITIES - APPLICATION INQUIRY.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/02/2022", "Retired Script - UTILITIES - Complete Phone CAF##~## ##~##MNBenefits is now live and is the the recommended tool to use to complete an application form for the resident over the phone. The script option is no longer available.##~##", "Casey Love, Hennepin County")
