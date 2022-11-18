@@ -87,25 +87,26 @@ If scrubber_starting_dail_cursor_row <> dail_row Then dail_row = 6 + dails_befor
 If dails_before_this_dail_for_this_case = 0 Then dail_row = 6
 
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMGetCursor dail_row, dail_col                     'Reading where the cursor is at since when we go to DAIL/WRIT it will move, even it we top the DAIL "T"
 EMSendKey "T"
 TRANSMIT
 
-'This functionalitty will identify if the script is being run in INQUIRY
-'Cannot tell if Production or Training, but that is less important
-running_in_INQUIRY = False							'default to false'
-EMSendKey "W"										'attempt to navigate to DAIL/WRIT - wwhich requires write access
-TRANSMIT
-EMReadScreen cannot_access_msg, 17, 24, 2			'reading for the message that states you cannot access WRIT
-If cannot_access_msg = "YOU CANNOT ACCESS" Then		'If found we are most likely in INQUIRY (could be PRIV or Out of County)
-	running_in_INQUIRY = True						'setting the boolean to true
-	EMSendKey " "									'blanking out the 'WRIT' attempt
-Else
-	PF3												'if the message is NOT found, we are in WRIT and need to back out
-End If
-
-EMSetCursor dail_row, dail_col                      'Setting the cursor back to the orginal spot
-Call write_value_and_transmit("T", dail_row, dail_col)  'Topping the DAIL
+'EMGetCursor dail_row, dail_col                     'Reading where the cursor is at since when we go to DAIL/WRIT it will move, even it we top the DAIL "T"
+'
+''This functionalitty will identify if the script is being run in INQUIRY
+''Cannot tell if Production or Training, but that is less important
+'running_in_INQUIRY = False							'default to false'
+'EMSendKey "W"										'attempt to navigate to DAIL/WRIT - wwhich requires write access
+'TRANSMIT
+'EMReadScreen cannot_access_msg, 17, 24, 2			'reading for the message that states you cannot access WRIT
+'If cannot_access_msg = "YOU CANNOT ACCESS" Then		'If found we are most likely in INQUIRY (could be PRIV or Out of County)
+'	running_in_INQUIRY = True						'setting the boolean to true
+'	EMSendKey " "									'blanking out the 'WRIT' attempt
+'Else
+'	PF3												'if the message is NOT found, we are in WRIT and need to back out
+'End If
+'
+'EMSetCursor dail_row, dail_col                      'Setting the cursor back to the orginal spot
+'Call write_value_and_transmit("T", dail_row, dail_col)  'Topping the DAIL
 
 'The following reads the message in full for the end part (which tells the worker which message was selected)
 EMReadScreen full_message, 60, 6, 20
