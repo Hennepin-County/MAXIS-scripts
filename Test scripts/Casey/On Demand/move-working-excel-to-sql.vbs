@@ -37,21 +37,20 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+' const worker_id_col         = 1
 
-const worker_id_col         = 1
-const case_nbr_col          = 2
-const case_name_col         = 3
-const snap_stat_col         = 4
-const cash_stat_col         = 5
-const app_date_col          = 6
-const second_app_date_col	= 7
-const rept_pnd2_days_col	= 8
-const intvw_date_col        = 9
-const quest_intvw_date_col  = 10
-' const resolve_quest_intvw_col = 11
-const other_county_col 		= 11
-const closed_in_30_col		= 12
-
+const case_nbr_col          = 1
+const case_name_col         = 2
+const app_date_col          = 3
+const intvw_date_col        = 4
+const day_30_col            = 5
+const days_pend_col			= 6
+const snap_stat_col         = 7
+const cash_stat_col         = 8
+const second_app_date_col	= 9
+const rept_pnd2_days_col	= 10
+const quest_intvw_date_col  = 11
+const resolve_quest_intvw_col = 12
 const appt_notc_date_col    = 13
 const appt_date_col         = 14
 const appt_notc_confirm_col = 15
@@ -60,13 +59,15 @@ const nomi_confirm_col      = 17
 const need_deny_col         = 18
 const next_action_col       = 19
 const recent_wl_date_col	= 20
-const day_30_col            = 21
-const worker_notes_col      = 22
-const script_notes_col		= 23
-const script_revw_date_col	= 24
+const second_app_resolve_col= 21
+const closed_in_30_col		= 22
+const closed_in_30_notes_col= 23
+const other_county_col 		= 24
+const other_county_notes_col= 25
+const tracking_notes_col 	= 26
 
 working_excel_file_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/Working Excel.xlsx"   'THIS IS THE REAL ONE
-
+working_excel_file_path = user_myDocs_folder & "SQL BackUp 11-22-22.xlsx"
 'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 call excel_open(working_excel_file_path, True, True, ObjWorkExcel, objWorkWorkbook)
 
@@ -99,26 +100,26 @@ objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" & "hssqlpw139;Init
 
 row = 2
 Do
-    case_number_to_assess = trim(objWorkExcel.Cells(row, 2).Value)  'getting the case number in the Working Excel sheet
-
-    next_action_array = ObjWorkExcel.Cells(row, next_action_col) & "|"
-    next_action_array = next_action_array & ObjWorkExcel.Cells(row, script_notes_col)
-    next_action_array = replace(next_action_array, "'", "")
-
-
-    quest_intvw_array = ObjWorkExcel.Cells(row, quest_intvw_date_col) & "|"
-    quest_intvw_array = quest_intvw_array & ObjWorkExcel.Cells(row, other_county_col) & "|"
-    quest_intvw_array = quest_intvw_array & ObjWorkExcel.Cells(row, closed_in_30_col)
-    quest_intvw_array = replace(quest_intvw_array, "'", "")
-
-    resolved_array = "|" & "|" & "|"    'questionable interview resolved | day 30 resolved | out of county resolved | second app resolved'
-
-    If Instr(ObjWorkExcel.Cells(row, worker_notes_col), "PRIV") = 0 Then priv_case = False
-    If Instr(ObjWorkExcel.Cells(row, worker_notes_col), "PRIV") <> 0 Then priv_case = True
-    denied_array = ObjWorkExcel.Cells(row, need_deny_col) & "|"
-    denied_array = denied_array & ObjWorkExcel.Cells(row, worker_notes_col) & "|"
-    denied_array = denied_array & priv_case
-    denied_array = replace(denied_array, "'", "")
+    ' case_number_to_assess = trim(objWorkExcel.Cells(row, 2).Value)  'getting the case number in the Working Excel sheet
+	'
+    ' next_action_array = ObjWorkExcel.Cells(row, next_action_col) & "|"
+    ' next_action_array = next_action_array & ObjWorkExcel.Cells(row, script_notes_col)
+    ' next_action_array = replace(next_action_array, "'", "")
+	'
+	'
+    ' quest_intvw_array = ObjWorkExcel.Cells(row, quest_intvw_date_col) & "|"
+    ' quest_intvw_array = quest_intvw_array & ObjWorkExcel.Cells(row, other_county_col) & "|"
+    ' quest_intvw_array = quest_intvw_array & ObjWorkExcel.Cells(row, closed_in_30_col)
+    ' quest_intvw_array = replace(quest_intvw_array, "'", "")
+	'
+    ' resolved_array = "|" & "|" & "|"    'questionable interview resolved | day 30 resolved | out of county resolved | second app resolved'
+	'
+    ' If Instr(ObjWorkExcel.Cells(row, worker_notes_col), "PRIV") = 0 Then priv_case = False
+    ' If Instr(ObjWorkExcel.Cells(row, worker_notes_col), "PRIV") <> 0 Then priv_case = True
+    ' denied_array = ObjWorkExcel.Cells(row, need_deny_col) & "|"
+    ' denied_array = denied_array & ObjWorkExcel.Cells(row, worker_notes_col) & "|"
+    ' denied_array = denied_array & priv_case
+    ' denied_array = replace(denied_array, "'", "")
 
     ' next_action_array = next_action_array & " "
     wl_case_name = replace(ObjWorkExcel.Cells(row, case_name_col), "'", "")
@@ -136,6 +137,8 @@ Do
 
     wl_day_30 = ObjWorkExcel.Cells(row, day_30_col)
     wl_day_30 = DateAdd("d", 0, wl_day_30)
+
+	wl_days_pend = ObjWorkExcel.Cells(row, days_pend_col)
 
     wl_second_app_date = ObjWorkExcel.Cells(row, second_app_date_col)
     If IsDate(wl_second_app_date) = True Then
@@ -190,19 +193,20 @@ Do
     this_is_aCase_number = ObjWorkExcel.Cells(row, case_nbr_col)
 
     '
-    objRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed (CaseNumber, CaseName, ApplDate, InterviewDate, Day_30, DaysPending, SnapStatus, CashStatus, SecondApplicationDate, REPT_PND2Days, QuestionableInterview, Resolved, ApptNoticeDate, ApptDate, Confirmation, NOMIDate, Confirmation2, DenialNeeded, NextActionNeeded, AddedtoWorkList)" & _
+    ' objRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed (CaseNumber, CaseName, ApplDate, InterviewDate, Day_30, DaysPending, SnapStatus, CashStatus, SecondApplicationDate, REPT_PND2Days, QuestionableInterview, Resolved, ApptNoticeDate, ApptDate, Confirmation, NOMIDate, Confirmation2, DenialNeeded, NextActionNeeded, AddedtoWorkList)" & _
+	objRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed (CaseNumber, CaseName, ApplDate, InterviewDate, Day_30, DaysPending, SnapStatus, CashStatus, SecondApplicationDate, REPT_PND2Days, QuestionableInterview, Resolved, ApptNoticeDate, ApptDate, Confirmation, NOMIDate, Confirmation2, DenialNeeded, NextActionNeeded, AddedtoWorkList, SecondApplicationDateNotes, ClosedInPast30Days, ClosedInPast30DaysNotes, StartedOutOfCounty, StartedOutOfCountyNotes, TrackingNotes)" & _
                       "VALUES ('" & ObjWorkExcel.Cells(row, case_nbr_col) &  "', '" & _
                                     wl_case_name &  "', '" & _
                                     wl_app_date &  "', '" & _
                                     wl_intvw_date &  "', '" & _
                                     wl_day_30 &  "', '" & _
-                                    "" &  "', '" & _
+                                    wl_days_pend &  "', '" & _
                                     ObjWorkExcel.Cells(row, snap_stat_col) &  "', '" & _
                                     ObjWorkExcel.Cells(row, cash_stat_col) &  "', '" & _
                                     wl_second_app_date &  "', '" & _
                                     wl_rept_pnd2_days &  "', '" & _
                                     ObjWorkExcel.Cells(row, quest_intvw_date_col) &  "', '" & _
-                                    "" &  "', '" & _
+                                    ObjWorkExcel.Cells(row, resolve_quest_intvw_col) &  "', '" & _
                                     wl_appt_notc_date &  "', '" & _
                                     wl_appt_date &  "', '" & _
                                     ObjWorkExcel.Cells(row, appt_notc_confirm_col) &  "', '" & _
@@ -210,10 +214,42 @@ Do
                                     ObjWorkExcel.Cells(row, nomi_confirm_col) &  "', '" & _
                                     ObjWorkExcel.Cells(row, need_deny_col) &  "', '" & _
                                     ObjWorkExcel.Cells(row, next_action_col) &  "', '" & _
-                                    wl_recent_wl_date & "')", objConnection, adOpenStatic, adLockOptimistic
+                                    wl_recent_wl_date &  "', '" & _
+									ObjWorkExcel.Cells(row, second_app_resolve_col) &  "', '" & _
+									ObjWorkExcel.Cells(row, closed_in_30_col) &  "', '" & _
+									ObjWorkExcel.Cells(row, closed_in_30_notes_col) &  "', '" & _
+									ObjWorkExcel.Cells(row, other_county_col) &  "', '" & _
+									ObjWorkExcel.Cells(row, other_county_notes_col) &  "', '" & _
+									ObjWorkExcel.Cells(row, tracking_notes_col) & "')", objConnection, adOpenStatic, adLockOptimistic
 
 
-
+		' objWorkRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed (CaseNumber, CaseName, ApplDate, InterviewDate, Day_30, DaysPending, SnapStatus, CashStatus, SecondApplicationDate, REPT_PND2Days, QuestionableInterview, Resolved, ApptNoticeDate, ApptDate, Confirmation, NOMIDate, Confirmation2, DenialNeeded, NextActionNeeded, AddedtoWorkList, SecondApplicationDateNotes, ClosedInPast30Day, ClosedInPast30DaysNotes, StartedOutOfCounty, StartedOutOfCountyNotes, TrackingNotes)" & _
+		' 				  "VALUES ('" & ALL_PENDING_CASES_ARRAY(case_number, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(client_name, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(application_date, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(data_day_30, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(data_days_pend, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(CASH_status, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(rept_pnd2_listed_days, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(questionable_intv, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(intvw_quest_resolve, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(appt_notc_confirm, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(nomi_confirm, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(case_over_30_days, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(next_action_needed, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(last_wl_date, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(subsqt_appl_resolve, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(case_closed_in_30, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(closed_in_30_resolve, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(case_in_other_co, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(out_of_co_resolve, case_entry) &  "', '" & _
+		' 								ALL_PENDING_CASES_ARRAY(script_notes_info, case_entry) & "')", objWorkConnection, adOpenStatic, adLockOptimistic
 
     ' If IsDate(ObjWorkExcel.Cells(row, recent_wl_date_col)) = True Then
     '     objRecordSet.Open "UPDATE ES.ES_CasesPending SET AddedtoWorkList = ''" & ObjWorkExcel.Cells(row, recent_wl_date_col) & "'' " &_
