@@ -229,7 +229,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     all_claim_numbers = ""
     If trim(Claim_number) <> "" then all_claim_numbers = all_claim_numbers & trim(Claim_number) & "|"
     If trim(Claim_number_II) <> "" then all_claim_numbers = all_claim_numbers & trim(Claim_number_II) & "|"
-    If trim(Claim_number_II) <> "" then all_claim_numbers = all_claim_numbers & trim(Claim_number_II) & "|"
+    If trim(Claim_number_III) <> "" then all_claim_numbers = all_claim_numbers & trim(Claim_number_III) & "|"
     If trim(Claim_number_IV) <> "" then all_claim_numbers = all_claim_numbers & trim(Claim_number_IV) & "|"
     If trim(HC_claim_number) <> "" then all_claim_numbers = all_claim_numbers & trim(HC_claim_number) & "|"
     If trim(HC_claim_number_II) <> "" then all_claim_numbers = all_claim_numbers & trim(HC_claim_number_II) & "|"
@@ -361,11 +361,10 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
 
     '---------------------------------------------------------------writing the CCOL case note'
     For each unique_claim in claim_array
+        If trim(unique_claim) = "" then exit for
         Call navigate_to_MAXIS_screen("CCOL", "CLSM")
         Call write_value_and_transmit(unique_claim, 4, 9)
 
-        Call navigate_to_MAXIS_screen("CCOL", "CLSM")
-        Call write_value_and_transmit(Claim_number, 4, 9)
         EMReadScreen error_check, 75, 24, 2	'making sure we can actually update this case.
         error_check = trim(error_check)
         If error_check <> "" then script_end_procedure_with_error_report(error_check & ". Unable to update this case. Please review case, and run the script again if applicable.")
