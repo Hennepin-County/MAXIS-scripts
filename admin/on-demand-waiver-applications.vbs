@@ -764,34 +764,34 @@ If first_item_date <> date Then
 		' 		todays_cases = todays_cases + 1
 		' 	End If
 		' End If
-		date_zero =  #1/1/1900#
+		date_zero =  #1/1/2010#
 		If IsDate(ALL_PENDING_CASES_ARRAY(interview_date, case_entry)) = True Then
-			If DateDiff("d", ALL_PENDING_CASES_ARRAY(interview_date, case_entry),date_zero) = 0 Then ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = ""
+			If DateDiff("d", ALL_PENDING_CASES_ARRAY(interview_date, case_entry),date_zero) > 0 Then ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = ""
 		Else
 			ALL_PENDING_CASES_ARRAY(interview_date, case_entry) = ""
 		End if
 		If IsDate(ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry)) = True Then
-			If DateDiff("d", ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry),date_zero) = 0 Then ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = ""
+			If DateDiff("d", ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry),date_zero) > 0 Then ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = ""
 		Else
 			ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) = ""
 		End if
 		If IsDate(ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry)) = True Then
-			If DateDiff("d", ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry),date_zero) = 0 Then ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = ""
+			If DateDiff("d", ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry),date_zero) > 0 Then ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = ""
 		Else
 			ALL_PENDING_CASES_ARRAY(appt_notc_sent, case_entry) = ""
 		End if
 		If IsDate(ALL_PENDING_CASES_ARRAY(appointment_date, case_entry)) = True Then
-			If DateDiff("d", ALL_PENDING_CASES_ARRAY(appointment_date, case_entry),date_zero) = 0 Then ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = ""
+			If DateDiff("d", ALL_PENDING_CASES_ARRAY(appointment_date, case_entry),date_zero) > 0 Then ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = ""
 		Else
 			ALL_PENDING_CASES_ARRAY(appointment_date, case_entry) = ""
 		End if
 		If IsDate(ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry)) = True Then
-			If DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry),date_zero) = 0 Then ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = ""
+			If DateDiff("d", ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry),date_zero) > 0 Then ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = ""
 		Else
 			ALL_PENDING_CASES_ARRAY(nomi_sent, case_entry) = ""
 		End if
 		If IsDate(ALL_PENDING_CASES_ARRAY(last_wl_date, case_entry)) = True Then
-			If DateDiff("d", ALL_PENDING_CASES_ARRAY(last_wl_date, case_entry),date_zero) = 0 Then ALL_PENDING_CASES_ARRAY(last_wl_date, case_entry) = ""
+			If DateDiff("d", ALL_PENDING_CASES_ARRAY(last_wl_date, case_entry),date_zero) > 0 Then ALL_PENDING_CASES_ARRAY(last_wl_date, case_entry) = ""
 		Else
 			ALL_PENDING_CASES_ARRAY(last_wl_date, case_entry) = ""
 		End if
@@ -1439,34 +1439,34 @@ Set objWorkSQL=nothing
 
 For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 
-	date_zero =  #1/1/1900#
+	date_zero =  #1/1/2010#
 	If IsDate(WORKING_LIST_CASES_ARRAY(interview_date, case_entry)) = True Then
-		If DateDiff("d", WORKING_LIST_CASES_ARRAY(interview_date, case_entry),date_zero) = 0 Then WORKING_LIST_CASES_ARRAY(interview_date, case_entry) = ""
+		If DateDiff("d", WORKING_LIST_CASES_ARRAY(interview_date, case_entry),date_zero) > 0 Then WORKING_LIST_CASES_ARRAY(interview_date, case_entry) = ""
 	Else
 		WORKING_LIST_CASES_ARRAY(interview_date, case_entry) = ""
 	End if
 	If IsDate(WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry)) = True Then
-		If DateDiff("d", WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry),date_zero) = 0 Then WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) = ""
+		If DateDiff("d", WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry),date_zero) > 0 Then WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) = ""
 	Else
 		WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) = ""
 	End if
 	If IsDate(WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry)) = True Then
-		If DateDiff("d", WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry),date_zero) = 0 Then WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) = ""
+		If DateDiff("d", WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry),date_zero) > 0 Then WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) = ""
 	Else
 		WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) = ""
 	End if
 	If IsDate(WORKING_LIST_CASES_ARRAY(appointment_date, case_entry)) = True Then
-		If DateDiff("d", WORKING_LIST_CASES_ARRAY(appointment_date, case_entry),date_zero) = 0 Then WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = ""
+		If DateDiff("d", WORKING_LIST_CASES_ARRAY(appointment_date, case_entry),date_zero) > 0 Then WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = ""
 	Else
 		WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = ""
 	End if
 	If IsDate(WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry)) = True Then
-		If DateDiff("d", WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry),date_zero) = 0 Then WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry) = ""
+		If DateDiff("d", WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry),date_zero) > 0 Then WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry) = ""
 	Else
 		WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry) = ""
 	End if
 	If IsDate(WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry)) = True Then
-		If DateDiff("d", WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry),date_zero) = 0 Then WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = ""
+		If DateDiff("d", WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry),date_zero) > 0 Then WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = ""
 	Else
 		WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = ""
 	End if
