@@ -5,6 +5,7 @@ STATS_counter = 1
 STATS_manualtime = 180
 STATS_denominatinon = "C"
 'END OF STATS BLOCK===========================================================================================
+
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
 IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded once
 	IF run_locally = FALSE or run_locally = "" THEN	   'If the scripts are set to run locally, it skips this and uses an FSO below.
@@ -44,7 +45,8 @@ Function IEVP_looping(ievp_panel)
             IEVP_panel = True
         Else
             EMReadScreen MISC_error_check,  74, 24, 02
-            match_based_array(comments_const, item) = trim(MISC_error_check)
+            match_based_array(comments_const, item) = "Unable to navigate to IEVP. Error message: " & trim(MISC_error_check)
+            'msgbox "1. IN IEVP LOOPING" & trim(MISC_error_check)
             IEVP_panel = False
         End IF
     End if
@@ -249,7 +251,8 @@ For item = 0 to UBound(match_based_array, 2)
     EMReadScreen IEVP_panel_check, 4, 2, 52
 	IF IEVP_panel_check = "IEVP" THEN
 	'------------------------------------------------------------------selecting the correct wage match
-	    Row = 7
+        pending_match_found = False 'defaulting to FALSE
+        Row = 7
 	    DO
 	    	EMReadScreen IEVS_period, 11, row, 47
 			IEVS_period = trim(IEVS_period)
@@ -273,9 +276,11 @@ For item = 0 to UBound(match_based_array, 2)
 			IF IsNumeric(days_pending) = TRUE THEN
                 If ievp_match_type = "" THEN
                     match_based_array(comments_const, item) = "Unable to match the IEVS types."
+                    'msgbox "2. Unable to match the IEVS types."
                     exit do
                 Elseif ievp_match_type = match_based_array(numb_match_type_const, item) THEN
 	    			IF trim(match_based_array(period_const, item)) = IEVS_period THEN
+                        pending_match_found = True
                     	CALL write_value_and_transmit("U", row, 3)   'navigates to IULA
 						'----------------------------------------------------------------------------------------------------Employer info & difference notice info
 						IF match_type = "UBEN" THEN income_source = "Unemployment"
@@ -300,11 +305,13 @@ For item = 0 to UBound(match_based_array, 2)
 							   	EXIT DO
 	    				   	ELSE
 							  	match_based_array(comments_const, item) = "Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, item) & "~"
+                                'msgbox "3. Match not cleared due to income information" & " ~" & income_amount & "~" & match_based_array(amount_const, item) & "~"
                             	PF3 ' to leave match
 							  	EXIT DO
 							END IF
                         Else
 							match_based_array(comments_const, item) = "Match not cleared due to income name information" & " ~" & income_source & "~" & match_based_array(income_source_const, item) & "~"
+                            'msgbox "4. Match not cleared due to income name information" & " ~" & income_source & "~" & match_based_array(income_source_const, item) & "~"
                             Call IEVP_looping(ievp_panel)
                             If IEVP_panel = False then
                                 EXIT DO
@@ -324,15 +331,17 @@ For item = 0 to UBound(match_based_array, 2)
                 If IEVP_panel = False then
                     EXIT DO
                 End if
-	        ELSE
-				match_based_array(comments_const, item) = days_pending 'identifying previously cleared matches. Not cleared with BULK script.
-				EXIT DO
 			END IF
+            Call IEVP_looping(ievp_panel)
 		LOOP UNTIL trim(IEVS_period) = "" 'two ways to leave a loop
 	ELSE
 		EMReadScreen MISC_error_check,  74, 24, 02
-    	match_based_array(comments_const, item) = trim(MISC_error_check)
+    	match_based_array(comments_const, item) = "Unable to navigate to IEVP. Error message: " & trim(MISC_error_check)
+        'msgbox "6. " & trim(MISC_error_check)
 	END IF
+
+    If pending_match_found = False then match_based_array(comments_const, item) = "Unable to find a pending match to match the match type and/or the match period. Review manually."
+
 	'--------------------------------------------------------------------clearing the match IULA much of this is just for the case note
     IF trim(match_based_array(comments_const, item)) = "" then
      	IF match_type = "WAGE" THEN
@@ -445,6 +454,7 @@ For item = 0 to UBound(match_based_array, 2)
 			END IF
    		ELSE
 			match_based_array(comments_const, item) = "Did not clear on IULB."
+            'msgbox "7. Did not clear on IULB."
 		END IF
 
         If match_based_array(match_cleared_const, item) = TRUE then
@@ -521,6 +531,7 @@ For item = 0 to UBound(match_based_array, 2)
 				CALL write_variable_in_case_note(worker_signature)
     	        PF3 'to save casenote'
     	    	match_based_array(comments_const, item) = "Match Cleared and Case Noted."
+                'msgbox "8. Match Cleared and Case Noted."
 		    END IF
         END IF
 	END IF
