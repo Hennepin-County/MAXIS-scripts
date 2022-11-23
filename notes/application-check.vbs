@@ -169,6 +169,12 @@ EMReadScreen PEND_GRH_check, 1, row, 72
 
 If PEND_HC_check = "P" then HC_pending = True   'This will search case notes to ensure that a HC Application screening has been conducted.
 
+Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+msa_pending = False
+grh_pending = False
+If msa_status = "PENDING" Then msa_pending = True
+If grh_status = "PENDING" Then grh_pending = True
+
 CALL navigate_to_MAXIS_screen("STAT", "PROG")		'Goes to STAT/PROG
 EMReadScreen err_msg, 7, 24, 02
 IF err_msg = "BENEFIT" THEN	script_end_procedure_with_error_report ("Case must be in PEND II status for script to run, please update MAXIS panels TYPE & PROG (HCRE for HC) and run the script again.")
@@ -664,6 +670,7 @@ End if
 'If a CAF Based program is pending and the case is at or past Day 30, the script will pull this special Functionality
 'The standard functionality for Application Checkk will NOT run if this case is at CAF programs denial
 If caf_programs_denial = True Then
+    allow_60_days = False
     If interview_completed = True Then interview_completed = "Yes"      'defaulting based on what is listed in PROG.'
     If interview_completed = False Then interview_completed = "No"
     day_30 = dateadd("d", 30, application_date)
@@ -807,18 +814,27 @@ If caf_programs_denial = True Then
 
     'If the interview was completed, we ask about verifications.
     If interview_completed = "Yes" Then
+        If (msa_pending = True or grh_pending = True) and reminder_text <> "Post day 60" Then allow_60_days = True
         Do
             Do
                 err_msg = ""
                 Dialog1 = ""
-                BeginDialog Dialog1, 0, 0, 346, 275, "Case May Be Ready for Denial"
-                  DropListBox 110, 145, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", verifs_needed
+                If allow_60_days = True Then dlg_len = 305
+                If allow_60_days = False Then dlg_len = 275
+                BeginDialog Dialog1, 0, 0, 346, dlg_len, "Case May Be Ready for Denial"
+                  DropListBox 110, 145, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", require_verifs
                   DropListBox 175, 175, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", verifs_sent
                   EditBox 175, 195, 50, 15, verifs_sent_date
                   DropListBox 175, 215, 60, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", verifs_received
+                  If allow_60_days = True Then
+                      GroupBox 5, 245, 330, 35, "GRH or MSA Pending 30 days"
+                      Text 15, 265, 180, 10, "Does this case have a disabled Household Member?"
+                      DropListBox 190, 260, 45, 45, "Select..."+chr(9)+"Yes"+chr(9)+"No", disa_member_exists
+                      Text 265, 265, 65, 10, "Pending Day " &  DateDiff("d", application_date, date)
+                  End If
                   ButtonGroup ButtonPressed
-                    OkButton 230, 250, 50, 15
-                    CancelButton 285, 250, 50, 15
+                    OkButton 230, dlg_len-20, 50, 15
+                    CancelButton 285, dlg_len-20, 50, 15
                     PushButton 160, 65, 165, 15, "CM 05.12.15 - Application Processing Standards", cm_05_12_15_btn
                   GroupBox 5, 10, 330, 80, "Application Check: " & application_check
                   Text 15, 25, 290, 10, "Programs Applied for: " & programs_applied_for
@@ -834,13 +850,16 @@ If caf_programs_denial = True Then
                   Text 35, 180, 140, 10, "Was a Verification Request sent via ECF?"
                   Text 40, 200, 135, 10, "What Date was the request sent in ECF?"
                   Text 30, 220, 140, 10, "Were all mandatory verifications received?"
+                  If (msa_pending = True or grh_pending = True) and reminder_text = "Post day 60" Then
+                    Text 5, 245, 200, 20, "MSA or GRH are pending and it has been at least 60 days. (Pending Day " & DateDiff("d", application_date, date)  & ")"
+                  End If
                 EndDialog
 
                 dialog Dialog1
                 cancel_confirmation
 
-                If verifs_needed = "Select..."Then err_msg = err_msg & vbCr & "* Indicate if verifications were needed for this case."
-                If verifs_needed = "Yes" Then
+                If require_verifs = "Select..."Then err_msg = err_msg & vbCr & "* Indicate if verifications were needed for this case."
+                If require_verifs = "Yes" Then
                     If verifs_sent = "Select..."Then err_msg = err_msg & vbCr & "* Was the verification request form sent via ECF?."
                     If verifs_sent = "Yes" Then
                         If IsDate(verifs_sent_date) = False Then
@@ -850,6 +869,9 @@ If caf_programs_denial = True Then
                         End If
                     End If
                     If verifs_received = "Select..."Then err_msg = err_msg & vbCr & "* Indicate if all mandatory verifications have been received."
+                    If allow_60_days = True Then
+                        If disa_member_exists ="Select..." Then err_msg = err_msg & vbCr & " Indicate if any resident in this household is disabled."
+                    End If
                 End If
                 If verifs_received = "Yes" Then err_msg = ""
 
@@ -862,43 +884,51 @@ If caf_programs_denial = True Then
             Loop until err_msg = ""
             Call check_for_password(are_we_passworded_out)
         Loop until are_we_passworded_out = False
+        If disa_member_exists <> "Yes" Then allow_60_days = False
+    End If
+
+    If allow_60_days = True Then
+        If verifs_received = "Yes" Then allow_60_days = False
+        If require_verifs = "No" Then allow_60_days = False
     End If
 
     'This is the logic bit to see what should happen to this case.
     should_deny_today = False
     complete_determination_today = False
     reason_cannot_deny = ""
-
-    If interview_completed = "No" Then
-        If IsDate(appt_notc_date) = True and IsDate(nomi_date) = True Then
-            If DateDiff("d", nomi_date, day_30) > 0 Then
-                should_deny_today = True                                        'DENY - No Interview, all notices sent and NOMI sent before Day 30'
-            ElseIf DateDiff("d", nomi_date, date) >= 10 Then
-                should_deny_today = True                                        'DENY - No Interview, all notices sent and it has been 10 days since NOMI sent
-            Else
-                reason_cannot_deny = "Interview Notices Not Timely"             'Delay denial - NOMI sent after Day 30 and has not been 10 days'
-            End if
-        End If
-        If trim(appt_notc_date) = "" or trim(nomi_date) = "" Then
-            reason_cannot_deny = "Missing Interview Notices"                    'Delay denial - No Interview - Notices not all sent
-        End If
-    Else
-        If verifs_received = "Yes" Then
-            complete_determination_today = True                                 'PROCESS - Interview done and Verifs Received'
-        ElseIf verifs_needed = "Yes" Then
-            If verifs_sent = "No" Then
-                reason_cannot_deny = "Missing Verification Request"             'Delay Denial - Verifs Needed, no request sent'
-            ElseIf IsDate(verifs_sent_date) = True Then
-                If DateDiff("d", verifs_sent_date, date) >= 10 Then
-                    should_deny_today = True                                    'DENY - Interview and Verif request sent at least 10 days ago'
+    If allow_60_days = False or snap_status_check  = "PEND" Then
+        If interview_completed = "No" Then
+            If IsDate(appt_notc_date) = True and IsDate(nomi_date) = True Then
+                If DateDiff("d", nomi_date, day_30) > 0 Then
+                    should_deny_today = True                                        'DENY - No Interview, all notices sent and NOMI sent before Day 30'
+                ElseIf DateDiff("d", nomi_date, date) >= 10 Then
+                    should_deny_today = True                                        'DENY - No Interview, all notices sent and it has been 10 days since NOMI sent
                 Else
-                    reason_cannot_deny = "Verification Request Not Timely"      'Delay Denial - It has not been 10 days since mandaorty verifs requested'
-                End If
+                    reason_cannot_deny = "Interview Notices Not Timely"             'Delay denial - NOMI sent after Day 30 and has not been 10 days'
+                End if
             End If
-        ElseIf verifs_needed = "No" Then
-            complete_determination_today = True                                 'PROCESS - Interview done and No Verifs Needed'
+            If trim(appt_notc_date) = "" or trim(nomi_date) = "" Then
+                reason_cannot_deny = "Missing Interview Notices"                    'Delay denial - No Interview - Notices not all sent
+            End If
+        Else
+            If verifs_received = "Yes" Then
+                complete_determination_today = True                                 'PROCESS - Interview done and Verifs Received'
+            ElseIf require_verifs = "Yes" Then
+                If verifs_sent = "No" Then
+                    reason_cannot_deny = "Missing Verification Request"             'Delay Denial - Verifs Needed, no request sent'
+                ElseIf IsDate(verifs_sent_date) = True Then
+                    If DateDiff("d", verifs_sent_date, date) >= 10 Then
+                        should_deny_today = True                                    'DENY - Interview and Verif request sent at least 10 days ago'
+                    Else
+                        reason_cannot_deny = "Verification Request Not Timely"      'Delay Denial - It has not been 10 days since mandaorty verifs requested'
+                    End If
+                End If
+            ElseIf require_verifs = "No" Then
+                complete_determination_today = True                                 'PROCESS - Interview done and No Verifs Needed'
+            End If
         End If
     End If
+    If complete_determination_today = True Then allow_60_days = False
 
     'saving information for error reporting'
     script_run_lowdown = script_run_lowdown & "application_check - " & application_check & vbCr
@@ -911,18 +941,24 @@ If caf_programs_denial = True Then
     script_run_lowdown = script_run_lowdown & "interview_date - " & interview_date & vbCr
     script_run_lowdown = script_run_lowdown & "appt_notc_date - " & appt_notc_date & vbCr
     script_run_lowdown = script_run_lowdown & "nomi_date - " & nomi_date & vbCr
-    script_run_lowdown = script_run_lowdown & "verifs_needed - " & verifs_needed & vbCr
+    script_run_lowdown = script_run_lowdown & "require_verifs - " & require_verifs & vbCr
     script_run_lowdown = script_run_lowdown & "verifs_sent - " & verifs_sent & vbCr
     script_run_lowdown = script_run_lowdown & "verifs_sent_date - " & verifs_sent_date & vbCr
     script_run_lowdown = script_run_lowdown & "verifs_received - " & verifs_received & vbCr
     script_run_lowdown = script_run_lowdown & "should_deny_today - " & should_deny_today & vbCr
     script_run_lowdown = script_run_lowdown & "complete_determination_today - " & complete_determination_today & vbCr
     script_run_lowdown = script_run_lowdown & "reason_cannot_deny - " & reason_cannot_deny & vbCr
+    script_run_lowdown = script_run_lowdown & "msa_pending - " & msa_pending
+    script_run_lowdown = script_run_lowdown & "grh_pending - " & grh_pending
+    script_run_lowdown = script_run_lowdown & "reminder_text - " & reminder_text
+    script_run_lowdown = script_run_lowdown & "allow_60_days - " & allow_60_days
+    script_run_lowdown = script_run_lowdown & "disa_member_exists - " & disa_member_exists
 
     'Creating the messages for the script_en_procedure to explain DENY or PROCESS discovery
     next_step_msg = ""
     If should_deny_today = True Then
-        next_step_msg = "*** This case should be denied today. ***" & vbCr & vbCr
+        If allow_60_days = False Then next_step_msg = "*** This case should be denied today. ***" & vbCr & vbCr
+        If allow_60_days = True Then next_step_msg = "*** This programs other than MSA/GRH should be denied today. ***" & vbCr & vbCr
         next_step_msg = next_step_msg & "Application Processing standard is to complete determining within 30 days." & vbCr & vbCr
         next_step_msg = next_step_msg & " - Day 30 for this case: " & day_30 & "." & vbCr & vbCr
         If interview_completed = "No" Then
@@ -932,7 +968,7 @@ If caf_programs_denial = True Then
             next_step_msg = next_step_msg & "NOMI on " & nomi_date & "." & vbCr
             next_step_msg = next_step_msg & "Denial should be completed via REPT/PND2, denying for no interview." & vbCr & vbCr
         End if
-        If verifs_received = "No" and verifs_needed = "Yes" and verifs_sent = "Yes" Then
+        If verifs_received = "No" and require_verifs = "Yes" and verifs_sent = "Yes" Then
             next_step_msg = next_step_msg & "The interview has been completed for this case." & vbCr
             next_step_msg = next_step_msg & "Verifications were required and requested on " & verifs_sent_date & "." & vbCr
             next_step_msg = next_step_msg & "Verifications have not been received." & vbCr
@@ -949,7 +985,7 @@ If caf_programs_denial = True Then
         next_step_msg = next_step_msg & " - Has completed an interview." & vbCr
         If verifs_received = "Yes" Then
             next_step_msg = next_step_msg & " - All verifications have been received." & vbCr
-        ElseIf verifs_needed = "No" Then
+        ElseIf require_verifs = "No" Then
             next_step_msg = next_step_msg & " - Does not require any verifications." & vbCr
         End If
         next_step_msg = next_step_msg & vbCr
@@ -958,13 +994,15 @@ If caf_programs_denial = True Then
         next_step_msg = next_step_msg & "Contact QI Knowledge Now for assistance with processing this denial if needed."
     End If
     If next_step_msg <> "" Then
+        If allow_60_days = True Then MsgBox next_step_msg & vbCr & vbCr & "The script will now continue to the rest of Application Check to document the steps taken and additional needs for GRH or MSA."
+        If allow_60_days = False Then
+            closing_message = replace(closing_message, "Application check completed, a case note made, and a TIKL has been set.", "")
 
-        closing_message = replace(closing_message, "Application check completed, a case note made, and a TIKL has been set.", "")
+            If closing_message <> "" Then closing_message = next_step_msg & "----------------------------------------" & vbCr & closing_message
+            If closing_message = "" Then closing_message = next_step_msg
 
-        If closing_message <> "" Then closing_message = next_step_msg & "----------------------------------------" & vbCr & closing_message
-        If closing_message = "" Then closing_message = next_step_msg
-
-        script_end_procedure_with_error_report(closing_message)     'end script -  NO CASE/NOTE
+            script_end_procedure_with_error_report(closing_message)     'end script -  NO CASE/NOTE
+        End If
     End If
 
     'If there is a Delay Denial, the Application Check dialog has been mosified to explain details of the delay and allow for other information in a CASE NOTE
@@ -1036,7 +1074,7 @@ If caf_programs_denial = True Then
         		dialog dialog1
         		cancel_confirmation
         		MAXIS_dialog_navigation
-                If verifs_needed = "Yes" and verifs_received = "No" and trim(verifs_missing) = "" Then err_msg = err_msg & vbCr & "* List the pending verirications that have not been returned."
+                If require_verifs = "Yes" and verifs_received = "No" and trim(verifs_missing) = "" Then err_msg = err_msg & vbCr & "* List the pending verirications that have not been returned."
                 IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
                 IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
         	LOOP UNTIL err_msg = ""
@@ -1089,8 +1127,21 @@ If caf_programs_denial = True Then
         CALL write_variable_in_CASE_NOTE("---")
         CALL write_variable_in_CASE_NOTE (worker_signature)
 
-        closing_message = replace(closing_message, ", a case note made, and a TIKL has been set.", " and a case note made.")
-        script_end_procedure_with_error_report(closing_message)
+        If allow_60_days = True Then
+            PF3
+            closing_message = "CASE/NOTE for Delay of Denial for non-MSA/GRH programs has been made." & vbCr & vbCr &  "The script has continued to address GRH or MSA with: " & vbCr & closing_message
+        End If
+        If allow_60_days = False Then
+            closing_message = replace(closing_message, ", a case note made, and a TIKL has been set.", " and a case note made.")
+            script_end_procedure_with_error_report(closing_message)
+        End If
+    End If
+
+    If allow_60_days = True Then
+        other_notes = "Case has a disabled household member and "
+        If msa_pending = True Then other_notes = other_notes & "MSA is Pending and "
+        If grh_pending = True Then other_notes = other_notes & "GRH is Pending and "
+        other_notes = other_notes & "cannot be denied until 60 days from the date of application."
     End If
 End If
 
