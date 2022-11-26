@@ -3,7 +3,7 @@ name_of_script = "NOTES - SIGNIFICANT CHANGE.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
 STATS_manualtime = 90                               'manual run time in seconds
-STATS_denomination = "C"       'C is for each CASE
+STATS_denomination = "I"       'I for item
 'END OF stats block=========================================================================================================
 
 'LOADING FUNCTIONS LIBRARY FROM GITHUB REPOSITORY===========================================================================
@@ -72,7 +72,7 @@ BeginDialog Dialog1, 0, 0, 291, 260, "Significant Change"
   EditBox 75, 140, 210, 15, Income_verified
   EditBox 75, 165, 210, 15, Verifs_needed
   EditBox 75, 185, 210, 15, Action_taken
-  CheckBox 5, 210, 110, 10, "Tikl Future Month Requested", Tikl_future_month_checkbox
+  CheckBox 5, 210, 110, 10, "TIKL Future Month Requested", Tikl_future_month_checkbox
   EditBox 215, 210, 70, 15, Worker_signature
   ButtonGroup ButtonPressed
     OkButton 175, 235, 50, 15
@@ -99,14 +99,13 @@ DO
     	err_msg = ""
     	Dialog Dialog1
     	cancel_confirmation 'Are you sure you want to quit? message
-    	call check_for_MAXIS (False) 'Password check- If passworded out, dialog box wont close
-    	IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = FALSE) THEN err_msg = err_msg & vbNewLine & "*Please enter a valid case number" 'Makes sure there is a numeric case number
-    	IF Sig_change_status_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must select a Significant Change status type" 'Selecting the status of the sig change request is a mandatory field
-    	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You have selected Denied, you must select a denial reason" 'If your status is Denied then you have to select a denial reason (this will pull into the spec/Memo denial letter)
-    	IF Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown <> "Select one..." AND Month_requested_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "*You must enter a month requested" 'I made the month requested a mandatory field only if it is denied because it pulls into the Spec/Memo, also clients do not always state the month they are requesting
-    	IF Month_requested_dropdown <> "Select one..." AND (Month_requested_year = "" OR IsNumeric(Month_Requested_Year) = FALSE) THEN err_msg = err_msg & vbNewLine & "*You must enter a valid year" 'This just makes you put in a numeric year if you select a month requested. Basicallly if you know the month then you should know the year
-    	IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "*You must sign your case note" 'Mandatory field
-    	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine & vbNewLine & "Please resolve for the script to continue" 'Msgbox starts out with Notice!!! then makes new line (this should give it a space it before the error messages because each message starts out with new line) and then adds a couple lines to space after the error messages before the saying that "Please resolve for script to continue" "
+    	Call validate_MAXIS_case_number(err_msg, "*")
+    	IF Sig_change_status_dropdown = "Select one..." THEN err_msg = err_msg & vbNewLine & "* Select a Significant Change status type." 'Selecting the status of the sig change request is a mandatory field
+    	IF (Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown = "Select one...") THEN err_msg = err_msg & vbNewLine & "* Enter a denial reason." 'If your status is Denied then you have to select a denial reason (this will pull into the spec/Memo denial letter)
+    	IF (Sig_change_status_dropdown = "Denied" AND Denial_reason_dropdown <> "Select one..." AND Month_requested_dropdown = "Select one...") THEN err_msg = err_msg & vbNewLine & "* Enter the month requested." 'I made the month requested a mandatory field only if it is denied because it pulls into the Spec/Memo, also clients do not always state the month they are requesting
+    	IF Month_requested_dropdown <> "Select one..." AND (Month_requested_year = "" OR IsNumeric(Month_Requested_Year) = FALSE) THEN err_msg = err_msg & vbNewLine & "* Enter the year requested." 'This just makes you put in a numeric year if you select a month requested. Basicallly if you know the month then you should know the year
+    	IF trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* Sign your case note." 'Mandatory field
+    	IF err_msg <> "" THEN Msgbox "*** NOTICE!!! ***" & vbNewLine & err_msg
     LOOP UNTIL err_msg = ""
 LOOP UNTIL are_we_passworded_out = false
 
@@ -127,11 +126,12 @@ If Sig_change_status_dropdown = "Denied" THEN
 	call write_variable_in_SPEC_MEMO("Please contact your worker if you have any questions")
 	call write_variable_in_SPEC_MEMO("************************************************************")
 	PF4    'Exits the MEMO
+    STATS_counter = STATS_counter + 1
 END If
 
 'Starts the case note
 call start_a_blank_case_note
-call write_bullet_and_variable_in_CASE_NOTE ("Significant Change", Sig_change_status_dropdown)
+call write_variable_in_CASE_NOTE("Significant Change: " & Sig_change_status_dropdown)
 IF Sig_change_status_dropdown = "Denied" THEN call write_bullet_and_variable_in_CASE_NOTE ("Denial Reason", Denial_reason_dropdown)
 IF Month_requested_dropdown <> "Select one..." THEN call write_bullet_and_variable_in_CASE_NOTE ("Month Requested", Month_requested_dropdown & " " & Month_requested_year)
 call write_bullet_and_variable_in_CASE_NOTE ("Last Month Used", Last_month_used)
@@ -140,7 +140,52 @@ call write_bullet_and_variable_in_CASE_NOTE ("Income Change Verified?", Income_v
 call write_bullet_and_variable_in_CASE_NOTE ("Verifications Needed", Verifs_needed)
 call write_bullet_and_variable_in_CASE_NOTE ("Action Taken", Action_taken)
 IF Tikl_future_month_checkbox = "1" THEN write_variable_in_case_note ("* Tikl set to review Significant Change for future month, " & next_TIKL)
-IF Sig_change_status_dropdown = "Denied" THEN write_variable_in_case_note ("* Denial letter sent via Spec/Memo")
-call write_variable_in_CASE_NOTE (Worker_signature)
+IF Sig_change_status_dropdown = "Denied" THEN write_variable_in_case_note ("* Denial letter sent via SPEC/MEMO")
+call write_variable_in_CASE_NOTE("---")
+call write_variable_in_CASE_NOTE(Worker_signature)
 
-script_end_procedure_with_error_report("Success!")
+script_end_procedure_with_error_report("Success! Review your case notes and/or MEMO to add additional information.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/26/2022
+'--Tab orders reviewed & confirmed----------------------------------------------11/26/2022
+'--Mandatory fields all present & Reviewed--------------------------------------11/26/2022
+'--All variables in dialog match mandatory fields-------------------------------11/26/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------11/26/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------11/26/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/26/2022
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/26/2022
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/26/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------11/26/2022--------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------11/26/2022--------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------11/26/2022--------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/26/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------11/26/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---11/26/2022
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------11/26/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------11/26/2022
+'--Denomination reviewed -------------------------------------------------------11/26/2022
+'--Script name reviewed---------------------------------------------------------11/26/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------11/26/2022--------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------11/26/2022
+'--comment Code-----------------------------------------------------------------11/26/2022
+'--Update Changelog for release/update------------------------------------------11/26/2022
+'--Remove testing message boxes-------------------------------------------------11/26/2022
+'--Remove testing code/unnecessary code-----------------------------------------11/26/2022
+'--Review/update SharePoint instructions----------------------------------------11/26/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/26/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/26/2022
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------11/26/2022
+'--Complete misc. documentation (if applicable)---------------------------------11/26/2022
+'--Update project team/issue contact (if applicable)----------------------------11/26/2022
