@@ -89,51 +89,58 @@ FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 	array_name = split(array_name)
 END FUNCTION
 
-'Checks for county info from global variables, or asks if it is not already defined.
-get_county_code
-
 'THE SCRIPT---------------------------------------------------
-'Asks if we want to navigate to current month + 2, which REVS is unique in that it can show this screen
-current_month_plus_2 = MsgBox("Navigate to current month + 2 for REVS?", vbYesNo)
-If current_month_plus_2 = vbCancel then stopscript
-If current_month_plus_2 = vbYes then current_month_plus_2 = True
-If current_month_plus_2 = vbNo then current_month_plus_2 = False
 
-'Connects to BlueZone
-EMConnect ""
+EMConnect "" 'Connects to BlueZone
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'inputs the MAXIS footer/month and year that is on the current MAXIS screen
+day_of_month = DatePart("D", date)
+
+review_month = MAXIS_footer_month
+review_year = MAXIS_footer_year
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 286, 175, "Pull REPT data into Excel dialog"
-  EditBox 140, 20, 140, 15, worker_number
-  CheckBox 70, 60, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 70, 95, 200, 10, "Check here to read info from case notes to help locate", error_check
-  CheckBox 70, 120, 210, 10, "Check here to have the script read information from SNAP", notice_audit_check
-  CheckBox 10, 35, 40, 10, "SNAP?", SNAP_check
-  CheckBox 10, 50, 50, 10, "Cash/GRH?", cash_check
-  CheckBox 10, 65, 40, 10, "HC?", HC_check
+BeginDialog Dialog1, 0, 0, 291, 150, "REPT/REVS"
+  EditBox 140, 10, 140, 15, worker_number
+  CheckBox 135, 40, 160, 10, "OR check here to run this query county-wide.", all_workers_check
+  EditBox 140, 55, 20, 15, review_month
+  EditBox 165, 55, 20, 15, review_year
+  CheckBox 10, 25, 40, 10, "SNAP?", SNAP_check
+  CheckBox 10, 40, 50, 10, "Cash/GRH?", cash_check
+  CheckBox 10, 55, 40, 10, "HC?", HC_check
+  CheckBox 10, 95, 215, 10, "Read info from CASE/NOTE to identify potential renewal errors.", error_check
+  CheckBox 10, 110, 210, 10, "Read SNAP/MFIP info from Auto-close notices.", notice_audit_check
   ButtonGroup ButtonPressed
-    OkButton 180, 155, 50, 15
-    CancelButton 230, 155, 50, 15
-  GroupBox 5, 20, 60, 60, "Progs to scan"
-  Text 70, 25, 65, 10, "Worker(s) to check:"
-  Text 70, 75, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
-  Text 80, 5, 125, 10, "***PULL REPT DATA INTO EXCEL***"
-  Text 70, 40, 210, 15, "Enter all 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-  Text 80, 105, 175, 10, "cases with STAT/REVW errors."
-  Text 80, 130, 175, 10, "autoclose notices."
+    OkButton 195, 130, 40, 15
+    CancelButton 240, 130, 40, 15
+  Text 75, 30, 220, 10, "Enter the 7-digit worker numbers (ex: X127###), comma separated."
+  Text 75, 60, 65, 10, "Report Month/Year:"
+  GroupBox 5, 10, 60, 60, "Program(s):"
+  Text 75, 15, 65, 10, "Worker(s) to check:"
+  GroupBox 5, 80, 275, 45, "Additional Reporting Options:"
 EndDialog
 
 Do
 	Do
 		err_msg = ""
-		Dialog Dialog1 
+		Dialog Dialog1
 		Cancel_without_confirmation
-		If SNAP_check = 0 and cash_check = 0 and HC_check = 0 then err_msg = err_msg & vbNewLine & "* You must select at least one program."
+        Call validate_footer_month_entry(review_month, review_year, err_msg, "*")
+        If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
+        If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
+        If review_month = CM_plus_2_mo and review_year = CM_plus_2_yr then
+            If day_of_month < 16 then
+                err_msg = err_msg & vbcr & "* You cannot select current month plus 2 until the 16th of the month."
+            Else
+                current_month_plus_2 = True
+            End if
+        End if
+		If SNAP_check = 0 and cash_check = 0 and HC_check = 0 then err_msg = err_msg & vbNewLine & "* Select at least one program."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+review_date = review_month & "/01/" & review_year
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -264,34 +271,20 @@ all_case_numbers_array = "*"
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	MAXIS_footer_month = "" 'clearing variable to prevent breaking when in Cm+2
+    MAXIS_footer_month = "" 'clearing variable to prevent breaking when in Cm+2
 	MAXIS_footer_year = ""
 	EMWriteScreen MAXIS_footer_month, 20, 43 'needs to add date that isn't CM+2 other wise script cannot navigate back to REVS when running on multiple cases.
-	EMWriteScreen MAXIS_footer_year, 20, 46
-	transmit
+	Call write_value_and_transmit(MAXIS_footer_year, 20, 46)
 
-	Call navigate_to_MAXIS_screen("rept", "revs")
-	EMWriteScreen worker, 21, 6
-	transmit
+	Call navigate_to_MAXIS_screen("REPT", "REVS")
+    EmWriteScreen review_month, 20, 55        'Entering user selected review month/year from dialog
+    Call write_value_and_transmit(review_year, 20, 58)
+    Call write_value_and_transmit(worker, 21, 6)
 
-	'If current_month_plus_2 is selected, it pops that month into the footer month area.
-	If current_month_plus_2 = True then
-		EMWriteScreen CM_plus_2_mo, 20, 55
-		EMWriteScreen CM_plus_2_yr, 20, 58
-		transmit
-	End if
-	EMReadScreen MAXIS_footer_month, 2, 20, 55
-	EMReadScreen MAXIS_footer_year, 2, 20, 58
-	review_date = MAXIS_footer_month & "/01/" & MAXIS_footer_year
-
-	'Skips workers with no info
-	EMReadScreen has_content_check, 8, 7, 6
-	If has_content_check <> "        " then
-
-		'Grabbing each case number on screen
-		Do
-			'Set variable for next do...loop
-			MAXIS_row = 7
+	EMReadScreen has_content_check, 8, 7, 6    'Skips workers with no info
+	If trim(has_content_check) <> "" then
+		Do  'Grabbing each case number on screen
+			MAXIS_row = 7    'Set variable for next do...loop
 			Do
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 6			'Reading case number
 				EMReadScreen client_name, 15, MAXIS_row, 16		'Reading client name
@@ -318,7 +311,7 @@ For each worker in worker_array
 				If HC_status = "-" then HC_status = ""
 
 				'The asterisk in the exempt IR column messes up the formula for Excel. Replacing with the word "exempt"
-				If exempt_IR_status = "*" then exempt_IR_status = "exempt"
+				If exempt_IR_status = "*" then exempt_IR_status = "Exempt"
 
 				'Using if...thens to decide if a case should be added (status isn't blank and respective box is checked)
 				If T_check = checked THEN
@@ -382,7 +375,7 @@ IF notice_audit_check = checked OR error_check = checked THEN
 						EMSearch "Autoclose Notice", row, col
 						IF row <> 0 THEN
 							EMReadScreen prg_typ, 2, row, 26
-							IF prg_typ = "FS" THEN 'found a snap autoclose, need to read it
+							IF prg_typ = "FS" or prg_typ = "MF" THEN 'found a snap autoclose, need to read it
 								EMWriteScreen "X", row, 13
 								Transmit
 								PF8 'skipping the first page, the important stuff is on page 2
@@ -544,4 +537,4 @@ Next
 
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
-script_end_procedure("Success! Your REPT/REVS list has been created.")
+script_end_procedure_with_error_report("Success! Your REPT/REVS list has been created.")
