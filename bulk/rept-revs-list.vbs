@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("11/26/2022", "Updated date handling and selection.", "Ilse Ferris, Hennepin County") ''#1060
 call changelog_update("06/27/2018", "Added/updated closing message.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
 call changelog_update("09/25/2017", "Added handling for all months. Previously script only allowed user to select from current month or current month plus 2.", "Ilse Ferris, Hennepin County")
@@ -92,6 +93,7 @@ END FUNCTION
 'THE SCRIPT---------------------------------------------------
 
 EMConnect "" 'Connects to BlueZone
+Call check_for_MAXIS(False)
 Call MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)		'inputs the MAXIS footer/month and year that is on the current MAXIS screen
 day_of_month = DatePart("D", date)
 
@@ -538,3 +540,47 @@ Next
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure_with_error_report("Success! Your REPT/REVS list has been created.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------11/26/2022
+'--Tab orders reviewed & confirmed----------------------------------------------11/26/2022
+'--Mandatory fields all present & Reviewed--------------------------------------11/26/2022
+'--All variables in dialog match mandatory fields-------------------------------11/26/2022
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------11/26/2022------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------11/26/2022------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/26/2022------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-11/26/2022------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------11/26/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------11/26/2022------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------11/26/2022------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------11/26/2022------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------11/26/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------11/26/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------11/26/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------11/26/2022
+'--Denomination reviewed -------------------------------------------------------11/26/2022
+'--Script name reviewed---------------------------------------------------------11/26/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------11/26/2022
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------11/26/2022
+'--comment Code-----------------------------------------------------------------11/26/2022
+'--Update Changelog for release/update------------------------------------------11/26/2022
+'--Remove testing message boxes-------------------------------------------------11/26/2022
+'--Remove testing code/unnecessary code-----------------------------------------11/26/2022
+'--Review/update SharePoint instructions----------------------------------------11/26/2022
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/26/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/26/2022
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------11/26/2022 - Will pull in separtely; pending pull request has updates to CLoS.
+'--Complete misc. documentation (if applicable)---------------------------------11/26/2022
+'--Update project team/issue contact (if applicable)----------------------------11/26/2022
