@@ -125,7 +125,7 @@ Call check_for_MAXIS(True)
 ' alerts_status = True
 ' Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 '
-' excel_row = 2
+excel_row = 2
 ' Do
 ' 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
 '
@@ -152,33 +152,80 @@ file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Sum
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Sept 16.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Oct 6.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Nov 8.xlsx"
+file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\PENDING Over 30 11-22-22.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 ' Call navigate_to_MAXIS_screen("CCOL", "CLIC")
-count = 1
-xl_col = 5
-Do
-	ObjExcel.Cells(1, xl_col).Value = "ELIGIBILITY - " & count
-	ObjExcel.Cells(1, xl_col+1).Value = "ELIG TYPE - " & count
-	ObjExcel.Cells(1, xl_col+2).Value = "INCOME - " & count
-	ObjExcel.Cells(1, xl_col+3).Value = "PERSON and PROG - " & count
-	ObjExcel.Cells(1, xl_col+4).Value = "APPROVED? - " & count
-
-
-	ObjExcel.Columns(xl_col).AutoFit()
-	ObjExcel.Columns(xl_col+1).AutoFit()
-	ObjExcel.Columns(xl_col+2).AutoFit()
-	ObjExcel.Columns(xl_col+3).AutoFit()
- 	ObjExcel.Columns(xl_col+4).AutoFit()
-
-	xl_col = xl_col + 5
-	count = count + 1
-Loop Until count = 8
+' count = 1
+' xl_col = 5
+' Do
+' 	ObjExcel.Cells(1, xl_col).Value = "ELIGIBILITY - " & count
+' 	ObjExcel.Cells(1, xl_col+1).Value = "ELIG TYPE - " & count
+' 	ObjExcel.Cells(1, xl_col+2).Value = "INCOME - " & count
+' 	ObjExcel.Cells(1, xl_col+3).Value = "PERSON and PROG - " & count
+' 	ObjExcel.Cells(1, xl_col+4).Value = "APPROVED? - " & count
+'
+'
+' 	ObjExcel.Columns(xl_col).AutoFit()
+' 	ObjExcel.Columns(xl_col+1).AutoFit()
+' 	ObjExcel.Columns(xl_col+2).AutoFit()
+' 	ObjExcel.Columns(xl_col+3).AutoFit()
+'  	ObjExcel.Columns(xl_col+4).AutoFit()
+'
+' 	xl_col = xl_col + 5
+' 	count = count + 1
+' Loop Until count = 8
 
 
 MAXIS_footer_month = "11"
 MAXIS_footer_year = "22"
+Do
+	days_pending = trim(ObjExcel.Cells(excel_row, 7).Value)
+	pending_over_30 = False
+	If IsNumeric(days_pending) = True Then
+		days_pending = days_pending * 1
+		If days_pending >= 30 Then pending_over_30 = True
+	End If
+
+	If pending_over_30 = True Then
+		MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+
+
+		Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+		' call navigate_to_MAXIS_screen("STAT", "PROG")
+		'
+		' EMReadScreen cash1_status_check, 4, 6, 74
+		' EMReadScreen cash2_status_check, 4, 7, 74
+		'
+		' EMReadScreen cash1_prog_check, 2, 6, 67     'Reading cash 1
+		' EMReadScreen cash2_prog_check, 2, 7, 67     'Reading cash 2\
+		'
+		' If cash1_prog_check = "  " Then cash1_prog_check = "UNK"
+		' If cash2_prog_check = "  " Then cash2_prog_check = "UNK"
+		'
+		' If cash1_status_check = "PEND" Then ObjExcel.Cells(excel_row, 8).Value = cash1_prog_check
+		' If cash1_status_check <> "PEND" Then ObjExcel.Cells(excel_row, 8).Value = "No CASH 1"
+		' If cash2_status_check = "PEND" Then ObjExcel.Cells(excel_row, 9).Value = cash2_prog_check
+		' If cash2_status_check <> "PEND" Then ObjExcel.Cells(excel_row, 9).Value = "No CASH 2"
+
+		ObjExcel.Cells(excel_row, 8).Value = ""
+		If unknown_cash_pending = True Then ObjExcel.Cells(excel_row, 8).Value = "PENDING"
+		ObjExcel.Cells(excel_row, 9).Value = mfip_status
+		ObjExcel.Cells(excel_row, 10).Value = dwp_status
+		ObjExcel.Cells(excel_row, 11).Value = ga_status
+		ObjExcel.Cells(excel_row, 12).Value = msa_status
+		ObjExcel.Cells(excel_row, 13).Value = grh_status
+		ObjExcel.Cells(excel_row, 14).Value = snap_status
+		ObjExcel.Cells(excel_row, 15).Value = emer_status
+		Call Back_to_SELF
+	End If
+
+	excel_row = excel_row + 1
+Loop until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
+
+MsgBox "STOP HERE"
+
 excel_row = 34284
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
