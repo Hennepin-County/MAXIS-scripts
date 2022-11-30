@@ -967,6 +967,7 @@ If caf_programs_denial = True Then
             next_step_msg = next_step_msg & "Appointment Notice on " & appt_notc_date & "." & vbCr
             next_step_msg = next_step_msg & "NOMI on " & nomi_date & "." & vbCr
             next_step_msg = next_step_msg & "Denial should be completed via REPT/PND2, denying for no interview." & vbCr & vbCr
+            If (msa_pending = True or grh_pending = True) and reminder_text <> "Post day 60" Then next_step_msg = next_step_msg & "MSA or GRH Pending - since there has been no interview, we cannot determine disability status and case should be denied at Day 30 if possible." & vbCr & vbCr
         End if
         If verifs_received = "No" and require_verifs = "Yes" and verifs_sent = "Yes" Then
             next_step_msg = next_step_msg & "The interview has been completed for this case." & vbCr
