@@ -1017,7 +1017,6 @@ If first_item_date <> date Then
 	For case_entry = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
 		If ALL_PENDING_CASES_ARRAY(deleted_today, case_entry) = False Then count_case_to_add = count_case_to_add + 1
 	Next
-	MsgBox "count_case_to_add - " & count_case_to_add
 
 	On Error Resume Next
 	'declare the SQL statement that will query the database
