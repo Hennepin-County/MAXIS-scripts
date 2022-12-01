@@ -3125,7 +3125,7 @@ script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references = array("CM Removing_or_Recalculating_income 08.06.15", "CM Glossary 02.61", "CM MFIP_Housing_Assistance_Grant 13.03.09", "CM Suspensions 22.18", "CM Opting_Out_of_MFIP_Cash_Portion 14.03.03.03", "CM When_to_Switch_Budget_cycles_SNAP 22.09.03", "TE SIGNIFICANT_CHANGE 02.13.11", "SHAREPOINT Significant Change https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Budgeting_Significant_Change.aspx")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
