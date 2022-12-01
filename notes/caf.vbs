@@ -5742,7 +5742,7 @@ If vars_filled = False Then
         End If
     End If
     If EMER_checkbox = checked Then CAF_type = "Application"
-    script_run_lowdown = script_run_lowdown & vbCr & "CAF Type: " & CAF_type    
+    script_run_lowdown = script_run_lowdown & vbCr & "CAF Type: " & CAF_type
 
     If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
     	' call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
@@ -6305,7 +6305,9 @@ If vars_filled = False Then
     call autofill_editbox_from_MAXIS(HH_member_array, "SECU", other_assets)
     call autofill_editbox_from_MAXIS(HH_member_array, "STWK", notes_on_jobs)
     call read_TIME_panel
-    call read_SANC_panel
+    in_01_23 = False
+    If MAXIS_footer_month = "01" AND MAXIS_footer_year = "23" Then in_01_23 = True
+    If in_01_23 = False Then call read_SANC_panel
     ' call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
     Call read_UNEA_panel
