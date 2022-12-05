@@ -1,18 +1,18 @@
 'LOADING GLOBAL VARIABLES
 'Find who is running
-Set objNet = CreateObject("WScript.NetWork")                                    'getting the users windows ID
-windows_user_ID = objNet.UserName
-user_ID_for_validation = ucase(windows_user_ID)
-
-Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-If user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395"Then
-	Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-Scripts\locally-installed-files\SETTINGS - GLOBAL VARIABLES.vbs")
-Else
-	Set fso_command = run_another_script_fso.OpenTextFile("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-End If
-text_from_the_other_script = fso_command.ReadAll
-fso_command.Close
-Execute text_from_the_other_script
+' Set objNet = CreateObject("WScript.NetWork")                                    'getting the users windows ID
+' windows_user_ID = objNet.UserName
+' user_ID_for_validation = ucase(windows_user_ID)
+'
+' Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+' If user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395"Then
+' 	Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-Scripts\locally-installed-files\SETTINGS - GLOBAL VARIABLES.vbs")
+' Else
+' 	Set fso_command = run_another_script_fso.OpenTextFile("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
+' End If
+' text_from_the_other_script = fso_command.ReadAll
+' fso_command.Close
+' Execute text_from_the_other_script
 
 ' 'LOADING SCRIPT
 ' script_url = script_repository & "/admin/admin-main-menu.vbs"
