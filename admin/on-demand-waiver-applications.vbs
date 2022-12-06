@@ -396,7 +396,7 @@ first_item_change = objWorkRecordSet("AuditChangeDate")
 first_item_array = split(first_item_change, " ")
 first_item_date = first_item_array(0)
 first_item_date = DateAdd("d", 0, first_item_date)
-first_item_date = #11/4/22#
+' first_item_date = #11/4/22#
 
 'If the first item has not been changed today, this is NOT a restart and we need to compare today's list
 If first_item_date <> date Then
@@ -1406,6 +1406,8 @@ Do While NOT objWorkRecordSet.Eof
 		change_date = change_date_time_array(0)
 		WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= DateAdd("d", 0, change_date)
 
+		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
+		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
 		' "DenialNeeded"
 		' WORKING_LIST_CASES_ARRAY(error_notes, case_entry) 			= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, worker_notes_col)
 		' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, script_revw_date_col)
@@ -1490,7 +1492,6 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 
 	MAXIS_case_number = WORKING_LIST_CASES_ARRAY(case_number, case_entry)        'setting this so that nav functionality works
 	WORKING_LIST_CASES_ARRAY(script_action_taken, case_entry) = False
-
 	' If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
 	WORKING_LIST_CASES_ARRAY(error_notes, case_entry) = Replace(WORKING_LIST_CASES_ARRAY(error_notes, case_entry), "Display Limit", "")
 	WORKING_LIST_CASES_ARRAY(error_notes, case_entry) = Replace(WORKING_LIST_CASES_ARRAY(error_notes, case_entry), "PRIVILEGED CASE.", "")
@@ -1625,7 +1626,6 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 
 	End If
 
-
 Next
 
 
@@ -1721,7 +1721,6 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		MAXIS_case_number	= WORKING_LIST_CASES_ARRAY(case_number, case_entry)        'setting this so that nav functionality wor
 		day_before_app = DateAdd("d", -1, WORKING_LIST_CASES_ARRAY(application_date, case_entry)) 'will set the date one day prior to app date'
 
-
 		'these are for cases where the appointemnt notice sent date is found but the actual appointment date was not found
 		'the script will go in to MEMO to read the appointment date from the actual memo.
 		If WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) <> "" AND WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) = "" Then
@@ -1791,7 +1790,6 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 			WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL"
 		End If
 		' If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "" Then MsgBox "Case Number: " & WORKING_LIST_CASES_ARRAY(case_number, case_entry) & vbNewLine & "Does not have an action to take!!!"           'This is here for testing but has never come up
-
 	End If
 Next
 
@@ -1913,7 +1911,6 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 
 			If left(WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry), 1) = "~" Then WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry) = right(WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry), len(WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry))-1)     'triming off the left most ~ of the questionale interview dates
 			if WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry) <> start_dates Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)"     'if a new date was added it needs to be reviewed but if they are the same then we know they have been reviewed and we can continue with the correct action
-
 		End If
 	End If
 Next
@@ -2185,7 +2182,10 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		cases_to_alert_BZST = cases_to_alert_BZST & ", " & MAXIS_case_number
 	End If
 	If WORKING_LIST_CASES_ARRAY(deleted_today, case_entry) = True Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
-	If WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True Then WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = date
+	If WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True Then
+		WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = date
+		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = "STS-NR " & WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry)
+	End If
 	' objWorkRecordSet.Open "DELETE FROM ES.ES_OnDemanCashAndSnapBZProcessed WHERE CaseNumber = '" & case_number_to_review & "'", objWorkConnection
 	' ' objWorkRecordSet.Close
 	' ' objWorkConnection.Close
