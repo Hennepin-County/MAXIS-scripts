@@ -152,6 +152,7 @@ file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Sum
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Sept 16.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Oct 6.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Nov 8.xlsx"
+file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Dec 6.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
@@ -177,9 +178,9 @@ Do
 Loop Until count = 8
 
 
-MAXIS_footer_month = "11"
+MAXIS_footer_month = "12"
 MAXIS_footer_year = "22"
-excel_row = 34284
+excel_row = 2
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
 	xl_col = 5
