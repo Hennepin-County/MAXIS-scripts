@@ -104,12 +104,12 @@ function bring_correct_message_to_top()
 		End If
 	Loop until dail_pers_header = dail_pers_indicator and dail_case_header = dail_case_indicator	'stopping when we get to the right header
 
-	msg_found = False
+	msg_found = False															'setting the boolean to be able to identify if the correct DAIL is found'
 	dail_row = header_row + 1													'the dail mmessages start one row below the header
 	Do
 		EMReadScreen read_each_dail, 76, dail_row, 5								'read the whole DAIL line
 		If read_each_dail = find_msg_details and hire_msg = False Then msg_found = True
-		If read_each_dail = find_msg_details and hire_msg = True Then
+		If read_each_dail = find_msg_details and hire_msg = True Then			'if this is a HIRE message, we need to open it to read the message before telling if it is the right one.
 			Call write_value_and_transmit("X", dail_row, 3)
 			hire_row = 1
 			hire_col = 1
@@ -118,14 +118,14 @@ function bring_correct_message_to_top()
 			TRANSMIT
 			If read_msg_details = hire_msg_details Then msg_found = True
 		End If
-		If msg_found = False Then
+		If msg_found = False Then												''if we have not found the right message, go to the next one.
 			dail_row = dail_row + 1
 			If dail_row = 19 Then
 				PF8
 				dail_row = 6
 			End If
 		End If
-	Loop until msg_found = True
+	Loop until msg_found = True													'keep going until we find it.
 	Call write_value_and_transmit("T", dail_row, 3)								'bringing the correct one to the TOP of the DAIL page
 end function
 
@@ -141,14 +141,14 @@ If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. Thi
 'Finding the top of this case's list of dails.
 EMGetCursor dail_row, dail_col
 EMReadScreen find_msg_details, 76, dail_row, 5		'this is the WHOLE line - with type and footer month - we will use this to get back to it if needed
-If left(find_msg_details, 5) = " HIRE" Then
-	hire_msg = True
-	Call write_value_and_transmit("X", dail_row, 3)
-	hire_row = 1
+If left(find_msg_details, 5) = " HIRE" Then			'if this a HIRE message, we need to read the hire information to be able to identify a unique match
+	hire_msg = True																'setting in the script if this is a HIRE match or not
+	Call write_value_and_transmit("X", dail_row, 3)								'opening the DAIL mmessage
+	hire_row = 1																'finding the 'DATE HIRED' informmation as it is not in a consitent place
 	hire_col = 1
 	EMSearch "DATE HIRED", hire_row, hire_col
-	EMReadScreen hire_msg_details, 80-hire_col, hire_row, hire_col
-	hire_msg_details = trim(hire_msg_details)
+	EMReadScreen hire_msg_details, 80-hire_col, hire_row, hire_col				'reading the message from within the HIRE pop-up'
+	hire_msg_details = trim(hire_msg_details)									'resizing the variable
 	TRANSMIT
 End If
 
