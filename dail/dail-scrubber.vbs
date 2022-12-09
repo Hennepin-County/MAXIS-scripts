@@ -115,6 +115,7 @@ function bring_correct_message_to_top()
 			hire_col = 1
 			EMSearch "DATE HIRED", hire_row, hire_col
 			EMReadScreen read_msg_details, len(hire_msg_details), hire_row, hire_col
+			TRANSMIT
 			If read_msg_details = hire_msg_details Then msg_found = True
 		End If
 		If msg_found = False Then
@@ -178,20 +179,20 @@ full_message = trim(full_message)
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
 
-' 'This functionalitty will identify if the script is being run in INQUIRY
-' 'Cannot tell if Production or Training, but that is less important
-' running_in_INQUIRY = False							'default to false'
-' EMSendKey "W"										'attempt to navigate to DAIL/WRIT - wwhich requires write access
-' TRANSMIT
-' EMReadScreen cannot_access_msg, 17, 24, 2			'reading for the message that states you cannot access WRIT
-' If cannot_access_msg = "YOU CANNOT ACCESS" Then		'If found we are most likely in INQUIRY (could be PRIV or Out of County)
-' 	running_in_INQUIRY = True						'setting the boolean to true
-' 	EMSendKey " "									'blanking out the 'WRIT' attempt
-' Else
-' 	PF3												'if the message is NOT found, we are in WRIT and need to back out
-' End If
-'
-' call bring_correct_message_to_top
+'This functionalitty will identify if the script is being run in INQUIRY
+'Cannot tell if Production or Training, but that is less important
+running_in_INQUIRY = False							'default to false'
+EMSendKey "W"										'attempt to navigate to DAIL/WRIT - wwhich requires write access
+TRANSMIT
+EMReadScreen cannot_access_msg, 17, 24, 2			'reading for the message that states you cannot access WRIT
+If cannot_access_msg = "YOU CANNOT ACCESS" Then		'If found we are most likely in INQUIRY (could be PRIV or Out of County)
+	running_in_INQUIRY = True						'setting the boolean to true
+	EMSendKey " "									'blanking out the 'WRIT' attempt
+Else
+	PF3												'if the message is NOT found, we are in WRIT and need to back out
+End If
+
+call bring_correct_message_to_top
 
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 
