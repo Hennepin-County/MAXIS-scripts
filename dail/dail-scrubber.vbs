@@ -104,30 +104,52 @@ function bring_correct_message_to_top()
 		End If
 	Loop until dail_pers_header = dail_pers_indicator and dail_case_header = dail_case_indicator	'stopping when we get to the right header
 
+	msg_found = False
 	dail_row = header_row + 1													'the dail mmessages start one row below the header
-	EMReadScreen read_each_dail, 76, dail_row, 5								'read the whole DAIL line
-	Do while read_each_dail <> find_msg_details									'comparing each line and stopping when we have found the one we started on.
-		dail_row = dail_row + 1
-		If dail_row = 19 Then
-			PF8
-			dail_row = 6
+	Do
+		EMReadScreen read_each_dail, 76, dail_row, 5								'read the whole DAIL line
+		If read_each_dail = find_msg_details and hire_msg = False Then msg_found = True
+		If read_each_dail = find_msg_details and hire_msg = True Then
+			Call write_value_and_transmit("X", dail_row, 3)
+			hire_row = 1
+			hire_col = 1
+			EMSearch "DATE HIRED", hire_row, hire_col
+			EMReadScreen read_msg_details, len(hire_msg_details), hire_row, hire_col
+			If read_msg_details = hire_msg_details Then msg_found = True
 		End If
-		EMReadScreen read_each_dail, 77, dail_row, 4
-	Loop
+		If msg_found = False Then
+			dail_row = dail_row + 1
+			If dail_row = 19 Then
+				PF8
+				dail_row = 6
+			End If
+		End If
+	Loop until msg_found = True
 	Call write_value_and_transmit("T", dail_row, 3)								'bringing the correct one to the TOP of the DAIL page
 end function
 
 'CONNECTS TO DEFAULT SCREEN
 EMConnect ""
 match_found = FALSE
+hire_msg = False
+
+'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
+EMReadscreen dail_check, 4, 2, 48
+If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 
 'Finding the top of this case's list of dails.
 EMGetCursor dail_row, dail_col
 EMReadScreen find_msg_details, 76, dail_row, 5		'this is the WHOLE line - with type and footer month - we will use this to get back to it if needed
-
-'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
-EMReadscreen dail_check, 4, 2, 48
-If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
+If left(find_msg_details, 5) = " HIRE" Then
+	hire_msg = True
+	Call write_value_and_transmit("X", dail_row, 3)
+	hire_row = 1
+	hire_col = 1
+	EMSearch "DATE HIRED", hire_row, hire_col
+	EMReadScreen hire_msg_details, 80-hire_col, hire_row, hire_col
+	hire_msg_details = trim(hire_msg_details)
+	TRANSMIT
+End If
 
 'now we are reading the header information to make sure we get to the right person and case if we ever have to navigate away from and back to the DAIL
 header_row = dail_row-1
@@ -144,7 +166,7 @@ Do
 Loop until right(dail_pers_indicator, 1) <> "-"
 
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-Call write_value_and_transmit("T", dail_row, dail_col)
+Call write_value_and_transmit("T", dail_row, 3)
 EMReadScreen MAXIS_check, 5, 1, 39												'checking to mmake sure wew are not passworded out.'
 If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
 	call script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
