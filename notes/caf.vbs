@@ -6305,9 +6305,7 @@ If vars_filled = False Then
     call autofill_editbox_from_MAXIS(HH_member_array, "SECU", other_assets)
     call autofill_editbox_from_MAXIS(HH_member_array, "STWK", notes_on_jobs)
     call read_TIME_panel
-    in_01_23 = False
-    If MAXIS_footer_month = "01" AND MAXIS_footer_year = "23" Then in_01_23 = True
-    If in_01_23 = False Then call read_SANC_panel
+    call read_SANC_panel
     ' call autofill_editbox_from_MAXIS(HH_member_array, "UNEA", unearned_income)
 
     Call read_UNEA_panel
