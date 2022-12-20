@@ -55,6 +55,7 @@ changelog_display
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect "" 'Connects to BlueZone
 Call Check_for_MAXIS(False)
+get_county_code
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 266, 110, "WF1 Case Status"
@@ -106,7 +107,7 @@ Do                                                            'Loops until there
     last_name = UCASE(trim(objExcel.cells(excel_row, 1).Value)) 'uses client last name since either case number or SSN can be provided
     first_name = UCASE(trim(objExcel.cells(excel_row, 2).Value)) 'uses client last name since either case number or SSN can be provided
 	MAXIS_case_number = trim(objExcel.cells(excel_row, 3).Value)
-    If MAXIS_case_number = "" then exit do
+    If last_name = "" and first_name = "" and MAXIS_case_number = "" then exit do
 
 	client_SSN  = trim(objExcel.cells(excel_row, 4).Value)		'Pulls the SSN and reformats if 9 digits.
     If client_SSN <> "" then
@@ -128,7 +129,6 @@ Do                                                            'Loops until there
 	entry_record = entry_record + 1			'This increments to the next entry in the array
     STATS_counter = STATS_counter + 1
 	excel_row = excel_row + 1
-
 	'blanking out variables
 	client_SSN = ""
 	MAXIS_case_number = ""
@@ -140,84 +140,146 @@ If entry_record = 0 then script_end_procedure_with_error_report("No cases have b
 For item = 0 to UBound(CBO_array, 2)
 	MAXIS_case_number = CBO_array(MAXIS_case_number_const, item)
     member_found = False    'defaulting to not found/false
+	client_SSN = CBO_array(client_SSN_const, item)
 
-    Call navigate_to_MAXIS_screen_review_PRIV("CASE", "PERS", is_this_priv)
-    If is_this_priv = True then
-        CBO_array(error_reason_const, item) = "PRIV case."
-    Else
-        EmReadscreen county_code, 4, 20, 14
-        If county_code <> UCASE(worker_county_code) then
-            CBO_array(error_reason_const, item) = "Out-of-county case. County code is: " & county_code
-        Else
-            row = 10 '1st row/person in CASE/PERS
-            Do
-                If CBO_array(client_SSN_const, item) = "" then
-                    'Read and connect name to member number
-                    EmReadscreen pers_last_name, 15, row, 6
-                    EmReadscreen pers_first_name, 11, row, 22
-                    pers_last_name = trim(pers_last_name)
-                    pers_first_name = trim(pers_first_name)
-                    If pers_last_name = "" then exit do
-                    'if the name is a match then exiting do (will read person info later)
-                    If pers_last_name = CBO_array(last_name_const, item) and pers_first_name = CBO_array(first_name_const, item) then
-                        member_found = True
-                        Exit do
-                    Elseif left(pers_last_name, 4) = left(CBO_array(last_name_const, item), 4) and left(pers_first_name, 4) = left(CBO_array(first_name_const, item), 4) then
-                        'if partial name match based on 1st 4 of 1st and last name: because names are long and get cut off.
-                        worker_confirm = msgbox("Is this the member you are looking for? " & vbcr & vbcr & pers_first_name & " " & pers_last_name, vbQuestion + vbYesNo, "Confirm WF1 Member")
-                        If vbYes then
-                            member_found = True
-                            Exit do
-                        End if
-                    End if
-                Else
-                    'using SSN to connect to member number
-                    EmReadscreen pers_SSN, 11, row + 1, 6
-                    If pers_SSN = CBO_array(client_SSN_const, item) then
-                        member_found = True
-                        Exit do
-                    End if
-                End if
-                row = row + 3			'information is 3 rows apart. Will read for the next member.
+	If MAXIS_case_number = "" Then
+		If client_SSN <> "" then
+			call navigate_to_MAXIS_screen("PERS", "____")
 
-                If row = 19 then
-                    PF8
-                    row = 10					'changes MAXIS row if more than one page exists
-                END if
-                EMReadScreen last_PERS_page, 21, 24, 2
-            LOOP until last_PERS_page = "THIS IS THE LAST PAGE"
+			If len(client_SSN) < 11 then
+				CBO_array(error_reason_const, item) = "SSN not valid."		'Explanation for the rejected report'
+			Elseif len(client_SSN) = 11 then
+				ssn_array = split(client_SSN, "-")
+				left_SSN = ssn_array(0)
+				mid_SSN = ssn_array(1)
+				right_SSN = ssn_array(2)
+				client_SSN = left_SSN & " " & mid_SSN & " " & right_SSN
+			END IF
 
-            'Reading the person information for the multiple member_found = true scenarios above
-            If member_found = true then
-                EmReadscreen memb_number, 2, row, 3
-                CBO_array(memb_number_const, item) = memb_number
-                EmReadscreen FS_status, 1, row, 54
-                If FS_status = "A" then CBO_array(snap_status_const, item) = "Active"
-                If FS_status = "D" then CBO_array(snap_status_const, item) = "Denied"
-                If FS_status = "I" then CBO_array(snap_status_const, item) = "Inactive"
-                If FS_status = "P" then CBO_array(snap_status_const, item) = "Pending"
-                If FS_status = "R" then CBO_array(snap_status_const, item) = "Reinstatement"
 
-                Call navigate_to_MAXIS_screen("STAT", "WREG")
-                Call write_value_and_transmit(CBO_array(memb_number_const, item), 20, 76)
-                EMReadScreen fset_code, 2, 8, 50
-                EMReadScreen abawd_code, 2, 13, 50
-                WREG_codes = fset_code & "-" & abawd_code
-                If WREG_codes = "30-11" then
-                    CBO_array(ABAWD_status_const, item) = "Volunatary"
-                Elseif WREG_codes = "30-10" then
-                    CBO_array(ABAWD_status_const, item) = "Mandatory - ABAWD"
-                ElseIf WREG_codes = "30-13" then
-                    CBO_array(ABAWD_status_const, item) = "Mandatory - Banked Months"
-                Else
-                    CBO_array(ABAWD_status_const, item) = "Exempt"
-                End if
-            Else
-                If CBO_array(memb_number_const, item) = "" then CBO_array(error_reason_const, item) = "Unable to find MEMB in CASE/PERS"
-            End if
-        End if
-    End if
+			IF CBO_array(error_reason_const, item) = "" then
+				EMWriteScreen left_SSN, 14, 36
+				EMWriteScreen mid_SSN, 14, 40
+				EMWriteScreen right_SSN, 14, 43
+
+				Transmit
+
+				EMReadscreen DSPL_confirmation, 4, 2, 51
+				If DSPL_confirmation <> "DSPL" then
+					CBO_array(ABAWD_status_const, item) = "Error"
+					CBO_array(error_reason_const, item) = "Unable to find person in SSN search or more than one PMI exists. Process manually."		'Explanation for the rejected report'
+				Else
+
+						EMWriteScreen "FS", 7, 22	'Selects FS as the program
+						Transmit
+						'chekcing for an active case
+						MAXIS_row = 10
+						Do
+							EMReadscreen current_case, 7, MAXIS_row, 35
+
+							If current_case = "Current" then
+								EMReadscreen MAXIS_case_number, 8, MAXIS_row, 6
+								MAXIS_case_number = trim(MAXIS_case_number)
+								CBO_array(MAXIS_case_number_const, item) = MAXIS_case_number
+								Exit do
+							Else
+								MAXIS_row = MAXIS_row + 1
+								If MAXIS_row = 20 then
+									PF8
+									MAXIS_row = 10
+								END IF
+								EMReadScreen last_page_check, 21, 24, 2
+							END IF
+						LOOP until last_page_check = "THIS IS THE LAST PAGE" or last_page_check = "THIS IS THE ONLY PAGE"
+
+						If MAXIS_case_number = "" then CBO_array(ABAWD_status_const, item) = "SNAP Inactive"
+					END IF
+				END IF
+			End If
+
+			Call back_to_SELF
+		End If
+
+		If  CBO_array(ABAWD_status_const, item) = "" and CBO_array(error_reason_const, item) = "" Then
+	    Call navigate_to_MAXIS_screen_review_PRIV("CASE", "PERS", is_this_priv)
+	    If is_this_priv = True then
+	        CBO_array(error_reason_const, item) = "PRIV case."
+	    Else
+	        EmReadscreen county_code, 4, 20, 14
+	        If county_code <> UCASE(worker_county_code) then
+	            CBO_array(error_reason_const, item) = "Out-of-county case. County code is: " & county_code
+	        Else
+	            row = 10 '1st row/person in CASE/PERS
+	            Do
+	                If CBO_array(client_SSN_const, item) = "" then
+	                    'Read and connect name to member number
+	                    EmReadscreen pers_last_name, 15, row, 6
+	                    EmReadscreen pers_first_name, 11, row, 22
+	                    pers_last_name = trim(pers_last_name)
+	                    pers_first_name = trim(pers_first_name)
+	                    If pers_last_name = "" then exit do
+	                    'if the name is a match then exiting do (will read person info later)
+	                    If pers_last_name = CBO_array(last_name_const, item) and pers_first_name = CBO_array(first_name_const, item) then
+	                        member_found = True
+	                        Exit do
+	                    Elseif left(pers_last_name, 4) = left(CBO_array(last_name_const, item), 4) and left(pers_first_name, 4) = left(CBO_array(first_name_const, item), 4) then
+	                        'if partial name match based on 1st 4 of 1st and last name: because names are long and get cut off.
+	                        worker_confirm = msgbox("Is this the member you are looking for? " & vbcr & vbcr & pers_first_name & " " & pers_last_name, vbQuestion + vbYesNo, "Confirm WF1 Member")
+	                        If vbYes then
+	                            member_found = True
+	                            Exit do
+	                        End if
+	                    End if
+	                Else
+	                    'using SSN to connect to member number
+	                    EmReadscreen pers_SSN, 11, row + 1, 6
+	                    If pers_SSN = CBO_array(client_SSN_const, item) then
+	                        member_found = True
+	                        Exit do
+	                    End if
+	                End if
+	                row = row + 3			'information is 3 rows apart. Will read for the next member.
+
+	                If row = 19 then
+	                    PF8
+	                    row = 10					'changes MAXIS row if more than one page exists
+	                END if
+	                EMReadScreen last_PERS_page, 21, 24, 2
+	            LOOP until last_PERS_page = "THIS IS THE LAST PAGE"
+
+	            'Reading the person information for the multiple member_found = true scenarios above
+	            If member_found = true then
+	                EmReadscreen memb_number, 2, row, 3
+	                CBO_array(memb_number_const, item) = memb_number
+	                EmReadscreen FS_status, 1, row, 54
+	                If FS_status = "A" then CBO_array(snap_status_const, item) = "Active"
+	                If FS_status = "D" then CBO_array(snap_status_const, item) = "Denied"
+	                If FS_status = "I" then CBO_array(snap_status_const, item) = "Inactive"
+	                If FS_status = "P" then CBO_array(snap_status_const, item) = "Pending"
+	                If FS_status = "R" then CBO_array(snap_status_const, item) = "Reinstatement"
+
+	                Call navigate_to_MAXIS_screen("STAT", "WREG")
+	                Call write_value_and_transmit(CBO_array(memb_number_const, item), 20, 76)
+	                EMReadScreen fset_code, 2, 8, 50
+	                EMReadScreen abawd_code, 2, 13, 50
+	                WREG_codes = fset_code & "-" & abawd_code
+	                If WREG_codes = "30-11" then
+	                    CBO_array(ABAWD_status_const, item) = "Volunatary"
+	                Elseif WREG_codes = "30-10" then
+	                    CBO_array(ABAWD_status_const, item) = "Mandatory - ABAWD"
+	                ElseIf WREG_codes = "30-13" then
+	                    CBO_array(ABAWD_status_const, item) = "Mandatory - Banked Months"
+	                Else
+	                    CBO_array(ABAWD_status_const, item) = "Exempt"
+	                End if
+	            Else
+	                If CBO_array(memb_number_const, item) = "" then CBO_array(error_reason_const, item) = "Unable to find MEMB in CASE/PERS"
+	            End if
+	        End if
+	    End if
+	End If
     'Excel Output
+	objExcel.cells(CBO_array(excel_num_const, item), 3).Value = CBO_array(MAXIS_case_number_const, item)
     objExcel.cells(CBO_array(excel_num_const, item), 5).Value = CBO_array(snap_status_const,  item)
 	objExcel.cells(CBO_array(excel_num_const, item), 6).Value = CBO_array(ABAWD_status_const, item)
 	objExcel.cells(CBO_array(excel_num_const, item), 7).Value = CBO_array(error_reason_const, item)
