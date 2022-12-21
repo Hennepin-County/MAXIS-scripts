@@ -157,25 +157,25 @@ visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 ' Call navigate_to_MAXIS_screen("CCOL", "CLIC")
-count = 1
-xl_col = 5
-Do
-	ObjExcel.Cells(1, xl_col).Value = "ELIGIBILITY - " & count
-	ObjExcel.Cells(1, xl_col+1).Value = "ELIG TYPE - " & count
-	ObjExcel.Cells(1, xl_col+2).Value = "INCOME - " & count
-	ObjExcel.Cells(1, xl_col+3).Value = "PERSON and PROG - " & count
-	ObjExcel.Cells(1, xl_col+4).Value = "APPROVED? - " & count
-
-
-	ObjExcel.Columns(xl_col).AutoFit()
-	ObjExcel.Columns(xl_col+1).AutoFit()
-	ObjExcel.Columns(xl_col+2).AutoFit()
-	ObjExcel.Columns(xl_col+3).AutoFit()
- 	ObjExcel.Columns(xl_col+4).AutoFit()
-
-	xl_col = xl_col + 5
-	count = count + 1
-Loop Until count = 8
+' count = 1
+' xl_col = 5
+' Do
+' 	ObjExcel.Cells(1, xl_col).Value = "ELIGIBILITY - " & count
+' 	ObjExcel.Cells(1, xl_col+1).Value = "ELIG TYPE - " & count
+' 	ObjExcel.Cells(1, xl_col+2).Value = "INCOME - " & count
+' 	ObjExcel.Cells(1, xl_col+3).Value = "PERSON and PROG - " & count
+' 	ObjExcel.Cells(1, xl_col+4).Value = "APPROVED? - " & count
+'
+'
+' 	ObjExcel.Columns(xl_col).AutoFit()
+' 	ObjExcel.Columns(xl_col+1).AutoFit()
+' 	ObjExcel.Columns(xl_col+2).AutoFit()
+' 	ObjExcel.Columns(xl_col+3).AutoFit()
+'  	ObjExcel.Columns(xl_col+4).AutoFit()
+'
+' 	xl_col = xl_col + 5
+' 	count = count + 1
+' Loop Until count = 8
 
 
 MAXIS_footer_month = "12"
@@ -183,149 +183,156 @@ MAXIS_footer_year = "22"
 excel_row = 2
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
-	xl_col = 5
 
-	call navigate_to_MAXIS_screen("ELIG", "HC  ")
-	EMWriteScreen MAXIS_footer_month, 19, 54
-	EMWriteScreen MAXIS_footer_year, 19, 57
-	transmit
+	Call navigate_to_MAXIS_screen("CASE", "CURR")
+	EMreadScreen current_pw, 7, 21, 14
+	EMreadScreen current_co, 2, 21, 16
+	ObjExcel.Cells(excel_row, 4).Value = current_pw
+	ObjExcel.Cells(excel_row, 5).Value = current_co
 
-	hc_row = 8
-	Do
-		EMReadScreen new_hc_elig_ref_numbs, 2, hc_row, 3
-		EMReadScreen new_hc_elig_full_name, 17, hc_row, 7
-
-		If new_hc_elig_ref_numbs = "  " Then
-			new_hc_elig_ref_numbs = hc_elig_ref_numbs
-			new_hc_elig_full_name = hc_elig_full_name
-		End If
-		hc_elig_ref_numbs = new_hc_elig_ref_numbs
-		hc_elig_full_name = new_hc_elig_full_name
-
-		hc_elig_full_name = trim(hc_elig_full_name)
-
-		EMReadScreen clt_hc_prog, 4, hc_row, 28
-		If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
-
-			EMReadScreen prog_status, 3, hc_row, 68
-			If prog_status <> "APP" Then                        'Finding the approved version
-				EMReadScreen total_versions, 2, hc_row, 64
-				If total_versions = "01" Then
-					hc_prog_elig_appd = False
-				Else
-					EMReadScreen current_version, 2, hc_row, 58
-					' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
-					If current_version = "01" Then
-						hc_prog_elig_appd = False
-					Else
-						prev_version = right ("00" & abs(current_version) - 1, 2)
-						EMWriteScreen prev_version, hc_row, 58
-						transmit
-						hc_prog_elig_appd = True
-					End If
-
-				End If
-			Else
-				hc_prog_elig_appd = True
-			End If
-		Else
-			hc_prog_elig_appd = False
-		End If
-
-		If hc_prog_elig_appd = True Then
-			EMReadScreen hc_prog_elig_major_program, 		4, hc_row, 28
-			EMReadScreen hc_prog_elig_eligibility_result, 	8, hc_row, 41
-			EMReadScreen hc_prog_elig_status, 				8, hc_row, 50
-			EMReadScreen hc_prog_elig_app_indc, 				6, hc_row, 68
-			EMReadScreen hc_prog_elig_magi_excempt, 			6, hc_row, 74
-
-
-			hc_prog_elig_major_program = trim(hc_prog_elig_major_program)
-
-			Call write_value_and_transmit("X", hc_row, 26)
-			' MsgBox "MOVING - 1" & vbCr & hc_prog_elig_major_program(hc_prog_count) & vbCr & "MEMB " & hc_elig_ref_numbs(hc_prog_count)
-			EMReadScreen hc_prog_elig_process_date, 8, 2, 73
-			hc_prog_elig_process_date = DateAdd("d", 0, hc_prog_elig_process_date)
-
-			' If DateDiff("'d", hc_prog_elig_process_date, date) = 0 Then
-			If hc_prog_elig_major_program = "HC D" Then
-				EMReadScreen hc_prog_elig_app_date, 8, 3, 73
-
-				EMReadScreen hc_prog_elig_source_of_info, 		4, 9, 33
-				EMReadScreen hc_prog_elig_responsible_county, 	2, 8, 78
-				EMReadScreen hc_prog_elig_servicing_county, 	2, 9, 78
-
-				EMReadScreen hc_prog_elig_test_application_withdrawn, 			6, 13, 22
-				EMReadScreen hc_prog_elig_test_application_process_incomplete, 6, 14, 22
-				EMReadScreen hc_prog_elig_test_no_new_prog_eligibility, 		6, 15, 22
-				EMReadScreen hc_prog_elig_test_assistance_unit, 				6, 16, 22
-
-				EMReadScreen hc_prog_elig_worker_msg_one, 78, 19, 3
-			End If
-
-			If hc_prog_elig_major_program = "MA" or hc_prog_elig_major_program = "EMA" Then
-				transmit
-				EMReadScreen hc_prog_elig_app_date, 8, 4, 73
-				PF3
-				hc_col = 17
-				Do
-					EMReadScreen budg_mo, 2, 6, hc_col + 2
-					EMReadScreen budg_yr, 2, 6, hc_col + 5
-					' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
-					If budg_mo = MAXIS_footer_month AND budg_yr = MAXIS_footer_year Then
-						EMReadScreen hc_prog_elig_elig_type, 		2, 12, hc_col
-						EMReadScreen hc_prog_elig_elig_standard, 	1, 12, hc_col + 5
-						EMReadScreen hc_prog_elig_method, 			1, 13, hc_col + 4
-						EMReadScreen hc_prog_elig_waiver, 			1, 14, hc_col + 4
-
-						EMReadScreen hc_prog_elig_total_net_income, 9, 15, hc_col
-						EMReadScreen hc_prog_elig_standard, 		9, 16, hc_col
-						EMReadScreen hc_prog_elig_excess_income, 	9, 17, hc_col
-						If trim(hc_prog_elig_total_net_income) = "" Then hc_prog_elig_total_net_income = "0.00"
-						Exit Do
-
-					End If
-					hc_col = hc_col + 11
-
-					If hc_col = 83 Then hc_prog_elig_appd = False
-				Loop until hc_col = 83
-			End If
-
-			If hc_prog_elig_major_program = "QMB" or hc_prog_elig_major_program = "SLMB" or hc_prog_elig_major_program = "QI1" Then
-				transmit
-				EMReadScreen hc_prog_elig_app_date, 8, 4, 73
-			End If
-		End If
-
-		ObjExcel.Cells(excel_row, xl_col).Value = hc_elig_ref_numbs & " - " & hc_elig_full_name & " (" & clt_hc_prog & ")"
-		ObjExcel.Cells(excel_row, xl_col+1).Value = hc_prog_elig_appd & " - " & hc_prog_elig_app_date
-		If hc_prog_elig_major_program <> "" Then ObjExcel.Cells(excel_row, xl_col+2).Value = hc_prog_elig_major_program & " - " & hc_prog_elig_eligibility_result & ", Status: " & hc_prog_elig_status & " - " & hc_prog_elig_app_indc
-		If hc_prog_elig_elig_type <> "" Then ObjExcel.Cells(excel_row, xl_col+3).Value = hc_prog_elig_elig_type & "-" &  hc_prog_elig_elig_standard & " method: " & hc_prog_elig_method
-		If hc_prog_elig_total_net_income <> "" Then ObjExcel.Cells(excel_row, xl_col+4).Value = "Income: " & hc_prog_elig_total_net_income & ", Standard: " & hc_prog_elig_standard
-
-		clt_hc_prog = ""
-		hc_prog_elig_appd = ""
-		hc_prog_elig_major_program = ""
-		hc_prog_elig_eligibility_result = ""
-		hc_prog_elig_status = ""
-		hc_prog_elig_app_indc = ""
-		hc_prog_elig_elig_type = ""
-		hc_prog_elig_elig_standard = ""
-		hc_prog_elig_method = ""
-		hc_prog_elig_total_net_income = ""
-		hc_prog_elig_standard = ""
-
-		Do
-			EMReadScreen hhmm_check, 4, 3, 51
-			If hhmm_check <> "HHMM" Then PF3
-		Loop Until hhmm_check = "HHMM"
-
-		xl_col = xl_col + 5
-		hc_row = hc_row + 1
-		EMReadScreen next_ref_numb, 2, hc_row, 3
-		EMReadScreen next_maj_prog, 4, hc_row, 28
-		' MsgBox "Row: " & hc_row & vbCr & "Next Ref Numb: " & next_ref_numb & vbCr & "Next Major Prog: " & next_maj_prog
-	Loop until next_ref_numb = "  " and next_maj_prog = "    "
+	' xl_col = 5
+	'
+	' call navigate_to_MAXIS_screen("ELIG", "HC  ")
+	' EMWriteScreen MAXIS_footer_month, 19, 54
+	' EMWriteScreen MAXIS_footer_year, 19, 57
+	' transmit
+	'
+	' hc_row = 8
+	' Do
+	' 	EMReadScreen new_hc_elig_ref_numbs, 2, hc_row, 3
+	' 	EMReadScreen new_hc_elig_full_name, 17, hc_row, 7
+	'
+	' 	If new_hc_elig_ref_numbs = "  " Then
+	' 		new_hc_elig_ref_numbs = hc_elig_ref_numbs
+	' 		new_hc_elig_full_name = hc_elig_full_name
+	' 	End If
+	' 	hc_elig_ref_numbs = new_hc_elig_ref_numbs
+	' 	hc_elig_full_name = new_hc_elig_full_name
+	'
+	' 	hc_elig_full_name = trim(hc_elig_full_name)
+	'
+	' 	EMReadScreen clt_hc_prog, 4, hc_row, 28
+	' 	If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
+	'
+	' 		EMReadScreen prog_status, 3, hc_row, 68
+	' 		If prog_status <> "APP" Then                        'Finding the approved version
+	' 			EMReadScreen total_versions, 2, hc_row, 64
+	' 			If total_versions = "01" Then
+	' 				hc_prog_elig_appd = False
+	' 			Else
+	' 				EMReadScreen current_version, 2, hc_row, 58
+	' 				' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
+	' 				If current_version = "01" Then
+	' 					hc_prog_elig_appd = False
+	' 				Else
+	' 					prev_version = right ("00" & abs(current_version) - 1, 2)
+	' 					EMWriteScreen prev_version, hc_row, 58
+	' 					transmit
+	' 					hc_prog_elig_appd = True
+	' 				End If
+	'
+	' 			End If
+	' 		Else
+	' 			hc_prog_elig_appd = True
+	' 		End If
+	' 	Else
+	' 		hc_prog_elig_appd = False
+	' 	End If
+	'
+	' 	If hc_prog_elig_appd = True Then
+	' 		EMReadScreen hc_prog_elig_major_program, 		4, hc_row, 28
+	' 		EMReadScreen hc_prog_elig_eligibility_result, 	8, hc_row, 41
+	' 		EMReadScreen hc_prog_elig_status, 				8, hc_row, 50
+	' 		EMReadScreen hc_prog_elig_app_indc, 				6, hc_row, 68
+	' 		EMReadScreen hc_prog_elig_magi_excempt, 			6, hc_row, 74
+	'
+	'
+	' 		hc_prog_elig_major_program = trim(hc_prog_elig_major_program)
+	'
+	' 		Call write_value_and_transmit("X", hc_row, 26)
+	' 		' MsgBox "MOVING - 1" & vbCr & hc_prog_elig_major_program(hc_prog_count) & vbCr & "MEMB " & hc_elig_ref_numbs(hc_prog_count)
+	' 		EMReadScreen hc_prog_elig_process_date, 8, 2, 73
+	' 		hc_prog_elig_process_date = DateAdd("d", 0, hc_prog_elig_process_date)
+	'
+	' 		' If DateDiff("'d", hc_prog_elig_process_date, date) = 0 Then
+	' 		If hc_prog_elig_major_program = "HC D" Then
+	' 			EMReadScreen hc_prog_elig_app_date, 8, 3, 73
+	'
+	' 			EMReadScreen hc_prog_elig_source_of_info, 		4, 9, 33
+	' 			EMReadScreen hc_prog_elig_responsible_county, 	2, 8, 78
+	' 			EMReadScreen hc_prog_elig_servicing_county, 	2, 9, 78
+	'
+	' 			EMReadScreen hc_prog_elig_test_application_withdrawn, 			6, 13, 22
+	' 			EMReadScreen hc_prog_elig_test_application_process_incomplete, 6, 14, 22
+	' 			EMReadScreen hc_prog_elig_test_no_new_prog_eligibility, 		6, 15, 22
+	' 			EMReadScreen hc_prog_elig_test_assistance_unit, 				6, 16, 22
+	'
+	' 			EMReadScreen hc_prog_elig_worker_msg_one, 78, 19, 3
+	' 		End If
+	'
+	' 		If hc_prog_elig_major_program = "MA" or hc_prog_elig_major_program = "EMA" Then
+	' 			transmit
+	' 			EMReadScreen hc_prog_elig_app_date, 8, 4, 73
+	' 			PF3
+	' 			hc_col = 17
+	' 			Do
+	' 				EMReadScreen budg_mo, 2, 6, hc_col + 2
+	' 				EMReadScreen budg_yr, 2, 6, hc_col + 5
+	' 				' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
+	' 				If budg_mo = MAXIS_footer_month AND budg_yr = MAXIS_footer_year Then
+	' 					EMReadScreen hc_prog_elig_elig_type, 		2, 12, hc_col
+	' 					EMReadScreen hc_prog_elig_elig_standard, 	1, 12, hc_col + 5
+	' 					EMReadScreen hc_prog_elig_method, 			1, 13, hc_col + 4
+	' 					EMReadScreen hc_prog_elig_waiver, 			1, 14, hc_col + 4
+	'
+	' 					EMReadScreen hc_prog_elig_total_net_income, 9, 15, hc_col
+	' 					EMReadScreen hc_prog_elig_standard, 		9, 16, hc_col
+	' 					EMReadScreen hc_prog_elig_excess_income, 	9, 17, hc_col
+	' 					If trim(hc_prog_elig_total_net_income) = "" Then hc_prog_elig_total_net_income = "0.00"
+	' 					Exit Do
+	'
+	' 				End If
+	' 				hc_col = hc_col + 11
+	'
+	' 				If hc_col = 83 Then hc_prog_elig_appd = False
+	' 			Loop until hc_col = 83
+	' 		End If
+	'
+	' 		If hc_prog_elig_major_program = "QMB" or hc_prog_elig_major_program = "SLMB" or hc_prog_elig_major_program = "QI1" Then
+	' 			transmit
+	' 			EMReadScreen hc_prog_elig_app_date, 8, 4, 73
+	' 		End If
+	' 	End If
+	'
+	' 	ObjExcel.Cells(excel_row, xl_col).Value = hc_elig_ref_numbs & " - " & hc_elig_full_name & " (" & clt_hc_prog & ")"
+	' 	ObjExcel.Cells(excel_row, xl_col+1).Value = hc_prog_elig_appd & " - " & hc_prog_elig_app_date
+	' 	If hc_prog_elig_major_program <> "" Then ObjExcel.Cells(excel_row, xl_col+2).Value = hc_prog_elig_major_program & " - " & hc_prog_elig_eligibility_result & ", Status: " & hc_prog_elig_status & " - " & hc_prog_elig_app_indc
+	' 	If hc_prog_elig_elig_type <> "" Then ObjExcel.Cells(excel_row, xl_col+3).Value = hc_prog_elig_elig_type & "-" &  hc_prog_elig_elig_standard & " method: " & hc_prog_elig_method
+	' 	If hc_prog_elig_total_net_income <> "" Then ObjExcel.Cells(excel_row, xl_col+4).Value = "Income: " & hc_prog_elig_total_net_income & ", Standard: " & hc_prog_elig_standard
+	'
+	' 	clt_hc_prog = ""
+	' 	hc_prog_elig_appd = ""
+	' 	hc_prog_elig_major_program = ""
+	' 	hc_prog_elig_eligibility_result = ""
+	' 	hc_prog_elig_status = ""
+	' 	hc_prog_elig_app_indc = ""
+	' 	hc_prog_elig_elig_type = ""
+	' 	hc_prog_elig_elig_standard = ""
+	' 	hc_prog_elig_method = ""
+	' 	hc_prog_elig_total_net_income = ""
+	' 	hc_prog_elig_standard = ""
+	'
+	' 	Do
+	' 		EMReadScreen hhmm_check, 4, 3, 51
+	' 		If hhmm_check <> "HHMM" Then PF3
+	' 	Loop Until hhmm_check = "HHMM"
+	'
+	' 	xl_col = xl_col + 5
+	' 	hc_row = hc_row + 1
+	' 	EMReadScreen next_ref_numb, 2, hc_row, 3
+	' 	EMReadScreen next_maj_prog, 4, hc_row, 28
+	' 	' MsgBox "Row: " & hc_row & vbCr & "Next Ref Numb: " & next_ref_numb & vbCr & "Next Major Prog: " & next_maj_prog
+	' Loop until next_ref_numb = "  " and next_maj_prog = "    "
 
 
 
