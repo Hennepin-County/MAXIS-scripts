@@ -5577,7 +5577,7 @@ If vars_filled = False Then
     call check_for_MAXIS(False)	'checking for an active MAXIS session
     MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
 
-    script_run_lowdown = script_run_lowdown & vbCr & "CAF Type: " & CAF_type
+    script_run_lowdown = script_run_lowdown & vbCr & "CAF Form: " & CAF_form
     script_run_lowdown = script_run_lowdown & vbCr & "Footer month: " & MAXIS_footer_month & "/" & MAXIS_footer_year
 
     If CASH_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH Checked"
@@ -5742,6 +5742,7 @@ If vars_filled = False Then
         End If
     End If
     If EMER_checkbox = checked Then CAF_type = "Application"
+    script_run_lowdown = script_run_lowdown & vbCr & "CAF Type: " & CAF_type
 
     If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
     	' call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)

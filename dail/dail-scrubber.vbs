@@ -65,54 +65,134 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+' Function to PF7 all the way to the top of the DAIL list '
+function go_to_top_of_dail()
+	Do
+		PF7							'scroll up'
+		first_page, 19, 24, 10		'read for amessage at the bottom of the panel indicating we are at the top
+	Loop until first_page = "ONLY SCROLL FORWARD"		'once the messages is displayed, the function is done.
+end function
+
+'funcction to find the message the script was started on and bring it to the top of the DAILs.
+function bring_correct_message_to_top()
+'The commparison varibales are read at the beginning of the DAIL scrubber and should not be redenined:
+	'dail_pers_indicator
+	'dail_case_indicator
+	'find_msg_details
+	Do
+		EMReadscreen dail_check, 4, 2, 48			'making sure we are at the DAIL
+		If dail_check <> "DAIL" then PF3			''backing out to get to the DAIL
+
+		EMReadScreen self_check, 4, 2, 50			'If wew go to far and are at SELF - we are going to navvigate back to DAIL
+		If self_check = "SELF" Then
+			Call navigate_to_MAXIS_screen("DAIL", "DAIL")
+			Exit Do
+		End If
+	Loop until dail_check = "DAIL"
+
+	'Here we look for the right header but person informmmation and case information
+	header_row = 4
+	Do
+		header_row = header_row + 1
+		EMReadScreen dail_pers_header, len(dail_pers_indicator), header_row, 5	'reading the person header'
+		EMReadScreen dail_case_header, 18, header_row, 63						'reading the case header'
+		If header_row = 19 Then													'if we are at the end of a page of DAILs, we need to go to the next one.
+			PF8
+			EMReadScreen last_page, 9, 24, 14
+			If last_page = "LAST PAGE" Then call go_to_top_of_dail
+			header_row = 5
+		End If
+	Loop until dail_pers_header = dail_pers_indicator and dail_case_header = dail_case_indicator	'stopping when we get to the right header
+
+	msg_found = False															'setting the boolean to be able to identify if the correct DAIL is found'
+	dail_row = header_row + 1													'the dail mmessages start one row below the header
+	Do
+		EMReadScreen read_each_dail, 76, dail_row, 5								'read the whole DAIL line
+		If read_each_dail = find_msg_details and hire_msg = False Then msg_found = True
+		If read_each_dail = find_msg_details and hire_msg = True Then			'if this is a HIRE message, we need to open it to read the message before telling if it is the right one.
+			Call write_value_and_transmit("X", dail_row, 3)
+			hire_row = 1
+			hire_col = 1
+			EMSearch "DATE HIRED", hire_row, hire_col
+			EMReadScreen read_msg_details, len(hire_msg_details), hire_row, hire_col
+			TRANSMIT
+			If read_msg_details = hire_msg_details Then msg_found = True
+		End If
+		If msg_found = False Then												''if we have not found the right message, go to the next one.
+			dail_row = dail_row + 1
+			If dail_row = 19 Then
+				PF8
+				dail_row = 6
+			End If
+		End If
+	Loop until msg_found = True													'keep going until we find it.
+	Call write_value_and_transmit("T", dail_row, 3)								'bringing the correct one to the TOP of the DAIL page
+end function
+
 'CONNECTS TO DEFAULT SCREEN
 EMConnect ""
 match_found = FALSE
+hire_msg = False
+
 'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 EMReadscreen dail_check, 4, 2, 48
-If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")
+If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 
 'Finding the top of this case's list of dails.
 EMGetCursor dail_row, dail_col
-scrubber_starting_dail_cursor_row = dail_row
-dails_before_this_dail_for_this_case = 0
+EMReadScreen find_msg_details, 76, dail_row, 5		'this is the WHOLE line - with type and footer month - we will use this to get back to it if needed
+If left(find_msg_details, 5) = " HIRE" Then			'if this a HIRE message, we need to read the hire information to be able to identify a unique match
+	hire_msg = True																'setting in the script if this is a HIRE match or not
+	Call write_value_and_transmit("X", dail_row, 3)								'opening the DAIL mmessage
+	hire_row = 1																'finding the 'DATE HIRED' informmation as it is not in a consitent place
+	hire_col = 1
+	EMSearch "DATE HIRED", hire_row, hire_col
+	EMReadScreen hire_msg_details, 80-hire_col, hire_row, hire_col				'reading the message from within the HIRE pop-up'
+	hire_msg_details = trim(hire_msg_details)									'resizing the variable
+	TRANSMIT
+End If
+
+'now we are reading the header information to make sure we get to the right person and case if we ever have to navigate away from and back to the DAIL
+header_row = dail_row-1
+EMReadScreen header_in_row_above, 3, header_row, 59
+Do While header_in_row_above <> "-->"
+	header_row = header_row -1
+	EMReadScreen header_in_row_above, 3, header_row, 59
+Loop
+EMReadScreen dail_pers_indicator, 55, header_row, 5								'this is the information of the case name AND inidivvidual name if it is indicated in ()'
+EMReadScreen dail_case_indicator, 18, header_row, 63							'this is the header with case number, including the CASE NUMBER words
+'here we are removing the trailing '-' from the person header information
 Do
-	EMReadScreen dail_seperator, 5, dail_row - 1, 57
-	If dail_seperator <> "---->" Then
-		dail_row = dail_row - 1
-		dails_before_this_dail_for_this_case = dails_before_this_dail_for_this_case + 1
-	End If
-Loop until dail_seperator = "---->"
-If scrubber_starting_dail_cursor_row <> dail_row Then dail_row = 6 + dails_before_this_dail_for_this_case
-If dails_before_this_dail_for_this_case = 0 Then dail_row = 6
+	If right(dail_pers_indicator, 1) = "-" Then dail_pers_indicator = left(dail_pers_indicator, len(dail_pers_indicator)-1)
+Loop until right(dail_pers_indicator, 1) <> "-"
 
 'TYPES A "T" TO BRING THE SELECTED MESSAGE TO THE TOP
-EMSendKey "T"
-TRANSMIT
-
-'EMGetCursor dail_row, dail_col                     'Reading where the cursor is at since when we go to DAIL/WRIT it will move, even it we top the DAIL "T"
-'
-''This functionalitty will identify if the script is being run in INQUIRY
-''Cannot tell if Production or Training, but that is less important
-'running_in_INQUIRY = False							'default to false'
-'EMSendKey "W"										'attempt to navigate to DAIL/WRIT - wwhich requires write access
-'TRANSMIT
-'EMReadScreen cannot_access_msg, 17, 24, 2			'reading for the message that states you cannot access WRIT
-'If cannot_access_msg = "YOU CANNOT ACCESS" Then		'If found we are most likely in INQUIRY (could be PRIV or Out of County)
-'	running_in_INQUIRY = True						'setting the boolean to true
-'	EMSendKey " "									'blanking out the 'WRIT' attempt
-'Else
-'	PF3												'if the message is NOT found, we are in WRIT and need to back out
-'End If
-'
-'EMSetCursor dail_row, dail_col                      'Setting the cursor back to the orginal spot
-'Call write_value_and_transmit("T", dail_row, dail_col)  'Topping the DAIL
+Call write_value_and_transmit("T", dail_row, 3)
+EMReadScreen MAXIS_check, 5, 1, 39												'checking to mmake sure wew are not passworded out.'
+If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
+	call script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
+End If
 
 'The following reads the message in full for the end part (which tells the worker which message was selected)
 EMReadScreen full_message, 60, 6, 20
 full_message = trim(full_message)
 EmReadScreen MAXIS_case_number, 8, 5, 73
 MAXIS_case_number = trim(MAXIS_case_number)
+
+'This functionalitty will identify if the script is being run in INQUIRY
+'Cannot tell if Production or Training, but that is less important
+running_in_INQUIRY = False							'default to false'
+EMSendKey "W"										'attempt to navigate to DAIL/WRIT - wwhich requires write access
+TRANSMIT
+EMReadScreen cannot_access_msg, 17, 24, 2			'reading for the message that states you cannot access WRIT
+If cannot_access_msg = "YOU CANNOT ACCESS" Then		'If found we are most likely in INQUIRY (could be PRIV or Out of County)
+	running_in_INQUIRY = True						'setting the boolean to true
+	EMSendKey " "									'blanking out the 'WRIT' attempt
+Else
+	PF3												'if the message is NOT found, we are in WRIT and need to back out
+End If
+
+call bring_correct_message_to_top
 
 'THE FOLLOWING CODES ARE THE INDIVIDUAL MESSAGES. IT READS THE MESSAGE, THEN CALLS A NEW SCRIPT.----------------------------------------------------------------------------------------------------
 

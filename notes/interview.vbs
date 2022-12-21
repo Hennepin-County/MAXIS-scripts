@@ -11513,7 +11513,7 @@ If objFSO.FileExists(intvw_done_msg_file) = False then
 	objTextStream.WriteLine "This is a great time to talk to the resident about: "
 	objTextStream.WriteLine "  - The interview is complete."
 	objTextStream.WriteLine "  - Advise of Next Steps."
-	objTextStream.WriteLine "  - Ask if the resident has any final uestions."
+	objTextStream.WriteLine "  - Ask if the resident has any final questions."
 	objTextStream.WriteLine ""
 	objTextStream.WriteLine "(This message will close once the script actions are finished.)"
 

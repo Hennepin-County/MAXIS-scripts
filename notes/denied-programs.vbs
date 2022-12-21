@@ -289,12 +289,9 @@ Do
         Call validate_MAXIS_case_number(err_msg, "*")
         If err_msg = "" and cash_check = checked Then Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
-        offer_test_script = True
-        If HC_check = checked Then offer_test_script = False
-
-        If offer_test_script = True and elig_summ_option_given = False Then
+        If elig_summ_option_given = False Then
             elig_summ_option_given = True
-            run_elig_summ = MsgBox("Run NEW Script - NOTES - Eligibliity Summary?"& vbCr & vbCr & "It appears you are running 'NOTES - Denied Programs' on a case that may be supported by the new script 'NOTES - Eligibility Summary', it is available to use to document the eligibility results denials on SNAP, CASH, and EMER." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "NOTE: Information entered in this first dialog will NOT carry through." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
+            run_elig_summ = MsgBox("Run NEW Script - NOTES - Eligibliity Summary?"& vbCr & vbCr & "It appears you are running 'NOTES - Denied Programs' on a case that may be supported by the new script 'NOTES - Eligibility Summary', it is available to use to document the eligibility results denials on SNAP, CASH, HC, and EMER." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "NOTE: Information entered in this first dialog will NOT carry through." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
             If run_elig_summ = vbYes then
                 script_url = script_repository & "notes\eligibility-summary.vbs"
                 ' MsgBox script_url

@@ -57,7 +57,7 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 
 case_number_col = 2
-file_selection_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\DAIL list\DAIL 08-2021\HIRE Messages 08-2021.xlsx"
+file_selection_path = ""
 
 'dialog and dialog DO...Loop
 Dialog1 = ""
@@ -81,26 +81,28 @@ Do
     	If ButtonPressed = cancel then stopscript
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(file_selection_path, ".xlsx")
     Loop until ButtonPressed = OK and file_selection_path <> ""
-    If objExcel = "" Then call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to start"
-  EditBox 75, 5, 40, 15, excel_row_to_restart
-  ButtonGroup ButtonPressed
-    OkButton 10, 25, 50, 15
-    CancelButton 65, 25, 50, 15
-  Text 10, 10, 60, 10, "Excel row to start:"
-EndDialog
+call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file'
 
-DO
-    dialog Dialog1
-    If buttonpressed = 0 then stopscript								'loops until all errors are resolved
-    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-
-excel_row = excel_row_to_restart
+'Dialog1 = ""
+'BeginDialog Dialog1, 0, 0, 126, 50, "Select the excel row to start"
+'  EditBox 75, 5, 40, 15, excel_row_to_restart
+'  ButtonGroup ButtonPressed
+'    OkButton 10, 25, 50, 15
+'    CancelButton 65, 25, 50, 15
+'  Text 10, 10, 60, 10, "Excel row to start:"
+'EndDialog
+'
+'DO
+'    dialog Dialog1
+'    If buttonpressed = 0 then stopscript								'loops until all errors are resolved
+'    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+'LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+'
+'excel_row = excel_row_to_restart
+excel_row = 2
 
 back_to_self
 EMWriteScreen CM_mo, 20, 43
@@ -111,7 +113,7 @@ Do
 	'Grabs the case number
 	MAXIS_case_number = objExcel.cells(excel_row, case_number_col).value
 	If MAXIS_case_number = "" then exit do
-	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status)
+	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
     ObjExcel.Cells(excel_row,  6).Value = case_active
     ObjExcel.Cells(excel_row,  7).Value = case_pending
     ObjExcel.Cells(excel_row,  8).Value = case_rein
@@ -120,7 +122,7 @@ Do
     ObjExcel.Cells(excel_row, 11).Value = dwp_case
     ObjExcel.Cells(excel_row, 12).Value = adult_cash_case
     ObjExcel.Cells(excel_row, 13).Value = ga_case
-    ObjExcel.Cells(excel_row, 14).Value = msa_case 
+    ObjExcel.Cells(excel_row, 14).Value = msa_case
     ObjExcel.Cells(excel_row, 15).Value = grh_case
     ObjExcel.Cells(excel_row, 16).Value = snap_case
     ObjExcel.Cells(excel_row, 17).Value = ma_case
