@@ -163,7 +163,7 @@ Do
     	  EditBox 65, 5, 50, 15, MAXIS_case_number
     	  Text 5, 30, 130, 10, "Where is the notice you want to print?"
     	  DropListBox 140, 25, 60, 45, "Select One..."+chr(9)+"WCOM"+chr(9)+"MEMO", notice_panel
-    	  Text 5, 50, 120, 10, "In which month was the notice sent?"
+    	  Text 35, 50, 95, 10, "Enter the month of the notice:"
     	  EditBox 140, 45, 20, 15, MAXIS_footer_month
     	  EditBox 165, 45, 20, 15, MAXIS_footer_year
     	  ButtonGroup ButtonPressed
