@@ -257,14 +257,11 @@ For each worker in worker_array
 	EMWriteScreen worker, 21, 13
 	transmit
 	'This code is for bypassing a warning box if the basket has too many cases
+	EMWaitReady 0, 0
 	row = 1
 	col = 1
 	EMSearch "The REPT:PND2 Display Limit Has Been Reached.", row, col
-	If row <> 24 and row <> 0 THEN
-    	row = 1
-    	col = 1
-    	EMSearch MAXIS_case_number, row, col
-    End If 
+	If row <> 0 THEN transmit
 	'TODO add handling to read for an additional app line so that we are sure we are reading the correct line for days pending and cash program
 	'Skips workers with no info
 	EMReadScreen has_content_check, 6, 3, 74
