@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/22/2022", "BUG FIX - the NOTES - CAF script default income calculation for Expedited Determination was missing some UNEA, though the correct calculation could always be entered, the default count should include all income sources. Update to the script to ensure eash UNEA panel is added to the toatl before the first Expedited Determination information is shown.", "Casey Love, Hennepin County")
 call changelog_update("11/14/2022", "Removed all handling for Interviews.##~## ##~##This script is not built to support the details of an interview or the documentation requirements. This script requires that an interview date has already been entered or that a CASE/NOTE has been created with NOTES - Interview. This script will end if interview date cannot be found on a case that an interview is required to process a CAF.", "Casey Love, Hennepin County")
 call changelog_update("10/18/2022", "Removed Health Care renewal supports during the PHE. Health Care renewals remain paused.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/01/2022", "The functionality for Waiving an Interview has been removed. We can no longer waive SNAP Recertification Interviews.", "Casey Love, Hennepin County")
@@ -3404,7 +3405,7 @@ function read_BUSI_panel()
 end function
 
 function read_EATS_panel()
-    call navigate_to_MAXIS_screen("stat", "eats")
+    call navigate_to_MAXIS_screen("STAT", "EATS")
 
     'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
     EMReadScreen panel_total_check, 6, 2, 73
@@ -3466,7 +3467,7 @@ end function
 
 function read_HEST_panel()
     hest_information = ""
-    call navigate_to_MAXIS_screen("stat", "HEST")
+    call navigate_to_MAXIS_screen("STAT", "HEST")
 
     'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
     EMReadScreen panel_total_check, 6, 2, 73
@@ -3511,7 +3512,7 @@ function read_JOBS_panel()
     ALL_JOBS_PANELS_ARRAY(hrly_wage, job_count) = replace(jobs_hourly_wage, "_", "")   'trimming any underscores
 
     ' Navigates to the FS PIC
-    EMWriteScreen "x", 19, 38
+    EMWriteScreen "X", 19, 38
     transmit
     EMReadScreen SNAP_JOBS_amt, 8, 17, 56
     ALL_JOBS_PANELS_ARRAY(pic_pay_date_income, job_count) = trim(SNAP_JOBS_amt)
@@ -3525,7 +3526,7 @@ function read_JOBS_panel()
     'Navigats to GRH PIC
     EMReadscreen GRH_PIC_check, 3, 19, 73 	'This must check to see if the GRH PIC is there or not. If fun on months 06/16 and before it will cause an error if it pf3s on the home panel.
     IF GRH_PIC_check = "GRH" THEN
-    	EMWriteScreen "x", 19, 71
+    	EMWriteScreen "X", 19, 71
     	transmit
     	EMReadScreen GRH_JOBS_pay_amt, 8, 16, 69
     	GRH_JOBS_pay_amt = trim(GRH_JOBS_pay_amt)
@@ -3559,9 +3560,9 @@ function read_JOBS_panel()
     ALL_JOBS_PANELS_ARRAY(main_pay_freq, job_count) = pay_frequency
     EMReadScreen HC_income_est_check, 3, 19, 63 'reading to find the HC income estimator is moving 6/1/16, to account for if it only affects future months we are reading to find the HC inc EST
     IF HC_income_est_check = "Est" Then 'this is the old position
-    	EMWriteScreen "x", 19, 54
+    	EMWriteScreen "X", 19, 54
     ELSE								'this is the new position
-    	EMWriteScreen "x", 19, 48
+    	EMWriteScreen "X", 19, 48
     END IF
     transmit
     EMReadScreen HC_JOBS_amt, 8, 11, 63
@@ -3602,7 +3603,7 @@ end function
 
 function read_SANC_panel()
 
-    call  navigate_to_MAXIS_screen("stat", "sanc")
+    call  navigate_to_MAXIS_screen("STAT", "SANC")
     'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
     EMReadScreen panel_total_check, 6, 2, 73
     IF panel_total_check = "0 Of 0" THEN exit function		'Exits out if there's no panel info
@@ -3655,7 +3656,7 @@ end function
 
 function read_SHEL_panel()
 
-    call navigate_to_MAXIS_screen("stat", "shel")
+    call navigate_to_MAXIS_screen("STAT", "SHEL")
 
     'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
     EMReadScreen panel_total_check, 6, 2, 73
@@ -3776,7 +3777,7 @@ function read_SHEL_panel()
 end function
 
 function read_TIME_panel()
-    call  navigate_to_MAXIS_screen("stat", "time")
+    call  navigate_to_MAXIS_screen("STAT", "TIME")
     'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
     EMReadScreen panel_total_check, 6, 2, 73
     IF panel_total_check = "0 Of 0" THEN exit function		'Exits out if there's no panel info
@@ -3828,7 +3829,7 @@ function read_TIME_panel()
 end function
 
 function read_UNEA_panel()
-    call navigate_to_MAXIS_screen("stat", "unea")
+    call navigate_to_MAXIS_screen("STAT", "UNEA")
 
     'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
     EMReadScreen panel_total_check, 6, 2, 73
@@ -3878,7 +3879,7 @@ function read_UNEA_panel()
                 EMReadScreen retro_amt, 8, 18, 39
                 retro_amt = trim(retro_amt)
 
-                EMWriteScreen "x", 10, 26
+                EMWriteScreen "X", 10, 26
                 transmit
                 EMReadScreen SNAP_UNEA_amt, 8, 18, 56
                 SNAP_UNEA_amt = trim(SNAP_UNEA_amt)
@@ -3901,6 +3902,7 @@ function read_UNEA_panel()
                 IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
 
                 variable_name_for_UNEA = variable_name_for_UNEA & "UNEA from " & trim(UNEA_type) & ", " & UNEA_month  & " amts:; "
+                UNEA_INCOME_ARRAY(UNEA_SNAP_amt, unea_array_counter) = SNAP_UNEA_amt
                 If SNAP_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- PIC: $" & SNAP_UNEA_amt & "/" & snap_pay_frequency & ", calculated " & date_of_pic_calc & "; "
                 If retro_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
                 If prosp_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Prospective: $" & prosp_UNEA_amt & " total; "
@@ -4126,7 +4128,7 @@ function read_UNEA_panel()
 end function
 
 function read_WREG_panel()
-    call navigate_to_MAXIS_screen("stat", "wreg")
+    call navigate_to_MAXIS_screen("STAT", "WREG")
 
     'Now it checks for the total number of panels. If there's 0 Of 0 it'll exit the function for you so as to save oodles of time.
     EMReadScreen panel_total_check, 6, 2, 73
@@ -4139,7 +4141,7 @@ function read_WREG_panel()
             EMReadScreen wreg_total, 1, 2, 78
             IF wreg_total <> "0" THEN
                 ALL_MEMBERS_ARRAY(wreg_exists, each_member) = TRUE
-                EmWriteScreen "x", 13, 57
+                EmWriteScreen "X", 13, 57
                 transmit
                 bene_mo_col = (15 + (4*cint(MAXIS_footer_month)))
                 bene_yr_row = 10
@@ -5884,7 +5886,7 @@ If vars_filled = False Then
         If look_for_expedited_determination_case_note = True Then
             If left(note_title, 31) = "~ Received Application for SNAP" Then
                 exp_screening_note_found = True
-                EMWriteScreen "x", note_row, 3
+                EMWriteScreen "X", note_row, 3
                 transmit
 
                 EMReadScreen xfs_screening, 40, 4, 36
@@ -7502,7 +7504,7 @@ Do
                                                 'MsgBox weeks_of_UC_benefits
                                                 UNEA_INCOME_ARRAY(UNEA_UC_tikl_date, each_unea_memb) = DateAdd("ww", weeks_of_UC_benefits, date)
                                             Else
-                                                MsgBox "The scriupt cannot calculate the potential date of UC account balance depletion for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " without the UC account balance and UC Weekly Gross income. Enter these amounts as numbers and the script will enter a date for the TIKL into the dialog. The TIKL date can also be entered or changed manually."
+                                                MsgBox "The script cannot calculate the potential date of UC account balance depletion for Member " & UNEA_INCOME_ARRAY(memb_numb, each_unea_memb) & " without the UC account balance and UC Weekly Gross income. Enter these amounts as numbers and the script will enter a date for the TIKL into the dialog. The TIKL date can also be entered or changed manually."
                                             End If
                                         End If
                                     End If
@@ -7968,13 +7970,7 @@ Do
                             Next
 
                             For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
-                                If IsNumeric(UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(direct_CS_amt, each_unea_memb)
-                                If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(disb_CS_amt, each_unea_memb)
-                                If IsNumeric(UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(disb_CS_arrears_amt, each_unea_memb)
                                 If IsNumeric(UNEA_INCOME_ARRAY(UNEA_SNAP_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_SNAP_amt, each_unea_memb)
-                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_UC_monthly_snap, each_unea_memb)
-                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_RSDI_amt, each_unea_memb)
-                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_SSI_amt, each_unea_memb)
                             Next
 
                             determined_assets = app_month_assets
@@ -8384,7 +8380,7 @@ If qual_question_five = "Yes" Then qual_questions_yes = TRUE
 
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
 If client_delay_checkbox = checked and CAF_type <> "Recertification" then
-	call navigate_to_MAXIS_screen("rept", "pnd2")
+	call navigate_to_MAXIS_screen("REPT", "PND2")
 
     limit_reached = FALSE
     row = 1
@@ -8408,7 +8404,7 @@ If client_delay_checkbox = checked and CAF_type <> "Recertification" then
 
     If PND2_row = 18 Then
         client_delay_checkbox = unchecked
-        MsgBox "The scriipt could not navigate to REPT/PND2 due to a MAXIS display limit. This case will not be updated for client delay. Please email to BlueZone Script Team with the case number and report that the Display Limit on REPT/PND2 was reached."
+        MsgBox "The script could not navigate to REPT/PND2 due to a MAXIS display limit. This case will not be updated for client delay. Please email to BlueZone Script Team with the case number and report that the Display Limit on REPT/PND2 was reached."
     End If
 
 	for i = 0 to 1 'This is put in a for...next statement so that it will check for "additional app" situations, where the case could be on multiple lines in REPT/PND2. It exits after one if it can't find an additional app.
@@ -8416,12 +8412,12 @@ If client_delay_checkbox = checked and CAF_type <> "Recertification" then
 		If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
 		EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
 		If PND2_HC_status_check = "P" then
-			EMWriteScreen "x", PND2_row, 3
+			EMWriteScreen "X", PND2_row, 3
 			transmit
 			person_delay_row = 7
 			Do
 				EMReadScreen person_delay_check, 1, person_delay_row, 39
-				If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
+				If person_delay_check <> " " then EMWriteScreen "C", person_delay_row, 39
 				person_delay_row = person_delay_row + 2
 			Loop until person_delay_check = " " or person_delay_row > 20
 			PF3
