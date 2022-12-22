@@ -1945,7 +1945,6 @@ If maxis_updated_yn = "Yes" Then
 				EMReadScreen panel_ave_hours, 7, 16, 50
 				panel_ave_hours = trim(panel_ave_hours)
 				If IsNumeric(panel_ave_hours) = True Then
-					MsgBox panel_ave_hours
 					If panel_frequency = "1" Then panel_hours = panel_ave_hours/4.3
 					If panel_frequency = "2" Then panel_hours = panel_ave_hours/2.15
 					If panel_frequency = "3" Then panel_hours = panel_ave_hours/2
