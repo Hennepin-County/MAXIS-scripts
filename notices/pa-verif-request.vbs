@@ -343,7 +343,7 @@ function Select_New_WCOM(notices_array, selected_const, information_const, WCOM_
 			  ElseIf allow_memo = True Then
 			  	  DropListBox 140, 25, 60, 45, "Select One..."+chr(9)+"MEMO", notice_panel
 			  End If
-	    	  Text 5, 50, 120, 10, "In which month was the notice sent?"
+	    	  Text 35, 50, 95, 10, "Enter the month of the notice:"
 	    	  EditBox 140, 45, 20, 15, notc_month
 	    	  EditBox 165, 45, 20, 15, notc_year
 	    	  ButtonGroup ButtonPressed
