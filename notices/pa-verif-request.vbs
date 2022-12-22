@@ -2107,7 +2107,7 @@ Else
 				Do
 					each_date = DateAdd("m", 1, each_date)
 					SNAP_expected_dates_array = SNAP_expected_dates_array & "~" & each_date
-				Loop until each_date = last_date_of_range
+				Loop until DateDiff("d", last_date_of_range, each_date) >=0
 
 				If InStr(SNAP_expected_dates_array, "~") = 0 Then
 					SNAP_expected_dates_array = Array(SNAP_expected_dates_array)
@@ -2274,7 +2274,7 @@ Else
 				Do
 					each_date = DateAdd("m", 1, each_date)
 					GA_expected_dates_array = GA_expected_dates_array & "~" & each_date
-				Loop until each_date = last_date_of_range
+				Loop until DateDiff("d", last_date_of_range, each_date) >=0
 
 				If InStr(GA_expected_dates_array, "~") = 0 Then
 					GA_expected_dates_array = Array(GA_expected_dates_array)
@@ -2440,7 +2440,7 @@ Else
 				Do
 					each_date = DateAdd("m", 1, each_date)
 					MSA_expected_dates_array = MSA_expected_dates_array & "~" & each_date
-				Loop until each_date = last_date_of_range
+				Loop until DateDiff("d", last_date_of_range, each_date) >=0
 
 				If InStr(MSA_expected_dates_array, "~") = 0 Then
 					MSA_expected_dates_array = Array(MSA_expected_dates_array)
@@ -2611,7 +2611,7 @@ Else
 				Do
 					each_date = DateAdd("m", 1, each_date)
 					MFIP_expected_dates_array = MFIP_expected_dates_array & "~" & each_date
-				Loop until each_date = last_date_of_range
+				Loop until DateDiff("d", last_date_of_range, each_date) >=0
 
 				If InStr(MFIP_expected_dates_array, "~") = 0 Then
 					MFIP_expected_dates_array = Array(MFIP_expected_dates_array)
@@ -2802,7 +2802,7 @@ Else
 				Do
 					each_date = DateAdd("m", 1, each_date)
 					DWP_expected_dates_array = DWP_expected_dates_array & "~" & each_date
-				Loop until each_date = last_date_of_range
+				Loop until DateDiff("d", last_date_of_range, each_date) >=0
 
 				If InStr(DWP_expected_dates_array, "~") = 0 Then
 					DWP_expected_dates_array = Array(DWP_expected_dates_array)
@@ -2969,7 +2969,7 @@ Else
 				Do
 					each_date = DateAdd("m", 1, each_date)
 					GRH_expected_dates_array = GRH_expected_dates_array & "~" & each_date
-				Loop until each_date = last_date_of_range
+				Loop until DateDiff("d", last_date_of_range, each_date) >=0
 
 				If InStr(GRH_expected_dates_array, "~") = 0 Then
 					GRH_expected_dates_array = Array(GRH_expected_dates_array)
