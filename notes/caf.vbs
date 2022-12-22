@@ -4900,7 +4900,7 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
     					Text 10, 30, 350, 10, "Review Application for screening answers"
     				End If
     				Text 10, 90, 370, 15, "Review and update the INCOME, ASSETS, and HOUSING EXPENSES as determined in the Interview."
-    				GroupBox 5, 105, 390, 125, "Information from SNAP/ELIG"
+    				GroupBox 5, 105, 390, 125, "Information from STAT"
     				Text 15, 125, 60, 10, "Gross Income:    $"
     				EditBox 75, 120, 155, 15, determined_income
     				Text 15, 145, 35, 10, "Assets:   $"
