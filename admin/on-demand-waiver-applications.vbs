@@ -1369,62 +1369,66 @@ Do While NOT objWorkRecordSet.Eof
 	' case_name_to_assess = objWorkRecordSet("CaseName")
 	' found_case_on_todays_list = FALSE                               	'this Boolean is used to determine if the case number is on the BOBI run today
 	If InStr(list_of_all_cases, "*" & case_number_to_assess & "*") = 0 Then 		'making sure we don't have repeat case numbers
-		list_of_all_cases = list_of_all_cases & case_number_to_assess & "*"
-  		ReDim Preserve WORKING_LIST_CASES_ARRAY(error_notes, case_entry)     'resizing the WORKING CASES ARRAY
+    If case_number_to_assess = "2555502" then
+            msgbox "Found and skipping Case #2555502"
+        Else
+		    list_of_all_cases = list_of_all_cases & case_number_to_assess & "*"
+  		    ReDim Preserve WORKING_LIST_CASES_ARRAY(error_notes, case_entry)     'resizing the WORKING CASES ARRAY
 
-        ' WORKING_LIST_CASES_ARRAY(worker_ID, case_entry) 				= TODAYS_CASES_ARRAY(worker_ID, each_case)
-        WORKING_LIST_CASES_ARRAY(case_number, case_entry) 			= objWorkRecordSet("CaseNumber")
-        ' WORKING_LIST_CASES_ARRAY(excel_row, case_entry) = row
-        WORKING_LIST_CASES_ARRAY(client_name, case_entry) 			= objWorkRecordSet("CaseName") 'ObjWorkExcel.Cells(row, case_name_col)       'This is gathered from the Working Excel instead of the BOBI list because we may have populated a priv case with an actual name
-        WORKING_LIST_CASES_ARRAY(application_date, case_entry) 		= objWorkRecordSet("ApplDate")	'TODAYS_CASES_ARRAY(application_date, each_case)
-		WORKING_LIST_CASES_ARRAY(data_day_30, case_entry) 			= objWorkRecordSet("Day_30")
-        WORKING_LIST_CASES_ARRAY(interview_date, case_entry) 		= objWorkRecordSet("InterviewDate") 		'ObjWorkExcel.Cells(row, intvw_date_col)   'This is gathered from the Working Excel as we may have found an interview date that is NOT in PROG
-        WORKING_LIST_CASES_ARRAY(CASH_status, case_entry) 			= objWorkRecordSet("CashStatus") 			'ObjWorkExcel.Cells(row, cash_stat_col)
-        WORKING_LIST_CASES_ARRAY(SNAP_status, case_entry) 			= objWorkRecordSet("SnapStatus") 			'ObjWorkExcel.Cells(row, snap_stat_col)
+            ' WORKING_LIST_CASES_ARRAY(worker_ID, case_entry) 				= TODAYS_CASES_ARRAY(worker_ID, each_case)
+            WORKING_LIST_CASES_ARRAY(case_number, case_entry) 			= objWorkRecordSet("CaseNumber")
+            ' WORKING_LIST_CASES_ARRAY(excel_row, case_entry) = row
+            WORKING_LIST_CASES_ARRAY(client_name, case_entry) 			= objWorkRecordSet("CaseName") 'ObjWorkExcel.Cells(row, case_name_col)       'This is gathered from the Working Excel instead of the BOBI list because we may have populated a priv case with an actual name
+            WORKING_LIST_CASES_ARRAY(application_date, case_entry) 		= objWorkRecordSet("ApplDate")	'TODAYS_CASES_ARRAY(application_date, each_case)
+		    WORKING_LIST_CASES_ARRAY(data_day_30, case_entry) 			= objWorkRecordSet("Day_30")
+            WORKING_LIST_CASES_ARRAY(interview_date, case_entry) 		= objWorkRecordSet("InterviewDate") 		'ObjWorkExcel.Cells(row, intvw_date_col)   'This is gathered from the Working Excel as we may have found an interview date that is NOT in PROG
+            WORKING_LIST_CASES_ARRAY(CASH_status, case_entry) 			= objWorkRecordSet("CashStatus") 			'ObjWorkExcel.Cells(row, cash_stat_col)
+            WORKING_LIST_CASES_ARRAY(SNAP_status, case_entry) 			= objWorkRecordSet("SnapStatus") 			'ObjWorkExcel.Cells(row, snap_stat_col)
 
-        WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) 		= objWorkRecordSet("ApptNoticeDate") 		'ObjWorkExcel.Cells(row, appt_notc_date_col)
-        WORKING_LIST_CASES_ARRAY(appt_notc_confirm, case_entry) 		= objWorkRecordSet("Confirmation") 			'ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
-        WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) 		= objWorkRecordSet("ApptDate") 				'ObjWorkExcel.Cells(row, appt_date_col)
-		WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) 	= objWorkRecordSet("SecondApplicationDate") 'ObjWorkExcel.Cells(row, second_app_date_col).Value
-		WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry) 	= objWorkRecordSet("REPT_PND2Days") 		'ObjWorkExcel.Cells(row, rept_pnd2_days_col).Value
-		WORKING_LIST_CASES_ARRAY(data_days_pend, case_entry) 		= objWorkRecordSet("DaysPending") 		'TODAYS_CASES_ARRAY(data_days_pend, each_case)
-        WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry) 				= objWorkRecordSet("NOMIDate") 				'ObjWorkExcel.Cells(row, nomi_date_col)
-        WORKING_LIST_CASES_ARRAY(nomi_confirm, case_entry) 			= objWorkRecordSet("Confirmation2") 		'ObjWorkExcel.Cells(row, nomi_confirm_col)
-        WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) 	= objWorkRecordSet("NextActionNeeded") 			'ObjWorkExcel.Cells(row, next_action_col)
-		WORKING_LIST_CASES_ARRAY(subsqt_appl_resolve, case_entry)	= objWorkRecordSet("SecondApplicationDateNotes")
-		WORKING_LIST_CASES_ARRAY(case_closed_in_30, case_entry)		= objWorkRecordSet("ClosedInPast30Days")
-		WORKING_LIST_CASES_ARRAY(closed_in_30_resolve, case_entry)	= objWorkRecordSet("ClosedInPast30DaysNotes")
-		WORKING_LIST_CASES_ARRAY(case_in_other_co, case_entry)		= objWorkRecordSet("StartedOutOfCounty")
-		WORKING_LIST_CASES_ARRAY(out_of_co_resolve, case_entry)		= objWorkRecordSet("StartedOutOfCountyNotes")
-		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry)		= objWorkRecordSet("TrackingNotes")
+            WORKING_LIST_CASES_ARRAY(appt_notc_sent, case_entry) 		= objWorkRecordSet("ApptNoticeDate") 		'ObjWorkExcel.Cells(row, appt_notc_date_col)
+            WORKING_LIST_CASES_ARRAY(appt_notc_confirm, case_entry) 		= objWorkRecordSet("Confirmation") 			'ObjWorkExcel.Cells(row, appt_notc_confirm_col).Value
+            WORKING_LIST_CASES_ARRAY(appointment_date, case_entry) 		= objWorkRecordSet("ApptDate") 				'ObjWorkExcel.Cells(row, appt_date_col)
+		    WORKING_LIST_CASES_ARRAY(additional_app_date, case_entry) 	= objWorkRecordSet("SecondApplicationDate") 'ObjWorkExcel.Cells(row, second_app_date_col).Value
+		    WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry) 	= objWorkRecordSet("REPT_PND2Days") 		'ObjWorkExcel.Cells(row, rept_pnd2_days_col).Value
+		    WORKING_LIST_CASES_ARRAY(data_days_pend, case_entry) 		= objWorkRecordSet("DaysPending") 		'TODAYS_CASES_ARRAY(data_days_pend, each_case)
+            WORKING_LIST_CASES_ARRAY(nomi_sent, case_entry) 				= objWorkRecordSet("NOMIDate") 				'ObjWorkExcel.Cells(row, nomi_date_col)
+            WORKING_LIST_CASES_ARRAY(nomi_confirm, case_entry) 			= objWorkRecordSet("Confirmation2") 		'ObjWorkExcel.Cells(row, nomi_confirm_col)
+            WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) 	= objWorkRecordSet("NextActionNeeded") 			'ObjWorkExcel.Cells(row, next_action_col)
+		    WORKING_LIST_CASES_ARRAY(subsqt_appl_resolve, case_entry)	= objWorkRecordSet("SecondApplicationDateNotes")
+		    WORKING_LIST_CASES_ARRAY(case_closed_in_30, case_entry)		= objWorkRecordSet("ClosedInPast30Days")
+		    WORKING_LIST_CASES_ARRAY(closed_in_30_resolve, case_entry)	= objWorkRecordSet("ClosedInPast30DaysNotes")
+		    WORKING_LIST_CASES_ARRAY(case_in_other_co, case_entry)		= objWorkRecordSet("StartedOutOfCounty")
+		    WORKING_LIST_CASES_ARRAY(out_of_co_resolve, case_entry)		= objWorkRecordSet("StartedOutOfCountyNotes")
+		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry)		= objWorkRecordSet("TrackingNotes")
 
-        WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry) 		= objWorkRecordSet("QuestionableInterview") 'ObjWorkExcel.Cells(row, quest_intvw_date_col)
-		WORKING_LIST_CASES_ARRAY(intvw_quest_resolve, case_entry)	= objWorkRecordSet("Resolved")
-		WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) 			= objWorkRecordSet("AddedtoWorkList")
-		change_date_time = objWorkRecordSet("AuditChangeDate")
-		change_date_time_array = split(change_date_time, " ")
-		change_date = change_date_time_array(0)
-		WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= DateAdd("d", 0, change_date)
+            WORKING_LIST_CASES_ARRAY(questionable_intv, case_entry) 		= objWorkRecordSet("QuestionableInterview") 'ObjWorkExcel.Cells(row, quest_intvw_date_col)
+		    WORKING_LIST_CASES_ARRAY(intvw_quest_resolve, case_entry)	= objWorkRecordSet("Resolved")
+		    WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) 			= objWorkRecordSet("AddedtoWorkList")
+		    change_date_time = objWorkRecordSet("AuditChangeDate")
+		    change_date_time_array = split(change_date_time, " ")
+		    change_date = change_date_time_array(0)
+		    WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= DateAdd("d", 0, change_date)
 
-		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
-		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
-		' "DenialNeeded"
-		' WORKING_LIST_CASES_ARRAY(error_notes, case_entry) 			= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, worker_notes_col)
-		' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, script_revw_date_col)
-		' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) = dateAdd("d", 0, WORKING_LIST_CASES_ARRAY(line_update_date, case_entry))
+		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
+		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
+		    ' "DenialNeeded"
+		    ' WORKING_LIST_CASES_ARRAY(error_notes, case_entry) 			= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, worker_notes_col)
+		    ' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, script_revw_date_col)
+		    ' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) = dateAdd("d", 0, WORKING_LIST_CASES_ARRAY(line_update_date, case_entry))
 
-        'Defaulting this values at this time as we will determine them to be different as the script proceeds.
-        WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = FALSE
-		WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
+            'Defaulting this values at this time as we will determine them to be different as the script proceeds.
+            WORKING_LIST_CASES_ARRAY(take_action_today, case_entry) = FALSE
+		    WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
 
-		For case_info = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
-			If ALL_PENDING_CASES_ARRAY(case_number, case_info) = WORKING_LIST_CASES_ARRAY(case_number, case_entry) Then
-				WORKING_LIST_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_info)
-			End If
-		Next
+		    For case_info = 0 to UBOUND(ALL_PENDING_CASES_ARRAY, 2)
+		    	If ALL_PENDING_CASES_ARRAY(case_number, case_info) = WORKING_LIST_CASES_ARRAY(case_number, case_entry) Then
+		    		WORKING_LIST_CASES_ARRAY(error_notes, case_entry) = ALL_PENDING_CASES_ARRAY(error_notes, case_info)
+		    	End If
+		    Next
 
 
-        case_entry = case_entry + 1     'increasing the count for '
+            case_entry = case_entry + 1     'increasing the count for '
+        End if
 	End If
 
 	objWorkRecordSet.MoveNext
