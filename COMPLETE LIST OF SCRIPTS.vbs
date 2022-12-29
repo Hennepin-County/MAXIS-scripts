@@ -2929,7 +2929,7 @@ script_array(script_num).subcategory            = array("BULK LISTS")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("TE QTIP_#118_ASTERISK_ON_REPT/REVW 19.118", "TE HC_6-MONTH_RENEWALS 09.42","SHAREPOINT HC_INCOME_RENEWAL_(CSR) https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/HC_Income_Renewal_(CSR).aspx")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
