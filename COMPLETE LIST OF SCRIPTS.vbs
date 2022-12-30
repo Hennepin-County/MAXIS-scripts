@@ -654,7 +654,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #04/27/2021#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("SHAREPOINT AVS https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/AVS.aspx", "ONESOURCE Account_Validation_Service_(AVS) https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=onesource-17031", "EPM 2.3.1.2_MA-ABD_Account_Validation_Service_(AVS) http://hcopub.dhs.state.mn.us/epm/2_3_1_2.htm?rhhlterm=avs&rhsearch=avs")
 
 script_num = script_num + 1							'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
