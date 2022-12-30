@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/30/2022", "Fixed inhibiting bug if HH members do not have an age listed on STAT/MEMB.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/10/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -56,6 +57,7 @@ Call MAXIS_case_number_finder(MAXIS_case_number)
 HC_process = "Application"  'Defaulting - This is only viable option currently
 closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."  'initial closing message. This may increment based on options selected.
 get_county_code
+Call Check_for_MAXIS(False)
 
 'Adding case number if using the script from the DAIL scrubber
 If MAXIS_case_number = "" then
@@ -691,41 +693,42 @@ script_end_procedure_with_error_report(closing_msg)
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------07/15/2021
-'--Tab orders reviewed & confirmed----------------------------------------------07/15/2021
-'--Mandatory fields all present & Reviewed--------------------------------------07/15/2021
-'--All variables in dialog match mandatory fields-------------------------------07/15/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------12/30/2022
+'--Tab orders reviewed & confirmed----------------------------------------------12/30/2022
+'--Mandatory fields all present & Reviewed--------------------------------------12/30/2022
+'--All variables in dialog match mandatory fields-------------------------------12/30/2022
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------07/15/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------07/15/2021
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/15/2021
+'--All variables are CASE:NOTEing (if required)---------------------------------12/30/2022
+'--CASE:NOTE Header doesn't look funky------------------------------------------12/30/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------12/30/2022
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-12/30/2022
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/15/2021
-'--MAXIS_background_check reviewed (if applicable)------------------------------07/15/2021
-'--PRIV Case handling reviewed -------------------------------------------------07/15/2021
-'--Out-of-County handling reviewed----------------------------------------------07/15/2021
-'--script_end_procedures (w/ or w/o error messaging)----------------------------07/15/2021
-'--BULK - review output of statistics and run time/count (if applicable)--------07/15/2021 - N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------12/30/2022
+'--MAXIS_background_check reviewed (if applicable)------------------------------12/30/2022
+'--PRIV Case handling reviewed -------------------------------------------------12/30/2022
+'--Out-of-County handling reviewed----------------------------------------------12/30/2022
+'--script_end_procedures (w/ or w/o error messaging)----------------------------12/30/2022
+'--BULK - review output of statistics and run time/count (if applicable)--------12/30/2022
+'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---12/30/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------07/15/2021
-'--Incrementors reviewed (if necessary)-----------------------------------------07/15/2021
-'--Denomination reviewed -------------------------------------------------------07/15/2021
-'--Script name reviewed---------------------------------------------------------07/15/2021
-'--BULK - remove 1 incrementor at end of script reviewed------------------------07/15/2021 - N/A
+'--Manual time study reviewed --------------------------------------------------12/30/2022
+'--Incrementors reviewed (if necessary)-----------------------------------------12/30/2022
+'--Denomination reviewed -------------------------------------------------------12/30/2022
+'--Script name reviewed---------------------------------------------------------12/30/2022
+'--BULK - remove 1 incrementor at end of script reviewed------------------------12/30/2022
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------07/15/2021
-'--comment Code-----------------------------------------------------------------07/15/2021
-'--Update Changelog for release/update------------------------------------------07/15/2021
-'--Remove testing message boxes-------------------------------------------------07/15/2021
-'--Remove testing code/unnecessary code-----------------------------------------07/15/2021
-'--Review/update SharePoint instructions----------------------------------------07/15/2021
-'--Review Best Practices using BZS page ----------------------------------------07/15/2021
-'--Review script information on SharePoint BZ Script List-----------------------07/15/2021
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/15/2021
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------07/15/2021
-'--Complete misc. documentation (if applicable)---------------------------------07/15/2021
-'--Update project team/issue contact (if applicable)----------------------------07/15/2021
+'--Confirm all GitHub tasks are complete----------------------------------------12/30/2022
+'--comment Code-----------------------------------------------------------------12/30/2022
+'--Update Changelog for release/update------------------------------------------12/30/2022
+'--Remove testing message boxes-------------------------------------------------12/30/2022
+'--Remove testing code/unnecessary code-----------------------------------------12/30/2022
+'--Review/update SharePoint instructions----------------------------------------12/30/2022----------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------12/30/2022
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------12/30/2022
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------12/30/2022
+'--Complete misc. documentation (if applicable)---------------------------------12/30/2022
+'--Update project team/issue contact (if applicable)----------------------------12/30/2022
