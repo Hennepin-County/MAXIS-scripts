@@ -55,6 +55,7 @@ EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
 HC_process = "Application"  'Defaulting - This is only viable option currently
 closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."  'initial closing message. This may increment based on options selected.
+get_county_code
 
 'Adding case number if using the script from the DAIL scrubber
 If MAXIS_case_number = "" then
@@ -156,6 +157,7 @@ DO
 	last_name = trim(replace(last_name, "_", "")) & " "
 	first_name = trim(replace(first_name, "_", "")) & " "
 	mid_initial = replace(mid_initial, "_", "")
+    client_age = trim(client_age)
 
     If relationship_code = "01" then add_to_array = True    'applicants of HC yes
     If relationship_code = "02" then add_to_array = True    'spouses of HC applicants yes
@@ -167,7 +169,11 @@ DO
         client_ssn = replace(client_ssn, " ", "")
     End if
 
-    If trim(client_age) < 21 then add_to_array = False  'under 21 are not required to sign per EPM 2.3.3.2.1 Asset Limits
+    If client_age = "" then
+        add_to_array = False    'Added if statement to resolve inhibiting script issues
+    ElseIf client_age < 21 then
+        add_to_array = False  'under 21 are not required to sign per EPM 2.3.3.2.1 Asset Limits
+    End if
 
     If add_to_array = True then
         ReDim Preserve avs_members_array(additional_info_const, avs_membs)  'redimmied to the size of the last constant
