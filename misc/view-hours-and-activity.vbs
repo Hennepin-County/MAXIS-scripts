@@ -327,6 +327,18 @@ view_excel = True
 objExcel.Visible = view_excel
 
 If old_items_to_move = True Then			'If we find that some of the activities are older, we want to take them back.
+	'This part is to ensure this script is futureproofed to add sheets for each year as it occurs
+	current_year_worksheet_found = False										'defaulting that the current year sheet has been found or not.
+	sheet_name = the_year & ""													'making the current year a string for a name usage
+	last_year_sheet = DatePart("yyyy", DateAdd("yyyy", -1, date)) & ""			'also identifying last year's sheet name because that is what we use to move the new sheet correctly.
+	For Each objWorkSheet In objWorkbook.Worksheets								'look at all the sheets that currently exist
+		If objWorkSheet.Name = sheet_name Then current_year_worksheet_found = True		'If a sheet has been found with the current year as the anme, we set this boolean to true
+	Next
+	If current_year_worksheet_found = False Then								'if we looked at all of the sheets and the current year was not found, we will add it here
+		ObjExcel.Worksheets.Add().Name = sheet_name								'adding a sheet with the current year as the name
+		ObjExcel.worksheets(sheet_name).Move ObjExcel.worksheets(last_year_sheet)	'moving this sheet to be just before last year's sheet
+	End If
+	'now we are going to move individual activity entries that are 'too old' to the correct sheet by year.
 	TIME_TRACKING_ARRAY(activity_date_const, 0) = DateAdd("d", 0, TIME_TRACKING_ARRAY(activity_date_const, 0))
 	year_to_check = DatePart("yyyy", TIME_TRACKING_ARRAY(activity_date_const, 0))
 	year_to_check = year_to_check & ""
