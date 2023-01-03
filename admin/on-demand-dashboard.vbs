@@ -902,7 +902,7 @@ Else
         worker_on_task = True
     End If
 End If
-
+BULK_Run_completed = False
 If BULK_Run_completed = False Then
     Do
         Do
