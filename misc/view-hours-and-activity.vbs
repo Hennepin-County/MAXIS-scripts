@@ -276,6 +276,7 @@ old_items_to_move = False
 'Here we read the entire excel file and save it into an array
 excel_row = 2			'start of the excel file information
 activity_count = 0		'starting of the counter of the array
+added_end_time_row_list = " "
 Do
 	ReDim Preserve TIME_TRACKING_ARRAY(last_const, activity_count)				'resize the array
 	TIME_TRACKING_ARRAY(activity_date_const, activity_count) 	= ObjExcel.Cells(excel_row, 1).Value				'date of the activity
@@ -288,6 +289,7 @@ Do
 		ObjExcel.Cells(excel_row, 4).Value = "=TEXT([@[End Time]]-[@[Start Time]],"+chr(34)+"h:mm"+chr(34)+")"		'adding the calculation of elapsed time for a line that didn't have an end time
 		row_filled_with_end_time = row_filled_with_end_time & excel_row & " "	'saving this so we can remove it later if the file is left open
 		TIME_TRACKING_ARRAY(activity_end_time, activity_count) 		= ObjExcel.Cells(excel_row, 3).Value
+		added_end_time_row_list = added_end_time_row_list & excel_row & " "
 	End If
 	TIME_TRACKING_ARRAY(activity_time_spent, activity_count) 	= ObjExcel.Cells(excel_row, 4).Value				'the elapsed time in a format that can be read
 	If TIME_TRACKING_ARRAY(activity_time_spent, activity_count) <> "" Then
@@ -392,6 +394,7 @@ If old_items_to_move = True Then			'If we find that some of the activities are o
 	'Here we read the entire excel file AGAIN and save it into an array
 	excel_row = 2			'start of the excel file information
 	activity_count = 0		'starting of the counter of the array
+	added_end_time_row_list = " "
 	Do
 		ReDim Preserve TIME_TRACKING_ARRAY(last_const, activity_count)				'resize the array
 		TIME_TRACKING_ARRAY(activity_date_const, activity_count) 	= ObjExcel.Cells(excel_row, 1).Value				'date of the activity
@@ -404,6 +407,7 @@ If old_items_to_move = True Then			'If we find that some of the activities are o
 			ObjExcel.Cells(excel_row, 4).Value = "=TEXT([@[End Time]]-[@[Start Time]],"+chr(34)+"h:mm"+chr(34)+")"		'adding the calculation of elapsed time for a line that didn't have an end time
 			row_filled_with_end_time = row_filled_with_end_time & excel_row & " "	'saving this so we can remove it later if the file is left open
 			TIME_TRACKING_ARRAY(activity_end_time, activity_count) 		= ObjExcel.Cells(excel_row, 3).Value
+			added_end_time_row_list = added_end_time_row_list & excel_row & " "
 		End If
 		TIME_TRACKING_ARRAY(activity_time_spent, activity_count) 	= ObjExcel.Cells(excel_row, 4).Value				'the elapsed time in a format that can be read
 		If TIME_TRACKING_ARRAY(activity_time_spent, activity_count) <> "" Then
@@ -820,6 +824,18 @@ Do
 
 	If ButtonPressed = -1 Then err_msg = ""		'blanking out the err_msg if the 'OK' button is pressed so we can leave the dialog loop
 Loop until err_msg = ""
+
+added_end_time_row_list = trim(added_end_time_row_list)
+If added_end_time_row_list <> "" then
+	array_of_rows_to_remove_end_time = split(added_end_time_row_list)
+	For each excel_row in array_of_rows_to_remove_end_time
+		MsgBox "~" & excel_row & "~"
+		ObjExcel.Cells(excel_row, 3).Value = ""
+	Next
+	objWorkbook.Save									'saving the file to 'My Documents'
+	objWorkbook.SaveAs (t_drive_excel_file_path)		'saving the file to the T Drive
+End If
+
 If view_excel = False Then leave_excel_open_checkbox = unchecked
 If leave_excel_open_checkbox = checked Then				'If the checkbox is checked then we block out any row that was changed for math to work. This isn't needed if we aren't leaving it open then it closes without being saved.
 	row_filled_with_end_time = trim(row_filled_with_end_time)
