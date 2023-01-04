@@ -689,12 +689,14 @@ od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
 'BUTTONS'
 complete_bulk_run_btn   = 1001
 bulk_run_details_btn    = 1002
+bulk_run_incomplete_btn = 1003
 get_new_case_btn        = 2001
 work_list_details_btn   = 2002
 resume_hold_case_btn    = 2003
 complete_review_btn     = 2004
 hold_case_btn           = 2005
 finish_work_day_btn     = 3001
+test_access_btn         = 4001
 
 ' STS-NR            'Status - Needs Review'
 ' STS-RC            'Status - Review Completed'
@@ -902,7 +904,7 @@ Else
         worker_on_task = True
     End If
 End If
-BULK_Run_completed = False
+
 If BULK_Run_completed = False Then
     Do
         Do
@@ -950,6 +952,7 @@ If local_demo = False and BULK_Run_completed = True Then
       Text 20, 170, 155, 10, "Review Functionality is not yet supported."
       ButtonGroup ButtonPressed
         PushButton 375, 5, 65, 15, "Test Access", test_access_btn
+        PushButton 330, 80, 105, 15, "Restart the BULK Run", bulk_run_incomplete_btn
         CancelButton 390, 215, 50, 15
       Text 170, 10, 135, 10, "On Demand Applications Dashboard"
       GroupBox 10, 25, 430, 75, "Applications BULK Run"
@@ -958,6 +961,7 @@ If local_demo = False and BULK_Run_completed = True Then
       Text 20, 55, 305, 10, "The BULK Run can only be completed once per day. The Work List is ready to be reviewed."
       Text 40, 65, 305, 10, "- The worklist is held in a SQL Table and can only be viewed through this Dashboard script. "
       Text 40, 75, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
+      Text 140, 85, 190, 10, "If the BULK Run was not completed, you can restart here:"
       GroupBox 10, 105, 430, 40, "Work List Overview"
       Text 20, 120, 115, 10, "Total cases on the worklist: " & total_cases_for_review
       Text 220, 120, 130, 10, "Cases with Review Completed: " & cases_with_review_completed
@@ -969,6 +973,13 @@ If local_demo = False and BULK_Run_completed = True Then
     cancel_without_confirmation
 
     If ButtonPressed = test_access_btn Then Call test_sql_access()
+    If ButtonPressed = bulk_run_incomplete_btn Then
+        Call back_to_SELF
+        EMReadScreen MX_region, 10, 22, 48
+        MX_region = trim(MX_region)
+        If MX_region <> "PRODUCTION" Then Call script_end_procedure("You have selected to complete the BULK Run for On Demand but you are not in production. The script will now end. Move to PRODUCTION and run On Demand Dashboard again.")
+        Call run_from_GitHub(script_repository & "admin\" & "on-demand-waiver-applications.vbs")
+    End If
     end_early_msg = "The BULK Run for On Demand appears to have been completed today. If this is not true, contact the BlueZone Script Team." & vbCr & vbCr & "Eventually this script will support additional functionality, handling the processing of the worklist. This funcitonality is not yet ready. The script will now end."
     Call script_end_procedure(end_early_msg)
 End If
@@ -980,24 +991,26 @@ If worker_on_task = False Then
                 Dialog1 = ""
                 BeginDialog Dialog1, 0, 0, 451, 235, "On Demand Applications Dashboard"
                   EditBox 500, 600, 50, 15, fake_edit_box
+                  ' Text 20, 170, 155, 10, "*** All Cases have been Pulled for Review ***'"
                   ButtonGroup ButtonPressed
                     PushButton 15, 165, 110, 15, "Pull a case to Review", get_new_case_btn
-                    'Text 20, 170, 155, 10, "*** All Cases have been Pulled for Review ***"'
-                    PushButton 45, 85, 170, 10, "More information about the Work List", work_list_details_btn
+                    PushButton 285, 70, 140, 10, "More information about the Work List", work_list_details_btn
                     PushButton 10, 215, 105, 15, "Finish Work Day", finish_work_day_btn
                     PushButton 375, 5, 65, 15, "Test Access", test_access_btn
+                    PushButton 330, 85, 105, 15, "Restart the BULK Run", bulk_run_incomplete_btn
                     CancelButton 390, 215, 50, 15
                   Text 170, 10, 135, 10, "On Demand Applications Dashboard"
-                  GroupBox 10, 25, 430, 75, "Applications BULK Run"
-                  Text 20, 40, 170, 10, "The BULK run was last completed on " & first_item_date & "."
-                  Text 190, 40, 200, 10, "The BULK Run was completed today around " & first_item_time & "."
-                  Text 20, 55, 305, 10, "The BULK Run can only be completed once per day. The Work List is ready to be reviewed."
-                  Text 40, 65, 305, 10, "- The worklist is held in a SQL Table and can only be viewed through this Dashboard script. "
-                  Text 40, 75, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
-                  GroupBox 10, 105, 430, 40, "Work List Overview"
-                  Text 20, 120, 115, 10, "Total cases on the worklist: " & total_cases_for_review
-                  Text 220, 120, 130, 10, "Cases with Review Completed: " & cases_with_review_completed
-                  Text 215, 130, 135, 10, "Cases with Reviews In Progress: " & cases_on_hold
+                  GroupBox 10, 20, 430, 85, "Applications BULK Run"
+                  Text 20, 35, 170, 10, "The BULK run was last completed on  & first_item_date & ."
+                  Text 190, 35, 200, 10, "The BULK Run was completed today around  & first_item_time & ."
+                  Text 20, 50, 305, 10, "The BULK Run can only be completed once per day. The Work List is ready to be reviewed."
+                  Text 40, 60, 305, 10, "- The worklist is held in a SQL Table and can only be viewed through this Dashboard script. "
+                  Text 40, 70, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
+                  Text 140, 90, 190, 10, "If the BULK Run was not completed, you can restart here:"
+                  GroupBox 10, 110, 430, 35, "Work List Overview"
+                  Text 20, 125, 115, 10, "Total cases on the worklist:  & total_cases_for_review"
+                  Text 220, 120, 130, 10, "Cases with Review Completed:  & cases_with_review_completed"
+                  Text 215, 130, 135, 10, "Cases with Reviews In Progress:  & cases_on_hold"
                   GroupBox 10, 150, 430, 55, "Reviews"
                   Text 20, 190, 190, 10, "--- There are no cases with reviews already started. ---"
                 EndDialog
@@ -1012,6 +1025,13 @@ If worker_on_task = False Then
         Loop until are_we_passworded_out = false					'loops until user passwords back in
 
         If ButtonPressed = get_new_case_btn Then Call assign_a_case
+        If ButtonPressed = bulk_run_incomplete_btn Then
+            Call back_to_SELF
+            EMReadScreen MX_region, 10, 22, 48
+            MX_region = trim(MX_region)
+            If MX_region <> "PRODUCTION" Then Call script_end_procedure("You have selected to complete the BULK Run for On Demand but you are not in production. The script will now end. Move to PRODUCTION and run On Demand Dashboard again.")
+            Call run_from_GitHub(script_repository & "admin\" & "on-demand-waiver-applications.vbs")
+        End If
 
     Else
 
