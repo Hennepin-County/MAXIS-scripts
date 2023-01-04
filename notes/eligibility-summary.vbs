@@ -391,6 +391,221 @@ function display_snap_shelter_expenses()
 	ButtonPressed = shel_exp_detail_btn
 end function
 
+function define_dwp_elig_dialog()
+	BeginDialog Dialog1, 0, 0, 555, 385, "DWP Approval Packages"
+	  ButtonGroup ButtonPressed
+		GroupBox 460, 10, 85, 165, "DWP Approvals"
+		Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+
+		If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+
+			GroupBox 5, 10, 425, 140, "Budget Detail"
+			Text 20, 35, 120, 10, "Rent/Mortgage .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage
+		    Text 20, 45, 120, 10, "Property Tax .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax
+		    Text 20, 55, 120, 10, "House Insurance .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance
+		    Text 20, 65, 120, 10, "Electricity .  .  .  .  .  .  .  . $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity
+		    Text 20, 75, 120, 10, "Heating/Air .  .  .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air
+		    Text 20, 85, 120, 10, "Water/Sewer/Grbg .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage
+		    Text 20, 95, 120, 10, "Telephone .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone
+		    Text 20, 105, 120, 10, "Other .  .  .  .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other
+		    GroupBox 10, 20, 135, 115, "Housing and Utility Expense"
+		    Text 35, 120, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
+		    GroupBox 150, 20, 135, 100, "DWP Countable Income"
+		    Text 160, 35, 120, 10, "Earned Income  .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income
+		    Text 160, 45, 120, 10, "Unearned Income .   .   .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
+		    Text 160, 55, 120, 10, "Deemed Income .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income
+		    Text 160, 65, 120, 10, "CSES Exclusion .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion
+		    Text 175, 80, 105, 10, "Budget Month Total: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total
+		    Text 205, 95, 75, 10, " Prior Low: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low
+		    Text 160, 105, 120, 10, " DWP Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
+		    GroupBox 290, 20, 135, 125, "DWP Grant Calculation"
+		    Text 305, 35, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
+		    Text 300, 45, 110, 10, "+     Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs
+		    Text 300, 60, 110, 10, "=    Total DWP Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need
+		    Text 300, 70, 110, 10, "-   Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
+		    Text 305, 85, 105, 10, "=         Unmet Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need
+		    Text 315, 95, 95, 10, "DWP Max Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant
+		    Text 330, 110, 80, 10, "DWP Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant
+		    Text 330, 120, 85, 10, "  Shelter Benefit: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_shelter_benefit_portion
+		    Text 330, 130, 85, 10, "Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_personal_needs_portion
+		End If
+
+
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
+			GroupBox 5, 155, 450, 40, "DWP Benefits Issued for the Approval Package"
+			app_y_pos = 170
+			' app_y_pos = 150
+			app_x_pos = 10
+			For approval = 0 to UBound(DWP_ELIG_APPROVALS)
+				If InStr(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year) <> 0 Then
+					Text app_x_pos, app_y_pos, 220, 10, DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year & " - $ " & DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount & " (Shelter: $ " & DWP_ELIG_APPROVALS(approval).dwp_case_summary_shelter_benefit_portion & " - Personal Needs: $ " & DWP_ELIG_APPROVALS(approval).dwp_case_summary_personal_needs_portion & ")"
+					' Text app_x_pos, app_y_pos, 200, 10,
+					' Text app_x_pos, app_y_pos+10, 200, 10,
+					app_y_pos = app_y_pos + 10
+					If app_y_pos = 190 Then
+						app_y_pos = 170
+						app_x_pos = app_x_pos + 220
+					End If
+				End If
+			Next
+		End If
+
+		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
+		PushButton 385, 155, 50, 10, "View ELIG", nav_stat_elig_btn
+
+
+		y_pos = 25
+		for each_app = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
+			If DWP_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
+				month_display = DWP_UNIQUE_APPROVALS(first_mo_const, each_app)
+			ElseIF DWP_UNIQUE_APPROVALS(last_mo_const, each_app) = CM_plus_1_mo & "/" & CM_plus_1_yr Then
+				month_display = DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - Ongoing"
+			Else
+				month_display = DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " - " & DWP_UNIQUE_APPROVALS(last_mo_const, each_app)
+			End if
+			' If each_app = approval_selected Then display_detail = month_display
+			If each_app = approval_selected Then
+				Text 470, y_pos+2, 75, 13, month_display
+			Else
+				PushButton 465, y_pos, 75, 13, month_display, DWP_UNIQUE_APPROVALS(btn_one, each_app)
+			End If
+			y_pos = y_pos + 15
+		next
+		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+
+
+		y_pos = 200
+		GroupBox 5, y_pos, 540, income_box_len, "Income"	'205'
+		y_pos = y_pos + 10
+
+		Text 10, y_pos, 155, 10, "Total GROSS EARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income	'215'
+		Text 300, y_pos, 155, 10, "Total GROSS UNEARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
+		y_pos = y_pos + 15
+		y_pos_2 = y_pos
+		' y_pos = 230
+		' y_pos_2 = 230
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & " Counted Income"
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & " Counted Income"
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & " Counted Income"
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & " Counted Income"
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & " Counted Income"
+				End If
+				y_pos = y_pos + 20
+			End If
+
+			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
+				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
+					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+				Else
+					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
+				End If
+				y_pos = y_pos + 20
+			End If
+
+			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
+				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
+				y_pos_2 = y_pos_2 + 10
+				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+					y_pos_2 = y_pos_2 + 10
+				End If
+			End If
+
+		Next
+
+	EndDialog
+
+end function
 
 function define_mfip_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Approval Packages"
@@ -7573,6 +7788,7 @@ class dwp_eligibility_detail
 	public elig_footer_year
 	public elig_version_number
 	public elig_version_date
+	public dwp_autoclosed_for_time_limit
 	public elig_version_result
 	public approved_today
 	public approved_version_found
@@ -7724,9 +7940,20 @@ class dwp_eligibility_detail
 		EMWriteScreen elig_footer_year, 20, 59
 		approved_today = False
 		approved_version_found = False
-		Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
-		If approved_version_found = True Then
-			If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+		dwp_autoclosed_for_time_limit = False
+		' MsgBox "Pause"
+		dwp_row = 1
+		dwp_col = 1
+		EMSearch "Four Month Eligibility Limit", dwp_row, dwp_col
+		If dwp_row <> 0 Then
+			EMReadScreen elig_version_date, 8, dwp_row, dwp_col-13
+			dwp_autoclosed_for_time_limit = True
+		Else
+			Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
+			If approved_version_found = True Then
+				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			End If
+			If developer_mode = True Then approved_today = True		'TESTING OPTION'
 		End If
 		If approved_today = True Then
 			ReDim dwp_elig_ref_numbs(0)
@@ -8206,6 +8433,7 @@ class dwp_eligibility_detail
 			dwp_case_summary_personal_needs_portion = trim(dwp_case_summary_personal_needs_portion)
 		End If
 		Call back_to_SELF
+		If dwp_autoclosed_for_time_limit = True Then approved_today = True
 	end sub
 end class
 
@@ -21801,7 +22029,87 @@ For each footer_month in MONTHS_ARRAY
 
 	'NOW WE ADD THE STAT INFORMATION to each Program
 	If numb_DWP_versions <> " " Then
-		If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True Then
+		If DWP_ELIG_APPROVALS(dwp_elig_months_count).approved_today = True and DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_autoclosed_for_time_limit = False Then	'TODO  for DWP '
+			For each_elig_memb = 0 to UBound(DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_elig_ref_numbs)
+				For each_stat_memb = 0 to UBound(STAT_INFORMATION(month_count).stat_memb_ref_numb)
+					If DWP_ELIG_APPROVALS(dwp_elig_months_count).dwp_elig_ref_numbs(each_elig_memb) = STAT_INFORMATION(month_count).stat_memb_ref_numb(each_stat_memb) Then
+					End If
+					If STAT_INFORMATION(month_count).stat_jobs_one_exists(each_stat_memb) = True Then
+						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_one_prosp_monthly_gross_wage(each_stat_memb)
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_one_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_one_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_jobs_two_exists(each_stat_memb) = True Then
+						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_two_prosp_monthly_gross_wage(each_stat_memb)
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_two_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_two_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_jobs_three_exists(each_stat_memb) = True Then
+						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_three_prosp_monthly_gross_wage(each_stat_memb)
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_three_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_three_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_jobs_four_exists(each_stat_memb) = True Then
+						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_four_prosp_monthly_gross_wage(each_stat_memb)
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_four_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_four_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_jobs_five_exists(each_stat_memb) = True Then
+						the_gross_amount = STAT_INFORMATION(month_count).stat_jobs_five_prosp_monthly_gross_wage(each_stat_memb)
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_jobs_five_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_jobs_five_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+
+
+					If STAT_INFORMATION(month_count).stat_busi_one_exists(each_stat_memb) = True Then
+						the_gross_amount = STAT_INFORMATION(month_count).stat_busi_one_cash_prosp_net_inc(each_stat_memb)
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_busi_one_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_busi_one_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_busi_two_exists(each_stat_memb) = True Then
+						the_gross_amount = STAT_INFORMATION(month_count).stat_busi_two_cash_prosp_net_inc(each_stat_memb)
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_busi_two_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_busi_two_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+					If STAT_INFORMATION(month_count).stat_busi_three_exists(each_stat_memb) = True Then
+						the_gross_amount = STAT_INFORMATION(month_count).stat_busi_three_cash_prosp_net_inc(each_stat_memb)
+						the_counted_amount = ""
+						Call determine_mfip_counted_amount(the_gross_amount, the_counted_amount)
+						STAT_INFORMATION(month_count).stat_busi_three_mfip_gross_amt(each_stat_memb) = the_gross_amount
+						STAT_INFORMATION(month_count).stat_busi_three_mfip_counted_amt(each_stat_memb) = the_counted_amount
+					End If
+
+					If STAT_INFORMATION(month_count).stat_unea_one_exists(each_stat_memb) = True Then
+						STAT_INFORMATION(month_count).stat_unea_one_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_one_prosp_monthly_gross_income(each_stat_memb)
+					End If
+					If STAT_INFORMATION(month_count).stat_unea_two_exists(each_stat_memb) = True Then
+						STAT_INFORMATION(month_count).stat_unea_two_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_two_prosp_monthly_gross_income(each_stat_memb)
+					End If
+					If STAT_INFORMATION(month_count).stat_unea_three_exists(each_stat_memb) = True Then
+						STAT_INFORMATION(month_count).stat_unea_three_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_three_prosp_monthly_gross_income(each_stat_memb)
+					End If
+					If STAT_INFORMATION(month_count).stat_unea_four_exists(each_stat_memb) = True Then
+						STAT_INFORMATION(month_count).stat_unea_four_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_four_prosp_monthly_gross_income(each_stat_memb)
+					End If
+					If STAT_INFORMATION(month_count).stat_unea_five_exists(each_stat_memb) = True Then
+						STAT_INFORMATION(month_count).stat_unea_five_mfip_gross_amt(each_stat_memb) = STAT_INFORMATION(month_count).stat_unea_five_prosp_monthly_gross_income(each_stat_memb)
+					End If
+				Next
+			Next
 		End If
 		dwp_elig_months_count = dwp_elig_months_count + 1
 	End If
@@ -22826,6 +23134,9 @@ const ref_numb_for_hc_app			= 32
 const major_prog_for_hc_app			= 33
 const approval_confirmed			= 34
 
+Dim DWP_UNIQUE_APPROVALS()
+ReDim DWP_UNIQUE_APPROVALS(approval_confirmed, 0)
+
 Dim MFIP_UNIQUE_APPROVALS()
 ReDim MFIP_UNIQUE_APPROVALS(approval_confirmed, 0)
 
@@ -23053,6 +23364,330 @@ End If
 
 Call back_to_SELF
 
+If enter_CNOTE_for_DWP = True Then
+	last_elig_result = ""
+	last_caregiver_count = ""
+	last_child_count = ""
+	last_total_dwp_need = ""
+	last_earned_income = ""
+	last_unearned_income = ""
+	last_deemed_income = ""
+	last_cses_exclusion = ""
+	last_dwp_countable_income = ""
+	last_unmet_need = ""
+	last_shelter_costs = ""
+	last_personal_needs = ""
+	last_amount_already_issued = ""
+	last_grant_shelter_benefit = ""
+	last_grant_personal_needs = ""
+	last_net_grant_amount = ""
+	last_duplicate_assistance_test = ""
+	last_eligible_child_test = ""
+	last_coop_test = ""
+	last_verif_test = ""
+
+
+	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
+	unique_app_count = 0
+	For approval = 0 to UBound(DWP_ELIG_APPROVALS)
+		If DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year = first_DWP_approval Then start_capturing_approvals = True
+		If start_capturing_approvals = True Then
+			If unique_app_count = 0 Then
+				ReDim preserve DWP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
+
+				DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
+				DWP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
+				DWP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
+				DWP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+				DWP_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
+				DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+
+				last_elig_result = DWP_ELIG_APPROVALS(approval).dwp_case_eligibility_result
+				last_caregiver_count = DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_caregivers
+				last_child_count = DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_children
+				last_total_dwp_need = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_DWP_need
+				last_earned_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_earned_income
+				last_unearned_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unearned_income
+				last_deemed_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_deemed_income
+				last_cses_exclusion = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_child_support_exclusion
+				last_dwp_countable_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_DWP_countable_income
+				last_unmet_need = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unmet_need
+				last_shelter_costs = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_shelter_costs
+				last_personal_needs = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_personal_needs
+				last_amount_already_issued = DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued
+				last_grant_shelter_benefit = DWP_ELIG_APPROVALS(approval).dwp_elig_shelter_benefit_grant
+				last_grant_personal_needs = DWP_ELIG_APPROVALS(approval).dwp_elig_personal_needs_grant
+				last_net_grant_amount = DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount
+				last_duplicate_assistance_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_dupl_assistance
+				last_eligible_child_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child
+				last_coop_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop
+				last_verif_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif
+
+				unique_app_count = unique_app_count + 1
+			Else
+				match_last_benefit_amounts = True
+
+				If last_elig_result <> DWP_ELIG_APPROVALS(approval).dwp_case_eligibility_result Then match_last_benefit_amounts = False
+				If last_caregiver_count <> DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_caregivers Then match_last_benefit_amounts = False
+				If last_child_count <> DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_children Then match_last_benefit_amounts = False
+				If last_total_dwp_need <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_DWP_need Then match_last_benefit_amounts = False
+				If last_earned_income <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_earned_income Then match_last_benefit_amounts = False
+				If last_unearned_income <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unearned_income Then match_last_benefit_amounts = False
+				If last_deemed_income <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_deemed_income Then match_last_benefit_amounts = False
+				If last_cses_exclusion <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_child_support_exclusion Then match_last_benefit_amounts = False
+				If last_dwp_countable_income <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_DWP_countable_income Then match_last_benefit_amounts = False
+				If last_unmet_need <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unmet_need Then match_last_benefit_amounts = False
+				If last_shelter_costs <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_shelter_costs Then match_last_benefit_amounts = False
+				If last_personal_needs <> DWP_ELIG_APPROVALS(approval).dwp_elig_budg_personal_needs Then match_last_benefit_amounts = False
+				If last_amount_already_issued <> DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued Then match_last_benefit_amounts = False
+				If last_grant_shelter_benefit <> DWP_ELIG_APPROVALS(approval).dwp_elig_shelter_benefit_grant Then match_last_benefit_amounts = False
+				If last_grant_personal_needs <> DWP_ELIG_APPROVALS(approval).dwp_elig_personal_needs_grant Then match_last_benefit_amounts = False
+				If last_net_grant_amount <> DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount Then match_last_benefit_amounts = False
+				If last_duplicate_assistance_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_dupl_assistance Then match_last_benefit_amounts = False
+				If last_eligible_child_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child Then match_last_benefit_amounts = False
+				If last_coop_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop Then match_last_benefit_amounts = False
+				If last_verif_test <> DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif Then match_last_benefit_amounts = False
+
+				If match_last_benefit_amounts = True Then
+					DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) = DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count-1) & "~" & DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
+					DWP_UNIQUE_APPROVALS(last_mo_const, unique_app_count-1) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
+				End If
+				If match_last_benefit_amounts = False Then
+					ReDim preserve DWP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count)
+
+					DWP_UNIQUE_APPROVALS(months_in_approval, unique_app_count) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
+					DWP_UNIQUE_APPROVALS(first_mo_const, unique_app_count) = DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year
+					DWP_UNIQUE_APPROVALS(btn_one, unique_app_count) = 550 + unique_app_count
+					DWP_UNIQUE_APPROVALS(btn_ei, unique_app_count) = 1560 + unique_app_count
+					DWP_UNIQUE_APPROVALS(btn_uei, unique_app_count) = 1570 + unique_app_count
+					DWP_UNIQUE_APPROVALS(btn_deem, unique_app_count) = 1580 + unique_app_count
+					DWP_UNIQUE_APPROVALS(approval_confirmed, unique_app_count) = False
+					DWP_UNIQUE_APPROVALS(approval_incorrect, unique_app_count) = False
+					DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app_count) = True
+
+					last_elig_result = DWP_ELIG_APPROVALS(approval).dwp_case_eligibility_result
+					last_caregiver_count = DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_caregivers
+					last_child_count = DWP_ELIG_APPROVALS(approval).dwp_case_asst_unit_children
+					last_total_dwp_need = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_DWP_need
+					last_earned_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_earned_income
+					last_unearned_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unearned_income
+					last_deemed_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_deemed_income
+					last_cses_exclusion = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_child_support_exclusion
+					last_dwp_countable_income = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_DWP_countable_income
+					last_unmet_need = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_unmet_need
+					last_shelter_costs = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_total_shelter_costs
+					last_personal_needs = DWP_ELIG_APPROVALS(approval).dwp_elig_budg_personal_needs
+					last_amount_already_issued = DWP_ELIG_APPROVALS(approval).dwp_elig_amount_already_issued
+					last_grant_shelter_benefit = DWP_ELIG_APPROVALS(approval).dwp_elig_shelter_benefit_grant
+					last_grant_personal_needs = DWP_ELIG_APPROVALS(approval).dwp_elig_personal_needs_grant
+					last_net_grant_amount = DWP_ELIG_APPROVALS(approval).dwp_case_summary_net_grant_amount
+					last_duplicate_assistance_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_dupl_assistance
+					last_eligible_child_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_eligible_child
+					last_coop_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_fail_coop
+					last_verif_test = DWP_ELIG_APPROVALS(approval).dwp_elig_case_test_verif
+
+					unique_app_count = unique_app_count + 1
+				End If
+			End If
+		End If
+	Next
+
+	If UBound(DWP_UNIQUE_APPROVALS, 2) <> 0 Then
+		Dialog1 = ""
+		BeginDialog Dialog1, 0, 0, 241, 215, UBound(DWP_UNIQUE_APPROVALS, 2)+1 & " DWP Approval Packages to be Reviewed"
+		  GroupBox 5, 10, 145, 40, "REVIEW ALL APPROVAL PACKAGES"
+		  Text 15, 25, 130, 20, "Each approval package will need to be revieswed and confirmed seperately."
+		  Text 10, 55, 95, 10, "For the case: " & MAXIS_case_number
+		  Text 10, 70, 150, 10, "The script found approvals for " & DWP_UNIQUE_APPROVALS(first_mo_const, 0) & " - " & CM_plus_1_mo & "/" & CM_plus_1_yr
+		  Text 10, 85, 150, 20, "The script has found Eligibility Results that were created and approved today for MFIP."
+		  Text 10, 110, 145, 35, "The details of eligiblity are not the same for every month in the approvals. The script has grouped the months into approval packages based on the eligibilty details. "
+
+		  Text 5, 150, 230, 45, "The next dialog will display the details of the approval, you can switch between the approval packages in the buttons on the right. The layout may look similar but review the information, it will be different between each package. Confirm the approvals in the Drop List Selection at the bottom of the dialog."
+		  Text 160, 10, 80, 10, UBound(DWP_UNIQUE_APPROVALS, 2)+1 & " Approval Packages"
+		  y_pos = 25
+		  For approval = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
+			If DWP_UNIQUE_APPROVALS(last_mo_const, approval) <> "" Then Text 185, y_pos, 50, 10, DWP_UNIQUE_APPROVALS(first_mo_const, approval) & " - " & DWP_UNIQUE_APPROVALS(last_mo_const, approval)
+			If DWP_UNIQUE_APPROVALS(last_mo_const, approval) = "" Then Text 185, y_pos, 50, 10, DWP_UNIQUE_APPROVALS(first_mo_const, approval)
+			y_pos = y_pos +10
+		  Next
+		  ButtonGroup ButtonPressed
+			OkButton 135, 195, 100, 15
+		EndDialog
+
+		dialog Dialog1
+	End If
+
+	all_mfip_approvals_confirmed = False
+	approval_selected = 0
+
+	Do
+		Do
+
+			first_month = left(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
+			elig_ind = ""
+			month_ind = ""
+			For approval = 0 to UBound(DWP_ELIG_APPROVALS)
+				If DWP_ELIG_APPROVALS(approval).elig_footer_month & "/" & DWP_ELIG_APPROVALS(approval).elig_footer_year = first_month Then elig_ind = approval
+			Next
+			For each_month = 0 to UBound(STAT_INFORMATION)
+				If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
+			Next
+
+			DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = False
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
+
+
+			show_pact = False
+			If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_one_prog = "DW" and STAT_INFORMATION(month_ind).stat_pact_cash_one_code = "3" Then show_pact = True
+			If STAT_INFORMATION(month_ind).stat_pact_exists = True and STAT_INFORMATION(month_ind).stat_pact_cash_two_prog = "DW" and STAT_INFORMATION(month_ind).stat_pact_cash_two_code = "3" Then show_pact = True
+			DWP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = False
+			If show_pact = True Then DWP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True
+			DWP_UNIQUE_APPROVALS(pact_wcom_sent, approval_selected) = False
+
+			DWP_UNIQUE_APPROVALS(wcom_needed, approval_selected) = False
+			If DWP_UNIQUE_APPROVALS(pact_wcom_needed, approval_selected) = True Then DWP_UNIQUE_APPROVALS(wcom_needed, approval_selected) = True
+
+			ei_count = 0
+			unea_count = 0
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			  If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
+			  If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
+			  If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
+			  If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
+			  If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
+			  If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
+			  If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
+			  If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then ei_count = ei_count + 1
+
+			  If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
+				  unea_count = unea_count + 1
+				  If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+			  End If
+			  If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
+				  unea_count = unea_count + 1
+				  If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+			  End If
+			  If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
+				  unea_count = unea_count + 1
+				  If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+			  End If
+			  If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
+				  unea_count = unea_count + 1
+				  If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+			  End If
+			  If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
+				  unea_count = unea_count + 1
+				  If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then unea_count = unea_count + 1
+			  End If
+			Next
+			ei_len = ei_count * 20
+			unea_len = unea_count * 10
+			income_box_len = 30 + unea_len
+			If ei_len > unea_len Then income_box_len = 30 + ei_len
+
+			call define_dwp_elig_dialog
+
+			dialog Dialog1
+			cancel_confirmation
+
+			err_msg = ""
+			move_from_dialog = False
+
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" and DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
+				If Isdate(DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
+					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
+				Else
+					If DateDiff("d", DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+						err_msg = err_msg & vbNewLine & "* The verification request date: " &  DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
+						DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval"
+					End If
+				End If
+			End If
+
+			If show_pact = True Then
+				If trim(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" Then
+					err_msg = err_msg & vbNewLine & "* Since PACT was used to approve this DWP benefit as ineligible, list the reasons for ineligibility."
+				ElseIf len(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 30 Then
+					err_msg = err_msg & vbNewLine & "* DWP ineligibility due to PACT requires sufficient explaination, expand upon the information entered in the Reason for Ineligibility field."
+				End If
+				If trim(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) = "" or len(DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)) < 15 Then err_msg = err_msg & vbNewLine & " *** This information will be entered in a WCOM and should be writen without appreviations and in full detail."
+			End If
+
+			If err_msg <> "" and ButtonPressed < 1000 Then
+				MsgBox "*** INFORMATION IN SCRIPT DIALOG INCOMPLETE ***" & vbNewLine & "Please resolve to continue:" & vbNewLine & err_msg
+				If ButtonPressed = app_confirmed_btn Then ButtonPressed = -1
+			End If
+
+			If ButtonPressed = nav_stat_elig_btn Then
+				ft_mo = left(first_month, 2)
+				ft_yr = right(first_month, 2)
+				Call back_to_SELF
+				call navigate_to_MAXIS_screen("ELIG", "DWP ")
+				EMWriteScreen ft_mo, 20, 56
+				EMWriteScreen ft_yr, 20, 59
+				Call find_last_approved_ELIG_version(20, 79, vrs_numb, vrs_dt, vrs_rslt, approval_found)
+				' transmit
+			End If
+
+			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+
+			If err_msg = "" Then
+
+				all_dwp_approvals_confirmed = True
+				dwp_approval_is_incorrect = False
+
+				If DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
+					DWP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = True
+					DWP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = False
+				ElseIf DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "No - I need to complete a new Approval" Then
+					DWP_UNIQUE_APPROVALS(approval_confirmed, approval_selected) = False
+					DWP_UNIQUE_APPROVALS(approval_incorrect, approval_selected) = True
+				End If
+
+				not_confirmed_pckg_list = ""
+				first_unconfirmed_month = ""
+				for each_app = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
+					If ButtonPressed = DWP_UNIQUE_APPROVALS(btn_one, each_app) Then approval_selected = each_app
+					If DWP_UNIQUE_APPROVALS(approval_confirmed, each_app) = False Then
+						all_dwp_approvals_confirmed = False
+						not_confirmed_pckg_list = not_confirmed_pckg_list & replace(DWP_UNIQUE_APPROVALS(months_in_approval, each_app), "~", " - ") & vbCr
+						If first_unconfirmed_month = "" Then first_unconfirmed_month = each_app
+					End If
+					If DWP_UNIQUE_APPROVALS(approval_incorrect, each_app) = True Then dwp_approval_is_incorrect = True
+				Next
+
+				If ButtonPressed = -1 Then ButtonPressed = next_approval_btn
+
+				If ButtonPressed = next_approval_btn Then
+					approval_selected = approval_selected + 1
+					If approval_selected > UBound(DWP_UNIQUE_APPROVALS, 2) Then
+						If all_dwp_approvals_confirmed = True Then
+							ButtonPressed = app_confirmed_btn
+						Else
+							approval_selected = UBound(DWP_UNIQUE_APPROVALS, 2)
+						End If
+					End If
+				End If
+			End If
+			If ButtonPressed = app_confirmed_btn and all_dwp_approvals_confirmed = True Then move_from_dialog = True
+			If dwp_approval_is_incorrect = True and  ButtonPressed = app_confirmed_btn Then move_from_dialog = True
+			If ButtonPressed = app_confirmed_btn and all_dwp_approvals_confirmed = False and move_from_dialog = False Then
+				MsgBox "*** All Approval Packages need to be Confirmed ****" & vbCr & vbCr & "Please review all the approval packages and indicate if they are correct before the scrript can continue." & vbCr & vbCr & "Review the following approval package(s)" & vbCr & not_confirmed_pckg_list
+				approval_selected = first_unconfirmed_month
+			End If
+
+		Loop until move_from_dialog = True
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = False
+	' Loop until (ButtonPressed = app_confirmed_btn and all_dwp_approvals_confirmed = True) or ButtonPressed = app_incorrect_btn
+
+	If dwp_approval_is_incorrect = True Then
+		enter_CNOTE_for_DWP = False
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MFIP Approvals from " & first_MFIP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+	End if
+End If
+
 'Determining MFIP unique approvals
 If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval from today was found
 	last_caregiver_count = ""													'we will use these variables to compare each month of approval to see if there are changes and determine if a new package should be started.'
@@ -23065,7 +23700,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 	last_sanction_percent = ""
 	last_sanction_amount = ""
 	last_housing_grant = ""
-	last_amount_apready_issued = ""
+	last_amount_already_issued = ""
 	last_food_portion_deduct = ""
 
 	start_capturing_approvals = False											'There may be months in which we have an array instance but we haven't hit the first month of approval for this program - this keeps 'empty' array instances from being noted
@@ -23097,7 +23732,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				last_sanction_percent = MFIP_ELIG_APPROVALS(approval).mfip_case_sanction_percent
 				last_sanction_amount = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_deduction_sanction_vendor
 				last_housing_grant = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant
-				last_amount_apready_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
+				last_amount_already_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
 				last_food_portion_deduct = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction
 
 				unique_app_count = unique_app_count + 1
@@ -23115,7 +23750,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 				If last_sanction_percent <> MFIP_ELIG_APPROVALS(approval).mfip_case_sanction_percent Then match_last_benefit_amounts = False
 				If last_sanction_amount <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_deduction_sanction_vendor Then match_last_benefit_amounts = False
 				If last_housing_grant <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant Then match_last_benefit_amounts = False
-				If last_amount_apready_issued <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued Then match_last_benefit_amounts = False
+				If last_amount_already_issued <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued Then match_last_benefit_amounts = False
 				If last_food_portion_deduct <> MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction Then match_last_benefit_amounts = False
 
 				If match_last_benefit_amounts = True Then
@@ -23143,7 +23778,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 					last_sanction_percent = MFIP_ELIG_APPROVALS(approval).mfip_case_sanction_percent
 					last_sanction_amount = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_deduction_sanction_vendor
 					last_housing_grant = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_entitlement_housing_grant
-					last_amount_apready_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
+					last_amount_already_issued = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_amt_already_issued
 					last_food_portion_deduct = MFIP_ELIG_APPROVALS(approval).mfip_case_budg_food_portion_deduction
 
 					unique_app_count = unique_app_count + 1
@@ -26307,7 +26942,7 @@ If denials_found_on_pnd2 = True Then
 			progs_denied_for_wthdrw = ""
 
 			appt_notc_date = ""
-			nomi_date  ""
+			nomi_date = ""
 
 			If pnd2_2nd_cash_status = "I" Then
 				If pnd2_2nd_cash_prog_one <> "" Then progs_denied_for_intv = progs_denied_for_intv & pnd2_2nd_cash_prog_one & ", "
