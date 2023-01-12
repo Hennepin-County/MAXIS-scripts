@@ -138,6 +138,7 @@ hire_msg = False
 EMReadscreen dail_check, 4, 2, 48
 If dail_check <> "DAIL" then script_end_procedure("You are not in your dail. This script will stop.")'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
 
+EMReadScreen DAIL_PW, 3, 21, 10
 'Finding the top of this case's list of dails.
 EMGetCursor dail_row, dail_col
 EMReadScreen find_msg_details, 76, dail_row, 5		'this is the WHOLE line - with type and footer month - we will use this to get back to it if needed
@@ -301,7 +302,8 @@ EMReadScreen HIRE_check, 11, 6, 37
 EmReadscreen fed_match, 4, 6, 20        'SDNH can use the same string to review, NDNH cannot (of course)
 If HIRE_check = "JOB DETAILS" or left(fed_match, 4) = "NDNH" then
 	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to update a panel and CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
-    call run_from_GitHub(script_repository & "dail/new-hire-ndnh.vbs")
+	If DAIL_PW = "CCL" and (user_ID_for_validation = "WFC041" OR user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001") Then all run_from_GitHub(script_repository & "dail/closed-case-new-hire.vbs")
+	call run_from_GitHub(script_repository & "dail/new-hire-ndnh.vbs")
 END IF
 'federal prisoner register support messages
 EMReadScreen ISPI_check, 4, 6, 6
