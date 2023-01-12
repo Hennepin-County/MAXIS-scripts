@@ -5749,7 +5749,7 @@ If vars_filled = False Then
     If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
     	' call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
         Call navigate_to_MAXIS_screen("STAT", "REVW")
-        EMReadScreen CAF_datestamp, 8, 13, 37                       'reading the prog date
+        EMReadScreen CAF_datestamp, 8, 13, 37                       'reading theform date on REVW
         CAF_datestamp = replace(CAF_datestamp, " ", "/")
         If isdate(CAF_datestamp) = True then
           CAF_datestamp = cdate(CAF_datestamp) & ""
@@ -5757,7 +5757,7 @@ If vars_filled = False Then
           CAF_datestamp = ""
         End if
 
-        EMReadScreen interview_date, 8, 15, 37                       'reading the prog date
+        EMReadScreen interview_date, 8, 15, 37                       'reading the interview date on REVW
         interview_date = replace(interview_date, " ", "/")
         If isdate(interview_date) = True then
           interview_date = cdate(interview_date) & ""
@@ -5786,13 +5786,11 @@ If vars_filled = False Then
     	' call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
         Call navigate_to_MAXIS_screen("STAT", "PROG")
 
+        'here we are going to read for the CAF date by reading each line of PROG and looking for the most recent date.
         row = 6
         Do
             EMReadScreen appl_prog_date, 8, row, 33
             If appl_prog_date <> "__ __ __" then appl_prog_date_array = appl_prog_date_array & replace(appl_prog_date, " ", "/") & " "
-
-            EMReadScreen appl_intv_date, 8, row, 55
-            If appl_intv_date <> "__ __ __" AND appl_intv_date <> "        " then appl_intv_date_array = appl_intv_date_array & replace(appl_intv_date, " ", "/") & " "
 
             row = row + 1
         Loop until row = 13
@@ -5809,22 +5807,69 @@ If vars_filled = False Then
             CAF_datestamp = ""
         End if
 
-        If trim(appl_intv_date_array) <> "" Then
-            appl_intv_date_array = split(appl_intv_date_array)
-            If IsArray(appl_intv_date_array) = TRUE AND IsDate(appl_intv_date_array(0)) = TRUE Then
-                interview_date = CDate(appl_intv_date_array(0))
-                for i = 0 to ubound(appl_intv_date_array) - 1
-                    if CDate(appl_intv_date_array(i)) > interview_date then
-                        interview_date = CDate(appl_intv_date_array(i))
-                    End if
-                next
-                If isdate(interview_date) = True then
-                    interview_date = cdate(interview_date) & ""
-                Else
-                    interview_date = ""
-                End if
+        'Now we are checking for each program that was checked on the first dialog to find the interview date
+        'If any are missing that have the CAF date listed the script will end for not finding the interview date.
+        cash_interview_missing = False          'defaulting to the interview date is NOT missing
+        emer_interview_missing = False
+        snap_interview_missing = False
+        'checking Cash lines - which included GRH
+        If cash_checkbox = checked Then
+            EMReadScreen prog_cash_1_form_date, 8, 6, 33
+            If prog_cash_1_form_date = CAF_datestamp Then
+                EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
+                cash_interview_missing = True
+                If prog_cash_1_intvw_date <> "__ __ __" AND prog_cash_1_intvw_date <> "        " then
+                    interview_date = prog_cash_1_intvw_date
+                    cash_interview_missing = False
+                End If
+            End If
+            EMReadScreen prog_cash_2_form_date, 8, 7, 33
+            If prog_cash_2_form_date = CAF_datestamp Then
+                EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
+                cash_interview_missing = True
+                If prog_cash_2_intvw_date <> "__ __ __" AND prog_cash_2_intvw_date <> "        " then
+                    interview_date = prog_cash_2_intvw_date
+                    cash_interview_missing = False
+                End If
+            End If
+            EMReadScreen prog_grh_form_date, 8, 9, 33
+            If prog_grh_form_date = CAF_datestamp Then
+                EMReadScreen prog_grh_intvw_date, 8, 9, 55
+                cash_interview_missing = True
+                If prog_grh_intvw_date <> "__ __ __" AND prog_grh_intvw_date <> "        " then
+                    interview_date = prog_grh_intvw_date
+                    cash_interview_missing = False
+                End If
             End If
         End If
+        'checking EMER lines
+        If EMER_checkbox = checked Then
+            EMReadScreen prog_emer_form_date, 8, 8, 33
+            If prog_emer_form_date = CAF_datestamp Then
+                EMReadScreen prog_emer_intvw_date, 8, 8, 55
+                emer_interview_missing = True
+                If prog_emer_intvw_date <> "__ __ __" AND prog_emer_intvw_date <> "        " then
+                    interview_date = prog_emer_intvw_date
+                    emer_interview_missing = False
+                End If
+            End If
+        End If
+        'Checking SNAP lines
+        If SNAP_checkbox = checked Then
+            EMReadScreen prog_snap_form_date, 8, 10, 33
+            If prog_snap_form_date = CAF_datestamp Then
+                EMReadScreen prog_snap_intvw_date, 8, 10, 55
+                snap_interview_missing = True
+                If prog_snap_intvw_date <> "__ __ __" AND prog_snap_intvw_date <> "        " then
+                    interview_date = prog_snap_intvw_date
+                    snap_interview_missing = False
+                End If
+            End If
+        End If
+        'If any interview dates are missing we blank out the interview date variable
+        If cash_interview_missing = True Then interview_date = ""
+        If emer_interview_missing = True Then interview_date = ""
+        If snap_interview_missing = True Then interview_date = ""
     End if
     If IsDate(CAF_datestamp) = False Then
         Dialog1 = ""
