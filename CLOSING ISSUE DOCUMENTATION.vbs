@@ -1,4 +1,4 @@
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -6,6 +6,7 @@
 '--Tab orders reviewed & confirmed----------------------------------------------
 '--Mandatory fields all present & Reviewed--------------------------------------
 '--All variables in dialog match mandatory fields-------------------------------
+'Review dialog names for content and content fit in dialog----------------------
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------
@@ -20,7 +21,7 @@
 '--Out-of-County handling reviewed----------------------------------------------
 '--script_end_procedures (w/ or w/o error messaging)----------------------------
 '--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------
