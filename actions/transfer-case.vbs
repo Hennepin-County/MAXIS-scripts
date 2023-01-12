@@ -153,7 +153,7 @@ Else
 
     STATS_manualtime = 120                      'manual run time in seconds
     'Script low down for innercounty transfer
-    script_run_lowdown = script_run_lowdown & "transfer_out_of_county: " & transfer_out_of_county & vbCr & "worker_number: " & worker_number & vbCr & "transfer_to_worker: " & transfer_to_worker & vbCr & " Message: " & vbCr & error_message
+    script_run_lowdown = script_run_lowdown & "transfer_out_of_county: " & transfer_out_of_county & vbCr & "worker_number: " & worker_number & vbCr & "transfer_to_worker: " & transfer_to_worker & vbCr & " Error Message at transfer: " & vbCr & error_message
     If servicing_worker <> transfer_to_worker THEN script_end_procedure_with_error_report("Transfer of this case to " & transfer_to_worker & " has failed.")
     script_end_procedure_with_error_report("Success! Case transfer has been completed to: " & transfer_to_worker & ".")
 End if
@@ -233,8 +233,8 @@ Do
         Text 15, 175, 100, 10, "Cash Programs  - Current CFR:"
         EditBox 115, 170, 20, 15, cash_cfr
         Text 160, 175, 75, 10, "Change Date (MM YY):"
-        EditBox 235, 170, 20, 15, cfr_month
-        EditBox 260, 170, 20, 15, cfr_year
+        EditBox 235, 170, 20, 15, cash_cfr_month
+        EditBox 260, 170, 20, 15, cash_cfr_year
         Text 25, 195, 85, 10, "Health Care - Current CFR:"
         EditBox 115, 190, 20, 15, hc_cfr
         Text 160, 195, 75, 10, "Change Date (MM YY):"
@@ -263,8 +263,8 @@ Do
         If excluded_time_dropdown = "No" then
             IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE) THEN
                 If isnumeric(cash_cfr) = False or len(cash_cfr) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit county code Current Financial Responsibility County (CFR) code for cash."
-                If isnumeric(cfr_month) = False or len(cfr_month) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for cash."
-                If isnumeric(cfr_year) = False or len(cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for cash."
+                If isnumeric(cash_cfr_month) = False or len(cash_cfr_month) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for cash."
+                If isnumeric(cash_cfr_year) = False or len(cash_cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for cash."
             End if
             If ma_case = True THEN
                 If isnumeric(hc_cfr) = False or len(hc_cfr) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit county code Current Financial Responsibility County (CFR) code for Health Care."
@@ -282,15 +282,15 @@ Do
             CM_plus_3_yr =  right(       DatePart("yyyy", DateAdd("m", 3, date)), 2)
 
             If datepart("d", resident_move_date ) = "1" then
-                cfr_month = CM_plus_2_mo
-                cfr_year = CM_plus_2_yr
+                cash_cfr_month = CM_plus_2_mo
+                cash_cfr_year = CM_plus_2_yr
             Else
-                cfr_month = CM_plus_3_mo
-                cfr_year = CM_plus_3_yr
+                cash_cfr_month = CM_plus_3_mo
+                cash_cfr_year = CM_plus_3_yr
             End if
 
-            hc_cfr_month = cfr_month
-            hc_cfr_year = cfr_year
+            hc_cfr_month = cash_cfr_month
+            hc_cfr_year = cash_cfr_year
         End if
 
         IF ButtonPressed = useform_xfer_button or ButtonPressed = XFER_button or ButtonPressed = POLI_TEMP_button or ButtonPressed = calculate_button THEN
@@ -347,7 +347,7 @@ ELSEIF excluded_time_dropdown = "No" THEN
     END IF
     IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE or grh_case = TRUE) THEN
         CALL write_bullet_and_variable_in_case_note("CASH County of Financial Responsibility", cash_cfr) 'county_financial_responsibility'
-        CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cfr_month & "/" & cfr_year))
+        CALL write_bullet_and_variable_in_case_note("CASH CFR Change Date", (cash_cfr_month & "/" & cash_cfr_year))
     END IF
     Call write_variable_in_CASE_NOTE("--")
 END IF
@@ -397,16 +397,16 @@ IF panel_check = "XCTY" THEN
             EmReadscreen Cash_I_prog, 2, 11, 28
             If trim(Cash_I_prog) <> "" then
                 EMWriteScreen cash_cfr, 11, 39
-                EMWriteScreen cfr_month, 11, 53
-                EMWriteScreen cfr_year, 11, 59
+                EMWriteScreen cash_cfr_month, 11, 53
+                EMWriteScreen cash_cfr_year, 11, 59
             End if
             EmReadscreen Cash_I_prog, 2, 12, 28
             If trim(Cash_II_prog) <> "" then
                 EMWriteScreen cash_cfr, 12, 39
-                EMWriteScreen cfr_month, 12, 53
-                EMWriteScreen cfr_year, 12, 59
+                EMWriteScreen cash_cfr_month, 12, 53
+                EMWriteScreen cash_cfr_year, 12, 59
             End if
-	        EMWriteScreen cfr_year, 11, 59
+	        EMWriteScreen cash_cfr_year, 11, 59
             EMWriteScreen cash_cfr, 12, 39 'cash II because I blank it out there is no need to read'
         END IF
 
@@ -427,10 +427,13 @@ End if
 
 STATS_manualtime = 300              'manual run time in seconds
 'Script low down for intercounty transfer
-script_run_lowdown = script_run_lowdown & "transfer_out_of_county: " & transfer_out_of_county & vbCr & "excluded_time_dropdown: " & excluded_time_dropdown & vbCr & "low_down_Excluded_Time_Begin_Date: " & low_down_Excluded_Time_Begin_Date & _
-vbCr & "Cash_I: " & Cash_I & vbCr & "Cash_II: " & Cash_II & vbCr & "GRH: " & GRH & vbCr &  "Health_Care: " & Health_Care & vbCr &  "MA_Excluded_Time: " & MA_Excluded_Time & vbCr & "IVE_Foster_Care: " & IVE_Foster_Care & vbCr & "cash_cfr: " & _
-cash_cfr & vbCr & "cfr_month: " & cfr_month & vbCr & "cash_cfr: " & cash_cfr & vbCr & "cfr_year: " & cfr_year & vbCr & "cash_cfr: " & cash_cfr & vbCr & "hc_cfr: " & hc_cfr & vbCr & "hc_cfr_month: " & hc_cfr_month & vbCr & "hc_cfr_year: " & _
-hc_cfr_year & vbCr & "worker_number: " & worker_number & vbCr & "transfer_to_worker: " & transfer_to_worker & vbCr & " Message: " & vbCr & error_message
+
+script_run_lowdown = script_run_lowdown & "transfer_out_of_county: " & transfer_out_of_county & vbCr & "excluded_time_dropdown: " & excluded_time_dropdown & vbCr & "Resident_move_date: " & Resident_move_date & vbcr & _
+"Excluded_time_begin_date: " & Excluded_time_begin_date & vbcr & "mets_status_dropdown: " & mets_status_dropdown & vbcr & "mets_case_number:" & mets_case_number & vbcr & "transfer_reason: " & transfer_reason & Vbcr & _
+"case_pending: " & case_pending & vbcr & "ga_case: " & ga_case & vbCr & "msa_case: " & msa_case & vbCr & "dwp_case: " & dwp_case & vbCr & "grh_case: " & grh_case & vbCr & "ma_case: " & ma_case & vbCr & "msp_case: " & msp_case & vbCr & _
+"outstanding_work: " & outstanding_work & vbCr & "requested_verifs: " & requested_verifs & vbCr & "expected_changes: " & expected_changes & vbCr & "other_notes: " & other_notes & vbCr & _
+"cash cfr county code: " & cash_cfr & vbCr & "cash cfr date: " & cash_cfr_month & "/" & cash_cfr_year & vbcr & "hc_cfr county code: " & hc_cfr & vbcr & "HC cfr date: " & hc_cfr_month & "/" & hc_cfr_year & vbCr & _
+"worker_number: " & worker_number & vbCr & "transfer_to_worker: " & transfer_to_worker & vbCr & " Error Message at transfer: " & vbCr & error_message
 
 If servicing_worker <> transfer_to_worker THEN
     script_end_procedure_with_error_report("Transfer of this case to " & transfer_to_worker & " has failed.")
