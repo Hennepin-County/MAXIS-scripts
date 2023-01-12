@@ -441,7 +441,7 @@ Else
     script_end_procedure_with_error_report("Case transfer has been completed to: " & transfer_to_worker & ".")
 End if
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -449,11 +449,12 @@ End if
 '--Tab orders reviewed & confirmed----------------------------------------------10/26/2022
 '--Mandatory fields all present & Reviewed--------------------------------------10/26/2022
 '--All variables in dialog match mandatory fields-------------------------------10/26/2022
+'Review dialog names for content and content fit in dialog----------------------01/12/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------10/26/2022
 '--CASE:NOTE Header doesn't look funky------------------------------------------10/26/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/26/2022------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/26/2022
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/26/2022
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
@@ -463,7 +464,7 @@ End if
 '--Out-of-County handling reviewed----------------------------------------------10/26/2022------------------N/A
 '--script_end_procedures (w/ or w/o error messaging)----------------------------10/26/2022
 '--BULK - review output of statistics and run time/count (if applicable)--------10/26/2022------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---10/26/2022
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------10/26/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------10/26/2022
@@ -471,7 +472,7 @@ End if
 '--Denomination reviewed -------------------------------------------------------10/26/2022
 '--Script name reviewed---------------------------------------------------------10/26/2022
 '--BULK - remove 1 incrementor at end of script reviewed------------------------10/26/2022------------------N/A
-
+'
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------10/26/2022
 '--comment Code-----------------------------------------------------------------10/26/2022
