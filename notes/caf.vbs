@@ -3902,7 +3902,8 @@ function read_UNEA_panel()
                 IF snap_pay_frequency = "5" THEN snap_pay_frequency = "non-monthly"
 
                 variable_name_for_UNEA = variable_name_for_UNEA & "UNEA from " & trim(UNEA_type) & ", " & UNEA_month  & " amts:; "
-                UNEA_INCOME_ARRAY(UNEA_SNAP_amt, unea_array_counter) = SNAP_UNEA_amt
+                determined_unea_income = determined_unea_income + SNAP_UNEA_amt
+
                 If SNAP_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- PIC: $" & SNAP_UNEA_amt & "/" & snap_pay_frequency & ", calculated " & date_of_pic_calc & "; "
                 If retro_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Retrospective: $" & retro_UNEA_amt & " total; "
                 If prosp_UNEA_amt <> 0 THEN variable_name_for_UNEA = variable_name_for_UNEA & "- Prospective: $" & prosp_UNEA_amt & " total; "
@@ -5412,7 +5413,7 @@ Dim FACI, FMED, IMIG, INSA, cit_id, other_assets, case_changes, PREG, earned_inc
 Dim notes_on_abawd_two, notes_on_abawd_three, programs_applied_for, TIKL_checkbox, interview_memb_list, shel_memb_list, verification_memb_list, notes_on_busi, Used_Interpreter_checkbox
 Dim arep_id_info, CS_forms_sent_date, notes_on_ssa_income, notes_on_VA_income, notes_on_WC_income, other_uc_income_notes, notes_on_other_UNEA, hest_information, notes_on_other_deduction, expense_notes
 Dim address_confirmation_checkbox, manual_total_shelter, app_month_assets, confirm_no_account_panel_checkbox, notes_on_other_assets, MEDI, DISQ, full_determination_done
-Dim determined_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test
+Dim determined_income, determined_unea_income, determined_assets, determined_shel, determined_utilities, calculated_resources, calculated_expenses, calculated_low_income_asset_test, calculated_resources_less_than_expenses_test
 Dim is_elig_XFS, approval_date, applicant_id_on_file_yn, applicant_id_through_SOLQ, delay_explanation, snap_denial_explain, case_assesment_text, next_steps_one, next_steps_two, next_steps_three
 Dim next_steps_four, postponed_verifs_yn, list_postponed_verifs, day_30_from_application, other_snap_state, other_state_reported_benefit_end_date, other_state_benefits_openended, other_state_contact_yn
 Dim other_state_verified_benefit_end_date, mn_elig_begin_date, action_due_to_out_of_state_benefits, case_has_previously_postponed_verifs_that_prevent_exp_snap, prev_post_verif_assessment_done
@@ -8019,9 +8020,7 @@ Do
                                 If IsNumeric(ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)) = True Then determined_income = determined_income + ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)
                             Next
 
-                            For each_unea_memb = 0 to UBound(UNEA_INCOME_ARRAY, 2)
-                                If IsNumeric(UNEA_INCOME_ARRAY(UNEA_SNAP_amt, each_unea_memb)) = True Then determined_income = determined_income + UNEA_INCOME_ARRAY(UNEA_SNAP_amt, each_unea_memb)
-                            Next
+                            determined_income = determined_income + determined_unea_income
 
                             determined_assets = app_month_assets
 
