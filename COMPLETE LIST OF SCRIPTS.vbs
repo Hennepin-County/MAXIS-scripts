@@ -471,6 +471,7 @@ script_array(script_num).tags                   = array("ABAWD", "Application", 
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #09/25/2017#
+script_array(script_num).retirement_date		= #01/12/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
