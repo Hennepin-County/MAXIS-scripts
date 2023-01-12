@@ -5802,11 +5802,16 @@ If vars_filled = False Then
             End if
         next
         If isdate(CAF_datestamp) = True then
+            var_month = datepart("m", CAF_datestamp)
+            IF len(var_month) = 1 THEN var_month = "0" & var_month
+            var_day = datepart("d", CAF_datestamp)
+            IF len(var_day) = 1 THEN var_day = "0" & var_day
+            var_year = right(datepart("yyyy", CAF_datestamp), 2)
+            CAF_MAXIS_date = var_month & " " & var_day & " " & var_year
             CAF_datestamp = cdate(CAF_datestamp) & ""
         Else
             CAF_datestamp = ""
         End if
-
         'Now we are checking for each program that was checked on the first dialog to find the interview date
         'If any are missing that have the CAF date listed the script will end for not finding the interview date.
         cash_interview_missing = False          'defaulting to the interview date is NOT missing
@@ -5815,29 +5820,29 @@ If vars_filled = False Then
         'checking Cash lines - which included GRH
         If cash_checkbox = checked Then
             EMReadScreen prog_cash_1_form_date, 8, 6, 33
-            If prog_cash_1_form_date = CAF_datestamp Then
+            If prog_cash_1_form_date = CAF_MAXIS_date Then
                 EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
                 cash_interview_missing = True
                 If prog_cash_1_intvw_date <> "__ __ __" AND prog_cash_1_intvw_date <> "        " then
-                    interview_date = prog_cash_1_intvw_date
+                    interview_date = replace(prog_cash_1_intvw_date, " ", "/") & " "
                     cash_interview_missing = False
                 End If
             End If
             EMReadScreen prog_cash_2_form_date, 8, 7, 33
-            If prog_cash_2_form_date = CAF_datestamp Then
+            If prog_cash_2_form_date = CAF_MAXIS_date Then
                 EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
                 cash_interview_missing = True
                 If prog_cash_2_intvw_date <> "__ __ __" AND prog_cash_2_intvw_date <> "        " then
-                    interview_date = prog_cash_2_intvw_date
+                    interview_date = replace(prog_cash_2_intvw_date, " ", "/") & " "
                     cash_interview_missing = False
                 End If
             End If
             EMReadScreen prog_grh_form_date, 8, 9, 33
-            If prog_grh_form_date = CAF_datestamp Then
+            If prog_grh_form_date = CAF_MAXIS_date Then
                 EMReadScreen prog_grh_intvw_date, 8, 9, 55
                 cash_interview_missing = True
                 If prog_grh_intvw_date <> "__ __ __" AND prog_grh_intvw_date <> "        " then
-                    interview_date = prog_grh_intvw_date
+                    interview_date = replace(prog_grh_intvw_date, " ", "/") & " "
                     cash_interview_missing = False
                 End If
             End If
@@ -5845,11 +5850,11 @@ If vars_filled = False Then
         'checking EMER lines
         If EMER_checkbox = checked Then
             EMReadScreen prog_emer_form_date, 8, 8, 33
-            If prog_emer_form_date = CAF_datestamp Then
+            If prog_emer_form_date = CAF_MAXIS_date Then
                 EMReadScreen prog_emer_intvw_date, 8, 8, 55
                 emer_interview_missing = True
                 If prog_emer_intvw_date <> "__ __ __" AND prog_emer_intvw_date <> "        " then
-                    interview_date = prog_emer_intvw_date
+                    interview_date = replace(prog_emer_intvw_date, " ", "/") & " "
                     emer_interview_missing = False
                 End If
             End If
@@ -5857,11 +5862,11 @@ If vars_filled = False Then
         'Checking SNAP lines
         If SNAP_checkbox = checked Then
             EMReadScreen prog_snap_form_date, 8, 10, 33
-            If prog_snap_form_date = CAF_datestamp Then
+            If prog_snap_form_date = CAF_MAXIS_date Then
                 EMReadScreen prog_snap_intvw_date, 8, 10, 55
                 snap_interview_missing = True
                 If prog_snap_intvw_date <> "__ __ __" AND prog_snap_intvw_date <> "        " then
-                    interview_date = prog_snap_intvw_date
+                    interview_date = replace(prog_snap_intvw_date, " ", "/") & " "
                     snap_interview_missing = False
                 End If
             End If
