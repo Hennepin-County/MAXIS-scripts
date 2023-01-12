@@ -58,50 +58,18 @@ Function declare_elig_main_menu_dialog()
 		'Subcategory handling (creating a second list as a string which gets converted later to an array)
 		script_array(current_script).show_script = FALSE
 		If script_array(current_script).used_for_elig = True then script_array(current_script).show_script = TRUE
+
+		If IsDate(script_array(current_script).retirement_date) = TRUE Then
+			If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
+		End If
+
 		Call script_array(current_script).show_button(see_the_button)
 		If see_the_button = FALSE Then script_array(current_script).show_script = FALSE
-
-																									'If the script in the array is of the correct category (ACTIONS/NOTES/ETC)...
-		' 	For each listed_subcategory in script_array(current_script).subcategory																									'...then iterate through each listed subcategory, and...
-		' 		If listed_subcategory <> "" and InStr(subcategory_list, ucase(listed_subcategory)) = 0 then subcategory_list = subcategory_list & "|" & ucase(listed_subcategory)	'...if the listed subcategory isn't blank and isn't already in the list, then add it to our handy-dandy list.
-		' 	Next
-		' End if
-
 	Next
-
-	' subcategory_list = split(subcategory_list, "|")
-	'
-	' For i = 0 to ubound(subcategory_list)
-	' 	ReDim Preserve subcategory_array(i)
-	' 	set subcategory_array(i) = new subcat
-	' 	If subcategory_list(i) = "" then subcategory_list(i) = "MAIN"
-	' 	subcategory_array(i).subcat_name = subcategory_list(i)
-	' Next
 
     dlg_len = 60
     For current_script = 0 to ubound(script_array)
-        ' script_array(current_script).show_script = FALSE
-        ' If ucase(script_array(current_script).category) = ucase(script_category) then
-		'
-        '     '<<<<<<RIGHT HERE IT SHOULD ITERATE THROUGH SUBCATEGORIES AND BUTTONS PRESSED TO DETERMINE WHAT THE CURRENTLY DISPLAYED SUBCATEGORY SHOULD BE, THEN ONLY DISPLAY SCRIPTS THAT MATCH THAT CRITERIA
-        '     'Joins all subcategories together
-        '     subcategory_string = ucase(join(script_array(current_script).subcategory))
-		'
-        '     'Accounts for scripts without subcategories
-        '     If subcategory_string = "" then subcategory_string = "MAIN"		'<<<THIS COULD BE A PROPERTY OF THE CLASS
-		'
-		'
-        '     'If the selected subcategory is in the subcategory string, it will display those scripts
-        '     If InStr(subcategory_string, subcategory_selected) <> 0 then script_array(current_script).show_script = TRUE
-		'
-        '     If IsDate(script_array(current_script).retirement_date) = TRUE Then
-        '         If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
-        '     End If
-		' 	Call script_array(current_script).show_button(see_the_button)
-		' 	If see_the_button = FALSE Then script_array(current_script).show_script = FALSE
-
-            If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
-        ' End if
+		If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
     next
 
     dialog1 = ""
@@ -111,22 +79,6 @@ Function declare_elig_main_menu_dialog()
 	  	ButtonGroup ButtonPressed
 
 		Text 5, 25, 435, 10, "-------------------------------------------- NOTES --------------------------------------------"
-
-		'SUBCATEGORY HANDLING--------------------------------------------
-
-		' subcat_button_position = 5
-		'
-		' For i = 0 to ubound(subcategory_array)
-		'
-		' 	'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-		' 	'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-		' 	PushButton 		subcat_button_position, 20, 					50, 		15, 			subcategory_array(i).subcat_name, 					subcat_button_placeholder
-		'
-		' 	subcategory_array(i).subcat_button = subcat_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-		' 	subcat_button_position = subcat_button_position + 50
-		' 	subcat_button_placeholder = subcat_button_placeholder + 1
-		' Next
-
 
 		'SCRIPT LIST HANDLING--------------------------------------------
 
@@ -209,11 +161,6 @@ Do
 	'Displays dialog, if cancel is pressed then stopscript
 	dialog
 	If ButtonPressed = 0 then stopscript
-
-	' 'Determines the subcategory if a subcategory button was selected.
-	' For i = 0 to ubound(subcategory_array)
-	' 	If ButtonPressed = subcategory_array(i).subcat_button then subcategory_selected = subcategory_array(i).subcat_name
-	' Next
 
 	'Runs through each script in the array... if the user selected script instructions (via ButtonPressed) it'll open_URL_in_browser to those instructions
 	For i = 0 to ubound(script_array)
