@@ -417,8 +417,8 @@ IF all_check = checked OR wf1_check = checked THEN
 END IF
 
 'Writes each worker from the worker_array in the Excel spreadsheet
+excel_row = 3 'setting the first excel row for stats
 For x = 0 to ubound(worker_array)
-	excel_row = x + 3 'to ensure space is read as a number'
 	ObjExcel.Cells(excel_row, 1) = trim(worker_array(x))
 	ObjExcel.Cells(excel_row, 2) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & excel_row & ")"
 
@@ -436,6 +436,7 @@ For x = 0 to ubound(worker_array)
 	IF all_check = checked OR pepr_check = checked THEN ObjExcel.Cells(excel_row, PEPR_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & excel_row & ", 'DAIL List'!D:D, " & Chr(34) & "PEPR" & Chr(34) & ")"
 	IF all_check = checked OR tikl_check = checked THEN ObjExcel.Cells(excel_row, TIKL_col) = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & excel_row & ", 'DAIL List'!D:D, " & Chr(34) & "TIKL" & Chr(34) & ")"
 	IF all_check = checked OR wf1_check  = checked THEN ObjExcel.Cells(excel_row, WF1_col)  = "=COUNTIFS('DAIL List'!B:B, " & Chr(34) & "<>" & Chr(34) & " & " & Chr(34) & Chr(34) & ", 'DAIL List'!A:A, A" & excel_row & ", 'DAIL List'!D:D, " & Chr(34) & "WF1 " & Chr(34) & ")"
+	excel_row = excel_row + 1	'incremenbting to the next excel row for the next list of stats'
 Next
 
 'Merging header cell.
