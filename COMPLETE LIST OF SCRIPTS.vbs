@@ -1446,6 +1446,7 @@ script_array(script_num).tags                   = array("Support", "Utility")
 script_array(script_num).dlg_keys               = array("Oe", "Oa")
 script_array(script_num).subcategory            = array("TOOL", "POLICY")
 script_array(script_num).release_date           = #08/10/2020#
+script_array(script_num).retirement_date		= #01/12/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
