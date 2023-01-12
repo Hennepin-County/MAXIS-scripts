@@ -284,6 +284,8 @@ End If
 
 'This function will read what programs are on the case and what the case status is.
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
+EMReadScreen case_appl_date, 8, 8, 29											'reading the date the case was APPLd so we know how far back we can go for new jobs start date
+case_appl_date = DateAdd("d", 0, case_appl_date)
 
 For each clt_number in ref_nbr_array                        'Now we are going to check WREG for the PWE
 
@@ -558,7 +560,11 @@ job_income_start = DateAdd("d", 0, job_income_start)
 
 Select Case job_change_type                                         'here we are finding the MAXIS Footer Month and Year based on when the change was made
     Case "New Job Reported"
-        CALL convert_date_into_MAXIS_footer_month(new_job_income_start, MAXIS_footer_month, MAXIS_footer_year)
+		If DateDiff("m", new_job_income_start, case_appl_date) > 0 Then			'new job start is before case application
+			CALL convert_date_into_MAXIS_footer_month(case_appl_date, MAXIS_footer_month, MAXIS_footer_year)			'so we set the initial month to the case appl date
+		Else
+        	CALL convert_date_into_MAXIS_footer_month(new_job_income_start, MAXIS_footer_month, MAXIS_footer_year)		'otherwise the initial month is the job start month'
+		End If
     Case "Income/Hours Change for Current Job"
         CALL convert_date_into_MAXIS_footer_month(first_pay_date_of_change, MAXIS_footer_month, MAXIS_footer_year)
     Case "Job Ended"
@@ -815,8 +821,25 @@ If developer_mode = FALSE Then                      'If we are in developer mode
                         EMWriteScreen new_job_hourly_wage, 6, 75            'setting the hourly wage
                     End If
 
-                    the_last_pay_date = new_job_income_start                    'these are used for the loops through paychecks - we start when the income actually starts
-                    the_first_pay_date = new_job_income_start
+					the_last_pay_date = new_job_income_start                    'these are used for the loops through paychecks - we start when the income actually starts
+					the_first_pay_date = new_job_income_start
+					If DateDiff("m", new_job_income_start, case_appl_date) > 0 Then			'new job start is before case application
+						Do														'we have to find the first check date in the initial month (application month)
+							If job_pay_frequency = "1 - Monthly" Then
+		                        the_last_pay_date = DateAdd("m", 1, the_last_pay_date)
+								the_first_pay_date = DateAdd("m", 1, the_first_pay_date)
+		                    ElseIf job_pay_frequency = "2 - Semi-Monthly" Then
+		                        the_last_pay_date = DateAdd("d", 15, the_last_pay_date)
+								the_first_pay_date = DateAdd("d", 15, the_first_pay_date)
+		                    ElseIf job_pay_frequency = "3 - Biweekly" Then
+		                        the_last_pay_date = DateAdd("d", 14, the_last_pay_date)
+								the_first_pay_date = DateAdd("d", 14, the_first_pay_date)
+		                    ElseIf job_pay_frequency = "4 - Weekly" Then
+		                        the_last_pay_date = DateAdd("d", 7, the_last_pay_date)
+								the_first_pay_date = DateAdd("d", 7, the_first_pay_date)
+		                    End If
+						Loop until DateDiff("m", the_first_pay_date, case_appl_date) <= 0
+					End If
                     end_of_pay = "99/99/99"                                     'If we have a new job, we can't code the end of income
                     pay_amt = "0"                                               'We do not enter an amount for new jobs since it isn't verified
                 Case "Income/Hours Change for Current Job"
