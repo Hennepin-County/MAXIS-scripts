@@ -330,10 +330,18 @@ previous_date_header = previous_date_month & "-" & previous_date_day & "-" & pre
 next_working_day = dateadd("d", 1, date)
 Call change_date_to_soonest_working_day(next_working_day, "FORWARD")
 
+''Defining a list of all members of QI based on supervisor to select in the droplist
+list_of_QI_members = "Select One..."
+For tester = 0 to UBound(tester_array)                         'looping through all of the testers
+	If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then
+		list_of_QI_members = list_of_QI_members+chr(9)+tester_array(tester).tester_full_name
+	End If
+Next
+
 'The dialog is defined in the loop as it can change as buttons are pressed
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 316, 160, "Select the source file"
-  DropListBox 185, 75, 125, 45, "Select One..."+chr(9)+"Amber Stone"+chr(9)+"Brooke Reilley"+chr(9)+"Deborah Lechner"+chr(9)+"Jacob Arco"+chr(9)+"Jessica Hall"+chr(9)+"Keith Semmelink"+chr(9)+"Kerry Walsh"+chr(9)+"Louise Kinzer"+chr(9)+"Mandora Young"+chr(9)+"MiKayla Handley"+chr(9)+"Ryan Kierth"+chr(9)+"Yeng Yang", qi_member_on_ONDEMAND
+  DropListBox 185, 75, 125, 45, list_of_QI_members, qi_member_on_ONDEMAND
   CheckBox 10, 95, 230, 10, "Check here for warning message before Excel output/email creation.", warning_checkbox
   EditBox 90, 110, 220, 15, worker_signature
   ButtonGroup ButtonPressed
