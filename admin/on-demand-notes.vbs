@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+CALL changelog_update("01/12/2023", "Removed denial case noting. This is supported by Eligibilty Summary.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("02/10/2022", "Removed confirmation when hitting cancel. Added handing for subsequent applications. ", "MiKayla Handley, Hennepin County")
 CALL changelog_update("10/01/2021", "GitHub #189 Updated script to remove correction email process.", "MiKayla Handley, Hennepin County")
@@ -73,31 +74,29 @@ closing_message = "On Demand Application Waiver review has been case noted." 'se
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 286, 145, "Notes On Demand"
+BeginDialog Dialog1, 0, 0, 276, 135, "Notes On Demand"
   EditBox 55, 5, 45, 15, MAXIS_case_number
   EditBox 175, 5, 50, 15, application_date
   ButtonGroup ButtonPressed
-    PushButton 230, 5, 55, 15, "STAT/PROG", PROG_button
-    PushButton 230, 25, 55, 15, "CASE/NOTE", NOTE_button
+    PushButton 230, 5, 45, 15, "STAT/PROG", PROG_button
+    PushButton 230, 25, 45, 15, "CASE/NOTE", NOTE_button
   CheckBox 55, 30, 105, 10, "Case was not pended timely", pended_checkbox
   CheckBox 55, 40, 140, 10, "Client completed application interview", completed_interview_checkbox
   CheckBox 55, 50, 175, 10, "Client has not completed application interview", incomplete_interview_checkbox
-  CheckBox 55, 60, 140, 10, "Denied programs for no interview", denial_checkbox
-  CheckBox 55, 70, 120, 10, "Subsequent application received", subsequent_app_checkbox
-  CheckBox 55, 80, 170, 10, "Interview not needed for MFIP to SNAP transition", MTAF_checkbox
-  CheckBox 55, 90, 90, 10, "Other(please describe)", other_notes_checkbox
-  EditBox 55, 105, 170, 15, other_notes
-  EditBox 70, 125, 100, 15, worker_signature
+  CheckBox 55, 60, 120, 10, "Subsequent application received", subsequent_app_checkbox
+  CheckBox 55, 70, 170, 10, "Interview not needed for MFIP to SNAP transition", MTAF_checkbox
+  CheckBox 55, 80, 90, 10, "Other (please describe)", other_notes_checkbox
+  EditBox 55, 95, 170, 15, other_notes
+  EditBox 70, 115, 100, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 180, 125, 50, 15
-    CancelButton 235, 125, 50, 15
+    OkButton 180, 115, 45, 15
+    CancelButton 230, 115, 45, 15
   Text 5, 30, 45, 10, "Case status:"
   Text 5, 10, 50, 10, "Case number:"
-  Text 5, 110, 45, 10, "Other notes:"
+  Text 10, 100, 40, 10, "Other notes:"
   Text 110, 10, 65, 10, "Date of application:"
-  Text 5, 130, 60, 10, "Worker signature:"
+  Text 5, 120, 60, 10, "Worker signature:"
 EndDialog
-
 
 'Runs the first dialog - which confirms the case number
 Do
@@ -211,35 +210,6 @@ IF incomplete_interview_checkbox = CHECKED THEN
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
-IF denial_checkbox = CHECKED THEN
-    case_status = "Denied programs for no interview"
-    Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 181, 65, "Denied programs for no interview"
-      EditBox 120, 5, 50, 15, appointment_letter_date
-      EditBox 120, 25, 50, 15, NOMI_date
-      ButtonGroup ButtonPressed
-        OkButton 65, 45, 50, 15
-        CancelButton 120, 45, 50, 15
-      Text 5, 30, 115, 10, "Notice of missed interview date:"
-      Text 5, 10, 80, 10, "Appointment letter date:"
-    EndDialog
-    DO
-        DO
-        	err_msg = ""
-        	Dialog Dialog1
-            IF case_status = "Denied programs for no interview" THEN
-            	IF IsDate(application_date) = TRUE THEN
-            		IF datediff("d", application_date, date) < 30 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid application date, the resident must be provided 30 days from the date of application."    'confirming that these cases meet all the criteria for denial
-            	END IF
-        		IF IsDate(appointment_letter_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter the date the appointment letter was sent."
-            	IF IsDate(NOMI_date) = FALSE THEN err_msg = err_msg & vbNewLine & "* Please enter a valid NOMI date."
-            END IF
-    		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    	Loop until err_msg = ""
-    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-END IF
-
 IF subsequent_app_checkbox = CHECKED THEN
 	case_status = "Subsequent application received"
 	Dialog1 = ""
@@ -296,7 +266,7 @@ END IF
 
 IF other_notes_checkbox = CHECKED THEN case_status = "Other"
 
-'Checking for PRIV cases.
+'Checking for PRIV cases
 IF case_status = "Client completed application interview" THEN          'Interviews are only required for Cash and SNAP
 	IF confirm_update_prog = "YES" THEN
 	    Call navigate_to_MAXIS_screen("STAT", "PROG")
@@ -396,7 +366,7 @@ IF case_status = "Client completed application interview" THEN          'Intervi
         END IF
 	END IF
 END IF
-'denial_date = dateadd("d", 0, denial_date) ' if needed this will help this the script recognize that the date is a date'
+
 'this to remind workers that we must give clients 10 days when we are outside of that 30 day window for applications'
 IF NOMI_date <> "" THEN denial_date = dateadd("d", 10, NOMI_date)
 IF denial_date < date then denial_date = dateadd("d", 10, date)
@@ -418,12 +388,6 @@ ELSEIF case_status = "Client has not completed application interview" THEN
 	CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & NOMI_date)
 	CALL write_variable_in_CASE_NOTE("* A notice was previously sent to client with detail about completing an interview.")
 	CALL write_variable_in_CASE_NOTE("* Interview is still needed, client has 30 days from date of application to complete it.")
-ELSEIF case_status = "Denied programs for no interview" THEN
-	CALL write_variable_in_CASE_NOTE("~ Denied programs for no interview ~")
-    CALL write_variable_in_CASE_NOTE("* Application date: " & application_date)
-    CALL write_variable_in_CASE_NOTE("* NOMI sent to client on: " & NOMI_date)
-	CALL write_variable_in_CASE_NOTE("* Reason for denial: interview was not completed timely.")
-   	CALL write_variable_in_CASE_NOTE("* Confirmed client was provided sufficient 10 day notice.")
 ELSEIF case_status = "Interview not needed for MFIP to SNAP transition" THEN
 	CALL write_variable_in_CASE_NOTE("~ " & case_status & " ~")
 	CALL write_variable_in_CASE_NOTE("* MFIP to SNAP transition no interview required updated PROG to reflect this Per CM 0005.10.")
@@ -437,7 +401,7 @@ ELSEIF case_status = "Subsequent application received" THEN
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", pending_programs)
 	CALL write_bullet_and_variable_in_CASE_NOTE ("Active Programs", active_programs)
     CALL write_bullet_and_variable_in_CASE_NOTE ("Pending Programs", pending_programs)
-    CALL write_variable_in_CASE_NOTE("* Aligned dates on STAT/PROG to match current pending program(s) per CM 0005.09.12 - APPLICATION - PENDING CASES")
+    CALL write_variable_in_CASE_NOTE("* Aligned dates on STAT/PROG to match current pending program(s) per CM 0005.09.12 - APPLICATION - PENDING CASES.")
 END IF
 CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
@@ -445,7 +409,7 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 PF3 'to save the case note'
 script_end_procedure_with_error_report(closing_message)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -453,11 +417,14 @@ script_end_procedure_with_error_report(closing_message)
 '--Tab orders reviewed & confirmed----------------------------------------------10/01/2021
 '--Mandatory fields all present & Reviewed--------------------------------------10/01/2021
 '--All variables in dialog match mandatory fields-------------------------------10/01/2021
+'Review dialog names for content and content fit in dialog----------------------01/12/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------10/01/2021
 '--CASE:NOTE Header doesn't look funky------------------------------------------N/A					05/24/2022 - reviewed header for subsequent applications to match updates to App Recvd - Issue 799
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/01/2021
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-01/12/2023
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
 '--MAXIS_background_check reviewed (if applicable)------------------------------N/A
@@ -465,6 +432,7 @@ script_end_procedure_with_error_report(closing_message)
 '--Out-of-County handling reviewed----------------------------------------------N/A
 '--script_end_procedures(w/ or w/o error messaging)-----------------------------10/01/2021
 '--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------01/12/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------10/01/2021
@@ -472,7 +440,7 @@ script_end_procedure_with_error_report(closing_message)
 '--Denomination reviewed -------------------------------------------------------N/A
 '--Script name reviewed---------------------------------------------------------10/01/20211
 '--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
-
+'
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------10/01/2021
 '--Comment Code-----------------------------------------------------------------11/01/2021
