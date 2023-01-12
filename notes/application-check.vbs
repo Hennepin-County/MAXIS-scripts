@@ -101,8 +101,13 @@ IF priv_check = "PRIV" then script_end_procedure("This case is privileged, and c
 
 'Ensuring that the user is in REPT/PND2
 Do
+    basket_at_display_limit = False
     EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
-    If pnd2_disp_limit = "Display Limit" Then transmit
+    If pnd2_disp_limit = "Display Limit" Then
+        transmit
+        basket_at_display_limit = True
+        EMReadScreen basket_at_limit, 7, 21, 13
+    End If
 	EMReadScreen PND2_check, 4, 2, 52
 	If PND2_check <> "PND2" then
 		back_to_SELF
@@ -128,7 +133,14 @@ Do
     End if
 
 LOOP until row = 19
-If found_case = False then script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+If found_case = False then
+    If basket_at_display_limit = True Then
+        Call back_to_SELF
+        EMWriteScreen MAXIS_case_number, 18, 43
+        script_end_procedure_with_error_report("The script could not confirm that this case is pending on PND2 or gather additional necessary information from PND2 because this basket (" & basket_at_limit & ") is at the MAXIS PND2 Display limit. This is not a script issue, but a MAXIS limitation.")
+    End If
+    script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
+End If
 
 HC_pending = False  'setting variable to false. This will be used to determine if HC is penfing or not to support HC screening process.
 
