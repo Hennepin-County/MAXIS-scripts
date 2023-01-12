@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("1/12/2023", "Added functionality to stop the DAIL scrubber script if it appears you are in INQUIRY and the specific DAIL being processed requires the ability to take some kind of action in MAXIS. The DAIL Scrubber may stop if it appears you are in inquiry and the DAIL requires the ability to take action of some kind.", "Casey Love, Hennepin County")
 Call changelog_update("11/14/2022", "Added DAIL Scrubber support for additional ABAWD/WREG messages.", "Ilse Ferris, Hennepin County")
 Call changelog_update("05/23/2022", "Added DAIL Scrubber support for SVES covered quarters DAIL messages.", "Ilse Ferris, Hennepin County")
 Call changelog_update("04/17/2020", "DAILs for COLA - Review and Approve can now call Approved Programs or Closed Programs if the approval is not for Health Care.", "Casey Love, Hennepin County")
@@ -131,7 +132,6 @@ end function
 
 'CONNECTS TO DEFAULT SCREEN
 EMConnect ""
-match_found = FALSE
 hire_msg = False
 
 'CHECKS TO MAKE SURE THE WORKER IS ON THEIR DAIL
@@ -201,9 +201,9 @@ call bring_correct_message_to_top
 EMReadScreen stat_check, 4, 6, 6
 If stat_check = "FS  " or stat_check = "HC  " or stat_check = "GA  " or stat_check = "MSA " or stat_check = "STAT" then
 	'now it checks if you are acctually running from a XFS Autoclosed DAIL. These messages don't have an affiliated case attached - so there will be no overlap
-	match_found = TRUE
 	EMReadScreen xfs_check, 49, 6, 20
 	If xfs_check = "CASE AUTO-CLOSED FOR FAILURE TO PROVIDE POSTPONED" then
+		If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
 		call run_from_GitHub(script_repository & "dail/postponed-expedited-snap-verifications.vbs")
 	Else
 		call run_from_GitHub(script_repository & "dail/affiliated-case-lookup.vbs")
@@ -213,7 +213,7 @@ End If
 'Checking for 12 month contact TIKL from CAF and CAR scripts(loads NOTICES - 12 month contact)
 EMReadScreen twelve_mo_contact_check, 57, 6, 20
 IF twelve_mo_contact_check = "IF SNAP IS OPEN, REVIEW TO SEE IF 12 MONTH CONTACT LETTER" THEN
-	match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and send a SPEC/MEMO and cannot operate in INQUIRY. The script will now end.")
 	run_from_GitHub(script_repository & "notices/12-month-contact.vbs")
 END IF
 
@@ -221,20 +221,19 @@ END IF
 If Instr(full_message, "AN UPDATED DHS-7823 - AVS AUTH FORM(S) HAS BEEN REQUESTED") OR _
    Instr(full_message, "AVS 10-DAY CHECK IS DUE") OR _
    Instr(full_message, "DHS-7823 - AVS AUTH FORM(S) HAVE BEEN REQUESTED FOR THIS") then
-   match_found = True
+   If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
    run_from_GitHub(script_repository & "notes/avs.vbs")
  End if
 
 'RSDI/BENDEX info received by agency (loads BNDX SCRUBBER)
 If instr(full_message, "BENDEX INFORMATION HAS BEEN STORED - CHECK INFC") then
-    match_found = TRUE
     call run_from_GitHub(script_repository & "dail/bndx-scrubber.vbs")
 END IF
 
 'CIT/ID has been verified through the SSA (loads CITIZENSHIP VERIFIED)
 EMReadScreen CIT_check, 46, 6, 20
 If CIT_check = "MEMI:CITIZENSHIP HAS BEEN VERIFIED THROUGH SSA" then
-    match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/citizenship-verified.vbs")
 END IF
 
@@ -248,94 +247,91 @@ If InStr(full_message, "REVIEW MA-EPD FOR POSSIBLE PREMIUM CHANGES DUE TO") <> 0
 If InStr(full_message, "HEALTH CARE IS IN REINSTATE OR PENDING STATUS - REVIEW") <> 0 Then review_and_approve_from_COLA = TRUE
 
 If review_and_approve_from_COLA = TRUE Then
-    match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
     Call run_from_GitHub(script_repository & "dail/cola-review-and-approve.vbs")
 End If
 
 'COLA SVES RESPONSE
 If instr(full_message, "REVIEW SVES RESPONSE") or instr(full_message, "REVIEW CLAIM NUMBER") then
-    match_found = TRUE
     call run_from_GitHub(script_repository & "dail/cola-sves-response.vbs")
 END IF
 
 'Disability certification ends in 60 days (loads DISA MESSAGE)
 EMReadScreen DISA_check, 58, 6, 20
 If DISA_check = "DISABILITY IS ENDING IN 60 DAYS - REVIEW DISABILITY STATUS" then
-    match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and create a TIKL and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/disa-message.vbs")
 END IF
 
 'EMPS - ES Referral missing
 EMReadScreen EMPS_ES_check, 52, 6, 20
 If EMPS_ES_check = "EMPS:ES REFERRAL DATE IS BLANK FOR NON-EXEMPT PERSON" then
-    match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to update STAT/EMPS and CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/es-referral-missing.vbs")
 END IF
 
 'EMPS - Financial Orientation date needed
 EMReadScreen EMPS_Fin_Ori_check, 57, 6, 20
 If EMPS_Fin_Ori_check = "REVIEW EMPS PANEL FOR FINANCIAL ORIENT DATE OR GOOD CAUSE" then
-    match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/mfip-orientation-dail.vbs")
 END IF
 
 'Client can receive an FMED deduction for SNAP (loads FMED DEDUCTION)
 EMReadScreen FMED_check, 59, 6, 20
 If FMED_check = "MEMBER HAS TURNED 60 - NOTIFY ABOUT POSSIBLE FMED DEDUCTION" then
-    match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and send a SPEC/MEMO and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/fmed-deduction.vbs")
 END IF
 
 'Remedial care messages. May only happen at COLA (loads LTC - REMEDIAL CARE)
 EMReadScreen remedial_care_check, 41, 6, 20
 If remedial_care_check = "REF 01 PERSON HAS REMEDIAL CARE DEDUCTION" then
-	match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to update a panel and cannot operate in INQUIRY. The script will now end.")
 	CALL run_from_GitHub(script_repository & "dail/ltc-remedial-care.vbs")
 END IF
 'New HIRE messages, client started a new job (loads NEW HIRE)
 EMReadScreen HIRE_check, 15, 6, 20
 If HIRE_check = "NEW JOB DETAILS" or left(HIRE_check, 4) = "SDNH" then
-    match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to update a panel and CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
 	call run_from_GitHub(script_repository & "dail/new-hire.vbs")
 END IF
 'New HIRE messages, client started a new job (loads NEW HIRE)
 EMReadScreen HIRE_check, 11, 6, 37
 EmReadscreen fed_match, 4, 6, 20        'SDNH can use the same string to review, NDNH cannot (of course)
 If HIRE_check = "JOB DETAILS" or left(fed_match, 4) = "NDNH" then
-	match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to update a panel and CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/new-hire-ndnh.vbs")
 END IF
 'federal prisoner register support messages
 EMReadScreen ISPI_check, 4, 6, 6
 If ISPI_check = "ISPI" then
-    match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to update a panel, create a TIKL, and CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/incarceration.vbs")
 END IF
 
 'MEMBER HAS BEEN DISABLED 2 YEARS - REFER TO MEDICARE
 EMReadScreen MEDI_check, 52, 6, 20
 If MEDI_check = "MEMBER HAS BEEN DISABLED 2 YEARS - REFER TO MEDICARE" then
-    match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and create a TIKL and create a TIKL and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository & "dail/medi-check.vbs")
 END IF
 
 'Sends NOMI is DAIL generated by the REVS scrubber (loads SEND NOMI)
 EMReadScreen paperless_check, 8, 6, 20
 If paperless_check = "%^% SENT" then
-	match_found = TRUE
 	run_from_DAIL = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
     call run_from_GitHub(script_repository &  "dail/paperless-dail.vbs")
 End If
 
 'SSI info received by agency (loads SDX INFO HAS BEEN STORED)
 If instr(full_message, "SDX INFORMATION HAS BEEN STORED - CHECK INFC") then
-    match_found = TRUE
 	call run_from_GitHub(script_repository & "dail/sdx-info-has-been-stored.vbs")
 END IF
 
 'SSA info received by agency (loads TPQY RESPONSE)
 If instr(full_message, "TPQY RESPONSE RECEIVED FROM SSA") or instr(full_message, "COVERED QTRS RESPONSE RECEIVED FROM SSA") then
-    match_found = TRUE
     call run_from_GitHub(script_repository & "dail/tpqy-response.vbs")
 END IF
 
@@ -345,30 +341,30 @@ If instr(full_message, "FSET WORK STATUS SHOWS UNDER AGE 16 FOR MEMBER 16 OR OLD
    instr(full_message, "SNAP MEMBERS AGE IS 50 OR OLDER-REVIEW FOR ABAWD EXEMPTION") or _
    instr(full_message, "WREG PANEL INDICATES SNAP DISABILITY BUT DISA PANEL DOES NOT") or _
    instr(full_message, "WREG PANEL INDICATES UNEMP INS BUT UNEA PANEL DOES NOT") then
-	match_found = TRUE
 	CALL run_from_GitHub(script_repository & "dail/abawd-fset-exemption-check.vbs")
 END IF
 
 'UNBORN CHILD IS OVERDUE
 EMReadScreen overdue_baby, 23, 6, 20
 IF overdue_baby = "UNBORN CHILD IS OVERDUE" THEN
- 	match_found = TRUE
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE, send a SPEC/MEMO, and create a TIKL and cannot operate in INQUIRY. The script will now end.")
 	CALL run_from_GitHub(script_repository & "dail/overdue-baby.vbs")
 END IF
 
-IF match_found = FALSE THEN
-    'WAGE MATCH Scrubber
-    EMReadScreen DAIL_type, 4, 6, 6
-    IF DAIL_type = "WAGE" THEN CALL run_from_GitHub(script_repository & "dail/wage-match-scrubber.vbs")
+'WAGE MATCH Scrubber
+EMReadScreen DAIL_type, 4, 6, 6
+IF DAIL_type = "WAGE" THEN CALL run_from_GitHub(script_repository & "dail/wage-match-scrubber.vbs")
 
-    'ALL other DAIL messages
-    IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN CALL run_from_GitHub(script_repository & "dail/catch-all.vbs")
-
-    'Child support messages (loads CSES PROCESSING)
-    IF DAIL_type = "CSES" THEN
-    	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
-    	If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "dail/cses-scrubber.vbs") 'If it's a disbursement message...
-    END IF
+'ALL other DAIL messages
+IF DAIL_type = "TIKL" or DAIL_type = "PEPR"  or DAIL_type = "INFO" THEN
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and cannot operate in INQUIRY. The script will now end.")
+	CALL run_from_GitHub(script_repository & "dail/catch-all.vbs")
+End If
+'Child support messages (loads CSES PROCESSING)
+IF DAIL_type = "CSES" THEN
+	EMReadScreen CSES_DISB_check, 4, 6, 20				'Checks for the DISB string, verifying this as a disbursement message
+	If running_in_INQUIRY = True Then call script_end_procedure("It appears you are currently running in INQUIRY. The support for this DAIL requires the ability to CASE/NOTE and possibly update a panel and cannot operate in INQUIRY. The script will now end.")
+	If CSES_DISB_check = "DISB" then call run_from_GitHub(script_repository & "dail/cses-scrubber.vbs") 'If it's a disbursement message...
 END IF
 
 'NOW IF NO SCRIPT HAS BEEN WRITTEN FOR IT, THE DAIL SCRUBBER STOPS AND GENERATES A MESSAGE TO THE WORKER.----------------------------------------------------------------------------------------------------
