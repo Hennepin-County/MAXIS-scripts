@@ -5672,6 +5672,44 @@ function date_array_generator(initial_month, initial_year, date_array)
 	date_array = split(date_list, "|")
 end function
 
+function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_130_percent)
+'--- This function outputs the dollar amount (as a number) of 130% FPG based on HH Size as needed by SNAP
+'~~~~~ footer_month: relevant footer month - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
+'~~~~~ footer_year: relevant footer year - the calculation changes every Ocotber and we need to ensure we are pulling the correct amount
+'~~~~~ hh_size: NUMBER - the number of people in the SNAP unit
+'~~~~~ fpg_130_percent: NUMBER - this will output a number with the amount of 130%  FPG based on footer month and HH Size
+'===== Keywords: SNAP, calculation, Income Test
+	month_to_review = footer_month & "/1/" & footer_year		'making this a date
+	month_to_review = DateAdd("d", 0, month_to_review)
+
+	If IsNumeric(hh_size) = True Then							'error handling to ensure that HH size is a number
+		hh_size = hh_size*1
+		If DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then				'these are the associated amounts
+			If hh_size = 1 Then fpg_130_percent = 1473
+			If hh_size = 2 Then fpg_130_percent = 1984
+			If hh_size = 3 Then fpg_130_percent = 2495
+			If hh_size = 4 Then fpg_130_percent = 3007
+			If hh_size = 5 Then fpg_130_percent = 3518
+			If hh_size = 6 Then fpg_130_percent = 4029
+			If hh_size = 7 Then fpg_130_percent = 4541
+			If hh_size = 8 Then fpg_130_percent = 5052
+
+			If hh_size > 8 Then fpg_130_percent = 5052 + (512 * (hh_size-8))
+		ElseIf DateDiff("d", #10/1/2021#, month_to_review) >= 0 Then
+			If hh_size = 1 Then fpg_130_percent = 1396
+			If hh_size = 2 Then fpg_130_percent = 1888
+			If hh_size = 3 Then fpg_130_percent = 2379
+			If hh_size = 4 Then fpg_130_percent = 2871
+			If hh_size = 5 Then fpg_130_percent = 3363
+			If hh_size = 6 Then fpg_130_percent = 3855
+			If hh_size = 7 Then fpg_130_percent = 4347
+			If hh_size = 8 Then fpg_130_percent = 4839
+
+			If hh_size > 8 Then fpg_130_percent = 4839 + (492 * (hh_size-8))
+		End If
+	End If
+end function
+
 function determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 '--- Function used to return booleans on case and program status based on CASE CURR information. There is no input informat but MAXIS_case_number needs to be defined.
 '~~~~~ case_active: Outputs BOOLEAN of if the case is active in any MAXIS program
