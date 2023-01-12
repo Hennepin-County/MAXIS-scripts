@@ -166,7 +166,7 @@ END If
 
 IF PF11_actions = "Other" THEN
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 326, 110, "Other"
+    BeginDialog Dialog1, 0, 0, 326, 110, "Other PF11 Actions"
       EditBox 70, 10, 240, 15, request_reason
       EditBox 70, 30, 240, 15, other_notes
       EditBox 70, 50, 240, 15, action_taken
@@ -280,43 +280,47 @@ END IF
 
 script_end_procedure_with_error_report("Success! " & PF11_actions & " has been sent and/or case noted.")
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------09/29/2021
-'--Tab orders reviewed & confirmed----------------------------------------------09/29/2021
-'--Mandatory fields all present & Reviewed--------------------------------------09/29/2021
-'--All variables in dialog match mandatory fields-------------------------------09/29/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------01/12/2023
+'--Tab orders reviewed & confirmed----------------------------------------------01/12/2023
+'--Mandatory fields all present & Reviewed--------------------------------------01/12/2023
+'--All variables in dialog match mandatory fields-------------------------------01/12/2023
+'Review dialog names for content and content fit in dialog----------------------01/12/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------09/29/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------09/29/2021
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------09/29/2021
+'--All variables are CASE:NOTEing (if required)---------------------------------01/12/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------01/12/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------01/12/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-01/12/2023
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------09/29/2021
-'--MAXIS_background_check reviewed (if applicable)------------------------------09/29/2021
-'--PRIV Case handling reviewed -------------------------------------------------09/29/2021
-'--Out-of-County handling reviewed----------------------------------------------09/29/2021
-'--script_end_procedures (w/ or w/o error messaging)----------------------------09/29/2021
-'--BULK - review output of statistics and run time/count (if applicable)--------09/29/2021-----------------N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/12/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------01/12/2023--------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------01/12/2023
+'--Out-of-County handling reviewed----------------------------------------------01/12/2023
+'--script_end_procedures (w/ or w/o error messaging)----------------------------01/12/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------01/12/2023--------------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------01/12/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------09/29/2021 ------------updated to 180 seconds
-'--Incrementors reviewed (if necessary)-----------------------------------------09/29/2021-----------------N/A
-'--Denomination reviewed -------------------------------------------------------09/29/2021-----------------N/A
-'--Script name reviewed---------------------------------------------------------09/29/2021
-'--BULK - remove 1 incrementor at end of script reviewed------------------------09/29/2021-----------------N/A
+'--Manual time study reviewed --------------------------------------------------01/12/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------01/12/2023--------------------N/A
+'--Denomination reviewed -------------------------------------------------------01/12/2023
+'--Script name reviewed---------------------------------------------------------01/12/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------01/12/2023--------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------09/29/2021
-'--comment Code-----------------------------------------------------------------09/29/2021
-'--Update Changelog for release/update------------------------------------------09/29/2021
-'--Remove testing message boxes-------------------------------------------------09/29/2021
-'--Remove testing code/unnecessary code-----------------------------------------09/29/2021
-'--Review/update SharePoint instructions----------------------------------------10/20/2021 ---------------Updated instructions to remove PMI Merge
-'--Review Best Practices using BZS page ----------------------------------------09/29/2021
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/29/2021----------------May need to update if PMI merges cannot be via PF11 any longer
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/29/2021
-'--Complete misc. documentation (if applicable)---------------------------------09/29/2021-----------------N/A
-'--Update project team/issue contact (if applicable)----------------------------09/29/2021-----------------N/A
+'--Confirm all GitHub tasks are complete----------------------------------------01/12/2023
+'--comment Code-----------------------------------------------------------------01/12/2023
+'--Update Changelog for release/update------------------------------------------01/12/2023
+'--Remove testing message boxes-------------------------------------------------01/12/2023
+'--Remove testing code/unnecessary code-----------------------------------------01/12/2023
+'--Review/update SharePoint instructions----------------------------------------01/12/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------01/12/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------01/12/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------01/12/2023
+'--Complete misc. documentation (if applicable)---------------------------------01/12/2023
+'--Update project team/issue contact (if applicable)----------------------------01/12/2023
