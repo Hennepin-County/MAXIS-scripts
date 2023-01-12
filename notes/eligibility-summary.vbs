@@ -135,41 +135,6 @@ function determine_mfip_counted_amount(gross_amount, counted_amount)
 	' MsgBox "gross_amount - " & gross_amount & vbCr & "counted_amount - " & counted_amount
 end function
 
-function determine_130_percent_of_FPG(footer_month, footer_year, hh_size, fpg_130_percent)
-
-	month_to_review = footer_month & "/1/" & footer_year
-	month_to_review = DateAdd("d", 0, month_to_review)
-
-	If IsNumeric(hh_size) = True Then
-		hh_size = hh_size*1
-
-		If DateDiff("d", #10/1/2022#, month_to_review) >= 0 Then
-			If hh_size = 1 Then fpg_130_percent = 1473
-			If hh_size = 2 Then fpg_130_percent = 1984
-			If hh_size = 3 Then fpg_130_percent = 2495
-			If hh_size = 4 Then fpg_130_percent = 3007
-			If hh_size = 5 Then fpg_130_percent = 3518
-			If hh_size = 6 Then fpg_130_percent = 4029
-			If hh_size = 7 Then fpg_130_percent = 4541
-			If hh_size = 8 Then fpg_130_percent = 5052
-
-			If hh_size > 8 Then fpg_130_percent = 5052 + (512 * (hh_size-8))
-		ElseIf DateDiff("d", #10/1/2021#, month_to_review) >= 0 Then
-			If hh_size = 1 Then fpg_130_percent = 1396
-			If hh_size = 2 Then fpg_130_percent = 1888
-			If hh_size = 3 Then fpg_130_percent = 2379
-			If hh_size = 4 Then fpg_130_percent = 2871
-			If hh_size = 5 Then fpg_130_percent = 3363
-			If hh_size = 6 Then fpg_130_percent = 3855
-			If hh_size = 7 Then fpg_130_percent = 4347
-			If hh_size = 8 Then fpg_130_percent = 4839
-
-			If hh_size > 8 Then fpg_130_percent = 4839 + (492 * (hh_size-8))
-		End If
-	End If
-
-end function
-
 function write_long_variable_in_DENY_note(variable)
 	spaces_58 = "                                                          "
 	spaces_78 = "                                                                              "
