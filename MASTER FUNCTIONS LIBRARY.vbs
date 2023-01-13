@@ -10217,84 +10217,84 @@ function PF12()
 end function
 
 function PF13()
-'--- This function sends or hits the PF13 key.
+'--- This function sends or hits the PF13 key (SHIFT+F1).
  '===== Keywords: MAXIS, MMIS, PRISM, PF13
   EMSendKey "<PF13>"
   EMWaitReady 0, 0
 end function
 
 function PF14()
-'--- This function sends or hits the PF14 key.
+'--- This function sends or hits the PF14 key (SHIFT+F2).
  '===== Keywords: MAXIS, MMIS, PRISM, PF14
   EMSendKey "<PF14>"
   EMWaitReady 0, 0
 end function
 
 function PF15()
-'--- This function sends or hits the PF15 key.
+'--- This function sends or hits the PF15 key (SHIFT+F3).
  '===== Keywords: MAXIS, MMIS, PRISM, PF15
   EMSendKey "<PF15>"
   EMWaitReady 0, 0
 end function
 
 function PF16()
-'--- This function sends or hits the PF16 key.
+'--- This function sends or hits the PF16 key (SHIFT+F4).
  '===== Keywords: MAXIS, MMIS, PRISM, PF16
   EMSendKey "<PF16>"
   EMWaitReady 0, 0
 end function
 
 function PF17()
-'--- This function sends or hits the PF17 key.
+'--- This function sends or hits the PF17 key (SHIFT+F5).
  '===== Keywords: MAXIS, MMIS, PRISM, PF17
   EMSendKey "<PF17>"
   EMWaitReady 0, 0
 end function
 
 function PF18()
-'--- This function sends or hits the PF18 key.
+'--- This function sends or hits the PF18 key (SHIFT+F6).
  '===== Keywords: MAXIS, MMIS, PRISM, PF18
   EMSendKey "<PF18>"
   EMWaitReady 0, 0
 end function
 
 function PF19()
-'--- This function sends or hits the PF19 key.
+'--- This function sends or hits the PF19 key (SHIFT+F7).
  '===== Keywords: MAXIS, MMIS, PRISM, PF19
   EMSendKey "<PF19>"
   EMWaitReady 0, 0
 end function
 
 function PF20()
-'--- This function sends or hits the PF20 key.
+'--- This function sends or hits the PF20 key (SHIFT+F8).
  '===== Keywords: MAXIS, MMIS, PRISM, PF20
   EMSendKey "<PF20>"
   EMWaitReady 0, 0
 end function
 
 function PF21()
-'--- This function sends or hits the PF21 key.
+'--- This function sends or hits the PF21 key (SHIFT+F9).
  '===== Keywords: MAXIS, MMIS, PRISM, PF21
   EMSendKey "<PF21>"
   EMWaitReady 0, 0
 end function
 
 function PF22()
-'--- This function sends or hits the PF22 key.
+'--- This function sends or hits the PF22 key (SHIFT+F10).
  '===== Keywords: MAXIS, MMIS, PRISM, PF22
   EMSendKey "<PF22>"
   EMWaitReady 0, 0
 end function
 
 function PF23()
-'--- This function sends or hits the PF23 key.
+'--- This function sends or hits the PF23 key (SHIFT+F11).
  '===== Keywords: MAXIS, MMIS, PRISM, PF23
   EMSendKey "<PF23>"
   EMWaitReady 0, 0
 end function
 
 function PF24()
-'--- This function sends or hits the PF24 key.
+'--- This function sends or hits the PF24 key (SHIFT+F12).
  '===== Keywords: MAXIS, MMIS, PRISM, PF24
   EMSendKey "<PF24>"
   EMWaitReady 0, 0
