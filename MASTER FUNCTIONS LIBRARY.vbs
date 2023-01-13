@@ -5301,22 +5301,17 @@ function convert_digit_to_excel_column(col_in_excel)
 	If col_in_excel >= 235 then script_end_procedure("This script is only able to assign excel columns to 234 distinct digits. You've exceeded this number, and this script cannot continue.")
 end function
 
-function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
+Function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 '--- This function is used to grab all active X numbers according to the supervisor X number(s) inputted
 '~~~~~ array_name: name of array that will contain all the supervisor's staff x numbers
 '~~~~~ supervisor_array: list of supervisor's x numbers seperated by comma
 '===== Keywords: MAXIS, array, supervisor, worker number, create
-	'Create string with the alphabet
-	'Getting to REPT/USER
-	CALL navigate_to_MAXIS_screen("REPT", "USER")
-
+	CALL navigate_to_MAXIS_screen("REPT", "USER")  	'Getting to REPT/USER
 	'Sorting by supervisor
 	PF5
 	PF5
-
 	'Reseting array_name
 	array_name = ""
-
 	'Splitting the list of inputted supervisors...
 	supervisor_array = replace(supervisor_array, " ", "")
 	supervisor_array = split(supervisor_array, ",")
@@ -5324,7 +5319,6 @@ function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 		IF unit_supervisor <> "" THEN
 			'Entering the supervisor number and sending a transmit
 			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-
 			MAXIS_row = 7
 			DO
 				EMReadScreen worker_ID, 8, MAXIS_row, 5
@@ -5334,6 +5328,8 @@ function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 				MAXIS_row = MAXIS_row + 1
 				IF MAXIS_row = 19 THEN
 					PF8
+					EMReadScreen end_check, 9, 24,14
+					If end_check = "LAST PAGE" Then Exit Do
 					MAXIS_row = 7
 				END IF
 			LOOP
@@ -5341,7 +5337,7 @@ function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 	NEXT
 	'Preparing array_name for use...
 	array_name = split(array_name)
-end function
+End Function
 
 function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 '--- This function is used to grab all active X numbers in a county
