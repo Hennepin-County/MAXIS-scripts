@@ -7378,16 +7378,6 @@ function fix_case_for_name(name_variable)
 	name_variable = output_variable
 end function
 
-function fix_read_data(search_string)
-'--- This function fixes data that we are reading from PRISM that includes underscores. The function searches the variable and removes underscores. Then, the fix case function is called to format the string to the correct case & the data is trimmed to remove any excess spaces.
-'~~~~~ search_string: the string for the variable to be searched
-'===== Keywords: MAXIS, MMIS, PRISM, name, data, fix
-	search_string = replace(search_string, "_", "")
-	call fix_case(search_string, 1)
-	search_string = trim(search_string)
-	fix_read_data = search_string 'To make this a return function, this statement must set the value of the function name
-end function
-
 Function generate_client_list(list_for_dropdown, initial_text)
 '--- This function creates a variable formatted for a DropListBox or ComboBox in a dialog to have all the clients on a case as an option.
 '~~~~~ list_for_dropdown: the variable to put in the dialog for the list
