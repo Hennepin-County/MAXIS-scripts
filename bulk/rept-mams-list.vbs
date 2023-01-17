@@ -52,42 +52,6 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'This function is used to grab all active X numbers according to the supervisor X number(s) inputted
-FUNCTION create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
-	'Getting to REPT/USER
-	CALL navigate_to_MAXIS_screen("REPT", "USER")
-	'Sorting by supervisor
-	PF5
-	PF5
-	'Reseting array_name
-	array_name = ""
-	'Splitting the list of inputted supervisors...
-	supervisor_array = replace(supervisor_array, " ", "")
-	supervisor_array = split(supervisor_array, ",")
-	FOR EACH unit_supervisor IN supervisor_array
-		IF unit_supervisor <> "" THEN
-			'Entering the supervisor number and sending a transmit
-			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-			MAXIS_row = 7
-			DO
-				EMReadScreen worker_ID, 8, MAXIS_row, 5
-				worker_ID = trim(worker_ID)
-				IF worker_ID = "" THEN EXIT DO
-				array_name = trim(array_name & " " & worker_ID)
-				MAXIS_row = MAXIS_row + 1
-				IF MAXIS_row = 19 THEN
-					PF8
-					EMReadScreen end_check, 9, 24,14
-					If end_check = "LAST PAGE" Then Exit Do
-					MAXIS_row = 7
-				END IF
-			LOOP
-		END IF
-	NEXT
-	'Preparing array_name for use...
-	array_name = split(array_name)
-END FUNCTION
-
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
 
@@ -117,7 +81,7 @@ EndDialog
 
 'Shows dialog
 DO
-	Dialog Dialog1 
+	Dialog Dialog1
 	Cancel_without_confirmation
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in

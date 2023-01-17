@@ -5301,22 +5301,17 @@ function convert_digit_to_excel_column(col_in_excel)
 	If col_in_excel >= 235 then script_end_procedure("This script is only able to assign excel columns to 234 distinct digits. You've exceeded this number, and this script cannot continue.")
 end function
 
-function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
+Function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervisor_array)
 '--- This function is used to grab all active X numbers according to the supervisor X number(s) inputted
 '~~~~~ array_name: name of array that will contain all the supervisor's staff x numbers
 '~~~~~ supervisor_array: list of supervisor's x numbers seperated by comma
 '===== Keywords: MAXIS, array, supervisor, worker number, create
-	'Create string with the alphabet
-	'Getting to REPT/USER
-	CALL navigate_to_MAXIS_screen("REPT", "USER")
-
+	CALL navigate_to_MAXIS_screen("REPT", "USER")  	'Getting to REPT/USER
 	'Sorting by supervisor
 	PF5
 	PF5
-
 	'Reseting array_name
 	array_name = ""
-
 	'Splitting the list of inputted supervisors...
 	supervisor_array = replace(supervisor_array, " ", "")
 	supervisor_array = split(supervisor_array, ",")
@@ -5324,7 +5319,6 @@ function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 		IF unit_supervisor <> "" THEN
 			'Entering the supervisor number and sending a transmit
 			CALL write_value_and_transmit(unit_supervisor, 21, 12)
-
 			MAXIS_row = 7
 			DO
 				EMReadScreen worker_ID, 8, MAXIS_row, 5
@@ -5334,6 +5328,8 @@ function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 				MAXIS_row = MAXIS_row + 1
 				IF MAXIS_row = 19 THEN
 					PF8
+					EMReadScreen end_check, 9, 24,14
+					If end_check = "LAST PAGE" Then Exit Do
 					MAXIS_row = 7
 				END IF
 			LOOP
@@ -5341,7 +5337,7 @@ function create_array_of_all_active_x_numbers_by_supervisor(array_name, supervis
 	NEXT
 	'Preparing array_name for use...
 	array_name = split(array_name)
-end function
+End Function
 
 function create_array_of_all_active_x_numbers_in_county(array_name, county_code)
 '--- This function is used to grab all active X numbers in a county
@@ -7380,16 +7376,6 @@ function fix_case_for_name(name_variable)
 		END IF
 	NEXT
 	name_variable = output_variable
-end function
-
-function fix_read_data(search_string)
-'--- This function fixes data that we are reading from PRISM that includes underscores. The function searches the variable and removes underscores. Then, the fix case function is called to format the string to the correct case & the data is trimmed to remove any excess spaces.
-'~~~~~ search_string: the string for the variable to be searched
-'===== Keywords: MAXIS, MMIS, PRISM, name, data, fix
-	search_string = replace(search_string, "_", "")
-	call fix_case(search_string, 1)
-	search_string = trim(search_string)
-	fix_read_data = search_string 'To make this a return function, this statement must set the value of the function name
 end function
 
 Function generate_client_list(list_for_dropdown, initial_text)
@@ -10231,84 +10217,84 @@ function PF12()
 end function
 
 function PF13()
-'--- This function sends or hits the PF13 key.
+'--- This function sends or hits the PF13 key (SHIFT+F1).
  '===== Keywords: MAXIS, MMIS, PRISM, PF13
   EMSendKey "<PF13>"
   EMWaitReady 0, 0
 end function
 
 function PF14()
-'--- This function sends or hits the PF14 key.
+'--- This function sends or hits the PF14 key (SHIFT+F2).
  '===== Keywords: MAXIS, MMIS, PRISM, PF14
   EMSendKey "<PF14>"
   EMWaitReady 0, 0
 end function
 
 function PF15()
-'--- This function sends or hits the PF15 key.
+'--- This function sends or hits the PF15 key (SHIFT+F3).
  '===== Keywords: MAXIS, MMIS, PRISM, PF15
   EMSendKey "<PF15>"
   EMWaitReady 0, 0
 end function
 
 function PF16()
-'--- This function sends or hits the PF16 key.
+'--- This function sends or hits the PF16 key (SHIFT+F4).
  '===== Keywords: MAXIS, MMIS, PRISM, PF16
   EMSendKey "<PF16>"
   EMWaitReady 0, 0
 end function
 
 function PF17()
-'--- This function sends or hits the PF17 key.
+'--- This function sends or hits the PF17 key (SHIFT+F5).
  '===== Keywords: MAXIS, MMIS, PRISM, PF17
   EMSendKey "<PF17>"
   EMWaitReady 0, 0
 end function
 
 function PF18()
-'--- This function sends or hits the PF18 key.
+'--- This function sends or hits the PF18 key (SHIFT+F6).
  '===== Keywords: MAXIS, MMIS, PRISM, PF18
   EMSendKey "<PF18>"
   EMWaitReady 0, 0
 end function
 
 function PF19()
-'--- This function sends or hits the PF19 key.
+'--- This function sends or hits the PF19 key (SHIFT+F7).
  '===== Keywords: MAXIS, MMIS, PRISM, PF19
   EMSendKey "<PF19>"
   EMWaitReady 0, 0
 end function
 
 function PF20()
-'--- This function sends or hits the PF20 key.
+'--- This function sends or hits the PF20 key (SHIFT+F8).
  '===== Keywords: MAXIS, MMIS, PRISM, PF20
   EMSendKey "<PF20>"
   EMWaitReady 0, 0
 end function
 
 function PF21()
-'--- This function sends or hits the PF21 key.
+'--- This function sends or hits the PF21 key (SHIFT+F9).
  '===== Keywords: MAXIS, MMIS, PRISM, PF21
   EMSendKey "<PF21>"
   EMWaitReady 0, 0
 end function
 
 function PF22()
-'--- This function sends or hits the PF22 key.
+'--- This function sends or hits the PF22 key (SHIFT+F10).
  '===== Keywords: MAXIS, MMIS, PRISM, PF22
   EMSendKey "<PF22>"
   EMWaitReady 0, 0
 end function
 
 function PF23()
-'--- This function sends or hits the PF23 key.
+'--- This function sends or hits the PF23 key (SHIFT+F11).
  '===== Keywords: MAXIS, MMIS, PRISM, PF23
   EMSendKey "<PF23>"
   EMWaitReady 0, 0
 end function
 
 function PF24()
-'--- This function sends or hits the PF24 key.
+'--- This function sends or hits the PF24 key (SHIFT+F12).
  '===== Keywords: MAXIS, MMIS, PRISM, PF24
   EMSendKey "<PF24>"
   EMWaitReady 0, 0
