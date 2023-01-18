@@ -5794,7 +5794,7 @@ If vars_filled = False Then
             If appl_prog_date <> "__ __ __" then appl_prog_date_array = appl_prog_date_array & replace(appl_prog_date, " ", "/") & " "
 
             row = row + 1
-        Loop until row = 13
+        Loop until row = 12
         appl_prog_date_array = split(appl_prog_date_array)
         CAF_datestamp = CDate(appl_prog_date_array(0))
         for i = 0 to ubound(appl_prog_date_array) - 1
