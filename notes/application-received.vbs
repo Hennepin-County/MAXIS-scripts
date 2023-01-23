@@ -225,6 +225,64 @@ IF IsDate(application_date) = False THEN                   'If we could NOT find
     application_date = pnd2_appl_date
 End if
 
+app_recvd_note_found = False
+Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
+too_old_date = DateAdd("D", -1, application_date)              'We don't need to read notes from before the CAF date
+
+note_row = 5
+previously_pended_progs = ""
+MEMO_found = False
+screening_found = False
+Do
+    EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+
+    EMReadScreen note_title, 55, note_row, 25               'reading the note header
+    note_title = trim(note_title)
+
+    If left(note_title, 22) = "~ Application Received" Then
+        app_recvd_note_found = True
+        Call write_value_and_transmit("X", note_row, 3)
+        in_note_row = 4
+        Do
+            EMReadScreen note_line, in_note_row, 3
+            note_line = trim(note_line)
+
+            If left(note_line, 25) = "* Application Requesting:" Then
+                previously_pended_progs = right(note_line, len(note_line)-25)
+                previously_pended_progs = trim(previously_pended_progs)
+            End If
+
+            in_note_row = in_note_row + 1
+            If in_note_row = 18 Then
+                PF8
+                in_note_row = 4
+                EMReadScreen end_of_note, 9, 24, 14
+                If end_of_note = "LAST PAGE" Then Exit Do
+            End If
+        Loop until note_line = ""
+        PF3
+    end If
+    If left(note_title, 23) = "~ Appointment letter sent in MEMO" Then MEMO_found = True
+    If left(note_title, 21) = "~ Received Application for SNAP" Then screening_found = True
+
+    if note_date = "        " then Exit Do
+
+    note_row = note_row + 1
+    if note_row = 19 then
+        note_row = 5
+        PF8
+        EMReadScreen check_for_last_page, 9, 24, 14
+        If check_for_last_page = "LAST PAGE" Then Exit Do
+    End If
+    EMReadScreen next_note_date, 8, note_row, 6
+    if next_note_date = "        " then Exit Do
+Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+
+If app_recvd_note_found = True Then
+    skip_start_of_subsequent_apps = True
+    call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
+End If
+
 Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 PF5
 EMReadScreen recipient_type, 6, 5, 15
