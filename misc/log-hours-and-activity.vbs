@@ -71,20 +71,21 @@ request_additional_detail_button = 1009
 
 task_category_list = "Select One..."
 task_category_list = task_category_list+chr(9)+"Admin"
+task_category_list = task_category_list+chr(9)+"Agency Leadership"
 task_category_list = task_category_list+chr(9)+"Break"
-task_category_list = task_category_list+chr(9)+"Consulting on Systems and Processes"
-task_category_list = task_category_list+chr(9)+"Department Wide Script Tools"
-task_category_list = task_category_list+chr(9)+"New Projects and Script Development"
-task_category_list = task_category_list+chr(9)+"Ongoing Script Support"
-task_category_list = task_category_list+chr(9)+"Other"
-task_category_list = task_category_list+chr(9)+"Personal Skills Development"
-task_category_list = task_category_list+chr(9)+"PTO"
-task_category_list = task_category_list+chr(9)+"Sick Time"
+task_category_list = task_category_list+chr(9)+"BZST Strategy and Planning"
+task_category_list = task_category_list+chr(9)+"Consulting and Discovery"
+task_category_list = task_category_list+chr(9)+"Data Analysis" 
+task_category_list = task_category_list+chr(9)+"Inter-Agency Collaboration"
+task_category_list = task_category_list+chr(9)+"Planning"
+task_category_list = task_category_list+chr(9)+"Process Analysis and Revision"
 task_category_list = task_category_list+chr(9)+"Teaching"
-task_category_list = task_category_list+chr(9)+"Team Strategy Development"
+task_category_list = task_category_list+chr(9)+"Team Building"
 task_category_list = task_category_list+chr(9)+"Training"
 task_category_list = task_category_list+chr(9)+"Travel"
-task_category_list = task_category_list+chr(9)+"Vacation"
+task_category_list = task_category_list+chr(9)+"Script Projects"
+task_category_list = task_category_list+chr(9)+"Supervisory"
+
 
 '===========================================================================================================================
 'setting the current time and fifteen minutes from now for display/defaulting
