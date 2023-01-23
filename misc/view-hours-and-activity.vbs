@@ -829,7 +829,7 @@ added_end_time_row_list = trim(added_end_time_row_list)
 If added_end_time_row_list <> "" then
 	array_of_rows_to_remove_end_time = split(added_end_time_row_list)
 	For each excel_row in array_of_rows_to_remove_end_time
-		MsgBox "~" & excel_row & "~"
+		' MsgBox "~" & excel_row & "~"
 		ObjExcel.Cells(excel_row, 3).Value = ""
 	Next
 	objWorkbook.Save									'saving the file to 'My Documents'
