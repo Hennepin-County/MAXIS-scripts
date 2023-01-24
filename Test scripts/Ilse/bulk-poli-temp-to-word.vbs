@@ -93,7 +93,7 @@ Call check_for_MAXIS(False) 'Checks to make sure we're in MAXIS
 Call MAXIS_footer_month_confirmation    'confirms the footer month based on the version.
 
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
-excel_row = 172
+excel_row = 2
 
 Do
     Call back_to_SELF
@@ -169,6 +169,7 @@ Do
         'These characters will not allow the file to save. Replacing them based on the character found.
         poli_title = replace(poli_title, ":", " ")
         poli_title = replace(poli_title, "/", " ")
+        poli_title = replace(poli_title, "?", " ")
         poli_title = replace(poli_title, "<", "Under ")
         poli_title = replace(poli_title, chr(34), "")   'chr(34) is ""
 
