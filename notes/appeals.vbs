@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("08/10/2022", "Removed anticipated date results as a mandatory field.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/22/2022", "Update to resolve bug with docket number writing in case notes.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("05/14/2021", "Update to resolve bug with N/A and case notes.", "MiKayla Handley, Hennepin County")
@@ -105,7 +106,7 @@ IF appeal_actions = "Received" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 286, 210, "Received - App pend: "  & list_pending_programs & " Active on: "  & list_active_programs
-      DropListBox 60, 5, 85, 15, "Select One:"+chr(9)+"ECF"+chr(9)+"DHS"+chr(9)+"Phone-Verbal Request", how_appeal_rcvd_dropdown
+      DropListBox 60, 5, 85, 15, "Select One:"+chr(9)+"Case File"+chr(9)+"DHS"+chr(9)+"Phone-Verbal Request", how_appeal_rcvd_dropdown
       EditBox 235, 5, 45, 15, client_request_date
       EditBox 140, 25, 45, 15, effective_date
       DropListBox 90, 45, 55, 15, "Select One:"+chr(9)+"Denial"+chr(9)+"Overpayment"+chr(9)+"Reduction"+chr(9)+"Termination"+chr(9)+"Other", appeal_action_dropdown
