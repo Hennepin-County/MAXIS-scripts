@@ -48,14 +48,6 @@ function format_time_variable(time_variable, is_this_from_excel)
 	time_variable = TimeSerial(time_hour, time_minute, 0)
 end function
 
-Function File_Exists(file_name, does_file_exist)
-    ' Set objFSO = CreateObject("Scripting.FileSystemObject")
-    If (objFSO.FileExists(file_name)) Then
-        does_file_exist = True
-    Else
-      does_file_exist = False
-    End If
-End Function
 '===========================================================================================================================
 
 'DECLARATIONS===============================================================================================================
@@ -75,7 +67,7 @@ task_category_list = task_category_list+chr(9)+"Agency Leadership"
 task_category_list = task_category_list+chr(9)+"Break"
 task_category_list = task_category_list+chr(9)+"BZST Strategy and Planning"
 task_category_list = task_category_list+chr(9)+"Consulting and Discovery"
-task_category_list = task_category_list+chr(9)+"Data Analysis" 
+task_category_list = task_category_list+chr(9)+"Data Analysis"
 task_category_list = task_category_list+chr(9)+"Inter-Agency Collaboration"
 task_category_list = task_category_list+chr(9)+"Planning"
 task_category_list = task_category_list+chr(9)+"Process Analysis and Revision"
