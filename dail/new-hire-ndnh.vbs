@@ -46,6 +46,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("09/12/2022", "Added support for MEMB 00 messages.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/11/2022", "Bug fix in reading the MAXIS Case Number.", "Ilse Ferris, Hennepin County") ''#900
@@ -320,7 +321,7 @@ IF match_answer_droplist = "NO-RUN NEW HIRE" THEN
     CALL write_variable_in_case_note(new_hire_third_line)
     CALL write_variable_in_case_note(new_hire_fourth_line)
     CALL write_variable_in_case_note("---")
-    IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B) from ECF.")
+    IF ECF_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Sent employment verification and DHS-2919 (Verif Request Form B).")
     IF create_JOBS_checkbox = CHECKED THEN CALL write_variable_in_case_note("* STAT/JOBS updated with new hire information from DAIL.")
     IF CCA_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to CCA.")
     IF ES_checkbox = CHECKED  THEN CALL write_variable_in_case_note("* Sent status update to ES.")
@@ -502,7 +503,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    	CALL write_variable_in_case_note(new_hire_third_line)
 	    	CALL write_variable_in_case_note(new_hire_fourth_line)
 	    	CALL write_variable_in_case_note("---")
-	    	CALL write_variable_in_case_note("* Reviewed ECF for requested verifications and MAXIS for correctly budgeted income.")
+	    	CALL write_variable_in_case_note("* Reviewed case file for requested verifications and MAXIS for correctly budgeted income.")
 	    	CALL write_variable_in_case_note("* Cleared match in INFC/HIRE - Previously reported to agency.")
 	    ELSEIF Emp_known_droplist = "NO-See Next Question" THEN
 	    	CALL write_variable_in_case_note("-NDNH Match for (M" & HH_memb & ") INFC cleared: Unreported-")
@@ -511,7 +512,7 @@ IF match_answer_droplist = "YES-INFC clear match" THEN
 	    	CALL write_variable_in_case_note(new_hire_third_line)
 	    	CALL write_variable_in_case_note(new_hire_fourth_line)
 	    	CALL write_variable_in_case_note("---")
-	    	CALL write_variable_in_case_note("* Reviewed ECF for requested verifications updated INFC/HIRE accordingly")
+	    	CALL write_variable_in_case_note("* Reviewed case file for requested verifications updated INFC/HIRE accordingly")
 	    	IF Action_taken_droplist = "NA-No Action Taken" THEN CALL write_variable_in_case_note("* No futher action taken on this match at this time")
 	    	IF Action_taken_droplist = "BR-Benefits Reduced" THEN CALL write_variable_in_case_note("* Action taken: Benefits Reduced")
 	    	IF Action_taken_droplist = "CC-Case Closed" THEN CALL write_variable_in_case_note("* Action taken: Case Closed (allowing for 10 day cutoff if applicable)")
