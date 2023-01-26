@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/10/2022", "Removed 'certified disabled' text from health care service requested option. Example: 'certified disabled, requesting TEFRA' is now 'Requesting TERFA'.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/20/2020", "Updated link to REQUEST TO APPL use form on SharePoint.", "Ilse Ferris, Hennepin County")
@@ -363,7 +364,7 @@ If SMRT_approved = 1 then Call write_variable_in_CASE_NOTE("* SMRT is approved."
 If SMRT_pending = 1 then Call write_variable_in_CASE_NOTE("* SMRT is pending.")
 If PMI_checkbox = 1  then Call write_variable_in_CASE_NOTE("* Case has known duplicate PMI/PMI issues.")
 If useform_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Sent Request to APPL Form.")
-IF MA_transition_form = 1 then Call write_variable_in_CASE_NOTE("* Sent MA Transition Communication Form in ECF.")
+IF MA_transition_form = 1 then Call write_variable_in_CASE_NOTE("* Sent MA Transition Communication Form to case file.")
 'METS to MAXIS case note only
 If initial_option = "MAXIS to METS Migration" then
     Call write_variable_in_CASE_NOTE("* This case was identified by DHS as requiring conversion to the METS system.")
