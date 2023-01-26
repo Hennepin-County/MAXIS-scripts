@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: CALL changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/28/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/08/2020", "Updated BUG when clearing match BO-Other added back IULB notes per DEU request.", "MiKayla Handley, Hennepin County") '#922
@@ -659,7 +660,7 @@ ELSEIF notice_sent = "Y" or difference_notice_action_dropdown =  "NO" THEN 'or c
 			IF resolution_status = "BP-Wrong Person" THEN IULB_notes = "Client name and wage earner name are different. " & other_notes
 			IF resolution_status = "BU-Unable To Verify" THEN IULB_notes = "Unable To Verify. " & other_notes
 			IF resolution_status = "BO-Other" THEN IULB_notes = "No review due during the match period. " & other_notes
-			IF resolution_status = "NC-Non Cooperation" THEN IULB_notes = "Non-coop, requested verf not in ECF, " & other_notes
+			IF resolution_status = "NC-Non Cooperation" THEN IULB_notes = "Non-coop, requested verf not in case file, " & other_notes
 
 			iulb_row = 8
 			iulb_col = 6
@@ -873,7 +874,7 @@ ELSE
 END IF
 IF change_response <> "N/A" THEN CALL write_bullet_and_variable_in_case_note("Responded to Difference Notice", change_response)
 IF DISQ_action <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("STAT/DISQ addressed for each program", DISQ_action)
-CALL write_bullet_and_variable_in_case_note("Date verification received in ECF", date_received)
+CALL write_bullet_and_variable_in_case_note("Date verification received in case file", date_received)
 IF resolution_status = "CB-Ovrpmt And Future Save" THEN CALL write_variable_in_case_note("* OP Claim entered and future savings.")
 IF resolution_status = "CF-Future Save" THEN CALL write_variable_in_case_note("* Future Savings.")
 IF resolution_status = "CA-Excess Assets" THEN CALL write_variable_in_case_note("* Excess Assets.")
