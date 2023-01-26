@@ -244,12 +244,17 @@ Do
         Call write_value_and_transmit("X", note_row, 3)
         in_note_row = 4
         Do
-            EMReadScreen note_line, in_note_row, 3
+            EMReadScreen note_line, 78, in_note_row, 3
             note_line = trim(note_line)
 
             If left(note_line, 25) = "* Application Requesting:" Then
                 previously_pended_progs = right(note_line, len(note_line)-25)
                 previously_pended_progs = trim(previously_pended_progs)
+            End If
+
+            If left(note_line, 18) = "* Case Population:" Then
+                population_of_case = right(note_line, len(note_line)-18)
+                population_of_case = trim(population_of_case)
             End If
 
             in_note_row = in_note_row + 1
@@ -280,9 +285,16 @@ Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 
 If app_recvd_note_found = True Then
     skip_start_of_subsequent_apps = True
-    call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
+    hc_case = False 
+    If unknown_hc_pending = True Then hc_case = True
+    If ma_status = "PENDING" Then hc_case = True
+    If msp_status = "PENDING" Then hc_case = True
+    If hc_case = True Then hc_request_on_second_app = MsgBox("It appears this case has already had the 'Application Received' script on this case. For CAF based programs, we should only run Application Received once since the application dates need to be aligned." & vbCr & vbCR &_ 
+                                                             "Are there 2 seperate applications? One for Health Care and another for CAF based program(s)?", vbquestion + vbYesNo, "Type of Application Process")
+    If hc_case = False or hc_request_on_second_app = vbNo Then  call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
 End If
-
+'318945
+'317939
 Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 PF5
 EMReadScreen recipient_type, 6, 5, 15
@@ -794,7 +806,8 @@ IF send_appt_ltr = TRUE THEN interview_email_body = "A SPEC/MEMO has been create
 'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
 IF how_application_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_603_email_checkbox =  UNCHECKED and MA_transition_request_checkbox = UNCHECKED and Auto_Newborn_checkbox = UNCHECKED THEN
     CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", interview_email_body, "", FALSE)
-ELSEIF Auto_Newborn_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
+ELSEIF Auto_Newborn_checkbox = CHECKED THEN 
+    CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 END IF
 If was_ccap_requested = "Yes - Child Care Requested" Then
     Call find_user_name(the_person_running_the_script)
