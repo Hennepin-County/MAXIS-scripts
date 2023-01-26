@@ -45,6 +45,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/03/2022", "Remove ability to select both residential and mailing address. Created an option for received in error and address HC only handling.", "MiKayla Handley, Hennepin County") '#927 '
 call changelog_update("06/03/2022", "Updates for HC active/pending procedure and added handling for entering PACT panel.", "MiKayla Handley, Hennepin County") '#427 & #365 '
 call changelog_update("03/12/2021", "Updated handling for current address confirmation.", "MiKayla Handley, Hennepin County")
@@ -425,7 +426,7 @@ IF ADDR_actions = "forwarding address provided" THEN
 	CALL write_variable_in_CASE_NOTE("                            " & new_addr_city & ", " & new_addr_state & " " & new_addr_zip)
 	CALL write_variable_in_case_note("* Resident must be provided 10 days to return requested verifications.")
 ELSEIF ADDR_actions = "no response received" THEN
-	CALL write_variable_in_CASE_NOTE ("* ECF reviewed for requested verifications.")
+	CALL write_variable_in_CASE_NOTE ("* Case file reviewed for requested verifications.")
 	CALL write_variable_in_CASE_NOTE("* Date verification(s) requested: " & date_verifications_requested)
 	CALL write_variable_in_case_note("* Resident was provided 10 days to return requested verifications.")
 	IF snap_or_cash_case = True THEN CALL write_variable_in_CASE_NOTE ("* PACT panel entered per POLI/TEMP TE02.13.10.")
