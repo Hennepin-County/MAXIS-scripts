@@ -202,6 +202,7 @@ For each update in temp_array
     'These characters will not allow the file to save. Replacing them based on the character found.
     poli_title = replace(poli_title, ":", " ")
     poli_title = replace(poli_title, "/", " ")
+    poli_title = replace(poli_title, "?", " ")
     poli_title = replace(poli_title, "<", "Under ")
     poli_title = replace(poli_title, chr(34), "")   'chr(34) is ""
 
