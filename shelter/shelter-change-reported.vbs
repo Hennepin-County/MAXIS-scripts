@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the resident instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/07/2022", "Updated Team 601 contact emails to be 603 per De Vang's request.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/13/2020", "Updated TIKL Functionality and updates to script to pull a list of contacts for emails outside of the script.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated dialog boxes to prepare for enhancements to script.", "MiKayla Handley, Hennepin County")
@@ -193,7 +194,7 @@ EndDialog
 CALL check_for_MAXIS(false)
 
 actions_taken = ""
-IF Verif_checkbox = CHECKED THEN actions_taken = actions_taken & "Verifications sent to ECF,"
+IF Verif_checkbox = CHECKED THEN actions_taken = actions_taken & "Verifications sent to resident,"
 IF STAT_checkbox = CHECKED THEN actions_taken = actions_taken & "Updated STAT panels,"
 IF APP_checkbox = CHECKED THEN actions_taken = actions_taken & "Approved new results,"
 IF notify_checkbox = CHECKED THEN actions_taken = actions_taken & "Notified other agency,"
