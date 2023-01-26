@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/10/2022", "Added new functionality to specifically support the review of cases with Cash, SNAP, GRH, or EMER pending that are at or after Day 30. These cases have reached the end of the Application Processing Period and should be reviewed for determination action, which may include denial. These updates better support the actions required for cases at this point.##~##", "Casey Love, Hennepin County") ''#1042
 CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("03/29/2022", "Removed ApplyMN as application option.", "Ilse Ferris")
@@ -1113,7 +1114,7 @@ If caf_programs_denial = True Then
         End If
         If reason_cannot_deny = "Missing Verification Request" Then
             CALL write_variable_in_CASE_NOTE("Verifications were required for this case to complete a determination.")
-            CALL write_variable_in_CASE_NOTE("Verification Request Form not found in ECF.")
+            CALL write_variable_in_CASE_NOTE("Verification Request Form not found in case file.")
             If verif_request_sent_via_ecf_checkkbox = checked Then
                 Call write_variable_in_CASE_NOTE("* Verification Request form sent today, " & date & ".")
                 Call write_variable_in_CASE_NOTE("  10 days provided for return of verifications.")
@@ -1241,7 +1242,7 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Program(s) Applied For", programs_a
 CALL write_bullet_and_variable_in_CASE_NOTE("Application Date", application_date)
 CALL write_bullet_and_variable_in_CASE_NOTE("Other Pending Programs", additional_programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE("Active Programs", active_programs)
-IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* ECF reviewed and verifications have been sent")
+IF ECF_checkbox = CHECKED THEN CALL write_variable_in_CASE_NOTE("* Case file reviewed and verifications have been sent")
 CALL write_bullet_and_variable_in_CASE_NOTE("Verifications Received", verifs_rcvd)
 CALL write_bullet_and_variable_in_CASE_NOTE("Pending Verifications", verifs_needed)
 CALL write_bullet_and_variable_in_CASE_NOTE("Actions Taken", actions_taken)
