@@ -1,8 +1,8 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "BULK - REPT-ACTV LIST.vbs"
+name_of_script = "BULK - HEALTH CARE BUDGET REPORT.vbs"
 start_time = timer
 STATS_counter = 1                          'sets the stats counter at one
-STATS_manualtime = 13                      'manual run time in seconds
+STATS_manualtime = 45                      'manual run time in seconds
 STATS_denomination = "C"       							'C is for each CASE
 'END OF stats block==============================================================================================
 
@@ -44,11 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("01/27/2020", "Updated the handling for CCL.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("05/07/2018", "Updated the characters to pull for the client's name.", "MiKayla Handley, Hennepin County")
-CALL changelog_update("01/12/2018", "Entering a supervisor X-Number in the Workers to Check will pull all X-Numbers listed under that supervisor in MAXIS. Addiional bug fix where script was missing cases.", "Casey Love, Hennepin County")
-Call changelog_update("12/10/2016", "Added IV-E, Child Care and FIATed case statuses to script. Also added closing message informing user that script has ended sucessfully.", "Ilse Ferris, Hennepin County")
-call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
+call changelog_update("01/26/2023", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
@@ -63,8 +59,10 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 286, 130, "Pull REPT data into Excel dialog"
+BeginDialog Dialog1, 0, 0, 286, 130, "Review Health Care Budget Approvals"
   EditBox 75, 20, 145, 15, worker_number
+  CheckBox 10, 60, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  CheckBox 10, 70, 150, 10, "Identity FIATed cases on the spreadsheet", FIAT_check
   EditBox 90, 110, 15, 15, MAXIS_footer_month
   EditBox 110, 110, 15, 15, MAXIS_footer_year
   ButtonGroup ButtonPressed
@@ -73,8 +71,6 @@ BeginDialog Dialog1, 0, 0, 286, 130, "Pull REPT data into Excel dialog"
   Text 25, 5, 240, 10, "Pull ACTIVE Helth Care Cases into Excel with Approved Budget Indicator "
   Text 10, 25, 65, 10, "Worker(s) to check:"
   Text 10, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-  CheckBox 10, 60, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 10, 70, 150, 10, "Identity FIATed cases on the spreadsheet", FIAT_check
   Text 10, 85, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
   Text 10, 115, 80, 10, "Footer Month to Check:"
 EndDialog
@@ -95,9 +91,6 @@ query_start_time = timer
 
 'Checking for MAXIS
 Call check_for_MAXIS(True)
-
-
-
 
 'If all workers are selected, the script will go to REPT/USER, and load all of the workers into an array. Otherwise it'll create a single-object "array" just for simplicity of code.
 If all_workers_check = checked then
@@ -140,6 +133,7 @@ Else		'If worker numbers are litsted - this will create an array of workers to c
 	worker_array = split(worker_array, ", ")
 End if
 
+'creating an array for hc cases
 const worker_number_const 				= 0
 const case_number_const 				= 1
 const client_name_const 				= 2
@@ -211,11 +205,10 @@ For each worker in worker_array
 					ALL_ACTIVE_HC_CASES_ARRAY(hc_status_code_const, hc_cases) = HC_status
 					ALL_ACTIVE_HC_CASES_ARRAY(fiat_status_const, hc_cases) = FIAT_status
 					hc_cases = hc_cases + 1
-
+					STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 				End if
 				MAXIS_row = MAXIS_row + 1
 				MAXIS_case_number = ""			'Blanking out variable
-				STATS_counter = STATS_counter + 1                      'adds one instance to the stats counter
 			Loop until MAXIS_row = 19
 			PF8
 		Loop until last_page_check = "THIS IS THE LAST PAGE"
@@ -228,7 +221,7 @@ objExcel.Visible = True
 Set objWorkbook = objExcel.Workbooks.Add()
 objExcel.DisplayAlerts = True
 
-'Setting the first 4 col as worker, case number, name, and APPL date
+'Setting the first 8 col as worker, case number, name, and APPL date
 ObjExcel.Cells(1, 1).Value = "WORKER"
 ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
 ObjExcel.Cells(1, 3).Value = "NAME"
@@ -255,24 +248,23 @@ If FIAT_check = checked then
 	last_letter_col = FIAT_letter_col
 End if
 
+'Now we will review ELIG/HC for each case and determine if a budget is approved
 excel_row = 2
-
 For each_hc_case = 0 to UBound(ALL_ACTIVE_HC_CASES_ARRAY, 2)
 	Call Back_to_SELF
 	MAXIS_case_number = ALL_ACTIVE_HC_CASES_ARRAY(case_number_const, each_hc_case)
 
-
-	call navigate_to_MAXIS_screen("ELIG", "HC  ")
+	call navigate_to_MAXIS_screen("ELIG", "HC  ")		'go to ELIG/HC for the correct footer month
 	EMWriteScreen MAXIS_footer_month, 19, 54
 	EMWriteScreen MAXIS_footer_year, 19, 57
 	transmit
 
-	hc_row = 8
-	approved_hc_programs = 0
+	hc_row = 8									'reading for each program span for each person on the case
+	approved_hc_programs = 0					'defaulting information
 	all_MA_budgets_approved = True
 	approved_MA_exists = False
 	Do
-		EMReadScreen new_hc_elig_ref_numbs, 2, hc_row, 3
+		EMReadScreen new_hc_elig_ref_numbs, 2, hc_row, 3		'reading the name and reference number
 		EMReadScreen new_hc_elig_full_name, 17, hc_row, 7
 
 		If new_hc_elig_ref_numbs = "  " Then
@@ -284,7 +276,7 @@ For each_hc_case = 0 to UBound(ALL_ACTIVE_HC_CASES_ARRAY, 2)
 
 		hc_elig_full_name = trim(hc_elig_full_name)
 
-		EMReadScreen clt_hc_prog, 4, hc_row, 28
+		EMReadScreen clt_hc_prog, 4, hc_row, 28					'reading the program info
 		If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
 
 			EMReadScreen prog_status, 3, hc_row, 68
@@ -312,87 +304,34 @@ For each_hc_case = 0 to UBound(ALL_ACTIVE_HC_CASES_ARRAY, 2)
 			hc_prog_elig_appd = False
 		End If
 
-		If hc_prog_elig_appd = True Then
+		If hc_prog_elig_appd = True Then				'if an approved version was found, go view more info
 			approved_hc_programs = approved_hc_programs + 1
 
 			EMReadScreen hc_prog_elig_major_program, 		4, hc_row, 28
-			EMReadScreen hc_prog_elig_eligibility_result, 	8, hc_row, 41
-			EMReadScreen hc_prog_elig_status, 				8, hc_row, 50
-			EMReadScreen hc_prog_elig_app_indc, 				6, hc_row, 68
-			EMReadScreen hc_prog_elig_magi_excempt, 			6, hc_row, 74
-
-
 			hc_prog_elig_major_program = trim(hc_prog_elig_major_program)
 
-			Call write_value_and_transmit("X", hc_row, 26)
-			' MsgBox "MOVING - 1" & vbCr & hc_prog_elig_major_program(hc_prog_count) & vbCr & "MEMB " & hc_elig_ref_numbs(hc_prog_count)
-			EMReadScreen hc_prog_elig_process_date, 8, 2, 73
-			hc_prog_elig_process_date = DateAdd("d", 0, hc_prog_elig_process_date)
+			Call write_value_and_transmit("X", hc_row, 26)		'opening the
 
-			' If DateDiff("'d", hc_prog_elig_process_date, date) = 0 Then
-			If hc_prog_elig_major_program = "HC D" Then
-				EMReadScreen hc_prog_elig_app_date, 8, 3, 73
-
-				EMReadScreen hc_prog_elig_source_of_info, 		4, 9, 33
-				EMReadScreen hc_prog_elig_responsible_county, 	2, 8, 78
-				EMReadScreen hc_prog_elig_servicing_county, 	2, 9, 78
-
-				EMReadScreen hc_prog_elig_test_application_withdrawn, 			6, 13, 22
-				EMReadScreen hc_prog_elig_test_application_process_incomplete, 6, 14, 22
-				EMReadScreen hc_prog_elig_test_no_new_prog_eligibility, 		6, 15, 22
-				EMReadScreen hc_prog_elig_test_assistance_unit, 				6, 16, 22
-
-				EMReadScreen hc_prog_elig_worker_msg_one, 78, 19, 3
-			End If
-
-			If hc_prog_elig_major_program = "MA" or hc_prog_elig_major_program = "EMA" Then
-				transmit
+			If hc_prog_elig_major_program = "MA" or hc_prog_elig_major_program = "EMA" Then			'If MA program, reading for the footer month in the budget span
 				approved_MA_exists = True
-				EMReadScreen hc_prog_elig_app_date, 8, 4, 73
-				PF3
 				hc_col = 17
 				Do
 					EMReadScreen budg_mo, 2, 6, hc_col + 2
 					EMReadScreen budg_yr, 2, 6, hc_col + 5
 					' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
-					If budg_mo = MAXIS_footer_month AND budg_yr = MAXIS_footer_year Then
-						EMReadScreen hc_prog_elig_elig_type, 		2, 12, hc_col
-						EMReadScreen hc_prog_elig_elig_standard, 	1, 12, hc_col + 5
-						EMReadScreen hc_prog_elig_method, 			1, 13, hc_col + 4
-						EMReadScreen hc_prog_elig_waiver, 			1, 14, hc_col + 4
-
-						EMReadScreen hc_prog_elig_total_net_income, 9, 15, hc_col
-						EMReadScreen hc_prog_elig_standard, 		9, 16, hc_col
-						EMReadScreen hc_prog_elig_excess_income, 	9, 17, hc_col
-						If trim(hc_prog_elig_total_net_income) = "" Then hc_prog_elig_total_net_income = "0.00"
-						Exit Do
-
-					End If
+					If budg_mo = MAXIS_footer_month AND budg_yr = MAXIS_footer_year Then Exit Do
 					hc_col = hc_col + 11
 
 					If hc_col = 83 Then all_MA_budgets_approved = False
 				Loop until hc_col = 83
 			End If
-
-			If hc_prog_elig_major_program = "QMB" or hc_prog_elig_major_program = "SLMB" or hc_prog_elig_major_program = "QI1" Then
-				transmit
-				EMReadScreen hc_prog_elig_app_date, 8, 4, 73
-			End If
 		End If
 
-		clt_hc_prog = ""
+		clt_hc_prog = ""				'blanking out variables
 		hc_prog_elig_appd = ""
 		hc_prog_elig_major_program = ""
-		hc_prog_elig_eligibility_result = ""
-		hc_prog_elig_status = ""
-		hc_prog_elig_app_indc = ""
-		hc_prog_elig_elig_type = ""
-		hc_prog_elig_elig_standard = ""
-		hc_prog_elig_method = ""
-		hc_prog_elig_total_net_income = ""
-		hc_prog_elig_standard = ""
 
-		Do
+		Do										'going back to the list of HC programsw
 			EMReadScreen hhmm_check, 4, 3, 51
 			If hhmm_check <> "HHMM" Then PF3
 		Loop Until hhmm_check = "HHMM"
@@ -400,9 +339,8 @@ For each_hc_case = 0 to UBound(ALL_ACTIVE_HC_CASES_ARRAY, 2)
 		hc_row = hc_row + 1
 		EMReadScreen next_ref_numb, 2, hc_row, 3
 		EMReadScreen next_maj_prog, 4, hc_row, 28
-		' MsgBox "Row: " & hc_row & vbCr & "Next Ref Numb: " & next_ref_numb & vbCr & "Next Major Prog: " & next_maj_prog
 	Loop until next_ref_numb = "  " and next_maj_prog = "    "
-	If approved_MA_exists = False Then 	all_MA_budgets_approved = "No MA"
+	If approved_MA_exists = False Then all_MA_budgets_approved = "No MA"
 	ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case) = approved_hc_programs
 	ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case) = all_MA_budgets_approved
 
@@ -431,7 +369,7 @@ For col_to_autofit = 1 to col_to_use
 	ObjExcel.columns(col_to_autofit).AutoFit()
 Next
 
-Const xlSrcRange = 1
+Const xlSrcRange = 1			'creating a table
 Const xlYes = 1
 table1Range = "A1:" & last_letter_col & excel_row
 ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "HCApprovalInfo"
@@ -459,4 +397,49 @@ Next
 'Logging usage stats
 STATS_counter = STATS_counter - 1                      'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 
-script_end_procedure("Success! Your REPT/ACTV list has been created.")
+script_end_procedure("Success! Your Health Care Budget Report list has been created.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------01/26/2023
+'--Tab orders reviewed & confirmed----------------------------------------------01/26/2023
+'--Mandatory fields all present & Reviewed--------------------------------------01/26/2023
+'--All variables in dialog match mandatory fields-------------------------------01/26/2023
+'Review dialog names for content and content fit in dialog----------------------01/26/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/26/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------01/26/2023
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------01/26/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------01/26/2023
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------01/26/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------01/26/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------01/26/2023
+'--Denomination reviewed -------------------------------------------------------01/26/2023
+'--Script name reviewed---------------------------------------------------------01/26/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------01/26/2023
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------01/26/2023
+'--comment Code-----------------------------------------------------------------01/26/2023
+'--Update Changelog for release/update------------------------------------------01/26/2023
+'--Remove testing message boxes-------------------------------------------------01/26/2023
+'--Remove testing code/unnecessary code-----------------------------------------01/26/2023
+'--Review/update SharePoint instructions----------------------------------------In Progress
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------In Progress
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------In Progress
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
