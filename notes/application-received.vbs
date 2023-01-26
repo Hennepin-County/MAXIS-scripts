@@ -231,7 +231,7 @@ too_old_date = DateAdd("D", -1, application_date)              'We don't need to
 
 note_row = 5
 previously_pended_progs = ""
-MEMO_found = False
+MEMO_NOTE_found = False
 screening_found = False
 Do
     EMReadScreen note_date, 8, note_row, 6                  'reading the note date
@@ -267,7 +267,7 @@ Do
         Loop until note_line = ""
         PF3
     end If
-    If left(note_title, 23) = "~ Appointment letter sent in MEMO" Then MEMO_found = True
+    If left(note_title, 23) = "~ Appointment letter sent in MEMO" Then MEMO_NOTE_found = True
     If left(note_title, 21) = "~ Received Application for SNAP" Then screening_found = True
 
     if note_date = "        " then Exit Do
@@ -285,16 +285,15 @@ Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 
 If app_recvd_note_found = True Then
     skip_start_of_subsequent_apps = True
-    hc_case = False 
+    hc_case = False
     If unknown_hc_pending = True Then hc_case = True
     If ma_status = "PENDING" Then hc_case = True
     If msp_status = "PENDING" Then hc_case = True
-    If hc_case = True Then hc_request_on_second_app = MsgBox("It appears this case has already had the 'Application Received' script on this case. For CAF based programs, we should only run Application Received once since the application dates need to be aligned." & vbCr & vbCR &_ 
+    If hc_case = True Then hc_request_on_second_app = MsgBox("It appears this case has already had the 'Application Received' script on this case. For CAF based programs, we should only run Application Received once since the application dates need to be aligned." & vbCr & vbCR &_
                                                              "Are there 2 seperate applications? One for Health Care and another for CAF based program(s)?", vbquestion + vbYesNo, "Type of Application Process")
     If hc_case = False or hc_request_on_second_app = vbNo Then  call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
 End If
-'318945
-'317939
+
 Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 PF5
 EMReadScreen recipient_type, 6, 5, 15
@@ -806,7 +805,7 @@ IF send_appt_ltr = TRUE THEN interview_email_body = "A SPEC/MEMO has been create
 'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
 IF how_application_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_603_email_checkbox =  UNCHECKED and MA_transition_request_checkbox = UNCHECKED and Auto_Newborn_checkbox = UNCHECKED THEN
     CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", interview_email_body, "", FALSE)
-ELSEIF Auto_Newborn_checkbox = CHECKED THEN 
+ELSEIF Auto_Newborn_checkbox = CHECKED THEN
     CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 END IF
 If was_ccap_requested = "Yes - Child Care Requested" Then
