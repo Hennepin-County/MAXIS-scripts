@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/19/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("08/31/2020", "Updated email information gathering and output functionality for additional stability.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/25/2020", "Added handling to ensure the member number is entered as a 2 digit number for readability.", "Casey Love, Hennepin County")
@@ -522,7 +523,7 @@ ELSEIF immig_status_dropdown = "US Citizen" THEN
 	Call write_variable_in_case_note("* Updated MEMB to remove Alien ID")
 	Call write_variable_in_case_note("* Updated MEMI to correct status")
 	Call write_variable_in_case_note("* Deleted IMIG and SPON")
-	Call write_variable_in_case_note("* Sent status verification to ECF")
+	Call write_variable_in_case_note("* Sent status verification to resident.")
 ELSEIF immig_status_dropdown = "28 Undocumented" THEN
 	Call write_variable_in_case_note("Updated IMIG for M" & MEMB_number)
 END IF
@@ -551,7 +552,7 @@ If yes_sponsored = CHECKED then
 	END IF
 ELSE Call write_variable_in_case_note("* No Sponsor indicated or sponsor is not applicable")
 END IF
-If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* SAVE Completed and sent to ECF")
+If save_CHECKBOX = CHECKED then Call write_variable_in_case_note("* SAVE Completed and sent to case file.")
 If additional_CHECKBOX = CHECKED then
 	Call write_variable_in_case_note("* Additional SAVE requested")
  	Call write_bullet_and_variable_in_CASE_NOTE("Outlook reminder set for", reminder_date)
