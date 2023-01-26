@@ -51,14 +51,7 @@ call changelog_update("06/01/2020", "Initial version.", "Casey Love, Hennepin Co
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
-Function File_Exists(file_name, does_file_exist)
-    ' Set objFSO = CreateObject("Scripting.FileSystemObject")
-    If (objFSO.FileExists(file_name)) Then
-        does_file_exist = True
-    Else
-      does_file_exist = False
-    End If
-End Function
+
 'DECLARATIONS ==============================================================================================================
 
 Const date_col                          = 1                         'These are the constants for the columns in the tracking Excel documents
