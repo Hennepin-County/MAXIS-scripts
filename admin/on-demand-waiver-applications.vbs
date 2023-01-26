@@ -131,15 +131,6 @@ function convert_to_mainframe_date(date_var, yr_len)
     date_var = month_to_use & "/" & day_to_use & "/" & year_to_use
 end function
 
-Function File_Exists(file_name, does_file_exist)
-    ' Set objFSO = CreateObject("Scripting.FileSystemObject")
-    If (objFSO.FileExists(file_name)) Then
-        does_file_exist = True
-    Else
-      does_file_exist = False
-    End If
-End Function
-
 'DECLARATIONS =================================================================================================================
 'Setting constants for SQL
 Const adOpenStatic = 3
