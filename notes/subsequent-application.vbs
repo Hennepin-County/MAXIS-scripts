@@ -53,13 +53,13 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
-CALL changelog_update("02/01/2023", "Initial version.", "Casey Love, Hennepin County")
+CALL changelog_update("01/30/2023", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-function determine_expedited_screening()    
+function determine_expedited_screening()
     'Now we will use the entries in the Application information to determine if this case is screened as expedited
     IF heat_AC_check = CHECKED THEN
         utilities = heat_AC_amt
@@ -76,8 +76,8 @@ function determine_expedited_screening()
     'If nothing is written for income/assets/rent info, we set to zero.
     IF income = "" THEN income = 0
     IF assets = "" THEN assets = 0
-    IF rent   = "" THEN rent   = 0 
-    
+    IF rent   = "" THEN rent   = 0
+
     IF (int(income) < 150 and int(assets) <= 100) or ((int(income) + int(assets)) < (int(rent) + cint(utilities))) THEN
         If population_of_case = "Families" Then transfer_to_worker = "EZ1"      'cases that screen as expedited are defaulted to expedited specific baskets based on population
         If population_of_case = "Adults" Then
@@ -99,11 +99,11 @@ function determine_expedited_screening()
         expedited_status = "Client Appears Expedited"                           'setting a variable with expedited information
         no_transfer_checkbox = unchecked
     End If
-    IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN 
+    IF (int(income) + int(assets) >= int(rent) + cint(utilities)) and (int(income) >= 150 or int(assets) > 100) THEN
         expedited_status = "Client Does Not Appear Expedited"
         no_transfer_checkbox = checked
         transfer_to_worker = ""
-    End If 
+    End If
 
     'families cases that have cash pending need to to to these specific baskets
     If population_of_case = "Families" and InStr(new_programs_pended, "CASH") <> 0 Then transfer_to_worker = "EY9"
@@ -112,11 +112,11 @@ function determine_expedited_screening()
     If transfer_to_worker = "EY9" Then
         no_transfer_checkbox = unchecked
         If EY9_basket_available = False Then transfer_to_worker = "EY8"
-    End If    
-end function 
+    End If
+end function
 
 function update_programs_pending_detail(previously_pended_progs, new_programs_pended)
-    prev_pend_snap_checkbox = unchecked
+    prev_pend_snap_checkbox = unchecked         'default the checkboxed to unchecked
     prev_pend_cash_checkbox = unchecked
     prev_pend_grh_checkbox = unchecked
     prev_pend_emer_checkbox = unchecked
@@ -125,7 +125,7 @@ function update_programs_pending_detail(previously_pended_progs, new_programs_pe
     new_pend_grh_checkbox = unchecked
     new_pend_emer_checkbox = unchecked
 
-    If InStr(previously_pended_progs, "SNAP") <> 0 Then prev_pend_snap_checkbox = checked
+    If InStr(previously_pended_progs, "SNAP") <> 0 Then prev_pend_snap_checkbox = checked       'checking the boxes based on what is listed in the program string
     If InStr(previously_pended_progs, "CASH") <> 0 Then prev_pend_cash_checkbox = checked
     If InStr(previously_pended_progs, "GRH") <> 0 Then prev_pend_grh_checkbox = checked
     If InStr(previously_pended_progs, "EGA") <> 0 Then prev_pend_emer_checkbox = checked
@@ -137,45 +137,49 @@ function update_programs_pending_detail(previously_pended_progs, new_programs_pe
     If InStr(new_programs_pended, "EGA") <> 0 Then new_pend_emer_checkbox = checked
     If InStr(new_programs_pended, "EA") <> 0 Then new_pend_emer_checkbox = checked
 
+    'dialog of all of the checkboxes
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 186, 120, "Select Programs"
-    Text 10, 10, 60, 10, "Already Pending: "
-    CheckBox 10, 25, 35, 10, "SNAP", prev_pend_snap_checkbox
-    CheckBox 50, 25, 35, 10, "Cash", prev_pend_cash_checkbox
-    CheckBox 95, 25, 35, 10, "GRH", prev_pend_grh_checkbox
-    CheckBox 140, 25, 35, 10, "EMER", prev_pend_emer_checkbox
-    Text 10, 50, 165, 10, "Programs Requested on Subsequent Application:"
-    CheckBox 10, 65, 35, 10, "SNAP", new_pend_snap_checkbox
-    CheckBox 50, 65, 35, 10, "Cash", new_pend_cash_checkbox
-    CheckBox 95, 65, 35, 10, "GRH", new_pend_grh_checkbox
-    CheckBox 140, 65, 35, 10, "EMER", new_pend_emer_checkbox
-    Text 10, 90, 60, 10, "Active Programs:"
-    Text 75, 90, 100, 10, "None"
-    ButtonGroup ButtonPressed
-        PushButton 95, 105, 85, 10, "Return to Main Dialog", returnbtn
+        Text 10, 10, 60, 10, "Already Pending: "
+        CheckBox 10, 25, 35, 10, "SNAP", prev_pend_snap_checkbox
+        CheckBox 50, 25, 35, 10, "Cash", prev_pend_cash_checkbox
+        CheckBox 95, 25, 35, 10, "GRH", prev_pend_grh_checkbox
+        CheckBox 140, 25, 35, 10, "EMER", prev_pend_emer_checkbox
+        Text 10, 50, 165, 10, "Programs Requested on Subsequent Application:"
+        CheckBox 10, 65, 35, 10, "SNAP", new_pend_snap_checkbox
+        CheckBox 50, 65, 35, 10, "Cash", new_pend_cash_checkbox
+        CheckBox 95, 65, 35, 10, "GRH", new_pend_grh_checkbox
+        CheckBox 140, 65, 35, 10, "EMER", new_pend_emer_checkbox
+        Text 10, 90, 60, 10, "Active Programs:"
+        Text 75, 90, 100, 10, "None"
+        ButtonGroup ButtonPressed
+            PushButton 95, 105, 85, 10, "Return to Main Dialog", returnbtn
     EndDialog
 
+    'displaying the dialog - no looping needed since this is embeded in another dialog and there is no way to validate the entries
     dialog Dialog1
 
+    'resetting the program list strings
     previously_pended_progs = ""
     If prev_pend_snap_checkbox = checked Then previously_pended_progs = previously_pended_progs & ", SNAP"
     If prev_pend_cash_checkbox = checked Then previously_pended_progs = previously_pended_progs & ", CASH"
     If prev_pend_grh_checkbox = checked Then previously_pended_progs = previously_pended_progs & ", GRH"
-    If prev_pend_emer_checkbox = checked Then 
+    If prev_pend_emer_checkbox = checked Then
         If population_of_case = "Adults" Then previously_pended_progs = previously_pended_progs & ", EGA"
         If population_of_case = "Families" Then previously_pended_progs = previously_pended_progs & ", EA"
         If population_of_case = "Specialty" Then previously_pended_progs = previously_pended_progs & ", EGA"
-    End If 
+    End If
 
-    new_programs_pended = ""    
+    new_programs_pended = ""
     If new_pend_snap_checkbox = checked Then new_programs_pended = new_programs_pended & ", SNAP"
     If new_pend_cash_checkbox = checked Then new_programs_pended = new_programs_pended & ", CASH"
     If new_pend_grh_checkbox = checked Then new_programs_pended = new_programs_pended & ", GRH"
-    If new_pend_emer_checkbox = checked Then 
+    If new_pend_emer_checkbox = checked Then
         If population_of_case = "Adults" Then new_programs_pended = new_programs_pended & ", EGA"
         If population_of_case = "Families" Then new_programs_pended = new_programs_pended & ", EA"
         If population_of_case = "Specialty" Then new_programs_pended = new_programs_pended & ", EGA"
-    End If     
+    End If
+    If new_programs_pended = "" Then new_programs_pended = "None"
 
     If left(previously_pended_progs, 1) = "," Then previously_pended_progs = right(previously_pended_progs, len(previously_pended_progs)-1)
     previously_pended_progs = trim(previously_pended_progs)
@@ -194,7 +198,7 @@ If skip_start_of_subsequent_apps <> True Then
 
     'Initial Dialog - Case number
     Dialog1 = ""                                        'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 191, 135, "Application Received"
+    BeginDialog Dialog1, 0, 0, 191, 135, "Subsequent Application Received"
       EditBox 60, 35, 45, 15, MAXIS_case_number
       ButtonGroup ButtonPressed
         PushButton 90, 95, 95, 15, "Script Instructions", script_instructions_btn
@@ -214,7 +218,7 @@ If skip_start_of_subsequent_apps <> True Then
     		cancel_without_confirmation
           	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
             If ButtonPressed = script_instructions_btn Then             'Pulling up the instructions if the instruction button was pressed.
-                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20APPLICATION%20RECEIVED.docx"
+                run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20SUBSEQUENT%20APPLICATION.docx"
                 err_msg = "LOOP"
             Else                                                        'If the instructions button was NOT pressed, we want to display the error message if it exists.
     		    IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
@@ -297,12 +301,10 @@ If skip_start_of_subsequent_apps <> True Then
     IF IsDate(application_date) = False THEN                   'If we could NOT find the application date - then it will use the PND2 application date.
         application_date = pnd2_appl_date
     End if
-
-
 End If
 
 If previously_pended_progs = "" Then
-    MEMO_found = False
+    MEMO_NOTE_found = False                                     'defaulting these booleans
     screening_found = False
 
     Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
@@ -316,7 +318,7 @@ If previously_pended_progs = "" Then
         EMReadScreen note_title, 55, note_row, 25               'reading the note header
         note_title = trim(note_title)
 
-        If left(note_title, 22) = "~ Application Received" Then
+        If left(note_title, 22) = "~ Application Received" Then 'Application received case note
             app_recvd_note_found = True
             Call write_value_and_transmit("X", note_row, 3)
             in_note_row = 4
@@ -346,9 +348,9 @@ If previously_pended_progs = "" Then
         end If
         ' MsgBox "33 - " & left(note_title, 33)
         ' MsgBox "31 - " & left(note_title, 31)
-        
-        If left(note_title, 33) = "~ Appointment letter sent in MEMO" Then MEMO_found = True
-        If left(note_title, 31) = "~ Received Application for SNAP" Then screening_found = True
+
+        If left(note_title, 33) = "~ Appointment letter sent in MEMO" Then MEMO_NOTE_found = True       'MEMO case note
+        If left(note_title, 31) = "~ Received Application for SNAP" Then screening_found = True         'Exp screening case note
 
         if note_date = "        " then Exit Do
         note_row = note_row + 1
@@ -363,8 +365,8 @@ If previously_pended_progs = "" Then
     Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 
 End If
-' MsgBox "MEMO_found - " & MEMO_found & vbCr & "screening_found - " & screening_found
 
+'reading pnd2 to see if any of the baskets are over the limit and saving the findings for later functionality
 EX1_basket_available = True
 Call navigate_to_MAXIS_screen("REPT", "PND2")
 Call write_value_and_transmit("EX1", 21, 17)
@@ -435,16 +437,16 @@ Do
           Text 10, 225, 80, 10, "Was CCAP Requested?"
           GroupBox 5, 245, 190, 30, "Agency Information"
           Text 15, 260, 70, 10, "Application Received:"
-        EndDialog    
+        EndDialog
 
         Dialog Dialog1
         cancel_confirmation
 
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-        If ButtonPressed = change_pending_progs_btn Then 
+        If ButtonPressed = change_pending_progs_btn Then
             call update_programs_pending_detail(previously_pended_progs, new_programs_pended)
             err_msg = "LOOP"
-        End If     
+        End If
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
@@ -475,30 +477,8 @@ If snap_status = "PENDING" Then send_appt_ltr = TRUE
 If emer_status = "PENDING" and emer_type = "EGA" Then send_appt_ltr = TRUE
 ' If emer_status = "PENDING" and emer_type = "EA" Then send_appt_ltr = TRUE
 
-' If snap_status = "PENDING" and screening_found = False Then
-' BeginDialog Dialog1, 0, 0, 261, 105, "Expedited Screening"
-'   EditBox 130, 10, 50, 15, income
-'   EditBox 130, 30, 50, 15, assets
-'   EditBox 130, 50, 50, 15, rent
-'   CheckBox 15, 80, 55, 10, "Heat (or AC)", heat_AC_check
-'   CheckBox 85, 80, 45, 10, "Electricity", electric_check
-'   CheckBox 140, 80, 35, 10, "Phone", phone_check
-'   Text 25, 15, 95, 10, "Income received this month:"
-'   Text 30, 35, 95, 10, "Cash, checking, or savings: "
-'   Text 30, 55, 90, 10, "AMT paid for rent/mortgage:"
-'   GroupBox 10, 70, 170, 25, "Utilities claimed (check below):"
-'   GroupBox 185, 10, 70, 65, "**IMPORTANT**"
-'   Text 190, 25, 60, 45, "The income, assets and shelter costs fields will default to $0 if left blank. "
-'   ButtonGroup ButtonPressed
-'     OkButton 205, 85, 50, 15
-' EndDialog
-' End If  
-
-screening_found = False
-MEMO_found = False
-
 'if the case is determined to need an appointment letter the script will default the interview date
-IF send_appt_ltr = TRUE and MEMO_found = False THEN
+IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN
     interview_date = dateadd("d", 5, application_date)
     If interview_date <= date then interview_date = dateadd("d", 5, date)
     Call change_date_to_soonest_working_day(interview_date, "FORWARD")
@@ -506,7 +486,6 @@ IF send_appt_ltr = TRUE and MEMO_found = False THEN
     application_date = application_date & ""
     interview_date = interview_date & ""                                        'turns interview date into string for variable
 End If
-
 
 'displaying the dialog
 Do
@@ -521,7 +500,7 @@ Do
 
         dlg_len = 75                'this is another dynamic dialog that needs different sizes based on what it has to display.
         If snap_status = "PENDING" and screening_found = False Then dlg_len = dlg_len + 110
-        IF send_appt_ltr = TRUE and MEMO_found = False THEN dlg_len = dlg_len + 95
+        IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN dlg_len = dlg_len + 95
         IF how_application_rcvd = "Request to APPL Form" THEN dlg_len = dlg_len + 80
         If expedited_status = "" and snap_status = "PENDING" and screening_found = False Then dlg_len = 135
 
@@ -545,16 +524,16 @@ Do
                 CheckBox 85, y_pos + 85, 45, 10, "Electricity", electric_check
                 CheckBox 140, y_pos + 85, 35, 10, "Phone", phone_check
                 y_pos = y_pos + 110
-            End If  
-            If expedited_status <> "" OR snap_status <> "PENDING" OR screening_found = True Then 
+            End If
+            If expedited_status <> "" OR snap_status <> "PENDING" OR screening_found = True Then
                 GroupBox 5, y_pos, 255, 45, "Transfer Information"
                 EditBox 95, y_pos + 10, 30, 15, transfer_to_worker
                 If expedited_status = "Client Appears Expedited" Then Text 130, y_pos + 15, 130, 10, "This case screened as EXPEDITED."
                 If expedited_status = "Client Does Not Appear Expedited" Then Text 130, y_pos + 15, 130, 10, "Case screened as NOT EXPEDITED."
-                Text 10, y_pos + 15, 85, 10, "Transfer the case to x127"   
+                Text 10, y_pos + 15, 85, 10, "Transfer the case to x127"
                 CheckBox 20, y_pos + 30, 185, 10, "Check here if this case does not require a transfer.", no_transfer_checkbox
                 y_pos = y_pos + 55
-                IF send_appt_ltr = TRUE and MEMO_found = False THEN
+                IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN
                     GroupBox 5, y_pos, 255, 90, "Appointment Notice"
                     y_pos = y_pos + 15
                     Text 15, y_pos, 35, 10, "CAF date:"
@@ -593,12 +572,12 @@ Do
                     CheckBox 150, y_pos, 85, 10, "Team 603 will process", team_603_email_checkbox
                     y_pos = y_pos + 25
                 End If
-            End If 
+            End If
             ButtonGroup ButtonPressed
                 OkButton 155, y_pos, 50, 15
                 CancelButton 210, y_pos, 50, 15
-                If expedited_status <> "" OR snap_status <> "PENDING" OR screening_found = True Then 
-                    IF send_appt_ltr = TRUE and MEMO_found = False THEN PushButton 50, odw_btn_y_pos, 125, 13, "HSR Manual - On Demand Waiver", on_demand_waiver_button
+                If expedited_status <> "" OR snap_status <> "PENDING" OR screening_found = True Then
+                    IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN PushButton 50, odw_btn_y_pos, 125, 13, "HSR Manual - On Demand Waiver", on_demand_waiver_button
                 End If
         EndDialog
 
@@ -617,13 +596,13 @@ Do
         If snap_status = "PENDING" and screening_found = False Then
             If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
             Call determine_expedited_screening
-        End If 
+        End If
 
-        If expedited_status <> "" OR snap_status <> "PENDING" OR screening_found = True Then 
+        If expedited_status <> "" OR snap_status <> "PENDING" OR screening_found = True Then
             IF no_transfer_checkbox = UNCHECKED AND transfer_to_worker = "" then err_msg = err_msg & vbNewLine & "* You must enter the basket number the case to be transferred by the script or check that no transfer is needed."
             IF no_transfer_checkbox = CHECKED and transfer_to_worker <> "" then err_msg = err_msg & vbNewLine & "* You have checked that no transfer is needed, please remove basket number from transfer field."
             IF no_transfer_checkbox = UNCHECKED AND len(transfer_to_worker) > 3 AND isnumeric(transfer_to_worker) = FALSE then err_msg = err_msg & vbNewLine & "* Please enter the last 3 digits of the worker number for transfer."
-            IF send_appt_ltr = TRUE THEN
+            IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN
                 If IsDate(interview_date) = False Then err_msg = err_msg & vbNewLine & "* The Interview Date needs to be entered as a valid date."
             End If
             IF how_application_rcvd = "Request to APPL Form" THEN
@@ -631,7 +610,7 @@ Do
                 IF METS_retro_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg & vbNewLine & "* You have checked that this is a METS Retro Request, please enter a METS IC #."
                 IF MA_transition_request_checkbox = CHECKED and METS_case_number = "" THEN err_msg = err_msg &  vbNewLine & "* You have checked that this is a METS Transition Request, please enter a METS IC #."
             End If
-        End If 
+        End If
 
         If ButtonPressed = on_demand_waiver_button Then
             run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/On_Demand_Waiver.aspx"
@@ -644,13 +623,10 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has     not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE
 
-
-MsgBox "STOP NOW"
-
-
 call start_a_blank_CASE_NOTE
 
-call write_variable_in_CASE_NOTE("Subsequent Application Requesting: " & new_programs_pended)
+If new_programs_pended = "None" then Call write_variable_in_CASE_NOTE("Subsequent Application with No Additional Programs Requested")
+If new_programs_pended <> "None" then call write_variable_in_CASE_NOTE("Subsequent Application Requesting: " & new_programs_pended)
 call write_bullet_and_variable_in_CASE_NOTE("Subsequent Application Requesting", new_programs_pended)
 call write_bullet_and_variable_in_CASE_NOTE("Previously Pending", previously_pended_progs)
 call write_bullet_and_variable_in_CASE_NOTE("Application Date", application_date)
@@ -664,7 +640,7 @@ call write_variable_in_CASE_NOTE("Form date is not used as the program applicati
 call write_variable_in_CASE_NOTE("---")
 call write_variable_in_CASE_NOTE(worker_signature)
 
-PF3 
+PF3
 
 If how_application_rcvd = "Request to APPL Form" THEN                           'specific functionality if the application was pended from a request to APPL form
     If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True Then        'HC cases - we need to add the persons pending HC to the CNOTE
@@ -691,13 +667,13 @@ If how_application_rcvd = "Request to APPL Form" THEN                           
     End If
 End If
 
-IF send_appt_ltr = TRUE and MEMO_found = False THEN interview_email_body = "A SPEC/MEMO has been created. If the client has completed the interview, please cancel the notice and update STAT/PROG with the interview information. Case Assignment is not tasked with cancelling or preventing this notice from being generated."
+IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN interview_email_body = "A SPEC/MEMO has been created. If the client has completed the interview, please cancel the notice and update STAT/PROG with the interview information. Case Assignment is not tasked with cancelling or preventing this notice from being generated."
 'Functionality to send emails in certain situations
 'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
 IF how_application_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_603_email_checkbox =  UNCHECKED and MA_transition_request_checkbox = UNCHECKED and Auto_Newborn_checkbox = UNCHECKED THEN
     CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", interview_email_body, "", FALSE)
-ELSEIF Auto_Newborn_checkbox = CHECKED THEN 
+ELSEIF Auto_Newborn_checkbox = CHECKED THEN
     CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 END IF
 If was_ccap_requested = "Yes - Child Care Requested" Then
@@ -784,7 +760,7 @@ END IF
 
 'SENDING a SPEC/MEMO - this happens AFTER the transfer so that the correct team information is on the notice.
 'there should not be an issue with PRIV cases because going directly here we shouldn't lose the 'connection/access'
-IF send_appt_ltr = TRUE and MEMO_found = False THEN        'If we are supposed to be sending an appointment letter - it will do it here - this matches the information in ON DEMAND functionality
+IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN        'If we are supposed to be sending an appointment letter - it will do it here - this matches the information in ON DEMAND functionality
 	last_contact_day = DateAdd("d", 30, application_date)
 	If DateDiff("d", interview_date, last_contact_day) < 0 Then last_contact_day = interview_date
 
@@ -837,7 +813,6 @@ IF send_appt_ltr = TRUE and MEMO_found = False THEN        'If we are supposed t
     	PF3
     End If
 END IF
-
 
 revw_pending_table = False                                           'Determining if we should be adding this case to the CasesPending SQL Table
 If unknown_cash_pending = True Then revw_pending_table = True       'case should be pending cash or snap and NOT have SNAP active
@@ -905,16 +880,20 @@ If revw_pending_table = True Then
     'This is the BZST connection to SQL Database'
     objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 
-    
+    objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+    objRecordSet.Open "SELECT FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
+    current_exp_code = objRecordSet("IsExpSnap")
+    If snap_status = "PENDING" and screening_found = False Then current_exp_code = 1
 
     'delete a record if the case number matches
     objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
 
     'delete a record if the case number matches
-    ' objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
+    ' objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_nuMEMO_foundmber & "'", objConnection
     'Add a new record with this case information'
     objRecordSet.Open "INSERT INTO ES.ES_CasesPending (WorkerID, CaseNumber, CaseName, ApplDate, FSStatusCode, CashStatusCode, HCStatusCode, GAStatusCode, GRStatusCode, EAStatusCode, MFStatusCode, IsExpSnap, UpdateDate)" &  _
-                      "VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & application_date & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & 1 & "', '" & date & "')", objConnection, adOpenStatic, adLockOptimistic
+                      "VALUES ('" & worker_id_for_data_table & "', '" & eight_digit_case_number & "', '" & case_name_for_data_table & "', '" & application_date & "', '" & snap_stat_code & "', '" & cash_stat_code & "', '" & hc_stat_code & "', '" & ga_stat_code & "', '" & grh_stat_code & "', '" & emer_stat_code & "', '" & mfip_stat_code & "', '" & current_exp_code & "', '" & date & "')", objConnection, adOpenStatic, adLockOptimistic
 
     'close the connection and recordset objects to free up resources
     objConnection.Close
@@ -923,4 +902,71 @@ If revw_pending_table = True Then
 End If
 
 
-Call script_end_procedure_with_error_report()
+'Now we create some messaging to explain what happened in the script run.
+end_msg = "Subsequent Application Received has been noted."
+end_msg = end_msg & vbCr & "Additional Programs requested: " & new_programs_pended & ", form received: " & form_date
+
+If snap_status = "PENDING" and screening_found = False Then end_msg = end_msg & vbCr & vbCr & "Since SNAP is pending, an Expedtied SNAP screening has been completed and noted based on resident reported information from CAF1."
+
+If MEMO_NOTE_found = True Then
+    end_msg = end_msg & vbCr & vbCr & "A SPEC/MEMO Notice was previously sent to the resident to alert them to the need for an interview for their requested programs and the script did not send one during this run."
+Else
+    IF send_appt_ltr = TRUE AND memo_found = True THEN end_msg = end_msg & vbCr & vbCr & "A SPEC/MEMO Notice has been sent to the resident to alert them to the need for an interview for their requested programs."
+    IF send_appt_ltr = TRUE AND memo_found = False THEN end_msg = end_msg & vbCr & vbCr & "A SPEC/MEMO Notice about the Interview appears to have failed. Contact QI Knowledge Now to have one sent manually."
+End If
+If transfer_message = "" Then
+    If transfer_case = True Then end_msg = end_msg & vbCr & vbCr & "Case transfer has been completed to x127" & transfer_to_worker
+Else
+    end_msg = end_msg & vbCr & vbCr & "FAILED CASE TRANSFER:" & vbCr & transfer_message
+End If
+If transfer_case = False Then end_msg = end_msg & vbCr & vbCr & "NO TRANSFER HAS BEEN REQUESTED."
+IF how_application_rcvd = "Request to APPL Form" Then end_msg = end_msg & vbCr & vbCr & "CASE PENDED from a REQUEST TO APPL FORM"
+script_run_lowdown = script_run_lowdown & vbCr & "END Message: " & vbCr & end_msg
+
+Call script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------01/26/2023
+'--Tab orders reviewed & confirmed----------------------------------------------01/26/2023
+'--Mandatory fields all present & Reviewed--------------------------------------01/26/2023
+'--All variables in dialog match mandatory fields-------------------------------01/26/2023
+'Review dialog names for content and content fit in dialog----------------------01/26/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------01/26/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------01/26/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function:
+'--confirm that proper punctuation is used -------------------------------------01/26/2023
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------01/26/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------01/26/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------01/26/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------01/26/2023 - keeping matched to App Received
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------01/26/2023
+'--Script name reviewed---------------------------------------------------------01/26/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------01/26/2023
+'--comment Code-----------------------------------------------------------------01/26/2023
+'--Update Changelog for release/update------------------------------------------01/26/2023
+'--Remove testing message boxes-------------------------------------------------01/26/2023
+'--Remove testing code/unnecessary code-----------------------------------------01/26/2023
+'--Review/update SharePoint instructions----------------------------------------In Progress
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------In Progress
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------In Progress
+'--Complete misc. documentation (if applicable)---------------------------------In Progress
+'--Update project team/issue contact (if applicable)----------------------------In Progress
