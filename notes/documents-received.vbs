@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/14/2022", "Added a review of PROG for an interview date for the MTAF option selection.", "Casey Love, Hennepin County")
 call changelog_update("03/16/2022", "Removed Interview Date field and added a link to supports for the MFIP Orientation.", "Casey Love, Hennepin County")
 call changelog_update("03/03/2022", "Removed DVD Orientation option in the MTAF form supports.", "Ilse Ferris")
@@ -2624,7 +2625,7 @@ If mtaf_form_checkbox = checked Then
         Call write_variable_in_case_note("---")
         call write_bullet_and_variable_in_case_note("Notes on your doc's", notes)
         call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
-        IF HSR_scanner_checkbox = checked then Call write_variable_in_case_note("* Documents imaged to ECF.")
+        IF HSR_scanner_checkbox = checked then Call write_variable_in_case_note("* Documents imaged to case file.")
         call write_bullet_and_variable_in_case_note("Verifications still needed", verifs_needed)
     End If
     CALL write_variable_in_CASE_NOTE ("---")
@@ -2968,11 +2969,9 @@ call write_bullet_and_variable_in_case_note("Other verifications", other_verifs)
 Call write_variable_in_case_note("---")
 call write_bullet_and_variable_in_case_note("Notes on your doc's", notes)
 call write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
-IF HSR_scanner_checkbox = checked then Call write_variable_in_case_note("* Documents imaged to ECF.")
+IF HSR_scanner_checkbox = checked then Call write_variable_in_case_note("* Documents imaged to case file.")
 call write_bullet_and_variable_in_case_note("Verifications still needed", verifs_needed)
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
-
-Call confirm_docs_accepted_in_ecf(end_msg)      'function that asks if ECF documents have been accepted
 
 script_end_procedure_with_error_report(end_msg)
