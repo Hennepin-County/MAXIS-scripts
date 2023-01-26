@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/23/2019", "Updated other notes field to update to case note. Moved initial informational message box to intial dialog box.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/16/2019", "Updated dialog boxes to prepare for enhancements to script.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
@@ -220,7 +221,7 @@ IF nature_change = "HH Comp Change" THEN
 END IF
 
 actions_taken = ""
-IF Verif_checkbox = CHECKED THEN actions_taken = actions_taken & "Verifications sent to ECF,"
+IF Verif_checkbox = CHECKED THEN actions_taken = actions_taken & "Verifications sent to resident,"
 IF STAT_checkbox = CHECKED THEN actions_taken = actions_taken & "Updated STAT panels,"
 IF APP_checkbox = CHECKED THEN actions_taken = actions_taken & "Approved new results,"
 IF notify_checkbox = CHECKED THEN actions_taken = actions_taken & "Notified other agency,"

@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/25/2019", "Updated backend functionality, changlog, and removed cancel confirmation option.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -165,7 +166,7 @@ If action_option = "Child in placement" then
 	Call write_bullet_and_variable_in_CASE_NOTE("Placed", placed)
 	Call write_bullet_and_variable_in_CASE_NOTE("MMIS", MMIS)
 	Call write_bullet_and_variable_in_CASE_NOTE("Results", Results)
-    Call write_variable_in_CASE_NOTE("* When placement ends, transfer case to FG1, update AREP, ADDR and ECF.")
+    Call write_variable_in_CASE_NOTE("* When placement ends, transfer case to FG1, update AREP, ADDR and case file.")
 	If transfer_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Transferred case to EW4.")
 END IF
 
@@ -204,7 +205,7 @@ If action_option = "Closed" then
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
+
     'writing the TIKL for the client's 18th birthday
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     If TIKL_checkbox = 1 then Call create_TIKL("Client's 18th birthday is " & birthday_TIKL & ". Please review case for updates.", 0, birthday_TIKL, False, TIKL_note_text)
@@ -216,7 +217,7 @@ If action_option = "Closed" then
 	If transferred_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Transferred case to FG1.")
 	If deleted_FC_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Deleted FC panels.")
 	If deleted_panels_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Deleted AREP and ADDR panels.")
-	If ECF_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Updated ECF.")
+	If ECF_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Updated Case file.")
     If TIKL_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Set TIKL for client's 18th birthday on " & birthday_TIKL & ".")
 END IF
 
@@ -274,11 +275,11 @@ If action_option = "Opened" then
 		LOOP UNTIL err_msg = ""
  		Call check_for_password(are_we_passworded_out)
 	LOOP UNTIL check_for_password(are_we_passworded_out) = False
-    
+
     'writing the TIKL for the client's 18th birthday
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     If TIKL_checkbox = 1 then Call create_TIKL("Client's 18th birthday is " & birthday_TIKL & ". Please review case for updates.", 0, birthday_TIKL, False, TIKL_note_text)
-        
+
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
 	Call write_variable_in_CASE_NOTE("**AA opened effective " & effective_date & "**")

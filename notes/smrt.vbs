@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 Call changelog_update("06/13/2020", "Since there are updates to the requirements for submitting a SMRT Referral in ISDS, we are reviewing the functionality of this script. ##~## If there are specific changes, fields, information, or functionality that would make your work with this script easier, pleae contact us. ##~## ##~## Email us at HSPH.EWS.BlueZoneScripts@hennepin.us or submit an 'Error Report' at the end of the script run.##~##", "Casey Love, Hennepin County")
 call changelog_update("01/19/2017", "Initial version.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/29/2017", "Update script for denials to remove start date.", "MiKayla Handley, Hennepin County")
@@ -89,7 +90,7 @@ If SMRT_actions = "Initial request" then
       EditBox 200, 35, 120, 15, expedited_reason
       EditBox 80, 60, 240, 15, referral_reason
       EditBox 80, 85, 50, 15, SMRT_start_date
-      If worker_county_code = "x127" then CheckBox 140, 90, 180, 10, "Check here if the ECF workflow has been completed.", ECF_workflow_checkbox
+      If UCASE(worker_county_code = "X127") then CheckBox 140, 90, 180, 10, "Check here if the ECF workflow has been completed.", ECF_workflow_checkbox
       EditBox 80, 110, 240, 15, other_notes
       EditBox 80, 135, 240, 15, action_taken
       EditBox 80, 160, 130, 15, worker_signature
@@ -135,7 +136,7 @@ If SMRT_actions = "Initial request" then
 	Call write_bullet_and_variable_in_CASE_NOTE("SMRT start date", SMRT_start_date)
 	Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
 	Call write_bullet_and_variable_in_CASE_NOTE("Actions taken", action_taken)
-	If ECF_workflow_checkbox = 1 then call write_variable_in_CASE_NOTE("* ECF workflow has been completed in ECF.")
+	If ECF_workflow_checkbox = 1 then call write_variable_in_CASE_NOTE("* Workflow process has been completed in case file system.")
 	Call write_variable_in_CASE_NOTE ("---")
 	call write_variable_in_CASE_NOTE(worker_signature)
 

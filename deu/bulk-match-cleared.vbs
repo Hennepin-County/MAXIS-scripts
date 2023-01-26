@@ -58,6 +58,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/15/2022", "Resolved bug in excel row incrementor which was previously skipping cases.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("10/06/2022", "Update to remove hard coded DEU signature all DEU scripts.", "MiKayla Handley, Hennepin County") '#316
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
@@ -425,7 +426,7 @@ For item = 0 to UBound(match_based_array, 2)
 			IF IULB_notes = "BN-Already Known-No Savings" THEN IULB_comment = "Already known - No savings. " & other_notes
 			IF IULB_notes = "BP-Wrong Person" THEN IULB_comment = "Client name and wage earner name are different. " & other_notes
 			IF IULB_notes = "BU-Unable To Verify" THEN IULB_comment = "Unable To Verify. " & other_notes
-			IF IULB_notes = "NC-Non Cooperation" THEN IULB_comment = "Non-coop, requested verf not in ECF, " & other_notes
+			IF IULB_notes = "NC-Non Cooperation" THEN IULB_comment = "Non-coop, requested verf not in case file, " & other_notes
 
 			IULB_comment = trim(IULB_comment)
 			iulb_row = 8

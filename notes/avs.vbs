@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2022", "Fixed inhibiting bug if HH members do not have an age listed on STAT/MEMB.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/10/2021", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -557,10 +558,10 @@ Do
     End if
 
     'Call create_TIKLL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    If set_form_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)
+    If set_form_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
     If set_AVS_TIKL = True then Call create_TIKL("AVS 10-day check is due.", 10, date, False, TIKL_note_text)
-    If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)
-    If set_asset_TIKL = True then Call create_TIKL("AVS unreported asset verification requested for the case. Review ECF and case notes, and take applicable actions.", 10, date, False, TIKL_note_text)
+    If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
+    If set_asset_TIKL = True then Call create_TIKL("AVS unreported asset verification requested for the case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
 
     'Adding closing message if the "AVS Submission/Results" option is selected and the AVS status is results after decision.
     If initial_option = "AVS Submission/Results" then
@@ -624,22 +625,22 @@ Do
             Elseif avs_members_array(avs_status_const, item) = "Results After Decision" then
                 Call write_bullet_and_variable_in_CASE_NOTE ("Accts after decision cleared in AVS?", avs_members_array(avs_results_const, item))
             End if
-            Call write_bullet_and_variable_in_CASE_NOTE ("AVS Report Submitted to ECF?", avs_members_array(ECF_const, item))
+            Call write_bullet_and_variable_in_CASE_NOTE ("AVS Report Submitted to case file.", avs_members_array(ECF_const, item))
             Call write_bullet_and_variable_in_CASE_NOTE ("Asset Notes", avs_members_array(avs_returned_notes_const, item))
             Call write_variable_in_CASE_NOTE("-----")
         End if
     Next
 
-    If verif_request = True then Call write_variable_in_CASE_NOTE("* Verification request sent to via ECF.")
+    If verif_request = True then Call write_variable_in_CASE_NOTE("* Verification request sent to resident/AREP.")
     If set_form_TIKL = True then Call write_variable_in_case_note(TIKL_note_text)
     If set_AVS_TIKL = True then Call write_variable_in_CASE_NOTE("* AVS request submitted in AVS portal. TIKL set for 10 day check.") 'This is the verbiage for the case note from the HSR manual.
     If set_another_TIKL = true then
         Call write_variable_in_case_note(TIKL_note_text)
-        Call write_variable_in_CASE_NOTE("* Sent verification request to complete the incomplete AVS form in ECF.")
+        Call write_variable_in_CASE_NOTE("* Sent verification request to complete the incomplete AVS form in case file.")
     End if
     If set_asset_TIKL = True then
         Call write_variable_in_case_note(TIKL_note_text)
-        Call write_variable_in_CASE_NOTE("* Sent verification request for unreported assets in ECF.")
+        Call write_variable_in_CASE_NOTE("* Sent verification request for unreported assets in case file.")
     End if
     Call write_bullet_and_variable_in_CASE_NOTE("Other notes", other_notes)
     Call write_variable_in_CASE_NOTE("---")

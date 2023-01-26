@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Updated backend functionality, and added changelog.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/25/2019", "Initial version.", "Ilse Ferris, Hennepin County")
 
@@ -131,7 +132,7 @@ If action_option = "Close" then
     call write_bullet_and_variable_in_CASE_NOTE("Over income", over_income)
     Call write_bullet_and_variable_in_CASE_NOTE("Fail to provide", fail_to_provide)
     Call write_bullet_and_variable_in_CASE_NOTE("Other", Other)
-    If closed_files_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MAXIS/ECF case sent to closed files.")
+    If closed_files_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MAXIS/case file sent to closed files.")
     If MMIS_updated_checkbox = 1 then Call write_variable_in_CASE_NOTE("* MMIS updated.")
 END IF
 

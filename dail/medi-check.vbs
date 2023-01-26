@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("05/01/2019", "Initial version.", "MiKayla Handley, Hennepin County")
 
@@ -152,7 +153,7 @@ ELSEIF ELIG_year <> "" THEN
 	Call write_variable_in_case_note("* Client is not eligible for the Medicare buy-in. Enrollment is not until January 20" & ELIG_year & ", unable to apply until the enrollment time.")
 	Call write_variable_in_case_note("* TIKL set to mail the Medicare Referral for November 20" & reminder_year & ".")
 END IF
-IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed.")
+IF ECF_sent_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Case file reviewed.")
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)

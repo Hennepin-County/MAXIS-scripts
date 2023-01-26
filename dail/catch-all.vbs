@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("11/01/2019", "BUG FIX - resolved error where script was missing the case notes. Script should now case note every time the script is run to completion.", "Casey Love, Hennepin County")
 call changelog_update("09/04/2019", "Reworded the TIKL.", "MiKayla Handley, Hennepin County")
@@ -96,7 +97,7 @@ when_contact_was_made = date & ", " & time
 Do
     Do
         err_msg = ""
-		Dialog Dialog1 
+		Dialog Dialog1
 		cancel_confirmation
         'If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid case number."
 		If trim(actions_taken) = "" then err_msg = err_msg & vbcr & "* Please enter the action taken."
@@ -140,7 +141,7 @@ CALL write_variable_in_case_note(third_line)
 CALL write_variable_in_case_note(fourth_line)
 CALL write_variable_in_case_note(fifth_line)
 CALL write_variable_in_case_note("---")
-IF ECF_reviewed = CHECKED THEN CALL write_variable_in_case_note("* ECF has been reviewed.")
+IF ECF_reviewed = CHECKED THEN CALL write_variable_in_case_note("* Case file has been reviewed.")
 CALL write_bullet_and_variable_in_case_note("Actions taken", actions_taken)
 CALL write_bullet_and_variable_in_case_note("Action taken on", when_contact_was_made)
 CALL write_bullet_and_variable_in_case_note("Verifications needed", verifs_needed)

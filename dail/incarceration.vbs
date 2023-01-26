@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("09/16/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("11/12/2020", "Updated HSR Manual link for Facility List due to SharePoint Online Migration.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
@@ -181,7 +182,7 @@ IF dail_check = "DAIL" THEN
     CALL write_variable_in_case_note(fourth_line)
     CALL write_variable_in_case_note(fifth_line)
     CALL write_variable_in_case_note("---")
-    IF ECF_reviewed = CHECKED THEN CALL write_variable_in_case_note("* ECF reviewed")
+    IF ECF_reviewed = CHECKED THEN CALL write_variable_in_case_note("* Case file reviewed")
     IF update_faci_checkbox = CHECKED THEN CALL write_variable_in_case_note("* Updated STAT/FACI")
     CALL write_bullet_and_variable_in_case_note("Incarceration Location", incarceration_location)
     CALL write_bullet_and_variable_in_case_note("Anticipted Release Date", date_out)
