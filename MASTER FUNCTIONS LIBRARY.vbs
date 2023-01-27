@@ -7236,6 +7236,19 @@ function excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbo
 	objExcel.DisplayAlerts = alerts_status
 end function
 
+Function File_Exists(file_name, does_file_exist)
+'--- This function will check if a file exists or not, and will output a boolean.
+'~~~~~ file_name: variable for the name of the file you are searching.
+'~~~~~ does_file_exist: boolean that is putput based on if file is found or not. Do not rename.
+'===== Keywords: objFSO, file, boolean
+    ' Set objFSO is done on lines 9-10 of Funclib
+    If (objFSO.FileExists(file_name)) Then
+        does_file_exist = True
+    Else
+      does_file_exist = False
+    End If
+End Function
+
 function file_selection_system_dialog(file_selected, file_extension_restriction)
 '--- This function allows a user to select a file to be opened in a script
 '~~~~~ file_selected: variable for the name of the file

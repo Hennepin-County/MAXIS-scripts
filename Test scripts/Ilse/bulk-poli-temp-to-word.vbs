@@ -47,15 +47,6 @@ call changelog_update("01/21/2023", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function File_Exists(file_name, does_file_exist)
-    ' Set objFSO = CreateObject("Scripting.FileSystemObject")
-    If (objFSO.FileExists(file_name)) Then
-        does_file_exist = True
-    Else
-      does_file_exist = False
-    End If
-End Function
-
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""        'Connects to BlueZone
 MAXIS_footer_month = CM_plus_1_mo
