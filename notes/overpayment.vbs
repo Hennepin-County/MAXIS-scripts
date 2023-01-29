@@ -596,7 +596,7 @@ END IF
 
 script_end_procedure_with_error_report(closing_message)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -604,6 +604,7 @@ script_end_procedure_with_error_report(closing_message)
 '--Tab orders reviewed & confirmed----------------------------------------------11/15/2022
 '--Mandatory fields all present & Reviewed--------------------------------------11/15/2022
 '--All variables in dialog match mandatory fields-------------------------------11/15/2022
+'Review dialog names for content and content fit in dialog----------------------01/29/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------11/15/2022
@@ -618,7 +619,7 @@ script_end_procedure_with_error_report(closing_message)
 '--Out-of-County handling reviewed----------------------------------------------11/15/2022--------------------N/A
 '--script_end_procedures (w/ or w/o error messaging)----------------------------11/15/2022
 '--BULK - review output of statistics and run time/count (if applicable)--------11/15/2022--------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---11/15/2022
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------11/15/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------11/15/2022
@@ -636,5 +637,6 @@ script_end_procedure_with_error_report(closing_message)
 '--Review/update SharePoint instructions----------------------------------------11/15/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/15/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/15/2022
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------01/29/2023
 '--Complete misc. documentation (if applicable)---------------------------------11/15/2022
 '--Update project team/issue contact (if applicable)----------------------------11/15/2022
