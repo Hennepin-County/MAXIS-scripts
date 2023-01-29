@@ -1305,7 +1305,7 @@ If job_change_type = "New Job Reported" Then verif_type_requested = "new job"   
 If job_change_type = "Income/Hours Change for Current Job" Then verif_type_requested = "change in current job"
 If job_change_type = "Job Ended" Then verif_type_requested = "job ended"
 'This sets a TIKL if requested and NOT in developer mode
-If TIKL_checkbox = checked and developer_mode = FALSE Then Call create_TIKL("Verification of " & verif_type_requested & " due.", 10, verif_form_date, TURE, TIKL_note_text)
+If TIKL_checkbox = checked and developer_mode = FALSE Then Call create_TIKL("Verification of " & verif_type_requested & " due.", 10, verif_form_date, True, TIKL_note_text)
 
 If IsDate(verif_form_date) = TRUE and developer_mode = FALSE Then
     'Send a SPEC/MEMO to help support the verification needed from the client.
