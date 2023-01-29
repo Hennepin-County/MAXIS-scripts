@@ -2587,6 +2587,9 @@ script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+'script_array(script_num).policy_references		= array("CM Benefit_Adjustment_and_Recovery 0025", "TE Claim_Entry_Initiates_Transaction 02.09.07", "TE CLAIM_REFERRAL_TRACKING 02.09.07", "TE CASE_AND_PERSON-BASED_CLRA 02.09.02", "TE CORRECT_MISTAKE_ON_A_CLAIM_ALREADY_ENTERED 02.09.05", "TE DEMAND_LETTERS_FOR_OVERPAYMENTS 02.09.00", "TE CASE_NOTE_III_CLAIMS/SYSTEMS/TRANSFER 02.08.095", "TE MCE 02.09.41", "TE MCE_PAYMENTS_AND_CONTACT_INFORMATION 02.09.41.03", & _
+''"SHAREPOINT CLAIMS_AND_UNDERPAYMENTS_POLICY https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Claims_and_Underpayments_Policy.aspx", "SHAREPOINT CLAIMS_AND_UNDERPAYMENTS_PROCEDURE https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Claims_and_Underpayments_Procedure.aspx", "SHAREPOINT CLAIM_DEMAND_LETTER https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Claims_Demand_Letter.aspx", & _
+''"SHAREPOPINT APPEAL_&_FRAUD_RELATED_CLAIMS https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Appeal_and_Fraud_Related_Claims.aspx", "SHAREPOINT UNDERPAYMENTS,_ADJUSTMENTS,_AND_CLOSING https://hennepin.sharepoint.com/teams/hs-es-manual/sitepages/Underpayments,_Adjustments_and_Closing.aspx", "EPM 1.3.2.5_MHCP_OVERPAYMENTS http://hcopub.dhs.state.mn.us/epm/1_3_2_5.htm?rhhlterm=overpayments%20overpayment&rhsearch=overpayments"
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
