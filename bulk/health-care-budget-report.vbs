@@ -59,21 +59,23 @@ MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 286, 130, "Review Health Care Budget Approvals"
-  EditBox 75, 20, 145, 15, worker_number
-  CheckBox 10, 60, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 10, 70, 150, 10, "Identity FIATed cases on the spreadsheet", FIAT_check
-  EditBox 90, 110, 15, 15, MAXIS_footer_month
-  EditBox 110, 110, 15, 15, MAXIS_footer_year
+BeginDialog Dialog1, 0, 0, 286, 165, "Review Health Care Budget Approvals"
+  EditBox 90, 20, 190, 15, worker_number
+  EditBox 90, 40, 15, 15, MAXIS_footer_month
+  EditBox 110, 40, 15, 15, MAXIS_footer_year
+  CheckBox 10, 85, 150, 10, "Check here to run this query county-wide.", all_workers_check
+  CheckBox 10, 95, 150, 10, "Identity FIATed cases on the spreadsheet", FIAT_check
+  CheckBox 10, 130, 195, 10, "Check here to restart a previous run that was interrupted.", restart_previous_run_checkbox
   ButtonGroup ButtonPressed
-    OkButton 185, 110, 45, 15
-    CancelButton 235, 110, 45, 15
+    OkButton 185, 145, 45, 15
+    CancelButton 235, 145, 45, 15
   Text 25, 5, 240, 10, "Pull ACTIVE Helth Care Cases into Excel with Approved Budget Indicator "
-  Text 10, 25, 65, 10, "Worker(s) to check:"
-  Text 10, 40, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-  Text 10, 85, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
-  Text 10, 115, 80, 10, "Footer Month to Check:"
+  Text 20, 25, 65, 10, "Worker(s) to check:"
+  Text 10, 45, 80, 10, "Footer Month to Check:"
+  Text 10, 65, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+  Text 20, 110, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
 EndDialog
+
 
 Do
 	Do
@@ -85,6 +87,34 @@ Do
 	LOOP until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
 Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
+
+If restart_previous_run_checkbox = checked then
+	'This is where the review report is currently saved.
+	excel_file_path = user_myDocs_folder
+
+
+	'Initial Dialog which requests a file path for the excel file
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 361, 65, "Review Health Care Budget Approvals Select File to Resume"
+	  EditBox 130, 20, 175, 15, excel_file_path
+	  ButtonGroup ButtonPressed
+		PushButton 310, 20, 45, 15, "Browse...", select_a_file_button
+		OkButton 250, 45, 50, 15
+		CancelButton 305, 45, 50, 15
+	  Text 10, 10, 170, 10, "Select the file created from the original run"
+	  Text 10, 25, 120, 10, "Select an Excel file for health care cases:"
+	EndDialog
+
+	'Show file path dialog
+	Do
+		Dialog Dialog1
+		cancel_confirmation
+		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
+	Loop until ButtonPressed = OK and excel_file_path <> ""
+
+	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
+	call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
+End If
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -215,25 +245,27 @@ For each worker in worker_array
 	END IF
 next
 
-'Opening the Excel file
-Set objExcel = CreateObject("Excel.Application")
-objExcel.Visible = True
-Set objWorkbook = objExcel.Workbooks.Add()
-objExcel.DisplayAlerts = True
+If restart_previous_run_checkbox = unchecked then
+	'Opening the Excel file
+	Set objExcel = CreateObject("Excel.Application")
+	objExcel.Visible = True
+	Set objWorkbook = objExcel.Workbooks.Add()
+	objExcel.DisplayAlerts = True
 
-'Setting the first 8 col as worker, case number, name, and APPL date
-ObjExcel.Cells(1, 1).Value = "WORKER"
-ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
-ObjExcel.Cells(1, 3).Value = "NAME"
-ObjExcel.Cells(1, 4).Value = "NEXT REVW DATE"
-ObjExcel.Cells(1, 5).Value = "HC"
-ObjExcel.Cells(1, 6).Value = "Approved HC Spans"
-ObjExcel.Cells(1, 7).Value = "MA Budgets cover " & MAXIS_footer_month & "/" & MAXIS_footer_year
-ObjExcel.Cells(1, 8).Value = "Needs Review and Approve"
+	'Setting the first 8 col as worker, case number, name, and APPL date
+	ObjExcel.Cells(1, 1).Value = "WORKER"
+	ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
+	ObjExcel.Cells(1, 3).Value = "NAME"
+	ObjExcel.Cells(1, 4).Value = "NEXT REVW DATE"
+	ObjExcel.Cells(1, 5).Value = "HC"
+	ObjExcel.Cells(1, 6).Value = "Approved HC Spans"
+	ObjExcel.Cells(1, 7).Value = "MA Budgets cover " & MAXIS_footer_month & "/" & MAXIS_footer_year
+	ObjExcel.Cells(1, 8).Value = "Needs Review and Approve"
 
-FOR i = 1 to 8		'formatting the cells'
-	objExcel.Cells(1, i).Font.Bold = True		'bold font'
-NEXT
+	FOR i = 1 to 8		'formatting the cells'
+		objExcel.Cells(1, i).Font.Bold = True		'bold font'
+	NEXT
+End If
 last_letter_col = "H"
 
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
@@ -250,115 +282,130 @@ End if
 
 'Now we will review ELIG/HC for each case and determine if a budget is approved
 excel_row = 2
+If restart_previous_run_checkbox = checked then
+	list_of_completed_case_numbers = "~"
+	Do
+		current_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+		If InStr(list_of_completed_case_numbers, "~" & current_case_number & "~") = 0 Then
+			list_of_completed_case_numbers = list_of_completed_case_numbers & current_case_number & "~"
+		End If
+		excel_row = excel_row + 1
+		next_curr_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+	Loop until next_curr_case_number = ""
+End If
+
 For each_hc_case = 0 to UBound(ALL_ACTIVE_HC_CASES_ARRAY, 2)
 	Call Back_to_SELF
 	MAXIS_case_number = ALL_ACTIVE_HC_CASES_ARRAY(case_number_const, each_hc_case)
+	If InStr(list_of_completed_case_numbers, "~" & MAXIS_case_number & "~") = 0 then
+		list_of_completed_case_numbers = list_of_completed_case_numbers & MAXIS_case_number & "~"
 
-	call navigate_to_MAXIS_screen("ELIG", "HC  ")		'go to ELIG/HC for the correct footer month
-	EMWriteScreen MAXIS_footer_month, 19, 54
-	EMWriteScreen MAXIS_footer_year, 19, 57
-	transmit
+		call navigate_to_MAXIS_screen("ELIG", "HC  ")		'go to ELIG/HC for the correct footer month
+		EMWriteScreen MAXIS_footer_month, 19, 54
+		EMWriteScreen MAXIS_footer_year, 19, 57
+		transmit
 
-	hc_row = 8									'reading for each program span for each person on the case
-	approved_hc_programs = 0					'defaulting information
-	all_MA_budgets_approved = True
-	approved_MA_exists = False
-	Do
-		EMReadScreen new_hc_elig_ref_numbs, 2, hc_row, 3		'reading the name and reference number
-		EMReadScreen new_hc_elig_full_name, 17, hc_row, 7
+		hc_row = 8									'reading for each program span for each person on the case
+		approved_hc_programs = 0					'defaulting information
+		all_MA_budgets_approved = True
+		approved_MA_exists = False
+		Do
+			EMReadScreen new_hc_elig_ref_numbs, 2, hc_row, 3		'reading the name and reference number
+			EMReadScreen new_hc_elig_full_name, 17, hc_row, 7
 
-		If new_hc_elig_ref_numbs = "  " Then
-			new_hc_elig_ref_numbs = hc_elig_ref_numbs
-			new_hc_elig_full_name = hc_elig_full_name
-		End If
-		hc_elig_ref_numbs = new_hc_elig_ref_numbs
-		hc_elig_full_name = new_hc_elig_full_name
+			If new_hc_elig_ref_numbs = "  " Then
+				new_hc_elig_ref_numbs = hc_elig_ref_numbs
+				new_hc_elig_full_name = hc_elig_full_name
+			End If
+			hc_elig_ref_numbs = new_hc_elig_ref_numbs
+			hc_elig_full_name = new_hc_elig_full_name
 
-		hc_elig_full_name = trim(hc_elig_full_name)
+			hc_elig_full_name = trim(hc_elig_full_name)
 
-		EMReadScreen clt_hc_prog, 4, hc_row, 28					'reading the program info
-		If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
+			EMReadScreen clt_hc_prog, 4, hc_row, 28					'reading the program info
+			If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
 
-			EMReadScreen prog_status, 3, hc_row, 68
-			If prog_status <> "APP" Then                        'Finding the approved version
-				EMReadScreen total_versions, 2, hc_row, 64
-				If total_versions = "01" Then
-					hc_prog_elig_appd = False
-				Else
-					EMReadScreen current_version, 2, hc_row, 58
-					' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
-					If current_version = "01" Then
+				EMReadScreen prog_status, 3, hc_row, 68
+				If prog_status <> "APP" Then                        'Finding the approved version
+					EMReadScreen total_versions, 2, hc_row, 64
+					If total_versions = "01" Then
 						hc_prog_elig_appd = False
 					Else
-						prev_version = right ("00" & abs(current_version) - 1, 2)
-						EMWriteScreen prev_version, hc_row, 58
-						transmit
-						hc_prog_elig_appd = True
-					End If
+						EMReadScreen current_version, 2, hc_row, 58
+						' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
+						If current_version = "01" Then
+							hc_prog_elig_appd = False
+						Else
+							prev_version = right ("00" & abs(current_version) - 1, 2)
+							EMWriteScreen prev_version, hc_row, 58
+							transmit
+							hc_prog_elig_appd = True
+						End If
 
+					End If
+				Else
+					hc_prog_elig_appd = True
 				End If
 			Else
-				hc_prog_elig_appd = True
+				hc_prog_elig_appd = False
 			End If
-		Else
-			hc_prog_elig_appd = False
-		End If
 
-		If hc_prog_elig_appd = True Then				'if an approved version was found, go view more info
-			approved_hc_programs = approved_hc_programs + 1
+			If hc_prog_elig_appd = True Then				'if an approved version was found, go view more info
+				approved_hc_programs = approved_hc_programs + 1
 
-			EMReadScreen hc_prog_elig_major_program, 		4, hc_row, 28
-			hc_prog_elig_major_program = trim(hc_prog_elig_major_program)
+				EMReadScreen hc_prog_elig_major_program, 		4, hc_row, 28
+				hc_prog_elig_major_program = trim(hc_prog_elig_major_program)
 
-			Call write_value_and_transmit("X", hc_row, 26)		'opening the
+				Call write_value_and_transmit("X", hc_row, 26)		'opening the
 
-			If hc_prog_elig_major_program = "MA" or hc_prog_elig_major_program = "EMA" Then			'If MA program, reading for the footer month in the budget span
-				approved_MA_exists = True
-				hc_col = 17
-				Do
-					EMReadScreen budg_mo, 2, 6, hc_col + 2
-					EMReadScreen budg_yr, 2, 6, hc_col + 5
-					' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
-					If budg_mo = MAXIS_footer_month AND budg_yr = MAXIS_footer_year Then Exit Do
-					hc_col = hc_col + 11
+				If hc_prog_elig_major_program = "MA" or hc_prog_elig_major_program = "EMA" Then			'If MA program, reading for the footer month in the budget span
+					approved_MA_exists = True
+					hc_col = 17
+					Do
+						EMReadScreen budg_mo, 2, 6, hc_col + 2
+						EMReadScreen budg_yr, 2, 6, hc_col + 5
+						' MsgBox "BUDG MO/YR:" & vbCr & budg_mo & "/" & budg_yr & vbCr & "Col: " & hc_col
+						If budg_mo = MAXIS_footer_month AND budg_yr = MAXIS_footer_year Then Exit Do
+						hc_col = hc_col + 11
 
-					If hc_col = 83 Then all_MA_budgets_approved = False
-				Loop until hc_col = 83
+						If hc_col = 83 Then all_MA_budgets_approved = False
+					Loop until hc_col = 83
+				End If
 			End If
+
+			clt_hc_prog = ""				'blanking out variables
+			hc_prog_elig_appd = ""
+			hc_prog_elig_major_program = ""
+
+			Do										'going back to the list of HC programsw
+				EMReadScreen hhmm_check, 4, 3, 51
+				If hhmm_check <> "HHMM" Then PF3
+			Loop Until hhmm_check = "HHMM"
+
+			hc_row = hc_row + 1
+			EMReadScreen next_ref_numb, 2, hc_row, 3
+			EMReadScreen next_maj_prog, 4, hc_row, 28
+		Loop until next_ref_numb = "  " and next_maj_prog = "    "
+		If approved_MA_exists = False Then all_MA_budgets_approved = "No MA"
+		ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case) = approved_hc_programs
+		ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case) = all_MA_budgets_approved
+
+		add_to_Excel = True
+		If ALL_ACTIVE_HC_CASES_ARRAY(hc_status_code_const, each_hc_case) = "P" AND ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case) = 0 then add_to_Excel = False
+		If add_to_Excel = True Then
+			ObjExcel.Cells(excel_row, 1).Value = ALL_ACTIVE_HC_CASES_ARRAY(worker_number_const, each_hc_case)
+			ObjExcel.Cells(excel_row, 2).Value = ALL_ACTIVE_HC_CASES_ARRAY(case_number_const, each_hc_case)
+			ObjExcel.Cells(excel_row, 3).Value = ALL_ACTIVE_HC_CASES_ARRAY(client_name_const, each_hc_case)
+			ObjExcel.Cells(excel_row, 4).Value = ALL_ACTIVE_HC_CASES_ARRAY(next_revw_date_const, each_hc_case)
+			ObjExcel.Cells(excel_row, 5).Value = ALL_ACTIVE_HC_CASES_ARRAY(hc_status_code_const, each_hc_case)
+			ObjExcel.Cells(excel_row, 6).Value = ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case)
+			ObjExcel.Cells(excel_row, 7).Value = ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case)
+			review_and_approve = False
+			If ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case) = 0 or ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case) = False then review_and_approve = True
+			ObjExcel.Cells(excel_row, 8).Value = review_and_approve
+			If FIAT_check = checked then ObjExcel.Cells(excel_row, FIAT_actv_col).Value = ALL_ACTIVE_HC_CASES_ARRAY(fiat_status_const, each_hc_case)
+			excel_row = excel_row + 1
 		End If
-
-		clt_hc_prog = ""				'blanking out variables
-		hc_prog_elig_appd = ""
-		hc_prog_elig_major_program = ""
-
-		Do										'going back to the list of HC programsw
-			EMReadScreen hhmm_check, 4, 3, 51
-			If hhmm_check <> "HHMM" Then PF3
-		Loop Until hhmm_check = "HHMM"
-
-		hc_row = hc_row + 1
-		EMReadScreen next_ref_numb, 2, hc_row, 3
-		EMReadScreen next_maj_prog, 4, hc_row, 28
-	Loop until next_ref_numb = "  " and next_maj_prog = "    "
-	If approved_MA_exists = False Then all_MA_budgets_approved = "No MA"
-	ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case) = approved_hc_programs
-	ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case) = all_MA_budgets_approved
-
-	add_to_Excel = True
-	If ALL_ACTIVE_HC_CASES_ARRAY(hc_status_code_const, each_hc_case) = "P" AND ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case) = 0 then add_to_Excel = False
-	If add_to_Excel = True Then
-		ObjExcel.Cells(excel_row, 1).Value = ALL_ACTIVE_HC_CASES_ARRAY(worker_number_const, each_hc_case)
-		ObjExcel.Cells(excel_row, 2).Value = ALL_ACTIVE_HC_CASES_ARRAY(case_number_const, each_hc_case)
-		ObjExcel.Cells(excel_row, 3).Value = ALL_ACTIVE_HC_CASES_ARRAY(client_name_const, each_hc_case)
-		ObjExcel.Cells(excel_row, 4).Value = ALL_ACTIVE_HC_CASES_ARRAY(next_revw_date_const, each_hc_case)
-		ObjExcel.Cells(excel_row, 5).Value = ALL_ACTIVE_HC_CASES_ARRAY(hc_status_code_const, each_hc_case)
-		ObjExcel.Cells(excel_row, 6).Value = ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case)
-		ObjExcel.Cells(excel_row, 7).Value = ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case)
-		review_and_approve = False
-		If ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case) = 0 or ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case) = False then review_and_approve = True
-		ObjExcel.Cells(excel_row, 8).Value = review_and_approve
-		If FIAT_check = checked then ObjExcel.Cells(excel_row, FIAT_actv_col).Value = ALL_ACTIVE_HC_CASES_ARRAY(fiat_status_const, each_hc_case)
-		excel_row = excel_row + 1
 	End If
 Next
 excel_row = excel_row - 1
@@ -386,8 +433,10 @@ ObjExcel.Cells(1, col_to_use + 1).Value = "Query runtime (in seconds):"	'Goes ba
 ObjExcel.Cells(1, col_to_use + 2).Value = timer - query_start_time
 ' ObjExcel.Cells(2, col_to_use - 1).Value = "Number of pages found"	'Goes back one, as this is on the next row
 ' ObjExcel.Cells(2, col_to_use).Value = number_of_pages
-ObjExcel.Cells(2, col_to_use - 1).Value = "Number of cases that need Review"	'Goes back one, as this is on the next row
-ObjExcel.Cells(2, col_to_use).Value = "=COUNTIFS(HCApprovalInfo[Needs Review and Approve], "&chr(34)&"TRUE"&chr(34)&")"
+ObjExcel.Cells(2, col_to_use - 1).Value = "Total Cases"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, col_to_use).Value = "=COUNTIF(HCApprovalInfo[WORKER], " & chr(34) & "<>" & chr(34) & ")"
+ObjExcel.Cells(2, col_to_use + 1).Value = "Number of cases that need Review"	'Goes back one, as this is on the next row
+ObjExcel.Cells(2, col_to_use + 2).Value = "=COUNTIFS(HCApprovalInfo[Needs Review and Approve], "&chr(34)&"TRUE"&chr(34)&")"
 
 'Autofitting columns
 For col_to_autofit = col_to_use - 1 to col_to_use + 2
