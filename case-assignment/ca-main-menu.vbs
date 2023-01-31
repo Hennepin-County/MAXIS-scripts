@@ -125,6 +125,13 @@ script_array_CA_main(script_num).script_name 			= "MIPPA"																				'Sc
 script_array_CA_main(script_num).file_name 				= "ca-mippa.vbs"																		'Script URL
 script_array_CA_main(script_num).description 			= "Processes MIPPA applications per instructions found in POLI/TEMP TE02.07.459."
 
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array_CA_main(script_num)			'Resets the array to add one more element to it
+Set script_array_CA_main(script_num) = new script		'Set this array element to be a new script. Script details below...
+script_array_CA_main(script_num).script_name 			= "Subsequent Application"																				'Script name
+script_array_CA_main(script_num).file_name 				= "subsequent-application.vbs"																		'Script URL
+script_array_CA_main(script_num).description 			= "Supports CASE/NOTE for cases that are already pending and additional application form is received."
+
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
