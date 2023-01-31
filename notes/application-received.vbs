@@ -269,8 +269,8 @@ Do
         Loop until note_line = ""
         PF3
     end If
-    If left(note_title, 23) = "~ Appointment letter sent in MEMO" Then MEMO_NOTE_found = True
-    If left(note_title, 21) = "~ Received Application for SNAP" Then screening_found = True
+    If left(note_title, 33) = "~ Appointment letter sent in MEMO" Then MEMO_NOTE_found = True       'MEMO case note
+    If left(note_title, 31) = "~ Received Application for SNAP" Then screening_found = True         'Exp screening case note
 
     if note_date = "        " then Exit Do
 
