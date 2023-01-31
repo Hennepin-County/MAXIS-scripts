@@ -1720,6 +1720,21 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Health Care Budget Report"
+' script_array(script_num).description 			= "Pulls a list of active SNAP/MFIP cases with identified info into an Excel spreadsheet."
+script_array(script_num).category               = "BULK"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Reports", "Health Care")
+script_array(script_num).dlg_keys               = array("Ex", "Ev")
+script_array(script_num).subcategory            = array("ENHANCED LISTS")
+script_array(script_num).release_date           = #01/31/2023#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "HC Renewal"
 ' script_array(script_num).description 			= "Template for HC renewals.*"
 script_array(script_num).category               = "NOTES"
