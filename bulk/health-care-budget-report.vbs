@@ -58,35 +58,35 @@ EMConnect ""
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
 '-------------------------------------------------------------------------------------------------DIALOG
-Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 286, 165, "Review Health Care Budget Approvals"
-  EditBox 90, 20, 190, 15, worker_number
-  EditBox 90, 40, 15, 15, MAXIS_footer_month
-  EditBox 110, 40, 15, 15, MAXIS_footer_year
-  CheckBox 10, 85, 150, 10, "Check here to run this query county-wide.", all_workers_check
-  CheckBox 10, 95, 150, 10, "Identity FIATed cases on the spreadsheet", FIAT_check
-  CheckBox 10, 130, 195, 10, "Check here to restart a previous run that was interrupted.", restart_previous_run_checkbox
-  ButtonGroup ButtonPressed
-    OkButton 185, 145, 45, 15
-    CancelButton 235, 145, 45, 15
-  Text 25, 5, 240, 10, "Pull ACTIVE Helth Care Cases into Excel with Approved Budget Indicator "
-  Text 20, 25, 65, 10, "Worker(s) to check:"
-  Text 10, 45, 80, 10, "Footer Month to Check:"
-  Text 10, 65, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
-  Text 20, 110, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
-EndDialog
-
 
 Do
 	Do
 		err_msg = ""
-		Dialog dialog1
+		Dialog1 = "" 'Blanking out previous dialog detail
+		BeginDialog Dialog1, 0, 0, 286, 165, "Review Health Care Budget Approvals"
+		  EditBox 90, 20, 190, 15, worker_number
+		  EditBox 90, 40, 15, 15, MAXIS_footer_month
+		  EditBox 110, 40, 15, 15, MAXIS_footer_year
+		  CheckBox 10, 85, 150, 10, "Check here to run this query county-wide.", all_workers_check
+		  CheckBox 10, 95, 150, 10, "Identity FIATed cases on the spreadsheet", FIAT_check
+		  CheckBox 10, 130, 195, 10, "Check here to restart a previous run that was interrupted.", restart_previous_run_checkbox
+		  ButtonGroup ButtonPressed
+			OkButton 185, 145, 45, 15
+			CancelButton 235, 145, 45, 15
+		  Text 25, 5, 240, 10, "Pull ACTIVE Helth Care Cases into Excel with Approved Budget Indicator "
+		  Text 20, 25, 65, 10, "Worker(s) to check:"
+		  Text 10, 45, 80, 10, "Footer Month to Check:"
+		  Text 10, 65, 210, 20, "Enter 7 digits of your workers' x1 numbers (ex: x######), separated by a comma."
+		  Text 20, 110, 210, 20, "NOTE: running queries county-wide can take a significant amount of time and resources. This should be done after hours."
+		EndDialog
+
+		Dialog Dialog1
 		cancel_without_confirmation
 		If (all_workers_check = 0 AND worker_number = "") then err_msg = err_msg & vbCr & "Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""
 		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 	LOOP until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
-Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
+Loop until are_we_passworded_out = False		'loops until user is password-ed out
 
 If restart_previous_run_checkbox = checked then
 	'This is where the review report is currently saved.
