@@ -84,12 +84,11 @@ Call check_for_MAXIS(False) 'Checks to make sure we're in MAXIS
 Call MAXIS_footer_month_confirmation    'confirms the footer month based on the version.
 
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
-excel_row = 2
+excel_row = 118
 
 Do
     Call back_to_SELF
     total_code = trim(objExcel.cells(excel_row, 2).value)
-
     Call navigate_to_MAXIS_screen("POLI", "____")   'Navigates to POLI (can't direct navigate to TEMP)
     EMWriteScreen "TEMP", 5, 40     'Writes TEMP
     Call write_value_and_transmit("TABLE", 21, 71)
@@ -119,12 +118,12 @@ Do
         objSelection.PageSetup.RightMargin = 50
         objSelection.PageSetup.TopMargin = 30
         objSelection.PageSetup.BottomMargin = 25
-        objSelection.Font.Name = "Courier New"
+        objSelection.Font.Name = "Montserrat"
         objSelection.Font.Size = "14"
         objSelection.TypeText poli_title & " - "
         objSelection.TypeText policy_info
         objSelection.TypeParagraph()
-        objSelection.Font.Size = "10"
+        objSelection.Font.Size = "12"
         objSelection.ParagraphFormat.SpaceAfter = 0
 
         notice_length = 0
@@ -164,9 +163,11 @@ Do
         poli_title = replace(poli_title, "<", "Under ")
         poli_title = replace(poli_title, chr(34), "")   'chr(34) is ""
 
+        temp_code = "TE " & right(total_code, len(total_code) -2) 'saving convention to save POLI TEMP code as TE xx.xx.xx vs. TExx.xx.xx (creating space to make more searchable in SPO)
+
         'folder paths and saving each document
         root_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\All POLI TEMP\" 'KC folder where the DIFF files will be housed
-        poli_file_name = root_file_path & total_code & " " & poli_title & ".docx"
+        poli_file_name = root_file_path & temp_code & " " & poli_title & ".docx"
         objDoc.SaveAs(poli_file_name)
         objWord.Visible = True  'Setting visibility back to true prior to quit. Ooes not need to be before the save.
         objWord.Quit
