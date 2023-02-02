@@ -148,24 +148,24 @@ reviews_still_needed = 0
 function set_variables_from_SQL()
     MAXIS_case_number                       = objRecordSet("CaseNumber")
     assigned_case_name                      = objRecordSet("CaseName")
-    table_application_date               = objRecordSet("ApplDate")
-    table_interview_date                 = objRecordSet("InterviewDate")
-    table_day_30                         = objRecordSet("Day_30")
+    table_application_date                  = objRecordSet("ApplDate")
+    table_interview_date                    = objRecordSet("InterviewDate")
+    table_day_30                            = objRecordSet("Day_30")
     assigned_days_pending                   = objRecordSet("DaysPending")
     assigned_snap_status                    = objRecordSet("SnapStatus")
     assigned_cash_status                    = objRecordSet("CashStatus")
-    table_2nd_application_date           = objRecordSet("SecondApplicationDate")
+    table_2nd_application_date              = objRecordSet("SecondApplicationDate")
     assigned_rept_pnd2_days                 = objRecordSet("REPT_PND2Days")
     assigned_questionable_interview         = objRecordSet("QuestionableInterview")
     assigned_questionable_interview_resolve = objRecordSet("Resolved")
-    table_appt_notice_date               = objRecordSet("ApptNoticeDate")
-    table_appt_date                      = objRecordSet("ApptDate")
+    table_appt_notice_date                  = objRecordSet("ApptNoticeDate")
+    table_appt_date                         = objRecordSet("ApptDate")
     assigned_appt_notc_confirmation         = objRecordSet("Confirmation")
-    table_nomi_date                      = objRecordSet("NOMIDate")
+    table_nomi_date                         = objRecordSet("NOMIDate")
     assigned_nomi_confirmation              = objRecordSet("Confirmation2")
     assigned_denial_needed                  = objRecordSet("DenialNeeded")
     assigned_next_action_needed             = objRecordSet("NextActionNeeded")
-    table_added_to_work_list             = objRecordSet("AddedtoWorkList")
+    table_added_to_work_list                = objRecordSet("AddedtoWorkList")
     assigned_2nd_application_date_resolve   = objRecordSet("SecondApplicationDateNotes")
     assigned_closed_recently                = objRecordSet("ClosedInPast30Days")
     assigned_closed_recently_resolve        = objRecordSet("ClosedInPast30DaysNotes")
@@ -636,6 +636,103 @@ function assess_worklist_to_finish_day()
     MsgBox "case_on_hold - " & case_on_hold & vbCr & "case_in_progress - " & case_in_progress & vbCr & "total completed_reviews - " & completed_reviews & vbCr & "reviews_completed_by_me - " & reviews_completed_by_me & vbCr & "reviews_still_needed - " & reviews_still_needed
 end function
 
+function create_assignment_report()
+
+
+    'Access the SQL Table
+    'declare the SQL statement that will query the database
+    objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+    'Creating objects for Access
+    Set objConnection = CreateObject("ADODB.Connection")
+    Set objRecordSet = CreateObject("ADODB.Recordset")
+
+    'This is the file path for the statistics Access database.
+    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+    objRecordSet.Open objSQL, objConnection
+
+    cases_completed_by_me = 0
+    Do While NOT objRecordSet.Eof
+        case_tracking_notes = objRecordSet("TrackingNotes")
+
+        If Instr(case_tracking_notes, "STS-RC-"&user_ID_for_verification) <> 0 Then
+
+            ReDim Preserve COMPLETED_REVIEWS_ARRAY(final_const, cases_completed_by_me)
+
+            COMPLETED_REVIEWS_ARRAY(case_number_const, cases_completed_by_me)                             = objRecordSet("CaseNumber")
+            COMPLETED_REVIEWS_ARRAY(assigned_case_name_const, cases_completed_by_me)                      = objRecordSet("CaseName")
+            COMPLETED_REVIEWS_ARRAY(assigned_application_date_const, cases_completed_by_me)               = objRecordSet("ApplDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_interview_date_const, cases_completed_by_me)                 = objRecordSet("InterviewDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_day_30_const, cases_completed_by_me)                         = objRecordSet("Day_30")
+            COMPLETED_REVIEWS_ARRAY(assigned_days_pending_const, cases_completed_by_me)                   = objRecordSet("DaysPending")
+            COMPLETED_REVIEWS_ARRAY(assigned_snap_status_const, cases_completed_by_me)                    = objRecordSet("SnapStatus")
+            COMPLETED_REVIEWS_ARRAY(assigned_cash_status_const, cases_completed_by_me)                    = objRecordSet("CashStatus")
+            COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_const, cases_completed_by_me)           = objRecordSet("SecondApplicationDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_rept_pnd2_days_const, cases_completed_by_me)                 = objRecordSet("REPT_PND2Days")
+            COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_const, cases_completed_by_me)         = objRecordSet("QuestionableInterview")
+            COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_resolve_const, cases_completed_by_me) = objRecordSet("Resolved")
+            COMPLETED_REVIEWS_ARRAY(assigned_appt_notice_date_const, cases_completed_by_me)               = objRecordSet("ApptNoticeDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_appt_date_const, cases_completed_by_me)                      = objRecordSet("ApptDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_appt_notc_confirmation_const, cases_completed_by_me)         = objRecordSet("Confirmation")
+            COMPLETED_REVIEWS_ARRAY(assigned_nomi_date_const, cases_completed_by_me)                      = objRecordSet("NOMIDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_nomi_confirmation_const, cases_completed_by_me)              = objRecordSet("Confirmation2")
+            COMPLETED_REVIEWS_ARRAY(assigned_denial_needed_const, cases_completed_by_me)                  = objRecordSet("DenialNeeded")
+            COMPLETED_REVIEWS_ARRAY(assigned_next_action_needed_const, cases_completed_by_me)             = objRecordSet("NextActionNeeded")
+            COMPLETED_REVIEWS_ARRAY(assigned_added_to_work_list_const, cases_completed_by_me)             = objRecordSet("AddedtoWorkList")
+            COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_resolve_const, cases_completed_by_me)   = objRecordSet("SecondApplicationDateNotes")
+            COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_const, cases_completed_by_me)                = objRecordSet("ClosedInPast30Days")
+            COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_resolve_const, cases_completed_by_me)        = objRecordSet("ClosedInPast30DaysNotes")
+            COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_const, cases_completed_by_me)                  = objRecordSet("StartedOutOfCounty")
+            COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_resolve_const, cases_completed_by_me)          = objRecordSet("StartedOutOfCountyNotes")
+            COMPLETED_REVIEWS_ARRAY(case_review_notes_const, cases_completed_by_me)                       = objRecordSet("TrackingNotes")
+
+            cases_completed_by_me = cases_completed_by_me + 1
+
+        End If
+        objRecordSet.MoveNext
+    Loop
+
+    'close the connection and recordset objects to free up resources
+    objRecordSet.Close
+    objConnection.Close
+    Set objRecordSet=nothing
+    Set objConnection=nothing
+
+    For review = 0 to UBound(COMPLETED_REVIEWS_ARRAY, 2)
+        MAXIS_case_number = COMPLETED_REVIEWS_ARRAY(case_number_const, review)
+        saved_worker  = ""
+        user_ID_for_validation  = ""
+        saved_date  = ""
+        saved_start_time  = ""
+        saved_end_time  = ""
+        saved_hold_1_start_time  = ""
+        saved_hold_1_end_time  = ""
+        saved_hold_2_start_time  = ""
+        saved_hold_2_end_time  = ""
+        saved_hold_3_start_time  = ""
+        saved_hold_3_end_time  = ""
+
+        txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
+        od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
+
+        read_tracking_cookie
+
+        COMPLETED_REVIEWS_ARRAY(assigned_worker_const, review) = saved_worker
+        COMPLETED_REVIEWS_ARRAY(assigned_date_const, review) = saved_date
+        COMPLETED_REVIEWS_ARRAY(assigned_start_time_const, review) = saved_start_time
+        COMPLETED_REVIEWS_ARRAY(assigned_end_time_const, review) = saved_end_time
+        COMPLETED_REVIEWS_ARRAY(assigned_hold_1_start_time_const, review) = saved_hold_1_start_time
+        COMPLETED_REVIEWS_ARRAY(assigned_hold_1_end_time_const, review) = saved_hold_1_end_time
+        COMPLETED_REVIEWS_ARRAY(assigned_hold_2_start_time_const, review) = saved_hold_2_start_time
+        COMPLETED_REVIEWS_ARRAY(assigned_hold_2_end_time_const, review) = saved_hold_2_end_time
+        COMPLETED_REVIEWS_ARRAY(assigned_hold_3_start_time_const, review) = saved_hold_3_start_time
+        COMPLETED_REVIEWS_ARRAY(assigned_hold_3_end_time_const, review) = saved_hold_3_end_time
+    Next
+
+
+
+end function
+
 ' assigned_date
 ' assigned_start_time
 ' assigned_end_time
@@ -693,6 +790,47 @@ const last_const        = 10
 
 Dim CASES_ON_HOLD_ARRAY()
 ReDim CASES_ON_HOLD_ARRAY(last_const, 0)
+
+const case_number_const                             = 00
+const assigned_worker_const                         = 01
+const assigned_date_const                           = 02
+const assigned_start_time_const                     = 03
+const assigned_end_time_const                       = 04
+const assigned_hold_1_start_time_const              = 05
+const assigned_hold_1_end_time_const                = 06
+const assigned_hold_2_start_time_const              = 07
+const assigned_hold_2_end_time_const                = 08
+const assigned_hold_3_start_time_const              = 09
+const assigned_hold_3_end_time_const                = 10
+const assigned_case_name_const                      = 11
+const assigned_application_date_const               = 12
+const assigned_interview_date_const                 = 13
+const assigned_day_30_const                         = 14
+const assigned_days_pending_const                   = 15
+const assigned_snap_status_const                    = 16
+const assigned_cash_status_const                    = 17
+const assigned_2nd_application_date_const           = 18
+const assigned_rept_pnd2_days_const                 = 19
+const assigned_questionable_interview_const         = 20
+const assigned_questionable_interview_resolve_const = 21
+const assigned_appt_notice_date_const               = 22
+const assigned_appt_date_const                      = 23
+const assigned_appt_notc_confirmation_const         = 24
+const assigned_nomi_date_const                      = 25
+const assigned_nomi_confirmation_const              = 26
+const assigned_denial_needed_const                  = 27
+const assigned_next_action_needed_const             = 28
+const assigned_added_to_work_list_const             = 29
+const assigned_2nd_application_date_resolve_const   = 30
+const assigned_closed_recently_const                = 31
+const assigned_closed_recently_resolve_const        = 32
+const assigned_out_of_county_const                  = 33
+const assigned_out_of_county_resolve_const          = 34
+const case_review_notes_const                       = 35
+const final_const                                   = 50
+
+Dim COMPLETED_REVIEWS_ARRAY()
+ReDim COMPLETED_REVIEWS_ARRAY(final_const, 0)
 
 If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
     Dialog1 = ""
@@ -768,7 +906,7 @@ If local_demo = False Then
     If DateDiff("d", first_item_date, date) = 0 Then BULK_Run_completed = True
     first_item_time = FormatDateTime(first_item_time, 3)
     ' MsgBox "first_item_change - " & first_item_change & vbCr & "first_item_date - " & first_item_date & vbCr & "first_item_time - " & first_item_time
-    BULK_Run_completed = True           'testing option
+    ' BULK_Run_completed = True           'testing option
     cases_on_hold_count = 0
     'BULK Run has been completed'
     If BULK_Run_completed = True Then
@@ -984,7 +1122,7 @@ If worker_on_task = False Then
                   Text 170, 10, 135, 10, "On Demand Applications Dashboard"
                   GroupBox 10, 20, 430, 85, "Applications BULK Run"
                   Text 20, 35, 170, 10, "The BULK run was last completed on " & first_item_date &" ."
-                  Text 190, 35, 200, 10, "The BULK Run was completed today around " & first_item_time & "."
+                  Text 190, 35, 205, 10, "The BULK Run was completed today around " & first_item_time & "."
                   Text 20, 50, 305, 10, "The BULK Run can only be completed once per day. The Work List is ready to be reviewed."
                   Text 40, 60, 305, 10, "- The worklist is held in a SQL Table and can only be viewed through this Dashboard script. "
                   Text 40, 70, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
