@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/29/2023", "Enhanced claim information to ensure that decimal points are added to claim amounts, and not added to claim #'s.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/17/2022", "Updated bug in script where claim # and claim amt were transposed.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/15/2022", "Enhanced CCOL Notes to make notes in all claims vs. only 1st claim. Updated background functioning.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/18/2020", "GitHub issue #381 Added Requested Claim Adjustment per project request.", "MiKayla Handley")
@@ -69,7 +70,7 @@ closing_message = "Overpayment case note entered, copied to CCOL and the claims 
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 171, 135, "Overpayment/Claim"
+BeginDialog Dialog1, 0, 0, 171, 135, "Overpayment/Claims"
   EditBox 60, 55, 45, 15, MAXIS_case_number
   DropListBox 60, 75, 105, 15, "Select One:"+chr(9)+"Intial Overpayment/Claim"+chr(9)+"Requested Claim Adjustment", claim_actions
   EditBox 60, 95, 105, 15, worker_signature
@@ -106,7 +107,7 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 IF claim_actions = "Intial Overpayment/Claim" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-        BeginDialog Dialog1, 0, 0, 361, 320, "Overpayment Claim Entered"
+    BeginDialog Dialog1, 0, 0, 361, 320, "Overpayment Claim Enty"
         EditBox 60, 10, 40, 15, discovery_date
         EditBox 140, 10, 20, 15, memb_number
         EditBox 235, 10, 20, 15, OT_resp_memb
@@ -185,37 +186,39 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
             IF OP_program <> "Select:" THEN
                 IF trim(OP_from) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 1st overpayment period period (MM/YY)."
                 IF trim(OP_to) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 1st overpayment period period (MM/YY)."
-                IF trim(Claim_amount) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the amount of claim the 1st claim."
-                IF trim(Claim_number) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the 1st claim's claim number."
+                IF trim(Claim_amount) = "" or instr(Claim_amount, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 1st claim amount (including decimal point.)"
+                IF trim(Claim_number) = "" or instr(claim_number, ".") <> 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 1st claim number."
             END IF
             '2nd Claim
         	IF OP_program_II <> "Select:" THEN
 				IF trim(OP_from_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 2nd overpayment period period (MM/YY)."
 				IF trim(OP_to_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 2nd overpayment period period (MM/YY)."
-        		IF trim(Claim_amount_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the amount of claim the 2nd claim."
-                IF trim(Claim_number_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the 2nd claim's claim number."
+                IF trim(Claim_amount_II) = "" or instr(Claim_amount_II, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 2nd claim amount (including decimal point.)"
+                IF trim(Claim_number_II) = "" or instr(claim_number_II, ".") <> 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 2nd claim number."
         	END IF
     	    IF OP_program_III <> "Select:" THEN
 				IF trim(OP_from_III) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 3rd overpayment period period (MM/YY)."
 				IF trim(OP_to_III) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 3rd overpayment period period (MM/YY)."
-    	    	IF trim(Claim_amount_III) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the amount of claim the 3rd claim."
-                IF trim(Claim_number_III) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the 3rd claim's claim number."
+    	    	IF trim(Claim_amount_III) = "" or instr(Claim_amount_III, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 3rd claim amount (including decimal point.)"
+                IF trim(Claim_number_III) = "" or instr(claim_number_III, ".") <> 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 3rd claim number."
     	    END IF
     	    IF OP_program_IV <> "Select:" THEN
 				IF trim(OP_from_IV) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 4th overpayment period period (MM/YY)."
 				IF trim(OP_to_IV) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 4th overpayment period period (MM/YY)."
-    	    	IF trim(Claim_amount_IV) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the amount of claim the 4th claim."
-                IF trim(Claim_number_IV) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the 4th claim's claim number."
+    	    	IF trim(Claim_amount_IV) = "" or instr(Claim_amount_IV, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 4th claim amount (including decimal point.)"
+                IF trim(Claim_number_IV) = "" or instr(claim_number_IV, ".") <> 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 4th claim number."
     	    END IF
             IF trim(HC_claim_number) <> "" THEN
+                If instr(HC_claim_number, ".") <> 0 then err_msg = err_msg & vbNewLine & "* Review 1st Health Care claim #, remove the decimal point if applicable."
             	IF trim(HC_from) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 1st Health Care overpayment period period (MM/YY)."
             	IF trim(HC_to) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 1st Health Care overpayment period period (MM/YY)."
-            	IF trim(HC_claim_amount) = "" THEN err_msg = err_msg & vbNewLine &  "* Enter the amount of the 1st Health Care claim amount."
+            	IF trim(HC_claim_amount) = "" or instr(HC_claim_amount, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 1st Health Care claim amount (including decimal point.)"
             END IF
             IF trim(HC_claim_number_II) <> "" THEN
+                If instr(HC_claim_number_II, ".") <> 0 then err_msg = err_msg & vbNewLine & "* Review 2nd Health Care claim #, remove the decimal point if applicable."
                 IF trim(HC_from_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 2nd Health Care overpayment period period (MM/YY)."
                 IF trim(HC_to_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 2nd Health Care overpayment period period (MM/YY)."
-                IF trim(HC_claim_amount_II) = "" THEN err_msg = err_msg & vbNewLine &  "* Enter the amount of the 2nd Health Care claim amount."
+                IF trim(HC_claim_amount_II) = "" or instr(HC_claim_amount_II, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 2nd Health Care claim amount (including decimal point.)"
             END IF
             If EI_disregard = "Select:" THEN err_msg = err_msg & vbNewLine & "* Was an earned income disregard allowed in the overpayment?"
             IF trim(EVF_used) = "" then err_msg = err_msg & vbNewLine & "* Enter verification used for the income received. If no verification was received enter N/A."
@@ -256,7 +259,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
 
     Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 
-    '-----------------------------------------------------------------------------------------CASENOTE
+    '----------------------------------------------------------------------------------------Claim Referral Tracking for MFIP or SNAP
     IF OP_program = "FS" or OP_program_II = "FS" or OP_program_III = "FS" or OP_program_IV = "FS" or OP_program = "MF" or OP_program_II = "MF" or OP_program_III = "MF" or OP_program_IV = "MF" THEN
     	'Going to the MISC panel to add claim referral tracking information
     	Call navigate_to_MAXIS_screen ("STAT", "MISC")
@@ -314,13 +317,13 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
     CALL write_bullet_and_variable_in_CASE_NOTE("Active Program(s)", list_active_programs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-    Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-    IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-    IF OP_program_III <> "Select:" then	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-    IF OP_program_IV <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
+    Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " for $" & Claim_amount)
+    IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " for $" & Claim_amount_II)
+    IF OP_program_III <> "Select:" then	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " for $" & Claim_amount_III)
+    IF OP_program_IV <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " for $" & Claim_amount_IV)
     'health care
-    IF HC_claim_number <> "" THEN Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amount $" & HC_Claim_amount)
-    IF HC_claim_number_II <> "" THEN Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " Amount $" & HC_claim_amount_II)
+    IF HC_claim_number <> "" THEN Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " for $" & HC_Claim_amount)
+    IF HC_claim_number_II <> "" THEN Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " for $" & HC_claim_amount_II)
     Call write_bullet_and_variable_in_CASE_NOTE("Health Care responsible members", HC_resp_memb)
     Call write_bullet_and_variable_in_CASE_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
     If HC_claim_number <> "" or HC_claim_number_II <> "" then
@@ -380,13 +383,13 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
         CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
         CALL write_bullet_and_variable_in_CCOL_note("Active Program(s)", list_active_programs)
         CALL write_bullet_and_variable_in_CCOL_note("Source of income", income_source)
-        Call write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " Amt $" & Claim_amount)
-        IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " Amt $" & Claim_amount_II)
-        IF OP_program_III <> "Select:" then	Call write_variable_in_CCOL_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " Amt $" & Claim_amount_III)
-        IF OP_program_IV <> "Select:" then Call write_variable_in_CCOL_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " Amt $" & Claim_amount_IV)
+        Call write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " for $" & Claim_amount)
+        IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " for $" & Claim_amount_II)
+        IF OP_program_III <> "Select:" then	Call write_variable_in_CCOL_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " for $" & Claim_amount_III)
+        IF OP_program_IV <> "Select:" then Call write_variable_in_CCOL_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " for $" & Claim_amount_IV)
         'health care
-        IF HC_claim_number <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " Amount $" & HC_Claim_amount)
-        IF HC_claim_number_II <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " Amount $" & HC_claim_amount_II)
+        IF HC_claim_number <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " for $" & HC_Claim_amount)
+        IF HC_claim_number_II <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " for $" & HC_claim_amount_II)
         Call write_bullet_and_variable_in_CCOL_note("Health Care responsible members", HC_resp_memb)
         Call write_bullet_and_variable_in_CCOL_note("Total Federal Health Care amount", Fed_HC_AMT)
         If HC_claim_number <> "" or HC_claim_number_II <> "" then
@@ -457,7 +460,7 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 
 	IF MFIP_Claim_checkbox = CHECKED THEN
         Dialog1 = ""
-	    BeginDialog Dialog1, 0, 0, 276, 125, "MFIP Amount Adjustment "
+	    BeginDialog Dialog1, 0, 0, 276, 125, "MFIP Amount Adjustment"
 	      EditBox 90, 20, 40, 15, tanf_elig_cash
 	      EditBox 90, 40, 40, 15, tanf_housing_grant
 	      EditBox 90, 60, 40, 15, federal_food
@@ -593,7 +596,7 @@ END IF
 
 script_end_procedure_with_error_report(closing_message)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -601,6 +604,7 @@ script_end_procedure_with_error_report(closing_message)
 '--Tab orders reviewed & confirmed----------------------------------------------11/15/2022
 '--Mandatory fields all present & Reviewed--------------------------------------11/15/2022
 '--All variables in dialog match mandatory fields-------------------------------11/15/2022
+'Review dialog names for content and content fit in dialog----------------------01/29/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------11/15/2022
@@ -615,7 +619,7 @@ script_end_procedure_with_error_report(closing_message)
 '--Out-of-County handling reviewed----------------------------------------------11/15/2022--------------------N/A
 '--script_end_procedures (w/ or w/o error messaging)----------------------------11/15/2022
 '--BULK - review output of statistics and run time/count (if applicable)--------11/15/2022--------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---11/15/2022
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------11/15/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------11/15/2022
@@ -633,5 +637,6 @@ script_end_procedure_with_error_report(closing_message)
 '--Review/update SharePoint instructions----------------------------------------11/15/2022
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/15/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/15/2022
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------01/29/2023
 '--Complete misc. documentation (if applicable)---------------------------------11/15/2022
 '--Update project team/issue contact (if applicable)----------------------------11/15/2022
