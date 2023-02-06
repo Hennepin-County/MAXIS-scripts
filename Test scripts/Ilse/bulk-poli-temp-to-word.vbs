@@ -84,7 +84,7 @@ Call check_for_MAXIS(False) 'Checks to make sure we're in MAXIS
 Call MAXIS_footer_month_confirmation    'confirms the footer month based on the version.
 
 Call excel_open(file_selection_path, True, True, ObjExcel, objWorkbook)  'opens the selected excel file
-excel_row = 118
+excel_row = 2
 
 Do
     Call back_to_SELF
