@@ -1443,6 +1443,7 @@ function access_ADDR_panel(access_type, notes_on_address, resi_line_one, resi_li
 
         If verif_line = "SF" Then addr_verif = "SF - Shelter Form"				'filling in the detail of the verification listed
         If verif_line = "CO" Then addr_verif = "CO - Coltrl Stmt"
+		If verif_line = "LE" Then addr_verif = "LE - Lease/Rent Doc"
         If verif_line = "MO" Then addr_verif = "MO - Mortgage Papers"
         If verif_line = "TX" Then addr_verif = "TX - Prop Tax Stmt"
         If verif_line = "CD" Then addr_verif = "CD - Contrct for Deed"
