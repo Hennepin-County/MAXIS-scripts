@@ -1369,7 +1369,7 @@ ElseIf report_option = "Collect Statistics" Then			'This option is used when we 
 	Do
 		col_to_use = col_to_use + 1
 		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
-		If InStr(col_header, date_header) <> 0 Then statistics_already_run_today = True
+		If InStr(col_header, "("&date_header&")") <> 0 Then statistics_already_run_today = True
 		If col_header = "CASH (" & date_header & ")" Then existing_cash_mont_excel_col = col_to_use
 		If col_header = "SNAP (" & date_header & ")" Then existing_stat_mont_excel_col = col_to_use
 		If col_header = "HRF Date (" & date_header & ")" Then existing_recvd_date_excel_col = col_to_use
