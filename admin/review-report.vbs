@@ -55,7 +55,7 @@ changelog_display
 
 function add_autoclose_case_note(revw_status_cash, revw_status_snap, revw_status_hc, revw_form_date, revw_intvw_date)
 	If add_case_note = True Then 'only run the details here if we are running the 'end of month processing'
-		If ObjExcel.Cells(excel_row, closure_note_col) = "" Then		
+		If ObjExcel.Cells(excel_row, closure_note_col) = "" Then
 			If revw_status_cash = "T" OR revw_status_cash = "I" OR revw_status_cash = "U" OR revw_status_snap = "T" OR revw_status_snap = "I" OR revw_status_snap = "U" Then
 				'We only care if the review has been terminated by the system, which is only indicated if the REVW status is T, I or U'
 				Call navigate_to_MAXIS_screen("CASE", "NOTE")						'navigating to CASE:NOTE now
@@ -1405,7 +1405,7 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	Do
 		col_to_use = col_to_use + 1
 		col_header = trim(ObjExcel.Cells(1, col_to_use).Value)
-		If InStr(col_header, date_header) <> 0 Then statistics_already_run_today = True
+		If InStr(col_header, "("&date_header&")") <> 0 Then statistics_already_run_today = True
 		If col_header = "CASH (" & date_header & ")" Then existing_cash_revw_excel_col = col_to_use
 		If col_header = "SNAP (" & date_header & ")" Then existing_stat_revw_excel_col = col_to_use
 		If col_header = "CAF Date (" & date_header & ")" Then existing_recvd_date_excel_col = col_to_use
