@@ -880,8 +880,6 @@ If revw_pending_table = True Then
     'This is the BZST connection to SQL Database'
     objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 
-    objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
-
     objRecordSet.Open "SELECT FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
     current_exp_code = objRecordSet("IsExpSnap")
     If snap_status = "PENDING" and screening_found = False Then current_exp_code = 1
