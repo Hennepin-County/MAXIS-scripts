@@ -6002,8 +6002,8 @@ function hc_elig_case_note()
 					If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
 						Call write_variable_in_CASE_NOTE("           Emergency: " & STAT_INFORMATION(month_ind).stat_emma_med_emer_info(each_memb))
 						Call write_variable_in_CASE_NOTE("  Health Consequence: " & STAT_INFORMATION(month_ind).stat_emma_health_cons_info(each_memb))
-						Call write_variable_in_CASE_NOTE("          Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb))
-						Call write_variable_in_CASE_NOTE("          Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb) & "   - End Date: " & STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb))
+						If STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb) = "" Then Call write_variable_in_CASE_NOTE("          Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb))
+						If STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb) <> "" Then Call write_variable_in_CASE_NOTE("          Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb) & "   - End Date: " & STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb))
 					End If
 				Next
 			End If
