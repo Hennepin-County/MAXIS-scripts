@@ -1478,12 +1478,11 @@ script_array(script_num).script_name 			= "Expedited Determination Report"
 ' script_array(script_num).description 			= "Template for noting detail about how expedited was determined for a case."
 script_array(script_num).category               = "ADMIN"
 script_array(script_num).workflows              = ""
-script_array(script_num).tags                   = array("Application", "QI", "SNAP")
+script_array(script_num).tags                   = array("Application", "Monthly Tasks", "SNAP")
 script_array(script_num).dlg_keys               = array("Cn", "Exp", "Ev")
-script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #10/01/2000#
-script_array(script_num).hot_topic_date			= #08/31/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
+script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
