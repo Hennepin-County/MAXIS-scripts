@@ -38,6 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'this is time zone functionality
+strComputer = "."
+Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\CIMV2")
+Set colItems = objWMIService.ExecQuery("SELECT * FROM Win32_ComputerSystem")
+For Each objItem In colItems
+	MsgBox "Current Time Zone (Hours Offset From GMT): " & (objItem.CurrentTimeZone / 60)
+	MsgBox "Daylight Saving In Effect: " & objItem.DaylightInEffect
+Next
 
 MsgBox "STOP"
 
