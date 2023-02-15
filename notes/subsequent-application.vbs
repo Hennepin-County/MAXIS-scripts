@@ -442,11 +442,19 @@ Do
         Dialog Dialog1
         cancel_confirmation
 
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+        If application_type = "MNbenefits" AND how_application_rcvd = "Select One:" Then how_application_rcvd = "Online"
+	    IF how_application_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
+	    IF application_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
+        IF application_type = "MNbenefits" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MNbenefits app was received, you must enter the confirmation number and time received."
+        If population_of_case = "Select One:" then err_msg = err_msg & vbNewLine & "* Please indicate the population or specialty of the case."
+        If IsDate(form_date) = False Then err_msg = err_msg & vbNewLine & "* Please enter the date the subsequent application form was received."
+
         If ButtonPressed = change_pending_progs_btn Then
+            If population_of_case = "Select One:" Then MsgBox "The EMER program option cannot be determined if checked as the EMER program is population specific." & vbCr & vbCr & "You can still check the programs, but if EMER is checked, EA/EGA will not show up on the list of programs since the population has not been selected."
             call update_programs_pending_detail(previously_pended_progs, new_programs_pended)
             err_msg = "LOOP"
         End If
+        IF err_msg <> "" and err_msg <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
@@ -594,8 +602,14 @@ Do
         If last_phone_check <> phone_check Then err_msg = "LOOP"
 
         If snap_status = "PENDING" and screening_found = False Then
-            If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
-            Call determine_expedited_screening
+            IF income = "" THEN income = "0"
+            IF assets = "" THEN assets = "0"
+            IF rent   = "" THEN rent   = "0"
+            If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN
+                err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
+            Else
+                Call determine_expedited_screening
+            End If
         End If
 
         If expedited_status <> "" OR snap_status <> "PENDING" OR screening_found = True Then
