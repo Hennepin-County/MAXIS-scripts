@@ -189,12 +189,16 @@ EMSearch MAXIS_case_number, row, col
 If row <> 24 and row <> 0 Then pnd2_row = row
 EMReadScreen application_date, 8, pnd2_row, 38                                  'reading and formatting the application date
 application_date = replace(application_date, " ", "/")
+oldest_app_date = application_date
+
 EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
 If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
     multiple_app_dates = True           'identifying that this case has multiple application dates - this is not used specifically yet but is in place so we can output information for managment of case handling in the future.
 
     EMReadScreen additional_application_date, 8, pnd2_row + 1, 38               'reading the app date from the other application line
     additional_application_date = replace(additional_application_date, " ", "/")
+
+    If DateDiff("d", additional_application_date, application_date) > 0 Then oldest_app_date = additional_application_date
 
     'There is a specific dialog that will display if there is more than one application date so we can select the right one for this script run
     Dialog1 = ""
@@ -229,7 +233,7 @@ End if
 
 app_recvd_note_found = False
 Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
-too_old_date = DateAdd("D", -1, application_date)              'We don't need to read notes from before the CAF date
+too_old_date = DateAdd("D", -1, oldest_app_date)              'We don't need to read notes from before the CAF date
 
 note_row = 5
 previously_pended_progs = ""
@@ -285,6 +289,7 @@ Do
     if next_note_date = "        " then Exit Do
 Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 
+run_for_hc_only = False
 If app_recvd_note_found = True Then
     skip_start_of_subsequent_apps = True
     hc_case = False
@@ -294,7 +299,23 @@ If app_recvd_note_found = True Then
     If hc_case = True Then hc_request_on_second_app = MsgBox("It appears this case has already had the 'Application Received' script on this case. For CAF based programs, we should only run Application Received once since the application dates need to be aligned." & vbCr & vbCR &_
                                                              "Are there 2 seperate applications? One for Health Care and another for CAF based program(s)?", vbquestion + vbYesNo, "Type of Application Process")
     If hc_case = False or hc_request_on_second_app = vbNo Then  call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
+    If hc_case = True and hc_request_on_second_app = vbYes Then run_for_hc_only = True
 End If
+script_run_lowdown = script_run_lowdown & vbCr & "run_for_hc_only - " & run_for_hc_only
+
+If run_for_hc_only = True Then
+    unknown_cash_pending = False
+    ga_status = ""
+    msa_status = ""
+    mfip_status = ""
+    dwp_status = ""
+    grh_status = ""
+    snap_status = ""
+    emer_status = ""
+    emer_type = ""
+    programs_applied_for = "Health Care"
+End If
+
 
 Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 PF5
