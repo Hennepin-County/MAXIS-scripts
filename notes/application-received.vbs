@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("02/21/2023", "BUG FIX for cases with a second application that is for HC. These cases are not subsequent applications, and need to be handled within this script and not duplicate MEMOs and Screenings.", "Casey Love, Hennepin County")
 call changelog_update("01/30/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/30/2023", "Script will now redirect to new script (NOTES - Subsequent Application) for cases that are already pending with a new application form received. This new script supports case actions needed for subsequent applications received.", "Casey Love, Hennepin County")
 CALL changelog_update("09/12/2022", "Updated EBT card availibilty in the office direction for expedited cases.", "Ilse Ferris, Hennepin County")
