@@ -386,57 +386,58 @@ function assign_a_case()
 
         call update_tracking_cookie("RESUME")
     End If
+    worker_on_task = True
 
     Call Back_to_SELF
     Call navigate_to_MAXIS_screen("CASE", "CURR")
-    Do
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 246, 335, "On Demand Applications Case Review"
-          Text 95, 10, 60, 10, "Case to Review"
-          GroupBox 10, 20, 230, 75, "Case Information"
-          Text 20, 35, 85, 10, " Case Number: " & MAXIS_case_number
-          Text 30, 45, 210, 10, "Case Name: " & assigned_case_name
-          Text 15, 60, 120, 10, "Application Date: " & assigned_application_date
-          Text 20, 70, 75, 10, " Days Pending: " & assigned_rept_pnd2_days
-          Text 45, 80, 80, 10, "Day 30: " & assigned_day_30
-          If assigned_snap_status = "Pending" Then Text 145, 60, 50, 10, "SNAP: Pending"
-          If assigned_cash_status = "Pending" Then Text 145, 70, 50, 10, "CASH: Pending"
-          GroupBox 10, 100, 230, 30, "Interview"
-          ' Text 20, 115, 140, 10, "Interview Date from PROG: " & assigned_interview_date
-          If assigned_interview_date = "" Then Text 20, 115, 140, 10, "No interview entered on PROG"
-          If assigned_interview_date <> "" Then Text 20, 115, 140, 10, "Interview Date from PROG: " & assigned_interview_date
-          GroupBox 10, 135, 230, 55, "Notices"
-          If assigned_appt_notice_date = "" Then
-            Text 20, 150, 110, 10, "NO APPOINTMENT NOTICE FOUND"
-          Else
-            Text 20, 150, 110, 10, "Appt Notice Sent on " & assigned_appt_notice_date
-            Text 30, 160, 80, 10, "Appt Date: " & assigned_appt_date
-          End If
-          ' Text 20, 150, 110, 10, "Appt Notice Sent on MM/DD/YY"
-          ' Text 30, 160, 80, 10, "Appt Date: MM/DD/YY"
-          If assigned_nomi_date = "" Then
-            Text 20, 175, 110, 10, "NO NOMI FOUND"
-          Else
-            Text 20, 175, 110, 10, "NOMI Sent on " & assigned_nomi_date
-          End If
-          ' Text 20, 175, 110, 10, "NOMI Sent on MM/DD/YY"
-          GroupBox 10, 195, 230, 60, "Actions"
-          Text 20, 210, 70, 10, "Next Action Needed:"
-          Text 25, 220, 165, 10, assigned_next_action_needed
-          If assigned_next_action_needed = "RESOLVE SUBSEQUENT APPLICATION DATE" Then Text 20, 235, 145, 10, "Subsequent Appliction Date: " & assigned_2nd_application_date
-          If assigned_next_action_needed = "ALIGN INTERVIEW DATES" Then Text 25, 235, 180, 10, "*** Interview Dates on PROG need to be ALIGNED ***"
-          If assigned_next_action_needed = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" Then Text 20, 235, 180, 10, "*** Questionable Interview Date Found: " & assigned_questionable_interview & " ***"
-          Text 10, 260, 70, 10, "Additional Notes:"
-          Text 10, 270, 230, 40, case_review_notes
-          EditBox 500, 600, 50, 15, fake_edit_box
-          ButtonGroup ButtonPressed
-            OkButton 190, 315, 50, 15
-        EndDialog
+    ' Do
+    '     Dialog1 = ""
+    '     BeginDialog Dialog1, 0, 0, 246, 335, "On Demand Applications Case Review"
+    '       Text 95, 10, 60, 10, "Case to Review"
+    '       GroupBox 10, 20, 230, 75, "Case Information"
+    '       Text 20, 35, 85, 10, " Case Number: " & MAXIS_case_number
+    '       Text 30, 45, 210, 10, "Case Name: " & assigned_case_name
+    '       Text 15, 60, 120, 10, "Application Date: " & assigned_application_date
+    '       Text 20, 70, 75, 10, " Days Pending: " & assigned_rept_pnd2_days
+    '       Text 45, 80, 80, 10, "Day 30: " & assigned_day_30
+    '       If assigned_snap_status = "Pending" Then Text 145, 60, 50, 10, "SNAP: Pending"
+    '       If assigned_cash_status = "Pending" Then Text 145, 70, 50, 10, "CASH: Pending"
+    '       GroupBox 10, 100, 230, 30, "Interview"
+    '       ' Text 20, 115, 140, 10, "Interview Date from PROG: " & assigned_interview_date
+    '       If assigned_interview_date = "" Then Text 20, 115, 140, 10, "No interview entered on PROG"
+    '       If assigned_interview_date <> "" Then Text 20, 115, 140, 10, "Interview Date from PROG: " & assigned_interview_date
+    '       GroupBox 10, 135, 230, 55, "Notices"
+    '       If assigned_appt_notice_date = "" Then
+    '         Text 20, 150, 110, 10, "NO APPOINTMENT NOTICE FOUND"
+    '       Else
+    '         Text 20, 150, 110, 10, "Appt Notice Sent on " & assigned_appt_notice_date
+    '         Text 30, 160, 80, 10, "Appt Date: " & assigned_appt_date
+    '       End If
+    '       ' Text 20, 150, 110, 10, "Appt Notice Sent on MM/DD/YY"
+    '       ' Text 30, 160, 80, 10, "Appt Date: MM/DD/YY"
+    '       If assigned_nomi_date = "" Then
+    '         Text 20, 175, 110, 10, "NO NOMI FOUND"
+    '       Else
+    '         Text 20, 175, 110, 10, "NOMI Sent on " & assigned_nomi_date
+    '       End If
+    '       ' Text 20, 175, 110, 10, "NOMI Sent on MM/DD/YY"
+    '       GroupBox 10, 195, 230, 60, "Actions"
+    '       Text 20, 210, 70, 10, "Next Action Needed:"
+    '       Text 25, 220, 165, 10, assigned_next_action_needed
+    '       If assigned_next_action_needed = "RESOLVE SUBSEQUENT APPLICATION DATE" Then Text 20, 235, 145, 10, "Subsequent Appliction Date: " & assigned_2nd_application_date
+    '       If assigned_next_action_needed = "ALIGN INTERVIEW DATES" Then Text 25, 235, 180, 10, "*** Interview Dates on PROG need to be ALIGNED ***"
+    '       If assigned_next_action_needed = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" Then Text 20, 235, 180, 10, "*** Questionable Interview Date Found: " & assigned_questionable_interview & " ***"
+    '       Text 10, 260, 70, 10, "Additional Notes:"
+    '       Text 10, 270, 230, 40, case_review_notes
+    '       EditBox 500, 600, 50, 15, fake_edit_box
+    '       ButtonGroup ButtonPressed
+    '         OkButton 190, 315, 50, 15
+    '     EndDialog
 
-        dialog Dialog1
+    '     dialog Dialog1
 
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    Loop until are_we_passworded_out = false					'loops until user passwords back in
+    '     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    ' Loop until are_we_passworded_out = false					'loops until user passwords back in
 end function
 
 function read_tracking_cookie()
@@ -1019,6 +1020,7 @@ complete_review_btn     = 2004
 hold_case_btn           = 2005
 finish_work_day_btn     = 3001
 test_access_btn         = 4001
+close_dialog_btn        = 5001
 
 ' STS-NR            'Status - Needs Review'
 ' STS-RC            'Status - Review Completed'
@@ -1584,8 +1586,10 @@ If worker_on_task = False Then
         End If
         If ButtonPressed = get_new_case_btn Then Call assign_a_case
     End If
-Else        'worker_on_task = True
+End If
 
+' Else        'worker_on_task = True
+If worker_on_task = True Then
 
     If local_demo = True Then
         MAXIS_case_number                       = "318040"
@@ -1729,12 +1733,14 @@ Else        'worker_on_task = True
 	          ButtonGroup ButtonPressed
 	            PushButton 280, 290, 110, 15, "Complete Review", complete_review_btn
 	            PushButton 335, 5, 110, 15, "Put Case on Hold", hold_case_btn
+                PushButton 160, 290, 110, 15, "Close Review Dialog", close_dialog_btn
                 PushButton 10, 290, 65, 15, "Test Access", test_access_btn
 	            CancelButton 395, 290, 50, 15
 	        EndDialog
 
 	        dialog Dialog1
 	        cancel_confirmation
+            If ButtonPressed = close_dialog_btn Then cancel_without_confirmation
             If ButtonPressed = test_access_btn Then Call test_sql_access()
 	        Loop until err_msg = ""
 	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
