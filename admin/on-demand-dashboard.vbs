@@ -873,6 +873,44 @@ function create_assignment_report()
     ObjExcel.Application.Quit
     ObjExcel.Quit
 
+	main_email_subject = "On Demand Daily Case Review Completed"
+
+    main_email_body = "The On Demand Appplication Reviews have been completed for " & date & "."
+    main_email_body = main_email_body & vbCr & "Completed by: " & assigned_worker
+    main_email_body = main_email_body & vbCr & vbCr & "Number of cases reviewed: " & UBound(COMPLETED_REVIEWS_ARRAY, 2)+1
+    main_email_body = main_email_body & vbCr & "On Demand Case Reviews completed for the day."
+    main_email_body = main_email_body & vbCr & vbCr & "Details of the reviews are logged here:"
+    main_email_body = main_email_body & vbCr & "<" & file_url & ">"
+
+    ' main_email_body = main_email_body & vbCr & vbCr & "Work assignment assesment: " & assignment_assesment
+    ' main_email_body = main_email_body & vbCr & vbCr & "Length of assignment: " & assignment_hours & " hours and " & assignment_minutes & " minutes."
+
+    ' assignment_case_numbers_to_save = trim(assignment_case_numbers_to_save)
+    ' assignment_new_ideas = trim(assignment_new_ideas)
+    ' If assignment_case_numbers_to_save <> "" Then
+    '     main_email_body = main_email_body & vbCr & vbCr & "Case numbers to discuss sent to QI email to be added to meeting agenda. Case numbers:"
+    '     main_email_body = main_email_body & vbCr & assignment_case_numbers_to_save
+
+    '     case_numbers_email_body = case_numbers_email_body & vbCr & assignment_case_numbers_to_save
+    '     case_numbers_email_body = case_numbers_email_body & vbCr & vbCR & "These cases should be reviewed by the whole QI team and follow up decisions made."
+    '     case_numbers_email_body = case_numbers_email_body & vbCr & vbCr & "------"
+    '     case_numbers_email_body = case_numbers_email_body & vbCr & email_signature
+    '     STATS_manualtime = STATS_manualtime + 120
+    ' End If
+    ' If assignment_new_ideas <> "" Then
+    '     main_email_body = main_email_body & vbCr & vbCr & "New ideas for statistics to gather sent to the BZST. Ideas:"
+    '     main_email_body = main_email_body & vbCr & assignment_new_ideas
+
+    '     ideas_email_body = ideas_email_body & vbCr & assignment_new_ideas
+    '     ideas_email_body = ideas_email_body & vbCr & vbCr & "------"
+    '     ideas_email_body = ideas_email_body & vbCr & email_signature
+    '     STATS_manualtime = STATS_manualtime + 120
+    ' End If
+    main_email_body = main_email_body & vbCr & vbCr & "------"
+    main_email_body = main_email_body & vbCr & qi_worker_first_name
+
+    CALL create_outlook_email(qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", main_email_subject, main_email_body, "", TRUE)
+    ' CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", main_email_subject, main_email_body, "", TRUE)
 end function
 
 'TODO create an ADMIN role for this script to be able to close any case on hold or pull completed tasks by another worker to the spreadsheet
@@ -1205,6 +1243,8 @@ qi_member_identified = False
 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
     ' pulling QI members by supervisor from the Complete List of Testers
     If tester_array(tester).tester_id_number = user_ID_for_validation Then
+        qi_worker_supervisor_email = tester.tester_supervisor_email
+        qi_worker_first_name = tester.tester_first_name
         If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
         If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
         assigned_worker = tester_array(tester).tester_full_name
