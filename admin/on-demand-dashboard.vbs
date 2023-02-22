@@ -802,7 +802,7 @@ function create_assignment_report()
         ObjExcel.Cells(excel_row, CaseName_col).value = COMPLETED_REVIEWS_ARRAY(assigned_case_name_const, review)
         ObjExcel.Cells(excel_row, ApplDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_application_date_const, review)
         ObjExcel.Cells(excel_row, InterviewDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_interview_date_const, review)
-        ObjExcel.Cells(excel_row, Day_30_col).value = COMPLETED_REVIEWS_ARRAY(assigned_day_30_const, review)
+        ObjExcel.Cells(excel_row, Day_30_dash_col).value = COMPLETED_REVIEWS_ARRAY(assigned_day_30_const, review)
         ObjExcel.Cells(excel_row, DaysPending_col).value = COMPLETED_REVIEWS_ARRAY(assigned_days_pending_const, review)
         ObjExcel.Cells(excel_row, SnapStatus_col).value = COMPLETED_REVIEWS_ARRAY(assigned_snap_status_const, review)
         ObjExcel.Cells(excel_row, CashStatus_col).value = COMPLETED_REVIEWS_ARRAY(assigned_cash_status_const, review)
@@ -1092,7 +1092,7 @@ const CaseNumber_col                    = 3
 const CaseName_col                      = 4
 const ApplDate_col                      = 5
 const InterviewDate_col                 = 6
-const Day_30_col                        = 7
+const Day_30_dash_col                   = 7
 const DaysPending_col                   = 8
 const SnapStatus_col                    = 9
 const CashStatus_col                    = 10
@@ -1129,7 +1129,7 @@ const CaseCompletedTime_col             = 36
 ' CaseName_col
 ' ApplDate_col
 ' InterviewDate_col
-' Day_30_col
+' Day_30_dash_col
 ' DaysPending_col
 ' SnapStatus_col
 ' CashStatus_col
