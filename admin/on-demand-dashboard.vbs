@@ -685,6 +685,29 @@ function assess_worklist_to_finish_day()
     MsgBox "case_on_hold - " & case_on_hold & vbCr & "case_in_progress - " & case_in_progress & vbCr & "total completed_reviews - " & completed_reviews & vbCr & "reviews_completed_by_me - " & reviews_completed_by_me & vbCr & "reviews_still_needed - " & reviews_still_needed
 end function
 
+function complete_admin_functions()
+
+
+
+    admin_count_NR = 0
+    admin_count_RC = 0
+    admin_count_IP = 0
+    admin_count_HD = 0
+
+    Do
+        Do
+            err_msg = ""
+
+            Dialog1 = ""
+
+
+
+	    Loop until err_msg = ""
+	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+end function
+
 function create_assignment_report()
 
 
@@ -1235,7 +1258,13 @@ If IsArray(tester_array) = False Then
     fso_command.Close
     Execute text_from_the_other_script
 End If
-
+admin_count_NR = 0
+admin_count_RC = 0
+admin_count_IP = 0
+admin_count_HD = 0
+ADMIN_list_workers_RC = "~"
+ADMIN_list_workers_IP = "~"
+ADMIN_list_workers_HD = "~"
 
 'TODO - add functionality for QI leadership
 'confirm QI Member'
@@ -1243,8 +1272,8 @@ qi_member_identified = False
 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
     ' pulling QI members by supervisor from the Complete List of Testers
     If tester_array(tester).tester_id_number = user_ID_for_validation Then
-        qi_worker_supervisor_email = tester.tester_supervisor_email
-        qi_worker_first_name = tester.tester_first_name
+        qi_worker_supervisor_email = tester_array(tester).tester_supervisor_email
+        qi_worker_first_name = tester_array(tester).tester_first_name
         If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
         If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
         assigned_worker = tester_array(tester).tester_full_name
@@ -1334,6 +1363,34 @@ If local_demo = False Then
                 End If
             End If
 
+            If ADMIN_run = True Then
+                RC_id_start = ""
+                HD_id_start = ""
+                IP_id_start = ""
+                worker_id_RC = ""
+                worker_id_HD = ""
+                worker_id_IP = ""
+                If Instr(case_tracking_notes, "STS-RC") <> 0 Then
+                    admin_count_RC = admin_count_RC + 1
+                    RC_id_start = Instr(case_tracking_notes, "STS-RC") + 7
+                    worker_id_RC = MID(case_tracking_notes, RC_id_start, 7)
+                    If InStr(ADMIN_list_workers_RC, "~" & worker_id_RC & "~") = 0 then ADMIN_list_workers_RC = ADMIN_list_workers_RC & worker_id_RC & "~"
+                End If
+                If Instr(case_tracking_notes, "STS-NR") <> 0 Then admin_count_NR = admin_count_NR + 1
+                If Instr(case_tracking_notes, "STS-HD") <> 0 Then
+                    admin_count_HD = admin_count_HD + 1
+                    HD_id_start = Instr(case_tracking_notes, "STS-HD") + 7
+                    worker_id_HD = MID(case_tracking_notes, HD_id_start, 7)
+                    If InStr(ADMIN_list_workers_HD, "~" & worker_id_HD & "~") = 0 then ADMIN_list_workers_HD = ADMIN_list_workers_HD & worker_id_HD & "~"
+                End If
+                If Instr(case_tracking_notes, "STS-IP") <> 0 Then
+                    admin_count_IP = admin_count_IP + 1
+                    IP_id_start = Instr(case_tracking_notes, "STS-IP") + 7
+                    worker_id_IP = MID(case_tracking_notes, IP_id_start, 7)
+                    If InStr(ADMIN_list_workers_IP, "~" & worker_id_IP & "~") = 0 then ADMIN_list_workers_IP = ADMIN_list_workers_IP & worker_id_IP & "~"
+                End If
+            End If
+
             objRecordSet.MoveNext
         Loop
 
@@ -1344,6 +1401,54 @@ If local_demo = False Then
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
+
+    If ADMIN_run = True Then
+        If len(ADMIN_list_workers_RC) > 1 Then
+            ADMIN_list_workers_RC = right(ADMIN_list_workers_RC, len(ADMIN_list_workers_RC)-1)
+            ADMIN_list_workers_RC = left(ADMIN_list_workers_RC, len(ADMIN_list_workers_RC)-1)
+            If InStr(ADMIN_list_workers_RC, "~") <> 0 Then RC_id_ARRAY = split(ADMIN_list_workers_RC, "~")
+            If InStr(ADMIN_list_workers_RC, "~") = 0 Then RC_id_ARRAY = array(ADMIN_list_workers_RC)
+            For each worker_Id in RC_id_ARRAY
+                For tester = 0 to UBound(tester_array)                         'looping through all of the testers
+                    ' pulling QI members by supervisor from the Complete List of Testers
+                    If tester_array(tester).tester_id_number = worker_Id Then
+                        worker_Id = tester.tester_first_name & " - " & worker_Id
+                        'tester_array(tester).tester_full_name
+                    End If
+                Next
+            Next
+        End If
+        If len(ADMIN_list_workers_HD) > 1 Then
+            ADMIN_list_workers_HD = right(ADMIN_list_workers_HD, len(ADMIN_list_workers_HD)-1)
+            ADMIN_list_workers_HD = left(ADMIN_list_workers_HD, len(ADMIN_list_workers_HD)-1)
+            If InStr(ADMIN_list_workers_HD, "~") <> 0 Then HD_id_ARRAY = split(ADMIN_list_workers_HD, "~")
+            If InStr(ADMIN_list_workers_HD, "~") = 0 Then HD_id_ARRAY = array(ADMIN_list_workers_HD)
+            For each worker_Id in HD_id_ARRAY
+                For tester = 0 to UBound(tester_array)                         'looping through all of the testers
+                    ' pulling QI members by supervisor from the Complete List of Testers
+                    If tester_array(tester).tester_id_number = worker_Id Then
+                        worker_Id = tester.tester_first_name & " - " & worker_Id
+                        'tester_array(tester).tester_full_name
+                    End If
+                Next
+            Next
+        End If
+        If len(ADMIN_list_workers_IP) > 1 Then
+            ADMIN_list_workers_IP = right(ADMIN_list_workers_IP, len(ADMIN_list_workers_IP)-1)
+            ADMIN_list_workers_IP = left(ADMIN_list_workers_IP, len(ADMIN_list_workers_IP)-1)
+            If InStr(ADMIN_list_workers_IP, "~") <> 0 Then IP_id_ARRAY = split(ADMIN_list_workers_IP, "~")
+            If InStr(ADMIN_list_workers_IP, "~") = 0 Then IP_id_ARRAY = array(ADMIN_list_workers_IP)
+            For each worker_Id in IP_id_ARRAY
+                For tester = 0 to UBound(tester_array)                         'looping through all of the testers
+                    ' pulling QI members by supervisor from the Complete List of Testers
+                    If tester_array(tester).tester_id_number = worker_Id Then
+                        worker_Id = tester.tester_first_name & " - " & worker_Id
+                        'tester_array(tester).tester_full_name
+                    End If
+                Next
+            Next
+        End If
+    End If
 Else
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 191, 85, "On Demand Demo"
@@ -1403,20 +1508,21 @@ If BULK_Run_completed = False Then
         Do
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 451, 155, "On Demand Applications Dashboard"
-              EditBox 500, 300, 50, 15, fake_edit_box
-              ButtonGroup ButtonPressed
+                EditBox 500, 300, 50, 15, fake_edit_box
+                ButtonGroup ButtonPressed
                 PushButton 310, 55, 125, 15, "Start On Demand BULK Run", complete_bulk_run_btn
                 PushButton 50, 105, 170, 10, "More information about the BULK Run", bulk_run_details_btn
                 PushButton 375, 5, 65, 15, "Test Access", test_access_btn
+                If ADMIN_run = True Then PushButton 10, 135, 70, 15, "Admin Functions", admin_btn
                 ' OkButton 335, 130, 50, 15
                 CancelButton 390, 130, 50, 15
-              Text 170, 10, 135, 10, "On Demand Applications Dashboard"
-              GroupBox 10, 25, 430, 100, "Applications BULK Run"
-              Text 20, 40, 170, 10, "The BULK run was last completed on " & first_item_date & "."
-              Text 20, 55, 285, 20, "The BULK Run has not been completed today. You must complete the BULK run before any other On Demand work can be completed."
-              Text 45, 75, 235, 10, "- The BULK run takes 2 - 3 hour and uses PRODUCTION the entire time."
-              Text 45, 85, 260, 10, "- You can complete other work in other sessions while the BULK Run happens."
-              Text 45, 95, 325, 10, "- The BULK Run can be unattended (you can walk away) but this is not paid time if you walk away."
+                Text 170, 10, 135, 10, "On Demand Applications Dashboard"
+                GroupBox 10, 25, 430, 100, "Applications BULK Run"
+                Text 20, 40, 170, 10, "The BULK run was last completed on " & first_item_date & "."
+                Text 20, 55, 285, 20, "The BULK Run has not been completed today. You must complete the BULK run before any other On Demand work can be completed."
+                Text 45, 75, 235, 10, "- The BULK run takes 2 - 3 hour and uses PRODUCTION the entire time."
+                Text 45, 85, 260, 10, "- You can complete other work in other sessions while the BULK Run happens."
+                Text 45, 95, 325, 10, "- The BULK Run can be unattended (you can walk away) but this is not paid time if you walk away."
             EndDialog
 
             dialog Dialog1
@@ -1434,6 +1540,7 @@ If BULK_Run_completed = False Then
                     Call run_from_GitHub(script_repository & "admin\" & "on-demand-waiver-applications.vbs")
                 End If
             End If
+            If ButtonPressed = admin_btn Then call complete_admin_functions
         Loop
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -1703,6 +1810,7 @@ If worker_on_task = True Then
 	    Do
 	        err_msg = ""
 
+            Dialog1 = ""
 	        BeginDialog Dialog1, 0, 0, 451, 310, "On Demand Applications Case Review"
 	          Text 185, 10, 60, 10, "Case in Review"
 	          GroupBox 10, 20, 230, 75, "Case Information"
@@ -1782,7 +1890,7 @@ If worker_on_task = True Then
 	        cancel_confirmation
             If ButtonPressed = close_dialog_btn Then cancel_without_confirmation
             If ButtonPressed = test_access_btn Then Call test_sql_access()
-	        Loop until err_msg = ""
+        Loop until err_msg = ""
 	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
