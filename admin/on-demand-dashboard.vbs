@@ -688,20 +688,140 @@ end function
 function complete_admin_functions()
 
 
-
-    admin_count_NR = 0
-    admin_count_RC = 0
-    admin_count_IP = 0
-    admin_count_HD = 0
-
+    ' HD_id_ARRAY
+    ' IP_id_ARRAY
     Do
         Do
             err_msg = ""
 
+            dlg_len = 165 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
+            grp_len = 110 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
+
             Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 451, 180, "On Demand Applications Dashboard"
+              ButtonGroup ButtonPressed
+                Text 170, 10, 135, 10, "On Demand Applications Dashboard"
+                GroupBox 10, 25, 430, 130, "On Demand Case List Information"
+                Text 20, 40, 230, 10, "Today " & total_cases_for_review & " cases require review. These cases are currently:"
+                Text 40, 55, 110, 10, "Reviews still needed: " & admin_count_NR
+                Text 40, 70, 115, 10, "Reviews In Progress: " & admin_count_IP
+                PushButton 190, 70, 130, 13, "Release In Progress Assignments", release_IP_btn
+                y_pos = 85
+                If IsArray(IP_id_ARRAY) = True then
+                    OptionGroup RadioGroupIP
+                    For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                        If ADMIN_worker_list_array(case_status_const, worker_indc) = "IP" Then
+                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold'', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
+                            y_pos = y_pos + 10
+
+                        End If
+                    Next
+                End If
+                y_pos = y_pos + 5
+
+                Text 40, y_pos, 140, 10, "Reviews on Hold: " & admin_count_HD
+                PushButton 190, y_pos, 130, 13, "Release Hold Assignments", release_HD_btn
+                y_pos = y_pos + 15
+                If IsArray(HD_id_ARRAY) = True then
+                    OptionGroup RadioGroupHD
+                    For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                        If ADMIN_worker_list_array(case_status_const, worker_indc) = "HD" Then
+                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
+                            y_pos = y_pos + 10
+
+                        End If
+                    Next
+                End If
+                y_pos = y_pos + 5
+
+                Text 40, y_pos, 145, 10, "Reviews Completed: " & admin_count_RC
+                PushButton 190, y_pos, 130, 13, "Run Finish Day", finish_day_btn
+                y_pos = y_pos + 15
+                If IsArray(RC_id_ARRAY) = True then
+                    OptionGroup RadioGroupRC
+                    For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                        If ADMIN_worker_list_array(case_status_const, worker_indc) = "RC" Then
+                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
+                            y_pos = y_pos + 10
+
+                        End If
+                    Next
+                End If
+                y_pos = y_pos + 5
+
+                OkButton 335, 160, 50, 15
+                CancelButton 390, 160, 50, 15
+                EditBox 500, 300, 50, 15, fake_edit_box
+            EndDialog
+
+            Dialog Dialog1
+            cancel_without_confirmation
 
 
+            worker_number_to_resolve = ""
+            If ButtonPressed = release_IP_btn Then
+                MsgBox "RadioGroupIP - " & RadioGroupIP
+                For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                    If RadioGroupIP = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
+                Next
+            ElseIf ButtonPressed = release_HD_btn Then
+                MsgBox "RadioGroupHD - " & RadioGroupHD
+                For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                    If RadioGroupHD = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
+                Next
+            ElseIf ButtonPressed = finish_day_btn Then
+                MsgBox "RadioGroupRC - " & RadioGroupRC
+                For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                    If RadioGroupRC = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
+                Next
+            End If
 
+            MsgBox "worker_number_to_resolve - " & worker_number_to_resolve
+
+            'declare the SQL statement that will query the database
+            objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+            'Creating objects for Access
+            Set objConnection = CreateObject("ADODB.Connection")
+            Set objRecordSet = CreateObject("ADODB.Recordset")
+
+            'This is the file path for the statistics Access database.
+            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+            objRecordSet.Open objSQL, objConnection
+
+            Do While NOT objRecordSet.Eof
+                case_tracking_notes = objRecordSet("TrackingNotes")
+
+                If ButtonPressed = release_IP_btn Then
+                    If Instr(case_tracking_notes, "STS-IP") Then
+                        If Instr(case_tracking_notes, worker_number_to_resolve) <> 0 Then
+                            case_review_notes = replace(case_review_notes, "STS-IP-"&worker_number_to_resolve, "")
+                            case_review_notes = replace(case_review_notes, "STS-HD-"&worker_number_to_resolve, "")
+                            case_review_notes = replace(case_review_notes, "STS-RC-"&worker_number_to_resolve, "")
+                            case_review_notes = replace(case_review_notes, "STS-RC", "")
+                            case_review_notes = trim(case_review_notes)
+                            case_review_notes = "STS-NR " & case_review_notes
+                            case_review_notes = trim(case_review_notes)
+
+                            objRecordSet.Update "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "'", objConnection
+
+                        End If
+                    End if
+                ElseIf ButtonPressed = release_HD_btn Then
+                ElseIf ButtonPressed = finish_day_btn Then
+                End If
+
+                objRecordSet.MoveNext
+
+
+            Loop
+
+
+            'close the connection and recordset objects to free up resources
+            objRecordSet.Close
+            objConnection.Close
+            Set objRecordSet=nothing
+            Set objConnection=nothing
 	    Loop until err_msg = ""
 	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -1082,6 +1202,9 @@ hold_case_btn           = 2005
 finish_work_day_btn     = 3001
 test_access_btn         = 4001
 close_dialog_btn        = 5001
+release_IP_btn          = 6001
+release_HD_btn          = 6002
+finish_day_btn          = 6003
 
 ' STS-NR            'Status - Needs Review'
 ' STS-RC            'Status - Review Completed'
@@ -1266,6 +1389,15 @@ ADMIN_list_workers_RC = "~"
 ADMIN_list_workers_IP = "~"
 ADMIN_list_workers_HD = "~"
 
+const wrkr_id_const         = 0
+const wrkr_name_const       = 1
+const case_status_const     = 2
+const admin_radio_btn_const = 3
+const admin_wrkr_last_const = 4
+
+Dim ADMIN_worker_list_array()
+ReDim ADMIN_worker_list_array(admin_wrkr_last_const, 0)
+
 'TODO - add functionality for QI leadership
 'confirm QI Member'
 qi_member_identified = False
@@ -1402,17 +1534,33 @@ If local_demo = False Then
     Set objRecordSet=nothing
     Set objConnection=nothing
 
+    worker_count = 0
+    RCcount = 0
+    IPCount = 0
+    HDCount = 0
     If ADMIN_run = True Then
         If len(ADMIN_list_workers_RC) > 1 Then
             ADMIN_list_workers_RC = right(ADMIN_list_workers_RC, len(ADMIN_list_workers_RC)-1)
             ADMIN_list_workers_RC = left(ADMIN_list_workers_RC, len(ADMIN_list_workers_RC)-1)
             If InStr(ADMIN_list_workers_RC, "~") <> 0 Then RC_id_ARRAY = split(ADMIN_list_workers_RC, "~")
             If InStr(ADMIN_list_workers_RC, "~") = 0 Then RC_id_ARRAY = array(ADMIN_list_workers_RC)
-            For each worker_Id in RC_id_ARRAY
+            For each RC_worker_Id in RC_id_ARRAY
                 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
                     ' pulling QI members by supervisor from the Complete List of Testers
-                    If tester_array(tester).tester_id_number = worker_Id Then
-                        worker_Id = tester.tester_first_name & " - " & worker_Id
+                    ' MsgBox "tester array id - " & tester_array(tester).tester_id_number & vbCr & "worker_id - " &  RC_worker_Id
+                    If tester_array(tester).tester_id_number = RC_worker_Id Then
+                        ReDim Preserve ADMIN_worker_list_array(admin_wrkr_last_const, worker_count)
+
+                        ADMIN_worker_list_array(wrkr_id_const, worker_count) = RC_worker_Id
+                        ADMIN_worker_list_array(wrkr_name_const, worker_count) = tester_array(tester).tester_first_name
+                        ADMIN_worker_list_array(case_status_const, worker_count) = "RC"
+                        ADMIN_worker_list_array(admin_radio_btn_const, worker_count) = RCcount
+                        ' ADMIN_worker_list_array(admin_wrkr_last_const, worker_count) =
+
+                        ' RC_worker_Id = tester_array(tester).tester_first_name & " - " & RC_worker_Id
+
+                        worker_count = worker_count + 1
+                        RCcount = RCcount + 1
                         'tester_array(tester).tester_full_name
                     End If
                 Next
@@ -1423,11 +1571,20 @@ If local_demo = False Then
             ADMIN_list_workers_HD = left(ADMIN_list_workers_HD, len(ADMIN_list_workers_HD)-1)
             If InStr(ADMIN_list_workers_HD, "~") <> 0 Then HD_id_ARRAY = split(ADMIN_list_workers_HD, "~")
             If InStr(ADMIN_list_workers_HD, "~") = 0 Then HD_id_ARRAY = array(ADMIN_list_workers_HD)
-            For each worker_Id in HD_id_ARRAY
+            For each HD_worker_Id in HD_id_ARRAY
                 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
                     ' pulling QI members by supervisor from the Complete List of Testers
-                    If tester_array(tester).tester_id_number = worker_Id Then
-                        worker_Id = tester.tester_first_name & " - " & worker_Id
+                    If tester_array(tester).tester_id_number = HD_worker_Id Then
+                        ReDim Preserve ADMIN_worker_list_array(admin_wrkr_last_const, worker_count)
+
+                        ADMIN_worker_list_array(wrkr_id_const, worker_count) = HD_worker_Id
+                        ADMIN_worker_list_array(wrkr_name_const, worker_count) = tester_array(tester).tester_first_name
+                        ADMIN_worker_list_array(case_status_const, worker_count) = "HD"
+                        ADMIN_worker_list_array(admin_radio_btn_const, worker_count) = HDCount
+
+                        worker_count = worker_count + 1
+                        HDCount = HDCount + 1
+                        ' HD_worker_Id = tester_array(tester).tester_first_name & " - " & HD_worker_Id
                         'tester_array(tester).tester_full_name
                     End If
                 Next
@@ -1438,11 +1595,20 @@ If local_demo = False Then
             ADMIN_list_workers_IP = left(ADMIN_list_workers_IP, len(ADMIN_list_workers_IP)-1)
             If InStr(ADMIN_list_workers_IP, "~") <> 0 Then IP_id_ARRAY = split(ADMIN_list_workers_IP, "~")
             If InStr(ADMIN_list_workers_IP, "~") = 0 Then IP_id_ARRAY = array(ADMIN_list_workers_IP)
-            For each worker_Id in IP_id_ARRAY
+            For each IP_worker_Id in IP_id_ARRAY
                 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
                     ' pulling QI members by supervisor from the Complete List of Testers
-                    If tester_array(tester).tester_id_number = worker_Id Then
-                        worker_Id = tester.tester_first_name & " - " & worker_Id
+                    If tester_array(tester).tester_id_number = IP_worker_Id Then
+                        ReDim Preserve ADMIN_worker_list_array(admin_wrkr_last_const, worker_count)
+
+                        ADMIN_worker_list_array(wrkr_id_const, worker_count) = IP_worker_Id
+                        ADMIN_worker_list_array(wrkr_name_const, worker_count) = tester_array(tester).tester_first_name
+                        ADMIN_worker_list_array(case_status_const, worker_count) = "IP"
+                        ADMIN_worker_list_array(admin_radio_btn_const, worker_count) = IPCount
+
+                        worker_count = worker_count + 1
+                        IPCount = IPCount + 1
+                        ' IP_worker_Id = tester_array(tester).tester_first_name & " - " & IP_worker_Id
                         'tester_array(tester).tester_full_name
                     End If
                 Next
@@ -1596,6 +1762,7 @@ If worker_on_task = False Then
                     PushButton 15, 165, 110, 15, "Pull a case to Review", get_new_case_btn
                     PushButton 285, 70, 140, 10, "More information about the Work List", work_list_details_btn
                     PushButton 10, 215, 105, 15, "Finish Work Day", finish_work_day_btn
+                    If ADMIN_run = True Then PushButton 120, 215, 70, 15, "Admin Functions", admin_btn
                     PushButton 375, 20, 65, 15, "Test Access", test_access_btn
                     PushButton 330, 85, 105, 15, "Restart the BULK Run", bulk_run_incomplete_btn
                     CancelButton 390, 215, 50, 15
@@ -1634,6 +1801,7 @@ If worker_on_task = False Then
                         MsgBox loop_dlg_msg
                     End If
                 End If
+                If ButtonPressed = admin_btn Then call complete_admin_functions
             Loop until ButtonPressed <> work_list_details_btn
             CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
         Loop until are_we_passworded_out = false					'loops until user passwords back in
@@ -1883,13 +2051,16 @@ If worker_on_task = True Then
 	            PushButton 335, 5, 110, 15, "Put Case on Hold", hold_case_btn
                 PushButton 160, 290, 110, 15, "Close Review Dialog", close_dialog_btn
                 PushButton 10, 290, 65, 15, "Test Access", test_access_btn
+                If ADMIN_run = True Then PushButton 80, 290, 70, 15, "Admin Functions", admin_btn
 	            CancelButton 395, 290, 50, 15
 	        EndDialog
 
 	        dialog Dialog1
 	        cancel_confirmation
-            If ButtonPressed = close_dialog_btn Then cancel_without_confirmation
+
+            If ButtonPressed = -1 or ButtonPressed = close_dialog_btn Then script_end_procedure("")
             If ButtonPressed = test_access_btn Then Call test_sql_access()
+            If ButtonPressed = admin_btn Then call complete_admin_functions
         Loop until err_msg = ""
 	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
