@@ -192,7 +192,7 @@ If row <> 24 and row <> 0 Then pnd2_row = row
 EMReadScreen application_date, 8, pnd2_row, 38                                  'reading and formatting the application date
 application_date = replace(application_date, " ", "/")
 oldest_app_date = application_date
-EMReadScreen CA_1_code, 1, pnd2_row, 54
+EMReadScreen CA_1_code, 1, pnd2_row, 54                                         'reading the pending codes by program for the application date line.
 EMReadScreen FS_1_code, 1, pnd2_row, 62
 EMReadScreen HC_1_code, 1, pnd2_row, 65
 EMReadScreen EA_1_code, 1, pnd2_row, 68
@@ -205,7 +205,7 @@ If additional_application_check = "ADDITIONAL APP" THEN                         
     EMReadScreen additional_application_date, 8, pnd2_row + 1, 38               'reading the app date from the other application line
     additional_application_date = replace(additional_application_date, " ", "/")
     newest_app_date = additional_application_date
-    EMReadScreen CA_2_code, 1, pnd2_row, 54
+    EMReadScreen CA_2_code, 1, pnd2_row, 54                                     'reading the pending codes by program for the second application date line.
     EMReadScreen FS_2_code, 1, pnd2_row, 62
     EMReadScreen HC_2_code, 1, pnd2_row, 65
     EMReadScreen EA_2_code, 1, pnd2_row, 68
@@ -290,7 +290,7 @@ Do
 
     if note_date = "        " then Exit Do
 
-    note_row = note_row + 1
+    note_row = note_row + 1                         'Going to the next row of the CASE/NOTEs to read the next NOTE
     if note_row = 19 then
         note_row = 5
         PF8
@@ -298,20 +298,24 @@ Do
         If check_for_last_page = "LAST PAGE" Then Exit Do
     End If
     EMReadScreen next_note_date, 8, note_row, 6
-    if next_note_date = "        " then Exit Do
-Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+    if next_note_date = "        " then Exit Do                         'if we are out of notes to read - leave the loop
+Loop until DateDiff("d", too_old_date, next_note_date) <= 0             'once we are past the first application date, we stop reading notes
 
+'If we have found the application received CASE/NOTE, we want to evaluate for if we need a subsequent application or app received run
 If app_recvd_note_found = True Then
-    skip_start_of_subsequent_apps = True
+    skip_start_of_subsequent_apps = True                                'defaults
     hc_case = False
-    If unknown_hc_pending = True Then hc_case = True
+    If unknown_hc_pending = True Then hc_case = True                    'finding if the case has HC pending
     If ma_status = "PENDING" Then hc_case = True
     If msp_status = "PENDING" Then hc_case = True
+
+    'if HC is pending, we need to confirm that there are 2 different applications to process.
     If hc_case = True Then hc_request_on_second_app = MsgBox("It appears this case has already had the 'Application Received' script on this case. For CAF based programs, we should only run Application Received once since the application dates need to be aligned." & vbCr & vbCR &_
                                                              "Are there 2 seperate applications? One for Health Care and another for CAF based program(s)?", vbquestion + vbYesNo, "Type of Application Process")
+    'If no HC or if answered 'No' we need to run Subsequent Application instead
     If hc_case = False or hc_request_on_second_app = vbNo Then  call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
-    If hc_case = True and hc_request_on_second_app = vbYes Then
-        If application_date = oldest_app_date Then
+    If hc_case = True and hc_request_on_second_app = vbYes Then     'if this is a HC application and CAF application, we need to determine which is which.
+        If application_date = oldest_app_date Then                  'defaulting the program selection based on the application dates and programs
             not_processed_app_date = newest_app_date
             If HC_1_code = "P" Then processing_application_program = "Health Care Programs"
             If HC_1_code = "P" Then other_application_program = "CAF Based Programs"
@@ -326,6 +330,7 @@ If app_recvd_note_found = True Then
             If HC_1_code = "P" Then processing_application_program = "CAF Based Programs"
         End If
 
+        'this dialog will allow the worker to assign the type of application to the correct application date so the rest of the secipt
         Do
             Do
                 err_msg = ""
@@ -363,6 +368,7 @@ If app_recvd_note_found = True Then
 
         script_run_lowdown = script_run_lowdown & vbCr & "processing_application_program - " & processing_application_program
 
+        'reset the programs based on what was answered for the current application and force the processing in the right way.
         If processing_application_program = "Health Care Programs" Then
             unknown_cash_pending = False
             ga_status = ""
@@ -391,7 +397,7 @@ If app_recvd_note_found = True Then
     End If
 End If
 
-Call navigate_to_MAXIS_screen("SPEC", "MEMO")
+Call navigate_to_MAXIS_screen("SPEC", "MEMO")                   'checking to make sure the ADDR panel exists. the MEMO functionality doesnt list 'client' if the ADDR is missing
 PF5
 EMReadScreen recipient_type, 6, 5, 15
 PF3
