@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("02/23/2023", "BUG FIX for cases with a second application to better determine which application is for HC and which is for CAF Based Programs.", "Casey Love, Hennepin County")
 call changelog_update("02/21/2023", "BUG FIX for cases with a second application that is for HC. These cases are not subsequent applications, and need to be handled within this script and not duplicate MEMOs and Screenings.", "Casey Love, Hennepin County")
 call changelog_update("01/30/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/30/2023", "Script will now redirect to new script (NOTES - Subsequent Application) for cases that are already pending with a new application form received. This new script supports case actions needed for subsequent applications received.", "Casey Love, Hennepin County")
@@ -191,6 +192,11 @@ If row <> 24 and row <> 0 Then pnd2_row = row
 EMReadScreen application_date, 8, pnd2_row, 38                                  'reading and formatting the application date
 application_date = replace(application_date, " ", "/")
 oldest_app_date = application_date
+EMReadScreen CA_1_code, 1, pnd2_row, 54
+EMReadScreen FS_1_code, 1, pnd2_row, 62
+EMReadScreen HC_1_code, 1, pnd2_row, 65
+EMReadScreen EA_1_code, 1, pnd2_row, 68
+EMReadScreen GR_1_code, 1, pnd2_row, 72
 
 EMReadScreen additional_application_check, 14, pnd2_row + 1, 17                 'looking to see if this case has a secondary application date entered
 If additional_application_check = "ADDITIONAL APP" THEN                         'If it does this string will be at that location and we need to do some handling around the application date to use.
@@ -198,8 +204,13 @@ If additional_application_check = "ADDITIONAL APP" THEN                         
 
     EMReadScreen additional_application_date, 8, pnd2_row + 1, 38               'reading the app date from the other application line
     additional_application_date = replace(additional_application_date, " ", "/")
+    newest_app_date = additional_application_date
+    EMReadScreen CA_2_code, 1, pnd2_row, 54
+    EMReadScreen FS_2_code, 1, pnd2_row, 62
+    EMReadScreen HC_2_code, 1, pnd2_row, 65
+    EMReadScreen EA_2_code, 1, pnd2_row, 68
+    EMReadScreen GR_2_code, 1, pnd2_row, 72
 
-    If DateDiff("d", additional_application_date, application_date) > 0 Then oldest_app_date = additional_application_date
 
     'There is a specific dialog that will display if there is more than one application date so we can select the right one for this script run
     Dialog1 = ""
@@ -290,7 +301,6 @@ Do
     if next_note_date = "        " then Exit Do
 Loop until DateDiff("d", too_old_date, next_note_date) <= 0
 
-run_for_hc_only = False
 If app_recvd_note_found = True Then
     skip_start_of_subsequent_apps = True
     hc_case = False
@@ -300,23 +310,86 @@ If app_recvd_note_found = True Then
     If hc_case = True Then hc_request_on_second_app = MsgBox("It appears this case has already had the 'Application Received' script on this case. For CAF based programs, we should only run Application Received once since the application dates need to be aligned." & vbCr & vbCR &_
                                                              "Are there 2 seperate applications? One for Health Care and another for CAF based program(s)?", vbquestion + vbYesNo, "Type of Application Process")
     If hc_case = False or hc_request_on_second_app = vbNo Then  call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
-    If hc_case = True and hc_request_on_second_app = vbYes Then run_for_hc_only = True
-End If
-script_run_lowdown = script_run_lowdown & vbCr & "run_for_hc_only - " & run_for_hc_only
+    If hc_case = True and hc_request_on_second_app = vbYes Then
+        If application_date = oldest_app_date Then
+            not_processed_app_date = newest_app_date
+            If HC_1_code = "P" Then processing_application_program = "Health Care Programs"
+            If HC_1_code = "P" Then other_application_program = "CAF Based Programs"
+            If HC_2_code = "P" Then other_application_program = "Health Care Programs"
+            If HC_2_code = "P" Then processing_application_program = "CAF Based Programs"
+        End If
+        If application_date = newest_app_date Then
+            not_processed_app_date = oldest_app_date
+            If HC_2_code = "P" Then processing_application_program = "Health Care Programs"
+            If HC_2_code = "P" Then other_application_program = "CAF Based Programs"
+            If HC_1_code = "P" Then other_application_program = "Health Care Programs"
+            If HC_1_code = "P" Then processing_application_program = "CAF Based Programs"
+        End If
 
-If run_for_hc_only = True Then
-    unknown_cash_pending = False
-    ga_status = ""
-    msa_status = ""
-    mfip_status = ""
-    dwp_status = ""
-    grh_status = ""
-    snap_status = ""
-    emer_status = ""
-    emer_type = ""
-    programs_applied_for = "Health Care"
-End If
+        Do
+            Do
+                err_msg = ""
 
+                Dialog1 = ""
+                BeginDialog Dialog1, 0, 0, 321, 135, "On Demand Applications Dashboard"
+                  DropListBox 215, 60, 95, 45, "Select One..."+chr(9)+"Health Care Programs"+chr(9)+"CAF Based Programs", processing_application_program
+                  DropListBox 215, 85, 95, 45, "Select One..."+chr(9)+"Health Care Programs"+chr(9)+"CAF Based Programs", other_application_program
+                  ButtonGroup ButtonPressed
+                    OkButton 210, 115, 50, 15
+                    CancelButton 265, 115, 50, 15
+                  Text 130, 10, 90, 10, "Multiple Application Dates"
+                  Text 10, 30, 300, 20, "This case has Health Care pending and multiple application dates. We need to determine if this run of the script is for a seperate Health Care application or a CAF application."
+                  GroupBox 5, 50, 310, 30, "THIS APPLICATION"
+                  Text 10, 65, 135, 10, "Application we are currently processing:"
+                  Text 165, 65, 40, 10, application_date
+                  Text 70, 90, 75, 10, " Previous Application:"
+                  Text 165, 90, 40, 10, not_processed_app_date
+                  Text 10, 110, 150, 20, "*** CAF Based Programs mean Cash, SNAP,         Emergency, or Housing Support. "
+                EndDialog
+
+
+                dialog Dialog1
+                cancel_confirmation
+
+                If processing_application_program = "Select One..." Then err_msg = err_msg & vbCr & "* Please indicate what types of programs are requested on the application you are currently processing."
+                If other_application_program = "Select One..." Then err_msg = err_msg & vbCr & "* Please indicate what types of programs are requested on the application that wass previously worked on."
+                If processing_application_program = other_application_program Then err_msg = err_msg & vbCr & "* If both applications are for the same types of programs, there should not be seperate application dates. Review the answers and update if incorrect. If correct, cancel the script and call the TSS Help Desk to remove the second application date."
+
+                If err_msg <> "" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+
+            Loop until err_msg = ""
+            CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+        LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
+
+        script_run_lowdown = script_run_lowdown & vbCr & "processing_application_program - " & processing_application_program
+
+        If processing_application_program = "Health Care Programs" Then
+            unknown_cash_pending = False
+            ga_status = ""
+            msa_status = ""
+            mfip_status = ""
+            dwp_status = ""
+            grh_status = ""
+            snap_status = ""
+            emer_status = ""
+            emer_type = ""
+            programs_applied_for = "HC"
+        End If
+
+        If processing_application_program = "CAF Based Programs" Then
+            unknown_hc_pending = False
+            ma_status = ""
+            msp_status = ""
+            msp_type = ""
+
+            programs_applied_for = replace(programs_applied_for, "HC", "")
+            programs_applied_for = replace(programs_applied_for, ", ,", "")
+            programs_applied_for = trim(programs_applied_for)
+
+            If right(programs_applied_for, 1) = "," THEN programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
+        End If
+    End If
+End If
 
 Call navigate_to_MAXIS_screen("SPEC", "MEMO")
 PF5
