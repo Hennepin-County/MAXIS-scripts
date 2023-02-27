@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "UTILITIES - POLI TEMP.vbs" 'BULK script that creates a spreadsheet of the POLI/TEMP topics, sections, and revision dates'
+name_of_script = "UTILITIES - POLI TEMP LIST.vbs" 'BULK script that creates a spreadsheet of the POLI/TEMP topics, sections, and revision dates'
 start_time = timer
 STATS_counter = 1			     'sets the stats counter at one
 STATS_manualtime = 23			 'manual run time in seconds
@@ -52,7 +52,7 @@ changelog_display
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""				'Connects to BlueZone
-	
+
 'The main dialog
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 176, 85, "UTILITIES - POLI TEMP"
@@ -65,9 +65,9 @@ EndDialog
 
 Do
 	dialog Dialog1
-    Cancel_without_confirmation										
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+    Cancel_without_confirmation
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_self				'navigates back to the self screen since POLI/TEMP is super picky
 Call navigate_to_MAXIS_screen("POLI", "____")
@@ -99,7 +99,7 @@ Do
 	DO	'All of this loops until MAXIS_row = 19
 		'Reading POLI TEMP info
 		EMReadScreen title_info, 45, MAXIS_row, 8
-		EMReadScreen section_info, 11, MAXIS_row, 54
+		EMReadScreen section_info, 19, MAXIS_row, 54
 		EMReadScreen revised_info, 7, MAXIS_row, 74
 		'Adding the case to Excel
 		ObjExcel.Cells(excel_row, 1).Value = trim(title_info)
