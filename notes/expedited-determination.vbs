@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/27/2023", "Reference updated for information about EBT cards. The button to open a webpage about EBT cards has been changed to open the current page mmanaged by Accounting instead of the previous Temporary Program Changes page.", "Casey Love, Hennepin County")
 Call changelog_update("09/01/2021", "Expedited Determination Functionality has been completely enhanced.##~####~##The functionality to guide through the assesment of a case meeting expedited criteria has been updated. This new functionality adds a series of 3 new dialogs to support this process.##~####~##This new functionality matches the scripts NOTES - Expedited Determination and the new script NOTES - Interview.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/05/2020", "Added enhanced handling for the month the script will use to look at information. The best informaiton is provided in the month of application.", "Casey Love, Hennepin County")
 call changelog_update("05/28/2019", "Updates to read the Expedited Screening case note.", "Casey Love, Hennepin County")
@@ -1379,7 +1380,7 @@ cm_04_04_btn					= 1500
 cm_04_06_btn					= 1600
 ht_id_in_solq_btn				= 1700
 cm_04_12_btn					= 1800
-temp_prog_changes_ebt_card_btn 	= 1900
+ebt_card_info_btn 	= 1900
 
 const account_type_const	= 0
 const account_owner_const	= 1
@@ -2235,7 +2236,7 @@ Do
 				    Text 20, 245, 305, 10, "If a case needs the first card mailed, do NOT REI benefits as they will not receive their card."
 				End If
 				Text 15, 260, 255, 10, "EBT Card issues can be complicated. Refer to the EBT Card Information here:"
-			    PushButton 270, 257, 195, 13, "Temporary Program Changes - EBT Cards ", temp_prog_changes_ebt_card_btn
+			    PushButton 270, 257, 195, 13, "Information about EBT Cards", ebt_card_info_btn
 
 			End If
 			GroupBox 5, 295, 470, 60, "If you need support in handling for expedited, please access these resources:"
@@ -2378,7 +2379,7 @@ Do
 			If ButtonPressed = cm_04_06_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000406"
 			If ButtonPressed = ht_id_in_solq_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/How-to-use-SMI-SOLQ-to-verify-ID-for-SNAP.aspx"
 			If ButtonPressed = cm_04_12_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000412"
-			If ButtonPressed = temp_prog_changes_ebt_card_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Temporary-Program-Changes--EBT-cards,-checks,-bus-cards.aspx"
+			If ButtonPressed = ebt_card_info_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Accounting.aspx#%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8Bprocesses-for-receiving-ebt-cards-at-the-county-offices"
 
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & resource_URL
 		End If
