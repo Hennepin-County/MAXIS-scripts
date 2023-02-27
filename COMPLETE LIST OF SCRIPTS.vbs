@@ -2354,7 +2354,7 @@ script_array(script_num).subcategory            = array("M-Z")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("TE HC_RETRO 09.18", "TE FIAT_HC 09.17.02","SHAREPOINT Retroactive_Medical_Assistance https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Retroactive_MA.aspx", "SHAREPOINT MAXIS_and_MMIS_Action_for_Retroactive_MA https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/MAXIS_and_MMIS_Action_for_Retroactive_MA.aspx", "SHAREPOINT Retro_Flow_Chart https://hennepin.sharepoint.com/teams/hs-es-manual/MNsure%20Documents/Forms/AllItems.aspx?id=%2Fteams%2Fhs%2Des%2Dmanual%2FMNsure%20Documents%2FRetro%20flow%20chart%2Epdf&parent=%2Fteams%2Fhs%2Des%2Dmanual%2FMNsure%20Documents", "EPM 1.2.5_MHCP_Retroactive_Eligibility http://hcopub.dhs.state.mn.us/epm/1_2_5.htm?rhhlterm=retroactive&rhsearch=retroactve")
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
