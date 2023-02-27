@@ -1658,6 +1658,53 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 		End If
 	Next
 
+	If last_day_checkbox = checked Then
+		'Finding all of the worksheets available in the file. We need to opent the NOTICES sheet
+		For Each objWorkSheet In objWorkbook.Worksheets
+			If objWorkSheet.Name = "NOTICES" Then
+				objWorkSheet.Activate
+				Exit For
+			End If
+		Next
+
+		entry_row = 1
+
+		objExcel.Cells(entry_row, 7).Value      = "End Of Month Run On"     'Date and time the script was completed
+		objExcel.Cells(entry_row, 7).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 8).Value      = now
+		entry_row = entry_row + 1
+
+		objExcel.Cells(entry_row, 7).Value      = "Runtime (in seconds)"            'Enters the amount of time it took the script to run
+		objExcel.Cells(entry_row, 7).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 8).Value      = timer - query_start_time
+		entry_row = entry_row + 1
+
+		objExcel.Cells(entry_row, 7).Value      = "Total Cases assesed"             'All cases from the spreadsheet
+		objExcel.Cells(entry_row, 7).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 8).Value    	= excel_row - 2
+		entry_row = entry_row + 1
+
+		objExcel.Cells(entry_row, 7).Value      = "Total SNAP ER Cases"             'All cases from the spreadsheet
+		objExcel.Cells(entry_row, 7).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 8).Value      = "=COUNTIFS(Table1[Next SNAP ER],"&chr(34)&REPT_month & "/" & REPT_year&chr(34)&")"
+		snap_er_total_row = entry_row
+		entry_row = entry_row + 1
+
+		objExcel.Cells(entry_row, 7).Value      = "Cases Autoclosed with No Interview"             'All cases from the spreadsheet
+		objExcel.Cells(entry_row, 7).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 8).Value      = "=COUNTIFS(Table1[Next SNAP ER],"&chr(34)&REPT_month & "/" & REPT_year&chr(34)&",Table1[SNAP (" & date_header & ")],"&chr(34)&"T"&chr(34)&",Table1[Intvw Date (" & date_header & ")],"&is_blank&")+COUNTIFS(Table1[Next SNAP ER],"&chr(34)&REPT_month & "/" & REPT_year&chr(34)&",Table1[SNAP (" & date_header & ")],"&chr(34)&"I"&chr(34)&",Table1[Intvw Date (" & date_header & ")],"&is_blank&")+COUNTIFS(Table1[Next SNAP ER],"&chr(34)&REPT_month & "/" & REPT_year&chr(34)&",Table1[SNAP (" & date_header & ")],"&chr(34)&"U"&chr(34)&",Table1[Intvw Date (" & date_header & ")],"&is_blank&")"
+		no_interview_amount_row = entry_row
+		entry_row = entry_row + 1
+
+		objExcel.Cells(entry_row, 7).Value      = "Percent SNAP ERs Autocloased with No Interview"             'All cases from the spreadsheet
+		objExcel.Cells(entry_row, 7).Font.Bold 	= TRUE
+		objExcel.Cells(entry_row, 8).Value    	= "=H" & no_interview_amount_row &"/H" & snap_er_total_row
+		ObjExcel.Cells(entry_row, 8).NumberFormat = "0.00%"
+		entry_row = entry_row + 1
+
+		ObjExcel.columns(7).AutoFit()
+		ObjExcel.columns(8).AutoFit()
+	End If
 
 	'Going to another sheet, to enter statistics for the entire Renewal load
 	sheet_name = "Statistics from " & date_month & "-" & date_day
