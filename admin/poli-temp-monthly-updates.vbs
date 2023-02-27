@@ -53,9 +53,9 @@ changelog_display
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""        'Connects to BlueZone
 
-Dim CM_minus__mo, CM_minus_2_yr
-CM_minus_2_mo =  right("0" &  DatePart("m", DateAdd("m", -2, date)), 2)
-CM_minus_2_yr =  right(DatePart("yyyy", DateAdd("m", -2, date)), 2)
+Dim CM_minus_6_mo, CM_minus_6_yr
+CM_minus_6_mo =  right("0" &  DatePart("m", DateAdd("m", -10, date)), 2)
+CM_minus_6_yr =  right(DatePart("yyyy", DateAdd("m", -10, date)), 2)
 
 'These are two processes that will be completed. Gathering the origional file, then grab the revised file.
 Temp_updates = "Original,Revised"
@@ -98,8 +98,8 @@ temp_four = trim(temp_four)
 For each update in temp_array
     'Setting up footer month/year based on which version we're looking at. CM - 2 since DHS will update changes in CM and CM + 1. And sometimes they report changes for one month in another month (June changes in July.)
     If update = "Original" then
-        MAXIS_footer_month = CM_minus_2_mo
-        MAXIS_footer_year = CM_minus_2_mo_yr
+        MAXIS_footer_month = CM_minus_6_mo
+        MAXIS_footer_year = CM_minus_6_yr
     Elseif update = "Revised" then
         MAXIS_footer_month = CM_plus_1_mo
         MAXIS_footer_year = CM_plus_1_yr
@@ -207,17 +207,16 @@ For each update in temp_array
     poli_title = replace(poli_title, chr(34), "")   'chr(34) is ""
 
     'folder paths
-    root_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\" 'KC folder where the DIFF files will be housed
-    month_folder = DatePart("yyyy", date) & " - " & right("0" & DatePart("m", date), 2) 'using the current month to send the revised and orginal docs
-    month_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\" & month_folder
+    compare_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\Comparison Files"
+    diff_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\" 'KC folder where the DIFF files will be housed
 
     'Creating file names
     poli_update_date = " " & poli_update_yr & " - " & poli_update_mo
-    file_name = "\" & poli_update_date & " " & total_code & " " & new_poli & poli_title & ".docx"
+    file_name = "\" & total_code & " " & new_poli & poli_title & poli_update_date & ".docx"
     If update = "Original" then original_file = file_name   'changes the file name to be compared below
     If update = "Revised" then revised_file = file_name     'ditto
 
-    objDoc.SaveAs(month_file_path & file_name)
+    objDoc.SaveAs(compare_file_path & file_name)
     objWord.Visible = True  'Setting visibility back to true prior to quit. Ooes not need to be before the save.
     objWord.Quit
 
@@ -232,8 +231,8 @@ Next
 
 '----------------------------------------------------------------------------------------------------Comparing the two files and creating a new file to be saved w/ changes tracked.
 'Creating single variable to compare below
-old_poli_file = month_file_path & original_file
-new_poli_file = month_file_path & revised_file
+old_poli_file = compare_file_path & original_file
+new_poli_file = compare_file_path & revised_file
 
 Set objWord = CreateObject("Word.Application")  'set application object
 objWord.Documents.Open old_poli_file            'opening old file - original temp file
@@ -241,7 +240,7 @@ objWord.ActiveDocument.Compare new_poli_file    'comparing the new file - revise
 objWord.Visible = True
 
 Set objDoc = objWord.ActiveDocument             'set document object
-objDoc.SaveAs(root_file_path & revised_file)
+objDoc.SaveAs(diff_file_path & revised_file)
 objWord.Quit
 
 script_end_procedure("Success!!")
