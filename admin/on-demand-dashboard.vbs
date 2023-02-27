@@ -1,51 +1,3 @@
-'LOADING GLOBAL VARIABLES
-'Find who is running
-' Set objNet = CreateObject("WScript.NetWork")                                    'getting the users windows ID
-' windows_user_ID = objNet.UserName
-' user_ID_for_validation = ucase(windows_user_ID)
-'
-' Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-' If user_ID_for_validation = "CALO001" OR user_ID_for_validation = "ILFE001" OR user_ID_for_validation = "WFS395"Then
-' 	Set fso_command = run_another_script_fso.OpenTextFile("C:\MAXIS-Scripts\locally-installed-files\SETTINGS - GLOBAL VARIABLES.vbs")
-' Else
-' 	Set fso_command = run_another_script_fso.OpenTextFile("\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\SETTINGS - GLOBAL VARIABLES.vbs")
-' End If
-' text_from_the_other_script = fso_command.ReadAll
-' fso_command.Close
-' Execute text_from_the_other_script
-
-' 'LOADING SCRIPT
-' script_url = script_repository & "/admin/admin-main-menu.vbs"
-' IF run_locally = False THEN
-' 	SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
-' 	req.open "GET", script_URL, FALSE									'Attempts to open the script_URL
-' 	req.send													'Sends request
-' 	IF req.Status = 200 THEN									'200 means great success
-' 		Set fso = CreateObject("Scripting.FileSystemObject")	'Creates an FSO
-' 		Execute req.responseText								'Executes the script code
-' 	ELSE														'Error message, tells user to try to reach github.com, otherwise instructs to contact Veronica with details (and stops script).
-' 		MsgBox 	"Something has gone wrong. The code stored on GitHub was not able to be reached." & vbCr &_
-' 		vbCr & _
-' 		"Before contacting the BlueZone script team at HSPH.EWS.BlueZoneScripts@Hennepin.us, please check to make sure you can load the main page at www.GitHub.com." & vbCr &_
-' 		vbCr & _
-' 		"If you can reach GitHub.com, but this script still does not work, contact the BlueZone script team at HSPH.EWS.BlueZoneScripts@Hennepin.us and provide the following information:" & vbCr &_
-' 		vbTab & "- The name of the script you are running." & vbCr &_
-' 		vbTab & "- Whether or not the script is ""erroring out"" for any other users." & vbCr &_
-' 		vbTab & "- The URL indicated below (a screenshot should suffice)." & vbCr &_
-' 		vbCr & _
-' 		"We will work with your IT department to try and solve this issue, if needed." & vbCr &_
-' 		vbCr &_
-' 		"URL: " & url
-' 		StopScript
-' 	END IF
-' ELSE
-' 	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
-' 	Set fso_command = run_another_script_fso.OpenTextFile(script_url)
-' 	text_from_the_other_script = fso_command.ReadAll
-' 	fso_command.Close
-' 	Execute text_from_the_other_script
-' END IF
-
 'GATHERING STATS===========================================================================================
 name_of_script = "ADMIN - On Demand Applications Dashboard.vbs"
 start_time = timer
@@ -104,6 +56,15 @@ call changelog_update("12/06/2022", "Initial version.", "Casey Love, Hennepin Co
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+'Information about this script and how it works
+' STS-NR            'Status - Needs Review'
+' STS-RC            'Status - Review Completed'
+' STS-IP-WFXXXX     'Status - In Progress - Worker number'
+' STS-HD-WFXXXX     'Status - HolD - Worker number'
+
+'DECLARATIONS BLOCK ========================================================================================================
+
 MAXIS_case_number = ""
 assigned_case_name = ""
 table_application_date = ""
@@ -144,6 +105,886 @@ case_in_progress = False
 completed_reviews = 0
 reviews_completed_by_me = 0
 reviews_still_needed = 0
+
+assigned_worker  = ""
+assigned_date  = ""
+assigned_start_time  = ""
+assigned_end_time  = ""
+assigned_hold_1_start_time  = ""
+assigned_hold_1_end_time  = ""
+assigned_hold_2_start_time  = ""
+assigned_hold_2_end_time  = ""
+assigned_hold_3_start_time  = ""
+assigned_hold_3_end_time  = ""
+
+
+ADMIN_run = False
+BULK_Run_completed = False
+worker_on_task = False
+total_cases_for_review = 0
+cases_with_review_completed = 0
+cases_waiting_for_review = 0
+cases_on_hold = 0
+case_nbr_in_progress = ""
+admin_count_NR = 0
+admin_count_RC = 0
+admin_count_IP = 0
+admin_count_HD = 0
+ADMIN_list_workers_RC = "~"
+ADMIN_list_workers_IP = "~"
+ADMIN_list_workers_HD = "~"
+
+current_day_work_tracking_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\WIP\"
+'txt file name format
+' USERID-MM-DD-YY-CASENUMBER
+curr_day = DatePart("d", date)
+curr_day = right("00" & curr_day, 2)
+file_date = CM_mo & "-" & curr_day & "-" & CM_yr
+
+txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
+od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
+
+' txt_file_name = "expedited_determination_detail_" & MAXIS_case_number & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
+' MsgBox exp_info_file_path
+end_msg = "Script Run is completed."
+
+'BUTTONS'
+complete_bulk_run_btn   = 1001
+bulk_run_details_btn    = 1002
+bulk_run_incomplete_btn = 1003
+get_new_case_btn        = 2001
+work_list_details_btn   = 2002
+resume_hold_case_btn    = 2003
+complete_review_btn     = 2004
+hold_case_btn           = 2005
+finish_work_day_btn     = 3001
+test_access_btn         = 4001
+close_dialog_btn        = 5001
+release_IP_btn          = 6001
+release_HD_btn          = 6002
+finish_day_btn          = 6003
+
+
+const case_nbr_const    = 0
+const radio_btn_const   = 1
+const case_notes_const  = 2
+const last_const        = 10
+
+Dim CASES_ON_HOLD_ARRAY()
+ReDim CASES_ON_HOLD_ARRAY(last_const, 0)
+
+const case_number_const                             = 00
+const assigned_worker_const                         = 01
+const assigned_date_const                           = 02
+const assigned_start_time_const                     = 03
+const assigned_end_time_const                       = 04
+const assigned_hold_1_start_time_const              = 05
+const assigned_hold_1_end_time_const                = 06
+const assigned_hold_2_start_time_const              = 07
+const assigned_hold_2_end_time_const                = 08
+const assigned_hold_3_start_time_const              = 09
+const assigned_hold_3_end_time_const                = 10
+const assigned_case_name_const                      = 11
+const assigned_application_date_const               = 12
+const assigned_interview_date_const                 = 13
+const assigned_day_30_const                         = 14
+const assigned_days_pending_const                   = 15
+const assigned_snap_status_const                    = 16
+const assigned_cash_status_const                    = 17
+const assigned_2nd_application_date_const           = 18
+const assigned_rept_pnd2_days_const                 = 19
+const assigned_questionable_interview_const         = 20
+const assigned_questionable_interview_resolve_const = 21
+const assigned_appt_notice_date_const               = 22
+const assigned_appt_date_const                      = 23
+const assigned_appt_notc_confirmation_const         = 24
+const assigned_nomi_date_const                      = 25
+const assigned_nomi_confirmation_const              = 26
+const assigned_denial_needed_const                  = 27
+const assigned_next_action_needed_const             = 28
+const assigned_added_to_work_list_const             = 29
+const assigned_2nd_application_date_resolve_const   = 30
+const assigned_closed_recently_const                = 31
+const assigned_closed_recently_resolve_const        = 32
+const assigned_out_of_county_const                  = 33
+const assigned_out_of_county_resolve_const          = 34
+const case_review_notes_const                       = 35
+const final_const                                   = 50
+
+Dim COMPLETED_REVIEWS_ARRAY()
+ReDim COMPLETED_REVIEWS_ARRAY(final_const, 0)
+
+const wrkr_id_const         = 0
+const wrkr_name_const       = 1
+const case_status_const     = 2
+const admin_radio_btn_const = 3
+const admin_wrkr_last_const = 4
+
+Dim ADMIN_worker_list_array()
+ReDim ADMIN_worker_list_array(admin_wrkr_last_const, 0)
+
+const Worker_col                        = 1
+const AssignedDate_col                  = 2
+const CaseNumber_col                    = 3
+const CaseName_col                      = 4
+const ApplDate_col                      = 5
+const InterviewDate_col                 = 6
+const Day_30_dash_col                   = 7
+const DaysPending_col                   = 8
+const SnapStatus_col                    = 9
+const CashStatus_col                    = 10
+const SecondApplicationDate_col         = 11
+const REPT_PND2Days_col                 = 12
+const QuestionableInterview_col         = 13
+const Resolved_col                      = 14
+const ApptNoticeDate_col                = 15
+const ApptDate_col                      = 16
+const Confirmation_col                  = 17
+const NOMIDate_col                      = 18
+const Confirmation2_col                 = 19
+const DenialNeeded_col                  = 20
+const NextActionNeeded_col              = 21
+const AddedtoWorkList_col               = 22
+const SecondApplicationDateNotes_col    = 23
+const ClosedInPast30Days_col            = 24
+const ClosedInPast30DaysNotes_col       = 25
+const StartedOutOfCounty_col            = 26
+const StartedOutOfCountyNotes_col       = 27
+const TrackingNotes_col                 = 28
+const CaseSelectedTime_col              = 29
+const Hold1Start_col                    = 30
+const Hold1End_col                      = 31
+const Hold2Start_col                    = 32
+const Hold2End_col                      = 33
+const Hold3Start_col                    = 34
+const Hold3End_col                      = 35
+const CaseCompletedTime_col             = 36
+
+'END DECLARATIONS ==========================================================================================================
+
+'FUNCTIONS BLOCK ===========================================================================================================
+
+function assess_worklist_to_finish_day()
+    case_on_hold = False
+    case_in_progress = False
+    completed_reviews = 0
+    reviews_completed_by_me = 0
+    reviews_still_needed = 0
+
+    'Access the SQL Table
+    'declare the SQL statement that will query the database
+    objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+    'Creating objects for Access
+    Set objConnection = CreateObject("ADODB.Connection")
+    Set objRecordSet = CreateObject("ADODB.Recordset")
+
+    'This is the file path for the statistics Access database.
+    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+    objRecordSet.Open objSQL, objConnection
+
+    Do While NOT objRecordSet.Eof
+        case_tracking_notes = objRecordSet("TrackingNotes")
+
+        If Instr(case_tracking_notes, "STS-RC") <> 0 Then
+            completed_reviews = completed_reviews + 1
+            If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then reviews_completed_by_me = reviews_completed_by_me + 1
+        End If
+        If Instr(case_tracking_notes, "STS-NR") <> 0 Then reviews_still_needed = reviews_still_needed + 1
+
+        If Instr(case_tracking_notes, "STS-HD") Then
+            If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then case_on_hold = True
+        End If
+
+        If Instr(case_tracking_notes, "STS-IP") Then
+            If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then case_in_progress = True
+        End If
+        objRecordSet.MoveNext
+    Loop
+
+    'close the connection and recordset objects to free up resources
+    objRecordSet.Close
+    objConnection.Close
+    Set objRecordSet=nothing
+    Set objConnection=nothing
+end function
+
+function assign_a_case()
+    If local_demo = False Then
+        If ButtonPressed = get_new_case_btn Then
+            objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+            'Creating objects for Access
+            Set objConnection = CreateObject("ADODB.Connection")
+            Set objRecordSet = CreateObject("ADODB.Recordset")
+
+            'This is the file path for the statistics Access database.
+            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+            objRecordSet.Open objSQL, objConnection
+
+            'Read the whole table
+            Do While NOT objRecordSet.Eof    'Read the whole table
+                case_tracking_notes = objRecordSet("TrackingNotes")
+                If Instr(case_tracking_notes, "STS-NR") <> 0 Then
+                    set_variables_from_SQL
+                    Exit Do
+                End If
+                objRecordSet.MoveNext
+            Loop
+
+            'close the connection and recordset objects to free up resources
+            objRecordSet.Close
+            objConnection.Close
+            Set objRecordSet=nothing
+            Set objConnection=nothing
+
+            txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
+            od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
+            assigned_start_time = time
+            assigned_date = date
+            create_tracking_cookie
+        End If
+
+        If ButtonPressed = resume_hold_case_btn Then
+            'Creating objects for Access
+            Set objConnection = CreateObject("ADODB.Connection")
+            Set objRecordSet = CreateObject("ADODB.Recordset")
+
+            'This is the file path for the statistics Access database.
+            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+            objRecordSet.Open "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed WHERE CaseNumber = '" & resume_case_number & "'", objConnection
+
+            set_variables_from_SQL
+
+            'close the connection and recordset objects to free up resources
+            objRecordSet.Close
+            objConnection.Close
+            Set objRecordSet=nothing
+            Set objConnection=nothing
+        End If
+    Else
+        MAXIS_case_number                       = "318040"
+        ' assigned_ = objRecordSet("CaseNumber")
+        assigned_case_name                      = "ZORO, RORONOA"
+        assigned_application_date               = "11/23/2022"
+        assigned_interview_date                 = ""
+        assigned_day_30                         = "12/23/2022"
+        assigned_days_pending                   = "12"
+        assigned_snap_status                    = "Pending"
+        assigned_cash_status                    = ""
+        assigned_2nd_application_date           = ""
+        assigned_rept_pnd2_days                 = "12"
+        assigned_questionable_interview         = ""
+        assigned_questionable_interview_resolve = ""
+        assigned_appt_notice_date               = "11/25/2022"
+        assigned_appt_date                      = "12/5/2022"
+        assigned_appt_notc_confirmation         = "Y"
+        assigned_nomi_date                      = "12/5/2022"
+        assigned_nomi_confirmation              = "Y"
+        assigned_denial_needed                  = ""
+        assigned_next_action_needed             = "DO THIS NEXT"
+        assigned_added_to_work_list             = date
+        assigned_2nd_application_date_resolve   = ""
+        assigned_closed_recently                = ""
+        assigned_closed_recently_resolve        = ""
+        assigned_out_of_county                  = ""
+        assigned_out_of_county_resolve          = ""
+        case_review_notes                 = "TrackingNotes"
+    End If
+    end_msg = end_msg & vbCr & vbCr & "You have a case selected for review: " & MAXIS_case_number
+    assigned_tracking_notes = "STS-IP-"&user_ID_for_validation & " " & case_review_notes
+
+    If local_demo = False Then
+        'Creating objects for Access
+        Set objConnection = CreateObject("ADODB.Connection")
+        Set objRecordSet = CreateObject("ADODB.Recordset")
+
+        'This is the BZST connection to SQL Database'
+        objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+
+        'delete a record if the case number matches
+        objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', " &_
+                                                                          "CaseName = '" & assigned_case_name & "', " &_
+                                                                          "ApplDate = '" & table_application_date & "', " &_
+                                                                          "InterviewDate = '" & table_interview_date & "', " &_
+                                                                          "Day_30 = '" & table_day_30 & "', " &_
+                                                                          "DaysPending = '" & assigned_days_pending & "', " &_
+                                                                          "SnapStatus = '" & assigned_snap_status & "', " &_
+                                                                          "CashStatus = '" & assigned_cash_status & "', " &_
+                                                                          "SecondApplicationDate = '" & table_2nd_application_date & "', " &_
+                                                                          "REPT_PND2Days = '" & assigned_rept_pnd2_days & "', " &_
+                                                                          "QuestionableInterview = '" & assigned_questionable_interview & "', " &_
+                                                                          "Resolved = '" & assigned_questionable_interview_resolve & "', " &_
+                                                                          "ApptNoticeDate = '" & table_appt_notice_date & "', " &_
+                                                                          "ApptDate = '" & table_appt_date & "', " &_
+                                                                          "Confirmation = '" & assigned_appt_notc_confirmation & "', " &_
+                                                                          "NOMIDate = '" & table_nomi_date & "', " &_
+                                                                          "Confirmation2 = '" & assigned_nomi_confirmation & "', " &_
+                                                                          "DenialNeeded = '" & assigned_denial_needed & "', " &_
+                                                                          "NextActionNeeded = '" & assigned_next_action_needed & "', " &_
+                                                                          "AddedtoWorkList = '" & table_added_to_work_list & "', " &_
+                                                                          "SecondApplicationDateNotes = '" & assigned_2nd_application_date_resolve & "', " &_
+                                                                          "ClosedInPast30Days = '" & assigned_closed_recently & "', " &_
+                                                                          "ClosedInPast30DaysNotes = '" & assigned_closed_recently_resolve & "', " &_
+                                                                          "StartedOutOfCounty = '" & assigned_out_of_county & "', " &_
+                                                                          "StartedOutOfCountyNotes = '" & assigned_out_of_county_resolve & "', " &_
+                                                                          "TrackingNotes = '" & assigned_tracking_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
+        'close the connection and recordset objects to free up resources
+        objConnection.Close
+        Set objRecordSet=nothing
+        Set objConnection=nothing
+    End If
+
+    txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
+    od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
+    If ButtonPressed = get_new_case_btn Then
+        assigned_start_time = time
+        call create_tracking_cookie
+    End If
+    If ButtonPressed = resume_hold_case_btn Then
+        call read_tracking_cookie
+
+        If assigned_hold_1_start_time <> "" AND assigned_hold_1_end_time = "" Then
+            assigned_hold_1_end_time = time
+        ElseIf assigned_hold_2_start_time <> "" AND assigned_hold_2_end_time = "" Then
+            assigned_hold_2_end_time = time
+        ElseIf assigned_hold_3_start_time <> "" AND assigned_hold_3_end_time = "" Then
+            assigned_hold_3_end_time = time
+        End If
+
+        call update_tracking_cookie("RESUME")
+    End If
+    worker_on_task = True
+
+    Call Back_to_SELF
+    Call navigate_to_MAXIS_screen("CASE", "CURR")
+    'Once this function ends, the script will move to the final fucnctionality
+    'that dissplays a dialog to allow the review to be completed
+end function
+
+function complete_admin_functions()
+    Do
+        Do
+            err_msg = ""
+
+            dlg_len = 165 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
+            grp_len = 110 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
+
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 451, 180, "On Demand Applications Dashboard"
+              ButtonGroup ButtonPressed
+                Text 170, 10, 135, 10, "On Demand Applications Dashboard"
+                GroupBox 10, 25, 430, 130, "On Demand Case List Information"
+                Text 20, 40, 230, 10, "Today " & total_cases_for_review & " cases require review. These cases are currently:"
+                Text 40, 55, 110, 10, "Reviews still needed: " & admin_count_NR
+                Text 40, 70, 115, 10, "Reviews In Progress: " & admin_count_IP
+                PushButton 190, 70, 130, 13, "Release In Progress Assignments", release_IP_btn
+                y_pos = 85
+                If IsArray(IP_id_ARRAY) = True then
+                    OptionGroup RadioGroupIP
+                    For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                        If ADMIN_worker_list_array(case_status_const, worker_indc) = "IP" Then
+                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold'', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
+                            y_pos = y_pos + 10
+                        End If
+                    Next
+                End If
+                y_pos = y_pos + 5
+
+                Text 40, y_pos, 140, 10, "Reviews on Hold: " & admin_count_HD
+                PushButton 190, y_pos, 130, 13, "Release Hold Assignments", release_HD_btn
+                y_pos = y_pos + 15
+                If IsArray(HD_id_ARRAY) = True then
+                    OptionGroup RadioGroupHD
+                    For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                        If ADMIN_worker_list_array(case_status_const, worker_indc) = "HD" Then
+                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
+                            y_pos = y_pos + 10
+                        End If
+                    Next
+                End If
+                y_pos = y_pos + 5
+
+                Text 40, y_pos, 145, 10, "Reviews Completed: " & admin_count_RC
+                PushButton 190, y_pos, 130, 13, "Run Finish Day", finish_day_btn
+                y_pos = y_pos + 15
+                If IsArray(RC_id_ARRAY) = True then
+                    OptionGroup RadioGroupRC
+                    For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                        If ADMIN_worker_list_array(case_status_const, worker_indc) = "RC" Then
+                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
+                            y_pos = y_pos + 10
+                        End If
+                    Next
+                End If
+                y_pos = y_pos + 5
+
+                OkButton 335, 160, 50, 15
+                CancelButton 390, 160, 50, 15
+                EditBox 500, 300, 50, 15, fake_edit_box
+            EndDialog
+
+            Dialog Dialog1
+            cancel_without_confirmation
+
+            worker_number_to_resolve = ""
+            If ButtonPressed = release_IP_btn Then
+                MsgBox "RadioGroupIP - " & RadioGroupIP
+                For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                    If RadioGroupIP = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
+                Next
+            ElseIf ButtonPressed = release_HD_btn Then
+                MsgBox "RadioGroupHD - " & RadioGroupHD
+                For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                    If RadioGroupHD = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
+                Next
+            ElseIf ButtonPressed = finish_day_btn Then
+                MsgBox "RadioGroupRC - " & RadioGroupRC
+                For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
+                    If RadioGroupRC = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
+                Next
+            End If
+
+            MsgBox "worker_number_to_resolve - " & worker_number_to_resolve
+            For tester = 0 to UBound(tester_array)                         'looping through all of the testers
+                ' pulling QI members by supervisor from the Complete List of Testers
+                If tester_array(tester).tester_id_number = worker_number_to_resolve Then
+                    worker_full_name_to_resolve = tester_array(tester).tester_full_name
+                    qi_worker_supervisor_email = tester_array(tester).tester_supervisor_email
+                    qi_worker_first_name = tester_array(tester).tester_first_name
+                    If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
+                    If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
+                    assigned_worker = tester_array(tester).tester_full_name
+                    ' MsgBox "user_ID_for_validation - " & user_ID_for_validation & vbCr & "tester_array(tester).tester_id_number - " & tester_array(tester).tester_id_number & vbCr & "qi_member_identified - " & qi_member_identified
+                End If
+            Next
+
+            case_to_fix_found = False
+            Do
+                'declare the SQL statement that will query the database
+                objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+                'Creating objects for Access
+                Set objConnection = CreateObject("ADODB.Connection")
+                Set objRecordSet = CreateObject("ADODB.Recordset")
+
+                'This is the file path for the statistics Access database.
+                objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+                objRecordSet.Open objSQL, objConnection
+
+                Do While NOT objRecordSet.Eof
+                    case_tracking_notes = objRecordSet("TrackingNotes")
+                    worklist_case_number = objRecordSet("CaseNumber")
+
+                    If ButtonPressed = release_IP_btn Then
+                        If Instr(case_tracking_notes, "STS-IP") Then
+                            If Instr(case_tracking_notes, worker_number_to_resolve) <> 0 Then
+                                case_to_fix_found = True
+                                case_tracking_notes = replace(case_tracking_notes, "STS-IP-"&worker_number_to_resolve, "")
+                                case_tracking_notes = replace(case_tracking_notes, "STS-HD-"&worker_number_to_resolve, "")
+                                case_tracking_notes = replace(case_tracking_notes, "STS-RC-"&worker_number_to_resolve, "")
+                                case_tracking_notes = replace(case_tracking_notes, "STS-RC", "")
+                                case_tracking_notes = trim(case_tracking_notes)
+                                case_tracking_notes = "STS-NR " & case_tracking_notes
+                                case_tracking_notes = trim(case_tracking_notes)
+                                Exit Do
+                                ' objRecordSet.Update "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "'", objConnection
+
+                            End If
+                        End if
+                    ElseIf ButtonPressed = release_HD_btn Then
+                        If Instr(case_tracking_notes, "STS-HD") Then
+                            If Instr(case_tracking_notes, worker_number_to_resolve) <> 0 Then
+                                case_to_fix_found = True
+                                case_tracking_notes = replace(case_tracking_notes, "STS-IP-"&worker_number_to_resolve, "")
+                                case_tracking_notes = replace(case_tracking_notes, "STS-HD-"&worker_number_to_resolve, "")
+                                case_tracking_notes = replace(case_tracking_notes, "STS-RC-"&worker_number_to_resolve, "")
+                                case_tracking_notes = replace(case_tracking_notes, "STS-RC", "")
+                                case_tracking_notescase_tracking_notescase_tracking_notes = trim(case_tracking_notes)
+                                case_tracking_notes = "STS-NR " & case_tracking_notes
+                                case_tracking_notes = trim(case_tracking_notes)
+                                Exit Do
+                                ' objRecordSet.Update "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "'", objConnection
+
+                            End If
+                        End if
+                    End If
+
+                    objRecordSet.MoveNext
+                Loop
+
+                'close the connection and recordset objects to free up resources
+                objRecordSet.Close
+                objConnection.Close
+                Set objRecordSet=nothing
+                Set objConnection=nothing
+
+
+                Set objConnection = CreateObject("ADODB.Connection")
+                Set objRecordSet = CreateObject("ADODB.Recordset")
+
+                'This is the BZST connection to SQL Database'
+                objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+
+                'delete a record if the case number matches
+                objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_tracking_notes & "' WHERE CaseNumber = '" & worklist_case_number & "'", objConnection
+
+                'close the connection and recordset objects to free up resources
+                objConnection.Close
+                Set objRecordSet=nothing
+                Set objConnection=nothing
+
+                If ButtonPressed = finish_day_btn Then
+                    actual_user_ID_for_validation = user_ID_for_validation
+                    user_ID_for_validation = worker_number_to_resolve
+                    actual_assigned_worker = assigned_worker
+                    assigned_worker = worker_full_name_to_resolve
+
+                    Call assess_worklist_to_finish_day
+                    If case_on_hold = False and case_in_progress = False Then
+                        ' Call update_qi_worklist_at_end_of_working_day
+                        Call create_assignment_report
+                        end_msg = "Tracking log has been updated with work completed by " & assigned_worker & "."
+                        call script_end_procedure(end_msg)
+                    Else
+                        loop_dlg_msg = "You cannot finish the work day with cases in progress or on hold." & vbCr
+                        loop_dlg_msg = loop_dlg_msg & "The dialog will reappear, finish all reviews that have been started first." & vbCr & vbCr
+                        loop_dlg_msg = loop_dlg_msg & "Once there are no cases on the worklist on hold or in progress the finish work day functionality will operate."
+                        ' ButtonPressed = work_list_details_btn
+                        MsgBox loop_dlg_msg
+                        err_msg = "LOOP"
+                    End If
+                End If
+            Loop until case_to_fix_found = False
+	    Loop until err_msg = ""
+	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+end function
+
+function create_assignment_report()
+    'Access the SQL Table
+    'declare the SQL statement that will query the database
+    objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+    'Creating objects for Access
+    Set objConnection = CreateObject("ADODB.Connection")
+    Set objRecordSet = CreateObject("ADODB.Recordset")
+
+    'This is the file path for the statistics Access database.
+    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+    objRecordSet.Open objSQL, objConnection
+
+    cases_completed_by_me = 0
+    Do While NOT objRecordSet.Eof
+        case_tracking_notes = objRecordSet("TrackingNotes")
+
+        If Instr(case_tracking_notes, "STS-RC-"&user_ID_for_validation) <> 0 Then
+
+            ReDim Preserve COMPLETED_REVIEWS_ARRAY(final_const, cases_completed_by_me)
+
+            COMPLETED_REVIEWS_ARRAY(case_number_const, cases_completed_by_me)                             = objRecordSet("CaseNumber")
+            COMPLETED_REVIEWS_ARRAY(assigned_case_name_const, cases_completed_by_me)                      = objRecordSet("CaseName")
+            COMPLETED_REVIEWS_ARRAY(assigned_application_date_const, cases_completed_by_me)               = objRecordSet("ApplDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_interview_date_const, cases_completed_by_me)                 = objRecordSet("InterviewDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_day_30_const, cases_completed_by_me)                         = objRecordSet("Day_30")
+            COMPLETED_REVIEWS_ARRAY(assigned_days_pending_const, cases_completed_by_me)                   = objRecordSet("DaysPending")
+            COMPLETED_REVIEWS_ARRAY(assigned_snap_status_const, cases_completed_by_me)                    = objRecordSet("SnapStatus")
+            COMPLETED_REVIEWS_ARRAY(assigned_cash_status_const, cases_completed_by_me)                    = objRecordSet("CashStatus")
+            COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_const, cases_completed_by_me)           = objRecordSet("SecondApplicationDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_rept_pnd2_days_const, cases_completed_by_me)                 = objRecordSet("REPT_PND2Days")
+            COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_const, cases_completed_by_me)         = objRecordSet("QuestionableInterview")
+            COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_resolve_const, cases_completed_by_me) = objRecordSet("Resolved")
+            COMPLETED_REVIEWS_ARRAY(assigned_appt_notice_date_const, cases_completed_by_me)               = objRecordSet("ApptNoticeDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_appt_date_const, cases_completed_by_me)                      = objRecordSet("ApptDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_appt_notc_confirmation_const, cases_completed_by_me)         = objRecordSet("Confirmation")
+            COMPLETED_REVIEWS_ARRAY(assigned_nomi_date_const, cases_completed_by_me)                      = objRecordSet("NOMIDate")
+            COMPLETED_REVIEWS_ARRAY(assigned_nomi_confirmation_const, cases_completed_by_me)              = objRecordSet("Confirmation2")
+            COMPLETED_REVIEWS_ARRAY(assigned_denial_needed_const, cases_completed_by_me)                  = objRecordSet("DenialNeeded")
+            COMPLETED_REVIEWS_ARRAY(assigned_next_action_needed_const, cases_completed_by_me)             = objRecordSet("NextActionNeeded")
+            COMPLETED_REVIEWS_ARRAY(assigned_added_to_work_list_const, cases_completed_by_me)             = objRecordSet("AddedtoWorkList")
+            COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_resolve_const, cases_completed_by_me)   = objRecordSet("SecondApplicationDateNotes")
+            COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_const, cases_completed_by_me)                = objRecordSet("ClosedInPast30Days")
+            COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_resolve_const, cases_completed_by_me)        = objRecordSet("ClosedInPast30DaysNotes")
+            COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_const, cases_completed_by_me)                  = objRecordSet("StartedOutOfCounty")
+            COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_resolve_const, cases_completed_by_me)          = objRecordSet("StartedOutOfCountyNotes")
+            COMPLETED_REVIEWS_ARRAY(case_review_notes_const, cases_completed_by_me)                       = objRecordSet("TrackingNotes")
+
+            cases_completed_by_me = cases_completed_by_me + 1
+        End If
+        objRecordSet.MoveNext
+    Loop
+
+    'close the connection and recordset objects to free up resources
+    objRecordSet.Close
+    objConnection.Close
+    Set objRecordSet=nothing
+    Set objConnection=nothing
+
+    file_url = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
+    Call excel_open(file_url, True, False, ObjExcel, objWorkbook)
+
+    excel_row = 2
+
+    Do While trim(ObjExcel.Cells(excel_row, Worker_col).value) <> ""
+	    excel_row = excel_row + 1
+    Loop
+
+    For review = 0 to UBound(COMPLETED_REVIEWS_ARRAY, 2)
+        MAXIS_case_number = COMPLETED_REVIEWS_ARRAY(case_number_const, review)
+        assigned_date  = ""
+        assigned_start_time  = ""
+        assigned_end_time  = ""
+        assigned_hold_1_start_time  = ""
+        assigned_hold_1_end_time  = ""
+        assigned_hold_2_start_time  = ""
+        assigned_hold_2_end_time  = ""
+        assigned_hold_3_start_time  = ""
+        assigned_hold_3_end_time  = ""
+        od_revw_tracking_file_path = ""
+
+        txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
+        od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
+
+        Call read_tracking_cookie
+
+        case_review_notes = COMPLETED_REVIEWS_ARRAY(case_review_notes_const, review)
+        case_review_notes = replace(case_review_notes, "STS-IP-"&user_ID_for_validation, "")
+        case_review_notes = replace(case_review_notes, "STS-HD-"&user_ID_for_validation, "")
+        case_review_notes = replace(case_review_notes, "STS-RC-"&user_ID_for_validation, "")
+        case_review_notes = replace(case_review_notes, "STS-RC", "")
+        case_review_notes = trim(case_review_notes)
+
+        ObjExcel.Cells(excel_row, Worker_col).value = assigned_worker
+        ObjExcel.Cells(excel_row, AssignedDate_col).value = assigned_date
+        ObjExcel.Cells(excel_row, CaseNumber_col).value = COMPLETED_REVIEWS_ARRAY(case_number_const, review)
+        ObjExcel.Cells(excel_row, CaseName_col).value = COMPLETED_REVIEWS_ARRAY(assigned_case_name_const, review)
+        ObjExcel.Cells(excel_row, ApplDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_application_date_const, review)
+        ObjExcel.Cells(excel_row, InterviewDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_interview_date_const, review)
+        ObjExcel.Cells(excel_row, Day_30_dash_col).value = COMPLETED_REVIEWS_ARRAY(assigned_day_30_const, review)
+        ObjExcel.Cells(excel_row, DaysPending_col).value = COMPLETED_REVIEWS_ARRAY(assigned_days_pending_const, review)
+        ObjExcel.Cells(excel_row, SnapStatus_col).value = COMPLETED_REVIEWS_ARRAY(assigned_snap_status_const, review)
+        ObjExcel.Cells(excel_row, CashStatus_col).value = COMPLETED_REVIEWS_ARRAY(assigned_cash_status_const, review)
+        ObjExcel.Cells(excel_row, SecondApplicationDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_const, review)
+        ObjExcel.Cells(excel_row, REPT_PND2Days_col).value = COMPLETED_REVIEWS_ARRAY(assigned_rept_pnd2_days_const, review)
+        ObjExcel.Cells(excel_row, QuestionableInterview_col).value = COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_const, review)
+        ObjExcel.Cells(excel_row, Resolved_col).value = COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_resolve_const, review)
+        ObjExcel.Cells(excel_row, ApptNoticeDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_appt_notice_date_const, review)
+        ObjExcel.Cells(excel_row, ApptDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_appt_date_const, review)
+        ObjExcel.Cells(excel_row, Confirmation_col).value = COMPLETED_REVIEWS_ARRAY(assigned_appt_notc_confirmation_const, review)
+        ObjExcel.Cells(excel_row, NOMIDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_nomi_date_const, review)
+        ObjExcel.Cells(excel_row, Confirmation2_col).value = COMPLETED_REVIEWS_ARRAY(assigned_nomi_confirmation_const, review)
+        ObjExcel.Cells(excel_row, DenialNeeded_col).value = COMPLETED_REVIEWS_ARRAY(assigned_denial_needed_const, review)
+        ObjExcel.Cells(excel_row, NextActionNeeded_col).value = COMPLETED_REVIEWS_ARRAY(assigned_next_action_needed_const, review)
+        ObjExcel.Cells(excel_row, AddedtoWorkList_col).value = COMPLETED_REVIEWS_ARRAY(assigned_added_to_work_list_const, review)
+        ObjExcel.Cells(excel_row, SecondApplicationDateNotes_col).value = COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_resolve_const, review)
+        ObjExcel.Cells(excel_row, ClosedInPast30Days_col).value = COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_const, review)
+        ObjExcel.Cells(excel_row, ClosedInPast30DaysNotes_col).value = COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_resolve_const, review)
+        ObjExcel.Cells(excel_row, StartedOutOfCounty_col).value = COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_const, review)
+        ObjExcel.Cells(excel_row, StartedOutOfCountyNotes_col).value = COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_resolve_const, review)
+        ObjExcel.Cells(excel_row, TrackingNotes_col).value = case_review_notes
+        ObjExcel.Cells(excel_row, CaseSelectedTime_col).value = assigned_start_time
+        ObjExcel.Cells(excel_row, Hold1Start_col).value = assigned_hold_1_start_time
+        ObjExcel.Cells(excel_row, Hold1End_col).value = assigned_hold_1_end_time
+        ObjExcel.Cells(excel_row, Hold2Start_col).value = assigned_hold_2_start_time
+        ObjExcel.Cells(excel_row, Hold2End_col).value = assigned_hold_2_end_time
+        ObjExcel.Cells(excel_row, Hold3Start_col).value = assigned_hold_3_start_time
+        ObjExcel.Cells(excel_row, Hold3End_col).value = assigned_hold_3_end_time
+        ObjExcel.Cells(excel_row, CaseCompletedTime_col).value = assigned_end_time
+
+        excel_row = excel_row + 1
+
+        If local_demo = False Then
+            'Creating objects for Access
+            Set objConnection = CreateObject("ADODB.Connection")
+            Set objRecordSet = CreateObject("ADODB.Recordset")
+
+            'This is the BZST connection to SQL Database'
+            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+
+            'delete a record if the case number matches
+            objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
+
+            'close the connection and recordset objects to free up resources
+            objConnection.Close
+            Set objRecordSet=nothing
+            Set objConnection=nothing
+        End If
+
+        With objFSO
+            If .FileExists(od_revw_tracking_file_path) = True then
+                .DeleteFile(od_revw_tracking_file_path)
+            End If
+        End With
+    Next
+
+    objWorkbook.Save()		'saving the excel
+    ObjExcel.ActiveWorkbook.Close
+
+    ObjExcel.Application.Quit
+    ObjExcel.Quit
+
+	main_email_subject = "On Demand Daily Case Review Completed"
+
+    main_email_body = "The On Demand Appplication Reviews have been completed for " & date & "."
+    main_email_body = main_email_body & vbCr & "Completed by: " & assigned_worker
+    main_email_body = main_email_body & vbCr & vbCr & "Number of cases reviewed: " & UBound(COMPLETED_REVIEWS_ARRAY, 2)+1
+    main_email_body = main_email_body & vbCr & "On Demand Case Reviews completed for the day."
+    main_email_body = main_email_body & vbCr & vbCr & "Details of the reviews are logged here:"
+    main_email_body = main_email_body & vbCr & "<" & file_url & ">"
+
+    'KEEPING FOR FUTURE - there was more information in the reports for work assignment completed and we might want to add them back in
+    ' main_email_body = main_email_body & vbCr & vbCr & "Work assignment assesment: " & assignment_assesment
+    ' main_email_body = main_email_body & vbCr & vbCr & "Length of assignment: " & assignment_hours & " hours and " & assignment_minutes & " minutes."
+
+    ' assignment_case_numbers_to_save = trim(assignment_case_numbers_to_save)
+    ' assignment_new_ideas = trim(assignment_new_ideas)
+    ' If assignment_case_numbers_to_save <> "" Then
+    '     main_email_body = main_email_body & vbCr & vbCr & "Case numbers to discuss sent to QI email to be added to meeting agenda. Case numbers:"
+    '     main_email_body = main_email_body & vbCr & assignment_case_numbers_to_save
+
+    '     case_numbers_email_body = case_numbers_email_body & vbCr & assignment_case_numbers_to_save
+    '     case_numbers_email_body = case_numbers_email_body & vbCr & vbCR & "These cases should be reviewed by the whole QI team and follow up decisions made."
+    '     case_numbers_email_body = case_numbers_email_body & vbCr & vbCr & "------"
+    '     case_numbers_email_body = case_numbers_email_body & vbCr & email_signature
+    '     STATS_manualtime = STATS_manualtime + 120
+    ' End If
+    ' If assignment_new_ideas <> "" Then
+    '     main_email_body = main_email_body & vbCr & vbCr & "New ideas for statistics to gather sent to the BZST. Ideas:"
+    '     main_email_body = main_email_body & vbCr & assignment_new_ideas
+
+    '     ideas_email_body = ideas_email_body & vbCr & assignment_new_ideas
+    '     ideas_email_body = ideas_email_body & vbCr & vbCr & "------"
+    '     ideas_email_body = ideas_email_body & vbCr & email_signature
+    '     STATS_manualtime = STATS_manualtime + 120
+    ' End If
+    main_email_body = main_email_body & vbCr & vbCr & "------"
+    main_email_body = main_email_body & vbCr & qi_worker_first_name
+
+    CALL create_outlook_email(qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", main_email_subject, main_email_body, "", TRUE)
+end function
+
+function create_tracking_cookie()
+    With objFSO
+        Dim objTextStream
+        Set objTextStream = .OpenTextFile(od_revw_tracking_file_path, ForWriting, true)
+
+        objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
+        objTextStream.WriteLine "ASSIGNED WORKER ^*^*^" & assigned_worker
+        objTextStream.WriteLine "WINDOWS USER ID ^*^*^" & user_ID_for_validation
+        objTextStream.WriteLine "ASSIGNED DATE ^*^*^" & assigned_date
+        objTextStream.WriteLine "START TIME ^*^*^" & assigned_start_time
+
+        'Close the object so it can be opened again shortly
+        objTextStream.Close
+    End With
+end function
+
+function merge_worklist_to_SQL()
+    'setting up information and variables for accessing yesterday's worklist
+    previous_date = dateadd("d", -1, date)
+    Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
+    archive_folder = DatePart("yyyy", previous_date) & "-" & right("0" & DatePart("m", previous_date), 2)
+
+    previous_date_month = DatePart("m", previous_date)
+    previous_date_day = DatePart("d", previous_date)
+    previous_date_year = DatePart("yyyy", previous_date)
+    previous_date_header = previous_date_month & "-" & previous_date_day & "-" & previous_date_year
+
+    'setting up file paths for accessing yesterday's worklist
+    archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\" & archive_folder
+
+    previous_list_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & previous_date_header & " Worklist.xlsx"
+    Call File_Exists(previous_list_file_selection_path, does_file_exist)
+    previous_worksheet_header = "Work List for " & previous_date_month & "-" & previous_date_day & "-" & previous_date_year
+
+	yesterday_case_list = 0
+
+	If does_file_exist = True Then
+		'open the file
+		call excel_open(previous_list_file_selection_path, True, False, ObjYestExcel, objYestWorkbook)
+
+		objYestWorkbook.worksheets(previous_worksheet_header).Activate
+
+        'Pull info into a NEW array of prevvious day work.
+		xl_row = 2
+		Do
+			this_case = trim(ObjYestExcel.Cells(xl_row, 2).Value)
+			If this_case <> "" Then
+                worklist_notes = ""
+                yesterday_list_case_number = trim(ObjYestExcel.Cells(xl_row, 2).Value)
+                yesterday_notes = replace(ObjYestExcel.Cells(xl_row, 23).Value, "FOLLOW UP NEEDED", "")
+                yesterday_notes = replace(yesterday_notes, "  ", " ")
+                yesterday_notes = replace(yesterday_notes, "'", "")
+                yesterday_notes = trim(yesterday_notes)
+                yesterday_action = ObjYestExcel.Cells(xl_row, 22).Value
+                yesterday_action = trim(yesterday_action)
+                If yesterday_action = "FOLLOW UP NEEDED" Then worklist_notes = trim(yesterday_action) & " - " & yesterday_notes
+                If yesterday_action <> "FOLLOW UP NEEDED" Then worklist_notes = yesterday_notes
+
+                'Creating objects for Access
+                Set objConnection = CreateObject("ADODB.Connection")
+                Set objRecordSet = CreateObject("ADODB.Recordset")
+
+                'This is the BZST connection to SQL Database'
+                objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+
+                'delete a record if the case number matches
+                objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & worklist_notes & "' WHERE CaseNumber = '" & yesterday_list_case_number & "'", objConnection
+
+                'close the connection and recordset objects to free up resources
+                objConnection.Close
+                Set objRecordSet=nothing
+                Set objConnection=nothing
+			End If
+            xl_row = xl_row + 1
+		Loop until this_case = ""
+
+		'close the file
+		ObjYestExcel.ActiveWorkbook.Close
+		ObjYestExcel.Application.Quit
+		ObjYestExcel.Quit
+	End If
+    Call script_end_procedure("Clean Up Completed")
+end function
+
+function read_tracking_cookie()
+    With objFSO
+        'Creating an object for the stream of text which we'll use frequently
+        If .FileExists(od_revw_tracking_file_path) = True then
+
+            Set objTextStream = .OpenTextFile(od_revw_tracking_file_path, ForReading)
+
+            'Reading the entire text file into a string
+            every_line_in_text_file = objTextStream.ReadAll
+
+            'Splitting the text file contents into an array which will be sorted
+            od_revw_case_details = split(every_line_in_text_file, vbNewLine)
+
+            For Each text_line in od_revw_case_details										'read each line in the file
+                If Instr(text_line, "^*^*^") <> 0 Then
+                    line_info = split(text_line, "^*^*^")								'creating a small array for each line. 0 has the header and 1 has the information
+                    line_info(0) = trim(line_info(0))
+                    'here we add the information from TXT to Excel
+
+                    If line_info(0) = "CASE NUMBER" Then MAXIS_case_number  = line_info(1)
+                    If line_info(0) = "ASSIGNED WORKER" Then cookie_worker  = line_info(1)
+                    If line_info(0) = "WINDOWS USER ID" Then user_ID_for_validation  = line_info(1)
+                    If line_info(0) = "ASSIGNED DATE" Then assigned_date  = line_info(1)
+                    If line_info(0) = "START TIME" Then assigned_start_time  = line_info(1)
+                    If line_info(0) = "END TIME" Then assigned_end_time  = line_info(1)
+                    If line_info(0) = "HOLD 1 START" Then assigned_hold_1_start_time  = line_info(1)
+                    If line_info(0) = "HOLD 1 END" Then assigned_hold_1_end_time  = line_info(1)
+                    If line_info(0) = "HOLD 2 START" Then assigned_hold_2_start_time  = line_info(1)
+                    If line_info(0) = "HOLD 2 END" Then assigned_hold_2_end_time  = line_info(1)
+                    If line_info(0) = "HOLD 3 START" Then assigned_hold_3_start_time  = line_info(1)
+                    If line_info(0) = "HOLD 3 END" Then assigned_hold_3_end_time  = line_info(1)
+                End If
+            Next
+
+            objTextStream.Close
+        End If
+    End With
+end function
 
 function set_variables_from_SQL()
     MAXIS_case_number                       = objRecordSet("CaseNumber")
@@ -217,274 +1058,6 @@ function set_variables_from_SQL()
     End If
 end function
 
-function assign_a_case()
-    If local_demo = False Then
-        If ButtonPressed = get_new_case_btn Then
-            objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
-
-            'Creating objects for Access
-            Set objConnection = CreateObject("ADODB.Connection")
-            Set objRecordSet = CreateObject("ADODB.Recordset")
-
-            'This is the file path for the statistics Access database.
-            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-            objRecordSet.Open objSQL, objConnection
-
-            'Read the whole table
-            Do While NOT objRecordSet.Eof    'Read the whole table
-
-                case_tracking_notes = objRecordSet("TrackingNotes")
-                If Instr(case_tracking_notes, "STS-NR") <> 0 Then
-                    set_variables_from_SQL
-
-                    Exit Do
-                End If
-                objRecordSet.MoveNext
-            Loop
-
-            'close the connection and recordset objects to free up resources
-            objRecordSet.Close
-            objConnection.Close
-            Set objRecordSet=nothing
-            Set objConnection=nothing
-
-            txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
-            od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
-            assigned_start_time = time
-            assigned_date = date
-            create_tracking_cookie
-        End If
-
-        If ButtonPressed = resume_hold_case_btn Then
-            'Creating objects for Access
-            Set objConnection = CreateObject("ADODB.Connection")
-            Set objRecordSet = CreateObject("ADODB.Recordset")
-
-            'This is the file path for the statistics Access database.
-            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-            objRecordSet.Open "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed WHERE CaseNumber = '" & resume_case_number & "'", objConnection
-
-            set_variables_from_SQL
-
-            'close the connection and recordset objects to free up resources
-            objRecordSet.Close
-            objConnection.Close
-            Set objRecordSet=nothing
-            Set objConnection=nothing
-
-
-
-
-        End If
-
-
-
-    Else
-        MAXIS_case_number                       = "318040"
-        ' assigned_ = objRecordSet("CaseNumber")
-        assigned_case_name                      = "ZORO, RORONOA"
-        assigned_application_date               = "11/23/2022"
-        assigned_interview_date                 = ""
-        assigned_day_30                         = "12/23/2022"
-        assigned_days_pending                   = "12"
-        assigned_snap_status                    = "Pending"
-        assigned_cash_status                    = ""
-        assigned_2nd_application_date           = ""
-        assigned_rept_pnd2_days                 = "12"
-        assigned_questionable_interview         = ""
-        assigned_questionable_interview_resolve = ""
-        assigned_appt_notice_date               = "11/25/2022"
-        assigned_appt_date                      = "12/5/2022"
-        assigned_appt_notc_confirmation         = "Y"
-        assigned_nomi_date                      = "12/5/2022"
-        assigned_nomi_confirmation              = "Y"
-        assigned_denial_needed                  = ""
-        assigned_next_action_needed             = "DO THIS NEXT"
-        assigned_added_to_work_list             = date
-        assigned_2nd_application_date_resolve   = ""
-        assigned_closed_recently                = ""
-        assigned_closed_recently_resolve        = ""
-        assigned_out_of_county                  = ""
-        assigned_out_of_county_resolve          = ""
-        case_review_notes                 = "TrackingNotes"
-    End If
-    end_msg = end_msg & vbCr & vbCr & "You have a case selected for review: " & MAXIS_case_number
-    assigned_tracking_notes = "STS-IP-"&user_ID_for_validation & " " & case_review_notes
-    ' If assigned_interview_date = "" Then table_interview_date = #1/1/1900#
-    ' If assigned_2nd_application_date = "" Then table_2nd_application_date = #1/1/1900#
-    ' If assigned_appt_notice_date = "" Then table_appt_notice_date = #1/1/1900#
-    ' If assigned_appt_date = "" Then table_appt_date = #1/1/1900#
-    ' If assigned_nomi_date = "" Then table_nomi_date = #1/1/1900#
-    ' If assigned_added_to_work_list = "" Then table_added_to_work_list = #1/1/1900#
-
-    If local_demo = False Then
-        ' WScript.Sleep 10000
-        'Creating objects for Access
-        Set objConnection = CreateObject("ADODB.Connection")
-        Set objRecordSet = CreateObject("ADODB.Recordset")
-
-        'This is the BZST connection to SQL Database'
-        objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-        ' objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
-        ' objRecordSet.Open objSQL, objConnection
-
-        'delete a record if the case number matches
-        objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', " &_
-                                                                          "CaseName = '" & assigned_case_name & "', " &_
-                                                                          "ApplDate = '" & table_application_date & "', " &_
-                                                                          "InterviewDate = '" & table_interview_date & "', " &_
-                                                                          "Day_30 = '" & table_day_30 & "', " &_
-                                                                          "DaysPending = '" & assigned_days_pending & "', " &_
-                                                                          "SnapStatus = '" & assigned_snap_status & "', " &_
-                                                                          "CashStatus = '" & assigned_cash_status & "', " &_
-                                                                          "SecondApplicationDate = '" & table_2nd_application_date & "', " &_
-                                                                          "REPT_PND2Days = '" & assigned_rept_pnd2_days & "', " &_
-                                                                          "QuestionableInterview = '" & assigned_questionable_interview & "', " &_
-                                                                          "Resolved = '" & assigned_questionable_interview_resolve & "', " &_
-                                                                          "ApptNoticeDate = '" & table_appt_notice_date & "', " &_
-                                                                          "ApptDate = '" & table_appt_date & "', " &_
-                                                                          "Confirmation = '" & assigned_appt_notc_confirmation & "', " &_
-                                                                          "NOMIDate = '" & table_nomi_date & "', " &_
-                                                                          "Confirmation2 = '" & assigned_nomi_confirmation & "', " &_
-                                                                          "DenialNeeded = '" & assigned_denial_needed & "', " &_
-                                                                          "NextActionNeeded = '" & assigned_next_action_needed & "', " &_
-                                                                          "AddedtoWorkList = '" & table_added_to_work_list & "', " &_
-                                                                          "SecondApplicationDateNotes = '" & assigned_2nd_application_date_resolve & "', " &_
-                                                                          "ClosedInPast30Days = '" & assigned_closed_recently & "', " &_
-                                                                          "ClosedInPast30DaysNotes = '" & assigned_closed_recently_resolve & "', " &_
-                                                                          "StartedOutOfCounty = '" & assigned_out_of_county & "', " &_
-                                                                          "StartedOutOfCountyNotes = '" & assigned_out_of_county_resolve & "', " &_
-                                                                          "TrackingNotes = '" & assigned_tracking_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
-
-
-
-        ' objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', CaseName = '" & assigned_case_name & "', ApplDate = '" & assigned_application_date & "', InterviewDate = '" & assigned_interview_date & "', "Day_30" = '" & assigned_day_30 & "', "DaysPending" = '" & assigned_days_pending & "', SnapStatus = '" & assigned_snap_status & "', CashStatus = '" & assigned_cash_status & "', SecondApplicationDate = '" & assigned_2nd_application_date & "', REPT_PND2Days = '" & assigned_rept_pnd2_days & "', QuestionableInterview = '" & assigned_questionable_interview & "', Resolved = '" & assigned_questionable_interview_resolve & "', ApptNoticeDate = '" & assigned_appt_notice_date & "', ApptDate = '" & assigned_appt_date & "', Confirmation = '" & assigned_appt_notc_confirmation & "', NOMIDate = '" & assigned_nomi_date & "', Confirmation2 = '" & assigned_nomi_confirmation & "', DenialNeeded = '" & assigned_denial_needed & "', NextActionNeeded = '" & assigned_next_action_needed & "', AddedtoWorkList = '" & assigned_added_to_work_list & "', SecondApplicationDateNotes = '" & assigned_2nd_application_date_resolve & "', ClosedInPast30Days = '" & assigned_closed_recently & "', ClosedInPast30DaysNotes = '" & assigned_closed_recently_resolve & "', StartedOutOfCounty = '" & assigned_out_of_county & "', StartedOutOfCountyNotes = '" & assigned_out_of_county_resolve & "', TrackingNotes = '" & assigned_tracking_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
-
-        'close the connection and recordset objects to free up resources
-        ' objRecordSet.Close
-        objConnection.Close
-        Set objRecordSet=nothing
-        Set objConnection=nothing
-    End If
-
-    txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
-    od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
-    If ButtonPressed = get_new_case_btn Then
-        assigned_start_time = time
-        call create_tracking_cookie
-    End If
-    If ButtonPressed = resume_hold_case_btn Then
-        call read_tracking_cookie
-
-        If assigned_hold_1_start_time <> "" AND assigned_hold_1_end_time = "" Then
-            assigned_hold_1_end_time = time
-        ElseIf assigned_hold_2_start_time <> "" AND assigned_hold_2_end_time = "" Then
-            assigned_hold_2_end_time = time
-        ElseIf assigned_hold_3_start_time <> "" AND assigned_hold_3_end_time = "" Then
-            assigned_hold_3_end_time = time
-        End If
-
-        call update_tracking_cookie("RESUME")
-    End If
-    worker_on_task = True
-
-    Call Back_to_SELF
-    Call navigate_to_MAXIS_screen("CASE", "CURR")
-    ' Do
-    '     Dialog1 = ""
-    '     BeginDialog Dialog1, 0, 0, 246, 335, "On Demand Applications Case Review"
-    '       Text 95, 10, 60, 10, "Case to Review"
-    '       GroupBox 10, 20, 230, 75, "Case Information"
-    '       Text 20, 35, 85, 10, " Case Number: " & MAXIS_case_number
-    '       Text 30, 45, 210, 10, "Case Name: " & assigned_case_name
-    '       Text 15, 60, 120, 10, "Application Date: " & assigned_application_date
-    '       Text 20, 70, 75, 10, " Days Pending: " & assigned_rept_pnd2_days
-    '       Text 45, 80, 80, 10, "Day 30: " & assigned_day_30
-    '       If assigned_snap_status = "Pending" Then Text 145, 60, 50, 10, "SNAP: Pending"
-    '       If assigned_cash_status = "Pending" Then Text 145, 70, 50, 10, "CASH: Pending"
-    '       GroupBox 10, 100, 230, 30, "Interview"
-    '       ' Text 20, 115, 140, 10, "Interview Date from PROG: " & assigned_interview_date
-    '       If assigned_interview_date = "" Then Text 20, 115, 140, 10, "No interview entered on PROG"
-    '       If assigned_interview_date <> "" Then Text 20, 115, 140, 10, "Interview Date from PROG: " & assigned_interview_date
-    '       GroupBox 10, 135, 230, 55, "Notices"
-    '       If assigned_appt_notice_date = "" Then
-    '         Text 20, 150, 110, 10, "NO APPOINTMENT NOTICE FOUND"
-    '       Else
-    '         Text 20, 150, 110, 10, "Appt Notice Sent on " & assigned_appt_notice_date
-    '         Text 30, 160, 80, 10, "Appt Date: " & assigned_appt_date
-    '       End If
-    '       ' Text 20, 150, 110, 10, "Appt Notice Sent on MM/DD/YY"
-    '       ' Text 30, 160, 80, 10, "Appt Date: MM/DD/YY"
-    '       If assigned_nomi_date = "" Then
-    '         Text 20, 175, 110, 10, "NO NOMI FOUND"
-    '       Else
-    '         Text 20, 175, 110, 10, "NOMI Sent on " & assigned_nomi_date
-    '       End If
-    '       ' Text 20, 175, 110, 10, "NOMI Sent on MM/DD/YY"
-    '       GroupBox 10, 195, 230, 60, "Actions"
-    '       Text 20, 210, 70, 10, "Next Action Needed:"
-    '       Text 25, 220, 165, 10, assigned_next_action_needed
-    '       If assigned_next_action_needed = "RESOLVE SUBSEQUENT APPLICATION DATE" Then Text 20, 235, 145, 10, "Subsequent Appliction Date: " & assigned_2nd_application_date
-    '       If assigned_next_action_needed = "ALIGN INTERVIEW DATES" Then Text 25, 235, 180, 10, "*** Interview Dates on PROG need to be ALIGNED ***"
-    '       If assigned_next_action_needed = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" Then Text 20, 235, 180, 10, "*** Questionable Interview Date Found: " & assigned_questionable_interview & " ***"
-    '       Text 10, 260, 70, 10, "Additional Notes:"
-    '       Text 10, 270, 230, 40, case_review_notes
-    '       EditBox 500, 600, 50, 15, fake_edit_box
-    '       ButtonGroup ButtonPressed
-    '         OkButton 190, 315, 50, 15
-    '     EndDialog
-
-    '     dialog Dialog1
-
-    '     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    ' Loop until are_we_passworded_out = false					'loops until user passwords back in
-end function
-
-function read_tracking_cookie()
-
-    With objFSO
-        'Creating an object for the stream of text which we'll use frequently
-
-        If .FileExists(od_revw_tracking_file_path) = True then
-
-            Set objTextStream = .OpenTextFile(od_revw_tracking_file_path, ForReading)
-
-            'Reading the entire text file into a string
-            every_line_in_text_file = objTextStream.ReadAll
-
-            'Splitting the text file contents into an array which will be sorted
-            od_revw_case_details = split(every_line_in_text_file, vbNewLine)
-
-            For Each text_line in od_revw_case_details										'read each line in the file
-                If Instr(text_line, "^*^*^") <> 0 Then
-                    line_info = split(text_line, "^*^*^")								'creating a small array for each line. 0 has the header and 1 has the information
-                    line_info(0) = trim(line_info(0))
-                    'here we add the information from TXT to Excel
-
-                    If line_info(0) = "CASE NUMBER" Then MAXIS_case_number  = line_info(1)
-                    If line_info(0) = "ASSIGNED WORKER" Then cookie_worker  = line_info(1)
-                    If line_info(0) = "WINDOWS USER ID" Then user_ID_for_validation  = line_info(1)
-                    If line_info(0) = "ASSIGNED DATE" Then assigned_date  = line_info(1)
-                    If line_info(0) = "START TIME" Then assigned_start_time  = line_info(1)
-                    If line_info(0) = "END TIME" Then assigned_end_time  = line_info(1)
-                    If line_info(0) = "HOLD 1 START" Then assigned_hold_1_start_time  = line_info(1)
-                    If line_info(0) = "HOLD 1 END" Then assigned_hold_1_end_time  = line_info(1)
-                    If line_info(0) = "HOLD 2 START" Then assigned_hold_2_start_time  = line_info(1)
-                    If line_info(0) = "HOLD 2 END" Then assigned_hold_2_end_time  = line_info(1)
-                    If line_info(0) = "HOLD 3 START" Then assigned_hold_3_start_time  = line_info(1)
-                    If line_info(0) = "HOLD 3 END" Then assigned_hold_3_end_time  = line_info(1)
-
-                End If
-            Next
-
-            ' .DeleteFile(od_revw_tracking_file_path)
-            objTextStream.Close
-        End If
-
-    End With
-
-end function
-
 function test_sql_access()
     'Access the pending cases TABLE - ES_OnDemandCashAndSnap'
     'declare the SQL statement that will query the database
@@ -495,10 +1068,8 @@ function test_sql_access()
     Set objRecordSet = CreateObject("ADODB.Recordset")
 
     'This is the file path for the statistics Access database.
-    ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
     objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
     objRecordSet.Open objSQL, objConnection
-
 
     Do While NOT objRecordSet.Eof
 		anything_number = objRecordSet("CaseNumber")
@@ -512,7 +1083,6 @@ function test_sql_access()
     Set objRecordSet=nothing
     Set objConnection=nothing
     Set objSQL=nothing
-
 
     'Access the working list TABLE - ES_OnDemanCashAndSnapBZProcessed'
     'declare the SQL statement that will query the database
@@ -553,39 +1123,16 @@ function test_sql_access()
 
     end_msg = "The test is complete an an email has been sent to the BlueZone Script Team regarding access to the tables for the new On Demand functionality."
     Call script_end_procedure(end_msg)
-
 end function
-
-function create_tracking_cookie()
-    With objFSO
-        Dim objTextStream
-        Set objTextStream = .OpenTextFile(od_revw_tracking_file_path, ForWriting, true)
-
-        objTextStream.WriteLine "CASE NUMBER ^*^*^" & MAXIS_case_number
-        objTextStream.WriteLine "ASSIGNED WORKER ^*^*^" & assigned_worker
-        objTextStream.WriteLine "WINDOWS USER ID ^*^*^" & user_ID_for_validation
-        objTextStream.WriteLine "ASSIGNED DATE ^*^*^" & assigned_date
-        objTextStream.WriteLine "START TIME ^*^*^" & assigned_start_time
-
-        'Close the object so it can be opened again shortly
-        objTextStream.Close
-
-    End With
-end function
-
 
 function update_tracking_cookie(update_reason)
-
     With objFSO
-
         'If the file doesn't exist, it needs to create it here and initialize it here! After this, it can just exit as the file will now be initialized
-
         If .FileExists(od_revw_tracking_file_path) = True then
             .DeleteFile(od_revw_tracking_file_path)
         End If
 
         If .FileExists(od_revw_tracking_file_path) = False then
-
             Dim objTextStream
             Set objTextStream = .OpenTextFile(od_revw_tracking_file_path, ForWriting, true)
 
@@ -634,720 +1181,18 @@ function update_tracking_cookie(update_reason)
             'Close the object so it can be opened again shortly
             objTextStream.Close
         End If
-
     End With
 end function
 
-function assess_worklist_to_finish_day()
-    case_on_hold = False
-    case_in_progress = False
-    completed_reviews = 0
-    reviews_completed_by_me = 0
-    reviews_still_needed = 0
+'END FUNCTIONS =============================================================================================================
 
-    'Access the SQL Table
-    'declare the SQL statement that will query the database
-    objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+EMConnect ""                'connecting to MAXIS
+Call check_for_MAXIS(True)  'If we are not in MAXIS or not passworded into MAXIS the script will end.
 
-    'Creating objects for Access
-    Set objConnection = CreateObject("ADODB.Connection")
-    Set objRecordSet = CreateObject("ADODB.Recordset")
-
-    'This is the file path for the statistics Access database.
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-    objRecordSet.Open objSQL, objConnection
-
-    Do While NOT objRecordSet.Eof
-        case_tracking_notes = objRecordSet("TrackingNotes")
-
-        If Instr(case_tracking_notes, "STS-RC") <> 0 Then
-            completed_reviews = completed_reviews + 1
-            If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then reviews_completed_by_me = reviews_completed_by_me + 1
-        End If
-        If Instr(case_tracking_notes, "STS-NR") <> 0 Then reviews_still_needed = reviews_still_needed + 1
-
-        If Instr(case_tracking_notes, "STS-HD") Then            'TODO - add worker specific holds'
-            If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then case_on_hold = True
-        End If
-
-        If Instr(case_tracking_notes, "STS-IP") Then
-            If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then case_in_progress = True
-        End If
-        objRecordSet.MoveNext
-    Loop
-
-    'close the connection and recordset objects to free up resources
-    objRecordSet.Close
-    objConnection.Close
-    Set objRecordSet=nothing
-    Set objConnection=nothing
-
-    MsgBox "case_on_hold - " & case_on_hold & vbCr & "case_in_progress - " & case_in_progress & vbCr & "total completed_reviews - " & completed_reviews & vbCr & "reviews_completed_by_me - " & reviews_completed_by_me & vbCr & "reviews_still_needed - " & reviews_still_needed
-end function
-
-function complete_admin_functions()
-
-
-    ' HD_id_ARRAY
-    ' IP_id_ARRAY
-    Do
-        Do
-            err_msg = ""
-
-            dlg_len = 165 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
-            grp_len = 110 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
-
-            Dialog1 = ""
-            BeginDialog Dialog1, 0, 0, 451, 180, "On Demand Applications Dashboard"
-              ButtonGroup ButtonPressed
-                Text 170, 10, 135, 10, "On Demand Applications Dashboard"
-                GroupBox 10, 25, 430, 130, "On Demand Case List Information"
-                Text 20, 40, 230, 10, "Today " & total_cases_for_review & " cases require review. These cases are currently:"
-                Text 40, 55, 110, 10, "Reviews still needed: " & admin_count_NR
-                Text 40, 70, 115, 10, "Reviews In Progress: " & admin_count_IP
-                PushButton 190, 70, 130, 13, "Release In Progress Assignments", release_IP_btn
-                y_pos = 85
-                If IsArray(IP_id_ARRAY) = True then
-                    OptionGroup RadioGroupIP
-                    For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
-                        If ADMIN_worker_list_array(case_status_const, worker_indc) = "IP" Then
-                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold'', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
-                            y_pos = y_pos + 10
-
-                        End If
-                    Next
-                End If
-                y_pos = y_pos + 5
-
-                Text 40, y_pos, 140, 10, "Reviews on Hold: " & admin_count_HD
-                PushButton 190, y_pos, 130, 13, "Release Hold Assignments", release_HD_btn
-                y_pos = y_pos + 15
-                If IsArray(HD_id_ARRAY) = True then
-                    OptionGroup RadioGroupHD
-                    For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
-                        If ADMIN_worker_list_array(case_status_const, worker_indc) = "HD" Then
-                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
-                            y_pos = y_pos + 10
-
-                        End If
-                    Next
-                End If
-                y_pos = y_pos + 5
-
-                Text 40, y_pos, 145, 10, "Reviews Completed: " & admin_count_RC
-                PushButton 190, y_pos, 130, 13, "Run Finish Day", finish_day_btn
-                y_pos = y_pos + 15
-                If IsArray(RC_id_ARRAY) = True then
-                    OptionGroup RadioGroupRC
-                    For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
-                        If ADMIN_worker_list_array(case_status_const, worker_indc) = "RC" Then
-                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
-                            y_pos = y_pos + 10
-
-                        End If
-                    Next
-                End If
-                y_pos = y_pos + 5
-
-                OkButton 335, 160, 50, 15
-                CancelButton 390, 160, 50, 15
-                EditBox 500, 300, 50, 15, fake_edit_box
-            EndDialog
-
-            Dialog Dialog1
-            cancel_without_confirmation
-
-
-            worker_number_to_resolve = ""
-            If ButtonPressed = release_IP_btn Then
-                MsgBox "RadioGroupIP - " & RadioGroupIP
-                For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
-                    If RadioGroupIP = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
-                Next
-            ElseIf ButtonPressed = release_HD_btn Then
-                MsgBox "RadioGroupHD - " & RadioGroupHD
-                For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
-                    If RadioGroupHD = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
-                Next
-            ElseIf ButtonPressed = finish_day_btn Then
-                MsgBox "RadioGroupRC - " & RadioGroupRC
-                For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
-                    If RadioGroupRC = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
-                Next
-            End If
-
-            MsgBox "worker_number_to_resolve - " & worker_number_to_resolve
-
-            'declare the SQL statement that will query the database
-            objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
-
-            'Creating objects for Access
-            Set objConnection = CreateObject("ADODB.Connection")
-            Set objRecordSet = CreateObject("ADODB.Recordset")
-
-            'This is the file path for the statistics Access database.
-            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-            objRecordSet.Open objSQL, objConnection
-
-            Do While NOT objRecordSet.Eof
-                case_tracking_notes = objRecordSet("TrackingNotes")
-
-                If ButtonPressed = release_IP_btn Then
-                    If Instr(case_tracking_notes, "STS-IP") Then
-                        If Instr(case_tracking_notes, worker_number_to_resolve) <> 0 Then
-                            case_review_notes = replace(case_review_notes, "STS-IP-"&worker_number_to_resolve, "")
-                            case_review_notes = replace(case_review_notes, "STS-HD-"&worker_number_to_resolve, "")
-                            case_review_notes = replace(case_review_notes, "STS-RC-"&worker_number_to_resolve, "")
-                            case_review_notes = replace(case_review_notes, "STS-RC", "")
-                            case_review_notes = trim(case_review_notes)
-                            case_review_notes = "STS-NR " & case_review_notes
-                            case_review_notes = trim(case_review_notes)
-
-                            objRecordSet.Update "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "'", objConnection
-
-                        End If
-                    End if
-                ElseIf ButtonPressed = release_HD_btn Then
-                ElseIf ButtonPressed = finish_day_btn Then
-                End If
-
-                objRecordSet.MoveNext
-
-
-            Loop
-
-
-            'close the connection and recordset objects to free up resources
-            objRecordSet.Close
-            objConnection.Close
-            Set objRecordSet=nothing
-            Set objConnection=nothing
-	    Loop until err_msg = ""
-	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-	Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-end function
-
-function create_assignment_report()
-
-
-    'Access the SQL Table
-    'declare the SQL statement that will query the database
-    objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
-
-    'Creating objects for Access
-    Set objConnection = CreateObject("ADODB.Connection")
-    Set objRecordSet = CreateObject("ADODB.Recordset")
-
-    'This is the file path for the statistics Access database.
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-    objRecordSet.Open objSQL, objConnection
-
-    cases_completed_by_me = 0
-    Do While NOT objRecordSet.Eof
-        case_tracking_notes = objRecordSet("TrackingNotes")
-
-        If Instr(case_tracking_notes, "STS-RC-"&user_ID_for_verification) <> 0 Then
-
-            ReDim Preserve COMPLETED_REVIEWS_ARRAY(final_const, cases_completed_by_me)
-
-            COMPLETED_REVIEWS_ARRAY(case_number_const, cases_completed_by_me)                             = objRecordSet("CaseNumber")
-            COMPLETED_REVIEWS_ARRAY(assigned_case_name_const, cases_completed_by_me)                      = objRecordSet("CaseName")
-            COMPLETED_REVIEWS_ARRAY(assigned_application_date_const, cases_completed_by_me)               = objRecordSet("ApplDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_interview_date_const, cases_completed_by_me)                 = objRecordSet("InterviewDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_day_30_const, cases_completed_by_me)                         = objRecordSet("Day_30")
-            COMPLETED_REVIEWS_ARRAY(assigned_days_pending_const, cases_completed_by_me)                   = objRecordSet("DaysPending")
-            COMPLETED_REVIEWS_ARRAY(assigned_snap_status_const, cases_completed_by_me)                    = objRecordSet("SnapStatus")
-            COMPLETED_REVIEWS_ARRAY(assigned_cash_status_const, cases_completed_by_me)                    = objRecordSet("CashStatus")
-            COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_const, cases_completed_by_me)           = objRecordSet("SecondApplicationDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_rept_pnd2_days_const, cases_completed_by_me)                 = objRecordSet("REPT_PND2Days")
-            COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_const, cases_completed_by_me)         = objRecordSet("QuestionableInterview")
-            COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_resolve_const, cases_completed_by_me) = objRecordSet("Resolved")
-            COMPLETED_REVIEWS_ARRAY(assigned_appt_notice_date_const, cases_completed_by_me)               = objRecordSet("ApptNoticeDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_appt_date_const, cases_completed_by_me)                      = objRecordSet("ApptDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_appt_notc_confirmation_const, cases_completed_by_me)         = objRecordSet("Confirmation")
-            COMPLETED_REVIEWS_ARRAY(assigned_nomi_date_const, cases_completed_by_me)                      = objRecordSet("NOMIDate")
-            COMPLETED_REVIEWS_ARRAY(assigned_nomi_confirmation_const, cases_completed_by_me)              = objRecordSet("Confirmation2")
-            COMPLETED_REVIEWS_ARRAY(assigned_denial_needed_const, cases_completed_by_me)                  = objRecordSet("DenialNeeded")
-            COMPLETED_REVIEWS_ARRAY(assigned_next_action_needed_const, cases_completed_by_me)             = objRecordSet("NextActionNeeded")
-            COMPLETED_REVIEWS_ARRAY(assigned_added_to_work_list_const, cases_completed_by_me)             = objRecordSet("AddedtoWorkList")
-            COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_resolve_const, cases_completed_by_me)   = objRecordSet("SecondApplicationDateNotes")
-            COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_const, cases_completed_by_me)                = objRecordSet("ClosedInPast30Days")
-            COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_resolve_const, cases_completed_by_me)        = objRecordSet("ClosedInPast30DaysNotes")
-            COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_const, cases_completed_by_me)                  = objRecordSet("StartedOutOfCounty")
-            COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_resolve_const, cases_completed_by_me)          = objRecordSet("StartedOutOfCountyNotes")
-            COMPLETED_REVIEWS_ARRAY(case_review_notes_const, cases_completed_by_me)                       = objRecordSet("TrackingNotes")
-
-            cases_completed_by_me = cases_completed_by_me + 1
-
-        End If
-        objRecordSet.MoveNext
-    Loop
-
-    'close the connection and recordset objects to free up resources
-    objRecordSet.Close
-    objConnection.Close
-    Set objRecordSet=nothing
-    Set objConnection=nothing
-
-    file_url = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
-    Call excel_open(file_url, True, False, ObjExcel, objWorkbook)
-
-    excel_row = 2
-
-    Do While trim(ObjExcel.Cells(excel_row, Worker_col).value) <> ""
-	    excel_row = excel_row + 1
-    Loop
-    ' MsgBox "We are starting at excel row " & excel_row
-
-    For review = 0 to UBound(COMPLETED_REVIEWS_ARRAY, 2)
-        MAXIS_case_number = COMPLETED_REVIEWS_ARRAY(case_number_const, review)
-        ' assigned_worker  = ""
-        ' user_ID_for_validation  = ""
-        assigned_date  = ""
-        assigned_start_time  = ""
-        assigned_end_time  = ""
-        assigned_hold_1_start_time  = ""
-        assigned_hold_1_end_time  = ""
-        assigned_hold_2_start_time  = ""
-        assigned_hold_2_end_time  = ""
-        assigned_hold_3_start_time  = ""
-        assigned_hold_3_end_time  = ""
-        od_revw_tracking_file_path = ""
-
-        txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
-        od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
-        ' MsgBox "od_revw_tracking_file_path - " & od_revw_tracking_file_path
-        Call read_tracking_cookie
-
-        ' COMPLETED_REVIEWS_ARRAY(assigned_worker_const, review) = assigned_worker
-        ' COMPLETED_REVIEWS_ARRAY(assigned_date_const, review) = assigned_date
-        ' COMPLETED_REVIEWS_ARRAY(assigned_start_time_const, review) = assigned_start_time
-        ' COMPLETED_REVIEWS_ARRAY(assigned_end_time_const, review) = assigned_end_time
-        ' COMPLETED_REVIEWS_ARRAY(assigned_hold_1_start_time_const, review) = assigned_hold_1_start_time
-        ' COMPLETED_REVIEWS_ARRAY(assigned_hold_1_end_time_const, review) = assigned_hold_1_end_time
-        ' COMPLETED_REVIEWS_ARRAY(assigned_hold_2_start_time_const, review) = assigned_hold_2_start_time
-        ' COMPLETED_REVIEWS_ARRAY(assigned_hold_2_end_time_const, review) = assigned_hold_2_end_time
-        ' COMPLETED_REVIEWS_ARRAY(assigned_hold_3_start_time_const, review) = assigned_hold_3_start_time
-        ' COMPLETED_REVIEWS_ARRAY(assigned_hold_3_end_time_const, review) = assigned_hold_3_end_time
-
-        case_review_notes = COMPLETED_REVIEWS_ARRAY(case_review_notes_const, review)
-        case_review_notes = replace(case_review_notes, "STS-IP-"&user_ID_for_validation, "")
-        case_review_notes = replace(case_review_notes, "STS-HD-"&user_ID_for_validation, "")
-        case_review_notes = replace(case_review_notes, "STS-RC-"&user_ID_for_validation, "")
-        case_review_notes = replace(case_review_notes, "STS-RC", "")
-        case_review_notes = trim(case_review_notes)
-
-
-        ObjExcel.Cells(excel_row, Worker_col).value = assigned_worker
-        ObjExcel.Cells(excel_row, AssignedDate_col).value = assigned_date
-        ObjExcel.Cells(excel_row, CaseNumber_col).value = COMPLETED_REVIEWS_ARRAY(case_number_const, review)
-        ObjExcel.Cells(excel_row, CaseName_col).value = COMPLETED_REVIEWS_ARRAY(assigned_case_name_const, review)
-        ObjExcel.Cells(excel_row, ApplDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_application_date_const, review)
-        ObjExcel.Cells(excel_row, InterviewDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_interview_date_const, review)
-        ObjExcel.Cells(excel_row, Day_30_dash_col).value = COMPLETED_REVIEWS_ARRAY(assigned_day_30_const, review)
-        ObjExcel.Cells(excel_row, DaysPending_col).value = COMPLETED_REVIEWS_ARRAY(assigned_days_pending_const, review)
-        ObjExcel.Cells(excel_row, SnapStatus_col).value = COMPLETED_REVIEWS_ARRAY(assigned_snap_status_const, review)
-        ObjExcel.Cells(excel_row, CashStatus_col).value = COMPLETED_REVIEWS_ARRAY(assigned_cash_status_const, review)
-        ObjExcel.Cells(excel_row, SecondApplicationDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_const, review)
-        ObjExcel.Cells(excel_row, REPT_PND2Days_col).value = COMPLETED_REVIEWS_ARRAY(assigned_rept_pnd2_days_const, review)
-        ObjExcel.Cells(excel_row, QuestionableInterview_col).value = COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_const, review)
-        ObjExcel.Cells(excel_row, Resolved_col).value = COMPLETED_REVIEWS_ARRAY(assigned_questionable_interview_resolve_const, review)
-        ObjExcel.Cells(excel_row, ApptNoticeDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_appt_notice_date_const, review)
-        ObjExcel.Cells(excel_row, ApptDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_appt_date_const, review)
-        ObjExcel.Cells(excel_row, Confirmation_col).value = COMPLETED_REVIEWS_ARRAY(assigned_appt_notc_confirmation_const, review)
-        ObjExcel.Cells(excel_row, NOMIDate_col).value = COMPLETED_REVIEWS_ARRAY(assigned_nomi_date_const, review)
-        ObjExcel.Cells(excel_row, Confirmation2_col).value = COMPLETED_REVIEWS_ARRAY(assigned_nomi_confirmation_const, review)
-        ObjExcel.Cells(excel_row, DenialNeeded_col).value = COMPLETED_REVIEWS_ARRAY(assigned_denial_needed_const, review)
-        ObjExcel.Cells(excel_row, NextActionNeeded_col).value = COMPLETED_REVIEWS_ARRAY(assigned_next_action_needed_const, review)
-        ObjExcel.Cells(excel_row, AddedtoWorkList_col).value = COMPLETED_REVIEWS_ARRAY(assigned_added_to_work_list_const, review)
-        ObjExcel.Cells(excel_row, SecondApplicationDateNotes_col).value = COMPLETED_REVIEWS_ARRAY(assigned_2nd_application_date_resolve_const, review)
-        ObjExcel.Cells(excel_row, ClosedInPast30Days_col).value = COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_const, review)
-        ObjExcel.Cells(excel_row, ClosedInPast30DaysNotes_col).value = COMPLETED_REVIEWS_ARRAY(assigned_closed_recently_resolve_const, review)
-        ObjExcel.Cells(excel_row, StartedOutOfCounty_col).value = COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_const, review)
-        ObjExcel.Cells(excel_row, StartedOutOfCountyNotes_col).value = COMPLETED_REVIEWS_ARRAY(assigned_out_of_county_resolve_const, review)
-        ObjExcel.Cells(excel_row, TrackingNotes_col).value = case_review_notes
-        ObjExcel.Cells(excel_row, CaseSelectedTime_col).value = assigned_start_time
-        ObjExcel.Cells(excel_row, Hold1Start_col).value = assigned_hold_1_start_time
-        ObjExcel.Cells(excel_row, Hold1End_col).value = assigned_hold_1_end_time
-        ObjExcel.Cells(excel_row, Hold2Start_col).value = assigned_hold_2_start_time
-        ObjExcel.Cells(excel_row, Hold2End_col).value = assigned_hold_2_end_time
-        ObjExcel.Cells(excel_row, Hold3Start_col).value = assigned_hold_3_start_time
-        ObjExcel.Cells(excel_row, Hold3End_col).value = assigned_hold_3_end_time
-        ObjExcel.Cells(excel_row, CaseCompletedTime_col).value = assigned_end_time
-
-        excel_row = excel_row + 1
-        ' MsgBox "excel_row - " & excel_row
-
-        If local_demo = False Then
-            'Creating objects for Access
-            Set objConnection = CreateObject("ADODB.Connection")
-            Set objRecordSet = CreateObject("ADODB.Recordset")
-
-            'This is the BZST connection to SQL Database'
-            objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-            ' objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
-            ' objRecordSet.Open objSQL, objConnection
-
-            'delete a record if the case number matches
-            objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
-
-
-
-            ' objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', CaseName = '" & assigned_case_name & "', ApplDate = '" & assigned_application_date & "', InterviewDate = '" & assigned_interview_date & "', "Day_30" = '" & assigned_day_30 & "', "DaysPending" = '" & assigned_days_pending & "', SnapStatus = '" & assigned_snap_status & "', CashStatus = '" & assigned_cash_status & "', SecondApplicationDate = '" & assigned_2nd_application_date & "', REPT_PND2Days = '" & assigned_rept_pnd2_days & "', QuestionableInterview = '" & assigned_questionable_interview & "', Resolved = '" & assigned_questionable_interview_resolve & "', ApptNoticeDate = '" & assigned_appt_notice_date & "', ApptDate = '" & assigned_appt_date & "', Confirmation = '" & assigned_appt_notc_confirmation & "', NOMIDate = '" & assigned_nomi_date & "', Confirmation2 = '" & assigned_nomi_confirmation & "', DenialNeeded = '" & assigned_denial_needed & "', NextActionNeeded = '" & assigned_next_action_needed & "', AddedtoWorkList = '" & assigned_added_to_work_list & "', SecondApplicationDateNotes = '" & assigned_2nd_application_date_resolve & "', ClosedInPast30Days = '" & assigned_closed_recently & "', ClosedInPast30DaysNotes = '" & assigned_closed_recently_resolve & "', StartedOutOfCounty = '" & assigned_out_of_county & "', StartedOutOfCountyNotes = '" & assigned_out_of_county_resolve & "', TrackingNotes = '" & assigned_tracking_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
-
-            'close the connection and recordset objects to free up resources
-            ' objRecordSet.Close
-            objConnection.Close
-            Set objRecordSet=nothing
-            Set objConnection=nothing
-        End If
-
-        With objFSO
-            If .FileExists(od_revw_tracking_file_path) = True then
-                .DeleteFile(od_revw_tracking_file_path)
-            End If
-        End With
-    Next
-
-    objWorkbook.Save()		'saving the excel
-    ObjExcel.ActiveWorkbook.Close
-
-    ObjExcel.Application.Quit
-    ObjExcel.Quit
-
-	main_email_subject = "On Demand Daily Case Review Completed"
-
-    main_email_body = "The On Demand Appplication Reviews have been completed for " & date & "."
-    main_email_body = main_email_body & vbCr & "Completed by: " & assigned_worker
-    main_email_body = main_email_body & vbCr & vbCr & "Number of cases reviewed: " & UBound(COMPLETED_REVIEWS_ARRAY, 2)+1
-    main_email_body = main_email_body & vbCr & "On Demand Case Reviews completed for the day."
-    main_email_body = main_email_body & vbCr & vbCr & "Details of the reviews are logged here:"
-    main_email_body = main_email_body & vbCr & "<" & file_url & ">"
-
-    ' main_email_body = main_email_body & vbCr & vbCr & "Work assignment assesment: " & assignment_assesment
-    ' main_email_body = main_email_body & vbCr & vbCr & "Length of assignment: " & assignment_hours & " hours and " & assignment_minutes & " minutes."
-
-    ' assignment_case_numbers_to_save = trim(assignment_case_numbers_to_save)
-    ' assignment_new_ideas = trim(assignment_new_ideas)
-    ' If assignment_case_numbers_to_save <> "" Then
-    '     main_email_body = main_email_body & vbCr & vbCr & "Case numbers to discuss sent to QI email to be added to meeting agenda. Case numbers:"
-    '     main_email_body = main_email_body & vbCr & assignment_case_numbers_to_save
-
-    '     case_numbers_email_body = case_numbers_email_body & vbCr & assignment_case_numbers_to_save
-    '     case_numbers_email_body = case_numbers_email_body & vbCr & vbCR & "These cases should be reviewed by the whole QI team and follow up decisions made."
-    '     case_numbers_email_body = case_numbers_email_body & vbCr & vbCr & "------"
-    '     case_numbers_email_body = case_numbers_email_body & vbCr & email_signature
-    '     STATS_manualtime = STATS_manualtime + 120
-    ' End If
-    ' If assignment_new_ideas <> "" Then
-    '     main_email_body = main_email_body & vbCr & vbCr & "New ideas for statistics to gather sent to the BZST. Ideas:"
-    '     main_email_body = main_email_body & vbCr & assignment_new_ideas
-
-    '     ideas_email_body = ideas_email_body & vbCr & assignment_new_ideas
-    '     ideas_email_body = ideas_email_body & vbCr & vbCr & "------"
-    '     ideas_email_body = ideas_email_body & vbCr & email_signature
-    '     STATS_manualtime = STATS_manualtime + 120
-    ' End If
-    main_email_body = main_email_body & vbCr & vbCr & "------"
-    main_email_body = main_email_body & vbCr & qi_worker_first_name
-
-    CALL create_outlook_email(qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", main_email_subject, main_email_body, "", TRUE)
-    ' CALL create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "", main_email_subject, main_email_body, "", TRUE)
-end function
-
-'TODO create an ADMIN role for this script to be able to close any case on hold or pull completed tasks by another worker to the spreadsheet
-'TODO create a function to set the initial cookie when the case is assigned.
-'TODO update the function to update the cookie when the case review is completed to remove all of the details - since it will be in the SQL table and not needed in the cookie. The cookie should only have review details for cases on hold.
-'TODO make sure the function to read the cookie saves the info to the right variables to be used throughout the script. Also make sure all the variables are defined.
-function update_qi_worklist_at_end_of_working_day()
-    'Identify if this is an ADMIN worker
-    'read through the SQL table to gather all the cases with reviews completed by the current worker.
-    'Open the tracking Excel sheet
-    'for each case that was completed by the worker running the script, the case will be added to the spreadsheet
-    'LEAVE SPACE TO ADD HANDLING FOR SEPERATING THE REPORTS BY TIME OR WORKER IF NEEDED
-    'once the case is added to the tracking sheet, read the cookie and add the time details to the spreadsheet then delete the cookie
-    'If the case requires follow up, update SQL to indicate follow up is needed in the next day.
-    'remove the review information from the tracking notes in SQL
-    '
-    '
-end function
-
-function merge_worklist_to_SQL()
-    'setting up information and variables for accessing yesterday's worklist
-    previous_date = dateadd("d", -1, date)
-    Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
-    archive_folder = DatePart("yyyy", previous_date) & "-" & right("0" & DatePart("m", previous_date), 2)
-
-    previous_date_month = DatePart("m", previous_date)
-    previous_date_day = DatePart("d", previous_date)
-    previous_date_year = DatePart("yyyy", previous_date)
-    previous_date_header = previous_date_month & "-" & previous_date_day & "-" & previous_date_year
-
-    'setting up file paths for accessing yesterday's worklist
-    archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\" & archive_folder
-
-    previous_list_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & previous_date_header & " Worklist.xlsx"
-    Call File_Exists(previous_list_file_selection_path, does_file_exist)
-    previous_worksheet_header = "Work List for " & previous_date_month & "-" & previous_date_day & "-" & previous_date_year
-
-	yesterday_case_list = 0
-
-	If does_file_exist = True Then
-		'open the file
-		call excel_open(previous_list_file_selection_path, True, False, ObjYestExcel, objYestWorkbook)
-
-		' objYestWorkbook.Worksheets("Statistics").visible = True
-		' objYestWorkbook.worksheets("Statistics").Activate
-		' yesterday_worker = ObjYestExcel.Cells(2, 2).Value
-
-		objYestWorkbook.worksheets(previous_worksheet_header).Activate
-
-		' objYestWorkbook.Worksheets("Statistics").visible = False
-
-		'Pull info into a NEW array of prevvious day work.
-		xl_row = 2
-		Do
-			this_case = trim(ObjYestExcel.Cells(xl_row, 2).Value)
-			If this_case <> "" Then
-                worklist_notes = ""
-                yesterday_list_case_number = trim(ObjYestExcel.Cells(xl_row, 2).Value)
-                yesterday_notes = replace(ObjYestExcel.Cells(xl_row, 23).Value, "FOLLOW UP NEEDED", "")
-                yesterday_notes = replace(yesterday_notes, "  ", " ")
-                yesterday_notes = replace(yesterday_notes, "'", "")
-                yesterday_notes = trim(yesterday_notes)
-                yesterday_action = ObjYestExcel.Cells(xl_row, 22).Value
-                yesterday_action = trim(yesterday_action)
-                If yesterday_action = "FOLLOW UP NEEDED" Then worklist_notes = trim(yesterday_action) & " - " & yesterday_notes
-                If yesterday_action <> "FOLLOW UP NEEDED" Then worklist_notes = yesterday_notes
-
-                'Creating objects for Access
-                Set objConnection = CreateObject("ADODB.Connection")
-                Set objRecordSet = CreateObject("ADODB.Recordset")
-
-                'This is the BZST connection to SQL Database'
-                objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-                ' objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
-                ' objRecordSet.Open objSQL, objConnection
-
-                'delete a record if the case number matches
-                objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & worklist_notes & "' WHERE CaseNumber = '" & yesterday_list_case_number & "'", objConnection
-
-                ' objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', CaseName = '" & assigned_case_name & "', ApplDate = '" & assigned_application_date & "', InterviewDate = '" & assigned_interview_date & "', "Day_30" = '" & assigned_day_30 & "', "DaysPending" = '" & assigned_days_pending & "', SnapStatus = '" & assigned_snap_status & "', CashStatus = '" & assigned_cash_status & "', SecondApplicationDate = '" & assigned_2nd_application_date & "', REPT_PND2Days = '" & assigned_rept_pnd2_days & "', QuestionableInterview = '" & assigned_questionable_interview & "', Resolved = '" & assigned_questionable_interview_resolve & "', ApptNoticeDate = '" & assigned_appt_notice_date & "', ApptDate = '" & assigned_appt_date & "', Confirmation = '" & assigned_appt_notc_confirmation & "', NOMIDate = '" & assigned_nomi_date & "', Confirmation2 = '" & assigned_nomi_confirmation & "', DenialNeeded = '" & assigned_denial_needed & "', NextActionNeeded = '" & assigned_next_action_needed & "', AddedtoWorkList = '" & assigned_added_to_work_list & "', SecondApplicationDateNotes = '" & assigned_2nd_application_date_resolve & "', ClosedInPast30Days = '" & assigned_closed_recently & "', ClosedInPast30DaysNotes = '" & assigned_closed_recently_resolve & "', StartedOutOfCounty = '" & assigned_out_of_county & "', StartedOutOfCountyNotes = '" & assigned_out_of_county_resolve & "', TrackingNotes = '" & assigned_tracking_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
-
-                'close the connection and recordset objects to free up resources
-                ' objRecordSet.Close
-                objConnection.Close
-                Set objRecordSet=nothing
-                Set objConnection=nothing
-
-			End If
-            xl_row = xl_row + 1
-		Loop until this_case = ""
-
-		'close the file
-		ObjYestExcel.ActiveWorkbook.Close
-		ObjYestExcel.Application.Quit
-		ObjYestExcel.Quit
-
-	End If
-    Call script_end_procedure("Clean Up Completed")
-end function
-
-' assigned_date
-' assigned_start_time
-' assigned_end_time
-' assigned_hold_1_start_time
-' assigned_hold_1_end_time
-' assigned_hold_2_start_time
-' assigned_hold_2_end_time
-' assigned_hold_3_start_time
-' assigned_hold_3_end_time
-
-MAXIS_case_number  = ""
-assigned_worker  = ""
-assigned_date  = ""
-assigned_start_time  = ""
-assigned_end_time  = ""
-assigned_hold_1_start_time  = ""
-assigned_hold_1_end_time  = ""
-assigned_hold_2_start_time  = ""
-assigned_hold_2_end_time  = ""
-assigned_hold_3_start_time  = ""
-assigned_hold_3_end_time  = ""
-
-current_day_work_tracking_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\WIP\"
-'txt file name format
-' USERID-MM-DD-YY-CASENUMBER
-curr_day = DatePart("d", date)
-curr_day = right("00" & curr_day, 2)
-file_date = CM_mo & "-" & curr_day & "-" & CM_yr
-
-txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
-od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
-
-' txt_file_name = "expedited_determination_detail_" & MAXIS_case_number & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
-' MsgBox exp_info_file_path
-end_msg = "Script Run is completed."
-
-'BUTTONS'
-complete_bulk_run_btn   = 1001
-bulk_run_details_btn    = 1002
-bulk_run_incomplete_btn = 1003
-get_new_case_btn        = 2001
-work_list_details_btn   = 2002
-resume_hold_case_btn    = 2003
-complete_review_btn     = 2004
-hold_case_btn           = 2005
-finish_work_day_btn     = 3001
-test_access_btn         = 4001
-close_dialog_btn        = 5001
-release_IP_btn          = 6001
-release_HD_btn          = 6002
-finish_day_btn          = 6003
-
-' STS-NR            'Status - Needs Review'
-' STS-RC            'Status - Review Completed'
-' STS-IP-WFXXXX     'Status - In Progress - Worker number'
-' STS-HD-WFXXXX     'Status - HolD - Worker number'
-' STS-NL            'Status - NULL'
-
-ADMIN_run = False
-BULK_Run_completed = False
-worker_on_task = False
-total_cases_for_review = 0
-cases_with_review_completed = 0
-cases_waiting_for_review = 0
-cases_on_hold = 0
-case_nbr_in_progress = ""
-
-const case_nbr_const    = 0
-const radio_btn_const   = 1
-const case_notes_const  = 2
-const last_const        = 10
-
-Dim CASES_ON_HOLD_ARRAY()
-ReDim CASES_ON_HOLD_ARRAY(last_const, 0)
-
-const case_number_const                             = 00
-const assigned_worker_const                         = 01
-const assigned_date_const                           = 02
-const assigned_start_time_const                     = 03
-const assigned_end_time_const                       = 04
-const assigned_hold_1_start_time_const              = 05
-const assigned_hold_1_end_time_const                = 06
-const assigned_hold_2_start_time_const              = 07
-const assigned_hold_2_end_time_const                = 08
-const assigned_hold_3_start_time_const              = 09
-const assigned_hold_3_end_time_const                = 10
-const assigned_case_name_const                      = 11
-const assigned_application_date_const               = 12
-const assigned_interview_date_const                 = 13
-const assigned_day_30_const                         = 14
-const assigned_days_pending_const                   = 15
-const assigned_snap_status_const                    = 16
-const assigned_cash_status_const                    = 17
-const assigned_2nd_application_date_const           = 18
-const assigned_rept_pnd2_days_const                 = 19
-const assigned_questionable_interview_const         = 20
-const assigned_questionable_interview_resolve_const = 21
-const assigned_appt_notice_date_const               = 22
-const assigned_appt_date_const                      = 23
-const assigned_appt_notc_confirmation_const         = 24
-const assigned_nomi_date_const                      = 25
-const assigned_nomi_confirmation_const              = 26
-const assigned_denial_needed_const                  = 27
-const assigned_next_action_needed_const             = 28
-const assigned_added_to_work_list_const             = 29
-const assigned_2nd_application_date_resolve_const   = 30
-const assigned_closed_recently_const                = 31
-const assigned_closed_recently_resolve_const        = 32
-const assigned_out_of_county_const                  = 33
-const assigned_out_of_county_resolve_const          = 34
-const case_review_notes_const                       = 35
-const final_const                                   = 50
-
-Dim COMPLETED_REVIEWS_ARRAY()
-ReDim COMPLETED_REVIEWS_ARRAY(final_const, 0)
-
-const Worker_col                        = 1
-const AssignedDate_col                  = 2
-const CaseNumber_col                    = 3
-const CaseName_col                      = 4
-const ApplDate_col                      = 5
-const InterviewDate_col                 = 6
-const Day_30_dash_col                   = 7
-const DaysPending_col                   = 8
-const SnapStatus_col                    = 9
-const CashStatus_col                    = 10
-const SecondApplicationDate_col         = 11
-const REPT_PND2Days_col                 = 12
-const QuestionableInterview_col         = 13
-const Resolved_col                      = 14
-const ApptNoticeDate_col                = 15
-const ApptDate_col                      = 16
-const Confirmation_col                  = 17
-const NOMIDate_col                      = 18
-const Confirmation2_col                 = 19
-const DenialNeeded_col                  = 20
-const NextActionNeeded_col              = 21
-const AddedtoWorkList_col               = 22
-const SecondApplicationDateNotes_col    = 23
-const ClosedInPast30Days_col            = 24
-const ClosedInPast30DaysNotes_col       = 25
-const StartedOutOfCounty_col            = 26
-const StartedOutOfCountyNotes_col       = 27
-const TrackingNotes_col                 = 28
-const CaseSelectedTime_col              = 29
-const Hold1Start_col                    = 30
-const Hold1End_col                      = 31
-const Hold2Start_col                    = 32
-const Hold2End_col                      = 33
-const Hold3Start_col                    = 34
-const Hold3End_col                      = 35
-const CaseCompletedTime_col             = 36
-
-' Worker_col
-' AssignedDate_col
-' CaseNumber_col
-' CaseName_col
-' ApplDate_col
-' InterviewDate_col
-' Day_30_dash_col
-' DaysPending_col
-' SnapStatus_col
-' CashStatus_col
-' SecondApplicationDate_col
-' REPT_PND2Days_col
-' QuestionableInterview_col
-' Resolved_col
-' ApptNoticeDate_col
-' ApptDate_col
-' Confirmation_col
-' NOMIDate_col
-' Confirmation2_col
-' DenialNeeded_col
-' NextActionNeeded_col
-' AddedtoWorkList_col
-' SecondApplicationDateNotes_col
-' ClosedInPast30Days_col
-' ClosedInPast30DaysNotes_col
-' StartedOutOfCounty_col
-' StartedOutOfCountyNotes_col
-' TrackingNotes_col
-' CaseSelectedTime_col
-' Hold1Start_col
-' Hold1End_col
-' Hold2Start_col
-' Hold2End_col
-' Hold3Start_col
-' Hold3End_col
-' CaseCompletedTime_col
-
-
+'If a BZST worker is running this script, there is functionality for running a cleanup or running in DEMMO mode
 If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 271, 70, "BZST ScriptWriter Options"
+    BeginDialog Dialog1, 0, 0, 271, 70, "BZST ScriptWriter Options"                     'dialog to select demo or clean up options
         ButtonGroup ButtonPressed
             OkButton 215, 50, 50, 15
         Text 10, 15, 195, 10, "Do you need to run the On Demand Dashboard in DEMO?"
@@ -1359,18 +1204,14 @@ If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
     dialog Dialog1
 
     If run_demo = "Yes" Then local_demo = True
-    If clean_up_list = "Yes" Then
-        Call merge_worklist_to_SQL
-
-    End If
+    If clean_up_list = "Yes" Then Call merge_worklist_to_SQL
 
     ADMIN_run = True
 End If
-If user_ID_for_validation = "TAPA002" or user_ID_for_validation = "WFX901" or user_ID_for_validation = "WFU851" Then ADMIN_run = True   'Tanya, Faughn, Jen
+'this defines workers that have access to the Admmin functions along with the BZST writers
+If user_ID_for_validation = "TAPA002" or user_ID_for_validation = "WFX901" or user_ID_for_validation = "WFU851" Then ADMIN_run = True   'TP, FRC, JF
 
-EMConnect ""
-Call check_for_MAXIS(True)
-
+'the scripts should have loaded the tester array from GlobVar but if it did not, this will load it
 If IsArray(tester_array) = False Then
     Dim tester_array()
     ReDim tester_array(0)
@@ -1381,25 +1222,9 @@ If IsArray(tester_array) = False Then
     fso_command.Close
     Execute text_from_the_other_script
 End If
-admin_count_NR = 0
-admin_count_RC = 0
-admin_count_IP = 0
-admin_count_HD = 0
-ADMIN_list_workers_RC = "~"
-ADMIN_list_workers_IP = "~"
-ADMIN_list_workers_HD = "~"
 
-const wrkr_id_const         = 0
-const wrkr_name_const       = 1
-const case_status_const     = 2
-const admin_radio_btn_const = 3
-const admin_wrkr_last_const = 4
-
-Dim ADMIN_worker_list_array()
-ReDim ADMIN_worker_list_array(admin_wrkr_last_const, 0)
-
-'TODO - add functionality for QI leadership
-'confirm QI Member'
+'confirm QI Member
+'This script can only be run by members of QI for access reasons. The script is held in the QI section but this is a double check.
 qi_member_identified = False
 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
     ' pulling QI members by supervisor from the Complete List of Testers
@@ -1409,12 +1234,14 @@ For tester = 0 to UBound(tester_array)                         'looping through 
         If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
         If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
         assigned_worker = tester_array(tester).tester_full_name
-        ' MsgBox "user_ID_for_validation - " & user_ID_for_validation & vbCr & "tester_array(tester).tester_id_number - " & tester_array(tester).tester_id_number & vbCr & "qi_member_identified - " & qi_member_identified
     End If
 Next
+'cancelling the script run if a QI member does not run this script
 If qi_member_identified = False Then script_end_procedure("This script can only be operated by a member of core QI due to access restrictions. The script will now end.")
 
-If local_demo = True then end_msg = end_msg & vbCr & "This script run was completed as a DEMO."
+If local_demo = True then end_msg = end_msg & vbCr & "This script run was completed as a DEMO."     'setting the end mmessage to indicate that it was run as a demo
+
+'if not a DEMO the script will read informmation fromm SQL to determmine the functionality of the dashboard.
 If local_demo = False Then
     'Access the SQL Table
     'declare the SQL statement that will query the database
@@ -1438,19 +1265,14 @@ If local_demo = False Then
     first_item_date = DateAdd("d", 0, first_item_date)
     If DateDiff("d", first_item_date, date) = 0 Then BULK_Run_completed = True
     first_item_time = FormatDateTime(first_item_time, 3)
-    ' MsgBox "first_item_change - " & first_item_change & vbCr & "first_item_date - " & first_item_date & vbCr & "first_item_time - " & first_item_time
-    ' BULK_Run_completed = True           'testing option
+
     cases_on_hold_count = 0
-    'BULK Run has been completed'
     If BULK_Run_completed = True Then
-
-
         'Read the whole table
         Do While NOT objRecordSet.Eof
             'count all of today's cases using added to worklist
             case_worklist_date = objRecordSet("AddedtoWorkList")
             case_worklist_date = DateAdd("d", 0, case_worklist_date)
-            ' case_worklist_date = date
             If DateDiff("d", case_worklist_date, date) = 0 Then total_cases_for_review = total_cases_for_review + 1
 
             case_tracking_notes = objRecordSet("TrackingNotes")
@@ -1463,7 +1285,7 @@ If local_demo = False Then
             If Instr(case_tracking_notes, "STS-NR") <> 0 Then cases_waiting_for_review =cases_waiting_for_review + 1
 
             'count cases on hold
-            If Instr(case_tracking_notes, "STS-HD") Then            'TODO - add worker specific holds'
+            If Instr(case_tracking_notes, "STS-HD") Then
                 If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then
                     cases_on_hold = cases_on_hold + 1
                     If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then
@@ -1481,20 +1303,16 @@ If local_demo = False Then
             End If
 
             'find if there is a case 'checked out'
-            ' MsgBox "case_tracking_notes - " & case_tracking_notes
             If Instr(case_tracking_notes, "STS-IP") Then
                 If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then
                     worker_on_task = True
-                    ' MsgBox "case_tracking_notes - " & case_tracking_notes
                     case_nbr_in_progress = objRecordSet("CaseNumber")
-                    'TODO - read all on task information
                     set_variables_from_SQL
-
-                Else
-                    'TODO - handling for another worker'
+                    'NOTE - if another worker has a case in progress, it will not show for the current worker, but it will show in the ADMIN function
                 End If
             End If
 
+            'If we are running as an ADMIN, the script needs to collect some additional information about the status of the cases.
             If ADMIN_run = True Then
                 RC_id_start = ""
                 HD_id_start = ""
@@ -1522,10 +1340,8 @@ If local_demo = False Then
                     If InStr(ADMIN_list_workers_IP, "~" & worker_id_IP & "~") = 0 then ADMIN_list_workers_IP = ADMIN_list_workers_IP & worker_id_IP & "~"
                 End If
             End If
-
             objRecordSet.MoveNext
         Loop
-
     End If
 
     'close the connection and recordset objects to free up resources
@@ -1534,6 +1350,7 @@ If local_demo = False Then
     Set objRecordSet=nothing
     Set objConnection=nothing
 
+    'If we are running ADMIN functionality we need to capture additional details from information read from case statuses.
     worker_count = 0
     RCcount = 0
     IPCount = 0
@@ -1547,7 +1364,6 @@ If local_demo = False Then
             For each RC_worker_Id in RC_id_ARRAY
                 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
                     ' pulling QI members by supervisor from the Complete List of Testers
-                    ' MsgBox "tester array id - " & tester_array(tester).tester_id_number & vbCr & "worker_id - " &  RC_worker_Id
                     If tester_array(tester).tester_id_number = RC_worker_Id Then
                         ReDim Preserve ADMIN_worker_list_array(admin_wrkr_last_const, worker_count)
 
@@ -1555,13 +1371,9 @@ If local_demo = False Then
                         ADMIN_worker_list_array(wrkr_name_const, worker_count) = tester_array(tester).tester_first_name
                         ADMIN_worker_list_array(case_status_const, worker_count) = "RC"
                         ADMIN_worker_list_array(admin_radio_btn_const, worker_count) = RCcount
-                        ' ADMIN_worker_list_array(admin_wrkr_last_const, worker_count) =
-
-                        ' RC_worker_Id = tester_array(tester).tester_first_name & " - " & RC_worker_Id
 
                         worker_count = worker_count + 1
                         RCcount = RCcount + 1
-                        'tester_array(tester).tester_full_name
                     End If
                 Next
             Next
@@ -1584,8 +1396,6 @@ If local_demo = False Then
 
                         worker_count = worker_count + 1
                         HDCount = HDCount + 1
-                        ' HD_worker_Id = tester_array(tester).tester_first_name & " - " & HD_worker_Id
-                        'tester_array(tester).tester_full_name
                     End If
                 Next
             Next
@@ -1608,14 +1418,12 @@ If local_demo = False Then
 
                         worker_count = worker_count + 1
                         IPCount = IPCount + 1
-                        ' IP_worker_Id = tester_array(tester).tester_first_name & " - " & IP_worker_Id
-                        'tester_array(tester).tester_full_name
                     End If
                 Next
             Next
         End If
     End If
-Else
+Else                            'if we are running in DEMO mode, we don't read the table - we have a dialog to select the process to view.
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 191, 85, "On Demand Demo"
       DropListBox 10, 25, 175, 45, "Select One..."+chr(9)+"Complete BULK Run"+chr(9)+"Select New Case"+chr(9)+"Case in Progress", demo_process
@@ -1633,12 +1441,13 @@ Else
     dialog Dialog1
     cancel_without_confirmation
 
-    If trim(cases_on_hold) = "" Then cases_on_hold = 0
+    If trim(cases_on_hold) = "" Then cases_on_hold = 0                                  'formatting some of the information from this dialog.
     If trim(reviews_complete) = "" Then reviews_complete = 0
 
     cases_with_review_completed = reviews_complete * 1
     cases_on_hold = cases_on_hold * 1
 
+    'now we have to make some case numbers to list fake cases on hold.
     If cases_on_hold <> 0 Then
         case_numb = 202151
         For case_hold_count = 1 to cases_on_hold
@@ -1652,8 +1461,9 @@ Else
         Next
     End If
 
-    cases_waiting_for_review = total_cases_for_review - cases_with_review_completed
+    cases_waiting_for_review = total_cases_for_review - cases_with_review_completed         'doing some math
 
+    'setting the booleans for the rest of the script run.
     If demo_process = "Complete BULK Run" Then
         BULK_Run_completed = False
         worker_on_task = False
@@ -1669,7 +1479,8 @@ Else
     End If
 End If
 
-If BULK_Run_completed = False Then
+'Here is where the script will decide which dialog to display in the process step for the day.
+If BULK_Run_completed = False Then                  'if the main run has not happened yet, we start here.
     Do
         Do
             Dialog1 = ""
@@ -1694,9 +1505,10 @@ If BULK_Run_completed = False Then
             dialog Dialog1
             cancel_without_confirmation
 
+            'each button takes us to a different process step
             If ButtonPressed = bulk_run_details_btn Then MsgBox "More details will be here" 'TODO - add BULK Run Explanation'
-            If ButtonPressed = test_access_btn Then Call test_sql_access()
-            If ButtonPressed = complete_bulk_run_btn Then
+            If ButtonPressed = test_access_btn Then Call test_sql_access()      'quick access functionality to make sure the worker has the correct permissions
+            If ButtonPressed = complete_bulk_run_btn Then                       'if it is selected to start the BULK run, this will check for production and open the On Demand Applications script.
                 If local_demo = True Then call script_end_procedure("The script would now run the the On Demand Applications script")
                 If local_demo = False Then
                     Call back_to_SELF
@@ -1706,49 +1518,11 @@ If BULK_Run_completed = False Then
                     Call run_from_GitHub(script_repository & "admin\" & "on-demand-waiver-applications.vbs")
                 End If
             End If
-            If ButtonPressed = admin_btn Then call complete_admin_functions
+            If ButtonPressed = admin_btn Then call complete_admin_functions      'this opens the admin information and details
         Loop
         CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 End If
-' If local_demo = False and BULK_Run_completed = True Then
-'     Dialog1 = ""
-'     BeginDialog Dialog1, 0, 0, 451, 235, "On Demand Applications Dashboard"
-'       EditBox 500, 600, 50, 15, fake_edit_box
-'       Text 20, 170, 155, 10, "Review Functionality is not yet supported."
-'       ButtonGroup ButtonPressed
-'         PushButton 375, 5, 65, 15, "Test Access", test_access_btn
-'         PushButton 330, 80, 105, 15, "Restart the BULK Run", bulk_run_incomplete_btn
-'         CancelButton 390, 215, 50, 15
-'       Text 170, 10, 135, 10, "On Demand Applications Dashboard"
-'       GroupBox 10, 25, 430, 75, "Applications BULK Run"
-'       Text 20, 40, 170, 10, "The BULK run was last completed on " & first_item_date &" ."
-'       Text 190, 40, 200, 10, "The BULK Run was completed today around " & first_item_time &" ."
-'       Text 20, 55, 305, 10, "The BULK Run can only be completed once per day. The Work List is ready to be reviewed."
-'       Text 40, 65, 305, 10, "- The worklist is held in a SQL Table and can only be viewed through this Dashboard script. "
-'       Text 40, 75, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
-'       Text 140, 85, 190, 10, "If the BULK Run was not completed, you can restart here:"
-'       GroupBox 10, 105, 430, 40, "Work List Overview"
-'       Text 20, 120, 115, 10, "Total cases on the worklist: " & total_cases_for_review
-'       Text 220, 120, 130, 10, "Cases with Review Completed: " & cases_with_review_completed
-'       Text 215, 130, 135, 10, "Cases with Reviews In Progress: " & cases_on_hold
-'       GroupBox 10, 150, 430, 55, "Reviews"
-'     EndDialog
-
-'     dialog Dialog1
-'     cancel_without_confirmation
-
-'     If ButtonPressed = test_access_btn Then Call test_sql_access()
-'     If ButtonPressed = bulk_run_incomplete_btn Then
-'         Call back_to_SELF
-'         EMReadScreen MX_region, 10, 22, 48
-'         MX_region = trim(MX_region)
-'         If MX_region <> "PRODUCTION" Then Call script_end_procedure("You have selected to complete the BULK Run for On Demand but you are not in production. The script will now end. Move to PRODUCTION and run On Demand Dashboard again.")
-'         Call run_from_GitHub(script_repository & "admin\" & "on-demand-waiver-applications.vbs")
-'     End If
-'     end_early_msg = "The BULK Run for On Demand appears to have been completed today. If this is not true, contact the BlueZone Script Team." & vbCr & vbCr & "Eventually this script will support additional functionality, handling the processing of the worklist. This funcitonality is not yet ready. The script will now end."
-'     Call script_end_procedure(end_early_msg)
-' End If
 
 If worker_on_task = False Then
     If cases_on_hold = 0 Then
@@ -1757,9 +1531,9 @@ If worker_on_task = False Then
                 Dialog1 = ""
                 BeginDialog Dialog1, 0, 0, 451, 235, "On Demand Applications Dashboard"
                   EditBox 500, 600, 50, 15, fake_edit_box
-                  ' Text 20, 170, 155, 10, "*** All Cases have been Pulled for Review ***'"
+                  If total_cases_for_review = cases_with_review_completed Then Text 20, 170, 155, 10, "*** All Cases have been Pulled for Review ***'"
                   ButtonGroup ButtonPressed
-                    PushButton 15, 165, 110, 15, "Pull a case to Review", get_new_case_btn
+                    If total_cases_for_review <> cases_with_review_completed Then PushButton 15, 165, 110, 15, "Pull a case to Review", get_new_case_btn
                     PushButton 285, 70, 140, 10, "More information about the Work List", work_list_details_btn
                     PushButton 10, 215, 105, 15, "Finish Work Day", finish_work_day_btn
                     If ADMIN_run = True Then PushButton 120, 215, 70, 15, "Admin Functions", admin_btn
@@ -1791,7 +1565,6 @@ If worker_on_task = False Then
                 If ButtonPressed = finish_work_day_btn Then
                     Call assess_worklist_to_finish_day
                     If case_on_hold = False and case_in_progress = False Then
-                        ' Call update_qi_worklist_at_end_of_working_day
                         Call create_assignment_report
                     Else
                         loop_dlg_msg = "You cannot finish the work day with cases in progress or on hold." & vbCr
@@ -1814,9 +1587,7 @@ If worker_on_task = False Then
             If MX_region <> "PRODUCTION" Then Call script_end_procedure("You have selected to complete the BULK Run for On Demand but you are not in production. The script will now end. Move to PRODUCTION and run On Demand Dashboard again.")
             Call run_from_GitHub(script_repository & "admin\" & "on-demand-waiver-applications.vbs")
         End If
-
     Else
-
         Do
             Do
                 Dialog1 = ""
@@ -1826,9 +1597,9 @@ If worker_on_task = False Then
                 BeginDialog Dialog1, 0, 0, 451, dlg_len, "On Demand Applications Dashboard"
                   EditBox 500, 600, 50, 15, fake_edit_box
                   ButtonGroup ButtonPressed
-                    PushButton 20, 145, 110, 15, "Pull a case to Review", get_new_case_btn
+                    If total_cases_for_review <> cases_with_review_completed Then PushButton 20, 145, 110, 15, "Pull a case to Review", get_new_case_btn
                     PushButton 375, 20, 65, 15, "Test Access", test_access_btn
-                    'Text 20, 170, 155, 10, "*** All Cases have been Pulled for Review ***"'
+                    If total_cases_for_review = cases_with_review_completed Then Text 20, 150, 155, 10, "*** All Cases have been Pulled for Review ***"'
                   Text 320, 5, 135, 10, "On Demand Applications Dashboard"
                   GroupBox 10, 10, 430, 75, "Applications BULK Run"
                   Text 20, 25, 170, 10, "The BULK run was last completed on " & first_item_date & "."
@@ -1850,10 +1621,6 @@ If worker_on_task = False Then
                         RadioButton 30, y_pos, 300, 10, "CASE # " & CASES_ON_HOLD_ARRAY(case_nbr_const, fold_case) & " - " & CASES_ON_HOLD_ARRAY(case_notes_const, fold_case), CASES_ON_HOLD_ARRAY(radio_btn_const, fold_case)
                         y_pos = y_pos + 10
                     Next
-                    ' RadioButton 30, 175, 120, 10, "CASE # XXXXXXX", case_info_array
-                    ' RadioButton 30, 185, 120, 10, "CASE # XXXXXXX", Radio2
-                    ' RadioButton 30, 195, 120, 10, "CASE # XXXXXXX", Radio3
-                    ' RadioButton 30, 205, 120, 10, "CASE # XXXXXXX", Radio4
                   ButtonGroup ButtonPressed
                     PushButton 330, dlg_len - 45, 105, 15, "Resume selected Hold Case", resume_hold_case_btn
                     PushButton 10, dlg_len - 20, 105, 15, "Finish Work Day", finish_work_day_btn
@@ -1882,8 +1649,6 @@ If worker_on_task = False Then
             CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
         Loop until are_we_passworded_out = false					'loops until user passwords back in
         If ButtonPressed = resume_hold_case_btn Then
-            ' MsgBox "Case Information will be displayed here"            'TODO make functionality for reselecting a HOLD case'
-            ' MsgBox "RadioGroup1 - " & RadioGroup1 & vbCr & "CASE Number - " & CASES_ON_HOLD_ARRAY(case_nbr_const, RadioGroup1)
             resume_case_number = CASES_ON_HOLD_ARRAY(case_nbr_const, RadioGroup1)
             MAXIS_case_number = resume_case_number
             txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
@@ -1903,7 +1668,6 @@ If worker_on_task = False Then
     End If
 End If
 
-' Else        'worker_on_task = True
 If worker_on_task = True Then
 
     If local_demo = True Then
@@ -2113,8 +1877,6 @@ If worker_on_task = True Then
 
         'This is the BZST connection to SQL Database'
         objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-        ' objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
-        ' objRecordSet.Open objSQL, objConnection
 
         'delete a record if the case number matches
         objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', " &_
@@ -2144,19 +1906,11 @@ If worker_on_task = True Then
                                                                           "StartedOutOfCountyNotes = '" & assigned_out_of_county_resolve & "', " &_
                                                                           "TrackingNotes = '" & case_review_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
 
-
-
-        ' objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', CaseName = '" & assigned_case_name & "', ApplDate = '" & assigned_application_date & "', InterviewDate = '" & assigned_interview_date & "', "Day_30" = '" & assigned_day_30 & "', "DaysPending" = '" & assigned_days_pending & "', SnapStatus = '" & assigned_snap_status & "', CashStatus = '" & assigned_cash_status & "', SecondApplicationDate = '" & assigned_2nd_application_date & "', REPT_PND2Days = '" & assigned_rept_pnd2_days & "', QuestionableInterview = '" & assigned_questionable_interview & "', Resolved = '" & assigned_questionable_interview_resolve & "', ApptNoticeDate = '" & assigned_appt_notice_date & "', ApptDate = '" & assigned_appt_date & "', Confirmation = '" & assigned_appt_notc_confirmation & "', NOMIDate = '" & assigned_nomi_date & "', Confirmation2 = '" & assigned_nomi_confirmation & "', DenialNeeded = '" & assigned_denial_needed & "', NextActionNeeded = '" & assigned_next_action_needed & "', AddedtoWorkList = '" & assigned_added_to_work_list & "', SecondApplicationDateNotes = '" & assigned_2nd_application_date_resolve & "', ClosedInPast30Days = '" & assigned_closed_recently & "', ClosedInPast30DaysNotes = '" & assigned_closed_recently_resolve & "', StartedOutOfCounty = '" & assigned_out_of_county & "', StartedOutOfCountyNotes = '" & assigned_out_of_county_resolve & "', TrackingNotes = '" & assigned_tracking_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
-
         'close the connection and recordset objects to free up resources
-        ' objRecordSet.Close
         objConnection.Close
         Set objRecordSet=nothing
         Set objConnection=nothing
     End If
 End If
 
-'TODO add all the updates to Work Assignment Completed Tracking'
-
-' end_msg = "Information here of action requested"
 Call script_end_procedure(end_msg)
