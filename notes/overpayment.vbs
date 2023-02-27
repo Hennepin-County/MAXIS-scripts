@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "NOTES - OVERPAYMENT CLAIM ENTERED.vbs"
+name_of_script = "NOTES - OVERPAYMENT.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 500
