@@ -412,6 +412,44 @@ If send_email = True then Call write_variable_in_case_note("* Email notification
 CALL write_bullet_and_variable_in_case_note("Other notes", other_notes)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
+PF3
+
+'----------------------------------------------------------------------------------------------------For METS CASE Note
+'The METS team is also supposed to create case notes. The following code will read the case note, and replace and copy it to a MS Word document with exemption below (line 425)
+message_array = ""
+Call write_value_and_transmit("X", 5, 3)
+note_row = 4			'Beginning of the case notes
+Do 						'Read each line
+    EMReadScreen note_line, 76, note_row, 3
+    note_line = trim(note_line)
+    If instr(note_line, "METS Case Number") then note_line = "* MAXIS Case Number: " & MAXIS_case_number 'replaces METS Case Number with MAXIS Case number for the METS folks
+    If trim(note_line) = "" Then Exit Do		'Any blank line indicates the end of the case note because there can be no blank lines in a note
+    message_array = message_array & note_line & vbcr		'putting the lines together
+    note_row = note_row + 1
+    If note_row = 18 then 									'End of a single page of the case note
+        EMReadScreen next_page, 7, note_row, 3
+        If next_page = "More: +" Then 						'This indicates there is another page of the case note
+            PF8												'goes to the next line and resets the row to read'\
+            note_row = 4
+        End If
+    End If
+Loop until next_page = "More:  " OR next_page = "       "	'No more pages
+
+'Creates the Word doc
+Set objWord = CreateObject("Word.Application")
+objWord.Visible = True
+Set objDoc = objWord.Documents.Add()
+objWord.Caption = "METS Case Note"
+Set objSelection = objWord.Selection
+objSelection.PageSetup.LeftMargin = 50
+objSelection.PageSetup.RightMargin = 50
+objSelection.PageSetup.TopMargin = 30
+objSelection.PageSetup.BottomMargin = 25
+objSelection.Font.Name = "Calibri"
+objSelection.Font.Size = "14"
+objSelection.ParagraphFormat.SpaceAfter = 0
+objSelection.TypeText "METS Case Note Verbiage - Copy/Paste into METS if needed. If not, close this document w/o saving:" & vbcr & vbcr &
+objSelection.TypeText message_array
 
 If initial_option = "Initial Request" then
     navigate_decision = Msgbox("Do you want to open a Request to APPL useform?", vbQuestion + vbYesNo, "Navigate to Useform?")
