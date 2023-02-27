@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/27/2023", "Changed original procedural search month to go back 6 months vs. 2 months, and updated the file naming convention for ease of use.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/11/2022", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -245,7 +246,7 @@ objWord.Quit
 
 script_end_procedure("Success!!")
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -253,11 +254,13 @@ script_end_procedure("Success!!")
 '--Tab orders reviewed & confirmed----------------------------------------------07/14/2022
 '--Mandatory fields all present & Reviewed--------------------------------------07/14/2022
 '--All variables in dialog match mandatory fields-------------------------------07/14/2022
+'Review dialog names for content and content fit in dialog----------------------02/27/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------07/14/2022-------------------N/A
-'--CASE:NOTE Header doesn't look funky------------------------------------------07/14/2022-------------------N/A
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/14/2022-------------------N/A
+'--All variables are CASE:NOTEing (if required)----------------------------------07/14/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky-------------------------------------------07/14/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable------------------------------------07/14/2022-------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-07/14/2022-------------------N/A
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/14/2022
@@ -274,15 +277,16 @@ script_end_procedure("Success!!")
 '--Denomination reviewed -------------------------------------------------------07/14/2022
 '--Script name reviewed---------------------------------------------------------07/14/2022
 '--BULK - remove 1 incrementor at end of script reviewed------------------------07/14/2022-------------------N/A
-
+'
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------07/14/2022
 '--comment Code-----------------------------------------------------------------07/14/2022
-'--Update Changelog for release/update------------------------------------------07/14/2022
+'--Update Changelog for release/update------------------------------------------02/27/2023
 '--Remove testing message boxes-------------------------------------------------07/14/2022
 '--Remove testing code/unnecessary code-----------------------------------------07/14/2022
 '--Review/update SharePoint instructions----------------------------------------07/14/2022-------------------N/A
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/14/2022-------------------N/A
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------Will be added to master after pull is approved.
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------02/27/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------02/27/2023-------------------N/A
 '--Complete misc. documentation (if applicable)---------------------------------07/14/2022-------------------N/A
 '--Update project team/issue contact (if applicable)----------------------------07/14/2022
