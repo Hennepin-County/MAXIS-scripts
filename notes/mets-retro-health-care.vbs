@@ -459,9 +459,9 @@ If initial_option = "Initial Request" then
 End if
 
 If send_email = True then
-    script_end_procedure_with_error_report("An email notification was sent to " & team_email & ". Thank you!")
+    script_end_procedure_with_error_report("An email notification was sent to " & team_email & "." & vbcr & "A Word document has been created to copy/paste the MAXIS case note into METS case notes if applicable.")
 else
-    script_end_procedure_with_error_report("Success, your case note has been created.")
+    script_end_procedure_with_error_report("Success, your case note has been created." & vbcr & "A Word document has been created to copy/paste the MAXIS case note into METS case notes if applicable.")
 End if
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
