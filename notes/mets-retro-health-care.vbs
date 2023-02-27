@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/27/2023", "Added MS Word output of case note to copy/paste in METS case note.", "Ilse Ferris, Hennepin County")
 call changelog_update("03/07/2022", "Updated team emails from 601 to team 603 for retro processing. Added FIAT checkbox for retro determination option.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/21/2021", "Updated browser to default when opening SIR from Internet Explorer to Edge.", "Ilse Ferris, Hennepin County")
 call changelog_update("10/20/2020", "Updated link to REQUEST TO APPL use form on SharePoint.", "Ilse Ferris, Hennepin County")
@@ -247,9 +248,9 @@ If initial_option = "Proofs Received" then
         End if
     Next
     GroupBox 5, 5, 285, (50 + (x * 15)), "Enter the retro scenario for each applicant:"
+    CheckBox 05, (60 + (x * 15)), 140, 10, "All verifications and/or forms received.", verifs_checkbox
     Text 5, (85+ (x * 15)), 45, 10, "Other Notes:"
     EditBox 55, (80 + (x * 15)), 235, 15, other_notes
-    CheckBox 05, (60 + (x * 15)), 140, 10, "All verifications and/or forms received.", verifs_checkbox
     Text 5, (110 + (x * 15)), 60, 10, "Worker Signature:"
     EditBox 70, (105 + (x * 15)), 130, 15, worker_signature
     ButtonGroup ButtonPressed
@@ -448,7 +449,7 @@ objSelection.PageSetup.BottomMargin = 25
 objSelection.Font.Name = "Calibri"
 objSelection.Font.Size = "14"
 objSelection.ParagraphFormat.SpaceAfter = 0
-objSelection.TypeText "METS Case Note Verbiage - Copy/Paste into METS if needed. If not, close this document w/o saving:" & vbcr & vbcr &
+objSelection.TypeText "METS Case Note Verbiage - Copy/Paste into METS if needed. If not, close this document w/o saving:" & vbcr & vbcr
 objSelection.TypeText message_array
 
 If initial_option = "Initial Request" then
@@ -463,19 +464,22 @@ else
     script_end_procedure_with_error_report("Success, your case note has been created.")
 End if
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------03/07/2022
-'--Tab orders reviewed & confirmed----------------------------------------------03/07/2022
+'--Tab orders reviewed & confirmed----------------------------------------------02/27/2023
 '--Mandatory fields all present & Reviewed--------------------------------------03/07/2022
 '--All variables in dialog match mandatory fields-------------------------------03/07/2022
+'Review dialog names for content and content fit in dialog----------------------02/27/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------03/07/2022
 '--CASE:NOTE Header doesn't look funky------------------------------------------03/07/2022
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/07/2022
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------02/27/2023---------------Removed to read the note for the MS Word output
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-02/27/2023
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/07/2022
 '--MAXIS_background_check reviewed (if applicable)------------------------------03/07/2022-----------------N/A
@@ -483,6 +487,7 @@ End if
 '--Out-of-County handling reviewed----------------------------------------------03/07/2022-----------------N/A
 '--script_end_procedures (w/ or w/o error messaging)----------------------------03/07/2022
 '--BULK - review output of statistics and run time/count (if applicable)--------03/07/2022-----------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------02/27/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------03/07/2022
@@ -492,13 +497,14 @@ End if
 '--BULK - remove 1 incrementor at end of script reviewed------------------------03/07/2022-----------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------03/07/2022
+'--Confirm all GitHub tasks are complete----------------------------------------03/07/2022
 '--comment Code-----------------------------------------------------------------03/07/2022
-'--Update Changelog for release/update------------------------------------------03/07/2022
+'--Update Changelog for release/update------------------------------------------02/27/2023
 '--Remove testing message boxes-------------------------------------------------03/07/2022
 '--Remove testing code/unnecessary code-----------------------------------------03/07/2022
-'--Review/update SharePoint instructions----------------------------------------03/07/2022
+'--Review/update SharePoint instructions----------------------------------------02/27/2023
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------03/07/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------03/07/2022
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------02/27/2023
 '--Complete misc. documentation (if applicable)---------------------------------03/07/2022-----------------N/A
 '--Update project team/issue contact (if applicable)----------------------------03/07/2022
