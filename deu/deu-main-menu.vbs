@@ -40,7 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("08/19/2021", "GitHub #569 Retire BULK MATCH script to reduce redundancies in our automation supports for future conversion.", "MiKayla Handley, Hennepin County")
+call changelog_update("02/27/2023", "Retired script EBT OUT OF STATE due to state correction action plan. A new automation tool may be created in the future based on DHS and FNS/USDA guidance.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/29/2019", "Added BULK scripts REPT - IEVC and REPT - INTR to DEU menu.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/01/2018", "Updated for naming conventions.", "MiKayla Handley, Hennepin County")
 call changelog_update("12/29/2017", "Added all up-to-date DEU script to speciality power pad/DEU.", "Ilse Ferris, Hennepin County")
@@ -125,13 +125,6 @@ Set script_array_DEU_main(script_num) = new script		'Set this array element to b
 script_array_DEU_main(script_num).script_name			= "BULK Match Cleared"
 script_array_DEU_main(script_num).file_name 			= "bulk-match-cleared.vbs"
 script_array_DEU_main(script_num).description			= "BULK script that assists in clearing matches including sending the Diff Notice and noting claims."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
-Set script_array_DEU_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_DEU_main(script_num).script_name 			= "EBT out of state"																'Script name
-script_array_DEU_main(script_num).file_name 			= "ebt-out-of-state.vbs"														'Script URL
-script_array_DEU_main(script_num).description 			= "Script to case note out of state matches after being reviewed."
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_DEU_main(script_num)		'Resets the array to add one more element to it
