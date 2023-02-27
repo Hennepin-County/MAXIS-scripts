@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/27/2023", "Reference updated for information about EBT cards. The button to open a webpage about EBT cards has been changed to open the current page mmanaged by Accounting instead of the previous Temporary Program Changes page.", "Casey Love, Hennepin County")
 call changelog_update("11/14/2022", "Created button to link to the interpreter service request.", "Casey Love, Hennepin County")
 call changelog_update("10/17/2022", "Update messaging on Agency Signature on Application Forms. Hennepin County does not require an Agency Signature on any application form. ##~## ##~##See the HSR Manual for more Information - on the Applications Page. ##~##", "Casey Love, Hennepin County")
 CALL changelog_update("06/21/2022", "Updated handling for non-disclosure agreement.", "MiKayla Handley, Hennepin County") '#493
@@ -2964,7 +2965,7 @@ function display_expedited_dialog()
 	cm_04_06_btn					= 1600
 	ht_id_in_solq_btn				= 1700
 	cm_04_12_btn					= 1800
-	temp_prog_changes_ebt_card_btn 	= 1900
+	ebt_card_info_btn 	= 1900
 
 
 	exp_page_display = show_exp_pg_amounts
@@ -3282,7 +3283,7 @@ function display_expedited_dialog()
 					Text 20, 245, 305, 10, "If a case needs the first card mailed, do NOT REI benefits as they will not receive their card."
 				End If
 				Text 15, 260, 255, 10, "EBT Card issues can be complicated. Refer to the EBT Card Information here:"
-				PushButton 270, 257, 195, 13, "Temporary Program Changes - EBT Cards ", temp_prog_changes_ebt_card_btn
+				PushButton 270, 257, 195, 13, "Information about EBT Cards", ebt_card_info_btn
 
 			End If
 			GroupBox 5, 295, 470, 60, "If you need support in handling for expedited, please access these resources:"
@@ -3431,7 +3432,7 @@ function display_expedited_dialog()
 			If ButtonPressed = cm_04_06_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000406"
 			If ButtonPressed = ht_id_in_solq_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/How-to-use-SMI-SOLQ-to-verify-ID-for-SNAP.aspx"
 			If ButtonPressed = cm_04_12_btn Then resource_URL = "https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=CM_000412"
-			If ButtonPressed = temp_prog_changes_ebt_card_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Temporary-Program-Changes--EBT-cards,-checks,-bus-cards.aspx"
+			If ButtonPressed = ebt_card_info_btn Then resource_URL = "https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Accounting.aspx#%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8B%E2%80%8Bprocesses-for-receiving-ebt-cards-at-the-county-offices"
 
 			run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe " & resource_URL
 		End If
