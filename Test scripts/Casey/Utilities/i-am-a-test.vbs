@@ -38,6 +38,84 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+case_number_list = " "
+notes_list = "~~~"
+
+worker_number_to_resolve = "YEYA001"
+
+'declare the SQL statement that will query the database
+objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+'Creating objects for Access
+Set objConnection = CreateObject("ADODB.Connection")
+Set objRecordSet = CreateObject("ADODB.Recordset")
+
+'This is the file path for the statistics Access database.
+objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+objRecordSet.Open objSQL, objConnection
+
+
+Do While NOT objRecordSet.Eof
+	'count all of today's cases using added to worklist
+	worklist_case_number = objRecordSet("CaseNumber")
+	case_worklist_date = objRecordSet("AddedtoWorkList")
+	case_worklist_date = DateAdd("d", 0, case_worklist_date)
+	case_tracking_notes = objRecordSet("TrackingNotes")
+	' case_worklist_date = date
+	If DateDiff("d", case_worklist_date, date) = 0  and InStr(case_tracking_notes, "STS") = 0 Then
+		case_number_list = case_number_list & worklist_case_number & " "
+		case_tracking_notes = "STS-RC-"& worker_number_to_resolve & " " & case_tracking_notes
+		case_tracking_notes = trim(case_tracking_notes)
+		notes_list = notes_list & case_tracking_notes & "~~~"
+
+	End If
+	objRecordSet.MoveNext
+Loop
+
+'close the connection and recordset objects to free up resources
+objRecordSet.Close
+objConnection.Close
+Set objRecordSet=nothing
+Set objConnection=nothing
+
+case_number_list = trim(case_number_list)
+The_case_number_array = split(case_number_list)
+
+If right(notes_list, 3) = "~~~" Then notes_list = left(notes_list, len(notes_list)-3)
+If left(notes_list, 3) = "~~~" Then notes_list = right(notes_list, len(notes_list)-3)
+notes_array = split(notes_list, "~~~")
+' case_review_notes = replace(case_review_notes, "STS-IP-"&worker_number_to_resolve, "")
+' case_review_notes = replace(case_review_notes, "STS-HD-"&worker_number_to_resolve, "")
+' case_review_notes = replace(case_review_notes, "STS-RC-"&worker_number_to_resolve, "")
+' case_review_notes = replace(case_review_notes, "STS-RC", "")
+' case_review_notes = trim(case_review_notes)
+
+
+For each_item = 0 to UBOUND(The_case_number_array)
+
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the BZST connection to SQL Database'
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	' objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+	' objRecordSet.Open objSQL, objConnection
+
+	'delete a record if the case number matches
+	objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & notes_array(each_item) & "' WHERE CaseNumber = '" & The_case_number_array(each_item) & "'", objConnection
+
+
+
+	' objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET CaseNumber = '" & MAXIS_case_number & "', CaseName = '" & assigned_case_name & "', ApplDate = '" & assigned_application_date & "', InterviewDate = '" & assigned_interview_date & "', "Day_30" = '" & assigned_day_30 & "', "DaysPending" = '" & assigned_days_pending & "', SnapStatus = '" & assigned_snap_status & "', CashStatus = '" & assigned_cash_status & "', SecondApplicationDate = '" & assigned_2nd_application_date & "', REPT_PND2Days = '" & assigned_rept_pnd2_days & "', QuestionableInterview = '" & assigned_questionable_interview & "', Resolved = '" & assigned_questionable_interview_resolve & "', ApptNoticeDate = '" & assigned_appt_notice_date & "', ApptDate = '" & assigned_appt_date & "', Confirmation = '" & assigned_appt_notc_confirmation & "', NOMIDate = '" & assigned_nomi_date & "', Confirmation2 = '" & assigned_nomi_confirmation & "', DenialNeeded = '" & assigned_denial_needed & "', NextActionNeeded = '" & assigned_next_action_needed & "', AddedtoWorkList = '" & assigned_added_to_work_list & "', SecondApplicationDateNotes = '" & assigned_2nd_application_date_resolve & "', ClosedInPast30Days = '" & assigned_closed_recently & "', ClosedInPast30DaysNotes = '" & assigned_closed_recently_resolve & "', StartedOutOfCounty = '" & assigned_out_of_county & "', StartedOutOfCountyNotes = '" & assigned_out_of_county_resolve & "', TrackingNotes = '" & assigned_tracking_notes & "' WHERE CaseNumber = '" & MAXIS_case_number & "'", objConnection
+
+	'close the connection and recordset objects to free up resources
+	' objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
+Next
+
+
 'this is time zone functionality
 strComputer = "."
 Set objWMIService = GetObject("winmgmts:\\" & strComputer & "\root\CIMV2")
