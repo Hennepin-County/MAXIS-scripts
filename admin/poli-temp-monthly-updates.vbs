@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("02/27/2023", "Changed original procedural search month to go back 6 months vs. 2 months, and updated the file naming convention for ease of use.", "Ilse Ferris, Hennepin County")
 call changelog_update("07/11/2022", "Initial version.", "Ilse Ferris, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -53,9 +54,9 @@ changelog_display
 '----------------------------------------------------------------------------------------------------THE SCRIPT
 EMConnect ""        'Connects to BlueZone
 
-Dim CM_minus__mo, CM_minus_2_yr
-CM_minus_2_mo =  right("0" &  DatePart("m", DateAdd("m", -2, date)), 2)
-CM_minus_2_yr =  right(DatePart("yyyy", DateAdd("m", -2, date)), 2)
+Dim CM_minus_6_mo, CM_minus_6_yr
+CM_minus_6_mo =  right("0" &  DatePart("m", DateAdd("m", -10, date)), 2)
+CM_minus_6_yr =  right(DatePart("yyyy", DateAdd("m", -10, date)), 2)
 
 'These are two processes that will be completed. Gathering the origional file, then grab the revised file.
 Temp_updates = "Original,Revised"
@@ -98,8 +99,8 @@ temp_four = trim(temp_four)
 For each update in temp_array
     'Setting up footer month/year based on which version we're looking at. CM - 2 since DHS will update changes in CM and CM + 1. And sometimes they report changes for one month in another month (June changes in July.)
     If update = "Original" then
-        MAXIS_footer_month = CM_minus_2_mo
-        MAXIS_footer_year = CM_minus_2_mo_yr
+        MAXIS_footer_month = CM_minus_6_mo
+        MAXIS_footer_year = CM_minus_6_yr
     Elseif update = "Revised" then
         MAXIS_footer_month = CM_plus_1_mo
         MAXIS_footer_year = CM_plus_1_yr
@@ -207,17 +208,16 @@ For each update in temp_array
     poli_title = replace(poli_title, chr(34), "")   'chr(34) is ""
 
     'folder paths
-    root_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\" 'KC folder where the DIFF files will be housed
-    month_folder = DatePart("yyyy", date) & " - " & right("0" & DatePart("m", date), 2) 'using the current month to send the revised and orginal docs
-    month_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\" & month_folder
+    compare_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\Comparison Files"
+    diff_file_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\Knowledge Coordination\POLI TEMP\" 'KC folder where the DIFF files will be housed
 
     'Creating file names
     poli_update_date = " " & poli_update_yr & " - " & poli_update_mo
-    file_name = "\" & poli_update_date & " " & total_code & " " & new_poli & poli_title & ".docx"
+    file_name = "\" & total_code & " " & new_poli & poli_title & poli_update_date & ".docx"
     If update = "Original" then original_file = file_name   'changes the file name to be compared below
     If update = "Revised" then revised_file = file_name     'ditto
 
-    objDoc.SaveAs(month_file_path & file_name)
+    objDoc.SaveAs(compare_file_path & file_name)
     objWord.Visible = True  'Setting visibility back to true prior to quit. Ooes not need to be before the save.
     objWord.Quit
 
@@ -232,8 +232,8 @@ Next
 
 '----------------------------------------------------------------------------------------------------Comparing the two files and creating a new file to be saved w/ changes tracked.
 'Creating single variable to compare below
-old_poli_file = month_file_path & original_file
-new_poli_file = month_file_path & revised_file
+old_poli_file = compare_file_path & original_file
+new_poli_file = compare_file_path & revised_file
 
 Set objWord = CreateObject("Word.Application")  'set application object
 objWord.Documents.Open old_poli_file            'opening old file - original temp file
@@ -241,12 +241,12 @@ objWord.ActiveDocument.Compare new_poli_file    'comparing the new file - revise
 objWord.Visible = True
 
 Set objDoc = objWord.ActiveDocument             'set document object
-objDoc.SaveAs(root_file_path & revised_file)
+objDoc.SaveAs(diff_file_path & revised_file)
 objWord.Quit
 
 script_end_procedure("Success!!")
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -254,11 +254,13 @@ script_end_procedure("Success!!")
 '--Tab orders reviewed & confirmed----------------------------------------------07/14/2022
 '--Mandatory fields all present & Reviewed--------------------------------------07/14/2022
 '--All variables in dialog match mandatory fields-------------------------------07/14/2022
+'Review dialog names for content and content fit in dialog----------------------02/27/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------07/14/2022-------------------N/A
-'--CASE:NOTE Header doesn't look funky------------------------------------------07/14/2022-------------------N/A
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------07/14/2022-------------------N/A
+'--All variables are CASE:NOTEing (if required)----------------------------------07/14/2022-------------------N/A
+'--CASE:NOTE Header doesn't look funky-------------------------------------------07/14/2022-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable------------------------------------07/14/2022-------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-07/14/2022-------------------N/A
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------07/14/2022
@@ -275,15 +277,16 @@ script_end_procedure("Success!!")
 '--Denomination reviewed -------------------------------------------------------07/14/2022
 '--Script name reviewed---------------------------------------------------------07/14/2022
 '--BULK - remove 1 incrementor at end of script reviewed------------------------07/14/2022-------------------N/A
-
+'
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------07/14/2022
 '--comment Code-----------------------------------------------------------------07/14/2022
-'--Update Changelog for release/update------------------------------------------07/14/2022
+'--Update Changelog for release/update------------------------------------------02/27/2023
 '--Remove testing message boxes-------------------------------------------------07/14/2022
 '--Remove testing code/unnecessary code-----------------------------------------07/14/2022
 '--Review/update SharePoint instructions----------------------------------------07/14/2022-------------------N/A
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------07/14/2022-------------------N/A
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------Will be added to master after pull is approved.
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------02/27/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------02/27/2023-------------------N/A
 '--Complete misc. documentation (if applicable)---------------------------------07/14/2022-------------------N/A
 '--Update project team/issue contact (if applicable)----------------------------07/14/2022

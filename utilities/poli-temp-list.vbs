@@ -1,5 +1,5 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "UTILITIES - POLI TEMP.vbs" 'BULK script that creates a spreadsheet of the POLI/TEMP topics, sections, and revision dates'
+name_of_script = "UTILITIES - POLI TEMP LIST.vbs" 'BULK script that creates a spreadsheet of the POLI/TEMP topics, sections, and revision dates'
 start_time = timer
 STATS_counter = 1			     'sets the stats counter at one
 STATS_manualtime = 23			 'manual run time in seconds
@@ -52,10 +52,10 @@ changelog_display
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""				'Connects to BlueZone
-	
+
 'The main dialog
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 176, 85, "UTILITIES - POLI TEMP"
+BeginDialog Dialog1, 0, 0, 176, 85, "POLI TEMP LIST"
   OkButton 65, 65, 50, 15
   CancelButton 120, 65, 50, 15
   ButtonGroup ButtonPressed
@@ -65,9 +65,9 @@ EndDialog
 
 Do
 	dialog Dialog1
-    Cancel_without_confirmation										
-	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS						
-Loop until are_we_passworded_out = false					'loops until user passwords back in		
+    Cancel_without_confirmation
+	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 back_to_self				'navigates back to the self screen since POLI/TEMP is super picky
 Call navigate_to_MAXIS_screen("POLI", "____")
@@ -99,7 +99,7 @@ Do
 	DO	'All of this loops until MAXIS_row = 19
 		'Reading POLI TEMP info
 		EMReadScreen title_info, 45, MAXIS_row, 8
-		EMReadScreen section_info, 11, MAXIS_row, 54
+		EMReadScreen section_info, 19, MAXIS_row, 54
 		EMReadScreen revised_info, 7, MAXIS_row, 74
 		'Adding the case to Excel
 		ObjExcel.Cells(excel_row, 1).Value = trim(title_info)
@@ -126,3 +126,48 @@ FOR i = 1 to 3									'formatting the cells
 
 STATS_counter = STATS_counter - 1 'removes one from the count since 1 is counted at the beginning (because counting :p)
 script_end_procedure("Success! The list of current POLI/TEMP topics is now complete.")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------02/27/2023
+'--Tab orders reviewed & confirmed----------------------------------------------02/27/2023
+'--Mandatory fields all present & Reviewed--------------------------------------02/27/2023
+'--All variables in dialog match mandatory fields-------------------------------02/27/2023
+'Review dialog names for content and content fit in dialog----------------------02/27/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------02/27/2023-------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------02/27/2023-------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------02/27/2023-------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-02/27/2023-------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------02/27/2023-------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------02/27/2023-------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------02/27/2023-------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------02/27/2023-------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------02/27/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------02/27/2023
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------02/27/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------02/27/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------02/27/2023
+'--Denomination reviewed -------------------------------------------------------02/27/2023
+'--Script name reviewed---------------------------------------------------------02/27/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------02/27/2023
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------02/27/2023
+'--comment Code-----------------------------------------------------------------02/27/2023
+'--Update Changelog for release/update------------------------------------------02/27/2023-------------------N/A
+'--Remove testing message boxes-------------------------------------------------02/27/2023
+'--Remove testing code/unnecessary code-----------------------------------------02/27/2023
+'--Review/update SharePoint instructions----------------------------------------02/27/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------02/27/2023-------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------02/27/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------02/27/2023-------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------02/27/2023
+'--Update project team/issue contact (if applicable)----------------------------02/27/2023
