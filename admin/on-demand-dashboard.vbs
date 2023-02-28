@@ -1324,6 +1324,7 @@ If local_demo = False Then
                     admin_count_RC = admin_count_RC + 1
                     RC_id_start = Instr(case_tracking_notes, "STS-RC") + 7
                     worker_id_RC = MID(case_tracking_notes, RC_id_start, 7)
+					worker_id_RC = trim(worker_id_RC)
                     If InStr(ADMIN_list_workers_RC, "~" & worker_id_RC & "~") = 0 then ADMIN_list_workers_RC = ADMIN_list_workers_RC & worker_id_RC & "~"
                 End If
                 If Instr(case_tracking_notes, "STS-NR") <> 0 Then admin_count_NR = admin_count_NR + 1
@@ -1331,12 +1332,14 @@ If local_demo = False Then
                     admin_count_HD = admin_count_HD + 1
                     HD_id_start = Instr(case_tracking_notes, "STS-HD") + 7
                     worker_id_HD = MID(case_tracking_notes, HD_id_start, 7)
+					worker_id_HD = trim(worker_id_HD)
                     If InStr(ADMIN_list_workers_HD, "~" & worker_id_HD & "~") = 0 then ADMIN_list_workers_HD = ADMIN_list_workers_HD & worker_id_HD & "~"
                 End If
                 If Instr(case_tracking_notes, "STS-IP") <> 0 Then
                     admin_count_IP = admin_count_IP + 1
                     IP_id_start = Instr(case_tracking_notes, "STS-IP") + 7
                     worker_id_IP = MID(case_tracking_notes, IP_id_start, 7)
+					worker_id_IP = trim(worker_id_IP)
                     If InStr(ADMIN_list_workers_IP, "~" & worker_id_IP & "~") = 0 then ADMIN_list_workers_IP = ADMIN_list_workers_IP & worker_id_IP & "~"
                 End If
             End If
