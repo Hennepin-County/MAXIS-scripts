@@ -9594,6 +9594,8 @@ Do
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+'TODO - add a check_for_MAXIS here once GH 1166 is done and the dialog call doesn't break the interview
+
 If relative_caregiver_yn = "Yes" Then absent_parent_yn = "Yes"
 exp_pregnant_who = trim(exp_pregnant_who)
 If exp_pregnant_who = "Select or Type" Then exp_pregnant_who = ""
