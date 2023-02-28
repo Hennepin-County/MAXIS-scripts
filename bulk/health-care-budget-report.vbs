@@ -86,7 +86,7 @@ Do
 		Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
 	LOOP until err_msg = ""
 	Call check_for_password(are_we_passworded_out)
-Loop until are_we_passworded_out = False		'loops until user is password-ed out
+Loop until are_we_passworded_out = False		'loops until user is not password-ed out
 
 If restart_previous_run_checkbox = checked then
 	'This is where the review report is currently saved.
@@ -107,11 +107,13 @@ If restart_previous_run_checkbox = checked then
 
 	'Show file path dialog
 	Do
-		Dialog Dialog1
-		cancel_confirmation
-		If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
-	Loop until ButtonPressed = OK and excel_file_path <> ""
-
+		Do
+			Dialog Dialog1
+			cancel_confirmation
+			If ButtonPressed = select_a_file_button then call file_selection_system_dialog(excel_file_path, ".xlsx")
+		Loop until ButtonPressed = OK and excel_file_path <> ""
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = False		'loops until user is not password-ed out
 	'Opens Excel file here, as it needs to populate the dialog with the details from the spreadsheet.
 	call excel_open(excel_file_path, True, True, ObjExcel, objWorkbook)
 End If
@@ -167,7 +169,7 @@ End if
 const worker_number_const 				= 0
 const case_number_const 				= 1
 const client_name_const 				= 2
-const next_revw_date_const				= 3
+const next_revw_date_const				= 3	'not currently used
 const hc_status_code_const				= 4
 const fiat_status_const					= 5
 const number_approved_hc_progs_const	= 6
@@ -215,7 +217,6 @@ For each worker in worker_array
 			Do
 				EMReadScreen MAXIS_case_number, 8, MAXIS_row, 12	'Reading case number
 				EMReadScreen client_name, 21, MAXIS_row, 21			'Reading client name
-				EMReadScreen next_revw_date, 8, MAXIS_row, 42		'Reading application date
 				EMReadScreen HC_status, 1, MAXIS_row, 64			'Reading HC status
 				EMReadScreen FIAT_status, 1, MAXIS_row, 77			'Reading the FIAT status of a case
 
@@ -230,8 +231,6 @@ For each worker in worker_array
 					ALL_ACTIVE_HC_CASES_ARRAY(worker_number_const, hc_cases) = worker
 					ALL_ACTIVE_HC_CASES_ARRAY(case_number_const, hc_cases) = MAXIS_case_number
 					ALL_ACTIVE_HC_CASES_ARRAY(client_name_const, hc_cases) = client_name
-					next_revw_date = trim(next_revw_date)
-					ALL_ACTIVE_HC_CASES_ARRAY(next_revw_date_const, hc_cases) = replace(next_revw_date, " ", "/")
 					ALL_ACTIVE_HC_CASES_ARRAY(hc_status_code_const, hc_cases) = HC_status
 					ALL_ACTIVE_HC_CASES_ARRAY(fiat_status_const, hc_cases) = FIAT_status
 					hc_cases = hc_cases + 1
@@ -245,6 +244,18 @@ For each worker in worker_array
 	END IF
 next
 
+const worker_col = 1
+const case_nbr_col = 2
+const name_col = 3
+const ER_col = 4
+const IR_col = 5
+const AR_col = 6
+const IR_exempt_col = 7
+const HC_status_col = 8
+const approved_HC_col = 9
+const MA_budg_col = 10
+const need_review_col = 11
+
 If restart_previous_run_checkbox = unchecked then
 	'Opening the Excel file
 	Set objExcel = CreateObject("Excel.Application")
@@ -253,24 +264,28 @@ If restart_previous_run_checkbox = unchecked then
 	objExcel.DisplayAlerts = True
 
 	'Setting the first 8 col as worker, case number, name, and APPL date
-	ObjExcel.Cells(1, 1).Value = "WORKER"
-	ObjExcel.Cells(1, 2).Value = "CASE NUMBER"
-	ObjExcel.Cells(1, 3).Value = "NAME"
-	ObjExcel.Cells(1, 4).Value = "NEXT REVW DATE"
-	ObjExcel.Cells(1, 5).Value = "HC"
-	ObjExcel.Cells(1, 6).Value = "Approved HC Spans"
-	ObjExcel.Cells(1, 7).Value = "MA Budgets cover " & MAXIS_footer_month & "/" & MAXIS_footer_year
-	ObjExcel.Cells(1, 8).Value = "Needs Review and Approve"
+	ObjExcel.Cells(1, worker_col).Value = "WORKER"
+	ObjExcel.Cells(1, case_nbr_col).Value = "CASE NUMBER"
+	ObjExcel.Cells(1, name_col).Value = "NAME"
+	ObjExcel.Cells(1, ER_col).Value = "HC ER DATE"
+	ObjExcel.Cells(1, IR_col).Value = "HC IR DATE"
+	ObjExcel.Cells(1, AR_col).Value = "HC AR DATE"
+	ObjExcel.Cells(1, IR_exempt_col).Value = "IR Exempt"
 
-	FOR i = 1 to 8		'formatting the cells'
+	ObjExcel.Cells(1, HC_status_col).Value = "HC"
+	ObjExcel.Cells(1, approved_HC_col).Value = "Approved HC Spans"
+	ObjExcel.Cells(1, MA_budg_col).Value = "MA Budgets cover " & MAXIS_footer_month & "/" & MAXIS_footer_year
+	ObjExcel.Cells(1, need_review_col).Value = "Needs Review and Approve"
+
+	FOR i = 1 to need_review_col		'formatting the cells'
 		objExcel.Cells(1, i).Font.Bold = True		'bold font'
 	NEXT
 End If
-last_letter_col = "H"
+last_letter_col = convert_digit_to_excel_column(need_review_col)
 
 'Figuring out what to put in each Excel col. To add future variables to this, add the checkbox variables below and copy/paste the same code!
 'Below, use the "[blank]_col" variable to recall which col you set for which option.
-col_to_use = 9 'Starting with 5 because cols 1-4 are already used
+col_to_use = need_review_col+1 'Starting with the column after the last defined column
 If FIAT_check = checked then
 	ObjExcel.Cells(1, col_to_use).Value = "FIAT"
 	objExcel.Cells(1, col_to_use).Font.Bold = TRUE
@@ -285,12 +300,12 @@ excel_row = 2
 If restart_previous_run_checkbox = checked then
 	list_of_completed_case_numbers = "~"
 	Do
-		current_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+		current_case_number = trim(ObjExcel.Cells(excel_row, case_nbr_col).Value)
 		If InStr(list_of_completed_case_numbers, "~" & current_case_number & "~") = 0 Then
 			list_of_completed_case_numbers = list_of_completed_case_numbers & current_case_number & "~"
 		End If
 		excel_row = excel_row + 1
-		next_curr_case_number = trim(ObjExcel.Cells(excel_row, 2).Value)
+		next_curr_case_number = trim(ObjExcel.Cells(excel_row, case_nbr_col).Value)
 	Loop until next_curr_case_number = ""
 End If
 
@@ -393,16 +408,43 @@ For each_hc_case = 0 to UBound(ALL_ACTIVE_HC_CASES_ARRAY, 2)
 		add_to_Excel = True
 		If ALL_ACTIVE_HC_CASES_ARRAY(hc_status_code_const, each_hc_case) = "P" AND ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case) = 0 then add_to_Excel = False
 		If add_to_Excel = True Then
-			ObjExcel.Cells(excel_row, 1).Value = ALL_ACTIVE_HC_CASES_ARRAY(worker_number_const, each_hc_case)
-			ObjExcel.Cells(excel_row, 2).Value = ALL_ACTIVE_HC_CASES_ARRAY(case_number_const, each_hc_case)
-			ObjExcel.Cells(excel_row, 3).Value = ALL_ACTIVE_HC_CASES_ARRAY(client_name_const, each_hc_case)
-			ObjExcel.Cells(excel_row, 4).Value = ALL_ACTIVE_HC_CASES_ARRAY(next_revw_date_const, each_hc_case)
-			ObjExcel.Cells(excel_row, 5).Value = ALL_ACTIVE_HC_CASES_ARRAY(hc_status_code_const, each_hc_case)
-			ObjExcel.Cells(excel_row, 6).Value = ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case)
-			ObjExcel.Cells(excel_row, 7).Value = ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case)
+			Call navigate_to_MAXIS_screen("STAT", "REVW")
+			er_info = ""
+			ir_info = ""
+			ar_info = ""
+			ir_exempt = ""
+			EMReadScreen revw_version, 1, 2, 73
+			If revw_version <> "0" Then
+				call write_value_and_transmit("X", 5, 71)
+				EMReadScreen er_info, 8, 9, 27
+				EMReadScreen ir_info, 8, 8, 27
+				EMReadScreen ar_info, 8, 8, 71
+				EMReadScreen ir_exempt, 1, 9, 71
+				If er_info = "__ 01 __" Then er_info = ""
+				er_info = Replace(er_info, " ", "/")
+				If ir_info = "__ 01 __" Then ir_info = ""
+				ir_info = Replace(ir_info, " ", "/")
+				If ar_info = "__ 01 __" Then ar_info = ""
+				ar_info = Replace(ar_info, " ", "/")
+			Else
+				er_info = "NO REVW"
+			End If
+			Call back_to_SELF
+
+			ObjExcel.Cells(excel_row, worker_col).Value = ALL_ACTIVE_HC_CASES_ARRAY(worker_number_const, each_hc_case)
+			ObjExcel.Cells(excel_row, case_nbr_col).Value = ALL_ACTIVE_HC_CASES_ARRAY(case_number_const, each_hc_case)
+			ObjExcel.Cells(excel_row, name_col).Value = ALL_ACTIVE_HC_CASES_ARRAY(client_name_const, each_hc_case)
+			ObjExcel.Cells(excel_row, ER_col).Value = er_info
+			ObjExcel.Cells(excel_row, IR_col).Value = ir_info
+			ObjExcel.Cells(excel_row, AR_col).Value = ar_info
+			ObjExcel.Cells(excel_row, IR_exempt_col).Value = ir_exempt
+
+			ObjExcel.Cells(excel_row, HC_status_col).Value = ALL_ACTIVE_HC_CASES_ARRAY(hc_status_code_const, each_hc_case)
+			ObjExcel.Cells(excel_row, approved_HC_col).Value = ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case)
+			ObjExcel.Cells(excel_row, MA_budg_col).Value = ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case)
 			review_and_approve = False
 			If ALL_ACTIVE_HC_CASES_ARRAY(number_approved_hc_progs_const, each_hc_case) = 0 or ALL_ACTIVE_HC_CASES_ARRAY(MA_progs_with_budget, each_hc_case) = False then review_and_approve = True
-			ObjExcel.Cells(excel_row, 8).Value = review_and_approve
+			ObjExcel.Cells(excel_row, need_review_col).Value = review_and_approve
 			If FIAT_check = checked then ObjExcel.Cells(excel_row, FIAT_actv_col).Value = ALL_ACTIVE_HC_CASES_ARRAY(fiat_status_const, each_hc_case)
 			excel_row = excel_row + 1
 		End If
