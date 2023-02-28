@@ -4838,14 +4838,29 @@ function check_for_MAXIS(end_script)
 		EMReadScreen MAXIS_check, 5, 1, 39
 		If MAXIS_check <> "MAXIS"  and MAXIS_check <> "AXIS " then
 			If end_script = True then
-				script_end_procedure("You do not appear to be in MAXIS. You may be passworded out. Please check your MAXIS screen and try again.")
+				check_for_MAXIS_msg = "*** The script cannot identify if you are currently logged into MAXIS. ***"
+				check_for_MAXIS_msg = check_for_MAXIS_msg & vbCr & vbCr &"   This may be for a few different reasons, including:"
+				check_for_MAXIS_msg = check_for_MAXIS_msg & vbCr & "      - You are passworded out."
+				check_for_MAXIS_msg = check_for_MAXIS_msg & vbCr & "      - You are in a different system (PRISM, MMIS, etc.)"
+				check_for_MAXIS_msg = check_for_MAXIS_msg & vbCr & "      - The area of MAXIS has a different header."
+				check_for_MAXIS_msg = check_for_MAXIS_msg & vbCr & "        (The top of your screen should say MAXIS.)"
+
+				check_for_MAXIS_msg = check_for_MAXIS_msg & vbCr & vbCr & "The script has stopped, please check your MAXIS screen and try again."
+				script_end_procedure(check_for_MAXIS_msg)
 			Else
-                BeginDialog Password_dialog, 0, 0, 156, 55, "Password Dialog"
-                ButtonGroup ButtonPressed
-                OkButton 45, 35, 50, 15
-                CancelButton 100, 35, 50, 15
-                Text 5, 5, 150, 25, "You have passworded out. Please enter your password, then press OK to continue. Press CANCEL to stop the script. "
-                EndDialog
+				BeginDialog Password_dialog, 0, 0, 241, 145, "Password Dialog"
+				ButtonGroup ButtonPressed
+					OkButton 130, 125, 50, 15
+					CancelButton 185, 125, 50, 15
+				Text 5, 10, 245, 10, "*** The script cannot identify if you are currently logged into MAXIS. ***"
+				Text 20, 25, 175, 10, "This may be for a few different reasons, including:"
+				Text 35, 40, 90, 10, "- You are passworded out."
+				Text 35, 50, 170, 10, "- You are in a different system (PRISM, MMIS, etc.)"
+				Text 35, 60, 170, 10, "- The area of MAXIS has a different header."
+				Text 40, 70, 170, 10, "(The top of your screen should say MAXIS.)"
+				Text 5, 90, 180, 20, "Password back in or navigate to a main area of MAXIS and press 'OK'' to continue."
+				Text 5, 110, 125, 10, "Or press 'Cancel'' to stop the script."
+				EndDialog
                 Do
                     Do
                         dialog Password_dialog
