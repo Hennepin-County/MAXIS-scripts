@@ -2690,10 +2690,11 @@ ElseIf renewal_option = "Collect Statistics" Then			'This option is used when we
 	'The ADD Method creates the table and Full Detail can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.listobjects.add
 	'This is a fairly simple use of this functionality and probably has a lot more to it than is exemplified here and the methods/properties can be found:
 		'https://docs.microsoft.com/en-us/office/vba/api/excel.listobject
-	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "AppsANDIntvwTable"
-	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table2Range, xlYes).Name = "DateCountTable"
-	ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table3Range, xlYes).Name = "REVWStatusTable"
-
+	If stats_sheet_found = False Then
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table1Range, xlYes).Name = "AppsANDIntvwTable"
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table2Range, xlYes).Name = "DateCountTable"
+		ObjExcel.ActiveSheet.ListObjects.Add(xlSrcRange, table3Range, xlYes).Name = "REVWStatusTable"
+	End If
 	'xlSrcRange is a constant that needs to be set in the script and is '1' which sets the source of the information to a range of cells for defining the table
 		'Other documentation and information about this option can be found here - https://docs.microsoft.com/en-us/office/vba/api/excel.xllistobjectsourcetype
 		' XlListObjectSourceType enumeration (Excel)
