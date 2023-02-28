@@ -117,7 +117,7 @@ assigned_hold_2_end_time  = ""
 assigned_hold_3_start_time  = ""
 assigned_hold_3_end_time  = ""
 
-
+local_demo = False
 ADMIN_run = False
 BULK_Run_completed = False
 worker_on_task = False
@@ -134,6 +134,8 @@ ADMIN_list_workers_RC = "~"
 ADMIN_list_workers_IP = "~"
 ADMIN_list_workers_HD = "~"
 
+script_instructions_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\On Demand Dashboard Script Instructions.docx"
+worklist_instructions_file_path = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Case Review Processing.docx"
 current_day_work_tracking_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\WIP\"
 'txt file name format
 ' USERID-MM-DD-YY-CASENUMBER
@@ -163,7 +165,8 @@ close_dialog_btn        = 5001
 release_IP_btn          = 6001
 release_HD_btn          = 6002
 finish_day_btn          = 6003
-
+script_instructions_btn	= 7001
+worklist_process_doc_btn = 7002
 
 const case_nbr_const    = 0
 const radio_btn_const   = 1
@@ -260,6 +263,31 @@ const Hold3Start_col                    = 34
 const Hold3End_col                      = 35
 const CaseCompletedTime_col             = 36
 
+
+bulk_run_information_msg = "     * * * * *  The BULK On Demand Application Run Information  * * * * *"
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & "The BULK run is the original functionality of the On Demand Applications script. This is the core of the work for On Demand."
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & "This functionality uses data tables of all cases pending SNAP or Cash in the agency that do not have an interview date entered into MAXIS. The primary purpose of the On Demand process is to ensure proper notification is sent to the residents of the interview requirement for new applications. This includes the initial interview information and a NOMI."
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & "The BULK Run automates the evaluation and sending of these notices for most cases."
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & "In the course of running the BULK Run, the script may identify some instances in which it cannot fully evaluate the status of the case, or the case has hit a point that a manual review is advised. The On Demand worklist is generated from these cases during the BULK run."
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & "--------------------------------------------------------------------------------------------"
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & vbCR & "The BULK run should only be run once per day and requires no input during the run."
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & "The run takes a couple hours and ties up production, though Inquiry or Training region can be used in a different session."
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & "Any notices sent or CASE/NOTEs entered during the BULK run are in the X-Number of the worker who started the run."
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & "The BULK run should be completed on every working day."
+bulk_run_information_msg = bulk_run_information_msg & vbCr & vbCr & "The BULK run works best when run in the morning, as fewer people are working on cases."
+
+worklist_information_msg = "     * * * * *  The On Demand QI Daily Worklist Information  * * * * *"
+worklist_information_msg = worklist_information_msg & vbCr & vbCr & "The Worklist is the list of cases that require manual review or action from the On Demand BULK Run. This is specifically for cases at application that have not yet had an interview completed."
+worklist_information_msg = worklist_information_msg & vbCr & vbCr & "This worklist used to be stored in daily Excel files. These files became to unweildy to manage and had limited capabilities for data collection and review, so the list has been movved to a SQL table in the server. This will increase data integrity and ability to manage the list."
+worklist_information_msg = worklist_information_msg & vbCr & vbCr & "Changing the methodology for the list changes how we can interact with it, mostly for the better. The cases on the list must be accessed through the On Demand Dashboard script as the scripts are able to connect to the data tables."
+worklist_information_msg = worklist_information_msg & vbCr & vbCr & "The benefits of moving to this method of data storage:"
+worklist_information_msg = worklist_information_msg & vbCr & " - Cases can now be reviewed one at a time."
+worklist_information_msg = worklist_information_msg & vbCr & " - Additional workers can be assigned to support the completion of the worklist, even in the same day"
+worklist_information_msg = worklist_information_msg & vbCr & " - Skill in using Excel is no longer needed."
+worklist_information_msg = worklist_information_msg & vbCr & " - The BULK Run is better able to pull information from the worklist."
+worklist_information_msg = worklist_information_msg & vbCr & vbCr & "--------------------------------------------------------------------------------------------"
+worklist_information_msg = worklist_information_msg & vbCr & vbCr & "If you have any questions on the script functionality for pulling cases for review from the worklist, connect with the BlueZone Script team."
+worklist_information_msg = worklist_information_msg & vbCr & vbCr & "If you need support with how to complete a review on a case, connect with Tanya or the QI Worklsit Process documenntation."
 'END DECLARATIONS ==========================================================================================================
 
 'FUNCTIONS BLOCK ===========================================================================================================
@@ -1206,7 +1234,7 @@ If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
     If run_demo = "Yes" Then local_demo = True
     If clean_up_list = "Yes" Then Call merge_worklist_to_SQL
 
-    ADMIN_run = True
+    If local_demo = False Then ADMIN_run = True
 End If
 'this defines workers that have access to the Admmin functions along with the BZST writers
 If user_ID_for_validation = "TAPA002" or user_ID_for_validation = "WFX901" or user_ID_for_validation = "WFU851" Then ADMIN_run = True   'TP, FRC, JF
@@ -1427,6 +1455,7 @@ If local_demo = False Then
         End If
     End If
 Else                            'if we are running in DEMO mode, we don't read the table - we have a dialog to select the process to view.
+	total_cases_for_review = 124
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 191, 85, "On Demand Demo"
       DropListBox 10, 25, 175, 45, "Select One..."+chr(9)+"Complete BULK Run"+chr(9)+"Select New Case"+chr(9)+"Case in Progress", demo_process
@@ -1438,7 +1467,7 @@ Else                            'if we are running in DEMO mode, we don't read t
       Text 10, 15, 65, 10, "Process to Demo"
       Text 15, 50, 55, 10, "Cases on Hold"
       Text 15, 70, 65, 10, "Reviews Complete"
-      Text 90, 5, 95, 10, "Total Cases to Review: 124"
+      Text 90, 5, 95, 10, "Total Cases to Review: " & total_cases_for_review
     EndDialog
 
     dialog Dialog1
@@ -1491,7 +1520,8 @@ If BULK_Run_completed = False Then                  'if the main run has not hap
                 EditBox 500, 300, 50, 15, fake_edit_box
                 ButtonGroup ButtonPressed
                 PushButton 310, 55, 125, 15, "Start On Demand BULK Run", complete_bulk_run_btn
-                PushButton 50, 105, 170, 10, "More information about the BULK Run", bulk_run_details_btn
+                PushButton 50, 105, 170, 13, "More information about the BULK Run", bulk_run_details_btn
+				PushButton 230, 105, 150, 13, "Script Instructions", script_instructions_btn
                 PushButton 375, 5, 65, 15, "Test Access", test_access_btn
                 If ADMIN_run = True Then PushButton 10, 135, 70, 15, "Admin Functions", admin_btn
                 ' OkButton 335, 130, 50, 15
@@ -1509,7 +1539,8 @@ If BULK_Run_completed = False Then                  'if the main run has not hap
             cancel_without_confirmation
 
             'each button takes us to a different process step
-            If ButtonPressed = bulk_run_details_btn Then MsgBox "More details will be here" 'TODO - add BULK Run Explanation'
+            If ButtonPressed = bulk_run_details_btn Then MsgBox bulk_run_information_msg
+			If ButtonPressed = script_instructions_btn Then call word_doc_open(script_instructions_file_path, objWord, objDoc)
             If ButtonPressed = test_access_btn Then Call test_sql_access()      'quick access functionality to make sure the worker has the correct permissions
             If ButtonPressed = complete_bulk_run_btn Then                       'if it is selected to start the BULK run, this will check for production and open the On Demand Applications script.
                 If local_demo = True Then call script_end_procedure("The script would now run the the On Demand Applications script")
@@ -1537,11 +1568,13 @@ If worker_on_task = False Then
                   If total_cases_for_review = cases_with_review_completed Then Text 20, 170, 155, 10, "*** All Cases have been Pulled for Review ***'"
                   ButtonGroup ButtonPressed
                     If total_cases_for_review <> cases_with_review_completed Then PushButton 15, 165, 110, 15, "Pull a case to Review", get_new_case_btn
-                    PushButton 285, 70, 140, 10, "More information about the Work List", work_list_details_btn
+                    PushButton 285, 70, 140, 13, "More information about the Work List", work_list_details_btn
                     PushButton 10, 215, 105, 15, "Finish Work Day", finish_work_day_btn
                     If ADMIN_run = True Then PushButton 120, 215, 70, 15, "Admin Functions", admin_btn
                     PushButton 375, 20, 65, 15, "Test Access", test_access_btn
                     PushButton 330, 85, 105, 15, "Restart the BULK Run", bulk_run_incomplete_btn
+					PushButton 20, 130, 110, 12, "Worklist Process Information", worklist_process_doc_btn
+					PushButton 305, 217, 75, 12, "Script Instructions", script_instructions_btn
                     CancelButton 390, 215, 50, 15
                   Text 170, 10, 135, 10, "On Demand Applications Dashboard"
                   GroupBox 10, 20, 430, 85, "Applications BULK Run"
@@ -1552,7 +1585,7 @@ If worker_on_task = False Then
                   Text 40, 70, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
                   Text 140, 90, 190, 10, "If the BULK Run was not completed, you can restart here:"
                   GroupBox 10, 110, 430, 35, "Work List Overview"
-                  Text 20, 125, 115, 10, "Total cases on the worklist: " & total_cases_for_review
+                  Text 20, 120, 115, 10, "Total cases on the worklist: " & total_cases_for_review
                   Text 220, 120, 130, 10, "Cases with Review Completed: " & cases_with_review_completed
                   Text 215, 130, 135, 10, "Cases with Reviews In Progress: " & cases_on_hold
                   GroupBox 10, 150, 430, 55, "Reviews"
@@ -1562,9 +1595,10 @@ If worker_on_task = False Then
                 dialog Dialog1
                 cancel_without_confirmation
 
-                If ButtonPressed = work_list_details_btn Then MsgBox "More details will be here" 'TODO - add worklist Explanation'
+                If ButtonPressed = work_list_details_btn Then MsgBox worklist_information_msg
                 If ButtonPressed = test_access_btn Then Call test_sql_access()
-
+				If ButtonPressed = worklist_process_doc_btn Then call word_doc_open(worklist_instructions_file_path, objWord, objDoc)
+				If ButtonPressed = script_instructions_btn Then call word_doc_open(script_instructions_file_path, objWord, objDoc)
                 If ButtonPressed = finish_work_day_btn Then
                     Call assess_worklist_to_finish_day
                     If case_on_hold = False and case_in_progress = False Then
@@ -1578,7 +1612,7 @@ If worker_on_task = False Then
                     End If
                 End If
                 If ButtonPressed = admin_btn Then call complete_admin_functions
-            Loop until ButtonPressed <> work_list_details_btn
+            Loop until ButtonPressed <> work_list_details_btn and ButtonPressed <> worklist_process_doc_btn and ButtonPressed <> script_instructions_btn
             CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
         Loop until are_we_passworded_out = false					'loops until user passwords back in
 
@@ -1611,7 +1645,8 @@ If worker_on_task = False Then
                   Text 40, 50, 305, 10, "- The worklist is held in a SQL Table and can only be viewed through this Dashboard script. "
                   Text 40, 60, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
                   ButtonGroup ButtonPressed
-                    PushButton 45, 70, 170, 10, "More information about the Work List", work_list_details_btn
+                    PushButton 45, 70, 170, 13, "More information about the Work List", work_list_details_btn
+					PushButton 20, 115, 110, 12, "Worklist Process Information", worklist_process_doc_btn
                   GroupBox 10, 90, 430, 40, "Work List Overview"
                   Text 20, 105, 115, 10, "Total cases on the worklist: " & total_cases_for_review
                   Text 220, 105, 130, 10, "Cases with Review Completed: " & cases_with_review_completed
@@ -1627,15 +1662,17 @@ If worker_on_task = False Then
                   ButtonGroup ButtonPressed
                     PushButton 330, dlg_len - 45, 105, 15, "Resume selected Hold Case", resume_hold_case_btn
                     PushButton 10, dlg_len - 20, 105, 15, "Finish Work Day", finish_work_day_btn
+					PushButton 305, dlg_len - 18, 75, 12, "Script Instructions", script_instructions_btn
                     CancelButton 390, dlg_len - 20, 50, 15
                 EndDialog
 
                 dialog Dialog1
                 cancel_confirmation
 
-                If ButtonPressed = work_list_details_btn Then MsgBox "More details will be here" 'TODO - add worklist Explanation'
+                If ButtonPressed = work_list_details_btn Then MsgBox worklist_information_msg
                 If ButtonPressed = test_access_btn Then Call test_sql_access()
-
+				If ButtonPressed = worklist_process_doc_btn Then call word_doc_open(worklist_instructions_file_path, objWord, objDoc)
+				If ButtonPressed = script_instructions_btn Then call word_doc_open(script_instructions_file_path, objWord, objDoc)
                 If ButtonPressed = finish_work_day_btn Then
                     Call assess_worklist_to_finish_day
                     If case_on_hold = False and case_in_progress = False Then
@@ -1648,7 +1685,7 @@ If worker_on_task = False Then
                         MsgBox loop_dlg_msg
                     End If
                 End If
-            Loop until ButtonPressed <> work_list_details_btn
+            Loop until ButtonPressed <> work_list_details_btn and ButtonPressed <> worklist_process_doc_btn and ButtonPressed <> script_instructions_btn
             CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
         Loop until are_we_passworded_out = false					'loops until user passwords back in
         If ButtonPressed = resume_hold_case_btn Then
@@ -1819,6 +1856,8 @@ If worker_on_task = True Then
                 PushButton 160, 290, 110, 15, "Close Review Dialog", close_dialog_btn
                 PushButton 10, 290, 65, 15, "Test Access", test_access_btn
                 If ADMIN_run = True Then PushButton 80, 290, 70, 15, "Admin Functions", admin_btn
+				PushButton 200, 255, 115, 13, "Script Instructions", script_instructions_btn
+				PushButton 315, 255, 130, 13, "Worklist Process Information", worklist_process_doc_btn
 	            CancelButton 395, 290, 50, 15
 	        EndDialog
 
@@ -1828,6 +1867,10 @@ If worker_on_task = True Then
             If ButtonPressed = -1 or ButtonPressed = close_dialog_btn Then script_end_procedure("")
             If ButtonPressed = test_access_btn Then Call test_sql_access()
             If ButtonPressed = admin_btn Then call complete_admin_functions
+			If ButtonPressed = worklist_process_doc_btn Then
+				call word_doc_open(worklist_instructions_file_path, objWord, objDoc)
+				err_msg = "LOOP"
+			End If
         Loop until err_msg = ""
 	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
