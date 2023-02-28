@@ -1,3 +1,4 @@
+
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "ADMIN - MAIN MENU.vbs"
 start_time = timer
@@ -64,7 +65,7 @@ subcat_button_placeholder 	= 1701
 menu_admin_button           = 110
 menu_QI_button              = 120
 menu_BZ_button              = 130
-menu_monthly_tasks_button   = 140
+menu_report_tasks_button   = 140
 
 ButtonPressed = menu_admin_button
 show_question_mark = TRUE
@@ -72,6 +73,7 @@ show_question_mark = TRUE
 tester_found = FALSE
 qi_staff = FALSE
 bz_staff = FALSE
+os_staff = FALSE
 For each tester in tester_array
     If user_ID_for_validation = tester.tester_id_number Then
         tester_found = TRUE
@@ -95,9 +97,15 @@ For each tester in tester_array
                 qi_staff = TRUE
                 bz_staff = TRUE
             End If
+			If group = "ESS" Then
+                os_staff = TRUE
+            End If
         Next
     End If
 Next
+If qi_staff = TRUE Then ButtonPressed = menu_QI_button
+If os_staff = TRUE Then ButtonPressed = menu_report_tasks_button
+If bz_staff = TRUE Then ButtonPressed = menu_BZ_button
 
 Function declare_main_menu_dialog(script_category)
 
@@ -145,7 +153,7 @@ Function declare_main_menu_dialog(script_category)
                     If group = "Monthly Tasks" Then script_array(current_script).show_script = FALSE
                     show_question_mark = FALSE
 					show_bz_btn = False
-                ElseIf ButtonPressed = menu_monthly_tasks_button Then
+                ElseIf ButtonPressed = menu_report_tasks_button Then
                     If group = "Monthly Tasks" Then script_array(current_script).show_script = TRUE
                     show_question_mark = FALSE
 					show_month_btn = False
@@ -171,7 +179,7 @@ Function declare_main_menu_dialog(script_category)
 
             'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
     			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
-        If qi_staff = TRUE OR bz_staff = TRUE Then
+        If qi_staff = TRUE OR bz_staff = TRUE or os_staff = TRUE Then
         	If show_admin_btn = False  Then
 				Text 			21,                     23, 					50, 		10, 			"ADMIN"
 			Else
@@ -192,12 +200,18 @@ Function declare_main_menu_dialog(script_category)
 				PushButton 		105,                    20, 					40, 		15, 			"BZ", 					    menu_BZ_button
 			End If
             If show_month_btn = False Then
-				Text 			150,                    23, 					60, 		10, 			"Monthly Tasks"
+				Text 			150,                    23, 					60, 		10, 			"Report Tasks"
 			Else
-				PushButton 		145,                    20, 					60, 		15, 			"Monthly Tasks", 			menu_monthly_tasks_button
+				PushButton 		145,                    20, 					60, 		15, 			"Report Tasks", 			menu_report_tasks_button
 			End If
         End If
-
+		If os_staff = TRUE Then
+			If show_month_btn = False Then
+				Text 			70,                    23, 					60, 		10, 			"Report Tasks"
+			Else
+				PushButton 		65,                    20, 					60, 		15, 			"Report Tasks", 			menu_report_tasks_button
+			End If
+		End if
 
 		'SCRIPT LIST HANDLING--------------------------------------------
 
