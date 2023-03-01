@@ -309,7 +309,8 @@ MAXIS_footer_year = CM_plus_1_yr
 current_date = date
 
 'setting up information and variables for accessing yesterday's worklist
-previous_date = dateadd("d", -1, date)
+yesterday = dateadd("d", -1, date)
+previous_date = yesterday
 Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
 archive_folder = DatePart("yyyy", previous_date) & "-" & right("0" & DatePart("m", previous_date), 2)
 
@@ -317,6 +318,9 @@ previous_date_month = DatePart("m", previous_date)
 previous_date_day = DatePart("d", previous_date)
 previous_date_year = DatePart("yyyy", previous_date)
 previous_date_header = previous_date_month & "-" & previous_date_day & "-" & previous_date_year
+
+days_to_add_to_30 = DateDiff("d", previous_date, yesterday)
+true_days_for_denial = 30 + days_to_add_to_30
 
 next_working_day = dateadd("d", 1, date)
 Call change_date_to_soonest_working_day(next_working_day, "FORWARD")
@@ -1436,6 +1440,8 @@ Do While NOT objWorkRecordSet.Eof
 		    change_date = change_date_time_array(0)
 		    WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= DateAdd("d", 0, change_date)
 
+			If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
+
 			case_review_notes = "FOLLOW UP NEEDED - " & case_review_notes
 		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
 		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
@@ -2184,16 +2190,10 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 	End If
 
 	If IsNumeric(WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry)) = True Then
-		days_pending_nbr = WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry) * 1
-		For next_day = 0 to number_of_days_until_next_working_day
-			If days_pending_nbr + next_day = 30 Then
-				WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
-				WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL"
-			End If
-		Next
-	Else
-		' WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
-	End If
+		days_pending = WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry) * 1
+		If days_pending > true_days_for_denial Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS"
+	End if
+
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW QUESTIONABLE INTERVIEW DATE(S)" THEN WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW OTHER COUNTY CASE"	Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "RESOLVE SUBSEQUENT APPLICATION DATE" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
@@ -2201,7 +2201,9 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 	If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW RECENT CLOSURE/DENIAL" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW NOTICE ACTIONS" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 
-	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+	'TESTING FUNCTIONALITY - removing 'PREP FOR DENIAL' cases from the worklist
+	' IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
+	If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW CANNOT DENY - No Appt Notc" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW CANNOT DENY - No NOMI" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
 	IF WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "REVIEW CANNOT DENY - NOMI after Day 30" Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True
