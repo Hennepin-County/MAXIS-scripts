@@ -107,70 +107,74 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 IF claim_actions = "Intial Overpayment/Claim" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 361, 320, "Overpayment Claim Enty"
-        EditBox 60, 10, 40, 15, discovery_date
-        EditBox 140, 10, 20, 15, memb_number
-        EditBox 235, 10, 20, 15, OT_resp_memb
-        DropListBox 310, 10, 45, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", fraud_referral
-        DropListBox 60, 60, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
-        EditBox 130, 60, 30, 15, OP_from
-        EditBox 180, 60, 30, 15, OP_to
-        EditBox 235, 60, 35, 15, Claim_amount
-        EditBox 285, 60, 45, 15, Claim_number
-        DropListBox 60, 80, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
-        EditBox 130, 80, 30, 15, OP_from_II
-        EditBox 180, 80, 30, 15, OP_to_II
-        EditBox 235, 80, 35, 15, Claim_amount_II
-        EditBox 285, 80, 45, 15, Claim_number_II
-        DropListBox 60, 100, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
-        EditBox 130, 100, 30, 15, OP_from_III
-        EditBox 180, 100, 30, 15, OP_to_III
-        EditBox 235, 100, 35, 15, Claim_amount_III
-        EditBox 285, 100, 45, 15, claim_number_III
-        DropListBox 60, 120, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_IV
-        EditBox 130, 120, 30, 15, OP_from_IV
-        EditBox 180, 120, 30, 15, OP_to_IV
-        EditBox 235, 120, 35, 15, Claim_amount_IV
-        EditBox 285, 120, 45, 15, claim_number_IV
-        EditBox 130, 165, 30, 15, HC_from
-        EditBox 180, 165, 30, 15, HC_to
-        EditBox 235, 165, 35, 15, HC_claim_amount
-        EditBox 285, 165, 45, 15, HC_claim_number
-        EditBox 130, 185, 30, 15, HC_from_II
-        EditBox 180, 185, 30, 15, HC_to_II
-        EditBox 235, 185, 35, 15, HC_claim_amount_II
-        EditBox 285, 185, 45, 15, HC_claim_number_II
-        EditBox 130, 205, 20, 15, HC_resp_memb
-        EditBox 235, 205, 35, 15, Fed_HC_AMT
-        EditBox 70, 240, 160, 15, income_source
-        DropListBox 310, 240, 45, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", EI_disregard
-        EditBox 70, 260, 160, 15, EVF_used
-        EditBox 310, 260, 45, 15, income_rcvd_date
-        EditBox 70, 280, 285, 15, Reason_OP
-        ButtonGroup ButtonPressed
-            OkButton 260, 300, 45, 15
-            CancelButton 310, 300, 45, 15
-        Text 110, 15, 30, 10, "Memb #:"
-        GroupBox 5, 30, 350, 205, "Overpayment Information"
-        Text 260, 15, 50, 10, "Fraud referral:"
-        Text 165, 15, 70, 10, "Other resp. memb #:"
-        Text 40, 210, 85, 10, "HC other resp. Memb(s)#:"
-        Text 160, 210, 75, 10, "Total federal HC AMT:"
-        Text 20, 245, 50, 10, "Income source:"
-        Text 5, 15, 55, 10, "Discovery date:"
-        Text 235, 245, 75, 10, "EI Disregard Allowed?:"
-        Text 10, 265, 60, 10, "Income verif used:"
-        Text 10, 285, 60, 10, "Reason for claim:"
-        Text 235, 265, 75, 10, "Date income received:"
-        Text 35, 170, 90, 10, "Health Care Only - Claim 1:"
-        Text 35, 190, 90, 10, "Health Care Only - Claim 2:"
-        Text 25, 65, 35, 10, "1st Claim:"
-        Text 15, 45, 320, 10, "       Claim          Program              Start (MM/YY) - End (MM/YY)          Amount $              Claim # "
-        Text 25, 85, 35, 10, "2nd Claim:"
-        Text 25, 125, 35, 10, "4th Claim:"
-        Text 25, 105, 35, 10, "3rd Claim:"
-        GroupBox 10, 150, 325, 75, "Health Care Only"
-    EndDialog
+	BeginDialog Dialog1, 0, 0, 406, 320, "Overpayment Claim Enty"
+	EditBox 60, 10, 40, 15, discovery_date
+	EditBox 140, 10, 20, 15, memb_number
+	EditBox 235, 10, 20, 15, OT_resp_memb
+	DropListBox 310, 10, 45, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", fraud_referral
+	DropListBox 60, 60, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program
+	EditBox 130, 60, 30, 15, OP_from
+	EditBox 180, 60, 30, 15, OP_to
+	EditBox 235, 60, 35, 15, Claim_amount
+	EditBox 280, 60, 45, 15, Claim_number
+	DropListBox 330, 60, 65, 45, "Collectible"+chr(9)+"Non-Collectible", Claim_collectible
+	DropListBox 60, 80, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_II
+	EditBox 130, 80, 30, 15, OP_from_II
+	EditBox 180, 80, 30, 15, OP_to_II
+	EditBox 235, 80, 35, 15, Claim_amount_II
+	EditBox 280, 80, 45, 15, Claim_number_II
+	DropListBox 330, 80, 65, 45, "Collectible"+chr(9)+"Non-Collectible", Claim_collectible_II
+	DropListBox 60, 100, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_III
+	EditBox 130, 100, 30, 15, OP_from_III
+	EditBox 180, 100, 30, 15, OP_to_III
+	EditBox 235, 100, 35, 15, Claim_amount_III
+	EditBox 280, 100, 45, 15, claim_number_III
+	DropListBox 330, 100, 65, 45, "Collectible"+chr(9)+"Non-Collectible", Claim_collectible_III
+	DropListBox 60, 120, 50, 15, "Select:"+chr(9)+"DW"+chr(9)+"FS"+chr(9)+"FG"+chr(9)+"GA"+chr(9)+"GR"+chr(9)+"MF"+chr(9)+"MS", OP_program_IV
+	EditBox 130, 120, 30, 15, OP_from_IV
+	EditBox 180, 120, 30, 15, OP_to_IV
+	EditBox 235, 120, 35, 15, Claim_amount_IV
+	EditBox 280, 120, 45, 15, claim_number_IV
+	DropListBox 330, 120, 65, 45, "Collectible"+chr(9)+"Non-Collectible", Claim_collectible_IV
+	EditBox 130, 165, 30, 15, HC_from
+	EditBox 180, 165, 30, 15, HC_to
+	EditBox 235, 165, 35, 15, HC_claim_amount
+	EditBox 280, 165, 45, 15, HC_claim_number
+	EditBox 130, 185, 30, 15, HC_from_II
+	EditBox 180, 185, 30, 15, HC_to_II
+	EditBox 235, 185, 35, 15, HC_claim_amount_II
+	EditBox 280, 185, 45, 15, HC_claim_number_II
+	EditBox 130, 205, 20, 15, HC_resp_memb
+	EditBox 235, 205, 35, 15, Fed_HC_AMT
+	EditBox 70, 240, 205, 15, income_source
+	DropListBox 355, 240, 45, 15, "Select:"+chr(9)+"Yes"+chr(9)+"No", EI_disregard
+	EditBox 70, 260, 205, 15, EVF_used
+	EditBox 355, 260, 45, 15, income_rcvd_date
+	EditBox 70, 280, 330, 15, Reason_OP
+	ButtonGroup ButtonPressed
+		OkButton 305, 300, 45, 15
+		CancelButton 355, 300, 45, 15
+	Text 5, 15, 55, 10, "Discovery date:"
+	Text 110, 15, 30, 10, "Memb #:"
+	Text 165, 15, 70, 10, "Other resp. memb #:"
+	Text 260, 15, 50, 10, "Fraud referral:"
+	GroupBox 5, 30, 395, 205, "Overpayment Information"
+	Text 15, 45, 380, 10, "       Claim          Program              Start (MM/YY) - End (MM/YY)          Amount $            Claim #             Collectable?"
+	Text 25, 65, 35, 10, "1st Claim:"
+	Text 25, 85, 35, 10, "2nd Claim:"
+	Text 25, 105, 35, 10, "3rd Claim:"
+	Text 25, 125, 35, 10, "4th Claim:"
+	Text 280, 265, 75, 10, "Date income received:"
+	Text 35, 170, 90, 10, "Health Care Only - Claim 1:"
+	Text 35, 190, 90, 10, "Health Care Only - Claim 2:"
+	Text 160, 210, 75, 10, "Total federal HC AMT:"
+	Text 20, 245, 50, 10, "Income source:"
+	Text 280, 245, 75, 10, "EI Disregard Allowed?:"
+	Text 10, 285, 60, 10, "Reason for claim:"
+	Text 10, 265, 60, 10, "Income verif used:"
+	GroupBox 10, 150, 325, 75, "Health Care Only"
+	Text 40, 210, 85, 10, "HC other resp. Memb(s)#:"
+	EndDialog
 
     Do
         Do
@@ -317,13 +321,13 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     CALL write_bullet_and_variable_in_CASE_NOTE("Discovery date", discovery_date)
     CALL write_bullet_and_variable_in_CASE_NOTE("Active Program(s)", list_active_programs)
     CALL write_bullet_and_variable_in_CASE_NOTE("Source of income", income_source)
-    Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " for $" & Claim_amount)
-    IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " for $" & Claim_amount_II)
-    IF OP_program_III <> "Select:" then	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " for $" & Claim_amount_III)
-    IF OP_program_IV <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " for $" & Claim_amount_IV)
+    Call write_variable_in_CASE_NOTE(OP_program & " Overpayment " & OP_from & " thru " & OP_to & " Claim # " & Claim_number & " for $" & Claim_amount & " " & Claim_collectible)
+    IF OP_program_II <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_II & " Overpayment " & OP_from_II & " thru " & OP_to_II & " Claim # " & Claim_number_II & " for $" & Claim_amount_II & " " & Claim_collectible_II)
+    IF OP_program_III <> "Select:" then	Call write_variable_in_CASE_NOTE(OP_program_III & " Overpayment " & OP_from_III & " thru " & OP_to_III & " Claim # " & Claim_number_III & " for $" & Claim_amount_III & " " & Claim_collectible_III)
+    IF OP_program_IV <> "Select:" then Call write_variable_in_CASE_NOTE(OP_program_IV & " Overpayment " & OP_from_IV & " thru " & OP_to_IV & " Claim # " & Claim_number_IV & " for $" & Claim_amount_IV & " " & Claim_collectible_IV)
     'health care
-    IF HC_claim_number <> "" THEN Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " for $" & HC_Claim_amount)
-    IF HC_claim_number_II <> "" THEN Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " for $" & HC_claim_amount_II)
+    IF HC_claim_number <> "" THEN Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from & " thru " & HC_to & " Claim #" & HC_claim_number & " for $" & HC_Claim_amount)
+    IF HC_claim_number_II <> "" THEN Call write_variable_in_case_note("HC OVERPAYMENT " & HC_from_II & " thru " & HC_to_II & " Claim #" & HC_claim_number_II & " for $" & HC_claim_amount_II)
     Call write_bullet_and_variable_in_CASE_NOTE("Health Care responsible members", HC_resp_memb)
     Call write_bullet_and_variable_in_CASE_NOTE("Total Federal Health Care amount", Fed_HC_AMT)
     If HC_claim_number <> "" or HC_claim_number_II <> "" then
@@ -383,13 +387,13 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
         CALL write_bullet_and_variable_in_CCOL_note("Discovery date", discovery_date)
         CALL write_bullet_and_variable_in_CCOL_note("Active Program(s)", list_active_programs)
         CALL write_bullet_and_variable_in_CCOL_note("Source of income", income_source)
-        Call write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number & " for $" & Claim_amount)
-        IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " through " & OP_to_II & " Claim # " & Claim_number_II & " for $" & Claim_amount_II)
-        IF OP_program_III <> "Select:" then	Call write_variable_in_CCOL_note(OP_program_III & " Overpayment " & OP_from_III & " through " & OP_to_III & " Claim # " & Claim_number_III & " for $" & Claim_amount_III)
-        IF OP_program_IV <> "Select:" then Call write_variable_in_CCOL_note(OP_program_IV & " Overpayment " & OP_from_IV & " through " & OP_to_IV & " Claim # " & Claim_number_IV & " for $" & Claim_amount_IV)
+		Call write_variable_in_CCOL_note(OP_program & " Overpayment " & OP_from & " thru " & OP_to & " Claim # " & Claim_number & " for $" & Claim_amount & " " & Claim_collectible)
+		IF OP_program_II <> "Select:" then Call write_variable_in_CCOL_note(OP_program_II & " Overpayment " & OP_from_II & " thru " & OP_to_II & " Claim # " & Claim_number_II & " for $" & Claim_amount_II & " " & Claim_collectible_II)
+		IF OP_program_III <> "Select:" then	Call write_variable_in_CCOL_note(OP_program_III & " Overpayment " & OP_from_III & " thru " & OP_to_III & " Claim # " & Claim_number_III & " for $" & Claim_amount_III & " " & Claim_collectible_III)
+		IF OP_program_IV <> "Select:" then Call write_variable_in_CCOL_note(OP_program_IV & " Overpayment " & OP_from_IV & " thru " & OP_to_IV & " Claim # " & Claim_number_IV & " for $" & Claim_amount_IV & " " & Claim_collectible_IV)
         'health care
-        IF HC_claim_number <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from & " through " & HC_to & " Claim #" & HC_claim_number & " for $" & HC_Claim_amount)
-        IF HC_claim_number_II <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from_II & " through " & HC_to_II & " Claim #" & HC_claim_number_II & " for $" & HC_claim_amount_II)
+        IF HC_claim_number <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from & " thru " & HC_to & " Claim #" & HC_claim_number & " for $" & HC_Claim_amount)
+        IF HC_claim_number_II <> "" THEN Call write_variable_in_CCOL_note("HC OVERPAYMENT " & HC_from_II & " thru " & HC_to_II & " Claim #" & HC_claim_number_II & " for $" & HC_claim_amount_II)
         Call write_bullet_and_variable_in_CCOL_note("Health Care responsible members", HC_resp_memb)
         Call write_bullet_and_variable_in_CCOL_note("Total Federal Health Care amount", Fed_HC_AMT)
         If HC_claim_number <> "" or HC_claim_number_II <> "" then
