@@ -1441,6 +1441,7 @@ Do While NOT objWorkRecordSet.Eof
 		    WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= DateAdd("d", 0, change_date)
 
 			If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
+			If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
 
 			case_review_notes = "FOLLOW UP NEEDED - " & case_review_notes
 		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
@@ -2189,7 +2190,7 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		End If
 	End If
 
-	If IsNumeric(WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry)) = True Then
+	If IsNumeric(WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry)) = True AND (WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "DENY AT DAY 30" OR WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "" OR WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PREP FOR DENIAL") Then
 		days_pending = WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry) * 1
 		If days_pending > true_days_for_denial Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS"
 	End if
@@ -2216,6 +2217,8 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		cases_to_alert_BZST = cases_to_alert_BZST & ", " & MAXIS_case_number
 	End If
 	If WORKING_LIST_CASES_ARRAY(deleted_today, case_entry) = True Then WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = False
+
+
 	If WORKING_LIST_CASES_ARRAY(add_to_daily_worklist, case_entry) = True Then
 		WORKING_LIST_CASES_ARRAY(last_wl_date, case_entry) = date
 		WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = "STS-NR " & WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry)
