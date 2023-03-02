@@ -411,14 +411,14 @@ If SMRT_actions = "ISDS referral completed" then
 		End If
 	End If
 
-	initial_SMRT_member <> SMRT_member Then smrt_request_info_changed = True
-	initial_memb_number <> memb_number Then smrt_request_info_changed = True
-	initial_SMRT_member_name <> SMRT_member_name Then smrt_request_info_changed = True
-	initial_SMRT_start_date <> SMRT_start_date Then smrt_request_info_changed = True
-	initial_referral_date <> referral_request_date Then smrt_request_info_changed = True
-	initial_referred_exp <> referred_exp Then smrt_request_info_changed = True
-	initial_expedited_reason <> expedited_reason Then smrt_request_info_changed = True
-	initial_referral_reason <> referral_reason Then smrt_request_info_changed = True
+	If initial_SMRT_member <> SMRT_member Then smrt_request_info_changed = True
+	If initial_memb_number <> memb_number Then smrt_request_info_changed = True
+	If initial_SMRT_member_name <> SMRT_member_name Then smrt_request_info_changed = True
+	If initial_SMRT_start_date <> SMRT_start_date Then smrt_request_info_changed = True
+	If initial_referral_date <> referral_request_date Then smrt_request_info_changed = True
+	If initial_referred_exp <> referred_exp Then smrt_request_info_changed = True
+	If initial_expedited_reason <> expedited_reason Then smrt_request_info_changed = True
+	If initial_referral_reason <> referral_reason Then smrt_request_info_changed = True
 
 
 	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -495,21 +495,22 @@ If SMRT_actions = "SMRT Referral NOT Submitted" Then
 		End If
 	End If
 
-	initial_SMRT_member <> SMRT_member Then smrt_request_info_changed = True
-	initial_memb_number <> memb_number Then smrt_request_info_changed = True
-	initial_SMRT_member_name <> SMRT_member_name Then smrt_request_info_changed = True
-	initial_SMRT_start_date <> SMRT_start_date Then smrt_request_info_changed = True
-	initial_referral_date <> referral_request_date Then smrt_request_info_changed = True
-	initial_referred_exp <> referred_exp Then smrt_request_info_changed = True
-	initial_expedited_reason <> expedited_reason Then smrt_request_info_changed = True
-	initial_referral_reason <> referral_reason Then smrt_request_info_changed = True
+	If initial_SMRT_member <> SMRT_member Then smrt_request_info_changed = True
+	If initial_memb_number <> memb_number Then smrt_request_info_changed = True
+	If initial_SMRT_member_name <> SMRT_member_name Then smrt_request_info_changed = True
+	If initial_SMRT_start_date <> SMRT_start_date Then smrt_request_info_changed = True
+	If initial_referral_date <> referral_request_date Then smrt_request_info_changed = True
+	If initial_referred_exp <> referred_exp Then smrt_request_info_changed = True
+	If initial_expedited_reason <> expedited_reason Then smrt_request_info_changed = True
+	If initial_referral_reason <> referral_reason Then smrt_request_info_changed = True
 
 	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("---SMRT NOT submitted to ISDS---")
 
-	call write_variable_in_CASE_NOTE("This SMRT referral could not be sent to ISDI")
+	call write_variable_in_CASE_NOTE("This SMRT referral could not be sent to ISDS")
     call write_bullet_and_variable_in_CASE_NOTE("Reason referral not submitted", isds_referral_reject_reason)
-    Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
+	call write_variable_in_CASE_NOTE("* SMRT Referral Request returned to originating worker.")
+   	Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
 	If smrt_request_info_changed = True Then call write_variable_in_CASE_NOTE("Referral information has been updated.")
 	call write_variable_in_CASE_NOTE("Referral details:")
 
@@ -605,14 +606,14 @@ If SMRT_actions = "Determination received" then
    		Call check_for_password(are_we_passworded_out)
     LOOP UNTIL are_we_passworded_out = False
 
-	initial_SMRT_member <> SMRT_member Then smrt_request_info_changed = True
-	initial_memb_number <> memb_number Then smrt_request_info_changed = True
-	initial_SMRT_member_name <> SMRT_member_name Then smrt_request_info_changed = True
-	initial_SMRT_start_date <> SMRT_start_date Then smrt_request_info_changed = True
-	initial_referral_date <> referral_request_date Then smrt_request_info_changed = True
-	initial_referred_exp <> referred_exp Then smrt_request_info_changed = True
-	initial_expedited_reason <> expedited_reason Then smrt_request_info_changed = True
-	initial_referral_reason <> referral_reason Then smrt_request_info_changed = True
+	If initial_SMRT_member <> SMRT_member Then smrt_request_info_changed = True
+	If initial_memb_number <> memb_number Then smrt_request_info_changed = True
+	If initial_SMRT_member_name <> SMRT_member_name Then smrt_request_info_changed = True
+	If initial_SMRT_start_date <> SMRT_start_date Then smrt_request_info_changed = True
+	If initial_referral_date <> referral_request_date Then smrt_request_info_changed = True
+	If initial_referred_exp <> referred_exp Then smrt_request_info_changed = True
+	If initial_expedited_reason <> expedited_reason Then smrt_request_info_changed = True
+	If initial_referral_reason <> referral_reason Then smrt_request_info_changed = True
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("---SMRT determination received: " & SMRT_determination & "---")
@@ -649,6 +650,7 @@ If SMRT_actions = "Determination received" then
 		If disa_version <> "1" Then
 			end_msg = end_msg & vbCr & vbCr & "There is no DISA panel for this person."
 			end_msg = end_msg & vbCr & "Please update the case to correctly document the disability determination and take proper action on the case."
+		End If
 	End If
 
 	' end_msg = "SMRT Action for Determination Received noted on Case."
