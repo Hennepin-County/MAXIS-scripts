@@ -221,7 +221,8 @@ const wrkr_id_const         = 0
 const wrkr_name_const       = 1
 const case_status_const     = 2
 const admin_radio_btn_const = 3
-const admin_wrkr_last_const = 4
+const case_count_const		= 4
+const admin_wrkr_last_const = 5
 
 Dim ADMIN_worker_list_array()
 ReDim ADMIN_worker_list_array(admin_wrkr_last_const, 0)
@@ -499,10 +500,10 @@ function complete_admin_functions()
             grp_len = 110 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
 
             Dialog1 = ""
-            BeginDialog Dialog1, 0, 0, 451, 180, "On Demand Applications Dashboard"
+            BeginDialog Dialog1, 0, 0, 451, dlg_len, "On Demand Applications Dashboard"
               ButtonGroup ButtonPressed
                 Text 170, 10, 135, 10, "On Demand Applications Dashboard"
-                GroupBox 10, 25, 430, 130, "On Demand Case List Information"
+                GroupBox 10, 25, 430, grp_len, "On Demand Case List Information"
                 Text 20, 40, 230, 10, "Today " & total_cases_for_review & " cases require review. These cases are currently:"
                 Text 40, 55, 110, 10, "Reviews still needed: " & admin_count_NR
                 Text 40, 70, 115, 10, "Reviews In Progress: " & admin_count_IP
@@ -526,7 +527,7 @@ function complete_admin_functions()
                     OptionGroup RadioGroupHD
                     For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
                         If ADMIN_worker_list_array(case_status_const, worker_indc) = "HD" Then
-                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
+                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc) & ": " & ADMIN_worker_list_array(case_count_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
                             y_pos = y_pos + 10
                         End If
                     Next
@@ -540,15 +541,15 @@ function complete_admin_functions()
                     OptionGroup RadioGroupRC
                     For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
                         If ADMIN_worker_list_array(case_status_const, worker_indc) = "RC" Then
-                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
+                            RadioButton 50, y_pos, 300, 10, ADMIN_worker_list_array(wrkr_name_const, worker_indc) & " - " & ADMIN_worker_list_array(wrkr_id_const, worker_indc) & ": " & ADMIN_worker_list_array(case_count_const, worker_indc), btn_hold', ADMIN_worker_list_array(admin_radio_btn_const, worker_indc)
                             y_pos = y_pos + 10
                         End If
                     Next
                 End If
                 y_pos = y_pos + 5
 
-                OkButton 335, 160, 50, 15
-                CancelButton 390, 160, 50, 15
+                OkButton 335, dlg_len-20, 50, 15
+                CancelButton 390, dlg_len-20, 50, 15
                 EditBox 500, 300, 50, 15, fake_edit_box
             EndDialog
 
@@ -557,23 +558,23 @@ function complete_admin_functions()
 
             worker_number_to_resolve = ""
             If ButtonPressed = release_IP_btn Then
-                MsgBox "RadioGroupIP - " & RadioGroupIP
+                ' MsgBox "RadioGroupIP - " & RadioGroupIP
                 For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
                     If RadioGroupIP = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
                 Next
             ElseIf ButtonPressed = release_HD_btn Then
-                MsgBox "RadioGroupHD - " & RadioGroupHD
+                ' MsgBox "RadioGroupHD - " & RadioGroupHD
                 For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
                     If RadioGroupHD = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
                 Next
             ElseIf ButtonPressed = finish_day_btn Then
-                MsgBox "RadioGroupRC - " & RadioGroupRC
+                ' MsgBox "RadioGroupRC - " & RadioGroupRC
                 For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
                     If RadioGroupRC = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
                 Next
             End If
 
-            MsgBox "worker_number_to_resolve - " & worker_number_to_resolve
+            ' MsgBox "worker_number_to_resolve - " & worker_number_to_resolve
             For tester = 0 to UBound(tester_array)                         'looping through all of the testers
                 ' pulling QI members by supervisor from the Complete List of Testers
                 If tester_array(tester).tester_id_number = worker_number_to_resolve Then
@@ -586,9 +587,16 @@ function complete_admin_functions()
                     ' MsgBox "user_ID_for_validation - " & user_ID_for_validation & vbCr & "tester_array(tester).tester_id_number - " & tester_array(tester).tester_id_number & vbCr & "qi_member_identified - " & qi_member_identified
                 End If
             Next
-
-            case_to_fix_found = False
-            Do
+			end_msg = "ADMIN Function completed. " & vbCr & vbCr & "Worker selected: " & worker_number_to_resolve & vbCr & "This worker's task"
+            If ButtonPressed = release_IP_btn Then
+				end_msg = end_msg & " IN PROGRESS was released."
+            ElseIf ButtonPressed = release_HD_btn Then
+				end_msg = end_msg & "s ON HOLD were released."
+            ElseIf ButtonPressed = finish_day_btn Then
+				end_msg = end_msg & "s that were COMPLETED today were logged and FINISH DAY was run."
+            End If
+			Do
+	            case_to_fix_found = False
                 'declare the SQL statement that will query the database
                 objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
 
@@ -647,20 +655,21 @@ function complete_admin_functions()
                 Set objRecordSet=nothing
                 Set objConnection=nothing
 
+				If case_to_fix_found = True Then
+					Set objConnection = CreateObject("ADODB.Connection")
+					Set objRecordSet = CreateObject("ADODB.Recordset")
 
-                Set objConnection = CreateObject("ADODB.Connection")
-                Set objRecordSet = CreateObject("ADODB.Recordset")
+					'This is the BZST connection to SQL Database'
+					objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 
-                'This is the BZST connection to SQL Database'
-                objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+					'delete a record if the case number matches
+					objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_tracking_notes & "' WHERE CaseNumber = '" & worklist_case_number & "'", objConnection
 
-                'delete a record if the case number matches
-                objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_tracking_notes & "' WHERE CaseNumber = '" & worklist_case_number & "'", objConnection
-
-                'close the connection and recordset objects to free up resources
-                objConnection.Close
-                Set objRecordSet=nothing
-                Set objConnection=nothing
+					'close the connection and recordset objects to free up resources
+					objConnection.Close
+					Set objRecordSet=nothing
+					Set objConnection=nothing
+				End If
 
                 If ButtonPressed = finish_day_btn Then
                     actual_user_ID_for_validation = user_ID_for_validation
@@ -1218,6 +1227,7 @@ EMConnect ""                'connecting to MAXIS
 Call check_for_MAXIS(True)  'If we are not in MAXIS or not passworded into MAXIS the script will end.
 
 'If a BZST worker is running this script, there is functionality for running a cleanup or running in DEMMO mode
+' user_ID_for_validation = ""
 If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 271, 70, "BZST ScriptWriter Options"                     'dialog to select demo or clean up options
@@ -1238,7 +1248,7 @@ If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
 End If
 'this defines workers that have access to the Admmin functions along with the BZST writers
 If user_ID_for_validation = "TAPA002" or user_ID_for_validation = "WFX901" or user_ID_for_validation = "WFU851" Then ADMIN_run = True   'TP, FRC, JF
-
+' user_ID_for_validation = "CALO001"
 'the scripts should have loaded the tester array from GlobVar but if it did not, this will load it
 If IsArray(tester_array) = False Then
     Dim tester_array()
@@ -1402,8 +1412,9 @@ If local_demo = False Then
                         ADMIN_worker_list_array(wrkr_name_const, worker_count) = tester_array(tester).tester_first_name
                         ADMIN_worker_list_array(case_status_const, worker_count) = "RC"
                         ADMIN_worker_list_array(admin_radio_btn_const, worker_count) = RCcount
+						ADMIN_worker_list_array(case_count_const, worker_count) = 0
 
-                        worker_count = worker_count + 1
+						worker_count = worker_count + 1
                         RCcount = RCcount + 1
                     End If
                 Next
@@ -1424,6 +1435,7 @@ If local_demo = False Then
                         ADMIN_worker_list_array(wrkr_name_const, worker_count) = tester_array(tester).tester_first_name
                         ADMIN_worker_list_array(case_status_const, worker_count) = "HD"
                         ADMIN_worker_list_array(admin_radio_btn_const, worker_count) = HDCount
+						ADMIN_worker_list_array(case_count_const, worker_count) = 0
 
                         worker_count = worker_count + 1
                         HDCount = HDCount + 1
@@ -1446,6 +1458,7 @@ If local_demo = False Then
                         ADMIN_worker_list_array(wrkr_name_const, worker_count) = tester_array(tester).tester_first_name
                         ADMIN_worker_list_array(case_status_const, worker_count) = "IP"
                         ADMIN_worker_list_array(admin_radio_btn_const, worker_count) = IPCount
+						ADMIN_worker_list_array(case_count_const, worker_count) = 1
 
                         worker_count = worker_count + 1
                         IPCount = IPCount + 1
@@ -1453,6 +1466,45 @@ If local_demo = False Then
                 Next
             Next
         End If
+
+		If BULK_Run_completed = True Then
+			'Read the whole table
+			'declare the SQL statement that will query the database
+			objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+			'Creating objects for Access
+			Set objConnection = CreateObject("ADODB.Connection")
+			Set objRecordSet = CreateObject("ADODB.Recordset")
+
+			'This is the file path for the statistics Access database.
+			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+			objRecordSet.Open objSQL, objConnection
+
+			Do While NOT objRecordSet.Eof
+
+				For qi_worker = 0 to UBound(ADMIN_worker_list_array, 2)
+					case_info_notes = objRecordSet("TrackingNotes")
+                	If Instr(case_info_notes, "STS-RC") <> 0 AND ADMIN_worker_list_array(case_status_const, qi_worker) = "RC" Then
+						If InStr(case_info_notes, ADMIN_worker_list_array(wrkr_id_const, qi_worker))<> 0 Then ADMIN_worker_list_array(case_count_const, qi_worker) = ADMIN_worker_list_array(case_count_const, qi_worker) + 1
+					End if
+					If Instr(case_info_notes, "STS-HD") <> 0 AND ADMIN_worker_list_array(case_status_const, qi_worker) = "HD" Then
+						If InStr(case_info_notes, ADMIN_worker_list_array(wrkr_id_const, qi_worker))<> 0 Then ADMIN_worker_list_array(case_count_const, qi_worker) = ADMIN_worker_list_array(case_count_const, qi_worker) + 1
+					End If
+					' If Instr(case_info_notes, "STS-IP") <> 0 Then
+					' 	If InStr(case_info_notes, ADMIN_worker_list_array(wrkr_id_const, qi_worker))<> 0 Then ADMIN_worker_list_array(case_count_const, qi_worker) = ADMIN_worker_list_array(case_count_const, qi_worker) + 1
+					' End If
+
+
+				Next
+
+				objRecordSet.MoveNext
+			Loop
+			'close the connection and recordset objects to free up resources
+			objRecordSet.Close
+			objConnection.Close
+			Set objRecordSet=nothing
+			Set objConnection=nothing
+		End If
     End If
 Else                            'if we are running in DEMO mode, we don't read the table - we have a dialog to select the process to view.
 	total_cases_for_review = 124
