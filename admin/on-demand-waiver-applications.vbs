@@ -1635,6 +1635,11 @@ For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 		        If additional_emer_code <> "_" Then use_additional_app_date = True
 		        If additional_grh_code <> "_" Then use_additional_app_date = True
 
+				If use_original_app_date = False and use_additional_app_date = True Then
+		    		EMReadScreen nbr_days_pending, 3, row + 1, 50
+		    		WORKING_LIST_CASES_ARRAY(rept_pnd2_listed_days, case_entry) = trim(nbr_days_pending)
+				End If
+
 		        If use_original_app_date = True AND use_additional_app_date = True Then
 		            original_application_date = replace(original_application_date, " ", "/")
 		            WORKING_LIST_CASES_ARRAY(application_date, case_entry) = original_application_date
