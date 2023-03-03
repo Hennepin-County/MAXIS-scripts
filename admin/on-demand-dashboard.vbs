@@ -1,5 +1,5 @@
 'GATHERING STATS===========================================================================================
-name_of_script = "ADMIN - On Demand Applications Dashboard.vbs"
+name_of_script = "ADMIN - On Demand Dashboard.vbs"
 start_time = timer
 STATS_counter = 1
 STATS_manualtime = 300
@@ -59,7 +59,7 @@ changelog_display
 
 'Information about this script and how it works
 ' STS-NR            'Status - Needs Review'
-' STS-RC            'Status - Review Completed'
+' STS-RC-WFXXXX     'Status - Review Completed - Worker number'
 ' STS-IP-WFXXXX     'Status - In Progress - Worker number'
 ' STS-HD-WFXXXX     'Status - HolD - Worker number'
 
@@ -292,9 +292,9 @@ worklist_information_msg = worklist_information_msg & vbCr & vbCr & "If you need
 'END DECLARATIONS ==========================================================================================================
 
 'FUNCTIONS BLOCK ===========================================================================================================
-
+'this function checks the SQL worklist and determines if there are still cases on hold or in progress that would prevent the completion of the work day
 function assess_worklist_to_finish_day()
-    case_on_hold = False
+    case_on_hold = False			'these are the booleans that come out of this function to indicate cases are still being worked
     case_in_progress = False
     completed_reviews = 0
     reviews_completed_by_me = 0
@@ -338,8 +338,10 @@ function assess_worklist_to_finish_day()
     Set objConnection=nothing
 end function
 
+'this function will assign the case informaiton to a specific worker.
 function assign_a_case()
-    If local_demo = False Then
+    If local_demo = False Then					'if not a DEMO run, pull case information from the SQL table
+		'if we need to get a new case, we need to find a case with the status of 'STS-NR' since that is a case that needs review
         If ButtonPressed = get_new_case_btn Then
             objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
 
@@ -374,6 +376,7 @@ function assign_a_case()
             create_tracking_cookie
         End If
 
+		'if we are resuming a hold case, we already know the case number and can resume it directly using the case number
         If ButtonPressed = resume_hold_case_btn Then
             'Creating objects for Access
             Set objConnection = CreateObject("ADODB.Connection")
@@ -391,7 +394,7 @@ function assign_a_case()
             Set objRecordSet=nothing
             Set objConnection=nothing
         End If
-    Else
+    Else		'these are for demo cases
         MAXIS_case_number                       = "318040"
         ' assigned_ = objRecordSet("CaseNumber")
         assigned_case_name                      = "ZORO, RORONOA"
@@ -420,9 +423,10 @@ function assign_a_case()
         assigned_out_of_county_resolve          = ""
         case_review_notes                 = "TrackingNotes"
     End If
-    end_msg = end_msg & vbCr & vbCr & "You have a case selected for review: " & MAXIS_case_number
+    end_msg = end_msg & vbCr & vbCr & "You have a case selected for review: " & MAXIS_case_number		'saving and formatting the information
     assigned_tracking_notes = "STS-IP-"&user_ID_for_validation & " " & case_review_notes
 
+	'if not a demo case, the updated information should be saved to SQL
     If local_demo = False Then
         'Creating objects for Access
         Set objConnection = CreateObject("ADODB.Connection")
@@ -464,6 +468,7 @@ function assign_a_case()
         Set objConnection=nothing
     End If
 
+	'this part is to document some time information when assigning the case
     txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
     od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
     If ButtonPressed = get_new_case_btn Then
@@ -485,13 +490,15 @@ function assign_a_case()
     End If
     worker_on_task = True
 
+	'going to CASE/CURR for the case
     Call Back_to_SELF
     Call navigate_to_MAXIS_screen("CASE", "CURR")
-    'Once this function ends, the script will move to the final fucnctionality
-    'that dissplays a dialog to allow the review to be completed
+	'after here, the script will go to the functionality where a worker is indicated on task to display the dialog with detail about the case.
 end function
 
+'this is the function to display information about all the cases and any that are being worked or has been worked
 function complete_admin_functions()
+	'show the information read from the SQL table
     Do
         Do
             err_msg = ""
@@ -556,25 +563,23 @@ function complete_admin_functions()
             Dialog Dialog1
             cancel_without_confirmation
 
+			'this part will determine the worker number of the bselected group if a button to release assignment or finish the day
             worker_number_to_resolve = ""
             If ButtonPressed = release_IP_btn Then
-                ' MsgBox "RadioGroupIP - " & RadioGroupIP
                 For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
                     If RadioGroupIP = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
                 Next
             ElseIf ButtonPressed = release_HD_btn Then
-                ' MsgBox "RadioGroupHD - " & RadioGroupHD
                 For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
                     If RadioGroupHD = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
                 Next
             ElseIf ButtonPressed = finish_day_btn Then
-                ' MsgBox "RadioGroupRC - " & RadioGroupRC
                 For worker_indc = 0 to UBound(ADMIN_worker_list_array, 2)
                     If RadioGroupRC = ADMIN_worker_list_array(admin_radio_btn_const, worker_indc) Then worker_number_to_resolve = ADMIN_worker_list_array(wrkr_id_const, worker_indc)
                 Next
             End If
 
-            ' MsgBox "worker_number_to_resolve - " & worker_number_to_resolve
+			'getting some detail about the worker that is selected
             For tester = 0 to UBound(tester_array)                         'looping through all of the testers
                 ' pulling QI members by supervisor from the Complete List of Testers
                 If tester_array(tester).tester_id_number = worker_number_to_resolve Then
@@ -587,6 +592,7 @@ function complete_admin_functions()
                     ' MsgBox "user_ID_for_validation - " & user_ID_for_validation & vbCr & "tester_array(tester).tester_id_number - " & tester_array(tester).tester_id_number & vbCr & "qi_member_identified - " & qi_member_identified
                 End If
             Next
+			'end message details
 			end_msg = "ADMIN Function completed. " & vbCr & vbCr & "Worker selected: " & worker_number_to_resolve & vbCr & "This worker's task"
             If ButtonPressed = release_IP_btn Then
 				end_msg = end_msg & " IN PROGRESS was released."
@@ -595,6 +601,8 @@ function complete_admin_functions()
             ElseIf ButtonPressed = finish_day_btn Then
 				end_msg = end_msg & "s that were COMPLETED today were logged and FINISH DAY was run."
             End If
+
+			'This part will loop through all of the cases on the SQL table to find if the notes indicate the status meets the requirements of the selection
 			Do
 	            case_to_fix_found = False
                 'declare the SQL statement that will query the database
@@ -612,7 +620,7 @@ function complete_admin_functions()
                     case_tracking_notes = objRecordSet("TrackingNotes")
                     worklist_case_number = objRecordSet("CaseNumber")
 
-                    If ButtonPressed = release_IP_btn Then
+                    If ButtonPressed = release_IP_btn Then			'if the button was pressed to release a case in progress, looking for STS-IP with the worker ID listed
                         If Instr(case_tracking_notes, "STS-IP") Then
                             If Instr(case_tracking_notes, worker_number_to_resolve) <> 0 Then
                                 case_to_fix_found = True
@@ -624,11 +632,9 @@ function complete_admin_functions()
                                 case_tracking_notes = "STS-NR " & case_tracking_notes
                                 case_tracking_notes = trim(case_tracking_notes)
                                 Exit Do
-                                ' objRecordSet.Update "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "'", objConnection
-
                             End If
                         End if
-                    ElseIf ButtonPressed = release_HD_btn Then
+                    ElseIf ButtonPressed = release_HD_btn Then			'if the button was pressed to release cases on hold, looking for STS-HD with the worker ID listed
                         If Instr(case_tracking_notes, "STS-HD") Then
                             If Instr(case_tracking_notes, worker_number_to_resolve) <> 0 Then
                                 case_to_fix_found = True
@@ -640,13 +646,11 @@ function complete_admin_functions()
                                 case_tracking_notes = "STS-NR " & case_tracking_notes
                                 case_tracking_notes = trim(case_tracking_notes)
                                 Exit Do
-                                ' objRecordSet.Update "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & case_review_notes & "'", objConnection
-
                             End If
                         End if
                     End If
 
-                    objRecordSet.MoveNext
+                    objRecordSet.MoveNext		'going to the next case
                 Loop
 
                 'close the connection and recordset objects to free up resources
@@ -655,7 +659,7 @@ function complete_admin_functions()
                 Set objRecordSet=nothing
                 Set objConnection=nothing
 
-				If case_to_fix_found = True Then
+				If case_to_fix_found = True Then		'if a case was found to fix, this will pull the case and update the tracking notes and remove the hold/in progress
 					Set objConnection = CreateObject("ADODB.Connection")
 					Set objRecordSet = CreateObject("ADODB.Recordset")
 
@@ -671,7 +675,7 @@ function complete_admin_functions()
 					Set objConnection=nothing
 				End If
 
-                If ButtonPressed = finish_day_btn Then
+                If ButtonPressed = finish_day_btn Then		'if the button was pressed to finish the day, it will pull the right worker and call the finish day function
                     actual_user_ID_for_validation = user_ID_for_validation
                     user_ID_for_validation = worker_number_to_resolve
                     actual_assigned_worker = assigned_worker
@@ -692,12 +696,13 @@ function complete_admin_functions()
                         err_msg = "LOOP"
                     End If
                 End If
-            Loop until case_to_fix_found = False
+            Loop until case_to_fix_found = False				'we are going to go through the list until no cases are found that meet the criteria to fix
 	    Loop until err_msg = ""
 	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 end function
 
+'this function will log the completed reviews for a specific worker as a part of the Finish Day process
 function create_assignment_report()
     'Access the SQL Table
     'declare the SQL statement that will query the database
@@ -711,6 +716,7 @@ function create_assignment_report()
     objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
     objRecordSet.Open objSQL, objConnection
 
+	'we are going to add each case on the TABLE that was completed by the worker running the script and adding the information to the array
     cases_completed_by_me = 0
     Do While NOT objRecordSet.Eof
         case_tracking_notes = objRecordSet("TrackingNotes")
@@ -757,15 +763,17 @@ function create_assignment_report()
     Set objRecordSet=nothing
     Set objConnection=nothing
 
+	'opening task log
     file_url = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
     Call excel_open(file_url, True, False, ObjExcel, objWorkbook)
 
+	''finding the first empty row in the log
     excel_row = 2
-
     Do While trim(ObjExcel.Cells(excel_row, Worker_col).value) <> ""
 	    excel_row = excel_row + 1
     Loop
 
+	'loop through the array of all of the cases completed and add them to the excel log
     For review = 0 to UBound(COMPLETED_REVIEWS_ARRAY, 2)
         MAXIS_case_number = COMPLETED_REVIEWS_ARRAY(case_number_const, review)
         assigned_date  = ""
@@ -782,8 +790,9 @@ function create_assignment_report()
         txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
         od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
 
-        Call read_tracking_cookie
+        Call read_tracking_cookie			'read details from the tracking cookie to save it to the log
 
+		'removing the status tracking information from the notes since the review is now done and logged
         case_review_notes = COMPLETED_REVIEWS_ARRAY(case_review_notes_const, review)
         case_review_notes = replace(case_review_notes, "STS-IP-"&user_ID_for_validation, "")
         case_review_notes = replace(case_review_notes, "STS-HD-"&user_ID_for_validation, "")
@@ -830,6 +839,7 @@ function create_assignment_report()
 
         excel_row = excel_row + 1
 
+		'update the information on SQL table with the notes updates
         If local_demo = False Then
             'Creating objects for Access
             Set objConnection = CreateObject("ADODB.Connection")
@@ -847,6 +857,7 @@ function create_assignment_report()
             Set objConnection=nothing
         End If
 
+		'removing the tracking cookie
         With objFSO
             If .FileExists(od_revw_tracking_file_path) = True then
                 .DeleteFile(od_revw_tracking_file_path)
@@ -860,6 +871,7 @@ function create_assignment_report()
     ObjExcel.Application.Quit
     ObjExcel.Quit
 
+	'creating the email to report completion of work
 	main_email_subject = "On Demand Daily Case Review Completed"
 
     main_email_body = "The On Demand Appplication Reviews have been completed for " & date & "."
@@ -897,9 +909,26 @@ function create_assignment_report()
     main_email_body = main_email_body & vbCr & vbCr & "------"
     main_email_body = main_email_body & vbCr & qi_worker_first_name
 
+	''sending the email
     CALL create_outlook_email(qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", main_email_subject, main_email_body, "", TRUE)
+
+	'this part will review the cookie folder to remove any that are more than a week old. This is a clean up effort
+	Set objFolder = objFSO.GetFolder(current_day_work_tracking_folder)							'Creates an oject of the whole my documents folder
+	Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
+	For Each objFile in colFiles																'looping through each file
+		delete_this_file = False																'Default to NOT delete the file
+		this_file_type = objFile.Type															'Grabing the file type
+		this_file_created_date = objFile.DateCreated											'Reading the date created
+		this_file_path = objFile.Path															'Grabing the path for the file
+
+		If this_file_type <> "Text Document" then delete_this_file = False						'We do NOT want to delete files that are NOT TXT file types
+		If DateDiff("d", this_file_created_date, date) > 7 Then delete_this_file = True		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
+
+		If delete_this_file = True Then objFSO.DeleteFile(this_file_path)						'If we have determined that we need to delete the file - here we delete it
+	Next
 end function
 
+'function to create a txt file to save information about the work as a case is reviewed
 function create_tracking_cookie()
     With objFSO
         Dim objTextStream
@@ -916,6 +945,7 @@ function create_tracking_cookie()
     End With
 end function
 
+'this is a cleanup functionality to move the previous worklist into SQL
 function merge_worklist_to_SQL()
     'setting up information and variables for accessing yesterday's worklist
     previous_date = dateadd("d", -1, date)
@@ -984,6 +1014,7 @@ function merge_worklist_to_SQL()
     Call script_end_procedure("Clean Up Completed")
 end function
 
+'this function will pull details from the tracking cookie, this has time specifics and notes from a case on hold
 function read_tracking_cookie()
     With objFSO
         'Creating an object for the stream of text which we'll use frequently
@@ -1023,6 +1054,7 @@ function read_tracking_cookie()
     End With
 end function
 
+'this reads all the information from SQL and saves it to reserved variables
 function set_variables_from_SQL()
     MAXIS_case_number                       = objRecordSet("CaseNumber")
     assigned_case_name                      = objRecordSet("CaseName")
@@ -1095,6 +1127,7 @@ function set_variables_from_SQL()
     End If
 end function
 
+'function to make sure the worker running the script has access to the SQL table
 function test_sql_access()
     'Access the pending cases TABLE - ES_OnDemandCashAndSnap'
     'declare the SQL statement that will query the database
@@ -1162,6 +1195,7 @@ function test_sql_access()
     Call script_end_procedure(end_msg)
 end function
 
+'this saves the information into the txt cookie, it has a passthrough variable the sets certain options for where in the process the case is at.
 function update_tracking_cookie(update_reason)
     With objFSO
         'If the file doesn't exist, it needs to create it here and initialize it here! After this, it can just exit as the file will now be initialized
@@ -1227,7 +1261,6 @@ EMConnect ""                'connecting to MAXIS
 Call check_for_MAXIS(True)  'If we are not in MAXIS or not passworded into MAXIS the script will end.
 
 'If a BZST worker is running this script, there is functionality for running a cleanup or running in DEMMO mode
-' user_ID_for_validation = ""
 If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 271, 70, "BZST ScriptWriter Options"                     'dialog to select demo or clean up options
@@ -1248,7 +1281,7 @@ If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
 End If
 'this defines workers that have access to the Admmin functions along with the BZST writers
 If user_ID_for_validation = "TAPA002" or user_ID_for_validation = "WFX901" or user_ID_for_validation = "WFU851" Then ADMIN_run = True   'TP, FRC, JF
-' user_ID_for_validation = "CALO001"
+
 'the scripts should have loaded the tester array from GlobVar but if it did not, this will load it
 If IsArray(tester_array) = False Then
     Dim tester_array()
@@ -1274,6 +1307,7 @@ For tester = 0 to UBound(tester_array)                         'looping through 
         assigned_worker = tester_array(tester).tester_full_name
     End If
 Next
+
 'cancelling the script run if a QI member does not run this script
 If qi_member_identified = False Then script_end_procedure("This script can only be operated by a member of core QI due to access restrictions. The script will now end.")
 
@@ -1304,32 +1338,37 @@ If local_demo = False Then
     If DateDiff("d", first_item_date, date) = 0 Then BULK_Run_completed = True
     first_item_time = FormatDateTime(first_item_time, 3)
 
-    cases_on_hold_count = 0
-    If BULK_Run_completed = True Then
+	'reading all of the cases on the SQL table to look for the status of each case, reviews and assignmments
+    cases_on_hold_count = 0						'start at 0
+    If BULK_Run_completed = True Then			'we only review the SQL list if the BULK run has been completed.
         'Read the whole table
-        Do While NOT objRecordSet.Eof
+		review_work_started = False
+		all_cases_on_hold = 0
+		all_cases_in_progress = 0
+        Do While NOT objRecordSet.Eof			'this is the loop
             'count all of today's cases using added to worklist
-            case_worklist_date = objRecordSet("AddedtoWorkList")
+            case_worklist_date = objRecordSet("AddedtoWorkList")			'reading the date the case was last added to the work list and make it a date
             case_worklist_date = DateAdd("d", 0, case_worklist_date)
-            If DateDiff("d", case_worklist_date, date) = 0 Then total_cases_for_review = total_cases_for_review + 1
+            If DateDiff("d", case_worklist_date, date) = 0 Then total_cases_for_review = total_cases_for_review + 1		'if the worklist date is today
 
-            case_tracking_notes = objRecordSet("TrackingNotes")
+            case_tracking_notes = objRecordSet("TrackingNotes")				'reading the notes from the SQL table as this where case status informaiton is held
 
-            'count completed reviews using info in tracking notes
+            'count completed reviews using info in tracking notes and for cases that have been completed and recorded in the log
             If Instr(case_tracking_notes, "STS-RC") <> 0 Then cases_with_review_completed =cases_with_review_completed + 1
             If DateDiff("d", case_worklist_date, date) = 0 AND Instr(case_tracking_notes, "STS") = 0 Then cases_with_review_completed =cases_with_review_completed + 1
 
-            'count waiting using info in tracking notes
+            'count cases that are waiting for review using info in tracking notes
             If Instr(case_tracking_notes, "STS-NR") <> 0 Then cases_waiting_for_review =cases_waiting_for_review + 1
 
             'count cases on hold
             If Instr(case_tracking_notes, "STS-HD") Then
+				all_cases_on_hold = all_cases_on_hold + 1
                 If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then
                     cases_on_hold = cases_on_hold + 1
                     If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then
-                        ReDim preserve CASES_ON_HOLD_ARRAY(last_const, cases_on_hold_count)
+                        ReDim preserve CASES_ON_HOLD_ARRAY(last_const, cases_on_hold_count)						'save to an array of hold cases
                         CASES_ON_HOLD_ARRAY(case_nbr_const, cases_on_hold_count) = objRecordSet("CaseNumber")
-                        CASES_ON_HOLD_ARRAY(case_notes_const, cases_on_hold_count) = objRecordSet("TrackingNotes")
+                        CASES_ON_HOLD_ARRAY(case_notes_const, cases_on_hold_count) = objRecordSet("TrackingNotes")		'remove status information from the notes in the array so they do not display
                         CASES_ON_HOLD_ARRAY(case_notes_const, cases_on_hold_count) = replace(CASES_ON_HOLD_ARRAY(case_notes_const, cases_on_hold_count), "STS-RC", "")
                         CASES_ON_HOLD_ARRAY(case_notes_const, cases_on_hold_count) = replace(CASES_ON_HOLD_ARRAY(case_notes_const, cases_on_hold_count), "STS-RC-"&user_ID_for_validation, "")
                         CASES_ON_HOLD_ARRAY(case_notes_const, cases_on_hold_count) = replace(CASES_ON_HOLD_ARRAY(case_notes_const, cases_on_hold_count), "STS-IP-"&user_ID_for_validation, "")
@@ -1340,49 +1379,56 @@ If local_demo = False Then
                 End If
             End If
 
-            'find if there is a case 'checked out'
+            'find if there is a case in progress
             If Instr(case_tracking_notes, "STS-IP") Then
-                If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then
+				all_cases_in_progress = all_cases_in_progress + 1
+                If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then	'and assigned to the worker running the script
                     worker_on_task = True
                     case_nbr_in_progress = objRecordSet("CaseNumber")
-                    set_variables_from_SQL
+                    set_variables_from_SQL										'this is a function to read information from the SQL table
                     'NOTE - if another worker has a case in progress, it will not show for the current worker, but it will show in the ADMIN function
                 End If
             End If
 
             'If we are running as an ADMIN, the script needs to collect some additional information about the status of the cases.
             If ADMIN_run = True Then
-                RC_id_start = ""
+                RC_id_start = ""			'default variables to start
                 HD_id_start = ""
                 IP_id_start = ""
                 worker_id_RC = ""
                 worker_id_HD = ""
                 worker_id_IP = ""
-                If Instr(case_tracking_notes, "STS-RC") <> 0 Then
-                    admin_count_RC = admin_count_RC + 1
-                    RC_id_start = Instr(case_tracking_notes, "STS-RC") + 7
-                    worker_id_RC = MID(case_tracking_notes, RC_id_start, 7)
-					worker_id_RC = trim(worker_id_RC)
+                If Instr(case_tracking_notes, "STS-RC") <> 0 Then		'reviews completed
+                    admin_count_RC = admin_count_RC + 1					'counting all cases with review completed
+                    RC_id_start = Instr(case_tracking_notes, "STS-RC") + 7		'finding the where the id information is positioned in the notes
+                    worker_id_RC = MID(case_tracking_notes, RC_id_start, 7)		'reading the worker id from the notes
+					worker_id_RC = trim(worker_id_RC)							'the worker id lengths are different - trim to remove spaces
+					'If the worker ID has not already been read on another case, it will add it the worker id to a list of all workers with completed reviews
                     If InStr(ADMIN_list_workers_RC, "~" & worker_id_RC & "~") = 0 then ADMIN_list_workers_RC = ADMIN_list_workers_RC & worker_id_RC & "~"
                 End If
-                If Instr(case_tracking_notes, "STS-NR") <> 0 Then admin_count_NR = admin_count_NR + 1
-                If Instr(case_tracking_notes, "STS-HD") <> 0 Then
-                    admin_count_HD = admin_count_HD + 1
-                    HD_id_start = Instr(case_tracking_notes, "STS-HD") + 7
-                    worker_id_HD = MID(case_tracking_notes, HD_id_start, 7)
-					worker_id_HD = trim(worker_id_HD)
+                If Instr(case_tracking_notes, "STS-NR") <> 0 Then admin_count_NR = admin_count_NR + 1		'counting all the cases that still need a review
+                If Instr(case_tracking_notes, "STS-HD") <> 0 Then		'reviews on hold
+                    admin_count_HD = admin_count_HD + 1					'counting all cases that are on hold
+                    HD_id_start = Instr(case_tracking_notes, "STS-HD") + 7		'finding the where the id information is positioned in the notes
+                    worker_id_HD = MID(case_tracking_notes, HD_id_start, 7)		'reading the worker id from the notes
+					worker_id_HD = trim(worker_id_HD)							'the worker id lengths are different - trim to remove spaces
+					'If the worker ID has not already been read on another case, it will add it the worker id to a list of all workers with cases on hold
                     If InStr(ADMIN_list_workers_HD, "~" & worker_id_HD & "~") = 0 then ADMIN_list_workers_HD = ADMIN_list_workers_HD & worker_id_HD & "~"
                 End If
-                If Instr(case_tracking_notes, "STS-IP") <> 0 Then
-                    admin_count_IP = admin_count_IP + 1
-                    IP_id_start = Instr(case_tracking_notes, "STS-IP") + 7
-                    worker_id_IP = MID(case_tracking_notes, IP_id_start, 7)
-					worker_id_IP = trim(worker_id_IP)
+                If Instr(case_tracking_notes, "STS-IP") <> 0 Then		'reviews in progress
+                    admin_count_IP = admin_count_IP + 1					'counting all cases that are in progress
+                    IP_id_start = Instr(case_tracking_notes, "STS-IP") + 7		'finding the where the id information is positioned in the notes
+                    worker_id_IP = MID(case_tracking_notes, IP_id_start, 7)		'reading the worker id from the notes
+					worker_id_IP = trim(worker_id_IP)							'the worker id lengths are different - trim to remove spaces
+					'If the worker ID has not already been read on another case, it will add it the worker id to a list of all workers with cases in progress
                     If InStr(ADMIN_list_workers_IP, "~" & worker_id_IP & "~") = 0 then ADMIN_list_workers_IP = ADMIN_list_workers_IP & worker_id_IP & "~"
                 End If
             End If
-            objRecordSet.MoveNext
+            objRecordSet.MoveNext		'going to the next case
         Loop
+		If cases_with_review_completed <> 0 Then review_work_started = True
+		If all_cases_on_hold <> 0 Then review_work_started = True
+		If all_cases_in_progress <> 0 Then review_work_started = True
     End If
 
     'close the connection and recordset objects to free up resources
@@ -1391,18 +1437,18 @@ If local_demo = False Then
     Set objRecordSet=nothing
     Set objConnection=nothing
 
-    'If we are running ADMIN functionality we need to capture additional details from information read from case statuses.
+    'If we are running ADMIN functionality we need to get the case information and worker to add to arrays that are easier to work with in dialogs
     worker_count = 0
     RCcount = 0
     IPCount = 0
     HDCount = 0
     If ADMIN_run = True Then
         If len(ADMIN_list_workers_RC) > 1 Then
-            ADMIN_list_workers_RC = right(ADMIN_list_workers_RC, len(ADMIN_list_workers_RC)-1)
+            ADMIN_list_workers_RC = right(ADMIN_list_workers_RC, len(ADMIN_list_workers_RC)-1)					'formatting the list
             ADMIN_list_workers_RC = left(ADMIN_list_workers_RC, len(ADMIN_list_workers_RC)-1)
-            If InStr(ADMIN_list_workers_RC, "~") <> 0 Then RC_id_ARRAY = split(ADMIN_list_workers_RC, "~")
+            If InStr(ADMIN_list_workers_RC, "~") <> 0 Then RC_id_ARRAY = split(ADMIN_list_workers_RC, "~")		'making the list an array
             If InStr(ADMIN_list_workers_RC, "~") = 0 Then RC_id_ARRAY = array(ADMIN_list_workers_RC)
-            For each RC_worker_Id in RC_id_ARRAY
+            For each RC_worker_Id in RC_id_ARRAY																'going through each completed worker and adding details to a main array
                 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
                     ' pulling QI members by supervisor from the Complete List of Testers
                     If tester_array(tester).tester_id_number = RC_worker_Id Then
@@ -1421,11 +1467,11 @@ If local_demo = False Then
             Next
         End If
         If len(ADMIN_list_workers_HD) > 1 Then
-            ADMIN_list_workers_HD = right(ADMIN_list_workers_HD, len(ADMIN_list_workers_HD)-1)
+            ADMIN_list_workers_HD = right(ADMIN_list_workers_HD, len(ADMIN_list_workers_HD)-1)					'formatting the list
             ADMIN_list_workers_HD = left(ADMIN_list_workers_HD, len(ADMIN_list_workers_HD)-1)
-            If InStr(ADMIN_list_workers_HD, "~") <> 0 Then HD_id_ARRAY = split(ADMIN_list_workers_HD, "~")
+            If InStr(ADMIN_list_workers_HD, "~") <> 0 Then HD_id_ARRAY = split(ADMIN_list_workers_HD, "~")		'making the list an array
             If InStr(ADMIN_list_workers_HD, "~") = 0 Then HD_id_ARRAY = array(ADMIN_list_workers_HD)
-            For each HD_worker_Id in HD_id_ARRAY
+            For each HD_worker_Id in HD_id_ARRAY																'going through each completed worker and adding details to a main array
                 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
                     ' pulling QI members by supervisor from the Complete List of Testers
                     If tester_array(tester).tester_id_number = HD_worker_Id Then
@@ -1444,11 +1490,11 @@ If local_demo = False Then
             Next
         End If
         If len(ADMIN_list_workers_IP) > 1 Then
-            ADMIN_list_workers_IP = right(ADMIN_list_workers_IP, len(ADMIN_list_workers_IP)-1)
+            ADMIN_list_workers_IP = right(ADMIN_list_workers_IP, len(ADMIN_list_workers_IP)-1)					'formatting the list
             ADMIN_list_workers_IP = left(ADMIN_list_workers_IP, len(ADMIN_list_workers_IP)-1)
-            If InStr(ADMIN_list_workers_IP, "~") <> 0 Then IP_id_ARRAY = split(ADMIN_list_workers_IP, "~")
+            If InStr(ADMIN_list_workers_IP, "~") <> 0 Then IP_id_ARRAY = split(ADMIN_list_workers_IP, "~")		'making the list an array
             If InStr(ADMIN_list_workers_IP, "~") = 0 Then IP_id_ARRAY = array(ADMIN_list_workers_IP)
-            For each IP_worker_Id in IP_id_ARRAY
+            For each IP_worker_Id in IP_id_ARRAY																'going through each completed worker and adding details to a main array
                 For tester = 0 to UBound(tester_array)                         'looping through all of the testers
                     ' pulling QI members by supervisor from the Complete List of Testers
                     If tester_array(tester).tester_id_number = IP_worker_Id Then
@@ -1467,6 +1513,7 @@ If local_demo = False Then
             Next
         End If
 
+		'if the list has been updated - we need to go back and count the cases that are on hold and completed for each worker.
 		If BULK_Run_completed = True Then
 			'Read the whole table
 			'declare the SQL statement that will query the database
@@ -1481,7 +1528,6 @@ If local_demo = False Then
 			objRecordSet.Open objSQL, objConnection
 
 			Do While NOT objRecordSet.Eof
-
 				For qi_worker = 0 to UBound(ADMIN_worker_list_array, 2)
 					case_info_notes = objRecordSet("TrackingNotes")
                 	If Instr(case_info_notes, "STS-RC") <> 0 AND ADMIN_worker_list_array(case_status_const, qi_worker) = "RC" Then
@@ -1490,13 +1536,7 @@ If local_demo = False Then
 					If Instr(case_info_notes, "STS-HD") <> 0 AND ADMIN_worker_list_array(case_status_const, qi_worker) = "HD" Then
 						If InStr(case_info_notes, ADMIN_worker_list_array(wrkr_id_const, qi_worker))<> 0 Then ADMIN_worker_list_array(case_count_const, qi_worker) = ADMIN_worker_list_array(case_count_const, qi_worker) + 1
 					End If
-					' If Instr(case_info_notes, "STS-IP") <> 0 Then
-					' 	If InStr(case_info_notes, ADMIN_worker_list_array(wrkr_id_const, qi_worker))<> 0 Then ADMIN_worker_list_array(case_count_const, qi_worker) = ADMIN_worker_list_array(case_count_const, qi_worker) + 1
-					' End If
-
-
 				Next
-
 				objRecordSet.MoveNext
 			Loop
 			'close the connection and recordset objects to free up resources
@@ -1508,6 +1548,7 @@ If local_demo = False Then
     End If
 Else                            'if we are running in DEMO mode, we don't read the table - we have a dialog to select the process to view.
 	total_cases_for_review = 124
+	review_work_started = False
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 191, 85, "On Demand Demo"
       DropListBox 10, 25, 175, 45, "Select One..."+chr(9)+"Complete BULK Run"+chr(9)+"Select New Case"+chr(9)+"Case in Progress", demo_process
@@ -1530,6 +1571,8 @@ Else                            'if we are running in DEMO mode, we don't read t
 
     cases_with_review_completed = reviews_complete * 1
     cases_on_hold = cases_on_hold * 1
+	If reviews_complete <> 0 Then review_work_started = True
+	If cases_on_hold <> 0 Then review_work_started = True
 
     'now we have to make some case numbers to list fake cases on hold.
     If cases_on_hold <> 0 Then
@@ -1610,160 +1653,129 @@ If BULK_Run_completed = False Then                  'if the main run has not hap
     Loop until are_we_passworded_out = false					'loops until user passwords back in
 End If
 
-If worker_on_task = False Then
-    If cases_on_hold = 0 Then
-        Do
-            Do
-                Dialog1 = ""
-                BeginDialog Dialog1, 0, 0, 451, 235, "On Demand Applications Dashboard"
-                  EditBox 500, 600, 50, 15, fake_edit_box
-                  If total_cases_for_review = cases_with_review_completed Then Text 20, 170, 155, 10, "*** All Cases have been Pulled for Review ***'"
-                  ButtonGroup ButtonPressed
-                    If total_cases_for_review <> cases_with_review_completed Then PushButton 15, 165, 110, 15, "Pull a case to Review", get_new_case_btn
-                    PushButton 285, 70, 140, 13, "More information about the Work List", work_list_details_btn
-                    PushButton 10, 215, 105, 15, "Finish Work Day", finish_work_day_btn
-                    If ADMIN_run = True Then PushButton 120, 215, 70, 15, "Admin Functions", admin_btn
-                    PushButton 375, 20, 65, 15, "Test Access", test_access_btn
-                    PushButton 330, 85, 105, 15, "Restart the BULK Run", bulk_run_incomplete_btn
-					PushButton 20, 130, 110, 12, "Worklist Process Information", worklist_process_doc_btn
-					PushButton 305, 217, 75, 12, "Script Instructions", script_instructions_btn
-                    CancelButton 390, 215, 50, 15
-                  Text 170, 10, 135, 10, "On Demand Applications Dashboard"
-                  GroupBox 10, 20, 430, 85, "Applications BULK Run"
-                  Text 20, 35, 170, 10, "The BULK run was last completed on " & first_item_date &" ."
-                  Text 190, 35, 205, 10, "The BULK Run was completed today around " & first_item_time & "."
-                  Text 20, 50, 305, 10, "The BULK Run can only be completed once per day. The Work List is ready to be reviewed."
-                  Text 40, 60, 305, 10, "- The worklist is held in a SQL Table and can only be viewed through this Dashboard script. "
-                  Text 40, 70, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
-                  Text 140, 90, 190, 10, "If the BULK Run was not completed, you can restart here:"
-                  GroupBox 10, 110, 430, 35, "Work List Overview"
-                  Text 20, 120, 115, 10, "Total cases on the worklist: " & total_cases_for_review
-                  Text 220, 120, 130, 10, "Cases with Review Completed: " & cases_with_review_completed
-                  Text 215, 130, 135, 10, "Cases with Reviews In Progress: " & cases_on_hold
-                  GroupBox 10, 150, 430, 55, "Reviews"
-                  Text 20, 190, 190, 10, "--- There are no cases with reviews already started. ---"
-                EndDialog
+If worker_on_task = False Then			'if the worker is currently NOT on a task, the script shows a dialog to select a case to review
+	Do
+		Do
+			Dialog1 = ""
+			'setting the dialog sizes
+			grp_len = 45
+			dlg_len = 210
+			If review_work_started = False then dlg_len = 220
+			If cases_on_hold <> 0 Then
+				grp_len = 50 + (UBound(CASES_ON_HOLD_ARRAY, 2)+1) * 10      '85'
+				dlg_len = 215 + (UBound(CASES_ON_HOLD_ARRAY, 2)+1) * 10     '245'
+			End If
+			If review_work_started = True then first_grp_len = 75
+			If review_work_started = False then first_grp_len = 85
+			y_pos = first_grp_len + 25
 
-                dialog Dialog1
-                cancel_without_confirmation
+			BeginDialog Dialog1, 0, 0, 451, dlg_len, "On Demand Applications Dashboard"
+				ButtonGroup ButtonPressed
+				EditBox 500, 600, 50, 15, fake_edit_box
+				Text 170, 10, 135, 10, "On Demand Applications Dashboard"
+				GroupBox 10, 20, 430, first_grp_len, "Applications BULK Run"
+				Text 20, 35, 170, 10, "The BULK run was last completed on " & first_item_date &" ."
+				Text 190, 35, 240, 10, "The BULK Run was completed today around " & first_item_time & "."
+				Text 20, 50, 305, 10, "The BULK Run can only be completed once per day. The Work List is ready to be reviewed."
+				Text 40, 60, 305, 10, "- The worklist is held in a SQL Table and can only be viewed through this Dashboard script. "
+				Text 40, 70, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
+				If review_work_started = False then
+					Text 140, 90, 190, 10, "If the BULK Run was not completed, you can restart here:"
+					PushButton 330, 85, 105, 15, "Restart the BULK Run", bulk_run_incomplete_btn
+				End If
+				GroupBox 10, y_pos, 430, 35, "Work List Overview"
+				y_pos = y_pos + 10
+				Text 20, y_pos, 115, 10, "Total cases on the worklist: " & total_cases_for_review
+				Text 220, y_pos, 130, 10, "Cases with Review Completed: " & cases_with_review_completed
+				worklist_btn_pos = y_pos + 10
+				y_pos = y_pos + 10
+				Text 215, y_pos, 135, 10, "Cases with Reviews In Progress: " & cases_on_hold
+				y_pos = y_pos + 20
+				GroupBox 10, y_pos, 430, grp_len, "Reviews"
+				y_pos = y_pos + 10
+				If total_cases_for_review <> cases_with_review_completed Then
+					PushButton 15, y_pos, 110, 15, "Pull a case to Review", get_new_case_btn
+				Else
+					y_pos = y_pos + 5
+					Text 20, y_pos, 155, 10, "*** All Cases have been Pulled for Review ***'"
+				End If
+				y_pos = y_pos + 20
+				If cases_on_hold = 0 Then Text 20, y_pos, 190, 10, "--- There are no cases with reviews already started. ---"
+				If cases_on_hold <> 0 Then
+					Text 20, y_pos, 125, 10, "Reviews Started and put on Hold:"
+					OptionGroup RadioGroup1
+						hld_y_pos = first_grp_len + 110
+						For fold_case = 0 to UBound(CASES_ON_HOLD_ARRAY, 2)
+							RadioButton 30, hld_y_pos, 300, 10, "CASE # " & CASES_ON_HOLD_ARRAY(case_nbr_const, fold_case) & " - " & CASES_ON_HOLD_ARRAY(case_notes_const, fold_case), CASES_ON_HOLD_ARRAY(radio_btn_const, fold_case)
+							hld_y_pos = hld_y_pos + 10
+						Next
+				End If
+				If cases_on_hold <> 0 Then PushButton 330, dlg_len - 45, 105, 15, "Resume selected Hold Case", resume_hold_case_btn
+				PushButton 375, 20, 65, 15, "Test Access", test_access_btn
+				PushButton 285, 70, 140, 13, "More information about the Work List", work_list_details_btn
+				PushButton 20, worklist_btn_pos, 110, 12, "Worklist Process Information", worklist_process_doc_btn
+				PushButton 10, dlg_len - 20, 105, 15, "Finish Work Day", finish_work_day_btn
+				If ADMIN_run = True Then PushButton 120, dlg_len - 20, 70, 15, "Admin Functions", admin_btn
+				PushButton 305, dlg_len - 18, 75, 12, "Script Instructions", script_instructions_btn
+				CancelButton 390, dlg_len - 20, 50, 15
+			EndDialog
 
-                If ButtonPressed = work_list_details_btn Then MsgBox worklist_information_msg
-                If ButtonPressed = test_access_btn Then Call test_sql_access()
-				If ButtonPressed = worklist_process_doc_btn Then call word_doc_open(worklist_instructions_file_path, objWord, objDoc)
-				If ButtonPressed = script_instructions_btn Then call word_doc_open(script_instructions_file_path, objWord, objDoc)
-                If ButtonPressed = finish_work_day_btn Then
-                    Call assess_worklist_to_finish_day
-                    If case_on_hold = False and case_in_progress = False Then
-                        Call create_assignment_report
-                    Else
-                        loop_dlg_msg = "You cannot finish the work day with cases in progress or on hold." & vbCr
-                        loop_dlg_msg = loop_dlg_msg & "The dialog will reappear, finish all reviews that have been started first." & vbCr & vbCr
-                        loop_dlg_msg = loop_dlg_msg & "Once there are no cases on the worklist on hold or in progress the finish work day functionality will operate."
-                        ButtonPressed = work_list_details_btn
-                        MsgBox loop_dlg_msg
-                    End If
-                End If
-                If ButtonPressed = admin_btn Then call complete_admin_functions
-            Loop until ButtonPressed <> work_list_details_btn and ButtonPressed <> worklist_process_doc_btn and ButtonPressed <> script_instructions_btn
-            CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-        Loop until are_we_passworded_out = false					'loops until user passwords back in
+			dialog Dialog1
+			cancel_without_confirmation
 
-        If ButtonPressed = get_new_case_btn Then Call assign_a_case
-        If ButtonPressed = bulk_run_incomplete_btn Then
-            Call back_to_SELF
-            EMReadScreen MX_region, 10, 22, 48
-            MX_region = trim(MX_region)
-            If MX_region <> "PRODUCTION" Then Call script_end_procedure("You have selected to complete the BULK Run for On Demand but you are not in production. The script will now end. Move to PRODUCTION and run On Demand Dashboard again.")
-            Call run_from_GitHub(script_repository & "admin\" & "on-demand-waiver-applications.vbs")
-        End If
-    Else
-        Do
-            Do
-                Dialog1 = ""
-                grp_len = 45 + (UBound(CASES_ON_HOLD_ARRAY, 2)+1) * 10      '85'
-                dlg_len = 205 + (UBound(CASES_ON_HOLD_ARRAY, 2)+1) * 10     '245'
+			'each button will run a different functionality.
+			If ButtonPressed = work_list_details_btn Then MsgBox worklist_information_msg
+			If ButtonPressed = test_access_btn Then Call test_sql_access()
+			If ButtonPressed = worklist_process_doc_btn Then call word_doc_open(worklist_instructions_file_path, objWord, objDoc)
+			If ButtonPressed = script_instructions_btn Then call word_doc_open(script_instructions_file_path, objWord, objDoc)
+			If ButtonPressed = finish_work_day_btn Then
+				Call assess_worklist_to_finish_day
+				If case_on_hold = False and case_in_progress = False Then
+					Call create_assignment_report
+				Else
+					loop_dlg_msg = "You cannot finish the work day with cases in progress or on hold." & vbCr
+					loop_dlg_msg = loop_dlg_msg & "The dialog will reappear, finish all reviews that have been started first." & vbCr & vbCr
+					loop_dlg_msg = loop_dlg_msg & "Once there are no cases on the worklist on hold or in progress the finish work day functionality will operate."
+					ButtonPressed = work_list_details_btn
+					MsgBox loop_dlg_msg
+				End If
+			End If
+			If ButtonPressed = admin_btn Then call complete_admin_functions
+		Loop until ButtonPressed <> work_list_details_btn and ButtonPressed <> worklist_process_doc_btn and ButtonPressed <> script_instructions_btn		'loop until we haven't hit an info function
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-                BeginDialog Dialog1, 0, 0, 451, dlg_len, "On Demand Applications Dashboard"
-                  EditBox 500, 600, 50, 15, fake_edit_box
-                  ButtonGroup ButtonPressed
-                    If total_cases_for_review <> cases_with_review_completed Then PushButton 20, 145, 110, 15, "Pull a case to Review", get_new_case_btn
-                    PushButton 375, 20, 65, 15, "Test Access", test_access_btn
-                    If total_cases_for_review = cases_with_review_completed Then Text 20, 150, 155, 10, "*** All Cases have been Pulled for Review ***"'
-                  Text 320, 5, 135, 10, "On Demand Applications Dashboard"
-                  GroupBox 10, 10, 430, 75, "Applications BULK Run"
-                  Text 20, 25, 170, 10, "The BULK run was last completed on " & first_item_date & "."
-                  Text 190, 25, 180, 10, "The BULK Run was completed today around " & first_item_time & "."
-                  Text 20, 40, 305, 10, "The BULK Run can only be completed once per day. The Work List is ready to be reviewed."
-                  Text 40, 50, 305, 10, "- The worklist is held in a SQL Table and can only be viewed through this Dashboard script. "
-                  Text 40, 60, 245, 10, "- Use this script to pull a case from the Work List and complete the review."
-                  ButtonGroup ButtonPressed
-                    PushButton 45, 70, 170, 13, "More information about the Work List", work_list_details_btn
-					PushButton 20, 115, 110, 12, "Worklist Process Information", worklist_process_doc_btn
-                  GroupBox 10, 90, 430, 40, "Work List Overview"
-                  Text 20, 105, 115, 10, "Total cases on the worklist: " & total_cases_for_review
-                  Text 220, 105, 130, 10, "Cases with Review Completed: " & cases_with_review_completed
-                  Text 215, 115, 135, 10, "Cases with Reviews In Progress: " & cases_on_hold
-                  GroupBox 10, 135, 430, grp_len, "Reviews"
-                  Text 20, 165, 125, 10, "Reviews Started and put on Hold:"
-                  OptionGroup RadioGroup1
-                    y_pos = 175
-                    For fold_case = 0 to UBound(CASES_ON_HOLD_ARRAY, 2)
-                        RadioButton 30, y_pos, 300, 10, "CASE # " & CASES_ON_HOLD_ARRAY(case_nbr_const, fold_case) & " - " & CASES_ON_HOLD_ARRAY(case_notes_const, fold_case), CASES_ON_HOLD_ARRAY(radio_btn_const, fold_case)
-                        y_pos = y_pos + 10
-                    Next
-                  ButtonGroup ButtonPressed
-                    PushButton 330, dlg_len - 45, 105, 15, "Resume selected Hold Case", resume_hold_case_btn
-                    PushButton 10, dlg_len - 20, 105, 15, "Finish Work Day", finish_work_day_btn
-					PushButton 305, dlg_len - 18, 75, 12, "Script Instructions", script_instructions_btn
-                    CancelButton 390, dlg_len - 20, 50, 15
-                EndDialog
+	If ButtonPressed = get_new_case_btn Then Call assign_a_case			'pulling a function if the button is pressed to get a new case
+	If ButtonPressed = bulk_run_incomplete_btn Then						'If the BULK run was incomplete - this will restart it
+		Call back_to_SELF
+		EMReadScreen MX_region, 10, 22, 48
+		MX_region = trim(MX_region)
+		If MX_region <> "PRODUCTION" Then Call script_end_procedure("You have selected to complete the BULK Run for On Demand but you are not in production. The script will now end. Move to PRODUCTION and run On Demand Dashboard again.")
+		Call run_from_GitHub(script_repository & "admin\" & "on-demand-waiver-applications.vbs")
+	End If
 
-                dialog Dialog1
-                cancel_confirmation
+	If ButtonPressed = resume_hold_case_btn Then						'setting information for a case on hold and assigning it if set to resume the case
+		resume_case_number = CASES_ON_HOLD_ARRAY(case_nbr_const, RadioGroup1)
+		MAXIS_case_number = resume_case_number
+		txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
+		od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
 
-                If ButtonPressed = work_list_details_btn Then MsgBox worklist_information_msg
-                If ButtonPressed = test_access_btn Then Call test_sql_access()
-				If ButtonPressed = worklist_process_doc_btn Then call word_doc_open(worklist_instructions_file_path, objWord, objDoc)
-				If ButtonPressed = script_instructions_btn Then call word_doc_open(script_instructions_file_path, objWord, objDoc)
-                If ButtonPressed = finish_work_day_btn Then
-                    Call assess_worklist_to_finish_day
-                    If case_on_hold = False and case_in_progress = False Then
-                        Call create_assignment_report
-                    Else
-                        loop_dlg_msg = "You cannot finish the work day with cases in progress or on hold." & vbCr
-                        loop_dlg_msg = loop_dlg_msg & "The dialog will reappear, finish all reviews that have been started first." & vbCr & vbCr
-                        loop_dlg_msg = loop_dlg_msg & "Once there are no cases on the worklist on hold or in progress the finish work day functionality will operate."
-                        ButtonPressed = work_list_details_btn
-                        MsgBox loop_dlg_msg
-                    End If
-                End If
-            Loop until ButtonPressed <> work_list_details_btn and ButtonPressed <> worklist_process_doc_btn and ButtonPressed <> script_instructions_btn
-            CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-        Loop until are_we_passworded_out = false					'loops until user passwords back in
-        If ButtonPressed = resume_hold_case_btn Then
-            resume_case_number = CASES_ON_HOLD_ARRAY(case_nbr_const, RadioGroup1)
-            MAXIS_case_number = resume_case_number
-            txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
-            od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
-
-            Call read_tracking_cookie
-            If assigned_hold_1_start_time = "" Then
-                assigned_hold_1_start_time = time
-            ElseIf assigned_hold_2_start_time = "" Then
-                assigned_hold_2_start_time = time
-            ElseIf assigned_hold_3_start_time = "" Then
-                assigned_hold_3_start_time = time
-            End If
-            assign_a_case
-        End If
-        If ButtonPressed = get_new_case_btn Then Call assign_a_case
-    End If
+		Call read_tracking_cookie
+		If assigned_hold_1_start_time = "" Then
+			assigned_hold_1_start_time = time
+		ElseIf assigned_hold_2_start_time = "" Then
+			assigned_hold_2_start_time = time
+		ElseIf assigned_hold_3_start_time = "" Then
+			assigned_hold_3_start_time = time
+		End If
+		assign_a_case
+	End If
+	If ButtonPressed = get_new_case_btn Then Call assign_a_case		'function to pull a new case
 End If
 
 If worker_on_task = True Then
-
     If local_demo = True Then
-        MAXIS_case_number                       = "318040"
+        MAXIS_case_number                       = "318040"					'these are hard copy set for DEMO cases
         ' assigned_ = objRecordSet("CaseNumber")
         assigned_case_name                      = "ZORO, RORONOA"
         assigned_application_date               = "11/23/2022"
@@ -1784,7 +1796,6 @@ If worker_on_task = True Then
         assigned_denial_needed                  = ""
 
         assigned_next_action_needed             = "DO THIS NEXT"
-
 
         assigned_added_to_work_list             = date
         assigned_2nd_application_date_resolve   = ""
@@ -1826,10 +1837,11 @@ If worker_on_task = True Then
         ' assigned_rept_pnd2_days = "29"
     End If
 
-	txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
+	txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"			'setting the file name for the tracking cookie
     od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
-	call read_tracking_cookie
+	call read_tracking_cookie			'this pulls information saved in the tracking cookie - where we store notes about the case reviews
 
+	'this dialog will allow information from the case review to be recorded.
 	Do
 	    Do
 	        err_msg = ""
@@ -1916,6 +1928,7 @@ If worker_on_task = True Then
 	        dialog Dialog1
 	        cancel_confirmation
 
+			'these buttons will call a different functionality
             If ButtonPressed = -1 or ButtonPressed = close_dialog_btn Then script_end_procedure("")
             If ButtonPressed = test_access_btn Then Call test_sql_access()
             If ButtonPressed = admin_btn Then call complete_admin_functions
@@ -1927,6 +1940,7 @@ If worker_on_task = True Then
 	    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
 
+	'if the review is indicated as done, we will format some information and save that information to the tracking cookie
     If ButtonPressed = complete_review_btn Then
         txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
         od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
@@ -1945,6 +1959,7 @@ If worker_on_task = True Then
         Call update_tracking_cookie("END")
     End If
 
+	'if the case is selected to be put on hold, the information will be saved and recorded to the cookie
 	If ButtonPressed = hold_case_btn Then
         txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
         od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
@@ -1968,6 +1983,7 @@ If worker_on_task = True Then
         Call update_tracking_cookie("HOLD")
 	End If
 
+	'if this is not running in a demo, the information will be saved to the SQL table
     If local_demo = False Then
         'Creating objects for Access
         Set objConnection = CreateObject("ADODB.Connection")
@@ -2012,3 +2028,48 @@ If worker_on_task = True Then
 End If
 
 Call script_end_procedure(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 03/03/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/03/2023
+'--Tab orders reviewed & confirmed----------------------------------------------03/03/2023		This is actually really funky with this script because there is some prioritization concerns
+'--Mandatory fields all present & Reviewed--------------------------------------03/03/2023
+'--All variables in dialog match mandatory fields-------------------------------03/03/2023
+'Review dialog names for content and content fit in dialog----------------------03/03/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A				There is not CASE/NOTE in this script
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/03/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/03/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A				This script doesn't speak to time savings
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------03/03/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------N/A				This script doesn't speak to time savings
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A				This script doesn't speak to time savings
+'--Denomination reviewed -------------------------------------------------------N/A				This script doesn't speak to time savings
+'--Script name reviewed---------------------------------------------------------03/03/223
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------03/03/2023
+'--comment Code-----------------------------------------------------------------03/03/2023
+'--Update Changelog for release/update------------------------------------------03/03/2023
+'--Remove testing message boxes-------------------------------------------------03/03/2023
+'--Remove testing code/unnecessary code-----------------------------------------03/03/2023
+'--Review/update SharePoint instructions----------------------------------------03/03/2023		Instructions are not held on SharePoint
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------03/03/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------03/03/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------N/A				Supports an internal process, not policy
+'--Complete misc. documentation (if applicable)---------------------------------03/03/2023
+'--Update project team/issue contact (if applicable)----------------------------03/03/2023
