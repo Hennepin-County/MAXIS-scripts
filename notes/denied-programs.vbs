@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/03/2023", "* * * THIS SCRIPT IS BEING RETIRED ON 03/13/2023 * * *##~####~##Be sure to try using NOTES - Eligibility Summary before this retirement date for CASE/NOTEs on denials. This is the time to become accustomeed to the functionality of NOTES - Eligibility Summary.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/21/2019", "Added functionality to allow the script to read GRH PND2 when selecting CASH denial so that GRH denials can be noted with the same functionality as the other programs.", "Casey Love, Hennepin County")
 CALL changelog_update("10/14/2019", "Removed NOMI and TIKL for case transfer checkboxes and associated functionailty.", "Ilse Ferris, Hennepin County")
@@ -291,7 +292,7 @@ Do
 
         If elig_summ_option_given = False Then
             elig_summ_option_given = True
-            run_elig_summ = MsgBox("Run NEW Script - NOTES - Eligibliity Summary?"& vbCr & vbCr & "It appears you are running 'NOTES - Denied Programs' on a case that may be supported by the new script 'NOTES - Eligibility Summary', it is available to use to document the eligibility results denials on SNAP, CASH, HC, and EMER." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "NOTE: Information entered in this first dialog will NOT carry through." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
+            run_elig_summ = MsgBox("* * * THIS SCRIPT WILL BE RETIRED ON 3/13/2023 * * *" & vbCr & "Please start using Eligibility Summary for denials right away." & vbCr & vbCr &"Run NEW Script - NOTES - Eligibliity Summary?"& vbCr & vbCr & "It appears you are running 'NOTES - Denied Programs' on a case that may be supported by the new script 'NOTES - Eligibility Summary', it is available to use to document the eligibility results denials on SNAP, CASH, HC, and EMER." & vbCr & vbCr & "The script can redirect to run NOTES - Eligibility Summary now. Remember this new script takes some time to gather the details of the approval, but reqquires little input." & vbCr & vbCr & "NOTE: Information entered in this first dialog will NOT carry through." & vbCr & vbCr & "Would you like the script to run NOTES - Eligibility Summary for you now?", vbQuestion + vbYesNo, "Redirect to NOTES - Eligibility Summary")
             If run_elig_summ = vbYes then
                 script_url = script_repository & "notes\eligibility-summary.vbs"
                 ' MsgBox script_url
