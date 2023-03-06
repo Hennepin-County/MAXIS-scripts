@@ -150,7 +150,6 @@ Function declare_main_menu_dialog(script_category)
 					show_qi_btn = False
                 ElseIf ButtonPressed = menu_BZ_button Then
                     If group = "BZ" Then script_array(current_script).show_script = TRUE
-                    If group = "Monthly Tasks" Then script_array(current_script).show_script = FALSE
                     show_question_mark = FALSE
 					show_bz_btn = False
                 ElseIf ButtonPressed = menu_report_tasks_button Then
