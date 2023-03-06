@@ -122,6 +122,7 @@ ADMIN_run = False
 BULK_Run_completed = False
 worker_on_task = False
 total_cases_for_review = 0
+admin_cases_for_review = 0
 cases_with_review_completed = 0
 cases_waiting_for_review = 0
 cases_on_hold = 0
@@ -504,14 +505,15 @@ function complete_admin_functions()
             err_msg = ""
 
             dlg_len = 165 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
-            grp_len = 110 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
+            grp_len = 120 + 10 * (UBound(ADMIN_worker_list_array, 2)+1)
 
             Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 451, dlg_len, "On Demand Applications Dashboard"
               ButtonGroup ButtonPressed
                 Text 170, 10, 135, 10, "On Demand Applications Dashboard"
-                GroupBox 10, 25, 430, grp_len, "On Demand Case List Information"
-                Text 20, 40, 230, 10, "Today " & total_cases_for_review & " cases require review. These cases are currently:"
+                GroupBox 10, 15, 430, grp_len, "On Demand Case List Information"
+				Text 20, 30, 230, 10, "Information from list run on: " & first_item_date
+                Text 20, 40, 230, 10, "On " & first_item_date & ", " & admin_cases_for_review & " cases require review. These cases are currently:"
                 Text 40, 55, 110, 10, "Reviews still needed: " & admin_count_NR
                 Text 40, 70, 115, 10, "Reviews In Progress: " & admin_count_IP
                 PushButton 190, 70, 130, 13, "Release In Progress Assignments", release_IP_btn
@@ -1351,7 +1353,7 @@ If local_demo = False Then
             case_worklist_date = DateAdd("d", 0, case_worklist_date)
             If DateDiff("d", case_worklist_date, date) = 0 Then total_cases_for_review = total_cases_for_review + 1		'if the worklist date is today
 
-            case_tracking_notes = objRecordSet("TrackingNotes")				'reading the notes from the SQL table as this where case status informaiton is held
+			case_tracking_notes = objRecordSet("TrackingNotes")				'reading the notes from the SQL table as this where case status informaiton is held
 
             'count completed reviews using info in tracking notes and for cases that have been completed and recorded in the log
             If Instr(case_tracking_notes, "STS-RC") <> 0 Then cases_with_review_completed =cases_with_review_completed + 1
@@ -1390,40 +1392,7 @@ If local_demo = False Then
                 End If
             End If
 
-            'If we are running as an ADMIN, the script needs to collect some additional information about the status of the cases.
-            If ADMIN_run = True Then
-                RC_id_start = ""			'default variables to start
-                HD_id_start = ""
-                IP_id_start = ""
-                worker_id_RC = ""
-                worker_id_HD = ""
-                worker_id_IP = ""
-                If Instr(case_tracking_notes, "STS-RC") <> 0 Then		'reviews completed
-                    admin_count_RC = admin_count_RC + 1					'counting all cases with review completed
-                    RC_id_start = Instr(case_tracking_notes, "STS-RC") + 7		'finding the where the id information is positioned in the notes
-                    worker_id_RC = MID(case_tracking_notes, RC_id_start, 7)		'reading the worker id from the notes
-					worker_id_RC = trim(worker_id_RC)							'the worker id lengths are different - trim to remove spaces
-					'If the worker ID has not already been read on another case, it will add it the worker id to a list of all workers with completed reviews
-                    If InStr(ADMIN_list_workers_RC, "~" & worker_id_RC & "~") = 0 then ADMIN_list_workers_RC = ADMIN_list_workers_RC & worker_id_RC & "~"
-                End If
-                If Instr(case_tracking_notes, "STS-NR") <> 0 Then admin_count_NR = admin_count_NR + 1		'counting all the cases that still need a review
-                If Instr(case_tracking_notes, "STS-HD") <> 0 Then		'reviews on hold
-                    admin_count_HD = admin_count_HD + 1					'counting all cases that are on hold
-                    HD_id_start = Instr(case_tracking_notes, "STS-HD") + 7		'finding the where the id information is positioned in the notes
-                    worker_id_HD = MID(case_tracking_notes, HD_id_start, 7)		'reading the worker id from the notes
-					worker_id_HD = trim(worker_id_HD)							'the worker id lengths are different - trim to remove spaces
-					'If the worker ID has not already been read on another case, it will add it the worker id to a list of all workers with cases on hold
-                    If InStr(ADMIN_list_workers_HD, "~" & worker_id_HD & "~") = 0 then ADMIN_list_workers_HD = ADMIN_list_workers_HD & worker_id_HD & "~"
-                End If
-                If Instr(case_tracking_notes, "STS-IP") <> 0 Then		'reviews in progress
-                    admin_count_IP = admin_count_IP + 1					'counting all cases that are in progress
-                    IP_id_start = Instr(case_tracking_notes, "STS-IP") + 7		'finding the where the id information is positioned in the notes
-                    worker_id_IP = MID(case_tracking_notes, IP_id_start, 7)		'reading the worker id from the notes
-					worker_id_IP = trim(worker_id_IP)							'the worker id lengths are different - trim to remove spaces
-					'If the worker ID has not already been read on another case, it will add it the worker id to a list of all workers with cases in progress
-                    If InStr(ADMIN_list_workers_IP, "~" & worker_id_IP & "~") = 0 then ADMIN_list_workers_IP = ADMIN_list_workers_IP & worker_id_IP & "~"
-                End If
-            End If
+
             objRecordSet.MoveNext		'going to the next case
         Loop
 		If cases_with_review_completed <> 0 Then review_work_started = True
@@ -1436,6 +1405,64 @@ If local_demo = False Then
     objConnection.Close
     Set objRecordSet=nothing
     Set objConnection=nothing
+
+    'If we are running as an ADMIN, the script needs to collect some additional information about the status of the cases.
+	If ADMIN_run = True Then
+		'Access the SQL Table
+		'declare the SQL statement that will query the database
+		objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the file path for the statistics Access database.
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objRecordSet.Open objSQL, objConnection
+
+		Do While NOT objRecordSet.Eof			'this is the loop
+			RC_id_start = ""			'default variables to start
+			HD_id_start = ""
+			IP_id_start = ""
+			worker_id_RC = ""
+			worker_id_HD = ""
+			worker_id_IP = ""
+            case_worklist_date = objRecordSet("AddedtoWorkList")			'reading the date the case was last added to the work list and make it a date
+            case_tracking_notes = objRecordSet("TrackingNotes")				'reading the notes from the SQL table as this where case status informaiton is held
+            If DateDiff("d", case_worklist_date, first_item_date) = 0 Then admin_cases_for_review = admin_cases_for_review+ 1
+			If Instr(case_tracking_notes, "STS-RC") <> 0 Then		'reviews completed
+				admin_count_RC = admin_count_RC + 1					'counting all cases with review completed
+				RC_id_start = Instr(case_tracking_notes, "STS-RC") + 7		'finding the where the id information is positioned in the notes
+				worker_id_RC = MID(case_tracking_notes, RC_id_start, 7)		'reading the worker id from the notes
+				worker_id_RC = trim(worker_id_RC)							'the worker id lengths are different - trim to remove spaces
+				'If the worker ID has not already been read on another case, it will add it the worker id to a list of all workers with completed reviews
+				If InStr(ADMIN_list_workers_RC, "~" & worker_id_RC & "~") = 0 then ADMIN_list_workers_RC = ADMIN_list_workers_RC & worker_id_RC & "~"
+			End If
+			If Instr(case_tracking_notes, "STS-NR") <> 0 Then admin_count_NR = admin_count_NR + 1		'counting all the cases that still need a review
+			If Instr(case_tracking_notes, "STS-HD") <> 0 Then		'reviews on hold
+				admin_count_HD = admin_count_HD + 1					'counting all cases that are on hold
+				HD_id_start = Instr(case_tracking_notes, "STS-HD") + 7		'finding the where the id information is positioned in the notes
+				worker_id_HD = MID(case_tracking_notes, HD_id_start, 7)		'reading the worker id from the notes
+				worker_id_HD = trim(worker_id_HD)							'the worker id lengths are different - trim to remove spaces
+				'If the worker ID has not already been read on another case, it will add it the worker id to a list of all workers with cases on hold
+				If InStr(ADMIN_list_workers_HD, "~" & worker_id_HD & "~") = 0 then ADMIN_list_workers_HD = ADMIN_list_workers_HD & worker_id_HD & "~"
+			End If
+			If Instr(case_tracking_notes, "STS-IP") <> 0 Then		'reviews in progress
+				admin_count_IP = admin_count_IP + 1					'counting all cases that are in progress
+				IP_id_start = Instr(case_tracking_notes, "STS-IP") + 7		'finding the where the id information is positioned in the notes
+				worker_id_IP = MID(case_tracking_notes, IP_id_start, 7)		'reading the worker id from the notes
+				worker_id_IP = trim(worker_id_IP)							'the worker id lengths are different - trim to remove spaces
+				'If the worker ID has not already been read on another case, it will add it the worker id to a list of all workers with cases in progress
+				If InStr(ADMIN_list_workers_IP, "~" & worker_id_IP & "~") = 0 then ADMIN_list_workers_IP = ADMIN_list_workers_IP & worker_id_IP & "~"
+			End If
+            objRecordSet.MoveNext		'going to the next case
+        Loop
+	    'close the connection and recordset objects to free up resources
+		objRecordSet.Close
+		objConnection.Close
+		Set objRecordSet=nothing
+		Set objConnection=nothing
+	End If
 
     'If we are running ADMIN functionality we need to get the case information and worker to add to arrays that are easier to work with in dialogs
     worker_count = 0
@@ -1513,38 +1540,35 @@ If local_demo = False Then
             Next
         End If
 
-		'if the list has been updated - we need to go back and count the cases that are on hold and completed for each worker.
-		If BULK_Run_completed = True Then
-			'Read the whole table
-			'declare the SQL statement that will query the database
-			objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
+		'Read the whole table
+		'declare the SQL statement that will query the database
+		objSQL = "SELECT * FROM ES.ES_OnDemanCashAndSnapBZProcessed"
 
-			'Creating objects for Access
-			Set objConnection = CreateObject("ADODB.Connection")
-			Set objRecordSet = CreateObject("ADODB.Recordset")
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
 
-			'This is the file path for the statistics Access database.
-			objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-			objRecordSet.Open objSQL, objConnection
+		'This is the file path for the statistics Access database.
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+		objRecordSet.Open objSQL, objConnection
 
-			Do While NOT objRecordSet.Eof
-				For qi_worker = 0 to UBound(ADMIN_worker_list_array, 2)
-					case_info_notes = objRecordSet("TrackingNotes")
-                	If Instr(case_info_notes, "STS-RC") <> 0 AND ADMIN_worker_list_array(case_status_const, qi_worker) = "RC" Then
-						If InStr(case_info_notes, ADMIN_worker_list_array(wrkr_id_const, qi_worker))<> 0 Then ADMIN_worker_list_array(case_count_const, qi_worker) = ADMIN_worker_list_array(case_count_const, qi_worker) + 1
-					End if
-					If Instr(case_info_notes, "STS-HD") <> 0 AND ADMIN_worker_list_array(case_status_const, qi_worker) = "HD" Then
-						If InStr(case_info_notes, ADMIN_worker_list_array(wrkr_id_const, qi_worker))<> 0 Then ADMIN_worker_list_array(case_count_const, qi_worker) = ADMIN_worker_list_array(case_count_const, qi_worker) + 1
-					End If
-				Next
-				objRecordSet.MoveNext
-			Loop
-			'close the connection and recordset objects to free up resources
-			objRecordSet.Close
-			objConnection.Close
-			Set objRecordSet=nothing
-			Set objConnection=nothing
-		End If
+		Do While NOT objRecordSet.Eof
+			For qi_worker = 0 to UBound(ADMIN_worker_list_array, 2)
+				case_info_notes = objRecordSet("TrackingNotes")
+				If Instr(case_info_notes, "STS-RC") <> 0 AND ADMIN_worker_list_array(case_status_const, qi_worker) = "RC" Then
+					If InStr(case_info_notes, ADMIN_worker_list_array(wrkr_id_const, qi_worker))<> 0 Then ADMIN_worker_list_array(case_count_const, qi_worker) = ADMIN_worker_list_array(case_count_const, qi_worker) + 1
+				End if
+				If Instr(case_info_notes, "STS-HD") <> 0 AND ADMIN_worker_list_array(case_status_const, qi_worker) = "HD" Then
+					If InStr(case_info_notes, ADMIN_worker_list_array(wrkr_id_const, qi_worker))<> 0 Then ADMIN_worker_list_array(case_count_const, qi_worker) = ADMIN_worker_list_array(case_count_const, qi_worker) + 1
+				End If
+			Next
+			objRecordSet.MoveNext
+		Loop
+		'close the connection and recordset objects to free up resources
+		objRecordSet.Close
+		objConnection.Close
+		Set objRecordSet=nothing
+		Set objConnection=nothing
     End If
 Else                            'if we are running in DEMO mode, we don't read the table - we have a dialog to select the process to view.
 	total_cases_for_review = 124
