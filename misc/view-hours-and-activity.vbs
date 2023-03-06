@@ -337,9 +337,16 @@ If old_items_to_move = True Then			'If we find that some of the activities are o
 		If objWorkSheet.Name = sheet_name Then current_year_worksheet_found = True		'If a sheet has been found with the current year as the anme, we set this boolean to true
 	Next
 	If current_year_worksheet_found = False Then								'if we looked at all of the sheets and the current year was not found, we will add it here
-		ObjExcel.Worksheets.Add().Name = sheet_name								'adding a sheet with the current year as the name
-		ObjExcel.worksheets(sheet_name).Move ObjExcel.worksheets(last_year_sheet)	'moving this sheet to be just before last year's sheet
+		Set objTemplateSheet = objWorkbook.Worksheets("start of new sheet")			'setting the template sheet that exists to an object
+		objTemplateSheet.Copy ObjExcel.worksheets(last_year_sheet)					'Making a copy of the template sheet BEFORE the last year's sheet
+		Set objNewSheet = objWorkbook.Worksheets("start of new sheet (2)")			'setting this newly created sheet to an object
+		objNewSheet.Name = sheet_name												'renaming the newly created sheet to be the current year
+
+		' SAVING how to COPY and MOVE a sheet in Excel
+		' ObjExcel.Worksheets("start of new sheet").Copy
+		' ObjExcel.worksheets(sheet_name).Move ObjExcel.worksheets(last_year_sheet)	'moving this sheet to be just before last year's sheet
 	End If
+
 	'now we are going to move individual activity entries that are 'too old' to the correct sheet by year.
 	TIME_TRACKING_ARRAY(activity_date_const, 0) = DateAdd("d", 0, TIME_TRACKING_ARRAY(activity_date_const, 0))
 	year_to_check = DatePart("yyyy", TIME_TRACKING_ARRAY(activity_date_const, 0))
@@ -837,19 +844,20 @@ If added_end_time_row_list <> "" then
 End If
 
 If view_excel = False Then leave_excel_open_checkbox = unchecked
-If leave_excel_open_checkbox = checked Then				'If the checkbox is checked then we block out any row that was changed for math to work. This isn't needed if we aren't leaving it open then it closes without being saved.
-	row_filled_with_end_time = trim(row_filled_with_end_time)
-	If Instr(row_filled_with_end_time, " ") = 0 Then
-		row_filled_with_end_time = Array(row_filled_with_end_time)
-	Else
-		row_filled_with_end_time = split(row_filled_with_end_time, " ")
-	End If
-	For each changed_row in row_filled_with_end_time
-		If changed_row <> "" Then
-			ObjExcel.Cells(changed_row, 3).Value = ""
-			ObjExcel.Cells(changed_row, 4).Value = ""
-		End If
-	Next
+' If leave_excel_open_checkbox = checked Then
+'Here we block out any row that was changed for math to work. This isn't needed if we aren't leaving it open then it closes without being saved.
+row_filled_with_end_time = trim(row_filled_with_end_time)
+If Instr(row_filled_with_end_time, " ") = 0 Then
+	row_filled_with_end_time = Array(row_filled_with_end_time)
+Else
+	row_filled_with_end_time = split(row_filled_with_end_time, " ")
 End If
+For each changed_row in row_filled_with_end_time
+	If changed_row <> "" Then
+		ObjExcel.Cells(changed_row, 3).Value = ""
+		ObjExcel.Cells(changed_row, 4).Value = ""
+	End If
+Next
+' End If
 If leave_excel_open_checkbox = unchecked Then ObjExcel.Quit		'Closing the Excel file.
 Call script_end_procedure("")
