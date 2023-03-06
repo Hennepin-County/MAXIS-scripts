@@ -37,6 +37,109 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+const Worker_col                        = 1
+const AssignedDate_col                  = 2
+const CaseNumber_col                    = 3
+const CaseSelectedTime_col              = 29
+const Hold1Start_col                    = 30
+const Hold1End_col                      = 31
+const Hold2Start_col                    = 32
+const Hold2End_col                      = 33
+const Hold3Start_col                    = 34
+const Hold3End_col                      = 35
+const CaseCompletedTime_col             = 36
+current_day_work_tracking_folder = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\WIP\"
+od_revw_tracking_file_path = ""
+file_url = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
+Call excel_open(file_url, True, False, ObjExcel, objWorkbook)
+
+excel_row = 2
+Do While trim(ObjExcel.Cells(excel_row, Worker_col).value) <> ""
+
+	If ObjExcel.Cells(excel_row, CaseCompletedTime_col).value = "" and trim(ObjExcel.Cells(excel_row, Worker_col).value) <> "Yeng Yang" Then
+		assigned_worker = trim(ObjExcel.Cells(excel_row, Worker_col).value)
+		If assigned_worker = "Brooke Reilley" Then user_ID_for_validation = "WFU161"
+		If assigned_worker = "Amber Davis" Then user_ID_for_validation = "AMDA001"
+		If assigned_worker = "Kerry Walsh" Then user_ID_for_validation = "WFC041"
+
+		assigned_date = trim(ObjExcel.Cells(excel_row, AssignedDate_col).value)
+		assigned_date = DateAdd("d", 0, assigned_date)
+		curr_day = DatePart("d", assigned_date)
+		curr_day = right("00" & curr_day, 2)
+		curr_month = DatePart("m", assigned_date)
+		curr_month = right("00" & curr_month, 2)
+		curr_year = DatePart("yyyy", assigned_date)
+		curr_year = right(curr_year, 2)
+		file_date = curr_month & "-" & curr_day & "-" & curr_year
+
+		case_nbr = trim(ObjExcel.Cells(excel_row, CaseNumber_col).value)
+
+        txt_file_name = user_ID_for_validation & "_" & case_nbr & "_" & file_date & ".txt"
+		' MsgBox "txt_file_name - " & txt_file_name
+		od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
+
+		With objFSO
+			'Creating an object for the stream of text which we'll use frequently
+			If .FileExists(od_revw_tracking_file_path) = True then
+
+				Set objTextStream = .OpenTextFile(od_revw_tracking_file_path, ForReading)
+
+				'Reading the entire text file into a string
+				every_line_in_text_file = objTextStream.ReadAll
+
+				'Splitting the text file contents into an array which will be sorted
+				od_revw_case_details = split(every_line_in_text_file, vbNewLine)
+
+				For Each text_line in od_revw_case_details										'read each line in the file
+					If Instr(text_line, "^*^*^") <> 0 Then
+						line_info = split(text_line, "^*^*^")								'creating a small array for each line. 0 has the header and 1 has the information
+						line_info(0) = trim(line_info(0))
+						'here we add the information from TXT to Excel
+
+						If line_info(0) = "CASE NUMBER" Then MAXIS_case_number  = line_info(1)
+						If line_info(0) = "ASSIGNED WORKER" Then cookie_worker  = line_info(1)
+						If line_info(0) = "WINDOWS USER ID" Then user_ID_for_validation  = line_info(1)
+						If line_info(0) = "ASSIGNED DATE" Then assigned_date  = line_info(1)
+						If line_info(0) = "START TIME" Then assigned_start_time  = line_info(1)
+						If line_info(0) = "END TIME" Then assigned_end_time  = line_info(1)
+						If line_info(0) = "HOLD 1 START" Then assigned_hold_1_start_time  = line_info(1)
+						If line_info(0) = "HOLD 1 END" Then assigned_hold_1_end_time  = line_info(1)
+						If line_info(0) = "HOLD 2 START" Then assigned_hold_2_start_time  = line_info(1)
+						If line_info(0) = "HOLD 2 END" Then assigned_hold_2_end_time  = line_info(1)
+						If line_info(0) = "HOLD 3 START" Then assigned_hold_3_start_time  = line_info(1)
+						If line_info(0) = "HOLD 3 END" Then assigned_hold_3_end_time  = line_info(1)
+					End If
+				Next
+
+				objTextStream.Close
+			End If
+		End With
+		ObjExcel.Cells(excel_row, CaseSelectedTime_col).value = assigned_start_time
+		ObjExcel.Cells(excel_row, Hold1Start_col).value = assigned_hold_1_start_time
+		ObjExcel.Cells(excel_row, Hold1End_col).value = assigned_hold_1_end_time
+		ObjExcel.Cells(excel_row, Hold2Start_col).value = assigned_hold_2_start_time
+		ObjExcel.Cells(excel_row, Hold2End_col).value = assigned_hold_2_end_time
+		ObjExcel.Cells(excel_row, Hold3Start_col).value = assigned_hold_3_start_time
+		ObjExcel.Cells(excel_row, Hold3End_col).value = assigned_hold_3_end_time
+		ObjExcel.Cells(excel_row, CaseCompletedTime_col).value = assigned_end_time
+
+		With objFSO
+            If .FileExists(od_revw_tracking_file_path) = True then
+                .DeleteFile(od_revw_tracking_file_path)
+            End If
+        End With
+
+	End If
+	excel_row = excel_row + 1
+
+Loop
+
+
+
+
+
+
+MsgBox "WAIT HERE"
 
 case_number_list = " "
 notes_list = "~~~"
