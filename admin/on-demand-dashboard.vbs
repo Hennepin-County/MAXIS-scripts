@@ -682,6 +682,14 @@ function complete_admin_functions()
                     user_ID_for_validation = worker_number_to_resolve
                     actual_assigned_worker = assigned_worker
                     assigned_worker = worker_full_name_to_resolve
+					actual_file_date = file_date
+					curr_day = DatePart("d", first_item_date)
+					curr_day = right("00" & curr_day, 2)
+					curr_month = DatePart("m", first_item_date)
+					curr_month = right("00" & curr_month, 2)
+					curr_year = DatePart("yyyy", first_item_date)
+					curr_year = right(curr_year, 2)
+					file_date = curr_month & "-" & curr_day & "-" & curr_year
 
                     Call assess_worklist_to_finish_day
                     If case_on_hold = False and case_in_progress = False Then
