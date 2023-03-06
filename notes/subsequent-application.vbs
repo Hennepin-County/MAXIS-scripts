@@ -894,9 +894,15 @@ If revw_pending_table = True Then
     'This is the BZST connection to SQL Database'
     objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 
-    objRecordSet.Open "SELECT FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
+    objRecordSet.Open "SELECT * FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
     current_exp_code = objRecordSet("IsExpSnap")
     If snap_status = "PENDING" and screening_found = False Then current_exp_code = 1
+
+	'close the connection and recordset objects to free up resources
+    objConnection.Close
+
+    'This is the BZST connection to SQL Database'
+    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 
     'delete a record if the case number matches
     objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
