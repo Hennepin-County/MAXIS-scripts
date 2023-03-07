@@ -60,7 +60,7 @@ function gather_SMRT_request_info()
 
 	'this is a dialog to select the person, start date, aand expedited information
     Dialog1 = "" 'Blanking out previous dialog detail
-    BeginDialog Dialog1, 0, 0, 301, 75, "Initial SMRT referral dialog"
+    BeginDialog Dialog1, 0, 0, 301, 75, "Initial SMRT Referral Detail One"
       ComboBox 80, 10, 215, 45, all_the_clients+chr(9)+SMRT_member, SMRT_member
       EditBox 80, 30, 50, 15, SMRT_start_date
       DropListBox 230, 30, 65, 15, "Select one..."+chr(9)+"No"+chr(9)+"Yes", referred_exp
@@ -156,7 +156,7 @@ function gather_SMRT_request_info()
     dlg_len = 125
     If referred_exp = "Yes" Then dlg_len = 155
     y_pos = dlg_len - 50
-    BeginDialog Dialog1, 0, 0, 446, dlg_len, "Initial SMRT referral dialog"
+    BeginDialog Dialog1, 0, 0, 446, dlg_len, "Initial SMRT Referral Detail Two"
       Text 5, 10, 195, 10, "SMRT requested for: " & SMRT_member
       Text 5, 20, 175, 10, "Date SMRT referral requested: " & referral_request_date
       Text 5, 30, 105, 10, "SMRT start date: " & SMRT_start_date
@@ -196,13 +196,14 @@ Dim memb_age, list_of_referral_reasons, list_of_expedited_reasons, referral_reas
 'Start of the Script ===================================================================================
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)		'collecting the case number
+Call check_for_MAXIS(false)
 end_msg = "SMRT NOTE Script completed, SMRT informmation has been entered into the CASE/NOTE."		'setting the end message
 smrt_request_info_changed = False																	'defaulting the information about SMRT info being changed
 initial_request_note_found = False																	'defaulting if the requesting information was found from the note
 
 'intial dialog for user to select a SMRT action, confirm Case Number and the Worker Signature
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 256, 85, "SMRT initial dialog"
+BeginDialog Dialog1, 0, 0, 256, 85, "SMRT Initial Dialog"
   EditBox 85, 5, 60, 15, maxis_case_number
   DropListBox 85, 25, 165, 15, "Select one..."+chr(9)+"Initial request"+chr(9)+"ISDS referral completed"+chr(9)+"SMRT Referral NOT Submitted"+chr(9)+"Determination received", SMRT_actions
   EditBox 85, 45, 165, 15, worker_signature
@@ -288,6 +289,7 @@ If SMRT_actions <> "Initial request" then
 						EMReadScreen end_of_note, 9, 24, 14
 						If end_of_note = "LAST PAGE" Then Exit Do
 					End If
+
 					EMReadScreen next_note_line, 78, in_note_row+1, 3
 					If left(next_note_line, 10) = "          " Then
 						expedited_reason = expedited_reason & " " & trim(next_note_line)
@@ -307,8 +309,8 @@ If SMRT_actions <> "Initial request" then
 						EMReadScreen end_of_note, 9, 24, 14
 						If end_of_note = "LAST PAGE" Then Exit Do
 					End If
+
 					EMReadScreen next_note_line, 78, in_note_row+1, 3
-					' MsgBox "~" & next_note_line & "~" & vbCr & "in_note_row - " & in_note_row
 					If left(next_note_line, 10) = "          " Then
 						referral_reason = referral_reason & " " & trim(next_note_line)
 						in_note_row = in_note_row + 1
@@ -400,7 +402,7 @@ If SMRT_actions = "ISDS referral completed" then
 		Do
 			err_msg = ""
 			Dialog1 = "" 'Blanking out previous dialog detail
-			BeginDialog Dialog1, 0, 0, 446, 175, "Initial SMRT referral dialog"
+			BeginDialog Dialog1, 0, 0, 446, 175, "SMRT ISDS Referral Completed"
 				EditBox 130, 105, 50, 15, isds_referral_date
 				EditBox 5, 135, 435, 15, other_notes
 				ButtonGroup ButtonPressed
@@ -484,7 +486,7 @@ If SMRT_actions = "SMRT Referral NOT Submitted" Then
     	Do
     		err_msg = ""
 			Dialog1 = "" 'Blanking out previous dialog detail
-			BeginDialog Dialog1, 0, 0, 446, 200, "Initial SMRT referral dialog"
+			BeginDialog Dialog1, 0, 0, 446, 200, "SMRT Referral Not Submitted Dialog"
 				EditBox 5, 130, 435, 15, isds_referral_reject_reason
 				EditBox 5, 160, 435, 15, other_notes
 				ButtonGroup ButtonPressed
@@ -599,7 +601,7 @@ If SMRT_actions = "Determination received" then
     	Do
     		err_msg = ""
 			Dialog1 = "" 'Blanking out previous dialog detail
-			BeginDialog Dialog1, 0, 0, 446, 215, "Initial SMRT referral dialog"
+			BeginDialog Dialog1, 0, 0, 446, 215, "SMRT Determination Received"
 				DropListBox 80, 105, 75, 45, "Select one..."+chr(9)+"Approved"+chr(9)+"Denied", SMRT_determination
 				EditBox 105, 125, 50, 15, SMRT_cert_start_date
 				EditBox 105, 145, 50, 15, SMRT_cert_end_date
@@ -690,3 +692,48 @@ If SMRT_actions = "Determination received" then
 END If
 
 Call script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 03/07/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/07/2023
+'--Tab orders reviewed & confirmed----------------------------------------------03/07/2023
+'--Mandatory fields all present & Reviewed--------------------------------------03/07/2023
+'--All variables in dialog match mandatory fields-------------------------------03/07/2023
+'Review dialog names for content and content fit in dialog----------------------03/07/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------03/07/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------03/07/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/07/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------03/07/2023
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/07/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/07/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------03/07/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------03/07/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------03/07/2023
+'--Script name reviewed---------------------------------------------------------03/07/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------03/07/2023
+'--comment Code-----------------------------------------------------------------03/07/2023
+'--Update Changelog for release/update------------------------------------------03/07/2023
+'--Remove testing message boxes-------------------------------------------------03/07/2023
+'--Remove testing code/unnecessary code-----------------------------------------03/07/2023
+'--Review/update SharePoint instructions----------------------------------------03/07/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------03/07/2023
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------03/07/2023
