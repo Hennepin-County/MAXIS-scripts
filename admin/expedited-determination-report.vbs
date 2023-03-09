@@ -418,6 +418,15 @@ For Each objFile in colFiles																'looping through each file
 		STATS_counter = STATS_counter + 1
 
 		objTextStream.Close						'we are done with this file, so we must close the access
+
+		Dim oTxtFile
+		With (CreateObject("Scripting.FileSystemObject"))
+			'If the file exists in the archive, we we will delete the version in the archive so the one from the main file can be placed in archive
+			If .FileExists(txt_file_archive_path & "\" & this_file_name & ".txt") Then
+				objFSO.DeleteFile(txt_file_archive_path & "\" & this_file_name & ".txt")		'deleting the TXT file because hgave the information
+			End If
+		End With
+
 		objFSO.MoveFile this_file_path , txt_file_archive_path & "\" & this_file_name & ".txt"    'moving each file to the archive file
 	End If
 Next
