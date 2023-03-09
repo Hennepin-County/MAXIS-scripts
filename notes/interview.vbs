@@ -8865,21 +8865,18 @@ If CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then CAF_form_name = "Co
 If CAF_form = "SNAP App for Srs (DHS-5223F)" OR CAF_form = "Combined AR for Certain Pops (DHS-3727)" Then
 
 	Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 276, 105, "Unsupported Forms"
+	BeginDialog Dialog1, 0, 0, 261, 160, "Unsupported Forms"
+	  Text 10, 10, 215, 20, "The following forms have slightly different phrasing from the primary application/recertification forms (like the CAF or HUF):"
+	  Text 25, 40, 195, 10, "SNAP App for Srs (DHS-5223F)"
+	  Text 25, 50, 190, 10, "Combined AR for Certain Pops (DHS-3727)"
+	  Text 10, 70, 240, 20, "We are developing new support for this script as use continues. Until then, the Interview script will function using the phrasing of the CAF form."
+	  Text 10, 95, 240, 40, "The requirements of the interview remain the same regardless of the form received. Many questions can be left blank as necessary, the important steps are to document all information received and discussed in the interview. Use the fields in the script to the best of your ability to document the details of the interview."
 	  ButtonGroup ButtonPressed
-	    PushButton 10, 75, 105, 10, "NOTES - Interview Completed", interview_completed_button
-	    PushButton 195, 85, 75, 15, "End the Script", end_script_btn
-	  Text 10, 10, 265, 10, "At this time we do not have support forinterview processed from the forms:"
-	  Text 25, 25, 245, 10, "SNAP App for Srs (DHS-5223F)"
-	  Text 25, 35, 245, 10, "Combined AR for Certain Pops (DHS-3727)"
-	  Text 10, 55, 260, 20, "We are developing new support for this script as use continues. Until then, ccontinue to use Interview Completed to document the interview information."
+		OkButton 205, 140, 50, 15
 	EndDialog
 
 	dialog Dialog1
 
-	If buttonpressed = interview_completed_button Then Call run_from_GitHub(script_repository & "notes/interview-completed.vbs")
-
-	Call script_end_procedure("Interview script ended as form selected is not yet supported.")
 End If
 
 If select_err_msg_handling = "Alert at the time you attempt to save each page of the dialog." Then show_err_msg_during_movement = TRUE
