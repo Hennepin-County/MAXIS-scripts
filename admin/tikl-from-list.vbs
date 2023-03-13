@@ -133,7 +133,7 @@ CALL check_for_MAXIS(false)
    CancelButton 140, 40, 50, 15
    Text 10, 10, 185, 25, "Please select a run mode for the script. You can either enter the case numbers manually, from REPT/ACTV, or from an Excel file..."
 EndDialog
-   
+
 DIALOG Dialog1
 cancel_without_confirmation
 '>>>>> the script has different ways of building case_number_array
@@ -143,7 +143,7 @@ IF run_mode = "Manual Entry" THEN
 ELSEIF run_mode = "REPT/ACTV" THEN
 	'script_end_procedure("This mode is not yet supported.")
 	CALL find_variable("User: ", worker_number, 7)
-    
+
     '>>>>> THE DLG for REPT/ACTV mode<<<<<
     Dialog1 = ""
     BeginDialog Dialog1, 0, 0, 231, 110, "Enter worker number and TIKL text..."
@@ -157,7 +157,7 @@ ELSEIF run_mode = "REPT/ACTV" THEN
       Text 10, 35, 95, 10, "Enter your TIKL text..."
       Text 10, 75, 80, 10, "TIKL Date (MM/DD/YY):"
     EndDialog
-    Do 
+    Do
 	    Do
 	    	err_msg = ""
 	    	DIALOG Dialog1
@@ -168,8 +168,8 @@ ELSEIF run_mode = "REPT/ACTV" THEN
             If trim(date_of_TIKL) = "" or isDate(date_of_TIKL) = false then err_msg = err_msg & vbCr & "* You must enter a valid TIKL date."
 	    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	    LOOP UNTIL err_msg = ""
-        Call check_for_password(are_we_passworded_out)
-    Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	CALL check_for_MAXIS(false)
 
@@ -252,12 +252,12 @@ ELSEIF run_mode = "Excel File" THEN
       Text 10, 55, 230, 10, "Please enter your TIKL text. Separate new lines with semi-colons..."
       Text 10, 95, 80, 10, "TIKL Date (MM/DD/YY):"
     EndDialog
-    
-    Do 
+
+    Do
 	    DO
 	    	err_msg = ""
 	    	DIALOG Dialog1
-	    		cancel_confirmation 
+	    		cancel_confirmation
 	    		IF isnumeric(excel_col) = FALSE AND len(excel_col) > 2 THEN
 	    			err_msg = err_msg & vbCr & "* Please do not use such a large column. The script cannot handle it."
 	    		ELSE
@@ -271,8 +271,8 @@ ELSEIF run_mode = "Excel File" THEN
 	    		END IF
 	    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 	    LOOP UNTIL err_msg = ""
-        Call check_for_password(are_we_passworded_out)
-    Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	CALL check_for_MAXIS(false)
 	'Generating a TIKL for each case.
@@ -291,9 +291,9 @@ privileged_array = ""
 
 FOR EACH MAXIS_case_number IN case_number_array
 	IF MAXIS_case_number <> "" THEN
-        'Checking PRIV status 
+        'Checking PRIV status
         Call navigate_to_MAXIS_screen_review_PRIV("DAIL", "WRIT", is_this_priv)
-		If is_this_priv = True then 
+		If is_this_priv = True then
 			privileged_array = privileged_array & MAXIS_case_number & "~~~"
 		ELSE
             'Call create_TIKL(text_of_TIKL, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
@@ -311,12 +311,12 @@ END IF
 STATS_counter = STATS_counter - 1  'subtracts one from the stats (since 1 was the count, -1 so it's accurate)
 script_end_procedure_with_error_report("Success! Your list has been completed.")
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation 
+'----------------------------------------------------------------------------------------------------Closing Project Documentation
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------08/16/2021
-'--Tab orders reviewed & confirmed----------------------------------------------08/16/2021  
+'--Tab orders reviewed & confirmed----------------------------------------------08/16/2021
 '--Mandatory fields all present & Reviewed--------------------------------------08/16/2021
 '--All variables in dialog match mandatory fields-------------------------------08/16/2021
 '
