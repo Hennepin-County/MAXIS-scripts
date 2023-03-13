@@ -222,6 +222,9 @@ const frequency_issue       = 10
 const future_check          = 11
 const duplct_pay_date       = 12
 const reason_amt_excluded   = 13
+const split_pay_detail_btn	= 14
+const bonus_check_checkbox	= 15
+const last_const_inc_array 	= 20
 
 'Constants for the array of the cash months - CASH_MONTHS_ARRAY
 Const cash_mo_yr    = 1
@@ -235,7 +238,7 @@ const mo_prosp_hrs  = 8
 
 'ARRAYS'
 Dim LIST_OF_INCOME_ARRAY()
-ReDim LIST_OF_INCOME_ARRAY(reason_amt_excluded, 0)
+ReDim LIST_OF_INCOME_ARRAY(last_const_inc_array, 0)
 
 Dim EARNED_INCOME_PANELS_ARRAY()
 ReDim EARNED_INCOME_PANELS_ARRAY(convo_detail, 0)
@@ -1112,8 +1115,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                 LIST_OF_INCOME_ARRAY(panel_indct, pay_item) = ei_panel
             Else                                                                'Otherwise, we need to add a new item to LIST_OF_INCOME_ARRAY because the item of the LIST_OF_INCOME_ARRAY should be for the current panel
                 pay_item = pay_item + 1
-                ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)
+                ReDim Preserve LIST_OF_INCOME_ARRAY(last_const_inc_array, pay_item)
                 LIST_OF_INCOME_ARRAY(panel_indct, pay_item) = ei_panel
+				LIST_OF_INCOME_ARRAY(split_pay_detail_btn, pay_item) = 2000+pay_item
             End If
 
             'This code has 2 dialogs that are connected. There are many do-loops within each other
@@ -1151,77 +1155,84 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                                     'ENTER PAY Dialog - dynamic dialog to enter job checks or anticipated amounts
                                     Dialog1 = ""
-                                    BeginDialog Dialog1, 0, 0, 606, (dlg_factor * 20) + 160, "Enter ALL Paychecks Received"
-                                      Text 10, 10, 265, 10, "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
-                                      Text 200, 15, 40, 10, "Start Date:"
-                                      EditBox 235, 10, 50, 15, EARNED_INCOME_PANELS_ARRAY (income_start_dt, ei_panel)
-                                      Text 295, 15, 50, 10, "Income Type:"
-                                      DropListBox 345, 10, 100, 45, "J - WIOA"+chr(9)+"W - Wages"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel)
-                                      GroupBox 455, 5, 145, 25, "Apply Income to Programs:"
-                                      CheckBox 465, 15, 30, 10, "SNAP", EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel)
-                                      CheckBox 500, 15, 30, 10, "CASH", EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel)
-                                      CheckBox 535, 15, 20, 10, "HC", EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel)
-                                      CheckBox 560, 15, 30, 10, "GRH", EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel)
-                                      Text 5, 40, 60, 10, "JOBS Verif Code:"
-                                      DropListBox 65, 35, 105, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd"+chr(9)+"? - EXPEDITED SNAP ONLY", EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel)
-                                      Text 175, 40, 155, 10, "additional detail of verification received:"
-                                      EditBox 310, 35, 290, 15, EARNED_INCOME_PANELS_ARRAY(verif_explain, ei_panel)
-                                      Text 5, 60, 90, 10, "Date verification received:"
-                                      EditBox 100, 55, 50, 15, EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel)
-                                      Text 460, 60, 50, 10, "Pay Frequency"
-                                      DropListBox 515, 55, 85, 45, ""+chr(9)+"1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
-                                      Text 5, 85, 80, 10, "Pay Date (MM/DD/YY):"
-                                      Text 90, 85, 50, 10, "Gross Amount:"
-                                      Text 145, 85, 25, 10, "Hours:"
-                                      Text 180, 70, 25, 25, "Use in SNAP budget"
-                                      Text 235, 85, 85, 10, "If not used, explain why:"
-                                      Text 355, 75, 245, 10, "If there is a specific amount that should be NOT budgeted from this check:"
-                                      Text 355, 85, 30, 10, "Amount:"
-                                      Text 410, 85, 30, 10, "Reason:"
-
-                                      y_pos = 0     'this is how we move things down in dynamic dialogs
-                                      For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
-                                          If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
-                                              LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = LIST_OF_INCOME_ARRAY(exclude_amount, all_income) & ""
-                                              If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = "0" Then LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = ""  'If this was 0, then we are going to make it blank for loops and error handling
-                                              LIST_OF_INCOME_ARRAY(pay_date, all_income) = LIST_OF_INCOME_ARRAY(pay_date, all_income) & ""
-                                              EditBox 5, (y_pos * 20) + 95, 65, 15, LIST_OF_INCOME_ARRAY(pay_date, all_income)          'BUGGY CODE - this will get funky if the view_pay_date is different and we loop back here
-                                              EditBox 90, (y_pos * 20) + 95, 45, 15, LIST_OF_INCOME_ARRAY(gross_amount, all_income)
-                                              EditBox 145, (y_pos * 20) + 95, 25, 15, LIST_OF_INCOME_ARRAY(hours, all_income)
-
-                                              CheckBox 180, (y_pos * 20) + 100, 50, 10, "Exclude", LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income)  'possibly excluding a whole paycheck
-
-                                              EditBox 235, (y_pos * 20) + 95, 115, 15, LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income)
-                                              EditBox 355, (y_pos * 20) + 95, 45, 15, LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
-                                              EditBox 410, (y_pos * 20) + 95, 185, 15, LIST_OF_INCOME_ARRAY(reason_amt_excluded, all_income)
-                                              y_pos = y_pos + 1
-                                          End If
-                                      Next
-
-                                      GroupBox 205, (dlg_factor * 20) + 130, 275, 30, "Anticipated Income:"
-                                      Text 210, (dlg_factor * 20) + 145, 50, 10, "Rate of Pay/Hr"
-                                      EditBox 260, (dlg_factor * 20) + 140, 30, 15, EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
-                                      Text 295, (dlg_factor * 20) + 145, 35, 10, "Hours/Wk"
-                                      EditBox 330, (dlg_factor * 20) + 140, 20, 15, est_weekly_hrs
-                                      Text 360, (dlg_factor * 20) + 145, 65, 10, "Known Pay Date"
-                                      EditBox 420, (dlg_factor * 20) + 140, 50, 15, known_pay_date
-
-									  Text 20, (dlg_factor * 20) + 140, 185, 20, "List ALL known/reported/verified checks with amounts above, even if not used to create a prospective budget."
-                                      Text 385, (dlg_factor * 20) + 120, 85, 10, "Initial Month to Update:"
-                                      EditBox 465, (dlg_factor * 20) + 115, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel)
-                                      EditBox 485, (dlg_factor * 20) + 115, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
-                                      CheckBox 510, (dlg_factor * 20) + 120, 120, 10, "Update Future Months", EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel)
-
-									  Text 45, (dlg_factor * 20) + 115, 300, 10, "* Combine checks paid on the same date and enter here as one."
-
+                                    BeginDialog Dialog1, 0, 0, 765, (dlg_factor * 20) + 140, "Enter ALL Paychecks Received"
                                       ButtonGroup ButtonPressed
-									    PushButton 445, 55, 15, 15, "!", pay_frequency_tips_and_tricks_btn
-										PushButton 5, 70, 15, 15, "!", listing_checks_tips_and_tricks_btn
-										PushButton 5, (dlg_factor * 20) + 115, 15, 15, "+", add_another_check
-                                        PushButton 25, (dlg_factor * 20) + 115, 15, 15, "-", take_a_check_away
-										PushButton 5, (dlg_factor * 20) + 140, 15, 15, "!", list_all_checks_tips_and_checks_btn
-										PushButton 365, (dlg_factor * 20) + 115, 15, 15, "!", initial_month_tips_and_tricks_btn
-                                        OkButton 550, (dlg_factor * 20) + 140, 50, 15
+										Text 10, 10, 265, 10, "JOBS " & EARNED_INCOME_PANELS_ARRAY(panel_member, ei_panel) & " " & EARNED_INCOME_PANELS_ARRAY(panel_instance, ei_panel) & " - " & EARNED_INCOME_PANELS_ARRAY(employer, ei_panel)
+										Text 200, 15, 40, 10, "Start Date:"
+										EditBox 235, 10, 50, 15, EARNED_INCOME_PANELS_ARRAY (income_start_dt, ei_panel)
+										Text 295, 15, 50, 10, "Income Type:"
+										DropListBox 345, 10, 100, 45, "J - WIOA"+chr(9)+"W - Wages"+chr(9)+"E - EITC"+chr(9)+"G - Experience Works"+chr(9)+"F - Federal Work Study"+chr(9)+"S - State Work Study"+chr(9)+"O - Other"+chr(9)+"C - Contract Income"+chr(9)+"T - Training Program"+chr(9)+"P - Service Program"+chr(9)+"R - Rehab Program", EARNED_INCOME_PANELS_ARRAY(income_type, ei_panel)
+										GroupBox 455, 5, 145, 25, "Apply Income to Programs:"
+										CheckBox 465, 15, 30, 10, "SNAP", EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel)
+										CheckBox 500, 15, 30, 10, "CASH", EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel)
+										CheckBox 535, 15, 20, 10, "HC", EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel)
+										CheckBox 560, 15, 30, 10, "GRH", EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel)
+										Text 615, 15, 90, 10, "Date verification received:"
+										EditBox 710, 10, 50, 15, EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel)
+										Text 5, 40, 60, 10, "JOBS Verif Code:"
+										DropListBox 65, 35, 105, 45, "1 - Pay Stubs/Tip Report"+chr(9)+"2 - Empl Statement"+chr(9)+"3 - Coltrl Stmt"+chr(9)+"4 - Other Document"+chr(9)+"5 - Pend Out State Verification"+chr(9)+"N - No Ver Prvd"+chr(9)+"? - EXPEDITED SNAP ONLY", EARNED_INCOME_PANELS_ARRAY(income_verif, ei_panel)
+										Text 175, 40, 155, 10, "additional detail of verification received:"
+										EditBox 310, 35, 290, 15, EARNED_INCOME_PANELS_ARRAY(verif_explain, ei_panel)
+										Text 625, 40, 50, 10, "Pay Frequency"
+										DropListBox 675, 35, 85, 45, ""+chr(9)+"1 - One Time Per Month"+chr(9)+"2 - Two Times Per Month"+chr(9)+"3 - Every Other Week"+chr(9)+"4 - Every Week", EARNED_INCOME_PANELS_ARRAY(pay_freq, ei_panel)
+
+
+										Text 5, 65, 80, 10, "Pay Date (MM/DD/YY):"
+										Text 90, 65, 50, 10, "Gross Amount:"
+										Text 145, 65, 25, 10, "Hours:"
+										Text 180, 50, 25, 25, "Use in SNAP budget"
+										Text 235, 65, 85, 10, "If not used, explain why:"
+										Text 355, 55, 245, 10, "If there is a specific amount that should be NOT budgeted from this check:"
+										Text 355, 65, 30, 10, "Amount:"
+										Text 410, 65, 30, 10, "Reason:"
+										Text 600, 65, 60, 10, "Add pay detail"
+										Text 670, 55, 85, 20, "Check here if Entire check is BONUS:"
+
+										y_pos = 0     'this is how we move things down in dynamic dialogs
+										For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
+											If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel Then
+												LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = LIST_OF_INCOME_ARRAY(exclude_amount, all_income) & ""
+												If LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = "0" Then LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = ""  'If this was 0, then we are going to make it blank for loops and error handling
+												LIST_OF_INCOME_ARRAY(pay_date, all_income) = LIST_OF_INCOME_ARRAY(pay_date, all_income) & ""
+												EditBox 5, (y_pos * 20) + 75, 65, 15, LIST_OF_INCOME_ARRAY(pay_date, all_income)          'BUGGY CODE - this will get funky if the view_pay_date is different and we loop back here
+												EditBox 90, (y_pos * 20) + 75, 45, 15, LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+												EditBox 145, (y_pos * 20) + 75, 25, 15, LIST_OF_INCOME_ARRAY(hours, all_income)
+
+												CheckBox 180, (y_pos * 20) + 80, 50, 10, "Exclude", LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income)  'possibly excluding a whole paycheck
+
+												EditBox 235, (y_pos * 20) + 75, 115, 15, LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income)
+												EditBox 355, (y_pos * 20) + 75, 45, 15, LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
+												EditBox 410, (y_pos * 20) + 75, 185, 15, LIST_OF_INCOME_ARRAY(reason_amt_excluded, all_income)
+												PushButton 600, (y_pos * 20) + 77, 60, 13, "Split Pay Info", LIST_OF_INCOME_ARRAY(split_pay_detail_btn, all_income)
+												CheckBox 670, (y_pos * 20) + 80, 75, 10, "BONUS CHECK", LIST_OF_INCOME_ARRAY(bonus_check_checkbox, all_income)
+												y_pos = y_pos + 1
+											End If
+										Next
+
+										GroupBox 235, (dlg_factor * 20) + 110, 275, 30, "Anticipated Income:"
+										Text 240, (dlg_factor * 20) + 125, 50, 10, "Rate of Pay/Hr"
+										EditBox 290, (dlg_factor * 20) + 120, 30, 15, EARNED_INCOME_PANELS_ARRAY(pay_per_hr, ei_panel)
+										Text 325, (dlg_factor * 20) + 125, 35, 10, "Hours/Wk"
+										EditBox 360, (dlg_factor * 20) + 120, 20, 15, est_weekly_hrs
+										Text 390, (dlg_factor * 20) + 125, 65, 10, "Known Pay Date"
+										EditBox 450, (dlg_factor * 20) + 120, 50, 15, known_pay_date
+
+										Text 20, (dlg_factor * 20) + 120, 185, 20, "List ALL known/reported/verified checks with amounts above, even if not used to create a prospective budget."
+										Text 545, (dlg_factor * 20) + 100, 85, 10, "Initial Month to Update:"
+										EditBox 625, (dlg_factor * 20) + 95, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_mo, ei_panel)
+										EditBox 645, (dlg_factor * 20) + 95, 15, 15, EARNED_INCOME_PANELS_ARRAY(initial_month_yr, ei_panel)
+										CheckBox 670, (dlg_factor * 20) + 100, 120, 10, "Update Future Months", EARNED_INCOME_PANELS_ARRAY(update_futue_chkbx, ei_panel)
+
+										' Text 45, (dlg_factor * 20) + 95, 300, 10, "* Combine checks paid on the same date and enter here as one."
+
+									    PushButton 605, 35, 15, 15, "!", pay_frequency_tips_and_tricks_btn
+										PushButton 5, 50, 15, 15, "!", listing_checks_tips_and_tricks_btn
+										PushButton 5, (dlg_factor * 20) + 95, 15, 15, "+", add_another_check
+                                        PushButton 25, (dlg_factor * 20) + 95, 15, 15, "-", take_a_check_away
+										PushButton 45, (dlg_factor * 20) + 95, 300, 13, "Insert Check using YTD caclulation from surrounding checks", ytd_calculator_btn
+										PushButton 5, (dlg_factor * 20) + 120, 15, 15, "!", list_all_checks_tips_and_checks_btn
+										PushButton 525, (dlg_factor * 20) + 95, 15, 15, "!", initial_month_tips_and_tricks_btn
+                                        OkButton 710, (dlg_factor * 20) + 120, 50, 15
                                     EndDialog
 
                                     Dialog Dialog1
@@ -1349,7 +1360,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                                     If ButtonPressed = add_another_check Then       'functionality to add another check to the dialog using the '+' button
                                         pay_item = pay_item + 1     'incrementing the counter
-                                        ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)      'resizing the array
+                                        ReDim Preserve LIST_OF_INCOME_ARRAY(last_const_inc_array, pay_item)      'resizing the array
                                         LIST_OF_INCOME_ARRAY(panel_indct, pay_item) = ei_panel          'setting the new LIST_OF_INCOME_ARRAY item to the current panel
                                         dlg_factor = dlg_factor + 1     'making the dialog bigger
 
@@ -1359,6 +1370,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                         LIST_OF_INCOME_ARRAY(reason_to_exclude, pay_item) = ""
                                         LIST_OF_INCOME_ARRAY(exclude_amount, pay_item) = ""
                                         LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item) = ""
+										LIST_OF_INCOME_ARRAY(split_pay_detail_btn, pay_item) = 2000+pay_item
 
                                         sm_err_msg = "LOOP" & sm_err_msg            'makes the dialog loop back without displaying an error message
 
@@ -1367,7 +1379,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     If ButtonPressed = take_a_check_away Then       'functionality to take a check away from the dialog using the '-' button
                                         pay_item = pay_item - 1                 'incremnting the counter backward   possible BUGGY CODE - may be an issue with the 2nd job updates - we could potentially erase the items for another panel.
                                         If pay_item < 0 Then pay_item = 0       'making sure we don't go below 0
-                                        ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)  'resizing the array - YES IT WORKS BOTH WAYS
+                                        ReDim Preserve LIST_OF_INCOME_ARRAY(last_const_inc_array, pay_item)  'resizing the array - YES IT WORKS BOTH WAYS
                                         dlg_factor = dlg_factor - 1             'making the dialog smaller
                                         sm_err_msg = "LOOP" & sm_err_msg        'makes the dialog loop back without displaying an error message
                                     End If
@@ -1802,7 +1814,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                                 For each check_missed in missing_checks_list        'these missing dates get added to the LIST_OF_INCOME_ARRAY automatically
                                     pay_item = pay_item + 1
-                                    ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)
+                                    ReDim Preserve LIST_OF_INCOME_ARRAY(last_const_inc_array, pay_item)
                                     LIST_OF_INCOME_ARRAY(panel_indct, pay_item) = ei_panel
                                     dlg_factor = dlg_factor + 1
 
@@ -1812,6 +1824,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     LIST_OF_INCOME_ARRAY(reason_to_exclude, pay_item) = ""
                                     LIST_OF_INCOME_ARRAY(exclude_amount, pay_item) = ""
                                     LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item) = ""
+									LIST_OF_INCOME_ARRAY(split_pay_detail_btn, pay_item) = 2000+pay_item
                                 Next
                                 'telling the worker why we are going back
                                 MsgBox "*** It appears there are checks missing ***" & vbNewLine & vbNewLine & "All checks need to be entered to have a correct budget. If there are pay dates between the first and last date entered that were not included, include them now. If the pay was $0, list $0 income."
@@ -3071,8 +3084,9 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                                 If EARNED_INCOME_PANELS_ARRAY(self_emp_mthd, ei_panel) = "01 - 50% Grosss Inc" Then
                                     pay_item = pay_item + 1
-                                    ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)
+                                    ReDim Preserve LIST_OF_INCOME_ARRAY(last_const_inc_array, pay_item)
                                     LIST_OF_INCOME_ARRAY(panel_indct, pay_item) = ei_panel
+									LIST_OF_INCOME_ARRAY(split_pay_detail_btn, pay_item) = 2000+pay_item
                                     dlg_factor = dlg_factor + 1
                                 End If
 
@@ -3082,17 +3096,17 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 
                             If ButtonPressed = plus_button Then
                                 pay_item = pay_item + 1
-                                ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)
+                                ReDim Preserve LIST_OF_INCOME_ARRAY(last_const_inc_array, pay_item)
                                 LIST_OF_INCOME_ARRAY(panel_indct, pay_item) = ei_panel
-                                dlg_factor = dlg_factor + 1
+								LIST_OF_INCOME_ARRAY(split_pay_detail_btn, pay_item) = 2000+pay_item
+								dlg_factor = dlg_factor + 1
 
                                 sm_err_msg = "LOOP" & sm_err_msg
-
                             End If
 
                             If ButtonPressed = minus_button Then
                                 pay_item = pay_item - 1
-                                ReDim Preserve LIST_OF_INCOME_ARRAY(reason_amt_excluded, pay_item)
+                                ReDim Preserve LIST_OF_INCOME_ARRAY(last_const_inc_array, pay_item)
                                 dlg_factor = dlg_factor - 1
                                 sm_err_msg = "LOOP" & sm_err_msg
                             End If
