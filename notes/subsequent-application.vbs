@@ -887,25 +887,62 @@ If revw_pending_table = True Then
     Const adOpenStatic = 3
     Const adLockOptimistic = 3
 
-    'Creating objects for Access
-    Set objConnection = CreateObject("ADODB.Connection")
-    Set objRecordSet = CreateObject("ADODB.Recordset")
+	case_number_found_in_SQL = False
+	'Read the whole table to see if this case number exists on the list
+	objSQL = "SELECT * FROM ES.ES_CasesPending"
 
-    'This is the BZST connection to SQL Database'
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
 
-    objRecordSet.Open "SELECT * FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
-    current_exp_code = objRecordSet("IsExpSnap")
-    If snap_status = "PENDING" and screening_found = False Then current_exp_code = 1
+	'This is the file path for the statistics Access database.
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open objSQL, objConnection
 
+	Do While NOT objRecordSet.Eof
+		sql_case_number = case_info_notes = objRecordSet("CaseNumber")
+		If eight_digit_case_number = sql_case_number Then
+			case_number_found_in_SQL = True
+			Exit Do
+		End If
+		objRecordSet.MoveNext
+	Loop
 	'close the connection and recordset objects to free up resources
-    objConnection.Close
+	objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
 
-    'This is the BZST connection to SQL Database'
-    objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	If case_number_found_in_SQL = True Then
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
 
-    'delete a record if the case number matches
-    objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
+		'This is the BZST connection to SQL Database'
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+
+		objRecordSet.Open "SELECT * FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
+		current_exp_code = objRecordSet("IsExpSnap")
+		If snap_status = "PENDING" and screening_found = False Then current_exp_code = 1
+
+		'close the connection and recordset objects to free up resources
+		objConnection.Close
+
+		'This is the BZST connection to SQL Database'
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+
+		'delete a record if the case number matches
+		objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_number & "'", objConnection
+	Else
+		current_exp_code = 1
+
+		'Creating objects for Access
+		Set objConnection = CreateObject("ADODB.Connection")
+		Set objRecordSet = CreateObject("ADODB.Recordset")
+
+		'This is the BZST connection to SQL Database'
+		objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	End If
 
     'delete a record if the case number matches
     ' objRecordSet.Open "DELETE FROM ES.ES_CasesPending WHERE CaseNumber = '" & eight_digit_case_nuMEMO_foundmber & "'", objConnection
