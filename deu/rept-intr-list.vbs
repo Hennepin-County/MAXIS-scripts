@@ -206,6 +206,6 @@ script_end_procedure_with_error_report("Success! The spreadsheet has all request
 '--Review/update SharePoint instructions----------------------------------------03/13/2023
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------03/13/2023
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------03/13/2023
-'--COMPLETE LIST OF SCRIPTS update policy references----------------------------03/13/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------03/13/2023 'TE02.08.182 Accessing and Resolving PARIS Matches and SharePointPublic Assistance Reporting Information System (PARIS) https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/PARIS.aspx
 '--Complete misc. documentation (if applicable)---------------------------------03/13/2023
 '--Update project team/issue contact (if applicable)----------------------------03/13/2023
