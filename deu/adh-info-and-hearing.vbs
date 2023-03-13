@@ -88,8 +88,8 @@ Do
 		IF ADH_option = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select an ADH action."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = ""
- 	CALL check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '------------------------------------------------------------------------------------getting the case name
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -227,8 +227,8 @@ IF ADH_option = "Hearing Held" THEN
 			IF trim(fraud_claim_number) <> "" and Fraud_investigator = "Select One:"  THEN err_msg = err_msg & vbNewLine & "* Enter both the fraud case number AND the Fraud Investigator's name, or clear the non-applicable info."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 		Loop until err_msg = ""
-		CALL check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	DISQ_end_date = DateAdd("M", months_disq, DISQ_begin_date)
 	IF Fraud_investigator = "Unknown" THEN Fraud_investigator = ""
