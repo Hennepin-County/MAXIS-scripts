@@ -126,37 +126,40 @@ BeginDialog Dialog1, 0, 0, 781, 240, "Select Parameters for Cases to Transfer"
   Text 5, 90, 75, 10, "Programs to Include:"
 EndDialog
 Do
-	Do
-		Dialog Dialog1
-		cancel_without_confirmation
-		err_msg = ""
-		IF worker_number = "" then err_msg = err_msg & vbCr & "You must Select an X-Number to pull cases from."
-		IF query_all_actv_check = unchecked AND snap_check = unchecked AND mfip_check = unchecked AND DWP_check = unchecked AND EA_check = unchecked AND HC_check = unchecked AND ga_check = unchecked AND msa_check = unchecked AND GRH_check = unchecked Then err_msg = err_msg & _
-		  vbCr & "You must select a type of program for the cases you want to transfer, please pick one - SNAP, MFIP, DWP, EA, HC, GA, MSA, or GRH"
-		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-	Loop until err_msg = ""
-	err_msg = ""
-	If SNAP_check = unchecked then
-		IF SNAP_Only_check = checked OR SNAP_ABAWD_check = checked OR SNAP_UH_check = checked then err_msg = err_msg & vbCr & "If you select SNAP details, you must filter FOR SNAP cases - Check the SNAP box"
-	End If
-	IF mfip_check = unchecked then
-		IF MFIP_Only_check = checked OR MFIP_tanf_check = checked OR child_only_mfip_check = checked OR mont_rept_check = checked then err_msg = err_msg & vbCr & " If you select MFIP details, you must filter FOR MFIP cases - check the MFIP box"
-	End If
-	If MFIP_tanf_check = checked AND tanf_months = "" then err_msg = err_msg & vbCr & "If you want to filter for a certain number of TANF months, you must indicate how many months you want"
-	IF HC_check = unchecked then
-		If HC_msp_check = checked OR adult_hc_check = checked OR family_hc_check = checked OR ltc_HC_check = checked OR waiver_HC_check = checked then err_msg = err_msg & vbCr & "If you select HC details, you must filter FOR HC cases - check the HC Box"
-	End If
-	IF snap_check = checked AND exclude_snap_check = checked then err_msg = err_msg & vbCr & "You cannot filter for SNAP and Exclude SNAP cases - please pick one"
-	IF mfip_check = checked AND exclude_mfip_dwp_check = checked then err_msg = err_msg & vbCr & "You cannot filter for MFIP and Exclude MFIP cases - please pick one"
-	IF ccap_check = checked AND exclude_ccap_check = checked then err_msg = err_msg & vbCr & "You cannot filter for Child Care and Exclude Child Care - please pick one"
-	IF EA_check = checked AND exclude_ea_check = checked then err_msg = err_msg & vbCr & "You cannot filter for EA/EGA and Exclude EA/EGA cases - please pick one"
-	IF HC_check = checked AND exclude_HC_check = checked then err_msg = err_msg & vbCr & "You cannot filter for HC and Exclude HC cases - please pick one"
-	If exclude_ga_msa_check = checked then
-		IF ga_check = checked OR msa_check = checked then err_msg = err_msg & vbCr & "You cannot filter for GA and/or MSA and Exclude GA/MSA cases - please pick one"
-	End If
-	If GRH_check = checked AND exclude_grh_check = checked then err_msg = err_msg & vbCr & "You cannot filter for GRH and Exclude GRH cases - please pick one"
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
-Loop until err_msg = ""
+    Do
+    	Do
+    		Dialog Dialog1
+    		cancel_without_confirmation
+    		err_msg = ""
+    		IF worker_number = "" then err_msg = err_msg & vbCr & "You must Select an X-Number to pull cases from."
+    		IF query_all_actv_check = unchecked AND snap_check = unchecked AND mfip_check = unchecked AND DWP_check = unchecked AND EA_check = unchecked AND HC_check = unchecked AND ga_check = unchecked AND msa_check = unchecked AND GRH_check = unchecked Then err_msg = err_msg & _
+    		  vbCr & "You must select a type of program for the cases you want to transfer, please pick one - SNAP, MFIP, DWP, EA, HC, GA, MSA, or GRH"
+    		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    	Loop until err_msg = ""
+    	err_msg = ""
+    	If SNAP_check = unchecked then
+    		IF SNAP_Only_check = checked OR SNAP_ABAWD_check = checked OR SNAP_UH_check = checked then err_msg = err_msg & vbCr & "If you select SNAP details, you must filter FOR SNAP cases - Check the SNAP box"
+    	End If
+    	IF mfip_check = unchecked then
+    		IF MFIP_Only_check = checked OR MFIP_tanf_check = checked OR child_only_mfip_check = checked OR mont_rept_check = checked then err_msg = err_msg & vbCr & " If you select MFIP details, you must filter FOR MFIP cases - check the MFIP box"
+    	End If
+    	If MFIP_tanf_check = checked AND tanf_months = "" then err_msg = err_msg & vbCr & "If you want to filter for a certain number of TANF months, you must indicate how many months you want"
+    	IF HC_check = unchecked then
+    		If HC_msp_check = checked OR adult_hc_check = checked OR family_hc_check = checked OR ltc_HC_check = checked OR waiver_HC_check = checked then err_msg = err_msg & vbCr & "If you select HC details, you must filter FOR HC cases - check the HC Box"
+    	End If
+    	IF snap_check = checked AND exclude_snap_check = checked then err_msg = err_msg & vbCr & "You cannot filter for SNAP and Exclude SNAP cases - please pick one"
+    	IF mfip_check = checked AND exclude_mfip_dwp_check = checked then err_msg = err_msg & vbCr & "You cannot filter for MFIP and Exclude MFIP cases - please pick one"
+    	IF ccap_check = checked AND exclude_ccap_check = checked then err_msg = err_msg & vbCr & "You cannot filter for Child Care and Exclude Child Care - please pick one"
+    	IF EA_check = checked AND exclude_ea_check = checked then err_msg = err_msg & vbCr & "You cannot filter for EA/EGA and Exclude EA/EGA cases - please pick one"
+    	IF HC_check = checked AND exclude_HC_check = checked then err_msg = err_msg & vbCr & "You cannot filter for HC and Exclude HC cases - please pick one"
+    	If exclude_ga_msa_check = checked then
+    		IF ga_check = checked OR msa_check = checked then err_msg = err_msg & vbCr & "You cannot filter for GA and/or MSA and Exclude GA/MSA cases - please pick one"
+    	End If
+    	If GRH_check = checked AND exclude_grh_check = checked then err_msg = err_msg & vbCr & "You cannot filter for GRH and Exclude GRH cases - please pick one"
+    	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+    Loop until err_msg = ""
+Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
@@ -1231,19 +1234,22 @@ EndDialog
 
 'Running the dialog to get transfer information
 Do
-	Do
-		Dialog Dialog1
-		cancel_confirmation
-		err_msg = ""
-		If cases_to_xfer_numb = "" THEN cases_to_xfer_numb = 0
-		IF transfer_check = checked AND worker_receiving_cases = "" then err_msg = err_msg & vbCR & "You must enter a worker number to transfer cases to"
-		IF abs(cases_to_xfer_numb) > abs(cases_found) then err_msg = err_msg & vbCr & "You cannot transfer more cases than were found to transfer"
-		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-		If err_msg <> "" then MsgBox err_msg
-	Loop until err_msg = ""
-	IF transfer_check = unchecked AND query_check = unchecked THEN MsgBox "You must select an option"
-	IF transfer_check = checked AND query_check = checked THEN MsgBox "You cannot select both"
-Loop until transfer_check = checked OR query_check = checked
+    Do
+    	Do
+    		Dialog Dialog1
+    		cancel_confirmation
+    		err_msg = ""
+    		If cases_to_xfer_numb = "" THEN cases_to_xfer_numb = 0
+    		IF transfer_check = checked AND worker_receiving_cases = "" then err_msg = err_msg & vbCR & "You must enter a worker number to transfer cases to"
+    		IF abs(cases_to_xfer_numb) > abs(cases_found) then err_msg = err_msg & vbCr & "You cannot transfer more cases than were found to transfer"
+    		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+    		If err_msg <> "" then MsgBox err_msg
+    	Loop until err_msg = ""
+    	IF transfer_check = unchecked AND query_check = unchecked THEN MsgBox "You must select an option"
+    	IF transfer_check = checked AND query_check = checked THEN MsgBox "You cannot select both"
+    Loop until transfer_check = checked OR query_check = checked
+    Call check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 cases_to_xfer_numb = abs(cases_to_xfer_numb)	'Sometimes the script thinks this is a string and does not do math correctly.
 
