@@ -94,8 +94,8 @@ Do
         IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
-CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 IF appeal_actions = "Received" THEN
     '---------------------------------------------------------------------------------------------'pending & active programs information
@@ -162,8 +162,8 @@ IF appeal_actions = "Received" THEN
             IF cash_appeal_checkbox = UNCHECKED AND snap_appeal_checkbox = UNCHECKED AND grh_appeal_checkbox = UNCHECKED AND hc_appeal_checkbox = UNCHECKED AND emer_appeal_checkbox = UNCHECKED AND ot_appeal_checkbox = UNCHECKED AND ca_appeal_checkbox  = UNCHECKED AND ive_appeal_checkbox = UNCHECKED AND BURIAL_ASSIST_checkbox = UNCHECKED AND REVENUE_RECAP_checkbox = UNCHECKED AND SANCTION_checkbox = UNCHECKED AND TRANSPORT_checkbox = UNCHECKED THEN err_msg = err_msg & vbCr & "* Please select the appealed program or decision."
     	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     	LOOP UNTIL err_msg = ""
-    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-    LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     appeal_programs = ""
     IF cash_appeal_checkbox = CHECKED THEN appeal_programs =  appeal_programs & "CASH, "
@@ -226,8 +226,8 @@ IF appeal_actions = "Pending Request"  THEN
             IF verification_needed = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the pending verifications"
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
-        Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Pending Request-----")
@@ -269,8 +269,8 @@ IF appeal_actions = "Summary Completed"  THEN
             IF action_client_is_appealing = "" THEN err_msg = err_msg & vbNewLine & "* Please enter action that client is appealing."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
-        Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Summary Completed-----")
@@ -314,8 +314,8 @@ IF appeal_actions = "Reconsideration" THEN
             IF hearing_details = "" THEN err_msg = err_msg & vbNewLine & "* Please enter hearing details"
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
-        Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Reconsideration-----")
@@ -360,8 +360,8 @@ IF appeal_actions = "Hearing Information" THEN
             IF hearing_details = "" THEN err_msg = err_msg & vbNewLine & "* Please enter hearing details"
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
-        Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Hearing Info-----")
@@ -406,8 +406,8 @@ IF appeal_actions = "Decision Received" THEN
             IF isdate(date_signed_by_judge) = false THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date the appeal findings were signed by the Judge"
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
-        Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
      start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
      Call write_variable_in_CASE_NOTE("-----Appeal Decision Received-----")
@@ -464,8 +464,8 @@ IF appeal_actions = "Resolution" THEN
             IF Overpayments_Required_dropdown = "YES" and overpayment_amount = "" THEN err_msg = err_msg & vbNewLine & "* Please enter the amount of the overpayment, if unknown enter N/A."
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
-        Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
     Call write_variable_in_CASE_NOTE("-----Appeal Resolution-----")
