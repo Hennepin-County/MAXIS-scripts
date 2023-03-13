@@ -86,8 +86,8 @@ EndDialog
 Do
 	Dialog Dialog1
 	cancel_without_confirmation
-	Call check_for_password(are_we_passworded_out)
-Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
