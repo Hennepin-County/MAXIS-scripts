@@ -77,16 +77,25 @@ BeginDialog Dialog1, 0, 0, 301, 120, "Pull REPT data into Excel dialog"
 EndDialog
 
 'Shows dialog
-Dialog Dialog1
-cancel_without_confirmation
+Do
+	Do
+  		err_msg = ""
+  		dialog Dialog1
+  		cancel_without_confirmation
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+  		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
+  		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
+  	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+  	LOOP until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call check_for_MAXIS(False) 'Checking for MAXIS
 
 If len(inac_month) = 1 then inac_month = "0" & inac_month
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
-
-'Checking for MAXIS
-Call check_for_MAXIS(false)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -153,7 +162,7 @@ all_case_numbers_array = "*"
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_MAXIS_screen("rept", "inac")
+	Call navigate_to_MAXIS_screen("REPT", "INAC")
 	EMWriteScreen worker, 21, 16
 	EMWriteScreen inac_month, 20, 54
 	EMWriteScreen inac_year, 20, 57
