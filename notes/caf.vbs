@@ -6074,7 +6074,7 @@ If vars_filled = False Then
                     End If
                     in_note_row = in_note_row + 1
                     If interview_with <> "" AND interview_type <> "" AND interview_date <> "" Then Exit Do      'if we found all of it, we can be done
-                Loop until trim(first_part_of_line) = ""
+                Loop until trim(whole_note_line) = ""
                 PF3         'leaving the note.
 
             Else
