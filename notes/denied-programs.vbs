@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/13/2023", "* * * Denied Programs has been retired. * * *##~####~##NOTES - Eligibility Summary will now run every time you press the button for Denied Programs.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/03/2023", "* * * THIS SCRIPT IS BEING RETIRED ON 03/13/2023 * * *##~####~##Be sure to try using NOTES - Eligibility Summary before this retirement date for CASE/NOTEs on denials. This is the time to become accustomeed to the functionality of NOTES - Eligibility Summary.##~##", "Casey Love, Hennepin County")
 call changelog_update("05/28/2020", "Update to the notice wording, added virtual drop box information.", "MiKayla Handley, Hennepin County")
 CALL changelog_update("12/21/2019", "Added functionality to allow the script to read GRH PND2 when selecting CASH denial so that GRH denials can be noted with the same functionality as the other programs.", "Casey Love, Hennepin County")
@@ -63,6 +64,11 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+script_run_lowdown = script_run_lowdown & vbCr & "STARTED FROM DENIED PROGRAMS"
+script_url = script_repository & "notes\eligibility-summary.vbs"
+Call run_from_GitHub(script_url)
+script_end_procedure("")
 
 'VARIABLE REQUIRED TO RESIZE DIALOG BASED ON A GLOBAL VARIABLE IN FUNCTIONS FILE
 If case_noting_intake_dates = False then dialog_shrink_amt = 100
