@@ -101,8 +101,8 @@ Do
 					IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 					IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 		    	LOOP UNTIL err_msg = ""
-		    	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-			LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+                CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+            Loop until are_we_passworded_out = false					'loops until user passwords back in
 		CALL check_for_MAXIS(False)
 
                 'If the search button is pressed, the functionality for searching vendors here will start
@@ -132,8 +132,8 @@ Do
 						cancel_without_confirmation
 						IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 					LOOP UNTIL err_msg = ""
-					CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-				LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+                    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+                Loop until are_we_passworded_out = false					'loops until user passwords back in
 			CALL check_for_MAXIS(False)
 
             Call navigate_to_MAXIS_screen("MONY", "VNDS")           'going to vendor search in MAXIS
@@ -146,9 +146,8 @@ Do
         End If
         If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg       'showing the error message if anything is missing from the initial dialog
 	Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)                  'password handling
-Loop until check_for_password(are_we_passworded_out) = False
-
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 vendor_number_list = trim(vendor_number_list)           'formatting information from the main dialog
 If InStr(vendor_number_list, ",") = 0 Then              'making the list of vendor numbers an array
@@ -257,8 +256,8 @@ Do
 		IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
         If err_msg <> "" AND left(err_msg, 4) <> "LOOP" Then MsgBox "Please resolve to continue:" & vbNewLine & err_msg     'Showing the error message
     Loop until err_msg = ""
-    Call check_for_password(are_we_passworded_out)          'password handling
-Loop until are_we_passworded_out = False
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'The case note---------------------------------------------------------------------------------------
 start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
