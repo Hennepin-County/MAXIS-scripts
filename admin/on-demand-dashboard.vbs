@@ -106,6 +106,7 @@ completed_reviews = 0
 reviews_completed_by_me = 0
 reviews_still_needed = 0
 
+end_msg = ""
 assigned_worker  = ""
 assigned_date  = ""
 assigned_start_time  = ""
@@ -121,11 +122,14 @@ local_demo = False
 ADMIN_run = False
 BULK_Run_completed = False
 worker_on_task = False
+finish_day_completed_yesterday = True
+workers_first_task_pulled_for_review = False
 total_cases_for_review = 0
 admin_cases_for_review = 0
 cases_with_review_completed = 0
 cases_waiting_for_review = 0
 cases_on_hold = 0
+cases_completed_by_current_worker = 0
 case_nbr_in_progress = ""
 admin_count_NR = 0
 admin_count_RC = 0
@@ -147,9 +151,6 @@ file_date = CM_mo & "-" & curr_day & "-" & CM_yr
 txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
 od_revw_tracking_file_path = current_day_work_tracking_folder  & txt_file_name
 
-' txt_file_name = "expedited_determination_detail_" & MAXIS_case_number & "_" & replace(replace(replace(now, "/", "_"),":", "_")," ", "_") & ".txt"
-' MsgBox exp_info_file_path
-end_msg = "Script Run is completed."
 
 'BUTTONS'
 complete_bulk_run_btn   = 1001
@@ -468,6 +469,16 @@ function assign_a_case()
         Set objRecordSet=nothing
         Set objConnection=nothing
     End If
+	If workers_first_task_pulled_for_review = True Then
+		appt_body = "Once you are completed with the work for On Demand be sure to run the On Demand Dashboard Finish Day functionality."
+		appt_header = "REMINDER - Run ON DEMAND Finish Day"
+
+		call create_outlook_appointment(date, "03:00 PM", "03:30 PM", appt_header, appt_body, "", True, 15, "")
+
+		end_msg = end_msg & vbCr & vbCr & "THE SCRIPT HAS SET AN OUTLOOK REMINDER TO RUN FINISH DAY."
+		end_msg = end_msg & vbCr & "It is set for 3:00 PM but you can change it best match your work day."
+		end_msg = end_msg & vbCr & "The On Demand process requires 'Finish Day' to be run by every worker that completes a case review in the day."
+	End if
 
 	'this part is to document some time information when assigning the case
     txt_file_name = user_ID_for_validation & "_" & MAXIS_case_number & "_" & file_date & ".txt"
@@ -1364,8 +1375,11 @@ If local_demo = False Then
 			case_tracking_notes = objRecordSet("TrackingNotes")				'reading the notes from the SQL table as this where case status informaiton is held
 
             'count completed reviews using info in tracking notes and for cases that have been completed and recorded in the log
-            If Instr(case_tracking_notes, "STS-RC") <> 0 Then cases_with_review_completed =cases_with_review_completed + 1
-            If DateDiff("d", case_worklist_date, date) = 0 AND Instr(case_tracking_notes, "STS") = 0 Then cases_with_review_completed =cases_with_review_completed + 1
+            If Instr(case_tracking_notes, "STS-RC") <> 0 Then
+				cases_with_review_completed =cases_with_review_completed + 1
+				If Instr(case_tracking_notes, user_ID_for_validation) <> 0 Then cases_completed_by_current_worker = cases_completed_by_current_worker + 1
+			End If
+			If DateDiff("d", case_worklist_date, date) = 0 AND Instr(case_tracking_notes, "STS") = 0 Then cases_with_review_completed =cases_with_review_completed + 1
 
             'count cases that are waiting for review using info in tracking notes
             If Instr(case_tracking_notes, "STS-NR") <> 0 Then cases_waiting_for_review =cases_waiting_for_review + 1
@@ -1403,9 +1417,20 @@ If local_demo = False Then
 
             objRecordSet.MoveNext		'going to the next case
         Loop
+		'identifying if the worker has already pulled a case for review or not
+		If cases_on_hold = 0 and cases_completed_by_current_worker = 0 and worker_on_task = False Then workers_first_task_pulled_for_review = True
+		'using the counts to determine if work has been started
 		If cases_with_review_completed <> 0 Then review_work_started = True
 		If all_cases_on_hold <> 0 Then review_work_started = True
 		If all_cases_in_progress <> 0 Then review_work_started = True
+	Else 'BULK run has not been completed for the day
+        Do While NOT objRecordSet.Eof			'this is the loop
+			case_tracking_notes = objRecordSet("TrackingNotes")				'reading the notes from the SQL table as this where case status informaiton is held
+            If Instr(case_tracking_notes, "STS-RC") <> 0 Then finish_day_completed_yesterday = False
+            If Instr(case_tracking_notes, "STS-HD") <> 0 Then finish_day_completed_yesterday = False
+            If Instr(case_tracking_notes, "STS-IP") <> 0 Then finish_day_completed_yesterday = False
+            objRecordSet.MoveNext		'going to the next case
+        Loop
     End If
 
     'close the connection and recordset objects to free up resources
@@ -1620,6 +1645,7 @@ Else                            'if we are running in DEMO mode, we don't read t
         Next
     End If
 
+	workers_first_task_pulled_for_review = True
     cases_waiting_for_review = total_cases_for_review - cases_with_review_completed         'doing some math
 
     'setting the booleans for the rest of the script run.
@@ -1638,6 +1664,18 @@ Else                            'if we are running in DEMO mode, we don't read t
     End If
 End If
 
+'If the work from yesterday has anything in progress, on hold, or listed as review completed, the script will stop and advise worker to get support from supervisor
+If BULK_Run_completed = False and finish_day_completed_yesterday = False and ADMIN_run = False Then
+	end_msg = "The On Demand Dashboard cannot be accessed as work from yesterday was not finished."
+	end_msg = end_msg & vbCr & vbCr & "The worklist still has cases indicated that are either:"
+	end_msg = end_msg & vbCr & " - In progress"
+	end_msg = end_msg & vbCr & " - On Hold"
+	end_msg = end_msg & vbCr & " - Review Completed and 'Finish Day' has not been run"
+	end_msg = end_msg & vbCr & vbCr & "In order to resolve this issue and run the On Demand Dashboard, you will need to contact Tanya Payne (or her coverage) to have these statuses cleared or the 'Finish Day' functionality for a different day run."
+	end_msg = end_msg & vbCr & vbCr & "The script will now end"
+	call script_end_procedure_with_error_report(end_msg)
+End If
+
 'Here is where the script will decide which dialog to display in the process step for the day.
 If BULK_Run_completed = False Then                  'if the main run has not happened yet, we start here.
     Do
@@ -1646,13 +1684,14 @@ If BULK_Run_completed = False Then                  'if the main run has not hap
             BeginDialog Dialog1, 0, 0, 451, 155, "On Demand Applications Dashboard"
                 EditBox 500, 300, 50, 15, fake_edit_box
                 ButtonGroup ButtonPressed
-                PushButton 310, 55, 125, 15, "Start On Demand BULK Run", complete_bulk_run_btn
+                If finish_day_completed_yesterday = False then Text 310, 60, 125, 10, "BULK RUN CANNOT BE STARTED"
+				If finish_day_completed_yesterday = True then PushButton 310, 55, 125, 15, "Start On Demand BULK Run", complete_bulk_run_btn
                 PushButton 50, 105, 170, 13, "More information about the BULK Run", bulk_run_details_btn
 				PushButton 230, 105, 150, 13, "Script Instructions", script_instructions_btn
                 PushButton 375, 5, 65, 15, "Test Access", test_access_btn
                 If ADMIN_run = True Then PushButton 10, 135, 70, 15, "Admin Functions", admin_btn
                 ' OkButton 335, 130, 50, 15
-                CancelButton 390, 130, 50, 15
+                CancelButton 390, 135, 50, 15
                 Text 170, 10, 135, 10, "On Demand Applications Dashboard"
                 GroupBox 10, 25, 430, 100, "Applications BULK Run"
                 Text 20, 40, 170, 10, "The BULK run was last completed on " & first_item_date & "."
@@ -1802,7 +1841,6 @@ If worker_on_task = False Then			'if the worker is currently NOT on a task, the 
 		End If
 		assign_a_case
 	End If
-	If ButtonPressed = get_new_case_btn Then Call assign_a_case		'function to pull a new case
 End If
 
 If worker_on_task = True Then
@@ -1961,7 +1999,7 @@ If worker_on_task = True Then
 	        cancel_confirmation
 
 			'these buttons will call a different functionality
-            If ButtonPressed = -1 or ButtonPressed = close_dialog_btn Then script_end_procedure("")
+            If ButtonPressed = -1 or ButtonPressed = close_dialog_btn Then script_end_procedure(end_msg)
             If ButtonPressed = test_access_btn Then Call test_sql_access()
             If ButtonPressed = admin_btn Then call complete_admin_functions
 			If ButtonPressed = worklist_process_doc_btn Then
