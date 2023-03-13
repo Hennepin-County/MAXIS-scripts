@@ -4193,38 +4193,37 @@ function dwp_elig_case_note()
 		'Rent/Mortgage
 		Call write_variable_in_CASE_NOTE("Housing and Utility Expenses:       |        Total Shelter Costs: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs, 8))
 		' If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage <> "" Then Call write_variable_in_CASE_NOTE("                                    |        Total Shelter Costs: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_wage_level_earned_inc_difference, 8))
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage, 8) 	& " - Rent/Mortgage         |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage	& " - Rent/Mortgage         |")
 		' Call write_variable_in_CASE_NOTE("   Rent/Mortgage: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage, 8) 		 & "          |")
 		'Property Tax
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax, 8) 		& " - Property Tax          |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax		& " - Property Tax          |")
 		' Call write_variable_in_CASE_NOTE("    Property Tax: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax, 8) 		 & "          |")
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax
 		'House Insurance
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance, 8) 	& " - House Insurance       |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance	& " - House Insurance       |")
 		' Call write_variable_in_CASE_NOTE(" House Insurance: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance, 8) 	 & "          |")
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance
 		'Electricity
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity, 8) 		& " - Electricity           |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity		& " - Electricity           |")
 		' Call write_variable_in_CASE_NOTE("     Electricity: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity, 8) 		 & "          |")
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity
 		'Heat/Air
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air, 8) 			& " - Heat/AC               |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air			& " - Heat/AC               |")
 		' Call write_variable_in_CASE_NOTE("         Heat/AC: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air, 8) 			 & "          |")
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air
 		'Water/Sewer?Garbage
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage, 8) & " - Water/Garbage         |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage& " - Water/Garbage         |")
 		' Call write_variable_in_CASE_NOTE("   Water/Garbage: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage, 8) & "          |")
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage
 
 		'Telephone
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone, 8) 			& " - Phone                 |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone			& " - Phone                 |")
 		' Call write_variable_in_CASE_NOTE("           Phone: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone, 8) 				 & "          |")
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone
 		'Other
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other, 8) 			& " - Other                 |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other			& " - Other                 |")
 		' Call write_variable_in_CASE_NOTE("           Other: " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other, 8) 				 & "          |")
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other
-																															'  "                                    |"
 		'Total Shelter Costs
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
 
@@ -4333,12 +4332,81 @@ function dwp_elig_case_note()
 
 		' 'Unearned Income
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_cses_income
-		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_child_count
+
+
+
+		unearned_info = "| (-)        Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8)
+		' Call write_variable_in_CASE_NOTE("Earned Income:                      |              Earned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income, 8))
+		Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
+		' If MFIP_ELIG_APPROVALS(elig_ind).mfip_unearned_income_exists = True Then
+		unea_found = False
+		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
+				STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb), "Disbursed", "DISB")
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & spaces_30, 27)
+				If unea_found = False then
+					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
+					unea_found = True
+				End If
+				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
+				STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb), "Disbursed", "DISB")
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & spaces_30, 27)
+				If unea_found = False then
+					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
+					unea_found = True
+				End If
+				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
+				STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb), "Disbursed", "DISB")
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & spaces_30, 27)
+				If unea_found = False then
+					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
+					unea_found = True
+				End If
+				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
+				STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb), "Disbursed", "DISB")
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & spaces_30, 27)
+				If unea_found = False then
+					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
+					unea_found = True
+				End If
+				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+			End If
+			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
+				STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) = replace(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb), "Disbursed", "DISB")
+				unea_detail = left(STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb) & "- M" & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb)  & "- " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & spaces_30, 27)
+				If unea_found = False then
+					Call write_variable_in_CASE_NOTE("Unearned Income:                    |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
+					unea_found = True
+				End If
+				Call write_variable_in_CASE_NOTE("  UNEA- $" & unea_detail & "|")
+			End If
+			' For mf_memb = 0 to UBound(MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs)
+			' 	If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs(mf_memb) Then
+			' 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_balance(mf_memb) <> "0.00" AND MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_balance(mf_memb) <> "" Then
+			' 			Call write_variable_in_CASE_NOTE(left("  $ " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_membs_allocation_balance(mf_memb) & " ALLOCATION" & spaces_30, 36) & "|")
+			' 			Call write_variable_in_CASE_NOTE(left("    from MEMB " & MFIP_ELIG_APPROVALS(elig_ind).mfip_elig_ref_numbs(mf_memb) & " Unearned Income" & spaces_30, 36) & "|")
+			' 		End If
+			' 	End If
+			' Next
+		Next
+		If MFIP_ELIG_APPROVALS(elig_ind).mfip_unearned_income_exists = False Then Call write_variable_in_CASE_NOTE(" NO UNEARNED Income                 | (-)        Unearned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income, 8))
+		If unea_found = False then Call write_variable_in_CASE_NOTE("NO Unearned Income                  |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
+
+
+
+
 		' 'Deemed Income
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income
 		' 'CSES Exclusion
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion
+		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_cses_income
+		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_child_count
 		' 'Budget Month total
 		' DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total
 		' 'Prior Low
