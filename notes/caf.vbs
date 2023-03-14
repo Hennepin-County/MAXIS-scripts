@@ -932,17 +932,7 @@ function save_your_work()
 			'Write the contents of the text file
             objTextStream.WriteLine "MAXIS_footer_month" & "^~^~^~^~^~^~^" & MAXIS_footer_month
             objTextStream.WriteLine "MAXIS_footer_year" & "^~^~^~^~^~^~^" & MAXIS_footer_year
-            If CASH_on_CAF_checkbox = checked Then objTextStream.WriteLine "CASH_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If SNAP_on_CAF_checkbox = checked Then objTextStream.WriteLine "SNAP_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If EMER_on_CAF_checkbox = checked Then objTextStream.WriteLine "EMER_on_CAF_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If cash_checkbox = checked Then objTextStream.WriteLine "cash_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If SNAP_checkbox = checked Then objTextStream.WriteLine "SNAP_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If EMER_checkbox = checked Then objTextStream.WriteLine "EMER_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
-            If HC_checkbox = checked Then objTextStream.WriteLine "HC_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             objTextStream.WriteLine "CAF_form" & "^~^~^~^~^~^~^" & CAF_form
-            objTextStream.WriteLine "cash_other_req_detail" & "^~^~^~^~^~^~^" & cash_other_req_detail
-            objTextStream.WriteLine "snap_other_req_detail" & "^~^~^~^~^~^~^" & snap_other_req_detail
-            objTextStream.WriteLine "emer_other_req_detail" & "^~^~^~^~^~^~^" & emer_other_req_detail
             If number_verifs_checkbox = checked Then objTextStream.WriteLine "number_verifs_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
             If verifs_postponed_checkbox = checked Then objTextStream.WriteLine "verifs_postponed_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
 
@@ -1001,21 +991,40 @@ function save_your_work()
 
             objTextStream.WriteLine "do_we_have_applicant_id" & "^~^~^~^~^~^~^" & do_we_have_applicant_id
 
+            If CASH_checkbox = checked then objTextStream.WriteLine "CASH_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If GRH_checkbox = checked then objTextStream.WriteLine "GRH_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If SNAP_checkbox = checked then objTextStream.WriteLine "SNAP_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If HC_checkbox = checked then objTextStream.WriteLine "HC_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+            If EMER_checkbox = checked then objTextStream.WriteLine "EMER_checkbox" & "^~^~^~^~^~^~^" & "CHECKED"
+
+            objTextStream.WriteLine "multiple_CAF_dates" & "^~^~^~^~^~^~^" & multiple_CAF_dates
+            objTextStream.WriteLine "multiple_interview_dates" & "^~^~^~^~^~^~^" & multiple_interview_dates
             objTextStream.WriteLine "adult_cash" & "^~^~^~^~^~^~^" & adult_cash
             objTextStream.WriteLine "family_cash" & "^~^~^~^~^~^~^" & family_cash
             objTextStream.WriteLine "the_process_for_cash" & "^~^~^~^~^~^~^" & the_process_for_cash
             objTextStream.WriteLine "type_of_cash" & "^~^~^~^~^~^~^" & type_of_cash
             objTextStream.WriteLine "cash_recert_mo" & "^~^~^~^~^~^~^" & cash_recert_mo
             objTextStream.WriteLine "cash_recert_yr" & "^~^~^~^~^~^~^" & cash_recert_yr
+            objTextStream.WriteLine "the_process_for_grh" & "^~^~^~^~^~^~^" & the_process_for_grh
+            objTextStream.WriteLine "grh_recert_mo" & "^~^~^~^~^~^~^" & grh_recert_mo
+            objTextStream.WriteLine "grh_recert_yr" & "^~^~^~^~^~^~^" & grh_recert_yr
             objTextStream.WriteLine "the_process_for_snap" & "^~^~^~^~^~^~^" & the_process_for_snap
             objTextStream.WriteLine "snap_recert_mo" & "^~^~^~^~^~^~^" & snap_recert_mo
             objTextStream.WriteLine "snap_recert_yr" & "^~^~^~^~^~^~^" & snap_recert_yr
             objTextStream.WriteLine "the_process_for_hc" & "^~^~^~^~^~^~^" & the_process_for_hc
             objTextStream.WriteLine "hc_recert_mo" & "^~^~^~^~^~^~^" & hc_recert_mo
             objTextStream.WriteLine "hc_recert_yr" & "^~^~^~^~^~^~^" & hc_recert_yr
-            objTextStream.WriteLine "CAF_type" & "^~^~^~^~^~^~^" & CAF_type
+            objTextStream.WriteLine "the_process_for_emer" & "^~^~^~^~^~^~^" & the_process_for_emer
+            objTextStream.WriteLine "type_of_emer" & "^~^~^~^~^~^~^" & type_of_emer
+            ' objTextStream.WriteLine "CAF_type" & "^~^~^~^~^~^~^" & CAF_type
+			objTextStream.WriteLine "application_processing" & "^~^~^~^~^~^~^" & application_processing
+			objTextStream.WriteLine "recert_processing" & "^~^~^~^~^~^~^" & recert_processing
             objTextStream.WriteLine "CAF_datestamp" & "^~^~^~^~^~^~^" & CAF_datestamp
+            objTextStream.WriteLine "PROG_CAF_datestamp" & "^~^~^~^~^~^~^" & PROG_CAF_datestamp
+            objTextStream.WriteLine "REVW_CAF_datestamp" & "^~^~^~^~^~^~^" & REVW_CAF_datestamp
             objTextStream.WriteLine "interview_date" & "^~^~^~^~^~^~^" & interview_date
+            objTextStream.WriteLine "PROG_interview_date" & "^~^~^~^~^~^~^" & PROG_interview_date
+            objTextStream.WriteLine "REVW_interview_date" & "^~^~^~^~^~^~^" & REVW_interview_date
             objTextStream.WriteLine "case_details_and_notes_about_process" & "^~^~^~^~^~^~^" & case_details_and_notes_about_process
             objTextStream.WriteLine "SNAP_recert_is_likely_24_months" & "^~^~^~^~^~^~^" & SNAP_recert_is_likely_24_months
             objTextStream.WriteLine "exp_screening_note_found" & "^~^~^~^~^~^~^" & exp_screening_note_found
@@ -1314,24 +1323,7 @@ function save_your_work()
 
             script_run_lowdown = script_run_lowdown & vbCr & "MAXIS_footer_month" & ": " & MAXIS_footer_month
             script_run_lowdown = script_run_lowdown & vbCr & "MAXIS_footer_year" & ": " & MAXIS_footer_year
-            If CASH_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH_on_CAF_checkbox" & ": " & "CHECKED"
-            If CASH_on_CAF_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH_on_CAF_checkbox" & ": " & "UNCHECKED"
-            If SNAP_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP_on_CAF_checkbox" & ": " & "CHECKED"
-            If SNAP_on_CAF_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP_on_CAF_checkbox" & ": " & "UNCHECKED"
-            If EMER_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER_on_CAF_checkbox" & ": " & "CHECKED"
-            If EMER_on_CAF_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER_on_CAF_checkbox" & ": " & "UNCHECKED"
-            If cash_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "cash_checkbox" & ": " & "CHECKED"
-            If cash_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "cash_checkbox" & ": " & "UNCHECKED"
-            If SNAP_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP_checkbox" & ": " & "CHECKED"
-            If SNAP_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP_checkbox" & ": " & "UNCHECKED"
-            If EMER_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER_checkbox" & ": " & "CHECKED"
-            If EMER_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER_checkbox" & ": " & "UNCHECKED"
-            If HC_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "HC_checkbox" & ": " & "CHECKED"
-            If HC_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "HC_checkbox" & ": " & "UNCHECKED"
             script_run_lowdown = script_run_lowdown & vbCr & "CAF_form" & ": " & CAF_form
-            script_run_lowdown = script_run_lowdown & vbCr & "cash_other_req_detail" & ": " & cash_other_req_detail
-            script_run_lowdown = script_run_lowdown & vbCr & "snap_other_req_detail" & ": " & snap_other_req_detail
-            script_run_lowdown = script_run_lowdown & vbCr & "emer_other_req_detail" & ": " & emer_other_req_detail
             If number_verifs_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "number_verifs_checkbox" & ": " & "CHECKED"
             If number_verifs_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "number_verifs_checkbox" & ": " & "UNCHECKED"
             If verifs_postponed_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "verifs_postponed_checkbox" & ": " & "CHECKED" & vbCr & vbCr
@@ -1381,21 +1373,44 @@ function save_your_work()
 
             script_run_lowdown = script_run_lowdown & vbCr & "do_we_have_applicant_id" & ": " & do_we_have_applicant_id & vbCr & vbCr
 
+            If CASH_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH_checkbox" & ": " & "CHECKED"
+            If CASH_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH_checkbox" & ": " & "UNCHECKED"
+            If GRH_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "GRH_checkbox" & ": " & "CHECKED"
+            If GRH_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "GRH_checkbox" & ": " & "UNCHECKED"
+            If SNAP_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP_checkbox" & ": " & "CHECKED"
+            If SNAP_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP_checkbox" & ": " & "UNCHECKED"
+            If HC_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "HC_checkbox" & ": " & "CHECKED"
+            If HC_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "HC_checkbox" & ": " & "UNCHECKED"
+            If EMER_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER_checkbox" & ": " & "CHECKED"
+            If EMER_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER_checkbox" & ": " & "UNCHECKED"
+            script_run_lowdown = script_run_lowdown & vbCr & "multiple_CAF_dates" & ": " & multiple_CAF_dates
+            script_run_lowdown = script_run_lowdown & vbCr & "multiple_interview_dates" & ": " & multiple_interview_dates
             script_run_lowdown = script_run_lowdown & vbCr & "adult_cash" & ": " & adult_cash
             script_run_lowdown = script_run_lowdown & vbCr & "family_cash" & ": " & family_cash
             script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_cash" & ": " & the_process_for_cash
             script_run_lowdown = script_run_lowdown & vbCr & "type_of_cash" & ": " & type_of_cash
             script_run_lowdown = script_run_lowdown & vbCr & "cash_recert_mo" & ": " & cash_recert_mo
             script_run_lowdown = script_run_lowdown & vbCr & "cash_recert_yr" & ": " & cash_recert_yr
-            script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_snap" & ": " & the_process_for_snap
+            script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_grh" & ": " & the_process_for_grh
+            script_run_lowdown = script_run_lowdown & vbCr & "grh_recert_mo" & ": " & grh_recert_mo
+            script_run_lowdown = script_run_lowdown & vbCr & "grh_recert_yr" & ": " & grh_recert_yr
+			script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_snap" & ": " & the_process_for_snap
             script_run_lowdown = script_run_lowdown & vbCr & "snap_recert_mo" & ": " & snap_recert_mo
             script_run_lowdown = script_run_lowdown & vbCr & "snap_recert_yr" & ": " & snap_recert_yr
             script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_hc" & ": " & the_process_for_hc
             script_run_lowdown = script_run_lowdown & vbCr & "hc_recert_mo" & ": " & hc_recert_mo
             script_run_lowdown = script_run_lowdown & vbCr & "hc_recert_yr" & ": " & hc_recert_yr
-            script_run_lowdown = script_run_lowdown & vbCr & "CAF_type" & ": " & CAF_type
+            script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_emer" & ": " & the_process_for_emer
+            script_run_lowdown = script_run_lowdown & vbCr & "type_of_emer" & ": " & type_of_emer
+            ' script_run_lowdown = script_run_lowdown & vbCr & "CAF_type" & ": " & CAF_type
+			script_run_lowdown = script_run_lowdown & vbCr & "application_processing" & ": " & application_processing
+			script_run_lowdown = script_run_lowdown & vbCr & "recert_processing" & ": " & recert_processing
             script_run_lowdown = script_run_lowdown & vbCr & "CAF_datestamp" & ": " & CAF_datestamp
+            script_run_lowdown = script_run_lowdown & vbCr & "PROG_CAF_datestamp" & ": " & PROG_CAF_datestamp
+            script_run_lowdown = script_run_lowdown & vbCr & "REVW_CAF_datestamp" & ": " & REVW_CAF_datestamp
             script_run_lowdown = script_run_lowdown & vbCr & "interview_date" & ": " & interview_date
+            script_run_lowdown = script_run_lowdown & vbCr & "PROG_interview_date" & ": " & PROG_interview_date
+            script_run_lowdown = script_run_lowdown & vbCr & "REVW_interview_date" & ": " & REVW_interview_date
             script_run_lowdown = script_run_lowdown & vbCr & "case_details_and_notes_about_process" & ": " & case_details_and_notes_about_process
             script_run_lowdown = script_run_lowdown & vbCr & "SNAP_recert_is_likely_24_months" & ": " & SNAP_recert_is_likely_24_months
             script_run_lowdown = script_run_lowdown & vbCr & "exp_screening_note_found" & ": " & exp_screening_note_found
@@ -1768,6 +1783,11 @@ function restore_your_work(vars_filled)
                 known_busi = 0
                 known_unea = 0
 
+				CASH_checkbox = unchecked
+				GRH_checkbox = unchecked
+				SNAP_checkbox = unchecked
+				HC_checkbox = unchecked
+				EMER_checkbox = unchecked
 
                 For Each text_line in saved_caf_details										'read each line in the file
                     If Instr(text_line, "^~^~^~^~^~^~^") <> 0 Then
@@ -1778,24 +1798,8 @@ function restore_your_work(vars_filled)
 
                         If line_info(0) = "MAXIS_footer_month" Then MAXIS_footer_month = line_info(1)
                         If line_info(0) = "MAXIS_footer_year" Then MAXIS_footer_year = line_info(1)
-                        ' If CASH_on_CAF_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "CASH_on_CAF_checkbox" and line_info(1) = "CHECKED" Then CASH_on_CAF_checkbox = checked
-                        ' If SNAP_on_CAF_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "SNAP_on_CAF_checkbox" and line_info(1) = "CHECKED" Then SNAP_on_CAF_checkbox = checked
-                        ' If EMER_on_CAF_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "EMER_on_CAF_checkbox" and line_info(1) = "CHECKED" Then EMER_on_CAF_checkbox = checked
-                        ' If cash_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "cash_checkbox" and line_info(1) = "CHECKED" Then cash_checkbox = checked
-                        ' If SNAP_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "SNAP_checkbox" and line_info(1) = "CHECKED" Then SNAP_checkbox = checked
-                        ' If EMER_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "EMER_checkbox" and line_info(1) = "CHECKED" Then EMER_checkbox = checked
-                        ' If HC_checkbox = checked Then objTextStream.WriteLine
-                        If line_info(0) = "HC_checkbox" and line_info(1) = "CHECKED" Then HC_checkbox = checked
                         If line_info(0) = "CAF_form" Then CAF_form = line_info(1)
-                        If line_info(0) = "cash_other_req_detail" Then cash_other_req_detail = line_info(1)
-                        If line_info(0) = "snap_other_req_detail" Then snap_other_req_detail = line_info(1)
-                        If line_info(0) = "emer_other_req_detail" Then emer_other_req_detail = line_info(1)
+
 
                         If line_info(0) = "number_verifs_checkbox" and line_info(1) = "CHECKED" Then number_verifs_checkbox = checked
                         If line_info(0) = "verifs_postponed_checkbox" and line_info(1) = "CHECKED" Then verifs_postponed_checkbox = checked
@@ -1861,19 +1865,47 @@ function restore_your_work(vars_filled)
                         If line_info(0) = "family_cash" Then family_cash = line_info(1)
                         If UCase(family_cash) = "TRUE" Then family_cash = True
                         If UCase(family_cash) = "FALSE" Then family_cash = False
+						If line_info(0) = "multiple_CAF_dates" Then multiple_CAF_dates = line_info(1)
+                        If UCase(multiple_CAF_dates) = "TRUE" Then multiple_CAF_dates = True
+                        If UCase(multiple_CAF_dates) = "FALSE" Then multiple_CAF_dates = False
+						If line_info(0) = "multiple_interview_dates" Then multiple_interview_dates = line_info(1)
+                        If UCase(multiple_interview_dates) = "TRUE" Then multiple_interview_dates = True
+                        If UCase(multiple_interview_dates) = "FALSE" Then multiple_interview_dates = False
+
+                        If line_info(0) = "CASH_checkbox" and line_info(1) = "CHECKED" Then CASH_checkbox = checked
+                        If line_info(0) = "GRH_checkbox" and line_info(1) = "CHECKED" Then GRH_checkbox = checked
+                        If line_info(0) = "SNAP_checkbox" and line_info(1) = "CHECKED" Then SNAP_checkbox = checked
+                        If line_info(0) = "HC_checkbox" and line_info(1) = "CHECKED" Then HC_checkbox = checked
+                        If line_info(0) = "EMER_checkbox" and line_info(1) = "CHECKED" Then EMER_checkbox = checked
+
                         If line_info(0) = "the_process_for_cash" Then the_process_for_cash = line_info(1)
                         If line_info(0) = "type_of_cash" Then type_of_cash = line_info(1)
                         If line_info(0) = "cash_recert_mo" Then cash_recert_mo = line_info(1)
                         If line_info(0) = "cash_recert_yr" Then cash_recert_yr = line_info(1)
-                        If line_info(0) = "the_process_for_snap" Then the_process_for_snap = line_info(1)
+                        If line_info(0) = "the_process_for_grh" Then the_process_for_grh = line_info(1)
+                        If line_info(0) = "grh_recert_mo" Then grh_recert_mo = line_info(1)
+                        If line_info(0) = "grh_recert_yr" Then grh_recert_yr = line_info(1)
+						If line_info(0) = "the_process_for_snap" Then the_process_for_snap = line_info(1)
                         If line_info(0) = "snap_recert_mo" Then snap_recert_mo = line_info(1)
                         If line_info(0) = "snap_recert_yr" Then snap_recert_yr = line_info(1)
                         If line_info(0) = "the_process_for_hc" Then the_process_for_hc = line_info(1)
                         If line_info(0) = "hc_recert_mo" Then hc_recert_mo = line_info(1)
                         If line_info(0) = "hc_recert_yr" Then hc_recert_yr = line_info(1)
-                        If line_info(0) = "CAF_type" Then CAF_type = line_info(1)
-                        If line_info(0) = "CAF_datestamp" Then CAF_datestamp = line_info(1)
+						If line_info(0) = "the_process_for_emer" Then the_process_for_emer = line_info(1)
+                        If line_info(0) = "type_of_emer" Then type_of_emer = line_info(1)
+                        ' If line_info(0) = "CAF_type" Then CAF_type = line_info(1)
+						If line_info(0) = "application_processing" Then application_processing = line_info(1)
+						If UCase(application_processing) = "TRUE" Then application_processing = True
+                        If UCase(application_processing) = "FALSE" Then application_processing = False
+						If line_info(0) = "recert_processing" Then recert_processing = line_info(1)
+                        If UCase(recert_processing) = "TRUE" Then recert_processing = True
+                        If UCase(recert_processing) = "FALSE" Then recert_processing = False
+						If line_info(0) = "CAF_datestamp" Then CAF_datestamp = line_info(1)
+                        If line_info(0) = "PROG_CAF_datestamp" Then PROG_CAF_datestamp = line_info(1)
+                        If line_info(0) = "REVW_CAF_datestamp" Then REVW_CAF_datestamp = line_info(1)
                         If line_info(0) = "interview_date" Then interview_date = line_info(1)
+                        If line_info(0) = "PROG_interview_date" Then PROG_interview_date = line_info(1)
+                        If line_info(0) = "REVW_interview_date" Then REVW_interview_date = line_info(1)
                         If line_info(0) = "case_details_and_notes_about_process" Then case_details_and_notes_about_process = line_info(1)
                         If line_info(0) = "SNAP_recert_is_likely_24_months" Then SNAP_recert_is_likely_24_months = line_info(1)
                         If UCase(SNAP_recert_is_likely_24_months) = "TRUE" Then SNAP_recert_is_likely_24_months = True
@@ -5404,9 +5436,10 @@ manual_amount_used = FALSE
 
 'variables
 Dim row, col, number_verifs_checkbox, verifs_postponed_checkbox, notes_on_cses
-Dim MAXIS_footer_month, MAXIS_footer_year, CASH_on_CAF_checkbox, SNAP_on_CAF_checkbox, EMER_on_CAF_checkbox, cash_checkbox, SNAP_checkbox, EMER_checkbox, HC_checkbox, CAF_form, cash_other_req_detail
-Dim snap_other_req_detail, emer_other_req_detail, adult_cash, family_cash, the_process_for_cash, type_of_cash, cash_recert_mo, cash_recert_yr, the_process_for_snap, snap_recert_mo, snap_recert_yr
-Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, CAF_type, CAF_datestamp, interview_date, case_details_and_notes_about_process, SNAP_recert_is_likely_24_months, exp_screening_note_found, interview_required
+Dim MAXIS_footer_month, MAXIS_footer_year, CASH_checkbox, GRH_checkbox, SNAP_checkbox, EMER_checkbox, HC_checkbox, CAF_form
+Dim adult_cash, family_cash, the_process_for_cash, type_of_cash, cash_recert_mo, cash_recert_yr, the_process_for_snap, snap_recert_mo, snap_recert_yr
+Dim the_process_for_grh, grh_recert_mo, grh_recert_yr, the_process_for_emer, type_of_emer, multiple_CAF_dates, multiple_interview_dates
+Dim the_process_for_hc, hc_recert_mo, hc_recert_yr, application_processing, recert_processing, CAF_datestamp, interview_date, case_details_and_notes_about_process, SNAP_recert_is_likely_24_months, exp_screening_note_found, interview_required
 Dim xfs_screening, xfs_screening_display, caf_one_income, caf_one_assets, caf_one_resources, caf_one_rent, caf_one_utilities, caf_one_expenses, exp_det_case_note_found
 Dim snap_exp_yn, snap_denial_date, interview_completed_case_note_found, interview_with, interview_type, verifications_requested_case_note_found, verifs_needed, caf_qualifying_questions_case_note_found
 Dim verif_snap_checkbox, verif_cash_checkbox, verif_mfip_checkbox, verif_dwp_checkbox, verif_msa_checkbox, verif_ga_checkbox, verif_grh_checkbox, verif_emer_checkbox, verif_hc_checkbox
@@ -5465,75 +5498,39 @@ Call find_user_name(worker_name)
 script_run_lowdown = ""
 case_notes_information = "No CASE NOTEs Attempted"
 script_information_was_restored = False
+CASH_checkbox = unchecked
+GRH_checkbox = unchecked
+SNAP_checkbox = unchecked
+HC_checkbox = unchecked
+EMER_checkbox = unchecked
+
+allow_CASH_untrack = False
+allow_GRH_untrack = False
+allow_SNAP_untrack = False
+allow_HC_untrack = True
+allow_EMER_untrack = False
 
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 281, 245, "CAF Script Case number dialog"
+BeginDialog Dialog1, 0, 0, 281, 135, "CAF Script Case number dialog"
   EditBox 55, 80, 40, 15, MAXIS_case_number
-  EditBox 165, 80, 15, 15, MAXIS_footer_month
-  EditBox 185, 80, 15, 15, MAXIS_footer_year
-  CheckBox 10, 115, 30, 10, "CASH", CASH_on_CAF_checkbox
-  CheckBox 50, 115, 35, 10, "SNAP", SNAP_on_CAF_checkbox
-  CheckBox 90, 115, 35, 10, "EMER", EMER_on_CAF_checkbox
-  DropListBox 135, 115, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
-  EditBox 40, 160, 220, 15, cash_other_req_detail
-  EditBox 40, 180, 220, 15, snap_other_req_detail
-  EditBox 40, 200, 220, 15, emer_other_req_detail
-  'CheckBox 5, 215, 150, 10, "HC REVW Form is also being processed.", HC_checkbox
+  DropListBox 10, 115, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   ButtonGroup ButtonPressed
-    OkButton 175, 225, 50, 15
-    CancelButton 225, 225, 50, 15
-    PushButton 210, 80, 15, 15, "!", tips_and_tricks_button
+    OkButton 170, 115, 50, 15
+    CancelButton 225, 115, 50, 15
   Text 5, 5, 270, 20, "This script is used to enter additional details about all information used to make eligibility determinations. "
   Text 5, 30, 215, 10, "STAT Panels should all be updated PRIOR to running this script."
   Text 5, 45, 275, 25, "This script should NOT be used to document information about the Interview. The script is set up to be a summary about processing a CAF (or similar) form after the interview. The correct fields to capture interview details are not present in this script."
   Text 5, 85, 50, 10, "Case number:"
-  Text 100, 85, 65, 10, "Footer month/year: "
-  Text 225, 85, 55, 10, "Tips and Tricks!"
-  GroupBox 5, 100, 125, 30, "Programs marked on CAF"
-  Text 135, 105, 65, 10, "Actual CAF Form:"
-  GroupBox 5, 135, 270, 85, "OTHER Program Requests (not marked on CAF)"
-  Text 40, 150, 145, 10, "Explain how the program was requested."
-  Text 15, 165, 20, 10, "Cash:"
-  Text 15, 185, 20, 10, "SNAP:"
-  Text 15, 205, 25, 10, "EMER:"
+  Text 10, 105, 90, 10, "Form Received in Agency:"
 EndDialog
-
-
-'initial dialog
 Do
 	DO
 		err_msg = ""
 		Dialog Dialog1
 		cancel_without_confirmation
-        If ButtonPressed = tips_and_tricks_button Then
-            tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Once the script reads the case, updates in MAXIS will not be reflected in the dialogs or case notes. This is not new, but if you run the script and realize a panel is out of date, definitely update the panel while the script is running, just don't expect the script to know that it was updated. You must also change the information IN the dialog. Or you can cancel the script, update and rerun the script with the panels correct." & vbNewLine & vbNewLine &_
-                                    "Footer month/year - Use the month with the most accurate information for the CAF being processed." & vbNewLine & "Typically: " & vbNewLine & " - Recertifications use the month of recert." & vbNewLine & " - Applications use the month of application." & vbNewLine & vbNewLine &_
-                                    "CAF Form - Select the actual form that was received. If the form is CAF Addendum (DHS-5223C) the script will call special functionality to handle specifically for an addendum." & vbNewLine & vbNewLine &_
-                                    "Programs Requested - Listing anything in the boxes for other program requests will have the script assume that program is requested. Do not write anything here if that particular program has not been requested." & vbNewLine & "** An example would be a CAF with SNAP requested and in the interview a client requests CASH." & vbNewLine & vbNewLine &_
-                                    "*** REMINDER***" & vbNewLine & "This script works best when MAXIS has been updated because it creates special dialogs with details from the MAXIS STAT panels and the most detail and specifics will be captured from an updated case." & vbNewLine &_
-                                    "** Due to the complexity of this script and the noting needs, this script can take some time to complete. Use 'Interview Completed' if STAT has not been updated OR a quick note needs to be made. Run CAF once the case is updated.", vbInformation, "Tips and Tricks")
-            err_msg = "LOOP" & err_msg
-        End If
+
         If CAF_form = "Select One:" then err_msg = err_msg & vbnewline & "* You must select the CAF form received."
         Call validate_MAXIS_case_number(err_msg, "*")
-        If IsNumeric(MAXIS_footer_month) = FALSE OR len(MAXIS_footer_month) > 2 Then err_msg = err_msg & vbNewLine & "* Enter a valid Footer Month."
-        If IsNumeric(MAXIS_footer_year) = FALSE OR len(MAXIS_footer_year) > 2 Then err_msg = err_msg & vbNewLine & "* Enter a valid Footer Year."
-        If CASH_on_CAF_checkbox = unchecked AND SNAP_on_CAF_checkbox = unchecked AND EMER_on_CAF_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* At least one program should be marked on the CAF."
-        If CASH_on_CAF_checkbox = checked AND trim(cash_other_req_detail) <> "" Then err_msg = err_msg & vbNewLine & "* If CASH was marked on the CAF, then another way of requesting does not need to be indicated."
-        If SNAP_on_CAF_checkbox = checked AND trim(snap_other_req_detail) <> "" Then err_msg = err_msg & vbNewLine & "* If SNAP was marked on the CAF, then another way of requesting does not need to be indicated."
-        If EMER_on_CAF_checkbox = checked AND trim(emer_other_req_detail) <> "" Then err_msg = err_msg & vbNewLine & "* If Emergency was marked on the CAF, then another way of requesting does not need to be indicated."
-        If CAF_form = "SNAP App for Srs (DHS-5223F)" Then
-            If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then
-                err_msg = err_msg & vbNewLine & "* The SNAP Application for Seniors can only be used for SNAP, not cash programs."
-                CASH_on_CAF_checkbox = unchecked
-                cash_other_req_detail = ""
-            End If
-            If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then
-                err_msg = err_msg & vbNewLine & "* The SNAP Application for Seniors can only be used for SNAP, not emergenc programs."
-                EMER_on_CAF_checkbox = unchecked
-                emer_other_req_detail = ""
-            End If
-        End If
         IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -5543,36 +5540,702 @@ If CAF_form = "CAF Addendum (DHS-5223C)" Then
     Call run_from_GitHub(script_repository & "notes/caf-addendum.vbs")
 End If
 
-Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, active_programs, programs_applied_for)
-EMReadScreen worker_id_for_data_table, 7, 21, 14
-EMReadScreen case_name_for_data_table, 25, 21, 40
-case_name_for_data_table = trim(case_name_for_data_table)
+
+developer_mode = False
+
+Call back_to_SELF
+continue_in_inquiry = ""
+EMReadScreen MX_region, 12, 22, 48
+MX_region = trim(MX_region)
+If MX_region = "INQUIRY DB" Then
+	continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
+	If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
+End If
+If MX_region = "TRAINING" Then developer_mode = True
 
 vars_filled = False
 Call restore_your_work(vars_filled)			'looking for a 'restart' run
 
 If vars_filled = False Then
-    If CASH_on_CAF_checkbox = checked or trim(cash_other_req_detail) <> "" Then cash_checkbox = checked
-    If SNAP_on_CAF_checkbox = checked or trim(snap_other_req_detail) <> "" Then SNAP_checkbox = checked
-    If EMER_on_CAF_checkbox = checked or trim(emer_other_req_detail) <> "" Then EMER_checkbox = checked
-    'grh_checkbox = checked
-    developer_mode = False
 
-    Call back_to_SELF
-    continue_in_inquiry = ""
-    EMReadScreen MX_region, 12, 22, 48
-    MX_region = trim(MX_region)
-    If MX_region = "INQUIRY DB" Then
-        continue_in_inquiry = MsgBox("It appears you are in INQUIRY. Income information cannot be saved to STAT and a CASE/NOTE cannot be created." & vbNewLine & vbNewLine & "Do you wish to continue?", vbQuestion + vbYesNo, "Continue in Inquiry?")
-        If continue_in_inquiry = vbNo Then script_end_procedure("Script ended since it was started in Inquiry.")
-    End If
-    If MX_region = "TRAINING" Then developer_mode = True
-    Do
-    	Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
-    	If is_this_priv = True Then Call script_end_procedure("This case is PRIVILEGED and cannot be accessed. Request access to the case first and retry the script once you have access to the case.")
-    	EMReadScreen panel_prog_check, 4, 2, 50
-    Loop until panel_prog_check = "PROG"
-    EMReadScreen case_pw, 7, 21, 21
+	script_run_lowdown = script_run_lowdown & vbCr & "CAF Form: " & CAF_form
+	processing_footer_month = ""
+	processing_footer_year = ""
+
+	Do
+		Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
+		If is_this_priv = True Then Call script_end_procedure("This case is PRIVILEGED and cannot be accessed. Request access to the case first and retry the script once you have access to the case.")
+		EMReadScreen panel_prog_check, 4, 2, 50
+	Loop until panel_prog_check = "PROG"
+	EMReadScreen case_pw, 7, 21, 21
+
+	snap_with_mfip = False
+	MAXIS_footer_month = CM_mo
+	MAXIS_footer_year = CM_yr
+	Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, active_programs, programs_applied_for)
+	EMReadScreen worker_id_for_data_table, 7, 21, 14
+	EMReadScreen case_name_for_data_table, 25, 21, 40
+	case_name_for_data_table = trim(case_name_for_data_table)
+
+	CM_minus_1_mo =  right("0" &             DatePart("m",           DateAdd("m", -1, date)            ), 2)
+	CM_minus_1_yr =  right(                  DatePart("yyyy",        DateAdd("m", -1, date)            ), 2)
+	call date_array_generator(CM_minus_1_mo, CM_minus_1_yr, date_array)
+	call Back_to_SELF
+	For each month_date in date_array
+
+		Call convert_date_into_MAXIS_footer_month(month_date, MAXIS_footer_month, MAXIS_footer_year)
+
+		Call navigate_to_MAXIS_screen("STAT", "REVW")
+
+		EMReadScreen cash_revw_code, 1, 7, 40
+		EMReadScreen snap_revw_code, 1, 7, 60
+		EMReadScreen hc_revw_code, 1, 7, 73
+		If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" Then
+			If family_cash_case = True or adult_cash_case = True or grh_case = False Then
+				the_process_for_cash = "Recertification"
+				cash_recert_mo = MAXIS_footer_month
+				cash_recert_yr = MAXIS_footer_year
+
+				If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_CASH_untrack = True
+			End If
+			If grh_case = True Then
+				the_process_for_grh = "Recertification"
+				grh_recert_mo = MAXIS_footer_month
+				grh_recert_yr = MAXIS_footer_year
+				If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_GRH_untrack = True
+			End If
+			If mfip_case = True Then
+				snap_with_mfip = True
+				the_process_for_snap = "Recertification"
+				snap_recert_mo = MAXIS_footer_month
+				snap_recert_yr = MAXIS_footer_year
+				If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_SNAP_untrack = True
+			End If
+			If processing_footer_month = "" Then
+				processing_footer_month = MAXIS_footer_month
+				processing_footer_year = MAXIS_footer_year
+			End If
+		End If
+		If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
+			snap_with_mfip = False
+			the_process_for_snap = "Recertification"
+			snap_recert_mo = MAXIS_footer_month
+			snap_recert_yr = MAXIS_footer_year
+			If (snap_revw_code = "I" or snap_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_SNAP_untrack = True
+			If processing_footer_month = "" Then
+				processing_footer_month = MAXIS_footer_month
+				processing_footer_year = MAXIS_footer_year
+			End If
+		End If
+		If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" Then
+			the_process_for_hc = "Recertification"
+			hc_recert_mo = MAXIS_footer_month
+			hc_recert_yr = MAXIS_footer_year
+			If processing_footer_month = "" Then
+				processing_footer_month = MAXIS_footer_month
+				processing_footer_year = MAXIS_footer_year
+			End If
+		End If
+
+		EMReadScreen REVW_CAF_datestamp, 8, 13, 37                       'reading theform date on REVW
+		REVW_CAF_datestamp = replace(REVW_CAF_datestamp, " ", "/")
+		If isdate(REVW_CAF_datestamp) = True then
+			REVW_CAF_datestamp = cdate(REVW_CAF_datestamp) & ""
+		Else
+			REVW_CAF_datestamp = ""
+		End if
+
+		EMReadScreen REVW_interview_date, 8, 15, 37                       'reading the interview date on REVW
+		REVW_interview_date = replace(REVW_interview_date, " ", "/")
+		If isdate(REVW_interview_date) = True then
+			REVW_interview_date = cdate(REVW_interview_date) & ""
+		Else
+			REVW_interview_date = ""
+		End if
+
+		IF SNAP_checkbox = checked THEN																															'checking for SNAP 24 month renewals.'
+			EMWriteScreen "X", 05, 58																																	'opening the FS revw screen.
+			transmit
+			EMReadScreen SNAP_recert_date, 8, 9, 64
+			PF3
+			SNAP_recert_date = replace(SNAP_recert_date, " ", "/")
+			If SNAP_recert_date <> "__/01/__" Then 																	'replacing the read blank spaces with / to make it a date
+				SNAP_recert_compare_date = dateadd("m", "12", MAXIS_footer_month & "/01/" & MAXIS_footer_year)		'making a dummy variable to compare with, by adding 12 months to the requested footer month/year.
+				IF datediff("d", SNAP_recert_compare_date, SNAP_recert_date) > 0 THEN											'If the read recert date is more than 0 days away from 12 months plus the MAXIS footer month/year then it is likely a 24 month period.'
+					SNAP_recert_is_likely_24_months = TRUE
+				ELSE
+					SNAP_recert_is_likely_24_months = FALSE																									'otherwise if we don't we set it as false
+				END IF
+			Else
+				SNAP_recert_is_likely_24_months = FALSE
+			End If
+		END IF
+
+	Next
+
+	If unknown_cash_pending = True Then the_process_for_cash = "Application"
+	If ga_status = "PENDING" Then the_process_for_cash = "Application"
+	If msa_status = "PENDING" Then the_process_for_cash = "Application"
+	If mfip_status = "PENDING" Then the_process_for_cash = "Application"
+	If dwp_status = "PENDING" Then the_process_for_cash = "Application"
+	If grh_status = "PENDING" Then the_process_for_grh = "Application"
+	If snap_status = "PENDING" Then the_process_for_snap = "Application"
+
+	If the_process_for_cash <> "" Then CASH_checkbox = checked
+	If the_process_for_grh <> "" Then GRH_checkbox = checked
+	If the_process_for_snap <> "" Then SNAP_checkbox = checked
+	If emer_status = "PENDING" Then
+		EMER_checkbox = checked
+		the_process_for_emer = "Application"
+	End If
+
+	If CASH_checkbox = unchecked and GRH_checkbox = unchecked and SNAP_checkbox = unchecked and EMER_checkbox = unchecked Then
+		end_early_mgs = "This script (NOTES - CAF) could not find a program that was pending or coded as requiring a review."
+		end_early_mgs = end_early_mgs & vbCr & vbCr & "The script could not find details about the programs being processed. The script checked REVW for the months " & CM_minus_1_mo & "/" & CM_minus_1_yr & " through " & CM_plus_1_mo & "/" & CM_plus_1_yr & " and checked CASE/CURR for pending programs."
+		end_early_mgs = end_early_mgs & vbCr & vbCr & "If a CAF (or similar form) has been received, but an ER is not due and no additional programs are requested, review the case to determine the next processing steps to take."
+		end_early_mgs = end_early_mgs & vbCr & vbCr & "The script 'NOTES - CAF' is to support the process typically associated with receipt of a CAF and not to be a comprehensive case review tool."
+
+		Call script_end_procedure_with_error_report(end_early_mgs)
+	End If
+
+	MAXIS_footer_month = CM_mo
+	MAXIS_footer_year = CM_yr
+
+	If unknown_cash_pending = True or ga_status = "PENDING" or msa_status = "PENDING" or mfip_status = "PENDING" or dwp_status = "PENDING" or grh_status = "PENDING" or snap_status = "PENDING" or emer_status = "PENDING" Then
+		Call navigate_to_MAXIS_screen("STAT", "PROG")
+
+		'here we are going to read for the CAF date by reading each line of PROG and looking for the most recent date.
+		row = 6
+		Do
+			EMReadScreen appl_prog_date, 8, row, 33
+			If appl_prog_date <> "__ __ __" then appl_prog_date_array = appl_prog_date_array & replace(appl_prog_date, " ", "/") & " "
+
+			row = row + 1
+		Loop until row = 12
+		appl_prog_date_array = split(appl_prog_date_array)
+		PROG_CAF_datestamp = CDate(appl_prog_date_array(0))
+		for i = 0 to ubound(appl_prog_date_array) - 1
+			if CDate(appl_prog_date_array(i)) > PROG_CAF_datestamp then
+				PROG_CAF_datestamp = CDate(appl_prog_date_array(i))
+			End if
+		next
+		If isdate(PROG_CAF_datestamp) = True then
+			var_month = datepart("m", PROG_CAF_datestamp)
+			IF len(var_month) = 1 THEN var_month = "0" & var_month
+			var_day = datepart("d", PROG_CAF_datestamp)
+			IF len(var_day) = 1 THEN var_day = "0" & var_day
+			var_year = right(datepart("yyyy", PROG_CAF_datestamp), 2)
+			CAF_MAXIS_date = var_month & " " & var_day & " " & var_year
+			PROG_CAF_datestamp = cdate(PROG_CAF_datestamp) & ""
+		Else
+			PROG_CAF_datestamp = ""
+		End if
+
+		cash_interview_missing = False          'defaulting to the interview date is NOT missing
+		emer_interview_missing = False
+		snap_interview_missing = False
+		'checking Cash lines - which included GRH
+		If cash_checkbox = checked Then
+			EMReadScreen prog_cash_1_form_date, 8, 6, 33
+			If prog_cash_1_form_date = CAF_MAXIS_date Then
+				EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
+				cash_interview_missing = True
+				If prog_cash_1_intvw_date <> "__ __ __" AND prog_cash_1_intvw_date <> "        " then
+					PROG_interview_date = replace(prog_cash_1_intvw_date, " ", "/") & " "
+					cash_interview_missing = False
+				End If
+			End If
+			EMReadScreen prog_cash_2_form_date, 8, 7, 33
+			If prog_cash_2_form_date = CAF_MAXIS_date Then
+				EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
+				cash_interview_missing = True
+				If prog_cash_2_intvw_date <> "__ __ __" AND prog_cash_2_intvw_date <> "        " then
+					PROG_interview_date = replace(prog_cash_2_intvw_date, " ", "/") & " "
+					cash_interview_missing = False
+				End If
+			End If
+		End If
+		If GRH_checkbox = checked Then
+			EMReadScreen prog_grh_form_date, 8, 9, 33
+			If prog_grh_form_date = CAF_MAXIS_date Then
+				EMReadScreen prog_grh_intvw_date, 8, 9, 55
+				cash_interview_missing = True
+				If prog_grh_intvw_date <> "__ __ __" AND prog_grh_intvw_date <> "        " then
+					PROG_interview_date = replace(prog_grh_intvw_date, " ", "/") & " "
+					cash_interview_missing = False
+				End If
+			End If
+		End If
+		'checking EMER lines
+		If EMER_checkbox = checked Then
+			EMReadScreen prog_emer_form_date, 8, 8, 33
+			If prog_emer_form_date = CAF_MAXIS_date Then
+				EMReadScreen prog_emer_intvw_date, 8, 8, 55
+				emer_interview_missing = True
+				If prog_emer_intvw_date <> "__ __ __" AND prog_emer_intvw_date <> "        " then
+					PROG_interview_date = replace(prog_emer_intvw_date, " ", "/") & " "
+					emer_interview_missing = False
+				End If
+			End If
+		End If
+		'Checking SNAP lines
+		If SNAP_checkbox = checked Then
+			EMReadScreen prog_snap_form_date, 8, 10, 33
+			If prog_snap_form_date = CAF_MAXIS_date Then
+				EMReadScreen prog_snap_intvw_date, 8, 10, 55
+				snap_interview_missing = True
+				If prog_snap_intvw_date <> "__ __ __" AND prog_snap_intvw_date <> "        " then
+					PROG_interview_date = replace(prog_snap_intvw_date, " ", "/") & " "
+					snap_interview_missing = False
+				End If
+			End If
+		End If
+		'If any interview dates are missing we blank out the interview date variable
+		If cash_interview_missing = True Then PROG_interview_date = ""
+		If emer_interview_missing = True Then PROG_interview_date = ""
+		If snap_interview_missing = True Then PROG_interview_date = ""
+	End If
+
+	multiple_CAF_dates = False
+	multiple_interview_dates = False
+	If PROG_CAF_datestamp <> "" And REVW_CAF_datestamp <> "" and PROG_CAF_datestamp <> REVW_CAF_datestamp Then
+		CAF_datestamp = REVW_CAF_datestamp
+		If DateDiff("d", PROG_CAF_datestamp, REVW_CAF_datestamp) Then CAF_datestamp = PROG_CAF_datestamp
+		multiple_CAF_dates = True
+	Else
+		If PROG_CAF_datestamp <> "" Then CAF_datestamp = PROG_CAF_datestamp
+		If REVW_CAF_datestamp <> "" Then CAF_datestamp = REVW_CAF_datestamp
+	End If
+
+	If IsDate(PROG_interview_date) = True Then Call convert_date_into_MAXIS_footer_month(PROG_interview_date, processing_footer_month, processing_footer_year)
+	If PROG_interview_date <> "" And REVW_interview_date <> "" and PROG_interview_date <> REVW_interview_date Then
+		interview_date = REVW_interview_date
+		If DateDiff("d", PROG_interview_date, REVW_interview_date) Then interview_date = PROG_interview_date
+		multiple_interview_dates = True
+	Else
+		If PROG_interview_date <> "" Then interview_date = PROG_interview_date
+		If REVW_interview_date <> "" Then interview_date = REVW_interview_date
+	End If
+
+	If IsDate(CAF_datestamp) = True and interview_date = "" Then
+
+		Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
+		too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
+
+		note_row = 5
+		Do
+			EMReadScreen note_date, 8, note_row, 6                  'reading the note date
+
+			EMReadScreen note_title, 55, note_row, 25               'reading the note header
+			note_title = trim(note_title)
+
+			'INTERVIEW CNOTE
+			If left(note_title, 24) = "~ Interview Completed on" Then
+				interview_completed_case_note_found = True
+
+				EMWriteScreen "X", note_row, 3                          'Opening the Interview Note to read some interview details
+				transmit
+
+				EMReadScreen in_correct_note, 24, 4, 3                  'making sure we are in the right note
+				EMReadScreen note_list_header, 23, 4, 25
+
+				If in_correct_note = "~ Interview Completed on" Then
+					in_note_row = 5
+					Do
+						EMReadScreen first_part_of_line, 12, in_note_row, 3                         'Reading the header portion
+						EMReadScreen whole_note_line, 77, in_note_row, 3                            'Reading all the line information
+						whole_note_line = trim(whole_note_line)
+						If first_part_of_line = "Completed wi" Then                                 'COMPLETED WITH header has person and type information
+							whole_note_line = replace(whole_note_line, "Completed with ", "")       'removes the header
+							position = Instr(whole_note_line, " via")                               'finds the dividing point in the content which is always the word 'via'
+							with_len = position + 4
+
+							interview_with = left(whole_note_line, position)                        'reading the person that did the interview - which is to the left of the dividing point
+							interview_type = right(whole_note_line, len(whole_note_line) - with_len)'the type is anything that is NOT the with
+							interview_with = trim(interview_with)
+							interview_type = trim(interview_type)
+						End If
+						If first_part_of_line = "Completed on" Then                                 'COMPLETED ON header has interview date
+							whole_note_line = replace(whole_note_line, "Completed on ", "")         'removes the header
+							position = Instr(whole_note_line, " at")                                'finds the dividing point
+
+							interview_date = left(whole_note_line, position)                        'interview date is to the left of the dividing point'
+							interview_date = trim(interview_date)
+						End If
+						in_note_row = in_note_row + 1
+						If interview_with <> "" AND interview_type <> "" AND interview_date <> "" Then Exit Do      'if we found all of it, we can be done
+					Loop until trim(whole_note_line) = ""
+					PF3         'leaving the note.
+
+				Else
+					If note_list_header <> "First line of Case note" Then PF3           'this backs us out of the note if we ended up in the wrong note.
+				End If
+			End If
+
+			if note_date = "        " then Exit Do                                      'if we are at the end of the list of notes - we can't read any more
+
+			note_row = note_row + 1
+			if note_row = 19 then
+				note_row = 5
+				PF8
+				EMReadScreen check_for_last_page, 9, 24, 14
+				If check_for_last_page = "LAST PAGE" Then Exit Do
+			End If
+			EMReadScreen next_note_date, 8, note_row, 6
+			if next_note_date = "        " then Exit Do
+		Loop until DateDiff("d", too_old_date, next_note_date) <= 0
+	End If
+
+	MAXIS_footer_month = processing_footer_month
+	MAXIS_footer_year =  processing_footer_year
+
+	script_run_lowdown = script_run_lowdown & vbCr & vbCr & "determine_program_and_case_status_from_CASE_CURR"
+	script_run_lowdown = script_run_lowdown & vbCr & "case_active - " & case_active
+	script_run_lowdown = script_run_lowdown & vbCr & "case_pending - " & case_pending
+	script_run_lowdown = script_run_lowdown & vbCr & "case_rein - " & case_rein
+	script_run_lowdown = script_run_lowdown & vbCr & "family_cash_case - " & family_cash_case
+	script_run_lowdown = script_run_lowdown & vbCr & "mfip_case - " & mfip_case
+	script_run_lowdown = script_run_lowdown & vbCr & "dwp_case - " & dwp_case
+	script_run_lowdown = script_run_lowdown & vbCr & "adult_cash_case - " & adult_cash_case
+	script_run_lowdown = script_run_lowdown & vbCr & "ga_case - " & ga_case
+	script_run_lowdown = script_run_lowdown & vbCr & "msa_case - " & msa_case
+	script_run_lowdown = script_run_lowdown & vbCr & "grh_case - " & grh_case
+	script_run_lowdown = script_run_lowdown & vbCr & "snap_case - " & snap_case
+	script_run_lowdown = script_run_lowdown & vbCr & "ma_case - " & ma_case
+	script_run_lowdown = script_run_lowdown & vbCr & "msp_case - " & msp_case
+	script_run_lowdown = script_run_lowdown & vbCr & "emer_case - " & emer_case
+	script_run_lowdown = script_run_lowdown & vbCr & "unknown_cash_pending - " & unknown_cash_pending
+	script_run_lowdown = script_run_lowdown & vbCr & "unknown_hc_pending - " & unknown_hc_pending
+	script_run_lowdown = script_run_lowdown & vbCr & "ga_status - " & ga_status
+	script_run_lowdown = script_run_lowdown & vbCr & "msa_status - " & msa_status
+
+	script_run_lowdown = script_run_lowdown & vbCr & "mfip_status - " & mfip_status
+	script_run_lowdown = script_run_lowdown & vbCr & "dwp_status - " & dwp_status
+	script_run_lowdown = script_run_lowdown & vbCr & "grh_status - " & grh_status
+	script_run_lowdown = script_run_lowdown & vbCr & "snap_status - " & snap_status
+	script_run_lowdown = script_run_lowdown & vbCr & "ma_status - " & ma_status
+	script_run_lowdown = script_run_lowdown & vbCr & "msp_status - " & msp_status
+	script_run_lowdown = script_run_lowdown & vbCr & "msp_type - " & msp_type
+	script_run_lowdown = script_run_lowdown & vbCr & "emer_status - " & emer_status
+
+	script_run_lowdown = script_run_lowdown & vbCr & "emer_type - " & emer_type
+	script_run_lowdown = script_run_lowdown & vbCr & "case_status - " & case_status
+	script_run_lowdown = script_run_lowdown & vbCr & "active_programs - " & active_programs
+	script_run_lowdown = script_run_lowdown & vbCr & "programs_applied_for - " & programs_applied_for
+
+	script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Reading of DATES from STAT"
+	script_run_lowdown = script_run_lowdown & vbCr & "REVW_CAF_datestamp - " & REVW_CAF_datestamp
+	script_run_lowdown = script_run_lowdown & vbCr & "REVW_interview_date - " & REVW_interview_date
+	script_run_lowdown = script_run_lowdown & vbCr & "PROG_CAF_datestamp - " & PROG_CAF_datestamp
+	script_run_lowdown = script_run_lowdown & vbCr & "PROG_interview_date - " & PROG_interview_date
+	script_run_lowdown = script_run_lowdown & vbCr & "CAF_datestamp - " & CAF_datestamp
+	script_run_lowdown = script_run_lowdown & vbCr & "interview_date - " & interview_date
+	script_run_lowdown = script_run_lowdown & vbCr & "multiple_CAF_dates - " & multiple_CAF_dates
+	script_run_lowdown = script_run_lowdown & vbCr & "multiple_interview_dates - " & multiple_interview_dates
+
+
+	script_run_lowdown = script_run_lowdown & vbCr & vbCr & "Script determination of programs"
+	If CASH_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH checkbox - CHECKED"
+	If CASH_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "type_of_cash - " & type_of_cash
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_cash - " & the_process_for_cash
+	script_run_lowdown = script_run_lowdown & vbCr & "cash_recert_mo - " & cash_recert_mo
+	script_run_lowdown = script_run_lowdown & vbCr & "cash_recert_yr - " & cash_recert_yr
+	If GRH_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "GRH checkbox - CHECKED"
+	If GRH_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "GRH checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_grh - " & the_process_for_grh
+	script_run_lowdown = script_run_lowdown & vbCr & "grh_recert_mo - " & grh_recert_mo
+	script_run_lowdown = script_run_lowdown & vbCr & "grh_recert_yr - " & grh_recert_yr
+	If SNAP_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP checkbox - CHECKED"
+	If SNAP_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "snap_with_mfip - " & snap_with_mfip
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_snap - " & the_process_for_snap
+	script_run_lowdown = script_run_lowdown & vbCr & "snap_recert_mo - " & snap_recert_mo
+	script_run_lowdown = script_run_lowdown & vbCr & "snap_recert_yr - " & snap_recert_yr
+	If HC_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "HC checkbox - CHECKED"
+	If HC_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "HC checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_hc - " & the_process_for_hc
+	script_run_lowdown = script_run_lowdown & vbCr & "hc_recert_mo - " & hc_recert_mo
+	script_run_lowdown = script_run_lowdown & vbCr & "hc_recert_yr - " & hc_recert_yr
+	If EMER_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER checkbox - CHECKED"
+	If EMER_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "type_of_emer - " & type_of_emer
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_emer - " & the_process_for_emer
+	script_run_lowdown = script_run_lowdown & vbCr & "Footer month: " & MAXIS_footer_month & "/" & MAXIS_footer_year
+
+	If CASH_checkbox = unchecked Then allow_CASH_untrack = True
+	If SNAP_checkbox = unchecked Then allow_SNAP_untrack = True
+	If EMER_checkbox = unchecked Then allow_EMER_untrack = True
+	If GRH_checkbox = unchecked Then allow_GRH_untrack = True
+
+	option_to_process_with_no_interview = False
+	Do
+		DO
+			err_msg = ""
+			If the_process_for_cash = "Recertification" and adult_cash_case = True Then option_to_process_with_no_interview = True
+			If the_process_for_grh = "Recertification" Then option_to_process_with_no_interview = True
+			If interview_date <> "" Then option_to_process_with_no_interview = False
+
+			' MsgBox "adult_cash_case - " & adult_cash_case & vbCr & "family_cash_case - "& family_cash_case
+			If adult_cash_case = TRUE Then type_of_cash = "Adult"
+			If family_cash_case = TRUE Then type_of_cash = "Family"
+			dlg_len = 205
+			y_pos = 60
+			dlg_wdth = 275
+
+			If multiple_CAF_dates = True or multiple_interview_dates = True Then
+				PROG_CAF_Form = CAF_Form
+				REVW_CAF_Form = CAF_Form
+				dlg_wdth = 365
+				dlg_len = dlg_len + 60
+			End If
+			If option_to_process_with_no_interview = True Then
+				dlg_len = dlg_len + 10
+				dlg_wdth = 365
+			End if
+
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, dlg_wdth, dlg_len, "CAF Process"
+			ButtonGroup ButtonPressed
+				Text 10, 10, 100, 10, "CAF Date:" & CAF_datestamp
+				If multiple_CAF_dates = True or multiple_interview_dates = True Then Text 110, 10, 195, 10, "(If multiple dates found, the oldest date is used)"
+
+				If option_to_process_with_no_interview = True Then
+					Text 10, 20, 315, 10, "No Interview date entered, but this case appears to be possibly MSA/GA/GRH at Recertification."
+					CheckBox 10, 30, 250, 10, "Check here to process ONLY Adult cash at ER without interview", adult_cash_er_no_interview_checkbox
+					y_pos = 45
+				Else
+					If interview_date <> "" Then Text 10, 20, 100, 10, "Interview Date:" & interview_date
+					If interview_date = "" Then Text 10, 20, 100, 10, "NO Interview Date"
+					y_pos = 35
+				End If
+				Text 10, y_pos, 200, 10, "Program(s) Requiring review and determinations:"
+				Text 10, y_pos+15, 35, 10, "Program"
+				Text 85, y_pos+15, 65, 10, "Eligibility Process"
+				Text 160, y_pos+15, 50, 10, "Recert MM/YY"
+				y_pos = y_pos + 25
+
+				If CASH_checkbox = checked Then
+					Text 15, y_pos + 5, 20, 10, "Cash"
+					DropListBox 35, y_pos, 45, 45, "Select"+chr(9)+"Family"+chr(9)+"Adult", type_of_cash
+					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_cash
+					EditBox 160, y_pos, 20, 15, cash_recert_mo
+					EditBox 185, y_pos, 20, 15, cash_recert_yr
+					If allow_CASH_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack CASH", untrack_cash_btn
+					y_pos = y_pos + 20
+				End If
+
+				If GRH_checkbox = checked Then
+					Text 15, y_pos + 5, 20, 10, "GRH"
+					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_grh
+					EditBox 160, y_pos, 20, 15, grh_recert_mo
+					EditBox 185, y_pos, 20, 15, grh_recert_yr
+					If allow_GRH_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack GRH", untrack_grh_btn
+					y_pos = y_pos + 20
+				End If
+				If SNAP_checkbox = checked Then
+					If snap_with_mfip = True Then Text 15, y_pos + 5, 20, 10, "SNAP Portion of MFIP"
+					If snap_with_mfip = False Then Text 15, y_pos + 5, 20, 10, "SNAP"
+					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
+					EditBox 160, y_pos, 20, 15, snap_recert_mo
+					EditBox 185, y_pos, 20, 15, snap_recert_yr
+					If allow_SNAP_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack SNAP", untrack_snap_btn
+					y_pos = y_pos + 20
+				End If
+				If HC_checkbox = checked Then
+					Text 15, y_pos + 5, 40, 10, "Health Care"
+					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Recertification", the_process_for_hc
+					EditBox 160, y_pos, 20, 15, hc_recert_mo
+					EditBox 185, y_pos, 20, 15, hc_recert_yr
+					If allow_HC_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack HC", untrack_hc_btn
+					y_pos = y_pos + 20
+				End If
+				If EMER_checkbox = checked Then
+					Text 15, y_pos+5, 40, 10, "EMER"
+					DropListBox 35, y_pos, 45, 45, "Select"+chr(9)+"EA"+chr(9)+"EGA", type_of_emer
+					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Application", the_process_for_emer
+					If allow_EMER_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack EMER", untrack_emer_btn
+					y_pos = y_pos + 20
+				End If
+
+				Text 10, y_pos, 210, 10,  "Add any programs to review that are not coded in STAT or REVW:"
+				y_pos = y_pos + 15
+				If CASH_checkbox = unchecked Then
+					PushButton 20, y_pos, 65, 13, "Add CASH", check_cash_box_btn
+					y_pos = y_pos + 20
+				End If
+				If GRH_checkbox = unchecked Then
+					PushButton 20, y_pos, 65, 13, "Add GRH", check_grh_box_btn
+					y_pos = y_pos + 20
+				End If
+				If SNAP_checkbox = unchecked Then
+					PushButton 20, y_pos, 65, 13, "Add SNAP", check_snap_box_btn
+					y_pos = y_pos + 20
+				End If
+				If HC_checkbox = unchecked Then
+					PushButton 20, y_pos, 65, 13, "Add HC", check_hc_box_btn
+					y_pos = y_pos + 20
+				End If
+				If EMER_checkbox = unchecked Then
+					PushButton 20, y_pos, 65, 13, "Add EMER", check_emer_box_btn
+					y_pos = y_pos + 20
+				End If
+
+				If multiple_CAF_dates = True or multiple_interview_dates = True Then
+					y_pos = y_pos + 10
+					Text 10, y_pos, 300, 20, "This case has different Form Dates and/or Interview Dates entered. Document the form for each of these dates/interview"
+					y_pos = y_pos + 20
+					Text 10, y_pos+5, 100, 10, "REVW CAF Date: " & REVW_CAF_datestamp
+					Text 115, y_pos+5, 100, 10, "REVW Interview: " & REVW_interview_date
+					DropListBox 220, y_pos, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"MNbenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", REVW_CAF_Form
+					y_pos = y_pos + 20
+					Text 10, y_pos+5, 100, 10, "PROG CAF Date: " & PROG_CAF_datestamp
+					Text 115, y_pos+5, 100, 10, "PROG Interview: " & PROG_interview_date
+					DropListBox 220, y_pos, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"ApplyMN", PROG_CAF_Form
+					y_pos = y_pos + 20
+				End If
+				Text 10, dlg_len-15, 50, 10, "Footer Month: "
+				EditBox 60, dlg_len-20, 20, 15, MAXIS_footer_month
+				EditBox 85, dlg_len-20, 20, 15, MAXIS_footer_year
+				' y_pos = y_pos + 5
+				OkButton dlg_wdth-55, dlg_len-20, 50, 15
+			EndDialog
+
+
+			Dialog Dialog1
+			cancel_confirmation
+
+			If len(cash_recert_yr) = 4 AND left(cash_recert_yr, 2) = "20" Then cash_recert_yr = right(cash_recert_yr, 2)
+			If len(grh_recert_yr) = 4 AND left(grh_recert_yr, 2) = "20" Then grh_recert_yr = right(grh_recert_yr, 2)
+			If len(snap_recert_yr) = 4 AND left(snap_recert_yr, 2) = "20" Then snap_recert_yr = right(snap_recert_yr, 2)
+			If len(hc_recert_yr) = 4 AND left(hc_recert_yr, 2) = "20" Then hc_recert_yr = right(hc_recert_yr, 2)
+
+			Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
+			If CASH_checkbox = checked Then
+				If type_of_cash = "Select" Then err_msg = err_msg & vbNewLine & "* Indicate if the cash program is a family or adult cash request."
+				If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
+				If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
+			End If
+			If GRH_checkbox = checked Then
+				If the_process_for_grh = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
+				If the_process_for_grh = "Recertification" AND (len(grh_recert_mo) <> 2 or len(grh_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For GRH at recertification, enter the footer month and year the of the recertification."
+			End If
+			If SNAP_checkbox = checked Then
+				If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or recertification."
+				If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
+			End If
+			If HC_checkbox = checked Then
+				If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Health Care program is at application or recertification."
+				If the_process_for_hc = "Recertification" AND (len(hc_recert_mo) <> 2 or len(hc_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For HC at recertification, enter the footer month and year the of the recertification."
+				If CASH_checkbox = unchecked and GRH_checkbox = unchecked and SNAP_checkbox = unchecked and EMER_checkbox = unchecked Then err_msg = err_msg & vbNewLine & "* HC cannot be processed independently in this script, either select another program or cancel this script run and run a different script to support HC only."
+			End If
+			If EMER_checkbox = checked Then
+				If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Emergency program is at application or recertification."
+			End If
+			If adult_cash_er_no_interview_checkbox = checked Then
+				If CASH_checkbox = checked Then
+					If the_process_for_cash <> "Recertification" Then err_msg = err_msg & vbNewLine & "* If you have selected to process adult cash cases with no interview needed and no interview completed, the cash process should be recertification."
+				End If
+				If GRH_checkbox = checked Then
+					If the_process_for_grh <> "Recertification" Then err_msg = err_msg & vbNewLine & "* If you have selected to process adult cash cases with no interview needed and no interview completed, the grh process should be recertification."
+				End If
+				SNAP_checkbox = unchecked
+				HC_checkbox = unchecked
+				EMER_checkbox = unchecked
+			End If
+			If multiple_CAF_dates = True or multiple_interview_dates = True Then
+				If REVW_CAF_Form = "Select One:" Then err_msg = err_msg & vbNewLine & "* Enter the form that was provided on " & REVW_CAF_datestamp & " and entered into the REVW panel."
+				If PROG_CAF_Form = "Select One:" Then err_msg = err_msg & vbNewLine & "* Enter the form that was provided on " & PROG_CAF_datestamp & " and used to pend programs on PROG."
+			End If
+
+
+			If ButtonPressed = check_cash_box_btn Then CASH_checkbox = checked
+			If ButtonPressed = check_grh_box_btn Then GRH_checkbox = checked
+			If ButtonPressed = check_snap_box_btn Then SNAP_checkbox = checked
+			If ButtonPressed = check_hc_box_btn Then HC_checkbox = checked
+			If ButtonPressed = check_emer_box_btn Then EMER_checkbox = checked
+
+			If ButtonPressed = check_cash_box_btn or ButtonPressed = check_grh_box_btn or ButtonPressed = check_snap_box_btn or ButtonPressed = check_hc_box_btn or ButtonPressed = check_emer_box_btn Then err_msg = "LOOP"
+
+			If ButtonPressed = untrack_cash_btn Then CASH_checkbox = unchecked
+			If ButtonPressed = untrack_grh_btn Then GRH_checkbox = unchecked
+			If ButtonPressed = untrack_snap_btn Then SNAP_checkbox = unchecked
+			If ButtonPressed = untrack_hc_btn Then HC_checkbox = unchecked
+			If ButtonPressed = untrack_emer_btn Then EMER_checkbox = unchecked
+
+			If ButtonPressed = untrack_cash_btn or ButtonPressed = untrack_grh_btn or ButtonPressed = untrack_snap_btn or ButtonPressed = untrack_hc_btn or ButtonPressed = untrack_emer_btn Then err_msg = "LOOP"
+
+
+			IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
+		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
+		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+	Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+	interview_required = True
+	If option_to_process_with_no_interview = True and adult_cash_er_no_interview_checkbox = checked Then interview_required = False
+
+	If CAF_datestamp = "" or (interview_required = True and interview_date = "") Then
+	'This script is to support work after the interview and is not built to support the intervieww. Script will end if interview date is not found.
+		end_early_mgs = "This script (NOTES - CAF) does not support details about an interview and should only be run once STAT panels are updated."
+		end_early_mgs = end_early_mgs & vbCr & vbCr & "The script could not find details about the interview date. Update PROG or REVW with the correct interview date. Ensure all other STAT panels are updated and run NOTES - CAF again to document details about the information entered into STAT."
+		Call script_end_procedure_with_error_report(end_early_mgs)
+	End if
+
+	If type_of_cash = "Family" Then
+		adult_cash = FALSE
+		family_cash = TRUE
+	End If
+	If type_of_cash = "Adult" Then
+		adult_cash = TRUE
+		family_cash = FALSE
+	End If
+
+	application_processing = False
+	recert_processing = False
+	If CASH_checkbox = checked and the_process_for_cash = "Application" Then application_processing = True
+	If CASH_checkbox = checked and the_process_for_cash = "Recertification" Then recert_processing = True
+	If GRH_checkbox = checked and the_process_for_grh = "Application" Then application_processing = True
+	If GRH_checkbox = checked and the_process_for_grh = "Recertification" Then recert_processing = True
+	If SNAP_checkbox = checked and the_process_for_snap = "Application" Then application_processing = True
+	If SNAP_checkbox = checked and the_process_for_snap = "Recertification" Then recert_processing = True
+	If EMER_checkbox = checked Then application_processing = True
+
+	script_run_lowdown = script_run_lowdown & vbCr & vbCr & "DETAILS after PROGRAM Selection Dialog"
+	If CASH_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH checkbox - CHECKED"
+	If CASH_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "type_of_cash - " & type_of_cash
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_cash - " & the_process_for_cash
+	script_run_lowdown = script_run_lowdown & vbCr & "cash_recert_mo - " & cash_recert_mo
+	script_run_lowdown = script_run_lowdown & vbCr & "cash_recert_yr - " & cash_recert_yr
+	If GRH_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "GRH checkbox - CHECKED"
+	If GRH_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "GRH checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_grh - " & the_process_for_grh
+	script_run_lowdown = script_run_lowdown & vbCr & "grh_recert_mo - " & grh_recert_mo
+	script_run_lowdown = script_run_lowdown & vbCr & "grh_recert_yr - " & grh_recert_yr
+	If SNAP_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP checkbox - CHECKED"
+	If SNAP_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "snap_with_mfip - " & snap_with_mfip
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_snap - " & the_process_for_snap
+	script_run_lowdown = script_run_lowdown & vbCr & "snap_recert_mo - " & snap_recert_mo
+	script_run_lowdown = script_run_lowdown & vbCr & "snap_recert_yr - " & snap_recert_yr
+	If HC_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "HC checkbox - CHECKED"
+	If HC_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "HC checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_hc - " & the_process_for_hc
+	script_run_lowdown = script_run_lowdown & vbCr & "hc_recert_mo - " & hc_recert_mo
+	script_run_lowdown = script_run_lowdown & vbCr & "hc_recert_yr - " & hc_recert_yr
+	If EMER_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER checkbox - CHECKED"
+	If EMER_checkbox = unchecked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER checkbox - UNCHECKED"
+	script_run_lowdown = script_run_lowdown & vbCr & "type_of_emer - " & type_of_emer
+	script_run_lowdown = script_run_lowdown & vbCr & "the_process_for_emer - " & the_process_for_emer
+
+	script_run_lowdown = script_run_lowdown & vbCr & "REVW_CAF_Form - " & REVW_CAF_Form
+	script_run_lowdown = script_run_lowdown & vbCr & "PROG_CAF_Form - " & PROG_CAF_Form
+
+	script_run_lowdown = script_run_lowdown & vbCr & "application_processing - " & application_processing
+	script_run_lowdown = script_run_lowdown & vbCr & "recert_processing - " & recert_processing
+
+	script_run_lowdown = script_run_lowdown & vbCr & "Footer month: " & MAXIS_footer_month & "/" & MAXIS_footer_year
+
     Call back_to_SELF
 
     exp_det_case_note_found = False                         'defaulting these boolean variables to know if these notes are needed by this script run
@@ -5584,16 +6247,6 @@ If vars_filled = False Then
     MAXIS_footer_year = right("00" & MAXIS_footer_year, 2)
     call check_for_MAXIS(False)	'checking for an active MAXIS session
     MAXIS_footer_month_confirmation	'function will check the MAXIS panel footer month/year vs. the footer month/year in the dialog, and will navigate to the dialog month/year if they do not match.
-
-    script_run_lowdown = script_run_lowdown & vbCr & "CAF Form: " & CAF_form
-    script_run_lowdown = script_run_lowdown & vbCr & "Footer month: " & MAXIS_footer_month & "/" & MAXIS_footer_year
-
-    If CASH_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "CASH Checked"
-    If trim(cash_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "CASH: " & cash_other_req_detail
-    If SNAP_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP Checked"
-    If trim(snap_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "SNAP: " & snap_other_req_detail
-    If EMER_on_CAF_checkbox = checked Then script_run_lowdown = script_run_lowdown & vbCr & "EMER Checked"
-    If trim(emer_other_req_detail) <> "" Then script_run_lowdown = script_run_lowdown & vbCr & "EMER: " & emer_other_req_detail
 
     'GRABBING THE DATE RECEIVED AND THE HH MEMBERS---------------------------------------------------------------------------------------------------------------------------------------------------------------------
     loop_start = timer
@@ -5607,303 +6260,6 @@ If vars_filled = False Then
     'Creating a custom dialog for determining who the HH members are
     call HH_comp_dialog(HH_member_array)
 
-    'GRABBING THE INFO FOR THE CASE NOTE-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    If cash_checkbox = checked Then
-        If trim(child_cash_count) = "" OR child_cash_count = 0 Then
-            adult_cash = TRUE
-            family_cash = FALSE
-        Else
-            adult_cash = FALSE
-            family_cash = TRUE
-        End If
-        If child_cash_count = 1 AND adult_cash_count = 0 Then
-            adult_cash = TRUE
-            family_cash = FALSE
-        End If
-        If pregnant_caregiver_checkbox = checked Then
-            adult_cash = FALSE
-            family_cash = TRUE
-        End If
-    Else
-        adult_cash = FALSE
-        family_cash = FALSE
-    End If
-
-    If cash_checkbox = checked OR snap_checkbox = checked OR hc_checkbox = checked Then
-        Call navigate_to_MAXIS_screen("STAT", "REVW")
-        EMReadScreen cash_revw_code, 1, 7, 40
-        EMReadScreen snap_revw_code, 1, 7, 60
-        EMReadScreen hc_revw_code, 1, 7, 73
-        If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" Then
-            the_process_for_cash = "Recertification"
-            cash_recert_mo = MAXIS_footer_month
-            cash_recert_yr = MAXIS_footer_year
-        End If
-        If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
-            the_process_for_snap = "Recertification"
-            snap_recert_mo = MAXIS_footer_month
-            snap_recert_yr = MAXIS_footer_year
-        End If
-        If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" Then
-            the_process_for_hc = "Recertification"
-            hc_recert_mo = MAXIS_footer_month
-            hc_recert_yr = MAXIS_footer_year
-        End If
-
-        Call navigate_to_MAXIS_screen("STAT", "PROG")
-        EMReadScreen cash_prog_code_one, 4, 6, 74
-        EMReadScreen cash_prog_code_two, 4, 6, 74
-        EMReadScreen snap_prog_code, 4, 10, 74
-        EMReadScreen hc_prog_code, 4, 12, 74
-        If cash_prog_code_one = "PEND" OR cash_prog_code_two = "PEND" Then the_process_for_cash = "Application"
-        If snap_prog_code = "PEND" Then the_process_for_snap = "Application"
-        If hc_prog_code = "PEND" Then the_process_for_hc = "Application"
-        If the_process_for_cash = "Recertification" AND the_process_for_snap = "" AND cash_checkbox = checked AND snap_checkbox = checked Then
-            EMReadScreen cash_prog_one, 2, 6, 67
-            EMReadScreen cash_prog_two, 2, 7, 67
-            If cash_prog_one = "MF" OR cash_prog_two = "MF" Then
-                the_process_for_snap = "Recertification"
-                snap_recert_mo = MAXIS_footer_month
-                snap_recert_yr = MAXIS_footer_year
-            End If
-        End If
-
-        If adult_cash = TRUE Then type_of_cash = "Adult"
-        If family_cash = TRUE Then type_of_cash = "Family"
-        dlg_len = 50
-        y_pos = 25
-        If cash_checkbox = checked Then dlg_len = dlg_len + 20
-        If snap_checkbox = checked Then dlg_len = dlg_len + 20
-        If HC_checkbox = checked Then dlg_len = dlg_len + 20
-
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 205, dlg_len, "CAF Process"
-          Text 10, 10, 35, 10, "Program"
-          Text 80, 10, 50, 10, "CAF Process"
-          Text 155, 10, 50, 10, "Recert MM/YY"
-          If cash_checkbox = checked Then
-              Text 10, y_pos + 5, 20, 10, "Cash"
-              DropListBox 35, y_pos, 35, 45, "Family"+chr(9)+"Adult", type_of_cash
-              DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_cash
-              EditBox 155, y_pos, 20, 15, cash_recert_mo
-              EditBox 180, y_pos, 20, 15, cash_recert_yr
-              y_pos = y_pos + 20
-          End If
-          If snap_checkbox = checked Then
-              Text 10, y_pos + 5, 20, 10, "SNAP"
-              DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
-              EditBox 155, y_pos, 20, 15, snap_recert_mo
-              EditBox 180, y_pos, 20, 15, snap_recert_yr
-              y_pos = y_pos + 20
-          End If
-          If HC_checkbox = checked Then
-              Text 10, y_pos + 5, 40, 10, "Health Care"
-              DropListBox 80, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_hc
-              EditBox 155, y_pos, 20, 15, hc_recert_mo
-              EditBox 180, y_pos, 20, 15, hc_recert_yr
-              y_pos = y_pos + 20
-          End If
-          y_pos = y_pos + 5
-          ButtonGroup ButtonPressed
-            OkButton 150, y_pos, 50, 15
-        EndDialog
-
-        Do
-        	DO
-        		err_msg = ""
-        		Dialog Dialog1
-        		cancel_confirmation
-
-                If len(cash_recert_yr) = 4 AND left(cash_recert_yr, 2) = "20" Then cash_recert_yr = right(cash_recert_yr, 2)
-                If len(snap_recert_yr) = 4 AND left(snap_recert_yr, 2) = "20" Then snap_recert_yr = right(snap_recert_yr, 2)
-                If len(hc_recert_yr) = 4 AND left(hc_recert_yr, 2) = "20" Then hc_recert_yr = right(hc_recert_yr, 2)
-                If cash_checkbox = checked Then
-                    If the_process_for_cash = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the CASH program is at application or recertification."
-                    If the_process_for_cash = "Recertification" AND (len(cash_recert_mo) <> 2 or len(cash_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For CASH at recertification, enter the footer month and year the of the recertification."
-                    If CAF_form = "HUF (DHS-8107)" AND the_process_for_cash = "Application" then err_msg = err_msg & vbNewLine & "* An application for Cash cannot be processed using the HUF (Household Update Form). If you have a CAF type document, restart the script and select that form type. Otherwise you should select 'Recertification' for Cash."
-                End If
-                If snap_checkbox = checked Then
-                    If the_process_for_snap = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the SNAP program is at application or recertification."
-                    If the_process_for_snap = "Recertification" AND (len(snap_recert_mo) <> 2 or len(snap_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For SNAP at recertification, enter the footer month and year the of the recertification."
-                    If CAF_form = "HUF (DHS-8107)" AND the_process_for_snap = "Application" then err_msg = err_msg & vbNewLine & "* An application for SNAP cannot be processed using the HUF (Household Update Form). If you have a CAF type document, restart the script and select that form type. Otherwise you should select 'Recertification' for SNAP."
-                End If
-                If HC_checkbox = checked Then
-                    If the_process_for_hc = "Select One..." Then err_msg = err_msg & vbNewLine & "* Select if the Health Care program is at application or recertification."
-                    If the_process_for_hc = "Recertification" AND (len(hc_recert_mo) <> 2 or len(hc_recert_yr) <> 2) Then err_msg = err_msg & vbNewLine & "* For HC at recertification, enter the footer month and year the of the recertification."
-                End If
-
-
-                IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** Please resolve to continue ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-        	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-        Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-        If the_process_for_cash = "Recertification" OR the_process_for_snap = "Recertification" Then CAF_type = "Recertification"
-        If the_process_for_cash = "Application" OR the_process_for_snap = "Application" Then CAF_type = "Application"
-        If type_of_cash = "Family" Then
-            adult_cash = FALSE
-            family_cash = TRUE
-        End If
-        If type_of_cash = "Adult" Then
-            adult_cash = TRUE
-            family_cash = FALSE
-        End If
-    End If
-    If EMER_checkbox = checked Then CAF_type = "Application"
-    script_run_lowdown = script_run_lowdown & vbCr & "CAF Type: " & CAF_type
-
-    If CAF_type = "Recertification" then                                                          'For recerts it goes to one area for the CAF datestamp. For other app types it goes to STAT/PROG.
-    	' call autofill_editbox_from_MAXIS(HH_member_array, "REVW", CAF_datestamp)
-        Call navigate_to_MAXIS_screen("STAT", "REVW")
-        EMReadScreen CAF_datestamp, 8, 13, 37                       'reading theform date on REVW
-        CAF_datestamp = replace(CAF_datestamp, " ", "/")
-        If isdate(CAF_datestamp) = True then
-          CAF_datestamp = cdate(CAF_datestamp) & ""
-        Else
-          CAF_datestamp = ""
-        End if
-
-        EMReadScreen interview_date, 8, 15, 37                       'reading the interview date on REVW
-        interview_date = replace(interview_date, " ", "/")
-        If isdate(interview_date) = True then
-          interview_date = cdate(interview_date) & ""
-        Else
-          interview_date = ""
-        End if
-
-    	IF SNAP_checkbox = checked THEN																															'checking for SNAP 24 month renewals.'
-    		EMWriteScreen "X", 05, 58																																	'opening the FS revw screen.
-    		transmit
-    		EMReadScreen SNAP_recert_date, 8, 9, 64
-    		PF3
-    		SNAP_recert_date = replace(SNAP_recert_date, " ", "/")
-            If SNAP_recert_date <> "__/01/__" Then 																	'replacing the read blank spaces with / to make it a date
-        		SNAP_recert_compare_date = dateadd("m", "12", MAXIS_footer_month & "/01/" & MAXIS_footer_year)		'making a dummy variable to compare with, by adding 12 months to the requested footer month/year.
-        		IF datediff("d", SNAP_recert_compare_date, SNAP_recert_date) > 0 THEN											'If the read recert date is more than 0 days away from 12 months plus the MAXIS footer month/year then it is likely a 24 month period.'
-        			SNAP_recert_is_likely_24_months = TRUE
-        		ELSE
-        			SNAP_recert_is_likely_24_months = FALSE																									'otherwise if we don't we set it as false
-        		END IF
-            Else
-                SNAP_recert_is_likely_24_months = FALSE
-            End If
-    	END IF
-    Else
-    	' call autofill_editbox_from_MAXIS(HH_member_array, "PROG", CAF_datestamp)
-        Call navigate_to_MAXIS_screen("STAT", "PROG")
-
-        'here we are going to read for the CAF date by reading each line of PROG and looking for the most recent date.
-        row = 6
-        Do
-            EMReadScreen appl_prog_date, 8, row, 33
-            If appl_prog_date <> "__ __ __" then appl_prog_date_array = appl_prog_date_array & replace(appl_prog_date, " ", "/") & " "
-
-            row = row + 1
-        Loop until row = 12
-        appl_prog_date_array = split(appl_prog_date_array)
-        CAF_datestamp = CDate(appl_prog_date_array(0))
-        for i = 0 to ubound(appl_prog_date_array) - 1
-            if CDate(appl_prog_date_array(i)) > CAF_datestamp then
-                CAF_datestamp = CDate(appl_prog_date_array(i))
-            End if
-        next
-        If isdate(CAF_datestamp) = True then
-            var_month = datepart("m", CAF_datestamp)
-            IF len(var_month) = 1 THEN var_month = "0" & var_month
-            var_day = datepart("d", CAF_datestamp)
-            IF len(var_day) = 1 THEN var_day = "0" & var_day
-            var_year = right(datepart("yyyy", CAF_datestamp), 2)
-            CAF_MAXIS_date = var_month & " " & var_day & " " & var_year
-            CAF_datestamp = cdate(CAF_datestamp) & ""
-        Else
-            CAF_datestamp = ""
-        End if
-        'Now we are checking for each program that was checked on the first dialog to find the interview date
-        'If any are missing that have the CAF date listed the script will end for not finding the interview date.
-        cash_interview_missing = False          'defaulting to the interview date is NOT missing
-        emer_interview_missing = False
-        snap_interview_missing = False
-        'checking Cash lines - which included GRH
-        If cash_checkbox = checked Then
-            EMReadScreen prog_cash_1_form_date, 8, 6, 33
-            If prog_cash_1_form_date = CAF_MAXIS_date Then
-                EMReadScreen prog_cash_1_intvw_date, 8, 6, 55
-                cash_interview_missing = True
-                If prog_cash_1_intvw_date <> "__ __ __" AND prog_cash_1_intvw_date <> "        " then
-                    interview_date = replace(prog_cash_1_intvw_date, " ", "/") & " "
-                    cash_interview_missing = False
-                End If
-            End If
-            EMReadScreen prog_cash_2_form_date, 8, 7, 33
-            If prog_cash_2_form_date = CAF_MAXIS_date Then
-                EMReadScreen prog_cash_2_intvw_date, 8, 7, 55
-                cash_interview_missing = True
-                If prog_cash_2_intvw_date <> "__ __ __" AND prog_cash_2_intvw_date <> "        " then
-                    interview_date = replace(prog_cash_2_intvw_date, " ", "/") & " "
-                    cash_interview_missing = False
-                End If
-            End If
-            EMReadScreen prog_grh_form_date, 8, 9, 33
-            If prog_grh_form_date = CAF_MAXIS_date Then
-                EMReadScreen prog_grh_intvw_date, 8, 9, 55
-                cash_interview_missing = True
-                If prog_grh_intvw_date <> "__ __ __" AND prog_grh_intvw_date <> "        " then
-                    interview_date = replace(prog_grh_intvw_date, " ", "/") & " "
-                    cash_interview_missing = False
-                End If
-            End If
-        End If
-        'checking EMER lines
-        If EMER_checkbox = checked Then
-            EMReadScreen prog_emer_form_date, 8, 8, 33
-            If prog_emer_form_date = CAF_MAXIS_date Then
-                EMReadScreen prog_emer_intvw_date, 8, 8, 55
-                emer_interview_missing = True
-                If prog_emer_intvw_date <> "__ __ __" AND prog_emer_intvw_date <> "        " then
-                    interview_date = replace(prog_emer_intvw_date, " ", "/") & " "
-                    emer_interview_missing = False
-                End If
-            End If
-        End If
-        'Checking SNAP lines
-        If SNAP_checkbox = checked Then
-            EMReadScreen prog_snap_form_date, 8, 10, 33
-            If prog_snap_form_date = CAF_MAXIS_date Then
-                EMReadScreen prog_snap_intvw_date, 8, 10, 55
-                snap_interview_missing = True
-                If prog_snap_intvw_date <> "__ __ __" AND prog_snap_intvw_date <> "        " then
-                    interview_date = replace(prog_snap_intvw_date, " ", "/") & " "
-                    snap_interview_missing = False
-                End If
-            End If
-        End If
-        'If any interview dates are missing we blank out the interview date variable
-        If cash_interview_missing = True Then interview_date = ""
-        If emer_interview_missing = True Then interview_date = ""
-        If snap_interview_missing = True Then interview_date = ""
-    End if
-    If IsDate(CAF_datestamp) = False Then
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 125, 45, "CAF Datestamp"
-          EditBox 75, 5, 45, 15, CAF_datestamp
-          ButtonGroup ButtonPressed
-            OkButton 5, 25, 50, 15
-            CancelButton 60, 25, 50, 15
-          Text 10, 10, 60, 10, "CAF Datestamp:"
-        EndDialog
-
-        'Runs the first dialog - which confirms the case number
-        Do
-        	Do
-        		err_msg = ""
-        		dialog Dialog1
-        		cancel_confirmation
-                If IsDate(CAF_datestamp) = False Then err_msg = err_msg & vbNewLine & "* Please enter a valid date for the date the CAF was received."
-        		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-        	Loop until err_msg = ""
-        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-        LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-    End If
     day_30_from_application = DateAdd("d", 30, CAF_datestamp)
 
     Call hest_standards(heat_AC_amt, electric_amt, phone_amt, CAF_datestamp)        'getting the correct amounts for HEST standards based on the application date.
@@ -5915,18 +6271,13 @@ If vars_filled = False Then
 
     'THIS IS HANDLING SPECIFICALLY AROUND THE ALLOWANCE TO WAIVE INTERVIEWS FOR RENEWALS IN EFFECT STARTING FOR 04/21 REVW
     exp_screening_note_found = False
-    interview_required = FALSE
-
-    If SNAP_checkbox = checked OR family_cash = TRUE OR CAF_type = "Application" then interview_required = TRUE
 
     MAXIS_case_number = trim(MAXIS_case_number)
 
     'HERE WE SEARCH CASE:NOTES
     'We are looking for notes that multiple scripts complete to keep from making duplicate notes
     look_for_expedited_determination_case_note = False
-    If CAF_type = "Application" Then
-        If SNAP_checkbox = checked Then look_for_expedited_determination_case_note = True
-    End If
+	If SNAP_checkbox = checked and the_process_for_snap = "Application" Then look_for_expedited_determination_case_note = True
 
     Call Navigate_to_MAXIS_screen("CASE", "NOTE")               'Now we navigate to CASE:NOTES
     too_old_date = DateAdd("D", -1, CAF_datestamp)              'We don't need to read notes from before the CAF date
@@ -6380,7 +6731,7 @@ If vars_filled = False Then
     if right(programs_applied_for, 1) = "," then programs_applied_for = left(programs_applied_for, len(programs_applied_for) - 1)
 
     'SHOULD DEFAULT TO TIKLING FOR APPLICATIONS THAT AREN'T RECERTS.
-    If CAF_type = "Application" then TIKL_checkbox = checked
+    If application_processing = True then TIKL_checkbox = checked
 
     Call generate_client_list(interview_memb_list, "Select or Type")
     Call generate_client_list(shel_memb_list, "Select")
@@ -8433,7 +8784,7 @@ If qual_question_four = "Yes" Then qual_questions_yes = TRUE
 If qual_question_five = "Yes" Then qual_questions_yes = TRUE
 
 'Now, the client_delay_checkbox business. It'll update client delay if the box is checked and it isn't a recert.
-If client_delay_checkbox = checked and CAF_type <> "Recertification" then
+If client_delay_checkbox = checked and application_processing = True then
 	call navigate_to_MAXIS_screen("REPT", "PND2")
 
     limit_reached = FALSE
@@ -8487,12 +8838,10 @@ If client_delay_checkbox = checked and CAF_type <> "Recertification" then
 		PF10
 		client_delay_checkbox = unchecked		'Probably unnecessary except that it changes the case note parameters
 	End if
-ElseIf client_delay_checkbox = checked and CAF_type = "Recertification" then
-    client_delay_checkbox = unchecked		'Probably unnecessary except that it changes the case note parameters
 End if
 
 'Going to TIKL. Now using the write TIKL function
-If TIKL_checkbox = checked and CAF_type <> "Recertification" then
+If TIKL_checkbox = checked and application_processing = True then
 	If DateDiff ("d", CAF_datestamp, date) > 30 Then 'Error handling to prevent script from attempting to write a TIKL in the past
 		MsgBox "Cannot set TIKL as CAF Date is over 30 days old and TIKL would be in the past. You must manually track."
         TIKL_checkbox = unchecked
@@ -8506,7 +8855,7 @@ If TIKL_checkbox = checked and CAF_type <> "Recertification" then
         Call create_TIKL(TIKL_msg_one, 30, CAF_datestamp, False, TIKL_note_text)
         Call back_to_SELF
 	End If
-ElseIf TIKL_checkbox = checked and CAF_type = "Recertification" then
+ElseIf TIKL_checkbox = checked and application_processing = False then
     TIKL_checkbox = unchecked
 End if
 If client_delay_TIKL_checkbox = checked then
@@ -8614,7 +8963,7 @@ If HC_checkbox = checked Then
 End If
 
 'Adding footer month to the recertification case notes
-If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS_footer_year & " recert"
+' If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS_footer_year & " recert"
 progs_list = ""
 If cash_checkbox = checked Then progs_list = progs_list & ", Cash"
 If SNAP_checkbox = checked Then progs_list = progs_list & ", SNAP"
@@ -9481,19 +9830,22 @@ Else
     CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & prog_and_type_list & ": " & CAF_status)
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("Form Received", CAF_form)
+If multiple_CAF_dates = True Then
+	CALL write_variable_in_CASE_NOTE("  --- Multiple forms received ---")
+	Call write_bullet_and_variable_in_CASE_NOTE("Form", REVW_CAF_Form & ", received on: " & REVW_CAF_datestamp)
+	Call write_bullet_and_variable_in_CASE_NOTE("Form", PROG_CAF_Form & ", received on: " & PROG_CAF_datestamp)
+End If
 'Programs requested
-If CASH_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", Cash"
-If SNAP_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", SNAP"
-If EMER_on_CAF_checkbox = checked Then CAF_progs = CAF_progs & ", EMER"
+If CASH_checkbox = checked Then CAF_progs = CAF_progs & ", Cash"
+If GRH_checkbox = checked Then CAF_progs = CAF_progs & ", GRH"
+If SNAP_checkbox = checked Then CAF_progs = CAF_progs & ", SNAP"
+If EMER_checkbox = checked Then CAF_progs = CAF_progs & ", EMER"
 If CAF_progs <> "" Then
     CAF_progs = right(CAF_progs, len(CAF_progs) - 2)
 Else
     CAF_progs = "None"
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("Programs requested in writing on the form", CAF_progs)
-Call write_bullet_and_variable_in_CASE_NOTE("Cash requested", cash_other_req_detail)
-Call write_bullet_and_variable_in_CASE_NOTE("SNAP requested", snap_other_req_detail)
-Call write_bullet_and_variable_in_CASE_NOTE("EMER requested", emer_other_req_detail)
 If family_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for FAMILY programs.")
 If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for ADULT programs.")
 Call write_bullet_and_variable_in_CASE_NOTE("Info", case_details_and_notes_about_process)
