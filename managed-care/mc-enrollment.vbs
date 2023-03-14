@@ -414,7 +414,7 @@ EndDialog
 
 'runs the dialog that has been dynamically created. Streamlined with new functions.
 Dialog Dialog1
-If buttonpressed = 0 then stopscript
+Cancel_without_confirmation
 
 HH_member_array = ""
 
