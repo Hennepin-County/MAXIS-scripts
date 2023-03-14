@@ -5604,13 +5604,7 @@ If vars_filled = False Then
 				grh_recert_yr = MAXIS_footer_year
 				If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_GRH_untrack = True
 			End If
-			If mfip_case = True Then
-				snap_with_mfip = True
-				the_process_for_snap = "Recertification"
-				snap_recert_mo = MAXIS_footer_month
-				snap_recert_yr = MAXIS_footer_year
-				If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_SNAP_untrack = True
-			End If
+			If mfip_case = True Then snap_with_mfip = True
 			If processing_footer_month = "" Then
 				processing_footer_month = MAXIS_footer_month
 				processing_footer_year = MAXIS_footer_year
@@ -5969,6 +5963,7 @@ If vars_filled = False Then
 	If GRH_checkbox = unchecked Then allow_GRH_untrack = True
 
 	option_to_process_with_no_interview = False
+	original_snap_with_mfip = snap_with_mfip
 	Do
 		DO
 			err_msg = ""
@@ -5993,6 +5988,7 @@ If vars_filled = False Then
 				dlg_len = dlg_len + 10
 				dlg_wdth = 365
 			End if
+			If snap_with_mfip = True Then dlg_len = dlg_len + 15
 
 			Dialog1 = ""
 			BeginDialog Dialog1, 0, 0, dlg_wdth, dlg_len, "CAF Process"
@@ -6033,8 +6029,11 @@ If vars_filled = False Then
 					If allow_GRH_untrack = True Then PushButton 215, y_pos, 60, 13, "Untrack GRH", untrack_grh_btn
 					y_pos = y_pos + 20
 				End If
+				If snap_with_mfip = True Then
+					Text 20, y_pos, 200, 10, "SNAP benefit is a part of MFIP Grant"
+					y_pos = y_pos + 15
+				End If
 				If SNAP_checkbox = checked Then
-					If snap_with_mfip = True Then Text 15, y_pos + 5, 20, 10, "SNAP Portion of MFIP"
 					If snap_with_mfip = False Then Text 15, y_pos + 5, 20, 10, "SNAP"
 					DropListBox 85, y_pos, 65, 45, "Select One..."+chr(9)+"Application"+chr(9)+"Recertification", the_process_for_snap
 					EditBox 160, y_pos, 20, 15, snap_recert_mo
@@ -6152,6 +6151,7 @@ If vars_filled = False Then
 			If ButtonPressed = check_cash_box_btn Then CASH_checkbox = checked
 			If ButtonPressed = check_grh_box_btn Then GRH_checkbox = checked
 			If ButtonPressed = check_snap_box_btn Then SNAP_checkbox = checked
+			If ButtonPressed = check_snap_box_btn Then snap_with_mfip = False
 			If ButtonPressed = check_hc_box_btn Then HC_checkbox = checked
 			If ButtonPressed = check_emer_box_btn Then EMER_checkbox = checked
 
@@ -6160,6 +6160,7 @@ If vars_filled = False Then
 			If ButtonPressed = untrack_cash_btn Then CASH_checkbox = unchecked
 			If ButtonPressed = untrack_grh_btn Then GRH_checkbox = unchecked
 			If ButtonPressed = untrack_snap_btn Then SNAP_checkbox = unchecked
+			If ButtonPressed = untrack_snap_btn Then snap_with_mfip = original_snap_with_mfip
 			If ButtonPressed = untrack_hc_btn Then HC_checkbox = unchecked
 			If ButtonPressed = untrack_emer_btn Then EMER_checkbox = unchecked
 
