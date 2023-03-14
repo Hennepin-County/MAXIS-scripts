@@ -73,7 +73,7 @@ Do
     DO
     	DO
     		Dialog Dialog1																'calls up dialog for worker to enter case number and applicable month and year.	 Script will 'loop'
-    		IF buttonpressed = 0 THEN StopScript						   'and verbally request the worker to enter a case number until the worker enters a case number.
+    		Cancel_without_confirmation
     		IF MAXIS_case_number = "" THEN MsgBox "You must enter a case number"
     	LOOP UNTIL MAXIS_case_number <> ""
 
