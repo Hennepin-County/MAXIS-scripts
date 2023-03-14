@@ -44,6 +44,9 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'The CAF script is testing a new process. - GH 1203
+Call select_testing_file("ALL", "", "notes/caf.vbs", "1203-caf-update-to-autoselect-programs", True, False)
+
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
 changelog = array()
