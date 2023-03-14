@@ -731,7 +731,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     	DIALOG Dialog1
 
     	'>>> Cancelling the script if ButtonPressed = 0
-    	IF ButtonPressed = 0 THEN stopscript
+    	Cancel_without_confirmation
 
         If ButtonPressed = hot_topics_button Then run "C:\Program Files\Internet Explorer\iexplore.exe https://dept.hennepin.us/hsphd/sa/ews/afepages/Adults%20and%20Families%20Eligibility.aspx#BlueZone%20Update"
 
