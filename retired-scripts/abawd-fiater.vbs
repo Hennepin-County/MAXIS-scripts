@@ -110,7 +110,7 @@ DO
 	DO
 		err_msg = ""
 		dialog Dialog1
-		If buttonpressed = 0 THEN stopscript
+		Cancel_without_confirmation
 		IF left(MAXIS_case_number, 10) <> "UUDDLRLRBA" AND isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "You must enter a valid case number."
 		IF len(initial_month) > 2 or isnumeric(initial_month) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial month."
 		IF len(initial_year) > 2 or isnumeric(initial_year) = FALSE THEN err_msg = err_msg & vbCr & "You must enter a valid 2 digit initial year."
