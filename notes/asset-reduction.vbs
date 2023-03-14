@@ -77,8 +77,9 @@ Do
 		If reduction_status = "Select one..."THEN err_msg = err_msg & vbCr & "* Select an asset reduction status."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
- 	Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
 
 'Asset reduction required coding----------------------------------------------------------------------------------------------------
 If reduction_status = "Required" then
@@ -156,8 +157,8 @@ If reduction_status = "Required" then
 			IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
         	IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
      	Loop until err_msg = ""
-    	Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
 'Asset reduction completed coding----------------------------------------------------------------------------------------------------
@@ -234,8 +235,8 @@ If reduction_status = "Completed" then
     		IF worker_signature = "" THEN err_msg = err_msg & vbNewLine & "* Please enter your worker signature."
     		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     	Loop until err_msg = ""
-    	Call check_for_password(are_we_passworded_out)
-    LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 END IF
 
 'Sets TIKL for the pending/reduction option

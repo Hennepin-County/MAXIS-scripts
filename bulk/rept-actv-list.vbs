@@ -92,8 +92,8 @@ Do
 		cancel_without_confirmation
 		If (all_workers_check = 0 AND worker_number = "") then MsgBox "Please enter at least one worker number." 'allows user to select the all workers check, and not have worker number be ""
 	LOOP until all_workers_check = 1 or worker_number <> ""
-	Call check_for_password(are_we_passworded_out)
-Loop until check_for_password(are_we_passworded_out) = False		'loops until user is password-ed out
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'Asks to grab COLA related stats (will occur below main info collection)
 COLA_stats = MsgBox("Seek COLA income-related info from ACTV cases?", vbYesNo)

@@ -75,8 +75,8 @@ DO
 		IF THV_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select a trial home visit option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
- Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 If THV_option = "Begins" then
     dialog1 = ""

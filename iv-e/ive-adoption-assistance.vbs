@@ -78,8 +78,8 @@ DO
 		IF action_option = "Select one..." then err_msg = err_msg & vbNewLine & "* Select an Adoption Assistance option."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP UNTIL err_msg = ""
- Call check_for_password(are_we_passworded_out)
-LOOP UNTIL check_for_password(are_we_passworded_out) = False
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 If action_option = "Canceled" then
     dialog1 = ""
@@ -108,8 +108,8 @@ If action_option = "Canceled" then
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
- 	Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -155,8 +155,8 @@ If action_option = "Child in placement" then
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
- 		Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 	'The case note
     start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
@@ -203,8 +203,8 @@ If action_option = "Closed" then
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
- 		Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     'writing the TIKL for the client's 18th birthday
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
@@ -273,8 +273,8 @@ If action_option = "Opened" then
 			If worker_signature = "" then err_msg = err_msg & vbNewLine & "* Enter your worker signature."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		LOOP UNTIL err_msg = ""
- 		Call check_for_password(are_we_passworded_out)
-	LOOP UNTIL check_for_password(are_we_passworded_out) = False
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    Loop until are_we_passworded_out = false					'loops until user passwords back in
 
     'writing the TIKL for the client's 18th birthday
     'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
