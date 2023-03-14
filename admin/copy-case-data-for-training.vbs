@@ -181,7 +181,6 @@ FUNCTION check_for_data_validation(cell_row, cell_column, maxis_value, objExcel,
 END FUNCTION
 '============================================================================================
 
-'DIALOGS------------------------------------------------------------------------------------------------------------------
 'This is the dialog that allows the user to open the existing spreadsheet
 DO
     DO
@@ -211,9 +210,6 @@ DO
     	If ButtonPressed = select_a_file_button then call file_selection_system_dialog(training_case_creator_excel_file_path, ".xlsx")
     Loop until ButtonPressed = OK and training_case_creator_excel_file_path <> ""
 
-    'checking that MX is not timed out
-    CALL check_for_MAXIS(false)
-
     'opening the spreadsheet
     SET objExcel = CreateObject("Excel.Application")
     objExcel.Visible = TRUE
@@ -229,27 +225,22 @@ DO
 	END IF
 LOOP UNTIL confirm_spreadsheet = vbYes
 
-'naming the scenario
-DO
-	err_msg = ""
+Dialog1 = ""  'naming the scenario
+BeginDialog Dialog1, 0, 0, 216, 60, "Scenario Creator"
+EditBox 105, 10, 105, 15, scenario_name
+ButtonGroup ButtonPressed
+    OkButton 110, 40, 50, 15
+    CancelButton 160, 40, 50, 15
+Text 10, 15, 90, 10, "Name your new scenario:"
+EndDialog
 
-    Dialog1 = ""
-	BeginDialog Dialog1, 0, 0, 216, 60, "Scenario Creator"
-	EditBox 105, 10, 105, 15, scenario_name
-	ButtonGroup ButtonPressed
-		OkButton 110, 40, 50, 15
-		CancelButton 160, 40, 50, 15
-	Text 10, 15, 90, 10, "Name your new scenario:"
-	EndDialog
-
-	DIALOG Dialog1
-	cancel_confirmation
-	IF scenario_name = "" THEN err_msg = err_msg & vbCr & "* You must give the scenario a name."
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
+Do
+    err_msg = ""
+    DIALOG Dialog1
+    cancel_confirmation
+    IF trim(scenario_name) = "" THEN err_msg = err_msg & vbCr & "* You must give the scenario a name."
+    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
 LOOP UNTIL err_msg = ""
-
-'double checking that MX is not timed out
-CALL check_for_MAXIS(false)
 
 objExcel.WorkSheets("Template").Activate
 SET objTemplate = objWorkbook.Worksheets("Template")			'activating the template worksheet
@@ -270,28 +261,32 @@ objWorkbook.SaveAs(training_case_creator_excel_file_path)
 
 'The script ------- grabbing the MAXIS case number
 EMConnect ""
+CALL MAXIS_case_number_finder(MAXIS_case_number) 'grabbing the MAXIS case number already active
 
-'grabbing the MAXIS case number already active
-CALL MAXIS_case_number_finder(MAXIS_case_number)
 
-DO
-    Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 211, 60, "Confirm MAXIS Case Number"
-      EditBox 140, 10, 65, 15, MAXIS_case_number
-      ButtonGroup ButtonPressed
-        OkButton 105, 40, 50, 15
-        CancelButton 155, 40, 50, 15
-      Text 10, 15, 125, 10, "Please enter a case number to copy:"
-    EndDialog
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 211, 60, "Confirm MAXIS Case Number"
+  EditBox 140, 10, 65, 15, MAXIS_case_number
+  ButtonGroup ButtonPressed
+    OkButton 105, 40, 50, 15
+    CancelButton 155, 40, 50, 15
+  Text 10, 15, 125, 10, "Please enter a case number to copy:"
+EndDialog
 
-    DIALOG Dialog1
-    cancel_confirmation
-	IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "Please enter a valid MAXIS case number."
-LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
+Do
+    Do
+        DIALOG Dialog1
+        cancel_confirmation
+	    Call validate_MAXIS_case_number(err_msg, "*" )
+    LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
+CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 '...and now we burgle...
 back_to_SELF
 CALL find_variable("Environment: ", maxis_enviro, 5)
+'Dealing with the client's name...
+IF maxis_enviro = "PRODU" OR maxis_enviro = "INQUI" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & vbNewLine & "You are not running this in the training region. The script will ask for member names to ensure the privacy of the real cases you are copying.", vbInformation + vbSystemModal, "Reality Detected"
 
 'navigating to MEMB...
 'the script is going to grab the REF number, the date of birth, the age, gender, etc from MEMB
@@ -350,9 +345,6 @@ client_array = client_array & "END"
 client_array = replace(client_array, ",END", "")
 client_array = split(client_array, ",")
 
-'Dealing with the client's name...
-IF maxis_enviro = "PRODU" OR maxis_enviro = "INQUI" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & vbNewLine & "You are not running this in the training region. The script will ask for member names to ensure the privacy of the real cases you are copying.", vbInformation + vbSystemModal, "Reality Detected"
-
 'Grabbing client names...if we are in training
 REDIM client_multi_array(ubound(client_array), 3)
 client_position = 0
@@ -375,49 +367,50 @@ IF maxis_enviro = "TRAIN" THEN
 	NEXT
 END IF
 
+'resizing this dialog depending on the number of peeps
+dlg_height = 100 + (ubound(client_array) * 20)
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 246, dlg_height, "Name and APPL Info"
+  DropListBox 60, 35, 65, 15, "Select one:"+chr(9)+"CM"+chr(9)+"CM -1"+chr(9)+"CM -2"+chr(9)+"CM -3"+chr(9)+"CM -4"+chr(9)+"CM -5", appl_month
+  EditBox 185, 30, 30, 15, appl_day
+  Text 10, 35, 45, 10, "APPL Month:"
+  Text 10, 55, 35, 10, "Ref Num"
+  Text 70, 55, 65, 10, "First Name"
+  Text 140, 55, 15, 10, "M.I."
+  Text 170, 55, 65, 10, "Last Name"
+  Text 140, 35, 35, 10, "APPL Day:"
+  dlg_row = 70
+  FOR i = 0 TO ubound(client_array)
+    Text 10, dlg_row, 35, 10, client_multi_array(i, 0)
+    EditBox 65, dlg_row, 70, 15, client_multi_array(i, 3)
+    EditBox 140, dlg_row, 20, 15, client_multi_array(i, 2)
+    EditBox 170, dlg_row, 70, 15, client_multi_array(i, 1)
+    dlg_row = dlg_row + 20
+  NEXT
+  ButtonGroup ButtonPressed
+    OkButton 5, 10, 50, 15
+    CancelButton 55, 10, 50, 15
+EndDialog
+
 'gathering/confirming the clients' names and getting APPL information
 DO
-	err_msg = ""
-
-	'resizing this dialog depending on the number of peeps
-	dlg_height = 100 + (ubound(client_array) * 20)
-
-	Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 246, dlg_height, "Name and APPL Info"
-      DropListBox 60, 35, 65, 15, "Select one:"+chr(9)+"CM"+chr(9)+"CM -1"+chr(9)+"CM -2"+chr(9)+"CM -3"+chr(9)+"CM -4"+chr(9)+"CM -5", appl_month
-	  EditBox 185, 30, 30, 15, appl_day
-	  Text 10, 35, 45, 10, "APPL Month:"
-      Text 10, 55, 35, 10, "Ref Num"
-      Text 70, 55, 65, 10, "First Name"
-      Text 140, 55, 15, 10, "M.I."
-      Text 170, 55, 65, 10, "Last Name"
-      Text 140, 35, 35, 10, "APPL Day:"
-      dlg_row = 70
-	  FOR i = 0 TO ubound(client_array)
-		Text 10, dlg_row, 35, 10, client_multi_array(i, 0)
-		EditBox 65, dlg_row, 70, 15, client_multi_array(i, 3)
-		EditBox 140, dlg_row, 20, 15, client_multi_array(i, 2)
-		EditBox 170, dlg_row, 70, 15, client_multi_array(i, 1)
-		dlg_row = dlg_row + 20
-	  NEXT
-	  ButtonGroup ButtonPressed
-        OkButton 5, 10, 50, 15
-        CancelButton 55, 10, 50, 15
-	EndDialog
-
-	'calling the dialog
-	DIALOG Dialog1
-	cancel_confirmation
-	'validating the data
-	IF appl_month = "Select one:" THEN err_msg = err_msg & vbCr & "* Please select an APPL month."
-	IF appl_day = "" OR IsNumeric(appl_day) = FALSE THEN  err_msg = err_msg & vbCr & "* Please enter a numeric APPL day."
-	FOR i = 0 TO ubound(client_array)
-		IF client_multi_array(i, 3) = "" THEN err_msg = err_msg & vbCr & "* Please enter a first name for member " & client_multi_array(i, 0) & "."
-		IF client_multi_array(i, 2) = "" THEN err_msg = err_msg & vbCr & "* Please enter a middle initial for member " & client_multi_array(i, 0) & "."
-		IF client_multi_array(i, 1) = "" THEN err_msg = err_msg & vbCr & "* Please enter a last name for member " & client_multi_array(i, 0) & "."
-	NEXT
-	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue.", vbInformation + vbSystemModal, "Critical Error"
-LOOP UNTIL ButtonPressed = -1 AND err_msg = ""
+	DO
+	    err_msg = ""
+	    DIALOG Dialog1 'calling the dialog
+	    cancel_confirmation
+	    'validating the data
+	    IF appl_month = "Select one:" THEN err_msg = err_msg & vbCr & "* Please select an APPL month."
+	    IF appl_day = "" OR IsNumeric(appl_day) = FALSE THEN  err_msg = err_msg & vbCr & "* Please enter a numeric APPL day."
+	    FOR i = 0 TO ubound(client_array)
+	    	IF client_multi_array(i, 3) = "" THEN err_msg = err_msg & vbCr & "* Please enter a first name for member " & client_multi_array(i, 0) & "."
+	    	IF client_multi_array(i, 2) = "" THEN err_msg = err_msg & vbCr & "* Please enter a middle initial for member " & client_multi_array(i, 0) & "."
+	    	IF client_multi_array(i, 1) = "" THEN err_msg = err_msg & vbCr & "* Please enter a last name for member " & client_multi_array(i, 0) & "."
+	    NEXT
+	    IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue.", vbInformation + vbSystemModal, "Critical Error"
+    LOOP UNTIL ButtonPressed = -1 AND err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 CALL check_for_MAXIS(false)
 

@@ -52,12 +52,10 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'Checks for county info from global variables, or asks if it is not already defined.
-get_county_code
-
 'THE SCRIPT-------------------------------------------------------------------------
 'Connects to BlueZone
 EMConnect ""
+get_county_code 'Checks for county info from global variables, or asks if it is not already defined.
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 218, 120, "Pull REPT data into Excel dialog"
@@ -73,14 +71,22 @@ BeginDialog Dialog1, 0, 0, 218, 120, "Pull REPT data into Excel dialog"
 EndDialog
 
 'Shows dialog
-Dialog dialog1
-cancel_without_confirmation
+Do
+	Do
+  		err_msg = ""
+  		dialog Dialog1
+  		cancel_without_confirmation
+  		If trim(worker_number) = "" and all_workers_check = 0 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases."
+  		If trim(worker_number) <> "" and all_workers_check = 1 then err_msg = err_msg & vbNewLine & "* Select a worker number(s) or all cases, not both options."
+  	  	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+  	LOOP until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+Loop until are_we_passworded_out = false					'loops until user passwords back in
+
+Call check_for_MAXIS(False) 'Checking for MAXIS
 
 'Starting the query start time (for the query runtime at the end)
 query_start_time = timer
-
-'Checking for MAXIS
-Call check_for_MAXIS(True)
 
 'Opening the Excel file
 Set objExcel = CreateObject("Excel.Application")
@@ -161,7 +167,7 @@ all_case_numbers_array = "*"
 
 For each worker in worker_array
 	back_to_self	'Does this to prevent "ghosting" where the old info shows up on the new screen for some reason
-	Call navigate_to_MAXIS_screen("rept", "mfcm")
+	Call navigate_to_MAXIS_screen("REPT", "MFCM")
 	EMWriteScreen worker, 21, 13
 	transmit
 
