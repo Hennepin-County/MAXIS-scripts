@@ -64,7 +64,7 @@ Do
 		'Do
 			DO
 				Dialog Dialog1
-				If buttonpressed = 0 then stopscript
+				Cancel_without_confirmation
 				IF worker_signature = "" THEN MsgBox "Please sign your note."
 				IF actions_taken = "" then MsgBox "Please enter your actions taken."
 			Loop until worker_signature <> "" AND actions_taken <> ""
