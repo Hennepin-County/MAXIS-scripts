@@ -208,23 +208,35 @@ const use_actual        = 1
 const use_estimate      = 2
 
 'Constants for the array that handles each income - LIST_OF_INCOME_ARRAY
-const panel_indct           = 0
-const pay_date              = 1
-const gross_amount          = 2
-const hours                 = 3
-const budget_in_SNAP_yes    = 4
-const budget_in_SNAP_no     = 5
-const reason_to_exclude     = 6
-const exclude_amount        = 7
-const check_order           = 8
-const view_pay_date         = 9
-const frequency_issue       = 10
-const future_check          = 11
-const duplct_pay_date       = 12
-const reason_amt_excluded   = 13
-const split_pay_detail_btn	= 14
-const bonus_check_checkbox	= 15
-const last_const_inc_array 	= 20
+const panel_indct           		= 0
+const pay_date              		= 1
+const gross_amount          		= 2
+const hours                 		= 3
+const budget_in_SNAP_yes    		= 4
+const budget_in_SNAP_no     		= 5
+const reason_to_exclude     		= 6
+const exclude_amount        		= 7
+const check_order           		= 8
+const view_pay_date         		= 9
+const frequency_issue       		= 10
+const future_check          		= 11
+const duplct_pay_date       		= 12
+const reason_amt_excluded   		= 13
+const split_pay_detail_btn			= 14
+const bonus_check_checkbox			= 15
+const pay_split_regular_amount		= 16
+const pay_split_bonus_amount 		= 17
+const pay_split_ot_amount 			= 18
+const pay_split_shift_diff_amount 	= 19
+const pay_split_tips_amount 		= 20
+const pay_split_other_amount 		= 21
+const pay_split_other_detail 		= 22
+const pay_excld_bonus_checkbox		= 23
+const pay_excld_ot_checkbox			= 24
+const pay_excld_shift_diff_checkbox	= 25
+const pay_excld_tips_checkbox		= 26
+const pay_excld_other_checkbox		= 27
+const last_const_inc_array 			= 28
 
 'Constants for the array of the cash months - CASH_MONTHS_ARRAY
 Const cash_mo_yr    = 1
@@ -276,6 +288,7 @@ confirm_grh_budget_tips_and_tricks_btn	= 506
 open_button								= 601
 plus_button								= 602
 minus_button							= 603
+clear_btn								= 604
 
 '===========================================================================================================================
 
@@ -1229,7 +1242,7 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
 										PushButton 5, 50, 15, 15, "!", listing_checks_tips_and_tricks_btn
 										PushButton 5, (dlg_factor * 20) + 95, 15, 15, "+", add_another_check
                                         PushButton 25, (dlg_factor * 20) + 95, 15, 15, "-", take_a_check_away
-										PushButton 45, (dlg_factor * 20) + 95, 300, 13, "Insert Check using YTD caclulation from surrounding checks", ytd_calculator_btn
+										PushButton 45, (dlg_factor * 20) + 95, 200, 13, "Insert Check using YTD caclulation from surrounding checks", ytd_calculator_btn
 										PushButton 5, (dlg_factor * 20) + 120, 15, 15, "!", list_all_checks_tips_and_checks_btn
 										PushButton 525, (dlg_factor * 20) + 95, 15, 15, "!", initial_month_tips_and_tricks_btn
                                         OkButton 710, (dlg_factor * 20) + 120, 50, 15
@@ -1260,11 +1273,15 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     actual_checks_provided = FALSE      'defaults for some logic coming up
                                     there_are_counted_checks = FALSE
                                     all_pay_in_app_month = TRUE
+									split_pay_btn_pressed = False
                                     For all_income = 0 to UBound(LIST_OF_INCOME_ARRAY, 2)
 										LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income)
                                         LIST_OF_INCOME_ARRAY(pay_date, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_date, all_income))           'formatting the information'
                                         LIST_OF_INCOME_ARRAY(gross_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(gross_amount, all_income))
                                         LIST_OF_INCOME_ARRAY(hours, all_income) = trim(LIST_OF_INCOME_ARRAY(hours, all_income))
+										If ButtonPressed = LIST_OF_INCOME_ARRAY(split_pay_detail_btn, all_income) Then split_pay_btn_pressed = True
+
+
                                         If LIST_OF_INCOME_ARRAY(panel_indct, all_income) = ei_panel AND (LIST_OF_INCOME_ARRAY(pay_date, all_income) <> "" OR LIST_OF_INCOME_ARRAY(gross_amount, all_income) <> "" OR LIST_OF_INCOME_ARRAY(hours, all_income) <> "") Then
                                             actual_checks_provided = TRUE           'this helps us know what functionality to use a little later
                                             If LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = unchecked Then there_are_counted_checks = TRUE
@@ -1307,6 +1324,196 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                                 total_hours = total_hours + LIST_OF_INCOME_ARRAY(hours, all_income)
                                                 total_checks = total_checks + 1
                                             End If
+
+											If IsNumeric(LIST_OF_INCOME_ARRAY(gross_amount, all_income)) = FALSE and ButtonPressed = LIST_OF_INCOME_ARRAY(split_pay_detail_btn, all_income) Then
+												sm_err_msg = sm_err_msg & vbNewLine & "* Split Pay Information cannot be entered until the Gross Pay for the check has been entered as an amount."
+												ButtonPressed = -1
+											End If
+
+											If ButtonPressed = LIST_OF_INCOME_ARRAY(split_pay_detail_btn, all_income) Then
+												original_budget_in_SNAP_no = LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income)
+												original_reason_to_exclude = LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income)
+												original_exclude_amount = LIST_OF_INCOME_ARRAY(exclude_amount, all_income)
+												original_reason_amt_excluded = LIST_OF_INCOME_ARRAY(reason_amt_excluded, all_income)
+
+												Do
+													LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) & ""
+													split_dlg_err_msg = ""
+													Dialog1 = ""
+													BeginDialog Dialog1, 0, 0, 276, 235, "Gross Pay Split"
+													ButtonGroup ButtonPressed
+														EditBox 65, 60, 50, 15, LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income)
+														EditBox 85, 80, 50, 15, LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income)
+														CheckBox 145, 85, 115, 10, "Exclude the Bonus Pay Portion", LIST_OF_INCOME_ARRAY(pay_excld_bonus_checkbox, all_income)
+														EditBox 85, 100, 50, 15, LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income)
+														CheckBox 145, 105, 115, 10, "Exclude the OT Pay Portion", LIST_OF_INCOME_ARRAY(pay_excld_ot_checkbox, all_income)
+														EditBox 85, 120, 50, 15, LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income)
+														CheckBox 145, 125, 120, 10, "Exclude the Shift Diff. Pay Portion", LIST_OF_INCOME_ARRAY(pay_excld_shift_diff_checkbox, all_income)
+														EditBox 85, 140, 50, 15, LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income)
+														CheckBox 145, 145, 115, 10, "Exclude the Tips Pay Portion", LIST_OF_INCOME_ARRAY(pay_excld_tips_checkbox, all_income)
+														EditBox 85, 160, 50, 15, LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income)
+														CheckBox 145, 165, 115, 10, "Exclude the Other Pay Portion", LIST_OF_INCOME_ARRAY(pay_excld_other_checkbox, all_income)
+														EditBox 85, 190, 125, 15, LIST_OF_INCOME_ARRAY(pay_split_other_detail, all_income)
+														OkButton 220, 215, 50, 15
+														PushButton 220, 10, 50, 15, "Clear", clear_btn
+														' CancelButton 220, 215, 50, 15
+														Text 10, 10, 85, 10, "Pay Date: " & LIST_OF_INCOME_ARRAY(pay_date, all_income)
+														Text 10, 20, 95, 10, "Gross Amount: $ " & LIST_OF_INCOME_ARRAY(gross_amount, all_income)
+														Text 10, 30, 50, 10, "Hours: " & LIST_OF_INCOME_ARRAY(hours, all_income)
+														GroupBox 10, 45, 260, 165, "Pay Amounts Details"
+														Text 15, 65, 50, 10, "Regular Pay:"
+														Text 55, 85, 25, 10, "Bonus:"
+														Text 45, 105, 35, 10, "Overtime:"
+														Text 25, 125, 60, 10, "Shift Differential:"
+														Text 60, 145, 20, 10, "Tips:"
+														Text 55, 165, 25, 10, "Other:"
+														Text 85, 180, 105, 10, "Explain the Other Pay Portion:"
+													EndDialog
+
+
+													dialog Dialog1
+													cancel_confirmation
+
+													total_pay_calculation = 0
+													LIST_OF_INCOME_ARRAY(gross_amount, all_income) = LIST_OF_INCOME_ARRAY(gross_amount, all_income) * 1
+
+													LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income))
+													If IsNumeric(LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income)) = True Then
+														LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income)*1
+														total_pay_calculation = total_pay_calculation + LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income)
+													Else
+														If LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income) <> "" Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* REGULAR Pay was entered but does not appear to be a valid number, please review."
+													End If
+
+													LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income))
+													LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income))
+													LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income))
+													LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income))
+													LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) = trim(LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income))
+
+													If IsNumeric(LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income)) = True Then
+														LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income)*1
+														total_pay_calculation = total_pay_calculation + LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income)
+													Else
+														If LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) <> "" Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* BONUS Pay was entered but does not appear to be a valid number, please review."
+														If LIST_OF_INCOME_ARRAY(pay_excld_bonus_checkbox, all_income) = checked Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* Exclude BONUS Pay was checked but amount entered does not appear to be a number."
+													End If
+													If IsNumeric(LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income)) = True Then
+														LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income)*1
+														total_pay_calculation = total_pay_calculation + LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income)
+													Else
+														If LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) <> "" Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* OVERTIME Pay was entered but does not appear to be a valid number, please review."
+														If LIST_OF_INCOME_ARRAY(pay_excld_ot_checkbox, all_income) = checked Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* Exclude OVERTIME Pay was checked but amount entered does not appear to be a number."
+													End If
+													If IsNumeric(LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income)) = True Then
+														LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income)*1
+														total_pay_calculation = total_pay_calculation + LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income)
+													Else
+														If LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) <> "" Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* SHIFT DIFFERENTIAL Pay was entered but does not appear to be a valid number, please review."
+														If LIST_OF_INCOME_ARRAY(pay_excld_shift_diff_checkbox, all_income) = checked Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* Exclude SHIFT DIFFERENTIAL Pay was checked but amount entered does not appear to be a number."
+													End If
+													If IsNumeric(LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income)) = True Then
+														LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income)*1
+														total_pay_calculation = total_pay_calculation + LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income)
+													Else
+														If LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income) <> "" Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* TIPS Pay was entered but does not appear to be a valid number, please review."
+														If LIST_OF_INCOME_ARRAY(pay_excld_tips_checkbox, all_income) = checked Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* Exclude TIPS Pay was checked but amount entered does not appear to be a number."
+													End If
+													If IsNumeric(LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income)) = True Then
+														LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income)*1
+														total_pay_calculation = total_pay_calculation + LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income)
+														If trim(LIST_OF_INCOME_ARRAY(pay_split_other_detail, all_income)) = "" Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "An amount was listed in OTHER Pay but no detail was entered into the explanation of what OTHER is. Update the explanation."
+													Else
+														If LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) <> "" Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* OTHER (" & LIST_OF_INCOME_ARRAY(pay_split_other_detail, all_income) & ") Pay was entered but does not appear to be a valid number, please review."
+														If LIST_OF_INCOME_ARRAY(pay_excld_other_checkbox, all_income) = checked Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* Exclude OTHER (" & LIST_OF_INCOME_ARRAY(pay_split_other_detail, all_income) & ") Pay was checked but amount entered does not appear to be a number."
+													End If
+													If total_pay_calculation <> LIST_OF_INCOME_ARRAY(gross_amount, all_income) Then split_dlg_err_msg = split_dlg_err_msg & vbCr & "* The pay entered in the split pay information does not match the gross pay amount entered. Update the numbers on the pay splits, or press the 'Clear' button to cancel the split pay functionality and return to the main Paycheck Received dialog to update the Gross Pay amount."
+
+													If ButtonPressed = clear_btn Then
+														' split_dlg_err_msg = "SKIP"
+														LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income) = ""
+														LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) = ""
+														LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) = ""
+														LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) = ""
+														LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income) = ""
+														LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) = ""
+														LIST_OF_INCOME_ARRAY(pay_split_other_detail, all_income) = ""
+
+														LIST_OF_INCOME_ARRAY(pay_excld_bonus_checkbox, all_income) = unchecked
+														LIST_OF_INCOME_ARRAY(pay_excld_ot_checkbox, all_income) = unchecked
+														LIST_OF_INCOME_ARRAY(pay_excld_shift_diff_checkbox, all_income) = unchecked
+														LIST_OF_INCOME_ARRAY(pay_excld_tips_checkbox, all_income) = unchecked
+														LIST_OF_INCOME_ARRAY(pay_excld_other_checkbox, all_income) = unchecked
+
+														LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = original_budget_in_SNAP_no
+														LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income) = original_reason_to_exclude
+														LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = original_exclude_amount
+														LIST_OF_INCOME_ARRAY(reason_amt_excluded, all_income) = original_reason_amt_excluded
+													ElseIf split_dlg_err_msg = "" Then
+														exclusion_calculation = 0
+														exclusion_info = ""
+														If LIST_OF_INCOME_ARRAY(pay_excld_bonus_checkbox, all_income) = checked Then
+															exclusion_calculation = exclusion_calculation + LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income)
+															exclusion_info = exclusion_info & "$" & LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) & " excluded as it is Bonus Pay and not anticipated regularly. "
+														End If
+														If LIST_OF_INCOME_ARRAY(pay_excld_ot_checkbox, all_income) = checked Then
+															exclusion_calculation = exclusion_calculation + LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income)
+															exclusion_info = exclusion_info & "$" & LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) & " excluded as it is Overtime Pay and not anticipated regularly. "
+														End If
+														If LIST_OF_INCOME_ARRAY(pay_excld_shift_diff_checkbox, all_income) = checked Then
+															exclusion_calculation = exclusion_calculation + LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income)
+															exclusion_info = exclusion_info & "$" & LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) & " excluded as it is Shift Differential Pay and not anticipated regularly. "
+														End If
+														If LIST_OF_INCOME_ARRAY(pay_excld_tips_checkbox, all_income) = checked Then
+															exclusion_calculation = exclusion_calculation + LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income)
+															exclusion_info = exclusion_info & "$" & LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income) & " excluded as it is Tip Pay and not anticipated regularly. "
+														End If
+														If LIST_OF_INCOME_ARRAY(pay_excld_other_checkbox, all_income) = checked Then
+															exclusion_calculation = exclusion_calculation + LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income)
+															exclusion_info = exclusion_info & "$" & LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) & " excluded as it is Other (" & LIST_OF_INCOME_ARRAY(pay_split_other_detail, all_income) & ") Pay and not anticipated regularly. "
+														End If
+
+
+														If exclusion_calculation = LIST_OF_INCOME_ARRAY(gross_amount, all_income) Then
+															If LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) = LIST_OF_INCOME_ARRAY(gross_amount, all_income) Then
+																LIST_OF_INCOME_ARRAY(bonus_check_checkbox, all_income) = checked
+															Else
+																LIST_OF_INCOME_ARRAY(budget_in_SNAP_no, all_income) = checked
+																LIST_OF_INCOME_ARRAY(reason_to_exclude, all_income) = exclusion_info
+															End If
+														Else
+															LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = exclusion_calculation
+															LIST_OF_INCOME_ARRAY(reason_amt_excluded, all_income) = exclusion_info
+														End If
+
+													End If
+
+
+													LIST_OF_INCOME_ARRAY(gross_amount, all_income) = LIST_OF_INCOME_ARRAY(gross_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(exclude_amount, all_income) = LIST_OF_INCOME_ARRAY(exclude_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_regular_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_bonus_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_ot_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_shift_diff_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_tips_amount, all_income) & ""
+													LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) = LIST_OF_INCOME_ARRAY(pay_split_other_amount, all_income) & ""
+
+
+													If split_dlg_err_msg <> "" Then MsgBox "Please resolve before continuing:" & vbNewLine & split_dlg_err_msg
+												Loop until split_dlg_err_msg = ""
+												sm_err_msg = "LOOP" & sm_err_msg
+											End If
+
+											If LIST_OF_INCOME_ARRAY(bonus_check_checkbox, all_income) = checked Then
+											End If
+
+
+
                                         End If
                                     Next
 
@@ -1356,7 +1563,8 @@ For ei_panel = 0 to UBOUND(EARNED_INCOME_PANELS_ARRAY, 2)       'looping through
                                     'the income needs to apply to at least one program
                                     If EARNED_INCOME_PANELS_ARRAY(apply_to_SNAP, ei_panel) = unchecked AND EARNED_INCOME_PANELS_ARRAY(apply_to_CASH, ei_panel) = unchecked AND EARNED_INCOME_PANELS_ARRAY(apply_to_HC, ei_panel) = unchecked AND EARNED_INCOME_PANELS_ARRAY(apply_to_GRH, ei_panel) = unchecked Then sm_err_msg = sm_err_msg & vbNewLine & "* No programs have been selected that this icnome applies to. Chose at least one program that this income is budgeted for."
                                     EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel) = trim(EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel))
-                                    If EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel) = "" Then sm_err_msg = sm_err_msg & "* Enter the date the pay information was received in the agency."
+                                    If EARNED_INCOME_PANELS_ARRAY(verif_date, ei_panel) = "" Then sm_err_msg = sm_err_msg & vbNewLine & "* Enter the date the pay information was received in the agency."
+									If split_pay_btn_pressed = True and Left(sm_err_msg, 4) <> "LOOP" Then sm_err_msg = sm_err_msg & vbNewLine & "* Button was pressed to enter Split Pay information, but suffiencent detail was not entered into the paycheck to enter split pay information."
 
                                     If ButtonPressed = add_another_check Then       'functionality to add another check to the dialog using the '+' button
                                         pay_item = pay_item + 1     'incrementing the counter
