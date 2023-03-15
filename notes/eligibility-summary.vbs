@@ -4395,7 +4395,7 @@ function dwp_elig_case_note()
 			' 	End If
 			' Next
 		Next
-		If MFIP_ELIG_APPROVALS(elig_ind).mfip_unearned_income_exists = False Then Call write_variable_in_CASE_NOTE(" NO UNEARNED Income                 | (-)        Unearned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income, 8))
+		' If MFIP_ELIG_APPROVALS(elig_ind).mfip_unearned_income_exists = False Then Call write_variable_in_CASE_NOTE(" NO UNEARNED Income                 | (-)        Unearned Income: $ " & right("        "&MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_unearned_income, 8))
 		If unea_found = False then Call write_variable_in_CASE_NOTE("NO Unearned Income                  |            Unearned Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income, 8))
 
 
