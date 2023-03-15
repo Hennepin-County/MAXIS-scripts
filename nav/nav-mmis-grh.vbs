@@ -68,7 +68,7 @@ If MAXIS_case_number = "" then
         DO
             err_msg = ""							'establishing value of variable, this is necessary for the Do...LOOP
             dialog Dialog1				'main dialog
-            If buttonpressed = 0 THEN stopscript	'script ends if cancel is selected
+            Cancel_without_confirmation
             IF len(MAXIS_case_number) > 8 or isnumeric(MAXIS_case_number) = false THEN err_msg = err_msg & vbCr & "Enter a valid case number."		'mandatory field
             IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         LOOP UNTIL err_msg = ""									'loops until all errors are resolved

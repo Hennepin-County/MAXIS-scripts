@@ -80,7 +80,7 @@ EndDialog
 
 Do
 	dialog Dialog1
-	If ButtonPressed = 0 then StopScript
+	Cancel_without_confirmation
 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 

@@ -74,7 +74,7 @@ DO
 	DO
 		err_msg = ""
 		Dialog update_banked_month_status_dialog
-		If ButtonPressed = 0 then StopScript
+		Cancel_without_confirmation
 		If month_selection = "Select one..." then err_msg = err_msg & vbNewLine & "* Please select the status month to update."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	LOOP until err_msg = ""

@@ -70,12 +70,12 @@ DO
     DO
     	err_msg = ""
     	Dialog Dialog1
+        Cancel_without_confirmation
     	IF MAXIS_case_number = "" THEN err_msg = err_msg & vbCr & "Please enter a case number"
     	IF isdate(closure_date) = false THEN err_msg = err_msg & vbCr & "You must enter a valid MFIP closure date."
     	IF isdate(closure_date) = true THEN
     		IF datepart("d", dateadd("d", 1, closure_date)) <> 1 THEN err_msg = err_msg & vbCr & "The MFIP closure date should equal the last day of the month."
     	END IF
-    	IF buttonpressed = 0 then stopscript
     	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbCr & err_msg & vbCr & vbCr & "Please resolve for the script to continue."
     LOOP Until err_msg = ""
 LOOP UNTIL are_we_passworded_out = false

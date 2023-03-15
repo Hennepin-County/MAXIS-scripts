@@ -78,7 +78,7 @@ Do
 	Do
   		err_msg = ""
   		Dialog Dialog1
-  		If ButtonPressed = 0 then stopscript
+  		cancel_without_confirmation
   		If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
   		If IsNumeric(member_number) = False or len(member_number) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid member number."
 		If isDate(effective_date) = False then err_msg = err_msg & vbNewLine & "* Enter a valid effective date."

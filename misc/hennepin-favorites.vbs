@@ -832,7 +832,7 @@ FUNCTION favorite_menu(favorites_text_file_string, script_to_run)
     	DIALOG Dialog1
 
     	'>>> Cancelling the script if ButtonPressed = 0
-    	IF ButtonPressed = 0 THEN stopscript
+    	Cancel_without_confirmation
 
         If ButtonPressed = hot_topics_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Economic_Supports_ES_Zone.aspx"
 

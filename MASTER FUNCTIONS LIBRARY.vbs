@@ -8476,7 +8476,7 @@ function HH_member_custom_dialog(HH_member_array)
 	ENDDIALOG
 													'runs the dialog that has been dynamically created. Streamlined with new functions.
 	Dialog HH_memb_dialog
-	If buttonpressed = 0 then stopscript
+	Cancel_without_confirmation
 	check_for_maxis(True)
 
 	HH_member_array = ""

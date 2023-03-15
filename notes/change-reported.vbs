@@ -79,7 +79,7 @@ Do
     Do
 	    err_msg = ""
 	    DIALOG Dialog1
-	    IF ButtonPressed = 0 THEN stopscript
+	    Cancel_without_confirmation
 	    IF MAXIS_case_number = "" OR (MAXIS_case_number <> "" AND len(MAXIS_case_number) > 8) OR (MAXIS_case_number <> "" AND IsNumeric(MAXIS_case_number) = False) THEN err_msg = err_msg & vbCr & "* Please enter a valid case number."
 	    IF nature_change = "Select One:" THEN err_msg = err_msg & vbCr & "* Please select the type of change reported."
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
