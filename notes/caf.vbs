@@ -5600,10 +5600,20 @@ If vars_filled = False Then
 				If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_CASH_untrack = True
 			End If
 			If grh_case = True Then
-				the_process_for_grh = "Recertification"
-				grh_recert_mo = MAXIS_footer_month
-				grh_recert_yr = MAXIS_footer_year
-				If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_GRH_untrack = True
+				the_review_is_ER = False
+				EMReadScreen next_revw_process, 2, 9, 46
+				If next_revw_process = "SR" Then the_review_is_ER = True
+				If next_revw_process = "ER" Then
+					Call write_value_and_transmit("X", 5, 35)
+					EMReadScreen sr_date_month, 2, 9, 26
+					If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
+				End If
+				If the_review_is_ER = True Then
+					the_process_for_grh = "Recertification"
+					grh_recert_mo = MAXIS_footer_month
+					grh_recert_yr = MAXIS_footer_year
+					If (cash_revw_code = "I" or cash_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_GRH_untrack = True
+				End If
 			End If
 			If mfip_case = True Then snap_with_mfip = True
 			If processing_footer_month = "" Then
@@ -5612,15 +5622,25 @@ If vars_filled = False Then
 			End If
 		End If
 		If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
-			get_dates = True
-			snap_with_mfip = False
-			the_process_for_snap = "Recertification"
-			snap_recert_mo = MAXIS_footer_month
-			snap_recert_yr = MAXIS_footer_year
-			If (snap_revw_code = "I" or snap_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_SNAP_untrack = True
-			If processing_footer_month = "" Then
-				processing_footer_month = MAXIS_footer_month
-				processing_footer_year = MAXIS_footer_year
+			the_review_is_ER = False
+			EMReadScreen next_revw_process, 2, 9, 66
+			If next_revw_process = "SR" Then the_review_is_ER = True
+			If next_revw_process = "ER" Then
+				Call write_value_and_transmit("X", 5, 58)
+				EMReadScreen sr_date_month, 2, 9, 26
+				If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
+			End If
+			If the_review_is_ER = True Then
+				get_dates = True
+				snap_with_mfip = False
+				the_process_for_snap = "Recertification"
+				snap_recert_mo = MAXIS_footer_month
+				snap_recert_yr = MAXIS_footer_year
+				If (snap_revw_code = "I" or snap_revw_code = "A") and MAXIS_footer_month <> CM_plus_1_mo Then allow_SNAP_untrack = True
+				If processing_footer_month = "" Then
+					processing_footer_month = MAXIS_footer_month
+					processing_footer_year = MAXIS_footer_year
+				End If
 			End If
 		End If
 		If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" Then
@@ -6274,6 +6294,10 @@ If vars_filled = False Then
 	'This script is to support work after the interview and is not built to support the intervieww. Script will end if interview date is not found.
 		end_early_mgs = "This script (NOTES - CAF) does not support details about an interview and should only be run once STAT panels are updated."
 		end_early_mgs = end_early_mgs & vbCr & vbCr & "The script could not find details about the interview date. Update PROG or REVW with the correct interview date. Ensure all other STAT panels are updated and run NOTES - CAF again to document details about the information entered into STAT."
+		end_early_mgs = end_early_mgs & vbCr & vbCr & "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *"
+		If CAF_datestamp = "" Then end_early_mgs = end_early_mgs & vbCr & vbCr & "FORM DATE HAS NOT BEEN ENTERED."
+		If interview_required = True and interview_date = "" Then end_early_mgs = end_early_mgs & vbCr & vbCr & "INTERVIEW DATE HAS NOT BEEN ENTERED, AND THE INTERVIEW IS REQUIRED."
+		end_early_mgs = end_early_mgs & vbCr & vbCr & "* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *"
 		Call script_end_procedure_with_error_report(end_early_mgs)
 	End if
 
