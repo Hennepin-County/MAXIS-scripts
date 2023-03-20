@@ -55,7 +55,6 @@ changelog_display
 '----------------------------------------------------------------------------------------------------The script
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-HC_process = "Application"  'Defaulting - This is only viable option currently
 closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."  'initial closing message. This may increment based on options selected.
 get_county_code
 Call Check_for_MAXIS(False)
@@ -88,7 +87,7 @@ BeginDialog Dialog1, 0, 0, 186, 85, "AVS Initial Selection Dialog"
   ButtonGroup ButtonPressed
   PushButton 135, 10, 10, 15, "!", initial_help_button
   DropListBox 75, 30, 105, 15, "Select one..."+chr(9)+"AVS Forms"+chr(9)+"AVS Submission/Results", initial_option
-  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Renewal", HC_process
+  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change In Basis"+chr(9)+"Renewal", HC_process
   ButtonGroup ButtonPressed
     OkButton 75, 65, 40, 15
     CancelButton 120, 65, 40, 15
@@ -114,8 +113,6 @@ DO
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-If HC_process = "Renewal" then script_end_procedure("The AVS system is not required at renewals at this time. The script will now end.") 'Issue #311 will address this
 
 MAXIS_background_check
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
