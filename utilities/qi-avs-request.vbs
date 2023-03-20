@@ -151,9 +151,7 @@ const client_last_name_const        = 3 '=  Last Name MEMB
 const client_mid_name_const    	    = 4 '=  Middle initial MEMB
 const client_DOB_const   		    = 5 '=  Date of Birth MEMB
 const client_ssn_const		        = 6 '=  SSN
-const client_age_const	            = 7 '=  age MEMB
-const client_sex_const			    = 8 '=  client sex
-const marital_status_const          = 9 '=  marital status
+const marital_status_const          = 7 '=  marital status
 
 FOR EACH person IN HH_member_array
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
@@ -173,12 +171,6 @@ FOR EACH person IN HH_member_array
     EMReadscreen client_SSN, 11, 7, 42
     If client_ssn = "___ __ ____" then client_ssn = ""
 
-    EMReadScreen client_age, 2, 8, 76
-    IF client_age = "  " THEN client_age = 0
-    client_age = client_age * 1
-
-	EMReadScreen client_sex, 1, 9, 42
-
     CALL navigate_to_MAXIS_screen("STAT", "MEMI")
     EmReadscreen martial_status, 1, 7, 40
 
@@ -189,8 +181,6 @@ FOR EACH person IN HH_member_array
     avs_members_array(client_mid_name_const,   avs_membs) = mid_initial
     avs_members_array(client_DOB_const,        avs_membs) = client_DOB
     avs_members_array(client_ssn_const,        avs_membs) = client_SSN
-    avs_members_array(client_age_const,        avs_membs) = client_age
-	avs_members_array(client_sex_const,        avs_membs) = client_sex
     avs_members_array(marital_status_const,    avs_membs) = martial_status
     avs_membs = avs_membs + 1 ' can only be used because we havent reset or redefined this incrementor'
 	STATS_counter = STATS_counter + 1
@@ -201,25 +191,22 @@ If avs_membs = 1 then
     If avs_members_array(marital_status_const, 0) = "M" then
         If spouse_deeming = "Yes" then
             manual_spouse_entry = True
+
             Dialog1 = ""
-            BeginDialog Dialog1, 0, 0, 176, 125, "Spouse not selected/available in MAXIS"
-            EditBox 55, 5, 115, 15, spouse_first_name
-            EditBox 55, 25, 115, 15, spouse_last_name
-            EditBox 55, 45, 35, 15, spouse_mid_name
-            EditBox 120, 45, 50, 15, spouse_SSN_number
-            EditBox 55, 65, 55, 15, spouse_DOB
-            EditBox 150, 65, 20, 15, spouse_age
-            DropListBox 55, 85, 55, 15, "Select One:"+chr(9)+"Female"+chr(9)+"Male"+chr(9)+"Unknown"+chr(9)+"Undetermined", spouse_gender_dropdown
-            ButtonGroup ButtonPressed
-            OkButton 75, 105, 45, 15
-            CancelButton 125, 105, 45, 15
-            Text 5, 10, 40, 10, "First Name:"
-            Text 5, 30, 40, 10, "Last Name:"
-            Text 5, 50, 50, 10, " Middle Initial:"
-            Text 100, 50, 20, 10, "SSN:"
-            Text 5, 70, 45, 10, "Date of Birth:"
-            Text 130, 70, 15, 10, "Age:"
-            Text 20, 90, 30, 10, "Gender:"
+            BeginDialog Dialog1, 0, 0, 176, 105, "Spouse not selected/available in MAXIS"
+                EditBox 55, 5, 115, 15, spouse_first_name
+                EditBox 55, 25, 115, 15, spouse_last_name
+                EditBox 55, 45, 35, 15, spouse_mid_name
+                EditBox 120, 45, 50, 15, spouse_SSN_number
+                EditBox 55, 65, 55, 15, spouse_DOB
+                ButtonGroup ButtonPressed
+                    OkButton 75, 85, 45, 15
+                    CancelButton 125, 85, 45, 15
+                Text 10, 10, 40, 10, "First Name:"
+                Text 10, 30, 40, 10, "Last Name:"
+                Text 5, 50, 50, 10, " Middle Initial:"
+                Text 100, 50, 20, 10, "SSN:"
+                Text 5, 70, 45, 10, "Date of Birth:"
             EndDialog
 
 	        DO
@@ -229,9 +216,8 @@ If avs_membs = 1 then
 	         		cancel_confirmation
 	         		If trim(spouse_first_name) = "" then err_msg = err_msg & vbNewLine & "* Enter the spouse's first name."
 	                If trim(spouse_last_name) = "" then err_msg = err_msg & vbNewLine & "* Enter the spouse's last name."
-	                If spouse_SSN_number = "" then err_msg = err_msg & vbNewLine & "* Enter the spouse's social security number."
+	                If trim(spouse_SSN_number) = "" or len(spouse_SSN_number) < 9 then err_msg = err_msg & vbNewLine & "* Enter the spouse's 9-digit Social Security Number."
 	                If trim(spouse_DOB) = "" or isdate(spouse_DOB) = False then err_msg = err_msg & vbNewLine & "* Enter the spouse's date of birth."
-	                If spouse_gender_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Select the spouse's gender."
 	         		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 	         	LOOP UNTIL err_msg = ""
 	         	CALL check_for_password(are_we_passworded_out)
@@ -256,7 +242,6 @@ FOR avs_membs = 0 to Ubound(avs_members_array, 2) 'start at the zero person and 
     "Member #" & avs_members_array(member_number_const, avs_membs) & vbCr & _
     "DOB: " & avs_members_array(client_DOB_const, avs_membs) & vbcr & _
     "SSN: " & avs_members_array(client_ssn_const, avs_membs) & vbcr & _
-    "Gender: " & avs_members_array(client_sex_const, avs_membs) & vbcr & _
     "MEMI Marital Status: " & avs_members_array(marital_status_const, avs_membs) & vbcr
 Next
 
@@ -265,13 +250,10 @@ IF manual_spouse_entry = True then
     If trim(spouse_mid_name) <> "" then spouse_name = spouse_name & spouse_mid_name
     spouse_name = spouse_name & spouse_last_name
 
-    spouse_vital_stats = "* Spouse DOB: " & spouse_DOB & vbcr
-    If trim(spouse_age) <> "" then spouse_vital_stats = spouse_vital_stats & "* Spouse age: " & spouse_age
-
     member_info = member_info & vbcr & "Manually Entered Spouse Information (Not in MAXIS):" & vbcr & _
     "* Spouse Name: " & spouse_name & vbcr & _
-    "* Spouse SSN: " & spouse_SSN_number & vbcr & spouse_vital_stats & vbcr & _
-    "* Spouse Gender: " & spouse_gender_dropdown
+    "* Spouse SSN: " & spouse_SSN_number & vbcr & _
+    "* Spouse DOB: " & spouse_DOB & vbcr & _
 End if
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
