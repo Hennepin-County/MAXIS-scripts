@@ -5622,7 +5622,8 @@ If vars_filled = False Then
 			the_review_is_ER = False
 			EMReadScreen next_revw_process, 2, 9, 66
 			If next_revw_process = "SR" Then the_review_is_ER = True
-			If next_revw_process = "ER" Then
+			If next_revw_process = "ER" and snap_revw_code = "I" or snap_revw_code = "N" Then the_review_is_ER = True
+			If next_revw_process = "ER" and snap_revw_code = "U" or snap_revw_code = "A" Then
 				Call write_value_and_transmit("X", 5, 58)
 				EMReadScreen sr_date_month, 2, 9, 26
 				If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
@@ -5904,14 +5905,18 @@ If vars_filled = False Then
 
 	multiple_CAF_dates = False
 	multiple_interview_dates = False
+	' MsgBox "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "PROG_CAF_datestamp - " & PROG_CAF_datestamp & vbCr & "CAF_datestamp - " & CAF_datestamp & vbCr & "1"
 	If PROG_CAF_datestamp <> "" And REVW_CAF_datestamp <> "" and PROG_CAF_datestamp <> REVW_CAF_datestamp Then
 		CAF_datestamp = REVW_CAF_datestamp
 		If DateDiff("d", PROG_CAF_datestamp, REVW_CAF_datestamp) Then CAF_datestamp = PROG_CAF_datestamp
+		' MsgBox "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "PROG_CAF_datestamp - " & PROG_CAF_datestamp & vbCr & "CAF_datestamp - " & CAF_datestamp & vbCr & "2"
 		multiple_CAF_dates = True
 	Else
 		If PROG_CAF_datestamp <> "" Then CAF_datestamp = PROG_CAF_datestamp
 		If REVW_CAF_datestamp <> "" Then CAF_datestamp = REVW_CAF_datestamp
+		' MsgBox "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "PROG_CAF_datestamp - " & PROG_CAF_datestamp & vbCr & "CAF_datestamp - " & CAF_datestamp & vbCr & "3"
 	End If
+	' MsgBox "REVW_CAF_datestamp - " & REVW_CAF_datestamp & vbCr & "PROG_CAF_datestamp - " & PROG_CAF_datestamp & vbCr & "CAF_datestamp - " & CAF_datestamp & vbCr & "4"
 
 	If IsDate(PROG_interview_date) = True Then Call convert_date_into_MAXIS_footer_month(PROG_interview_date, processing_footer_month, processing_footer_year)
 	If PROG_interview_date <> "" And REVW_interview_date <> "" and PROG_interview_date <> REVW_interview_date Then
