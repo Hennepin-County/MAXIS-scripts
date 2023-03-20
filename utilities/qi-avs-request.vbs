@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/20/2023", "Added change in circumstance option, and updated email output and information gathering functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/24/2021", "GitHub Issue #583 Updates made to ensure email has information went sent to QI", "MiKayla Handley, Hennepin County")
 call changelog_update("09/08/2021", "Added date completed AVS form rec'd to dialog and reminder that completed AVS needs to be on file prior to submitting AVS request.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/30/2020", "Updated closing message.", "Ilse Ferris, Hennepin County")
@@ -196,10 +197,11 @@ FOR EACH person IN HH_member_array
 NEXT
 
 If avs_membs = 1 then
+    'If user only selects one member and that member's martial status is M and the case is spouse deeming, the user will be asked to enter this information.
     If avs_members_array(marital_status_const, 0) = "M" then
         If spouse_deeming = "Yes" then
             manual_spouse_entry = True
-
+            Dialog1 = ""
             BeginDialog Dialog1, 0, 0, 176, 125, "Spouse not selected/available in MAXIS"
             EditBox 55, 5, 115, 15, spouse_first_name
             EditBox 55, 25, 115, 15, spouse_last_name
@@ -281,44 +283,47 @@ IF send_email = TRUE THEN Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT
 
 script_end_procedure_with_error_report(closing_message)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------08/30/2021
-'--Tab orders reviewed & confirmed----------------------------------------------08/30/2021
-'--Mandatory fields all present & Reviewed--------------------------------------08/30/2021
-'--All variables in dialog match mandatory fields-------------------------------08/30/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/20/2023
+'--Tab orders reviewed & confirmed----------------------------------------------03/20/2023
+'--Mandatory fields all present & Reviewed--------------------------------------03/20/2023
+'--All variables in dialog match mandatory fields-------------------------------03/20/2023
+'Review dialog names for content and content fit in dialog----------------------03/20/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------09/09/21
-'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--All variables are CASE:NOTEing (if required)---------------------------------03/20/2023------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------03/20/2023------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/20/2023------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used 03/20/2023------------------N/A
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
-'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------08/30/2021
-'--Out-of-County handling reviewed----------------------------------------------08/30/2021
-'--script_end_procedures (w/ or w/o error messaging)----------------------------09/09/21
-'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/20/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------03/20/2023------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------03/20/2023
+'--Out-of-County handling reviewed----------------------------------------------03/20/2023------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/20/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------03/20/2023------------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------03/20/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------N/A
-'--Incrementors reviewed (if necessary)-----------------------------------------09/09/21
-'--Denomination reviewed -------------------------------------------------------N/A
-'--Script name reviewed---------------------------------------------------------08/30/2021
-'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+'--Manual time study reviewed --------------------------------------------------03/20/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------03/20/2023
+'--Denomination reviewed -------------------------------------------------------03/20/2023
+'--Script name reviewed---------------------------------------------------------03/20/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------03/20/2023------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------08/30/2021
-'--Comment Code-----------------------------------------------------------------09/09/21
-'--Update Changelog for release/update------------------------------------------09/09/21
-'--Remove testing message boxes-------------------------------------------------09/09/21
-'--Remove testing code/unnecessary code-----------------------------------------09/09/21
-'--Review/update SharePoint instructions----------------------------------------09/09/21
-'--Review Best Practices using BZS page ----------------------------------------09/09/21
-'--Review script information on SharePoint BZ Script List-----------------------09/09/21
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/09/21
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/09/21
-'--Complete misc. documentation (if applicable)---------------------------------09/09/21
-'--Update project team/issue contact (if applicable)----------------------------09/09/21
+'--Confirm all GitHub tasks are complete----------------------------------------03/20/2023
+'--comment Code-----------------------------------------------------------------03/20/2023
+'--Update Changelog for release/update------------------------------------------03/20/2023
+'--Remove testing message boxes-------------------------------------------------03/20/2023
+'--Remove testing code/unnecessary code-----------------------------------------03/20/2023
+'--Review/update SharePoint instructions----------------------------------------03/20/2023------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------03/20/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------03/20/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------03/20/2023
+'--Complete misc. documentation (if applicable)---------------------------------03/20/2023
+'--Update project team/issue contact (if applicable)----------------------------03/20/2023
