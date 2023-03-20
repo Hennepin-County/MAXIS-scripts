@@ -67,6 +67,7 @@ End Function
 
 EMConnect ""    'Connecting to BlueZone
 CALL MAXIS_case_number_finder (MAXIS_case_number) 'Grabs the case number
+Call check_for_MAXIS(FALSE)
 
 'Initial Defaults
 HC_process = "Application"
@@ -157,7 +158,6 @@ const marital_status_const          = 9 '=  marital status
 FOR EACH person IN HH_member_array
     CALL navigate_to_MAXIS_screen("STAT", "MEMB")
     CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the avs_members_array yet
-    EMReadscreen ref_nbr, 2, 4, 33
 
     EMReadscreen last_name, 25, 6, 30
     last_name = trim(replace(last_name, "_", ""))
@@ -183,7 +183,7 @@ FOR EACH person IN HH_member_array
     EmReadscreen martial_status, 1, 7, 40
 
     ReDim Preserve avs_members_array(marital_status_const, avs_membs)  'redimmed to the size of the last constant
-    avs_members_array(member_number_const,     avs_membs) = ref_nbr
+    avs_members_array(member_number_const,     avs_membs) = person
     avs_members_array(client_first_name_const, avs_membs) = first_name
     avs_members_array(client_last_name_const,  avs_membs) = last_name
     avs_members_array(client_mid_name_const,   avs_membs) = mid_initial
