@@ -128,6 +128,7 @@ application_date = replace(application_date, " ", "/")
 IF application_date = "__/__/__"  THEN script_end_procedure("*** No application date ***" & vbNewLine & "Need to have pending or active HC care to request AVS.")
 
 CALL HCRE_panel_bypass			'Function to bypass a janky HCRE panel. If the HCRE panel has fields not completed/'reds up' this gets us out of there.
+Call access_ADDR_panel("Read", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)    'reading ADDR panel informaiton for later output in email/message box
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
 
 Do
@@ -226,6 +227,7 @@ If avs_membs = 1 then
     End if
 End if
 
+'----------------------------------------------------------------------------------------------------Email/message box information
 member_info = member_info & "A signed AVS form was received for case #" & MAXIS_case_number & vbcr & vbcr & _
 "******Case Information******" & vbcr & _
 "Application Date: " & application_date & vbcr & _
@@ -246,14 +248,23 @@ FOR avs_membs = 0 to Ubound(avs_members_array, 2) 'start at the zero person and 
 Next
 
 IF manual_spouse_entry = True then
-    spouse_name = spouse_first_name
-    If trim(spouse_mid_name) <> "" then spouse_name = spouse_name & spouse_mid_name
-    spouse_name = spouse_name & spouse_last_name
-
     member_info = member_info & vbcr & "Manually Entered Spouse Information (Not in MAXIS):" & vbcr & _
-    "* Spouse Name: " & spouse_name & vbcr & _
+    "* Spouse Name: " & spouse_first_name & " " & spouse_mid_name & " " & spouse_last_name & vbcr & _
     "* Spouse SSN: " & spouse_SSN_number & vbcr & _
-    "* Spouse DOB: " & spouse_DOB & vbcr & _
+    "* Spouse DOB: " & spouse_DOB & vbcr
+End if
+
+member_info = member_info & vbcr & "******Address Info******" & vbcr & _
+"--Residential Address--" & vbcr & _
+"Line 1: " & resi_line_one & vbcr & _
+"Line 2: " & resi_line_two & vbcr & _
+resi_city & ", " & resi_state & " " & resi_zip
+
+If trim(mail_line_one) <> "" THEN
+    member_info = member_info & vbcr & vbcr & "--Mailing Address--" & vbcr & _
+    "Line 1: " & mail_line_one & vbcr & _
+    "Line 2: " & mail_line_two & vbcr & _
+    mail_city & ", " & mail_state & " " & mail_zip
 End if
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
