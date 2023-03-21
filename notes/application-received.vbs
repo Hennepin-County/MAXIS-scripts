@@ -435,7 +435,7 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs
   GroupBox 5, 5, 255, 120, "Application Information"
   DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
   '   DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
-  DropListBox 85, 60, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+"MNsure App for HC - 6696"+chr(9)+"MHCP App for Certain Populations - 3876"+chr(9)+"App for MA for LTC - 3531"+chr(9)+"MHCP App for B/C Cancer - 3523"+chr(9)+"No Application Required", application_type
+  DropListBox 85, 60, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+"SNAP App for Seniors - 5223F"+chr(9)+"MNsure App for HC - 6696"+chr(9)+"MHCP App for Certain Populations - 3876"+chr(9)+"App for MA for LTC - 3531"+chr(9)+"MHCP App for B/C Cancer - 3523"+chr(9)+"No Application Required", application_type
   '   DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
   EditBox 85, 85, 95, 15, confirmation_number
   DropListBox 85, 105, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
@@ -820,6 +820,7 @@ If how_application_rcvd = "Phone-Verbal Request" THEN how_application_rcvd = rep
 
 If application_type = "CAF - 5223" Then short_form_info = "CAF"
 If application_type = "MNbenefits CAF - 5223" Then short_form_info = "CAF from MNbenefits"
+If application_type = "SNAP App for Seniors - 5223F" Then short_form_info = "Sr SNAP App"
 If application_type = "MNsure App for HC - 6696" Then short_form_info = "MNsure HCAPP"
 If application_type = "MHCP App for Certain Populations - 3876" Then short_form_info = "HC - Certain Populations"
 If application_type = "App for MA for LTC - 3531" Then short_form_info = "LTC HCAPP"
