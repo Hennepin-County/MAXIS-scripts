@@ -425,50 +425,6 @@ IF IsDate(application_date) = False THEN
     Call script_end_procedure_with_error_report(stop_early_msg)
 End If
 
-'THIS COMMENTED OUT DIALOG IS THE DLG EDITOR FRIENDLY VERSION SINCE THERE IS LOGIC IN THE DIALOG
-'-------------------------------------------------------------------------------------------------DIALOG
-' BeginDialog Dialog1, 0, 0, 266, 335, "Application Received for: & programs_applied_for & on & date"
-'   GroupBox 5, 5, 255, 120, "Application Information"
-'   DropListBox 85, 40, 95, 15, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
-'   DropListBox 85, 60, 95, 15, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
-'   EditBox 85, 85, 95, 15, confirmation_number
-'   DropListBox 85, 105, 170, 45, "", List2
-'   Text 15, 20, 65, 10, "Date of Application:"
-'   Text 85, 20, 60, 10, "date_of_application"
-'   Text 185, 20, 65, 10, "Pending Programs:"
-'   Text 195, 35, 50, 10, "Text14"
-'   Text 195, 45, 50, 10, "Text14"
-'   Text 195, 55, 50, 10, "Text14"
-'   Text 195, 65, 50, 10, "Text14"
-'   Text 195, 75, 50, 10, "Text14"
-'   Text 10, 45, 70, 10, "Application Received:"
-'   Text 10, 65, 65, 10, "Type of Application:"
-'   Text 85, 75, 50, 10, "Confirmation #:"
-'   Text 10, 110, 70, 10, "Population/Specialty"
-'   GroupBox 5, 130, 255, 105, "Expedited Screening"
-'   EditBox 130, 145, 50, 15, income
-'   EditBox 130, 165, 50, 15, assets
-'   EditBox 130, 185, 50, 15, rent
-'   CheckBox 15, 215, 55, 10, "Heat (or AC)", heat_AC_check
-'   CheckBox 85, 215, 45, 10, "Electricity", electric_check
-'   CheckBox 140, 215, 35, 10, "Phone", phone_check
-'   Text 25, 150, 95, 10, "Income received this month:"
-'   Text 30, 170, 95, 10, "Cash, checking, or savings: "
-'   Text 30, 190, 90, 10, "AMT paid for rent/mortgage:"
-'   Text 195, 155, 60, 45, "The income, assets and shelter costs fields will default to $0 if left blank. "
-'   Text 5, 300, 60, 10, "Worker Signature:"
-'   Text 5, 280, 45, 10, "Other Notes:"
-'   ButtonGroup ButtonPressed
-'     OkButton 155, 315, 50, 15
-'     CancelButton 210, 315, 50, 15
-'   EditBox 70, 295, 190, 15, worker_signature
-'   GroupBox 10, 205, 170, 25, "Utilities claimed (check below):"
-'   GroupBox 190, 140, 65, 60, "**IMPORTANT**"
-'   CheckBox 15, 240, 220, 10, "Check here if a HH Member is active on another MAXIS Case.", Check4
-'   CheckBox 15, 255, 220, 10, "Check here if only CAF1 is completed on the application.", Check5
-'   EditBox 55, 275, 205, 15, other_notes
-' EndDialog
-
 'since this dialog has different displays for SNAP cases vs non-snap cases - there are differences in the dialog size
 dlg_len = 220
 If snap_status = "PENDING" Then dlg_len = 330
@@ -477,10 +433,10 @@ If snap_status = "PENDING" Then dlg_len = 330
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
   GroupBox 5, 5, 255, 120, "Application Information"
-  '   DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
-  DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
-  '   DropListBox 85, 60, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+"MNsure App for HC - 6696"+chr(9)+"MHCP App for Certain Populations - 3876"+chr(9)+"App for MA for LTC - 3531"+chr(9)+"MHCP App for B/C Cancer - 3523"+chr(9)+"No Application Reuired", application_type
-  DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
+  DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
+  '   DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
+  DropListBox 85, 60, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+"MNsure App for HC - 6696"+chr(9)+"MHCP App for Certain Populations - 3876"+chr(9)+"App for MA for LTC - 3531"+chr(9)+"MHCP App for B/C Cancer - 3523"+chr(9)+"No Application Required", application_type
+  '   DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
   EditBox 85, 85, 95, 15, confirmation_number
   DropListBox 85, 105, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
   Text 15, 25, 65, 10, "Date of Application:"
@@ -569,11 +525,12 @@ Do
         err_msg = ""
         Dialog Dialog1
         cancel_confirmation
-        If application_type = "MNbenefits" AND how_application_rcvd = "Select One:" Then how_application_rcvd = "Online"
+        If application_type = "MNbenefits CAF - 5223" AND how_application_rcvd = "Select One:" Then how_application_rcvd = "Online"
+		If application_type = "No Application Required" AND how_application_rcvd <> "Request to APPL Form" Then err_msg = err_msg & vbNewLine & "* No Application cases can only be processed with a 'Request to APPL' form."
 	    IF how_application_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
         'IF application_type = "N/A" and other_notes = "" THEN err_msg = err_msg & vbNewLine & "* Please enter in other notes what type of application was received to the agency."
 	    IF application_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-        IF application_type = "MNbenefits" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MNbenefits app was received, you must enter the confirmation number and time received."
+        IF application_type = "MNbenefits CAF - 5223" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MNbenefits app was received, you must enter the confirmation number and time received."
         If population_of_case = "Select One:" then err_msg = err_msg & vbNewLine & "* Please indicate the population or specialty of the case."
         If snap_status = "PENDING" Then
             If (income <> "" and isnumeric(income) = false) or (assets <> "" and isnumeric(assets) = false) or (rent <> "" and isnumeric(rent) = false) THEN err_msg = err_msg & vbnewline & "* The income/assets/rent fields must be numeric only. Do not put letters or symbols in these sections."
@@ -860,18 +817,31 @@ End If
 
 'specific formatting for certain selections
 If how_application_rcvd = "Phone-Verbal Request" THEN how_application_rcvd = replace(how_application_rcvd, "Phone-Verbal Request", "Phone")
-IF how_application_rcvd = "Request to APPL Form" THEN
-    IF application_type = "N/A" AND Auto_Newborn_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "Auto Newborn")
-    IF application_type = "N/A" AND Auto_Newborn_checkbox = CHECKED AND MA_transition_request_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "Auto Newborn")
-    IF application_type = "N/A" AND Auto_Newborn_checkbox = CHECKED AND METS_retro_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "Auto Newborn")
-    IF application_type = "N/A" AND METS_retro_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "METS Retro")
-    IF application_type = "N/A" AND MA_transition_request_checkbox = CHECKED THEN application_type = replace(application_type, "N/A", "MA Transition")
-END IF
+
+If application_type = "CAF - 5223" Then short_form_info = "CAF"
+If application_type = "MNbenefits CAF - 5223" Then short_form_info = "CAF from MNbenefits"
+If application_type = "MNsure App for HC - 6696" Then short_form_info = "MNsure HCAPP"
+If application_type = "MHCP App for Certain Populations - 3876" Then short_form_info = "HC - Certain Populations"
+If application_type = "App for MA for LTC - 3531" Then short_form_info = "LTC HCAPP"
+If application_type = "MHCP App for B/C Cancer - 3523" Then short_form_info = "HCAPP for B/C Cancer"
 
 'NOW WE START CASE NOTING - there are a few
 'Initial application CNOTE - all cases get these ones
 start_a_blank_case_note
-CALL write_variable_in_CASE_NOTE ("~ Application Received (" &  application_type & ") for " & application_date & " ~")
+If application_type = "No Application Required" Then
+	MX_pend_reason = ""
+	If Auto_Newborn_checkbox = CHECKED then MX_pend_reason = MX_pend_reason & "Auto Newborn & "
+	If METS_retro_checkbox = CHECKED then MX_pend_reason = MX_pend_reason & "METS Retro Request & "
+	If MA_transition_request_checkbox = CHECKED then MX_pend_reason = MX_pend_reason & "MA Transition & "
+	MX_pend_reason = trim(MX_pend_reason)
+	If right(MX_pend_reason, 1) = "&" Then MX_pend_reason = left(MX_pend_reason, len(MX_pend_reason)-1)
+	MX_pend_reason = trim(MX_pend_reason)
+	CALL write_variable_in_CASE_NOTE ("~ HC Pended from a METS case for " & MX_pend_reason & " effective " & application_date & " ~")
+Else
+	application_type = replace(application_type, " - ", " (DHS-") & ")"
+	CALL write_variable_in_CASE_NOTE ("~ Application Received (" &  short_form_info & ") pended for " & application_date & " ~")
+	CALL write_bullet_and_variable_in_CASE_NOTE("Application Form Received", application_type)
+End If
 CALL write_bullet_and_variable_in_CASE_NOTE("Requesting HC for MEMBER(S) ", household_persons)
 CALL write_bullet_and_variable_in_CASE_NOTE("Request to APPL Form received on ", request_date)
 ' IF how_application_rcvd = "Request to APPL Form" THEN
@@ -880,12 +850,6 @@ CALL write_bullet_and_variable_in_CASE_NOTE("Request to APPL Form received on ",
 ' END IF
 CALL write_bullet_and_variable_in_CASE_NOTE ("Confirmation # ", confirmation_number)
 Call write_bullet_and_variable_in_CASE_NOTE ("Case Population", population_of_case)
-IF application_type = "6696" THEN write_variable_in_CASE_NOTE ("* Form Received: METS Application for Health Coverage and Help Paying Costs (DHS-6696) ")
-IF application_type = "HCAPP" THEN write_variable_in_CASE_NOTE ("* Form Received: Health Care Application (HCAPP) (DHS-3417) ")
-IF application_type = "HC-Certain Pop" THEN write_variable_in_CASE_NOTE ("* Form Received: MHC Programs Application for Certain Populations (DHS-3876) ")
-IF application_type = "LTC" THEN write_variable_in_CASE_NOTE ("* Form Received: Application for Medical Assistance for Long Term Care Services (DHS-3531) ")
-IF application_type = "MHCP B/C Cancer" THEN write_variable_in_CASE_NOTE ("* Form Received: Minnesota Health Care Programs Application and Renewal Form Medical Assistance for Women with Breast or Cervical Cancer (DHS-3525) ")
-IF application_type = "Verbal Request" THEN write_variable_in_CASE_NOTE ("* Verbal Request was made for programs. CAF will be completed with resident over the phone.")
 CALL write_bullet_and_variable_in_CASE_NOTE ("Application Requesting", programs_applied_for)
 CALL write_bullet_and_variable_in_CASE_NOTE ("Pended on", pended_date)
 ' CALL write_bullet_and_variable_in_CASE_NOTE ("Other Pending Programs", additional_programs_applied_for)
