@@ -43,6 +43,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/20/2023", "Added change in circumstance option, and updated email output and information gathering functionality.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/24/2021", "GitHub Issue #583 Updates made to ensure email has information went sent to QI", "MiKayla Handley, Hennepin County")
 call changelog_update("09/08/2021", "Added date completed AVS form rec'd to dialog and reminder that completed AVS needs to be on file prior to submitting AVS request.", "Ilse Ferris, Hennepin County")
 call changelog_update("09/30/2020", "Updated closing message.", "Ilse Ferris, Hennepin County")
@@ -51,6 +52,7 @@ call changelog_update("03/10/2020", "Initial version.", "MiKayla Handley, Hennep
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
 Function HCRE_panel_bypass()
 	'handling for cases that do not have a completed HCRE panel
 	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
@@ -62,15 +64,17 @@ Function HCRE_panel_bypass()
 		END IF
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
-'Connecting to BlueZone
-EMConnect ""
-'Grabs the case number
-CALL MAXIS_case_number_finder (MAXIS_case_number)
-closing_message = "Request for Account Validation Service (AVS) email has been sent." 'setting up closing_message or possible additions later based on conditions
-'----------------------------------------------------------------------------------------------------Initial dialog
-appl_type = "Application"
+
+EMConnect ""    'Connecting to BlueZone
+CALL MAXIS_case_number_finder (MAXIS_case_number) 'Grabs the case number
+Call check_for_MAXIS(FALSE)
+
+'Initial Defaults
+HC_process = "Application"
 applicant_type = "Applicant"
-check_for_MAXIS(FALSE)
+closing_message = "Request for Account Validation Service (AVS) email has been sent." 'setting up closing_message or possible additions later based on conditions
+send_email = TRUE
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 211, 160, "AVS Request"
@@ -78,9 +82,9 @@ BeginDialog Dialog1, 0, 0, 211, 160, "AVS Request"
   EditBox 185, 5, 20, 15, HH_size
   EditBox 155, 25, 50, 15, avs_form_date
   DropListBox 80, 60, 125, 15, "Select One:"+chr(9)+"Applicant"+chr(9)+"Spouse", applicant_type
-  DropListBox 80, 80, 125, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Renewal", appl_type
+  DropListBox 80, 80, 125, 15, "Select One:"+chr(9)+"Application"+chr(9)+"Change In Basis"+chr(9)+"Renewal", HC_process
   DropListBox 80, 100, 125, 15, "Select One:"+chr(9)+"BI-Brain Injury Waiver"+chr(9)+"BX-Blind"+chr(9)+"CA-Community Alt. Care"+chr(9)+"DD-Developmental Disa Waiver"+chr(9)+"DP-MA for Employed Pers w/ Disa"+chr(9)+"DX-Disability"+chr(9)+"EH-Emergency Medical Assistance"+chr(9)+"EW-Elderly Waiver"+chr(9)+"EX-65 and Older"+chr(9)+"LC-Long Term Care"+chr(9)+"MP-QMB SLMB Only"+chr(9)+"QI-QI"+chr(9)+"QW-QWD", MA_type
-  DropListBox 80, 120, 125, 15, "Select One:"+chr(9)+"NA-No Spouse"+chr(9)+"YES"+chr(9)+"NO", spouse_deeming
+  DropListBox 80, 120, 125, 15, "Select One:"+chr(9)+"N/A - No Spouse"+chr(9)+"Yes"+chr(9)+"No", spouse_deeming
   ButtonGroup ButtonPressed
     OkButton 110, 140, 45, 15
     CancelButton 160, 140, 45, 15
@@ -99,11 +103,11 @@ DO
         err_msg = ""
         Dialog Dialog1
         cancel_without_confirmation
-        If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-		If HH_size = "" or IsNumeric(HH_size) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid household composition size."
+        Call validate_MAXIS_case_number(err_msg, "*")
+		If trim(HH_size) = "" or IsNumeric(HH_size) = False then err_msg = err_msg & vbNewLine & "* Please enter a valid household composition size."
         If trim(avs_form_date) = "" or isdate(avs_form_date) = False then err_msg = err_msg & vbNewLine & "* Please enter the date the completed AVS form was received in the agency."
 		IF applicant_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the applicant type."
-		IF appl_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the application type."
+		IF HC_process = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the application type."
 		IF MA_type = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select the MA request type."
 		IF spouse_deeming = "Select One:" THEN err_msg = err_msg & vbNewLine & "* Please select if the spouse is deeming."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -111,15 +115,10 @@ DO
     CALL check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
+Call check_for_MAXIS(FALSE)
 Call back_to_SELF
 EMReadScreen MX_region, 10, 22, 48
-MX_region = trim(MX_region)
-'If MX_region = "INQUIRY DB" Then
-'	continue_in_inquiry = MsgBox("You have started this script run in INQUIRY." & vbNewLine & vbNewLine & "The script cannot complete a CASE:NOTE when run in inquiry. The functionality is limited when run in inquiry. " & vbNewLine & vbNewLine & "Would you like to continue in INQUIRY?", vbQuestion + vbYesNo, "Continue in INQUIRY")
-'	If continue_in_inquiry = vbNo Then Call script_end_procedure("~PT Interview Script cancelled as it was run in inquiry.")
-'End If
-send_email = TRUE
-IF MX_region = "TRAINING" THEN developer_mode = TRUE
+IF trim(MX_region) = "TRAINING" THEN send_email = FALSE
 
 CALL navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv) 'navigating to stat prog to gather the application information
 IF is_this_priv = TRUE THEN script_end_procedure("PRIV case, cannot access/update. The script will now end.")
@@ -129,218 +128,195 @@ application_date = replace(application_date, " ", "/")
 IF application_date = "__/__/__"  THEN script_end_procedure("*** No application date ***" & vbNewLine & "Need to have pending or active HC care to request AVS.")
 
 CALL HCRE_panel_bypass			'Function to bypass a janky HCRE panel. If the HCRE panel has fields not completed/'reds up' this gets us out of there.
-
+Call access_ADDR_panel("Read", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)    'reading ADDR panel informaiton for later output in email/message box
 CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-DO
-	EMReadScreen panel_check, 4, 2, 48
-		IF panel_check <> "MEMB" THEN CALL navigate_to_MAXIS_screen("STAT", "MEMB")
-        IF panel_check = " (SE" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on STAT/MEMB to read the correct information.")
-LOOP UNTIL panel_check = "MEMB"
 
-DO
-    CALL HH_member_custom_dialog(HH_member_array)
-    IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
-LOOP UNTIL uBound(HH_member_array) <> -1
-
-CALL get_county_code
-EMReadscreen current_county, 4, 21, 21
-If current_county <> worker_county_code THEN script_end_procedure("Out of County case, cannot access/update. The script will now end.")
+Do
+    DO
+        CALL HH_member_custom_dialog(HH_member_array)
+        IF uBound(HH_member_array) = -1 THEN MsgBox ("You must select at least one person.")
+    LOOP UNTIL uBound(HH_member_array) <> -1
+    CALL check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = FALSE
 
 'Establishing array
 avs_membs = 0       'incrementor for array
 DIM avs_members_array()  'Declaring the array this is what this list is
-ReDim avs_members_array(phone_type_three_const, 0)  'Resizing the array 'redimmed to the size of the last constant  'that ,list is going to have 20 parameter but to start with there is only one paparmeter it gets complicated - grid'
-'for each row the column is going to be the same information type
+ReDim avs_members_array(marital_status_const, 0)  'Resizing the array 'redimmed to the size of the last constant  'that ,list is going to have 20 parameter but to start with there is only one paparmeter it gets complicated - grid'
+
 'Creating constants to value the array elements this is why we create constants
-const maxis_case_number_const  	 	= 0 '=  Maxis'
+const maxis_case_number_const  	 	= 0 '=  Maxis Case Number
 const member_number_const   		= 1 '=  Member Number
 const client_first_name_const       = 2 '=  First Name MEMB
 const client_last_name_const        = 3 '=  Last Name MEMB
 const client_mid_name_const    	    = 4 '=  Middle initial MEMB
 const client_DOB_const   		    = 5 '=  Date of Birth MEMB
 const client_ssn_const		        = 6 '=  SSN
-const client_age_const	            = 7 '=  age MEMB
-const client_sex_const			    = 8 '=  client sex
-const addr_eff_date_const	  		= 9 '=	addr_eff_date
-const resi_line_one_const	  		= 10'= 	resi_line_one
-const resi_line_two_const	   		= 11 '= resi_line_two
-const resi_city_const				= 12'= 	resi_city
-const resi_state_const	     		= 13'= 	resi_state
-const resi_zip_const     			= 14'= 	resi_zip
-const resi_county_const     		= 15'= 	resi_county
-const verif_const	  				= 16'= 	verif
-const homeless_const     			= 17 '= homeless
-const ind_reservation_const  		= 18 '= ind_reservation
-const living_sit_const	     		= 19 '= living_sit
-const res_name_const    			= 20'= 	res_name
-const mail_line_one_const    		= 21'= 	mail_line_one
-const mail_line_two_const     		= 22'=  mail_line_two
-const mail_city_const   			= 23'= 	mail_city
-const mail_state_const    			= 24'= 	mail_state
-const mail_zip_const    			= 25'= 	mail_zip
-const phone_numb_one_const    		= 26'= 	phone_numb_one
-const phone_type_one_const    		= 27'= 	phone_type_one
-const phone_numb_two_const     		= 28'= 	phone_numb_two
-const phone_type_two_const  	   	= 29'= 	phone_type_two
-const phone_numb_three_const     	= 30'= 	phone_numb_three
-const phone_type_three_const    	= 31'= 	phone_type_three
+const marital_status_const          = 7 '=  marital status
 
 FOR EACH person IN HH_member_array
+    CALL navigate_to_MAXIS_screen("STAT", "MEMB")
     CALL write_value_and_transmit(person, 20, 76) 'reads the reference number, last name, first name, and THEN puts it into an array YOU HAVENT defined the avs_members_array yet
-    EMReadscreen ref_nbr, 3, 4, 33
+
     EMReadscreen last_name, 25, 6, 30
+    last_name = trim(replace(last_name, "_", ""))
+
     EMReadscreen first_name, 12, 6, 63
-    EMReadscreen MEMB_number, 3, 4, 33
-    EMReadscreen last_name, 25, 6, 30
-    EMReadscreen first_name, 12, 6, 63
+    first_name = trim(replace(first_name, "_", ""))
+
     EMReadscreen mid_initial, 1, 6, 79
+    mid_initial = replace(mid_initial, "_", "")
+
     EMReadScreen client_DOB, 10, 8, 42
+
     EMReadscreen client_SSN, 11, 7, 42
     If client_ssn = "___ __ ____" then client_ssn = ""
-    last_name = trim(replace(last_name, "_", "")) & " "
-    first_name = trim(replace(first_name, "_", "")) & " "
-    mid_initial = replace(mid_initial, "_", "")
-    EMReadScreen client_age, 2, 8, 76
-    IF client_age = "  " THEN client_age = 0
-    client_age = client_age * 1
-	EMReadScreen client_sex, 1, 9, 42
-    ReDim Preserve avs_members_array(phone_type_three_const, avs_membs)  'redimmed to the size of the last constant
-    avs_members_array(member_number_const,     avs_membs) = ref_nbr
+
+    CALL navigate_to_MAXIS_screen("STAT", "MEMI")
+    EmReadscreen martial_status, 1, 7, 40
+
+    ReDim Preserve avs_members_array(marital_status_const, avs_membs)  'redimmed to the size of the last constant
+    avs_members_array(member_number_const,     avs_membs) = person
     avs_members_array(client_first_name_const, avs_membs) = first_name
     avs_members_array(client_last_name_const,  avs_membs) = last_name
     avs_members_array(client_mid_name_const,   avs_membs) = mid_initial
     avs_members_array(client_DOB_const,        avs_membs) = client_DOB
     avs_members_array(client_ssn_const,        avs_membs) = client_SSN
-    avs_members_array(client_age_const,        avs_membs) = client_age
-	avs_members_array(client_sex_const,        avs_membs) = client_sex
+    avs_members_array(marital_status_const,    avs_membs) = martial_status
     avs_membs = avs_membs + 1 ' can only be used because we havent reset or redefined this incrementor'
 	STATS_counter = STATS_counter + 1
 NEXT
 
-CALL navigate_to_MAXIS_screen("STAT", "MEMI")
-DO
-	EMReadScreen panel_check, 4, 2, 50 'coordinates move from panel to panel'
-		IF panel_check <> "MEMI" THEN
-			CALL navigate_to_MAXIS_screen("STAT", "MEMI")
-		    IF panel_check = "SELF" THEN script_end_procedure_with_error_report("***NOTICE***" & vbNewLine & "Case must be on STAT/MEMI to read the correct information.")
-		ELSE
-			EXIT DO
-		END IF
-LOOP UNTIL panel_check = "MEMI"
+If avs_membs = 1 then
+    'If user only selects one member and that member's martial status is M and the case is spouse deeming, the user will be asked to enter this information.
+    If avs_members_array(marital_status_const, 0) = "M" then
+        If spouse_deeming = "Yes" then
+            manual_spouse_entry = True
 
-EMReadScreen marital_status, 1, 7, 40
-EMReadScreen spouse_ref_nbr, 02, 09, 49
-spouse_ref_nbr = replace(spouse_ref_nbr, "_", "")
-IF marital_status = "M" and spouse_ref_nbr <> "" THEN client_married = TRUE
-IF spouse_deeming = "YES" and spouse_ref_nbr = "" THEN
-	BeginDialog Dialog1, 0, 0, 176, 160, "Spouse not found on MEMB"
-      EditBox 55, 5, 115, 15, spouse_first_name
-      EditBox 55, 25, 115, 15, spouse_last_name
-      EditBox 55, 45, 35, 15, spouse_mid_name
-      EditBox 120, 45, 50, 15, spouse_SSN_number
-      EditBox 55, 65, 55, 15, spouse_DOB
-      EditBox 150, 65, 20, 15, spouse_age
-      DropListBox 55, 85, 55, 15, "Select One:"+chr(9)+"Female"+chr(9)+"Male"+chr(9)+"Unknown"+chr(9)+"Undetermined", spouse_gender_dropdown
-      EditBox 5, 120, 165, 15, other_notes
-      ButtonGroup ButtonPressed
-        OkButton 75, 140, 45, 15
-        CancelButton 125, 140, 45, 15
-      Text 5, 10, 40, 10, "First Name:"
-      Text 5, 30, 40, 10, "Last Name: "
-      Text 5, 50, 50, 10, " Middle Initial: "
-      Text 100, 50, 20, 10, "SSN: "
-      Text 5, 70, 45, 10, "Date of Birth: "
-      Text 130, 70, 15, 10, "Age: "
-      Text 5, 105, 160, 10, "Please explain why they are not listed in maxis: "
-      Text 5, 90, 30, 10, "Gender: "
-    EndDialog
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 176, 105, "Spouse not selected/available in MAXIS"
+                EditBox 55, 5, 115, 15, spouse_first_name
+                EditBox 55, 25, 115, 15, spouse_last_name
+                EditBox 55, 45, 35, 15, spouse_mid_name
+                EditBox 120, 45, 50, 15, spouse_SSN_number
+                EditBox 55, 65, 55, 15, spouse_DOB
+                ButtonGroup ButtonPressed
+                    OkButton 75, 85, 45, 15
+                    CancelButton 125, 85, 45, 15
+                Text 10, 10, 40, 10, "First Name:"
+                Text 10, 30, 40, 10, "Last Name:"
+                Text 5, 50, 50, 10, " Middle Initial:"
+                Text 100, 50, 20, 10, "SSN:"
+                Text 5, 70, 45, 10, "Date of Birth:"
+            EndDialog
 
-	DO
-	 	DO
-	 		err_msg = ""
-	 		Dialog Dialog1
-	 		cancel_without_confirmation
-	 		If spouse_first_name = "" then err_msg = err_msg & vbNewLine & "* Please enter the spouse's first name."
-	        If spouse_last_name = "" then err_msg = err_msg & vbNewLine & "* Please enter the spouse's last name."
-	        If spouse_SSN_number = "" then err_msg = err_msg & vbNewLine & "* Please enter the spouse's social security number."
-	        If spouse_DOB = "" then err_msg = err_msg & vbNewLine & "* Please enter the spouse's date of birth."
-	        If spouse_gender_dropdown = "Select One:" then err_msg = err_msg & vbNewLine & "* Please select the spouse's gender."
-	        If other_notes = "" then err_msg = err_msg & vbNewLine & "* Please enter the reason this client is not listed in MAXIS."
-	 		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
-	 	LOOP UNTIL err_msg = ""
-	 	CALL check_for_password(are_we_passworded_out)
-	Loop until are_we_passworded_out = FALSE
+	        DO
+	         	DO
+	         		err_msg = ""
+	         		Dialog Dialog1
+	         		cancel_confirmation
+	         		If trim(spouse_first_name) = "" then err_msg = err_msg & vbNewLine & "* Enter the spouse's first name."
+	                If trim(spouse_last_name) = "" then err_msg = err_msg & vbNewLine & "* Enter the spouse's last name."
+	                If trim(spouse_SSN_number) = "" or len(spouse_SSN_number) < 9 then err_msg = err_msg & vbNewLine & "* Enter the spouse's 9-digit Social Security Number."
+	                If trim(spouse_DOB) = "" or isdate(spouse_DOB) = False then err_msg = err_msg & vbNewLine & "* Enter the spouse's date of birth."
+	         		IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+	         	LOOP UNTIL err_msg = ""
+	         	CALL check_for_password(are_we_passworded_out)
+	        Loop until are_we_passworded_out = FALSE
+        End if
+    End if
+End if
 
-	ReDim Preserve avs_members_array(phone_type_three_const, avs_membs)  'redimmed to the size of the last constant
-    avs_members_array(member_number_const,     avs_membs) = spouse_ref_nbr
-    avs_members_array(client_first_name_const, avs_membs) = spouse_first_name
-    avs_members_array(client_last_name_const,  avs_membs) = spouse_last_name
-    avs_members_array(client_mid_name_const,   avs_membs) = spouse_mid_name
-    avs_members_array(client_DOB_const,        avs_membs) = spouse_DOB
-    avs_members_array(client_ssn_const,        avs_membs) = spouse_SSN_number
-    avs_members_array(client_age_const,        avs_membs) = spouse_age
-	avs_members_array(client_sex_const,        avs_membs) = spouse_gender_dropdown
-	client_married = TRUE
-END IF
-' CALL read_ADDR_panel(addr_eff_date, line_one, line_two, city, state, zip, county, verif, homeless, ind_reservation, living_sit, res_name,                                mail_line_one, mail_line_two,                   mail_city, mail_state, mail_zip,                                  phone_one, type_one, phone_two, type_two, phone_three, type_three, updated_date)
-Call access_ADDR_panel("READ", notes_on_address, line_one, line_two, resi_street_full, city, state, zip, county, verif, homeless, ind_reservation, living_sit, res_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_one, phone_two, phone_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-
-team_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us"
+'----------------------------------------------------------------------------------------------------Email/message box information
+member_info = member_info & "A signed AVS form was received for case #" & MAXIS_case_number & vbcr & vbcr & _
+"******Case Information******" & vbcr & _
+"Application Date: " & application_date & vbcr & _
+"AVS Form Received Date: " & avs_form_date & vbcr & _
+"Basis of Eligibility: " & MA_type & vbcr & _
+"HH size: " & HH_size & vbcr & _
+"Applicant Type: " & applicant_type & vbcr & _
+"Application Type: " & HC_process & vbcr & _
+"Spouse Deeming?: " & spouse_deeming & vbcr
 
 FOR avs_membs = 0 to Ubound(avs_members_array, 2) 'start at the zero person and go to each of the selected people '
-    member_info = member_info & "A signed AVS form was received for Member # " & avs_members_array(member_number_const, avs_membs) & vbNewLine & avs_members_array(client_first_name_const, avs_membs) & " " & avs_members_array(client_mid_name_const, avs_membs) & " " & avs_members_array(client_last_name_const, avs_membs)  &  vbCr & "DOB: " & avs_members_array(client_DOB_const,  avs_membs) & vbcr & "SSN of Resident: " & avs_members_array(client_ssn_const,  avs_membs) & vbcr & "Gender: " & avs_members_array(client_sex_const, avs_membs)
-	member_info = member_info & vbNewLine & "Application Date: " & application_date & vbNewLine & "AVS Form Received Date: " & avs_form_date & vbcr & "Basis of Eligibility: " & MA_type & vbcr & "HH size: " & HH_size & vbcr & "Applicant Type: " & applicant_type & vbcr & "Application Type: " & appl_type & vbNewLine & "Residential Address: " & vbNewLine & line_one & " " & line_two & vbcr & city & ", " & state & " " & zip
-	If trim(mail_line_one) <> "" THEN member_info = member_info & "Mailing address: " & mail_line_one & vbcr & mail_line_two & vbcr & mail_city & vbcr & mail_state & vbcr & mail_zip & vbcr & phone_one & " Phone: " & type_one & " - " & phone_two & " - " & phone_three
-	IF client_married = TRUE THEN member_info = member_info & vbNewLine & "Spouse: " & spouse_deeming & vbcr & "Spouse Member # " & avs_members_array(member_number_const, avs_membs) & vbcr & "Spouse First Name: " & avs_members_array(client_first_name_const, avs_membs) & vbcr & "Spouse Last Name: " & avs_members_array(client_last_name_const, avs_membs) & vbcr & "Spouse Social Security Number: " & avs_members_array(client_ssn_const,  avs_membs) & vbcr & "Spouse Gender: " & avs_members_array(client_sex_const, avs_membs) & vbcr & "Spouse Date of birth: " & avs_members_array(client_DOB_const, avs_membs) & " " & other_notes
-NEXT
+    member_info = member_info & vbcr & _
+    "Member Name: " & avs_members_array(client_first_name_const, avs_membs) & " " & avs_members_array(client_mid_name_const, avs_membs) & " " & avs_members_array(client_last_name_const, avs_membs)  & vbCr & _
+    "Member #" & avs_members_array(member_number_const, avs_membs) & vbCr & _
+    "DOB: " & avs_members_array(client_DOB_const, avs_membs) & vbcr & _
+    "SSN: " & avs_members_array(client_ssn_const, avs_membs) & vbcr & _
+    "MEMI Marital Status: " & avs_members_array(marital_status_const, avs_membs) & vbcr
+Next
+
+IF manual_spouse_entry = True then
+    member_info = member_info & vbcr & "Manually Entered Spouse Information (Not in MAXIS):" & vbcr & _
+    "* Spouse Name: " & spouse_first_name & " " & spouse_mid_name & " " & spouse_last_name & vbcr & _
+    "* Spouse SSN: " & spouse_SSN_number & vbcr & _
+    "* Spouse DOB: " & spouse_DOB & vbcr
+End if
+
+member_info = member_info & vbcr & "******Address Info******" & vbcr & _
+"--Residential Address--" & vbcr & _
+"Line 1: " & resi_line_one & vbcr & _
+"Line 2: " & resi_line_two & vbcr & _
+resi_city & ", " & resi_state & " " & resi_zip
+
+If trim(mail_line_one) <> "" THEN
+    member_info = member_info & vbcr & vbcr & "--Mailing Address--" & vbcr & _
+    "Line 1: " & mail_line_one & vbcr & _
+    "Line 2: " & mail_line_two & vbcr & _
+    mail_city & ", " & mail_state & " " & mail_zip
+End if
 
 CALL find_user_name(the_person_running_the_script)' this is for the signature in the email'
 
-IF developer_mode = TRUE THEN send_email = FALSE
-'Creating the email
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
-IF send_email = TRUE THEN Call create_outlook_email(team_email, "", "AVS initial run requests case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", TRUE)   'will create email, will send.
+If send_email = False then msgbox "AVS initial run requests case #" & MAXIS_case_number & vbcr & vbcr & "Member Info:" & member_info & vbCR & vbcr & "Submitted By: " & the_person_running_the_script
+
+'Creating the email ---- create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachmentsend_email)
+IF send_email = TRUE THEN Call create_outlook_email("HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us", "", "AVS initial run requests case #" & MAXIS_case_number, member_info & vbNewLine & vbNewLine & "Submitted By: " & vbNewLine & the_person_running_the_script, "", True)   'will create email, will send.
 
 script_end_procedure_with_error_report(closing_message)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------08/30/2021
-'--Tab orders reviewed & confirmed----------------------------------------------08/30/2021
-'--Mandatory fields all present & Reviewed--------------------------------------08/30/2021
-'--All variables in dialog match mandatory fields-------------------------------08/30/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------03/20/2023
+'--Tab orders reviewed & confirmed----------------------------------------------03/20/2023
+'--Mandatory fields all present & Reviewed--------------------------------------03/20/2023
+'--All variables in dialog match mandatory fields-------------------------------03/20/2023
+'Review dialog names for content and content fit in dialog----------------------03/20/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------09/09/21
-'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--All variables are CASE:NOTEing (if required)---------------------------------03/20/2023------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------03/20/2023------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------03/20/2023------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used 03/20/2023------------------N/A
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
-'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------08/30/2021
-'--Out-of-County handling reviewed----------------------------------------------08/30/2021
-'--script_end_procedures (w/ or w/o error messaging)----------------------------09/09/21
-'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------03/20/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------03/20/2023------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------03/20/2023
+'--Out-of-County handling reviewed----------------------------------------------03/20/2023------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------03/20/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------03/20/2023------------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------03/20/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------N/A
-'--Incrementors reviewed (if necessary)-----------------------------------------09/09/21
-'--Denomination reviewed -------------------------------------------------------N/A
-'--Script name reviewed---------------------------------------------------------08/30/2021
-'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+'--Manual time study reviewed --------------------------------------------------03/20/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------03/20/2023
+'--Denomination reviewed -------------------------------------------------------03/20/2023
+'--Script name reviewed---------------------------------------------------------03/20/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------03/20/2023------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------08/30/2021
-'--Comment Code-----------------------------------------------------------------09/09/21
-'--Update Changelog for release/update------------------------------------------09/09/21
-'--Remove testing message boxes-------------------------------------------------09/09/21
-'--Remove testing code/unnecessary code-----------------------------------------09/09/21
-'--Review/update SharePoint instructions----------------------------------------09/09/21
-'--Review Best Practices using BZS page ----------------------------------------09/09/21
-'--Review script information on SharePoint BZ Script List-----------------------09/09/21
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------09/09/21
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------09/09/21
-'--Complete misc. documentation (if applicable)---------------------------------09/09/21
-'--Update project team/issue contact (if applicable)----------------------------09/09/21
+'--Confirm all GitHub tasks are complete----------------------------------------03/20/2023
+'--comment Code-----------------------------------------------------------------03/20/2023
+'--Update Changelog for release/update------------------------------------------03/20/2023
+'--Remove testing message boxes-------------------------------------------------03/20/2023
+'--Remove testing code/unnecessary code-----------------------------------------03/20/2023
+'--Review/update SharePoint instructions----------------------------------------03/20/2023------------------N/A
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------03/20/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------03/20/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------03/20/2023
+'--Complete misc. documentation (if applicable)---------------------------------03/20/2023
+'--Update project team/issue contact (if applicable)----------------------------03/20/2023

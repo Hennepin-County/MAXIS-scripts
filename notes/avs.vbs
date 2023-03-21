@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/20/2023", "Added Change in Basis option, and enabled the Renewal option for submitting an AVS Request.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2022", "Fixed inhibiting bug if HH members do not have an age listed on STAT/MEMB.", "Ilse Ferris, Hennepin County")
 call changelog_update("05/10/2021", "Initial version.", "Ilse Ferris, Hennepin County")
@@ -55,7 +56,6 @@ changelog_display
 '----------------------------------------------------------------------------------------------------The script
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
-HC_process = "Application"  'Defaulting - This is only viable option currently
 closing_msg = "Success! Your AVS case note has been created. Please review for accuracy & any additional information."  'initial closing message. This may increment based on options selected.
 get_county_code
 Call Check_for_MAXIS(False)
@@ -88,7 +88,7 @@ BeginDialog Dialog1, 0, 0, 186, 85, "AVS Initial Selection Dialog"
   ButtonGroup ButtonPressed
   PushButton 135, 10, 10, 15, "!", initial_help_button
   DropListBox 75, 30, 105, 15, "Select one..."+chr(9)+"AVS Forms"+chr(9)+"AVS Submission/Results", initial_option
-  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Renewal", HC_process
+  DropListBox 75, 45, 105, 15, "Select one..."+chr(9)+"Application"+chr(9)+"Change In Basis"+chr(9)+"Renewal", HC_process
   ButtonGroup ButtonPressed
     OkButton 75, 65, 40, 15
     CancelButton 120, 65, 40, 15
@@ -107,15 +107,13 @@ DO
             tips_tricks_msg = MsgBox(initial_help_text, vbInformation, "Tips and Tricks") 'see initial_help_text above for details of the text
             err_msg = "LOOP" & err_msg
         End if
-		If (isnumeric(MAXIS_case_number) = False and len(MAXIS_case_number) <> 8) then err_msg = err_msg & vbcr & "* Enter a valid MAXIS Case Number."
+    	Call validate_MAXIS_case_number(err_msg, "*")
         If initial_option = "Select one..." then err_msg = err_msg & vbcr & "* Select the AVS process."
         If HC_process = "Select one..." then err_msg = err_msg & vbcr & "* Select the health care process."
         IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
 	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-If HC_process = "Renewal" then script_end_procedure("The AVS system is not required at renewals at this time. The script will now end.") 'Issue #311 will address this
 
 MAXIS_background_check
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv)
