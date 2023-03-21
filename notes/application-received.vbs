@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County
+call changelog_update("03/21/2023", "Removed the functionality to e-mail the CCAP team if CCAP was requested with other programs on MNbenefits. This process is now supported in ECF Next and the manual e-mail process is no longer required.", "Casey Love, Hennepin County")
 call changelog_update("02/23/2023", "BUG FIX for cases with a second application to better determine which application is for HC and which is for CAF Based Programs.", "Casey Love, Hennepin County")
 call changelog_update("02/21/2023", "BUG FIX for cases with a second application that is for HC. These cases are not subsequent applications, and need to be handled within this script and not duplicate MEMOs and Screenings.", "Casey Love, Hennepin County")
 call changelog_update("01/30/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
@@ -469,22 +470,23 @@ End If
 ' EndDialog
 
 'since this dialog has different displays for SNAP cases vs non-snap cases - there are differences in the dialog size
-dlg_len = 240
-If snap_status = "PENDING" Then dlg_len = 350
+dlg_len = 220
+If snap_status = "PENDING" Then dlg_len = 330
 
 'This is the dialog with the application information.
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs_applied_for & " on " & application_date
-  GroupBox 5, 5, 255, 140, "Application Information"
+  GroupBox 5, 5, 255, 120, "Application Information"
+  '   DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
   DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
+  '   DropListBox 85, 60, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+"MNsure App for HC - 6696"+chr(9)+"MHCP App for Certain Populations - 3876"+chr(9)+"App for MA for LTC - 3531"+chr(9)+"MHCP App for B/C Cancer - 3523"+chr(9)+"No Application Reuired", application_type
   DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
   EditBox 85, 85, 95, 15, confirmation_number
-  DropListBox 85, 105, 170, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
-  DropListBox 85, 125, 95, 45, "No - Only ES Programs"+chr(9)+"Yes - Child Care Requested", was_ccap_requested
+  DropListBox 85, 105, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
   Text 15, 25, 65, 10, "Date of Application:"
   Text 85, 25, 60, 10, application_date
-  Text 185, 20, 65, 10, "Pending Programs:"
-  y_pos = 30
+  Text 185, 15, 65, 10, "Pending Programs:"
+  y_pos = 25
   If unknown_cash_pending = True Then
     Text 195, y_pos, 50, 10, "Cash"
     y_pos = y_pos + 10
@@ -521,10 +523,6 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs
     Text 195, y_pos, 50, 10, emer_type
     y_pos = y_pos + 10
   End If
-  If cca_status = "PENDING" Then
-    Text 195, y_pos, 50, 10, "CCA"
-    y_pos = y_pos + 10
-  End If
   If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True Then
     Text 195, y_pos, 50, 10, "HC"
     y_pos = y_pos + 10
@@ -533,23 +531,22 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs
   Text 15, 65, 65, 10, "Type of Application:"
   Text 85, 75, 50, 10, "Confirmation #:"
   Text 10, 110, 70, 10, "Population/Specialty"
-  Text 7, 130, 80, 10, "Was CCAP Requested?"
-  y_pos = 150
+  y_pos = 130
   If snap_status = "PENDING" Then
-      GroupBox 5, 150, 255, 105, "Expedited Screening"
-      EditBox 130, 165, 50, 15, income
-      EditBox 130, 185, 50, 15, assets
-      EditBox 130, 205, 50, 15, rent
-      CheckBox 15, 235, 55, 10, "Heat (or AC)", heat_AC_check
-      CheckBox 85, 235, 45, 10, "Electricity", electric_check
-      CheckBox 140, 235, 35, 10, "Phone", phone_check
-      Text 25, 170, 95, 10, "Income received this month:"
-      Text 30, 190, 95, 10, "Cash, checking, or savings: "
-      Text 30, 210, 90, 10, "AMT paid for rent/mortgage:"
-      GroupBox 10, 225, 170, 25, "Utilities claimed (check below):"
-      GroupBox 185, 160, 70, 65, "**IMPORTANT**"
-      Text 190, 175, 60, 45, "The income, assets and shelter costs fields will default to $0 if left blank. "
-      y_pos = 260
+      GroupBox 5, 130, 255, 105, "Expedited Screening"
+      EditBox 130, 145, 50, 15, income
+      EditBox 130, 165, 50, 15, assets
+      EditBox 130, 185, 50, 15, rent
+      CheckBox 15, 215, 55, 10, "Heat (or AC)", heat_AC_check
+      CheckBox 85, 215, 45, 10, "Electricity", electric_check
+      CheckBox 140, 215, 35, 10, "Phone", phone_check
+      Text 25, 150, 95, 10, "Income received this month:"
+      Text 30, 170, 95, 10, "Cash, checking, or savings: "
+      Text 30, 190, 90, 10, "AMT paid for rent/mortgage:"
+      GroupBox 10, 205, 170, 25, "Utilities claimed (check below):"
+      GroupBox 185, 140, 70, 65, "**IMPORTANT**"
+      Text 190, 155, 60, 45, "The income, assets and shelter costs fields will default to $0 if left blank. "
+      y_pos = 240
   End If
   CheckBox 15, y_pos, 220, 10, "Check here if a HH Member is active on another MAXIS Case.", hh_memb_on_active_case_checkbox
   y_pos = y_pos + 15
@@ -911,19 +908,7 @@ IF how_application_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHE
 ELSEIF Auto_Newborn_checkbox = CHECKED THEN
     CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 END IF
-If was_ccap_requested = "Yes - Child Care Requested" Then
-    Call find_user_name(the_person_running_the_script)
-    ccap_email_subject = "ES - CA - Financial Case " & MAXIS_case_number & " - " & case_name & " also requests CCAP"
-    ccap_email_body = "MNbenefits Application received requesting CCAP with other financial programs."
-    If trim(confirmation_number) <> "" Then ccap_email_body = ccap_email_body & vbCr & "Confirmation Number: " & confirmation_number
-    ccap_email_body = ccap_email_body & vbCr & vbCr & "MAXIS Case Number: " & MAXIS_case_number
-    ccap_email_body = ccap_email_body & vbCr & "MAXIS Case Name: " & case_name
-    ccap_email_body = ccap_email_body & vbCr & vbCr & "Application form can be found in the ECF case file for this case."
-    ccap_email_body = ccap_email_body & vbCr & vbCr & "Thank you,"
-    ccap_email_body = ccap_email_body & vbCr & the_person_running_the_script
-    If running_from_ca_menu = True Then ccap_email_body = ccap_email_body & vbCr & "Case Assignment Team"
-    Call create_outlook_email("HSPH.ResourcesCCAP@hennepin.us", "", ccap_email_subject, ccap_email_body, "", True)
-End If
+
 
 IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 
