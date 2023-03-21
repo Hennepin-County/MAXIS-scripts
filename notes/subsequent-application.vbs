@@ -647,6 +647,7 @@ call write_bullet_and_variable_in_CASE_NOTE("Previously Pending", previously_pen
 call write_bullet_and_variable_in_CASE_NOTE("Application Date", application_date)
 call write_bullet_and_variable_in_CASE_NOTE("Case Population", population_of_case)
 call write_bullet_and_variable_in_CASE_NOTE("Active Programs", active_programs)
+CALL write_bullet_and_variable_in_CASE_NOTE ("Other Notes", other_notes)
 call write_variable_in_CASE_NOTE("----------------- Subsequent Application Form Info -------------------------")
 call write_bullet_and_variable_in_CASE_NOTE("Form Type Received", application_type)
 call write_bullet_and_variable_in_CASE_NOTE("Confirmation #", confirmation_number)
