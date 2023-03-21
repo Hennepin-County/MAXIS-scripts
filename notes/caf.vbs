@@ -5624,13 +5624,17 @@ If vars_filled = False Then
 		If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
 			the_review_is_ER = False
 			EMReadScreen next_revw_process, 2, 9, 66
-			If next_revw_process = "SR" Then the_review_is_ER = True
-			If next_revw_process = "ER" and snap_revw_code = "I" or snap_revw_code = "N" Then the_review_is_ER = True
-			If next_revw_process = "ER" and snap_revw_code = "U" or snap_revw_code = "A" Then
+			' MsgBox "next_revw_process - " & next_revw_process & vbCr & "snap_revw_code - " & snap_revw_code
+			If next_revw_process = "SR" and (snap_revw_code = "U" or snap_revw_code = "A") Then the_review_is_ER = True
+			If next_revw_process = "ER" and (snap_revw_code = "I" or snap_revw_code = "N") Then the_review_is_ER = True
+			If next_revw_process = "ER" and (snap_revw_code = "U" or snap_revw_code = "A") Then
 				Call write_value_and_transmit("X", 5, 58)
 				EMReadScreen sr_date_month, 2, 9, 26
 				If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
+				' MsgBox "ONE " & vbCr & "the_review_is_ER - " & the_review_is_ER
+				PF3
 			End If
+			' MsgBox "TWO " & vbCr & "the_review_is_ER - " & the_review_is_ER
 			If the_review_is_ER = True Then
 				get_dates = True
 				snap_with_mfip = False
