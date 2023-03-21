@@ -408,44 +408,43 @@ Do
         err_msg = ""
 
         Dialog1 = "" 'Blanking out previous dialog detail
-        BeginDialog Dialog1, 0, 0, 206, 310, "Subsequent Application Detail"
-          DropListBox 90, 140, 95, 45, "Select One:"+chr(9)+"CAF"+chr(9)+"6696"+chr(9)+"HCAPP"+chr(9)+"HC-Certain Populations"+chr(9)+"LTC"+chr(9)+"MHCP B/C Cancer"+chr(9)+"MNbenefits"+chr(9)+"N/A"+chr(9)+"Verbal Request", application_type
-          EditBox 90, 160, 50, 15, form_date
-          EditBox 90, 180, 95, 15, confirmation_number
-          DropListBox 90, 200, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
-          DropListBox 90, 220, 95, 45, "No - Only ES Programs"+chr(9)+"Yes - Child Care Requested", was_ccap_requested
-          DropListBox 90, 255, 95, 45, "Select One:"+chr(9)+"Fax"+chr(9)+"Mail"+chr(9)+"Mystery Doc Queue"+chr(9)+"Online"+chr(9)+"Phone-Verbal Request"+chr(9)+"Request to APPL Form"+chr(9)+"Virtual Drop Box", how_application_rcvd
+        BeginDialog Dialog1, 0, 0, 275, 290, "Subsequent Application Detail"
+  		  DropListBox 90, 145, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
+		  DropListBox 90, 165, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
+          DropListBox 90, 185, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+"SNAP App for Seniors - 5223F"+chr(9)+"MNsure App for HC - 6696"+chr(9)+"MHCP App for Certain Populations - 3876"+chr(9)+"App for MA for LTC - 3531"+chr(9)+"MHCP App for B/C Cancer - 3523"+chr(9)+"No Application Required", application_type
+          EditBox 90, 205, 95, 15, confirmation_number
+          EditBox 90, 225, 50, 15, form_date
+  		  EditBox 55, 250, 210, 15, other_notes
           ButtonGroup ButtonPressed
-            OkButton 90, 285, 50, 15
-            CancelButton 145, 285, 50, 15
+            OkButton 160, 270, 50, 15
+            CancelButton 215, 270, 50, 15
             PushButton 72, 65, 115, 13, "Change Pending Program Details", change_pending_progs_btn
             PushButton 72, 125, 115, 13, "Change Pending Program Details", change_pending_progs_btn
-          GroupBox 5, 5, 190, 75, "Case Information"
+          GroupBox 5, 5, 190, 80, "Case Information"
           Text 10, 20, 60, 10, "Application Date: "
           Text 70, 20, 50, 10, application_date
           Text 10, 35, 60, 10, "Already Pending: "
           Text 70, 35, 120, 10, previously_pended_progs
           Text 10, 50, 60, 10, "Active Programs:"
           Text 70, 50, 120, 10, active_programs
-          GroupBox 5, 85, 190, 155, "Application Information"
+          GroupBox 5, 85, 260, 160, "Application Information"
           Text 15, 100, 165, 10, "Programs Requested on Subsequent Application:"
           Text 25, 110, 160, 10, new_programs_pended
-          Text 15, 145, 70, 10, "Form Type Received:"
-          Text 15, 165, 70, 10, "Date Form Received:"
-          Text 35, 185, 50, 10, "Confirmation #:"
-          Text 15, 205, 70, 10, "Population/Specialty"
-          Text 10, 225, 80, 10, "Was CCAP Requested?"
-          GroupBox 5, 245, 190, 30, "Agency Information"
-          Text 15, 260, 70, 10, "Application Received:"
+          Text 15, 150, 70, 10, "Application Received:"
+          Text 15, 170, 70, 10, "Population/Specialty"
+          Text 15, 190, 70, 10, "Form Type Received:"
+          Text 35, 210, 50, 10, "Confirmation #:"
+          Text 15, 230, 70, 10, "Date Form Received:"
+		  Text 5, 255, 45, 10, "Other Notes:"
         EndDialog
 
         Dialog Dialog1
         cancel_confirmation
 
-        If application_type = "MNbenefits" AND how_application_rcvd = "Select One:" Then how_application_rcvd = "Online"
+        If application_type = "MNbenefits CAF - 5223" AND how_application_rcvd = "Select One:" Then how_application_rcvd = "Online"
 	    IF how_application_rcvd = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter how the application was received to the agency."
 	    IF application_type = "Select One:" then err_msg = err_msg & vbNewLine & "* Please enter the type of application received."
-        IF application_type = "MNbenefits" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MNbenefits app was received, you must enter the confirmation number and time received."
+        IF application_type = "MNbenefits CAF - 5223" AND isnumeric(confirmation_number) = FALSE THEN err_msg = err_msg & vbNewLine & "* If a MNbenefits app was received, you must enter the confirmation number and time received."
         If population_of_case = "Select One:" then err_msg = err_msg & vbNewLine & "* Please indicate the population or specialty of the case."
         If IsDate(form_date) = False Then err_msg = err_msg & vbNewLine & "* Please enter the date the subsequent application form was received."
 
@@ -637,6 +636,8 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has     not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE
 
+application_type = replace(application_type, " - ", " (DHS-") & ")"
+
 call start_a_blank_CASE_NOTE
 
 If new_programs_pended = "None" then Call write_variable_in_CASE_NOTE("Subsequent Application with No Additional Programs Requested")
@@ -681,36 +682,29 @@ If how_application_rcvd = "Request to APPL Form" THEN                           
     End If
 End If
 
-IF send_appt_ltr = TRUE and MEMO_NOTE_found = False THEN interview_email_body = "A SPEC/MEMO has been created. If the client has completed the interview, please cancel the notice and update STAT/PROG with the interview information. Case Assignment is not tasked with cancelling or preventing this notice from being generated."
-'Functionality to send emails in certain situations
-'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-'IF send_email = True THEN CALL create_outlook_email("HSPH.EWS.Triagers@hennepin.us", "", "Case #" & maxis_case_number & " Expedited case to be assigned, transferred to team. " & worker_number & "  EOM.", "", "", TRUE)
-IF how_application_rcvd = "Request to APPL Form" and METS_retro_checkbox = UNCHECKED and team_603_email_checkbox =  UNCHECKED and MA_transition_request_checkbox = UNCHECKED and Auto_Newborn_checkbox = UNCHECKED THEN
-    CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", interview_email_body, "", FALSE)
-ELSEIF Auto_Newborn_checkbox = CHECKED THEN
-    CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & " Request to APPL form received-APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
-END IF
-If was_ccap_requested = "Yes - Child Care Requested" Then
-    Call find_user_name(the_person_running_the_script)
-    ccap_email_subject = "ES - CA - Financial Case " & MAXIS_case_number & " - " & case_name & " also requests CCAP"
-    ccap_email_body = "MNbenefits Application received requesting CCAP with other financial programs."
-    If trim(confirmation_number) <> "" Then ccap_email_body = ccap_email_body & vbCr & "Confirmation Number: " & confirmation_number
-    ccap_email_body = ccap_email_body & vbCr & vbCr & "MAXIS Case Number: " & MAXIS_case_number
-    ccap_email_body = ccap_email_body & vbCr & "MAXIS Case Name: " & case_name
-    ccap_email_body = ccap_email_body & vbCr & vbCr & "Application form can be found in the ECF case file for this case."
-    ccap_email_body = ccap_email_body & vbCr & vbCr & "Thank you,"
-    ccap_email_body = ccap_email_body & vbCr & the_person_running_the_script
-    If running_from_ca_menu = True Then ccap_email_body = ccap_email_body & vbCr & "Case Assignment Team"
-    Call create_outlook_email("HSPH.ResourcesCCAP@hennepin.us", "", ccap_email_subject, ccap_email_body, "", True)
+'Functionality to send emails if the case was pended from a 'Request to APPL'
+IF how_application_rcvd = "Request to APPL Form" Then
+	send_email_to = ""
+	cc_email_to = ""
+	If team_603_email_checkbox = CHECKED Then send_email_to = "HSPH.EWS.TEAM.603@hennepin.us"
+
+	email_subject = "Request to APPL Form has been processed for MAXIS Case # " & MAXIS_case_number
+	email_body = "Request to APPL form has been received and processed."
+	email_body = email_body & vbCr & vbCr & "MAXIS Case # " & MAXIS_case_number & " has been pended and is ready to be processed."
+	If METS_case_number <> "" Then email_body = email_body & vbCr & "This case is associated with METS Case # " & METS_case_number & "."
+
+	If METS_retro_checkbox = CHECKED and MA_transition_request_checkbox = CHECKED and Auto_Newborn_checkbox = CHECKED THEN
+		email_body = email_body & vbCr & vbCr & "Request to APPL was received for:"
+		If METS_retro_checkbox = CHECKED Then email_body = email_body & vbCr & "- METS Retro Request"
+		If MA_transition_request_checkbox = CHECKED Then email_body = email_body & vbCr & "- MA Transition"
+		If Auto_Newborn_checkbox = CHECKED Then email_body = email_body & vbCr & "- Auto Newborn"
+	End If
+	IF send_appt_ltr = TRUE THEN email_body = email_body & vbCr & vbCr & "A SPEC/MEMO has been created. If the client has completed the interview, please cancel the notice and update STAT/PROG with the interview information. Case Assignment is not tasked with cancelling or preventing this notice from being generated."
+	email_body = email_body & vbCr & vbCr & "Case is ready to be processed."
+
+	CALL create_outlook_email(send_email_to, cc_email_to, email_subject, email_body, "", FALSE)
+	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
 End If
-
-IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = UNCHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
-
-IF METS_retro_checkbox = CHECKED and team_603_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " Retro Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
-
-IF MA_transition_request_checkbox = CHECKED THEN CALL create_outlook_email("", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
-
-IF MA_transition_request_checkbox = CHECKED and team_603_email_checkbox = CHECKED THEN CALL create_outlook_email("HSPH.EWS.TEAM.603@hennepin.us", "", "MAXIS case #" & maxis_case_number & "/METS IC #" & METS_case_number & " MA Transition Request APPL'd in MAXIS-ACTION REQUIRED.", "", "", FALSE)
 
 'Expedited Screening CNOTE for cases where SNAP is pending
 If snap_status = "PENDING" and screening_found = False Then
