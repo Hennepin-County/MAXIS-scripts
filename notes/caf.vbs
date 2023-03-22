@@ -3075,13 +3075,25 @@ function HH_comp_dialog(HH_member_array)
         If id_verif_code = "NO" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "NO - No Verif Prvd"
 
         If cash_checkbox = checked or GRH_checkbox = checked Then             'If Cash is selected
-            ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked    'default to having the counted boxes checked for SNAP
-            ALL_MEMBERS_ARRAY(count_cash_checkbox, member_count) = checked
-            If memb_age > 18 then       'Adding to the cash count
-                adult_cash_count = adult_cash_count + 1
-            Else
-                child_cash_count = child_cash_count + 1
-            End If
+            If cash_checkbox = unchecked Then
+				If member_count = 0 Then
+					ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked    'default to having the counted boxes checked for SNAP
+					ALL_MEMBERS_ARRAY(count_cash_checkbox, member_count) = checked
+					If memb_age > 18 then       'Adding to the cash count
+						adult_cash_count = adult_cash_count + 1
+					Else
+						child_cash_count = child_cash_count + 1
+					End If
+				End If
+			Else
+				ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked    'default to having the counted boxes checked for SNAP
+				ALL_MEMBERS_ARRAY(count_cash_checkbox, member_count) = checked
+				If memb_age > 18 then       'Adding to the cash count
+					adult_cash_count = adult_cash_count + 1
+				Else
+					child_cash_count = child_cash_count + 1
+				End If
+			End If
         End If
         If SNAP_checkbox = checked Then             'If SNAP is selected
             ALL_MEMBERS_ARRAY(include_snap_checkbox, member_count) = checked    'default to having the counted boxes checked for SNAP
