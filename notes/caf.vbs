@@ -3074,7 +3074,7 @@ function HH_comp_dialog(HH_member_array)
         If id_verif_code = "OT" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "OT - Other Document"
         If id_verif_code = "NO" Then ALL_MEMBERS_ARRAY(clt_id_verif, member_count) = "NO - No Verif Prvd"
 
-        If cash_checkbox = checked Then             'If Cash is selected
+        If cash_checkbox = checked or GRH_checkbox = checked Then             'If Cash is selected
             ALL_MEMBERS_ARRAY(include_cash_checkbox, member_count) = checked    'default to having the counted boxes checked for SNAP
             ALL_MEMBERS_ARRAY(count_cash_checkbox, member_count) = checked
             If memb_age > 18 then       'Adding to the cash count
@@ -3180,7 +3180,7 @@ function HH_comp_dialog(HH_member_array)
               Text 105, 25, 100, 10, "Included and Counted in Grant"
               x_pos = 110
               count_cash_pos = x_pos + 5
-              If cash_checkbox = checked Then
+              If cash_checkbox = checked or GRH_checkbox = checked Then
                 Text x_pos, 40, 20, 10, "Cash"
                 x_pos = x_pos + 35
               End If
@@ -3194,7 +3194,7 @@ function HH_comp_dialog(HH_member_array)
               Text 230, 25, 90, 10, "Income Counted - Deeming"
               x_pos = 230
               deem_cash_pos = x_pos + 5
-              If cash_checkbox = checked Then
+              If cash_checkbox = checked or GRH_checkbox = checked Then
                 Text x_pos, 40, 20, 10, "Cash"
                 x_pos = x_pos + 35
               End If
@@ -3210,7 +3210,7 @@ function HH_comp_dialog(HH_member_array)
               Text 370, 35, 20, 10, "Adults"
               Text 400, 35, 30, 10, "Children"
               hh_comp_pos = 45
-              If cash_checkbox = checked Then
+              If cash_checkbox = checked or GRH_checkbox = checked Then
                   Text 345, hh_comp_pos + 5, 20, 10, "Cash"
                   EditBox 370, hh_comp_pos, 20, 15, adult_cash_count
                   EditBox 405, hh_comp_pos, 20, 15, child_cash_count
@@ -3231,10 +3231,10 @@ function HH_comp_dialog(HH_member_array)
               y_pos = 55
               For each_member = 0 to UBound(ALL_MEMBERS_ARRAY, 2)
                   Text 10, y_pos, 100, 10, ALL_MEMBERS_ARRAY(clt_name, each_member)
-                  If cash_checkbox = checked Then CheckBox count_cash_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_cash_checkbox, each_member)
+                  If cash_checkbox = checked or GRH_checkbox = checked Then CheckBox count_cash_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_cash_checkbox, each_member)
                   If SNAP_checkbox = checked Then CheckBox count_snap_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_snap_checkbox, each_member)
                   If EMER_checkbox = checked then CheckBox count_emer_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(include_emer_checkbox, each_member)
-                  If cash_checkbox = checked Then CheckBox deem_cash_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_cash_checkbox, each_member)
+                  If cash_checkbox = checked or GRH_checkbox = checked Then CheckBox deem_cash_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_cash_checkbox, each_member)
                   If SNAP_checkbox = checked Then CheckBox deem_snap_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_snap_checkbox, each_member)
                   If EMER_checkbox = checked then CheckBox deem_emer_pos, y_pos, 10, 10, "", ALL_MEMBERS_ARRAY(count_emer_checkbox, each_member)
                   y_pos = y_pos + 15
@@ -4990,9 +4990,9 @@ function run_expedited_determination_script_functionality(xfs_screening, caf_one
 
     				Text 18, 90, 65, 10, "Date of Application:"
     				Text 85, 90, 50, 10, date_of_application
-    				Text 25, 100, 60, 10, "Date of Interview:"
-    				Text 85, 100, 50, 10, interview_date
-    				Text 25, 115, 60, 10, "Date of Approval:"
+					Text 25, 100, 60, 10, "Date of Interview:"
+					Text 85, 100, 50, 10, interview_date
+					Text 25, 115, 60, 10, "Date of Approval:"
     				EditBox 85, 110, 60, 15, approval_date
     				Text 85, 125, 75, 10, "(or planned approval)"
 
@@ -6904,8 +6904,9 @@ Do
                                             Dialog1 = ""
                                             ' BeginDialog Dialog1, 0, 0, 555, 385, "CAF Dialog 1 - Personal Information"
                                             BeginDialog Dialog1, 0, 0, 465, dlg_len, "CAF Dialog 1 - Personal Information"
-                                              Text 5, 10, 300, 10,  "* CAF datestamp:                               Interview date: " & interview_date
-                                              If interview_required = False Then Text 5, 25, 300, 10, "No intervieww required for this CAF to be processed."
+                                              If interview_date <> "" Then Text 5, 10, 300, 10,  "* CAF datestamp:                               Interview date: " & interview_date
+                                              If interview_date = "" Then Text 5, 10, 300, 10,  "* CAF datestamp: "
+                                              If interview_required = False Then Text 5, 25, 300, 10, "No interview required for this " & CAF_form & " to be processed."
                                               If interview_required = True Then Text 5, 25, 300, 10, "Interview has been completed and documented previously."
                                               Text 5, 35, 300, 10, "Information about Case and Process Details:"
 
