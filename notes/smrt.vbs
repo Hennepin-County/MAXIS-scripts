@@ -205,7 +205,7 @@ initial_request_note_found = False																	'defaulting if the requesting
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 256, 85, "SMRT Initial Dialog"
   EditBox 85, 5, 60, 15, maxis_case_number
-  DropListBox 85, 25, 165, 15, "Select one..."+chr(9)+"Initial request"+chr(9)+"ISDS referral completed"+chr(9)+"SMRT Referral NOT Submitted"+chr(9)+"Determination received", SMRT_actions
+  DropListBox 85, 25, 165, 15, "Select one..."+chr(9)+"Initial request"+chr(9)+"ISDS referral completed"+chr(9)+"SMRT Referral NOT Submitted"+chr(9)+"Determination received"+chr(9)+"Resident Withdrew Request", SMRT_actions
   EditBox 85, 45, 165, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 145, 65, 50, 15
@@ -690,6 +690,83 @@ If SMRT_actions = "Determination received" then
 		End If
 	End If
 END If
+
+If SMRT_actions = "Resident Withdrew Request" Then
+
+	'this dialog will detail the decision information
+	Do
+    	Do
+    		err_msg = ""
+			Dialog1 = "" 'Blanking out previous dialog detail
+			BeginDialog Dialog1, 0, 0, 446, 190, "SMRT Determination Received"
+				ComboBox 5, 120, 200, 45, all_the_clients+chr(9)+Person_who_withdrew, Person_who_withdrew
+				EditBox 345, 120, 50, 15, withdraw_date
+				EditBox 5, 150, 435, 15, other_notes
+				ButtonGroup ButtonPressed
+					PushButton 305, 10, 135, 15, "The Request Information is Incorrect", change_details_btn
+					OkButton 335, 170, 50, 15
+					CancelButton 390, 170, 50, 15
+				Text 5, 10, 195, 10, "SMRT requested for: " & SMRT_member
+				Text 5, 20, 175, 10, "Date SMRT referral requested: " & referral_request_date
+				Text 5, 30, 140, 10, "SMRT requested start date: " & SMRT_start_date
+				Text 5, 40, 155, 10, "SMRT Submitted to ISDS date: " & isds_referral_date
+				Text 5, 55, 70, 10, "Reason for referral:"
+				Text 5, 65, 435, 10, referral_reason
+				If referred_exp = "Yes" Then
+					Text 5, 80, 135, 10, "Expedited Referral Requested Reason:"
+					Text 5, 90, 435, 10, expedited_reason
+				Else
+					Text 5, 80, 135, 10, "Expedited Referral was NOT Requested."
+				End If
+				Text 5, 110, 150, 10, "Person who withdrew the SMRT Request:"
+				Text 215, 125, 120, 10, "Date SMRT Request was withdrawn:"
+				Text 5, 140, 80, 10, "Additional SMRT Notes"
+			EndDialog
+
+    		Dialog Dialog1
+    		cancel_without_confirmation
+
+			If ButtonPressed = change_details_btn Then		'this runs the dialogs to change the referral information using the dialogs in function
+				Call gather_SMRT_request_info()
+				err_msg = "LOOP"
+			End If
+    		If Person_who_withdrew = "Select or Type" or trim(Person_who_withdrew) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the name of the person who withdrew the request for a SMRT determination (or select from a household member listed)."
+			If IsDate(withdraw_date) = False Then err_msg = err_msg & vbNewLine & "* Enter the date the request was withdrawn."
+			IF err_msg <> "" and left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    	Loop until err_msg = ""
+   		Call check_for_password(are_we_passworded_out)
+    LOOP UNTIL are_we_passworded_out = False
+
+	'identifying if the request information has been changed for details in CASE/NOTE
+	If initial_SMRT_member <> SMRT_member Then smrt_request_info_changed = True
+	If initial_memb_number <> memb_number Then smrt_request_info_changed = True
+	If initial_SMRT_member_name <> SMRT_member_name Then smrt_request_info_changed = True
+	If initial_SMRT_start_date <> SMRT_start_date Then smrt_request_info_changed = True
+	If initial_referral_date <> referral_request_date Then smrt_request_info_changed = True
+	If initial_referred_exp <> referred_exp Then smrt_request_info_changed = True
+	If initial_expedited_reason <> expedited_reason Then smrt_request_info_changed = True
+	If initial_referral_reason <> referral_reason Then smrt_request_info_changed = True
+
+	start_a_blank_case_note      'navigates to case/note and puts case/note into edit mode
+    Call write_variable_in_CASE_NOTE("---SMRT Determination Request Withdrawn ---")
+	Call write_bullet_and_variable_in_CASE_NOTE("Withdrawn by", Person_who_withdrew)
+	Call write_bullet_and_variable_in_CASE_NOTE("Withdrawn on", withdraw_date)
+    Call write_bullet_and_variable_in_CASE_NOTE("Other SMRT notes", other_notes)
+	If smrt_request_info_changed = True Then call write_variable_in_CASE_NOTE("Referral information has been updated.")
+	call write_variable_in_CASE_NOTE("Referral details:")
+	If memb_number = "" Then call write_bullet_and_variable_in_CASE_NOTE("SMRT requested for", SMRT_member)
+	If memb_number <> "" Then call write_bullet_and_variable_in_CASE_NOTE("SMRT requested for", "MEMB " & memb_number & " - " & SMRT_member_name)
+	Call write_bullet_and_variable_in_CASE_NOTE("Age", memb_age)
+    Call write_bullet_and_variable_in_CASE_NOTE("SMRT referral requested on", referral_request_date)
+    Call write_bullet_and_variable_in_CASE_NOTE("Reason for referral", referral_reason)
+    Call write_bullet_and_variable_in_CASE_NOTE("SMRT requested start date", SMRT_start_date)
+	Call write_bullet_and_variable_in_CASE_NOTE("Was referral expedited", referred_exp)
+	If referred_exp = "Yes" then Call write_bullet_and_variable_in_CASE_NOTE("Expedited reason", expedited_reason)
+    Call write_variable_in_CASE_NOTE ("---")
+    call write_variable_in_CASE_NOTE(worker_signature)
+
+	end_msg = end_msg & vbCr & vbCr & "Request for SMRT disability determination was withdrawn."
+End If
 
 Call script_end_procedure_with_error_report(end_msg)
 
