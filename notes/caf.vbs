@@ -8986,6 +8986,7 @@ If TIKL_checkbox = checked and application_processing = True then
         TIKL_checkbox = unchecked
 	Else
         If cash_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "Cash/"
+        If GRH_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "GRH/"
         If SNAP_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "SNAP/"
         If EMER_checkbox = checked then TIKL_msg_one = TIKL_msg_one & "EMER/"
         TIKL_msg_one = Left(TIKL_msg_one, (len(TIKL_msg_one) - 1))
