@@ -5525,7 +5525,7 @@ allow_EMER_untrack = False
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 281, 135, "CAF Script Case number dialog"
   EditBox 55, 80, 40, 15, MAXIS_case_number
-  DropListBox 10, 115, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
+  DropListBox 10, 115, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)"+chr(9)+"CAF Addendum (DHS-5223C)", CAF_form
   ButtonGroup ButtonPressed
     OkButton 170, 115, 50, 15
     CancelButton 225, 115, 50, 15
@@ -5551,7 +5551,7 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 If CAF_form = "CAF Addendum (DHS-5223C)" Then
     Call run_from_GitHub(script_repository & "notes/caf-addendum.vbs")
 End If
-
+If CAF_form = "MNbenefits" Then CAF_form = "CAF (DHS-5223) from MNbenefits"
 
 developer_mode = False
 
@@ -6117,6 +6117,9 @@ If vars_filled = False Then
 			If multiple_CAF_dates = True or multiple_interview_dates = True Then
 				PROG_CAF_Form = CAF_Form
 				REVW_CAF_Form = CAF_Form
+				If PROG_CAF_Form = "CAF (DHS-5223) from MNbenefits" then PROG_CAF_Form = "MNbenefits"
+				If REVW_CAF_Form = "CAF (DHS-5223) from MNbenefits" then REVW_CAF_Form = "MNbenefits"
+
 				dlg_wdth = 365
 				dlg_len = dlg_len + 60
 			End If
@@ -6222,11 +6225,11 @@ If vars_filled = False Then
 					y_pos = y_pos + 20
 					Text 10, y_pos+5, 100, 10, "REVW CAF Date: " & REVW_CAF_datestamp
 					Text 115, y_pos+5, 100, 10, "REVW Interview: " & REVW_interview_date
-					DropListBox 220, y_pos, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"MNbenefits"+chr(9)+"ApplyMN"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", REVW_CAF_Form
+					DropListBox 220, y_pos, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"HUF (DHS-8107)"+chr(9)+"MNbenefits"+chr(9)+"Combined AR for Certain Pops (DHS-3727)", REVW_CAF_Form
 					y_pos = y_pos + 20
 					Text 10, y_pos+5, 100, 10, "PROG CAF Date: " & PROG_CAF_datestamp
 					Text 115, y_pos+5, 100, 10, "PROG Interview: " & PROG_interview_date
-					DropListBox 220, y_pos, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits"+chr(9)+"ApplyMN", PROG_CAF_Form
+					DropListBox 220, y_pos, 140, 15, "Select One:"+chr(9)+"CAF (DHS-5223)"+chr(9)+"SNAP App for Srs (DHS-5223F)"+chr(9)+"MNbenefits", PROG_CAF_Form
 					y_pos = y_pos + 20
 				End If
 				Text 10, dlg_len-15, 50, 10, "Footer Month: "
@@ -6307,6 +6310,8 @@ If vars_filled = False Then
 		LOOP UNTIL err_msg = ""									'loops until all errors are resolved
 		CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 	Loop until are_we_passworded_out = false					'loops until user passwords back in
+	If REVW_CAF_Form = "MNbenefits" Then REVW_CAF_Form = "CAF (DHS-5223) from MNbenefits"
+	If PROG_CAF_Form = "MNbenefits" Then PROG_CAF_Form = "CAF (DHS-5223) from MNbenefits"
 
 	interview_required = True
 	If option_to_process_with_no_interview = True and adult_cash_er_no_interview_checkbox = checked Then interview_required = False
@@ -9993,9 +9998,11 @@ If CAF_progs <> "" Then
 Else
     CAF_progs = "None"
 End If
-Call write_bullet_and_variable_in_CASE_NOTE("Programs requested in writing on the form", CAF_progs)
-If family_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for FAMILY programs.")
-If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for ADULT programs.")
+Call write_bullet_and_variable_in_CASE_NOTE("Programs requested", CAF_progs)
+If CASH_checkbox = checked Then
+	If family_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for FAMILY programs.")
+	If adult_cash = True Then Call write_variable_in_CASE_NOTE("* Cash request is for ADULT programs.")
+End If
 Call write_bullet_and_variable_in_CASE_NOTE("Info", case_details_and_notes_about_process)
 'Household and personal information
 If SNAP_checkbox = checked Then
@@ -10350,8 +10357,7 @@ IF SNAP_recert_is_likely_24_months = TRUE THEN					'if we determined on stat/rev
 	END IF
 END IF
 
-end_msg = "Success! " & CAF_form & " has been successfully noted. Please remember to run the Approved Programs, Closed Programs, or Denied Programs scripts if  results have been APP'd."
-If do_not_update_prog = 1 Then end_msg = end_msg & vbNewLine & vbNewLine & "It was selected that PROG would NOT be updated because " & no_update_reason
+end_msg = "Success! " & CAF_form & " has been successfully noted. Please remember to run the Eligibility Summary script if results have been approved in MAXIS ('APP' completed)."
 
 save_your_work
 
