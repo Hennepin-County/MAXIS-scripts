@@ -9108,6 +9108,7 @@ End If
 ' If CAF_type = "Recertification" then CAF_type = MAXIS_footer_month & "/" & MAXIS_footer_year & " recert"
 progs_list = ""
 If cash_checkbox = checked Then progs_list = progs_list & ", Cash"
+If GRH_checkbox = checked Then progs_list = progs_list & ", GRH"
 If SNAP_checkbox = checked Then progs_list = progs_list & ", SNAP"
 If EMER_checkbox = checked Then progs_list = progs_list & ", EMER"
 If left(progs_list, 1) = "," Then progs_list = right(progs_list, len(progs_list) - 2)
@@ -9116,6 +9117,10 @@ prog_and_type_list = ""
 If cash_checkbox = checked Then
     If the_process_for_cash = "Application" Then prog_and_type_list = prog_and_type_list & ", Cash App"
     If the_process_for_cash = "Recertification" Then prog_and_type_list = prog_and_type_list & ", " & cash_recert_mo & "/" & cash_recert_yr & " Cash Recert"
+End If
+If GRH_checkbox = checked Then
+    If the_process_for_grh = "Application" Then prog_and_type_list = prog_and_type_list & ", GRH App"
+    If the_process_for_grh = "Recertification" Then prog_and_type_list = prog_and_type_list & ", " & grh_recert_mo & "/" & grh_recert_yr & " GRH Recert"
 End If
 If snap_checkbox = checked Then
     If the_process_for_snap = "Application" Then prog_and_type_list = prog_and_type_list & ", SNAP App"
