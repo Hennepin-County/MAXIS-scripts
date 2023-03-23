@@ -114,13 +114,6 @@ script_array_CA_main(script_num).description			= "Transfers cases both in and ou
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array_CA_main(script_num)			'Resets the array to add one more element to it
 Set script_array_CA_main(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_CA_main(script_num).script_name			= "Email CCAP"				'needs spaces to generate button width properly.'Script name
-script_array_CA_main(script_num).file_name				= "ca-email-ccap.vbs"														'Script URL
-script_array_CA_main(script_num).description			= "Sends an email to the CCAP Team for MNbenefits Application when the MAXIS programs requested do not need to be pended."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_CA_main(script_num)			'Resets the array to add one more element to it
-Set script_array_CA_main(script_num) = new script		'Set this array element to be a new script. Script details below...
 script_array_CA_main(script_num).script_name 			= "MIPPA"																				'Script name
 script_array_CA_main(script_num).file_name 				= "ca-mippa.vbs"																		'Script URL
 script_array_CA_main(script_num).description 			= "Processes MIPPA applications per instructions found in POLI/TEMP TE02.07.459."
