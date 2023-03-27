@@ -5799,9 +5799,9 @@ If vars_filled = False Then
 		prog_snap_appl_date = replace(prog_snap_appl_date, " ", "/")
 		If IsDate(prog_snap_appl_date) = True Then
 			If DateDiff("d", past_60_days, prog_snap_appl_date) >= 0 Then
-				CASH_checkbox = checked
-				allow_CASH_untrack = True
-				the_process_for_cash = "Application"
+				SNAP_checkbox = checked
+				allow_SNAP_untrack = True
+				the_process_for_SNAP = "Application"
 				PROG_CAF_datestamp = prog_snap_appl_date
 				prog_snap_intv_date = replace(prog_snap_intv_date, " ", "/")
 				If prog_snap_intv_date <> "__/__/__" Then PROG_interview_date = prog_snap_intv_date
@@ -9979,11 +9979,13 @@ Else
     case_notes_information = case_notes_information & "Script Header - " & CAF_datestamp & " CAF for " & prog_and_type_list & ": " & CAF_status & " %^% %^%"
     CALL write_variable_in_CASE_NOTE(CAF_datestamp & " CAF for " & prog_and_type_list & ": " & CAF_status)
 End If
-Call write_bullet_and_variable_in_CASE_NOTE("Form Received", CAF_form)
 If multiple_CAF_dates = True Then
 	CALL write_variable_in_CASE_NOTE("  --- Multiple forms received ---")
 	Call write_bullet_and_variable_in_CASE_NOTE("Form", REVW_CAF_Form & ", received on: " & REVW_CAF_datestamp)
 	Call write_bullet_and_variable_in_CASE_NOTE("Form", PROG_CAF_Form & ", received on: " & PROG_CAF_datestamp)
+Else
+	Call write_bullet_and_variable_in_CASE_NOTE("Form Received", CAF_form)
+	Call write_bullet_and_variable_in_CASE_NOTE("Form Received Date", CAF_datestamp)
 End If
 'Programs requested
 If CASH_checkbox = checked Then CAF_progs = CAF_progs & ", Cash"
