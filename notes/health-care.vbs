@@ -62,6 +62,46 @@ changelog_display
 
 Call run_another_script("C:\MAXIS-scripts\misc\class stat_detail.vbs")
 
+'Dialog Editor saved format
+' BeginDialog Dialog1, 0, 0, 555, 385, "Health Care Members Request"
+'   GroupBox 10, 10, 465, 10, "Residents Requesting Health Care Coverage"
+'   ButtonGroup ButtonPressed
+'     PushButton 10, 25, 40, 15, "MEMB 01", Button3
+'     PushButton 50, 25, 40, 15, "MEMB 01", Button5
+'   GroupBox 10, 45, 465, 310, "MEMB XX - Member Name"
+'   Text 20, 60, 180, 10, "Member: NAME GOES HERE"
+'   Text 35, 70, 75, 10, "AGE: XXX"
+'   Text 215, 60, 75, 10, "SSN: XXX-XX-XXXX"
+'   Text 215, 70, 75, 10, "DOB: MM/DD/YY"
+'   Text 310, 60, 110, 10, " Application Date: MM/DD/YY"
+'   Text 315, 70, 95, 10, "Coverage Request: MM/YY"
+'   Text 20, 90, 355, 10, "DISA - Start date: MM/DD/YY - End Date: MM/DD/YY   -    HC DISA Status: "
+'   Text 40, 100, 325, 10, "Certification - Start date: MM/DD/YY - End Date: MM/DD/YY   -    Verif: "
+'   Text 20, 115, 355, 10, "PREG - Due Date: MM/DD/YY   -   Verif:"
+'   Text 45, 125, 325, 10, "Pregnancy End Date: MM/DD/YY   -   Verif:"
+'   Text 20, 140, 380, 10, "PARE - Members lists as Child of Resident:"
+'   Text 20, 155, 385, 10, "MEDI - Medicare Information - Source of detail: "
+'   Text 40, 165, 145, 10, "Part A Premium - $ XXX"
+'   Text 40, 175, 150, 10, "Part A Start: MM/DD/YY - End: MM/DD/YY"
+'   Text 205, 165, 115, 10, " Part B Premium - $ XXX"
+'   Text 205, 175, 215, 10, " Part B Premium - Start: MM/DD/YY - End: MM/DD/YY"
+'   Text 20, 200, 105, 10, "Health Care Determination is at "
+'   DropListBox 130, 195, 95, 45, "", List1
+'   Text 485, 5, 75, 10, "---   DIALOGS   ---"
+'   GroupBox 10, 220, 465, 60, "Medical Assistance"
+'   Text 20, 240, 80, 10, "MA Basis of Eligibility:"
+'   DropListBox 100, 235, 155, 45, "", List2
+'   Text 35, 260, 65, 10, "Notes onMA Basis:"
+'   EditBox 100, 255, 365, 15, Edit2
+'   GroupBox 10, 285, 465, 60, "Medicare Savings Programs"
+'   Text 20, 305, 80, 10, "MSP Basis of Eligibility:"
+'   DropListBox 100, 300, 155, 45, "", List3
+'   Text 30, 325, 70, 10, "Notes on MSP Basis:"
+'   EditBox 100, 320, 365, 15, Edit3
+'   ButtonGroup ButtonPressed
+'     CancelButton 490, 360, 50, 15
+'     OkButton 490, 340, 50, 15
+' EndDialog
 
 
 function define_main_dialog()
