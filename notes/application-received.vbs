@@ -168,9 +168,41 @@ EMReadScreen case_name_for_data_table, 20, 21, 46
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, active_programs, programs_applied_for)
 EMReadScreen pnd2_appl_date, 8, 8, 29               'Grabbing the PND2 date from CASE CURR in case the information cannot be pulled from REPT/PND2
 
+Call navigate_to_MAXIS_screen("CASE", "PERS")               'Getting client eligibility of HC from CASE PERS
+pers_row = 10                                               'This is where client information starts on CASE PERS
+clt_hc_is_pending = False                                   'defining this at the beginning of each row of CASE PERS
+HH_members_pending = ""
+Do
+	EMReadScreen clt_hc_ref_numb, 2, pers_row, 3     'this reads for the end of the list
+	EMReadScreen clt_hc_status, 1, pers_row, 61             'reading the HC status of each client
+	'MsgBox clt_hc_status
+	If clt_hc_status = "P" Then
+		clt_hc_is_pending = True                             'if HC is active then we will add this client to the array to find additional information
+		HH_members_pending = HH_members_pending & ", MEMB " & clt_hc_ref_numb
+	End If
+
+	pers_row = pers_row + 3         'next client information is 3 rows down
+	If pers_row = 19 Then           'this is the end of the list of client on each list
+		PF8                         'going to the next page of client information
+		on_page = on_page + 1       'saving that we have gone to a new page
+		pers_row = 10               'resetting the row to read at the top of the next page
+		EMReadScreen end_of_list, 9, 24, 14
+		If end_of_list = "LAST PAGE" Then Exit Do
+	End If
+	EMReadScreen next_pers_ref_numb, 2, pers_row, 3     'this reads for the end of the list
+	' MsgBox "next_pers_ref_numb - " & next_pers_ref_numb & vbCr & "clt_hc_status - " & clt_hc_status
+Loop until next_pers_ref_numb = "  "
+If left(HH_members_pending, 1) = "," Then HH_members_pending = right(HH_members_pending, len(HH_members_pending)-1)
+HH_members_pending = trim(HH_members_pending)
+PF3
+If clt_hc_is_pending = True and InStr(programs_applied_for, "HC") = 0 Then
+	If programs_applied_for <> "" Then programs_applied_for = programs_applied_for & ", HC"
+	If programs_applied_for = "" Then programs_applied_for = "HC"
+End If
+
 case_status = trim(case_status)     'cutting off any excess space from the case_status read from CASE/CURR above
 script_run_lowdown = "CASE STATUS - " & case_status & vbCr & "CASE IS PENDING - " & case_pending        'Adding details about CASE/CURR information to a script report out to BZST
-If case_status = "CAF1 PENDING" OR case_pending = False Then                    'The case MUST be pending and NOT in PND1 to continue.
+If case_status = "CAF1 PENDING" OR (case_pending = False and clt_hc_is_pending = False) Then                    'The case MUST be pending and NOT in PND1 to continue.
     call script_end_procedure_with_error_report("This case is not in PND2 status. Current case status in MAXIS is " & case_status & ". Update MAXIS to put this case in PND2 status and then run the script again.")
 End If
 
@@ -310,9 +342,12 @@ If app_recvd_note_found = True Then
     If unknown_hc_pending = True Then hc_case = True                    'finding if the case has HC pending
     If ma_status = "PENDING" Then hc_case = True
     If msp_status = "PENDING" Then hc_case = True
+	If clt_hc_is_pending = True Then hc_case = True
 
     'if HC is pending, we need to confirm that there are 2 different applications to process.
     If hc_case = True Then hc_request_on_second_app = MsgBox("It appears this case has already had the 'Application Received' script on this case. For CAF based programs, we should only run Application Received once since the application dates need to be aligned." & vbCr & vbCR &_
+															 "Case currently has the following programs pending: " & programs_applied_for & vbCr & vbCR &_
+															 "The following household members have Health Care pending: " & HH_members_pending & vbCr & vbCR &_
                                                              "Are there 2 seperate applications? One for Health Care and another for CAF based program(s)?", vbquestion + vbYesNo, "Type of Application Process")
     'If no HC or if answered 'No' we need to run Subsequent Application instead
     If hc_case = False or hc_request_on_second_app = vbNo Then  call run_from_GitHub(script_repository & "notes/subsequent-application.vbs")
@@ -478,7 +513,7 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs
     Text 195, y_pos, 50, 10, emer_type
     y_pos = y_pos + 10
   End If
-  If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True Then
+  If ma_status = "PENDING" OR msp_status = "PENDING" OR unknown_hc_pending = True OR clt_hc_is_pending = True Then
     Text 195, y_pos, 50, 10, "HC"
     y_pos = y_pos + 10
   End If
@@ -542,7 +577,7 @@ Do
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = FALSE					'loops until user passwords back in
 
-app_date_with_banks = replace(application_date, "/", " ")                       'creating a variable formatted with spaces instead of '/' for reading on HCRE if needed later in the script
+app_date_with_blanks = replace(application_date, "/", " ")                       'creating a variable formatted with spaces instead of '/' for reading on HCRE if needed later in the script
 
 Call convert_date_into_MAXIS_footer_month(application_date, MAXIS_footer_month, MAXIS_footer_year)      'We want to be acting in the application month generally
 
@@ -799,7 +834,7 @@ If how_application_rcvd = "Request to APPL Form" THEN                           
             EMReadScreen hcre_app_date, 8, hcre_row, 51             'read the app_date
             EMReadScreen hcre_ref_nbr, 2, hcre_row, 24              'read the reference number
             'if the app date matches the app date we are processing, we will save the reference number to the list of all that match
-            If hcre_app_date = app_date_with_banks Then household_persons = household_persons & hcre_ref_nbr & ", "
+            If hcre_app_date = app_date_with_blanks Then household_persons = household_persons & hcre_ref_nbr & ", "
 
             hcre_row = hcre_row + 1         'go to the next row.
             If hcre_row = 18 Then           'go to the next page IF we are at the last row
