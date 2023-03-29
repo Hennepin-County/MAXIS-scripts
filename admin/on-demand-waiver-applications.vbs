@@ -2598,8 +2598,8 @@ ObjStatsExcel.Quit
 
 ' MsgBox "Step Six - The emails, the emails, what what, the emails"
 qi_member_email = replace(qi_member_on_ONDEMAND, " ", ".") & "@hennepin.us"
-cc_email = "tanya.payne@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
-cc_email = "hsph.ews.bluezonescripts@hennepin.us"
+' cc_email = "tanya.payne@hennepin.us; hsph.ews.bluezonescripts@hennepin.us"
+cc_email = "tanya.payne@hennepin.us"
 If qi_worklist_threshold_reached = True Then cc_email = "HSPH.EWS.QUALITYIMPROVEMENT@hennepin.us; tanya.payne@hennepin.us"
 
 email_subject = "On Demand List is Ready"
@@ -2625,7 +2625,7 @@ If list_of_baskets_at_display_limit <> "" Then
 	basket_email_body = basket_email_body & list_of_baskets_at_display_limit & vbCr & vbCr
 	' basket_email_body = basket_email_body & "" & vbCr
 	basket_email_body = basket_email_body & "Thank you!" & vbCr
-	Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us", "hsph.ews.bluezonescripts@hennepin.us", basket_email_subject, basket_email_body, "", True)
+	Call create_outlook_email("Faughn.Ramisch-Church@hennepin.us", "tanya.payne@hennepin.us", basket_email_subject, basket_email_body, "", True)
 End If
 
 If cases_to_alert_BZST <> "" Then
