@@ -2955,6 +2955,7 @@ For each MAXIS_case_number in case_number_array
 
 Next
 
+Call date_array_generator(MAXIS_footer_month, MAXIS_footer_year, date_array)
 
 'Ends here if the user selected to just do TYPE/PROG/REVW for all cases
 If approve_case_dropdown = "no, but do TYPE/PROG/REVW" then
@@ -2965,9 +2966,10 @@ End if
 
 For each MAXIS_case_number in case_number_array
 
-	'Navigates to STAT/SUMM for each case
+	'Navigates to STAT/SUMM for each
 	call navigate_to_MAXIS_screen("STAT", "SUMM")
 	MAXIS_background_check
+	EMReadScreen SELF_check, 4, 2, 50
 	EMReadScreen ERRR_check, 4, 2, 52	'Extra err handling in case the case was in background
 	If ERRR_check = "ERRR" then transmit
 
@@ -4050,21 +4052,29 @@ For each MAXIS_case_number in case_number_array
 		END IF
 	Next
 
-	DO
+	original_MAXIS_footer_month = MAXIS_footer_month
+	original_MAXIS_footer_year = MAXIS_footer_year
+	For each each_month in date_array
+	' DO
+		Call convert_date_into_MAXIS_footer_month(each_month, MAXIS_footer_month, MAXIS_footer_year)
+
 		PF3		'---Navigates to STAT/WRAP
 		EMReadScreen at_wrap, 4, 2, 46
-		EMReadScreen at_self, 4, 2, 50
-		IF at_wrap = "WRAP" THEN EMReadScreen benefit_month, 2, 20, 55
-		IF at_self = "SELF" THEN EMReadScreen benefit_month, 2, 20, 43
-		future_month = DatePart("M", DateAdd("M", 1, date))
-		IF len(future_month) <> 2 THEN future_month = "0" & future_month
-		IF int(benefit_month) <> int(future_month) THEN
-			EMWriteScreen "Y", 16, 54
-			transmit
-		ELSEIF int(benefit_month) = int(future_month) THEN
-			EXIT DO
-		END IF
 
+		If at_wrap = "WRAP" Then
+			Call write_value_and_transmit("Y", 16, 54)
+		Else
+			Call back_to_SELF
+			MAXIS_background_check
+		End If
+		EMReadScreen SUMM_check, 4, 2, 46
+		EMReadScreen footer_month_check, 2, 20, 55
+		EMReadScreen footer_year_check, 2, 20, 58
+
+		If SUMM_check <> "SUMM" or footer_month_check <> MAXIS_footer_month or footer_month_check <> MAXIS_footer_month Then
+			Call back_to_SELF
+			MAXIS_background_check
+		End If
 
 		'---Now the script will update BUSI, COEX, DCEX, JAEORBS, UNEA, WKEX for future months.
 		For current_memb = 1 to total_membs
@@ -4311,10 +4321,13 @@ For each MAXIS_case_number in case_number_array
 				CALL write_panel_to_MAXIS_WKEX(WKEX_program, WKEX_fed_tax_retro, WKEX_fed_tax_prosp, WKEX_fed_tax_verif, WKEX_state_tax_retro, WKEX_state_tax_prosp, WKEX_state_tax_verif, WKEX_fica_retro, WKEX_fica_prosp, WKEX_fica_verif, WKEX_tran_retro, WKEX_tran_prosp, WKEX_tran_verif, WKEX_tran_imp_rel, WKEX_meals_retro, WKEX_meals_prosp, WKEX_meals_verif, WKEX_meals_imp_rel, WKEX_uniforms_retro, WKEX_uniforms_prosp, WKEX_uniforms_verif, WKEX_uniforms_imp_rel, WKEX_tools_retro, WKEX_tools_prosp, WKEX_tools_verif, WKEX_tools_imp_rel, WKEX_dues_retro, WKEX_dues_prosp, WKEX_dues_verif, WKEX_dues_imp_rel, WKEX_othr_retro, WKEX_othr_prosp, WKEX_othr_verif, WKEX_othr_imp_rel, WKEX_HC_Exp_Fed_Tax, WKEX_HC_Exp_State_Tax, WKEX_HC_Exp_FICA, WKEX_HC_Exp_Tran, WKEX_HC_Exp_Tran_imp_rel, WKEX_HC_Exp_Meals, WKEX_HC_Exp_Meals_Imp_Rel, WKEX_HC_Exp_Uniforms, WKEX_HC_Exp_Uniforms_Imp_Rel, WKEX_HC_Exp_Tools, WKEX_HC_Exp_Tools_Imp_Rel, WKEX_HC_Exp_Dues, WKEX_HC_Exp_Dues_Imp_Rel, WKEX_HC_Exp_Othr, WKEX_HC_Exp_Othr_Imp_Rel)
 				STATS_manualtime = STATS_manualtime + 20
 			END IF
-			NEXT
-	LOOP UNTIL benefit_month = future_month
+		NEXT
+	' LOOP UNTIL benefit_month = future_month
+	Next
 	'Gets back to self
 	back_to_self
+	MAXIS_footer_month = original_MAXIS_footer_month
+	MAXIS_footer_year = original_MAXIS_footer_year
 
 Next
 
