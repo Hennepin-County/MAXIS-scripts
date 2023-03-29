@@ -125,6 +125,7 @@ class stat_detail
 	public stat_jobs_one_main_pay_freq()
 	public stat_jobs_one_retro_monthly_gross_wage()
 	public stat_jobs_one_prosp_monthly_gross_wage()
+	public stat_jobs_one_health_care_income_pay_day()
 	public stat_jobs_one_snap_pic_pay_freq()
 	public stat_jobs_one_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_one_snap_pic_ave_inc_per_pay()
@@ -144,6 +145,7 @@ class stat_detail
 	public stat_jobs_one_mfip_gross_amt()
 	public stat_jobs_one_ga_gross_amt()
 	public stat_jobs_one_mfip_counted_amt()
+	public stat_jobs_one_notes()
 	public stat_jobs_two_exists()
 	public stat_jobs_two_job_ended()
 	public stat_jobs_two_job_counted_for_snap()
@@ -176,6 +178,7 @@ class stat_detail
 	public stat_jobs_two_mfip_gross_amt()
 	public stat_jobs_two_ga_gross_amt()
 	public stat_jobs_two_mfip_counted_amt()
+	public stat_jobs_two_notes()
 	public stat_jobs_three_exists()
 	public stat_jobs_three_job_ended()
 	public stat_jobs_three_job_counted_for_snap()
@@ -208,6 +211,7 @@ class stat_detail
 	public stat_jobs_three_mfip_gross_amt()
 	public stat_jobs_three_ga_gross_amt()
 	public stat_jobs_three_mfip_counted_amt()
+	public stat_jobs_three_notes()
 	public stat_jobs_four_exists()
 	public stat_jobs_four_job_ended()
 	public stat_jobs_four_job_counted_for_snap()
@@ -240,6 +244,7 @@ class stat_detail
 	public stat_jobs_four_mfip_gross_amt()
 	public stat_jobs_four_ga_gross_amt()
 	public stat_jobs_four_mfip_counted_amt()
+	public stat_jobs_four_notes()
 	public stat_jobs_five_exists()
 	public stat_jobs_five_job_ended()
 	public stat_jobs_five_job_counted_for_snap()
@@ -272,6 +277,7 @@ class stat_detail
 	public stat_jobs_five_mfip_gross_amt()
 	public stat_jobs_five_ga_gross_amt()
 	public stat_jobs_five_mfip_counted_amt()
+	public stat_jobs_five_notes()
 	public stat_busi_one_deemed_for_mfip()
 	public stat_busi_two_deemed_for_mfip()
 	public stat_busi_three_deemed_for_mfip()
@@ -430,6 +436,7 @@ class stat_detail
 	public stat_unea_one_snap_pic_prosp_monthly_inc()
 	Public stat_unea_one_mfip_gross_amt()
 	Public stat_unea_one_ga_gross_amt()
+	Public stat_unea_one_notes()
 	public stat_unea_two_exists()
 	public stat_unea_two_counted_for_snap()
 	public stat_unea_two_counted_for_mfip()
@@ -452,6 +459,7 @@ class stat_detail
 	public stat_unea_two_snap_pic_prosp_monthly_inc()
 	Public stat_unea_two_mfip_gross_amt()
 	Public stat_unea_two_ga_gross_amt()
+	Public stat_unea_two_notes()
 	public stat_unea_three_exists()
 	public stat_unea_three_counted_for_snap()
 	public stat_unea_three_counted_for_mfip()
@@ -474,6 +482,7 @@ class stat_detail
 	public stat_unea_three_snap_pic_prosp_monthly_inc()
 	Public stat_unea_three_mfip_gross_amt()
 	Public stat_unea_three_ga_gross_amt()
+	Public stat_unea_three_notes()
 	public stat_unea_four_exists()
 	public stat_unea_four_counted_for_snap()
 	public stat_unea_four_counted_for_mfip()
@@ -496,6 +505,7 @@ class stat_detail
 	public stat_unea_four_snap_pic_prosp_monthly_inc()
 	Public stat_unea_four_mfip_gross_amt()
 	Public stat_unea_four_ga_gross_amt()
+	Public stat_unea_four_notes()
 	public stat_unea_five_exists()
 	public stat_unea_five_counted_for_snap()
 	public stat_unea_five_counted_for_mfip()
@@ -518,6 +528,7 @@ class stat_detail
 	public stat_unea_five_snap_pic_prosp_monthly_inc()
 	Public stat_unea_five_mfip_gross_amt()
 	Public stat_unea_five_ga_gross_amt()
+	Public stat_unea_five_notes()
 	public stat_acct_one_exists()
 	public stat_acct_one_type()
 	public stat_acct_one_balence()
@@ -864,6 +875,7 @@ class stat_detail
 		ReDim stat_jobs_one_main_pay_freq(0)
 		ReDim stat_jobs_one_retro_monthly_gross_wage(0)
 		ReDim stat_jobs_one_prosp_monthly_gross_wage(0)
+		ReDim stat_jobs_one_health_care_income_pay_day(0)
 		ReDim stat_jobs_one_snap_pic_pay_freq(0)
 		ReDim stat_jobs_one_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_one_snap_pic_ave_inc_per_pay(0)
@@ -883,6 +895,7 @@ class stat_detail
 		ReDim stat_jobs_one_mfip_gross_amt(0)
 		ReDim stat_jobs_one_ga_gross_amt(0)
 		ReDim stat_jobs_one_mfip_counted_amt(0)
+		ReDim stat_jobs_one_notes(0)
 		ReDim stat_jobs_two_exists(0)
 		ReDim stat_jobs_two_job_ended(0)
 		ReDim stat_jobs_two_job_counted_for_snap(0)
@@ -915,6 +928,7 @@ class stat_detail
 		ReDim stat_jobs_two_mfip_gross_amt(0)
 		ReDim stat_jobs_two_ga_gross_amt(0)
 		ReDim stat_jobs_two_mfip_counted_amt(0)
+		ReDim stat_jobs_two_notes(0)
 		ReDim stat_jobs_three_exists(0)
 		ReDim stat_jobs_three_job_ended(0)
 		ReDim stat_jobs_three_job_counted_for_snap(0)
@@ -947,6 +961,7 @@ class stat_detail
 		ReDim stat_jobs_three_mfip_gross_amt(0)
 		ReDim stat_jobs_three_ga_gross_amt(0)
 		ReDim stat_jobs_three_mfip_counted_amt(0)
+		ReDim stat_jobs_three_notes(0)
 		ReDim stat_jobs_four_exists(0)
 		ReDim stat_jobs_four_job_ended(0)
 		ReDim stat_jobs_four_job_counted_for_snap(0)
@@ -979,6 +994,7 @@ class stat_detail
 		ReDim stat_jobs_four_mfip_gross_amt(0)
 		ReDim stat_jobs_four_ga_gross_amt(0)
 		ReDim stat_jobs_four_mfip_counted_amt(0)
+		ReDim stat_jobs_four_notes(0)
 		ReDim stat_jobs_five_exists(0)
 		ReDim stat_jobs_five_job_ended(0)
 		ReDim stat_jobs_five_job_counted_for_snap(0)
@@ -1011,6 +1027,7 @@ class stat_detail
 		ReDim stat_jobs_five_mfip_gross_amt(0)
 		ReDim stat_jobs_five_ga_gross_amt(0)
 		ReDim stat_jobs_five_mfip_counted_amt(0)
+		ReDim stat_jobs_five_notes(0)
 		ReDim stat_busi_one_exists(0)
 		ReDim stat_busi_one_type(0)
 		ReDim stat_busi_one_counted_for_snap(0)
@@ -1156,6 +1173,7 @@ class stat_detail
 		ReDim stat_unea_one_inc_end_date(0)
 		ReDim stat_unea_one_mfip_gross_amt(0)
 		ReDim stat_unea_one_ga_gross_amt(0)
+		ReDim stat_unea_one_notes(0)
 		ReDim stat_unea_one_retro_monthly_gross_income(0)
 		ReDim stat_unea_one_prosp_monthly_gross_income(0)
 		ReDim stat_unea_one_snap_pic_pay_freq(0)
@@ -1180,6 +1198,7 @@ class stat_detail
 		ReDim stat_unea_two_inc_end_date(0)
 		ReDim stat_unea_two_mfip_gross_amt(0)
 		ReDim stat_unea_two_ga_gross_amt(0)
+		ReDim stat_unea_two_notes(0)
 		ReDim stat_unea_two_retro_monthly_gross_income(0)
 		ReDim stat_unea_two_prosp_monthly_gross_income(0)
 		ReDim stat_unea_two_snap_pic_pay_freq(0)
@@ -1204,6 +1223,7 @@ class stat_detail
 		ReDim stat_unea_three_inc_end_date(0)
 		ReDim stat_unea_three_mfip_gross_amt(0)
 		ReDim stat_unea_three_ga_gross_amt(0)
+		ReDim stat_unea_three_notes(0)
 		ReDim stat_unea_three_retro_monthly_gross_income(0)
 		ReDim stat_unea_three_prosp_monthly_gross_income(0)
 		ReDim stat_unea_three_snap_pic_pay_freq(0)
@@ -1228,6 +1248,7 @@ class stat_detail
 		ReDim stat_unea_four_inc_end_date(0)
 		ReDim stat_unea_four_mfip_gross_amt(0)
 		ReDim stat_unea_four_ga_gross_amt(0)
+		ReDim stat_unea_four_notes(0)
 		ReDim stat_unea_four_retro_monthly_gross_income(0)
 		ReDim stat_unea_four_prosp_monthly_gross_income(0)
 		ReDim stat_unea_four_snap_pic_pay_freq(0)
@@ -1252,6 +1273,7 @@ class stat_detail
 		ReDim stat_unea_five_inc_end_date(0)
 		ReDim stat_unea_five_mfip_gross_amt(0)
 		ReDim stat_unea_five_ga_gross_amt(0)
+		ReDim stat_unea_five_notes(0)
 		ReDim stat_unea_five_retro_monthly_gross_income(0)
 		ReDim stat_unea_five_prosp_monthly_gross_income(0)
 		ReDim stat_unea_five_snap_pic_pay_freq(0)
@@ -1483,6 +1505,7 @@ class stat_detail
 			ReDim preserve stat_jobs_one_main_pay_freq(memb_count)
 			ReDim preserve stat_jobs_one_retro_monthly_gross_wage(memb_count)
 			ReDim preserve stat_jobs_one_prosp_monthly_gross_wage(memb_count)
+			ReDim preserve stat_jobs_one_health_care_income_pay_day(memb_count)
 			ReDim preserve stat_jobs_one_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_jobs_one_snap_pic_ave_hrs_per_pay(memb_count)
 			ReDim preserve stat_jobs_one_snap_pic_ave_inc_per_pay(memb_count)
@@ -1502,6 +1525,7 @@ class stat_detail
 			ReDim preserve stat_jobs_one_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_one_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_one_mfip_counted_amt(memb_count)
+			ReDim preserve stat_jobs_one_notes(memb_count)
 			ReDim preserve stat_jobs_two_exists(memb_count)
 			ReDim preserve stat_jobs_two_job_ended(memb_count)
 			ReDim preserve stat_jobs_two_job_counted_for_snap(memb_count)
@@ -1534,6 +1558,7 @@ class stat_detail
 			ReDim preserve stat_jobs_two_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_two_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_two_mfip_counted_amt(memb_count)
+			ReDim preserve stat_jobs_two_notes(memb_count)
 			ReDim preserve stat_jobs_three_exists(memb_count)
 			ReDim preserve stat_jobs_three_job_ended(memb_count)
 			ReDim preserve stat_jobs_three_job_counted_for_snap(memb_count)
@@ -1566,6 +1591,7 @@ class stat_detail
 			ReDim preserve stat_jobs_three_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_three_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_three_mfip_counted_amt(memb_count)
+			ReDim preserve stat_jobs_three_notes(memb_count)
 			ReDim preserve stat_jobs_four_exists(memb_count)
 			ReDim preserve stat_jobs_four_job_ended(memb_count)
 			ReDim preserve stat_jobs_four_job_counted_for_snap(memb_count)
@@ -1598,6 +1624,7 @@ class stat_detail
 			ReDim preserve stat_jobs_four_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_four_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_four_mfip_counted_amt(memb_count)
+			ReDim preserve stat_jobs_four_notes(memb_count)
 			ReDim preserve stat_jobs_five_exists(memb_count)
 			ReDim preserve stat_jobs_five_job_ended(memb_count)
 			ReDim preserve stat_jobs_five_job_counted_for_snap(memb_count)
@@ -1630,6 +1657,7 @@ class stat_detail
 			ReDim preserve stat_jobs_five_mfip_gross_amt(memb_count)
 			ReDim preserve stat_jobs_five_ga_gross_amt(memb_count)
 			ReDim preserve stat_jobs_five_mfip_counted_amt(memb_count)
+			ReDim preserve stat_jobs_five_notes(memb_count)
 			ReDim preserve stat_busi_one_exists(memb_count)
 			ReDim preserve stat_busi_one_type(memb_count)
 			ReDim preserve stat_busi_one_counted_for_snap(memb_count)
@@ -1777,6 +1805,7 @@ class stat_detail
 			ReDim preserve stat_unea_one_prosp_monthly_gross_income(memb_count)
 			ReDim preserve stat_unea_one_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_one_ga_gross_amt(memb_count)
+			ReDim preserve stat_unea_one_notes(memb_count)
 			ReDim preserve stat_unea_one_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_one_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_one_snap_pic_prosp_monthly_inc(memb_count)
@@ -1801,6 +1830,7 @@ class stat_detail
 			ReDim preserve stat_unea_two_prosp_monthly_gross_income(memb_count)
 			ReDim preserve stat_unea_two_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_two_ga_gross_amt(memb_count)
+			ReDim preserve stat_unea_two_notes(memb_count)
 			ReDim preserve stat_unea_two_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_two_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_two_snap_pic_prosp_monthly_inc(memb_count)
@@ -1825,6 +1855,7 @@ class stat_detail
 			ReDim preserve stat_unea_three_prosp_monthly_gross_income(memb_count)
 			ReDim preserve stat_unea_three_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_three_ga_gross_amt(memb_count)
+			ReDim preserve stat_unea_three_notes(memb_count)
 			ReDim preserve stat_unea_three_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_three_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_three_snap_pic_prosp_monthly_inc(memb_count)
@@ -1849,6 +1880,7 @@ class stat_detail
 			ReDim preserve stat_unea_four_prosp_monthly_gross_income(memb_count)
 			ReDim preserve stat_unea_four_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_four_ga_gross_amt(memb_count)
+			ReDim preserve stat_unea_four_notes(memb_count)
 			ReDim preserve stat_unea_four_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_four_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_four_snap_pic_prosp_monthly_inc(memb_count)
@@ -1873,6 +1905,7 @@ class stat_detail
 			ReDim preserve stat_unea_five_prosp_monthly_gross_income(memb_count)
 			ReDim preserve stat_unea_five_mfip_gross_amt(memb_count)
 			ReDim preserve stat_unea_five_ga_gross_amt(memb_count)
+			ReDim preserve stat_unea_five_notes(memb_count)
 			ReDim preserve stat_unea_five_snap_pic_pay_freq(memb_count)
 			ReDim preserve stat_unea_five_snap_pic_ave_inc_per_pay(memb_count)
 			ReDim preserve stat_unea_five_snap_pic_prosp_monthly_inc(memb_count)
@@ -2246,6 +2279,12 @@ class stat_detail
 				stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb))
 				If stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_one_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
 				PF3
+
+				Call write_value_and_transmit("X", 19, 48)
+				EMReadScreen stat_jobs_one_health_care_income_pay_day(each_memb), 10, 11, 62
+				stat_jobs_one_health_care_income_pay_day(each_memb) = trim(stat_jobs_one_health_care_income_pay_day(each_memb))
+				If stat_jobs_one_health_care_income_pay_day(each_memb) = "" Then stat_jobs_one_health_care_income_pay_day(each_memb) = "0.00"
+				PF3
 			End If
 
 			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
@@ -2338,6 +2377,13 @@ class stat_detail
 
 				stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_two_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_two_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				PF3
+
+				Call write_value_and_transmit("X", 19, 48)
+				EMReadScreen stat_jobs_two_health_care_income_pay_day(each_memb), 10, 11, 62
+				stat_jobs_two_health_care_income_pay_day(each_memb) = trim(stat_jobs_two_health_care_income_pay_day(each_memb))
+				If stat_jobs_two_health_care_income_pay_day(each_memb) = "" Then stat_jobs_two_health_care_income_pay_day(each_memb) = "0.00"
 				PF3
 			End If
 
@@ -2431,6 +2477,13 @@ class stat_detail
 
 				stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_three_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_three_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				PF3
+
+				Call write_value_and_transmit("X", 19, 48)
+				EMReadScreen stat_jobs_three_health_care_income_pay_day(each_memb), 10, 11, 62
+				stat_jobs_three_health_care_income_pay_day(each_memb) = trim(stat_jobs_three_health_care_income_pay_day(each_memb))
+				If stat_jobs_three_health_care_income_pay_day(each_memb) = "" Then stat_jobs_three_health_care_income_pay_day(each_memb) = "0.00"
 				PF3
 			End If
 
@@ -2524,6 +2577,13 @@ class stat_detail
 
 				stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_four_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_four_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				PF3
+
+				Call write_value_and_transmit("X", 19, 48)
+				EMReadScreen stat_jobs_four_health_care_income_pay_day(each_memb), 10, 11, 62
+				stat_jobs_four_health_care_income_pay_day(each_memb) = trim(stat_jobs_four_health_care_income_pay_day(each_memb))
+				If stat_jobs_four_health_care_income_pay_day(each_memb) = "" Then stat_jobs_four_health_care_income_pay_day(each_memb) = "0.00"
 				PF3
 			End If
 
@@ -2617,6 +2677,13 @@ class stat_detail
 
 				stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb) = trim(stat_jobs_five_grh_pic_ave_inc_per_pay(each_memb))
 				stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) = trim(stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb))
+				If stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) = "" Then stat_jobs_five_grh_pic_prosp_monthly_inc(each_memb) = "0.00"
+				PF3
+
+				Call write_value_and_transmit("X", 19, 48)
+				EMReadScreen stat_jobs_five_health_care_income_pay_day(each_memb), 10, 11, 62
+				stat_jobs_five_health_care_income_pay_day(each_memb) = trim(stat_jobs_five_health_care_income_pay_day(each_memb))
+				If stat_jobs_five_health_care_income_pay_day(each_memb) = "" Then stat_jobs_five_health_care_income_pay_day(each_memb) = "0.00"
 				PF3
 			End If
 		Next
