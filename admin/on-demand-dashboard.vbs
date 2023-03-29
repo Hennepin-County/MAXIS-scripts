@@ -598,6 +598,7 @@ function complete_admin_functions()
                 If tester_array(tester).tester_id_number = worker_number_to_resolve Then
                     worker_full_name_to_resolve = tester_array(tester).tester_full_name
                     qi_worker_supervisor_email = tester_array(tester).tester_supervisor_email
+					qi_worker_email = tester_array(tester).tester_email
                     qi_worker_first_name = tester_array(tester).tester_first_name
                     If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
                     If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
@@ -929,9 +930,11 @@ function create_assignment_report()
     ' End If
     main_email_body = main_email_body & vbCr & vbCr & "------"
     main_email_body = main_email_body & vbCr & qi_worker_first_name
+	' cc_email = "HSPH.EWS.BlueZoneScripts@hennepin.us"
+	cc_email = qi_worker_email
 
 	''sending the email
-    CALL create_outlook_email(qi_worker_supervisor_email, "HSPH.EWS.BlueZoneScripts@hennepin.us", main_email_subject, main_email_body, "", TRUE)
+    CALL create_outlook_email(qi_worker_supervisor_email, cc_email, main_email_subject, main_email_body, "", TRUE)
 
 	'this part will review the cookie folder to remove any that are more than a week old. This is a clean up effort
 	Set objFolder = objFSO.GetFolder(current_day_work_tracking_folder)							'Creates an oject of the whole my documents folder
