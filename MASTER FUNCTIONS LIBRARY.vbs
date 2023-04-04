@@ -7338,6 +7338,16 @@ function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, versi
 		version_number = "0" & elig_version
 		version_date = elig_date
 		version_result = elig_result
+
+		row = 1
+		col = 1
+		EMSearch "Auto-Closed", row, col
+		If row <> 0 Then
+			approval_found = false
+			version_date = ""
+			version_result = ""
+			PF3
+		End If
 	End If
 end function
 
