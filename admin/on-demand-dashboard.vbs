@@ -1423,7 +1423,7 @@ If local_demo = False Then
 		'identifying if the worker has already pulled a case for review or not
 		If cases_on_hold = 0 and cases_completed_by_current_worker = 0 and worker_on_task = False Then workers_first_task_pulled_for_review = True
 		'using the counts to determine if work has been started
-		If cases_with_review_completed <> 0 Then review_work_started = True
+		If cases_completed_by_current_worker <> 0 Then review_work_started = True
 		If all_cases_on_hold <> 0 Then review_work_started = True
 		If all_cases_in_progress <> 0 Then review_work_started = True
 	Else 'BULK run has not been completed for the day
