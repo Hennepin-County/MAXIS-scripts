@@ -169,6 +169,7 @@ class stat_detail
 	public stat_jobs_two_main_pay_freq()
 	public stat_jobs_two_retro_monthly_gross_wage()
 	public stat_jobs_two_prosp_monthly_gross_wage()
+	public stat_jobs_two_health_care_income_pay_day()
 	public stat_jobs_two_snap_pic_pay_freq()
 	public stat_jobs_two_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_two_snap_pic_ave_inc_per_pay()
@@ -202,6 +203,7 @@ class stat_detail
 	public stat_jobs_three_main_pay_freq()
 	public stat_jobs_three_retro_monthly_gross_wage()
 	public stat_jobs_three_prosp_monthly_gross_wage()
+	public stat_jobs_three_health_care_income_pay_day()
 	public stat_jobs_three_snap_pic_pay_freq()
 	public stat_jobs_three_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_three_snap_pic_ave_inc_per_pay()
@@ -235,6 +237,7 @@ class stat_detail
 	public stat_jobs_four_main_pay_freq()
 	public stat_jobs_four_retro_monthly_gross_wage()
 	public stat_jobs_four_prosp_monthly_gross_wage()
+	public stat_jobs_four_health_care_income_pay_day()
 	public stat_jobs_four_snap_pic_pay_freq()
 	public stat_jobs_four_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_four_snap_pic_ave_inc_per_pay()
@@ -268,6 +271,7 @@ class stat_detail
 	public stat_jobs_five_main_pay_freq()
 	public stat_jobs_five_retro_monthly_gross_wage()
 	public stat_jobs_five_prosp_monthly_gross_wage()
+	public stat_jobs_five_health_care_income_pay_day()
 	public stat_jobs_five_snap_pic_pay_freq()
 	public stat_jobs_five_snap_pic_ave_hrs_per_pay()
 	public stat_jobs_five_snap_pic_ave_inc_per_pay()
@@ -1291,6 +1295,7 @@ class stat_detail
 		ReDim stat_jobs_two_main_pay_freq(0)
 		ReDim stat_jobs_two_retro_monthly_gross_wage(0)
 		ReDim stat_jobs_two_prosp_monthly_gross_wage(0)
+		ReDim stat_jobs_two_health_care_income_pay_day(0)
 		ReDim stat_jobs_two_snap_pic_pay_freq(0)
 		ReDim stat_jobs_two_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_two_snap_pic_ave_inc_per_pay(0)
@@ -1324,6 +1329,7 @@ class stat_detail
 		ReDim stat_jobs_three_main_pay_freq(0)
 		ReDim stat_jobs_three_retro_monthly_gross_wage(0)
 		ReDim stat_jobs_three_prosp_monthly_gross_wage(0)
+		ReDim stat_jobs_three_health_care_income_pay_day(0)
 		ReDim stat_jobs_three_snap_pic_pay_freq(0)
 		ReDim stat_jobs_three_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_three_snap_pic_ave_inc_per_pay(0)
@@ -1357,6 +1363,7 @@ class stat_detail
 		ReDim stat_jobs_four_main_pay_freq(0)
 		ReDim stat_jobs_four_retro_monthly_gross_wage(0)
 		ReDim stat_jobs_four_prosp_monthly_gross_wage(0)
+		ReDim stat_jobs_four_health_care_income_pay_day(0)
 		ReDim stat_jobs_four_snap_pic_pay_freq(0)
 		ReDim stat_jobs_four_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_four_snap_pic_ave_inc_per_pay(0)
@@ -1390,6 +1397,7 @@ class stat_detail
 		ReDim stat_jobs_five_main_pay_freq(0)
 		ReDim stat_jobs_five_retro_monthly_gross_wage(0)
 		ReDim stat_jobs_five_prosp_monthly_gross_wage(0)
+		ReDim stat_jobs_five_health_care_income_pay_day(0)
 		ReDim stat_jobs_five_snap_pic_pay_freq(0)
 		ReDim stat_jobs_five_snap_pic_ave_hrs_per_pay(0)
 		ReDim stat_jobs_five_snap_pic_ave_inc_per_pay(0)
@@ -2293,6 +2301,7 @@ class stat_detail
 				ReDim preserve stat_jobs_two_main_pay_freq(memb_count)
 				ReDim preserve stat_jobs_two_retro_monthly_gross_wage(memb_count)
 				ReDim preserve stat_jobs_two_prosp_monthly_gross_wage(memb_count)
+				ReDim preserve stat_jobs_two_health_care_income_pay_day(memb_count)
 				ReDim preserve stat_jobs_two_snap_pic_pay_freq(memb_count)
 				ReDim preserve stat_jobs_two_snap_pic_ave_hrs_per_pay(memb_count)
 				ReDim preserve stat_jobs_two_snap_pic_ave_inc_per_pay(memb_count)
@@ -2326,6 +2335,7 @@ class stat_detail
 				ReDim preserve stat_jobs_three_main_pay_freq(memb_count)
 				ReDim preserve stat_jobs_three_retro_monthly_gross_wage(memb_count)
 				ReDim preserve stat_jobs_three_prosp_monthly_gross_wage(memb_count)
+				ReDim preserve stat_jobs_three_health_care_income_pay_day(memb_count)
 				ReDim preserve stat_jobs_three_snap_pic_pay_freq(memb_count)
 				ReDim preserve stat_jobs_three_snap_pic_ave_hrs_per_pay(memb_count)
 				ReDim preserve stat_jobs_three_snap_pic_ave_inc_per_pay(memb_count)
@@ -2359,6 +2369,7 @@ class stat_detail
 				ReDim preserve stat_jobs_four_main_pay_freq(memb_count)
 				ReDim preserve stat_jobs_four_retro_monthly_gross_wage(memb_count)
 				ReDim preserve stat_jobs_four_prosp_monthly_gross_wage(memb_count)
+				ReDim preserve stat_jobs_four_health_care_income_pay_day(memb_count)
 				ReDim preserve stat_jobs_four_snap_pic_pay_freq(memb_count)
 				ReDim preserve stat_jobs_four_snap_pic_ave_hrs_per_pay(memb_count)
 				ReDim preserve stat_jobs_four_snap_pic_ave_inc_per_pay(memb_count)
@@ -2392,6 +2403,7 @@ class stat_detail
 				ReDim preserve stat_jobs_five_main_pay_freq(memb_count)
 				ReDim preserve stat_jobs_five_retro_monthly_gross_wage(memb_count)
 				ReDim preserve stat_jobs_five_prosp_monthly_gross_wage(memb_count)
+				ReDim preserve stat_jobs_five_health_care_income_pay_day(memb_count)
 				ReDim preserve stat_jobs_five_snap_pic_pay_freq(memb_count)
 				ReDim preserve stat_jobs_five_snap_pic_ave_hrs_per_pay(memb_count)
 				ReDim preserve stat_jobs_five_snap_pic_ave_inc_per_pay(memb_count)
@@ -3397,7 +3409,7 @@ class stat_detail
 
 				Call write_value_and_transmit("X", 19, 48)
 				EMReadScreen stat_jobs_one_health_care_income_pay_day(each_memb), 10, 11, 62
-				stat_jobs_one_health_care_income_pay_day(each_memb) = trim(stat_jobs_one_health_care_income_pay_day(each_memb))
+				stat_jobs_one_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_one_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_one_health_care_income_pay_day(each_memb) = "" Then stat_jobs_one_health_care_income_pay_day(each_memb) = "0.00"
 				PF3
 			End If
@@ -3497,7 +3509,7 @@ class stat_detail
 
 				Call write_value_and_transmit("X", 19, 48)
 				EMReadScreen stat_jobs_two_health_care_income_pay_day(each_memb), 10, 11, 62
-				stat_jobs_two_health_care_income_pay_day(each_memb) = trim(stat_jobs_two_health_care_income_pay_day(each_memb))
+				stat_jobs_two_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_two_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_two_health_care_income_pay_day(each_memb) = "" Then stat_jobs_two_health_care_income_pay_day(each_memb) = "0.00"
 				PF3
 			End If
@@ -3597,7 +3609,7 @@ class stat_detail
 
 				Call write_value_and_transmit("X", 19, 48)
 				EMReadScreen stat_jobs_three_health_care_income_pay_day(each_memb), 10, 11, 62
-				stat_jobs_three_health_care_income_pay_day(each_memb) = trim(stat_jobs_three_health_care_income_pay_day(each_memb))
+				stat_jobs_three_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_three_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_three_health_care_income_pay_day(each_memb) = "" Then stat_jobs_three_health_care_income_pay_day(each_memb) = "0.00"
 				PF3
 			End If
@@ -3697,7 +3709,7 @@ class stat_detail
 
 				Call write_value_and_transmit("X", 19, 48)
 				EMReadScreen stat_jobs_four_health_care_income_pay_day(each_memb), 10, 11, 62
-				stat_jobs_four_health_care_income_pay_day(each_memb) = trim(stat_jobs_four_health_care_income_pay_day(each_memb))
+				stat_jobs_four_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_four_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_four_health_care_income_pay_day(each_memb) = "" Then stat_jobs_four_health_care_income_pay_day(each_memb) = "0.00"
 				PF3
 			End If
@@ -3797,7 +3809,7 @@ class stat_detail
 
 				Call write_value_and_transmit("X", 19, 48)
 				EMReadScreen stat_jobs_five_health_care_income_pay_day(each_memb), 10, 11, 62
-				stat_jobs_five_health_care_income_pay_day(each_memb) = trim(stat_jobs_five_health_care_income_pay_day(each_memb))
+				stat_jobs_five_health_care_income_pay_day(each_memb) = trim(replace(stat_jobs_five_health_care_income_pay_day(each_memb), "_", ""))
 				If stat_jobs_five_health_care_income_pay_day(each_memb) = "" Then stat_jobs_five_health_care_income_pay_day(each_memb) = "0.00"
 				PF3
 			End If
