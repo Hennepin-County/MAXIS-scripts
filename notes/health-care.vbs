@@ -115,6 +115,99 @@ Call run_another_script("C:\MAXIS-scripts\misc\class stat_detail.vbs")
 '     OkButton 490, 340, 50, 15
 ' EndDialog
 
+function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
+
+	Call navigate_to_MAXIS_screen("STAT", "AREP")
+
+	EMReadScreen arep_name, 37, 4, 32
+	arep_name = replace(arep_name, "_", "")
+	If arep_name <> "" Then
+		EMReadScreen arep_street_one, 22, 5, 32
+		EMReadScreen arep_street_two, 22, 6, 32
+		EMReadScreen arep_addr_city, 15, 7, 32
+		EMReadScreen arep_addr_state, 2, 7, 55
+		EMReadScreen arep_addr_zip, 5, 7, 64
+
+		arep_street_one = replace(arep_street_one, "_", "")
+		arep_street_two = replace(arep_street_two, "_", "")
+		arep_addr_street = arep_street_one & " " & arep_street_two
+		arep_addr_street = trim( arep_addr_street)
+		arep_addr_city = replace(arep_addr_city, "_", "")
+		arep_addr_state = replace(arep_addr_state, "_", "")
+		arep_addr_zip = replace(arep_addr_zip, "_", "")
+
+		state_array = split(state_list, chr(9))
+		For each state_item in state_array
+			If arep_addr_state = left(state_item, 2) Then
+				arep_addr_state = state_item
+			End If
+		Next
+
+		EMReadScreen arep_phone_one, 14, 8, 34
+		EMReadScreen arep_ext_one, 3, 8, 55
+		EMReadScreen arep_phone_two, 14, 9, 34
+		EMReadScreen arep_ext_two, 3, 8, 55
+
+		arep_phone_one = replace(arep_phone_one, ")", "")
+		arep_phone_one = replace(arep_phone_one, "  ", "-")
+		arep_phone_one = replace(arep_phone_one, " ", "-")
+		If arep_phone_one = "___-___-____" Then arep_phone_one = ""
+
+		arep_phone_two = replace(arep_phone_two, ")", "")
+		arep_phone_two = replace(arep_phone_two, "  ", "-")
+		arep_phone_two = replace(arep_phone_two, " ", "-")
+		If arep_phone_two = "___-___-____" Then arep_phone_two = ""
+
+		arep_ext_one = replace(arep_ext_one, "_", "")
+		arep_ext_two = replace(arep_ext_two, "_", "")
+
+		EMReadScreen forms_to_arep, 1, 10, 45
+		EMReadScreen mmis_mail_to_arep, 1, 10, 77
+
+	End If
+
+end function
+
+function access_SWKR_panel(access_type, swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone_one, swkr_ext_one, notices_to_swkr_yn)
+
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")
+	EMReadScreen swkr_name, 35, 6, 32
+	swkr_name = replace(swkr_name, "_", "")
+	If swkr_name <> "" Then
+		EMReadScreen swkr_street_one, 22, 8, 32
+		EMReadScreen swkr_street_two, 22, 9, 32
+		EMReadScreen swkr_addr_city, 15, 10, 32
+		EMReadScreen swkr_addr_state, 2, 10, 54
+		EMReadScreen swkr_addr_zip, 5, 10, 63
+
+		swkr_street_one = trim(replace(swkr_street_one, "_", ""))
+		swkr_street_two = trim(replace(swkr_street_two, "_", ""))
+		swkr_addr_street = swkr_street_one & " " & swkr_street_two
+		swkr_addr_street = trim( swkr_addr_street)
+		swkr_addr_city = trim(replace(swkr_addr_city, "_", ""))
+		swkr_addr_state = trim(replace(swkr_addr_state, "_", ""))
+		swkr_addr_zip = trim(replace(swkr_addr_zip, "_", ""))
+
+		state_array = split(state_list, chr(9))
+		For each state_item in state_array
+			If swkr_addr_state = left(state_item, 2) Then
+				swkr_addr_state = state_item
+			End If
+		Next
+
+		EMReadScreen swkr_phone_one, 14, 12, 34
+		EMReadScreen swkr_ext_one, 4, 12, 54
+
+		swkr_phone_one = replace(swkr_phone_one, ")", "")
+		swkr_phone_one = replace(swkr_phone_one, "  ", "-")
+		swkr_phone_one = replace(swkr_phone_one, " ", "-")
+		If swkr_phone_one = "___-___-____" Then swkr_phone_one = ""
+		swkr_ext_one = trim(replace(swkr_ext_one, "_", ""))
+
+		EMReadScreen notices_to_swkr_yn, 1, 15, 63
+		notices_to_swkr_yn = trim(replace(notices_to_swkr_yn, "_", ""))
+	End If
+end function
 
 function define_main_dialog()
 
@@ -122,15 +215,15 @@ function define_main_dialog()
 
 	  ButtonGroup ButtonPressed
 	    If page_display = show_member_page Then
-			GroupBox 10, 10, 465, 10, "Residents Requesting Health Care Coverage"
+			GroupBox 10, 10, 465, 30, "Residents Requesting Health Care Coverage"
 			x_pos = 10
 			For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 				If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
                     If the_memb = selected_memb Then
-    					Text x_pos+10, 30, 45, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb)
+    					Text x_pos+5, 25, 45, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb)
     				Else
     					' PushButton 10, y_pos, 45, 10, "Person " & (the_memb + 1), HH_MEMB_ARRAY(button_one, the_memb)
-						PushButton x_pos, 28, 40, 12, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb), HEALTH_CARE_MEMBERS(pers_btn_one_const, the_memb)
+						PushButton x_pos, 23, 40, 12, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb), HEALTH_CARE_MEMBERS(pers_btn_one_const, the_memb)
     				End If
     				x_pos = x_pos + 45
                 End If
@@ -153,8 +246,8 @@ function define_main_dialog()
 				Text 20, y_pos, 200, 10, "DISA   -   Start date: " & HEALTH_CARE_MEMBERS(DISA_start_date_const, selected_memb) & "   -   End Date: " & HEALTH_CARE_MEMBERS(DISA_end_date_const, selected_memb)
 				Text 250, y_pos, 200, 10, "HC DISA Status: " & HEALTH_CARE_MEMBERS(DISA_hc_status_info_const, selected_memb)
 				y_pos = y_pos + 10
-				If HEALTH_CARE_MEMBERS(DISA_cert_start_const, selected_memb) <> "" Then Text 55, y_pos, 200, 10, "Certification   -   Start date: " & HEALTH_CARE_MEMBERS(DISA_cert_start_const, selected_memb) & " - End Date: " & HEALTH_CARE_MEMBERS(DISA_cert_end_const, selected_memb)
-				If HEALTH_CARE_MEMBERS(DISA_cert_start_const, selected_memb) = "" Then Text 55, y_pos, 200, 10, "Certification   -   NO CERTIFICATION DATES Entered"
+				If HEALTH_CARE_MEMBERS(DISA_cert_start_const, selected_memb) <> "" Then Text 55, y_pos, 230, 10, "Certification   -   Start date: " & HEALTH_CARE_MEMBERS(DISA_cert_start_const, selected_memb) & " - End Date: " & HEALTH_CARE_MEMBERS(DISA_cert_end_const, selected_memb)
+				If HEALTH_CARE_MEMBERS(DISA_cert_start_const, selected_memb) = "" Then Text 55, y_pos, 230, 10, "Certification   -   NO CERTIFICATION DATES Entered"
 				Text 285, y_pos, 150, 10, "  Verif: " & HEALTH_CARE_MEMBERS(DISA_hc_verif_info_const, selected_memb)
 				y_pos = y_pos + 10
 				If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, selected_memb) <> "" Then
@@ -170,6 +263,18 @@ function define_main_dialog()
 				y_pos = y_pos + 10
 			End If
 			y_pos = y_pos + 5
+
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_emma_exists(each_memb) = True Then
+					Text 20, y_pos, 200, 10, "EMMA   -   Medical Emergency: " & STAT_INFORMATION(month_ind).stat_emma_med_emer_info(each_memb)
+					Text 250, y_pos, 200, 10, "Health Consequence: " & STAT_INFORMATION(month_ind).stat_emma_health_cons_info(each_memb)
+					y_pos = y_pos + 10
+					Text 55, y_pos, 200, 10, "Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb) & " - End Date: " & STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb)
+					Text 250, y_pos, 200, 10, "Verif: " & STAT_INFORMATION(month_ind).stat_emma_verif_info(each_memb)
+					y_pos = y_pos + 15
+				End If
+			Next
+
 			If HEALTH_CARE_MEMBERS(PREG_exists_const, selected_memb) = True Then
 				Text 20, y_pos, 355, 10, "PREG   -   Due Date: "&  HEALTH_CARE_MEMBERS(PREG_due_date_const, selected_memb) & "   -   Verif:" &  HEALTH_CARE_MEMBERS(PREG_due_date_verif_const, selected_memb)
 				y_pos = y_pos + 10
@@ -211,13 +316,14 @@ function define_main_dialog()
 			y_pos = y_pos + 5
 
 			' GroupBox 10, 220, 465, 60, "Medical Assistance"
+			Text 20, 260, 150, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
 			Text 20, 275, 80, 10, "MA Basis of Eligibility:"
-			DropListBox 100, 270, 110, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly"+chr(9)+"Parent"+chr(9)+"Caretaker"+chr(9)+"Adult without Children"+chr(9)+"Pregnant"+chr(9)+"Child (19-20)"+chr(9)+"Child (2-18)"+chr(9)+"Child (0-1)"+chr(9)+"Auto Newborn"+chr(9)+"Foster Care Child"+chr(9)+"Previous Foster Care Child", HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb)
+			DropListBox 100, 270, 110, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly"+chr(9)+"Parent"+chr(9)+"Caretaker"+chr(9)+"Adult without Children"+chr(9)+"Pregnant"+chr(9)+"Child (19-20)"+chr(9)+"Child (2-18)"+chr(9)+"Child (0-1)"+chr(9)+"Auto Newborn"+chr(9)+"Foster Care Child"+chr(9)+"Previous Foster Care Child"+chr(9)+"No Eligibility", HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb)
 			Text 35, 295, 65, 10, "Notes on MA Basis:"
 			EditBox 100, 290, 365, 15, HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb)
 			' GroupBox 10, 285, 465, 60, "Medicare Savings Programs"
 			Text 20, 315, 80, 10, "MSP Basis of Eligibility:"
-			DropListBox 100, 310, 110, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly", HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb)
+			DropListBox 100, 310, 110, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly"+chr(9)+"No Eligibility"+chr(9)+"No MEDICARE", HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb)
 			Text 30, 335, 70, 10, "Notes on MSP Basis:"
 			EditBox 100, 330, 365, 15, HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb)
 
@@ -241,6 +347,8 @@ function define_main_dialog()
 					grp_len = grp_len + 100
 				End If
 			Next
+			If grp_len = 5 Then grp_len = 100
+
 			GroupBox 10, 10, 465, grp_len, "JOBS Income"
 			y_pos = 25
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -345,87 +453,174 @@ function define_main_dialog()
 					y_pos = y_pos + 25
 				End If
 			Next
-			' BeginDialog Dialog1, 0, 0, 555, 385, "Health Care Members Request"
-			' GroupBox 10, 10, 465, 205, "JOBS Income"
-			' Text 485, 5, 75, 10, "---   DIALOGS   ---"
-			' ButtonGroup ButtonPressed
-			' 	CancelButton 490, 360, 50, 15
-			' 	OkButton 490, 340, 50, 15
-			' Text 20, 25, 205, 10, "MEMB 01 - NAME "
-			' Text 235, 25, 230, 10, "Employed at EMPLOYER NAME"
-			' Text 30, 40, 115, 10, "Income Start Date: MM/DD/YY"
-			' Text 180, 40, 115, 10, "Income End Date: MM/DD/YY"
-			' Text 30, 50, 185, 10, "Verification: VERIF HERE"
-			' Text 240, 50, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-			' GroupBox 30, 60, 430, 30, "Pay Detail"
-			' Text 40, 75, 100, 10, "Pay Frequency: BIWEEKLY"
-			' Text 175, 75, 175, 10, "Pay Amount: $ XXXX.XX per pay date"
-			' Text 30, 100, 50, 10, "Income Notes:"
-			' EditBox 80, 95, 380, 15, Edit1
-			' Text 20, 120, 205, 10, "MEMB 01 - NAME "
-			' Text 235, 120, 230, 10, "Employed at EMPLOYER NAME"
-			' Text 30, 135, 115, 10, "Income Start Date: MM/DD/YY"
-			' Text 180, 135, 115, 10, "Income End Date: MM/DD/YY"
-			' Text 30, 145, 185, 10, "Verification: VERIF HERE"
-			' Text 240, 145, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-			' GroupBox 30, 155, 430, 30, "Pay Detail"
-			' Text 40, 170, 100, 10, "Pay Frequency: BIWEEKLY"
-			' Text 175, 170, 175, 10, "Pay Amount: $ XXXX.XX per pay date"
-			' Text 30, 195, 50, 10, "Income Notes:"
-			' EditBox 80, 190, 380, 15, Edit2
-			' EndDialog
+
+			If y_pos = 25 Then
+				Text 20, 25, 350, 10, "NO JOBS panels have been entered in the csae file for the selected members."
+				Text 50, 35, 350, 10, "Selected Members for this case: MEMB XX"
+				Text 20, 50, 350, 20, "If there is income from a job that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO JOBS, add any notes here that are relevant:"
+				EditBox 20, 80, 440, 15, STAT_INFORMATION(month_ind).stat_jobs_general_notes
+			End If
+			'TODO - add STWK information
+
 
 			Text 500, 32, 55, 13, "JOBS Income"
 		ElseIf page_display = show_busi_page Then
-			grp_len = 5
+			grp_len = 15
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					grp_len = grp_len + 90
 				End If
 				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					grp_len = grp_len + 90
 				End If
 				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					grp_len = grp_len + 90
 				End If
 			Next
-
+			If grp_len = 15 Then grp_len = 100
 			GroupBox 10, 10, 465, grp_len, "BUSI Income"
 
 			y_pos = 25
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					Text 235, y_pos, 230, 10, "Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+					y_pos = y_pos + 10
+					Text 280, y_pos, 115, 10, "Income Start Date: " & STAT_INFORMATION(month_ind).stat_busi_one_inc_start_date(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb) <> "" Then Text 280, y_pos + 10, 115, 10, " Income End Date: MM/DD/YY" & STAT_INFORMATION(month_ind).stat_busi_one_inc_end_date(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) <> "" Then
+						Text 30, y_pos, 175, 10, "NET Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_gross_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "  -   Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_expenses(each_memb)
+						y_pos = y_pos + 10
+						Text 30, y_pos, 160, 10, "HC Calculation Method: B"
+						If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_prosp_net_inc(each_memb) = STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_net_inc(each_memb) Then Text 30, y_pos, 160, 10, "HC Calculation Method: A and B"
+						Text 235, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_income_verif_info(each_memb)
+						y_pos = y_pos + 10
+						If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_income_verif_info(each_memb) = "N" Then Text 275, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					Else
+						Text 30, y_pos, 175, 10, "NET Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_net_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_gross_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "  -   Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_prosp_expenses(each_memb)
+						y_pos = y_pos + 10
+						Text 30, y_pos, 160, 10, "HC Calculation Method: A"
+						Text 235, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_busi_one_hc_a_income_verif_info(each_memb)
+						y_pos = y_pos + 10
+						If STAT_INFORMATION(month_ind).stat_busi_one_hc_a_income_verif_info(each_memb) = "N" Then Text 275, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					End if
+					y_pos = y_pos + 10
+					Text 30, y_pos+5, 50, 10, "Income Notes:"
+					EditBox 80, y_pos, 380, 15, STAT_INFORMATION(month_ind).stat_busi_one_notes(each_memb)
 				End If
 				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					Text 235, y_pos, 230, 10, "Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
+					y_pos = y_pos + 10
+					Text 280, y_pos, 115, 10, "Income Start Date: " & STAT_INFORMATION(month_ind).stat_busi_two_inc_start_date(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb) <> "" Then Text 280, y_pos + 10, 115, 10, " Income End Date: MM/DD/YY" & STAT_INFORMATION(month_ind).stat_busi_two_inc_end_date(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb) <> "" Then
+						Text 30, y_pos, 175, 10, "NET Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_gross_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "  -   Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_expenses(each_memb)
+						y_pos = y_pos + 10
+						Text 30, y_pos, 160, 10, "HC Calculation Method: B"
+						If STAT_INFORMATION(month_ind).stat_busi_two_hc_b_prosp_net_inc(each_memb) = STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_net_inc(each_memb) Then Text 30, y_pos, 160, 10, "HC Calculation Method: A and B"
+						Text 235, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_busi_two_hc_b_income_verif_info(each_memb)
+						y_pos = y_pos + 10
+						If STAT_INFORMATION(month_ind).stat_busi_two_hc_b_income_verif_info(each_memb) = "N" Then Text 275, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					Else
+						Text 30, y_pos, 175, 10, "NET Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_net_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_gross_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "  -   Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_prosp_expenses(each_memb)
+						y_pos = y_pos + 10
+						Text 30, y_pos, 160, 10, "HC Calculation Method: A"
+						Text 235, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_busi_two_hc_a_income_verif_info(each_memb)
+						y_pos = y_pos + 10
+						If STAT_INFORMATION(month_ind).stat_busi_two_hc_a_income_verif_info(each_memb) = "N" Then Text 275, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					End if
+					y_pos = y_pos + 10
+					Text 30, y_pos+5, 50, 10, "Income Notes:"
+					EditBox 80, y_pos, 380, 15, STAT_INFORMATION(month_ind).stat_busi_two_notes(each_memb)
 				End If
 				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					Text 235, y_pos, 230, 10, "Self Employment Income Type: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
+					y_pos = y_pos + 10
+					Text 280, y_pos, 115, 10, "Income Start Date: " & STAT_INFORMATION(month_ind).stat_busi_three_inc_start_date(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb) <> "" Then Text 280, y_pos + 10, 115, 10, " Income End Date: MM/DD/YY" & STAT_INFORMATION(month_ind).stat_busi_three_inc_end_date(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb) <> "" Then
+						Text 30, y_pos, 175, 10, "NET Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_gross_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "  -   Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_expenses(each_memb)
+						y_pos = y_pos + 10
+						Text 30, y_pos, 160, 10, "HC Calculation Method: B"
+						If STAT_INFORMATION(month_ind).stat_busi_three_hc_b_prosp_net_inc(each_memb) = STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_net_inc(each_memb) Then Text 30, y_pos, 160, 10, "HC Calculation Method: A and B"
+						Text 235, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_busi_three_hc_b_income_verif_info(each_memb)
+						y_pos = y_pos + 10
+						If STAT_INFORMATION(month_ind).stat_busi_three_hc_b_income_verif_info(each_memb) = "N" Then Text 275, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					Else
+						Text 30, y_pos, 175, 10, "NET Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_net_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_gross_inc(each_memb)
+						y_pos = y_pos + 10
+						Text 105, y_pos, 105, 10, "  -   Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_prosp_expenses(each_memb)
+						y_pos = y_pos + 10
+						Text 30, y_pos, 160, 10, "HC Calculation Method: A"
+						Text 235, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_busi_three_hc_a_income_verif_info(each_memb)
+						y_pos = y_pos + 10
+						If STAT_INFORMATION(month_ind).stat_busi_three_hc_a_income_verif_info(each_memb) = "N" Then Text 275, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					End if
+					y_pos = y_pos + 10
+					Text 30, y_pos+5, 50, 10, "Income Notes:"
+					EditBox 80, y_pos, 380, 15, STAT_INFORMATION(month_ind).stat_busi_three_notes(each_memb)
 				End If
 			Next
+
+			If y_pos = 25 Then
+				Text 20, 25, 350, 10, "NO BUSI panels have been entered in the csae file for the selected members."
+				Text 50, 35, 350, 10, "Selected Members for this case: MEMB XX"
+				Text 20, 50, 350, 20, "If there is income from self employment that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO SELF EMPLOYMENT, add any notes here that are relevant:"
+				EditBox 20, 80, 440, 15, STAT_INFORMATION(month_ind).stat_busi_general_notes
+			End If
 
 			Text 500, 47, 55, 13, "BUSI Income"
 		ElseIf page_display = show_unea_page Then
-			grp_len = 5
+			grp_len = 15
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					grp_len = grp_len + 45
+					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then grp_len = grp_len + 10
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					grp_len = grp_len + 45
+					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then grp_len = grp_len + 10
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					grp_len = grp_len + 45
+					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then grp_len = grp_len + 10
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					grp_len = grp_len + 45
+					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then grp_len = grp_len + 10
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
-					grp_len = grp_len + 85
+					grp_len = grp_len + 45
+					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then grp_len = grp_len + 10
 				End If
 			Next
-
+			If grp_len = 15 Then grp_len = 100
 			GroupBox 10, 10, 465, grp_len, "UNEA Income"
 			y_pos = 25
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -433,132 +628,868 @@ function define_main_dialog()
 					Text 20, y_pos, 150, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
 					Text 170, y_pos, 175, 10, "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_one_prosp_monthly_gross_income(each_memb)
 					Text 320, y_pos, 115, 10, "Income Start Date: " & STAT_INFORMATION(month_ind).stat_unea_one_inc_start_date(each_memb)
-					y_pos = y_pos + 15
+					y_pos = y_pos + 10
 					Text 30, y_pos, 150, 10, "Income type: " & STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb)
 					Text 170, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_unea_one_verif_info(each_memb)
 					If STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb) <> "" Then Text 320, y_pos, 115, 10, "Income End Date: " & STAT_INFORMATION(month_ind).stat_unea_one_inc_end_date(each_memb)
-					y_pos = y_pos + 20
+					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+						y_pos = y_pos + 10
+						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					End If
+					y_pos = y_pos + 15
 					Text 30, y_pos, 50, 10, "Income Notes:"
 					EditBox 80, y_pos-5, 380, 15, STAT_INFORMATION(month_ind).stat_unea_one_notes(each_memb)
-					y_pos = y_pos + 10
-					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 10
-					End If
-					y_pos = y_pos + 10
+					' y_pos = y_pos + 10
+					y_pos = y_pos + 20
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True Then
 					grp_len = grp_len + 85
 					Text 20, y_pos, 150, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
 					Text 170, y_pos, 175, 10, "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_two_prosp_monthly_gross_income(each_memb)
 					Text 320, y_pos, 115, 10, "Income Start Date: " & STAT_INFORMATION(month_ind).stat_unea_two_inc_start_date(each_memb)
-					y_pos = y_pos + 15
+					y_pos = y_pos + 10
 					Text 30, y_pos, 150, 10, "Income type: " & STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb)
 					Text 170, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_unea_two_verif_info(each_memb)
 					If STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb) <> "" Then Text 320, y_pos, 115, 10, "Income End Date: " & STAT_INFORMATION(month_ind).stat_unea_two_inc_end_date(each_memb)
-					y_pos = y_pos + 20
+					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+						y_pos = y_pos + 10
+						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					End If
+					y_pos = y_pos + 15
 					Text 30, y_pos, 50, 10, "Income Notes:"
 					EditBox 80, y_pos-5, 380, 15, STAT_INFORMATION(month_ind).stat_unea_two_notes(each_memb)
-					y_pos = y_pos + 10
-					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 10
-					End If
-					y_pos = y_pos + 10
+					' y_pos = y_pos + 10
+					y_pos = y_pos + 20
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True Then
 					grp_len = grp_len + 85
 					Text 20, y_pos, 150, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
 					Text 170, y_pos, 175, 10, "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_three_prosp_monthly_gross_income(each_memb)
 					Text 320, y_pos, 115, 10, "Income Start Date: " & STAT_INFORMATION(month_ind).stat_unea_three_inc_start_date(each_memb)
-					y_pos = y_pos + 15
+					y_pos = y_pos + 10
 					Text 30, y_pos, 150, 10, "Income type: " & STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb)
 					Text 170, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_unea_three_verif_info(each_memb)
 					If STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb) <> "" Then Text 320, y_pos, 115, 10, "Income End Date: " & STAT_INFORMATION(month_ind).stat_unea_three_inc_end_date(each_memb)
-					y_pos = y_pos + 20
+					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+						y_pos = y_pos + 10
+						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					End If
+					y_pos = y_pos + 15
 					Text 30, y_pos, 50, 10, "Income Notes:"
 					EditBox 80, y_pos-5, 380, 15, STAT_INFORMATION(month_ind).stat_unea_three_notes(each_memb)
-					y_pos = y_pos + 10
-					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 10
-					End If
-					y_pos = y_pos + 10
+					' y_pos = y_pos + 10
+					y_pos = y_pos + 20
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True Then
 					grp_len = grp_len + 85
 					Text 20, y_pos, 150, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
 					Text 170, y_pos, 175, 10, "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_four_prosp_monthly_gross_income(each_memb)
 					Text 320, y_pos, 115, 10, "Income Start Date: " & STAT_INFORMATION(month_ind).stat_unea_four_inc_start_date(each_memb)
-					y_pos = y_pos + 15
+					y_pos = y_pos + 10
 					Text 30, y_pos, 150, 10, "Income type: " & STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb)
 					Text 170, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_unea_four_verif_info(each_memb)
 					If STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb) <> "" Then Text 320, y_pos, 115, 10, "Income End Date: " & STAT_INFORMATION(month_ind).stat_unea_four_inc_end_date(each_memb)
-					y_pos = y_pos + 20
+					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+						y_pos = y_pos + 10
+						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					End If
+					y_pos = y_pos + 15
 					Text 30, y_pos, 50, 10, "Income Notes:"
 					EditBox 80, y_pos-5, 380, 15, STAT_INFORMATION(month_ind).stat_unea_four_notes(each_memb)
-					y_pos = y_pos + 10
-					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 10
-					End If
-					y_pos = y_pos + 10
+					' y_pos = y_pos + 10
+					y_pos = y_pos + 20
 				End If
 				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True Then
 					grp_len = grp_len + 85
 					Text 20, y_pos, 150, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
 					Text 170, y_pos, 175, 10, "Monthly Income: $ " & STAT_INFORMATION(month_ind).stat_unea_five_prosp_monthly_gross_income(each_memb)
 					Text 320, y_pos, 115, 10, "Income Start Date: " & STAT_INFORMATION(month_ind).stat_unea_five_inc_start_date(each_memb)
-					y_pos = y_pos + 15
+					y_pos = y_pos + 10
 					Text 30, y_pos, 150, 10, "Income type: " & STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb)
 					Text 170, y_pos, 185, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_unea_five_verif_info(each_memb)
 					If STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb) <> "" Then Text 320, y_pos, 115, 10, "Income End Date: " & STAT_INFORMATION(month_ind).stat_unea_five_inc_end_date(each_memb)
-					y_pos = y_pos + 20
+					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+						y_pos = y_pos + 10
+						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+					End If
+					y_pos = y_pos + 15
 					Text 30, y_pos, 50, 10, "Income Notes:"
 					EditBox 80, y_pos-5, 380, 15, STAT_INFORMATION(month_ind).stat_unea_five_notes(each_memb)
-					y_pos = y_pos + 10
-					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-						Text 170, y_pos, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 10
-					End If
-					y_pos = y_pos + 10
+					' y_pos = y_pos + 10
+					y_pos = y_pos + 20
 				End If
 			Next
 
-			' Text 20, 25, 205, 10, "MEMB 01 - NAME "
-			' Text 235, 25, 230, 10, "Income type: TYPE INFO"
-			' Text 30, 40, 115, 10, "Income Start Date: MM/DD/YY"
-			' Text 180, 40, 115, 10, "Income End Date: MM/DD/YY"
-			' Text 30, 50, 185, 10, "Verification: VERIF HERE"
-			' Text 240, 50, 185, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-			' Text 30, 65, 175, 10, "Monthly Income: $ XXXX.XX "
-			' Text 30, 85, 50, 10, "Income Notes:"
-			' EditBox 80, 80, 380, 15, Edit1
+			If y_pos = 25 Then
+				Text 20, 25, 350, 10, "NO UNEA panels have been entered in the csae file for the selected members."
+				Text 50, 35, 350, 10, "Selected Members for this case: MEMB XX"
+				Text 20, 50, 350, 20, "If there is income from an unearned income source that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO UNEARNED INCOME, add any notes here that are relevant:"
+				EditBox 20, 80, 440, 15, STAT_INFORMATION(month_ind).stat_unea_general_notes
+			End If
 
 			Text 500, 62, 55, 13, "UNEA Income"
 		ElseIf page_display = show_asset_page Then
-			GroupBox 10, 10, 465, 205, "Assets"
 
+			grp_len = 10
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_cash_asset_panel_exists(each_memb) = True Then
+					grp_len = grp_len + 45
+					If STAT_INFORMATION(month_ind).stat_cash_exists(each_memb) = True Then grp_len = grp_len + 15
+					If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+					If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+					If STAT_INFORMATION(month_ind).stat_acct_three_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+					If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+					If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+					If STAT_INFORMATION(month_ind).stat_secu_one_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+					If STAT_INFORMATION(month_ind).stat_secu_two_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+					If STAT_INFORMATION(month_ind).stat_secu_three_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+					If STAT_INFORMATION(month_ind).stat_secu_four_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+					If STAT_INFORMATION(month_ind).stat_secu_five_exists(each_memb) = True Then
+						grp_len = grp_len + 25
+					End If
+				End If
+			Next
+			If grp_len = 10 Then grp_len = 100
 
+			GroupBox 10, 10, 465, grp_len, "Assets"
+			y_pos = 25
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_cash_asset_panel_exists(each_memb) = True Then
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 15
+					If STAT_INFORMATION(month_ind).stat_cash_exists(each_memb) = True Then
+						Text 25, y_pos, 115, 10, "CASH   -   Amount: $ " & STAT_INFORMATION(month_ind).stat_cash_balance(each_memb)
+						y_pos = y_pos + 15
+					End If
+
+					If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "ACCT   -   Location: " & STAT_INFORMATION(month_ind).stat_acct_one_location(each_memb)
+						Text 200, y_pos, 260, 10, "Account Type: " & STAT_INFORMATION(month_ind).stat_acct_one_type_detail(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 75, 10, "Balance: $ " & STAT_INFORMATION(month_ind).stat_acct_one_balance(each_memb)
+						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_one_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_one_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_acct_one_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+
+					End If
+					If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "ACCT   -   Location: " & STAT_INFORMATION(month_ind).stat_acct_two_location(each_memb)
+						Text 200, y_pos, 260, 10, "Account Type: " & STAT_INFORMATION(month_ind).stat_acct_two_type_detail(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 75, 10, "Balance: $ " & STAT_INFORMATION(month_ind).stat_acct_two_balance(each_memb)
+						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_two_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_two_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_acct_two_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+					End If
+					If STAT_INFORMATION(month_ind).stat_acct_three_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "ACCT   -   Location: " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb)
+						Text 200, y_pos, 260, 10, "Account Type: " & STAT_INFORMATION(month_ind).stat_acct_three_type_detail(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 75, 10, "Balance: $ " & STAT_INFORMATION(month_ind).stat_acct_three_balance(each_memb)
+						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_three_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_three_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_acct_three_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+					End If
+					If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "ACCT   -   Location: " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb)
+						Text 200, y_pos, 260, 10, "Account Type: " & STAT_INFORMATION(month_ind).stat_acct_four_type_detail(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 75, 10, "Balance: $ " & STAT_INFORMATION(month_ind).stat_acct_four_balance(each_memb)
+						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_four_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_four_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_acct_four_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+					End If
+					If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "ACCT   -   Location: " & STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb)
+						Text 200, y_pos, 260, 10, "Account Type: " & STAT_INFORMATION(month_ind).stat_acct_five_type_detail(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 75, 10, "Balance: $ " & STAT_INFORMATION(month_ind).stat_acct_five_balance(each_memb)
+						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_five_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_five_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_acct_five_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+					End If
+
+					If STAT_INFORMATION(month_ind).stat_secu_one_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "SECU   -   Name: " & STAT_INFORMATION(month_ind).stat_secu_one_name(each_memb)
+						Text 200, y_pos, 160, 10, "Security Type: " & STAT_INFORMATION(month_ind).stat_secu_one_type_detail(each_memb)
+						Text 360, y_pos, 110, 10, "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_one_cash_value(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 80, 10, "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_one_face_value(each_memb)
+						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_one_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_one_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_secu_one_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+
+					End If
+					If STAT_INFORMATION(month_ind).stat_secu_two_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "SECU   -   Name: " & STAT_INFORMATION(month_ind).stat_secu_two_name(each_memb)
+						Text 200, y_pos, 160, 10, "Security Type: " & STAT_INFORMATION(month_ind).stat_secu_two_type_detail(each_memb)
+						Text 360, y_pos, 110, 10, "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_two_cash_value(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 80, 10, "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_two_face_value(each_memb)
+						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_two_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_two_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_secu_two_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+
+					End If
+					If STAT_INFORMATION(month_ind).stat_secu_three_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "SECU   -   Name: " & STAT_INFORMATION(month_ind).stat_secu_three_name(each_memb)
+						Text 200, y_pos, 160, 10, "Security Type: " & STAT_INFORMATION(month_ind).stat_secu_three_type_detail(each_memb)
+						Text 360, y_pos, 110, 10, "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_three_cash_value(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 80, 10, "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_three_face_value(each_memb)
+						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_three_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_three_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_secu_three_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+
+					End If
+					If STAT_INFORMATION(month_ind).stat_secu_four_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "SECU   -   Name: " & STAT_INFORMATION(month_ind).stat_secu_four_name(each_memb)
+						Text 200, y_pos, 160, 10, "Security Type: " & STAT_INFORMATION(month_ind).stat_secu_four_type_detail(each_memb)
+						Text 360, y_pos, 110, 10, "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_four_cash_value(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 80, 10, "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_four_face_value(each_memb)
+						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_four_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_four_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_secu_four_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+
+					End If
+					If STAT_INFORMATION(month_ind).stat_secu_five_exists(each_memb) = True Then
+						Text 25, y_pos, 175, 10, "SECU   -   Name: " & STAT_INFORMATION(month_ind).stat_secu_five_name(each_memb)
+						Text 200, y_pos, 160, 10, "Security Type: " & STAT_INFORMATION(month_ind).stat_secu_five_type_detail(each_memb)
+						Text 360, y_pos, 110, 10, "Cash (CSV) Value: $ " & STAT_INFORMATION(month_ind).stat_secu_five_cash_value(each_memb)
+						y_pos = y_pos + 10
+						Text 58, y_pos, 80, 10, "Face Value: $ " & STAT_INFORMATION(month_ind).stat_secu_five_face_value(each_memb)
+						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_five_as_of_date(each_memb)
+						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_five_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_secu_five_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+
+					End If
+
+					Text 25, y_pos+5, 50, 10, "Asset Notes:"
+					EditBox 75, y_pos, 395, 15, STAT_INFORMATION(month_ind).stat_asset_notes(each_memb)
+					y_pos = y_pos + 25
+				End If
+
+				'TODO - DEAL WITH OTHR panel
+			Next
+			If y_pos = 25 Then
+				Text 20, 25, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the csae file for the selected members."
+				Text 50, 35, 350, 10, "Selected Members for this case: MEMB XX"
+				Text 20, 50, 350, 20, "If there are liquid assets that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO ACCOUNTS, add any notes here that are relevant:"
+				EditBox 20, 80, 440, 15, STAT_INFORMATION(month_ind).stat_acct_general_notes
+			End If
 
 			Text 510, 77, 55, 13, "Assets"
+		ElseIf page_display = show_cars_rest_page Then
+			grp_len = 10
+			cars_exists = False
+			rest_exists = False
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_cars_exists_for_member(each_memb) = True Then
+					grp_len = grp_len + 45
+					cars_exists = True
+					If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
+						grp_len = grp_len + 35
+					End If
+					If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
+						grp_len = grp_len + 35
+					End If
+					If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
+						grp_len = grp_len + 35
+					End If
+				End If
+				If STAT_INFORMATION(month_ind).stat_rest_exists_for_member(each_memb) = True Then
+					rest_exists = True
+					grp_len = grp_len + 45
+					If STAT_INFORMATION(month_ind).stat_rest_one_exists(each_memb) = True Then
+						grp_len = grp_len + 35
+					End If
+					If STAT_INFORMATION(month_ind).stat_rest_two_exists(each_memb) = True Then
+						grp_len = grp_len + 35
+					End If
+					If STAT_INFORMATION(month_ind).stat_rest_three_exists(each_memb) = True Then
+						grp_len = grp_len + 35
+					End If
+				End If
+			Next
+			If cars_exists <> rest_exists Then grp_len = grp_len + 75
+			If grp_len = 10 Then grp_len = 155
+
+			GroupBox 10, 10, 465, grp_len, "Vehicles and Real Estate"
+
+			y_pos = 25
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_cars_exists_for_member(each_memb) = True Then
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 15
+					If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
+						Text 25, 40, 200, 10, "CARS   -   " & STAT_INFORMATION(month_ind).stat_cars_one_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_one_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_one_model(each_memb)
+						Text 235, 40, 140, 10, "Use: " & STAT_INFORMATION(month_ind).stat_cars_one_use_info(each_memb)
+						Text 385, 40, 85, 10, "HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_one_hc_clt_benefit_yn(each_memb)
+						y_pos = y_pos + 10
+						Text 60, 50, 110, 10, "Value: Trade In: $ " & STAT_INFORMATION(month_ind).stat_cars_one_trade_in_value(each_memb)
+						Text 180, 50, 80, 10, "Loan: $ " & STAT_INFORMATION(month_ind).stat_cars_one_loan_value(each_memb)
+						Text 280, 50, 135, 10, "Value Source: " & STAT_INFORMATION(month_ind).stat_cars_one_value_source_info(each_memb)
+						y_pos = y_pos + 10
+						Text 60, 60, 135, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_cars_one_own_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_cars_one_own_verif_code(each_memb) = "N" Then Text 280, 60, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+					End If
+
+					If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
+						Text 25, 40, 200, 10, "CARS   -   " & STAT_INFORMATION(month_ind).stat_cars_two_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_two_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_two_model(each_memb)
+						Text 235, 40, 140, 10, "Use: " & STAT_INFORMATION(month_ind).stat_cars_two_use_info(each_memb)
+						Text 385, 40, 85, 10, "HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_two_hc_clt_benefit_yn(each_memb)
+						y_pos = y_pos + 10
+						Text 60, 50, 110, 10, "Value: Trade In: $ " & STAT_INFORMATION(month_ind).stat_cars_two_trade_in_value(each_memb)
+						Text 180, 50, 80, 10, "Loan: $ " & STAT_INFORMATION(month_ind).stat_cars_two_loan_value(each_memb)
+						Text 280, 50, 135, 10, "Value Source: " & STAT_INFORMATION(month_ind).stat_cars_two_value_source_info(each_memb)
+						y_pos = y_pos + 10
+						Text 60, 60, 135, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_cars_two_own_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_cars_two_own_verif_code(each_memb) = "N" Then Text 280, 60, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+					End If
+
+					If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
+						Text 25, 40, 200, 10, "CARS   -   " & STAT_INFORMATION(month_ind).stat_cars_three_year(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_three_make(each_memb) & " " & STAT_INFORMATION(month_ind).stat_cars_three_model(each_memb)
+						Text 235, 40, 140, 10, "Use: " & STAT_INFORMATION(month_ind).stat_cars_three_use_info(each_memb)
+						Text 385, 40, 85, 10, "HC Client Benefit: " & STAT_INFORMATION(month_ind).stat_cars_three_hc_clt_benefit_yn(each_memb)
+						y_pos = y_pos + 10
+						Text 60, 50, 110, 10, "Value: Trade In: $ " & STAT_INFORMATION(month_ind).stat_cars_three_trade_in_value(each_memb)
+						Text 180, 50, 80, 10, "Loan: $ " & STAT_INFORMATION(month_ind).stat_cars_three_loan_value(each_memb)
+						Text 280, 50, 135, 10, "Value Source: " & STAT_INFORMATION(month_ind).stat_cars_three_value_source_info(each_memb)
+						y_pos = y_pos + 10
+						Text 60, 60, 135, 10, "Verification: " & STAT_INFORMATION(month_ind).stat_cars_three_own_verif_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_cars_three_own_verif_code(each_memb) = "N" Then Text 280, 60, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 15
+					End If
+
+				End If
+			Next
+			If y_pos = 25 Then
+				Text 20, 25, 350, 10, "NO CARS panels have been entered in the csae file for the selected members."
+				Text 50, 35, 350, 10, "Selected Members for this case: MEMB XX"
+				Text 20, 50, 350, 20, "If there are vehicle assets that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+				y_pos = 70
+			End If
+
+			Text 25, y_pos+5, 50, 10, "Vehicle Notes:"
+			EditBox 75, y_pos, 395, 15, STAT_INFORMATION(month_ind).stat_cars_notes
+			y_pos = y_pos + 25
+
+			start_y_pos = y_pos
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_rest_exists_for_member(each_memb) = True Then
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 15
+					If STAT_INFORMATION(month_ind).stat_rest_one_exists(each_memb) = True Then
+						Text 25, y_pos, 135, 10, "REST   -   " & STAT_INFORMATION(month_ind).stat_rest_one_type_info(each_memb)
+						Text 185, y_pos, 130, 10, "Ownership Verif: " & STAT_INFORMATION(month_ind).stat_rest_one_property_ownership_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_rest_one_ownership_verif_code(each_memb) = "NO" Then Text 320, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 10
+						Text 58, y_pos, 130, 10, "Property Status: " & STAT_INFORMATION(month_ind).stat_rest_one_property_status_info(each_memb)
+						Text 195, y_pos, 105, 10, " Market Value: $ " & STAT_INFORMATION(month_ind).stat_rest_one_market_value(each_memb)
+						Text 315, y_pos, 150, 10, "Verif: " & STAT_INFORMATION(month_ind).stat_rest_one_value_verif_info(each_memb)
+						y_pos = y_pos + 10
+						Text 195, y_pos, 100, 10, "Amount Owed: $ " & STAT_INFORMATION(month_ind).stat_rest_one_amount_owed(each_memb)
+						Text 315, y_pos, 150, 10, "Verif: " & STAT_INFORMATION(month_ind).stat_rest_one_owed_verif_info(each_memb)
+						y_pos = y_pos + 15
+					End If
+					If STAT_INFORMATION(month_ind).stat_rest_two_exists(each_memb) = True Then
+						Text 25, y_pos, 135, 10, "REST   -   " & STAT_INFORMATION(month_ind).stat_rest_two_type_info(each_memb)
+						Text 185, y_pos, 130, 10, "Ownership Verif: " & STAT_INFORMATION(month_ind).stat_rest_two_property_ownership_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_rest_two_ownership_verif_code(each_memb) = "NO" Then Text 320, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 10
+						Text 58, y_pos, 130, 10, "Property Status: " & STAT_INFORMATION(month_ind).stat_rest_two_property_status_info(each_memb)
+						Text 195, y_pos, 105, 10, " Market Value: $ " & STAT_INFORMATION(month_ind).stat_rest_two_market_value(each_memb)
+						Text 315, y_pos, 150, 10, "Verif: " & STAT_INFORMATION(month_ind).stat_rest_two_value_verif_info(each_memb)
+						y_pos = y_pos + 10
+						Text 195, y_pos, 100, 10, "Amount Owed: $ " & STAT_INFORMATION(month_ind).stat_rest_two_amount_owed(each_memb)
+						Text 315, y_pos, 150, 10, "Verif: " & STAT_INFORMATION(month_ind).stat_rest_two_owed_verif_info(each_memb)
+						y_pos = y_pos + 15
+					End If
+					If STAT_INFORMATION(month_ind).stat_rest_three_exists(each_memb) = True Then
+						Text 25, y_pos, 135, 10, "REST   -   " & STAT_INFORMATION(month_ind).stat_rest_three_type_info(each_memb)
+						Text 185, y_pos, 130, 10, "Ownership Verif: " & STAT_INFORMATION(month_ind).stat_rest_three_property_ownership_info(each_memb)
+						If STAT_INFORMATION(month_ind).stat_rest_three_ownership_verif_code(each_memb) = "NO" Then Text 320, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
+						y_pos = y_pos + 10
+						Text 58, y_pos, 130, 10, "Property Status: " & STAT_INFORMATION(month_ind).stat_rest_three_property_status_info(each_memb)
+						Text 195, y_pos, 105, 10, " Market Value: $ " & STAT_INFORMATION(month_ind).stat_rest_three_market_value(each_memb)
+						Text 315, y_pos, 150, 10, "Verif: " & STAT_INFORMATION(month_ind).stat_rest_three_value_verif_info(each_memb)
+						y_pos = y_pos + 10
+						Text 195, y_pos, 100, 10, "Amount Owed: $ " & STAT_INFORMATION(month_ind).stat_rest_three_amount_owed(each_memb)
+						Text 315, y_pos, 150, 10, "Verif: " & STAT_INFORMATION(month_ind).stat_rest_three_owed_verif_info(each_memb)
+						y_pos = y_pos + 15
+					End If
+				End If
+			Next
+
+			If y_pos = start_y_pos Then
+				Text 20, y_pos, 350, 10, "NO REST panels have been entered in the csae file for the selected members."
+				y_pos = y_pos + 10
+				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB XX"
+				y_pos = y_pos + 15
+				Text 20, y_pos, 350, 20, "If there are real estate assets that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+				y_pos = y_pos + 20
+			End If
+
+			Text 25, y_pos+5, 50, 10, "Property Notes:"
+			EditBox 75, y_pos, 395, 15, STAT_INFORMATION(month_ind).stat_rest_notes
+			y_pos = y_pos + 25
+
+			Text 500, 92, 55, 13, "CARS/REST"
 		ElseIf page_display = show_expenses_page Then
-			GroupBox 10, 10, 465, 205, "Expenses"
 
+			pded_exists = False
+			coex_exists = False
+			dcex_exists = False
+			'PDED - person
+			y_pos = 25
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_pded_exists(each_memb) = True Then
+					pded_exists = True
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 15
+					Text 25, y_pos, 135, 10, "PDED   -   Deductions from PDED Exist"
+					y_pos = y_pos + 10
+					If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "Y" Then
+						Text 60, y_pos, 420, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_amt(each_memb) & " PICKLE Disregard Applied"
+						y_pos = y_pos + 10
+						Text 75, y_pos, 400, 10, "Current RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_curr_RSDI(each_memb) & " less Threshold RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_RSDI(each_memb) & ". Based on Threshold Date: " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_date(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_disa_widow_deducation_yn(each_memb) = "Y" Then
+						Text 60, y_pos, 135, 10, "Disabled Widow/ers Deduction applied"
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_disa_adult_child_disregard_yn(each_memb) = "Y" Then
+						Text 60, y_pos, 135, 10, "Disabled Adult Child Disregard applied"
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_widow_deducation_yn(each_memb) = "Y" Then
+						Text 60, y_pos, 135, 10, "Widow/ers Deduction applied"
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_other_unea_deduction_amt(each_memb) <> "" Then
+						Text 60, y_pos, 420, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_other_unea_deduction_amt(each_memb) & " Unearned Income Deduction Applied, Reason: " & STAT_INFORMATION(month_ind).stat_pded_other_unea_deduction_reason(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_other_earned_deduction_amt(each_memb) <> "" Then
+						Text 60, y_pos, 420, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_other_earned_deduction_amt(each_memb) & " Unearned Income Deduction Applied, Reason: " & STAT_INFORMATION(month_ind).stat_pded_other_earned_deduction_reason(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_extend_ma_epd_limits_yn(each_memb) = "Y" Then
+						Text 60, y_pos, 135, 10, "MA-EPD Income/Asset Limits Extended"
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_disa_student_child_disregard_yn(each_memb) = "Y" Then
+						Text 60, y_pos, 420, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_disa_student_child_disregard_amt(each_memb) & " Blind/Disabled Student Child Disregard"
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_PASS_begin_date(each_memb) <> "" Then
+						Text 60, y_pos, 420, 10, "PASS Plan   -   Begin Date: " & STAT_INFORMATION(month_ind).stat_pded_PASS_begin_date(each_memb) & " - End Date: " & STAT_INFORMATION(month_ind).stat_pded_PASS_end_date(each_memb)
+						y_pos = y_pos + 10
+						If STAT_INFORMATION(month_ind).stat_pded_PASS_earned_excluded(each_memb) <> "" Then
+							Text 75, y_pos, 400, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_earned_excluded(each_memb) & " - Earned Income Excluded"
+							y_pos = y_pos + 10
+						End if
+						If STAT_INFORMATION(month_ind).stat_pded_PASS_unea_excluded(each_memb) <> "" Then
+							Text 75, y_pos, 400, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_unea_excluded(each_memb) & " - Unearned Income Excluded"
+							y_pos = y_pos + 10
+						End if
+						If STAT_INFORMATION(month_ind).stat_pded_PASS_assets_excluded(each_memb) <> "" Then
+							Text 75, y_pos, 400, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_assets_excluded(each_memb) & " - Assets Excluded"
+							y_pos = y_pos + 10
+						End if
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) <> "" Then
+						Text 60, y_pos, 420, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) & " Guardianship Fee reduced from income."
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) <> "" Then
+						Text 60, y_pos, 420, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) & " Guardianship Fee reduced from income."
+						y_pos = y_pos + 10
+					End If
+				End If
+			Next
 
+			'COEX - person
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_coex_exists(each_memb) = True Then
+					coex_exists = True
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 15
+					Text 25, y_pos, 135, 10, "COEX   -   Court Ordered Expenses"
+					y_pos = y_pos + 10
+					Text 60, y_pos, 135, 10, "$ " & STAT_INFORMATION(month_ind).stat_coex_total_prosp_amt(each_memb) & " TOTAL Expense"
+					y_pos = y_pos + 10
+					If STAT_INFORMATION(month_ind).stat_coex_support_prosp_amt(each_memb) <> "" Then
+						Text 75, y_pos, 250, 10, "$ " & STAT_INFORMATION(month_ind).stat_coex_support_prosp_amt(each_memb) & " SUPPORT Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_support_verif_info(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_coex_alimony_prosp_amt(each_memb) <> "" Then
+						Text 75, y_pos, 250, 10, "$ " & STAT_INFORMATION(month_ind).stat_coex_alimony_prosp_amt(each_memb) & " ALIMONY Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_alimony_verif_info(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_coex_tax_dep_prosp_amt(each_memb) <> "" Then
+						Text 75, y_pos, 250, 10, "$ " & STAT_INFORMATION(month_ind).stat_coex_tax_dep_prosp_amt(each_memb) & " TAX DEPENDENT Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_tax_dep_verif_info(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_coex_other_prosp_amt(each_memb) <> "" Then
+						Text 75, y_pos, 250, 10, "$ " & STAT_INFORMATION(month_ind).stat_coex_other_prosp_amt(each_memb) & " OTHER Expense - Verif: " & STAT_INFORMATION(month_ind).stat_coex_other_verif_info(each_memb)
+						y_pos = y_pos + 10
+					End If
+				End If
+			Next
 
-			Text 505, 92, 55, 13, "Expenses"
+			'DCEX - person
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_dcex_exists(each_memb) = True Then
+					dcex_exists = True
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 15
+					Text 25, y_pos, 135, 10, "DCEX   -   Dependent Care Expenses"
+					Text 150, y_pos, 300, 10, "Provider: " &  STAT_INFORMATION(month_ind).stat_dcex_provider(each_memb) & "   -   Reason: " & STAT_INFORMATION(month_ind).stat_dcex_reason_info(each_memb)
+					y_pos = y_pos + 10
+					If InStr(dcex_child_array, ",") <> 0 Then
+						dcex_child_array = split(STAT_INFORMATION(month_ind).stat_dcex_child_list(each_memb), ",")
+						dcex_amount_array = split(STAT_INFORMATION(month_ind).stat_dcex_prosp_amt_list(each_memb), ",")
+						dcex_verif_array = split(STAT_INFORMATION(month_ind).stat_dcex_verif_info_list(each_memb), ",")
+					Else
+						dcex_child_array = ARRAY(STAT_INFORMATION(month_ind).stat_dcex_child_list(each_memb))
+						dcex_amount_array = ARRAY(STAT_INFORMATION(month_ind).stat_dcex_prosp_amt_list(each_memb))
+						dcex_verif_array = ARRAY(STAT_INFORMATION(month_ind).stat_dcex_verif_info_list(each_memb))
+					End If
+					For dcex_child = 0 to UBound(dcex_child_array)
+						Text 60, y_pos, 135, 10, "$ " & dcex_amount_array(dcex_child) & " for MEMB " & dcex_child_array(dcex_child) & ", Verif: " & dcex_verif_array(dcex_child)
+						y_pos = y_pos + 10
+					Next
+				End If
+			Next
+
+			If pded_exists = False or coex_exists = False or dcex_exists = False Then
+				y_pos = y_pos + 10
+				If pded_exists = False Then panels_that_do_not_exists = panels_that_do_not_exists & "/PDED"
+				If coex_exists = False Then panels_that_do_not_exists = panels_that_do_not_exists & "/COEX"
+				If dcex_exists = False Then panels_that_do_not_exists = panels_that_do_not_exists & "/DCEX"
+				If left(panels_that_do_not_exists, 1) = "/" Then panels_that_do_not_exists = right(panels_that_do_not_exists, len(panels_that_do_not_exists)-1)
+				Text 20, y_pos, 300, 10, "This case does not have any " & panels_that_do_not_exists & " panels."
+				y_pos = y_pos + 10
+			End if
+
+			grp_len = y_pos
+			If grp_len = 20 Then grp_len = 70
+			grp_len = grp_len + 25
+			GroupBox 10, 10, 465, grp_len, "Expenses"
+
+			If y_pos = 25 Then
+				Text 20, 25, 350, 10, "NO PDED/COEX/DCEX panels have been entered in the csae file for the selected members."
+				Text 50, 35, 350, 10, "Selected Members for this case: MEMB XX"
+				Text 20, 50, 350, 20, "If there are expenses that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+
+				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO EXPENSES, add any notes here that are relevant:"
+				y_pos = 80
+			Else
+				y_pos = y_pos + 5
+				Text 20, y_pos, 350, 10, "NOTES about Expenses and Deductions/Disregards:"
+				y_pos = y_pos + 10
+			End If
+			EditBox 20, y_pos, 440, 15, STAT_INFORMATION(month_ind).stat_expenses_general_notes
+
+			Text 505, 107, 55, 13, "Expenses"
+
 		ElseIf page_display = show_other_page Then
-			GroupBox 10, 10, 465, 205, "Other Information"
+			acci_exists = False
+			insa_exists = False
+			imig_exists = False
+			faci_exists = False
+
+			y_pos = 25
+			'ACCI - person
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_acci_exists(each_memb) = True Then
+					acci_exists = True
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 15
+					Text 25, y_pos, 200, 10, "ACCI   -   Accident from " & STAT_INFORMATION(month_ind).stat_acci_injury_date(each_memb) & ". Medical cooperation: " & STAT_INFORMATION(month_ind).stat_acci_med_coop_yn(each_memb)
+					y_pos = y_pos + 10
+					Text 60, y_pos, 400, 10, "Accident Type: " & STAT_INFORMATION(month_ind).stat_acci_type_info(each_memb) & ". Involving MEMBS " & STAT_INFORMATION(month_ind).stat_acci_ref_numbers_list(each_memb)
+					y_pos = y_pos + 10
+				End If
+			Next
+			If acci_exists = False Then
+				Text 20, y_pos, 205, 10, "NO ACCI Panel for any Member"
+				y_pos = y_pos + 15
+			End If
+
+			'INSA - case
+			For each_panel = 0 to UBound(STAT_INFORMATION(month_ind).stat_insa_exists)
+				If STAT_INFORMATION(month_ind).stat_insa_exists(each_panel) = True Then
+					insa_exists = True
+					' Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					Text 20, y_pos, 350, 10, "INSA   -   Other Health Insurance through " & STAT_INFORMATION(month_ind).stat_insa_insurance_co(each_panel)
+					y_pos = y_pos + 10
+					Text 25, y_pos, 250, 10, "Covered MEMBS: " & STAT_INFORMATION(month_ind).stat_insa_covered_pers_list(each_panel)
+					y_pos = y_pos + 10
+					Text 25, y_pos, 350, 10, "Cooperation with OHI Requirements: " & STAT_INFORMATION(month_ind).stat_insa_coop_OHI_yn(each_panel) & "   -   Cooperation with CEHI Requirements: " & STAT_INFORMATION(month_ind).stat_insa_coop_cost_effective_yn(each_panel)
+					y_pos = y_pos + 10
+					If STAT_INFORMATION(month_ind).stat_insa_good_cause_code(each_panel) <> "_" And STAT_INFORMATION(month_ind).stat_insa_good_cause_code(each_panel) <> "N" Then
+						Text 60, y_pos, 350, 10, STAT_INFORMATION(month_ind).stat_insa_good_cause_info(each_panel) & " - Claim Date: " & STAT_INFORMATION(month_ind).stat_insa_good_cause_claim_date(each_panel) & " - Evidence: " & STAT_INFORMATION(month_ind).stat_insa_coop_cost_effective_yn(each_panel)
+						y_pos = y_pos + 10
+					End If
+					y_pos = y_pos + 5
+				End If
+			Next
+			If insa_exists = False Then
+				Text 20, y_pos, 205, 10, "NO INSA Panel for any Member"
+				y_pos = y_pos + 15
+			End If
+
+			'IMIG - person
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True Then
+					imig_exists = True
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 10
+					Text 25, y_pos, 250, 10, "IMIG   -   Immigration information. This resident is a Non-Citizen. Alien ID: " & STAT_INFORMATION(month_ind).stat_imig_alien_id_number(each_memb)
+					y_pos = y_pos + 10
+					Text 60, y_pos, 150, 10, "Status: " & STAT_INFORMATION(month_ind).stat_imig_status_info(each_memb) & ", entry date: " & STAT_INFORMATION(month_ind).stat_imig_entry_date(each_memb)
+					If STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "24" AND STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "__" Then Text 215, y_pos, 250, 10, "LPR Adjusted from " & STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_info(each_memb) & " on " & STAT_INFORMATION(month_ind).stat_imig_status_verif_code(each_memb)
+					y_pos = y_pos + 10
+					Text 60, y_pos, 150, 10, "Nationality: " & STAT_INFORMATION(month_ind).stat_imig_nationality_info(each_memb)
+					y_pos = y_pos + 10
+					Text 60, y_pos, 375, 10, "40 Social Security Cr: " & STAT_INFORMATION(month_ind).stat_imig_40_credits_yn(each_memb) & "   -   Battered Spouse/Child: " & STAT_INFORMATION(month_ind).stat_imig_battered_pers_yn(each_memb) & "   -   Military Status: " & STAT_INFORMATION(month_ind).stat_imig_military_info(each_memb)
+					y_pos = y_pos + 15
+				End If
+			Next
+			If imig_exists = False Then
+				Text 20, y_pos, 205, 10, "NO IMIG Panel for any Member"
+				y_pos = y_pos + 15
+			End If
+
+			'TODO add PBEN - person
+			'TODO add HCMI - person
+
+			'FACI - person
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_faci_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_faci_currently_in_facility(each_memb) = True Then
+					faci_exists = True
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 10
+					Text 25, y_pos, 250, 10, "FACI   -   Resident in a Facility. In Date: " & STAT_INFORMATION(month_ind).stat_faci_date_in(each_memb)
+					y_pos = y_pos + 10
+					Text 55, y_pos, 200, 10, "Facility Name: " & STAT_INFORMATION(month_ind).stat_faci_name(each_memb)
+					Text 260, y_pos, 200, 10, "Facility Type: " & STAT_INFORMATION(month_ind).stat_faci_type_info(each_memb)
+					y_pos = y_pos + 10
+					If STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb) <> "" Then
+						Text 60, y_pos, 150, 10, "Facility Waiver Type: " & STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb)
+						y_pos = y_pos + 10
+					End If
+					If STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) <> "" Then
+						Text 60, y_pos, 150, 10, "LTC Ineligible Reason: " & STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb)
+						y_pos = y_pos + 10
+					End If
+				End If
+			Next
+			If faci_exists = False Then
+				Text 20, y_pos, 350, 10, "NO FACI Panel for any Member, or NO FACI panel indicating currently IN a facility."
+				y_pos = y_pos + 15
+			End If
+
+			grp_len = y_pos-5
+			' If grp_len = 20 Then grp_len = 100
+			If acci_exists = False and insa_exists = False and imig_exists = False and faci_exists = False Then
+				grp_len = grp_len + 75
+
+				Text 20, y_pos, 350, 10, "NO ACCI/INSA/IMIG/FACI panels have been entered in the csae file for the selected members."
+				y_pos = y_pos + 10
+				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB XX"
+				y_pos = y_pos + 15
+				Text 20, y_pos, 350, 20, "If there are details from these panels that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+				y_pos = y_pos + 20
+
+				Text 20, y_pos, 350, 10, "CASE/NOTE will indicate not add any other details, add any notes here that are relevant:"
+				y_pos = y_pos + 10
+				' y_pos = 80
+			Else
+				grp_len = grp_len + 35
+				y_pos = y_pos + 5
+				Text 20, y_pos, 350, 10, "NOTES about Miscelaneous Case/Person Information:"
+				y_pos = y_pos + 10
+			End If
+
+			EditBox 20, y_pos, 440, 15, STAT_INFORMATION(month_ind).stat_other_general_notes
+			GroupBox 10, 10, 465, grp_len, "Other Information from Panels: ACCI/INSA/IMIG/FACI"
+
+			Text 512, 122, 55, 13, "Other"
+
+		ElseIf page_display = bils_page Then
+
+			Text 20, 25, 250, 10, "This case has medical bills entered into the BILS panel."
+
+			Text 20, 40, 250, 10, "Check any box next to the bill to include the detail in the CASE/NOTE."
+
+			y_pos = 55
+			For each_bil = 0 to UBound(BILS_ARRAY, 2)
+				CheckBox 25, y_pos, 110, 10, "MEMB " & BILS_ARRAY(bils_ref_numb_const, each_bil) & " from " & BILS_ARRAY(bils_date_const, each_bil), BILS_ARRAY(bils_checkbox, each_bil)
+				Text 140, y_pos, 315, 10, "Gross: $ " & BILS_ARRAY(bils_gross_amt_const, each_bil) & ",          Service: " & BILS_ARRAY(bils_service_info_const, each_bil) & ",          Type: " & BILS_ARRAY(bils_expense_type_info_const, each_bil) & ",          Verif: " & BILS_ARRAY(bils_verif_info_const, each_bil)
+				y_pos = y_pos + 10
+			Next
+			y_pos = y_pos + 5
+			Text 20, y_pos, 350, 10, "Additional NOTES about BILS:"
+			EditBox 20, y_pos+10, 440, 15, bils_notes
+
+			grp_len = y_pos + 25
+			GroupBox 10, 10, 465, grp_len, "Medical Bills - BILS"
 
 
+		ElseIf page_display = last_page Then
+			y_pos = 25
+			If arep_name = "" Then
+				Text 20, y_pos, 150, 10, "No AREP listed in this case."
+				y_pos = y_pos + 10
+			Else
+				Text 20, y_pos, 150, 10, "AREP Information"
+				' y_pos = y_pos + 10
+				Text 275, y_pos, 150, 10, "Name: " & arep_name
+				y_pos = y_pos + 10
+				Text 25, y_pos, 300, 10, "Address: " & arep_addr_street & " " & arep_addr_city & ", " & arep_addr_state & " " & arep_addr_zip
+				Text 275, y_pos, 75, 10, "Notices to AREP: " & forms_to_arep
+				y_pos = y_pos + 10
+				Text 25, y_pos, 150, 10, "Phone: " & arep_phone_one
+				If arep_ext_one <> "" Then Text 175, y_pos, 75, 10, "Ext: " & arep_ext_one
+				Text 275, y_pos, 75, 10, "MMIS Mail to AREP: " & mmis_mail_to_arep
+				y_pos = y_pos + 10
+			End If
+			grp_len = y_pos
+			GroupBox 10, 10, 465, grp_len, "AREP"
+			y_pos = y_pos + 15
 
-			Text 510, 107, 55, 13, "Other"
+			grp_pos = y_pos
+			y_pos = y_pos + 15
+			If swkr_name = "" Then
+				Text 20, y_pos, 150, 10, "No SWKR listed in this case."
+				y_pos = y_pos + 10
+			Else
+				Text 20, y_pos, 150, 10, "SWKR Information"
+				' y_pos = y_pos + 10
+				Text 275, y_pos, 150, 10, "Name: " & swkr_name
+				y_pos = y_pos + 10
+				Text 25, y_pos, 300, 10, "Address: " & swkr_addr_street & " " & swkr_addr_city & ", " & swkr_addr_state & " " & swkr_addr_zip
+				y_pos = y_pos + 10
+				Text 25, y_pos, 150, 10, "Phone: " & swkr_phone_one
+				If swkr_ext_one <> "" Then Text 175, y_pos, 75, 10, "Ext: " & swkr_ext_one
+				Text 275, y_pos, 75, 10, "Notices to SWKR: " & notices_to_swkr_yn
+				y_pos = y_pos + 10
+			End If
+			grp_len = y_pos - grp_pos + 10
+			GroupBox 10, grp_pos, 465, grp_len, "SWKR"
+			y_pos = y_pos + 15
+
+			grp_pos = y_pos
+			y_pos = y_pos + 15
+
+			Text 95, y_pos, 175, 10, "Has the Application beed correctly Signed and Dated?"
+			DropListBox 270, y_pos-5, 200, 15, "Select One..."+chr(9)+"Yes - All required signatures are on the application"+chr(9)+"No - Some applications or dates are missing", app_sig_status
+			y_pos = y_pos + 20
+			Text 170, y_pos, 100, 10, "If not, describe what is missing: "
+			EditBox 270, y_pos-5, 200, 15, app_sig_notes
+			y_pos = y_pos + 15
+
+			For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+				If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
+					GroupBox 20, y_pos, 445, 65, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb)
+					y_pos = y_pos + 10
+					Text 30, y_pos, 150, 10, "HC Determination Process: " & HEALTH_CARE_MEMBERS(HC_determination_process_const, the_memb)
+					Text 200, y_pos, 150, 10, "MA BASIS: " & HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, the_memb)
+					Text 320, y_pos, 125, 10, "MSP BASIS: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb)
+					y_pos = y_pos + 15
+					Text 30, y_pos, 90, 10, "Health Care determination: "
+					DropListBox 115, y_pos-5, 200, 15, "Select One..."+chr(9)+"Incomplete - need additional verificaitons"+chr(9)+"Incomplete - unclear information"+chr(9)+"Incompelte - other"+chr(9)+"Complete"+chr(9)+"More Processing Needed", HEALTH_CARE_MEMBERS(hc_determination_status, the_memb)
+					y_pos = y_pos + 20
+					Text 30, y_pos, 70, 10, "Determination Notes:"
+					EditBox 115, y_pos-5, 340, 15, HEALTH_CARE_MEMBERS(hc_determination_notes, the_memb)
+					y_pos = y_pos + 20
+				End if
+			Next
+
+
+			grp_len = y_pos - grp_pos + 10
+			GroupBox 10, grp_pos, 465, grp_len, "Signatures and Status"
+
+			If verifs_needed <> "" Then
+				y_pos = y_pos + 15
+
+				grp_pos = y_pos
+				y_pos = y_pos + 15
+				Text 20, y_pos, 150, 10, "Verifications listed:"
+				If verif_req_form_sent_date <> "" Then Text 200, y_pos, 150, 10, "Verification Request form Sent on " & verif_req_form_sent_date
+				y_pos = y_pos + 10
+
+				verifs_array = NULL
+				verif_counter = 1
+				verifs_needed = trim(verifs_needed)
+				If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
+				If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+				If InStr(verifs_needed, ";") <> 0 Then
+					verifs_array = split(verifs_needed, ";")
+				Else
+					verifs_array = array(verifs_needed)
+				End If
+
+				For each verif_item in verifs_array
+					verif_item = trim(verif_item)
+					If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
+					verif_counter = verif_counter + 1
+					' Call write_variable_with_indent_in_CASE_NOTE(verif_item)
+					Text 25, y_pos, 440, 10, verif_item
+					y_pos = y_pos + 10
+				Next
+				Text 20, y_pos, 300, 10, "(Verifications to be added to CASE/NOTE)"
+				y_pos = y_pos + 10
+
+				grp_len = y_pos - grp_pos + 10
+				GroupBox 10, grp_pos, 465, grp_len, "Verifications"
+			End If
+			CheckBox 20, 350, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
+			CheckBox 310, 350, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
 		' ElseIf page_display =  Then
 
 		End If
-
-
+		'panels I don't know what to do with
+		'TODO - SPON
+		'TODO - FCFC/FCPL
+		'TODO - TRAN
 
 		Text 485, 5, 75, 10, "---   DIALOGS   ---"
 		Text 485, 17, 10, 10, "1"
@@ -568,34 +1499,38 @@ function define_main_dialog()
 		Text 485, 77, 10, 10, "5"
 		Text 485, 92, 10, 10, "6"
 		Text 485, 107, 10, 10, "7"
-		' Text 485, 122, 10, 10, "8"
-		' Text 485, 137, 10, 10, "9"
-		' Text 485, 152, 10, 10, "10"
-		' Text 485, 167, 10, 10, "11"
+		Text 485, 122, 10, 10, "8"
 		If page_display <> show_member_page 		Then PushButton 495, 15, 55, 13, "HC MEMBs", hc_memb_btn
 		If page_display <> show_jobs_page 			Then PushButton 495, 30, 55, 13, "JOBS Income", jobs_inc_btn
 		If page_display <> show_busi_page 			Then PushButton 495, 45, 55, 13, "BUSI Income", busi_inc_btn
 		If page_display <> show_unea_page 			Then PushButton 495, 60, 55, 13, "UNEA Income", unea_inc_btn
 		If page_display <> show_asset_page 			Then PushButton 495, 75, 55, 13, "Assets", assets_btn
-		If page_display <> show_expenses_page 		Then PushButton 495, 90, 55, 13, "Expenses", expenses_btn
-		If page_display <> show_other_page 			Then PushButton 495, 105, 55, 13, "Other", other_btn
-		' If page_display <> show_q_16_20 				Then PushButton 495, 120, 55, 13, "Q. 16 - 20", caf_q_16_20_btn
+		If page_display <> show_cars_rest_page 		Then PushButton 495, 90, 55, 13, "CARS/REST", cars_rest_btn
+		If page_display <> show_expenses_page 		Then PushButton 495, 105, 55, 13, "Expenses", expenses_btn
+		If page_display <> show_other_page 			Then PushButton 495, 120, 55, 13, "Other", other_btn
 		' If page_display <> show_q_21_24 				Then PushButton 495, 135, 55, 13, "Q. 21 - 24", caf_q_21_24_btn
 		' If page_display <> show_qual 					Then PushButton 495, 150, 55, 13, "CAF QUAL Q", caf_qual_q_btn
 		' If page_display <> show_pg_last 				Then PushButton 495, 165, 55, 13, "CAF Last Page", caf_last_page_btn
-		btn_pos = 180
-		If discrepancies_exist = True Then
-			Text 485, btn_pos + 2, 10, 10, "12"
-			If page_display <> discrepancy_questions 	Then PushButton 495, btn_pos, 55, 13, "Clarifications", discrepancy_questions_btn
+		btn_pos = 135
+		btn_count = 9
+		If bils_exist = True Then
+			Text 485, btn_pos + 2, 10, 10, btn_count
+			If page_display <> bils_page 	Then PushButton 495, btn_pos, 55, 13, "BILS", bils_btn
+			If page_display =  bils_page 	Then Text 515, btn_pos+2, 55, 13, "BILS"
 			btn_pos = btn_pos + 15
+			btn_count = btn_count + 1
 		End If
-		If expedited_determination_needed = True Then
-			Text 485, btn_pos + 2, 10, 10, "13"
-			If page_display <> expedited_determination Then PushButton 495, btn_pos, 55, 13, "EXPEDITED", expedited_determination_btn
-			btn_pos = btn_pos + 15
-		End If
-		' PushButton 10, 365, 130, 15, "Interview Ended - INCOMPLETE", incomplete_interview_btn
-		' PushButton 140, 365, 130, 15, "View Verifications", verif_button
+		' If expedited_determination_needed = True Then
+		' 	Text 485, btn_pos + 2, 10, 10, "13"
+		' 	If page_display <> expedited_determination Then PushButton 495, btn_pos, 55, 13, "EXPEDITED", expedited_determination_btn
+		' 	btn_pos = btn_pos + 15
+		' End If
+		Text 485, btn_pos + 2, 10, 10, btn_count
+		If page_display <> last_page 	Then PushButton 495, btn_pos, 55, 13, "App Info", last_btn
+		If page_display =  last_page 	Then Text 505, btn_pos+2, 55, 13, "App Info"
+
+		PushButton 20, 365, 130, 15, "View Verifications", verif_button
+		If verifs_needed <> "" Then Text 155, 365, 290, 10, "VERIFICATIONS EXIST"
 		PushButton 345, 365, 50, 15, "NEXT", next_btn
 		PushButton 400, 365, 150, 15, "Complete Health Care Determination", completed_hc_determination_btn
 
@@ -603,9 +1538,74 @@ function define_main_dialog()
 
 end function
 
-function read_person_based_STAT_info()
-	HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True
+function read_BILS_line(bil_row)
+	EMReadScreen bil_ref_numb, 2, bil_row, 26
+	EMReadScreen bil_date, 8, bil_row, 30
+	EMReadScreen bil_serv_code, 2, bil_row, 40
+	EMReadScreen bil_gross_amt, 9, bil_row, 45
+	EMReadScreen bil_payments, 9, bil_row, 57
+	EMReadScreen bil_verif_code, 2, bil_row, 67
+	EMReadScreen bil_expense_type_code, 1, bil_row, 71
+	EMReadScreen bil_old_priority, 2, bil_row, 75
+	EMReadScreen bil_dependent_indicator, 1, bil_row, 79
 
+	bil_date = replace(bil_date, " ", "/")
+
+	If bil_serv_code = "" Then bil_serv_info = ""
+	If bil_serv_code = "01" Then bil_serv_info = "Health Professional"
+	If bil_serv_code = "03" Then bil_serv_info = "Surgery"
+	If bil_serv_code = "04" Then bil_serv_info = "Chiropractic"
+	If bil_serv_code = "05" Then bil_serv_info = "Maternity and Reproductive"
+	If bil_serv_code = "07" Then bil_serv_info = "Hearing"
+	If bil_serv_code = "08" Then bil_serv_info = "Vision"
+	If bil_serv_code = "09" Then bil_serv_info = "Hospital"
+	If bil_serv_code = "11" Then bil_serv_info = "Hospice"
+	If bil_serv_code = "13" Then bil_serv_info = "SNF"
+	If bil_serv_code = "14" Then bil_serv_info = "Dental"
+	If bil_serv_code = "15" Then bil_serv_info = "Rx Drug/Non-Durable Supply"
+	If bil_serv_code = "16" Then bil_serv_info = "Home Health"
+	If bil_serv_code = "17" Then bil_serv_info = "Diagnostic"
+	If bil_serv_code = "18" Then bil_serv_info = "Mental Health"
+	If bil_serv_code = "19" Then bil_serv_info = "Rehabilitation Habilitation"
+	If bil_serv_code = "21" Then bil_serv_info = "Durable Med Equip/Supplies"
+	If bil_serv_code = "22" Then bil_serv_info = "Medical Trans"
+	If bil_serv_code = "24" Then bil_serv_info = "Waivered Serv"
+	If bil_serv_code = "25" Then bil_serv_info = "Medicare Prem"
+	If bil_serv_code = "26" Then bil_serv_info = "Dental or Health Prem"
+	If bil_serv_code = "27" Then bil_serv_info = "Remedial Care"
+	If bil_serv_code = "28" Then bil_serv_info = "Non-FFP MCRE Service"
+	If bil_serv_code = "30" Then bil_serv_info = "Alternative Care"
+	If bil_serv_code = "31" Then bil_serv_info = "MCSHN"
+	If bil_serv_code = "32" Then bil_serv_info = "Ins Ext Prog"
+	If bil_serv_code = "34" Then bil_serv_info = "CW-TCM"
+	If bil_serv_code = "37" Then bil_serv_info = "Pay-In Spdn"
+	If bil_serv_code = "42" Then bil_serv_info = "Access Services"
+	If bil_serv_code = "43" Then bil_serv_info = "Chemical Dep"
+	If bil_serv_code = "44" Then bil_serv_info = "Nutritional Services"
+	If bil_serv_code = "45" Then bil_serv_info = "Organ/Tissue Transplant"
+	If bil_serv_code = "46" Then bil_serv_info = "Out-Of-Area Services"
+	If bil_serv_code = "47" Then bil_serv_info = "Copayment/Deductible"
+	If bil_serv_code = "49" Then bil_serv_info = "Preventative Care"
+	If bil_serv_code = "99" Then bil_serv_info = "Other"
+
+	If bil_verif_code = "__" Then bil_verif_info = ""
+	If bil_verif_code = "01" Then bil_verif_info = "Billing Statement"
+	If bil_verif_code = "02" Then bil_verif_info = "Explanation of Benefit"
+	If bil_verif_code = "03" Then bil_verif_info = "Client Statment"
+	If bil_verif_code = "04" Then bil_verif_info = "Credit/Loan Statement"
+	If bil_verif_code = "05" Then bil_verif_info = "Provider Statement"
+	If bil_verif_code = "06" Then bil_verif_info = "Other"
+	If bil_verif_code = "NO" Then bil_verif_info = "No Verif provided"
+
+	If bil_expense_type_code = "_" Then bil_expense_type_info = "Unknown"
+	If bil_expense_type_code = "H" Then bil_expense_type_info = "Health Ins, Other Premium"
+	If bil_expense_type_code = "P" Then bil_expense_type_info = "Not Covered, Non-Reimbursed"
+	If bil_expense_type_code = "M" Then bil_expense_type_info = "Old, Unpaid Medical Bills"
+	If bil_expense_type_code = "R" Then bil_expense_type_info = "Reimbursable"
+
+end function
+
+function read_person_based_STAT_info()
 	Call navigate_to_MAXIS_screen("STAT", "DISA")
 	Call write_value_and_transmit(HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb), 20, 76)
 	EMReadScreen disa_version, 1, 2, 78
@@ -810,10 +1810,315 @@ function dialog_movement()
 	If ButtonPressed = busi_inc_btn Then page_display = show_busi_page
 	If ButtonPressed = unea_inc_btn Then page_display = show_unea_page
 	If ButtonPressed = assets_btn Then page_display = show_asset_page
+	If ButtonPressed = cars_rest_btn Then page_display = show_cars_rest_page
 	If ButtonPressed = expenses_btn Then page_display = show_expenses_page
 	If ButtonPressed = other_btn Then page_display = show_other_page
+	If ButtonPressed = bils_btn Then page_display = bils_page
+	If ButtonPressed = last_btn Then page_display = last_page
 end function
 
+
+
+function verification_dialog()
+    If ButtonPressed = verif_button Then
+        ' If second_call <> TRUE Then
+        '     income_source_list = "Select or Type Source"
+
+        '     For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
+        '         If ALL_JOBS_PANELS_ARRAY(employer_name, each_job) <> "" Then income_source_list = income_source_list+chr(9)+"JOB - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job)
+        '     Next
+        '     For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
+        '         If ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) <> "" Then
+        '             If ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi) <> "" Then
+        '                 income_source_list = income_source_list+chr(9)+"Self Emp - " & ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi)
+        '             Else
+        '                 income_source_list = income_source_list+chr(9)+"Self Employment"
+        '             End If
+        '         End If
+        '     Next
+        '     employment_source_list = income_source_list
+        '     income_source_list = income_source_list+chr(9)+"Child Support"+chr(9)+"Social Security Income"+chr(9)+"Unemployment Income"+chr(9)+"VA Income"+chr(9)+"Pension"
+        '     income_verif_time = "[Enter Time Frame]"
+        '     bank_verif_time = "[Enter Time Frame]"
+        '     second_call = TRUE
+        ' End If
+
+        Do
+            verif_err_msg = ""
+
+            Dialog1 = ""
+            BeginDialog Dialog1, 0, 0, 610, 395, "Select Verifications"
+              Text 280, 10, 120, 10, "Date Verification Request Form Sent:"
+              EditBox 400, 5, 50, 15, verif_req_form_sent_date
+
+              Groupbox 5, 35, 520, 130, "Personal and Household Information"
+
+              CheckBox 10, 50, 75, 10, "Verification of ID for ", id_verif_checkbox
+              ComboBox 90, 45, 150, 45, verification_memb_list, id_verif_memb
+              CheckBox 300, 50, 100, 10, "Social Security Number for ", ssn_checkbox
+              ComboBox 405, 45, 110, 45, verification_memb_list, ssn_verif_memb
+
+              CheckBox 10, 70, 70, 10, "US Citizenship for ", us_cit_status_checkbox
+              ComboBox 85, 65, 150, 45, verification_memb_list, us_cit_verif_memb
+              CheckBox 300, 70, 85, 10, "Immigration Status for", imig_status_checkbox
+              ComboBox 390, 65, 125, 45, verification_memb_list, imig_verif_memb
+
+              CheckBox 10, 90, 90, 10, "Proof of relationship for ", relationship_checkbox
+              ComboBox 105, 85, 150, 45, verification_memb_list, relationship_one_verif_memb
+              Text 260, 90, 90, 10, "and"
+              ComboBox 280, 85, 150, 45, verification_memb_list, relationship_two_verif_memb
+
+              CheckBox 10, 110, 85, 10, "Student Information for ", student_info_checkbox
+              ComboBox 100, 105, 150, 45, verification_memb_list, student_verif_memb
+              Text 255, 110, 10, 10, "at"
+              EditBox 270, 105, 150, 15, student_verif_source
+
+              CheckBox 10, 130, 85, 10, "Proof of Pregnancy for", preg_checkbox
+              ComboBox 100, 125, 150, 45, verification_memb_list, preg_verif_memb
+
+              CheckBox 10, 150, 115, 10, "Illness/Incapacity/Disability for", illness_disability_checkbox
+              ComboBox 130, 145, 150, 45, verification_memb_list, disa_verif_memb
+              Text 285, 150, 30, 10, "verifying:"
+              EditBox 320, 145, 150, 15, disa_verif_type
+
+              GroupBox 5, 165, 520, 50, "Income Information"
+
+              CheckBox 10, 180, 45, 10, "Income for ", income_checkbox
+              ComboBox 60, 175, 140, 45, verification_memb_list, income_verif_memb
+              Text 205, 180, 15, 10, "from"
+              ComboBox 225, 175, 125, 45, income_source_list, income_verif_source
+              Text 355, 180, 10, 10, "for"
+              EditBox 370, 175, 145, 15, income_verif_time
+
+              CheckBox 10, 200, 85, 10, "Employment Status for ", employment_status_checkbox
+              ComboBox 100, 195, 150, 45, verification_memb_list, emp_status_verif_memb
+              Text 255, 200, 10, 10, "at"
+              ComboBox 270, 195, 150, 45, employment_source_list, emp_status_verif_source
+
+              GroupBox 5, 215, 520, 50, "Expense Information"
+
+              CheckBox 10, 230, 105, 10, "Educational Funds/Costs for", educational_funds_cost_checkbox
+              ComboBox 120, 225, 150, 45, verification_memb_list, stin_verif_memb
+
+              CheckBox 10, 250, 65, 10, "Shelter Costs for ", shelter_checkbox
+              ComboBox 80, 245, 150, 45, verification_memb_list, shelter_verif_memb
+              checkBox 240, 250, 175, 10, "Check here if this verif is NOT MANDATORY", shelter_not_mandatory_checkbox
+
+              GroupBox 5, 265, 600, 30, "Asset Information"
+
+              CheckBox 10, 280, 70, 10, "Bank Account for", bank_account_checkbox
+              ComboBox 80, 275, 150, 45, verification_memb_list, bank_verif_memb
+              Text 235, 280, 45, 10, "account type"
+              ComboBox 285, 275, 145, 45, "Select or Type"+chr(9)+"Checking"+chr(9)+"Savings"+chr(9)+"Certificate of Deposit (CD)"+chr(9)+"Stock"+chr(9)+"Money Market", bank_verif_type
+              Text 435, 280, 10, 10, "for"
+              EditBox 450, 275, 150, 15, bank_verif_time
+
+              Text 5, 305, 20, 10, "Other:"
+              EditBox 30, 300, 570, 15, other_verifs
+              Checkbox 10, 320, 200, 10, "Check here to have verifs numbered in the CASE/NOTE.", number_verifs_checkbox
+
+              ButtonGroup ButtonPressed
+                PushButton 485, 10, 50, 15, "FILL", fill_button
+                PushButton 540, 10, 60, 15, "Return to Dialog", return_to_dialog_button
+              Text 10, 340, 580, 50, verifs_needed
+              Text 10, 10, 235, 10, "Check the boxes for any verification you want to add to the CASE/NOTE."
+              Text 10, 20, 470, 10, "Note: After you press 'Fill' or 'Return to Dialog' the information from the boxes will fill in the Verification Field and the boxes will be 'unchecked'."
+            EndDialog
+
+            dialog Dialog1
+
+            If ButtonPressed = 0 Then
+                id_verif_checkbox = unchecked
+                us_cit_status_checkbox = unchecked
+                imig_status_checkbox = unchecked
+                ssn_checkbox = unchecked
+                relationship_checkbox = unchecked
+                income_checkbox = unchecked
+                employment_status_checkbox = unchecked
+                student_info_checkbox = unchecked
+                educational_funds_cost_checkbox = unchecked
+                shelter_checkbox = unchecked
+                bank_account_checkbox = unchecked
+                preg_checkbox = unchecked
+                illness_disability_checkbox = unchecked
+            End If
+            If ButtonPressed = -1 Then ButtonPressed = fill_button
+
+            If id_verif_checkbox = checked AND (id_verif_memb = "Select or Type Member" OR trim(id_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member that needs ID verified."
+            If us_cit_status_checkbox = checked AND (us_cit_verif_memb = "Select or Type Member" OR trim(us_cit_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member that needs citizenship verified."
+            If imig_status_checkbox = checked AND (imig_verif_memb = "Select or Type Member" OR trim(imig_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member that needs immigration status verified."
+            If ssn_checkbox = checked AND (ssn_verif_memb = "Select or Type Member" OR trim(ssn_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member for which we need social security number."
+            If relationship_checkbox = checked Then
+                If relationship_one_verif_memb = "Select or Type Member" OR trim(relationship_one_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the two household members whose relationship needs to be verified."
+                If relationship_two_verif_memb = "Select or Type Member" OR trim(relationship_two_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the two household members whose relationship needs to be verified."
+            End If
+            If income_checkbox = checked Then
+                If income_verif_memb = "Select or Type Member" OR trim(income_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose income needs to be verified."
+                If trim(income_verif_source) = "" OR trim(income_verif_source) = "Select or Type Source" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the source of income to be verified."
+                If trim(income_verif_time) = "[Enter Time Frame]" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the time frame of the income verification needed."
+            End If
+            If employment_status_checkbox = checked Then
+                If trim(emp_status_verif_source) = "" OR trim(emp_status_verif_source) = "Select or Type Source" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the source of the employment that needs status verified."
+                If emp_status_verif_memb = "Select or Type Member" OR trim(emp_status_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose employment status needs to be verified."
+            End If
+            If student_info_checkbox = checked Then
+                If trim(student_verif_source) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the source of school information to be verified"
+                If student_verif_memb = "Select or Type Member" OR trim(student_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member for which we need school verification."
+            End If
+            If educational_funds_cost_checkbox = checked AND (stin_verif_memb = "Select or Type Member" OR trim(stin_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member with educational funds and costs we need verified."
+            If shelter_checkbox = checked AND (shelter_verif_memb = "Select or Type Member" OR trim(shelter_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose shelter expense we need verified."
+            If bank_account_checkbox = checked Then
+                If trim(bank_verif_type) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the type of bank account to verify."
+                If bank_verif_memb = "Select or Type Member" OR trim(bank_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose bank account we need verified."
+                If trim(bank_verif_time) = "[Enter Time Frame]" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the time frame of the bank account verification needed."
+            End If
+            If preg_checkbox = checked AND (preg_verif_memb = "Select or Type Member" OR trim(preg_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose pregnancy needs to be verified."
+            If illness_disability_checkbox = checked Then
+                If trim(disa_verif_type) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Enter the type (or details) of the illness/incapacity/disability that need to be verified."
+                If disa_verif_memb = "Select or Type Member" OR trim(disa_verif_memb) = "" Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member whose illness/incapacity/disability needs to be verified."
+            End If
+
+            If verif_err_msg = "" Then
+                If id_verif_checkbox = checked Then
+                    If IsNumeric(left(id_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Identity for Memb " & id_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Identity for " & id_verif_memb & ".; "
+                    End If
+                    id_verif_checkbox = unchecked
+                    id_verif_memb = ""
+                End If
+                If us_cit_status_checkbox = checked Then
+                    If IsNumeric(left(us_cit_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "US Citizenship for Memb " & us_cit_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "US Citizenship for " & us_cit_verif_memb & ".; "
+                    End If
+                    us_cit_status_checkbox = unchecked
+                    us_cit_verif_memb = ""
+                End If
+                If imig_status_checkbox = checked Then
+                    If IsNumeric(left(imig_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Immigration documentation for Memb " & imig_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Immigration documentation for " & imig_verif_memb & ".; "
+                    End If
+                    imig_status_checkbox = unchecked
+                    imig_verif_memb = ""
+                End If
+                If ssn_checkbox = checked Then
+                    If IsNumeric(left(ssn_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Social Security number for Memb " & ssn_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Social Security number for " & ssn_verif_memb & ".; "
+                    End If
+                    ssn_checkbox = unchecked
+                    ssn_verif_memb = ""
+                End If
+                If relationship_checkbox = checked Then
+                    If IsNumeric(left(relationship_one_verif_memb, 2)) = TRUE AND IsNumeric(left(relationship_two_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Relationship between Memb " & relationship_one_verif_memb & " and Memb " & relationship_two_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Relationship between " & relationship_one_verif_memb & " and " & relationship_two_verif_memb & ".; "
+                    End If
+                    relationship_checkbox = unchecked
+                    relationship_one_verif_memb = ""
+                    relationship_two_verif_memb = ""
+                End If
+                If income_checkbox = checked Then
+                    If IsNumeric(left(income_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Income for Memb " & income_verif_memb & " at " & income_verif_source & " for " & income_verif_time & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Income for " & income_verif_memb & " at " & income_verif_source & " for " & income_verif_time & ".; "
+                    End If
+                    income_checkbox = unchecked
+                    income_verif_source = ""
+                    income_verif_memb = ""
+                    income_verif_time = ""
+                End If
+                If employment_status_checkbox = checked Then
+                    If IsNumeric(left(emp_status_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Employment Status for Memb " & emp_status_verif_memb & " from " & emp_status_verif_source & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Employment Status for " & emp_status_verif_memb & " from " & emp_status_verif_source & ".; "
+                    End If
+                    employment_status_checkbox = unchecked
+                    emp_status_verif_memb = ""
+                    emp_status_verif_source = ""
+                End If
+                If student_info_checkbox = checked Then
+                    If IsNumeric(left(student_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Student information for Memb " & student_verif_memb & " at " & student_verif_source & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Student information for " & student_verif_memb & " at " & student_verif_source & ".; "
+                    End If
+                    student_info_checkbox = unchecked
+                    student_verif_memb = ""
+                    student_verif_source = ""
+                End If
+                If educational_funds_cost_checkbox = checked Then
+                    If IsNumeric(left(stin_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Educational funds and costs for Memb " & stin_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Educational funds and costs for " & stin_verif_memb & ".; "
+                    End If
+                    educational_funds_cost_checkbox = unchecked
+                    stin_verif_memb = ""
+                End If
+                If shelter_checkbox = checked Then
+                    If IsNumeric(left(shelter_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Shelter costs for Memb " & shelter_verif_memb & ". "
+                    Else
+                        verifs_needed = verifs_needed & "Shelter costs for " & shelter_verif_memb & ". "
+                    End If
+                    If shelter_not_mandatory_checkbox = checked Then verifs_needed = verifs_needed & " THIS VERIFICATION IS NOT MANDATORY."
+                    verifs_needed = verifs_needed & "; "
+                    shelter_checkbox = unchecked
+                    shelter_verif_memb = ""
+                End If
+                If bank_account_checkbox = checked Then
+                    If IsNumeric(left(bank_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & bank_verif_type & " account for Memb " & bank_verif_memb & " for " & bank_verif_time & ".; "
+                    Else
+                        verifs_needed = verifs_needed & bank_verif_type & " account for " & bank_verif_memb & " for " & bank_verif_time & ".; "
+                    End If
+                    bank_account_checkbox = unchecked
+                    bank_verif_type = ""
+                    bank_verif_memb = ""
+                    bank_verif_time = ""
+                End If
+                If preg_checkbox = checked Then
+                    If IsNumeric(left(preg_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Pregnancy for Memb " & preg_verif_memb & ".; "
+                    Else
+                        verifs_needed = verifs_needed & "Pregnancy for " & preg_verif_memb & ".; "
+                    End If
+                    preg_checkbox = unchecked
+                    preg_verif_memb = ""
+                End If
+                If illness_disability_checkbox = checked Then
+                    If IsNumeric(left(disa_verif_memb, 2)) = TRUE Then
+                        verifs_needed = verifs_needed & "Ill/Incap or Disability for Memb " & disa_verif_memb & " of " & disa_verif_type & ",; "
+                    Else
+                        verifs_needed = verifs_needed & "Ill/Incap or Disability for " & disa_verif_memb & " of " & disa_verif_type & ",; "
+                    End If
+                    illness_disability_checkbox = unchecked
+                    disa_verif_memb = ""
+                    disa_verif_type = ""
+                End If
+                other_verifs = trim(other_verifs)
+                If other_verifs <> "" Then verifs_needed = verifs_needed & other_verifs & "; "
+                other_verifs = ""
+            Else
+                MsgBox "Additional detail about verifications to note is needed:" & vbNewLine & verif_err_msg
+            End If
+
+            If ButtonPressed = fill_button Then verif_err_msg = "LOOP" & verif_err_msg
+        Loop until verif_err_msg = ""
+        ButtonPressed = verif_button
+    End If
+
+end function
 
 'END FUNCTIONS BLOCK =======================================================================================================
 
@@ -891,6 +2196,8 @@ Const MA_basis_of_elig_const 			= 63
 Const MA_basis_notes_const 				= 64
 Const MSP_basis_of_elig_const 			= 65
 Const MSP_basis_notes_const 			= 66
+Const hc_determination_status			= 67
+Const hc_determination_notes			= 68
 ' Const _const =
 ' Const _const =
 ' Const _const =
@@ -903,6 +2210,34 @@ Dim HEALTH_CARE_MEMBERS()
 ReDim HEALTH_CARE_MEMBERS(last_const, 0)
 
 
+Const bils_ref_numb_const 		= 00
+Const bils_date_const 			= 01
+Const bils_service_code_const 	= 02
+Const bils_service_info_const 	= 03
+Const bils_gross_amt_const 		= 04
+Const bils_third_payments_const = 05
+Const bils_verif_code_const 	= 06
+Const bils_verif_info_const 	= 07
+Const bils_expense_type_code_const = 08
+Const bils_expense_type_info_const = 09
+Const bils_old_priority_const 	= 10
+Const bils_depdnt_ind_const 	= 11
+Const bils_hist_exp_type_code	= 12
+Const bils_hist_exp_type_info	= 13
+Const bils_hist_budg_period		= 14
+Const bils_hist_budg_start		= 15
+Const bils_hist_budg_end		= 16
+Const bils_hist_monthly_used	= 17
+Const bils_hist_monthly_unused	= 18
+Const bils_hist_6_month_used	= 19
+Const bils_hist_6_month_unused	= 20
+Const bils_hist_sort_action		= 21
+Const bils_hist_app_indc		= 22
+Const bils_checkbox				= 23
+Const last_bils_const 			= 25
+
+Dim BILS_ARRAY()
+ReDim BILS_ARRAY(last_bils_const, 0)
 
 'defaulting some information
 MAXIS_footer_month = CM_mo
@@ -923,9 +2258,12 @@ show_jobs_page 		= 1
 show_busi_page 		= 2
 show_unea_page 		= 3
 show_asset_page 	= 4
-show_expenses_page 	= 5
-show_other_page 	= 6
+show_cars_rest_page	= 5
+show_expenses_page 	= 6
+show_other_page 	= 7
+bils_page 			= 8
 
+last_page 			= 15
 		' show_member_page 	= 0
 		' show_jobs_page 		= 1
 		' show_busi_page 		= 2
@@ -936,13 +2274,21 @@ show_other_page 	= 6
 
 'BUTTON definitions
 'START AT 1000 OR ABOVE. Person buttons start at 500
-Const hc_memb_btn = 1010
-Const jobs_inc_btn = 1011
-Const busi_inc_btn = 1012
-Const unea_inc_btn = 1013
-Const assets_btn = 1014
-Const expenses_btn = 1015
-Const other_btn = 1016
+Const hc_memb_btn 	= 1010
+Const jobs_inc_btn 	= 1011
+Const busi_inc_btn 	= 1012
+Const unea_inc_btn 	= 1013
+Const assets_btn 	= 1014
+Const cars_rest_btn	= 1015
+Const expenses_btn 	= 1016
+Const other_btn 	= 1017
+Const bils_btn		= 2018
+Const last_btn		= 2030
+Const verif_button	= 2500
+
+Dim app_sig_status, app_sig_notes, client_delay_check, TIKL_check
+Dim bils_notes, verifs_needed, verif_req_form_sent_date
+
 
 'THE SCRIPT =====================================================================================================
 EMConnect ""
@@ -1016,8 +2362,6 @@ DO
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
-
-
 'Read PROG and HCRE to gather appliation date and any retro request
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "PROG", is_this_priv)
 If is_this_priv = True Then Call script_end_procedure("This case appears PRIVILEGED. The script will now end as there is no access to case information.")
@@ -1026,6 +2370,9 @@ If case_county <> worker_county_code Then Call script_end_procedure("This case d
 EMReadScreen prog_hc_appl_date, 8, 12, 33
 EMReadScreen prog_hc_intvw_date, 8, 12, 55
 EMReadScreen prog_hc_status, 4, 12, 74
+
+Call generate_client_list(verification_memb_list, "Select or Type Member")
+verification_memb_list = " "+chr(9)+verification_memb_list
 
 If prog_hc_appl_date = "__ __ __" Then prog_hc_appl_date = ""
 prog_hc_appl_date = replace(prog_hc_appl_date, " ", "/")
@@ -1194,6 +2541,18 @@ Next
 'IF application date is 4/1/23 or after, have a dialog to indicate the worker should review for potential coverage to indicate if the resident had HC during 03/2023 and is subject to Protected Coverage
 
 'gather information
+Call HH_member_custom_dialog(HH_member_array)
+
+List_of_HH_membs_to_include = " "
+For each HH_memb in HH_member_array
+	List_of_HH_membs_to_include = List_of_HH_membs_to_include & HH_memb & " "
+
+	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+		If HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) = HH_memb Then HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True
+	Next
+Next
+List_of_HH_membs_to_include = trim(List_of_HH_membs_to_include)
+
 MAXIS_footer_month = CM_plus_1_mo
 MAXIS_footer_year = CM_plus_1_yr
 
@@ -1204,14 +2563,97 @@ Set STAT_INFORMATION(month_count) = new stat_detail
 
 STAT_INFORMATION(month_count).footer_month = MAXIS_footer_month
 STAT_INFORMATION(month_count).footer_year = MAXIS_footer_year
+STAT_INFORMATION(month_count).LIMIT_MEMBS = TRUE
+STAT_INFORMATION(month_count).included_members = List_of_HH_membs_to_include
 
 Call STAT_INFORMATION(month_count).gather_stat_info
 
 
 
+Call navigate_to_MAXIS_screen("STAT", "BILS")
+EMReadScreen existance_check, 1, 2, 73
+bils_exist = True
+If existance_check = "0" Then bils_exist = False
+If bils_exist = True then
+	bils_row = 6
+	bils_count = 0
+	Do
+
+		bil_ref_numb = ""
+		bil_date = ""
+		bil_serv_code = ""
+		bil_gross_amt = ""
+		bil_payments = ""
+		bil_verif_code = ""
+		bil_expense_type_code = ""
+		bil_old_priority = ""
+		bil_dependent_indicator = ""
+		bil_serv_info = ""
+		bil_verif_info = ""
+		bil_expense_type_info = ""
+
+		ReDim Preserve BILS_ARRAY(last_bils_const, bils_count)
+		Call  read_BILS_line(bils_row)
+
+		' BILS_ARRAY(last_bils_const, bils_count) =
+
+		BILS_ARRAY(bils_ref_numb_const, bils_count) = bil_ref_numb
+		BILS_ARRAY(bils_date_const, bils_count) = bil_date
+		BILS_ARRAY(bils_service_code_const, bils_count) = bil_serv_code
+		BILS_ARRAY(bils_service_info_const, bils_count) = bil_serv_info
+		BILS_ARRAY(bils_gross_amt_const, bils_count) = bil_gross_amt
+		BILS_ARRAY(bils_third_payments_const, bils_count) = bil_payments
+		BILS_ARRAY(bils_verif_code_const, bils_count) = bil_verif_code
+		BILS_ARRAY(bils_verif_info_const, bils_count) = bil_verif_info
+		BILS_ARRAY(bils_expense_type_code_const, bils_count) = bil_expense_type_code
+		BILS_ARRAY(bils_expense_type_info_const, bils_count) = bil_expense_type_info
+		BILS_ARRAY(bils_old_priority_const, bils_count) = bil_old_priority
+		BILS_ARRAY(bils_depdnt_ind_const, bils_count) = bil_dependent_indicator
 
 
 
+		bils_count = bils_count + 1
+		bils_row = bils_row + 1
+		EMReadScreen next_bils_ref_numb, 2, bils_row, 26
+	Loop until next_bils_ref_numb = "__"
+
+End If
+
+Call access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
+Call access_SWKR_panel(access_type, swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone_one, swkr_ext_one, notices_to_swkr_yn)
+
+income_source_list = "Select or Type Source"
+For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
+		grp_len = grp_len + 100
+		income_source_list = income_source_list+chr(9)+"JOB - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+	End If
+	If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True Then
+		grp_len = grp_len + 100
+		income_source_list = income_source_list+chr(9)+"JOB - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+	End If
+	If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True Then
+		grp_len = grp_len + 100
+		income_source_list = income_source_list+chr(9)+"JOB - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+	End If
+	If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True Then
+		grp_len = grp_len + 100
+		income_source_list = income_source_list+chr(9)+"JOB - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+	End If
+	If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True Then
+		grp_len = grp_len + 100
+		income_source_list = income_source_list+chr(9)+"JOB - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+	End If
+Next
+For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+	If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
+		If InStr(income_source_list, "Self Employment") = 0 Then income_source_list = income_source_list+chr(9)+"Self Employment"
+	End If
+Next
+employment_source_list = income_source_list
+income_source_list = income_source_list+chr(9)+"Child Support"+chr(9)+"Social Security Income"+chr(9)+"Unemployment Income"+chr(9)+"VA Income"+chr(9)+"Pension"
+income_verif_time = "[Enter Time Frame]"
+bank_verif_time = "[Enter Time Frame]"
 
 interview_questions_clear = False
 page_display = show_member_page
@@ -1225,7 +2667,6 @@ Do
 				' MsgBox update_arep & " - before define dlg"
 				Dialog1 = Empty
 				call define_main_dialog
-
 				err_msg = ""
 
 				prev_page = page_display
@@ -1235,7 +2676,8 @@ Do
 				dialog Dialog1
 				' save_your_work
 				cancel_confirmation
-
+				Call verification_dialog
+				' Call check_for_errors(interview_questions_clear)
 			Loop until err_msg = ""
 
 			call dialog_movement
@@ -1252,3 +2694,102 @@ Do
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
+
+
+
+
+BeginDialog Dialog1, 0, 0, 476, 275, "Determine "
+  DropListBox 160, 195, 275, 45, "Select One..."+chr(9)+"Standard Policy - Changes and Reported information can be acted on"+chr(9)+"Protected Policy - Continuous Coverage applies and not negative action can be taken", policy_to_apply
+  ButtonGroup ButtonPressed
+    OkButton 360, 250, 50, 15
+    CancelButton 415, 250, 50, 15
+    PushButton 340, 135, 95, 15, "One Source - COVID", one_source_covid_btn
+    PushButton 360, 170, 75, 15, "Knowledge Now", qi_kn_btn
+  GroupBox 10, 10, 455, 230, "Policy to Apply to HC Case"
+  Text 35, 30, 400, 10, "******************************************************************************************************************************************************************************************************************************************************************************************************"
+  Text 180, 40, 105, 10, "*  *  *   SELECT POLICY *  *  *"
+  Text 150, 55, 200, 10, "IDENTIFY IF STANDARD OR PROTECTED POLICY APPLY"
+  Text 35, 70, 400, 10, "******************************************************************************************************************************************************************************************************************************************************************************************************"
+  Text 35, 90, 345, 20, "Since 03/2020 health care eligibility has been maintained under Continuous Coverage rules due to the Public Health Emergency (PHE). With the PHE ending, applied policy will need to be determined for each case."
+  Text 35, 115, 290, 20, "If anyone on this case has Non-Retro MA coverage in 03/2023, Protected Policy applies until the first renewal after the end of the PHE."
+  Text 90, 140, 250, 10, "Full details of determining which policy applies can be found on One Source"
+  Text 35, 160, 275, 10, "Review the case to determine if Standard or Protected Policy Coverage Apply"
+  Text 75, 175, 280, 10, "If you need additional support on making this determination, contact Knowledge Now."
+  Text 35, 200, 125, 10, "Select the correct policy that applies:"
+  Text 100, 220, 265, 10, "This script will create a CASE/NOTE for any case that has Standard Policy Apply."
+EndDialog
+
+Do
+	Do
+		err_msg = ""
+
+		dialog Dialog1
+		cancel_confrimation
+
+		If policy_to_apply = "Select One..." Then err_msg = err_msg & vbCr & "* Select which policy applies to the members on this case."
+		If ButtonPressed = one_source_covid_btn or ButtonPressed = qi_kn_btn Then err_msg = "LOOP" & err_msg
+
+	Loop until err_msg = ""
+	Call check_for_password(are_we_passworded_out)
+Loop until are_we_passworded_out = False
+
+If trim(verifs_needed) <> "" Then
+
+    verif_counter = 1
+    verifs_needed = trim(verifs_needed)
+    If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
+    If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+    If InStr(verifs_needed, ";") <> 0 Then
+        verifs_array = split(verifs_needed, ";")
+    Else
+        verifs_array = array(verifs_needed)
+    End If
+
+    programs_verifs_apply_to = ""
+    If verif_snap_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", SNAP"
+    If verif_cash_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", CASH"
+    If verif_mfip_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MFIP"
+    If verif_dwp_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", DWP"
+    If verif_msa_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MSA"
+    If verif_ga_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GA"
+    If verif_grh_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GRH"
+    If verif_emer_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", EMER"
+    If verif_hc_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", HC"
+    If left(programs_verifs_apply_to, 1) = "," Then programs_verifs_apply_to = right(programs_verifs_apply_to, len(programs_verifs_apply_to)-1)
+    programs_verifs_apply_to = trim(programs_verifs_apply_to)
+
+    case_notes_information = case_notes_information & "Verifs NOTE Attempted %^%"
+    case_notes_information = case_notes_information & "Script Header - " & "VERIFICATIONS REQUESTED" & " %^%"
+    Call start_a_blank_CASE_NOTE
+
+    Call write_variable_in_CASE_NOTE("VERIFICATIONS REQUESTED")
+
+    Call write_bullet_and_variable_in_CASE_NOTE("Verif request form sent on", verif_req_form_sent_date)
+
+    Call write_variable_in_CASE_NOTE("---")
+
+    Call write_variable_in_CASE_NOTE("List of all verifications requested:")
+    For each verif_item in verifs_array
+        verif_item = trim(verif_item)
+        If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
+        verif_counter = verif_counter + 1
+        Call write_variable_with_indent_in_CASE_NOTE(verif_item)
+    Next
+    If programs_verifs_apply_to <> "" Then
+        Call write_variable_in_CASE_NOTE("---")
+        Call write_variable_in_CASE_NOTE("Verifications are needed for " & programs_verifs_apply_to & ".")
+    End If
+    If verifs_postponed_checkbox = checked Then
+        Call write_variable_in_CASE_NOTE("---")
+        Call write_variable_in_CASE_NOTE("There may be verifications that are postponed to allow for the approval of Expedited SNAP.")
+    End If
+    Call write_variable_in_CASE_NOTE("---")
+    Call write_variable_in_CASE_NOTE(worker_signature)
+
+    PF3
+    EMReadScreen top_note_header, 55, 5, 25
+    case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
+    save_your_work
+
+    Call back_to_SELF
+End If
