@@ -91,37 +91,47 @@ function enter_verif_missing_header(verif_header)
 	End If
 end function
 
-function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, version_date, version_result, approval_found)
-	Call write_value_and_transmit("99", cmd_row, cmd_col)
-	approval_found = True
+' function find_last_approved_ELIG_version(cmd_row, cmd_col, version_number, version_date, version_result, approval_found)
+' 	Call write_value_and_transmit("99", cmd_row, cmd_col)
+' 	approval_found = True
 
-	row = 7
-	Do
-		EMReadScreen elig_version, 2, row, 22
-		EMReadScreen elig_date, 8, row, 26
-		EMReadScreen elig_result, 10, row, 37
-		EMReadScreen approval_status, 10, row, 50
+' 	row = 7
+' 	Do
+' 		EMReadScreen elig_version, 2, row, 22
+' 		EMReadScreen elig_date, 8, row, 26
+' 		EMReadScreen elig_result, 10, row, 37
+' 		EMReadScreen approval_status, 10, row, 50
 
-		elig_version = trim(elig_version)
-		elig_result = trim(elig_result)
-		approval_status = trim(approval_status)
+' 		elig_version = trim(elig_version)
+' 		elig_result = trim(elig_result)
+' 		approval_status = trim(approval_status)
 
-		If approval_status = "APPROVED" Then Exit Do
+' 		If approval_status = "APPROVED" Then Exit Do
 
-		row = row + 1
-	Loop until approval_status = ""
+' 		row = row + 1
+' 	Loop until approval_status = ""
 
-	Call clear_line_of_text(18, 54)
-	If approval_status = "" Then
-		approval_found = false
-		PF3
-	Else
-		Call write_value_and_transmit(elig_version, 18, 54)
-		version_number = "0" & elig_version
-		version_date = elig_date
-		version_result = elig_result
-	End If
-end function
+' 	Call clear_line_of_text(18, 54)
+' 	If approval_status = "" Then
+' 		approval_found = false
+' 		PF3
+' 	Else
+' 		Call write_value_and_transmit(elig_version, 18, 54)
+' 		version_number = "0" & elig_version
+' 		version_date = elig_date
+' 		version_result = elig_result
+
+' 		row = 1
+' 		col = 1
+' 		EMSearch "Auto-Closed", row, col
+' 		If row <> 0 Then
+' 			approval_found = false
+' 			version_date = ""
+' 			version_result = ""
+' 			PF3
+' 		End If
+' 	End If
+' end function
 
 function determine_mfip_counted_amount(gross_amount, counted_amount)
 	counted_amount = gross_amount
