@@ -332,7 +332,7 @@ Do
         If check_for_last_page = "LAST PAGE" Then Exit Do
     End If
     EMReadScreen next_note_date, 8, note_row, 6
-    if next_note_date = "        " then Exit Do                         'if we are out of notes to read - leave the loop
+    If next_note_date = "        " then Exit Do                         'if we are out of notes to read - leave the loop
 Loop until DateDiff("d", too_old_date, next_note_date) <= 0             'once we are past the first application date, we stop reading notes
 
 'If we have found the application received CASE/NOTE, we want to evaluate for if we need a subsequent application or app received run
@@ -471,7 +471,7 @@ BeginDialog Dialog1, 0, 0, 266, dlg_len, "Application Received for: " & programs
   GroupBox 5, 5, 255, 120, "Application Information"
   DropListBox 85, 40, 95, 45, "Select One:"+chr(9)+"ECF"+chr(9)+"Online"+chr(9)+"Request to APPL Form"+chr(9)+"In Person", how_application_rcvd
   DropListBox 85, 60, 95, 45, "Select One:"+chr(9)+"Adults"+chr(9)+"Families"+chr(9)+"Specialty", population_of_case
-  DropListBox 85, 80, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+"SNAP App for Seniors - 5223F"+chr(9)+"MNsure App for HC - 6696"+chr(9)+"MHCP App for Certain Populations - 3876"+chr(9)+"App for MA for LTC - 3531"+chr(9)+"MHCP App for B/C Cancer - 3523"+chr(9)+"No Application Required", application_type
+  DropListBox 85, 80, 170, 45, "Select One:"+chr(9)+"CAF - 5223"+chr(9)+"MNbenefits CAF - 5223"+chr(9)+"SNAP App for Seniors - 5223F"+chr(9)+"MNsure App for HC - 6696"+chr(9)+"MHCP App for Certain Populations - 3876"+chr(9)+"App for MA for LTC - 3531"+chr(9)+"MHCP App for B/C Cancer - 3523"+chr(9)+"EA/EGA Application"+chr(9)+"No Application Required", application_type
   EditBox 85, 105, 105, 15, confirmation_number
   Text 15, 25, 65, 10, "Date of Application:"
   Text 85, 25, 60, 10, application_date
@@ -857,6 +857,7 @@ If application_type = "MNsure App for HC - 6696" Then short_form_info = "MNsure 
 If application_type = "MHCP App for Certain Populations - 3876" Then short_form_info = "HC - Certain Populations"
 If application_type = "App for MA for LTC - 3531" Then short_form_info = "LTC HCAPP"
 If application_type = "MHCP App for B/C Cancer - 3523" Then short_form_info = "HCAPP for B/C Cancer"
+If application_type = "EA/EGA Application" Then short_form_info = "EA/EGA Application"
 
 'NOW WE START CASE NOTING - there are a few
 'Initial application CNOTE - all cases get these ones
@@ -872,7 +873,7 @@ If application_type = "No Application Required" Then
 	MX_pend_reason = trim(MX_pend_reason)
 	CALL write_variable_in_CASE_NOTE ("~ HC Pended from a METS case for " & MX_pend_reason & " effective " & application_date & " ~")
 Else
-	application_type = replace(application_type, " - ", " (DHS-") & ")"
+	If application_type <> "EA/EGA Application" Then application_type = replace(application_type, " - ", " (DHS-") & ")"
 	CALL write_variable_in_CASE_NOTE ("~ Application Received (" &  short_form_info & ") pended for " & application_date & " ~")
 	CALL write_bullet_and_variable_in_CASE_NOTE("Application Form Received", application_type)
 End If
