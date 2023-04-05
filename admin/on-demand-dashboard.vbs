@@ -937,7 +937,7 @@ function create_assignment_report()
 	''sending the email
     CALL create_outlook_email(qi_worker_supervisor_email, cc_email, main_email_subject, main_email_body, "", TRUE)
 
-	MsgBox "Now the Email should have been sent and you should have a copy." & vbCr & "qi_worker_supervisor_email - " & qi_worker_supervisor_email & vbCr & "cc_email - " & cc_email
+	' MsgBox "Now the Email should have been sent and you should have a copy." & vbCr & "qi_worker_supervisor_email - " & qi_worker_supervisor_email & vbCr & "cc_email - " & cc_email
 
 	'this part will review the cookie folder to remove any that are more than a week old. This is a clean up effort
 	Set objFolder = objFSO.GetFolder(current_day_work_tracking_folder)							'Creates an oject of the whole my documents folder
@@ -1329,6 +1329,7 @@ For tester = 0 to UBound(tester_array)                         'looping through 
     If tester_array(tester).tester_id_number = user_ID_for_validation Then
         qi_worker_supervisor_email = tester_array(tester).tester_supervisor_email
         qi_worker_first_name = tester_array(tester).tester_first_name
+		qi_worker_email = tester_array(tester).tester_email
         If tester_array(tester).tester_supervisor_name = "Tanya Payne" Then qi_member_identified = True
         If tester_array(tester).tester_population = "BZ" Then qi_member_identified = True
         assigned_worker = tester_array(tester).tester_full_name
