@@ -788,7 +788,7 @@ function create_assignment_report()
 	'opening task log
     file_url = "T:\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\QI On Demand Work Log.xlsx"
     Call excel_open(file_url, True, False, ObjExcel, objWorkbook)
-	MsgBox "Script has gathered cases from the TABLE and saved them to an array." & vbCr & "Total Count:" & cases_completed_by_me & vbCr & vbCr & "NOW an excel file should have opened. If one did NOT open, contact Casey right away." & vbCr & "Excel file url: " & file_url
+	' MsgBox "Script has gathered cases from the TABLE and saved them to an array." & vbCr & "Total Count:" & cases_completed_by_me & vbCr & vbCr & "NOW an excel file should have opened. If one did NOT open, contact Casey right away." & vbCr & "Excel file url: " & file_url
 	''finding the first empty row in the log
     excel_row = 2
     Do While trim(ObjExcel.Cells(excel_row, Worker_col).value) <> ""
@@ -893,7 +893,7 @@ function create_assignment_report()
     ObjExcel.Application.Quit
     ObjExcel.Quit
 
-	MsgBox "All case details should now be saved in the Excel and the file should be closed." & vbCr & "Excel last line: " & excel_row & vbCr & vbCr & "TABLE information should also be updated."
+	' MsgBox "All case details should now be saved in the Excel and the file should be closed." & vbCr & "Excel last line: " & excel_row & vbCr & vbCr & "TABLE information should also be updated."
 	'creating the email to report completion of work
 	main_email_subject = "On Demand Daily Case Review Completed"
 
@@ -937,7 +937,7 @@ function create_assignment_report()
 	''sending the email
     CALL create_outlook_email(qi_worker_supervisor_email, cc_email, main_email_subject, main_email_body, "", TRUE)
 
-	MsgBox "Now the Email should have been sent and you should have a copy."
+	MsgBox "Now the Email should have been sent and you should have a copy." & vbCr & "qi_worker_supervisor_email - " & qi_worker_supervisor_email & vbCr & "cc_email - " & cc_email
 
 	'this part will review the cookie folder to remove any that are more than a week old. This is a clean up effort
 	Set objFolder = objFSO.GetFolder(current_day_work_tracking_folder)							'Creates an oject of the whole my documents folder
