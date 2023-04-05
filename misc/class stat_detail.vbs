@@ -971,6 +971,7 @@ class stat_detail
 	public stat_emma_verif_info()
 	public stat_emma_begin_date()
 	public stat_emma_end_date()
+	public stat_emma_notes()
 
 	Public stat_pded_exists()
 	Public stat_pded_pickle_disregard_yn()
@@ -2098,6 +2099,7 @@ class stat_detail
 		ReDim stat_emma_verif_info(0)
 		ReDim stat_emma_begin_date(0)
 		ReDim stat_emma_end_date(0)
+		ReDim stat_emma_notes(0)
 
 		ReDim stat_pded_exists(0)
 		ReDim stat_pded_pickle_disregard_yn(0)
@@ -3105,6 +3107,7 @@ class stat_detail
 				ReDim preserve stat_emma_verif_info(memb_count)
 				ReDim preserve stat_emma_begin_date(memb_count)
 				ReDim preserve stat_emma_end_date(memb_count)
+				ReDim preserve stat_emma_notes(memb_count)
 
 				ReDim preserve stat_pded_exists(memb_count)
 				ReDim preserve stat_pded_pickle_disregard_yn(memb_count)
@@ -6924,7 +6927,7 @@ class stat_detail
 				If stat_imig_nationality_code(each_memb) = "SF" Then stat_imig_nationality_info(each_memb) = "South Africa"
 				If stat_imig_nationality_code(each_memb) = "TH" Then stat_imig_nationality_info(each_memb) = "Thailand"
 				If stat_imig_nationality_code(each_memb) = "VM" Then stat_imig_nationality_info(each_memb) = "Vietnam"
-				If stat_imig_nationality_code(each_memb) = "OT" Then stat_imig_nationality_info(each_memb) = "All Others"
+				If stat_imig_nationality_code(each_memb) = "OT" Then stat_imig_nationality_info(each_memb) = "Other"
 
 				If stat_imig_spec_ethnic_code(each_memb) = "__" Then stat_imig_spec_ethnic_info(each_memb) = ""
 				If stat_imig_spec_ethnic_code(each_memb) = "01" Then stat_imig_spec_ethnic_info(each_memb) = "Hmong During Vietnam War"
