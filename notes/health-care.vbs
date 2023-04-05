@@ -216,7 +216,7 @@ function check_for_errors(interview_questions_clear)
 
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-			If HEALTH_CARE_MEMBERS(HC_determination_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Determination is at#~##   - Detail what type of determination is being cmopleted for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			If HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Eval is at#~##   - Detail what type of evaluation is being cmopleted for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			If HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility#~##   - Select what the Basis of Eligiblity of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility#~##   - Select what the Basis of Eligiblity of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 		End If
@@ -227,7 +227,7 @@ end function
 
 function define_main_dialog()
 
-	BeginDialog Dialog1, 0, 0, 555, 385, "Information for Health Care Determination"
+	BeginDialog Dialog1, 0, 0, 555, 385, "Information for Health Care Evaluation"
 
 	  ButtonGroup ButtonPressed
 	    If page_display = show_member_page Then
@@ -254,13 +254,13 @@ function define_main_dialog()
 			Text 315, 70, 95, 10, "Coverage Request: " & HEALTH_CARE_MEMBERS(hc_cov_date_const, selected_memb)
 
 			Text 20, 90, 200, 10, "Current MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " Health Care Status: " & HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, selected_memb)
-			Text 275, 90, 105, 10, "Health Care Determination is at "
-			' DropListBox 380, 85, 75, 45, "Application"+chr(9)+"Recertification", HEALTH_CARE_MEMBERS(HC_determination_process_const, selected_memb)
-			DropListBox 380, 85, 85, 45, "Application"+chr(9)+"No Determination Needed", HEALTH_CARE_MEMBERS(HC_determination_process_const, selected_memb)
+			Text 300, 90, 85, 10, "Health Care Eval is at "
+			' DropListBox 380, 85, 75, 45, "Application"+chr(9)+"Recertification", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
+			DropListBox 380, 85, 85, 45, "Application"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
 
 			y_pos = 110
 			If HEALTH_CARE_MEMBERS(DISA_exists_const, selected_memb) = True Then
-				Text 20, y_pos, 200, 10, "DISA   -   Start date: " & HEALTH_CARE_MEMBERS(DISA_start_date_const, selected_memb) & "   -   End Date: " & HEALTH_CARE_MEMBERS(DISA_end_date_const, selected_memb)
+				Text 20, y_pos, 200, 10, "DISA    -    Start date: " & HEALTH_CARE_MEMBERS(DISA_start_date_const, selected_memb) & "   -   End Date: " & HEALTH_CARE_MEMBERS(DISA_end_date_const, selected_memb)
 				Text 250, y_pos, 200, 10, "HC DISA Status: " & HEALTH_CARE_MEMBERS(DISA_hc_status_info_const, selected_memb)
 				y_pos = y_pos + 10
 				If HEALTH_CARE_MEMBERS(DISA_cert_start_const, selected_memb) <> "" Then Text 55, y_pos, 230, 10, "Certification   -   Start date: " & HEALTH_CARE_MEMBERS(DISA_cert_start_const, selected_memb) & " - End Date: " & HEALTH_CARE_MEMBERS(DISA_cert_end_const, selected_memb)
@@ -269,9 +269,10 @@ function define_main_dialog()
 				y_pos = y_pos + 10
 				If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, selected_memb) <> "" Then
 					Text 55, y_pos, 200, 10, "LTC Waiver: " & HEALTH_CARE_MEMBERS(DISA_waiver_info_const, selected_memb)
-					y_pos = y_pos + 10
+				Else
+					Text 55, y_pos, 350, 10, "NO Waiver indicated. IF a WAIVER is being requested, add details in the NOTES section here."
 				End If
-				y_pos = y_pos + 5
+				y_pos = y_pos + 15
 				Text 55, y_pos, 45, 10, "DISA Notes:"
 				EditBox 100, y_pos-5, 365, 15, HEALTH_CARE_MEMBERS(DISA_notes_const, selected_memb)
 				y_pos = y_pos + 10
@@ -288,6 +289,18 @@ function define_main_dialog()
 					y_pos = y_pos + 10
 					Text 55, y_pos, 200, 10, "Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb) & " - End Date: " & STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb)
 					Text 250, y_pos, 200, 10, "Verif: " & STAT_INFORMATION(month_ind).stat_emma_verif_info(each_memb)
+					y_pos = y_pos + 15
+				End If
+			Next
+
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) Then
+					If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = False Then
+						Text 20, y_pos, 380, 10, "IMIG    -    No Immigration Information exists for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb)
+					End if
+					If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True Then
+						Text 20, y_pos, 380, 10, "IMIG    -    Immigration information for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " is on the IMIG page to the right."
+					End if
 					y_pos = y_pos + 15
 				End If
 			Next
@@ -333,16 +346,16 @@ function define_main_dialog()
 			y_pos = y_pos + 5
 
 			' GroupBox 10, 220, 465, 60, "Medical Assistance"
-			Text 20, 260, 400, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
-			Text 20, 275, 80, 10, "MA Basis of Eligibility:"
-			DropListBox 100, 270, 110, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly"+chr(9)+"Parent"+chr(9)+"Caretaker"+chr(9)+"Adult without Children"+chr(9)+"Pregnant"+chr(9)+"Child (19-20)"+chr(9)+"Child (2-18)"+chr(9)+"Child (0-1)"+chr(9)+"Auto Newborn"+chr(9)+"Foster Care Child"+chr(9)+"Previous Foster Care Child"+chr(9)+"No Eligibility", HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb)
-			Text 35, 295, 65, 10, "Notes on MA Basis:"
-			EditBox 100, 290, 365, 15, HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb)
+			Text 20, 295, 400, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
+			Text 20, 315, 70, 10, "MA Basis of ELIG:"
+			DropListBox 90, 310, 100, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly"+chr(9)+"Parent"+chr(9)+"Caretaker"+chr(9)+"Adult without Children"+chr(9)+"Pregnant"+chr(9)+"Child (19-20)"+chr(9)+"Child (2-18)"+chr(9)+"Child (0-1)"+chr(9)+"Auto Newborn"+chr(9)+"Foster Care Child"+chr(9)+"Previous Foster Care Child"+chr(9)+"No Eligibility", HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb)
+			Text 195, 315, 65, 10, "Notes on MA Basis:"
+			EditBox 265, 310, 205, 15, HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb)
 			' GroupBox 10, 285, 465, 60, "Medicare Savings Programs"
-			Text 20, 315, 80, 10, "MSP Basis of Eligibility:"
-			DropListBox 100, 310, 110, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly"+chr(9)+"No Eligibility"+chr(9)+"No MEDICARE", HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb)
-			Text 30, 335, 70, 10, "Notes on MSP Basis:"
-			EditBox 100, 330, 365, 15, HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb)
+			Text 20, 335, 70, 10, "MSP Basis of ELIG:"
+			DropListBox 90, 330, 100, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly"+chr(9)+"No Eligibility"+chr(9)+"No MEDICARE", HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb)
+			Text 195, 335, 70, 10, "Notes on MSP Basis:"
+			EditBox 265, 330, 205, 15, HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb)
 
 			Text 505, 17, 55, 13, "HC MEMBs"
 		ElseIf page_display = show_jobs_page Then
@@ -1250,6 +1263,7 @@ function define_main_dialog()
 			insa_exists = False
 			imig_exists = False
 			faci_exists = False
+			'TODO - each panel here should get it's own notes field
 
 			y_pos = 25
 			'ACCI - person
@@ -1262,6 +1276,11 @@ function define_main_dialog()
 					y_pos = y_pos + 10
 					Text 60, y_pos, 400, 10, "Accident Type: " & STAT_INFORMATION(month_ind).stat_acci_type_info(each_memb) & ". Involving MEMBS " & STAT_INFORMATION(month_ind).stat_acci_ref_numbers_list(each_memb)
 					y_pos = y_pos + 10
+
+					' y_pos = y_pos + 5
+					Text 25, y_pos+5, 50, 10, "ACCI Notes:"
+					EditBox 75, y_pos, 385, 15, STAT_INFORMATION(month_ind).stat_acci_notes
+					y_pos = y_pos + 20
 				End If
 			Next
 			If acci_exists = False Then
@@ -1284,33 +1303,15 @@ function define_main_dialog()
 						Text 60, y_pos, 350, 10, STAT_INFORMATION(month_ind).stat_insa_good_cause_info(each_panel) & " - Claim Date: " & STAT_INFORMATION(month_ind).stat_insa_good_cause_claim_date(each_panel) & " - Evidence: " & STAT_INFORMATION(month_ind).stat_insa_coop_cost_effective_yn(each_panel)
 						y_pos = y_pos + 10
 					End If
-					y_pos = y_pos + 5
+					' y_pos = y_pos + 5
+					' y_pos = y_pos + 5
+					Text 25, y_pos+5, 50, 10, "INSA Notes:"
+					EditBox 75, y_pos, 385, 15, STAT_INFORMATION(month_ind).stat_insa_notes
+					y_pos = y_pos + 20
 				End If
 			Next
 			If insa_exists = False Then
 				Text 20, y_pos, 205, 10, "NO INSA Panel for any Member"
-				y_pos = y_pos + 15
-			End If
-
-			'IMIG - person
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True Then
-					imig_exists = True
-					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
-					y_pos = y_pos + 10
-					Text 25, y_pos, 250, 10, "IMIG   -   Immigration information. This resident is a Non-Citizen. Alien ID: " & STAT_INFORMATION(month_ind).stat_imig_alien_id_number(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 150, 10, "Status: " & STAT_INFORMATION(month_ind).stat_imig_status_info(each_memb) & ", entry date: " & STAT_INFORMATION(month_ind).stat_imig_entry_date(each_memb)
-					If STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "24" AND STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "__" Then Text 215, y_pos, 250, 10, "LPR Adjusted from " & STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_info(each_memb) & " on " & STAT_INFORMATION(month_ind).stat_imig_status_verif_code(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 150, 10, "Nationality: " & STAT_INFORMATION(month_ind).stat_imig_nationality_info(each_memb)
-					y_pos = y_pos + 10
-					Text 60, y_pos, 375, 10, "40 Social Security Cr: " & STAT_INFORMATION(month_ind).stat_imig_40_credits_yn(each_memb) & "   -   Battered Spouse/Child: " & STAT_INFORMATION(month_ind).stat_imig_battered_pers_yn(each_memb) & "   -   Military Status: " & STAT_INFORMATION(month_ind).stat_imig_military_info(each_memb)
-					y_pos = y_pos + 15
-				End If
-			Next
-			If imig_exists = False Then
-				Text 20, y_pos, 205, 10, "NO IMIG Panel for any Member"
 				y_pos = y_pos + 15
 			End If
 
@@ -1329,14 +1330,26 @@ function define_main_dialog()
 					Text 260, y_pos, 200, 10, "Facility Type: " & STAT_INFORMATION(month_ind).stat_faci_type_info(each_memb)
 					y_pos = y_pos + 10
 					If STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb) <> "" Then
-						Text 60, y_pos, 150, 10, "Facility Waiver Type: " & STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb)
+						Text 55, y_pos, 150, 10, "Facility Waiver Type: " & STAT_INFORMATION(month_ind).stat_faci_waiver_type_info(each_memb)
 						y_pos = y_pos + 10
 					End If
 					If STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) <> "" Then
-						Text 60, y_pos, 150, 10, "LTC Ineligible Reason: " & STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb)
+						Text 55, y_pos, 150, 10, "LTC Ineligible Reason: " & STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb)
 						y_pos = y_pos + 10
 					End If
+
+					If excluded_time_case = True Then
+						Text 55, y_pos, 300, 10, "EXCLUDED TIME CASE   -   County of Financial Responsibility: " & county_of_financial_responsibility
+						y_pos = y_pos + 10
+					End If
+					' y_pos = y_pos + 5
+					Text 25, y_pos+5, 50, 10, "FACI Notes:"
+					EditBox 75, y_pos, 385, 15, STAT_INFORMATION(month_ind).stat_faci_notes
+					y_pos = y_pos + 20
+
 				End If
+				'TODO - add Excluded Time detail from SPEC if in FACI
+				'TODO - advise if GRH faci is open and if NO BILS panel exists or BILS panel exists with NO 27 SERV type are listed. This is to support remembering about Remedial Care
 			Next
 			If faci_exists = False Then
 				Text 20, y_pos, 350, 10, "NO FACI Panel for any Member, or NO FACI panel indicating currently IN a facility."
@@ -1366,7 +1379,7 @@ function define_main_dialog()
 			End If
 
 			EditBox 20, y_pos, 440, 15, STAT_INFORMATION(month_ind).stat_other_general_notes
-			GroupBox 10, 10, 465, grp_len, "Other Information from Panels: ACCI/INSA/IMIG/FACI"
+			GroupBox 10, 10, 465, grp_len, "Other Information from Panels: ACCI/INSA/FACI"
 
 			Text 512, 122, 55, 13, "Other"
 
@@ -1388,7 +1401,28 @@ function define_main_dialog()
 
 			grp_len = y_pos + 25
 			GroupBox 10, 10, 465, grp_len, "Medical Bills - BILS"
-
+		ElseIf page_display = imig_page Then
+			'IMIG - person
+			'TODO - create a new button for IMIG
+			'TODO - SPON
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True Then
+					imig_exists = True
+					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " -  " & STAT_INFORMATION(month_ind).stat_memb_full_name(each_memb)
+					y_pos = y_pos + 10
+					Text 25, y_pos, 250, 10, "IMIG   -   Immigration information. This resident is a Non-Citizen. Alien ID: " & STAT_INFORMATION(month_ind).stat_imig_alien_id_number(each_memb)
+					y_pos = y_pos + 10
+					Text 60, y_pos, 150, 10, "Status: " & STAT_INFORMATION(month_ind).stat_imig_status_info(each_memb) & ", entry date: " & STAT_INFORMATION(month_ind).stat_imig_entry_date(each_memb)
+					If STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "24" AND STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_code(each_memb) <> "__" Then Text 215, y_pos, 250, 10, "LPR Adjusted from " & STAT_INFORMATION(month_ind).stat_imig_LPR_adj_from_info(each_memb) & " on " & STAT_INFORMATION(month_ind).stat_imig_status_verif_code(each_memb)
+					y_pos = y_pos + 10
+					Text 60, y_pos, 150, 10, "Nationality: " & STAT_INFORMATION(month_ind).stat_imig_nationality_info(each_memb)
+					y_pos = y_pos + 10
+					Text 60, y_pos, 375, 10, "40 Social Security Cr: " & STAT_INFORMATION(month_ind).stat_imig_40_credits_yn(each_memb) & "   -   Battered Spouse/Child: " & STAT_INFORMATION(month_ind).stat_imig_battered_pers_yn(each_memb) & "   -   Military Status: " & STAT_INFORMATION(month_ind).stat_imig_military_info(each_memb)
+					y_pos = y_pos + 10
+					Text 25, y_pos+5, 50, 10, "IMIG Notes:"
+					EditBox 75, y_pos, 385, 15, STAT_INFORMATION(month_ind).stat_imig_noteso(each_memb)
+				End If
+			Next
 
 		ElseIf page_display = last_page Then
 			y_pos = 10
@@ -1396,7 +1430,7 @@ function define_main_dialog()
 				' Text 100, y_pos, 150, 10, "No AREP listed in this case."
 				' y_pos = y_pos + 10
 			Else
-				y_pos = y_pos + 15
+				y_pos = y_pos + 10
 				Text 20, y_pos, 150, 10, "AREP Information"
 				' y_pos = y_pos + 10
 				Text 275, y_pos, 150, 10, "Name: " & arep_name
@@ -1407,7 +1441,7 @@ function define_main_dialog()
 				Text 25, y_pos, 150, 10, "Phone: " & arep_phone_one
 				If arep_ext_one <> "" Then Text 175, y_pos, 75, 10, "Ext: " & arep_ext_one
 				Text 275, y_pos, 75, 10, "MMIS Mail to AREP: " & mmis_mail_to_arep
-				y_pos = y_pos + 10
+				y_pos = y_pos + 5
 			End If
 			grp_len = y_pos
 			GroupBox 10, 10, 465, grp_len, "AREP"
@@ -1419,7 +1453,7 @@ function define_main_dialog()
 				' Text 20, y_pos, 150, 10, "No SWKR listed in this case."
 				' y_pos = y_pos + 10
 			Else
-				y_pos = y_pos + 15
+				y_pos = y_pos + 10
 				Text 20, y_pos, 150, 10, "SWKR Information"
 				' y_pos = y_pos + 10
 				Text 275, y_pos, 150, 10, "Name: " & swkr_name
@@ -1429,7 +1463,7 @@ function define_main_dialog()
 				Text 25, y_pos, 150, 10, "Phone: " & swkr_phone_one
 				If swkr_ext_one <> "" Then Text 175, y_pos, 75, 10, "Ext: " & swkr_ext_one
 				Text 275, y_pos, 75, 10, "Notices to SWKR: " & notices_to_swkr_yn
-				y_pos = y_pos + 10
+				y_pos = y_pos + 5
 			End If
 			grp_len = y_pos - grp_pos + 10
 			GroupBox 10, grp_pos, 465, grp_len, "SWKR"
@@ -1439,7 +1473,7 @@ function define_main_dialog()
 			grp_pos = y_pos
 			y_pos = y_pos + 15
 
-			Text 95, y_pos, 175, 10, "Has the Application beed correctly Signed and Dated?"
+			Text 95, y_pos, 175, 10, "Has the Application been correctly Signed and Dated?"
 			DropListBox 270, y_pos-5, 200, 15, "Select One..."+chr(9)+"Yes - All required signatures are on the application"+chr(9)+"No - Some applications or dates are missing", app_sig_status
 			y_pos = y_pos + 20
 			Text 170, y_pos, 100, 10, "If not, describe what is missing: "
@@ -1450,58 +1484,23 @@ function define_main_dialog()
 				If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 					GroupBox 20, y_pos, 445, 65, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb)
 					y_pos = y_pos + 10
-					Text 30, y_pos, 150, 10, "HC Determination Process: " & HEALTH_CARE_MEMBERS(HC_determination_process_const, the_memb)
-					Text 200, y_pos, 150, 10, "MA BASIS: " & HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, the_memb)
-					Text 320, y_pos, 125, 10, "MSP BASIS: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb)
+					Text 30, y_pos, 150, 10, "HC Eval Process:   " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb)
+					Text 190, y_pos, 150, 10, "MA BASIS: " & HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, the_memb)
+					Text 335, y_pos, 125, 10, "MSP BASIS: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb)
+					y_pos = y_pos + 20
+					Text 30, y_pos, 75, 10, "Health Care Eval: "
+					DropListBox 95, y_pos-5, 200, 15, "Select One..."+chr(9)+"Incomplete - need additional verificaitons"+chr(9)+"Incomplete - unclear information"+chr(9)+"Incomplete - other"+chr(9)+"Complete"+chr(9)+"More Processing Needed"+chr(9)+"Appears Ineligible", HEALTH_CARE_MEMBERS(hc_eval_status, the_memb)
+					y_pos = y_pos + 20
+					Text 30, y_pos, 70, 10, "Evaluation Notes:"
+					EditBox 95, y_pos-5, 365, 15, HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)
 					y_pos = y_pos + 15
-					Text 30, y_pos, 90, 10, "Health Care determination: "
-					DropListBox 115, y_pos-5, 200, 15, "Select One..."+chr(9)+"Incomplete - need additional verificaitons"+chr(9)+"Incomplete - unclear information"+chr(9)+"Incomplete - other"+chr(9)+"Complete"+chr(9)+"More Processing Needed"+chr(9)+"Appears Ineligible", HEALTH_CARE_MEMBERS(hc_determination_status, the_memb)
-					y_pos = y_pos + 20
-					Text 30, y_pos, 70, 10, "Determination Notes:"
-					EditBox 115, y_pos-5, 340, 15, HEALTH_CARE_MEMBERS(hc_determination_notes, the_memb)
-					y_pos = y_pos + 20
 				End if
 			Next
-
 
 			grp_len = y_pos - grp_pos + 10
 			GroupBox 10, grp_pos, 465, grp_len, "Signatures and Status"
 
-			If verifs_needed <> "" Then
-				y_pos = y_pos + 15
-
-				grp_pos = y_pos
-				y_pos = y_pos + 15
-				Text 20, y_pos, 150, 10, "Verifications listed:"
-				If verif_req_form_sent_date <> "" Then Text 200, y_pos, 150, 10, "Verification Request form Sent on " & verif_req_form_sent_date
-				y_pos = y_pos + 10
-
-				verifs_array = NULL
-				verif_counter = 1
-				verifs_needed = trim(verifs_needed)
-				If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
-				If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
-				If InStr(verifs_needed, ";") <> 0 Then
-					verifs_array = split(verifs_needed, ";")
-				Else
-					verifs_array = array(verifs_needed)
-				End If
-
-				For each verif_item in verifs_array
-					verif_item = trim(verif_item)
-					If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
-					verif_counter = verif_counter + 1
-					' Call write_variable_with_indent_in_CASE_NOTE(verif_item)
-					Text 25, y_pos, 440, 10, verif_item
-					y_pos = y_pos + 10
-				Next
-				Text 20, y_pos, 300, 10, "(Verifications to be added to CASE/NOTE)"
-				y_pos = y_pos + 10
-
-				grp_len = y_pos - grp_pos + 10
-				GroupBox 10, grp_pos, 465, grp_len, "Verifications"
-			End If
-
+			' y_pos = y_pos + 15
 			y_pos = y_pos + 15
 			Text 15, y_pos, 150, 10, "Additional Case Details:"
 			EditBox 15, y_pos+10, 530, 15, case_details_notes
@@ -1509,11 +1508,45 @@ function define_main_dialog()
 
 			CheckBox 15, y_pos, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
 			CheckBox 310, y_pos, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
+
+		ElseIf page_display = verifs_page Then
+			y_pos = 10
+
+			grp_pos = y_pos
+			y_pos = y_pos + 15
+			Text 20, y_pos, 150, 10, "Verifications listed:"
+			If verif_req_form_sent_date <> "" Then Text 200, y_pos, 150, 10, "Verification Request form Sent on " & verif_req_form_sent_date
+			y_pos = y_pos + 10
+
+			verifs_array = NULL
+			verif_counter = 1
+			verifs_needed = trim(verifs_needed)
+			If right(verifs_needed, 1) = ";" Then verifs_needed = left(verifs_needed, len(verifs_needed) - 1)
+			If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed) - 1)
+			If InStr(verifs_needed, ";") <> 0 Then
+				verifs_array = split(verifs_needed, ";")
+			Else
+				verifs_array = array(verifs_needed)
+			End If
+
+			For each verif_item in verifs_array
+				verif_item = trim(verif_item)
+				If number_verifs_checkbox = checked Then verif_item = verif_counter & ". " & verif_item
+				verif_counter = verif_counter + 1
+				' Call write_variable_with_indent_in_CASE_NOTE(verif_item)
+				Text 25, y_pos, 440, 10, verif_item
+				y_pos = y_pos + 10
+			Next
+			Text 20, y_pos, 300, 10, "(Verifications to be added to CASE/NOTE)"
+			y_pos = y_pos + 10
+
+			grp_len = y_pos - grp_pos + 10
+			GroupBox 10, grp_pos, 465, grp_len, "Verifications"
+
 		' ElseIf page_display =  Then
 
 		End If
 		'panels I don't know what to do with
-		'TODO - SPON
 		'TODO - FCFC/FCPL
 		'TODO - TRAN
 
@@ -1546,11 +1579,21 @@ function define_main_dialog()
 			btn_pos = btn_pos + 15
 			btn_count = btn_count + 1
 		End If
-		' If expedited_determination_needed = True Then
-		' 	Text 485, btn_pos + 2, 10, 10, "13"
-		' 	If page_display <> expedited_determination Then PushButton 495, btn_pos, 55, 13, "EXPEDITED", expedited_determination_btn
-		' 	btn_pos = btn_pos + 15
-		' End If
+		If imig_exists = True Then
+			Text 485, btn_pos + 2, 10, 10, btn_count
+			If page_display <> imig_page 	Then PushButton 495, btn_pos, 55, 13, "IMIG", imig_btn
+			If page_display = imig_page 	Then Text 515, btn_pos+2, 55, 13, "IMIG"
+			btn_pos = btn_pos + 15
+			btn_count = btn_count + 1
+		End If
+		If verifs_needed <> "" Then
+			Text 485, btn_pos + 2, 10, 10, btn_count
+			If page_display <> verifs_page 	Then PushButton 495, btn_pos, 55, 13, "Verifications",verifs_btn
+			If page_display =  verifs_page 	Then Text 497, btn_pos+2, 55, 13, "Verifications"
+			btn_pos = btn_pos + 15
+			btn_count = btn_count + 1
+		End If
+
 		Text 485, btn_pos + 2, 10, 10, btn_count
 		If page_display <> last_page 	Then PushButton 495, btn_pos, 55, 13, "App Info", last_btn
 		If page_display =  last_page 	Then Text 505, btn_pos+2, 55, 13, "App Info"
@@ -1558,7 +1601,7 @@ function define_main_dialog()
 		PushButton 20, 365, 130, 15, "View Verifications", verif_button
 		If verifs_needed <> "" Then Text 155, 365, 290, 10, "VERIFICATIONS EXIST"
 		PushButton 345, 365, 50, 15, "NEXT", next_btn
-		PushButton 400, 365, 150, 15, "Complete Health Care Determination", completed_hc_determination_btn
+		PushButton 400, 365, 150, 15, "Complete Health Care Evaluation", completed_hc_eval_btn
 
 	EndDialog
 
@@ -1840,6 +1883,8 @@ function dialog_movement()
 	If ButtonPressed = expenses_btn Then page_display = show_expenses_page
 	If ButtonPressed = other_btn Then page_display = show_other_page
 	If ButtonPressed = bils_btn Then page_display = bils_page
+	If ButtonPressed = imig_btn Then page_display = imig_page
+	If ButtonPressed = verifs_btn Then page_display = verifs_page
 	If ButtonPressed = last_btn Then page_display = last_page
 end function
 
@@ -2217,13 +2262,13 @@ Const MEDI_part_B_start_const 			= 58
 Const MEDI_part_B_end_const 			= 59
 Const MEDI_info_source_const 			= 60
 Const MEDI_notes_const					= 61
-Const HC_determination_process_const 	= 62
+Const HC_eval_process_const 	= 62
 Const MA_basis_of_elig_const 			= 63
 Const MA_basis_notes_const 				= 64
 Const MSP_basis_of_elig_const 			= 65
 Const MSP_basis_notes_const 			= 66
-Const hc_determination_status			= 67
-Const hc_determination_notes			= 68
+Const hc_eval_status			= 67
+Const hc_eval_notes			= 68
 ' Const _const =
 ' Const _const =
 ' Const _const =
@@ -2288,15 +2333,10 @@ show_cars_rest_page	= 5
 show_expenses_page 	= 6
 show_other_page 	= 7
 bils_page 			= 8
+imig_page 			= 9
+verifs_page 		= 10
 
 last_page 			= 15
-		' show_member_page 	= 0
-		' show_jobs_page 		= 1
-		' show_busi_page 		= 2
-		' show_unea_page 		= 3
-		' show_asset_page 	= 4
-		' show_expenses_page 	= 5
-		' show_other_page 	= 6
 
 'BUTTON definitions
 'START AT 1000 OR ABOVE. Person buttons start at 500
@@ -2309,8 +2349,13 @@ Const cars_rest_btn	= 1015
 Const expenses_btn 	= 1016
 Const other_btn 	= 1017
 Const bils_btn		= 2018
+Const imig_btn 		= 2019
+Const verifs_btn 	= 2020
 Const last_btn		= 2030
 Const verif_button	= 2500
+
+Const completed_hc_eval_btn = 3000
+Const next_btn				= 3010
 
 Dim app_sig_status, app_sig_notes, client_delay_check, TIKL_check
 Dim bils_notes, verifs_needed, verif_req_form_sent_date, case_details_notes
@@ -2348,7 +2393,7 @@ End If
 
 'Gather Case Number and the form processed
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 365, 280, "Health Care Determination"
+BeginDialog Dialog1, 0, 0, 365, 280, "Health Care Evaluation"
   EditBox 80, 200, 50, 15, MAXIS_case_number
   DropListBox 80, 220, 275, 45, "Select One..."+form_selection_options, HC_form_name
   EditBox 80, 240, 50, 15, form_date
@@ -2356,7 +2401,7 @@ BeginDialog Dialog1, 0, 0, 365, 280, "Health Care Determination"
   ButtonGroup ButtonPressed
     OkButton 250, 260, 50, 15
     CancelButton 305, 260, 50, 15
-  Text 105, 10, 120, 10, "Health Care Determination Script"
+  Text 105, 10, 120, 10, "Health Care Evaluation Script"
   Text 20, 40, 255, 20, "This script is to be run once MAXIS STAT panels have been updated with all accurate information from a Health Care Application Form."
   Text 20, 65, 255, 25, "If information displayed in this script is inaccurate, this means the information entered into STAT requires update. Cancel the script run and update STAT panels before running the script again."
   Text 20, 95, 255, 10, "The information and coding in STAT will directly pull into the script details:"
@@ -2366,7 +2411,7 @@ BeginDialog Dialog1, 0, 0, 365, 280, "Health Care Determination"
   Text 35, 135, 250, 10, "- Asset amounts will be pulled from ACCT / CASH / SECU / ect panels and"
   Text 40, 145, 175, 10, "cannot be updated in the script dialogs."
   Text 35, 155, 250, 10, "- The details in STAT Panels should be accurate and the script serves as a"
-  Text 40, 165, 245, 10, "secondary review of information that makes and eligibility determinations."
+  Text 40, 165, 245, 10, "secondary review of information that makes an eligibility determinations."
   Text 15, 180, 300, 10, "IF THE CASE INFORMATION IS WRONG IN THE SCRIPT, IT IS WRONG IN THE SYSTEM"
   Text 25, 205, 50, 10, "Case Number:"
   Text 15, 225, 60, 10, "Health Care Form:"
@@ -2381,7 +2426,7 @@ DO
 	   	Dialog Dialog1
 	   	cancel_without_confirmation
 		Call validate_MAXIS_case_number(err_msg, "*")
-		If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care determination from."
+		If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care evaluation from."
 		If IsDate(form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the form being processed was received."
 		If trim(worker_signature) = "" Then err_msg = err_msg & vbCr & "* Enter your name to sign your CASE/NOTE."
 	   	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -2653,6 +2698,28 @@ End If
 Call access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
 Call access_SWKR_panel(access_type, swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone_one, swkr_ext_one, notices_to_swkr_yn)
 
+Call navigate_to_MAXIS_screen("SPEC", "XFER")
+Call write_value_and_transmit("X", 5, 16)
+excluded_time_case = False
+EMReadScreen excluded_time_yn, 1, 5, 28
+EMReadScreen excluded_time_begin_date, 8, 6, 28
+EMReadScreen curr_hc_cty_fin_resp, 2, 14, 39
+EMReadScreen curr_ma_cty_fin_resp, 2, 15, 39
+curr_hc_cty_fin_resp = replace(curr_hc_cty_fin_resp, "_", "")
+curr_ma_cty_fin_resp = replace(curr_ma_cty_fin_resp, "_", "")
+EMReadScreen curr_servicing_county, 2, 17, 61
+If curr_hc_cty_fin_resp <> "" AND curr_hc_cty_fin_resp <> curr_servicing_county Then
+	excluded_time_case = True
+	county_of_financial_responsibility = curr_hc_cty_fin_resp
+End If
+If curr_ma_cty_fin_resp <> "" AND curr_ma_cty_fin_resp <> curr_servicing_county Then
+	excluded_time_case = True
+	county_of_financial_responsibility = curr_ma_cty_fin_resp
+End If
+
+Call navigate_to_MAXIS_screen("STAT", "SUMM")
+
+imig_exists = False
 income_source_list = "Select or Type Source"
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
@@ -2675,6 +2742,8 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 		grp_len = grp_len + 100
 		income_source_list = income_source_list+chr(9)+"JOB - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
 	End If
+	If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True Then imig_exists = True
+
 Next
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
@@ -2850,7 +2919,7 @@ End If
 hc_case_determination_status = ""
 For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-		curr_memb_status = HEALTH_CARE_MEMBERS(hc_determination_status, the_memb)
+		curr_memb_status = HEALTH_CARE_MEMBERS(hc_eval_status, the_memb)
 		If left(curr_memb_status, 10) = "Incomplete" Then curr_memb_status = "Incomplete"
 		If hc_case_determination_status = "" Then hc_case_determination_status = curr_memb_status
 
@@ -2864,8 +2933,8 @@ start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note(form_date & " " & HC_form_name & ": " & hc_case_determination_status)
 For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
-		Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Status: " & HEALTH_CARE_MEMBERS(HC_determination_process_const, the_memb))
-		If trim(HEALTH_CARE_MEMBERS(hc_determination_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_determination_notes, the_memb))
+		Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Status: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
+		If trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb))
 		Call write_variable_in_CASE_NOTE("     MA Basis: " & HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, the_memb))
 		Call write_variable_in_CASE_NOTE("     MSP Basis: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb))
 
