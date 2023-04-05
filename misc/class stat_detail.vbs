@@ -104,6 +104,9 @@ class stat_detail
 	Public stat_unea_general_notes
 	Public stat_expenses_general_notes
 	Public stat_other_general_notes
+	Public stat_acci_notes
+	Public stat_insa_notes
+	Public stat_faci_notes
 
 	public stat_memb_ref_numb()
 	public stat_memb_first_name()
@@ -1066,6 +1069,7 @@ class stat_detail
 	Public stat_imig_nationality_info()
 	Public stat_imig_spec_ethnic_info()
 	Public stat_imig_military_info()
+	Public stat_imig_notes()
 
 	Public stat_faci_exists()
 	Public stat_faci_currently_in_facility()
@@ -2192,6 +2196,7 @@ class stat_detail
 		ReDim stat_imig_nationality_info(0)
 		ReDim stat_imig_spec_ethnic_info(0)
 		Redim stat_imig_military_info(0)
+		ReDim stat_imig_notes(0)
 
 		ReDim stat_faci_exists(0)
 		ReDim stat_faci_currently_in_facility(0)
@@ -3198,6 +3203,7 @@ class stat_detail
 				ReDim preserve stat_imig_nationality_info(memb_count)
 				ReDim preserve stat_imig_spec_ethnic_info(memb_count)
 				ReDim preserve stat_imig_military_info(memb_count)
+				ReDim preserve stat_imig_notes(memb_count)
 
 				ReDim preserve stat_faci_exists(memb_count)
 				ReDim preserve stat_faci_currently_in_facility(memb_count)
