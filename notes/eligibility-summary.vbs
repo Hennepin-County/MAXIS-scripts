@@ -3037,7 +3037,10 @@ function define_hc_elig_dialog()
 			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_elig_type(memb_ind) = "DP" Then grp_hgt = grp_hgt + 55
 			' If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "INELIGIBLE" Then grp_hgt = grp_hgt + 55
 			GroupBox 10, 10, 440, y_pos-15, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) & " for " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
-
+			If offer_exparte_option = True Then
+				Text 300, 10, 100, 10, "Is this an Ex-Parte Approval?"
+				DropListBox 400, 5, 50, 15, "No"+chr(9)+"Yes", is_this_exparte_renewal
+			End If
 		End If
 
 		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "SLMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QI1" Then
@@ -3173,7 +3176,10 @@ function define_hc_elig_dialog()
 			' GroupBox 10, 245, 440, 30, "Spenddown Exists"
 
 			GroupBox 10, 10, 440, y_pos-15, "MEMB " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) & " - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) & " for " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
-
+			If offer_exparte_option = True Then
+				Text 300, 10, 100, 10, "Is this an Ex-Parte Approval?"
+				DropListBox 400, 5, 50, 15, "No"+chr(9)+"Yes", is_this_exparte_renewal
+			End If
 		End If
 
 		' If scnd_elig_ind <> "" Then
@@ -24225,6 +24231,7 @@ Call back_to_SELF
 EMWriteScreen MAXIS_case_number, 18, 43
 
 CASE_NOTE_entered = False
+ex_parte_hc_run = False
 'In order to determine the array - need to be able to see if the budget changes from one to the next
 'EMER doesn't have an array - there is only one month
 
@@ -24255,6 +24262,27 @@ If enter_CNOTE_for_DWP = True Then testing_run = True
 ' If enter_CNOTE_for_GRH = True Then testing_run = True
 ' If enter_CNOTE_for_HC = True Then testing_run = True
 ' If enter_CNOTE_for_EMER = True Then testing_run = True
+
+is_this_exparte_renewal = ""
+If other_county_redirect = True Then
+	enter_CNOTE_for_DWP 	= False
+	enter_CNOTE_for_MFIP 	= False
+	enter_CNOTE_for_MSA 	= False
+	enter_CNOTE_for_GA 		= False
+	enter_CNOTE_for_DENY 	= False
+	enter_CNOTE_for_EMER 	= False
+	enter_CNOTE_for_GRH 	= False
+	enter_CNOTE_for_SNAP 	= False
+
+	redirect_end_msg = "The Eligibility Summary script has ended because Health Care results have not been created and approved today. This script reads for information from MAXIS that was processed the same day as that is when the CASE/NOTE should be created."
+	redirect_end_msg = redirect_end_msg & vbCr & vbCr & "If you need to use this script to CASE/NOTE the approval of Health Care, ensure the case has been run through background and complete the approval."
+	If approvals_not_created_today <> "" Then redirect_end_msg = redirect_end_msg & vbCr & vbCr & "It appears there were approvals completed today on ELIG Results that were created on a different day:" & vbCr & approvals_not_created_today
+	redirect_end_msg = redirect_end_msg & vbCr & vbCr & "The script will now end."
+
+	If enter_CNOTE_for_HC = False Then Call script_end_procedure(redirect_end_msg)
+	ex_parte_hc_run = True
+	If ex_parte_hc_run = True Then is_this_exparte_renewal = "Yes"
+End If
 
 deductions_detail_btn 	= 1010
 hh_comp_detail			= 1020
@@ -26760,6 +26788,8 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	Do
 		Do
 			first_month = left(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
+			offer_exparte_option = False
+			If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "05/23") <> 0 Then offer_exparte_option = True
 			elig_ind = ""
 			memb_ind = ""
 			month_ind = ""
@@ -28454,6 +28484,50 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 		End If
 	End If
 Next
+
+If is_this_exparte_renewal = "Yes" Then ex_parte_hc_run = True
+If ex_parte_hc_run = True Then
+	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
+
+	call write_variable_in_SPEC_MEMO(memo_line)
+
+	recipient_name
+	has_rsdi_income
+	household_size
+	covered_programs = "Medical Assistance"
+	If MSP_prog = True Then covered_programs = covered_programs & " and Medicare Savings Program"
+
+	'TRAINING CASE - 318946
+	'SSI ONLY
+	call write_variable_in_SPEC_MEMO(recipient_name & "'s healthcare coverage has been automatically renewed for " & covered_programs & " effective 6/1/2023. Please review the information included with this notice. We used this information to review " & recipient_name & "'s coverage. (42 CFR 435.916 & 256B.056.)")
+	call write_variable_in_SPEC_MEMO(" ")
+	call write_variable_in_SPEC_MEMO("***    Review the information listed in this notice.    ***")
+	call write_variable_in_SPEC_MEMO("*** If any of the information is wrong, please contact  ***")
+	If other_county_redirect = True  Then call write_variable_in_SPEC_MEMO("***          your worker listed in the notice.          ***")
+	If other_county_redirect = False Then call write_variable_in_SPEC_MEMO("***   your county at the number listed in the notice.   ***")
+	call write_variable_in_SPEC_MEMO(" ")
+	'SSI Only
+	If has_rsdi_income = False Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Social Security Income (SSI) information from the Social Security Administration (SSA). Your income and assets were verified to review your health care.")
+	'RSDI and SSI
+	If has_rsdi_income = True Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Social Security Income (SSI) and Retirement, Survivors and Disability Insurance (RSDI) information from Social Security Administration (SSA). Your income and assets were verified to renew your health care.")
+	call write_variable_in_SPEC_MEMO(" ")
+	call write_variable_in_SPEC_MEMO("Household Size: " & household_size)
+	call write_variable_in_SPEC_MEMO(" ")
+	call write_variable_in_SPEC_MEMO("Counted Income                   Assets")
+	call write_variable_in_SPEC_MEMO("Counted income, $0               Assets verified by SSA")
+	'SSI Only
+	If has_rsdi_income = False Then call write_variable_in_SPEC_MEMO("SSI income excluded")
+	'RSDI and SSI
+	If has_rsdi_income = True Then call write_variable_in_SPEC_MEMO("SSI/RSDI income excluded")
+	call write_variable_in_SPEC_MEMO(" ")
+	call write_variable_in_SPEC_MEMO("For more information about your automated renewal please")
+	call write_variable_in_SPEC_MEMO("visit: www.mn/gov/dhs/AutoRenewalPilot")
+	call write_variable_in_SPEC_MEMO(" ")
+	call write_variable_in_SPEC_MEMO("*** IMPORTANT APPEAL RIGHTS ***")
+	call write_variable_in_SPEC_MEMO("If you don't agree with the action taken on your case,")
+	call write_variable_in_SPEC_MEMO("please refer to the back of this notice.")
+
+End If
 
 
 ' "- 04/22 . . . Entitlement:    $ "250
