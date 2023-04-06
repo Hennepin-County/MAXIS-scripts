@@ -5619,6 +5619,7 @@ If vars_filled = False Then
 					Call write_value_and_transmit("X", 5, 35)
 					EMReadScreen sr_date_month, 2, 9, 26
 					If sr_date_month <> MAXIS_footer_month Then the_review_is_ER = True
+					PF3
 				End If
 				If the_review_is_ER = True Then
 					the_process_for_grh = "Recertification"
