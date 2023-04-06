@@ -6538,10 +6538,12 @@ function hc_elig_case_note()
 
 	end_msg_info = end_msg_info & "NOTE entered for HC - " & program_detail & " " & elig_info & " eff " & first_month & header_end & vbCr
 	Call write_variable_in_CASE_NOTE("APPROVAL " & program_detail & " " & elig_info & " eff " & first_month & header_end)
+	If ex_parte_hc_run = True Then
+		Call write_variable_in_CASE_NOTE("* Case approved as a part of the Ex-Parte Renewal Pilot for " & first_month & ".")
+		If one_ex_parte_memo_sent = True Then Call write_variable_in_CASE_NOTE("* SPEC/MEMO sent to resident about Ex-Parte Renewal Pilot.")
+	End if
 	Call write_bullet_and_variable_in_CASE_NOTE("Approval completed", HC_ELIG_APPROVALS(elig_ind).approval_date)
 	If add_new_note_for_HC = "Yes - Eligiblity has changed - Enter a new NOTE" Then Call write_variable_in_CASE_NOTE("* This CASE/NOTE detail replaces info from today's previous approval NOTES.")
-
-
 
 
 	If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
@@ -16723,6 +16725,7 @@ class hc_eligibility_detail
 		EMWriteScreen elig_footer_month, 19, 54
 		EMWriteScreen elig_footer_year, 19, 57
 		transmit
+		' approval_date 'TODO - figure out how to read approval date
 
 		hc_row = 8
 		hc_prog_count = 0
@@ -24232,6 +24235,8 @@ EMWriteScreen MAXIS_case_number, 18, 43
 
 CASE_NOTE_entered = False
 ex_parte_hc_run = False
+ex_parte_memo_failed = False
+one_ex_parte_memo_sent = False
 'In order to determine the array - need to be able to see if the budget changes from one to the next
 'EMER doesn't have an array - there is only one month
 
@@ -24264,6 +24269,7 @@ If enter_CNOTE_for_DWP = True Then testing_run = True
 ' If enter_CNOTE_for_EMER = True Then testing_run = True
 
 is_this_exparte_renewal = ""
+ex_part_memo_completed = ""
 If other_county_redirect = True Then
 	enter_CNOTE_for_DWP 	= False
 	enter_CNOTE_for_MFIP 	= False
@@ -26940,7 +26946,134 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		enter_CNOTE_for_HC = False
 		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for HC Approvals from " & first_HC_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
 	End if
+	If is_this_exparte_renewal = "Yes" Then ex_parte_hc_run = True
 End If
+
+Const memo_recip_name_const = 0
+Const memo_display_name		= 1
+Const has_rsdi_income_const	= 2
+Const household_size_const  = 3
+Const msp_program_const 	= 4
+Const memo_sent_const 		= 5
+Const last_memo_const		= 6
+
+Dim EX_PARTE_MEMO_TO_SEND()
+ReDim EX_PARTE_MEMO_TO_SEND(last_memo_const, 0)
+
+If ex_parte_hc_run = True Then
+	memo_count = 0
+	For unique_app = 0 to UBound(HC_UNIQUE_APPROVALS, 2)
+
+		elig_ind = ""
+		memb_ind = ""
+		month_ind = ""
+		For approval = 0 to UBound(HC_ELIG_APPROVALS)
+			For member = 0 to UBound(HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs)
+
+				If HC_ELIG_APPROVALS(approval).elig_footer_month & "/" & HC_ELIG_APPROVALS(approval).elig_footer_year = first_month and HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, unique_app) = HC_ELIG_APPROVALS(approval).hc_elig_ref_numbs(member) and HC_UNIQUE_APPROVALS(major_prog_for_hc_app, unique_app) = HC_ELIG_APPROVALS(approval).hc_prog_elig_major_program(member) Then
+					elig_ind = approval
+					memb_ind = member
+				End If
+			Next
+		Next
+		For each_month = 0 to UBound(STAT_INFORMATION)
+			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
+		Next
+		If InStr(HC_UNIQUE_APPROVALS(months_in_approval, unique_app), "05/23") <> 0 Then
+			member_already_found = False
+			For each_memo = 0 to UBound(EX_PARTE_MEMO_TO_SEND, 2)
+				If EX_PARTE_MEMO_TO_SEND(memo_recip_name_const, each_memo) = HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) Then
+					member_already_found = True
+					For each_pers = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_pers) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
+							If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+							If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+							If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+							If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+							If STAT_INFORMATION(month_ind).stat_unea_three_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+							If STAT_INFORMATION(month_ind).stat_unea_three_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+							If STAT_INFORMATION(month_ind).stat_unea_four_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+							If STAT_INFORMATION(month_ind).stat_unea_four_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+							If STAT_INFORMATION(month_ind).stat_unea_five_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+							If STAT_INFORMATION(month_ind).stat_unea_five_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True
+						End If
+					Next
+					EX_PARTE_MEMO_TO_SEND(household_size_const, each_memo) = replace(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_hh_size(memb_ind), "_", "")
+					If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "SLMB" Then EX_PARTE_MEMO_TO_SEND(msp_program_const, each_memo) = True
+				End if
+			Next
+			If member_already_found = False Then
+				ReDim preserve EX_PARTE_MEMO_TO_SEND(last_memo_const, memo_count)
+
+				EX_PARTE_MEMO_TO_SEND(memo_recip_name_const, memo_count) = HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind)
+				name_array = split(HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind), ",")
+				EX_PARTE_MEMO_TO_SEND(memo_display_name, memo_count) = trim(name_array(1)) & " " & trim(name_array(0))
+				For each_pers = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+					If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_pers) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
+						If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+						If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+						If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+						If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+						If STAT_INFORMATION(month_ind).stat_unea_three_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+						If STAT_INFORMATION(month_ind).stat_unea_three_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+						If STAT_INFORMATION(month_ind).stat_unea_four_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+						If STAT_INFORMATION(month_ind).stat_unea_four_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+						If STAT_INFORMATION(month_ind).stat_unea_five_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+						If STAT_INFORMATION(month_ind).stat_unea_five_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
+					End If
+				Next
+				EX_PARTE_MEMO_TO_SEND(household_size_const, memo_count) = replace(HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_hh_size(memb_ind), "_", "")
+				If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "QMB" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "SLMB" Then EX_PARTE_MEMO_TO_SEND(msp_program_const, memo_count) = True
+
+				memo_count = memo_count + 1
+			End If
+		End If
+	Next
+
+	For each_memo = 0 to UBound(EX_PARTE_MEMO_TO_SEND, 2)
+		covered_programs = "Medical Assistance"
+		If EX_PARTE_MEMO_TO_SEND(msp_program_const, each_memo) = True Then covered_programs = covered_programs & " and Medicare Savings Program"
+		' function start_a_new_spec_memo(memo_opened, search_for_arep_and_swkr, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, end_script)
+		Call start_a_new_spec_memo(EX_PARTE_MEMO_TO_SEND(memo_sent_const, each_memo), True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
+
+		If EX_PARTE_MEMO_TO_SEND(memo_sent_const, each_memo) = False Then ex_parte_memo_failed = True
+
+		If EX_PARTE_MEMO_TO_SEND(memo_sent_const, each_memo) = True Then
+			one_ex_parte_memo_sent = True
+			'TRAINING CASE - 318946
+			'SSI ONLY
+			call write_variable_in_SPEC_MEMO(EX_PARTE_MEMO_TO_SEND(memo_display_name, each_memo) & "'s healthcare coverage has been automatically renewed for " & covered_programs & " effective 6/1/2023. Please review the information included with this notice. We used this information to review " & EX_PARTE_MEMO_TO_SEND(memo_display_name, each_memo) & "'s coverage. (42 CFR 435.916 & 256B.056.)")
+			call write_variable_in_SPEC_MEMO(" ")
+			call write_variable_in_SPEC_MEMO("***    Review the information listed in this notice.    ***")
+			call write_variable_in_SPEC_MEMO("*** If any of the information is wrong, please contact  ***")
+			If other_county_redirect = True  Then call write_variable_in_SPEC_MEMO("***          your worker listed in the notice.          ***")
+			If other_county_redirect = False Then call write_variable_in_SPEC_MEMO("***   your county at the number listed in the notice.   ***")
+			call write_variable_in_SPEC_MEMO(" ")
+			'SSI Only
+			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = False Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Social Security Income (SSI) information from the Social Security Administration (SSA). Your income and assets were verified to review your health care.")
+			'RSDI and SSI
+			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Social Security Income (SSI) and Retirement, Survivors and Disability Insurance (RSDI) information from Social Security Administration (SSA). Your income and assets were verified to renew your health care.")
+			call write_variable_in_SPEC_MEMO(" ")
+			call write_variable_in_SPEC_MEMO("Household Size: " & EX_PARTE_MEMO_TO_SEND(household_size_const, each_memo))
+			call write_variable_in_SPEC_MEMO(" ")
+			call write_variable_in_SPEC_MEMO("Counted Income                   Assets")
+			call write_variable_in_SPEC_MEMO("Counted income, $0               Assets verified by SSA")
+			'SSI Only
+			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = False Then call write_variable_in_SPEC_MEMO("SSI income excluded")
+			'RSDI and SSI
+			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True Then call write_variable_in_SPEC_MEMO("SSI/RSDI income excluded")
+			call write_variable_in_SPEC_MEMO(" ")
+			call write_variable_in_SPEC_MEMO("For more information about your automated renewal please")
+			call write_variable_in_SPEC_MEMO("visit: www.mn/gov/dhs/AutoRenewalPilot")
+			call write_variable_in_SPEC_MEMO(" ")
+			call write_variable_in_SPEC_MEMO("*** IMPORTANT APPEAL RIGHTS ***")
+			call write_variable_in_SPEC_MEMO("If you don't agree with the action taken on your case,")
+			call write_variable_in_SPEC_MEMO("please refer to the back of this notice.")
+			PF4
+		End If
+	Next
+End If
+
 
 If enter_CNOTE_for_EMER = True Then
 	confirm_emer_budget_selection = ""
@@ -28485,49 +28618,6 @@ For each_month = 0 to UBound(REPORTING_COMPLETE_ARRAY, 2)
 	End If
 Next
 
-If is_this_exparte_renewal = "Yes" Then ex_parte_hc_run = True
-If ex_parte_hc_run = True Then
-	Call start_a_new_spec_memo(memo_opened, True, forms_to_arep, forms_to_swkr, send_to_other, other_name, other_street, other_city, other_state, other_zip, False)
-
-	call write_variable_in_SPEC_MEMO(memo_line)
-
-	recipient_name
-	has_rsdi_income
-	household_size
-	covered_programs = "Medical Assistance"
-	If MSP_prog = True Then covered_programs = covered_programs & " and Medicare Savings Program"
-
-	'TRAINING CASE - 318946
-	'SSI ONLY
-	call write_variable_in_SPEC_MEMO(recipient_name & "'s healthcare coverage has been automatically renewed for " & covered_programs & " effective 6/1/2023. Please review the information included with this notice. We used this information to review " & recipient_name & "'s coverage. (42 CFR 435.916 & 256B.056.)")
-	call write_variable_in_SPEC_MEMO(" ")
-	call write_variable_in_SPEC_MEMO("***    Review the information listed in this notice.    ***")
-	call write_variable_in_SPEC_MEMO("*** If any of the information is wrong, please contact  ***")
-	If other_county_redirect = True  Then call write_variable_in_SPEC_MEMO("***          your worker listed in the notice.          ***")
-	If other_county_redirect = False Then call write_variable_in_SPEC_MEMO("***   your county at the number listed in the notice.   ***")
-	call write_variable_in_SPEC_MEMO(" ")
-	'SSI Only
-	If has_rsdi_income = False Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Social Security Income (SSI) information from the Social Security Administration (SSA). Your income and assets were verified to review your health care.")
-	'RSDI and SSI
-	If has_rsdi_income = True Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Social Security Income (SSI) and Retirement, Survivors and Disability Insurance (RSDI) information from Social Security Administration (SSA). Your income and assets were verified to renew your health care.")
-	call write_variable_in_SPEC_MEMO(" ")
-	call write_variable_in_SPEC_MEMO("Household Size: " & household_size)
-	call write_variable_in_SPEC_MEMO(" ")
-	call write_variable_in_SPEC_MEMO("Counted Income                   Assets")
-	call write_variable_in_SPEC_MEMO("Counted income, $0               Assets verified by SSA")
-	'SSI Only
-	If has_rsdi_income = False Then call write_variable_in_SPEC_MEMO("SSI income excluded")
-	'RSDI and SSI
-	If has_rsdi_income = True Then call write_variable_in_SPEC_MEMO("SSI/RSDI income excluded")
-	call write_variable_in_SPEC_MEMO(" ")
-	call write_variable_in_SPEC_MEMO("For more information about your automated renewal please")
-	call write_variable_in_SPEC_MEMO("visit: www.mn/gov/dhs/AutoRenewalPilot")
-	call write_variable_in_SPEC_MEMO(" ")
-	call write_variable_in_SPEC_MEMO("*** IMPORTANT APPEAL RIGHTS ***")
-	call write_variable_in_SPEC_MEMO("If you don't agree with the action taken on your case,")
-	call write_variable_in_SPEC_MEMO("please refer to the back of this notice.")
-
-End If
 
 
 ' "- 04/22 . . . Entitlement:    $ "250
