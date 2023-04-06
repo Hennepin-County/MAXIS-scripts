@@ -26796,6 +26796,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			first_month = left(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
 			offer_exparte_option = False
 			If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "05/23") <> 0 Then offer_exparte_option = True
+			If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "06/23") <> 0 Then offer_exparte_option = True
 			elig_ind = ""
 			memb_ind = ""
 			month_ind = ""
@@ -26979,7 +26980,7 @@ If ex_parte_hc_run = True Then
 		For each_month = 0 to UBound(STAT_INFORMATION)
 			If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 		Next
-		If InStr(HC_UNIQUE_APPROVALS(months_in_approval, unique_app), "05/23") <> 0 Then
+		If InStr(HC_UNIQUE_APPROVALS(months_in_approval, unique_app), "05/23") <> 0 OR InStr(HC_UNIQUE_APPROVALS(months_in_approval, unique_app), "06/23") <> 0 Then
 			member_already_found = False
 			For each_memo = 0 to UBound(EX_PARTE_MEMO_TO_SEND, 2)
 				If EX_PARTE_MEMO_TO_SEND(memo_recip_name_const, each_memo) = HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind) Then
