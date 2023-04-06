@@ -53,6 +53,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/06/2023", "Updated 200% FPG for 2023.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/15/2022", "The display of the EGA Screening result has been updated to repeat the information provided and have buttons to indicate what next action the script should take.", "Casey Love, Hennepin County")
 call changelog_update("09/30/2022", "BUG Fix: EGA screening will now indicate that a case screens as potentially eligible for EGA if the net inocme is equal to the standard or if 70% of the net income is exactly equal to the shelter costs.##~####~##Previously if they were equal the script would screen as not eligible but did not give details around why the screening appears ineligble (there was no handling for situations where the amounts were exactly equal.)##~####~##EGA screening was not correctly identifying if EGA was available/had already been used in the past 12 months.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/02/2022", "Updated 200% FPG for 2022.", "Ilse Ferris, Hennepin County")
@@ -235,26 +236,26 @@ If EGA_screening_check = 1 then
     End if
 
     'determining  200% FPG per HH member---handles up to 20 members. Changes April 1 every year. CM0016.18.01 - 200 Percent of FPG
-	If HH_members = "1"  then monthly_standard = "2265"
-    If HH_members = "2"  then monthly_standard = "3052"
-    If HH_members = "3"  then monthly_standard = "3838"
-    If HH_members = "4"  then monthly_standard = "4625"
-    If HH_members = "5"  then monthly_standard = "5412"
-    If HH_members = "6"  then monthly_standard = "6198"
-    If HH_members = "7"  then monthly_standard = "6985"
-    If HH_members = "8"  then monthly_standard = "7772"
-    If HH_members = "9"  then monthly_standard = "8558"
-    If HH_members = "10" then monthly_standard = "9345"
-    If HH_members = "11" then monthly_standard = "10132"
-    If HH_members = "12" then monthly_standard = "10918"
-    If HH_members = "13" then monthly_standard = "11705"
-    If HH_members = "14" then monthly_standard = "12492"
-    If HH_members = "15" then monthly_standard = "13278"
-    If HH_members = "16" then monthly_standard = "14065"
-    If HH_members = "17" then monthly_standard = "14852"
-    If HH_members = "18" then monthly_standard = "15638"
-    If HH_members = "19" then monthly_standard = "16425"
-    If HH_members = "20" then monthly_standard = "17211"
+	If HH_members = "1"  then monthly_standard = "2430"
+    If HH_members = "2"  then monthly_standard = "3287"
+    If HH_members = "3"  then monthly_standard = "4143"
+    If HH_members = "4"  then monthly_standard = "5000"
+    If HH_members = "5"  then monthly_standard = "5857"
+    If HH_members = "6"  then monthly_standard = "6713"
+    If HH_members = "7"  then monthly_standard = "7570"
+    If HH_members = "8"  then monthly_standard = "8427"
+    If HH_members = "9"  then monthly_standard = "9283"
+    If HH_members = "10" then monthly_standard = "10140"
+    If HH_members = "11" then monthly_standard = "10997"
+    If HH_members = "12" then monthly_standard = "11854"
+    If HH_members = "13" then monthly_standard = "12711"
+    If HH_members = "14" then monthly_standard = "13568"
+    If HH_members = "15" then monthly_standard = "14425"
+    If HH_members = "16" then monthly_standard = "15282"
+    If HH_members = "17" then monthly_standard = "16139"
+    If HH_members = "18" then monthly_standard = "16996"
+    If HH_members = "19" then monthly_standard = "17853"
+    If HH_members = "20" then monthly_standard = "18710"
 
     seventy_percent_income = net_income * .70   'This is to determine if shel costs exceed 70% of the HH's income
 
