@@ -24237,6 +24237,7 @@ CASE_NOTE_entered = False
 ex_parte_hc_run = False
 ex_parte_memo_failed = False
 one_ex_parte_memo_sent = False
+ex_parte_worker = False
 'In order to determine the array - need to be able to see if the budget changes from one to the next
 'EMER doesn't have an array - there is only one month
 
@@ -24268,9 +24269,12 @@ If enter_CNOTE_for_DWP = True Then testing_run = True
 ' If enter_CNOTE_for_HC = True Then testing_run = True
 ' If enter_CNOTE_for_EMER = True Then testing_run = True
 
-is_this_exparte_renewal = ""
+is_this_exparte_renewal = "No"
 ex_part_memo_completed = ""
+If user_ID_for_validation = "CALO001" Then ex_parte_worker = True
+'TODO - add other ex parte worker IDs here
 If other_county_redirect = True Then
+	ex_parte_worker = True
 	enter_CNOTE_for_DWP 	= False
 	enter_CNOTE_for_MFIP 	= False
 	enter_CNOTE_for_MSA 	= False
@@ -26788,7 +26792,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	' 	MsgBox "REF NUMB - " & HC_UNIQUE_APPROVALS(ref_numb_for_hc_app, each_approval_pkkg) & vbCr & "MAJ PRGM - " & HC_UNIQUE_APPROVALS(major_prog_for_hc_app, each_approval_pkkg) & vbCr & "each_approval_pkkg - " & each_approval_pkkg
 	' next
 
-	all_ga_approvals_confirmed = False
+	all_hc_approvals_confirmed = False
 	approval_selected = 0
 
 	Do
@@ -26797,6 +26801,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 			offer_exparte_option = False
 			If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "05/23") <> 0 Then offer_exparte_option = True
 			If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "06/23") <> 0 Then offer_exparte_option = True
+			If ex_parte_worker = False Then offer_exparte_option = False
 			elig_ind = ""
 			memb_ind = ""
 			month_ind = ""
@@ -26950,6 +26955,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	If is_this_exparte_renewal = "Yes" Then ex_parte_hc_run = True
 End If
 
+'EX PARTE FUNCTIONALITY===================================================================================
 Const memo_recip_name_const = 0
 Const memo_display_name		= 1
 Const has_rsdi_income_const	= 2
@@ -27007,10 +27013,9 @@ If ex_parte_hc_run = True Then
 				ReDim preserve EX_PARTE_MEMO_TO_SEND(last_memo_const, memo_count)
 
 				EX_PARTE_MEMO_TO_SEND(memo_recip_name_const, memo_count) = HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind)
-				name_array = split(HC_ELIG_APPROVALS(elig_ind).hc_elig_full_name(memb_ind), ",")
-				EX_PARTE_MEMO_TO_SEND(memo_display_name, memo_count) = trim(name_array(1)) & " " & trim(name_array(0))
 				For each_pers = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 					If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_pers) = HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) Then
+						EX_PARTE_MEMO_TO_SEND(memo_display_name, memo_count) = STAT_INFORMATION(month_ind).stat_memb_first_name(each_pers) & " " & STAT_INFORMATION(month_ind).stat_memb_last_name(each_pers)
 						If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
 						If STAT_INFORMATION(month_ind).stat_unea_one_type_code(each_pers) = "02" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
 						If STAT_INFORMATION(month_ind).stat_unea_two_type_code(each_pers) = "01" Then EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, memo_count) = True
