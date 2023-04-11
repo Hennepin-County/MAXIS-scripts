@@ -72,9 +72,8 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
-' If user_ID_for_validation = "CALO001" Then Call run_another_script("C:\MAXIS-scripts\misc\class-stat-detail.vbs")
-If user_ID_for_validation <> "CALO001" Then Call run_another_script("https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/misc/class-stat-detail.vbs")
-
+' Call run_another_script("https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/misc/class-stat-detail.vbs")
+Call run_from_GitHub("https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/misc/class-stat-detail.vbs")
 
 function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
 
