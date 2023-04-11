@@ -72,7 +72,8 @@ Function HCRE_panel_bypass()
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
 
-Call run_another_script("C:\MAXIS-scripts\misc\class stat_detail.vbs")
+' If user_ID_for_validation = "CALO001" Then Call run_another_script("C:\MAXIS-scripts\misc\class-stat-detail.vbs")
+If user_ID_for_validation <> "CALO001" Then Call run_another_script("https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/misc/class-stat-detail.vbs")
 
 
 function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
@@ -3198,7 +3199,31 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
-
+If client_delay_check = checkbox then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
+	call navigate_to_MAXIS_screen("REPT", "PND2")
+	EMGetCursor PND2_row, PND2_col
+	EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
+	If PND2_SNAP_status_check = "P" then EMWriteScreen "C", PND2_row, 62
+	EMReadScreen PND2_HC_status_check, 1, PND2_row, 65
+	If PND2_HC_status_check = "P" then
+		EMWriteScreen "x", PND2_row, 3
+		transmit
+		person_delay_row = 7
+		Do
+			EMReadScreen person_delay_check, 1, person_delay_row, 39
+			If person_delay_check <> " " then EMWriteScreen "c", person_delay_row, 39
+			person_delay_row = person_delay_row + 2
+		Loop until person_delay_check = " " or person_delay_row > 20
+		PF3
+	End if
+	PF3
+	EMReadScreen PND2_check, 4, 2, 52
+	If PND2_check = "PND2" then
+		MsgBox "PND2 might not have been updated for client delay. There may have been a MAXIS error. Check this manually after case noting."
+		PF10
+		client_delay_check = 0
+	End if
+End if
 
 If applied_after_03_23 = True Then
 	BeginDialog Dialog1, 0, 0, 476, 285, "Determine Health Care Policy to Apply"
