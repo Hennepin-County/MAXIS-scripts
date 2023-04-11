@@ -1866,7 +1866,7 @@ class stat_detail
 		ReDim stat_cars_two_own_verif_info(0)
 		ReDim stat_cars_two_use_code(0)
 		ReDim stat_cars_two_use_info(0)
-		ReDim stat_cars_one_hc_clt_benefit_yn(0)
+		ReDim stat_cars_two_hc_clt_benefit_yn(0)
 
 		ReDim stat_cars_three_exists(0)
 		ReDim stat_cars_three_type_code(0)
@@ -1882,7 +1882,7 @@ class stat_detail
 		ReDim stat_cars_three_own_verif_info(0)
 		ReDim stat_cars_three_use_code(0)
 		ReDim stat_cars_three_use_info(0)
-		ReDim stat_cars_one_hc_clt_benefit_yn(0)
+		ReDim stat_cars_three_hc_clt_benefit_yn(0)
 
 		' ReDim stat_cars_notes(0)
 		ReDim stat_cars_exists_for_member(0)
@@ -2872,7 +2872,7 @@ class stat_detail
 				ReDim preserve stat_cars_two_own_verif_info(memb_count)
 				ReDim preserve stat_cars_two_use_code(memb_count)
 				ReDim preserve stat_cars_two_use_info(memb_count)
-				ReDim preserve stat_cars_one_hc_clt_benefit_yn(memb_count)
+				ReDim preserve stat_cars_two_hc_clt_benefit_yn(memb_count)
 
 				ReDim preserve stat_cars_three_exists(memb_count)
 				ReDim preserve stat_cars_three_type_code(memb_count)
@@ -2888,7 +2888,7 @@ class stat_detail
 				ReDim preserve stat_cars_three_own_verif_info(memb_count)
 				ReDim preserve stat_cars_three_use_code(memb_count)
 				ReDim preserve stat_cars_three_use_info(memb_count)
-				ReDim preserve stat_cars_one_hc_clt_benefit_yn(memb_count)
+				ReDim preserve stat_cars_three_hc_clt_benefit_yn(memb_count)
 
 				' ReDim preserve stat_cars_notes(memb_count)
 				ReDim preserve stat_cars_exists_for_member(memb_count)
