@@ -2513,6 +2513,8 @@ form_selection_options = form_selection_options+chr(9)+"MNsure Application for H
 form_selection_options = form_selection_options+chr(9)+"Application for Payment of Long-Term Care Services (DHS-3531)"
 form_selection_options = form_selection_options+chr(9)+"Breast and Cervical Cancer Coverage Group (DHS-3525)"
 form_selection_options = form_selection_options+chr(9)+"Minnesota Family Planning Program Application (DHS-4740)"
+form_selection_options = form_selection_options+chr(9)+"SAGE Enrollment Form (MA/BC PE Only)"
+form_selection_options = form_selection_options+chr(9)+"Screen Our Circle Form (MA/BC PE Only)"
 
 page_display = ""
 show_member_page 	= 0
@@ -2804,6 +2806,83 @@ For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		call read_person_based_STAT_info()
 	End If
 Next
+
+If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Screen Our Circle Form (MA/BC PE Only)" Then
+
+	first_month_pe = form_date
+	next_month_pe = DateAdd("m", 1, form_date)
+	first_mo_mo = right("00" & DatePart("m", first_month_pe), 2)
+	first_mo_yr = right(DatePart("yyyy", first_month_pe), 2)
+	second_mo_mo = right("00" & DatePart("m", next_month_pe), 2)
+	second_mo_yr = right(DatePart("yyyy", next_month_pe), 2)
+	first_month_pe = first_mo_mo & "/" & first_mo_yr
+	next_month_pe = second_mo_mo & "/" & second_mo_yr
+	temp_ma_auth_form_date = form_date
+
+	Do
+		Do
+			err_msg = ""
+			Dialog1 = ""
+			BeginDialog Dialog1, 0, 0, 381, 225, "MA-BC Presumptive Eligiblity"
+			ButtonGroup ButtonPressed
+				DropListBox 195, 10, 180, 45, verification_memb_list, ma_bc_member
+				EditBox 310, 30, 65, 15, temp_ma_auth_form_date
+				EditBox 10, 145, 365, 15, ma_bc_notes
+				EditBox 10, 180, 365, 15, ma_bc_tikls
+				OkButton 270, 205, 50, 15
+				CancelButton 325, 205, 50, 15
+				Text 10, 15, 185, 10, "Select the Person with MA/BC Presumptive Eligiubility:"
+				Text 10, 35, 300, 10, "Enter the date the Temporary Medical Assistance Authorization (DHS-3525B) was received:"
+				Text 10, 55, 350, 10, HC_form_name & " received on " & form_date
+				' Text 235, 55, 45, 10, "received on "
+				' Text 285, 55, 50, 10, form_date
+				Text 10, 70, 115, 10, "Case Information for CASE/NOTE:"
+				Text 20, 85, 315, 10, "Breast Cancer application if Health Care is still needed after 2 months of Presumptive Care."
+				Text 20, 100, 250, 10, "Method X Budget - no Income or Assets needed for Presumptive Eligbility."
+				Text 20, 115, 205, 10, "Presumptive Care to be approved for " & first_month_pe & " and " & next_month_pe & "."
+				Text 10, 135, 85, 10, "Additional Case Details:"
+				Text 10, 170, 85, 10, "TIKLs Set"
+			EndDialog
+
+			Dialog Dialog1
+			cancel_confirmation
+
+			ma_bc_member = trim(ma_bc_member)
+			temp_ma_auth_form_date = trim(temp_ma_auth_form_date)
+
+			If ma_bc_member = "" or ma_bc_member = "Select One..." Then err_msg = err_msg & vbCr & "* Select the Household member who is receiving MA-BC PE."
+			If IsDate(temp_ma_auth_form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the Copy of the Temporaty Medical Assistance Authorization (DHS-3525B) was received."
+
+			If err_msg <> "" Then MsgBox "* * * * * * NOTICE * * * * * *" & vbCr & vbCr & "Please Resolve to Continue:" & vbCr & err_msg
+
+		Loop until err_msg = ""
+		Call check_for_password(are_we_passworded_out)
+	Loop until are_we_passworded_out = False
+
+	'TODO - add Standard vs Protected policy here
+
+	short_form = replace(HC_form_name, "(MA/BC PE Only)", "")
+	Call start_a_blank_case_note
+	CALL write_variable_in_case_note(form_date & " " & short_form & ": Complete")
+
+	Call write_bullet_and_variable_in_CASE_NOTE("Form Recvd", HC_form_name)
+	If ltc_waiver_request_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* This application can be used to request LTC/Waiver services.")
+	Call write_bullet_and_variable_in_CASE_NOTE("Date Recvd", form_date)
+	Call write_variable_in_CASE_NOTE("* Temporary Medical Assistance Authorization (DHS-3525B) recvd on: " & temp_ma_auth_form_date)
+	Call write_variable_in_CASE_NOTE("========================== PERSON DETAILS ==========================")
+
+	Call write_variable_in_CASE_NOTE("MEMB " & ma_bc_member & " approved for MA-BC Presumptive Care.")
+	Call write_variable_in_CASE_NOTE("  Presumptive Care to be approved for " & first_month_pe & " and " & next_month_pe & ".")
+	Call write_variable_in_CASE_NOTE("* Method X Budget - no Income or Assets needed for Presumptive Eligbility.")
+	Call write_bullet_and_variable_in_CASE_NOTE("Notes", ma_bc_notes)
+	Call write_bullet_and_variable_in_CASE_NOTE("TIKL Set", ma_bc_tikls)
+
+	Call write_variable_in_case_note("---")
+	Call write_variable_in_case_note(worker_signature)
+
+	Call script_end_procedure_with_error_report("MA-BC Presumptive Eligibility CASE/NOTE Created.")
+End If
+
 
 'TODO - in the future add gathering information from REVW panel to detail if REVW is in process
 
