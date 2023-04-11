@@ -47,7 +47,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("04/11/2023", "This script will be replaced with a new script 'NOTES - Health Care Evaluation' in the coming weeks. Look for additional information next week.", "MiKayla Handley")
+call changelog_update("04/11/2023", "This script will be replaced with a new script 'NOTES - Health Care Evaluation' in the coming weeks. Look for additional information next week.", "Casey Love, Hennepin County")
 call changelog_update("03/01/2020", "Updated TIKL functionality and TIKL text in the case note.", "Ilse Ferris")
 call changelog_update("01/06/2020", "Updated support of mandatory fields and password handling in dialogs.", "Casey Love, Hennepin County")
 call changelog_update("03/12/2018", "Fixed bug that caused the script to fail if a TIKL was set on old cases.", "Casey Love, Hennepin County")
