@@ -177,6 +177,11 @@ function check_for_errors(eval_questions_clear)
 			If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 		End If
 	Next
+	If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then
+		If trim(ma_bc_authorization_form) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Select authorization form needed##~##   - Select the form name needed for MA-BC Eligibility.##~##"
+		If ma_bc_authorization_form_missing_checkbox = checked and IsDate(ma_bc_authorization_form_date) = True Then err_msg = err_msg & "~!~" & "1 ^* Check here if the form is NOT received and still required.##~##   - You checked the box indicating that the MA-BC authorization form was missing but entered a date for when the form was received."
+		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authoriazation Form)##~##   - Enter the date the form for MA-BC Authorization was received."
+	End If
 	dlg_last_page_2_digits = left(last_page_numb&" ", 2)
 	If app_sig_status = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Has the Application been correctly Signed and Dated?##~##   - Select if all required signatures are on the application and correctly dated." & ".##~##"
 	If app_sig_status = "No - Some applications or dates are missing" and trim(app_sig_notes) = "" THen err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* If not, describe what is missing:##~##   - Since the application is not correctly signed/dated, enter the details of what is missing or incorrect." & ".##~##"
@@ -294,6 +299,17 @@ function define_main_dialog()
 			DropListBox 380, 85, 85, 45, "Application"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
 
 			y_pos = 110
+			If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then
+				GroupBox 10, y_pos, 465, 50,"MA for Breast/Cervical Cancer Form Required"
+				y_pos = y_pos + 15
+				Text 20, y_pos+5, 115, 10, "Select authorization form needed:"
+				DropListBox 135, y_pos, 150, 45, "Select One..."+chr(9)+"SAGE Enrollment Form"+chr(9)+"Screen Our Circle Form"+chr(9)+"Certification of Further Treatment Required", ma_bc_authorization_form
+				Text 290, y_pos+5, 55, 10, "date received"
+				EditBox 345, y_pos, 50, 15, ma_bc_authorization_form_date
+				CheckBox 135, y_pos+20, 200, 10,"Check here if the form is NOT received and still required.", ma_bc_authorization_form_missing_checkbox
+				y_pos = y_pos + 40
+			End If
+
 			If HEALTH_CARE_MEMBERS(DISA_exists_const, selected_memb) = True Then
 				Text 20, y_pos, 200, 10, "DISA    -    Start date: " & HEALTH_CARE_MEMBERS(DISA_start_date_const, selected_memb) & "   -   End Date: " & HEALTH_CARE_MEMBERS(DISA_end_date_const, selected_memb)
 				Text 250, y_pos, 200, 10, "HC DISA Status: " & HEALTH_CARE_MEMBERS(DISA_hc_status_info_const, selected_memb)
@@ -389,12 +405,12 @@ function define_main_dialog()
 			' GroupBox 10, 220, 465, 60, "Medical Assistance"
 			Text 20, 295, 400, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
 			Text 20, 315, 70, 10, "MA Basis of ELIG:"
-			DropListBox 90, 310, 100, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly"+chr(9)+"Parent"+chr(9)+"Caretaker"+chr(9)+"Adult without Children"+chr(9)+"Pregnant"+chr(9)+"Child (19-20)"+chr(9)+"Child (2-18)"+chr(9)+"Child (0-1)"+chr(9)+"Auto Newborn"+chr(9)+"Medical Emergency"+chr(9)+"Foster Care Child"+chr(9)+"Previous Foster Care Child"+chr(9)+"No Eligibility", HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb)
+			DropListBox 90, 310, 100, 45, "Select One..."+chr(9)+ma_basis_of_elig_list, HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb)
 			Text 195, 315, 65, 10, "Notes on MA Basis:"
 			EditBox 265, 310, 205, 15, HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb)
 			' GroupBox 10, 285, 465, 60, "Medicare Savings Programs"
 			Text 20, 335, 70, 10, "MSP Basis of ELIG:"
-			DropListBox 90, 330, 100, 45, "Select One..."+chr(9)+"Disabled"+chr(9)+"Blind"+chr(9)+"Elderly"+chr(9)+"No Eligibility"+chr(9)+"No MEDICARE", HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb)
+			DropListBox 90, 330, 100, 45, "Select One..."+chr(9)+msp_basis_of_elig_list, HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb)
 			Text 195, 335, 70, 10, "Notes on MSP Basis:"
 			EditBox 265, 330, 205, 15, HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb)
 
@@ -1552,8 +1568,12 @@ function define_main_dialog()
 			y_pos = y_pos + 30
 
 			CheckBox 15, y_pos, 290, 10, "Check here to have the script update PND2 to show client delay (pending cases only).", client_delay_check
-			CheckBox 310, y_pos, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
-
+			y_pos = y_pos + 15
+			If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then
+				CheckBox 15, y_pos, 350, 10, "Check here to have the script create a TIKL for 45 days (" & ma_bc_tikl_date & ") before REVW in " & revw_mm & "/" & revw_yy &".", MA_BC_end_of_cert_TIKL_check
+			Else
+				CheckBox 15, y_pos, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
+			End If
 		ElseIf page_display = verifs_page Then
 			y_pos = 25
 			Text 20, y_pos, 150, 10, "Verifications listed:"
@@ -1925,6 +1945,11 @@ function dialog_movement()
 			If page_display = show_member_page Then selected_memb = i
 		End If
 	Next
+	If ma_bc_authorization_form_missing_checkbox = checked and trim(ma_bc_authorization_form) <> "" Then
+		If Instr(verifs_needed, "MA-BC treatment/screening form needed to process MA-BC eligibility.") = 0 Then
+			verifs_needed = verifs_needed & "MA-BC treatment/screening form needed to process MA-BC eligibility.;"
+		End If
+	End If
 	If ButtonPressed = hc_memb_btn Then page_display = show_member_page
 	If ButtonPressed = jobs_inc_btn Then page_display = show_jobs_page
 	If ButtonPressed = busi_inc_btn Then page_display = show_busi_page
@@ -2516,6 +2541,29 @@ form_selection_options = form_selection_options+chr(9)+"Minnesota Family Plannin
 form_selection_options = form_selection_options+chr(9)+"SAGE Enrollment Form (MA/BC PE Only)"
 form_selection_options = form_selection_options+chr(9)+"Screen Our Circle Form (MA/BC PE Only)"
 
+ma_basis_of_elig_list = "Disabled"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Blind"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Elderly"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Parent"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Caretaker"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Adult without Children"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Pregnant"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Child (19-20)"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Child (2-18)"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Child (0-1)"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Auto Newborn"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Medical Emergency"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Foster Care Child"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Previous Foster Care Child"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Breast/Cervical Cancer"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"No Eligibility"
+
+msp_basis_of_elig_list = "Disabled"
+msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"Blind"
+msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"Elderly"
+msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"No Eligibility"
+msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"No MEDICARE"
+
 page_display = ""
 show_member_page 	= 0
 show_jobs_page 		= 1
@@ -2552,7 +2600,8 @@ Const completed_hc_eval_btn = 3000
 Const next_btn				= 3010
 'ADD NAV BUTTONS as more than 4000
 
-Dim app_sig_status, app_sig_notes, client_delay_check, TIKL_check
+Dim app_sig_status, app_sig_notes, client_delay_check, TIKL_check, MA_BC_end_of_cert_TIKL_check
+Dim ma_bc_authorization_form, ma_bc_authorization_form_date, ma_bc_authorization_form_missing_checkbox
 Dim bils_notes, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox, case_details_notes
 Dim last_page_numb
 
@@ -2668,6 +2717,11 @@ Do
 
 		HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) = hcre_ref_numb
 		HEALTH_CARE_MEMBERS(pers_btn_one_const, hc_memb) = 500+hc_memb
+
+		If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then
+			HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, hc_memb) = "Breast/Cervical Cancer"
+			HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, hc_memb) = "No Eligibility"
+		End If
 
 		EMReadScreen HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb), 8, hc_row, 51
 		EMReadScreen HEALTH_CARE_MEMBERS(hc_cov_mo_const, hc_memb), 2, hc_row, 64
@@ -2874,6 +2928,8 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 	Call write_variable_in_CASE_NOTE("MEMB " & ma_bc_member & " approved for MA-BC Presumptive Care.")
 	Call write_variable_in_CASE_NOTE("  Presumptive Care to be approved for " & first_month_pe & " and " & next_month_pe & ".")
 	Call write_variable_in_CASE_NOTE("* Method X Budget - no Income or Assets needed for Presumptive Eligbility.")
+	Call write_variable_in_CASE_NOTE("* Identity verified using medical document - " & short_form & ".")
+	Call write_variable_in_CASE_NOTE("* Citizenship and Immigration information are not requested or required.")
 	Call write_bullet_and_variable_in_CASE_NOTE("Notes", ma_bc_notes)
 	Call write_bullet_and_variable_in_CASE_NOTE("TIKL Set", ma_bc_tikls)
 
@@ -2992,6 +3048,19 @@ If curr_ma_cty_fin_resp <> "" AND curr_ma_cty_fin_resp <> curr_servicing_county 
 	excluded_time_case = True
 	county_of_financial_responsibility = curr_ma_cty_fin_resp
 End If
+
+Call navigate_to_MAXIS_screen("STAT", "REVW")
+EMReadScreen revw_mm, 2, 9, 70
+EMReadScreen revw_yy, 2, 9, 76
+EMReadScreen revw_date, 8, 9, 70
+revw_date = replace(revw_date, " ", "/")
+If revw_date = "__/__/__" Then
+	revw_date = ""
+Else
+	revw_date = DateAdd("d", 0, revw_date)
+	ma_bc_tikl_date = DateAdd("d", -45, revw_date)
+End If
+
 
 Call navigate_to_MAXIS_screen("STAT", "SUMM")
 
@@ -3427,6 +3496,9 @@ End If
 
 If TIKL_check = 1 then Call create_TIKL("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and set another TIKL reminder.", 45, form_date, False, TIKL_note_text)
 
+' CheckBox 310, y_pos, 245, 10, "Check here to have the script create a TIKL for 45 days (" & ma_bc_tikl_date & ") before REVW in " & revw_mm & "/" & revw_yy &".",
+If MA_BC_end_of_cert_TIKL_check = checked Then Call create_TIKL("MA-BC recertification is scheduled for " & revw_mm & "/" & revw_yy & ", recertification paperwork needs to be sent manually for this case.", 0, ma_bc_tikl_date, False, MA_BC_TIKL_note_text)
+
 hc_case_determination_status = ""
 For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
@@ -3455,6 +3527,11 @@ Call write_bullet_and_variable_in_CASE_NOTE("Form Recvd", HC_form_name)
 If ltc_waiver_request_yn = "Yes" Then Call write_variable_in_CASE_NOTE("* This application can be used to request LTC/Waiver services.")
 Call write_bullet_and_variable_in_CASE_NOTE("Date Recvd", form_date)
 If policy_to_apply = "Protected Policy - Continuous Coverage applies and not negative action can be taken" Then Call write_variable_in_CASE_NOTE("* PROTECTED POLICY from Public Health Emergency still apply at this time.")
+
+If ma_bc_authorization_form_missing_checkbox = unchecked Then
+	Call write_bullet_and_variable_in_CASE_NOTE("MA-BC Form Recvd", ma_bc_authorization_form)
+	Call write_bullet_and_variable_in_CASE_NOTE("MA-BC Form Date Recvd", ma_bc_authorization_form_date)
+End If
 Call write_bullet_and_variable_in_CASE_NOTE("Notes", case_details_notes)
 
 Call write_variable_in_CASE_NOTE("========================== PERSON DETAILS ==========================")
@@ -3464,6 +3541,11 @@ For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
 		If trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb))
 		Call write_variable_in_CASE_NOTE("     MA Basis: " & HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, the_memb))
+		If HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, the_memb) = "Breast/Cervical Cancer" Then
+			Call write_variable_in_CASE_NOTE("               MA-BC uses Method X Budgeting.")
+			Call write_variable_in_CASE_NOTE("               Income/Assets are not counted.")
+			If ma_bc_authorization_form_missing_checkbox = checked Then Call write_variable_in_CASE_NOTE("               MA-BC form (" & ma_bc_authorization_form & ") has not been received.")
+		End If
 		If trim(HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb)) <> "" Then Call write_variable_in_CASE_NOTE("        Notes: " & HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb))
 		Call write_variable_in_CASE_NOTE("     MSP Basis: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb))
 		If trim(HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb)) <> "" Then Call write_variable_in_CASE_NOTE("         Notes: " & HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb))
@@ -4252,7 +4334,10 @@ If trim(verifs_needed) = "" Then Call write_variable_in_CASE_NOTE("* No Verifica
 
 IF client_delay_check = checked THEN CALL write_variable_in_CASE_NOTE("* PND2 updated to show client delay.")
 If TIKL_check = checked then Call write_variable_in_case_note(TIKL_note_text)
-
+If MA_BC_end_of_cert_TIKL_check = checked Then
+	MA_BC_TIKL_note_text = replace(MA_BC_TIKL_note_text, ", 0 day return", "")
+	Call write_variable_in_case_note(MA_BC_TIKL_note_text & " TIKL to send Recert forms 45 days before REVW.")
+End If
 
 ' MEMB XX - NAME - Status:
 Call write_variable_in_case_note("---")
