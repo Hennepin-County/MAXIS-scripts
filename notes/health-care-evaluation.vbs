@@ -3277,7 +3277,7 @@ Do
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = FALSE
 
-If client_delay_check = checkbox then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
+If client_delay_check = checked then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
 	call navigate_to_MAXIS_screen("REPT", "PND2")
 	EMGetCursor PND2_row, PND2_col
 	EMReadScreen PND2_SNAP_status_check, 1, PND2_row, 62
