@@ -15463,6 +15463,19 @@ class emer_eligibility_detail
 					If houshold_size = 9 Then emer_fpg_limit = 8200
 					If houshold_size = 10 Then emer_fpg_limit = 8957
 					If houshold_size > 10 Then emer_fpg_limit = 8957 + ((houshold_size-10) * 757)
+
+					' If HH_members = "1"  then monthly_standard = "2430"			'THIS IS NOT CORRECT - NEED REVIEW AND UPDATE
+					' If HH_members = "2"  then monthly_standard = "3287"
+					' If HH_members = "3"  then monthly_standard = "4143"
+					' If HH_members = "4"  then monthly_standard = "5000"
+					' If HH_members = "5"  then monthly_standard = "5857"
+					' If HH_members = "6"  then monthly_standard = "6713"
+					' If HH_members = "7"  then monthly_standard = "7570"
+					' If HH_members = "8"  then monthly_standard = "8427"
+					' If HH_members = "9"  then monthly_standard = "9283"
+					' If HH_members = "10" then monthly_standard = "10140"
+					' If HH_members = "11" then monthly_standard = "10997"
+
 					emer_fpg_limit = FormatNumber(emer_fpg_limit, 2, -1, 0, -1)
 
 					If manual_hh_count = 1 Then emer_inelig_fpg_limit = 2147
@@ -27056,9 +27069,9 @@ If ex_parte_hc_run = True Then
 			If other_county_redirect = False Then call write_variable_in_SPEC_MEMO("***   your county at the number listed in the notice.   ***")
 			call write_variable_in_SPEC_MEMO(" ")
 			'SSI Only
-			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = False Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Social Security Income (SSI) information from the Social Security Administration (SSA). Your income and assets were verified to review your health care.")
+			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = False Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Supplemental Security Income (SSI) information from the Social Security Administration (SSA). Your income and assets were verified to review your health care.")
 			'RSDI and SSI
-			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Social Security Income (SSI) and Retirement, Survivors and Disability Insurance (RSDI) information from Social Security Administration (SSA). Your income and assets were verified to renew your health care.")
+			If EX_PARTE_MEMO_TO_SEND(has_rsdi_income_const, each_memo) = True Then call write_variable_in_SPEC_MEMO("Your income was reviewed using Supplemental Security Income (SSI) and Retirement, Survivors and Disability Insurance (RSDI) information from Social Security Administration (SSA). Your income and assets were verified to renew your health care.")
 			call write_variable_in_SPEC_MEMO(" ")
 			call write_variable_in_SPEC_MEMO("Household Size: " & EX_PARTE_MEMO_TO_SEND(household_size_const, each_memo))
 			call write_variable_in_SPEC_MEMO(" ")
