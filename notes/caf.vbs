@@ -8518,7 +8518,7 @@ Do
                             Next
 
                             For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-                                If IsNumeric(ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)) = True Then determined_income = determined_income + ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)
+                                If IsNumeric(ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)) = True Then determined_income = determined_income + ALL_BUSI_PANELS_ARRAY(income_pro_snap, each_busi)-ALL_BUSI_PANELS_ARRAY(expense_pro_snap, each_busi)
                             Next
 
                             determined_income = determined_income + determined_unea_income
