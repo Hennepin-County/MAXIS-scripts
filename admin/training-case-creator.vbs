@@ -4816,45 +4816,24 @@ FOR EACH MAXIS_case_number IN case_number_array
 				LOOP UNTIL at_MSSM = "MSSM"
 
 				EMWaitReady 2, 2000
-				DO
-					questionable_information = ""
-					EMWriteScreen "1", 17, 54
-					EMWriteScreen "__", 18, 54
-					EMWriteScreen "APP", 20, 70
-					STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
+
+				questionable_information = ""
+				EMWriteScreen "APP", 20, 70
+				STATS_manualtime = STATS_manualtime + 60    'adding manualtime for approval processing
+				Do
 					transmit
 
-					EMReadScreen error_message, 20, 24, 2
-					error_message = trim(error_message)
-					CALL find_variable("REI benefits", questionable_information, 1)
-				LOOP UNTIL error_message = "" OR questionable_information = "?"
-				'REI'ing all MSA and looping until all MSA approval is complete.
-				DO
-					look_for_rein_yn = ""
-					michael_bay_action_sequence = ""
-					row = 1
+					ups_delivery_confirmation = ""  'resetting variable
+					CALL find_variable("PLEASE EXAMINE THE FOLLOWING CASH ", ups_delivery_confirmation, 7)
+				Loop until ups_delivery_confirmation <> ""
+				IF ups_delivery_confirmation = "PACKAGE" THEN
+					row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
 					col = 1
-					CALL find_variable("(Y/", look_for_rein_yn, 1)
-					CALL find_variable("Action: ", michael_bay_action_sequence, 1)
-					IF look_for_rein_yn = "N" THEN
-						EMSendKey "Y"
-						transmit
-					END IF
-					IF michael_bay_action_sequence = "_" THEN
-						EMSendKey "1"
-						transmit
-					END IF
-					IF look_for_rein_yn = "" and michael_bay_action_sequence = "" THEN
-						transmit
-						EXIT DO
-					END IF
-				LOOP
-				row = 1					'This is looking for if there are more months listed that need to be scrolled through to review.
-				col = 1
-				EMSearch "More: +", row, col
-				If row <> 0 then PF8
-				EMSendKey "Y"
-				transmit
+					EMSearch "More: +", row, col
+					If row <> 0 then PF8
+					EMSendKey "Y"
+					transmit
+				END IF
 			END IF
 		END IF
 		'================= GA Approval ===============================================
