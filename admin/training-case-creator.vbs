@@ -4068,14 +4068,16 @@ For each MAXIS_case_number in case_number_array
 			Call back_to_SELF
 			MAXIS_background_check
 		End If
-		EMReadScreen SUMM_check, 4, 2, 46
-		EMReadScreen footer_month_check, 2, 20, 55
-		EMReadScreen footer_year_check, 2, 20, 58
+		Do
+			EMReadScreen SUMM_check, 4, 2, 46
+			EMReadScreen footer_month_check, 2, 20, 55
+			EMReadScreen footer_year_check, 2, 20, 58
 
-		If SUMM_check <> "SUMM" or footer_month_check <> MAXIS_footer_month or footer_month_check <> MAXIS_footer_month Then
-			Call back_to_SELF
-			MAXIS_background_check
-		End If
+			If SUMM_check <> "SUMM" or footer_month_check <> MAXIS_footer_month or footer_month_check <> MAXIS_footer_month Then
+				Call back_to_SELF
+				MAXIS_background_check
+			End If
+		Loop until SUMM_check = "SUMM" and footer_month_check = MAXIS_footer_month and footer_month_check = MAXIS_footer_month
 
 		'---Now the script will update BUSI, COEX, DCEX, JAEORBS, UNEA, WKEX for future months.
 		For current_memb = 1 to total_membs
