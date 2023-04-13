@@ -379,6 +379,9 @@ function define_dwp_elig_dialog()
 		If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 
 			GroupBox 5, 10, 425, 140, "Budget Detail"
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then
+				Text 250, 20, 200, 10, "Income Exceeds the Income Limit of " &  DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level
+			End If
 			Text 20, 35, 120, 10, "Rent/Mortgage .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage
 		    Text 20, 45, 120, 10, "Property Tax .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax
 		    Text 20, 55, 120, 10, "House Insurance .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance
@@ -407,6 +410,59 @@ function define_dwp_elig_dialog()
 		    Text 330, 110, 80, 10, "DWP Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant
 		    Text 330, 120, 85, 10, "  Shelter Benefit: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_shelter_benefit_portion
 		    Text 330, 130, 85, 10, "Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_personal_needs_portion
+
+		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True Then
+			GroupBox 5, 10, 450, 45, "DWP Closed "
+			Text 15, 25, 150, 10, "DWP has reached the 4 Month Time Limit."
+			Text 15, 35, 200, 10, "As of " & DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " there are no more months of DWP available."
+		Else
+			GroupBox 5, 10, 450, 90, "Approval Detail"
+			Text 15, 20, 80, 10, " Result:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result
+			Text 15, 30, 120, 40, "Months in Approval: " & replace(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
+
+			Text 15, 45, 110, 10, "APPL Withdrawn:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_application_withdrawn
+			Text 15, 55, 110, 10, "Asset:                      " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_assets
+			Text 15, 65, 110, 10, "CS Disqual:              " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_CS_disqualification
+			Text 15, 75, 110, 10, "Death of Applicant:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant
+			Text 15, 85, 110, 10, "Duplicate Assist:       " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_dupl_assistance
+
+			Text 125, 45, 110, 10, "Eligible Child:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_eligible_child
+			Text 125, 55, 110, 10, "ES Disqual:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_ES_disqualification
+			Text 125, 65, 110, 10, "Fail Cooperation:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop
+			' "Fail to File:               " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file
+			Text 125, 75, 110, 10, "Four Month Limit:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit
+			Text 125, 85, 110, 10, "Initial Income:         " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income
+			' "Minor Lvg Arrang.:   " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_minor_liv_arrange
+
+			Text 235, 45, 110, 10, "MFIP Conversion:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_MFIP_conversion
+			' Text 125, 85, 110, 10, "Monthly Income:      " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income
+
+			' "Post 60 DISQ:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_post_60_disq
+			Text 235, 55, 110, 10, "Residence:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_residence
+			' "Sanction Limit:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_sanction_limit
+			Text 235, 65, 110, 10, "Strike:                    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_strike
+			Text 235, 75, 110, 10, "TANF Time Limit:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_TANF_time_limit
+
+			Text 345, 45, 100, 10, "Asset Transfer:     " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_transfer_of_assets
+			Text 345, 55, 100, 10, "Verification:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif
+			Text 345, 65, 100, 10, "New Spouse Income: " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_new_spouse_income
+			' Text 345, 75, 100, 10, "Fail QC Coop:       " & DWP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc
+
+			GroupBox 5, 105, 450, 40, "Ineligible Details"
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop = "FAILED" Then
+				Text 15, 120, 165, 10, "What is the date the verification request was sent? "
+				Editbox 180, 115, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
+				Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
+
+				If show_pact = True Then
+					Text 15, 140, 120, 10, "List PACT reason(s) for ineligibility: "
+					Editbox 130, 135, 310, 15, DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
+					Text 130, 150, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
+				End If
+
+			Else
+				Text 15, 120, 300, 20, "This case is ineligible because it hasn't met the requirements for DWP Eligibility. The case tests above show what requirements have not been met."
+			End if
 		End If
 
 
@@ -445,7 +501,6 @@ function define_dwp_elig_dialog()
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
 		PushButton 490, 155, 50, 10, "View ELIG", nav_stat_elig_btn
 
-
 		y_pos = 25
 		for each_app = 0 to UBound(DWP_UNIQUE_APPROVALS, 2)
 			If DWP_UNIQUE_APPROVALS(last_mo_const, each_app) = "" Then
@@ -466,133 +521,135 @@ function define_dwp_elig_dialog()
 		PushButton 465, 125, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
 
 
-		y_pos = 220
-		GroupBox 5, y_pos, 540, income_box_len, "Income"	'205'
-		y_pos = y_pos + 10
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False Then
+			y_pos = 220
+			GroupBox 5, y_pos, 540, income_box_len, "Income"	'205'
+			y_pos = y_pos + 10
 
-		Text 10, y_pos, 155, 10, "Total GROSS EARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income	'215'
-		Text 300, y_pos, 155, 10, "Total GROSS UNEARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
-		y_pos = y_pos + 15
-		y_pos_2 = y_pos
-		' y_pos = 230
-		' y_pos_2 = 230
-		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-			If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & " Counted Income"
+			Text 10, y_pos, 155, 10, "Total GROSS EARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income	'215'
+			Text 300, y_pos, 155, 10, "Total GROSS UNEARNED Income:   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
+			y_pos = y_pos + 15
+			y_pos_2 = y_pos
+			' y_pos = 230
+			' y_pos_2 = 230
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_one_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_one_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_one_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_one_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_one_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & " Counted Income"
+				If STAT_INFORMATION(month_ind).stat_jobs_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_two_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_two_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_two_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_two_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_two_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & " Counted Income"
+				If STAT_INFORMATION(month_ind).stat_jobs_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_three_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_three_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_three_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_three_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_three_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & " Counted Income"
+				If STAT_INFORMATION(month_ind).stat_jobs_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_four_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_four_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_four_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_four_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_four_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
-				If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & " Counted Income"
+				If STAT_INFORMATION(month_ind).stat_jobs_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_jobs_five_job_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_gross_amt(each_memb) & " - Gross Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_jobs_five_employer_name(each_memb)
+					If STAT_INFORMATION(month_ind).stat_jobs_five_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Paid " & STAT_INFORMATION(month_ind).stat_jobs_five_main_pay_freq(each_memb) & "   --   $ " & STAT_INFORMATION(month_ind).stat_jobs_five_mfip_counted_amt(each_memb) & " Counted Income"
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
 
-			If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
-				If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_one_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_one_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_one_type_info(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_one_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_one_cash_expense_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_one_cash_prosp_expenses(each_memb)
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
-				If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_two_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_two_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_two_type_info(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_two_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_two_cash_expense_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_two_cash_prosp_expenses(each_memb)
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
-			If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
-				Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
-				If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
-					Text 40, y_pos+10, 200, 10, "Verification NOT Received."
-				Else
-					Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
+				If STAT_INFORMATION(month_ind).stat_busi_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_busi_three_counted_for_mfip(each_memb) = True Then
+					Text 15, y_pos, 275, 10, "$ " & STAT_INFORMATION(month_ind).stat_busi_three_mfip_gross_amt(each_memb)& " - Monthly Income   --   Memb " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - SELF EMP: " & STAT_INFORMATION(month_ind).stat_busi_three_type_info(each_memb)
+					If STAT_INFORMATION(month_ind).stat_busi_three_cash_income_verif_code(each_memb) = "N" or STAT_INFORMATION(month_ind).stat_busi_three_cash_expense_verif_code(each_memb) = "N" Then
+						Text 40, y_pos+10, 200, 10, "Verification NOT Received."
+					Else
+						Text 40, y_pos+10, 250, 10, "Gross Income: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_gross_inc(each_memb) & " - Expenses: $ " & STAT_INFORMATION(month_ind).stat_busi_three_cash_prosp_expenses(each_memb)
+					End If
+					y_pos = y_pos + 20
 				End If
-				y_pos = y_pos + 20
-			End If
 
-			If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_one_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_one_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_one_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_one_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_two_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_two_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_two_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_two_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_two_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_three_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_three_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_three_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_three_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_three_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_four_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_four_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_four_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_four_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_four_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
-			If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
-				Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
-				y_pos_2 = y_pos_2 + 10
-				If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
-					Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+				If STAT_INFORMATION(month_ind).stat_unea_five_exists(each_memb) = True AND STAT_INFORMATION(month_ind).stat_unea_five_counted_for_mfip(each_memb) = True Then
+					Text 305, y_pos_2, 235, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & left(STAT_INFORMATION(month_ind).stat_unea_five_type_info(each_memb) & "                              ", 30) & " Monthly Income:   $ " & STAT_INFORMATION(month_ind).stat_unea_five_mfip_gross_amt(each_memb)
 					y_pos_2 = y_pos_2 + 10
+					If STAT_INFORMATION(month_ind).stat_unea_five_verif_code(each_memb) = "N" Then
+						Text 330, y_pos_2, 200, 10, "Verification NOT Received."
+						y_pos_2 = y_pos_2 + 10
+					End If
 				End If
-			End If
 
-		Next
+			Next
+		End If
 
 	EndDialog
 
@@ -4197,14 +4254,14 @@ function dwp_elig_case_note()
 
 		Call write_variable_in_CASE_NOTE("------- Income and Expenses --------|------- DWP BENEFIT CALCULATION --------")
 		Call write_variable_in_CASE_NOTE("Housing and Utility Expenses:       |        Total Shelter Costs: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs, 8))
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage & 				" - Rent/Mortgage            |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax & 					" - Property Tax             |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance & 			" - House Insurance          |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity & 					" - Electricity              |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air & 							" - Heat/AC                  |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage& 	" - Water/Garbage            |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone & 								" - Phone                    |")
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other <> "" Then Call write_variable_in_CASE_NOTE(" $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other & 								" - Other                    |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage, 7) & 				" - Rent/Mortgage          |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax, 7)  & 				" - Property Tax           |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance, 7)  & 			" - House Insurance        |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity, 7)  & 					" - Electricity            |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air, 7)  & 						" - Heat/AC                |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage, 7) & 	" - Water/Garbage          |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone, 7)  & 								" - Phone                  |")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other <> "" Then Call write_variable_in_CASE_NOTE(" $ " & right(space(7) & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other, 7)  & 								" - Other                  |")
 		Call write_variable_in_CASE_NOTE("Personal Needs:                     | (+)         Personal Needs: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs, 8))
 		Call write_variable_in_CASE_NOTE(" $ 70.00 per eligible DWP member    |")
 		Call write_variable_in_CASE_NOTE("                                    | (=)         Total DWP Need: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need, 8))
@@ -4517,7 +4574,11 @@ function dwp_elig_case_note()
 		Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
 	End If
 
-	If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
+
+	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True Then
+		Call write_variable_in_CASE_NOTE("* DWP has reached the 4 Month Time Limit.")
+		Call write_variable_in_CASE_NOTE("* DWP Eligibliity has ended as of " & first_month & ".")
+	ElseIf DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
 		Call write_variable_in_CASE_NOTE("================================== CASE TESTS ===============================")
 		Call write_variable_in_CASE_NOTE("* DWP is INELIGIBLE because not all CASE TESTS were passed.") '' to make this Household Eligible")
 
@@ -4650,12 +4711,15 @@ function dwp_elig_case_note()
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_new_spouse_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case exceeded New Spouse Income Limit. (275% FPG NSI)")
 	End If
 
-	Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
-	Call write_variable_in_CASE_NOTE("DWP Status:           " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_current_prog_status)
-	Call write_variable_in_CASE_NOTE("Budget Cycle:         PROSP")
-	Call write_variable_in_CASE_NOTE("4th Month of ELIG:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_4th_month_of_elig)
-	Call write_variable_in_CASE_NOTE("Crgvers have ES Plan: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_caregivers_have_es_plan)
-
+	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False Then
+		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
+		Call write_variable_in_CASE_NOTE("DWP Status:           " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_current_prog_status)
+		Call write_variable_in_CASE_NOTE("Budget Cycle:         PROSP")
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
+			Call write_variable_in_CASE_NOTE("4th Month of ELIG:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_4th_month_of_elig)
+			Call write_variable_in_CASE_NOTE("Crgvers have ES Plan: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_caregivers_have_es_plan)
+		End If
+	End If
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 	MsgBox "WAIT HERE"
@@ -27580,6 +27644,9 @@ If enter_CNOTE_for_DWP = True Then
 			End If
 			elig_info = "ELIGIBLE"
 			one_month_is_elig = True
+		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True Then
+			DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE"
+			elig_info = "TIME LIMIT REACHED - Closed"
 		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "SUSPENDED" Then
 			elig_info = "SUSPENDED"
 		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE" Then
