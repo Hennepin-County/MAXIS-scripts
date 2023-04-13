@@ -3768,6 +3768,7 @@ For each MAXIS_case_number in case_number_array
 		'-------------------------------ACTUALLY FILLING OUT MAXIS
 
 		'Goes to STAT/MEMB to associate a SSN to each member, this will be useful for UNEA/MEDI panels
+		MAXIS_background_check
 		call navigate_to_MAXIS_screen("STAT", "MEMB")
 		EMWriteScreen reference_number, 20, 76
 		transmit
