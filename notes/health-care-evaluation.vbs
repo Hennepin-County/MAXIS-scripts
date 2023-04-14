@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - Health Care.vbs"
+name_of_script = "NOTES - Health Care Evaluation.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 720          'manual run time in seconds
@@ -71,9 +71,10 @@ Function HCRE_panel_bypass()
 		END IF
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
-
-' Call run_another_script("https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/misc/class-stat-detail.vbs")
-Call run_from_GitHub("https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/misc/class-stat-detail.vbs")
+'This is a new comment
+testing_script_repository = script_repository
+If Instr(testing_script_repository, "master") <> 0 Then testing_script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/"
+Call run_from_GitHub(testing_script_repository & "misc/class-stat-detail.vbs")
 
 function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
 
@@ -245,6 +246,9 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		If ButtonPressed = clear_verifs_btn Then show_msg = False
 		' If ButtonPressed = open_hsr_manual_transfer_page_btn Then show_msg = False
 		If ButtonPressed >= 4000 Then show_msg = False
+		For i = 0 to Ubound(HEALTH_CARE_MEMBERS, 2)
+			If ButtonPressed = HEALTH_CARE_MEMBERS(pers_btn_one_const, i) Then show_msg = False
+		Next
 
 		If error_message = "" Then show_msg = False
 		If ButtonPressed = completed_hc_eval_btn Then show_msg = True
@@ -1169,8 +1173,11 @@ function define_main_dialog()
 					y_pos = y_pos + 15
 					Text 25, y_pos, 135, 10, "PDED   -   Deductions from PDED Exist"
 					y_pos = y_pos + 10
-					If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "Y" Then
-						Text 60, y_pos, 420, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_amt(each_memb) & " PICKLE Disregard Applied"
+					If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) <> "" Then
+						If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "1" Then Text 60, y_pos, 420, 10, "Eligbile for PICKLE Disregard"
+						If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "2" Then Text 60, y_pos, 420, 10, "Potentially Eligbile for PICKLE Disregard"
+						y_pos = y_pos + 10
+						Text 75, y_pos, 420, 10, "$ " & STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_amt(each_memb) & " PICKLE Disregard Amount"
 						y_pos = y_pos + 10
 						Text 75, y_pos, 400, 10, "Current RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_curr_RSDI(each_memb) & " less Threshold RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_RSDI(each_memb) & ". Based on Threshold Date: " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_date(each_memb)
 						y_pos = y_pos + 10
@@ -1456,8 +1463,8 @@ function define_main_dialog()
 
 			y_pos = 55
 			For each_bil = 0 to UBound(BILS_ARRAY, 2)
-				CheckBox 25, y_pos, 110, 10, "MEMB " & BILS_ARRAY(bils_ref_numb_const, each_bil) & " from " & BILS_ARRAY(bils_date_const, each_bil), BILS_ARRAY(bils_checkbox, each_bil)
-				Text 140, y_pos, 315, 10, "Gross: $ " & BILS_ARRAY(bils_gross_amt_const, each_bil) & ",          Service: " & BILS_ARRAY(bils_service_info_const, each_bil) & ",          Type: " & BILS_ARRAY(bils_expense_type_info_const, each_bil) & ",          Verif: " & BILS_ARRAY(bils_verif_info_const, each_bil)
+				CheckBox 25, y_pos, 95, 10, "MEMB " & BILS_ARRAY(bils_ref_numb_const, each_bil) & " from " & BILS_ARRAY(bils_date_const, each_bil), BILS_ARRAY(bils_checkbox, each_bil)
+				Text 120, y_pos, 375, 10, "Gross: $ " & BILS_ARRAY(bils_gross_amt_const, each_bil) & ",  Service: " & BILS_ARRAY(bils_service_info_const, each_bil) & ",  Type: " & BILS_ARRAY(bils_expense_type_info_const, each_bil) & ",  Verif: " & BILS_ARRAY(bils_verif_info_const, each_bil)
 				y_pos = y_pos + 10
 			Next
 			y_pos = y_pos + 5
@@ -1486,10 +1493,10 @@ function define_main_dialog()
 					y_pos = y_pos + 10
 					Text 25, y_pos+5, 50, 10, "IMIG Notes:"
 					EditBox 60, y_pos, 385, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_imig_notes(each_memb))
-					y_pos = y_pos + 15
+					y_pos = y_pos + 25
 				End If
 			Next
-			grp_len = y_pos
+			grp_len = y_pos-10
 			GroupBox 10, 10, 465, grp_len, "Immigration Information"
 		ElseIf page_display = last_page Then
 			y_pos = 10
@@ -1938,6 +1945,10 @@ function read_person_based_STAT_info()
 end function
 
 function dialog_movement()
+	If ButtonPressed = -1 Then
+		If page_display = last_page Then ButtonPressed = completed_hc_eval_btn
+		If page_display <> last_page Then ButtonPressed = next_btn
+	End if
 	For i = 0 to Ubound(HEALTH_CARE_MEMBERS, 2)
 		' If HH_MEMB_ARRAY(i).imig_exists = TRUE Then case_has_imig = TRUE
 		' MsgBox HH_MEMB_ARRAY(i).button_one
@@ -1945,6 +1956,8 @@ function dialog_movement()
 			If page_display = show_member_page Then selected_memb = i
 		End If
 	Next
+	If ButtonPressed = next_btn Then page_display = page_display + 1
+	If page_display > last_btn Then page_display = last_page
 	If ma_bc_authorization_form_missing_checkbox = checked and trim(ma_bc_authorization_form) <> "" Then
 		If Instr(verifs_needed, "MA-BC treatment/screening form needed to process MA-BC eligibility.") = 0 Then
 			verifs_needed = verifs_needed & "MA-BC treatment/screening form needed to process MA-BC eligibility.;"
@@ -2521,6 +2534,7 @@ Const bils_hist_6_month_unused	= 20
 Const bils_hist_sort_action		= 21
 Const bils_hist_app_indc		= 22
 Const bils_checkbox				= 23
+Const bils_service_info_short_const = 24
 Const last_bils_const 			= 25
 
 Dim BILS_ARRAY()
@@ -2695,8 +2709,8 @@ EMReadScreen prog_hc_appl_date, 8, 12, 33
 EMReadScreen prog_hc_intvw_date, 8, 12, 55
 EMReadScreen prog_hc_status, 4, 12, 74
 
-Call generate_client_list(verification_memb_list, "Select or Type Member")
-verification_memb_list = " "+chr(9)+verification_memb_list
+Call generate_client_list(case_memb_list, "Select or Type Member")
+verification_memb_list = " "+chr(9)+case_memb_list
 
 If prog_hc_appl_date = "__ __ __" Then prog_hc_appl_date = ""
 prog_hc_appl_date = replace(prog_hc_appl_date, " ", "/")
@@ -2872,36 +2886,39 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 	first_month_pe = first_mo_mo & "/" & first_mo_yr
 	next_month_pe = second_mo_mo & "/" & second_mo_yr
 	temp_ma_auth_form_date = form_date
+	end_pe_tikl_date = second_mo_mo & "/1/" & second_mo_yr
+	end_pe_tikl_date = DateAdd("d", 0, end_pe_tikl_date)
 
 	Do
 		Do
 			err_msg = ""
 			Dialog1 = ""
-			BeginDialog Dialog1, 0, 0, 381, 225, "MA-BC Presumptive Eligiblity"
-			ButtonGroup ButtonPressed
-				DropListBox 195, 10, 180, 45, verification_memb_list, ma_bc_member
+			BeginDialog Dialog1, 0, 0, 381, 235, "MA-BC Presumptive Eligiblity"
+  			  ButtonGroup ButtonPressed
+				DropListBox 195, 10, 180, 45, case_memb_list, ma_bc_member
 				EditBox 310, 30, 65, 15, temp_ma_auth_form_date
-				EditBox 10, 145, 365, 15, ma_bc_notes
-				EditBox 10, 180, 365, 15, ma_bc_tikls
-				OkButton 270, 205, 50, 15
-				CancelButton 325, 205, 50, 15
+				CheckBox 10, 130, 325, 10, "Check here to have the script set a TIKL for " & end_pe_tikl_date & " to close MA-BC Presumptive Eligibliity.", tikl_to_close_PE_checkbox
+				EditBox 10, 160, 365, 15, ma_bc_notes
+				EditBox 10, 190, 365, 15, ma_bc_tikls
+				OkButton 270, 215, 50, 15
+				CancelButton 325, 215, 50, 15
 				Text 10, 15, 185, 10, "Select the Person with MA/BC Presumptive Eligiubility:"
 				Text 10, 35, 300, 10, "Enter the date the Temporary Medical Assistance Authorization (DHS-3525B) was received:"
 				Text 10, 55, 350, 10, HC_form_name & " received on " & form_date
-				' Text 235, 55, 45, 10, "received on "
-				' Text 285, 55, 50, 10, form_date
 				Text 10, 70, 115, 10, "Case Information for CASE/NOTE:"
 				Text 20, 85, 315, 10, "Breast Cancer application if Health Care is still needed after 2 months of Presumptive Care."
 				Text 20, 100, 250, 10, "Method X Budget - no Income or Assets needed for Presumptive Eligbility."
-				Text 20, 115, 205, 10, "Presumptive Care to be approved for " & first_month_pe & " and " & next_month_pe & "."
-				Text 10, 135, 85, 10, "Additional Case Details:"
-				Text 10, 170, 85, 10, "TIKLs Set"
+				Text 20, 115, 205, 10, "Presumptive Care to be approved for " & first_month_pe &"  and " & next_month_pe & "."
+				Text 10, 150, 85, 10, "Additional Case Details:"
+				Text 10, 180, 85, 10, "Additional TIKLs Set"
 			EndDialog
 
 			Dialog Dialog1
 			cancel_confirmation
 
 			ma_bc_member = trim(ma_bc_member)
+			ma_bc_notes = trim(ma_bc_notes)
+			ma_bc_tikls = trim(ma_bc_tikls)
 			temp_ma_auth_form_date = trim(temp_ma_auth_form_date)
 
 			If ma_bc_member = "" or ma_bc_member = "Select One..." Then err_msg = err_msg & vbCr & "* Select the Household member who is receiving MA-BC PE."
@@ -2913,7 +2930,7 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 
-	'TODO - add Standard vs Protected policy here
+	If tikl_to_close_PE_checkbox = checked then Call create_TIKL("MA-BC Presumptive Eligibility ending " & second_mo_mo & "/" & second_mo_yr & ". Close case with 10-day notice.", 0, end_pe_tikl_date, False, MA_BC_PE_end_TIKL_note_text)
 
 	short_form = replace(HC_form_name, "(MA/BC PE Only)", "")
 	Call start_a_blank_case_note
@@ -2930,8 +2947,12 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 	Call write_variable_in_CASE_NOTE("* Method X Budget - no Income or Assets needed for Presumptive Eligbility.")
 	Call write_variable_in_CASE_NOTE("* Identity verified using medical document - " & short_form & ".")
 	Call write_variable_in_CASE_NOTE("* Citizenship and Immigration information are not requested or required.")
+
+	If ma_bc_notes <> "" OR ma_bc_tikls <> "" OR MA_BC_PE_end_TIKL_note_text <> "" Then Call write_variable_in_CASE_NOTE("============================== NOTES ===============================")
 	Call write_bullet_and_variable_in_CASE_NOTE("Notes", ma_bc_notes)
-	Call write_bullet_and_variable_in_CASE_NOTE("TIKL Set", ma_bc_tikls)
+	MA_BC_PE_end_TIKL_note_text = replace(MA_BC_PE_end_TIKL_note_text, ", 0 day return", "")
+	Call write_variable_in_case_note(MA_BC_PE_end_TIKL_note_text & " TIKL to close MA-BC Preseumtive Eligibility.")
+	Call write_bullet_and_variable_in_CASE_NOTE("Additional TIKLs", ma_bc_tikls)
 
 	Call write_variable_in_case_note("---")
 	Call write_variable_in_case_note(worker_signature)
@@ -3009,6 +3030,42 @@ If bils_exist = True then
 		BILS_ARRAY(bils_date_const, bils_count) = bil_date
 		BILS_ARRAY(bils_service_code_const, bils_count) = bil_serv_code
 		BILS_ARRAY(bils_service_info_const, bils_count) = bil_serv_info
+		If bil_serv_code = "" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = ""
+		If bil_serv_code = "01" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Health Profsnl"
+		If bil_serv_code = "03" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Surgery"
+		If bil_serv_code = "04" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Chiropractic"
+		If bil_serv_code = "05" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Maternity"
+		If bil_serv_code = "07" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Hearing"
+		If bil_serv_code = "08" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Vision"
+		If bil_serv_code = "09" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Hospital"
+		If bil_serv_code = "11" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Hospice"
+		If bil_serv_code = "13" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "SNF"
+		If bil_serv_code = "14" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Dental"
+		If bil_serv_code = "15" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Rx Drug/Supply"
+		If bil_serv_code = "16" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Home Health"
+		If bil_serv_code = "17" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Diagnostic"
+		If bil_serv_code = "18" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Mental Health"
+		If bil_serv_code = "19" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Rehabilitation"
+		If bil_serv_code = "21" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Med Equip/Supply"
+		If bil_serv_code = "22" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Medical Trans"
+		If bil_serv_code = "24" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Waivered Serv"
+		If bil_serv_code = "25" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Medicare Prem"
+		If bil_serv_code = "26" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Dntl/Health Prem"
+		If bil_serv_code = "27" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Remedial Care"
+		If bil_serv_code = "28" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "MCRE Service"
+		If bil_serv_code = "30" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Alternative Care"
+		If bil_serv_code = "31" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "MCSHN"
+		If bil_serv_code = "32" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Ins Ext Prog"
+		If bil_serv_code = "34" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "CW-TCM"
+		If bil_serv_code = "37" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Pay-In Spdn"
+		If bil_serv_code = "42" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Access Svcs"
+		If bil_serv_code = "43" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Chemical Dep"
+		If bil_serv_code = "44" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Nutritional Svcs"
+		If bil_serv_code = "45" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Transplant"
+		If bil_serv_code = "46" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Out-Of-Area Svcs"
+		If bil_serv_code = "47" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Copay/Deductible"
+		If bil_serv_code = "49" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Prvntv Care"
+		If bil_serv_code = "99" Then BILS_ARRAY(bils_service_info_short_const, bils_count) = "Other"
 		BILS_ARRAY(bils_gross_amt_const, bils_count) = bil_gross_amt
 		BILS_ARRAY(bils_third_payments_const, bils_count) = bil_payments
 		BILS_ARRAY(bils_verif_code_const, bils_count) = bil_verif_code
@@ -4168,12 +4225,14 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_pded_exists(each_memb) = True Then
 		expense_info_entered = True
 		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Program Deductions")
-		If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "Y" Then
+		If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) <> "_" Then
 			pickle_string = ""
-			pickle_string = pickle_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_amt(each_memb) & " Disregard Applied; "
+			If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "1" then pickle_string = pickle_string & "Eligible: "
+			If STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_yn(each_memb) = "2" then pickle_string = pickle_string & "POTENTIALLY Eligible: "
+			pickle_string = pickle_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_pickle_disregard_amt(each_memb) & " Disregard Amount; "
 			pickle_string = pickle_string & "Current RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_curr_RSDI(each_memb) & " less Threshold RSDI $ " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_RSDI(each_memb) & "; "
 			pickle_string = pickle_string & "Based on Threshold Date: " & STAT_INFORMATION(month_ind).stat_pded_pickle_threshold_date(each_memb) & "; "
-			Call write_header_and_detail_in_CASE_NOTE("PICKLE", pickle_string)
+			Call write_header_and_detail_in_CASE_NOTE("PICKLE Disregard", pickle_string)
 		End If
 
 		other_ded_string = ""
@@ -4196,8 +4255,8 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_pded_PASS_assets_excluded(each_memb) <> "" Then pass_string = pass_string & "$ " & STAT_INFORMATION(month_ind).stat_pded_PASS_assets_excluded(each_memb) & " - Assets Excluded; "
 			Call write_header_and_detail_in_CASE_NOTE("PASS Plan", pass_string)
 		End If
-		If STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) <> "" Then Call write_variable_in_CASE_NOT("     $ " & STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) & " Guardianship Fee reduced from income.")
-		If STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) <> "" Then Call write_variable_in_CASE_NOT("     $ " & STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) & " Rep Payee Fee reduced from income.")
+		If STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) <> "" Then Call write_variable_in_CASE_NOTE("     $ " & STAT_INFORMATION(month_ind).stat_pded_guardianship_fee(each_memb) & " Guardianship Fee reduced from income.")
+		If STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) <> "" Then Call write_variable_in_CASE_NOTE("     $ " & STAT_INFORMATION(month_ind).stat_pded_rep_payee_fee(each_memb) & " Rep Payee Fee reduced from income.")
 	End If
 Next
 
@@ -4297,21 +4356,21 @@ If bils_exist = True Then
 	For each_bil = 0 to UBound(BILS_ARRAY, 2)
 		If BILS_ARRAY(bils_checkbox, each_bil) = checked Then
 			If first_bil = True Then
-				Call write_variable_in_CASE_NOTE("Person  Date     Gross     Service                        Type Verif")
+				Call write_variable_in_CASE_NOTE("  Person  Date     Gross     Service          Type Verif")
 				first_bil = False
 			End If
 			bill_line = ""
-			bill_line = "MEMB " & BILS_ARRAY(bils_ref_numb_const, each_bil)
+			bill_line = "  MEMB " & BILS_ARRAY(bils_ref_numb_const, each_bil)
 			bill_line = bill_line & " " & BILS_ARRAY(bils_date_const, each_bil)
-			bill_line = bill_line & " $ " & left(BILS_ARRAY(bils_gross_amt_const, each_bil)&space(7), 7)
-			bill_line = bill_line & " " & left(BILS_ARRAY(bils_service_info_const, each_bil)&space(30), 30)
+			bill_line = bill_line & " $ " & right(space(7)&BILS_ARRAY(bils_gross_amt_const, each_bil), 7)
+			bill_line = bill_line & " " & left(BILS_ARRAY(bils_service_info_short_const, each_bil)&space(16), 16)
 			bill_line = bill_line & " " & BILS_ARRAY(bils_expense_type_code_const, each_bil)
-			bill_line = bill_line & "    " & left(BILS_ARRAY(bils_verif_info_const, each_bil)&space(14), 14)
+			bill_line = bill_line & "    " & left(BILS_ARRAY(bils_verif_info_const, each_bil)&space(25), 25)
 			Call write_variable_in_CASE_NOTE(bill_line)
 		End If
 	Next
-	If first_bil = False Then call write_variable_in_CASE_NOTE("-------------------------------------------------------------------------------")
 	Call write_bullet_and_variable_in_CASE_NOTE("Bills Notes",bils_notes)
+	If first_bil = False Then call write_variable_in_CASE_NOTE("-----------------------------------------------------------------------------")
 End If
 
 If arep_name <> "" Then
