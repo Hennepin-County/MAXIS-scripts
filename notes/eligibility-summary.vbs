@@ -3605,6 +3605,7 @@ function define_emer_elig_dialog()
 			If EMER_ELIG_APPROVAL.emer_program = "EGA" Then Text 20, 310, 145, 10, "NET Income in the application month:   $"
 			If EMER_ELIG_APPROVAL.emer_program = "EA" Then Text 20, 310, 150, 10, "GROSS Income in 30 Days before Application:   $"
 			EditBox 175, 305, 75, 15, emer_past_30_days_income
+			Text 300, 300, 100, 10, "Applicaiton Date: " & EMER_ELIG_APPROVAL.emer_appl_date
 			Text 300, 310, 100, 10, "200% FPG: $ " & EMER_ELIG_APPROVAL.emer_fpg_limit
 			' End If
 		End if
@@ -14779,6 +14780,7 @@ class emer_eligibility_detail
 	public approved_today
 	public approved_version_found
 	public approval_date
+	public emer_appl_date
 
 	public initial_search_month
 	public initial_search_year
@@ -15516,17 +15518,35 @@ class emer_eligibility_detail
 				emer_inelig_fpg_limit = 0
 
 				If emer_program = "EGA" Then
-					If houshold_size = 1 Then emer_fpg_limit = 2147
-					If houshold_size = 2 Then emer_fpg_limit = 2903
-					If houshold_size = 3 Then emer_fpg_limit = 3660
-					If houshold_size = 4 Then emer_fpg_limit = 4417
-					If houshold_size = 5 Then emer_fpg_limit = 5173
-					If houshold_size = 6 Then emer_fpg_limit = 5930
-					If houshold_size = 7 Then emer_fpg_limit = 6687
-					If houshold_size = 8 Then emer_fpg_limit = 7443
-					If houshold_size = 9 Then emer_fpg_limit = 8200
-					If houshold_size = 10 Then emer_fpg_limit = 8957
-					If houshold_size > 10 Then emer_fpg_limit = 8957 + ((houshold_size-10) * 757)
+
+					If houshold_size = 1 Then emer_fpg_limit = 2265
+					If houshold_size = 2 Then emer_fpg_limit = 3052
+					If houshold_size = 3 Then emer_fpg_limit = 3838
+					If houshold_size = 4 Then emer_fpg_limit = 4625
+					If houshold_size = 5 Then emer_fpg_limit = 5412
+					If houshold_size = 6 Then emer_fpg_limit = 6198
+					If houshold_size = 7 Then emer_fpg_limit = 6985
+					If houshold_size = 8 Then emer_fpg_limit = 7772
+					If houshold_size = 9 Then emer_fpg_limit = 8558
+					If houshold_size = 10 Then emer_fpg_limit = 9345
+					If houshold_size > 10 Then emer_fpg_limit = 9345 + ((houshold_size-10) * 787)
+					emer_fpg_limit = FormatNumber(emer_fpg_limit, 2, -1, 0, -1)
+
+					If IsDate(emer_appl_date) = True Then
+						If DateDiff("d", emer_appl_date, #4/1/2023#) > 0 Then
+							If houshold_size = 1 Then emer_fpg_limit = 2147
+							If houshold_size = 2 Then emer_fpg_limit = 2903
+							If houshold_size = 3 Then emer_fpg_limit = 3660
+							If houshold_size = 4 Then emer_fpg_limit = 4417
+							If houshold_size = 5 Then emer_fpg_limit = 5173
+							If houshold_size = 6 Then emer_fpg_limit = 5930
+							If houshold_size = 7 Then emer_fpg_limit = 6687
+							If houshold_size = 8 Then emer_fpg_limit = 7443
+							If houshold_size = 9 Then emer_fpg_limit = 8200
+							If houshold_size = 10 Then emer_fpg_limit = 8957
+							If houshold_size > 10 Then emer_fpg_limit = 8957 + ((houshold_size-10) * 757)
+						End If
+					End If
 
 					' If HH_members = "1"  then monthly_standard = "2430"			'THIS IS NOT CORRECT - NEED REVIEW AND UPDATE
 					' If HH_members = "2"  then monthly_standard = "3287"
@@ -22843,6 +22863,10 @@ month_count = 0
 
 MAXIS_footer_month = CM_mo
 MAXIS_footer_year = CM_yr
+Call navigate_to_MAXIS_screen("STAT", "PROG")
+EMReadScreen prog_emer_appl_date, 8, 8, 33
+If prog_emer_appl_date = "__ __ __" Then prog_emer_appl_date = ""
+prog_emer_appl_date = replace(prog_emer_appl_date, " ", "/")
 Call Navigate_to_MAXIS_screen("ELIG", "SUMM")
 EMReadScreen numb_EMER_versions, 1, 16, 40
 
@@ -22907,6 +22931,7 @@ If numb_EMER_versions <> " " Then
 
 	EMER_ELIG_APPROVAL.initial_search_month = first_footer_month
 	EMER_ELIG_APPROVAL.initial_search_year = first_footer_year
+	EMER_ELIG_APPROVAL.emer_appl_date = prog_emer_appl_date
 
 	EMER_ELIG_APPROVAL.read_elig
 
