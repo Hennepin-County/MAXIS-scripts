@@ -46,5 +46,6 @@ END IF
 
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 other_county_redirect = True
+run_locally = False
 henn_county_git_hub_repo = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/master/"
 call run_from_GitHub(henn_county_git_hub_repo & "notes/eligibility-summary.vbs")
