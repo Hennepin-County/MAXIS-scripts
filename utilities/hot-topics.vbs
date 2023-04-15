@@ -46,7 +46,7 @@ call changelog_update("06/02/2021", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/Economic_Supports_ES_Zone.aspx")
+Call open_URL_in_browser("https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/BlueZone-Scripts.aspx")
 
 'Script ends
 script_end_procedure("")
