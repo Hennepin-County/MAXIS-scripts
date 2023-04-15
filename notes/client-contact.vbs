@@ -122,9 +122,31 @@ If trim(MAXIS_case_number) <> "" then
         End if
     End if
 
+    '----------------------------------------------------------------------------------------------------SWKR Name/Phone Number Collection
+    case_SWKR = "SWKR"                                  'setting value of variable, defaulting to string. 
+    Call navigate_to_MAXIS_screen("STAT", "SWKR")
+    EmReadscreen SWKR_exists, 1, 2, 73                  
+    If SWKR_exists = "1" then
+        EmReadscreen SWKR_name, 35, 6, 32               'If an SWKR panel exists read the name
+        case_SWKR = "SWKR: " & trim(replace(SWKR_name, "_", ""))    'trim and replace underscores of the SWKR's name; revalue case_SWKR variable 
+
+        EmReadscreen SWKR_phone, 16, 12, 32
+        If SWKR_phone = "( ___ ) ___ ____" then     'If an SWKR phone number is not present, then establish as ""
+            SWKR_phone = ""
+        ELSE
+            SWKR_phone = replace(SWKR_phone, "(", "")   'If not blank update the formatting
+            SWKR_phone = replace(SWKR_phone, ")", "")
+            SWKR_phone = trim(SWKR_phone)
+            SWKR_phone = replace(SWKR_phone, " ", "-")
+            phone_number_list = phone_number_list & trim(SWKR_phone) & "|" 'add to the phone_number_list that staff can choose from
+        End if
+    End if     
+
     phone_number_array = split(phone_number_list, "|")  'creating an array of phone numbers to choose from that are active on the case, splitting by the delimiter "|"
 
-    Call convert_array_to_droplist_items(phone_number_array, phone_numbers)
+    Call convert_array_to_droplist_items(phone_number_array, phone_numbers) 'function to add phone_number array to a droplist - variable called phone_numbers
+
+    Call navigate_to_MAXIS_screen("STAT", "ADDR")   'navigating back to STAT/ADDR for staff to verify resident information
 End if
 
 '----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. needed during the COVID-19 PEACETIME STATE OF EMERGENCY
@@ -165,7 +187,7 @@ Do
               ButtonGroup ButtonPressed
                 ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter"+chr(9)+contact_type, contact_type
                 DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
-                ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+case_arep+chr(9)+"SWKR"+chr(9)+who_contacted, who_contacted
+                ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+case_arep+chr(9)+case_swkr+chr(9)+who_contacted, who_contacted
                 EditBox 245, 65, 135, 15, regarding
                 ComboBox 75, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
                 EditBox 245, 85, 135, 15, when_contact_was_made
