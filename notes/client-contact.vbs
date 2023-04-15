@@ -90,7 +90,39 @@ If trim(MAXIS_case_number) <> "" then
     If phone_number_one <> "" Then phone_number_list = phone_number_list & phone_number_one & "|"
     If phone_number_two <> "" Then phone_number_list = phone_number_list & phone_number_two & "|"
     If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_number_three & "|"
-    phone_number_array = split(phone_number_list, "|")
+
+    '----------------------------------------------------------------------------------------------------AREP Name/Phone Number Collection
+    case_arep = "AREP"                                  'setting value of variable, defaulting to string. 
+    Call navigate_to_MAXIS_screen("STAT", "AREP")
+    EmReadscreen arep_exists, 1, 2, 73                  
+    If arep_exists = "1" then
+        EmReadscreen arep_name, 37, 4, 32               'If an arep panel exists read the name
+        case_arep = "AREP: " & trim(replace(arep_name, "_", ""))    'trim and replace underscores of the arep's name; revalue case_arep variable 
+
+        EmReadscreen arep_phone_one, 16, 8, 32
+            If arep_phone_one = "( ___ ) ___ ____" then     'If an arep phone number is not present, then establish as ""
+                arep_phone_one = ""
+            ELSE
+                arep_phone_one = replace(arep_phone_one, "(", "")   'If not blank update the formatting
+                arep_phone_one = replace(arep_phone_one, ")", "")
+                arep_phone_one = trim(arep_phone_one)
+                arep_phone_one = replace(arep_phone_one, " ", "-")
+                phone_number_list = phone_number_list & trim(arep_phone_one) & "|" 'add to the phone_number_list that staff can choose from
+            End if
+
+        EmReadscreen arep_phone_two, 16, 9, 32
+        If arep_phone_two = "( ___ ) ___ ____" then         'If an arep phone number #2 is not present, then establish as ""
+            arep_phone_two = ""
+        ELSE
+            arep_phone_two = replace(arep_phone_two, "(", "")   'If not blank update the formatting
+            arep_phone_two = replace(arep_phone_two, ")", "")
+            arep_phone_two = trim(arep_phone_two)
+            arep_phone_two = replace(arep_phone_two, " ", "-")
+            phone_number_list = phone_number_list & trim(arep_phone_two) & "|" 'add to the phone_number_list that staff can choose from
+        End if
+    End if
+
+    phone_number_array = split(phone_number_list, "|")  'creating an array of phone numbers to choose from that are active on the case, splitting by the delimiter "|"
 
     Call convert_array_to_droplist_items(phone_number_array, phone_numbers)
 End if
@@ -133,7 +165,7 @@ Do
               ButtonGroup ButtonPressed
                 ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter"+chr(9)+contact_type, contact_type
                 DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
-                ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+"AREP"+chr(9)+"SWKR"+chr(9)+who_contacted, who_contacted
+                ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+case_arep+chr(9)+"SWKR"+chr(9)+who_contacted, who_contacted
                 EditBox 245, 65, 135, 15, regarding
                 ComboBox 75, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
                 EditBox 245, 85, 135, 15, when_contact_was_made
