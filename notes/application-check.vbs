@@ -70,7 +70,7 @@ changelog_display
 'Grabs the case number
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-closing_message = "Application check completed, a case note made, and a TIKL has been set." 'setting up closing_message variable for possible additions later based on conditions
+closing_message = "Application check is complete." 'setting up closing_message variable for possible additions later based on conditions
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -89,8 +89,8 @@ Do
 		err_msg = ""
 	    dialog dialog1
       	cancel_without_confirmation
-      	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+      	Call validate_MAXIS_case_number(display_ben_err_msg, "*")
+        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -134,6 +134,7 @@ Do
     End if
 
 LOOP until row = 19
+
 If found_case = False then
     If basket_at_display_limit = True Then
         Call back_to_SELF
@@ -249,6 +250,7 @@ IF ive_status_check   = "ACTV" THEN IVE_active   = TRUE
 IF hc_status_check    = "ACTV" THEN hc_active    = TRUE
 IF cca_status_check   = "ACTV" THEN cca_active   = TRUE
 
+'TODO: Remove and use determine_program_and_case_status_from_CASE_CURR functionality
 active_programs = ""        'Creates a variable that lists all the active.
 IF cash_active = TRUE or cash2_active = TRUE THEN active_programs = active_programs & "CASH, "
 IF emer_active = TRUE THEN active_programs = active_programs & "Emergency, "
@@ -469,7 +471,6 @@ If caf_programs_denial = True Then
         IF note_title = "~ Client has not completed CASH APP interview, NOMI sen" then nomi_date = note_date
         IF note_title = "* A notice was previously sent to client with detail ab" then nomi_date = note_date
 
-
         note_row = note_row + 1
         IF note_row = 19 THEN
             PF8
@@ -479,8 +480,7 @@ If caf_programs_denial = True Then
         IF next_note_date = "        " then Exit Do
     Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
 
-    'Now we ask about the application steps.
-    'Forst is the interivew
+    'Now we ask about the application steps. First is the interivew.
     Do
         Do
             err_msg = ""
