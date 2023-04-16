@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("04/16/2023", "Removed Health Care Screening functionality due to return to regular HC application rules.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/10/2022", "Added new functionality to specifically support the review of cases with Cash, SNAP, GRH, or EMER pending that are at or after Day 30. These cases have reached the end of the Application Processing Period and should be reviewed for determination action, which may include denial. These updates better support the actions required for cases at this point.##~##", "Casey Love, Hennepin County") ''#1042
 CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
@@ -997,7 +998,7 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 
 script_end_procedure_with_error_report(closing_message)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -1005,25 +1006,26 @@ script_end_procedure_with_error_report(closing_message)
 '--Tab orders reviewed & confirmed----------------------------------------------11/10/2022
 '--Mandatory fields all present & Reviewed--------------------------------------11/10/2022
 '--All variables in dialog match mandatory fields-------------------------------11/10/2022
+'Review dialog names for content and content fit in dialog----------------------04/16/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------                            The program checkboxes are not doing anything BUT we should review that later
+'--All variables are CASE:NOTEing (if required)---------------------------------The program checkboxes are not doing anything BUT will review in rewrite, issue #803
 '--CASE:NOTE Header doesn't look funky------------------------------------------11/10/2022
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/10/2022
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------11/10/2022
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------                            No, but there is a dialog before any movement and passowrd handling there
-'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------N/A
-'--Out-of-County handling reviewed----------------------------------------------N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/16/2023----------------------N/A     
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/16/2023----------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------04/16/2023
+'--Out-of-County handling reviewed----------------------------------------------04/16/2023
 '--script_end_procedures (w/ or w/o error messaging)----------------------------11/10/2022
 '--BULK - review output of statistics and run time/count (if applicable)--------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---11/10/2022
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------11/10/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------                            Complete this later at process review
-'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Manual time study reviewed --------------------------------------------------04/16/2023----------------------N/A: Will review in rewrite, issue #803
+'--Incrementors reviewed (if necessary)-----------------------------------------04/16/2023----------------------N/A: Will review in rewrite, issue #803
 '--Denomination reviewed -------------------------------------------------------11/10/2022
 '--Script name reviewed---------------------------------------------------------11/10/2022
 '--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
@@ -1031,11 +1033,12 @@ script_end_procedure_with_error_report(closing_message)
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------11/10/2022
 '--comment Code-----------------------------------------------------------------11/10/2022
-'--Update Changelog for release/update------------------------------------------11/10/2022
+'--Update Changelog for release/update------------------------------------------04/16/2023
 '--Remove testing message boxes-------------------------------------------------11/10/2022
 '--Remove testing code/unnecessary code-----------------------------------------11/10/2022
-'--Review/update SharePoint instructions----------------------------------------11/10/2022
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
-'--Complete misc. documentation (if applicable)---------------------------------N/A
-'--Update project team/issue contact (if applicable)----------------------------N/A
+'--Review/update SharePoint instructions----------------------------------------04/16/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/16/2023----------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/16/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------04/16/2023----------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------04/16/2023
+'--Update project team/issue contact (if applicable)----------------------------04/16/2023
