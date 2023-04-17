@@ -1498,6 +1498,52 @@ function define_main_dialog()
 			Next
 			grp_len = y_pos-10
 			GroupBox 10, 10, 465, grp_len, "Immigration Information"
+		ElseIf page_display = retro_page Then
+			y_pos = 25
+			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+				If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True Then
+					Text 15, y_pos, 300, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, hc_memb) & " retro request to " & HEALTH_CARE_MEMBERS(hc_cov_date_const, hc_memb)
+					y_pos = y_pos + 15
+				End If
+				Text 15, y_pos, 460, 10, "The CASE/NOTE will include details from all the other dialog pages, including income and assets."
+				y_pos = y_pos + 10
+				Text 15, y_pos, 460, 10, "Here you can document details specific to the RETRO Request."
+				y_pos = y_pos + 10
+				Text 15, y_pos, 460, 10, "Any information entered into the fields specifically about verifications will be added to verifs needed."
+				y_pos = y_pos + 15
+				Text 35, y_pos+5, 65, 10, "Income Information:"
+				EditBox 100, y_pos, 360, 15, retro_income_detail
+				y_pos = y_pos + 20
+				Text 40, y_pos+5, 60, 10, "Asset Information:"
+				EditBox 100, y_pos, 360, 15, retro_asset_detail
+				y_pos = y_pos + 20
+				Text 30, y_pos+5, 70, 10, "Expense Information:"
+				EditBox 100, y_pos, 360, 15, retro_expense_detail
+				y_pos = y_pos + 20
+
+				Groupbox 20, y_pos, 450, 70, "Verifs Needed:"
+				y_pos = y_pos + 10
+				Text 30, y_pos+5, 235, 10, "If Income verification from specific past month(s) is needed, list them here:"
+				EditBox 265, y_pos, 195, 15, retro_income_verifs_months
+				y_pos = y_pos + 20
+				Text 30, y_pos+5, 230, 10, "If Asset verification from specific past month(s) is needed, list them here:"
+				EditBox 260, y_pos, 200, 15, retro_asset_verifs_months
+				y_pos = y_pos + 20
+				Text 30, y_pos+5, 270, 10, "If Medical Expense verification from specific past month(s) is needed, list them here:"
+				EditBox 300, y_pos, 160, 15, retro_expense_verifs_months
+				y_pos = y_pos + 25
+				Text 20, y_pos, 150, 10, "NOTES about RETRO Request:"
+				EditBox 20, y_pos+10, 440, 15, retro_notes
+				y_pos = y_pos + 35
+				' Text 45, y_pos+5, 55, 10, "Something Else:"
+				' EditBox 100, y_pos, 360, 15, edit_bot_info_5
+				' y_pos = y_pos + 20
+				' Text 100, y_pos, 200, 10, "If Income from specific past months is needed, list them here:"
+				' EditBox 300, y_pos-5, 60, 15, retro_income_verifs_months
+				' y_pos = y_pos + 20
+			Next
+			grp_len = y_pos-10
+			GroupBox 10, 10, 465, grp_len, "RETRO Information"
 		ElseIf page_display = last_page Then
 			y_pos = 10
 			If arep_name <> "" Then
@@ -1658,6 +1704,13 @@ function define_main_dialog()
 			Text 485, btn_pos + 2, 10, 10, btn_count
 			If page_display <> imig_page 	Then PushButton 495, btn_pos, 55, 13, "IMIG", imig_btn
 			If page_display = imig_page 	Then Text 515, btn_pos+2, 55, 13, "IMIG"
+			btn_pos = btn_pos + 15
+			btn_count = btn_count + 1
+		End If
+		If case_has_retro_request = True Then
+			Text 485, btn_pos + 2, 10, 10, btn_count
+			If page_display <> retro_page 	Then PushButton 495, btn_pos, 55, 13, "RETRO", retro_btn
+			If page_display = retro_page 	Then Text 510, btn_pos+2, 55, 13, "RETRO"
 			btn_pos = btn_pos + 15
 			btn_count = btn_count + 1
 		End If
@@ -1958,11 +2011,23 @@ function dialog_movement()
 	Next
 	If ButtonPressed = next_btn Then page_display = page_display + 1
 	If page_display > last_btn Then page_display = last_page
+
+	'here we add some verif information if needed
+	If right(verifs_needed, 1) = ";" Then verifs_needed = verifs_needed & " "
+	If right(verifs_needed, 2) <> "; " Then verifs_needed = verifs_needed & "; "
+
 	If ma_bc_authorization_form_missing_checkbox = checked and trim(ma_bc_authorization_form) <> "" Then
 		If Instr(verifs_needed, "MA-BC treatment/screening form needed to process MA-BC eligibility.") = 0 Then
-			verifs_needed = verifs_needed & "MA-BC treatment/screening form needed to process MA-BC eligibility.;"
+			verifs_needed = verifs_needed & "MA-BC treatment/screening form needed to process MA-BC eligibility.; "
 		End If
 	End If
+	retro_income_verifs_months = trim(retro_income_verifs_months)
+	retro_asset_verifs_months = trim(retro_asset_verifs_months)
+	retro_expense_verifs_months = trim(retro_expense_verifs_months)
+	If retro_income_verifs_months <> "" AND InStr(verifs_needed, retro_income_verifs_months) = 0 Then verifs_needed = verifs_needed & "Retro Months Income Information (" & retro_income_verifs_months & "); "
+	If retro_asset_verifs_months <> "" AND InStr(verifs_needed, retro_asset_verifs_months) = 0 Then verifs_needed = verifs_needed & "Retro Months Asset Information (" & retro_asset_verifs_months & "); "
+	If retro_expense_verifs_months <> "" AND InStr(verifs_needed, retro_expense_verifs_months) = 0 Then verifs_needed = verifs_needed & "Retro Months Expense Information (" & retro_expense_verifs_months & "); "
+
 	If ButtonPressed = hc_memb_btn Then page_display = show_member_page
 	If ButtonPressed = jobs_inc_btn Then page_display = show_jobs_page
 	If ButtonPressed = busi_inc_btn Then page_display = show_busi_page
@@ -1973,6 +2038,7 @@ function dialog_movement()
 	If ButtonPressed = other_btn Then page_display = show_other_page
 	If ButtonPressed = bils_btn Then page_display = bils_page
 	If ButtonPressed = imig_btn Then page_display = imig_page
+	If ButtonPressed = retro_btn Then page_display = retro_page
 	If ButtonPressed = verifs_page_btn Then page_display = verifs_page
 	If ButtonPressed = last_btn Then page_display = last_page
 
@@ -2458,53 +2524,54 @@ Const case_pers_hc_status_code_const 	= 27
 Const case_pers_hc_status_info_const 	= 28
 Const member_is_applying_for_hc_const 	= 29
 Const member_is_recert_for_hc_const 	= 30
+Const member_has_retro_request			= 31
 
-Const show_hc_detail_const 				= 31
-Const DISA_exists_const 				= 32
-Const DISA_start_date_const 			= 33
-Const DISA_end_date_const 				= 34
-Const DISA_cert_start_const 			= 35
-Const DISA_cert_end_const 				= 36
-Const DISA_hc_status_code_const 		= 37
-Const DISA_hc_status_info_const 		= 38
-Const DISA_hc_verif_code_const 			= 39
-Const DISA_hc_verif_info_const 			= 40
-Const DISA_waiver_code_const			= 41
-Const DISA_waiver_info_const			= 42
-Const DISA_notes_const					= 43
-Const PREG_exists_const 				= 44
-Const PREG_due_date_const 				= 45
-Const PREG_due_date_verif_const 		= 46
-Const PREG_end_date_const 				= 47
-Const PREG_end_date_verif_const 		= 48
-Const PREG_multiple_const				= 49
-Const PREG_notes_const					= 50
-Const PARE_exists_const 				= 51
-Const PARE_list_of_children_const 		= 52
-Const PARE_notes_const					= 53
-Const MEDI_exists_const 				= 54
-Const MEDI_part_A_premium_const 		= 55
-Const MEDI_part_B_premium_const 		= 56
-Const MEDI_part_A_start_const 			= 57
-Const MEDI_part_A_end_const 			= 58
-Const MEDI_part_B_start_const 			= 59
-Const MEDI_part_B_end_const 			= 60
-Const MEDI_info_source_const 			= 61
-Const MEDI_notes_const					= 62
-Const HC_eval_process_const 			= 63
-Const MA_basis_of_elig_const 			= 64
-Const MA_basis_notes_const 				= 65
-Const MSP_basis_of_elig_const 			= 66
-Const MSP_basis_notes_const 			= 67
-Const hc_eval_status			= 68
-Const hc_eval_notes			= 69
+Const show_hc_detail_const 				= 32
+Const DISA_exists_const 				= 33
+Const DISA_start_date_const 			= 34
+Const DISA_end_date_const 				= 35
+Const DISA_cert_start_const 			= 36
+Const DISA_cert_end_const 				= 37
+Const DISA_hc_status_code_const 		= 38
+Const DISA_hc_status_info_const 		= 39
+Const DISA_hc_verif_code_const 			= 40
+Const DISA_hc_verif_info_const 			= 41
+Const DISA_waiver_code_const			= 42
+Const DISA_waiver_info_const			= 43
+Const DISA_notes_const					= 44
+Const PREG_exists_const 				= 45
+Const PREG_due_date_const 				= 46
+Const PREG_due_date_verif_const 		= 47
+Const PREG_end_date_const 				= 48
+Const PREG_end_date_verif_const 		= 49
+Const PREG_multiple_const				= 50
+Const PREG_notes_const					= 51
+Const PARE_exists_const 				= 52
+Const PARE_list_of_children_const 		= 53
+Const PARE_notes_const					= 54
+Const MEDI_exists_const 				= 55
+Const MEDI_part_A_premium_const 		= 56
+Const MEDI_part_B_premium_const 		= 57
+Const MEDI_part_A_start_const 			= 58
+Const MEDI_part_A_end_const 			= 59
+Const MEDI_part_B_start_const 			= 60
+Const MEDI_part_B_end_const 			= 61
+Const MEDI_info_source_const 			= 62
+Const MEDI_notes_const					= 63
+Const HC_eval_process_const 			= 64
+Const MA_basis_of_elig_const 			= 65
+Const MA_basis_notes_const 				= 66
+Const MSP_basis_of_elig_const 			= 67
+Const MSP_basis_notes_const 			= 68
+Const hc_eval_status			= 69
+Const hc_eval_notes			= 70
 ' Const _const =
 ' Const _const =
 ' Const _const =
 ' Const _const =
 ' Const _const =
-Const pers_btn_one_const 				= 70
-Const last_const						= 71
+Const pers_btn_one_const 				= 71
+Const last_const						= 72
 
 Dim HEALTH_CARE_MEMBERS()
 ReDim HEALTH_CARE_MEMBERS(last_const, 0)
@@ -2589,7 +2656,8 @@ show_expenses_page 	= 6
 show_other_page 	= 7
 bils_page 			= 8
 imig_page 			= 9
-verifs_page 		= 10
+retro_page			= 10
+verifs_page 		= 11
 
 last_page 			= 15
 
@@ -2606,6 +2674,7 @@ Const other_btn 	= 1017
 Const bils_btn		= 2018
 Const imig_btn 		= 2019
 Const verifs_page_btn 	= 2020
+Const retro_btn		= 2021
 Const last_btn		= 2030
 Const verif_button	= 2500
 Const clear_verifs_btn = 2510
@@ -2618,7 +2687,8 @@ Dim app_sig_status, app_sig_notes, client_delay_check, TIKL_check, MA_BC_end_of_
 Dim ma_bc_authorization_form, ma_bc_authorization_form_date, ma_bc_authorization_form_missing_checkbox
 Dim bils_notes, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox, case_details_notes
 Dim last_page_numb
-
+Dim retro_income_detail, retro_asset_detail, retro_expense_detail
+Dim retro_income_verifs_months, retro_asset_verifs_months, retro_expense_verifs_months, retro_notes
 
 'THE SCRIPT =====================================================================================================
 EMConnect ""
@@ -2738,6 +2808,8 @@ Do
 		End If
 
 		EMReadScreen HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb), 8, hc_row, 51
+		EMReadScreen hc_appl_mo, 2, hc_row, 51
+		EMReadScreen hc_appl_yr, 2, hc_row, 57
 		EMReadScreen HEALTH_CARE_MEMBERS(hc_cov_mo_const, hc_memb), 2, hc_row, 64
 		EMReadScreen HEALTH_CARE_MEMBERS(hc_cov_yr_const, hc_memb), 2, hc_row, 67
 		EMReadScreen HEALTH_CARE_MEMBERS(hc_cov_date_const, hc_memb), 5, hc_row, 64
@@ -2746,6 +2818,8 @@ Do
 		HEALTH_CARE_MEMBERS(hc_cov_date_const, hc_memb) = replace(HEALTH_CARE_MEMBERS(hc_cov_date_const, hc_memb), " ", "/")
 		HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = False
 		HEALTH_CARE_MEMBERS(member_is_recert_for_hc_const, hc_memb) = False
+		HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = False
+		If hc_appl_mo <> HEALTH_CARE_MEMBERS(hc_cov_mo_const, hc_memb) or hc_appl_yr <> HEALTH_CARE_MEMBERS(hc_cov_yr_const, hc_memb) Then HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True
 		' MsgBox "HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb) - " & HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb)
 		hc_memb = hc_memb + 1
 	End If
@@ -2859,6 +2933,7 @@ Do
 	End If
 Loop until last_page_check = "LAST PAGE"
 
+case_has_retro_request = False
 For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = False
 	HEALTH_CARE_MEMBERS(DISA_exists_const, hc_memb) = False
@@ -2868,11 +2943,13 @@ For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	' MsgBox "HEALTH_CARE_MEMBERS(case_pers_hc_status_code_const, hc_memb) - " & HEALTH_CARE_MEMBERS(case_pers_hc_status_code_const, hc_memb) & " - 2" & vbCr & "HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb) - " & HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb) & vbCr & "hc_application_date - " & hc_application_date
 	If hc_application_date = HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb) Then HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True
 	If HEALTH_CARE_MEMBERS(case_pers_hc_status_code_const, hc_memb) = "P" Then HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True
-	HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True
+	HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True			'TODO - remove this when I can figure out who is actually requesting vs recertifying
 	' MsgBox "HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) - " & HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb)
 	If HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True Then
 		call read_person_based_STAT_info()
 	End If
+	If HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = False Then HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = False
+	If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True Then case_has_retro_request = True
 Next
 
 If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Screen Our Circle Form (MA/BC PE Only)" Then
@@ -3603,9 +3680,12 @@ For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 			Call write_variable_in_CASE_NOTE("               Income/Assets are not counted.")
 			If ma_bc_authorization_form_missing_checkbox = checked Then Call write_variable_in_CASE_NOTE("               MA-BC form (" & ma_bc_authorization_form & ") has not been received.")
 		End If
-		If trim(HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb)) <> "" Then Call write_variable_in_CASE_NOTE("        Notes: " & HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb))
+		If trim(HEALTH_CARE_MEMBERS(MA_basis_notes_const, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("        Notes: " & HEALTH_CARE_MEMBERS(MA_basis_notes_const, the_memb))
 		Call write_variable_in_CASE_NOTE("     MSP Basis: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb))
-		If trim(HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb)) <> "" Then Call write_variable_in_CASE_NOTE("         Notes: " & HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb))
+		If trim(HEALTH_CARE_MEMBERS(MSP_basis_notes_const, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("         Notes: " & HEALTH_CARE_MEMBERS(MSP_basis_notes_const, the_memb))
+		If HEALTH_CARE_MEMBERS(member_has_retro_request, the_memb) = True Then
+			Call write_variable_in_CASE_NOTE("     RETRO Request back to " & HEALTH_CARE_MEMBERS(hc_cov_date_const, the_memb))
+		End If
 		'TODO - add MEMB/MEMI information
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) Then
@@ -3993,7 +4073,7 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 
 Next
 Call write_bullet_and_variable_in_CASE_NOTE("Unearned Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_general_notes))
-
+Call write_bullet_and_variable_in_CASE_NOTE("RETRO Income Notes", retro_income_detail)
 If income_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No Income for this Case.")
 
 Call write_variable_in_CASE_NOTE("============================== ASSETS ==============================")
@@ -4217,6 +4297,7 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	End If
 Next
 Call write_bullet_and_variable_in_CASE_NOTE("Real Estate Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_rest_notes))
+Call write_bullet_and_variable_in_CASE_NOTE("RETRO Asset Notes", retro_asset_detail)
 If asset_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No vehicles or real estate for this Case.")
 
 Call write_variable_in_CASE_NOTE("===================== EXPENSES and DEDUCTIONS ======================")
@@ -4301,10 +4382,11 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	End If
 Next
 If expense_info_entered = False Then Call write_variable_in_CASE_NOTE("* No expenses or deductions for this Case.")
+Call write_bullet_and_variable_in_CASE_NOTE("RETRO Expense Notes", retro_expense_detail)
 Call write_bullet_and_variable_in_CASE_NOTE("Expense Notes", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_expenses_general_notes))
 
 Call write_variable_in_CASE_NOTE("=========================== OTHER INFO =============================")
-
+Call write_bullet_and_variable_in_CASE_NOTE("RETRO Notes", retro_notes)
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_acci_exists(each_memb) = True Then
 		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " - Accident Information")
