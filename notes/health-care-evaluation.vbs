@@ -57,9 +57,12 @@ call changelog_update("03/23/2023", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'We need to load the information to read STAT from a class that is defined in its own script file
+testing_script_repository = script_repository				'TODO - remove when we merge into master - this is testing specific.
+If Instr(testing_script_repository, "master") <> 0 Then testing_script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/"
+Call run_from_GitHub(testing_script_repository & "misc/class-stat-detail.vbs")
 
 'FUNCTIONS BLOCK ===========================================================================================================
-
 Function HCRE_panel_bypass()
 	'handling for cases that do not have a completed HCRE panel
 	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
@@ -71,25 +74,21 @@ Function HCRE_panel_bypass()
 		END IF
 	Loop until HCRE_panel_check <> "HCRE"
 End Function
-'This is a new comment
-testing_script_repository = script_repository
-If Instr(testing_script_repository, "master") <> 0 Then testing_script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/"
-Call run_from_GitHub(testing_script_repository & "misc/class-stat-detail.vbs")
 
 function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
+'reading information from AREP panel
+	Call navigate_to_MAXIS_screen("STAT", "AREP")			'go to STAT/AREP
 
-	Call navigate_to_MAXIS_screen("STAT", "AREP")
-
-	EMReadScreen arep_name, 37, 4, 32
+	EMReadScreen arep_name, 37, 4, 32						'reading the name to see if arep information exists
 	arep_name = replace(arep_name, "_", "")
 	If arep_name <> "" Then
-		EMReadScreen arep_street_one, 22, 5, 32
+		EMReadScreen arep_street_one, 22, 5, 32				'capturing information from the panel
 		EMReadScreen arep_street_two, 22, 6, 32
 		EMReadScreen arep_addr_city, 15, 7, 32
 		EMReadScreen arep_addr_state, 2, 7, 55
 		EMReadScreen arep_addr_zip, 5, 7, 64
 
-		arep_street_one = replace(arep_street_one, "_", "")
+		arep_street_one = replace(arep_street_one, "_", "")		'formatting information from the panel
 		arep_street_two = replace(arep_street_two, "_", "")
 		arep_addr_street = arep_street_one & " " & arep_street_two
 		arep_addr_street = trim( arep_addr_street)
@@ -124,24 +123,22 @@ function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_c
 
 		EMReadScreen forms_to_arep, 1, 10, 45
 		EMReadScreen mmis_mail_to_arep, 1, 10, 77
-
 	End If
-
 end function
 
 function access_SWKR_panel(access_type, swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone_one, swkr_ext_one, notices_to_swkr_yn)
-
-	Call navigate_to_MAXIS_screen("STAT", "SWKR")
+'reading information from the social worker (SWKR) panel
+	Call navigate_to_MAXIS_screen("STAT", "SWKR")		'navigate to STAT/SWKR
 	EMReadScreen swkr_name, 35, 6, 32
 	swkr_name = replace(swkr_name, "_", "")
-	If swkr_name <> "" Then
-		EMReadScreen swkr_street_one, 22, 8, 32
+	If swkr_name <> "" Then								'if SWKR information exists, we read additional details
+		EMReadScreen swkr_street_one, 22, 8, 32			'reading the information from SWKR
 		EMReadScreen swkr_street_two, 22, 9, 32
 		EMReadScreen swkr_addr_city, 15, 10, 32
 		EMReadScreen swkr_addr_state, 2, 10, 54
 		EMReadScreen swkr_addr_zip, 5, 10, 63
 
-		swkr_street_one = trim(replace(swkr_street_one, "_", ""))
+		swkr_street_one = trim(replace(swkr_street_one, "_", ""))		'format information read from SWKR
 		swkr_street_two = trim(replace(swkr_street_two, "_", ""))
 		swkr_addr_street = swkr_street_one & " " & swkr_street_two
 		swkr_addr_street = trim( swkr_addr_street)
@@ -171,19 +168,22 @@ function access_SWKR_panel(access_type, swkr_name, swkr_addr_street, swkr_addr_c
 end function
 
 function check_for_errors(eval_questions_clear)
-	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+'This is a function specific to this script to see if there are dialog errors that prevent us from moving forward in the script.
+	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)				'maandatory fields related to specific persons on the case from the first dialog
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Eval is at##~##   - Detail what type of evaluation is being cmopleted for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			If HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 			If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
 		End If
 	Next
-	If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then
+	If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then		'handling for mandatory fields ONLY if MA-BC is being processed
 		If trim(ma_bc_authorization_form) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Select authorization form needed##~##   - Select the form name needed for MA-BC Eligibility.##~##"
 		If ma_bc_authorization_form_missing_checkbox = checked and IsDate(ma_bc_authorization_form_date) = True Then err_msg = err_msg & "~!~" & "1 ^* Check here if the form is NOT received and still required.##~##   - You checked the box indicating that the MA-BC authorization form was missing but entered a date for when the form was received."
 		If ma_bc_authorization_form_missing_checkbox = unchecked and IsDate(ma_bc_authorization_form_date) = False Then err_msg = err_msg & "~!~" & "1 ^* Date Received (for MA-BC Authoriazation Form)##~##   - Enter the date the form for MA-BC Authorization was received."
 	End If
-	dlg_last_page_2_digits = left(last_page_numb&" ", 2)
+	dlg_last_page_2_digits = left(last_page_numb&" ", 2)		'The dialog page needs to always be 2 digits or the functionality to display the errors has weird formatting
+
+	'last page errors
 	If app_sig_status = "Select One..." Then err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* Has the Application been correctly Signed and Dated?##~##   - Select if all required signatures are on the application and correctly dated." & ".##~##"
 	If app_sig_status = "No - Some applications or dates are missing" and trim(app_sig_notes) = "" THen err_msg = err_msg & "~!~" & dlg_last_page_2_digits & "^* If not, describe what is missing:##~##   - Since the application is not correctly signed/dated, enter the details of what is missing or incorrect." & ".##~##"
 
@@ -197,6 +197,7 @@ function check_for_errors(eval_questions_clear)
 end function
 
 function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
+'function specific to this script that can display the errors in the err string with headers that identify the dialog page.
     If the_err_msg <> "" Then       'If the error message is blank - there is nothing to show.
         If left(the_err_msg, 3) = "~!~" Then the_err_msg = right(the_err_msg, len(the_err_msg) - 3)     'Trimming the message so we don't have a blank array item
         err_array = split(the_err_msg, "~!~")           'making the list of errors an array.
@@ -224,7 +225,6 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 
 				current_listing = left(message, 2)          'This is the dialog the error came from
 				current_listing =  trim(current_listing)
-				' MsgBox "Page to Review - " & page_to_review & vbCr & "Current Listing - " & current_listing
 				If current_listing = page_to_review Then                   'this is comparing to the dialog from the last message - if they don't match, we need a new header entered
 					If current_listing = "1"  					Then tagline = ": HC MEMBs"        'Adding a specific tagline to the header for the errors
 					If current_listing = last_page_numb & "" 	Then tagline = ": App Info"
@@ -236,8 +236,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 			End If
         Next
 		If error_message = "" then the_err_msg = ""
-		' MsgBox error_message
-        'This is the display of all of the messages.
+
 		show_msg = False
         If show_err_msg_during_movement = True Then show_msg = True
 		If page_display = last_page AND ButtonPressed <> completed_hc_eval_btn Then show_msg = False
@@ -253,7 +252,6 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 		If error_message = "" Then show_msg = False
 		If ButtonPressed = completed_hc_eval_btn Then show_msg = True
 		If page_display = show_pg_last Then
-			' MsgBox "5"
 			If ButtonPressed = next_btn OR ButtonPressed = -1 Then show_msg = True
 		End If
 
@@ -270,11 +268,14 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 End Function
 
 function define_main_dialog()
-
+'this function is specific to this script to create the image of the dialog.
+'This uses variables that are set to numbers to be equal to 'page_display'
+'Each section of the if statements is the details of a specific dialog page.
+'The container and buttons are defined for all the options to be the same (reducing the duplicate code)
 	BeginDialog Dialog1, 0, 0, 555, 385, "Information for Health Care Evaluation"
-
 	  ButtonGroup ButtonPressed
-	    If page_display = show_member_page Then
+	  	'here starts the page specific display details
+	    If page_display = show_member_page Then																	'MEMBER page
 			GroupBox 10, 10, 465, 30, "Residents Requesting Health Care Coverage"
 			x_pos = 10
 			For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
@@ -419,7 +420,7 @@ function define_main_dialog()
 			EditBox 265, 330, 205, 15, HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb)
 
 			Text 505, 17, 55, 13, "HC MEMBs"
-		ElseIf page_display = show_jobs_page Then
+		ElseIf page_display = show_jobs_page Then															'JOBS Page
 			grp_len = 5
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_jobs_one_exists(each_memb) = True Then
@@ -556,7 +557,7 @@ function define_main_dialog()
 
 
 			Text 500, 32, 55, 13, "JOBS Income"
-		ElseIf page_display = show_busi_page Then
+		ElseIf page_display = show_busi_page Then															'BUSI Page
 			grp_len = 15
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
@@ -687,7 +688,7 @@ function define_main_dialog()
 			End If
 
 			Text 500, 47, 55, 13, "BUSI Income"
-		ElseIf page_display = show_unea_page Then
+		ElseIf page_display = show_unea_page Then															'UNEA Page
 			grp_len = 15
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_unea_one_exists(each_memb) = True Then
@@ -820,7 +821,7 @@ function define_main_dialog()
 			End If
 
 			Text 500, 62, 55, 13, "UNEA Income"
-		ElseIf page_display = show_asset_page Then
+		ElseIf page_display = show_asset_page Then															'Account Page
 
 			grp_len = 10
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -1001,7 +1002,7 @@ function define_main_dialog()
 			End If
 
 			Text 510, 77, 55, 13, "Assets"
-		ElseIf page_display = show_cars_rest_page Then
+		ElseIf page_display = show_cars_rest_page Then															'Cars ad Real Estate Page
 			grp_len = 10
 			cars_exists = False
 			rest_exists = False
@@ -1159,7 +1160,7 @@ function define_main_dialog()
 			y_pos = y_pos + 25
 
 			Text 500, 92, 55, 13, "CARS/REST"
-		ElseIf page_display = show_expenses_page Then
+		ElseIf page_display = show_expenses_page Then															'Expenses Page
 
 			pded_exists = False
 			coex_exists = False
@@ -1325,7 +1326,7 @@ function define_main_dialog()
 
 			Text 505, 107, 55, 13, "Expenses"
 
-		ElseIf page_display = show_other_page Then
+		ElseIf page_display = show_other_page Then															'Other details Page
 			acci_exists = False
 			insa_exists = False
 			faci_exists = False
@@ -1455,7 +1456,7 @@ function define_main_dialog()
 
 			Text 512, 122, 55, 13, "Other"
 
-		ElseIf page_display = bils_page Then
+		ElseIf page_display = bils_page Then															'BILS Page - this page only displays if there is a BILS panel
 
 			Text 20, 25, 250, 10, "This case has medical bills entered into the BILS panel."
 
@@ -1473,7 +1474,7 @@ function define_main_dialog()
 
 			grp_len = y_pos + 25
 			GroupBox 10, 10, 465, grp_len, "Medical Bills - BILS"
-		ElseIf page_display = imig_page Then
+		ElseIf page_display = imig_page Then															'IMIG Page - this page displays only if there is a IMIG request
 			'TODO - SPON
 			y_pos = 25
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -1498,7 +1499,7 @@ function define_main_dialog()
 			Next
 			grp_len = y_pos-10
 			GroupBox 10, 10, 465, grp_len, "Immigration Information"
-		ElseIf page_display = retro_page Then
+		ElseIf page_display = retro_page Then															'RETRO Page - this page displays only if there is a RETRO request
 			y_pos = 25
 			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 				If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True Then
@@ -1544,7 +1545,7 @@ function define_main_dialog()
 			Next
 			grp_len = y_pos-10
 			GroupBox 10, 10, 465, grp_len, "RETRO Information"
-		ElseIf page_display = last_page Then
+		ElseIf page_display = last_page Then															'Final detail Page
 			y_pos = 10
 			If arep_name <> "" Then
 				y_pos = y_pos + 10
@@ -1627,7 +1628,7 @@ function define_main_dialog()
 			Else
 				CheckBox 15, y_pos, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
 			End If
-		ElseIf page_display = verifs_page Then
+		ElseIf page_display = verifs_page Then															'Verifs Page - this page displays only if there are verifs
 			y_pos = 25
 			Text 20, y_pos, 150, 10, "Verifications listed:"
 			If verif_req_form_sent_date <> "" Then Text 200, y_pos, 150, 10, "Verification Request form Sent on " & verif_req_form_sent_date
@@ -1671,6 +1672,7 @@ function define_main_dialog()
 		'TODO - FCFC/FCPL
 		'TODO - TRAN
 
+		'This section of the code displays the buttons on the side and bottom
 		Text 485, 5, 75, 10, "---   DIALOGS   ---"
 		Text 485, 17, 10, 10, "1"
 		Text 485, 32, 10, 10, "2"
@@ -1688,10 +1690,8 @@ function define_main_dialog()
 		If page_display <> show_cars_rest_page 		Then PushButton 495, 90, 55, 13, "CARS/REST", cars_rest_btn
 		If page_display <> show_expenses_page 		Then PushButton 495, 105, 55, 13, "Expenses", expenses_btn
 		If page_display <> show_other_page 			Then PushButton 495, 120, 55, 13, "Other", other_btn
-		' If page_display <> show_q_21_24 				Then PushButton 495, 135, 55, 13, "Q. 21 - 24", caf_q_21_24_btn
-		' If page_display <> show_qual 					Then PushButton 495, 150, 55, 13, "CAF QUAL Q", caf_qual_q_btn
-		' If page_display <> show_pg_last 				Then PushButton 495, 165, 55, 13, "CAF Last Page", caf_last_page_btn
-		btn_pos = 135
+
+		btn_pos = 135								'these buttons only appear sometimes
 		btn_count = 9
 		If bils_exist = True Then
 			Text 485, btn_pos + 2, 10, 10, btn_count
@@ -1733,10 +1733,10 @@ function define_main_dialog()
 		PushButton 400, 365, 150, 15, "Complete Health Care Evaluation", completed_hc_eval_btn
 
 	EndDialog
-
 end function
 
 function read_BILS_line(bil_row)
+'This funciton reads a single BILS line and sets them to variables defined outside the dialog so they are not passed through
 	EMReadScreen bil_ref_numb, 2, bil_row, 26
 	EMReadScreen bil_date, 8, bil_row, 30
 	EMReadScreen bil_serv_code, 2, bil_row, 40
@@ -1800,11 +1800,12 @@ function read_BILS_line(bil_row)
 	If bil_expense_type_code = "P" Then bil_expense_type_info = "Not Covered, Non-Reimbursed"
 	If bil_expense_type_code = "M" Then bil_expense_type_info = "Old, Unpaid Medical Bills"
 	If bil_expense_type_code = "R" Then bil_expense_type_info = "Reimbursable"
-
 end function
 
 function read_person_based_STAT_info()
-	Call navigate_to_MAXIS_screen("STAT", "DISA")
+'reading additional information from STAT for each person requesting HC
+'This is seperate from the STAT Class because it is specific to those requesting HC
+	Call navigate_to_MAXIS_screen("STAT", "DISA")													'reading DISA information
 	Call write_value_and_transmit(HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb), 20, 76)
 	EMReadScreen disa_version, 1, 2, 78
 	' MsgBox "disa_version - " & disa_version
@@ -1870,7 +1871,7 @@ function read_person_based_STAT_info()
 		If HEALTH_CARE_MEMBERS(DISA_hc_verif_code_const, hc_memb) = "N" Then HEALTH_CARE_MEMBERS(DISA_hc_verif_info_const, hc_memb) = "No Verification Provided"
 	End If
 
-	Call navigate_to_MAXIS_screen("STAT", "PREG")
+	Call navigate_to_MAXIS_screen("STAT", "PREG")														'reading information from PREG
 	Call write_value_and_transmit(HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb), 20, 76)
 	EMReadScreen preg_version, 1, 2, 78
 	If preg_version = "1" Then
@@ -1896,7 +1897,7 @@ function read_person_based_STAT_info()
 	End If
 
 
-	Call navigate_to_MAXIS_screen("STAT", "PARE")
+	Call navigate_to_MAXIS_screen("STAT", "PARE")														'reading information from PARE
 	Call write_value_and_transmit(HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb), 20, 76)
 	EMReadScreen pare_version, 1, 2, 78
 	If pare_version = "1" Then
@@ -1921,7 +1922,7 @@ function read_person_based_STAT_info()
 		HEALTH_CARE_MEMBERS(PARE_list_of_children_const, hc_memb) = trim(HEALTH_CARE_MEMBERS(PARE_list_of_children_const, hc_memb))
 	End If
 
-	Call navigate_to_MAXIS_screen("STAT", "MEDI")
+	Call navigate_to_MAXIS_screen("STAT", "MEDI")												'reading information from MEDI
 	Call write_value_and_transmit(HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb), 20, 76)
 	EMReadScreen medi_version, 1, 2, 78
 	If medi_version = "1" Then
@@ -1992,25 +1993,41 @@ function read_person_based_STAT_info()
 		If HEALTH_CARE_MEMBERS(MEDI_part_B_end_const, hc_memb) = "__ __ __" Then HEALTH_CARE_MEMBERS(MEDI_part_B_end_const, hc_memb) = ""
 		HEALTH_CARE_MEMBERS(MEDI_part_B_end_const, hc_memb) = replace(HEALTH_CARE_MEMBERS(MEDI_part_B_end_const, hc_memb), " ", "/")
 	End If
-
-
-
 end function
 
 function dialog_movement()
-	If ButtonPressed = -1 Then
-		If page_display = last_page Then ButtonPressed = completed_hc_eval_btn
-		If page_display <> last_page Then ButtonPressed = next_btn
+'this function is specific to this script and will use the ButtonPressed information to select which page to display in the dialog
+	If ButtonPressed = -1 Then				'If the user presses the 'Enter' key, it is the same as the 'OK Button' even if it is not on the dialog
+		If page_display = last_page Then ButtonPressed = completed_hc_eval_btn			'If 'Enter' is pressed, and we are on the last page, it is like pressing the completed button
+		If page_display <> last_page Then ButtonPressed = next_btn						'if 'Enter' is pressed on any other page, it is like pressing the 'Next' button
 	End if
-	For i = 0 to Ubound(HEALTH_CARE_MEMBERS, 2)
-		' If HH_MEMB_ARRAY(i).imig_exists = TRUE Then case_has_imig = TRUE
-		' MsgBox HH_MEMB_ARRAY(i).button_one
+	For i = 0 to Ubound(HEALTH_CARE_MEMBERS, 2)											'Looking for if a member button is pressed on page one.
 		If ButtonPressed = HEALTH_CARE_MEMBERS(pers_btn_one_const, i) Then
-			If page_display = show_member_page Then selected_memb = i
+			If page_display = show_member_page Then selected_memb = i					'if a button is pressed for a member, it sets the member index to the index on that button
 		End If
 	Next
-	If ButtonPressed = next_btn Then page_display = page_display + 1
-	If page_display > last_btn Then page_display = last_page
+	If ButtonPressed = next_btn Then page_display = page_display + 1					'incrementing the page to display as these are numeric
+	If page_display > last_btn Then page_display = last_page							'making sure we don't go above the last page
+
+	'Each button pressed sets page_dsiplay to the page associated with the button
+	If ButtonPressed = hc_memb_btn Then page_display = show_member_page
+	If ButtonPressed = jobs_inc_btn Then page_display = show_jobs_page
+	If ButtonPressed = busi_inc_btn Then page_display = show_busi_page
+	If ButtonPressed = unea_inc_btn Then page_display = show_unea_page
+	If ButtonPressed = assets_btn Then page_display = show_asset_page
+	If ButtonPressed = cars_rest_btn Then page_display = show_cars_rest_page
+	If ButtonPressed = expenses_btn Then page_display = show_expenses_page
+	If ButtonPressed = other_btn Then page_display = show_other_page
+	If ButtonPressed = bils_btn Then page_display = bils_page
+	If ButtonPressed = imig_btn Then page_display = imig_page
+	If ButtonPressed = retro_btn Then page_display = retro_page
+	If ButtonPressed = verifs_page_btn Then page_display = verifs_page
+	If ButtonPressed = last_btn Then page_display = last_page
+
+	If ButtonPressed = clear_verifs_btn Then			'If the 'Clear Verifs' button is pressed, we blank out 'verifs_needed' and go to the last page
+		verifs_needed = ""
+		page_display = last_page
+	End If
 
 	'here we add some verif information if needed
 	If right(verifs_needed, 1) = ";" Then verifs_needed = verifs_needed & " "
@@ -2028,53 +2045,12 @@ function dialog_movement()
 	If retro_asset_verifs_months <> "" AND InStr(verifs_needed, retro_asset_verifs_months) = 0 Then verifs_needed = verifs_needed & "Retro Months Asset Information (" & retro_asset_verifs_months & "); "
 	If retro_expense_verifs_months <> "" AND InStr(verifs_needed, retro_expense_verifs_months) = 0 Then verifs_needed = verifs_needed & "Retro Months Expense Information (" & retro_expense_verifs_months & "); "
 
-	If ButtonPressed = hc_memb_btn Then page_display = show_member_page
-	If ButtonPressed = jobs_inc_btn Then page_display = show_jobs_page
-	If ButtonPressed = busi_inc_btn Then page_display = show_busi_page
-	If ButtonPressed = unea_inc_btn Then page_display = show_unea_page
-	If ButtonPressed = assets_btn Then page_display = show_asset_page
-	If ButtonPressed = cars_rest_btn Then page_display = show_cars_rest_page
-	If ButtonPressed = expenses_btn Then page_display = show_expenses_page
-	If ButtonPressed = other_btn Then page_display = show_other_page
-	If ButtonPressed = bils_btn Then page_display = bils_page
-	If ButtonPressed = imig_btn Then page_display = imig_page
-	If ButtonPressed = retro_btn Then page_display = retro_page
-	If ButtonPressed = verifs_page_btn Then page_display = verifs_page
-	If ButtonPressed = last_btn Then page_display = last_page
-
-	If ButtonPressed = clear_verifs_btn Then
-		verifs_needed = ""
-		page_display = last_page
-	End If
-	If ButtonPressed = completed_hc_eval_btn Then leave_loop = TRUE
+	If ButtonPressed = completed_hc_eval_btn Then leave_loop = TRUE		'if the button to complete the review is pressed, the movement allows you to leave the loop
 end function
 
-
-
 function verification_dialog()
+'this function is script specific to display a dialog allowing selection of verifications
     If ButtonPressed = verif_button Then
-        ' If second_call <> TRUE Then
-        '     income_source_list = "Select or Type Source"
-
-        '     For each_job = 0 to UBound(ALL_JOBS_PANELS_ARRAY, 2)
-        '         If ALL_JOBS_PANELS_ARRAY(employer_name, each_job) <> "" Then income_source_list = income_source_list+chr(9)+"JOB - " & ALL_JOBS_PANELS_ARRAY(employer_name, each_job)
-        '     Next
-        '     For each_busi = 0 to UBound(ALL_BUSI_PANELS_ARRAY, 2)
-        '         If ALL_BUSI_PANELS_ARRAY(memb_numb, each_busi) <> "" Then
-        '             If ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi) <> "" Then
-        '                 income_source_list = income_source_list+chr(9)+"Self Emp - " & ALL_BUSI_PANELS_ARRAY(busi_desc, each_busi)
-        '             Else
-        '                 income_source_list = income_source_list+chr(9)+"Self Employment"
-        '             End If
-        '         End If
-        '     Next
-        '     employment_source_list = income_source_list
-        '     income_source_list = income_source_list+chr(9)+"Child Support"+chr(9)+"Social Security Income"+chr(9)+"Unemployment Income"+chr(9)+"VA Income"+chr(9)+"Pension"
-        '     income_verif_time = "[Enter Time Frame]"
-        '     bank_verif_time = "[Enter Time Frame]"
-        '     second_call = TRUE
-        ' End If
-
         Do
             verif_err_msg = ""
 
@@ -2176,6 +2152,7 @@ function verification_dialog()
             End If
             If ButtonPressed = -1 Then ButtonPressed = fill_button
 
+			'verif dialog err msg handling
             If id_verif_checkbox = checked AND (id_verif_memb = "Select or Type Member" OR trim(id_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member that needs ID verified."
             If us_cit_status_checkbox = checked AND (us_cit_verif_memb = "Select or Type Member" OR trim(us_cit_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member that needs citizenship verified."
             If imig_status_checkbox = checked AND (imig_verif_memb = "Select or Type Member" OR trim(imig_verif_memb) = "") Then verif_err_msg = verif_err_msg & vbNewLine & "* Indicate the household member that needs immigration status verified."
@@ -2211,6 +2188,7 @@ function verification_dialog()
             End If
 
             If verif_err_msg = "" Then
+				'adding detail to verif information based on information entered into the verifs line
 				If right(verifs_needed, 1) = ";" Then verifs_needed = verifs_needed & " "
 				If right(verifs_needed, 2) <> "; " Then verifs_needed = verifs_needed & "; "
                 If id_verif_checkbox = checked Then
@@ -2351,16 +2329,15 @@ function verification_dialog()
 
             If ButtonPressed = fill_button Then verif_err_msg = "LOOP" & verif_err_msg
         Loop until verif_err_msg = ""
-        ButtonPressed = verif_button
+        ButtonPressed = verif_button			'this takes us back to the verif display on the main dialog
     End If
-
 end function
 
-function write_header_and_detail_in_CASE_NOTE(bullet, variable)
-'--- This function creates an asterisk, a bullet, a colon then a variable to style CASE notes
-'~~~~~ bullet: name of the field to update. Put bullet in "".
+function write_header_and_detail_in_CASE_NOTE(header, variable)
+'--- This function creates an indent for the header and then indents the detail after the header, this is specific to this script
+'~~~~~ header: name of the field to update. Put header in "".
 '~~~~~ variable: variable from script to be written into CASE note
-'===== Keywords: MAXIS, bullet, CASE note
+'===== Keywords: MAXIS, header, CASE note
 	If trim(variable) <> "" then
 		EMGetCursor noting_row, noting_col						'Needs to get the row and col to start. Doesn't need to get it in the array function because that uses EMWriteScreen.
 		noting_col = 3											'The noting col should always be 3 at this point, because it's the beginning. But, this will be dynamically recreated each time.
@@ -2403,18 +2380,18 @@ function write_header_and_detail_in_CASE_NOTE(bullet, variable)
 			End if
 		Loop until character_test = ""
 
-		'Looks at the length of the bullet. This determines the indent for the rest of the info. Going with a maximum indent of 18.
-		' If len(bullet) >= 14 then
-		' 	indent_length = 18	'It's four more than the bullet text to account for the asterisk, the colon, and the spaces.
+		'Looks at the length of the header. This determines the indent for the rest of the info. Going with a maximum indent of 18.
+		' If len(header) >= 14 then
+		' 	indent_length = 18	'It's four more than the header text to account for the asterisk, the colon, and the spaces.
 		' Else
-		' 	indent_length = len(bullet) + 7 'It's four more for the reason explained above.
+		' 	indent_length = len(header) + 7 'It's four more for the reason explained above.
 		' End if
 		indent_length = 9
-		'Writes the bullet
-		EMWriteScreen "     " & bullet & ": ", noting_row, noting_col
+		'Writes the header
+		EMWriteScreen "     " & header & ": ", noting_row, noting_col
 
-		'Determines new noting_col based on length of the bullet length (bullet + 4 to account for asterisk, colon, and spaces).
-		noting_col = noting_col + (len(bullet) + 7)
+		'Determines new noting_col based on length of the header length (header + 4 to account for asterisk, colon, and spaces).
+		noting_col = noting_col + (len(header) + 7)
 
 		'Splits the contents of the variable into an array of words
         variable = trim(variable)
@@ -2423,7 +2400,7 @@ function write_header_and_detail_in_CASE_NOTE(bullet, variable)
 		variable_array = split(variable, " ")
 
 		For each word in variable_array
-			'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the bullet
+			'If the length of the word would go past col 80 (you can't write to col 80), it will kick it to the next line and indent the length of the header
 			If len(word) + noting_col > 80 then
 				noting_row = noting_row + 1
 				noting_col = 3
@@ -2487,9 +2464,8 @@ end function
 
 'END FUNCTIONS BLOCK =======================================================================================================
 
-
-
 'DECLARATIONS ==============================================================================================================
+'constants for the HEALTH_CARE_MEMBERS array
 Const ref_numb_const 				= 0
 Const full_name_const				= 1
 Const first_name_const				= 2
@@ -2563,20 +2539,15 @@ Const MA_basis_of_elig_const 			= 65
 Const MA_basis_notes_const 				= 66
 Const MSP_basis_of_elig_const 			= 67
 Const MSP_basis_notes_const 			= 68
-Const hc_eval_status			= 69
-Const hc_eval_notes			= 70
-' Const _const =
-' Const _const =
-' Const _const =
-' Const _const =
-' Const _const =
+Const hc_eval_status					= 69
+Const hc_eval_notes						= 70
 Const pers_btn_one_const 				= 71
 Const last_const						= 72
 
 Dim HEALTH_CARE_MEMBERS()
 ReDim HEALTH_CARE_MEMBERS(last_const, 0)
 
-
+'Constants for the BILS_ARRAY
 Const bils_ref_numb_const 		= 00
 Const bils_date_const 			= 01
 Const bils_service_code_const 	= 02
@@ -2646,6 +2617,7 @@ msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"No Eligibility"
 msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"No MEDICARE"
 
 page_display = ""
+'These are the ways the pages of the dialog are selected, each is associated with a number
 show_member_page 	= 0
 show_jobs_page 		= 1
 show_busi_page 		= 2
@@ -2658,7 +2630,6 @@ bils_page 			= 8
 imig_page 			= 9
 retro_page			= 10
 verifs_page 		= 11
-
 last_page 			= 15
 
 'BUTTON definitions
@@ -2681,8 +2652,8 @@ Const clear_verifs_btn = 2510
 
 Const completed_hc_eval_btn = 3000
 Const next_btn				= 3010
-'ADD NAV BUTTONS as more than 4000
 
+'We define a lot of things in dialogs, this makes sure they are available outside of the functions as well
 Dim app_sig_status, app_sig_notes, client_delay_check, TIKL_check, MA_BC_end_of_cert_TIKL_check
 Dim ma_bc_authorization_form, ma_bc_authorization_form_date, ma_bc_authorization_form_missing_checkbox
 Dim bils_notes, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox, case_details_notes
@@ -2691,12 +2662,12 @@ Dim retro_income_detail, retro_asset_detail, retro_expense_detail
 Dim retro_income_verifs_months, retro_asset_verifs_months, retro_expense_verifs_months, retro_notes
 
 'THE SCRIPT =====================================================================================================
-EMConnect ""
-Call check_for_MAXIS(False)
-Call get_county_code
-Call MAXIS_case_number_finder(MAXIS_case_number)
+EMConnect ""								'connect to BlueZone
+Call check_for_MAXIS(False)					'Make sure we are in MAXIS
+Call get_county_code						'Checking for the county
+Call MAXIS_case_number_finder(MAXIS_case_number)		'Grabbing the CASE Number
 
-If MAXIS_case_number <> "" Then
+If MAXIS_case_number <> "" Then				'If we know the CASE Number, we can attempt to read the form date
 	Call navigate_to_MAXIS_screen("REPT", "PND2")
 	EMReadScreen pnd2_disp_limit, 13, 6, 35             'functionality to bypass the display limit warning if it appears.
 	If pnd2_disp_limit = "Display Limit" Then transmit
@@ -2766,6 +2737,7 @@ DO
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
+'determing if the application date is before or after 4/1/23
 applied_after_03_23 = True
 cutoff_date = #4/1/2023#
 If DateDiff("d", form_date, cutoff_date) > 0 Then applied_after_03_23 = False
@@ -2779,19 +2751,21 @@ EMReadScreen prog_hc_appl_date, 8, 12, 33
 EMReadScreen prog_hc_intvw_date, 8, 12, 55
 EMReadScreen prog_hc_status, 4, 12, 74
 
+'creating a list of all the HH members for the dialog dropdown
 Call generate_client_list(case_memb_list, "Select or Type Member")
 verification_memb_list = " "+chr(9)+case_memb_list
 
-If prog_hc_appl_date = "__ __ __" Then prog_hc_appl_date = ""
+If prog_hc_appl_date = "__ __ __" Then prog_hc_appl_date = ""			'formatting the date information
 prog_hc_appl_date = replace(prog_hc_appl_date, " ", "/")
 If prog_hc_intvw_date = "__ __ __" Then prog_hc_intvw_date = ""
 prog_hc_intvw_date = replace(prog_hc_intvw_date, " ", "/")
 hc_application_date = prog_hc_appl_date
 
-If prog_hc_status = "PEND" Then health_care_pending = True
+If prog_hc_status = "PEND" Then health_care_pending = True			'determine if we have HC Pending
 If prog_hc_status = "ACTV" Then health_care_active = True
+'TODO - add better handling for REVW
 
-Call navigate_to_MAXIS_screen("STAT", "HCRE")
+Call navigate_to_MAXIS_screen("STAT", "HCRE")						'going to read who is listed on HCRE
 hc_memb = 0
 hc_row = 10
 Do
@@ -2820,7 +2794,6 @@ Do
 		HEALTH_CARE_MEMBERS(member_is_recert_for_hc_const, hc_memb) = False
 		HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = False
 		If hc_appl_mo <> HEALTH_CARE_MEMBERS(hc_cov_mo_const, hc_memb) or hc_appl_yr <> HEALTH_CARE_MEMBERS(hc_cov_yr_const, hc_memb) Then HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True
-		' MsgBox "HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb) - " & HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb)
 		hc_memb = hc_memb + 1
 	End If
 
@@ -2830,10 +2803,10 @@ Do
 		PF20
 		EMReadScreen last_page, 9, 24, 14
 		If last_page = "LAST PAGE" Then Exit Do
-
 	End If
 Loop until hcre_ref_numb = "  "
 
+'Now we go read STAT/MEMB for all of the persons listed on HCRE
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	Call write_value_and_transmit(HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb), 20, 76)
@@ -2885,6 +2858,7 @@ For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	EMReadScreen HEALTH_CARE_MEMBERS(ma_citizen_verif_code_const, hc_memb), 1, 12, 49
 Next
 
+'reading from CASE/CURR to get the case information
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 If unknown_hc_pending = True Then health_care_pending = True
 If ma_status = "PENDING" Then health_care_pending = True
@@ -2923,7 +2897,6 @@ Do
 	Next
 
 	If pers_memb_numb = "  " Then Exit Do
-	' If pers_hc_status = "A" Then list_of_hc_membs = list_of_hc_membs & "~" & pers_memb_numb
 
 	pers_row = pers_row + 3
 	If pers_row = 19 Then
@@ -2934,17 +2907,17 @@ Do
 Loop until last_page_check = "LAST PAGE"
 
 case_has_retro_request = False
-For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)					'setting the defaults for booleans for each member with HC
 	HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = False
 	HEALTH_CARE_MEMBERS(DISA_exists_const, hc_memb) = False
 	HEALTH_CARE_MEMBERS(PREG_exists_const, hc_memb) = False
 	HEALTH_CARE_MEMBERS(PARE_exists_const, hc_memb) = False
 	HEALTH_CARE_MEMBERS(MEDI_exists_const, hc_memb) = False
-	' MsgBox "HEALTH_CARE_MEMBERS(case_pers_hc_status_code_const, hc_memb) - " & HEALTH_CARE_MEMBERS(case_pers_hc_status_code_const, hc_memb) & " - 2" & vbCr & "HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb) - " & HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb) & vbCr & "hc_application_date - " & hc_application_date
+
 	If hc_application_date = HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb) Then HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True
 	If HEALTH_CARE_MEMBERS(case_pers_hc_status_code_const, hc_memb) = "P" Then HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True
 	HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True			'TODO - remove this when I can figure out who is actually requesting vs recertifying
-	' MsgBox "HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) - " & HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb)
+
 	If HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True Then
 		call read_person_based_STAT_info()
 	End If
@@ -2952,9 +2925,9 @@ For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True Then case_has_retro_request = True
 Next
 
+'this is special handling for Presumptive Eligibility for MA-BC - whcih is processed off of these two forms.
 If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Screen Our Circle Form (MA/BC PE Only)" Then
-
-	first_month_pe = form_date
+	first_month_pe = form_date									'determining the months and other dates for MA-BC PE based on the form date
 	next_month_pe = DateAdd("m", 1, form_date)
 	first_mo_mo = right("00" & DatePart("m", first_month_pe), 2)
 	first_mo_yr = right(DatePart("yyyy", first_month_pe), 2)
@@ -2966,6 +2939,7 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 	end_pe_tikl_date = second_mo_mo & "/1/" & second_mo_yr
 	end_pe_tikl_date = DateAdd("d", 0, end_pe_tikl_date)
 
+	'special MA-BC PE Eligibility
 	Do
 		Do
 			err_msg = ""
@@ -3007,8 +2981,10 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 
+	'setting a TIKL if selected
 	If tikl_to_close_PE_checkbox = checked then Call create_TIKL("MA-BC Presumptive Eligibility ending " & second_mo_mo & "/" & second_mo_yr & ". Close case with 10-day notice.", 0, end_pe_tikl_date, False, MA_BC_PE_end_TIKL_note_text)
 
+	'Entering the CASE/NOTE for MA-BC PE information
 	short_form = replace(HC_form_name, "(MA/BC PE Only)", "")
 	Call start_a_blank_case_note
 	CALL write_variable_in_case_note(form_date & " " & short_form & ": Complete")
@@ -3037,19 +3013,10 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 	Call script_end_procedure_with_error_report("MA-BC Presumptive Eligibility CASE/NOTE Created.")
 End If
 
-
-'TODO - in the future add gathering information from REVW panel to detail if REVW is in process
-
-'Handle for what the resident reports on the FORM for the HC
-
-'DIALOG to provide details for each person of potential HC ELIGIBILITY BASIS to have worker indicate the correct BASIS
-
-'IF application date is 4/1/23 or after, have a dialog to indicate the worker should review for potential coverage to indicate if the resident had HC during 03/2023 and is subject to Protected Coverage
-
 'gather information
-Call HH_member_custom_dialog(HH_member_array)
+Call HH_member_custom_dialog(HH_member_array)		'allows workers to check the persons that should be included
 
-List_of_HH_membs_to_include = " "
+List_of_HH_membs_to_include = " "					'now we are going to create a list of all the reference numbers of the members that were checked
 For each HH_memb in HH_member_array
 	List_of_HH_membs_to_include = List_of_HH_membs_to_include & HH_memb & " "
 
@@ -3059,33 +3026,32 @@ For each HH_memb in HH_member_array
 Next
 List_of_HH_membs_to_include = trim(List_of_HH_membs_to_include)
 
-MAXIS_footer_month = CM_plus_1_mo
+MAXIS_footer_month = CM_plus_1_mo					'we are reading CM +1 for information for now.
 MAXIS_footer_year = CM_plus_1_yr
 
-month_count = 0
+month_count = 0										'reading information from STAT using the class in a seperate script
 ReDim preserve STAT_INFORMATION(month_count)
+'this is set up to be able to read multiple months in the future, if we deterimine that multiple months are needed for this script
 
 Set STAT_INFORMATION(month_count) = new stat_detail
 
-STAT_INFORMATION(month_count).footer_month = MAXIS_footer_month
+STAT_INFORMATION(month_count).footer_month = MAXIS_footer_month			'setting the month and identifying that we are going to look for only selected members
 STAT_INFORMATION(month_count).footer_year = MAXIS_footer_year
 STAT_INFORMATION(month_count).LIMIT_MEMBS = TRUE
 STAT_INFORMATION(month_count).included_members = List_of_HH_membs_to_include
 
-Call STAT_INFORMATION(month_count).gather_stat_info
+Call STAT_INFORMATION(month_count).gather_stat_info						'this is where we read
 
-
-
+'Now we read STAT/BILS
 Call navigate_to_MAXIS_screen("STAT", "BILS")
 EMReadScreen existance_check, 1, 2, 73
 bils_exist = True
 If existance_check = "0" Then bils_exist = False
-If bils_exist = True then
-	bils_row = 6
+If bils_exist = True then										'if the panel exists, read the details
+	bils_row = 6												'start at the first row
 	bils_count = 0
 	Do
-
-		bil_ref_numb = ""
+		bil_ref_numb = ""										'blank out the variables that are read using the BILS function
 		bil_date = ""
 		bil_serv_code = ""
 		bil_gross_amt = ""
@@ -3098,12 +3064,10 @@ If bils_exist = True then
 		bil_verif_info = ""
 		bil_expense_type_info = ""
 
-		ReDim Preserve BILS_ARRAY(last_bils_const, bils_count)
-		Call  read_BILS_line(bils_row)
+		ReDim Preserve BILS_ARRAY(last_bils_const, bils_count)		'increment the array of bils
+		Call read_BILS_line(bils_row)								'read the line using the function
 
-		' BILS_ARRAY(last_bils_const, bils_count) =
-
-		BILS_ARRAY(bils_ref_numb_const, bils_count) = bil_ref_numb
+		BILS_ARRAY(bils_ref_numb_const, bils_count) = bil_ref_numb		'setting the defined variables to the array
 		BILS_ARRAY(bils_date_const, bils_count) = bil_date
 		BILS_ARRAY(bils_service_code_const, bils_count) = bil_serv_code
 		BILS_ARRAY(bils_service_info_const, bils_count) = bil_serv_info
@@ -3152,18 +3116,17 @@ If bils_exist = True then
 		BILS_ARRAY(bils_old_priority_const, bils_count) = bil_old_priority
 		BILS_ARRAY(bils_depdnt_ind_const, bils_count) = bil_dependent_indicator
 
-
-
-		bils_count = bils_count + 1
+		bils_count = bils_count + 1			'incrementing
 		bils_row = bils_row + 1
-		EMReadScreen next_bils_ref_numb, 2, bils_row, 26
+		EMReadScreen next_bils_ref_numb, 2, bils_row, 26		'determining when to leave the loop
 	Loop until next_bils_ref_numb = "__"
-
 End If
 
+'now we read AREP and SWKR
 Call access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
 Call access_SWKR_panel(access_type, swkr_name, swkr_addr_street, swkr_addr_city, swkr_addr_state, swkr_addr_zip, swkr_phone_one, swkr_ext_one, notices_to_swkr_yn)
 
+'Reading SPEC/XFER to find if the case is excluded time
 Call navigate_to_MAXIS_screen("SPEC", "XFER")
 Call write_value_and_transmit("X", 5, 16)
 excluded_time_case = False
@@ -3183,6 +3146,7 @@ If curr_ma_cty_fin_resp <> "" AND curr_ma_cty_fin_resp <> curr_servicing_county 
 	county_of_financial_responsibility = curr_ma_cty_fin_resp
 End If
 
+'Pulling the review date from STAT/REVW
 Call navigate_to_MAXIS_screen("STAT", "REVW")
 EMReadScreen revw_mm, 2, 9, 70
 EMReadScreen revw_yy, 2, 9, 76
@@ -3195,9 +3159,13 @@ Else
 	ma_bc_tikl_date = DateAdd("d", -45, revw_date)
 End If
 
-
+'navigating back to STAT/SUMM for the dialog display
 Call navigate_to_MAXIS_screen("STAT", "SUMM")
 
+'here we use what we read using the STAT Class to
+' 1. Set informaiton to verifs needed
+' 2. identify if certain conditions are met
+' 3. create a list of information for verifs to be selected
 imig_exists = False
 income_source_list = "Select or Type Source"
 verifs_needed = ""
@@ -3227,7 +3195,6 @@ Next
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_busi_one_exists(each_memb) = True Then
 		If InStr(income_source_list, "Self Employment") = 0 Then income_source_list = income_source_list+chr(9)+"Self Employment"
-		' MsgBox "STAT_INFORMATION(month_ind).stat_busi_one_hc_b_income_verif_info(each_memb) - " & STAT_INFORMATION(month_ind).stat_busi_one_hc_b_income_verif_info(each_memb)
 		If STAT_INFORMATION(month_ind).stat_busi_one_hc_a_income_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & "Self Employment Income of " & "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 		If STAT_INFORMATION(month_ind).stat_busi_one_hc_b_income_verif_code(each_memb) = "N" Then verifs_needed = verifs_needed & "; " & "Self Employment Income of " & "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
@@ -3309,13 +3276,17 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 		If STAT_INFORMATION(month_ind).stat_rest_three_ownership_verif_code(each_memb) = "NO" Then verifs_needed = verifs_needed & "; Ownership of Property (" & STAT_INFORMATION(month_ind).stat_rest_three_type_info(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_rest_three_property_status_info(each_memb) & ") owned by MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 	End If
 Next
-If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed)-2)
+If left(verifs_needed, 1) = ";" Then verifs_needed = right(verifs_needed, len(verifs_needed)-2)		'formatting the verifs_needed
 
+'This array is to hold notes entered in the dialog BUT because we can't use class parameters to fill information in a dialog, we need to connect them to an array (or a variable)
+'This is a bit of a workaround
+'The array will hold the information
+'The index of the array is defined to the connected class parameter - so the class parameter is a number and identified which array position the information is in
 Dim EDITBOX_ARRAY()
 ReDim EDITBOX_ARRAY(0)
 edit_box_counter = 0
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-	' If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) Then
+	'for each class parameter that exists, the counter is set to the class notes and the array size is increased.
 	If STAT_INFORMATION(month_ind).stat_emma_exists(each_memb) = True Then
 		STAT_INFORMATION(month_ind).stat_emma_notes(each_memb) = edit_box_counter
 		ReDim preserve EDITBOX_ARRAY(edit_box_counter)
@@ -3397,6 +3368,7 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 		edit_box_counter = edit_box_counter + 1
 	End If
 Next
+'these ones always exist and don't need an if statement
 STAT_INFORMATION(month_ind).stat_jobs_general_notes = edit_box_counter
 ReDim preserve EDITBOX_ARRAY(edit_box_counter)
 edit_box_counter = edit_box_counter + 1
@@ -3431,15 +3403,16 @@ STAT_INFORMATION(month_ind).stat_other_general_notes = edit_box_counter
 ReDim preserve EDITBOX_ARRAY(edit_box_counter)
 edit_box_counter = edit_box_counter + 1
 
-
-
+'Now we make some other lists and defaults for the verifs dialog
 employment_source_list = income_source_list
 income_source_list = income_source_list+chr(9)+"Child Support"+chr(9)+"Social Security Income"+chr(9)+"Unemployment Income"+chr(9)+"VA Income"+chr(9)+"Pension"
 income_verif_time = "[Enter Time Frame]"
 bank_verif_time = "[Enter Time Frame]"
 
+'These are booleans to decide if we can move on in the scirpt
 eval_questions_clear = False
 show_err_msg_during_movement = True
+'These are where we start this information
 page_display = show_member_page
 selected_memb = 0
 month_ind = 0
@@ -3447,28 +3420,23 @@ Do
 	Do
 		Do
 			Do
-				' MsgBox page_display
-				' MsgBox update_arep & " - before define dlg"
-				Dialog1 = Empty
-				call define_main_dialog
-				err_msg = ""
+				Dialog1 = Empty					'blank out the dialog
+				call define_main_dialog			'create the dialog image
+				err_msg = ""					'blanking out the error messaging
 
-				prev_page = page_display
+				prev_page = page_display					'setting what was previously happening on the dialog
 				previous_button_pressed = ButtonPressed
-				' MsgBox update_arep & " - before display dlg"
 
-				dialog Dialog1
-				' save_your_work
-				cancel_confirmation
-				Call verification_dialog
-				Call check_for_errors(eval_questions_clear)
-				Call display_errors(err_msg, False, show_err_msg_during_movement)
+				dialog Dialog1					'show the actual dialog
+
+				cancel_confirmation				'this cancels the script if the worker presses 'cancel' or 'ESC'
+				Call verification_dialog		'show the verification dialog if the verifs button is pressed.
+				Call check_for_errors(eval_questions_clear)								'review entered information to see if there are dialog errors
+				Call display_errors(err_msg, False, show_err_msg_during_movement)		'show the error if any exist
 			Loop until err_msg = ""
-
-			call dialog_movement
-
-		Loop until leave_loop = TRUE
-
+			call dialog_movement				'use the buttons to change the main dialog
+		Loop until leave_loop = TRUE			'keep going until the we can leave the loop (the 'complete' button is pressed)
+		'this is where we make sure the worker is done entering informaiton.
 		proceed_confirm = MsgBox("Have you completed the Health Care Evaluation?" & vbCr & vbCr &_
 								 "Once you proceed from this point, there is no opportunity to change information that will be entered in CASE/NOTE." & vbCr & vbCr &_
 								 "Press 'No' now if you have additional notes to make or information to review/enter. This will bring you back to the main dailogs." & vbCr &_
@@ -3476,8 +3444,7 @@ Do
 								 "Press 'Cancel' to end the script run.", vbYesNoCancel+ vbQuestion, "Confirm Health Care Evaluation?")
 		If proceed_confirm = vbCancel then cancel_confirmation
 	Loop Until proceed_confirm = vbYes
-
-	Call check_for_password(are_we_passworded_out)
+	Call check_for_password(are_we_passworded_out)			'make sure we are not passworded out
 Loop until are_we_passworded_out = FALSE
 
 If client_delay_check = checked then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
@@ -3506,6 +3473,7 @@ If client_delay_check = checked then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
 	End if
 End if
 
+'if this application was 4/1/23 or after, we need to ask about STANDARD vs PROTECTED Policy
 If applied_after_03_23 = True Then
 	BeginDialog Dialog1, 0, 0, 476, 285, "Determine Health Care Policy to Apply"
 	DropListBox 160, 195, 275, 45, "Select One..."+chr(9)+"Standard Policy - Changes and Reported information can be acted on"+chr(9)+"Protected Policy - Continuous Coverage applies and not negative action can be taken", policy_to_apply
@@ -3545,6 +3513,7 @@ If applied_after_03_23 = True Then
 		Call check_for_password(are_we_passworded_out)
 	Loop until are_we_passworded_out = False
 
+	'creating a case note for cases that have STANDARD Policy apply
 	If policy_to_apply = "Standard Policy - Changes and Reported information can be acted on" Then
 		end_msg = end_msg & vbCr & vbCr & "STANDARD POLICY Now applies to this case." & vbCr & "A CASE/NOTE has been entered to identify the case uses standard policy."
 		Call start_a_blank_CASE_NOTE
@@ -3567,6 +3536,7 @@ If applied_after_03_23 = True Then
 	End If
 End If
 
+'If there are verifs_needed listed, we are going to create a CASE/NOTE about verifications needed.
 If trim(verifs_needed) <> "" Then
 	end_msg = end_msg & vbCr & vbCr & "Verifications were indicated during the Health Care Evaluation and a CASE/NOTE with verification details has been created."
 
@@ -3580,21 +3550,6 @@ If trim(verifs_needed) <> "" Then
         verifs_array = array(verifs_needed)
     End If
 
-    programs_verifs_apply_to = ""
-    If verif_snap_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", SNAP"
-    If verif_cash_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", CASH"
-    If verif_mfip_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MFIP"
-    If verif_dwp_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", DWP"
-    If verif_msa_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", MSA"
-    If verif_ga_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GA"
-    If verif_grh_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", GRH"
-    If verif_emer_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", EMER"
-    If verif_hc_checkbox = checked then programs_verifs_apply_to = programs_verifs_apply_to & ", HC"
-    If left(programs_verifs_apply_to, 1) = "," Then programs_verifs_apply_to = right(programs_verifs_apply_to, len(programs_verifs_apply_to)-1)
-    programs_verifs_apply_to = trim(programs_verifs_apply_to)
-
-    case_notes_information = case_notes_information & "Verifs NOTE Attempted %^%"
-    case_notes_information = case_notes_information & "Script Header - " & "VERIFICATIONS REQUESTED" & " %^%"
     Call start_a_blank_CASE_NOTE
 
     Call write_variable_in_CASE_NOTE("VERIFICATIONS REQUESTED")
@@ -3610,10 +3565,6 @@ If trim(verifs_needed) <> "" Then
         verif_counter = verif_counter + 1
         Call write_variable_with_indent_in_CASE_NOTE(verif_item)
     Next
-    If programs_verifs_apply_to <> "" Then
-        Call write_variable_in_CASE_NOTE("---")
-        Call write_variable_in_CASE_NOTE("Verifications are needed for " & programs_verifs_apply_to & ".")
-    End If
     If verifs_postponed_checkbox = checked Then
         Call write_variable_in_CASE_NOTE("---")
         Call write_variable_in_CASE_NOTE("There may be verifications that are postponed to allow for the approval of Expedited SNAP.")
@@ -3621,18 +3572,17 @@ If trim(verifs_needed) <> "" Then
     Call write_variable_in_CASE_NOTE("---")
     Call write_variable_in_CASE_NOTE(worker_signature)
 
-    PF3
+    PF3											'save the note
     EMReadScreen top_note_header, 55, 5, 25
-    case_notes_information = case_notes_information & "MX Header - " & top_note_header & " %^% %^%"
 
     Call back_to_SELF
 End If
 
+'enter TIKLs if requested
 If TIKL_check = 1 then Call create_TIKL("HC pending 45 days. Evaluate for possible denial. If any members are elderly/disabled, allow an additional 15 days and set another TIKL reminder.", 45, form_date, False, TIKL_note_text)
-
-' CheckBox 310, y_pos, 245, 10, "Check here to have the script create a TIKL for 45 days (" & ma_bc_tikl_date & ") before REVW in " & revw_mm & "/" & revw_yy &".",
 If MA_BC_end_of_cert_TIKL_check = checked Then Call create_TIKL("MA-BC recertification is scheduled for " & revw_mm & "/" & revw_yy & ", recertification paperwork needs to be sent manually for this case.", 0, ma_bc_tikl_date, False, MA_BC_TIKL_note_text)
 
+'Here we are creating some variables for the CASE/NOTE
 hc_case_determination_status = ""
 For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
@@ -3645,16 +3595,15 @@ For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 		If curr_memb_status = "Complete" AND hc_case_determination_status = "Appears Ineligible" Then hc_case_determination_status = curr_memb_status
 	End If
 Next
-' short_form =
-' If HC_form_name = "" Then short_form = ""
 
+'creating a name that is easier to read
 If HC_form_name = "Health Care Programs Application for Certain Populations (DHS-3876)" Then short_form = "HC Certain Pops App"
 If HC_form_name = "MNsure Application for Health Coverage and Help paying Costs (DHS-6696)" Then short_form = "MNSure HC App"
 If HC_form_name = "Application for Payment of Long-Term Care Services (DHS-3531)" Then short_form = "LTC HC App"
 If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then short_form = "B/C Cancer App"
 If HC_form_name = "Minnesota Family Planning Program Application (DHS-4740)" Then short_form = "MN Family Planning App"
 
-
+'MAIN CASE/NOTE
 start_a_blank_CASE_NOTE
 CALL write_variable_in_case_note(form_date & " " & short_form & ": " & hc_case_determination_status)
 Call write_bullet_and_variable_in_CASE_NOTE("Form Recvd", HC_form_name)
