@@ -91,7 +91,7 @@ Do
       	Text 135, 198, 445, 10, "Template for EA/EGA applications."
         PushButton 10, 210, 115, 13, "Expedtied Determination", expedited_determination_btn
       	Text 135, 213, 445, 10, "Work flow for assessing if a case meets Expedited SNAP Criteria"
-        PushButton 10, 225, 115, 13, "Health Care", health_care_btn
+        PushButton 10, 225, 115, 13, "Health Care Evaluation", health_care_btn
       	Text 135, 228, 445, 10, "Template for Health Care applications and/or renewals."
 		PushButton 10, 240, 115, 13, "HRF", hrf_btn
       	Text 135, 243, 445, 10, "Template for HRFs (for GRH, use the ''GRH - HRF'' script)."
@@ -177,7 +177,7 @@ Do
 		Case expedited_determination_btn
             call run_another_script(desert_island_respository & "expedited-determination.vbs")
         Case health_care_btn
-            call run_another_script(desert_island_respository & "health-care.vbs")
+            call run_another_script(desert_island_respository & "health-care-evaluation.vbs")
         Case hrf_btn
             call run_another_script(desert_island_respository & "hrf.vbs")
 		Case interview_btn
