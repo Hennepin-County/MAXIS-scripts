@@ -50,6 +50,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("04/16/2023", "Removed Health Care Screening functionality due to return to regular HC application rules.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("11/10/2022", "Added new functionality to specifically support the review of cases with Cash, SNAP, GRH, or EMER pending that are at or after Day 30. These cases have reached the end of the Application Processing Period and should be reviewed for determination action, which may include denial. These updates better support the actions required for cases at this point.##~##", "Casey Love, Hennepin County") ''#1042
 CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
@@ -70,7 +71,7 @@ changelog_display
 'Grabs the case number
 EMConnect ""
 CALL MAXIS_case_number_finder (MAXIS_case_number)
-closing_message = "Application check completed, a case note made, and a TIKL has been set." 'setting up closing_message variable for possible additions later based on conditions
+closing_message = "Application check is complete." 'setting up closing_message variable for possible additions later based on conditions
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
@@ -89,8 +90,8 @@ Do
 		err_msg = ""
 	    dialog dialog1
       	cancel_without_confirmation
-      	IF IsNumeric(maxis_case_number) = false or len(maxis_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid case number."
-        IF worker_signature = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+      	Call validate_MAXIS_case_number(display_ben_err_msg, "*")
+        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
 	Loop until err_msg = ""
 	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -134,6 +135,7 @@ Do
     End if
 
 LOOP until row = 19
+
 If found_case = False then
     If basket_at_display_limit = True Then
         Call back_to_SELF
@@ -142,8 +144,6 @@ If found_case = False then
     End If
     script_end_procedure_with_error_report("There is not a pending program on this case, or case is not in PND2 status." & vbNewLine & vbNewLine & "Please make sure you have the right case number, and/or check your case notes to ensure that this application has been completed.")
 End If
-
-HC_pending = False  'setting variable to false. This will be used to determine if HC is penfing or not to support HC screening process.
 
 EMReadScreen app_month, 2, row, 38
 EMReadScreen app_day, 2, row, 41
@@ -179,8 +179,6 @@ EMReadScreen PEND_SNAP_check, 1, row, 62
 EMReadScreen PEND_HC_check, 1, row, 65
 EMReadScreen PEND_EMER_check,	1, row, 68
 EMReadScreen PEND_GRH_check, 1, row, 72
-
-If PEND_HC_check = "P" then HC_pending = True   'This will search case notes to ensure that a HC Application screening has been conducted.
 
 Call determine_program_and_case_status_from_CASE_CURR(case_active, case_pending, case_rein, family_cash_case, mfip_case, dwp_case, adult_cash_case, ga_case, msa_case, grh_case, snap_case, ma_case, msp_case, emer_case, unknown_cash_pending, unknown_hc_pending, ga_status, msa_status, mfip_status, dwp_status, grh_status, snap_status, ma_status, msp_status, msp_type, emer_status, emer_type, case_status, list_active_programs, list_pending_programs)
 msa_pending = False
@@ -253,6 +251,7 @@ IF ive_status_check   = "ACTV" THEN IVE_active   = TRUE
 IF hc_status_check    = "ACTV" THEN hc_active    = TRUE
 IF cca_status_check   = "ACTV" THEN cca_active   = TRUE
 
+'TODO: Remove and use determine_program_and_case_status_from_CASE_CURR functionality
 active_programs = ""        'Creates a variable that lists all the active.
 IF cash_active = TRUE or cash2_active = TRUE THEN active_programs = active_programs & "CASH, "
 IF emer_active = TRUE THEN active_programs = active_programs & "Emergency, "
@@ -428,258 +427,6 @@ END IF
 'Determining if a CAF based program is pending
 IF cash1_status_check <> "PEND" and cash2_status_check <> "PEND" and snap_status_check  <> "PEND" and grh_status_check <> "PEND" and emer_status_check <> "PEND" Then caf_programs_denial = False
 
-'--------------------------------------------------------------------------------------------------------------------------------------Health Care Screening Portion
-IF HC_pending = True then
-    hc_days_pending = datediff("D", hc_app_date, date)
-    'Checking case note to see if a HC screening has been completed to date
-    Call navigate_to_MAXIS_screen("CASE", "NOTE")
-    'starting at the 1st case note, checking the headers for the HC screening
-    case_note_found = False         'defaulting to false if not able to find an expedited care note
-    row = 5
-    Do
-        EMReadScreen first_case_note_date, 8, 5, 6 'static reading of the case note date to determine if no case notes acutually exist.
-        If trim(first_case_note_date) = "" then
-            case_note_found = False
-            exit do
-        Else
-            EMReadScreen case_note_date, 8, row, 6    'incremented row - reading the case note date
-            EMReadScreen case_note_header, 55, row, 25
-            case_note_header = lcase(trim(case_note_header))
-            If trim(case_note_date) = "" then
-                case_note_found = False             'The end of the case notes has been found
-                exit do
-            ElseIf instr(case_note_header, "Health Care Application Screening Completed") then
-                case_note_found = True     'no need for screening.
-                exit do
-            Else
-                row = row + 1
-                IF row = 19 then
-                    PF8                         'moving to next case note page if at the end of the page
-                    row = 5
-                End if
-            END IF
-        END IF
-    LOOP until cdate(case_note_date) < cdate(hc_app_date) 'repeats until the case note date is less than the HC application date
-
-    interview_status = ""   'blanking out variable
-    If case_note_found = False then
-        'Asking the user if they wish to contact the client/arep. If yes, they will go to the screening dialog
-        'If no - the user needs to provide a reason for not screening which then will be added to the Application check case note.
-        Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 226, 65, "Health Care Application Screening Not Found"
-            DropListBox 160, 5, 60, 15, "Select one..."+chr(9)+"Yes"+chr(9)+"No", interview_confirmation
-            EditBox 75, 25, 145, 15, no_call_reason
-            ButtonGroup ButtonPressed
-            OkButton 130, 45, 45, 15
-            CancelButton 175, 45, 45, 15
-            Text 5, 30, 70, 10, "If no, provide reason:"
-            Text 5, 10, 150, 10, "Would you like to call the resident/AREP now?"
-            Text 5, 45, 125, 10, "(Reason will be captured in case note)"
-        EndDialog
-
-        Do
-        	DO
-        		err_msg = ""
-        		Dialog Dialog1
-                cancel_without_confirmation
-        		If interview_confirmation = "Select one..." then err_msg = error_msg & ("Confirm if you will call the resident/AREP.")
-                If interview_confirmation = "No" and trim(no_call_reason) = "" then err_msg = error_msg & ("Provide a reason for not calling the resident/AREP.")
-                If interview_confirmation = "Yes" and trim(no_call_reason) <> "" then err_msg = error_msg & ("Either select Yes and clear the reason field, or select No and provide a reason for not conducting a screening.")
-                If err_msg <> "" then MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-        	LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-        	CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-        Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-        If interview_confirmation = "Yes" then
-            'Gathing information for the next dialog to be auto-filled
-            when_contact_was_made = date & ", " & time 'updates the "when contact was made" variable to show the current date & time
-            'Gathering the phone numbers for dialog from STAT/ADDR
-            Call access_ADDR_panel("READ", notes_on_address, resi_line_one, resi_line_two, resi_street_full, resi_city, resi_state, resi_zip, resi_county, addr_verif, addr_homeless, addr_reservation, addr_living_sit, reservation_name, mail_line_one, mail_line_two, mail_street_full, mail_city, mail_state, mail_zip, addr_eff_date, addr_future_date, phone_number_one, phone_number_two, phone_number_three, type_one, type_two, type_three, text_yn_one, text_yn_two, text_yn_three, addr_email, verif_received, original_information, update_attempted)
-
-            phone_number_list = "Select or Type|"
-            If phone_number_one <> "" Then phone_number_list = phone_number_list & phone_number_one & "|"
-            If phone_number_two <> "" Then phone_number_list = phone_number_list & phone_number_two & "|"
-            If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_number_three & "|"
-            phone_number_array = split(phone_number_list, "|")
-
-            Call convert_array_to_droplist_items(phone_number_array, phone_numbers)
-
-            'HC Application Screening Dialog
-            Do
-            	Do
-                    err_msg = ""
-                    Dialog1 = ""
-                    BeginDialog Dialog1, 0, 0, 341, 325, "Health Care Contact"
-                      DropListBox 10, 65, 65, 15, "Select one..."+chr(9)+"Phone Call"+chr(9)+"Unable to Reach"+chr(9)+"Voicemail", contact_type
-                      DropListBox 80, 65, 45, 10, "to"+chr(9)+"from", contact_direction
-                      ComboBox 130, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+"AREP"+chr(9)+"SWKR"+chr(9)+who_contacted, who_contacted
-                      EditBox 260, 65, 65, 15, METS_IC_number
-                      ComboBox 70, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
-                      EditBox 225, 85, 100, 15, when_contact_was_made
-                      CheckBox 70, 100, 65, 10, "Used Interpreter", used_interpreter_checkbox
-                      EditBox 75, 135, 250, 15, verifs_needed
-                      DropListBox 265, 155, 60, 15, "Select"+chr(9)+"Yes"+chr(9)+"No", barrier_droplist
-                      ButtonGroup ButtonPressed
-                        PushButton 250, 170, 10, 15, "!", help_button
-                      DropListBox 265, 170, 60, 15, "Select"+chr(9)+"Yes"+chr(9)+"No", reasonable_droplist
-                      EditBox 75, 190, 250, 15, attested_verifs
-                      DropListBox 100, 230, 30, 15, "Pick"+chr(9)+"Yes"+chr(9)+"No", verif_confirm
-                      DropListBox 100, 245, 30, 15, "Pick"+chr(9)+"Yes"+chr(9)+"No", request_confirm
-                      DropListBox 100, 260, 30, 15, "Pick"+chr(9)+"Yes"+chr(9)+"No", atr_confirm
-                      DropListBox 195, 230, 30, 15, "Pick"+chr(9)+"Yes"+chr(9)+"No", avs_form_confirm
-                      DropListBox 195, 245, 30, 15, "Pick"+chr(9)+"Yes"+chr(9)+"No", avs_confirm
-                      DropListBox 195, 260, 30, 15, "Pick"+chr(9)+"Yes"+chr(9)+"No", solq_confirm
-                      CheckBox 235, 230, 80, 10, "Sent Work Number", work_number_checkbox
-                      CheckBox 235, 240, 50, 10, "Sent TPQY", TPQY_checkbox
-                      CheckBox 235, 250, 95, 10, "Sent VA benefit request.", VA_request_checkbox
-                      ButtonGroup ButtonPressed
-                        PushButton 230, 265, 90, 10, "Create VA Request Email", VA_button
-                      EditBox 70, 285, 255, 15, other_notes
-                      EditBox 70, 305, 150, 15, worker_signature
-                      ButtonGroup ButtonPressed
-                        OkButton 225, 305, 50, 15
-                        CancelButton 275, 305, 50, 15
-                        PushButton 150, 15, 60, 15, "Application Guide", app_guide_button
-                        PushButton 210, 15, 55, 15, "COVID-19 FAQ", faq_button
-                        PushButton 265, 15, 65, 15, "MAXIS Information", info_button
-                      GroupBox 145, 5, 190, 35, "HC Policy/ Procedural Help"
-                      Text 140, 55, 65, 10, "Who was contacted"
-                      Text 10, 90, 50, 10, "Phone Number:"
-                      Text 10, 15, 105, 10, "HC Application Date: " & hc_app_date
-                      Text 65, 160, 195, 10, "Does the resident have a barrier to providing verifications?"
-                      Text 65, 175, 185, 10, "If yes, is there a reasonable explanation for the barrier?"
-                      Text 220, 70, 40, 10, "METS IC#:"
-                      GroupBox 5, 5, 125, 35, "Health Care Information"
-                      Text 15, 140, 60, 10, "Mandatory Verifs:"
-                      GroupBox 10, 215, 325, 65, "Confirm your case actions below:"
-                      Text 15, 235, 80, 10, "Reviewed Verifs on File:"
-                      GroupBox 5, 45, 330, 70, "Contact Information:"
-                      Text 60, 265, 35, 10, "Sent ATR:"
-                      Text 25, 290, 40, 10, "Other notes:"
-                      Text 30, 250, 65, 10, "Sent Verif Request:"
-                      Text 20, 55, 40, 10, "Contact type"
-                      Text 140, 230, 55, 10, "Sent AVS Form:"
-                      Text 90, 55, 30, 10, "From/To"
-                      Text 140, 245, 55, 10, "Submitted AVS:"
-                      Text 150, 90, 75, 10, "Date/Time of Contact:"
-                      Text 140, 260, 55, 10, "Checked SOLQ:"
-                      Text 5, 310, 60, 10, "Worker signature:"
-                      Text 10, 195, 65, 10, "Self-Attested Verifs:"
-                      GroupBox 5, 120, 330, 90, "If you've connected with the resident/AREP review the following information:"
-                      Text 10, 25, 105, 10, "Days HC is Pending: " & hc_days_pending
-                    EndDialog
-                    Dialog Dialog1
-            		cancel_confirmation
-            		If ButtonPressed = app_guide_button then
-                        CreateObject("WScript.Shell").Run("https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-COVID9") 'COVID 19 Application Guide - OneSource
-                        err_msg = "LOOP" & err_msg
-                    End if
-                    If ButtonPressed = faq_button then
-                        CreateObject("WScript.Shell").Run("https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-COVID12")     'COVID 19 FAQ - OneSource
-                        err_msg = "LOOP" & err_msg
-                    End if
-                    If ButtonPressed = info_button then
-                        CreateObject("WScript.Shell").Run("https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-COVID7")     'MAXIS Information - OneSource
-                        err_msg = "LOOP" & err_msg
-                    End if
-                    If ButtonPressed = VA_button then
-                        VA_email = true
-                        VA_info = "Name of Veteran: " & vbcr & "SSN of Veteran: " & vbcr & "VA File # (if known): " & vbcr & "Name of Spouse/Child receiving VA benefit (if applicable): " & vbcr & "SSN of Spouse/Child receiving VA benefit (if applicable): " & vbcr & "Relationship to Veteran (if applicable): "
-                        'Call create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-                        Call create_outlook_email("Vetservices@Hennepin.us", "", "VA Request for Case #" & MAXIS_case_number, VA_info, "", False)   'will create email, will not send.
-                        err_msg = "LOOP" & err_msg
-                    End if
-                    If ButtonPressed = help_button then
-                        tips_tricks_msg = MsgBox("*** Tips and Tricks ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & "Existing policy allows enrollees or their authorized representative to provide a written statement or verbal conversation that is documented in case notes if they have a reasonable explanation for not being able to provide proofs or a signed release of information form for the worker to obtain the proofs. " & vbcr & vbcr & _
-                        "For example, if a resident's workplace has been closed due to COVID-19 and they are unable to obtain verifications at this time. Reasonable explanations can include but are not limited to:" & vbNewLine & "- An employer not being available." & vbNewLine & "- The person is under quarantine." & vbNewLine & "- The person does not have access to photocopies or a fax machine.", vbInformation, "Tips and Tricks")
-                        err_msg = "LOOP" & err_msg
-                    End if
-
-            	    'Mandatory fields
-                    If contact_type = "Select one..." then err_msg = err_msg & vbcr & "* Enter the contact type."
-                    If trim(who_contacted) = "" or who_contacted = "Select or Type" then err_msg = err_msg & vbcr & "* Enter who was contacted."
-                    If trim(phone_number) = "" or trim(phone_number) = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the phone number called."
-                    If trim(when_contact_was_made) = "" then err_msg = err_msg & vbcr & "* Enter the date and time of contact."
-                    If contact_type = "Phone Call" then
-                        'mandotory fields for completing the health care application screening
-                        If trim(verifs_needed) = "" then err_msg = err_msg & vbcr & "* Enter the mandatory verifications needed for this application."
-                        If barrier_droplist = "Select" then err_msg = err_msg & vbcr &"* Provide an answer re: barrier to providing verifs."
-                        IF reasonable_droplist = "Select" then err_msg = err_msg & vbcr &"* Provide an answer re: reason explanation for barrier"
-                        If (reasonable_droplist = "Yes" and trim(attested_verifs) = "") then err_msg = err_msg & vbcr & "* Enter the self-attested verifications."
-                        IF verif_confirm = "Pick" then err_msg = err_msg & vbcr & "* Did you review the verifs on file?"
-                        IF request_confirm = "Pick" then err_msg = err_msg & vbcr & "* Did you send a verification request?"
-                        IF atr_confirm = "Pick" then err_msg = err_msg & vbcr & "* Did you send an ATR?"
-                        IF avs_form_confirm = "Pick" then err_msg = err_msg & vbcr & "* Did you send AVS forms for applicant?"
-                        IF avs_confirm = "Pick" then err_msg = err_msg & vbcr & "* Did you submit request in the AVS system?"
-                        IF solq_confirm = "Pick" then err_msg = err_msg & vbcr & "* Did you check SOLQ?"
-                    End if
-                    If trim(worker_signature) = "" then err_msg = err_msg & vbcr & "* Sign your case note."
-                    IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
-                LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-                CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-            Loop until are_we_passworded_out = false					'loops until user passwords back in
-
-            'additions to the closing_message if these conditions apply
-            If VA_email = True then closing_message = closing_message & vbcr & "Complete the rest of the VA email, and send to Vet services."
-            If trim(attested_verifs) <> "" then closing_message = closing_message & vbcr & vbcr & "Use the POSTPONED CASE ACTIONS script on the power pad to track attested verifications."
-
-            'THE CASENOTE----------------------------------------------------------------------------------------------------
-            'case note header info
-            If contact_type = "Phone Call" then
-                interview_status = "Completed"
-            Else
-                interview_status = "Attempted"  'for either UNABLE TO REACH or VOICEMAIL options
-            End if
-
-            start_a_blank_CASE_NOTE
-            Call write_variable_in_CASE_NOTE("Health Care Application Screening " & interview_status & " " & date)
-            Call write_variable_in_CASE_NOTE("* " & contact_type & " " & contact_direction & " " & who_contacted & " completed at " & when_contact_was_made)
-            Call write_bullet_and_variable_in_CASE_NOTE("Phone Number", phone_number)
-            CALL write_bullet_and_variable_in_CASE_NOTE("METS/IC number", METS_IC_number)
-            If interview_status = "Completed" then
-                Call write_variable_in_CASE_NOTE("===Screening Inforamtion===")
-                Call write_bullet_and_variable_in_CASE_NOTE("Mandatory Verifs", verifs_needed)
-                Call write_bullet_and_variable_in_CASE_NOTE("Resident has a barrier to providing verifs", barrier_droplist)
-                If barrier_droplist = "Yes" then Call write_bullet_and_variable_in_CASE_NOTE("Resident has resonable explaination for the barrier", reasonable_droplist)
-                CALL write_bullet_and_variable_in_CASE_NOTE("Self-Attested Verifs", attested_verifs)
-            End if
-            'Case actions
-            CALL write_variable_in_CASE_NOTE("---")
-            If verif_confirm <> "Pick" then Call write_bullet_and_variable_in_CASE_NOTE("Reviewed Verifs on File", verif_confirm)
-            If request_confirm <> "Pick" then Call write_bullet_and_variable_in_CASE_NOTE("Sent Verification Request", request_confirm)
-            If atr_confirm <> "Pick" then Call write_bullet_and_variable_in_CASE_NOTE("Sent ATR (Auth to Release Info)", atr_confirm)
-            If avs_form_confirm <> "Pick" then Call write_bullet_and_variable_in_CASE_NOTE("Sent AVS Auth Form", avs_form_confirm)
-            If avs_confirm <> "Pick" then Call write_bullet_and_variable_in_CASE_NOTE("Submitted AVS Request", avs_confirm)
-            If solq_confirm <> "Pick" then Call write_bullet_and_variable_in_CASE_NOTE("Checked SOLQ system", solq_confirm)
-            If work_number_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Sent Work Number request.")
-            If TPQY_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Sent TPQY request.")
-            If VA_request_checkbox = 1 then Call write_variable_in_CASE_NOTE("* Sent VA request via VetServices.")
-            CALL write_bullet_and_variable_in_CASE_NOTE("Other Notes", other_notes)
-            CALL write_variable_in_CASE_NOTE("---")
-            CALL write_variable_in_CASE_NOTE (worker_signature)
-            PF3
-
-            'Updating the PROG panel with the screening date
-            If interview_status = "Completed" then
-                no_call_reason = "" 'ensuring variable in case note is blank
-                Call convert_date_into_MAXIS_footer_month(hc_app_date, MAXIS_footer_month, MAXIS_footer_year)   'converting application month into MAXIS footer month/year
-                Call navigate_to_MAXIS_screen("STAT", "PROG")
-                MAXIS_footer_month_confirmation                 'confirming we got to the correct footer month/year
-                EMReadScreen hc_status_check, 4, 12, 74         'double checking for pending status in the application month, will update if pending
-                If hc_status_check = "PEND" then
-                    PF9
-                    Call create_MAXIS_friendly_date(date, 0, 12, 55)    'adding in today's date to HC screening date field.
-                    Transmit 'to save and exit
-                    PF3     'to wrap screen
-                    PF3     'to exit wrap screen
-                    MAXIS_background_check
-                    Call navigate_to_MAXIS_screen("STAT", "PROG")  'brings user back to STAT/PROG for APPLICATION CHECK DIALOG
-                End if
-            End if
-        End if
-    End if
-End if
-
 'If a CAF Based program is pending and the case is at or past Day 30, the script will pull this special Functionality
 'The standard functionality for Application Checkk will NOT run if this case is at CAF programs denial
 If caf_programs_denial = True Then
@@ -725,7 +472,6 @@ If caf_programs_denial = True Then
         IF note_title = "~ Client has not completed CASH APP interview, NOMI sen" then nomi_date = note_date
         IF note_title = "* A notice was previously sent to client with detail ab" then nomi_date = note_date
 
-
         note_row = note_row + 1
         IF note_row = 19 THEN
             PF8
@@ -735,8 +481,7 @@ If caf_programs_denial = True Then
         IF next_note_date = "        " then Exit Do
     Loop until datevalue(next_note_date) < day_before_app 'looking ahead at the next case note kicking out the dates before app'
 
-    'Now we ask about the application steps.
-    'Forst is the interivew
+    'Now we ask about the application steps. First is the interivew.
     Do
         Do
             err_msg = ""
@@ -1253,7 +998,7 @@ CALL write_variable_in_CASE_NOTE (worker_signature)
 
 script_end_procedure_with_error_report(closing_message)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -1261,25 +1006,26 @@ script_end_procedure_with_error_report(closing_message)
 '--Tab orders reviewed & confirmed----------------------------------------------11/10/2022
 '--Mandatory fields all present & Reviewed--------------------------------------11/10/2022
 '--All variables in dialog match mandatory fields-------------------------------11/10/2022
+'Review dialog names for content and content fit in dialog----------------------04/16/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------                            The program checkboxes are not doing anything BUT we should review that later
+'--All variables are CASE:NOTEing (if required)---------------------------------The program checkboxes are not doing anything BUT will review in rewrite, issue #803
 '--CASE:NOTE Header doesn't look funky------------------------------------------11/10/2022
 '--Leave CASE:NOTE in edit mode if applicable-----------------------------------11/10/2022
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------11/10/2022
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------                            No, but there is a dialog before any movement and passowrd handling there
-'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
-'--PRIV Case handling reviewed -------------------------------------------------N/A
-'--Out-of-County handling reviewed----------------------------------------------N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/16/2023----------------------N/A     
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/16/2023----------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------04/16/2023
+'--Out-of-County handling reviewed----------------------------------------------04/16/2023
 '--script_end_procedures (w/ or w/o error messaging)----------------------------11/10/2022
 '--BULK - review output of statistics and run time/count (if applicable)--------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---11/10/2022
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------11/10/2022
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------                            Complete this later at process review
-'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Manual time study reviewed --------------------------------------------------04/16/2023----------------------N/A: Will review in rewrite, issue #803
+'--Incrementors reviewed (if necessary)-----------------------------------------04/16/2023----------------------N/A: Will review in rewrite, issue #803
 '--Denomination reviewed -------------------------------------------------------11/10/2022
 '--Script name reviewed---------------------------------------------------------11/10/2022
 '--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
@@ -1287,11 +1033,12 @@ script_end_procedure_with_error_report(closing_message)
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------11/10/2022
 '--comment Code-----------------------------------------------------------------11/10/2022
-'--Update Changelog for release/update------------------------------------------11/10/2022
+'--Update Changelog for release/update------------------------------------------04/16/2023
 '--Remove testing message boxes-------------------------------------------------11/10/2022
 '--Remove testing code/unnecessary code-----------------------------------------11/10/2022
-'--Review/update SharePoint instructions----------------------------------------11/10/2022
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------N/A
-'--Complete misc. documentation (if applicable)---------------------------------N/A
-'--Update project team/issue contact (if applicable)----------------------------N/A
+'--Review/update SharePoint instructions----------------------------------------04/16/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/16/2023----------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/16/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------04/16/2023----------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------04/16/2023
+'--Update project team/issue contact (if applicable)----------------------------04/16/2023
