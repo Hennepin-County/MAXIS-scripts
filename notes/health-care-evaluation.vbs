@@ -1,5 +1,5 @@
 'Required for statistical purposes==========================================================================================
-name_of_script = "NOTES - Health Care Evaluation.vbs"
+name_of_script = "NOTES - HEALTH CARE EVALUATION.vbs"
 start_time = timer
 STATS_counter = 1               'sets the stats counter at one
 STATS_manualtime = 720          'manual run time in seconds
@@ -2032,6 +2032,7 @@ function dialog_movement()
 	'here we add some verif information if needed
 	If right(verifs_needed, 1) = ";" Then verifs_needed = verifs_needed & " "
 	If right(verifs_needed, 2) <> "; " Then verifs_needed = verifs_needed & "; "
+	If verifs_needed = "; " Then verifs_needed = ""
 
 	If ma_bc_authorization_form_missing_checkbox = checked and trim(ma_bc_authorization_form) <> "" Then
 		If Instr(verifs_needed, "MA-BC treatment/screening form needed to process MA-BC eligibility.") = 0 Then
@@ -3446,6 +3447,7 @@ Do
 	Loop Until proceed_confirm = vbYes
 	Call check_for_password(are_we_passworded_out)			'make sure we are not passworded out
 Loop until are_we_passworded_out = FALSE
+Call check_for_MAXIS(False)					'Make sure we are in MAXIS
 
 If client_delay_check = checked then 'UPDATES PND2 FOR CLIENT DELAY IF CHECKED
 	call navigate_to_MAXIS_screen("REPT", "PND2")
@@ -3475,6 +3477,7 @@ End if
 
 'if this application was 4/1/23 or after, we need to ask about STANDARD vs PROTECTED Policy
 If applied_after_03_23 = True Then
+	Dialog1 = ""
 	BeginDialog Dialog1, 0, 0, 476, 285, "Determine Health Care Policy to Apply"
 	DropListBox 160, 195, 275, 45, "Select One..."+chr(9)+"Standard Policy - Changes and Reported information can be acted on"+chr(9)+"Protected Policy - Continuous Coverage applies and not negative action can be taken", policy_to_apply
 	DropListBox 160, 215, 275, 35, "Select One..."+chr(9)+"Applied on or after 4/1/2023 and no Non-Retro coverage existed in 03/2023.", policy_selection_reason
@@ -4435,3 +4438,48 @@ Call write_variable_in_case_note(worker_signature)
 
 end_msg = "Health Care Evaluation has been completed and entered in CASE/NOTE." & end_msg
 Call script_end_procedure_with_error_report(end_msg)
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/17/2023					The HH_Custom_Dialog can still cause a problem here
+'--Tab orders reviewed & confirmed----------------------------------------------04/17/2023
+'--Mandatory fields all present & Reviewed--------------------------------------04/17/2023
+'--All variables in dialog match mandatory fields-------------------------------04/17/2023
+'Review dialog names for content and content fit in dialog----------------------04/17/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/17/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/17/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/17/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------04/17/2023
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/17/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------04/17/2023
+'--Out-of-County handling reviewed----------------------------------------------04/17/2023
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/17/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------04/17/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------04/17/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------04/17/2023
+'--Denomination reviewed -------------------------------------------------------04/17/2023
+'--Script name reviewed---------------------------------------------------------04/17/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------04/17/2023
+'--comment Code-----------------------------------------------------------------04/17/2023
+'--Update Changelog for release/update------------------------------------------04/17/2023
+'--Remove testing message boxes-------------------------------------------------04/17/2023
+'--Remove testing code/unnecessary code-----------------------------------------04/17/2023
+'--Review/update SharePoint instructions----------------------------------------04/17/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/18/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------04/18/2023
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
