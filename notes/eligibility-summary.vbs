@@ -6287,7 +6287,21 @@ function grh_elig_case_note()
 					grh_cost_info = right(grh_cost_info, len_needed_of_grh_info)
 					Call write_variable_in_CASE_NOTE(month_and_name & grh_cost_info)
 					' Call write_variable_in_CASE_NOTE(GRH_ELIG_APPROVALS(approval).elig_footer_month & "/" & GRH_ELIG_APPROVALS(approval).elig_footer_year & " - " & left(GRH_ELIG_APPROVALS(elig_ind).grh_vendor_one_name & spaces_23, 23) & ". . . . . . . GRH (State) AMT   : + $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_grh_state_amount_one, 8))
-					stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one & " Days                 ", 45)
+					whole_month = False
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "02" and (GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "28" or GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "29")Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "04" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "06" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "09" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "11" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "01" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "03" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "05" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "07" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "08" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "10" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "12" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one = "31" Then whole_month = true
+					If whole_month = true Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one & " Days (whole month)     ", 45)
+					If whole_month = False Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_one & " Days                 ", 45)
 					If GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_one <> "" Then
 						Call write_variable_in_CASE_NOTE(stay_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_one, 8))
 						stay_info = "                                             "
@@ -6308,7 +6322,21 @@ function grh_elig_case_note()
 					len_needed_of_grh_info = 77 - len(month_and_name)
 					grh_cost_info = right(grh_cost_info, len_needed_of_grh_info)
 					Call write_variable_in_CASE_NOTE(month_and_name & grh_cost_info)
-					stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two & " Days                 ", 45)
+					whole_month = False
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "02" and (GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "28" or GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "29")Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "04" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "06" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "09" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "11" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "30" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "01" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "03" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "05" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "07" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "08" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "10" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If GRH_ELIG_APPROVALS(approval).elig_footer_month = "12" and GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two = "31" Then whole_month = true
+					If whole_month = true Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two & " Days (whole month)     ", 45)
+					If whole_month = False Then stay_info = left("         Stay length: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_budg_total_days_one_two & " Days                 ", 45)
 					If GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_two <> "" Then
 						Call write_variable_in_CASE_NOTE(stay_info & "County Liability  : + $ " & right("        "&GRH_ELIG_APPROVALS(elig_ind).grh_elig_payment_county_liability_two, 8))
 						stay_info = "                                             "
