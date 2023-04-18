@@ -42,6 +42,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("12/21/2022", "Additional Program Support Added: ELIG/DWP - for DWP Approvals.##~####~##The script can now support determinations made in: ##~##ELIG/DWP ##~##ELIG/HC ##~##ELIG/SNAP ##~##ELIG/MFIP ##~##ELIG/GA ##~##ELIG/MSA ##~##ELIG/GRH ##~##ELIG/EMER ##~##ELIG/DENY ##~##REPT/PND2 Denials.##~## ##~##All programs are now supported by Eligibility Summary. Please continue to provide feedback and report any concerns.", "Casey Love, Hennepin County")
 call changelog_update("03/09/2023", "BUG FIX for GRH in adding a WCOM if GRH is closed using PACT. The WCOm was not being added when it should have been and it is now functioning.", "Casey Love, Hennepin County")
 call changelog_update("12/21/2022", "Additional Program Support Added: ELIG/HC - for Health Care Approvals - MA and MSP based programs.##~####~##The script can now support determinations made in: ##~##ELIG/HC ##~##ELIG/SNAP ##~##ELIG/MFIP ##~##ELIG/GA ##~##ELIG/MSA ##~##ELIG/GRH ##~##ELIG/EMER ##~##ELIG/DENY ##~##REPT/PND2 Denials.##~## ##~##We are still working on ELIG/DWP.", "Casey Love, Hennepin County")
 call changelog_update("10/04/2022", "The script will now provide instruction on interacting with the dialog if there is more than one approval package. This is an informative message only.##~##", "Casey Love, Hennepin County")
@@ -376,7 +377,12 @@ function define_dwp_elig_dialog()
 		Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
-		If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
+			GroupBox 5, 10, 450, 45, "DWP Closed "
+			Text 15, 25, 150, 10, "DWP has reached the 4 Month Time Limit."
+			Text 15, 35, 200, 10, "As of " & DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " there are no more months of DWP available."
+
+		ElseIf DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 
 			GroupBox 5, 10, 425, 140, "Budget Detail"
 			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then
@@ -411,10 +417,6 @@ function define_dwp_elig_dialog()
 		    Text 330, 120, 85, 10, "  Shelter Benefit: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_shelter_benefit_portion
 		    Text 330, 130, 85, 10, "Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_personal_needs_portion
 
-		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True Then
-			GroupBox 5, 10, 450, 45, "DWP Closed "
-			Text 15, 25, 150, 10, "DWP has reached the 4 Month Time Limit."
-			Text 15, 35, 200, 10, "As of " & DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " there are no more months of DWP available."
 		Else
 			GroupBox 5, 10, 450, 90, "Approval Detail"
 			Text 15, 20, 80, 10, " Result:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result
@@ -521,7 +523,7 @@ function define_dwp_elig_dialog()
 		PushButton 465, 125, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
 
 
-		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False Then
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" Then
 			y_pos = 220
 			GroupBox 5, y_pos, 540, income_box_len, "Income"	'205'
 			y_pos = y_pos + 10
@@ -4251,7 +4253,7 @@ function dwp_elig_case_note()
 
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then Call write_variable_in_CASE_NOTE("DWP INELIGIBLE because initial income exceeds Family Wage Level of " & trim(DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level))
 
-		Call write_variable_in_CASE_NOTE("DWP Assistance Unit: Caregivers: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_caregivers & ", Children: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_children)
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income <> "FAILED" Then Call write_variable_in_CASE_NOTE("DWP Assistance Unit: Caregivers: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_caregivers & ", Children: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_asst_unit_children)
 
 		Call write_variable_in_CASE_NOTE("------- Income and Expenses --------|------- DWP BENEFIT CALCULATION --------")
 		Call write_variable_in_CASE_NOTE("Housing and Utility Expenses:       |        Total Shelter Costs: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs, 8))
@@ -4560,23 +4562,26 @@ function dwp_elig_case_note()
 		End If
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion <> "0.00" Then
 			Call write_variable_in_CASE_NOTE("Child Support Exclusion:            | (-)Child Support Exclusion: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion, 8))
-			Call write_variable_in_CASE_NOTE(left("  Child Support Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_cses_income & spaces_30, 6) & "|")
-			Call write_variable_in_CASE_NOTE(left("           Child Count:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_child_count & spaces_30, 6) & "|")
+			Call write_variable_in_CASE_NOTE(left("  Child Support Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_cses_income & spaces_30, 36) & "|")
+			Call write_variable_in_CASE_NOTE(left("           Child Count:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_child_count & spaces_30, 36) & "|")
 		End if
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion = "0.00" Then Call write_variable_in_CASE_NOTE("NO Child Support Exclusion          | (-)Child Support Exclusion: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion, 8))
 		Call write_variable_in_CASE_NOTE("                                    | (=)     Budget Month Total: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total, 8))
 		Call write_variable_in_CASE_NOTE("                                    |                  Prior Low: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low, 8))
 		Call write_variable_in_CASE_NOTE("                                    | (=)   DWP Countable Income: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income, 8))
-
 		Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
-		Call write_variable_in_CASE_NOTE("                                    | (=)             Unmet Need: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need, 8))
-		Call write_variable_in_CASE_NOTE("                                    |              DWP Max Grant: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant, 8))
-		Call write_variable_in_CASE_NOTE("                                    | (=)              DWP Grant: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant, 8))
+		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then
+			Call write_variable_in_CASE_NOTE("DWP Countable Income Exceeds FWL    | *  *  *  Family Wage Level: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level, 8))
+		Else
+			Call write_variable_in_CASE_NOTE("                                    | (=)             Unmet Need: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need, 8))
+			Call write_variable_in_CASE_NOTE("                                    |              DWP Max Grant: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant, 8))
+			Call write_variable_in_CASE_NOTE("                                    | (=)              DWP Grant: $ " & right("        "&DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant, 8))
+		End If
 		Call write_variable_in_CASE_NOTE("                                    |----------------------------------------")
 	End If
 
 
-	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True Then
+	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
 		Call write_variable_in_CASE_NOTE("* DWP has reached the 4 Month Time Limit.")
 		Call write_variable_in_CASE_NOTE("* DWP Eligibliity has ended as of " & first_month & ".")
 	ElseIf DWP_UNIQUE_APPROVALS(include_budget_in_note_const, unique_app) = False Then
@@ -4712,7 +4717,7 @@ function dwp_elig_case_note()
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_new_spouse_income = "FAILED" Then Call write_variable_in_CASE_NOTE(" - Case exceeded New Spouse Income Limit. (275% FPG NSI)")
 	End If
 
-	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False Then
+	If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" Then
 		Call write_variable_in_CASE_NOTE("================================= CASE STATUS ===============================")
 		Call write_variable_in_CASE_NOTE("DWP Status:           " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_current_prog_status)
 		Call write_variable_in_CASE_NOTE("Budget Cycle:         PROSP")
@@ -4723,7 +4728,6 @@ function dwp_elig_case_note()
 	End If
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
-	MsgBox "WAIT HERE"
 
 end function
 
@@ -24363,7 +24367,7 @@ If first_HC_approval <> "" Then enter_CNOTE_for_HC = True
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_GRH = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DENY = False
 ' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_HC = False
-If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DWP = False
+' If user_ID_for_validation <> "CALO001" Then enter_CNOTE_for_DWP = False
 
 If enter_CNOTE_for_DWP = True Then testing_run = True
 ' If enter_CNOTE_for_DENY = True Then testing_run = True
@@ -26758,6 +26762,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 	If left(list_of_ref_numbers_approved, 1) = "~" Then list_of_ref_numbers_approved = right(list_of_ref_numbers_approved, len(list_of_ref_numbers_approved)-1)
 	apprvd_ref_numbs_array = split(list_of_ref_numbers_approved, "~")
 	unique_app_count = 0
+	If trim(list_of_ref_numbers_approved) = "" Then enter_CNOTE_for_HC = False
+End If
+' MsgBox "list_of_ref_numbers_approved - " & list_of_ref_numbers_approved & vbCr & "enter_CNOTE_for_HC - " & enter_CNOTE_for_HC
+If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 
 	for each every_hc_member in apprvd_ref_numbs_array
@@ -26922,6 +26930,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 				If STAT_INFORMATION(each_month).footer_month & "/" & STAT_INFORMATION(each_month).footer_year = first_month Then month_ind = each_month
 			Next
 
+			' MsgBox "elig_ind - " & elig_ind
 			' MsgBox "approval_selected - " & approval_selected & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_elig_ref_numbs(memb_ind) & vbCr & "HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) - " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind)
 
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then HC_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True
@@ -27659,6 +27668,8 @@ If enter_CNOTE_for_DWP = True Then
 
 		program_detail = "- DWP"
 		header_end = ""
+		If len(DWP_UNIQUE_APPROVALS(months_in_approval, unique_app)) = 5 Then one_month_is_elig = True
+
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "ELIGIBLE" Then
 			If last_month = curr_month_plus_one or first_month = curr_month_plus_one Then
 				header_end = " - Ongoing"
@@ -27668,8 +27679,7 @@ If enter_CNOTE_for_DWP = True Then
 				header_end = " only"
 			End If
 			elig_info = "ELIGIBLE"
-			one_month_is_elig = True
-		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True Then
+		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
 			DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE"
 			elig_info = "TIME LIMIT REACHED - Closed"
 		ElseIf DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "SUSPENDED" Then
