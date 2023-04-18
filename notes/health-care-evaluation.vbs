@@ -58,9 +58,22 @@ changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
 'We need to load the information to read STAT from a class that is defined in its own script file
-testing_script_repository = script_repository				'TODO - remove when we merge into master - this is testing specific.
-If Instr(testing_script_repository, "master") <> 0 Then testing_script_repository = "https://raw.githubusercontent.com/Hennepin-County/MAXIS-scripts/1218-hc-apps-rewrite/"
-Call run_from_GitHub(testing_script_repository & "misc/class-stat-detail.vbs")
+class_script_URL = script_repository & "misc/class-stat-detail.vbs"
+If script_repository = "" Then
+	run_locally = True
+	class_script_URL = "C:\MAXIS-scripts\misc\class-stat-detail.vbs"
+End If
+IF on_the_desert_island = TRUE Then
+	class_script_URL = "\\hcgg.fr.co.hennepin.mn.us\lobroot\hsph\team\Eligibility Support\Scripts\Script Files\desert-island\class-stat-detail.vbs"
+	Set run_another_script_fso = CreateObject("Scripting.FileSystemObject")
+	Set fso_command = run_another_script_fso.OpenTextFile(class_script_URL)
+	text_from_the_other_script = fso_command.ReadAll
+	fso_command.Close
+	Execute text_from_the_other_script
+Else
+	Call run_from_GitHub(class_script_URL)
+End If
+
 
 'FUNCTIONS BLOCK ===========================================================================================================
 Function HCRE_panel_bypass()
