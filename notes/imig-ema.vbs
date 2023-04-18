@@ -38,8 +38,14 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'The HC script is testing a new process. - GH 1218
-Call select_testing_file("ALL", "", "notes/health-care-evaluation.vbs", "1218-hc-apps-rewrite", True, False)
+'soft retire of NOTES - IMIG - EMA
+redirect_verbiage = "This script (NOTES - IMIG - EMA) will be retired on 4/25/23 and will be replaced by NOTES - Health Care Evaluation."
+redirect_verbiage = redirect_verbiage & vbCr & vbCr & "It is strongly recommended to try this new script at a time that is more open in this week of transition."
+redirect_verbiage = redirect_verbiage & vbCr & vbCr & "You can check out the Hot Topic and video demo about using this new script."
+redirect_verbiage = redirect_verbiage & vbCr & "----------------------------------------------"
+redirect_verbiage = redirect_verbiage & vbCr & "Would you like to run NOTES - Health Care Evaluation now?"
+redirect_to_hc_eval = MsgBox(redirect_verbiage, vbQuestion + vbYesNo, "Run new NOTES - Health Care Evaluation Script?")
+If redirect_to_hc_eval = vbYes Then Call run_from_GitHub(script_repository & "notes/health-care-evaluation.vbs")
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
