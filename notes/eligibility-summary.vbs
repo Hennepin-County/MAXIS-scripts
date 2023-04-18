@@ -134,6 +134,60 @@ end function
 ' 	End If
 ' end function
 
+function detail_action_that_led_to_approval(current_prog, process_completed, changes_string)
+	process_completed = ""
+	changes_string = ""
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 351, 235, "What triggered the need for an Approval"
+	DropListBox 115, 85, 230, 45, "Select One..."+chr(9)+"Application (new program request)"+chr(9)+"Renewal or Review"+chr(9)+"Monthly Report"+chr(9)+"Change Reported"+chr(9)+"Policy Change"+chr(9)+"Appeal"+chr(9)+"Correction", process_being_completed
+	CheckBox 20, 150, 50, 10, "Income", income_change_checkbox
+	CheckBox 20, 160, 50, 10, "Assets", assets_change_checkbox
+	CheckBox 20, 170, 50, 10, "Expenses", expense_change_checkbox
+	CheckBox 20, 180, 50, 10, "Housing", housing_change_checkbox
+	CheckBox 95, 150, 50, 10, "Address", address_change_checkbox
+	CheckBox 95, 160, 70, 10, "HH Composition", hh_comp_change_checkbox
+	CheckBox 95, 170, 50, 10, "Relationship", relationship_change_checkbox
+	CheckBox 95, 180, 90, 10, "Required Participation", participation_change_checkbox
+	CheckBox 200, 150, 85, 10, "Time Limit Reached", time_limit_change_checkbox
+	CheckBox 200, 160, 65, 10, "Policy Change", policy_change_checkbox
+	CheckBox 200, 170, 85, 10, "Correction or Review", correction_change_checkbox
+	CheckBox 200, 180, 50, 10, "Appeal", appeal_change_checkbox
+	ButtonGroup ButtonPressed
+		PushButton 230, 215, 115, 15, "Return to Approval Detail", return_btn
+	Text 10, 10, 180, 10, "You have completed an approval for " & current_prog & " today."
+	Text 10, 25, 335, 30, "Details of the information used to make an eligibility determination should be entered in a seperate CASE/NOTE with full detail and explanation. NOTES - Eligibility Summary is only intended to document the details of the approval, not why the approval was necessary."
+	Text 10, 60, 210, 20, "To create cohesiveness with previous CASE/NOTEs, you can indicate why you are processing the approval today."
+	Text 10, 90, 105, 10, "Reason Approval was needed:"
+	GroupBox 10, 110, 335, 85, "Information Changed"
+	Text 20, 125, 245, 10, "A previous detailed CASE/NOTE exists explaining the following changes:"
+	Text 20, 135, 105, 10, "(Check all changes that apply)"
+	Text 15, 200, 320, 10, "REMINDER - The information from these details are insufficient to document changes in a case."
+	EndDialog
+
+	dialog Dialog1
+
+	If process_being_completed <> "Select One..." Then process_completed = "Process Completed: " & process_being_completed
+	changes_string = "Information updated in processing: "
+
+	If income_change_checkbox = checked Then changes_string = changes_string & "Income, "
+	If assets_change_checkbox = checked Then changes_string = changes_string & "Assets, "
+	If expense_change_checkbox = checked Then changes_string = changes_string & "Expenses, "
+	If housing_change_checkbox = checked Then changes_string = changes_string & "Housing Information, "
+	If address_change_checkbox = checked Then changes_string = changes_string & "Address, "
+	If hh_comp_change_checkbox = checked Then changes_string = changes_string & "Household Composition, "
+	If relationship_change_checkbox = checked Then changes_string = changes_string & "Relationship, "
+	If participation_change_checkbox = checked Then changes_string = changes_string & "Participation in a Required Program, "
+	If time_limit_change_checkbox = checked Then changes_string = changes_string & "Time Limit Reached, "
+	If policy_change_checkbox = checked Then changes_string = changes_string & "Policy has Changed, "
+	If correction_change_checkbox = checked Then changes_string = changes_string & "Correcting the Case, "
+	If appeal_change_checkbox = checked Then changes_string = changes_string & "Appeal"
+
+	If changes_string = "Information updated in processing: " Then changes_string = ""
+	changes_string = trim(changes_string)
+	If right(changes_string, 1) = "," Then changes_string = left(changes_string, len(changes_string)-1)
+end function
+
 function determine_mfip_counted_amount(gross_amount, counted_amount)
 	counted_amount = gross_amount
 	If counted_amount = "" Then counted_amount = 0
@@ -374,8 +428,11 @@ function define_dwp_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "DWP Approval Packages"
 	  ButtonGroup ButtonPressed
 		GroupBox 460, 10, 85, 140, "DWP Approvals"
-		Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		If DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & DWP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
+		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = True or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit = "FAILED" Then
 			GroupBox 5, 10, 450, 45, "DWP Closed "
@@ -520,8 +577,8 @@ function define_dwp_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 125, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
-
+		PushButton 465, 110, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 130, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" Then
 			y_pos = 220
@@ -661,8 +718,11 @@ function define_mfip_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "MFIP Approval Packages"
 	  ButtonGroup ButtonPressed
 		GroupBox 460, 10, 85, 165, "MFIP Approvals"
-		Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-		DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+		If MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
+		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MFIP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		If MFIP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 
@@ -772,7 +832,8 @@ function define_mfip_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		y_pos = 135
 		If MFIP_ELIG_APPROVALS(elig_ind).mfip_counted_memb_allocation_exists = True or MFIP_ELIG_APPROVALS(elig_ind).mfip_deemer_allocation_exists = True Then
@@ -944,8 +1005,11 @@ end function
 function define_msa_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "MSA Approval Packages"
 	  GroupBox 460, 10, 85, 165, "MSA Approvals"
-	  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-	  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+	  If MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+		Text 10, 350, 550, 10, "NOTES: " & MSA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+	  End If
+	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", MSA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If MSA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 	  	' MsgBox MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_budg_type
@@ -1088,8 +1152,8 @@ function define_msa_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
-
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		If MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_eligibility_result = "ELIGIBLE" Then
 			' GroupBox 5, 95, 285, 35, "Basis of ELIGIBILITY"
@@ -1257,8 +1321,11 @@ end function
 function define_ga_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "GA Approval Packages"
 	  GroupBox 460, 10, 85, 165, "GA Approvals"
-	  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-	  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+	  If GA_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or GA_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+		  Text 10, 350, 550, 10, "NOTES: " & GA_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GA_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+	  End If
+	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", GA_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If GA_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 	  	  If GA_ELIG_APPROVALS(elig_ind).ga_elig_faci_file_unit_type_code = " " Then 				'If this is _, it means the budget is INDVIDUAL based'
@@ -1374,7 +1441,8 @@ function define_ga_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		If GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligibility_result = "ELIGIBLE" Then
 			GroupBox 5, 95, 285, 35, "Basis of ELIGIBILITY"
@@ -1538,7 +1606,11 @@ end function
 function define_deny_elig_dialog()
 	BeginDialog Dialog1, 0, 0, 555, 385, "CASH Denial Approval Packages"
 	  ButtonGroup ButtonPressed
-		y_pos = 25
+		If DENY_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or DENY_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & DENY_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & DENY_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
+
+	    y_pos = 25
 
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = False Then dwp_grp_len = 25
 		If CASH_DENIAL_APPROVALS(elig_ind).deny_cash_dwp_details_exists = True Then
@@ -2090,8 +2162,8 @@ function define_deny_elig_dialog()
 		DropListBox 215, 5, 50, 15, "Family"+chr(9)+"Adult", TEMP_VAR_cash_family_or_adult
 		PushButton 275, 10, 50, 10, "Reload", reload_btn
 		PushButton 400, 10, 50, 10, "View ELIG", nav_stat_elig_btn
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
-
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		' y_pos = y_pos + 5
 		GroupBox 5, y_pos, 540, income_box_len, "Income"
@@ -2229,6 +2301,9 @@ function define_grh_elig_dialog()
 	  ButtonGroup ButtonPressed
 
 		GroupBox 460, 10, 85, 105, "HS/GRH Approvals"
+		If GRH_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & GRH_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", GRH_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -2602,8 +2677,8 @@ function define_grh_elig_dialog()
 			End If
 			apprvs_y_pos = apprvs_y_pos + 15
 		next
-		PushButton 465, 95, 75, 15, "About Approval Pkgs", unique_approval_explain_btn
-
+		PushButton 465, 80, 75, 15, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 100, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		' y_pos = Income_detail_start
 
@@ -2762,6 +2837,9 @@ function define_hc_elig_dialog()
 	  ButtonGroup ButtonPressed
 
 		GroupBox 455, 10, 95, 105, "HC Approvals"
+		If HC_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or HC_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+			Text 10, 350, 550, 10, "NOTES: " & HC_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & HC_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+		End If
 		Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
@@ -3382,8 +3460,8 @@ function define_hc_elig_dialog()
 			End If
 			apprvs_y_pos = apprvs_y_pos + 15
 		next
-		PushButton 460, 95, 85, 15, "About Approval Pkgs", unique_approval_explain_btn
-
+		PushButton 460, 80, 85, 15, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 460, 95, 85, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 		' y_pos = Income_detail_start
 		' y_pos = 175
@@ -3773,9 +3851,11 @@ function define_snap_elig_dialog()
 
 	BeginDialog Dialog1, 0, 0, 555, 385, "SNAP Approval Packages"
 	  GroupBox 460, 10, 85, 165, "SNAP Approvals"
-
-	  Text 10, 355, 175, 10, "Confirm you have reviewed the budget for accuracy:"
-	  DropListBox 185, 350, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
+	  If SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) <> "" or SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected) <> "" Then
+		  Text 10, 350, 550, 10, "NOTES: " & SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected) & " - " & SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected)
+	  End If
+	  Text 10, 370, 175, 10, "Confirm you have reviewed the budget for accuracy:"
+	  DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - budget is Accurate"+chr(9)+"No - I need to complete a new Approval", SNAP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 	  If SNAP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 	  	GroupBox 5, 10, 285, 105, "Approval Detail"
@@ -3890,7 +3970,8 @@ function define_snap_elig_dialog()
 			End If
 			y_pos = y_pos + 15
 		next
-		PushButton 465, 150, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 135, 75, 20, "About Approval Pkgs", unique_approval_explain_btn
+		PushButton 465, 155, 75, 15,  "Reason for APP", explain_why_we_are_processing_btn
 
 	  If SNAP_ELIG_APPROVALS(elig_ind).snap_elig_result = "ELIGIBLE" Then
 		  GroupBox 5, 120, 285, 35, "SNAP Benefits Issued to Resident in the Approval Package"
@@ -4726,6 +4807,8 @@ function dwp_elig_case_note()
 			Call write_variable_in_CASE_NOTE("Crgvers have ES Plan: " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_caregivers_have_es_plan)
 		End If
 	End If
+	If DWP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DWP_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If DWP_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DWP_UNIQUE_APPROVALS(changes_for_note, unique_app))
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -5156,6 +5239,8 @@ function mfip_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_hrf_reporting)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & MFIP_ELIG_APPROVALS(elig_ind).mfip_case_review_date)
 	End If
+	If MFIP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MFIP_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If MFIP_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MFIP_UNIQUE_APPROVALS(changes_for_note, unique_app))
 
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -5630,6 +5715,8 @@ function msa_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_reporting_status)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & MSA_ELIG_APPROVALS(elig_ind).msa_elig_summ_recertification_date)
 	End If
+	If MSA_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MSA_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If MSA_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(MSA_UNIQUE_APPROVALS(changes_for_note, unique_app))
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -6169,6 +6256,9 @@ function ga_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_hrf_reporting)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & GA_ELIG_APPROVALS(elig_ind).ga_elig_summ_eligiblity_review_date)
 	End If
+	If GA_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(GA_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If GA_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(GA_UNIQUE_APPROVALS(changes_for_note, unique_app))
+
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 end function
@@ -6596,6 +6686,9 @@ function grh_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_reporting_status)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & GRH_ELIG_APPROVALS(elig_ind).grh_elig_elig_review_date)
 	End If
+	If GRH_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(GRH_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If GRH_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(GRH_UNIQUE_APPROVALS(changes_for_note, unique_app))
+
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -7170,6 +7263,8 @@ function hc_elig_case_note()
 			Call write_variable_in_CASE_NOTE("6 mo Renewal:  " & HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_SR_date(memb_ind))
 		End If
 	End If
+	If HC_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(HC_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If HC_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(HC_UNIQUE_APPROVALS(changes_for_note, unique_app))
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 
@@ -7681,6 +7776,8 @@ function deny_elig_case_note()
 		End If
 	End if
 	Call write_variable_in_CASE_NOTE("=============================================================================")
+	If DENY_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DENY_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If DENY_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(DENY_UNIQUE_APPROVALS(changes_for_note, unique_app))
 
 	' Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
@@ -8389,6 +8486,8 @@ function snap_elig_case_note()
 		Call write_variable_in_CASE_NOTE("Reporting Status: " & SNAP_ELIG_APPROVALS(elig_ind).snap_reporting_status)
 		Call write_variable_in_CASE_NOTE("Review Date:      " & SNAP_ELIG_APPROVALS(elig_ind).snap_elig_revw_date)
 	End If
+	If SNAP_UNIQUE_APPROVALS(process_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(SNAP_UNIQUE_APPROVALS(process_for_note, unique_app))
+	If SNAP_UNIQUE_APPROVALS(changes_for_note, unique_app) <> "" Then Call write_variable_in_CASE_NOTE(SNAP_UNIQUE_APPROVALS(changes_for_note, unique_app))
 	Call write_variable_in_CASE_NOTE("---")
 	Call write_variable_in_CASE_NOTE(worker_signature)
 end function
@@ -8646,8 +8745,8 @@ class dwp_eligibility_detail
 		dwp_autoclosed_for_time_limit = False
 		dwp_mony_check_found = False
 		dwp_vnda_found = False
-		' MsgBox "Pause"
 		deem_count = 0
+
 		dwp_row = 1
 		dwp_col = 1
 		EMSearch "Four Month Eligibility Limit", dwp_row, dwp_col
@@ -8655,9 +8754,23 @@ class dwp_eligibility_detail
 			EMReadScreen elig_version_date, 8, dwp_row, dwp_col-13
 			dwp_autoclosed_for_time_limit = True
 		Else
+			elig_version_number = ""
 			Call find_last_approved_ELIG_version(20, 79, elig_version_number, elig_version_date, elig_version_result, approved_version_found)
 			If approved_version_found = True Then
 				If DateDiff("d", date, elig_version_date) = 0 Then approved_today = True
+			ElseIf elig_version_number <> "" Then
+				call navigate_to_MAXIS_screen("ELIG", "DWP ")
+				EMWriteScreen elig_footer_month, 20, 56
+				EMWriteScreen elig_footer_year, 20, 59
+				Call write_value_and_transmit(elig_version_number, 20, 79)
+				dwp_row = 1
+				dwp_col = 1
+				EMSearch "Four Month Eligibility Limit", dwp_row, dwp_col
+				If dwp_row <> 0 Then
+					EMReadScreen elig_version_date, 8, dwp_row, dwp_col-13
+					dwp_autoclosed_for_time_limit = True
+					PF3
+				End If
 			End If
 			If developer_mode = True Then approved_today = True		'TESTING OPTION'
 		End If
@@ -22765,6 +22878,11 @@ spaces_45 = "                                             "
 spaces_55 = "                                                       "
 spaces_58 = "                                                          "
 spaces_78 = "                                                                              "
+
+Dim process_being_completed, income_change_checkbox, assets_change_checkbox, expense_change_checkbox, housing_change_checkbox
+Dim address_change_checkbox, hh_comp_change_checkbox, relationship_change_checkbox, participation_change_checkbox
+Dim time_limit_change_checkbox, policy_change_checkbox, correction_change_checkbox, appeal_change_checkbox
+
 '===========================================================================================================================
 EMConnect ""
 Call check_for_MAXIS(True)
@@ -24410,6 +24528,7 @@ reload_btn				= 1060
 app_confirmed_btn		= 100
 next_approval_btn		= 110
 app_incorrect_btn		= 120
+explain_why_we_are_processing_btn = 130
 
 const months_in_approval			= 0
 
@@ -24443,7 +24562,9 @@ const wcom_details_two				= 30
 const wcom_details_three			= 31
 const ref_numb_for_hc_app			= 32
 const major_prog_for_hc_app			= 33
-const approval_confirmed			= 34
+const process_for_note 				= 34
+const changes_for_note				= 35
+const approval_confirmed			= 36
 
 Dim DWP_UNIQUE_APPROVALS()
 ReDim DWP_UNIQUE_APPROVALS(approval_confirmed, 0)
@@ -24942,6 +25063,7 @@ If enter_CNOTE_for_DWP = True Then
 			End If
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("DWP", DWP_UNIQUE_APPROVALS(process_for_note, approval_selected), DWP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -25395,6 +25517,7 @@ If enter_CNOTE_for_MFIP = True Then 											'This means at least one approval
 
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("MFIP", MFIP_UNIQUE_APPROVALS(process_for_note, approval_selected), MFIP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -25676,6 +25799,7 @@ If enter_CNOTE_for_MSA = True Then
 			End If
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("MSA", MSA_UNIQUE_APPROVALS(process_for_note, approval_selected), MSA_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -25992,6 +26116,7 @@ If enter_CNOTE_for_GA = True Then
 			End If
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("GA", GA_UNIQUE_APPROVALS(process_for_note, approval_selected), GA_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -26683,6 +26808,7 @@ If enter_CNOTE_for_GRH = True Then
 			End If
 
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("GRH", GRH_UNIQUE_APPROVALS(process_for_note, approval_selected), GRH_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			If err_msg = "" Then
 
@@ -27006,6 +27132,10 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 
 			err_msg = ""
 			move_from_dialog = False
+
+			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("HC", HC_UNIQUE_APPROVALS(process_for_note, approval_selected), HC_UNIQUE_APPROVALS(changes_for_note, approval_selected))
+
 
 			If err_msg = "" Then
 
@@ -27574,7 +27704,7 @@ If enter_CNOTE_for_SNAP = True Then												'This means at least one approval
 			' If ButtonPressed = hh_comp_detail then MsgBox "HH COMP EXPLANATION TO GO HERE"
 			If ButtonPressed = shel_exp_detail_btn then Call display_snap_shelter_expenses
 			If ButtonPressed = unique_approval_explain_btn then Call display_approval_packages_dialog
-
+			If ButtonPressed = explain_why_we_are_processing_btn Then Call detail_action_that_led_to_approval("SNAP", SNAP_UNIQUE_APPROVALS(process_for_note, approval_selected), SNAP_UNIQUE_APPROVALS(changes_for_note, approval_selected))
 
 			' If ButtonPressed = app_confirmed_btn
 
