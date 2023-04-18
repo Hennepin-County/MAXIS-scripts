@@ -3287,11 +3287,11 @@ class stat_detail
 				memb_count = memb_count + 1
 			End If
 			transmit
-			EMReadScreen next_ref_numb, 2, 4, 33
+			EMReadScreen last_memb_page, 13, 24, 2
 
 			trim_list_of_membs_read = trim(list_of_membs_read)
 			If trim_list_of_membs_read = included_members Then Exit Do
-		Loop until next_ref_numb = stat_memb_ref_numb(memb_count-1)
+		Loop until last_memb_page = "ENTER A VALID"
 
 		Call navigate_to_MAXIS_screen("STAT", "MEMI")
 		For each_memb = 0 to UBound(stat_memb_ref_numb)
