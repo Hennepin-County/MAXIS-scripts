@@ -2885,6 +2885,8 @@ If msp_status = "ACTIVE" Then health_care_active = True
 Call navigate_to_MAXIS_screen("CASE", "PERS")
 pers_row = 10
 last_page_check = ""
+curr_hc_membs = " "
+all_membs_with_hcre = " "
 Do
 	EMReadScreen pers_memb_numb, 2, pers_row, 3
 	EMReadScreen pers_hc_status, 1, pers_row, 61
@@ -2893,6 +2895,7 @@ Do
 		' MsgBox "pers_memb_numb - " & pers_memb_numb & vbCr & "HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) - " & HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb)
 		If pers_memb_numb = HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) Then
 			HEALTH_CARE_MEMBERS(case_pers_hc_status_code_const, hc_memb) = pers_hc_status
+			all_membs_with_hcre = all_membs_with_hcre & HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) & " "
 			' MsgBox "HEALTH_CARE_MEMBERS(case_pers_hc_status_code_const, hc_memb) - " & HEALTH_CARE_MEMBERS(case_pers_hc_status_code_const, hc_memb) & " - 1"
 			If pers_hc_status = "I" Then HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, hc_memb) = "INACTIVE"
 			If pers_hc_status = "D" Then HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, hc_memb) = "DENIED"
@@ -2902,6 +2905,7 @@ Do
 			' If pers_hc_status = "" Then HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, hc_memb) = ""
 			If pers_hc_status = "P" Then health_care_pending = True
 			If pers_hc_status = "A" Then health_care_active = True
+			If pers_hc_status = "A" or pers_hc_status = "R" or pers_hc_status = "P" Then curr_hc_membs = curr_hc_membs & HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) & " "
 
 			' MsgBox "hc_application_date - " & hc_application_date & vbCr & "HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb) - " & HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb)
 			If DateDiff("d", hc_application_date, HEALTH_CARE_MEMBERS(hc_appl_date_const, hc_memb)) > 0 Then
@@ -2919,6 +2923,8 @@ Do
 		EMReadScreen last_page_check, 9, 24, 14
 	End If
 Loop until last_page_check = "LAST PAGE"
+curr_hc_membs = trim(curr_hc_membs)
+all_membs_with_hcre = trim(all_membs_with_hcre)
 
 case_has_retro_request = False
 For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)					'setting the defaults for booleans for each member with HC
@@ -3028,16 +3034,95 @@ If HC_form_name = "SAGE Enrollment Form (MA/BC PE Only)" or HC_form_name = "Scre
 End If
 
 'gather information
-Call HH_member_custom_dialog(HH_member_array)		'allows workers to check the persons that should be included
+'this is in place of the funtion -  HH_member_custom_dialog(HH_member_array)
+'we need to check for count and process seperately.
+CALL Navigate_to_MAXIS_screen("STAT", "MEMB")   'navigating to stat memb to gather the ref number and name.
+EMWriteScreen "01", 20, 76						''make sure to start at Memb 01
+transmit
 
+DO								'reads the reference number, last name, first name, and then puts it into a single string then into the array
+	EMReadscreen ref_nbr, 3, 4, 33
+	EMReadScreen access_denied_check, 13, 24, 2
+	'MsgBox access_denied_check
+	If access_denied_check = "ACCESS DENIED" Then
+		PF10
+		last_name = "UNABLE TO FIND"
+		first_name = " - Access Denied"
+		mid_initial = ""
+	Else
+		EMReadscreen last_name, 25, 6, 30
+		EMReadscreen first_name, 12, 6, 63
+		EMReadscreen mid_initial, 1, 6, 79
+		last_name = trim(replace(last_name, "_", "")) & " "
+		first_name = trim(replace(first_name, "_", "")) & " "
+		mid_initial = replace(mid_initial, "_", "")
+	End If
+	client_string = ref_nbr & last_name & first_name & mid_initial
+	client_array = client_array & client_string & "|"
+	transmit
+	Emreadscreen edit_check, 7, 24, 2
+LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
+
+client_array = TRIM(client_array)
+test_array = split(client_array, "|")
+total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
+
+count_checkbox = 1
+process_checkbox = 2
+DIm all_clients_array()
+ReDim all_clients_array(total_clients, 2)
+
+FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
+	Interim_array = split(client_array, "|")
+	all_clients_array(x, 0) = Interim_array(x)
+	all_clients_array(x, 1) = 1
+	ref_numb = left(Interim_array(x),2)
+	If InStr(curr_hc_membs, ref_numb) <> 0 Then all_clients_array(x, 2) = 1
+NEXT
+
+Dialog1 = ""
+BeginDialog Dialog1, 0, 0, 360, (85 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+	Text 10, 5, 205, 10, "Select Household Members to capture information about."
+	Text 10, 15, 205, 10, "Check all members: "
+	Text 10, 25, 350, 10, "- In 'Count Income/Assets if their income or assets deem to anyone you are processing Health Care for."
+	Text 10, 35, 350, 10, "- In 'Processing Health Care' if you are working on their Health Care Application or Renewal."
+	Text 10, 55, 100, 10, "Count Income/Assets"
+	Text 200, 55, 100, 10, "Processing Health Care"
+	FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+		IF all_clients_array(i, 0) <> "" THEN
+			checkbox 10, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, count_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+			ref_numb = left(all_clients_array(i, 0),2)
+			If InStr(all_membs_with_hcre, ref_numb) <> 0 Then checkbox 200, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, process_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+
+		End If
+	NEXT
+	ButtonGroup ButtonPressed
+	OkButton 245, 65 + (total_clients * 15), 50, 15
+	CancelButton 300, 65 + (total_clients * 15), 50, 15
+EndDialog
+
+Dialog Dialog1
+Cancel_without_confirmation
+check_for_maxis(True)
+
+selected_memb = ""
 List_of_HH_membs_to_include = " "					'now we are going to create a list of all the reference numbers of the members that were checked
-For each HH_memb in HH_member_array
-	List_of_HH_membs_to_include = List_of_HH_membs_to_include & HH_memb & " "
-
-	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
-		If HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) = HH_memb Then HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True
-	Next
-Next
+FOR i = 0 to total_clients
+	IF all_clients_array(i, 0) <> "" THEN 						'creates the final array to be used by other scripts.
+		HH_memb = left(all_clients_array(i, 0), 2)
+		IF all_clients_array(i, count_checkbox) = 1 THEN						'if the person/string has been checked on the dialog then the reference number portion (left 2) will be added to new HH_member_array
+			List_of_HH_membs_to_include = List_of_HH_membs_to_include & HH_memb & " "
+		END IF
+		IF all_clients_array(i, process_checkbox) = 1 THEN
+			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)					'setting the defaults for booleans for each member with HC
+				If HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) = HH_memb Then
+					HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True
+					If selected_memb = "" Then selected_memb = hc_memb
+				End If
+			Next
+		End If
+	END IF
+NEXT
 List_of_HH_membs_to_include = trim(List_of_HH_membs_to_include)
 
 MAXIS_footer_month = CM_plus_1_mo					'we are reading CM +1 for information for now.
@@ -3428,7 +3513,6 @@ eval_questions_clear = False
 show_err_msg_during_movement = True
 'These are where we start this information
 page_display = show_member_page
-selected_memb = 0
 month_ind = 0
 Do
 	Do
