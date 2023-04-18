@@ -1767,6 +1767,20 @@ script_array(script_num).policy_references		= array("")						'SEE Line 58 for fo
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
 Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name 			= "Health Care Evaluation"
+script_array(script_num).category               = "NOTES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Assets", "Application", "Deductions", "Health Care", "Income")
+script_array(script_num).dlg_keys               = array("Cn", "Tk")
+script_array(script_num).subcategory            = array("E-L")
+script_array(script_num).release_date           = #4/10/2023#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1						'Increment by one
+ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie	'Set this array element to be a new script_bowie. Script details below...
 script_array(script_num).script_name 			= "Health Care Transition"
 ' script_array(script_num).description 			= "Template for the METS to MAXIS and MAXIS to METS transition process."
 script_array(script_num).category               = "NOTES"
