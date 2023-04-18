@@ -31,6 +31,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County"
+call changelog_update("04/01/2023", "Added ELIGIBILITY SUMMARY and HEALTH CARE DETERMINATION scripts. Removed other elgibilty noting and health care scripts.", "Ilse Ferris, Hennepin County")
 call changelog_update("04/28/2020", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -48,7 +49,7 @@ End If
 Do
 
     Dialog1 = ""
-    BeginDialog Dialog1, 0, 0, 585, 375, "You are on the Desert Island - Essential Scripts during Outage"
+    BeginDialog Dialog1, 0, 0, 585, 350, "You are on the Desert Island - Essential Scripts during Outage"
       ButtonGroup ButtonPressed
 	  	GroupBox 5, 5, 575, 45, "Script Repository Issue Occurance - Also Known As The Desert Island"
       	IF git_hub_issue_known = TRUE Then
@@ -76,43 +77,33 @@ Do
       	Text 10, 95, 500, 10, "------------------------------------------------------------------------------------------------------- NOTES -------------------------------------------------------------------------------------------------------"
         PushButton 10, 105, 115, 13, "Application Check", application_check_btn
       	Text 135, 108, 445, 10, "Template for documenting details and tracking pending cases."
-        PushButton 10, 120, 115, 13, "Approved Programs", approved_programs_btn
-      	Text 135, 123, 445, 10, "Template for when you approve a client's programs."
-        PushButton 10, 135, 115, 13, "CAF", caf_btn
-      	Text 135, 138, 445, 10, "Document actions and processing when an interview has been completed on a CAF and STAT panels are updated."
-        PushButton 10, 150, 115, 13, "Client Contact", client_contact_btn
-      	Text 135, 153, 445, 10, "Template for documenting client contact, either from or to a client."
-        PushButton 10, 165, 115, 13, "Closed Programs", closed_programs_btn
-      	Text 135, 168, 445, 10, "Template for indicating which programs are closing, and when. Also case notes intake/REIN dates based on various selections."
-        PushButton 10, 180, 115, 13, "CSR", csr_btn
-      	Text 135, 183, 445, 10, "Template for the Combined Six-month Report (CSR)."
-        PushButton 10, 195, 115, 13, "Denied Programs", denied_programs_btn
-      	Text 135, 198, 445, 10, "Template for indicating which programs you've denied, and when. Also case notes intake/REIN dates based on various selections."
-        PushButton 10, 210, 115, 13, "Documents Received", documents_received_btn
-      	Text 135, 213, 445, 10, "Template for case noting information about documents received."
-        PushButton 10, 225, 115, 13, "Emergency", emergency_btn
-      	Text 135, 228, 445, 10, "Template for EA/EGA applications."
-		PushButton 10, 240, 115, 13, "Expedtied Determination", expedited_determination_btn
-      	Text 135, 243, 445, 10, "Workflow for assessing if a case meets Expedited SNAP Criteria"
-        PushButton 10, 255, 115, 13, "HC Renewal", hc_renewal_btn
-      	Text 135, 258, 445, 10, "Template for HC renewals."
-        PushButton 10, 270, 115, 13, "HCAPP", hcapp_btn
-      	Text 135, 273, 445, 10, "Template for HCAPPs."
-        PushButton 10, 285, 115, 13, "HRF", hrf_btn
-      	Text 135, 288, 445, 10, "Template for HRFs (for GRH, use the ''GRH - HRF'' script)."
-        PushButton 10, 300, 115, 13, "Interview", interview_btn
-      	Text 135, 303, 445, 10, "Workflow for a quality interview."
-        PushButton 10, 315, 115, 13, "LTC - Renewal", ltc_renewal_btn
-      	Text 135, 318, 445, 10, "Template for LTC renewals."
-        PushButton 10, 330, 115, 13, "Verifications Needed", verifications_needed_btn
-		Text 135, 333, 445, 10, "Template for when verifications are needed (enters each verification clearly)."
-		Text 15, 350, 500, 10, "--------------------------------------------------------------------------------------------------------- CASE ASSIGNMENT ---------------------------------------------------------------------------------------------------------"
-        PushButton 10, 360, 115, 13, "Application Received", application_received_btn
-      	Text 135, 363, 445, 10, "Case notes an application, screens for expedited SNAP, sends the appointment letter and transfers case (if applicable)."
-        CancelButton 530, 357, 50, 15
+        PushButton 10, 120, 115, 13, "CAF", caf_btn
+      	Text 135, 123, 445, 10, "Document actions and processing when an interview has been completed on a CAF and STAT panels are updated."
+        PushButton 10, 135, 115, 13, "Client Contact", client_contact_btn
+      	Text 135, 138, 445, 10, "Template for documenting client contact, either from or to a client."
+        PushButton 10, 150, 115, 13, "CSR", csr_btn
+      	Text 135, 153, 445, 10, "Template for the Combined Six-month Report (CSR)."
+        PushButton 10, 165, 115, 13, "Documents Received", documents_received_btn
+      	Text 135, 168, 445, 10, "Template for case noting information about documents received."
+        PushButton 10, 180, 115, 13, "Eligibility Summary", elig_summary_btn
+      	Text 135, 183, 445, 10, "All-in-one case noting for approved, denied and/or closed programs."
+        PushButton 10, 195, 115, 13, "Emergency", emergency_btn
+      	Text 135, 198, 445, 10, "Template for EA/EGA applications."
+        PushButton 10, 210, 115, 13, "Expedtied Determination", expedited_determination_btn
+      	Text 135, 213, 445, 10, "Work flow for assessing if a case meets Expedited SNAP Criteria"
+        PushButton 10, 225, 115, 13, "Health Care Evaluation", health_care_btn
+      	Text 135, 228, 445, 10, "Template for Health Care applications and/or renewals."
+		PushButton 10, 240, 115, 13, "HRF", hrf_btn
+      	Text 135, 243, 445, 10, "Template for HRFs (for GRH, use the ''GRH - HRF'' script)."
+        PushButton 10, 255, 115, 13, "Interview", interview_btn
+      	Text 135, 258, 445, 10, "Workflow for a quality interview."
+        PushButton 10, 270, 115, 13, "Verifications Needed", verifications_needed_btn
+      	Text 135, 273, 445, 10, "Template for when verifications are needed (enters each verification clearly)."
+		Text 15, 290, 500, 10, "--------------------------------------------------------------------------------------------------------- CASE ASSIGNMENT ---------------------------------------------------------------------------------------------------------"
+        PushButton 10, 300, 115, 13, "Application Received", application_received_btn
+      	Text 135, 303, 445, 10, "Case notes an application, screens for expedited SNAP, sends the appointment letter and transfers case (if applicable)."
+        CancelButton 530, 325, 50, 15
     EndDialog
-
-
 
     dialog Dialog1
 
@@ -171,34 +162,26 @@ Do
             call run_another_script(desert_island_respository & "transfer-case.vbs")
         Case application_check_btn
             call run_another_script(desert_island_respository & "application-check.vbs")
-        Case approved_programs_btn
-            call run_another_script(desert_island_respository & "approved-programs.vbs")
         Case caf_btn
             call run_another_script(desert_island_respository & "caf.vbs")
         Case client_contact_btn
             call run_another_script(desert_island_respository & "client-contact.vbs")
-        Case closed_programs_btn
-            call run_another_script(desert_island_respository & "closed-programs.vbs")
         Case csr_btn
             call run_another_script(desert_island_respository & "csr.vbs")
-        Case denied_programs_btn
-            call run_another_script(desert_island_respository & "denied-programs.vbs")
         Case documents_received_btn
             call run_another_script(desert_island_respository & "documents-received.vbs")
+        Case elig_summary_btn
+            call run_another_script(desert_island_respository & "eligibility-summary.vbs")
         Case emergency_btn
 			call run_another_script(desert_island_respository & "emergency.vbs")
 		Case expedited_determination_btn
             call run_another_script(desert_island_respository & "expedited-determination.vbs")
-        Case hc_renewal_btn
-            call run_another_script(desert_island_respository & "hc-renewal.vbs")
-        Case hcapp_btn
-            call run_another_script(desert_island_respository & "hcapp.vbs")
+        Case health_care_btn
+            call run_another_script(desert_island_respository & "health-care-evaluation.vbs")
         Case hrf_btn
             call run_another_script(desert_island_respository & "hrf.vbs")
 		Case interview_btn
             call run_another_script(desert_island_respository & "interview.vbs")
-        Case ltc_renewal_btn
-            call run_another_script(desert_island_respository & "ltc-renewal.vbs")
         Case verifications_needed_btn
             call run_another_script(desert_island_respository & "verifications-needed.vbs")
         Case application_received_btn
