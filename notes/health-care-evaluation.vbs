@@ -1491,7 +1491,7 @@ function define_main_dialog()
 			'TODO - SPON
 			y_pos = 25
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True Then
+				If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True and HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 					y_pos = y_pos + 10
 					Text 25, y_pos, 250, 10, "IMIG   -   Immigration information. This resident is a Non-Citizen. Alien ID: " & STAT_INFORMATION(month_ind).stat_imig_alien_id_number(each_memb)
@@ -1515,47 +1515,48 @@ function define_main_dialog()
 		ElseIf page_display = retro_page Then															'RETRO Page - this page displays only if there is a RETRO request
 			y_pos = 25
 			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
-				If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True Then
+				If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True and HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 					Text 15, y_pos, 300, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, hc_memb) & " retro request to " & HEALTH_CARE_MEMBERS(hc_cov_date_const, hc_memb)
 					y_pos = y_pos + 15
 				End If
-				Text 15, y_pos, 460, 10, "The CASE/NOTE will include details from all the other dialog pages, including income and assets."
-				y_pos = y_pos + 10
-				Text 15, y_pos, 460, 10, "Here you can document details specific to the RETRO Request."
-				y_pos = y_pos + 10
-				Text 15, y_pos, 460, 10, "Any information entered into the fields specifically about verifications will be added to verifs needed."
-				y_pos = y_pos + 15
-				Text 35, y_pos+5, 65, 10, "Income Information:"
-				EditBox 100, y_pos, 360, 15, retro_income_detail
-				y_pos = y_pos + 20
-				Text 40, y_pos+5, 60, 10, "Asset Information:"
-				EditBox 100, y_pos, 360, 15, retro_asset_detail
-				y_pos = y_pos + 20
-				Text 30, y_pos+5, 70, 10, "Expense Information:"
-				EditBox 100, y_pos, 360, 15, retro_expense_detail
-				y_pos = y_pos + 20
-
-				Groupbox 20, y_pos, 450, 70, "Verifs Needed:"
-				y_pos = y_pos + 10
-				Text 30, y_pos+5, 235, 10, "If Income verification from specific past month(s) is needed, list them here:"
-				EditBox 265, y_pos, 195, 15, retro_income_verifs_months
-				y_pos = y_pos + 20
-				Text 30, y_pos+5, 230, 10, "If Asset verification from specific past month(s) is needed, list them here:"
-				EditBox 260, y_pos, 200, 15, retro_asset_verifs_months
-				y_pos = y_pos + 20
-				Text 30, y_pos+5, 270, 10, "If Medical Expense verification from specific past month(s) is needed, list them here:"
-				EditBox 300, y_pos, 160, 15, retro_expense_verifs_months
-				y_pos = y_pos + 25
-				Text 20, y_pos, 150, 10, "NOTES about RETRO Request:"
-				EditBox 20, y_pos+10, 440, 15, retro_notes
-				y_pos = y_pos + 35
-				' Text 45, y_pos+5, 55, 10, "Something Else:"
-				' EditBox 100, y_pos, 360, 15, edit_bot_info_5
-				' y_pos = y_pos + 20
-				' Text 100, y_pos, 200, 10, "If Income from specific past months is needed, list them here:"
-				' EditBox 300, y_pos-5, 60, 15, retro_income_verifs_months
-				' y_pos = y_pos + 20
 			Next
+			Text 15, y_pos, 460, 10, "The CASE/NOTE will include details from all the other dialog pages, including income and assets."
+			y_pos = y_pos + 10
+			Text 15, y_pos, 460, 10, "Here you can document details specific to the RETRO Request."
+			y_pos = y_pos + 10
+			Text 15, y_pos, 460, 10, "Any information entered into the fields specifically about verifications will be added to verifs needed."
+			y_pos = y_pos + 15
+			Text 35, y_pos+5, 65, 10, "Income Information:"
+			EditBox 100, y_pos, 360, 15, retro_income_detail
+			y_pos = y_pos + 20
+			Text 40, y_pos+5, 60, 10, "Asset Information:"
+			EditBox 100, y_pos, 360, 15, retro_asset_detail
+			y_pos = y_pos + 20
+			Text 30, y_pos+5, 70, 10, "Expense Information:"
+			EditBox 100, y_pos, 360, 15, retro_expense_detail
+			y_pos = y_pos + 20
+
+			Groupbox 20, y_pos, 450, 70, "Verifs Needed:"
+			y_pos = y_pos + 10
+			Text 30, y_pos+5, 235, 10, "If Income verification from specific past month(s) is needed, list them here:"
+			EditBox 265, y_pos, 195, 15, retro_income_verifs_months
+			y_pos = y_pos + 20
+			Text 30, y_pos+5, 230, 10, "If Asset verification from specific past month(s) is needed, list them here:"
+			EditBox 260, y_pos, 200, 15, retro_asset_verifs_months
+			y_pos = y_pos + 20
+			Text 30, y_pos+5, 270, 10, "If Medical Expense verification from specific past month(s) is needed, list them here:"
+			EditBox 300, y_pos, 160, 15, retro_expense_verifs_months
+			y_pos = y_pos + 25
+			Text 20, y_pos, 150, 10, "NOTES about RETRO Request:"
+			EditBox 20, y_pos+10, 440, 15, retro_notes
+			y_pos = y_pos + 35
+			' Text 45, y_pos+5, 55, 10, "Something Else:"
+			' EditBox 100, y_pos, 360, 15, edit_bot_info_5
+			' y_pos = y_pos + 20
+			' Text 100, y_pos, 200, 10, "If Income from specific past months is needed, list them here:"
+			' EditBox 300, y_pos-5, 60, 15, retro_income_verifs_months
+			' y_pos = y_pos + 20
+
 			grp_len = y_pos-10
 			GroupBox 10, 10, 465, grp_len, "RETRO Information"
 		ElseIf page_display = last_page Then															'Final detail Page
@@ -2941,7 +2942,7 @@ For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)					'setting the defaults for 
 	If HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True Then
 		call read_person_based_STAT_info()
 	End If
-	If HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = False Then HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = False
+	If HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = False or HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = False Then HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = False
 	If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True Then case_has_retro_request = True
 Next
 
