@@ -14,9 +14,7 @@ fso_command.Close
 Execute text_from_the_other_script
 
 'LOADING SCRIPT
-interview_script_coming_soon_msg = MsgBox ("A new script to document the interview as it happens is in the works and coming soon!" & vbCr & vbCR & "We are excited to provide this new support." & vbCr & vbCr & "At this time, this button will run the script NOTES - Interview Complete.", vbExclamation, "New Script Coming Soon")
-' script_url = script_repository & "/notes/interview.vbs"
-script_url = script_repository & "/notes/interview-completed.vbs"
+script_url = script_repository & "/notes/interview.vbs"
 IF run_locally = False THEN
     SET req = CreateObject("Msxml2.XMLHttp.6.0")				'Creates an object to get a script_URL
     req.open "GET", script_URL, FALSE									'Attempts to open the script_URL
