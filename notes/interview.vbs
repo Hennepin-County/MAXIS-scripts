@@ -3563,7 +3563,7 @@ function save_your_work()
 		save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 	End If
 
-	With objFSO
+	With (CreateObject("Scripting.FileSystemObject"))
 
 		'Creating an object for the stream of text which we'll use frequently
 		Dim objTextStream
@@ -4648,7 +4648,7 @@ function restore_your_work(vars_filled)
 	'Now determines name of file
 	save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 
-	With objFSO
+	With (CreateObject("Scripting.FileSystemObject"))
 
 		'Creating an object for the stream of text which we'll use frequently
 		Dim objTextStream
@@ -9167,23 +9167,24 @@ original_footer_year = MAXIS_footer_year
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'Needs to determine MyDocs directory before proceeding.
 	intvw_msg_file = user_c_drive_docs_folder & "interview message.txt"
+	With (CreateObject("Scripting.FileSystemObject"))
+		If .FileExists(intvw_msg_file) = False then
+			Set objTextStream = .OpenTextFile(intvw_msg_file, 2, true)
 
-	If objFSO.FileExists(intvw_msg_file) = False then
-		Set objTextStream = objFSO.OpenTextFile(intvw_msg_file, 2, true)
+			'Write the contents of the text file
+			objTextStream.WriteLine "While the script gathers details about the case, tell the Resident:"
+			objTextStream.WriteLine ""
+			objTextStream.WriteLine "- We are going to complete your required interview now."
+			objTextStream.WriteLine "- I will ask you all of the questions you completed on the application:"
+			objTextStream.WriteLine "  - I know this may seem repetitive but we are required to confirm the information you entered."
+			objTextStream.WriteLine "  - Please answer these questions to the best of your ability."
+			objTextStream.WriteLine ""
+			objTextStream.WriteLine "If we cannot get all of the questions answered we cannot complete the interview."
+			objTextStream.WriteLine "Unless we complete the interview, your application/recertification can not be processed."
 
-		'Write the contents of the text file
-		objTextStream.WriteLine "While the script gathers details about the case, tell the Resident:"
-		objTextStream.WriteLine ""
-		objTextStream.WriteLine "- We are going to complete your required interview now."
-		objTextStream.WriteLine "- I will ask you all of the questions you completed on the application:"
-		objTextStream.WriteLine "  - I know this may seem repetitive but we are required to confirm the information you entered."
-		objTextStream.WriteLine "  - Please answer these questions to the best of your ability."
-		objTextStream.WriteLine ""
-		objTextStream.WriteLine "If we cannot get all of the questions answered we cannot complete the interview."
-		objTextStream.WriteLine "Unless we complete the interview, your application/recertification can not be processed."
-
-		objTextStream.Close
-	End If
+			objTextStream.Close
+		End If
+	End With
 	Set oExec = WshShell.Exec("notepad " & intvw_msg_file)
 
 	Call back_to_SELF
@@ -11498,7 +11499,9 @@ interview_time = ((timer - start_time) + add_to_time)/60
 interview_time = Round(interview_time, 2)
 
 intvw_done_msg_file = user_c_drive_docs_folder & "interview done message.txt"
-If objFSO.FileExists(intvw_done_msg_file) = True then objFSO.DeleteFile(intvw_done_msg_file)
+With (CreateObject("Scripting.FileSystemObject"))
+	If .FileExists(intvw_done_msg_file) = True then .DeleteFile(intvw_done_msg_file)
+End With
 
 If objFSO.FileExists(intvw_done_msg_file) = False then
 	Set objTextStream = objFSO.OpenTextFile(intvw_done_msg_file, 2, true)
