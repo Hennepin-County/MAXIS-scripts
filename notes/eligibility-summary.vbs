@@ -28934,10 +28934,10 @@ If list_active_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Active 
 If list_pending_programs <> "" Then end_msg_info = end_msg_info & vbCr & "Pending programs: " & list_pending_programs
 If list_active_programs = "" and list_pending_programs = "" Then end_msg_info = end_msg_info & vbCr & "This case currently has no pending or active programs."
 
-end_msg_info = end_msg_info & vbCr & vbCr & "**** This script is currently in testing. ****" & vbCr & "Given testing status information from the following programs will NOT work in this script yet:"
+end_msg_info = end_msg_info & vbCr & vbCr & "**** This script is currently in testing. ****" & vbCr & "All programs are currently functioning, but we are eager to hear any feedback of the script operation."
 ' end_msg_info = end_msg_info & vbCr & " - ELIG/GRH"
 ' end_msg_info = end_msg_info & vbCr & " - ELIG/HC"
-end_msg_info = end_msg_info & vbCr & " - ELIG/DWP"
+' end_msg_info = end_msg_info & vbCr & " - ELIG/DWP"
 end_msg_info = end_msg_info & vbCr & "Stay tuned! More functionality is in development."
 
 Call script_end_procedure_with_error_report("All approval information has been reviewed." & vbCr & end_msg_info)
