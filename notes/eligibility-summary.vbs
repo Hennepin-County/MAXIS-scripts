@@ -25145,7 +25145,7 @@ If enter_CNOTE_for_DWP = True Then
 
 	If dwp_approval_is_incorrect = True Then
 		enter_CNOTE_for_DWP = False
-		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for MFIP Approvals from " & first_MFIP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
+		end_msg_info = end_msg_info & "CASE/NOTE has NOT been entered for DWP Approvals from " & first_DWP_approval & " onward as the approval appears incorrect and needs to be updated and ReApproved." & vbCr
 	End if
 End If
 
