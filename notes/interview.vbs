@@ -3560,7 +3560,7 @@ function save_your_work()
 
 	'Now determines name of file
 	If MAXIS_case_number <> "" Then
-		local_changelog_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+		save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 	End If
 
 	With objFSO
@@ -3568,15 +3568,15 @@ function save_your_work()
 		'Creating an object for the stream of text which we'll use frequently
 		Dim objTextStream
 
-		If .FileExists(local_changelog_path) = True then
-			.DeleteFile(local_changelog_path)
+		If .FileExists(save_your_work_path) = True then
+			.DeleteFile(save_your_work_path)
 		End If
 
 		'If the file doesn't exist, it needs to create it here and initialize it here! After this, it can just exit as the file will now be initialized
 
-		If .FileExists(local_changelog_path) = False then
+		If .FileExists(save_your_work_path) = False then
 			'Setting the object to open the text file for appending the new data
-			Set objTextStream = .OpenTextFile(local_changelog_path, ForWriting, true)
+			Set objTextStream = .OpenTextFile(save_your_work_path, ForWriting, true)
 
 			'Write the contents of the text file
 			If IsNumeric(add_to_time) = True Then objTextStream.WriteLine "TIME SPENT - "	& timer - start_time + add_to_time
@@ -4646,20 +4646,20 @@ function restore_your_work(vars_filled)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
 
 	'Now determines name of file
-	local_changelog_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+	save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 
 	With objFSO
 
 		'Creating an object for the stream of text which we'll use frequently
 		Dim objTextStream
 
-		If .FileExists(local_changelog_path) = True then
+		If .FileExists(save_your_work_path) = True then
 
 			pull_variables = MsgBox("It appears there is information saved for this case from a previous run of this script." & vbCr & vbCr & "Would you like to restore the details from this previous run?", vbQuestion + vbYesNo, "Restore Detail from Previous Run")
 
 			If pull_variables = vbYes Then
 				'Setting the object to open the text file for reading the data already in the file
-				Set objTextStream = .OpenTextFile(local_changelog_path, ForReading)
+				Set objTextStream = .OpenTextFile(save_your_work_path, ForReading)
 
 				'Reading the entire text file into a string
 				every_line_in_text_file = objTextStream.ReadAll
@@ -8612,6 +8612,7 @@ id_droplist_info = id_droplist_info+chr(9)+"Requested"
 
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
+user_c_drive_docs_folder = "C:\Users\" & lcase(windows_user_ID) & "\Documents\"
 'Dimming all the variables because they are defined and set within functions
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
@@ -9165,7 +9166,7 @@ original_footer_year = MAXIS_footer_year
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'Needs to determine MyDocs directory before proceeding.
-	intvw_msg_file = user_myDocs_folder & "interview message.txt"
+	intvw_msg_file = user_c_drive_docs_folder & "interview message.txt"
 
 	If objFSO.FileExists(intvw_msg_file) = False then
 		Set objTextStream = objFSO.OpenTextFile(intvw_msg_file, 2, true)
@@ -11496,7 +11497,7 @@ End If
 interview_time = ((timer - start_time) + add_to_time)/60
 interview_time = Round(interview_time, 2)
 
-intvw_done_msg_file = user_myDocs_folder & "interview done message.txt"
+intvw_done_msg_file = user_c_drive_docs_folder & "interview done message.txt"
 If objFSO.FileExists(intvw_done_msg_file) = True then objFSO.DeleteFile(intvw_done_msg_file)
 
 If objFSO.FileExists(intvw_done_msg_file) = False then

@@ -460,6 +460,29 @@ For Each objFile in colFiles																'looping through each file
 	If delete_this_file = True Then objFSO.DeleteFile(this_file_path)						'If we have determined that we need to delete the file - here we delete it
 Next
 
+' user_c_drive_download_folder = "C:\Users\" & lcase(windows_user_ID) & "\Downloads"
+user_c_drive_docs_folder = "C:\Users\" & lcase(windows_user_ID) & "\Documents"
+Set objFolder = objFSO.GetFolder(user_c_drive_docs_folder)										'Creates an oject of the whole my documents folder
+Set colFiles = objFolder.Files																'Creates an array/collection of all the files in the folder
+For Each objFile in colFiles																'looping through each file
+	this_file_type = objFile.Type															'Grabing the file type
+	If this_file_type = "Text Document" then
+		delete_this_file = False																'Default to NOT delete the file
+		this_file_name = objFile.Name															'Grabing the file name
+		this_file_created_date = objFile.DateCreated											'Reading the date created
+		this_file_path = objFile.Path															'Grabing the path for the file
+
+		If InStr(this_file_name, "caf-answers-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
+		If InStr(this_file_name, "caf-variables-") <> 0 Then delete_this_file = True				'We want to delete files that say 'caf-answers-' as this is how the UTILITIES - Complete Phone CAF script creates the save your work doc
+		If InStr(this_file_name, "interview-answers-") <> 0 Then delete_this_file = True		'We want to delete files that say 'interview-answers-' as this is how the NOTES - Interview script creates the save your work doc
+		If this_file_type <> "Text Document" then delete_this_file = False						'We do NOT want to delete files that are NOT TXT file types
+		If DateDiff("d", this_file_created_date, date) < 8 Then delete_this_file = False		'We do NOT want to delete files that are 7 days old or less - we may need to reference the saved work in these files.
+
+		If delete_this_file = True Then objFSO.DeleteFile(this_file_path)						'If we have determined that we need to delete the file - here we delete it
+	End If
+Next
+
+
 '----------------------------------------------------------------------------------------------------Email addresses for the teams
 IF current_worker_number =	"X127F3P" 	THEN email_address = "HSPH.ES.MA.EPD.Adult@hennepin.us"
 IF current_worker_number =	"X127F3K" 	THEN email_address = "HSPH.ES.MA.EPD.FAM@hennepin.us"
@@ -11515,6 +11538,12 @@ function script_end_procedure_with_error_report(closing_message)
 			End If
 			If name_of_script = "ACTIONS - INTERVIEW.vbs" Then
 				local_interview_save_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+				With objFSO
+					If .FileExists(local_interview_save_work_path) = True then
+						attachment_here = local_interview_save_work_path
+					End if
+				End With
+				local_interview_save_work_path = user_c_drive_docs_folder & "\interview-answers-" & MAXIS_case_number & "-info.txt"
 				With objFSO
 					If .FileExists(local_interview_save_work_path) = True then
 						attachment_here = local_interview_save_work_path
