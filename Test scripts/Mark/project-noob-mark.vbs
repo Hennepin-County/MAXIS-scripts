@@ -46,16 +46,54 @@ EMConnect "" 'Connects to BlueZone
 Dialog1 = "" 'blanking out dialog name
 'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
 'Shows dialog -----------------------------------------------------------------------------------------------------
-DO
 
-	Dialog Dialog1
-	cancel_confirmation
-	'Add in all of your mandatory field handling from your dialog here.
+' Add dialog to collect case number, footer month, and footer year. Include field validation.
+
+BeginDialog Dialog1, 0, 0, 191, 105, "Dialog"
+  ButtonGroup ButtonPressed
+    OkButton 80, 85, 50, 15
+    CancelButton 140, 85, 50, 15
+  Text 10, 10, 80, 15, "Enter the case number:"
+  Text 10, 35, 95, 15, "Enter the footer month (MM):"
+  Text 10, 55, 95, 15, "Enter the footer year (YY):"
+  EditBox 95, 5, 40, 15, MAXIS_case_number
+  EditBox 110, 30, 20, 15, footer_month
+  EditBox 110, 50, 20, 15, footer_year
+EndDialog
+
+
+DO
+	DO
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation
+		'Add in all of your mandatory field handling from your dialog here.
+
+		If footer_month < 1 OR footer_month > 12 THEN err_msg = err_msg & "* The footer month must be a 2-digit number between 01 and 12"
+		' If footer_month_number + footer_month > = true AND footer_month > 12 THEN err_msg = err_msg & "cannot be more than 12"
+		If IsNumeric(MAXIS_case_number) = false OR Len(MAXIS_case_number) > 8 THEN err_msg = err_msg & vbNewLine & "* The case number must be numeric and 8 digits or less." 
+		If IsNumeric(footer_month) = false OR Len(footer_month) <> 2 THEN err_msg = err_msg & vbNewLine & "* The footer month must be a 2 digit number. Be sure to include a 0 before single digit years." 
+		If IsNumeric(footer_year) = false OR Len(footer_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* The footer year must be a 2 digit number. Be sure to include a 0 before single digit years." 
+		If err_msg <> "" THEN MsgBox "FORM ERROR(S)!" & vbNewLine & err_msg
+
+	Loop UNTIL err_msg = ""
 
     'Add to all dialogs where you need to work within BLUEZONE
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 'End dialog section-----------------------------------------------------------------------------------------------
+PF3
+PF3
+PF3
+EMWriteScreen "STAT", 16, 43
+EMWriteScreen MAXIS_case_number, 18, 43
+footer_month_year = footer_month & footer_year
+EMWriteScreen footer_month_year, 20, 43
+transmit
+EMWriteScreen "JOBS", 20, 71
+transmit
+
+
 
 
 
@@ -67,12 +105,12 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 'We have now made sure we are at SELF in MAXIS
 
 'now we are going to STAT/SUMM for a specific case
-EMWriteScreen "STAT", 16, 43				'writing the MAXIS function to enter in the correct place in MAXIS
-EMWriteScreen MAXIS_case_number, 18, 43		'entering  case number in the 'case number' line
-'TODO - should I be concerned if there is already information on this line?
-EMWriteScreen "SUMM", 21, 70				'writing the MAXIS command to enter in the correct place in MAXIS
+' EMWriteScreen "STAT", 16, 43				'writing the MAXIS function to enter in the correct place in MAXIS
+' EMWriteScreen MAXIS_case_number, 18, 43		'entering  case number in the 'case number' line
+' 'TODO - should I be concerned if there is already information on this line?
+' EMWriteScreen "SUMM", 21, 70				'writing the MAXIS command to enter in the correct place in MAXIS
 
-transmit									'function to move in MAXIS
+' transmit									'function to move in MAXIS
 
 'TODO - how do I make sure that I actually got to STAT/SUMM
 
