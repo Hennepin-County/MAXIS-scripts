@@ -60,6 +60,8 @@ EMConnect "" 'Connects to BlueZone
 
 		'Shows dialog -----------------------------------------------------------------------------------------------------
 		'Notes: DO Loop to ensure all fields are completed
+		'NEED:Need handling for > 12 in month field. IF MAXIS_footer_month > 12 then err_msg = err_msg & vbNewLine & "Month must be less than 12" & vbNewLine - Kept throwing error 
+		'Q: What happens if they enter an invalid case/month/year? Is that our issue?
 			'MsgBox "Message before Dialog"
 			DO
 				Do
@@ -67,8 +69,7 @@ EMConnect "" 'Connects to BlueZone
 					Dialog Dialog1
 					cancel_confirmation
 					IF MAXIS_case_number = "" or (IsNumeric(MAXIS_case_number) = False) or (LEN(MAXIS_case_number) > 8) Then err_msg = "Case Number: Must have numeric entry <8 characters" & vbNewLine
-					IF MAXIS_footer_month = "" or (IsNumeric(MAXIS_footer_month) = False) or (LEN(MAXIS_FOOTER_month) <> 2) or Then err_msg = err_msg & vbNewLine & "Month: 2 Characters, numeric & less than 12" & vbNewLine
-					'IF MAXIS_footer_month > 12 then err_msg = err_msg & vbNewLine & "Month must be less than 12" & vbNewLine
+					IF MAXIS_footer_month = "" or (IsNumeric(MAXIS_footer_month) = False) or (LEN(MAXIS_footer_month) <> 2) Then err_msg = err_msg & vbNewLine & "Month: 2 Characters and numeric" & vbNewLine
 					IF MAXIS_footer_year = "" or (IsNumeric(MAXIS_footer_year) = False) or (LEN(MAXIS_FOOTER_year) <> 2) Then err_msg = err_msg & vbNewLine & "Year: 2 Characters & numeric" & vbNewLine
 					If err_msg <> "" Then Msgbox "***Notice***" & vbNewLine & err_msg 
 					'Add in all of your mandatory field handling from your dialog here. Does not restrict user to 2 or 8 digits....gap
@@ -84,12 +85,13 @@ EMConnect "" 'Connects to BlueZone
 
 
 'VERIFY YOU ARE IN MAXIS-SELF, if Not NAVIATE TO MAXIS-SELF===========================================================================
+		'NEED: If you aren't in Maxis need some sort of notification. Wasn't sure how to incorporate a dialog box. 'If MAXIS_Check <> "MAXIS" then Call Dialog2
+
 		Do
 			Do
 				EMReadScreen MAXIS_check, 5, 1, 39
 				EMReadScreen SELF_check, 4, 2, 50
 				If MAXIS_Check = "MAXIS"then PF3
-				'If MAXIS_Check <> "MAXIS" then Call Dialog2
 				If SELF_check <> "SELF" then PF3
 				Loop Until MAXIS_check = "MAXIS" and SELF_check = "SELF"
 			CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -98,10 +100,7 @@ EMConnect "" 'Connects to BlueZone
 	'End dialog section-----------------------------------------------------------------------------------------------
 
 'NAVIGATING TO THE CORRECT MAXIS SCREEN & ENTERING INFO===========================================================================
-	'code snippet example---------------------------------------------------------------------------------------------
-	'This is here to show you how we might use the advanced automation library to do something in MAXIS.
-	'Feel free to build from this or just take the parts that are helpful.
-	'now we are going to STAT/SUMM for a specific case
+
 	'MsgBox "Start of Entring Info"
 	EMWriteScreen "STAT", 16, 43				'writing the MAXIS function to enter in the correct place in MAXIS
 	EMWriteScreen "        ", 18, 43			'TODO - should I be concerned if there is already information on this line?
@@ -114,7 +113,7 @@ EMConnect "" 'Connects to BlueZone
 	transmit
 
 
-' ' 'VERIFY FOOTER MONTH IN JOBS SCREEN IF NOT, ENTER JOBS. When you login the first time it stops on the SUMM page for some reason. This helps work around that. 
+' ' NEED: When you login the first time it stops on the SUMM page for some reason. This helps work around that- not super sustainable. 
 	Do
 			Do
 				EMReadScreen MAXIS_check, 5, 1, 39
@@ -137,10 +136,13 @@ EMConnect "" 'Connects to BlueZone
 	EMReadScreen MAXIS_Retro, 8, 17, 38
 	EMReadScreen MAXIS_Pros, 8, 17, 67
 	EMReadScreen MAXIS_Empl, 34, 7, 38
+	MAXIS_case_Number = Replace(MAXIS_case_Number, "_", " ")
+	MAXIS_Empl = Replace (MAXIS_Empl, "_"," ")
+
 	'msgbox "After Read Screen"
 
 
-' SECOND DIALOG WITH USING WHAT's READ
+' SECOND DIALOG USING WHAT'S READ, Requires entry in notes. 
 	Dialog1 = "" 'blanking out dialog name		
 		BeginDialog Dialog1, 0, 0, 316, 190, "Displaying Read Info"
 		Text 185, 20, 50, 10, "Case Number:"
@@ -183,17 +185,18 @@ EMConnect "" 'Connects to BlueZone
 
 
 ' CREATING A CASE NOTE FROM ACTV
-
+	'NEED: Handling around 2nd page and wrap text. 	'IF LEN(case_note) > 78 then EMSendKey "<Enter>"
+		'Row +=1 is the same as row = row + 1
+		'If Row > 17 then PF8
+		'IF LEN(Arr1(0)) > 78 then SPLIT (arr1(0), 78)
+		'Row = LEN(arr1) +1
+		
 		PF4
 		PF9
 		Row = 4
-	
-		'IF LEN(case_note) > 78 then EMSendKey "<Enter>"
-		
+			
 		Arr1 = Array(MAXIS_case_number, MAXIS_user, MAXIS_footer_month, MAXIS_footer_year,MAXIS_First, MAXIS_Last, MAXIS_Empl, case_notes)
 		
-		Row = LEN(arr1) +1
-		'Row +=1 is the same as row = row + 1
 
 		EMWRiteScreen ("Case:" & Arr1(0)) , row, 3
 		Row = row +1
@@ -210,10 +213,7 @@ EMConnect "" 'Connects to BlueZone
 		EMWRiteScreen ("Employee" & Arr1(6)) , row, 3
 		Row = row +1
 		EMWRiteScreen ("Notes:" & Arr1(7)) , row, 3
-		'If Row > 17 then PF8
-
-
-		'IF LEN(Arr1(0)) > 78 then SPLIT (arr1(0), 78)
+		
 
 		' Row= row +1
 		' EMWriteScreen(Arr1(0)), row, 5
