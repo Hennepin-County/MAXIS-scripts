@@ -46,7 +46,8 @@ EMConnect "" 'Connects to BlueZone
 		'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
 		'Add in all of your mandatory field handling from your dialog here.	
 		
-		
+	
+
 			BeginDialog Dialog1, 0, 0, 191, 105, "NOOB Test Case"
 			Text 5, 10, 50, 10, "Case Number:"
 			EditBox 75, 5, 45, 15, MAXIS_case_number
@@ -68,7 +69,7 @@ EMConnect "" 'Connects to BlueZone
 					err_msg = ""
 					Dialog Dialog1
 					cancel_confirmation
-					IF MAXIS_case_number = "" or (IsNumeric(MAXIS_case_number) = False) or (LEN(MAXIS_case_number) > 8) Then err_msg = "Case Number: Must have numeric entry <8 characters" & vbNewLine
+					IF MAXIS_case_number = "" or (IsNumeric(MAXIS_case_number) = False) or (LEN(MAXIS_case_number) > 8) Then err_msg = "Case Number: Must have numeric entry <8 characters" & vbNewLine				
 					IF MAXIS_footer_month = "" or (IsNumeric(MAXIS_footer_month) = False) or (LEN(MAXIS_footer_month) <> 2) Then err_msg = err_msg & vbNewLine & "Month: 2 Characters and numeric" & vbNewLine
 					IF MAXIS_footer_year = "" or (IsNumeric(MAXIS_footer_year) = False) or (LEN(MAXIS_FOOTER_year) <> 2) Then err_msg = err_msg & vbNewLine & "Year: 2 Characters & numeric" & vbNewLine
 					If err_msg <> "" Then Msgbox "***Notice***" & vbNewLine & err_msg 
@@ -136,8 +137,8 @@ EMConnect "" 'Connects to BlueZone
 	EMReadScreen MAXIS_Retro, 8, 17, 38
 	EMReadScreen MAXIS_Pros, 8, 17, 67
 	EMReadScreen MAXIS_Empl, 34, 7, 38
-	MAXIS_case_Number = Replace(MAXIS_case_Number, "_", " ")
-	MAXIS_Empl = Replace (MAXIS_Empl, "_"," ")
+	MAXIS_case_Number = Replace(MAXIS_case_Number, "_", "")
+	MAXIS_Empl = Replace (MAXIS_Empl, "_","")
 
 	'msgbox "After Read Screen"
 
@@ -176,7 +177,8 @@ EMConnect "" 'Connects to BlueZone
 			err_msg = ""
 			Dialog Dialog1
 			cancel_confirmation
-			IF Case_Notes = "" Then err_msg = "Notes are required before proceeding"
+			IF Case_Notes = "" Then err_msg = "Notes are required before proceeding" & vbNewLine
+			If LEN(case_notes ) > 78 then err_msg = err_msg & vbNewLine & "Notes are too long, only 78 characters allowed" & vbNewLine
 			If err_msg <> "" Then Msgbox "***Notice***" & vbNewLine & err_msg 
 		Loop Until err_msg = ""
 		CALL check_for_password(are_we_passworded_out)			
@@ -186,6 +188,7 @@ EMConnect "" 'Connects to BlueZone
 
 ' CREATING A CASE NOTE FROM ACTV
 	'NEED: Handling around 2nd page and wrap text. 	'IF LEN(case_note) > 78 then EMSendKey "<Enter>"
+		' & verifying in correct page
 		'Row +=1 is the same as row = row + 1
 		'If Row > 17 then PF8
 		'IF LEN(Arr1(0)) > 78 then SPLIT (arr1(0), 78)
@@ -210,10 +213,14 @@ EMConnect "" 'Connects to BlueZone
 		Row = row +1
 		EMWRiteScreen ("Last Name:" & Arr1(5)) , row, 3
 		Row = row +1
-		EMWRiteScreen ("Employee" & Arr1(6)) , row, 3
+		EMWRiteScreen ("Employer:" & Arr1(6)) , row, 3
 		Row = row +1
 		EMWRiteScreen ("Notes:" & Arr1(7)) , row, 3
-		
+
+
+
+
+
 
 		' Row= row +1
 		' EMWriteScreen(Arr1(0)), row, 5
