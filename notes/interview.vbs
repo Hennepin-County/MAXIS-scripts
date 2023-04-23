@@ -3560,7 +3560,8 @@ function save_your_work()
 
 	'Now determines name of file
 	If MAXIS_case_number <> "" Then
-		save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+		' save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+		save_your_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 	End If
 
 	With (CreateObject("Scripting.FileSystemObject"))
@@ -4646,7 +4647,8 @@ function restore_your_work(vars_filled)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
 
 	'Now determines name of file
-	save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+	' save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+	save_your_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 
 	With (CreateObject("Scripting.FileSystemObject"))
 
@@ -8612,7 +8614,10 @@ id_droplist_info = id_droplist_info+chr(9)+"Requested"
 
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
-user_c_drive_docs_folder = "C:\Users\" & lcase(windows_user_ID) & "\Documents\"
+' user_c_drive_docs_folder = "C:\Users\" & lcase(windows_user_ID) & "\Documents\"
+Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method to interact with the system
+user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
+
 'Dimming all the variables because they are defined and set within functions
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
 Dim exp_pay_none_checkbox, exp_migrant_seasonal_formworker_yn, exp_received_previous_assistance_yn, exp_previous_assistance_when, exp_previous_assistance_where, exp_previous_assistance_what, exp_pregnant_yn, exp_pregnant_who, resi_addr_street_full
@@ -9166,7 +9171,9 @@ original_footer_year = MAXIS_footer_year
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'Needs to determine MyDocs directory before proceeding.
-	intvw_msg_file = user_c_drive_docs_folder & "interview message.txt"
+	' intvw_msg_file = user_c_drive_docs_folder & "interview message.txt"
+	intvw_msg_file = user_myDocs_folder & "interview message.txt"
+
 	With (CreateObject("Scripting.FileSystemObject"))
 		If .FileExists(intvw_msg_file) = False then
 			Set objTextStream = .OpenTextFile(intvw_msg_file, 2, true)
@@ -11498,31 +11505,32 @@ End If
 interview_time = ((timer - start_time) + add_to_time)/60
 interview_time = Round(interview_time, 2)
 
-intvw_done_msg_file = user_c_drive_docs_folder & "interview done message.txt"
+' intvw_done_msg_file = user_c_drive_docs_folder & "interview done message.txt"
+intvw_done_msg_file = user_myDocs_folder & "interview done message.txt"
 With (CreateObject("Scripting.FileSystemObject"))
 	If .FileExists(intvw_done_msg_file) = True then .DeleteFile(intvw_done_msg_file)
+
+	If .FileExists(intvw_done_msg_file) = False then
+		Set objTextStream = .OpenTextFile(intvw_done_msg_file, 2, true)
+
+		'Write the contents of the text file
+		objTextStream.WriteLine "This interview has been COMPLETED!"
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine "The interview took " & interview_time & " minutes."
+		objTextStream.WriteLine "The script is currently creating your PDF, SPEC/MEMO, and CASE/NOTEs. DO NOT TRY TO TAKE ANY ACTION ON THE COMPUTER WHILE THIS FINISHES."
+		objTextStream.WriteLine "Agency Siganture is not required on the " & CAF_form & "."
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine "This is a great time to talk to the resident about: "
+		objTextStream.WriteLine "  - The interview is complete."
+		objTextStream.WriteLine "  - Advise of Next Steps."
+		objTextStream.WriteLine "  - Ask if the resident has any final questions."
+		objTextStream.WriteLine ""
+		objTextStream.WriteLine "(This message will close once the script actions are finished.)"
+
+		objTextStream.Close
+	End If
 End With
-
-If objFSO.FileExists(intvw_done_msg_file) = False then
-	Set objTextStream = objFSO.OpenTextFile(intvw_done_msg_file, 2, true)
-
-	'Write the contents of the text file
-	objTextStream.WriteLine "This interview has been COMPLETED!"
-	objTextStream.WriteLine ""
-	objTextStream.WriteLine "The interview took " & interview_time & " minutes."
-	objTextStream.WriteLine "The script is currently creating your PDF, SPEC/MEMO, and CASE/NOTEs. DO NOT TRY TO TAKE ANY ACTION ON THE COMPUTER WHILE THIS FINISHES."
-	objTextStream.WriteLine "Agency Siganture is not required on the " & CAF_form & "."
-	objTextStream.WriteLine ""
-	objTextStream.WriteLine ""
-	objTextStream.WriteLine "This is a great time to talk to the resident about: "
-	objTextStream.WriteLine "  - The interview is complete."
-	objTextStream.WriteLine "  - Advise of Next Steps."
-	objTextStream.WriteLine "  - Ask if the resident has any final questions."
-	objTextStream.WriteLine ""
-	objTextStream.WriteLine "(This message will close once the script actions are finished.)"
-
-	objTextStream.Close
-End If
 Set o2Exec = WshShell.Exec("notepad " & intvw_done_msg_file)
 
 
@@ -13127,7 +13135,8 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 			exp_info_file_path = t_drive &"\Eligibility Support\Assignments\Expedited Information\"  & txt_file_name
 			' MsgBox exp_info_file_path
 
-			With objFSO
+			With (CreateObject("Scripting.FileSystemObject"))
+
 				'Creating an object for the stream of text which we'll use frequently
 				Dim objTextStream
 
@@ -13523,13 +13532,16 @@ If objFSO.FileExists(pdf_doc_path) = TRUE Then
 	'This is helpful because they may not be familiar with where these are saved and they could work from the PDF to process the reVw
 	reopen_pdf_doc_msg = MsgBox("The information gathered in the interview has been saved as a PDF and will be added to ECF as a separate 'Interview Notes' document." & vbCr & vbCr & "This document will take the place of your CAF INTERVIEW ANNOTATIONS, as long as you have entered all interview notes to the script." & vbCr & "Agency Signature is not required on the application form." & vbCr & vbCr & "Would you like the PDF Document opened to process/review?", vbQuestion + vbSystemModal + vbYesNo, "Open PDF Doc?")
 	If reopen_pdf_doc_msg = vbYes Then
-        If objFSO.FileExists(pdf_doc_path) = TRUE Then
-    		run_path = chr(34) & pdf_doc_path & chr(34)
-    		wshshell.Run run_path
-    		end_msg = end_msg & vbCr & vbCr & "The PDF has been opened for you to view the information that has been saved."
-        Else
-            end_msg = end_msg & vbCr & vbCr & "The script could not open the PDF document because the file could not be found." & vbCr & "This may be because the file is already being worked on by ES Support Team, or there could be a slight network connection slowdown. If you still need the PDF opened, you can try UTILITIES - Open Interview PDF to attempt to open the file, or check ECF to see if the document has already been added."
-        End If
+		With (CreateObject("Scripting.FileSystemObject"))
+
+			If .FileExists(pdf_doc_path) = TRUE Then
+				run_path = chr(34) & pdf_doc_path & chr(34)
+				wshshell.Run run_path
+				end_msg = end_msg & vbCr & vbCr & "The PDF has been opened for you to view the information that has been saved."
+			Else
+				end_msg = end_msg & vbCr & vbCr & "The script could not open the PDF document because the file could not be found." & vbCr & "This may be because the file is already being worked on by ES Support Team, or there could be a slight network connection slowdown. If you still need the PDF opened, you can try UTILITIES - Open Interview PDF to attempt to open the file, or check ECF to see if the document has already been added."
+			End If
+		End With
 	End If
 Else
 	o2Exec.Terminate()
@@ -13538,7 +13550,9 @@ End If
 
 end_msg = end_msg & vbCr & vbCr & "The documment created for the ECF Case File can serve in place of any annotations as long as you entered all of your interview notes into the script. If you have entered all of the interview notes for this interview, there is no need to annotate the application form in ECF."
 end_msg = end_msg & vbCr & vbCr & "Hennepin County does not require an Agency Signature to be added to the application form. Details can be found in the HSR Manual: https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Applications.aspx (Search: Applications)."
-objFSO.DeleteFile(intvw_done_msg_file)
+With (CreateObject("Scripting.FileSystemObject"))
+	.DeleteFile(intvw_done_msg_file)
+End With
 
 revw_pending_table = False                                                      'Determining if we should be adding this case to the CasesPending SQL Table
 If unknown_cash_pending = True Then revw_pending_table = True                   'case should be pending cash or snap and NOT have SNAP active
