@@ -50,255 +50,112 @@ call changelog_update("09/23/2017", "Initial version.", "Ilse Ferris, Hennepin C
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'CUSTOM FUNCTIONS===========================================================================================================
-Function declare_NOTES_menu_dialog(script_array)
-	BeginDialog NOTES_dialog, 0, 0, 516, 340, "Shelter Team Scripts"
-	 	Text 5, 5, 435, 10, "Shelter scripts main menu: select the script to run from the choices below."
+class subcat
+	public subcat_name
+	public subcat_button
+End class
+
+Function declare_main_menu_dialog(script_category)
+	show_0_l_btn = True
+	show_m_z_btn = True
+
+	dlg_len = 60
+    For current_script = 0 to ubound(script_array)
+        script_array(current_script).show_script = FALSE
+        If ucase(script_array(current_script).category) = ucase(script_category) then
+            If ButtonPressed = menu_0_to_L_button Then
+                If IsNumeric(left(script_array(current_script).script_name, 1)) = TRUE Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "A" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "B" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "C" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "D" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "E" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "F" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "G" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "H" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "I" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "J" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "K" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "L" Then script_array(current_script).show_script = TRUE
+				show_0_l_btn = False
+            ElseIf ButtonPressed = menu_M_to_Z_button Then
+                If left(script_array(current_script).script_name, 1) = "M" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "N" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "O" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "P" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "Q" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "R" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "S" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "T" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "U" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "V" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "W" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "X" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "Y" Then script_array(current_script).show_script = TRUE
+                If left(script_array(current_script).script_name, 1) = "Z" Then script_array(current_script).show_script = TRUE
+				show_m_z_btn = False
+			End If
+            If IsDate(script_array(current_script).retirement_date) = TRUE Then
+                If DateDiff("d", date, script_array(current_script).retirement_date) =< 0 Then script_array(current_script).show_script = FALSE
+            End If
+			Call script_array(current_script).show_button(see_the_button)
+			If see_the_button = FALSE Then script_array(current_script).show_script = FALSE
+
+            If script_array(current_script).show_script = TRUE Then dlg_len = dlg_len + 15
+        End If
+    next
+
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 600, dlg_len, script_category & " scripts main menu dialog"
+	 	Text 5, 5, 435, 10, script_category & " scripts main menu: select the script to run from the choices below."
 		EditBox 700, 700, 50, 15, holderbox				'This sits here as the first control element so the fisrt button listed doesn't have the blue box around it.
 	  	ButtonGroup ButtonPressed
-		 	PushButton 015, 35, 30, 15, "# - L", 				a_to_n_button
-		 	PushButton 045, 35, 30, 15, "M - Z", 				p_to_z_button
+
+		'SUBCATEGORY HANDLING--------------------------------------------
+
+		'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+			'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL				BUTTON VARIABLE
+		If show_0_l_btn = True  Then
+			PushButton 		5,                      20, 					50, 		15, 			" # - L ", 					menu_0_to_L_button
+		Else
+			Text 			20,                      23, 					40, 		15, 			" # - L "
+		End If
+		If show_m_z_btn = True  Then
+        	PushButton 		55,                     20, 					50, 		15, 			" M - Z ", 					menu_M_to_Z_button
+		Else
+			Text 			70,                     23, 					40, 		15, 			" M - Z "
+		End If
+
+		'SCRIPT LIST HANDLING--------------------------------------------
 
 		'This starts here, but it shouldn't end here :)
-		vert_button_position = 70
+		vert_button_position = 50
 
 		For current_script = 0 to ubound(script_array)
-			'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
-			'FUNCTION		HORIZ. ITEM POSITION								VERT. ITEM POSITION		ITEM WIDTH									ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
-			PushButton 		5, 													vert_button_position, 	script_array(current_script).button_size, 	10, 			script_array(current_script).script_name, 			button_placeholder
-			Text 			script_array(current_script).button_size + 10, 		vert_button_position, 	500, 										10, 			"--- " & script_array(current_script).description
-			'----------
-			vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
-			'----------
-			script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
-			button_placeholder = button_placeholder + 1
+
+
+            If script_array(current_script).show_script = TRUE Then
+
+				SIR_button_placeholder = button_placeholder + 1	'We always want this to be one more than the button_placeholder
+
+				'Displays the button and text description-----------------------------------------------------------------------------------------------------------------------------
+				'FUNCTION		HORIZ. ITEM POSITION	VERT. ITEM POSITION		ITEM WIDTH	ITEM HEIGHT		ITEM TEXT/LABEL										BUTTON VARIABLE
+				' PushButton 		5, 						vert_button_position, 	10, 		12, 			"?", 												SIR_button_placeholder
+				PushButton 		18,						vert_button_position, 	120, 		12, 			script_array(current_script).script_name, 			button_placeholder
+				Text 			120 + 23, 				vert_button_position+1, 500, 		14, 			"--- " & script_array(current_script).description
+				'----------
+				vert_button_position = vert_button_position + 15	'Needs to increment the vert_button_position by 15px (used by both the text and buttons)
+				'----------
+				script_array(current_script).button = button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				script_array(current_script).SIR_instructions_button = SIR_button_placeholder	'The .button property won't carry through the function. This allows it to escape the function. Thanks VBScript.
+				button_placeholder = button_placeholder + 2
+			End if
+
 		next
 
-		CancelButton 460, 320, 50, 15
-		GroupBox 5, 20, 85, 35, "Shelter Sub-Menus"
+		CancelButton 540, dlg_len - 20, 50, 15
 	EndDialog
 End function
-'END CUSTOM FUNCTIONS=======================================================================================================
-
-'VARIABLES TO DECLARE=======================================================================================================
-
-'Declaring the variable names to cut down on the number of arguments that need to be passed through the function.
-DIM ButtonPressed
-'DIM SIR_instructions_button
-dim NOTES_dialog
-
-script_array_a_to_n = array()
-script_array_p_to_z = array()
-
-
-'END VARIABLES TO DECLARE===================================================================================================
-
-'LIST OF SCRIPTS================================================================================================================
-
-'INSTRUCTIONS: simply add your new script below. Scripts are listed in alphabetical order. Copy a block of code from above and paste your script info in. The function does the rest.
-
-'-------------------------------------------------------------------------------------------------------------------------A through M
-'Resetting the variable
-script_num = 0
-ReDim Preserve script_array_a_to_n(script_num)
-Set script_array_a_to_n(script_num) = new script
-script_array_a_to_n(script_num).script_name 			= "2 PM Return"																				'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-2-pm-return.vbs"																	'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details for the 2 PM return process."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "311"																						'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-311.vbs"																			'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting 311 information."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "ACF Request Pend"																		'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-acf-request-pend.vbs"															'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details for a ACF pending request."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "ACF Used"																				'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-acf-used.vbs"																	'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details for ACF used."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "Bus Ticket Issued"																		'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-bus-ticket-issued.vbs"															'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details for issuing bus tickets."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "CES Screening Referral"																			'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-ces-screening-appt.vbs"																'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details for the CES screening appointment."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "Client Sheltered by Win A"																'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-client-sheltered-by-win-a.vbs"													'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details of contact with client at Window A."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "Change Reported"																'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-change-reported.vbs"													'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details of change reported by client."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "Diversion Program Referral"																'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-diversion-program-referral.vbs"													'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details of Diversion Program Referral."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "Diversion Program Referral Result"																'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-diversion-program-referral-results.vbs"													'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details of Diversion Program Referral result."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "EA Approved"																				'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-ea-approved.vbs"																	'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details for the EA approval."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "EA Extension"																			'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-ea-extension.vbs"																'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting details for the EA extension."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_a_to_n(script_num)			'Resets the array to add one more element to it
-Set script_array_a_to_n(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_a_to_n(script_num).script_name 			= "Homelessness Verified"																	'Script name
-script_array_a_to_n(script_num).file_name 				= "shelter-homelessness-verified.vbs"														'Script URL
-script_array_a_to_n(script_num).description 			= "Case note template for documenting homelessness information."
-
-'-------------------------------------------------------------------------------------------------------------------------N through Z
-'Resetting the variable
-'Set this array element to be a new script. Script details below...
-script_num = 0							'Sets to zero
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Mandatory Vendor App'd"																	'Script name
-script_array_p_to_z(script_num).file_name 				= "shelter-mandatory-vendor-approved.vbs"													'Script URL
-script_array_p_to_z(script_num).description 			= "Memo and case note template for approving mandatory vendor(s)."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Mandatory Vendor Memo"																	'Script name
-script_array_p_to_z(script_num).file_name 				= "shelter-mandatory-vendor-memo.vbs"														'Script URL
-script_array_p_to_z(script_num).description 			= "Notice script that sends a Mandatory Vendor MEMO."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= " NSPOW Checked "																			'Script name
-script_array_p_to_z(script_num).file_name 				= "shelter-nspow-checked.vbs"																'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for details for NSPOW information."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Partner Calls"																			'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-partner-calls.vbs"																'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting partner calls."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Perm Housing Found"																		'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-permanent-housing-found.vbs"														'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting details of permanent housing found."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Personal Needs"																			'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-personal-needs.vbs"																'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting personal needs information."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "P-Note"																					'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-p-note.vbs"																		'Script URL
-script_array_p_to_z(script_num).description 			= "Template for adding person notes in MAXIS."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Reim Shelter Account"																	'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-reimb-shelter-acct.vbs"															'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting details for reimbursement to the Shelter account."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Revoucher"																				'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-revoucher.vbs"																	'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting details for the revoucher process."
-
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Shelter Alternative"																		'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-shelter-alternative.vbs"															'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting information regarding shelter alternative."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Shelter Interview"																		'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-shelter-interview.vbs"															'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting details of the shelter interview."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Sheriff Foreclosure"																		'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-sheriff-foreclosure.vbs"															'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting sheriff foreclosure information."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Special EA"																				'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-special-ea.vbs"																	'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting details for special EA."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Utility Info"																			'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-utility-information.vbs"															'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting details of utility information."
-
-script_num = script_num + 1								'Increment by one
-ReDim Preserve script_array_p_to_z(script_num)			'Resets the array to add one more element to it
-Set script_array_p_to_z(script_num) = new script		'Set this array element to be a new script. Script details below...
-script_array_p_to_z(script_num).script_name 			= "Voucher Extended"																		'Script name
-script_array_p_to_z(script_num).file_name				= "shelter-voucher-extended.vbs"															'Script URL
-script_array_p_to_z(script_num).description 			= "Case note template for documenting details about the voucher extended process."
-
 
 'Starting these with a very high number, higher than the normal possible amount of buttons.
 '	We're doing this because we want to assign a value to each button pressed, and we want
@@ -306,35 +163,45 @@ script_array_p_to_z(script_num).description 			= "Case note template for documen
 '	property for each script item. This allows it to both escape the Function and resize
 '	near infinitely. We use dummy numbers for the other selector buttons for much the same reason,
 '	to force the value of ButtonPressed to hold in near infinite iterations.
-button_placeholder 	= 24601
-a_to_n_button		= 1000
-p_to_z_button		= 2000
+button_placeholder 		= 24601
+menu_0_to_L_button      = 110
+menu_M_to_Z_button      = 120
+
+subcategory_selected = "# - L"
 
 'Displays the dialog
+ButtonPressed = menu_M_to_Z_button
 Do
-	If ButtonPressed = "" or ButtonPressed = a_to_n_button then
-		declare_NOTES_menu_dialog(script_array_a_to_n)
-	ElseIf ButtonPressed = p_to_z_button then
-		declare_NOTES_menu_dialog(script_array_p_to_z)
-	End if
+	'Creates the dialog
+	call declare_main_menu_dialog("SHELTER")
 
-	dialog NOTES_dialog
+	'At the beginning of the loop, we are not ready to exit it. Conditions later on will impact this.
+	ready_to_exit_loop = false
+
+	'Displays dialog, if cancel is pressed then stopscript
+	dialog Dialog1
 	If ButtonPressed = 0 then stopscript
 
-    'Opening the SIR Instructions
-	'IF buttonpressed = SIR_instructions_button then CreateObject("WScript.Shell").Run("https://www.dhssir.cty.dhs.state.mn.us/MAXIS/blzn/Script%20Instructions%20Wiki/Notes%20scripts.aspx")
-Loop until 	ButtonPressed <> a_to_n_button and _
-			ButtonPressed <> p_to_z_button
+	'Runs through each script in the array... if the user selected script instructions (via ButtonPressed) it'll open_URL_in_browser to those instructions
+	For i = 0 to ubound(script_array)
+		If ButtonPressed = script_array(i).SIR_instructions_button then
+            ' MsgBox script_array(i).SharePoint_instructions_URL
+            call open_URL_in_browser(script_array(i).SharePoint_instructions_URL)
+        End If
+	Next
 
-'MsgBox buttonpressed = script_array_a_to_n(0).button
+	'Runs through each script in the array... if the user selected the actual script (via ButtonPressed), it'll run_from_GitHub
+	For i = 0 to ubound(script_array)
+		If ButtonPressed = script_array(i).button then
+			ready_to_exit_loop = true		'Doing this just in case a stopscript or script_end_procedure is missing from the script in question
+			script_to_run = script_array(i).script_URL
+			Exit for
+		End if
+	Next
 
-'Runs through each script in the array... if the selected script (buttonpressed) is in the array, it'll run_from_GitHub
-For i = 0 to ubound(script_array_a_to_n)
-	If ButtonPressed = script_array_a_to_n(i).button then call run_from_GitHub(script_repository & "shelter/" & script_array_a_to_n(i).file_name)
-Next
+    ' MsgBox script_to_run
+Loop until ready_to_exit_loop = true
 
-For i = 0 to ubound(script_array_p_to_z)
-	If ButtonPressed = script_array_p_to_z(i).button then call run_from_GitHub(script_repository & "shelter/" & script_array_p_to_z(i).file_name)
-Next
+call run_from_GitHub(script_to_run)
 
 stopscript
