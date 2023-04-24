@@ -76,17 +76,6 @@ End If
 
 
 'FUNCTIONS BLOCK ===========================================================================================================
-Function HCRE_panel_bypass()
-	'handling for cases that do not have a completed HCRE panel
-	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-	Do
-		EMReadscreen HCRE_panel_check, 4, 2, 50
-		If HCRE_panel_check = "HCRE" then
-			PF10	'exists edit mode in cases where HCRE isn't complete for a member
-			PF3
-		END IF
-	Loop until HCRE_panel_check <> "HCRE"
-End Function
 
 function access_AREP_panel(access_type, arep_name, arep_addr_street, arep_addr_city, arep_addr_state, arep_addr_zip, arep_phone_one, arep_ext_one, arep_phone_two, arep_ext_two, forms_to_arep, mmis_mail_to_arep)
 'reading information from AREP panel
