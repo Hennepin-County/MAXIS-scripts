@@ -187,12 +187,17 @@ Else
     	vbNewLine & vbNewLine & "This result for this case is " & expedited_status & vbNewLine & vbNewLine & "Please run the script again if you were in inquiry to add a case note."
     else
     	'Body of the case note
+	'formatting the numbers to have 2 decimal points, include a leading 0, do not use parenthesis for negatives, do not include a comma
+		income = FormatNumber(income, 2, -1, 0, 0)
+		assets = FormatNumber(assets, 2, -1, 0, 0)
+		rent = FormatNumber(rent, 2, -1, 0, 0)
+		utilities = FormatNumber(utilities, 2, -1, 0, 0)
         Call write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
     	call write_variable_in_CASE_NOTE("---")
-    	call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
-    	call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
-    	call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
-    	call write_variable_in_CASE_NOTE("        Utilities (amt/HEST claimed): $" & utilities)
+    	call write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & right(space(8) & income, 8))			'The ouput to CNOTE will always take up 8 spaces, with blanks leading
+    	call write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & right(space(8) & assets, 8))
+    	call write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & right(space(8) & rent, 8))
+    	call write_variable_in_CASE_NOTE("        Utilities (AMT/HEST claimed): $" & right(space(8) & utilities, 8))
     	call write_variable_in_CASE_NOTE("---")
     	If has_DISQ = True then call write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
     	If has_DISQ = False then call write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
