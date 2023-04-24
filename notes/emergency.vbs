@@ -291,7 +291,6 @@ If EGA_screening_check = 1 then
         If abs(net_income) > abs(monthly_standard) then ega_results_dlg_len = ega_results_dlg_len + 10'"* Net income exceeds program guidelines."
         IF net_income = "0" then ega_results_dlg_len = ega_results_dlg_len + 10'"* Household does not have current/ongoing income."
         If EMER_last_used_dates <> "n/a" then ega_results_dlg_len = ega_results_dlg_len + 10'"* Emergency funds were used within the last year from the eligibility period."
-	    'If EMER_available_date = > Cdate then screening_determination = screening_determination & vbNewLine & "* Emergency funds were used within the last year from the eligibility period."
     End if
 
     ega_screening_note_made = False
@@ -367,10 +366,10 @@ If EGA_screening_check = 1 then
         	Call write_bullet_and_variable_in_CASE_NOTE("Does any member of the HH meet 30 day residency requirements", meets_residency)
         	Call write_bullet_and_variable_in_CASE_NOTE("Shelter cost for HH", shelter_costs)
     		Call write_bullet_and_variable_in_CASE_NOTE("Net income for HH", net_income)
-        	IF screening_determination = "potentially eligible for emergency programs." then
+        	IF screening_determination = "NOT eligible for EGA for the following reasons:" then
+                Call write_variable_in_CASE_NOTE("* HH does not appear eligible for EMER programs.")
+            Else
                 Call write_variable_in_CASE_NOTE("* HH is potentially eligible for EMER programs.")
-        	Else
-        	   Call write_variable_in_CASE_NOTE("* HH does not appear eligible for EMER programs.")
         	END IF
         	Call write_variable_in_CASE_NOTE("---")
         	Call write_bullet_and_variable_in_CASE_NOTE("Last date EMER programs were used", EMER_last_used_dates)
