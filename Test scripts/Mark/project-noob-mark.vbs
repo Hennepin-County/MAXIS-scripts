@@ -195,22 +195,21 @@ variable_array = array(client_name, MAXIS_case_number, updated_date, employer_na
 
 ' MsgBox UBound(variable_array)
 
+
+' Enter the data scraped from JOBS panel to be entered into case note, iterate through both arrays
 dim row
 row = 4
 dim array_length
 array_length = UBound(variable_array) + 1
-dim variable_title_array_index
-variable_title_array_index = 0
-dim variable_array_index
-variable_array_index = 0
+dim array_index
+array_index = 0
 dim counter
 counter = 1
 
 Do until counter > array_length
-	EMWriteScreen (variable_title_array(variable_title_array_index) & variable_array(variable_array_index)), row, 3
+	EMWriteScreen (variable_title_array(array_index) & variable_array(array_index)), row, 3
 	row = row + 1
-	variable_array_index = variable_array_index + 1
-	variable_title_array_index = variable_title_array_index + 1
+	array_index = array_index + 1
 	counter = counter + 1
 Loop
 
