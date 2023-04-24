@@ -8454,6 +8454,21 @@ Function hest_standards(heat_AC_amt, electric_amt, phone_amt, date_variable)
     End if
 End Function
 
+Function HCRE_panel_bypass()
+'--- This function should be called when done with going to PROG (after reading/updating) to make sure we don't get stuck on HCRE because it will put it in edit mode automatically.
+'--- USE AFTER GOING TO PROG WHEN NEEDING TO LEAVE THE PANEL
+'===== Keywords: MAXIS, Navigate
+	'this functionality is especially for handling for cases that do not have a completed HCRE panel
+	PF3													'exits PROG to prommpt HCRE if HCRE insn't complete
+	Do
+		EMReadscreen HCRE_panel_check, 4, 2, 50			'read to see if MAXIS brought us to HCRE
+		If HCRE_panel_check = "HCRE" then				'If it IS on HCRE, we need to bypass it by oopsing and navigating away
+			PF10										'OOPS - exists edit mode in cases where HCRE isn't complete for a member
+			PF3											'Navigate away from HCRE
+		END IF
+	Loop until HCRE_panel_check <> "HCRE"				'Sometimes there are warning messages, so we keep going until we actually leave HCRE
+End Function
+
 function HH_member_custom_dialog(HH_member_array)
 '--- This function creates an array of all household members in a MAXIS case, and allows users to select which members to seek/add information to add to edit boxes in dialogs.
 '~~~~~ HH_member_array: should be HH_member_array for function to work
