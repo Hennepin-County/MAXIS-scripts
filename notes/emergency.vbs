@@ -51,7 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("04/06/2023", "Updated 200% FPG for April 2023 updates to reflect previous year's FPG results based on the date of application.", "Ilse Ferris, Hennepin County")
+call changelog_update("04/06/2023", "Updated 200% FPG for April 2023 updates to reflect previous year's FPG results based on the date of application. Small updates to enhance user experience.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/15/2022", "The display of the EGA Screening result has been updated to repeat the information provided and have buttons to indicate what next action the script should take.", "Casey Love, Hennepin County")
 call changelog_update("09/30/2022", "BUG Fix: EGA screening will now indicate that a case screens as potentially eligible for EGA if the net inocme is equal to the standard or if 70% of the net income is exactly equal to the shelter costs.##~####~##Previously if they were equal the script would screen as not eligible but did not give details around why the screening appears ineligble (there was no handling for situations where the amounts were exactly equal.)##~####~##EGA screening was not correctly identifying if EGA was available/had already been used in the past 12 months.##~##", "Casey Love, Hennepin County")
 call changelog_update("04/02/2022", "Updated 200% FPG for 2022.", "Ilse Ferris, Hennepin County")
@@ -81,31 +81,26 @@ CALL MAXIS_footer_finder(MAXIS_footer_month, MAXIS_footer_year)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 141, 115, "Case number dialog"
-  EditBox 75, 5, 55, 15, MAXIS_case_number
-  EditBox 75, 25, 25, 15, MAXIS_footer_month
-  EditBox 105, 25, 25, 15, MAXIS_footer_year
-  CheckBox 10, 60, 30, 10, "cash", cash_check
-  CheckBox 55, 60, 30, 10, "HC", HC_check
-  CheckBox 95, 60, 35, 10, "SNAP", SNAP_check
-  CheckBox 10, 80, 120, 10, "Check here if program is EGA?", EGA_screening_check
+BeginDialog Dialog1, 0, 0, 141, 80, "Case number dialog"
+  EditBox 75, 5, 50, 15, MAXIS_case_number
+  EditBox 75, 25, 20, 15, MAXIS_footer_month
+  EditBox 105, 25, 20, 15, MAXIS_footer_year
+  CheckBox 20, 45, 120, 10, "Check here if program is EGA?", EGA_screening_check
   ButtonGroup ButtonPressed
-	OkButton 15, 95, 50, 15
-	CancelButton 75, 95, 50, 15
+    OkButton 30, 60, 45, 15
+    CancelButton 80, 60, 45, 15
   Text 10, 30, 65, 10, "Footer month/year:"
-  GroupBox 5, 45, 130, 30, "Other programs open or applied for:"
   Text 25, 10, 45, 10, "Case number:"
 EndDialog
 
 'Showing the case number dialog
 DO
-	  Do
+	Do
         err_msg = ""
-		    Dialog Dialog1
-		    cancel_without_confirmation
+		Dialog Dialog1
+		cancel_without_confirmation
         Call validate_MAXIS_case_number(err_msg, "*")
-        If IsNumeric(MAXIS_footer_month) = False or len(MAXIS_footer_month) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer month."
-        If IsNumeric(MAXIS_footer_year) = False or len(MAXIS_footer_year) <> 2 then err_msg = err_msg & vbNewLine & "* Enter a valid 2-digit MAXIS footer year."
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")
         IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
     LOOP UNTIL err_msg = ""
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
@@ -123,8 +118,16 @@ Else
     application_date = replace(application_date, " ", "/")
 End If
 
+EMReadScreen interview_date, 8, 8, 55
+If interview_date = "__ __ __" then
+    interview_date = ""
+Else
+    interview_date = replace(interview_date, " ", "/")
+End if
+
 'EMER screnning code----------------------------------------------------------------------------------------------------
 If EGA_screening_check = 1 then
+    STATS_counter = STATS_counter + 1               'Adding stats counter for EGA screening as well
     'EGA screening dialog
     Dialog1 = "" 'Blanking out previous dialog detail
     BeginDialog Dialog1, 0, 0, 286, 170, "Emergency Screening #" & MAXIS_case_number
@@ -173,7 +176,7 @@ If EGA_screening_check = 1 then
             LOOP until ButtonPressed = -1
     		If isdate(application_date) = False then err_msg = err_msg & vbNewLine & "* Enter the date of application."
             If IsNumeric(Household_size) = False then
-              err_msg = err_msg & vbNewLine & "* Enter the number of household members."
+                err_msg = err_msg & vbNewLine & "* Enter the number of household members."
             Else
                 If trim(Household_size) > 2 then err_msg = err_msg & vbNewLine & "* Enter a household comp or 1 or 2."
             End if
@@ -200,8 +203,8 @@ If EGA_screening_check = 1 then
     EMWriteScreen begin_search_year, 6, 41
     EMWriteScreen CM_mo, 6, 53		'entering current footer month/year
     EMWriteScreen CM_yr, 6, 56
-    EMWriteScreen "x", 9, 50		'selecting EA
-    EMWriteScreen "x", 11, 50		'selecting EGA
+    EMWriteScreen "X", 9, 50		'selecting EA
+    EMWriteScreen "X", 11, 50		'selecting EGA
     transmit
 
     'searching for EA/EG issued on the INQD screen
@@ -379,10 +382,8 @@ If EGA_screening_check = 1 then
 END IF
 'End of EMER screening code----------------------------------------------------------------------------------------------------
 
-'Jumping into STAT
-call navigate_to_MAXIS_screen("stat", "hcre")
-'Creating a custom dialog for determining who the HH members are
-call HH_member_custom_dialog(HH_member_array)
+Call navigate_to_MAXIS_screen("STAT", "MEMB")   'nav to STAT, choose STAT/MEMB since HH_member_dialog is next
+Call HH_member_custom_dialog(HH_member_array)   'Creating a custom dialog for determining who the HH members are
 
 'Autofilling
 call autofill_editbox_from_MAXIS(HH_member_array, "ACCT", assets)
@@ -392,7 +393,7 @@ call autofill_editbox_from_MAXIS(HH_member_array, "CASH", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "COEX", monthly_expense)
 call autofill_editbox_from_MAXIS(HH_member_array, "DCEX", monthly_expense)
 call autofill_editbox_from_MAXIS(HH_member_array, "JOBS", income)
-call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", HH_comp)
+call autofill_editbox_from_MAXIS(HH_member_array, "MEMB", Household_size)
 call autofill_editbox_from_MAXIS(HH_member_array, "OTHR", assets)
 call autofill_editbox_from_MAXIS(HH_member_array, "RBIC", income)
 call autofill_editbox_from_MAXIS(HH_member_array, "REST", assets)
@@ -408,7 +409,7 @@ DO
         'This dialog contains a customized "percent rule" variable, as well as a customized "income days" variable. As such, it can't directly be edited in the dialog editor.
         BeginDialog Dialog1, 0, 0, 326, 395, "Emergency Dialog"
         EditBox 60, 45, 65, 15, interview_date
-        EditBox 170, 45, 150, 15, HH_comp
+        EditBox 170, 45, 150, 15, Household_size
         CheckBox 25, 75, 40, 10, "Eviction", eviction_check
         CheckBox 75, 75, 70, 10, "Utility disconnect", utility_disconnect_check
         CheckBox 155, 75, 60, 10, "Homelessness", homelessness_check
@@ -514,7 +515,7 @@ End if
 call start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("***Emergency app: "& replace(crisis, ".", "") & "***")
 call write_bullet_and_variable_in_CASE_NOTE("Interview date", interview_date)
-call write_bullet_and_variable_in_CASE_NOTE("HH comp", HH_comp)
+call write_bullet_and_variable_in_CASE_NOTE("HH comp", household_size)
 call write_bullet_and_variable_in_CASE_NOTE("Crisis", crisis)
 call write_bullet_and_variable_in_CASE_NOTE("Cause of crisis", cause_of_crisis)
 call write_bullet_and_variable_in_CASE_NOTE("Income, past " & emer_number_of_income_days & " days", income)
