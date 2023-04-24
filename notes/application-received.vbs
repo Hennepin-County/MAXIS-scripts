@@ -921,13 +921,18 @@ End If
 
 'Expedited Screening CNOTE for cases where SNAP is pending
 If snap_status = "PENDING" Then
+	'formatting the numbers to have 2 decimal points, include a leading 0, do not use parenthesis for negatives, do not include a comma
+	income = FormatNumber(income, 2, -1, 0, 0)
+	assets = FormatNumber(assets, 2, -1, 0, 0)
+	rent = FormatNumber(rent, 2, -1, 0, 0)
+	utilities = FormatNumber(utilities, 2, -1, 0, 0)
     start_a_blank_CASE_NOTE
     CALL write_variable_in_CASE_NOTE("~ Received Application for SNAP, " & expedited_status & " ~")
     CALL write_variable_in_CASE_NOTE("---")
-    CALL write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & income)
-    CALL write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & assets)
-    CALL write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & rent)
-    CALL write_variable_in_CASE_NOTE("        Utilities (AMT/HEST claimed): $" & utilities)
+    CALL write_variable_in_CASE_NOTE("     CAF 1 income claimed this month: $" & right(space(8) & income, 8))			'The ouput to CNOTE will always take up 8 spaces, with blanks leading
+    CALL write_variable_in_CASE_NOTE("         CAF 1 liquid assets claimed: $" & right(space(8) & assets, 8))
+    CALL write_variable_in_CASE_NOTE("         CAF 1 rent/mortgage claimed: $" & right(space(8) & rent, 8))
+    CALL write_variable_in_CASE_NOTE("        Utilities (AMT/HEST claimed): $" & right(space(8) & utilities, 8))
     CALL write_variable_in_CASE_NOTE("---")
     If has_DISQ = True then CALL write_variable_in_CASE_NOTE("A DISQ panel exists for someone on this case.")
     If has_DISQ = False then CALL write_variable_in_CASE_NOTE("No DISQ panels were found for this case.")
