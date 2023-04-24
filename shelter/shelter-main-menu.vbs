@@ -170,7 +170,7 @@ menu_M_to_Z_button      = 120
 subcategory_selected = "# - L"
 
 'Displays the dialog
-ButtonPressed = menu_M_to_Z_button
+ButtonPressed = menu_0_to_L_button
 Do
 	'Creates the dialog
 	call declare_main_menu_dialog("SHELTER")
