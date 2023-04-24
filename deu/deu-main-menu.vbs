@@ -40,6 +40,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("04/24/2023", "MENU format has been updated to align with the menu displays for the primary categories.", "Casey Love, Hennepin County")
 call changelog_update("02/28/2023", "Removed APPEALS button. This was a redirect to the NOTES - APPEALS script. Please use the APPEALS script from the NOTES Main Menu. Thank you!", "Ilse Ferris, Hennepin County")
 call changelog_update("02/27/2023", "Retired script EBT OUT OF STATE due to state correction action plan. A new automation tool may be created in the future based on DHS and FNS/USDA guidance.", "Ilse Ferris, Hennepin County")
 call changelog_update("08/19/2021", "GitHub #569 Retire BULK MATCH script to reduce redundancies in our automation supports for future conversion.", "MiKayla Handley, Hennepin County")
