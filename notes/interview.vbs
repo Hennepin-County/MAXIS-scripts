@@ -3506,18 +3506,6 @@ function guide_through_app_month_income()
 
 end function
 
-Function HCRE_panel_bypass()
-	'handling for cases that do not have a completed HCRE panel
-	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-	Do
-		EMReadscreen HCRE_panel_check, 4, 2, 50
-		If HCRE_panel_check = "HCRE" then
-			PF10	'exists edit mode in cases where HCRE isn't complete for a member
-			PF3
-		END IF
-	Loop until HCRE_panel_check <> "HCRE"
-End Function
-
 function split_phone_number_into_parts(phone_variable, phone_left, phone_mid, phone_right)
 'This function is to take the information provided as a phone number and split it up into the 3 parts
     phone_variable = trim(phone_variable)
