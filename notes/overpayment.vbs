@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/24/2023", "Enhanced claim number to ensure entries are numeric and updated AR email.", "Megan Geissler, Hennpin County")
 call changelog_update("01/29/2023", "Enhanced claim information to ensure that decimal points are added to claim amounts, and not added to claim #'s.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/17/2022", "Updated bug in script where claim # and claim amt were transposed.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/15/2022", "Enhanced CCOL Notes to make notes in all claims vs. only 1st claim. Updated background functioning.", "Ilse Ferris, Hennepin County")
@@ -107,7 +108,7 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 IF claim_actions = "Intial Overpayment/Claim" THEN
     '-------------------------------------------------------------------------------------------------DIALOG
     Dialog1 = "" 'Blanking out previous dialog detail
-	BeginDialog Dialog1, 0, 0, 406, 320, "Overpayment Claim Enty"
+	BeginDialog Dialog1, 0, 0, 406, 320, "Overpayment Claim Entry"
 	EditBox 60, 10, 40, 15, discovery_date
 	EditBox 140, 10, 20, 15, memb_number
 	EditBox 235, 10, 20, 15, OT_resp_memb
@@ -190,39 +191,44 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
             IF OP_program <> "Select:" THEN
                 IF trim(OP_from) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 1st overpayment period period (MM/YY)."
                 IF trim(OP_to) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 1st overpayment period period (MM/YY)."
-                IF trim(Claim_amount) = "" or instr(Claim_amount, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 1st claim amount (including decimal point.)"
-                IF trim(Claim_number) = "" or instr(claim_number, ".") <> 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 1st claim number."
+                IF trim(Claim_amount) = "" or instr(Claim_amount, ".") = 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 1st claim amount (including decimal point.)"
+                IF trim(Claim_number) = "" or instr(claim_number, ".") <> 0 or (IsNumeric(Claim_number) = false) THEN err_msg = err_msg & vbNewLine & "* Enter the 1st claim number. Must be numeric."
             END IF
             '2nd Claim
         	IF OP_program_II <> "Select:" THEN
 				IF trim(OP_from_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 2nd overpayment period period (MM/YY)."
 				IF trim(OP_to_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 2nd overpayment period period (MM/YY)."
-                IF trim(Claim_amount_II) = "" or instr(Claim_amount_II, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 2nd claim amount (including decimal point.)"
-                IF trim(Claim_number_II) = "" or instr(claim_number_II, ".") <> 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 2nd claim number."
+                IF trim(Claim_amount_II) = "" or instr(Claim_amount_II, ".") = 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 2nd claim amount (including decimal point.)"
+                IF trim(Claim_number_II) = "" or instr(claim_number_II, ".") <> 0 or (IsNumeric(Claim_number_II) = false) THEN err_msg = err_msg & vbNewLine & "* Enter the 2nd claim number. Must be numeric."
+
         	END IF
     	    IF OP_program_III <> "Select:" THEN
 				IF trim(OP_from_III) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 3rd overpayment period period (MM/YY)."
 				IF trim(OP_to_III) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 3rd overpayment period period (MM/YY)."
-    	    	IF trim(Claim_amount_III) = "" or instr(Claim_amount_III, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 3rd claim amount (including decimal point.)"
-                IF trim(Claim_number_III) = "" or instr(claim_number_III, ".") <> 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 3rd claim number."
+    	    	IF trim(Claim_amount_III) = "" or instr(Claim_amount_III, ".") = 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 3rd claim amount (including decimal point.)"
+                IF trim(Claim_number_III) = "" or instr(claim_number_III, ".") <> 0 or (IsNumeric(Claim_number_III) = false) THEN err_msg = err_msg & vbNewLine & "* Enter the 3rd claim number. Must be numeric."
+
     	    END IF
     	    IF OP_program_IV <> "Select:" THEN
 				IF trim(OP_from_IV) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 4th overpayment period period (MM/YY)."
 				IF trim(OP_to_IV) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 4th overpayment period period (MM/YY)."
-    	    	IF trim(Claim_amount_IV) = "" or instr(Claim_amount_IV, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 4th claim amount (including decimal point.)"
-                IF trim(Claim_number_IV) = "" or instr(claim_number_IV, ".") <> 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 4th claim number."
+    	    	IF trim(Claim_amount_IV) = "" or instr(Claim_amount_IV, ".") = 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 4th claim amount (including decimal point.)"
+                IF trim(Claim_number_IV) = "" or instr(claim_number_IV, ".") <> 0 or (IsNumeric(Claim_number_IV) = false) THEN err_msg = err_msg & vbNewLine & "* Enter the 4th claim number. Must be numeric"
+
     	    END IF
             IF trim(HC_claim_number) <> "" THEN
-                If instr(HC_claim_number, ".") <> 0 then err_msg = err_msg & vbNewLine & "* Review 1st Health Care claim #, remove the decimal point if applicable."
-            	IF trim(HC_from) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 1st Health Care overpayment period period (MM/YY)."
+                If instr(HC_claim_number, ".") <> 0 or (IsNumeric(HC_claim_number) = False) THEN err_msg = err_msg & vbNewLine & "* Review 1st Health Care claim #, must be numeric, and remove the decimal point if applicable."
+				IF trim(HC_from) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 1st Health Care overpayment period period (MM/YY)."
             	IF trim(HC_to) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 1st Health Care overpayment period period (MM/YY)."
-            	IF trim(HC_claim_amount) = "" or instr(HC_claim_amount, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 1st Health Care claim amount (including decimal point.)"
+            	IF trim(HC_claim_amount) = "" or instr(HC_claim_amount, ".") = 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 1st Health Care claim amount (including decimal point.)"
+
             END IF
             IF trim(HC_claim_number_II) <> "" THEN
-                If instr(HC_claim_number_II, ".") <> 0 then err_msg = err_msg & vbNewLine & "* Review 2nd Health Care claim #, remove the decimal point if applicable."
-                IF trim(HC_from_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 2nd Health Care overpayment period period (MM/YY)."
+                If instr(HC_claim_number_II, ".") <> 0 or (IsNumeric(HC_claim_number_II) = False) THEN err_msg = err_msg & vbNewLine & "* Review 2nd Health Care claim #, must be numeric, and remove the decimal point if applicable."
+				IF trim(HC_from_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the start of the 2nd Health Care overpayment period period (MM/YY)."
                 IF trim(HC_to_II) = "" THEN err_msg = err_msg & vbNewLine & "* Enter the end of the 2nd Health Care overpayment period period (MM/YY)."
-                IF trim(HC_claim_amount_II) = "" or instr(HC_claim_amount_II, ".") = 0 then err_msg = err_msg & vbNewLine & "* Enter the 2nd Health Care claim amount (including decimal point.)"
+                IF trim(HC_claim_amount_II) = "" or instr(HC_claim_amount_II, ".") = 0 THEN err_msg = err_msg & vbNewLine & "* Enter the 2nd Health Care claim amount (including decimal point.)"
+
             END IF
             If EI_disregard = "Select:" THEN err_msg = err_msg & vbNewLine & "* Was an earned income disregard allowed in the overpayment?"
             IF trim(EVF_used) = "" then err_msg = err_msg & vbNewLine & "* Enter verification used for the income received. If no verification was received enter N/A."
@@ -363,7 +369,7 @@ IF claim_actions = "Intial Overpayment/Claim" THEN
     		End If
     	Loop until next_page = "More:  " OR next_page = "       "	'No more pages
     	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-    	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+    	CALL create_outlook_email("HSPH.FAA.Unit.Tin@hennepin.us", "","Claims entered for #" &  MAXIS_case_number & " Member # " & memb_number & " Date Overpayment Created: " & discovery_date & "HC Claim # " & HC_claim_number, "CASE NOTE" & vbcr & message_array,"", False)
     END IF
 
     '---------------------------------------------------------------writing the CCOL case note'
@@ -595,12 +601,12 @@ IF claim_actions = "Requested Claim Adjustment" THEN
 	CALL write_variable_in_CCOL_note(worker_signature)
 	PF3
 	'Function create_outlook_email(email_recip, email_recip_CC, email_subject, email_body, email_attachment, send_email)
-	CALL create_outlook_email("HSPH.FIN.Unit.AR.Spaulding@hennepin.us", "","Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, "CASE NOTE" & vbcr & message_array,"", False)
+	CALL create_outlook_email("HSPH.FAA.Unit.Tin@hennepin.us", "","Requested Claim Adjustment " &  MAXIS_case_number & " Member # " & memb_number & " Overpayment " & OP_from & " through " & OP_to & " Claim # " & Claim_number, "CASE NOTE" & vbcr & message_array,"", False)
 END IF
 
 script_end_procedure_with_error_report(closing_message)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 04/24/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
@@ -608,7 +614,7 @@ script_end_procedure_with_error_report(closing_message)
 '--Tab orders reviewed & confirmed----------------------------------------------11/15/2022
 '--Mandatory fields all present & Reviewed--------------------------------------11/15/2022
 '--All variables in dialog match mandatory fields-------------------------------11/15/2022
-'Review dialog names for content and content fit in dialog----------------------01/29/2023
+'Review dialog names for content and content fit in dialog----------------------04/24/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------11/15/2022
@@ -635,10 +641,10 @@ script_end_procedure_with_error_report(closing_message)
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------11/15/2022
 '--comment Code-----------------------------------------------------------------11/15/2022
-'--Update Changelog for release/update------------------------------------------11/15/2022
+'--Update Changelog for release/update------------------------------------------04/24/2023
 '--Remove testing message boxes-------------------------------------------------11/15/2022
 '--Remove testing code/unnecessary code-----------------------------------------11/15/2022
-'--Review/update SharePoint instructions----------------------------------------11/15/2022
+'--Review/update SharePoint instructions----------------------------------------04/24/2023
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------11/15/2022
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------11/15/2022
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------01/29/2023
