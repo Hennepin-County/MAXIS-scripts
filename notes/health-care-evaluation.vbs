@@ -2942,8 +2942,7 @@ For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)					'setting the defaults for 
 	If HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = True Then
 		call read_person_based_STAT_info()
 	End If
-	If HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = False or HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = False Then HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = False
-	If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True Then case_has_retro_request = True
+	If HEALTH_CARE_MEMBERS(member_is_applying_for_hc_const, hc_memb) = False Then HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = False
 Next
 
 'this is special handling for Presumptive Eligibility for MA-BC - whcih is processed off of these two forms.
@@ -3125,6 +3124,12 @@ FOR i = 0 to total_clients
 	END IF
 NEXT
 List_of_HH_membs_to_include = trim(List_of_HH_membs_to_include)
+
+case_has_retro_request = False
+For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)					'setting the defaults for booleans for each member with HC
+	If HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = False Then HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = False
+	If HEALTH_CARE_MEMBERS(member_has_retro_request, hc_memb) = True Then case_has_retro_request = True
+Next
 
 MAXIS_footer_month = CM_plus_1_mo					'we are reading CM +1 for information for now.
 MAXIS_footer_year = CM_plus_1_yr
