@@ -109,18 +109,6 @@ function start_a_new_spec_memo_and_continue(success_var)
 	transmit                                                        'Transmits to start the memo writing process
 end function
 
-Function HCRE_panel_bypass()
-	'handling for cases that do not have a completed HCRE panel
-	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-	Do
-		EMReadscreen HCRE_panel_check, 4, 2, 50
-		If HCRE_panel_check = "HCRE" then
-			PF10	'exists edit mode in cases where HCRE isn't complete for a member
-			PF3
-		END IF
-	Loop until HCRE_panel_check <> "HCRE"
-End Function
-
 function convert_date_to_day_first(date_to_convert, date_to_output)
     If IsDate(date_to_convert) = TRUE Then
         intv_date_mo = DatePart("m", date_to_convert)
