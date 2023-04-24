@@ -62,18 +62,6 @@ call changelog_update("07/05/2022", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function HCRE_panel_bypass()
-    'handling for cases that do not have a completed HCRE panel
-    PF3		'exits PROG to prompt HCRE if HCRE insn't complete
-    Do
-        EMReadscreen HCRE_panel_check, 4, 2, 50
-        If HCRE_panel_check = "HCRE" then
-            PF10	'exists edit mode in cases where HCRE isn't complete for a member
-            PF3
-        END IF
-    Loop until HCRE_panel_check <> "HCRE"
-End Function
-
 function ensure_variable_is_a_number(variable)
 	variable = trim(variable)
 	If variable = "" Then variable = 0
