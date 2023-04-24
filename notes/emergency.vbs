@@ -534,6 +534,53 @@ call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure_with_error_report("")
 
+'policy and procedural info - CLOS is checked out currenlty.
 'https://www.revisor.mn.gov/statutes/cite/256D.06
 'https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/EGA_Policy.aspx
 'https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/EGA_Policy.aspx
+'https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=lp_cm_0004
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------04/24/2023
+'--Tab orders reviewed & confirmed----------------------------------------------04/24/2023
+'--Mandatory fields all present & Reviewed--------------------------------------04/24/2023
+'--All variables in dialog match mandatory fields-------------------------------04/24/2023
+'Review dialog names for content and content fit in dialog----------------------04/24/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------04/24/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------04/24/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------04/24/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-04/24/2023
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/24/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------04/24/2023-----------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------04/24/2023
+'--Out-of-County handling reviewed----------------------------------------------04/24/2023
+'--script_end_procedures (w/ or w/o error messaging)----------------------------04/24/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------04/24/2023-----------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------04/24/2023
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------04/24/2023
+'--Incrementors reviewed (if necessary)----------------------------------------04/24/2023-
+'--Denomination reviewed -------------------------------------------------------04/24/2023
+'--Script name reviewed---------------------------------------------------------04/24/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------04/24/2023-----------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------04/24/2023
+'--comment Code-----------------------------------------------------------------04/24/2023
+'--Update Changelog for release/update------------------------------------------04/24/2023
+'--Remove testing message boxes-------------------------------------------------04/24/2023
+'--Remove testing code/unnecessary code-----------------------------------------04/24/2023
+'--Review/update SharePoint instructions----------------------------------------04/24/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------04/24/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/24/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------04/24/2023
+'--Complete misc. documentation (if applicable)---------------------------------04/24/2023
+'--Update project team/issue contact (if applicable)----------------------------04/24/2023
