@@ -125,6 +125,8 @@ Else
     interview_date = replace(interview_date, " ", "/")
 End if
 
+Call HCRE_panel_bypass
+
 'EMER screnning code----------------------------------------------------------------------------------------------------
 If EGA_screening_check = 1 then
     STATS_counter = STATS_counter + 1               'Adding stats counter for EGA screening as well
