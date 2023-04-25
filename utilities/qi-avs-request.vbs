@@ -53,18 +53,6 @@ call changelog_update("03/10/2020", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-Function HCRE_panel_bypass()
-	'handling for cases that do not have a completed HCRE panel
-	PF3		'exits PROG to prommpt HCRE if HCRE insn't complete
-	Do
-		EMReadscreen HCRE_panel_check, 4, 2, 50
-		IF HCRE_panel_check = "HCRE" then
-			PF10	'exists edit mode in cases where HCRE isn't complete for a member
-			PF3
-		END IF
-	Loop until HCRE_panel_check <> "HCRE"
-End Function
-
 EMConnect ""    'Connecting to BlueZone
 CALL MAXIS_case_number_finder (MAXIS_case_number) 'Grabs the case number
 Call check_for_MAXIS(FALSE)
