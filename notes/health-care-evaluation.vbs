@@ -3212,6 +3212,12 @@ If bils_exist = True then										'if the panel exists, read the details
 
 		bils_count = bils_count + 1			'incrementing
 		bils_row = bils_row + 1
+		If bils_row = 18 Then
+			PF20
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" Then Exit Do
+			bils_row = 6
+		End If
 		EMReadScreen next_bils_ref_numb, 2, bils_row, 26		'determining when to leave the loop
 	Loop until next_bils_ref_numb = "__"
 End If
