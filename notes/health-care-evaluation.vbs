@@ -2657,6 +2657,9 @@ Const clear_verifs_btn = 2510
 Const completed_hc_eval_btn = 3000
 Const next_btn				= 3010
 
+Const instructions_btn = 5000
+Const video_demo_btn = 5010
+
 'We define a lot of things in dialogs, this makes sure they are available outside of the functions as well
 Dim app_sig_status, app_sig_notes, client_delay_check, TIKL_check, MA_BC_end_of_cert_TIKL_check
 Dim ma_bc_authorization_form, ma_bc_authorization_form_date, ma_bc_authorization_form_missing_checkbox
@@ -2706,6 +2709,8 @@ BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
   ButtonGroup ButtonPressed
     OkButton 250, 280, 50, 15
     CancelButton 305, 280, 50, 15
+    PushButton 295, 35, 50, 13, "Instructions", instructions_btn
+    PushButton 295, 50, 50, 13, "Video Demo", video_demo_btn
   Text 105, 10, 120, 10, "Health Care Evaluation Script"
   Text 20, 40, 255, 20, "This script is to be run once MAXIS STAT panels have been updated with all accurate information from a Health Care Application Form."
   Text 20, 65, 255, 25, "If information displayed in this script is inaccurate, this means the information entered into STAT requires update. Cancel the script run and update STAT panels before running the script again."
@@ -2731,12 +2736,19 @@ DO
 	   	err_msg = ""
 	   	Dialog Dialog1
 	   	cancel_without_confirmation
-		Call validate_MAXIS_case_number(err_msg, "*")
-		If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care evaluation from."
-		If ltc_waiver_request_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Select if the form received can be used to request LTC/Waiver services."
-		If IsDate(form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the form being processed was received."
-		If trim(worker_signature) = "" Then err_msg = err_msg & vbCr & "* Enter your name to sign your CASE/NOTE."
-	   	IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+
+	    If ButtonPressed > 4000 Then
+			If ButtonPressed = instructions_btn Then Call open_URL_in_browser("https://hennepin.sharepoint.com/:w:/r/teams/hs-economic-supports-hub/BlueZone_Script_Instructions/NOTES/NOTES%20-%20HEALTH%20CARE%20EVALUATION.docx")
+			If ButtonPressed = video_demo_btn Then Call open_URL_in_browser("https://web.microsoftstream.com/video/21fa4c6c-0b95-4a53-b683-9b3bdce9fe95?referrer=https:%2F%2Fgbc-word-edit.officeapps.live.com%2F")
+			err_msg = "LOOP"
+		Else
+			Call validate_MAXIS_case_number(err_msg, "*")
+			If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care evaluation from."
+			If ltc_waiver_request_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Select if the form received can be used to request LTC/Waiver services."
+			If IsDate(form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the form being processed was received."
+			If trim(worker_signature) = "" Then err_msg = err_msg & vbCr & "* Enter your name to sign your CASE/NOTE."
+			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
+		End If
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop until are_we_passworded_out = false
