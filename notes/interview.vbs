@@ -3548,8 +3548,8 @@ function save_your_work()
 
 	'Now determines name of file
 	If MAXIS_case_number <> "" Then
-		' save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 		save_your_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+		If user_ID_for_validation = "ERHO003" Then save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 	End If
 
 	With (CreateObject("Scripting.FileSystemObject"))
@@ -4635,8 +4635,8 @@ function restore_your_work(vars_filled)
 'this function looks to see if a txt file exists for the case that is being run to pull already known variables back into the script from a previous run
 
 	'Now determines name of file
-	' save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 	save_your_work_path = user_myDocs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
+	If user_ID_for_validation = "ERHO003" Then save_your_work_path = user_c_drive_docs_folder & "interview-answers-" & MAXIS_case_number & "-info.txt"
 
 	With (CreateObject("Scripting.FileSystemObject"))
 
@@ -8602,9 +8602,9 @@ id_droplist_info = id_droplist_info+chr(9)+"Requested"
 
 question_answers = ""+chr(9)+"Yes"+chr(9)+"No"+chr(9)+"Blank"
 
-' user_c_drive_docs_folder = "C:\Users\" & lcase(windows_user_ID) & "\Documents\"
 Set wshshell = CreateObject("WScript.Shell")						'creating the wscript method to interact with the system
 user_myDocs_folder = wshShell.SpecialFolders("MyDocuments") & "\"	'defining the my documents folder for use in saving script details/variables between script runs
+If user_ID_for_validation = "ERHO003" Then user_c_drive_docs_folder = "C:\Users\" & lcase(windows_user_ID) & "\Documents\"
 
 'Dimming all the variables because they are defined and set within functions
 Dim who_are_we_completing_the_interview_with, caf_person_one, exp_q_1_income_this_month, exp_q_2_assets_this_month, exp_q_3_rent_this_month, exp_q_4_utilities_this_month, caf_exp_pay_heat_checkbox, caf_exp_pay_ac_checkbox, caf_exp_pay_electricity_checkbox, caf_exp_pay_phone_checkbox
@@ -9159,8 +9159,8 @@ original_footer_year = MAXIS_footer_year
 'If we already know the variables because we used 'restore your work' OR if there is no case number, we don't need to read the information from MAXIS
 If vars_filled = FALSE AND no_case_number_checkbox = unchecked Then
 	'Needs to determine MyDocs directory before proceeding.
-	' intvw_msg_file = user_c_drive_docs_folder & "interview message.txt"
 	intvw_msg_file = user_myDocs_folder & "interview message.txt"
+	If user_ID_for_validation = "ERHO003" Then intvw_msg_file = user_c_drive_docs_folder & "interview message.txt"
 
 	With (CreateObject("Scripting.FileSystemObject"))
 		If .FileExists(intvw_msg_file) = False then
@@ -11493,8 +11493,8 @@ End If
 interview_time = ((timer - start_time) + add_to_time)/60
 interview_time = Round(interview_time, 2)
 
-' intvw_done_msg_file = user_c_drive_docs_folder & "interview done message.txt"
 intvw_done_msg_file = user_myDocs_folder & "interview done message.txt"
+If user_ID_for_validation = "ERHO003" Then intvw_done_msg_file = user_c_drive_docs_folder & "interview done message.txt"
 With (CreateObject("Scripting.FileSystemObject"))
 	If .FileExists(intvw_done_msg_file) = True then .DeleteFile(intvw_done_msg_file)
 
