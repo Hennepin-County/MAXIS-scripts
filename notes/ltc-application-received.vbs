@@ -38,14 +38,15 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
-'soft retire of NOTES - LTC App Recvd
-redirect_verbiage = "This script (NOTES - LTC Application Received) will be retired on 4/25/23 and will be replaced by NOTES - Health Care Evaluation."
-redirect_verbiage = redirect_verbiage & vbCr & vbCr & "It is strongly recommended to try this new script at a time that is more open in this week of transition."
-redirect_verbiage = redirect_verbiage & vbCr & vbCr & "You can check out the Hot Topic and video demo about using this new script."
+'retirement redirect of NOTES - LTC App Recvd
+redirect_verbiage = "This script (NOTES - LTC Application Received) was retired on 4/25/23."
+redirect_verbiage = redirect_verbiage & vbCr & vbCr & "NOTES - Health Care Evaulation is the script to support documenting details about new requests for Health Care."
+redirect_verbiage = redirect_verbiage & vbCr & "- - You can check out the Hot Topic and "
+redirect_verbiage = redirect_verbiage & vbCr & "    Video Demo about using this new script."
 redirect_verbiage = redirect_verbiage & vbCr & "----------------------------------------------"
-redirect_verbiage = redirect_verbiage & vbCr & "Would you like to run NOTES - Health Care Evaluation now?"
-redirect_to_hc_eval = MsgBox(redirect_verbiage, vbQuestion + vbYesNo, "Run new NOTES - Health Care Evaluation Script?")
-If redirect_to_hc_eval = vbYes Then Call run_from_GitHub(script_repository & "notes/health-care-evaluation.vbs")
+redirect_verbiage = redirect_verbiage & vbCr & "This script will now run NOTES - Health Care Evaluation"
+redirect_to_hc_eval = MsgBox(redirect_verbiage, 48, "Redirecting to new NOTES - Health Care Evaluation Script")
+Call run_from_GitHub(script_repository & "notes/health-care-evaluation.vbs")
 
 'CHANGELOG BLOCK ===========================================================================================================
 'Starts by defining a changelog array
