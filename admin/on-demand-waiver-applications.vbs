@@ -102,7 +102,7 @@ If number_of_rows = 0 Then
 	script_info_for_email = script_info_for_email & vbCr & "The BlueZone Script Team will need to connect with the BI Team to review the data issues and will provide additional information as it becomes available."
 	script_info_for_email = script_info_for_email & vbCr & vbCr & "There is no workaround for this issue and was not caused by any individual, it was caused by a data upload/connection issue that is scheduled to happen automatically and failed for some reason. The BlueZone Script Team will provide addtional information once we have it from the BI Team."
 	script_info_for_email = script_info_for_email & vbCr & vbCR & "EMAIL AUTOMATED BY THE ON DEMAND DASHBOARD SCRIPT"
-	Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "Tanya.Payne@Hennepin.us", "URGENT - On Demand Pending Table Empty", script_info_for_email, "", False)
+	Call create_outlook_email("HSPH.EWS.BlueZoneScripts@hennepin.us", "Tanya.Payne@Hennepin.us", "URGENT - On Demand Pending Table Empty", script_info_for_email, "", True)
 	Call script_end_procedure("The On Demand BULK Run cannot be completed as the correct data does not exist. Tanya and The BZST has been alerted. You cannot run the On Demand BULK Run at this time.")
 End if
 
