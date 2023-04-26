@@ -1117,7 +1117,7 @@ If first_item_date <> date Then
 							  "VALUES ('" & ALL_PENDING_CASES_ARRAY(case_number, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(client_name, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(application_date, case_entry) &  "', '" & _
-											ALL_PENDING_CASES_ARRAY(additional_app_date, case_entry) &  "', '" & _
+											ALL_PENDING_CASES_ARRAY(interview_date, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(data_day_30, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(data_days_pend, case_entry) &  "', '" & _
 											ALL_PENDING_CASES_ARRAY(SNAP_status, case_entry) &  "', '" & _
