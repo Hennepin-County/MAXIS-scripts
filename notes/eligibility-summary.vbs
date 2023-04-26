@@ -427,89 +427,106 @@ function define_dwp_elig_dialog()
 			Text 15, 25, 150, 10, "DWP has reached the 4 Month Time Limit."
 			Text 15, 35, 200, 10, "As of " & DWP_UNIQUE_APPROVALS(first_mo_const, each_app) & " there are no more months of DWP available."
 
-		ElseIf DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
-
-			GroupBox 5, 10, 425, 140, "Budget Detail"
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then
-				Text 250, 20, 200, 10, "Income Exceeds the Income Limit of " &  DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level
-			End If
-			Text 20, 35, 120, 10, "Rent/Mortgage .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage
-		    Text 20, 45, 120, 10, "Property Tax .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax
-		    Text 20, 55, 120, 10, "House Insurance .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance
-		    Text 20, 65, 120, 10, "Electricity .  .  .  .  .  .  .  . $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity
-		    Text 20, 75, 120, 10, "Heating/Air .  .  .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air
-		    Text 20, 85, 120, 10, "Water/Sewer/Grbg .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage
-		    Text 20, 95, 120, 10, "Telephone .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone
-		    Text 20, 105, 120, 10, "Other .  .  .  .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other
-		    GroupBox 10, 20, 135, 115, "Housing and Utility Expense"
-		    Text 35, 120, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
-		    GroupBox 150, 20, 135, 100, "DWP Countable Income"
-		    Text 160, 35, 120, 10, "Earned Income  .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income
-		    Text 160, 45, 120, 10, "Unearned Income .   .   .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
-		    Text 160, 55, 120, 10, "Deemed Income .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income
-		    Text 160, 65, 120, 10, "CSES Exclusion .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion
-		    Text 175, 80, 105, 10, "Budget Month Total: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total
-		    Text 205, 95, 75, 10, " Prior Low: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low
-		    Text 160, 105, 120, 10, " DWP Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
-		    GroupBox 290, 20, 135, 125, "DWP Grant Calculation"
-		    Text 305, 35, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
-		    Text 300, 45, 110, 10, "+     Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs
-		    Text 300, 60, 110, 10, "=    Total DWP Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need
-		    Text 300, 70, 110, 10, "-   Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
-		    Text 305, 85, 105, 10, "=         Unmet Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need
-		    Text 315, 95, 95, 10, "DWP Max Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant
-		    Text 330, 110, 80, 10, "DWP Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant
-		    Text 330, 120, 85, 10, "  Shelter Benefit: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_shelter_benefit_portion
-		    Text 330, 130, 85, 10, "Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_personal_needs_portion
-
 		Else
-			GroupBox 5, 10, 450, 90, "Approval Detail"
-			Text 15, 20, 80, 10, " Result:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result
-			Text 15, 30, 120, 40, "Months in Approval: " & replace(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
+			If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then
 
-			Text 15, 45, 110, 10, "APPL Withdrawn:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_application_withdrawn
-			Text 15, 55, 110, 10, "Asset:                      " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_assets
-			Text 15, 65, 110, 10, "CS Disqual:              " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_CS_disqualification
-			Text 15, 75, 110, 10, "Death of Applicant:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant
-			Text 15, 85, 110, 10, "Duplicate Assist:       " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_dupl_assistance
-
-			Text 125, 45, 110, 10, "Eligible Child:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_eligible_child
-			Text 125, 55, 110, 10, "ES Disqual:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_ES_disqualification
-			Text 125, 65, 110, 10, "Fail Cooperation:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop
-			' "Fail to File:               " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file
-			Text 125, 75, 110, 10, "Four Month Limit:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit
-			Text 125, 85, 110, 10, "Initial Income:         " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income
-			' "Minor Lvg Arrang.:   " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_minor_liv_arrange
-
-			Text 235, 45, 110, 10, "MFIP Conversion:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_MFIP_conversion
-			' Text 125, 85, 110, 10, "Monthly Income:      " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income
-
-			' "Post 60 DISQ:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_post_60_disq
-			Text 235, 55, 110, 10, "Residence:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_residence
-			' "Sanction Limit:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_sanction_limit
-			Text 235, 65, 110, 10, "Strike:                    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_strike
-			Text 235, 75, 110, 10, "TANF Time Limit:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_TANF_time_limit
-
-			Text 345, 45, 100, 10, "Asset Transfer:     " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_transfer_of_assets
-			Text 345, 55, 100, 10, "Verification:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif
-			Text 345, 65, 100, 10, "New Spouse Income: " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_new_spouse_income
-			' Text 345, 75, 100, 10, "Fail QC Coop:       " & DWP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc
-
-			GroupBox 5, 105, 450, 40, "Ineligible Details"
-			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop = "FAILED" Then
-				Text 15, 120, 165, 10, "What is the date the verification request was sent? "
-				Editbox 180, 115, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
-				Text 235, 120, 150, 10, "(due date is 10 days from this request date)"
-
-				If show_pact = True Then
-					Text 15, 140, 120, 10, "List PACT reason(s) for ineligibility: "
-					Editbox 130, 135, 310, 15, DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
-					Text 130, 150, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
+				GroupBox 5, 10, 425, 140, "Budget Detail"
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income = "FAILED" Then
+					Text 250, 10, 200, 10, "Income Exceeds the Income Limit of $ " &  DWP_ELIG_APPROVALS(elig_ind).dwp_elig_initial_family_wage_level
 				End If
+				Text 20, 35, 120, 10, "Rent/Mortgage .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_rent_mortgage
+				Text 20, 45, 120, 10, "Property Tax .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_property_tax
+				Text 20, 55, 120, 10, "House Insurance .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_house_insurance
+				Text 20, 65, 120, 10, "Electricity .  .  .  .  .  .  .  . $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_electricity
+				Text 20, 75, 120, 10, "Heating/Air .  .  .  .  .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_heat_air
+				Text 20, 85, 120, 10, "Water/Sewer/Grbg .  .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_water_sewer_garbage
+				Text 20, 95, 120, 10, "Telephone .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_hest_phone
+				Text 20, 105, 120, 10, "Other .  .  .  .  .  .  .  .  .  .   $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_shel_other
+				GroupBox 10, 20, 135, 115, "Housing and Utility Expense"
+				Text 35, 120, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
+				GroupBox 150, 20, 135, 100, "DWP Countable Income"
+				Text 160, 35, 120, 10, "Earned Income  .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_earned_income
+				Text 160, 45, 120, 10, "Unearned Income .   .   .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unearned_income
+				Text 160, 55, 120, 10, "Deemed Income .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_deemed_income
+				Text 160, 65, 120, 10, "CSES Exclusion .   .   .  .  $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_child_support_exclusion
+				Text 175, 80, 105, 10, "Budget Month Total: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_budget_month_total
+				Text 205, 95, 75, 10, " Prior Low: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_prior_low
+				Text 160, 105, 120, 10, " DWP Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
+				GroupBox 290, 20, 135, 125, "DWP Grant Calculation"
+				Text 305, 35, 100, 10, "Total Shelter Costs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_shelter_costs
+				Text 300, 45, 110, 10, "+     Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_personal_needs
+				Text 300, 60, 110, 10, "=    Total DWP Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_total_DWP_need
+				Text 300, 70, 110, 10, "-   Countable Income: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_countable_income
+				Text 305, 85, 105, 10, "=         Unmet Need: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_unmet_need
+				Text 315, 95, 95, 10, "DWP Max Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_max_grant
+				Text 330, 110, 80, 10, "DWP Grant: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_budg_DWP_grant
+				Text 330, 120, 85, 10, "  Shelter Benefit: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_shelter_benefit_portion
+				Text 330, 130, 85, 10, "Personal Needs: $ " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_summary_personal_needs_portion
+			End If
 
-			Else
-				Text 15, 120, 300, 20, "This case is ineligible because it hasn't met the requirements for DWP Eligibility. The case tests above show what requirements have not been met."
-			End if
+			If DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result = "INELIGIBLE" Then
+				y_pos = 10
+				If DWP_UNIQUE_APPROVALS(include_budget_in_note_const, approval_selected) = True Then y_pos = 150
+				GroupBox 5, y_pos, 450, 80, "Approval Detail"
+				y_pos = y_pos + 10
+				Text 15, y_pos, 80, 10, " Result:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_case_eligibility_result
+				' y_pos = y_pos + 10
+				Text 100, y_pos, 300, 10, "Months in Approval: " & replace(DWP_UNIQUE_APPROVALS(months_in_approval, approval_selected), "~", ", ")
+				y_pos = y_pos + 15
+
+				Text 15, y_pos, 110, 10, "APPL Withdrawn:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_application_withdrawn
+				Text 125, y_pos, 110, 10, "Eligible Child:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_eligible_child
+				Text 235, y_pos, 110, 10, "MFIP Conversion:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_MFIP_conversion
+				Text 345, y_pos, 100, 10, "Asset Transfer:     " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_transfer_of_assets
+				y_pos = y_pos + 10
+				Text 15, y_pos, 110, 10, "Asset:                      " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_assets
+				Text 125, y_pos, 110, 10, "ES Disqual:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_ES_disqualification
+				Text 235, y_pos, 110, 10, "Residence:            " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_residence
+				Text 345, y_pos, 100, 10, "Verification:          " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif
+				y_pos = y_pos + 10
+				Text 15, y_pos, 110, 10, "CS Disqual:              " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_CS_disqualification
+				Text 125, y_pos, 110, 10, "Fail Cooperation:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop
+				Text 235, y_pos, 110, 10, "Strike:                    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_strike
+				Text 345, y_pos, 100, 10, "New Spouse Income: " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_new_spouse_income
+				y_pos = y_pos + 10
+				Text 15, y_pos, 110, 10, "Death of Applicant:  " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_death_of_applicant
+				Text 125, y_pos, 110, 10, "Four Month Limit:    " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit
+				Text 235, y_pos, 110, 10, "TANF Time Limit:   " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_TANF_time_limit
+				y_pos = y_pos + 10
+				Text 15, y_pos, 110, 10, "Duplicate Assist:       " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_dupl_assistance
+				Text 125, y_pos, 110, 10, "Initial Income:         " & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_initial_income
+				y_pos = y_pos + 15
+
+				' "Fail to File:               " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_fail_file
+				' "Minor Lvg Arrang.:   " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_minor_liv_arrange
+
+				' Text 125, 85, 110, 10, "Monthly Income:      " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_monthly_income
+
+				' "Post 60 DISQ:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_post_60_disq
+				' "Sanction Limit:     " & DWP_ELIG_APPROVALS(elig_ind).mfip_case_test_sanction_limit
+
+				' Text 345, 75, 100, 10, "Fail QC Coop:       " & DWP_ELIG_APPROVALS(elig_ind).mfip_fs_case_test_fail_coop_snap_qc
+
+				GroupBox 5, y_pos, 450, 40, "Ineligible Details"
+				y_pos = y_pos + 15
+				If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" or DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_fail_coop = "FAILED" Then
+					Text 15, y_pos, 165, 10, "What is the date the verification request was sent? "
+					Editbox 180, y_pos-5, 50, 15, DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)
+					Text 235, y_pos, 150, 10, "(due date is 10 days from this request date)"
+					y_pos = y_pos + 20
+
+					If show_pact = True Then
+						Text 15, y_pos, 120, 10, "List PACT reason(s) for ineligibility: "
+						Editbox 130, y_pos-5, 310, 15, DWP_UNIQUE_APPROVALS(pact_inelig_reasons, approval_selected)
+						y_pos = y_pos + 10
+						Text 130, y_pos, 300, 10, "Phrase this for residents as this detail will be added to the WCOM."
+					End If
+
+				Else
+					Text 15, y_pos, 300, 20, "This case is ineligible because it hasn't met the requirements for DWP Eligibility. The case tests above show what requirements have not been met."
+				End if
+				end_of_y_pos = y_pos + 5
+			End If
 		End If
 
 
@@ -570,6 +587,7 @@ function define_dwp_elig_dialog()
 
 		If DWP_ELIG_APPROVALS(elig_ind).dwp_autoclosed_for_time_limit = False and DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_four_month_limit <> "FAILED" Then
 			y_pos = 220
+			If end_of_y_pos <> "" Then y_pos = end_of_y_pos
 			GroupBox 5, y_pos, 540, income_box_len, "Income"	'205'
 			y_pos = y_pos + 10
 
@@ -25044,7 +25062,7 @@ If enter_CNOTE_for_DWP = True Then
 
 			If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_case_test_verif = "FAILED" and DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) <> "No - I need to complete a new Approval" then
 				If Isdate(DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected)) = False Then
-					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible SNAP approval."
+					err_msg = err_msg & vbNewLine & "* Enter the date the verification request form sent from ECF to detail information about missing verifications for an Ineligible DWP approval."
 				Else
 					If DateDiff("d", DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected), date) < 10 AND DWP_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected) = "Yes - budget is Accurate" Then
 						err_msg = err_msg & vbNewLine & "* The verification request date: " &  DWP_UNIQUE_APPROVALS(verif_request_date, approval_selected) & " is less than 10 days ago and we should not be taking action yet."
