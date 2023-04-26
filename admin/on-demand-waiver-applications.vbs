@@ -437,7 +437,7 @@ first_item_change = objWorkRecordSet("AuditChangeDate")
 first_item_array = split(first_item_change, " ")
 first_item_date = first_item_array(0)
 first_item_date = DateAdd("d", 0, first_item_date)
-' first_item_date = #11/4/22#
+first_item_date = #11/4/22#
 
 'If the first item has not been changed today, this is NOT a restart and we need to compare today's list
 If first_item_date <> date Then
@@ -1471,9 +1471,11 @@ Do While NOT objWorkRecordSet.Eof
 			If WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = "PENDING MORE THAN 30 DAYS" Then WORKING_LIST_CASES_ARRAY(next_action_needed, case_entry) = ""
 
 			case_review_notes = "FOLLOW UP NEEDED - " & case_review_notes
-		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
-		    WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
-		    ' "DenialNeeded"
+			If WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) <> NULL Then
+				WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = replace(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry), "STS-NR", "")
+				WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry) = trim(WORKING_LIST_CASES_ARRAY(script_notes_info, case_entry))
+			End If
+			' "DenialNeeded"
 		    ' WORKING_LIST_CASES_ARRAY(error_notes, case_entry) 			= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, worker_notes_col)
 		    ' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) 		= objWorkRecordSet("AddedtoWorkList") 'ObjWorkExcel.Cells(row, script_revw_date_col)
 		    ' WORKING_LIST_CASES_ARRAY(line_update_date, case_entry) = dateAdd("d", 0, WORKING_LIST_CASES_ARRAY(line_update_date, case_entry))
@@ -1502,7 +1504,6 @@ objWorkConnection.Close
 Set objWorkRecordSet=nothing
 Set objWorkConnection=nothing
 Set objWorkSQL=nothing
-
 
 For case_entry = 0 to UBOUND(WORKING_LIST_CASES_ARRAY, 2)
 
