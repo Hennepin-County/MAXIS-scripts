@@ -76,9 +76,6 @@ CALL changelog_update("02/05/2018", "Initial version.", "MiKayla Handley, Hennep
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
-'declare the SQL statement that will query the database
-objSQL = "SELECT * FROM ES.ES_OnDemandCashAndSnap"
-
 'Creating objects for Access
 Set objConnection = CreateObject("ADODB.Connection")
 Set objRecordSet = CreateObject("ADODB.Recordset")
