@@ -974,22 +974,29 @@ end function
 
 'this is a cleanup functionality to move the previous worklist into SQL
 function merge_worklist_to_SQL()
+	continue_msg = MSGBOX ("THIS WILL DELETE THE SQL TABLE", vbYesNo + 48 + 256, "DELETE?")
+	If continue_msg = vbNo then StopScript
+	'Creating objects for Access
+	Set objWorkConnection = CreateObject("ADODB.Connection")
+	Set objWorkRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	objWorkConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	' objWorkRecordSet.Open objWorkSQL, objWorkConnection
+
+	objWorkRecordSet.Open "DELETE FROM ES.ES_OnDemanCashAndSnapBZProcessed", objWorkConnection, 3, 3
+
+	' objWorkRecordSet.Close
+	objWorkConnection.Close
+
+	Set objWorkRecordSet=nothing
+	Set objWorkConnection=nothing
+	Set objWorkSQL=nothing
+
     'setting up information and variables for accessing yesterday's worklist
-    previous_date = dateadd("d", -1, date)
-    Call change_date_to_soonest_working_day(previous_date, "back")       'finds the most recent previous working day
-    archive_folder = DatePart("yyyy", previous_date) & "-" & right("0" & DatePart("m", previous_date), 2)
-
-    previous_date_month = DatePart("m", previous_date)
-    previous_date_day = DatePart("d", previous_date)
-    previous_date_year = DatePart("yyyy", previous_date)
-    previous_date_header = previous_date_month & "-" & previous_date_day & "-" & previous_date_year
-
-    'setting up file paths for accessing yesterday's worklist
-    archive_files = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\" & archive_folder
-
-    previous_list_file_selection_path = t_drive & "/Eligibility Support/Restricted/QI - Quality Improvement/REPORTS/On Demand Waiver/QI On Demand Daily Assignment/QI " & previous_date_header & " Worklist.xlsx"
+	previous_list_file_selection_path = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\QI On Demand Daily Assignment\Archive\Old QI Worklist.xlsx"
     Call File_Exists(previous_list_file_selection_path, does_file_exist)
-    previous_worksheet_header = "Work List for " & previous_date_month & "-" & previous_date_day & "-" & previous_date_year
+    previous_worksheet_header = "Work List"
 
 	yesterday_case_list = 0
 
@@ -1003,17 +1010,12 @@ function merge_worklist_to_SQL()
 		xl_row = 2
 		Do
 			this_case = trim(ObjYestExcel.Cells(xl_row, 2).Value)
+			the_name =  trim(ObjYestExcel.Cells(xl_row, 3).Value)
+			the_snap_status =  trim(ObjYestExcel.Cells(xl_row, 4).Value)
+			the_cash_status =  trim(ObjYestExcel.Cells(xl_row, 5).Value)
+			the_pnd2_days =  trim(ObjYestExcel.Cells(xl_row, 6).Value)
+			the_app_date =  trim(ObjYestExcel.Cells(xl_row, 7).Value)
 			If this_case <> "" Then
-                worklist_notes = ""
-                yesterday_list_case_number = trim(ObjYestExcel.Cells(xl_row, 2).Value)
-                yesterday_notes = replace(ObjYestExcel.Cells(xl_row, 23).Value, "FOLLOW UP NEEDED", "")
-                yesterday_notes = replace(yesterday_notes, "  ", " ")
-                yesterday_notes = replace(yesterday_notes, "'", "")
-                yesterday_notes = trim(yesterday_notes)
-                yesterday_action = ObjYestExcel.Cells(xl_row, 22).Value
-                yesterday_action = trim(yesterday_action)
-                If yesterday_action = "FOLLOW UP NEEDED" Then worklist_notes = trim(yesterday_action) & " - " & yesterday_notes
-                If yesterday_action <> "FOLLOW UP NEEDED" Then worklist_notes = yesterday_notes
 
                 'Creating objects for Access
                 Set objConnection = CreateObject("ADODB.Connection")
@@ -1023,7 +1025,15 @@ function merge_worklist_to_SQL()
                 objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
 
                 'delete a record if the case number matches
-                objRecordSet.Open "UPDATE ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & worklist_notes & "' WHERE CaseNumber = '" & yesterday_list_case_number & "'", objConnection
+                ' objRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed SET TrackingNotes = '" & worklist_notes & "' WHERE CaseNumber = '" & yesterday_list_case_number & "'", objConnection
+				objRecordSet.Open "INSERT INTO ES.ES_OnDemanCashAndSnapBZProcessed (CaseNumber, CaseName, ApplDate, SnapStatus, CashStatus, REPT_PND2Days)" & _
+								  "VALUES ('" & this_case &  "', '" & _
+										the_name &  "', '" & _
+										the_app_date &  "', '" & _
+										the_snap_status &  "', '" & _
+										the_cash_status &  "', '" & _
+										the_pnd2_days & "')", objConnection, 3, 3
+
 
                 'close the connection and recordset objects to free up resources
                 objConnection.Close
@@ -1302,7 +1312,10 @@ If user_ID_for_validation = "CALO001" or user_ID_for_validation = "ILFE001" Then
     dialog Dialog1
 
     If run_demo = "Yes" Then local_demo = True
-    If clean_up_list = "Yes" Then Call merge_worklist_to_SQL
+    If clean_up_list = "Yes" Then
+		MsgBox "THIS WILL CLEAN THE SQL TABLE AND DELETE IT."
+		Call merge_worklist_to_SQL
+	End If
 
     If local_demo = False Then ADMIN_run = True
 End If
