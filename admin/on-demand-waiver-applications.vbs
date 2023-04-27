@@ -437,7 +437,7 @@ first_item_change = objWorkRecordSet("AuditChangeDate")
 first_item_array = split(first_item_change, " ")
 first_item_date = first_item_array(0)
 first_item_date = DateAdd("d", 0, first_item_date)
-first_item_date = #11/4/22#
+' first_item_date = #11/4/22#
 
 'If the first item has not been changed today, this is NOT a restart and we need to compare today's list
 If first_item_date <> date Then
