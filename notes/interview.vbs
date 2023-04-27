@@ -8509,8 +8509,8 @@ const jobs_notes 					= 8
 
 Const end_of_doc = 6			'This is for word document ennumeration
 
-' Call find_user_name(worker_name)						'defaulting the name of the suer running the script
-worker_name = user_ID_for_validation
+Call find_user_name(worker_name)						'defaulting the name of the suer running the script
+' worker_name = user_ID_for_validation
 Dim TABLE_ARRAY
 Dim ALL_CLIENTS_ARRAY
 Dim JOBS_ARRAY
