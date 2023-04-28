@@ -480,9 +480,39 @@ function define_main_dialog()
 							Text 80, y_pos, 350, 10,  date_detail
 							y_pos = y_pos + 10
 						End If
-
-
-
+						If STAT_INFORMATION(month_ind).stat_pben_type_code_four(each_memb) <> "" Then
+							Text 55, y_pos, 410, 10,  STAT_INFORMATION(month_ind).stat_pben_type_info_four(each_memb) & "   -   Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_four(each_memb) & "   -   Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_four(each_memb)
+							y_pos = y_pos + 10
+							date_detail = ""
+							If STAT_INFORMATION(month_ind).stat_pben_referral_date_four(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_four(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_date_applied_four(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_four(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_iaa_date_four(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_four(each_memb) & "   -   "
+							date_detail = left(date_detail, len(date_detail)-7)
+							Text 80, y_pos, 350, 10,  date_detail
+							y_pos = y_pos + 10
+						End If
+						If STAT_INFORMATION(month_ind).stat_pben_type_code_five(each_memb) <> "" Then
+							Text 55, y_pos, 410, 10,  STAT_INFORMATION(month_ind).stat_pben_type_info_five(each_memb) & "   -   Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_five(each_memb) & "   -   Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_five(each_memb)
+							y_pos = y_pos + 10
+							date_detail = ""
+							If STAT_INFORMATION(month_ind).stat_pben_referral_date_five(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_five(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_date_applied_five(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_five(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_iaa_date_five(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_five(each_memb) & "   -   "
+							date_detail = left(date_detail, len(date_detail)-7)
+							Text 80, y_pos, 350, 10,  date_detail
+							y_pos = y_pos + 10
+						End If
+						If STAT_INFORMATION(month_ind).stat_pben_type_code_six(each_memb) <> "" Then
+							Text 55, y_pos, 410, 10,  STAT_INFORMATION(month_ind).stat_pben_type_info_six(each_memb) & "   -   Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_six(each_memb) & "   -   Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_six(each_memb)
+							y_pos = y_pos + 10
+							date_detail = ""
+							If STAT_INFORMATION(month_ind).stat_pben_referral_date_six(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_six(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_date_applied_six(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_six(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_iaa_date_six(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_six(each_memb) & "   -   "
+							date_detail = left(date_detail, len(date_detail)-7)
+							Text 80, y_pos, 350, 10,  date_detail
+							y_pos = y_pos + 10
+						End If
 						y_pos = y_pos + 5
 						Text 55, y_pos, 45, 10, "PBEN Notes:"
 						EditBox 100, y_pos-5, 365, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_pben_notes(each_memb))
@@ -4379,6 +4409,63 @@ Next
 Call write_bullet_and_variable_in_CASE_NOTE("Unearned Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_unea_general_notes))
 Call write_bullet_and_variable_in_CASE_NOTE("RETRO Income Notes", retro_income_detail)
 If income_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No Income for this Case.")
+
+
+For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+	If STAT_INFORMATION(month_ind).stat_pben_exists(each_memb) = True Then
+		Call write_variable_in_CASE_NOTE("MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb) & " Potential Benefits")
+		If STAT_INFORMATION(month_ind).stat_pben_type_code_one(each_memb) <> "" Then
+			date_detail = ""
+			If STAT_INFORMATION(month_ind).stat_pben_referral_date_one(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_one(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_date_applied_one(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_one(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_one(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_one(each_memb) & ", "
+			date_detail = left(date_detail, len(date_detail)-2)
+			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_one(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_one(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_one(each_memb) & "; " & date_detail)
+		End If
+		If STAT_INFORMATION(month_ind).stat_pben_type_code_two(each_memb) <> "" Then
+			date_detail = ""
+			If STAT_INFORMATION(month_ind).stat_pben_referral_date_two(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_two(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_date_applied_two(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_two(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_two(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_two(each_memb) & ", "
+			date_detail = left(date_detail, len(date_detail)-2)
+			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_two(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_two(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_two(each_memb) & "; " & date_detail)
+		End If
+		If STAT_INFORMATION(month_ind).stat_pben_type_code_three(each_memb) <> "" Then
+			date_detail = ""
+			If STAT_INFORMATION(month_ind).stat_pben_referral_date_three(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_three(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_date_applied_three(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_three(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_three(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_three(each_memb) & ", "
+			date_detail = left(date_detail, len(date_detail)-2)
+			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_three(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_three(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_three(each_memb) & "; " & date_detail)
+		End If
+		If STAT_INFORMATION(month_ind).stat_pben_type_code_four(each_memb) <> "" Then
+			date_detail = ""
+			If STAT_INFORMATION(month_ind).stat_pben_referral_date_four(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_four(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_date_applied_four(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_four(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_four(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_four(each_memb) & ", "
+			date_detail = left(date_detail, len(date_detail)-2)
+			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_four(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_four(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_four(each_memb) & "; " & date_detail)
+		End If
+		If STAT_INFORMATION(month_ind).stat_pben_type_code_five(each_memb) <> "" Then
+			date_detail = ""
+			If STAT_INFORMATION(month_ind).stat_pben_referral_date_five(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_five(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_date_applied_five(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_five(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_five(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_five(each_memb) & ", "
+			date_detail = left(date_detail, len(date_detail)-2)
+			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_five(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_five(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_five(each_memb) & "; " & date_detail)
+		End If
+		If STAT_INFORMATION(month_ind).stat_pben_type_code_six(each_memb) <> "" Then
+			date_detail = ""
+			If STAT_INFORMATION(month_ind).stat_pben_referral_date_six(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_six(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_date_applied_six(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_six(each_memb) & ", "
+			If STAT_INFORMATION(month_ind).stat_pben_iaa_date_six(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_six(each_memb) & ", "
+			date_detail = left(date_detail, len(date_detail)-2)
+			Call write_header_and_detail_in_CASE_NOTE(STAT_INFORMATION(month_ind).stat_pben_type_info_six(each_memb), "Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_six(each_memb) & " - Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_six(each_memb) & "; " & date_detail)
+		End If
+		Call write_header_and_detail_in_CASE_NOTE("PBEN Info", EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_pben_notes(each_memb)))
+
+	End If
+Next
 
 Call write_variable_in_CASE_NOTE("============================== ASSETS ==============================")
 If (avs_form_status <> "Select One..." and avs_form_status <> "") OR trim(avs_form_notes) <> "" OR trim(avs_portal_notes) <> "" Then
