@@ -1091,7 +1091,62 @@ class stat_detail
 	Public stat_faci_county_approval_placement_yn()
 	Public stat_faci_approval_county()
 
-
+	Public stat_pben_exists()
+	Public stat_pben_type_code_one()
+	Public stat_pben_type_info_one()
+	Public stat_pben_referral_date_one()
+	Public stat_pben_date_applied_one()
+	Public stat_pben_verif_code_one()
+	Public stat_pben_verif_info_one()
+	Public stat_pben_iaa_date_one()
+	Public stat_pben_disp_code_one()
+	Public stat_pben_disp_info_one()
+	Public stat_pben_type_code_two()
+	Public stat_pben_type_info_two()
+	Public stat_pben_referral_date_two()
+	Public stat_pben_date_applied_two()
+	Public stat_pben_verif_code_two()
+	Public stat_pben_verif_info_two()
+	Public stat_pben_iaa_date_two()
+	Public stat_pben_disp_code_two()
+	Public stat_pben_disp_info_two()
+	Public stat_pben_type_code_three()
+	Public stat_pben_type_info_three()
+	Public stat_pben_referral_date_three()
+	Public stat_pben_date_applied_three()
+	Public stat_pben_verif_code_three()
+	Public stat_pben_verif_info_three()
+	Public stat_pben_iaa_date_three()
+	Public stat_pben_disp_code_three()
+	Public stat_pben_disp_info_three()
+	Public stat_pben_type_code_four()
+	Public stat_pben_type_info_four()
+	Public stat_pben_referral_date_four()
+	Public stat_pben_date_applied_four()
+	Public stat_pben_verif_code_four()
+	Public stat_pben_verif_info_four()
+	Public stat_pben_iaa_date_four()
+	Public stat_pben_disp_code_four()
+	Public stat_pben_disp_info_four()
+	Public stat_pben_type_code_five()
+	Public stat_pben_type_info_five()
+	Public stat_pben_referral_date_five()
+	Public stat_pben_date_applied_five()
+	Public stat_pben_verif_code_five()
+	Public stat_pben_verif_info_five()
+	Public stat_pben_iaa_date_five()
+	Public stat_pben_disp_code_five()
+	Public stat_pben_disp_info_five()
+	Public stat_pben_type_code_six()
+	Public stat_pben_type_info_six()
+	Public stat_pben_referral_date_six()
+	Public stat_pben_date_applied_six()
+	Public stat_pben_verif_code_six()
+	Public stat_pben_verif_info_six()
+	Public stat_pben_iaa_date_six()
+	Public stat_pben_disp_code_six()
+	Public stat_pben_disp_info_six()
+	Public stat_pben_notes()
 
 	'THIS is on a different array increment - by insa panel
 	Public stat_insa_exists()
@@ -2219,7 +2274,62 @@ class stat_detail
 		ReDim stat_faci_county_approval_placement_yn(0)
 		ReDim stat_faci_approval_county(0)
 
-
+		ReDim stat_pben_exists(0)
+		ReDim stat_pben_type_code_one(0)
+		ReDim stat_pben_type_info_one(0)
+		ReDim stat_pben_referral_date_one(0)
+		ReDim stat_pben_date_applied_one(0)
+		ReDim stat_pben_verif_code_one(0)
+		ReDim stat_pben_verif_info_one(0)
+		ReDim stat_pben_iaa_date_one(0)
+		ReDim stat_pben_disp_code_one(0)
+		ReDim stat_pben_disp_info_one(0)
+		ReDim stat_pben_type_code_two(0)
+		ReDim stat_pben_type_info_two(0)
+		ReDim stat_pben_referral_date_two(0)
+		ReDim stat_pben_date_applied_two(0)
+		ReDim stat_pben_verif_code_two(0)
+		ReDim stat_pben_verif_info_two(0)
+		ReDim stat_pben_iaa_date_two(0)
+		ReDim stat_pben_disp_code_two(0)
+		ReDim stat_pben_disp_info_two(0)
+		ReDim stat_pben_type_code_three(0)
+		ReDim stat_pben_type_info_three(0)
+		ReDim stat_pben_referral_date_three(0)
+		ReDim stat_pben_date_applied_three(0)
+		ReDim stat_pben_verif_code_three(0)
+		ReDim stat_pben_verif_info_three(0)
+		ReDim stat_pben_iaa_date_three(0)
+		ReDim stat_pben_disp_code_three(0)
+		ReDim stat_pben_disp_info_three(0)
+		ReDim stat_pben_type_code_four(0)
+		ReDim stat_pben_type_info_four(0)
+		ReDim stat_pben_referral_date_four(0)
+		ReDim stat_pben_date_applied_four(0)
+		ReDim stat_pben_verif_code_four(0)
+		ReDim stat_pben_verif_info_four(0)
+		ReDim stat_pben_iaa_date_four(0)
+		ReDim stat_pben_disp_code_four(0)
+		ReDim stat_pben_disp_info_four(0)
+		ReDim stat_pben_type_code_five(0)
+		ReDim stat_pben_type_info_five(0)
+		ReDim stat_pben_referral_date_five(0)
+		ReDim stat_pben_date_applied_five(0)
+		ReDim stat_pben_verif_code_five(0)
+		ReDim stat_pben_verif_info_five(0)
+		ReDim stat_pben_iaa_date_five(0)
+		ReDim stat_pben_disp_code_five(0)
+		ReDim stat_pben_disp_info_five(0)
+		ReDim stat_pben_type_code_six(0)
+		ReDim stat_pben_type_info_six(0)
+		ReDim stat_pben_referral_date_six(0)
+		ReDim stat_pben_date_applied_six(0)
+		ReDim stat_pben_verif_code_six(0)
+		ReDim stat_pben_verif_info_six(0)
+		ReDim stat_pben_iaa_date_six(0)
+		ReDim stat_pben_disp_code_six(0)
+		ReDim stat_pben_disp_info_six(0)
+		ReDim stat_pben_notes(0)
 
 		'THIS is on a different array increment - by insa panel
 		ReDim stat_insa_exists(0)
@@ -3227,6 +3337,62 @@ class stat_detail
 				ReDim preserve stat_faci_county_approval_placement_yn(memb_count)
 				ReDim preserve stat_faci_approval_county(memb_count)
 
+				ReDim preserve stat_pben_exists(memb_count)
+				ReDim preserve stat_pben_type_code_one(memb_count)
+				ReDim preserve stat_pben_type_info_one(memb_count)
+				ReDim preserve stat_pben_referral_date_one(memb_count)
+				ReDim preserve stat_pben_date_applied_one(memb_count)
+				ReDim preserve stat_pben_verif_code_one(memb_count)
+				ReDim preserve stat_pben_verif_info_one(memb_count)
+				ReDim preserve stat_pben_iaa_date_one(memb_count)
+				ReDim preserve stat_pben_disp_code_one(memb_count)
+				ReDim preserve stat_pben_disp_info_one(memb_count)
+				ReDim preserve stat_pben_type_code_two(memb_count)
+				ReDim preserve stat_pben_type_info_two(memb_count)
+				ReDim preserve stat_pben_referral_date_two(memb_count)
+				ReDim preserve stat_pben_date_applied_two(memb_count)
+				ReDim preserve stat_pben_verif_code_two(memb_count)
+				ReDim preserve stat_pben_verif_info_two(memb_count)
+				ReDim preserve stat_pben_iaa_date_two(memb_count)
+				ReDim preserve stat_pben_disp_code_two(memb_count)
+				ReDim preserve stat_pben_disp_info_two(memb_count)
+				ReDim preserve stat_pben_type_code_three(memb_count)
+				ReDim preserve stat_pben_type_info_three(memb_count)
+				ReDim preserve stat_pben_referral_date_three(memb_count)
+				ReDim preserve stat_pben_date_applied_three(memb_count)
+				ReDim preserve stat_pben_verif_code_three(memb_count)
+				ReDim preserve stat_pben_verif_info_three(memb_count)
+				ReDim preserve stat_pben_iaa_date_three(memb_count)
+				ReDim preserve stat_pben_disp_code_three(memb_count)
+				ReDim preserve stat_pben_disp_info_three(memb_count)
+				ReDim preserve stat_pben_type_code_four(memb_count)
+				ReDim preserve stat_pben_type_info_four(memb_count)
+				ReDim preserve stat_pben_referral_date_four(memb_count)
+				ReDim preserve stat_pben_date_applied_four(memb_count)
+				ReDim preserve stat_pben_verif_code_four(memb_count)
+				ReDim preserve stat_pben_verif_info_four(memb_count)
+				ReDim preserve stat_pben_iaa_date_four(memb_count)
+				ReDim preserve stat_pben_disp_code_four(memb_count)
+				ReDim preserve stat_pben_disp_info_four(memb_count)
+				ReDim preserve stat_pben_type_code_five(memb_count)
+				ReDim preserve stat_pben_type_info_five(memb_count)
+				ReDim preserve stat_pben_referral_date_five(memb_count)
+				ReDim preserve stat_pben_date_applied_five(memb_count)
+				ReDim preserve stat_pben_verif_code_five(memb_count)
+				ReDim preserve stat_pben_verif_info_five(memb_count)
+				ReDim preserve stat_pben_iaa_date_five(memb_count)
+				ReDim preserve stat_pben_disp_code_five(memb_count)
+				ReDim preserve stat_pben_disp_info_five(memb_count)
+				ReDim preserve stat_pben_type_code_six(memb_count)
+				ReDim preserve stat_pben_type_info_six(memb_count)
+				ReDim preserve stat_pben_referral_date_six(memb_count)
+				ReDim preserve stat_pben_date_applied_six(memb_count)
+				ReDim preserve stat_pben_verif_code_six(memb_count)
+				ReDim preserve stat_pben_verif_info_six(memb_count)
+				ReDim preserve stat_pben_iaa_date_six(memb_count)
+				ReDim preserve stat_pben_disp_code_six(memb_count)
+				ReDim preserve stat_pben_disp_info_six(memb_count)
+				ReDim preserve stat_pben_notes(memb_count)
 
 				EMReadScreen stat_memb_ref_numb(memb_count), 2, 4, 33
 				EMReadScreen stat_memb_last_name(memb_count), 25, 6, 30
@@ -7063,6 +7229,335 @@ class stat_detail
 			End If
 		Next
 
+		call navigate_to_MAXIS_screen("STAT", "PBEN")
+		For each_memb = 0 to UBound(stat_memb_ref_numb)
+			EMWriteScreen stat_memb_ref_numb(each_memb), 20, 76
+			transmit
+			EMReadScreen existance_check, 1, 2, 73
+			stat_pben_exists(each_memb) = True
+			If existance_check = "0" Then stat_pben_exists(each_memb) = False
+
+			If stat_pben_exists(each_memb) = True Then
+
+				pben_row = 8
+				EMReadScreen stat_pben_type_code_one(each_memb), 2, pben_row, 24
+				If stat_pben_type_code_one(each_memb) = "__" Then
+					stat_pben_type_code_one(each_memb) = ""
+				Else
+					EMReadScreen stat_pben_referral_date_one(each_memb), 8, pben_row, 40
+					EMReadScreen stat_pben_date_applied_one(each_memb), 8, pben_row, 51
+					EMReadScreen stat_pben_verif_code_one(each_memb), 1, pben_row, 62
+					EMReadScreen stat_pben_iaa_date_one(each_memb), 8, pben_row, 66
+					EMReadScreen stat_pben_disp_code_one(each_memb), 1, pben_row, 77
+
+					If stat_pben_referral_date_one(each_memb) = "__ __ __" Then stat_pben_referral_date_one(each_memb) = ""
+					stat_pben_referral_date_one(each_memb) = replace(stat_pben_referral_date_one(each_memb), " ", "/")
+
+					If stat_pben_date_applied_one(each_memb) = "__ __ __" Then stat_pben_date_applied_one(each_memb) = ""
+					stat_pben_date_applied_one(each_memb) = replace(stat_pben_date_applied_one(each_memb), " ", "/")
+
+					If stat_pben_iaa_date_one(each_memb) = "__ __ __" Then stat_pben_iaa_date_one(each_memb) = ""
+					stat_pben_iaa_date_one(each_memb) = replace(stat_pben_iaa_date_one(each_memb), " ", "/")
+
+					If stat_pben_type_code_one(each_memb) = "01" Then stat_pben_type_info_one(each_memb) = "RSDI"
+					If stat_pben_type_code_one(each_memb) = "02" Then stat_pben_type_info_one(each_memb) = "SSI"
+					If stat_pben_type_code_one(each_memb) = "06" Then stat_pben_type_info_one(each_memb) = "Child Support"
+					If stat_pben_type_code_one(each_memb) = "07" Then stat_pben_type_info_one(each_memb) = "Alimony"
+					If stat_pben_type_code_one(each_memb) = "08" Then stat_pben_type_info_one(each_memb) = "VA Disability"
+					If stat_pben_type_code_one(each_memb) = "09" Then stat_pben_type_info_one(each_memb) = "VA Pension"
+					If stat_pben_type_code_one(each_memb) = "10" Then stat_pben_type_info_one(each_memb) = "VA Dependent Educational"
+					If stat_pben_type_code_one(each_memb) = "11" Then stat_pben_type_info_one(each_memb) = "VA Dependent Other"
+					If stat_pben_type_code_one(each_memb) = "12" Then stat_pben_type_info_one(each_memb) = "Unemployment Insurance"
+					If stat_pben_type_code_one(each_memb) = "13" Then stat_pben_type_info_one(each_memb) = "Worker's Compensation"
+					If stat_pben_type_code_one(each_memb) = "14" Then stat_pben_type_info_one(each_memb) = "Railroad Retirement"
+					If stat_pben_type_code_one(each_memb) = "15" Then stat_pben_type_info_one(each_memb) = "Other Retirement"
+					If stat_pben_type_code_one(each_memb) = "16" Then stat_pben_type_info_one(each_memb) = "Military Allotment"
+					If stat_pben_type_code_one(each_memb) = "17" Then stat_pben_type_info_one(each_memb) = "EITC"
+					If stat_pben_type_code_one(each_memb) = "18" Then stat_pben_type_info_one(each_memb) = "Strike Pay"
+					If stat_pben_type_code_one(each_memb) = "19" Then stat_pben_type_info_one(each_memb) = "Other"
+					If stat_pben_type_code_one(each_memb) = "21" Then stat_pben_type_info_one(each_memb) = "SMRT"
+
+					If stat_pben_verif_code_one(each_memb) = "1" Then stat_pben_verif_info_one(each_memb) = "Copy of Check Stubs"
+					If stat_pben_verif_code_one(each_memb) = "2" Then stat_pben_verif_info_one(each_memb) = "Award Letters"
+					If stat_pben_verif_code_one(each_memb) = "3" Then stat_pben_verif_info_one(each_memb) = "System Initiated Verif"
+					If stat_pben_verif_code_one(each_memb) = "4" Then stat_pben_verif_info_one(each_memb) = "Collateral Statement"
+					If stat_pben_verif_code_one(each_memb) = "5" Then stat_pben_verif_info_one(each_memb) = "Other Document"
+					If stat_pben_verif_code_one(each_memb) = "N" Then stat_pben_verif_info_one(each_memb) = "No Verif Provided"
+
+					If stat_pben_disp_code_one(each_memb) = "A" Then stat_pben_disp_info_one(each_memb) = "Appealing"
+					If stat_pben_disp_code_one(each_memb) = "D" Then stat_pben_disp_info_one(each_memb) = "Denied"
+					If stat_pben_disp_code_one(each_memb) = "E" Then stat_pben_disp_info_one(each_memb) = "Eligible"
+					If stat_pben_disp_code_one(each_memb) = "P" Then stat_pben_disp_info_one(each_memb) = "Pending"
+					If stat_pben_disp_code_one(each_memb) = "N" Then stat_pben_disp_info_one(each_memb) = "Not Applied Yet"
+					If stat_pben_disp_code_one(each_memb) = "R" Then stat_pben_disp_info_one(each_memb) = "Refused to Accept"
+				End if
+				pben_row = pben_row + 1
+
+				EMReadScreen stat_pben_type_code_two(each_memb), 2, pben_row, 24
+				If stat_pben_type_code_two(each_memb) = "__" Then
+					stat_pben_type_code_two(each_memb) = ""
+				Else
+					EMReadScreen stat_pben_referral_date_two(each_memb), 8, pben_row, 40
+					EMReadScreen stat_pben_date_applied_two(each_memb), 8, pben_row, 51
+					EMReadScreen stat_pben_verif_code_two(each_memb), 1, pben_row, 62
+					EMReadScreen stat_pben_iaa_date_two(each_memb), 8, pben_row, 66
+					EMReadScreen stat_pben_disp_code_two(each_memb), 1, pben_row, 77
+
+					If stat_pben_referral_date_two(each_memb) = "__ __ __" Then stat_pben_referral_date_two(each_memb) = ""
+					stat_pben_referral_date_two(each_memb) = replace(stat_pben_referral_date_two(each_memb), " ", "/")
+
+					If stat_pben_date_applied_two(each_memb) = "__ __ __" Then stat_pben_date_applied_two(each_memb) = ""
+					stat_pben_date_applied_two(each_memb) = replace(stat_pben_date_applied_two(each_memb), " ", "/")
+
+					If stat_pben_iaa_date_two(each_memb) = "__ __ __" Then stat_pben_iaa_date_two(each_memb) = ""
+					stat_pben_iaa_date_two(each_memb) = replace(stat_pben_iaa_date_two(each_memb), " ", "/")
+
+					If stat_pben_type_code_two(each_memb) = "01" Then stat_pben_type_info_two(each_memb) = "RSDI"
+					If stat_pben_type_code_two(each_memb) = "02" Then stat_pben_type_info_two(each_memb) = "SSI"
+					If stat_pben_type_code_two(each_memb) = "06" Then stat_pben_type_info_two(each_memb) = "Child Support"
+					If stat_pben_type_code_two(each_memb) = "07" Then stat_pben_type_info_two(each_memb) = "Alimony"
+					If stat_pben_type_code_two(each_memb) = "08" Then stat_pben_type_info_two(each_memb) = "VA Disability"
+					If stat_pben_type_code_two(each_memb) = "09" Then stat_pben_type_info_two(each_memb) = "VA Pension"
+					If stat_pben_type_code_two(each_memb) = "10" Then stat_pben_type_info_two(each_memb) = "VA Dependent Educational"
+					If stat_pben_type_code_two(each_memb) = "11" Then stat_pben_type_info_two(each_memb) = "VA Dependent Other"
+					If stat_pben_type_code_two(each_memb) = "12" Then stat_pben_type_info_two(each_memb) = "Unemployment Insurance"
+					If stat_pben_type_code_two(each_memb) = "13" Then stat_pben_type_info_two(each_memb) = "Worker's Compensation"
+					If stat_pben_type_code_two(each_memb) = "14" Then stat_pben_type_info_two(each_memb) = "Railroad Retirement"
+					If stat_pben_type_code_two(each_memb) = "15" Then stat_pben_type_info_two(each_memb) = "Other Retirement"
+					If stat_pben_type_code_two(each_memb) = "16" Then stat_pben_type_info_two(each_memb) = "Military Allotment"
+					If stat_pben_type_code_two(each_memb) = "17" Then stat_pben_type_info_two(each_memb) = "EITC"
+					If stat_pben_type_code_two(each_memb) = "18" Then stat_pben_type_info_two(each_memb) = "Strike Pay"
+					If stat_pben_type_code_two(each_memb) = "19" Then stat_pben_type_info_two(each_memb) = "Other"
+					If stat_pben_type_code_two(each_memb) = "21" Then stat_pben_type_info_two(each_memb) = "SMRT"
+
+					If stat_pben_verif_code_two(each_memb) = "1" Then stat_pben_verif_info_two(each_memb) = "Copy of Check Stubs"
+					If stat_pben_verif_code_two(each_memb) = "2" Then stat_pben_verif_info_two(each_memb) = "Award Letters"
+					If stat_pben_verif_code_two(each_memb) = "3" Then stat_pben_verif_info_two(each_memb) = "System Initiated Verif"
+					If stat_pben_verif_code_two(each_memb) = "4" Then stat_pben_verif_info_two(each_memb) = "Collateral Statement"
+					If stat_pben_verif_code_two(each_memb) = "5" Then stat_pben_verif_info_two(each_memb) = "Other Document"
+					If stat_pben_verif_code_two(each_memb) = "N" Then stat_pben_verif_info_two(each_memb) = "No Verif Provided"
+
+					If stat_pben_disp_code_two(each_memb) = "A" Then stat_pben_disp_info_two(each_memb) = "Appealing"
+					If stat_pben_disp_code_two(each_memb) = "D" Then stat_pben_disp_info_two(each_memb) = "Denied"
+					If stat_pben_disp_code_two(each_memb) = "E" Then stat_pben_disp_info_two(each_memb) = "Eligible"
+					If stat_pben_disp_code_two(each_memb) = "P" Then stat_pben_disp_info_two(each_memb) = "Pending"
+					If stat_pben_disp_code_two(each_memb) = "N" Then stat_pben_disp_info_two(each_memb) = "Not Applied Yet"
+					If stat_pben_disp_code_two(each_memb) = "R" Then stat_pben_disp_info_two(each_memb) = "Refused to Accept"
+				End if
+				pben_row = pben_row + 1
+
+				EMReadScreen stat_pben_type_code_three(each_memb), 2, pben_row, 24
+				If stat_pben_type_code_three(each_memb) = "__" Then
+					stat_pben_type_code_three(each_memb) = ""
+				Else
+					EMReadScreen stat_pben_referral_date_three(each_memb), 8, pben_row, 40
+					EMReadScreen stat_pben_date_applied_three(each_memb), 8, pben_row, 51
+					EMReadScreen stat_pben_verif_code_three(each_memb), 1, pben_row, 62
+					EMReadScreen stat_pben_iaa_date_three(each_memb), 8, pben_row, 66
+					EMReadScreen stat_pben_disp_code_three(each_memb), 1, pben_row, 77
+
+					If stat_pben_referral_date_three(each_memb) = "__ __ __" Then stat_pben_referral_date_three(each_memb) = ""
+					stat_pben_referral_date_three(each_memb) = replace(stat_pben_referral_date_three(each_memb), " ", "/")
+
+					If stat_pben_date_applied_three(each_memb) = "__ __ __" Then stat_pben_date_applied_three(each_memb) = ""
+					stat_pben_date_applied_three(each_memb) = replace(stat_pben_date_applied_three(each_memb), " ", "/")
+
+					If stat_pben_iaa_date_three(each_memb) = "__ __ __" Then stat_pben_iaa_date_three(each_memb) = ""
+					stat_pben_iaa_date_three(each_memb) = replace(stat_pben_iaa_date_three(each_memb), " ", "/")
+
+					If stat_pben_type_code_three(each_memb) = "01" Then stat_pben_type_info_three(each_memb) = "RSDI"
+					If stat_pben_type_code_three(each_memb) = "02" Then stat_pben_type_info_three(each_memb) = "SSI"
+					If stat_pben_type_code_three(each_memb) = "06" Then stat_pben_type_info_three(each_memb) = "Child Support"
+					If stat_pben_type_code_three(each_memb) = "07" Then stat_pben_type_info_three(each_memb) = "Alimony"
+					If stat_pben_type_code_three(each_memb) = "08" Then stat_pben_type_info_three(each_memb) = "VA Disability"
+					If stat_pben_type_code_three(each_memb) = "09" Then stat_pben_type_info_three(each_memb) = "VA Pension"
+					If stat_pben_type_code_three(each_memb) = "10" Then stat_pben_type_info_three(each_memb) = "VA Dependent Educational"
+					If stat_pben_type_code_three(each_memb) = "11" Then stat_pben_type_info_three(each_memb) = "VA Dependent Other"
+					If stat_pben_type_code_three(each_memb) = "12" Then stat_pben_type_info_three(each_memb) = "Unemployment Insurance"
+					If stat_pben_type_code_three(each_memb) = "13" Then stat_pben_type_info_three(each_memb) = "Worker's Compensation"
+					If stat_pben_type_code_three(each_memb) = "14" Then stat_pben_type_info_three(each_memb) = "Railroad Retirement"
+					If stat_pben_type_code_three(each_memb) = "15" Then stat_pben_type_info_three(each_memb) = "Other Retirement"
+					If stat_pben_type_code_three(each_memb) = "16" Then stat_pben_type_info_three(each_memb) = "Military Allotment"
+					If stat_pben_type_code_three(each_memb) = "17" Then stat_pben_type_info_three(each_memb) = "EITC"
+					If stat_pben_type_code_three(each_memb) = "18" Then stat_pben_type_info_three(each_memb) = "Strike Pay"
+					If stat_pben_type_code_three(each_memb) = "19" Then stat_pben_type_info_three(each_memb) = "Other"
+					If stat_pben_type_code_three(each_memb) = "21" Then stat_pben_type_info_three(each_memb) = "SMRT"
+
+					If stat_pben_verif_code_three(each_memb) = "1" Then stat_pben_verif_info_three(each_memb) = "Copy of Check Stubs"
+					If stat_pben_verif_code_three(each_memb) = "2" Then stat_pben_verif_info_three(each_memb) = "Award Letters"
+					If stat_pben_verif_code_three(each_memb) = "3" Then stat_pben_verif_info_three(each_memb) = "System Initiated Verif"
+					If stat_pben_verif_code_three(each_memb) = "4" Then stat_pben_verif_info_three(each_memb) = "Collateral Statement"
+					If stat_pben_verif_code_three(each_memb) = "5" Then stat_pben_verif_info_three(each_memb) = "Other Document"
+					If stat_pben_verif_code_three(each_memb) = "N" Then stat_pben_verif_info_three(each_memb) = "No Verif Provided"
+
+					If stat_pben_disp_code_three(each_memb) = "A" Then stat_pben_disp_info_three(each_memb) = "Appealing"
+					If stat_pben_disp_code_three(each_memb) = "D" Then stat_pben_disp_info_three(each_memb) = "Denied"
+					If stat_pben_disp_code_three(each_memb) = "E" Then stat_pben_disp_info_three(each_memb) = "Eligible"
+					If stat_pben_disp_code_three(each_memb) = "P" Then stat_pben_disp_info_three(each_memb) = "Pending"
+					If stat_pben_disp_code_three(each_memb) = "N" Then stat_pben_disp_info_three(each_memb) = "Not Applied Yet"
+					If stat_pben_disp_code_three(each_memb) = "R" Then stat_pben_disp_info_three(each_memb) = "Refused to Accept"
+				End if
+				pben_row = pben_row + 1
+
+				EMReadScreen stat_pben_type_code_four(each_memb), 2, pben_row, 24
+				If stat_pben_type_code_four(each_memb) = "__" Then
+					stat_pben_type_code_four(each_memb) = ""
+				Else
+					EMReadScreen stat_pben_referral_date_four(each_memb), 8, pben_row, 40
+					EMReadScreen stat_pben_date_applied_four(each_memb), 8, pben_row, 51
+					EMReadScreen stat_pben_verif_code_four(each_memb), 1, pben_row, 62
+					EMReadScreen stat_pben_iaa_date_four(each_memb), 8, pben_row, 66
+					EMReadScreen stat_pben_disp_code_four(each_memb), 1, pben_row, 77
+
+					If stat_pben_referral_date_four(each_memb) = "__ __ __" Then stat_pben_referral_date_four(each_memb) = ""
+					stat_pben_referral_date_four(each_memb) = replace(stat_pben_referral_date_four(each_memb), " ", "/")
+
+					If stat_pben_date_applied_four(each_memb) = "__ __ __" Then stat_pben_date_applied_four(each_memb) = ""
+					stat_pben_date_applied_four(each_memb) = replace(stat_pben_date_applied_four(each_memb), " ", "/")
+
+					If stat_pben_iaa_date_four(each_memb) = "__ __ __" Then stat_pben_iaa_date_four(each_memb) = ""
+					stat_pben_iaa_date_four(each_memb) = replace(stat_pben_iaa_date_four(each_memb), " ", "/")
+
+					If stat_pben_type_code_four(each_memb) = "01" Then stat_pben_type_info_four(each_memb) = "RSDI"
+					If stat_pben_type_code_four(each_memb) = "02" Then stat_pben_type_info_four(each_memb) = "SSI"
+					If stat_pben_type_code_four(each_memb) = "06" Then stat_pben_type_info_four(each_memb) = "Child Support"
+					If stat_pben_type_code_four(each_memb) = "07" Then stat_pben_type_info_four(each_memb) = "Alimony"
+					If stat_pben_type_code_four(each_memb) = "08" Then stat_pben_type_info_four(each_memb) = "VA Disability"
+					If stat_pben_type_code_four(each_memb) = "09" Then stat_pben_type_info_four(each_memb) = "VA Pension"
+					If stat_pben_type_code_four(each_memb) = "10" Then stat_pben_type_info_four(each_memb) = "VA Dependent Educational"
+					If stat_pben_type_code_four(each_memb) = "11" Then stat_pben_type_info_four(each_memb) = "VA Dependent Other"
+					If stat_pben_type_code_four(each_memb) = "12" Then stat_pben_type_info_four(each_memb) = "Unemployment Insurance"
+					If stat_pben_type_code_four(each_memb) = "13" Then stat_pben_type_info_four(each_memb) = "Worker's Compensation"
+					If stat_pben_type_code_four(each_memb) = "14" Then stat_pben_type_info_four(each_memb) = "Railroad Retirement"
+					If stat_pben_type_code_four(each_memb) = "15" Then stat_pben_type_info_four(each_memb) = "Other Retirement"
+					If stat_pben_type_code_four(each_memb) = "16" Then stat_pben_type_info_four(each_memb) = "Military Allotment"
+					If stat_pben_type_code_four(each_memb) = "17" Then stat_pben_type_info_four(each_memb) = "EITC"
+					If stat_pben_type_code_four(each_memb) = "18" Then stat_pben_type_info_four(each_memb) = "Strike Pay"
+					If stat_pben_type_code_four(each_memb) = "19" Then stat_pben_type_info_four(each_memb) = "Other"
+					If stat_pben_type_code_four(each_memb) = "21" Then stat_pben_type_info_four(each_memb) = "SMRT"
+
+					If stat_pben_verif_code_four(each_memb) = "1" Then stat_pben_verif_info_four(each_memb) = "Copy of Check Stubs"
+					If stat_pben_verif_code_four(each_memb) = "2" Then stat_pben_verif_info_four(each_memb) = "Award Letters"
+					If stat_pben_verif_code_four(each_memb) = "3" Then stat_pben_verif_info_four(each_memb) = "System Initiated Verif"
+					If stat_pben_verif_code_four(each_memb) = "4" Then stat_pben_verif_info_four(each_memb) = "Collateral Statement"
+					If stat_pben_verif_code_four(each_memb) = "5" Then stat_pben_verif_info_four(each_memb) = "Other Document"
+					If stat_pben_verif_code_four(each_memb) = "N" Then stat_pben_verif_info_four(each_memb) = "No Verif Provided"
+
+					If stat_pben_disp_code_four(each_memb) = "A" Then stat_pben_disp_info_four(each_memb) = "Appealing"
+					If stat_pben_disp_code_four(each_memb) = "D" Then stat_pben_disp_info_four(each_memb) = "Denied"
+					If stat_pben_disp_code_four(each_memb) = "E" Then stat_pben_disp_info_four(each_memb) = "Eligible"
+					If stat_pben_disp_code_four(each_memb) = "P" Then stat_pben_disp_info_four(each_memb) = "Pending"
+					If stat_pben_disp_code_four(each_memb) = "N" Then stat_pben_disp_info_four(each_memb) = "Not Applied Yet"
+					If stat_pben_disp_code_four(each_memb) = "R" Then stat_pben_disp_info_four(each_memb) = "Refused to Accept"
+				End if
+				pben_row = pben_row + 1
+
+				EMReadScreen stat_pben_type_code_five(each_memb), 2, pben_row, 24
+				If stat_pben_type_code_five(each_memb) = "__" Then
+					stat_pben_type_code_five(each_memb) = ""
+				Else
+					EMReadScreen stat_pben_referral_date_five(each_memb), 8, pben_row, 40
+					EMReadScreen stat_pben_date_applied_five(each_memb), 8, pben_row, 51
+					EMReadScreen stat_pben_verif_code_five(each_memb), 1, pben_row, 62
+					EMReadScreen stat_pben_iaa_date_five(each_memb), 8, pben_row, 66
+					EMReadScreen stat_pben_disp_code_five(each_memb), 1, pben_row, 77
+
+					If stat_pben_referral_date_five(each_memb) = "__ __ __" Then stat_pben_referral_date_five(each_memb) = ""
+					stat_pben_referral_date_five(each_memb) = replace(stat_pben_referral_date_five(each_memb), " ", "/")
+
+					If stat_pben_date_applied_five(each_memb) = "__ __ __" Then stat_pben_date_applied_five(each_memb) = ""
+					stat_pben_date_applied_five(each_memb) = replace(stat_pben_date_applied_five(each_memb), " ", "/")
+
+					If stat_pben_iaa_date_five(each_memb) = "__ __ __" Then stat_pben_iaa_date_five(each_memb) = ""
+					stat_pben_iaa_date_five(each_memb) = replace(stat_pben_iaa_date_five(each_memb), " ", "/")
+
+					If stat_pben_type_code_five(each_memb) = "01" Then stat_pben_type_info_five(each_memb) = "RSDI"
+					If stat_pben_type_code_five(each_memb) = "02" Then stat_pben_type_info_five(each_memb) = "SSI"
+					If stat_pben_type_code_five(each_memb) = "06" Then stat_pben_type_info_five(each_memb) = "Child Support"
+					If stat_pben_type_code_five(each_memb) = "07" Then stat_pben_type_info_five(each_memb) = "Alimony"
+					If stat_pben_type_code_five(each_memb) = "08" Then stat_pben_type_info_five(each_memb) = "VA Disability"
+					If stat_pben_type_code_five(each_memb) = "09" Then stat_pben_type_info_five(each_memb) = "VA Pension"
+					If stat_pben_type_code_five(each_memb) = "10" Then stat_pben_type_info_five(each_memb) = "VA Dependent Educational"
+					If stat_pben_type_code_five(each_memb) = "11" Then stat_pben_type_info_five(each_memb) = "VA Dependent Other"
+					If stat_pben_type_code_five(each_memb) = "12" Then stat_pben_type_info_five(each_memb) = "Unemployment Insurance"
+					If stat_pben_type_code_five(each_memb) = "13" Then stat_pben_type_info_five(each_memb) = "Worker's Compensation"
+					If stat_pben_type_code_five(each_memb) = "14" Then stat_pben_type_info_five(each_memb) = "Railroad Retirement"
+					If stat_pben_type_code_five(each_memb) = "15" Then stat_pben_type_info_five(each_memb) = "Other Retirement"
+					If stat_pben_type_code_five(each_memb) = "16" Then stat_pben_type_info_five(each_memb) = "Military Allotment"
+					If stat_pben_type_code_five(each_memb) = "17" Then stat_pben_type_info_five(each_memb) = "EITC"
+					If stat_pben_type_code_five(each_memb) = "18" Then stat_pben_type_info_five(each_memb) = "Strike Pay"
+					If stat_pben_type_code_five(each_memb) = "19" Then stat_pben_type_info_five(each_memb) = "Other"
+					If stat_pben_type_code_five(each_memb) = "21" Then stat_pben_type_info_five(each_memb) = "SMRT"
+
+					If stat_pben_verif_code_five(each_memb) = "1" Then stat_pben_verif_info_five(each_memb) = "Copy of Check Stubs"
+					If stat_pben_verif_code_five(each_memb) = "2" Then stat_pben_verif_info_five(each_memb) = "Award Letters"
+					If stat_pben_verif_code_five(each_memb) = "3" Then stat_pben_verif_info_five(each_memb) = "System Initiated Verif"
+					If stat_pben_verif_code_five(each_memb) = "4" Then stat_pben_verif_info_five(each_memb) = "Collateral Statement"
+					If stat_pben_verif_code_five(each_memb) = "5" Then stat_pben_verif_info_five(each_memb) = "Other Document"
+					If stat_pben_verif_code_five(each_memb) = "N" Then stat_pben_verif_info_five(each_memb) = "No Verif Provided"
+
+					If stat_pben_disp_code_five(each_memb) = "A" Then stat_pben_disp_info_five(each_memb) = "Appealing"
+					If stat_pben_disp_code_five(each_memb) = "D" Then stat_pben_disp_info_five(each_memb) = "Denied"
+					If stat_pben_disp_code_five(each_memb) = "E" Then stat_pben_disp_info_five(each_memb) = "Eligible"
+					If stat_pben_disp_code_five(each_memb) = "P" Then stat_pben_disp_info_five(each_memb) = "Pending"
+					If stat_pben_disp_code_five(each_memb) = "N" Then stat_pben_disp_info_five(each_memb) = "Not Applied Yet"
+					If stat_pben_disp_code_five(each_memb) = "R" Then stat_pben_disp_info_five(each_memb) = "Refused to Accept"
+				End if
+				pben_row = pben_row + 1
+
+				EMReadScreen stat_pben_type_code_six(each_memb), 2, pben_row, 24
+				If stat_pben_type_code_six(each_memb) = "__" Then
+					stat_pben_type_code_six(each_memb) = ""
+				Else
+					EMReadScreen stat_pben_referral_date_six(each_memb), 8, pben_row, 40
+					EMReadScreen stat_pben_date_applied_six(each_memb), 8, pben_row, 51
+					EMReadScreen stat_pben_verif_code_six(each_memb), 1, pben_row, 62
+					EMReadScreen stat_pben_iaa_date_six(each_memb), 8, pben_row, 66
+					EMReadScreen stat_pben_disp_code_six(each_memb), 1, pben_row, 77
+
+					If stat_pben_referral_date_six(each_memb) = "__ __ __" Then stat_pben_referral_date_six(each_memb) = ""
+					stat_pben_referral_date_six(each_memb) = replace(stat_pben_referral_date_six(each_memb), " ", "/")
+
+					If stat_pben_date_applied_six(each_memb) = "__ __ __" Then stat_pben_date_applied_six(each_memb) = ""
+					stat_pben_date_applied_six(each_memb) = replace(stat_pben_date_applied_six(each_memb), " ", "/")
+
+					If stat_pben_iaa_date_six(each_memb) = "__ __ __" Then stat_pben_iaa_date_six(each_memb) = ""
+					stat_pben_iaa_date_six(each_memb) = replace(stat_pben_iaa_date_six(each_memb), " ", "/")
+
+					If stat_pben_type_code_six(each_memb) = "01" Then stat_pben_type_info_six(each_memb) = "RSDI"
+					If stat_pben_type_code_six(each_memb) = "02" Then stat_pben_type_info_six(each_memb) = "SSI"
+					If stat_pben_type_code_six(each_memb) = "06" Then stat_pben_type_info_six(each_memb) = "Child Support"
+					If stat_pben_type_code_six(each_memb) = "07" Then stat_pben_type_info_six(each_memb) = "Alimony"
+					If stat_pben_type_code_six(each_memb) = "08" Then stat_pben_type_info_six(each_memb) = "VA Disability"
+					If stat_pben_type_code_six(each_memb) = "09" Then stat_pben_type_info_six(each_memb) = "VA Pension"
+					If stat_pben_type_code_six(each_memb) = "10" Then stat_pben_type_info_six(each_memb) = "VA Dependent Educational"
+					If stat_pben_type_code_six(each_memb) = "11" Then stat_pben_type_info_six(each_memb) = "VA Dependent Other"
+					If stat_pben_type_code_six(each_memb) = "12" Then stat_pben_type_info_six(each_memb) = "Unemployment Insurance"
+					If stat_pben_type_code_six(each_memb) = "13" Then stat_pben_type_info_six(each_memb) = "Worker's Compensation"
+					If stat_pben_type_code_six(each_memb) = "14" Then stat_pben_type_info_six(each_memb) = "Railroad Retirement"
+					If stat_pben_type_code_six(each_memb) = "15" Then stat_pben_type_info_six(each_memb) = "Other Retirement"
+					If stat_pben_type_code_six(each_memb) = "16" Then stat_pben_type_info_six(each_memb) = "Military Allotment"
+					If stat_pben_type_code_six(each_memb) = "17" Then stat_pben_type_info_six(each_memb) = "EITC"
+					If stat_pben_type_code_six(each_memb) = "18" Then stat_pben_type_info_six(each_memb) = "Strike Pay"
+					If stat_pben_type_code_six(each_memb) = "19" Then stat_pben_type_info_six(each_memb) = "Other"
+					If stat_pben_type_code_six(each_memb) = "21" Then stat_pben_type_info_six(each_memb) = "SMRT"
+
+					If stat_pben_verif_code_six(each_memb) = "1" Then stat_pben_verif_info_six(each_memb) = "Copy of Check Stubs"
+					If stat_pben_verif_code_six(each_memb) = "2" Then stat_pben_verif_info_six(each_memb) = "Award Letters"
+					If stat_pben_verif_code_six(each_memb) = "3" Then stat_pben_verif_info_six(each_memb) = "System Initiated Verif"
+					If stat_pben_verif_code_six(each_memb) = "4" Then stat_pben_verif_info_six(each_memb) = "Collateral Statement"
+					If stat_pben_verif_code_six(each_memb) = "5" Then stat_pben_verif_info_six(each_memb) = "Other Document"
+					If stat_pben_verif_code_six(each_memb) = "N" Then stat_pben_verif_info_six(each_memb) = "No Verif Provided"
+
+					If stat_pben_disp_code_six(each_memb) = "A" Then stat_pben_disp_info_six(each_memb) = "Appealing"
+					If stat_pben_disp_code_six(each_memb) = "D" Then stat_pben_disp_info_six(each_memb) = "Denied"
+					If stat_pben_disp_code_six(each_memb) = "E" Then stat_pben_disp_info_six(each_memb) = "Eligible"
+					If stat_pben_disp_code_six(each_memb) = "P" Then stat_pben_disp_info_six(each_memb) = "Pending"
+					If stat_pben_disp_code_six(each_memb) = "N" Then stat_pben_disp_info_six(each_memb) = "Not Applied Yet"
+					If stat_pben_disp_code_six(each_memb) = "R" Then stat_pben_disp_info_six(each_memb) = "Refused to Accept"
+				End if
+			End If
+		Next
 
 		call navigate_to_MAXIS_screen("STAT", "INSA")
 		insa_count = 0
