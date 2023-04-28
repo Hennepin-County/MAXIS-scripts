@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("04/28/2023", "Updates to the script funcationality to support:##~## ##~## - PBEN infomration for the requirment of other programs.##~## - Indicate for a requirement to apply for Medicare.##~## - Selection of Major Program wlong with Basis of Eligibility.##~## - Additional fields for LTC specific information.##~## - Place to provide details of the AVS steps taken.##~## - If only one person on the case, the script will no longer require you select the household members.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/23/2023", "Initial version.", "Casey Love, Hennepin County")
 
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
@@ -174,8 +175,13 @@ function check_for_errors(eval_questions_clear)
 	For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)				'maandatory fields related to specific persons on the case from the first dialog
 		If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 			If HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* Health Care Eval is at##~##   - Detail what type of evaluation is being cmopleted for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
-			If HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
-			If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) <> "None" Then
+				If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MA Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MA is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			End If
+			If HEALTH_CARE_MEMBERS(MSP_major_prog_const, selected_memb) <> "None" Then
+				If HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb) = "Select One..." Then err_msg = err_msg & "~!~" & "1 ^* MSP Basis of Eligibility##~##   - Select what the Basis of Eligiblity of MSP is for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ".##~##"
+			End If
+			If HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb) = "None" and HEALTH_CARE_MEMBERS(MSP_major_prog_const, selected_memb) = "None" Then err_msg = err_msg & "~!~" & "1 ^* HC/MSP Basis of Eligibility##~##   - At least one Major Program needs to be selected for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & ", indicate if MA/EMA/or a MSP is being assessed.##~##"
 		End If
 	Next
 	If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then		'handling for mandatory fields ONLY if MA-BC is being processed
@@ -241,7 +247,7 @@ function display_errors(the_err_msg, execute_nav, show_err_msg_during_movement)
 
 		show_msg = False
         If show_err_msg_during_movement = True Then show_msg = True
-		If page_display = last_page AND ButtonPressed <> completed_hc_eval_btn Then show_msg = False
+		If page_display = last_page AND (ButtonPressed <> completed_hc_eval_btn AND ButtonPressed <> next_btn AND ButtonPressed <> -1) Then show_msg = False
 
 		If ButtonPressed = verif_button Then show_msg = False
 		If ButtonPressed = clear_verifs_btn Then show_msg = False
@@ -293,19 +299,40 @@ function define_main_dialog()
 			Next
 			' PushButton 50, 25, 40, 15, "MEMB 01", Button5
 			GroupBox 10, 45, 465, 310, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
-			Text 20, 60, 180, 10, "Member: " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb)
-			Text 35, 70, 75, 10, "AGE: " & HEALTH_CARE_MEMBERS(age_const, selected_memb)
-			Text 215, 60, 75, 10, "SSN: " & HEALTH_CARE_MEMBERS(ssn_const, selected_memb)
-			Text 215, 70, 75, 10, "DOB: " & HEALTH_CARE_MEMBERS(dob_const, selected_memb)
-			Text 320, 60, 110, 10, " Application Date: " & HEALTH_CARE_MEMBERS(hc_appl_date_const, selected_memb)
-			Text 315, 70, 95, 10, "Coverage Request: " & HEALTH_CARE_MEMBERS(hc_cov_date_const, selected_memb)
+			Text 250, 45, 200, 10, "Current MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " Health Care Status: " & HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, selected_memb)
 
-			Text 20, 90, 200, 10, "Current MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " Health Care Status: " & HEALTH_CARE_MEMBERS(case_pers_hc_status_info_const, selected_memb)
-			Text 300, 90, 85, 10, "Health Care Eval is at "
+			Text 300, 60, 80, 10, "Health Care Eval is at "
 			' DropListBox 380, 85, 75, 45, "Application"+chr(9)+"Recertification", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
-			DropListBox 380, 85, 85, 45, "Application"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
+			DropListBox 380, 55, 85, 45, "Application"+chr(9)+"No Evaluation Needed", HEALTH_CARE_MEMBERS(HC_eval_process_const, selected_memb)
 
-			y_pos = 110
+			Text 20, 75, 180, 10, "Member: " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb)
+			Text 35, 85, 75, 10, "AGE: " & HEALTH_CARE_MEMBERS(age_const, selected_memb)
+			Text 215, 75, 75, 10, "SSN: " & HEALTH_CARE_MEMBERS(ssn_const, selected_memb)
+			Text 215, 85, 75, 10, "DOB: " & HEALTH_CARE_MEMBERS(dob_const, selected_memb)
+			Text 320, 75, 110, 10, " Application Date: " & HEALTH_CARE_MEMBERS(hc_appl_date_const, selected_memb)
+			Text 315, 85, 95, 10, "Coverage Request: " & HEALTH_CARE_MEMBERS(hc_cov_date_const, selected_memb)
+
+
+			' Text 20, 295, 400, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
+
+			' GroupBox 10, 220, 465, 60, "Medical Assistance"
+			DropListBox 20, 100, 35, 45, "MA"+chr(9)+"EMA"+chr(9)+"None", HEALTH_CARE_MEMBERS(HC_major_prog_const, selected_memb)
+			Text 55, 105, 100, 10, " - HC Program - Basis of ELIG:"
+			' Text 65, 110, 60, 10, "Basis of ELIG:"
+			DropListBox 160, 100, 90, 45, "Select One..."+chr(9)+ma_basis_of_elig_list, HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, selected_memb)
+			Text 255, 105, 65, 10, "Prog/Basis Notes:"
+			EditBox 315, 100, 150, 15, HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb)
+
+
+			' GroupBox 10, 285, 465, 60, "Medicare Savings Programs"
+			DropListBox 20, 120, 35, 45, "None"+chr(9)+"QMB"+chr(9)+"SLMB"+chr(9)+"QI1", HEALTH_CARE_MEMBERS(MSP_major_prog_const, selected_memb)
+			Text 55, 125, 100, 10, " - MSP Program - Basis of ELIG:"
+			' Text 20, 130, 70, 10, "MSP Basis of ELIG:"
+			DropListBox 160, 120, 90, 45, "Select One..."+chr(9)+msp_basis_of_elig_list, HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb)
+			Text 255, 125, 65, 10, "Prog/Basis Notes:"
+			EditBox 315, 120, 150, 15, HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb)
+
+			y_pos = 140
 			If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then
 				GroupBox 10, y_pos, 465, 50,"MA for Breast/Cervical Cancer Form Required"
 				y_pos = y_pos + 15
@@ -343,7 +370,7 @@ function define_main_dialog()
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) Then
 					If STAT_INFORMATION(month_ind).stat_emma_exists(each_memb) = True Then
-						Text 20, y_pos, 200, 10, "EMMA   -   Medical Emergency: " & STAT_INFORMATION(month_ind).stat_emma_med_emer_info(each_memb)
+						Text 20, y_pos, 200, 10, "EMMA  -  Medical Emergency: " & STAT_INFORMATION(month_ind).stat_emma_med_emer_info(each_memb)
 						Text 250, y_pos, 200, 10, "Health Consequence: " & STAT_INFORMATION(month_ind).stat_emma_health_cons_info(each_memb)
 						y_pos = y_pos + 10
 						Text 55, y_pos, 200, 10, "Begin Date: " & STAT_INFORMATION(month_ind).stat_emma_begin_date(each_memb) & " - End Date: " & STAT_INFORMATION(month_ind).stat_emma_end_date(each_memb)
@@ -404,22 +431,72 @@ function define_main_dialog()
 				EditBox 100, y_pos-5, 365, 15, HEALTH_CARE_MEMBERS(MEDI_notes_const, selected_memb)
 				y_pos = y_pos + 10
 			Else
-				Text 20, y_pos, 385, 10, "MEDI   -   No MEDI Panel Exists for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb)
+				Text 20, y_pos, 160, 10, "MEDI   -    No MEDI Panel Exists for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb)
+				CheckBox 180, y_pos, 190, 10, "Check here if an application for Medicare is required.", HEALTH_CARE_MEMBERS(MEDI_application_requred_checkbox_const, selected_memb)
+				' y_pos = y_pos + 10
+				Text 370, y_pos, 50, 10, "Referral Date:"
+				EditBox 420, y_pos-5, 50, 15, HEALTH_CARE_MEMBERS(MEDI_referral_date_const, selected_memb)
+				' y_pos = y_pos + 15
 				y_pos = y_pos + 10
+				'TODO - add in no MEDI
 			End If
 			y_pos = y_pos + 5
 
-			' GroupBox 10, 220, 465, 60, "Medical Assistance"
-			Text 20, 295, 400, 10, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, selected_memb) & " - PMI: " & HEALTH_CARE_MEMBERS(pmi_const, selected_memb)
-			Text 20, 315, 70, 10, "MA Basis of ELIG:"
-			DropListBox 90, 310, 100, 45, "Select One..."+chr(9)+ma_basis_of_elig_list, HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, selected_memb)
-			Text 195, 315, 65, 10, "Notes on MA Basis:"
-			EditBox 265, 310, 205, 15, HEALTH_CARE_MEMBERS(MA_basis_notes_const, selected_memb)
-			' GroupBox 10, 285, 465, 60, "Medicare Savings Programs"
-			Text 20, 335, 70, 10, "MSP Basis of ELIG:"
-			DropListBox 90, 330, 100, 45, "Select One..."+chr(9)+msp_basis_of_elig_list, HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, selected_memb)
-			Text 195, 335, 70, 10, "Notes on MSP Basis:"
-			EditBox 265, 330, 205, 15, HEALTH_CARE_MEMBERS(MSP_basis_notes_const, selected_memb)
+			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+				If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) Then
+					If STAT_INFORMATION(month_ind).stat_pben_exists(each_memb) = True Then
+						Text 20, y_pos, 380, 10, "PBEN   -   Potential Benefits for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb) & " listed:"
+						y_pos = y_pos + 10
+						If STAT_INFORMATION(month_ind).stat_pben_type_code_one(each_memb) <> "" Then
+							Text 55, y_pos, 410, 10,  STAT_INFORMATION(month_ind).stat_pben_type_info_one(each_memb) & "   -   Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_one(each_memb) & "   -   Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_one(each_memb)
+							y_pos = y_pos + 10
+							date_detail = ""
+							If STAT_INFORMATION(month_ind).stat_pben_referral_date_one(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_one(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_date_applied_one(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_one(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_iaa_date_one(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_one(each_memb) & "   -   "
+							date_detail = left(date_detail, len(date_detail)-7)
+							Text 80, y_pos, 350, 10,  date_detail
+							y_pos = y_pos + 10
+						End If
+						If STAT_INFORMATION(month_ind).stat_pben_type_code_two(each_memb) <> "" Then
+							Text 55, y_pos, 410, 10,  STAT_INFORMATION(month_ind).stat_pben_type_info_two(each_memb) & "   -   Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_two(each_memb) & "   -   Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_two(each_memb)
+							y_pos = y_pos + 10
+							date_detail = ""
+							If STAT_INFORMATION(month_ind).stat_pben_referral_date_two(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_two(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_date_applied_two(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_two(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_iaa_date_two(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_two(each_memb) & "   -   "
+							date_detail = left(date_detail, len(date_detail)-7)
+							Text 80, y_pos, 350, 10,  date_detail
+							y_pos = y_pos + 10
+						End If
+						If STAT_INFORMATION(month_ind).stat_pben_type_code_three(each_memb) <> "" Then
+							Text 55, y_pos, 410, 10,  STAT_INFORMATION(month_ind).stat_pben_type_info_three(each_memb) & "   -   Status: " & STAT_INFORMATION(month_ind).stat_pben_disp_info_three(each_memb) & "   -   Verif: " & STAT_INFORMATION(month_ind).stat_pben_verif_info_three(each_memb)
+							y_pos = y_pos + 10
+							date_detail = ""
+							If STAT_INFORMATION(month_ind).stat_pben_referral_date_three(each_memb) <> "" Then date_detail = date_detail & "Referral Date: " & STAT_INFORMATION(month_ind).stat_pben_referral_date_three(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_date_applied_three(each_memb) <> "" Then date_detail = date_detail & "Date Applied: " & STAT_INFORMATION(month_ind).stat_pben_date_applied_three(each_memb) & "   -   "
+							If STAT_INFORMATION(month_ind).stat_pben_iaa_date_three(each_memb) <> "" Then date_detail = date_detail & "IAA Date: " & STAT_INFORMATION(month_ind).stat_pben_iaa_date_three(each_memb) & "   -   "
+							date_detail = left(date_detail, len(date_detail)-7)
+							Text 80, y_pos, 350, 10,  date_detail
+							y_pos = y_pos + 10
+						End If
+
+
+
+						y_pos = y_pos + 5
+						Text 55, y_pos, 45, 10, "PBEN Notes:"
+						EditBox 100, y_pos-5, 365, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_pben_notes(each_memb))
+						y_pos = y_pos + 10
+					Else
+						Text 20, y_pos, 380, 10, "PBEN   -   No Potential Benefits indicated for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, selected_memb)
+						y_pos = y_pos + 10
+					End if
+				End If
+			Next
+
+
+
+
 
 			Text 505, 17, 55, 13, "HC MEMBs"
 		ElseIf page_display = show_jobs_page Then															'JOBS Page
@@ -825,54 +902,62 @@ function define_main_dialog()
 			Text 500, 62, 55, 13, "UNEA Income"
 		ElseIf page_display = show_asset_page Then															'Account Page
 
-			grp_len = 10
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_cash_asset_panel_exists(each_memb) = True Then
-					grp_len = grp_len + 45
-					If STAT_INFORMATION(month_ind).stat_cash_exists(each_memb) = True Then grp_len = grp_len + 15
-					If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-					If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-					If STAT_INFORMATION(month_ind).stat_acct_three_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-					If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-					If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-					If STAT_INFORMATION(month_ind).stat_secu_one_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-					If STAT_INFORMATION(month_ind).stat_secu_two_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-					If STAT_INFORMATION(month_ind).stat_secu_three_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-					If STAT_INFORMATION(month_ind).stat_secu_four_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-					If STAT_INFORMATION(month_ind).stat_secu_five_exists(each_memb) = True Then
-						grp_len = grp_len + 25
-					End If
-				End If
-			Next
-			If grp_len = 10 Then grp_len = 100
+			' grp_len = 10
+			' For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			' 	If STAT_INFORMATION(month_ind).stat_cash_asset_panel_exists(each_memb) = True Then
+			' 		grp_len = grp_len + 45
+			' 		If STAT_INFORMATION(month_ind).stat_cash_exists(each_memb) = True Then grp_len = grp_len + 15
+			' 		If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_acct_three_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_secu_one_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_secu_two_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_secu_three_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_secu_four_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_secu_five_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 25
+			' 		End If
+			' 	End If
+			' Next
+			' If grp_len = 10 Then grp_len = 100
 
-			GroupBox 10, 10, 465, grp_len, "Assets"
-			y_pos = 25
+			GroupBox 10, 10, 465, 65, "AVS Forms and Actions"
+			Text 20, 25, 110, 10, "Status of AVS Authorization Form: "
+			DropListBox 130, 20, 200, 45, avs_form_status_list, avs_form_status
+			Text 342, 25, 20, 10, "Notes:"
+			EditBox 365, 20, 105, 15, avs_form_notes
+			Text 130, 35, 350, 10, "* Selecting 'Incomplete' or 'No Form Received' will add AVS Form Information to the List of Verifications."
+			Text 20, 45, 150, 10, "AVS Portal Submission Actions and Notes:"
+			EditBox 20, 55, 450, 15, avs_portal_notes
+
+			y_pos = 90
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_cash_asset_panel_exists(each_memb) = True Then
 					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
-					y_pos = y_pos + 15
+					y_pos = y_pos + 10
 					If STAT_INFORMATION(month_ind).stat_cash_exists(each_memb) = True Then
 						Text 25, y_pos, 115, 10, "CASH   -   Amount: $ " & STAT_INFORMATION(month_ind).stat_cash_balance(each_memb)
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 					End If
 
 					If STAT_INFORMATION(month_ind).stat_acct_one_exists(each_memb) = True Then
@@ -883,7 +968,7 @@ function define_main_dialog()
 						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_one_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_one_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_acct_one_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 
 					End If
 					If STAT_INFORMATION(month_ind).stat_acct_two_exists(each_memb) = True Then
@@ -894,7 +979,7 @@ function define_main_dialog()
 						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_two_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_two_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_acct_two_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 					End If
 					If STAT_INFORMATION(month_ind).stat_acct_three_exists(each_memb) = True Then
 						Text 25, y_pos, 175, 10, "ACCT   -   Location: " & STAT_INFORMATION(month_ind).stat_acct_three_location(each_memb)
@@ -904,7 +989,7 @@ function define_main_dialog()
 						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_three_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_three_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_acct_three_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 					End If
 					If STAT_INFORMATION(month_ind).stat_acct_four_exists(each_memb) = True Then
 						Text 25, y_pos, 175, 10, "ACCT   -   Location: " & STAT_INFORMATION(month_ind).stat_acct_four_location(each_memb)
@@ -914,7 +999,7 @@ function define_main_dialog()
 						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_four_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_four_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_acct_four_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 					End If
 					If STAT_INFORMATION(month_ind).stat_acct_five_exists(each_memb) = True Then
 						Text 25, y_pos, 175, 10, "ACCT   -   Location: " & STAT_INFORMATION(month_ind).stat_acct_five_location(each_memb)
@@ -924,7 +1009,7 @@ function define_main_dialog()
 						Text 135, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_acct_five_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_acct_five_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_acct_five_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 					End If
 
 					If STAT_INFORMATION(month_ind).stat_secu_one_exists(each_memb) = True Then
@@ -936,7 +1021,7 @@ function define_main_dialog()
 						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_one_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_one_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_secu_one_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 
 					End If
 					If STAT_INFORMATION(month_ind).stat_secu_two_exists(each_memb) = True Then
@@ -948,7 +1033,7 @@ function define_main_dialog()
 						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_two_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_two_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_secu_two_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 
 					End If
 					If STAT_INFORMATION(month_ind).stat_secu_three_exists(each_memb) = True Then
@@ -960,7 +1045,7 @@ function define_main_dialog()
 						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_three_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_three_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_secu_three_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 
 					End If
 					If STAT_INFORMATION(month_ind).stat_secu_four_exists(each_memb) = True Then
@@ -972,7 +1057,7 @@ function define_main_dialog()
 						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_four_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_four_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_secu_four_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 
 					End If
 					If STAT_INFORMATION(month_ind).stat_secu_five_exists(each_memb) = True Then
@@ -984,7 +1069,7 @@ function define_main_dialog()
 						Text 140, y_pos, 60, 10, "as of " & STAT_INFORMATION(month_ind).stat_secu_five_as_of_date(each_memb)
 						Text 205, y_pos, 115, 10, " Verification: " & STAT_INFORMATION(month_ind).stat_secu_five_verif_info(each_memb)
 						If STAT_INFORMATION(month_ind).stat_secu_five_verif_code(each_memb) = "N" Then Text 325, y_pos, 155, 10, "ADDED TO LIST OF VERIFICATIONS NEEDED"
-						y_pos = y_pos + 15
+						y_pos = y_pos + 10
 
 					End If
 
@@ -995,55 +1080,61 @@ function define_main_dialog()
 
 				'TODO - DEAL WITH OTHR panel
 			Next
-			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the csae file for the selected members."
-				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
-				Text 20, 50, 350, 20, "If there are liquid assets that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
-				Text 20, 70, 350, 10, "CASE/NOTE will indicate NO ACCOUNTS, add any notes here that are relevant:"
-				EditBox 20, 80, 440, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_acct_general_notes)
+			If y_pos = 90 Then
+				Text 20, y_pos, 350, 10, "NO CASH/ACCT/SECU panels have been entered in the csae file for the selected members."
+				y_pos = y_pos + 10
+				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
+				y_pos = y_pos + 15
+				Text 20, y_pos, 350, 20, "If there are liquid assets that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+				y_pos = y_pos + 20
+				Text 20, y_pos, 350, 10, "CASE/NOTE will indicate NO ACCOUNTS, add any notes here that are relevant:"
+				y_pos = y_pos + 10
+				EditBox 20, y_pos, 440, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_acct_general_notes)
+				y_pos = y_pos + 20
 			End If
+
+			grp_len = y_pos
+			grp_len = grp_len - 80
+			GroupBox 10, 80, 465, grp_len, "Assets"
+			' GroupBox 10, 10, 465, grp_len, "Vehicles and Real Estate"
 
 			Text 510, 77, 55, 13, "Assets"
 		ElseIf page_display = show_cars_rest_page Then															'Cars ad Real Estate Page
-			grp_len = 10
 			cars_exists = False
 			rest_exists = False
-			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
-				If STAT_INFORMATION(month_ind).stat_cars_exists_for_member(each_memb) = True Then
-					grp_len = grp_len + 45
-					cars_exists = True
-					If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
-						grp_len = grp_len + 35
-					End If
-					If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
-						grp_len = grp_len + 35
-					End If
-					If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
-						grp_len = grp_len + 35
-					End If
-				End If
-				If STAT_INFORMATION(month_ind).stat_rest_exists_for_member(each_memb) = True Then
-					rest_exists = True
-					grp_len = grp_len + 45
-					If STAT_INFORMATION(month_ind).stat_rest_one_exists(each_memb) = True Then
-						grp_len = grp_len + 35
-					End If
-					If STAT_INFORMATION(month_ind).stat_rest_two_exists(each_memb) = True Then
-						grp_len = grp_len + 35
-					End If
-					If STAT_INFORMATION(month_ind).stat_rest_three_exists(each_memb) = True Then
-						grp_len = grp_len + 35
-					End If
-				End If
-			Next
-			If cars_exists <> rest_exists Then grp_len = grp_len + 75
-			If grp_len = 10 Then grp_len = 155
-
-			GroupBox 10, 10, 465, grp_len, "Vehicles and Real Estate"
+			' For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+			' 	If STAT_INFORMATION(month_ind).stat_cars_exists_for_member(each_memb) = True Then
+			' 		grp_len = grp_len + 45
+			' 		cars_exists = True
+			' 		If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 35
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_cars_two_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 35
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_cars_three_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 35
+			' 		End If
+			' 	End If
+			' 	If STAT_INFORMATION(month_ind).stat_rest_exists_for_member(each_memb) = True Then
+			' 		rest_exists = True
+			' 		grp_len = grp_len + 45
+			' 		If STAT_INFORMATION(month_ind).stat_rest_one_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 35
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_rest_two_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 35
+			' 		End If
+			' 		If STAT_INFORMATION(month_ind).stat_rest_three_exists(each_memb) = True Then
+			' 			grp_len = grp_len + 35
+			' 		End If
+			' 	End If
+			' Next
 
 			y_pos = 25
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_cars_exists_for_member(each_memb) = True Then
+					cars_exists = True
 					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 					y_pos = y_pos + 15
 					If STAT_INFORMATION(month_ind).stat_cars_one_exists(each_memb) = True Then
@@ -1091,10 +1182,12 @@ function define_main_dialog()
 				End If
 			Next
 			If y_pos = 25 Then
-				Text 20, 25, 350, 10, "NO CARS panels have been entered in the csae file for the selected members."
-				Text 50, 35, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
-				Text 20, 50, 350, 20, "If there are vehicle assets that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
-				y_pos = 70
+				Text 20, y_pos, 350, 10, "NO CARS panels have been entered in the csae file for the selected members."
+				y_pos = y_pos + 10
+				Text 50, y_pos, 350, 10, "Selected Members for this case: MEMB " & replace(List_of_HH_membs_to_include, " ", "/")
+				y_pos = y_pos + 15
+				Text 20, y_pos, 350, 20, "If there are vehicle assets that should be included for these members, CANCEL the Script, UPDATE MAXIS, and then rerun this script."
+				y_pos = y_pos + 20
 			End If
 
 			Text 25, y_pos+5, 50, 10, "Vehicle Notes:"
@@ -1104,6 +1197,7 @@ function define_main_dialog()
 			start_y_pos = y_pos
 			For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 				If STAT_INFORMATION(month_ind).stat_rest_exists_for_member(each_memb) = True Then
+					rest_exists = True
 					Text 20, y_pos, 205, 10, "MEMB " & STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) & " - " & STAT_INFORMATION(month_ind).stat_memb_full_name_no_initial(each_memb)
 					y_pos = y_pos + 15
 					If STAT_INFORMATION(month_ind).stat_rest_one_exists(each_memb) = True Then
@@ -1160,6 +1254,19 @@ function define_main_dialog()
 			Text 25, y_pos+5, 50, 10, "Property Notes:"
 			EditBox 75, y_pos, 395, 15, EDITBOX_ARRAY(STAT_INFORMATION(month_ind).stat_rest_notes)
 			y_pos = y_pos + 25
+
+
+			' grp_len = 10
+
+			' If cars_exists <> rest_exists Then grp_len = grp_len + 75
+			' If grp_len = 10 Then grp_len = 155
+
+			grp_len = y_pos - 10
+			' grp_len = grp_len + 25
+			GroupBox 10, 10, 465, grp_len, "Vehicles and Real Estate"
+
+			' If grp_len = 20 Then grp_len = 70
+			' GroupBox 10, 10, 465, grp_len, "Expenses"
 
 			Text 500, 92, 55, 13, "CARS/REST"
 		ElseIf page_display = show_expenses_page Then															'Expenses Page
@@ -1548,6 +1655,58 @@ function define_main_dialog()
 
 			grp_len = y_pos-10
 			GroupBox 10, 10, 465, grp_len, "RETRO Information"
+		ElseIf page_display = ltc_page Then
+			y_pos = 30
+			ltc_info_in_stat = False
+			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+				If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
+					For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
+						If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) Then
+							If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, hc_memb) <> "" OR (STAT_INFORMATION(month_ind).stat_faci_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_faci_currently_in_facility(each_memb) = True) Then
+								ltc_info_in_stat = True
+								If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, hc_memb) <> "" Then
+									Text 20, y_pos, 350, 10, "LTC Waiver: " & HEALTH_CARE_MEMBERS(DISA_waiver_info_const, hc_memb)
+									y_pos = y_pos + 20
+									Text 20, y_pos, 50, 10, "Waiver Notes:"
+									EditBox 70, y_pos-5, 395, 15, HEALTH_CARE_MEMBERS(LTC_waiver_notes_const, hc_memb)
+									y_pos = y_pos + 20
+								End If
+								If STAT_INFORMATION(month_ind).stat_faci_exists(each_memb) = True and STAT_INFORMATION(month_ind).stat_faci_currently_in_facility(each_memb) = True Then
+									Text 20, y_pos, 350, 10, "Facility Info:  Name: " & STAT_INFORMATION(month_ind).stat_faci_name(each_memb)  & " - Type: " & STAT_INFORMATION(month_ind).stat_faci_type_info(each_memb)
+									y_pos = y_pos + 10
+									If STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) <> "" Then
+										Text 55, y_pos, 300, 10, "LTC Ineligible Reason: " & STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb)
+										y_pos = y_pos + 10
+									End If
+									If excluded_time_case = True Then
+										Text 55, y_pos, 300, 10, "EXCLUDED TIME CASE   -   County of Financial Responsibility: " & county_of_financial_responsibility
+										y_pos = y_pos + 10
+									End If
+									y_pos = y_pos + 10
+									Text 20, y_pos, 50, 10, "Facility Notes:"
+									EditBox 70, y_pos-5, 395, 15, HEALTH_CARE_MEMBERS(LTC_facility_notes_const, hc_memb)
+									y_pos = y_pos + 20
+								End If
+							End If
+						End If
+					Next
+				End If
+			Next
+			If ltc_info_in_stat = False Then
+				Text 20, y_pos, 400, 10, "NO Waiver or FACI information found for any Members you selected to process HC in this script run."
+				y_pos = y_pos + 20
+			End If
+			Text 20, y_pos, 70, 10, "LTC Eligiblity Notes:"
+			y_pos = y_pos + 10
+			EditBox 20, y_pos, 445, 15, ltc_elig_notes
+			y_pos = y_pos + 25
+			Text 20, y_pos, 85, 10, "Information still needed:"
+			y_pos = y_pos + 10
+			EditBox 20, y_pos, 445, 15, ltc_info_still_needed
+			y_pos = y_pos + 25
+
+			grp_len = y_pos-10
+			GroupBox 10, 10, 465, grp_len, "LTC Details"
 		ElseIf page_display = last_page Then															'Final detail Page
 			y_pos = 10
 			If arep_name <> "" Then
@@ -1603,7 +1762,7 @@ function define_main_dialog()
 					GroupBox 20, y_pos, 445, 65, "MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb)
 					y_pos = y_pos + 10
 					Text 30, y_pos, 150, 10, "HC Eval Process:   " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb)
-					Text 190, y_pos, 150, 10, "MA BASIS: " & HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, the_memb)
+					Text 190, y_pos, 150, 10, "MA BASIS: " & HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, the_memb)
 					Text 335, y_pos, 125, 10, "MSP BASIS: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb)
 					y_pos = y_pos + 20
 					Text 30, y_pos, 75, 10, "Health Care Eval: "
@@ -1632,6 +1791,7 @@ function define_main_dialog()
 				CheckBox 15, y_pos, 245, 10, "Check here to have the script create a TIKL to deny at the 45 day mark.", TIKL_check
 			End If
 		ElseIf page_display = verifs_page Then															'Verifs Page - this page displays only if there are verifs
+			EditBox 700, 700, 50, 15, invisible_edit_box			'this is here to capture the attention of the tab order so people don't accidentally clear their verifs
 			y_pos = 25
 			Text 20, y_pos, 150, 10, "Verifications listed:"
 			If verif_req_form_sent_date <> "" Then Text 200, y_pos, 150, 10, "Verification Request form Sent on " & verif_req_form_sent_date
@@ -1721,6 +1881,13 @@ function define_main_dialog()
 			Text 485, btn_pos + 2, 10, 10, btn_count
 			If page_display <> verifs_page 	Then PushButton 495, btn_pos, 55, 13, "Verifications",verifs_page_btn
 			If page_display =  verifs_page 	Then Text 500, btn_pos+2, 55, 13, "Verifications"
+			btn_pos = btn_pos + 15
+			btn_count = btn_count + 1
+		End If
+		If ltc_waiver_request_yn = "Yes" Then
+			Text 485, btn_pos + 2, 10, 10, btn_count
+			If page_display <> ltc_page 	Then PushButton 495, btn_pos, 55, 13, "LTC Details", ltc_page_btn
+			If page_display =  ltc_page 	Then Text 500, btn_pos+2, 55, 13, "LTC Details"
 			btn_pos = btn_pos + 15
 			btn_count = btn_count + 1
 		End If
@@ -2010,6 +2177,11 @@ function dialog_movement()
 		End If
 	Next
 	If ButtonPressed = next_btn Then page_display = page_display + 1					'incrementing the page to display as these are numeric
+	If page_display = bils_page and bils_exist = False Then page_display = page_display + 1
+	If page_display = imig_page and imig_exists = False Then page_display = page_display + 1
+	If page_display = retro_page and case_has_retro_request = False Then page_display = page_display + 1
+	If page_display = verifs_page and verifs_needed = "" Then page_display = page_display + 1
+	If page_display = ltc_page and ltc_waiver_request_yn <> "Yes" Then page_display = page_display + 1
 	If page_display > last_btn Then page_display = last_page							'making sure we don't go above the last page
 
 	'Each button pressed sets page_dsiplay to the page associated with the button
@@ -2025,6 +2197,7 @@ function dialog_movement()
 	If ButtonPressed = imig_btn Then page_display = imig_page
 	If ButtonPressed = retro_btn Then page_display = retro_page
 	If ButtonPressed = verifs_page_btn Then page_display = verifs_page
+	If ButtonPressed = ltc_page_btn Then page_display = ltc_page
 	If ButtonPressed = last_btn Then page_display = last_page
 
 	If ButtonPressed = clear_verifs_btn Then			'If the 'Clear Verifs' button is pressed, we blank out 'verifs_needed' and go to the last page
@@ -2042,6 +2215,17 @@ function dialog_movement()
 			verifs_needed = verifs_needed & "MA-BC treatment/screening form needed to process MA-BC eligibility.; "
 		End If
 	End If
+	For each_hh_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+		If HEALTH_CARE_MEMBERS(MEDI_application_requred_checkbox_const, each_hh_memb) = checked Then
+			If InStr(verifs_needed, "Application for MEDICARE required for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, each_hh_memb)) = 0 Then
+				If HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) <> "" Then verifs_needed = verifs_needed & "Application for MEDICARE required for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, each_hh_memb) & ", referral date: " & HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) & "; "
+				If HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) = "" Then verifs_needed = verifs_needed & "Application for MEDICARE required for MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, each_hh_memb) & "; "
+			End If
+		End If
+	Next
+	If avs_form_status = "No Form Received" and InStr(verifs_needed, "Signed AVS Authorization Form (DHS-7823)") = 0 Then verifs_needed = verifs_needed & "Signed AVS Authorization Form (DHS-7823); "
+	If avs_form_status = "Incomplete - Received - Not Signed/Dated Correctly" and InStr(verifs_needed, "AVS Authorization Form (DHS-7823) needs to be signed/dated correctly.") = 0 Then verifs_needed = verifs_needed & "AVS Authorization Form (DHS-7823) needs to be signed/dated correctly.; "
+	If avs_form_status = "Incomplete - Received - Not Signed by all Required Members" and InStr(verifs_needed, "AVS Authorization Form (DHS-7823) needs to be signed by all required persons.") = 0 Then verifs_needed = verifs_needed & "AVS Authorization Form (DHS-7823) needs to be signed by all required persons.; "
 	retro_income_verifs_months = trim(retro_income_verifs_months)
 	retro_asset_verifs_months = trim(retro_asset_verifs_months)
 	retro_expense_verifs_months = trim(retro_expense_verifs_months)
@@ -2537,16 +2721,22 @@ Const MEDI_part_A_end_const 			= 59
 Const MEDI_part_B_start_const 			= 60
 Const MEDI_part_B_end_const 			= 61
 Const MEDI_info_source_const 			= 62
-Const MEDI_notes_const					= 63
-Const HC_eval_process_const 			= 64
-Const MA_basis_of_elig_const 			= 65
-Const MA_basis_notes_const 				= 66
-Const MSP_basis_of_elig_const 			= 67
-Const MSP_basis_notes_const 			= 68
-Const hc_eval_status					= 69
-Const hc_eval_notes						= 70
-Const pers_btn_one_const 				= 71
-Const last_const						= 72
+Const MEDI_application_requred_checkbox_const	= 63
+Const MEDI_referral_date_const 			= 64
+Const MEDI_notes_const					= 65
+Const HC_eval_process_const 			= 66
+Const HC_basis_of_elig_const 			= 67
+Const MA_basis_notes_const 				= 68
+Const MSP_basis_of_elig_const 			= 69
+Const MSP_basis_notes_const 			= 70
+Const hc_eval_status					= 71
+Const hc_eval_notes						= 72
+Const pers_btn_one_const 				= 73
+Const HC_major_prog_const				= 74
+Const MSP_major_prog_const				= 75
+Const LTC_waiver_notes_const			= 76
+Const LTC_facility_notes_const			= 77
+Const last_const						= 78
 
 Dim HEALTH_CARE_MEMBERS()
 ReDim HEALTH_CARE_MEMBERS(last_const, 0)
@@ -2608,9 +2798,9 @@ ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Child (19-20)"
 ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Child (2-18)"
 ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Child (0-1)"
 ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Auto Newborn"
-ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Medical Emergency"
+' ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Medical Emergency"
 ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Foster Care Child"
-ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Previous Foster Care Child"
+ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Prev. Foster Care Child"
 ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"Breast/Cervical Cancer"
 ma_basis_of_elig_list = ma_basis_of_elig_list+chr(9)+"No Eligibility"
 
@@ -2619,6 +2809,13 @@ msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"Blind"
 msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"Elderly"
 msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"No Eligibility"
 msp_basis_of_elig_list = msp_basis_of_elig_list+chr(9)+"No MEDICARE"
+
+avs_form_status_list = "Select One..."
+avs_form_status_list = avs_form_status_list+chr(9)+"Not Required"
+avs_form_status_list = avs_form_status_list+chr(9)+"No Form Received"
+avs_form_status_list = avs_form_status_list+chr(9)+"Incomplete - Received - Not Signed/Dated Correctly"
+avs_form_status_list = avs_form_status_list+chr(9)+"Incomplete - Received - Not Signed by all Required Members"
+avs_form_status_list = avs_form_status_list+chr(9)+"Complete - All Forms and Signatures Received"
 
 page_display = ""
 'These are the ways the pages of the dialog are selected, each is associated with a number
@@ -2634,7 +2831,8 @@ bils_page 			= 8
 imig_page 			= 9
 retro_page			= 10
 verifs_page 		= 11
-last_page 			= 15
+ltc_page			= 12
+last_page 			= 13
 
 'BUTTON definitions
 'START AT 1000 OR ABOVE. Person buttons start at 500
@@ -2650,6 +2848,7 @@ Const bils_btn		= 2018
 Const imig_btn 		= 2019
 Const verifs_page_btn 	= 2020
 Const retro_btn		= 2021
+Const ltc_page_btn	= 2022
 Const last_btn		= 2030
 Const verif_button	= 2500
 Const clear_verifs_btn = 2510
@@ -2665,8 +2864,9 @@ Dim app_sig_status, app_sig_notes, client_delay_check, TIKL_check, MA_BC_end_of_
 Dim ma_bc_authorization_form, ma_bc_authorization_form_date, ma_bc_authorization_form_missing_checkbox
 Dim bils_notes, verifs_needed, verif_req_form_sent_date, number_verifs_checkbox, case_details_notes
 Dim last_page_numb
-Dim retro_income_detail, retro_asset_detail, retro_expense_detail
+Dim retro_income_detail, retro_asset_detail, retro_expense_detail, ltc_elig_notes, ltc_info_still_needed
 Dim retro_income_verifs_months, retro_asset_verifs_months, retro_expense_verifs_months, retro_notes
+Dim avs_form_status, avs_form_notes, avs_portal_notes
 
 'THE SCRIPT =====================================================================================================
 EMConnect ""								'connect to BlueZone
@@ -2703,7 +2903,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
   EditBox 80, 200, 50, 15, MAXIS_case_number
   DropListBox 80, 220, 275, 45, "Select One..."+form_selection_options, HC_form_name
-  DropListBox 265, 240, 75, 45, "Select One..."+chr(9)+"Yes"+chr(9)+"No", ltc_waiver_request_yn
+  DropListBox 265, 240, 75, 45, "No"+chr(9)+"Yes", ltc_waiver_request_yn
   EditBox 80, 260, 50, 15, form_date
   EditBox 80, 280, 150, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -2744,7 +2944,6 @@ DO
 		Else
 			Call validate_MAXIS_case_number(err_msg, "*")
 			If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care evaluation from."
-			If ltc_waiver_request_yn = "Select One..." Then err_msg = err_msg & vbCr & "* Select if the form received can be used to request LTC/Waiver services."
 			If IsDate(form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the form being processed was received."
 			If trim(worker_signature) = "" Then err_msg = err_msg & vbCr & "* Enter your name to sign your CASE/NOTE."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
@@ -2793,7 +2992,7 @@ Do
 		HEALTH_CARE_MEMBERS(pers_btn_one_const, hc_memb) = 500+hc_memb
 
 		If HC_form_name = "Breast and Cervical Cancer Coverage Group (DHS-3525)" Then
-			HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, hc_memb) = "Breast/Cervical Cancer"
+			HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, hc_memb) = "Breast/Cervical Cancer"
 			HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, hc_memb) = "No Eligibility"
 		End If
 
@@ -3064,6 +3263,7 @@ DO								'reads the reference number, last name, first name, and then puts it i
 	Emreadscreen edit_check, 7, 24, 2
 LOOP until edit_check = "ENTER A"			'the script will continue to transmit through memb until it reaches the last page and finds the ENTER A edit on the bottom row.
 
+If right(client_array, 1) = "|" Then client_array = left(client_array, len(client_array)-1)
 client_array = TRIM(client_array)
 test_array = split(client_array, "|")
 total_clients = Ubound(test_array)			'setting the upper bound for how many spaces to use from the array
@@ -3072,39 +3272,45 @@ count_checkbox = 1
 process_checkbox = 2
 DIm all_clients_array()
 ReDim all_clients_array(total_clients, 2)
+Interim_array = split(client_array, "|")
 
-FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
-	Interim_array = split(client_array, "|")
-	all_clients_array(x, 0) = Interim_array(x)
-	all_clients_array(x, 1) = 1
-	ref_numb = left(Interim_array(x),2)
-	If InStr(curr_hc_membs, ref_numb) <> 0 Then all_clients_array(x, 2) = 1
-NEXT
-
-Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 360, (85 + (total_clients * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
-	Text 10, 5, 205, 10, "Select Household Members to capture information about."
-	Text 10, 15, 205, 10, "Check all members: "
-	Text 10, 25, 350, 10, "- In 'Count Income/Assets if their income or assets deem to anyone you are processing Health Care for."
-	Text 10, 35, 350, 10, "- In 'Processing Health Care' if you are working on their Health Care Application or Renewal."
-	Text 10, 55, 100, 10, "Count Income/Assets"
-	Text 200, 55, 100, 10, "Processing Health Care"
-	FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
-		IF all_clients_array(i, 0) <> "" THEN
-			checkbox 10, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, count_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-			ref_numb = left(all_clients_array(i, 0),2)
-			If InStr(all_membs_with_hcre, ref_numb) <> 0 Then checkbox 200, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, process_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
-
-		End If
+If total_clients = 0 Then
+	all_clients_array(0, 0) = Interim_array(0)
+	all_clients_array(0, 1) = checked
+	all_clients_array(0, 2) = checked
+Else
+	FOR x = 0 to total_clients				'using a dummy array to build in the autofilled check boxes into the array used for the dialog.
+		all_clients_array(x, 0) = Interim_array(x)
+		all_clients_array(x, 1) = checked
+		ref_numb = left(Interim_array(x),2)
+		If InStr(curr_hc_membs, ref_numb) <> 0 Then all_clients_array(x, 2) = checked
 	NEXT
-	ButtonGroup ButtonPressed
-	OkButton 245, 65 + (total_clients * 15), 50, 15
-	CancelButton 300, 65 + (total_clients * 15), 50, 15
-EndDialog
 
-Dialog Dialog1
-Cancel_without_confirmation
-check_for_maxis(True)
+	Dialog1 = ""
+	BeginDialog Dialog1, 0, 0, 360, (85 + ((total_clients+1) * 15)), "HH Member Dialog"   'Creates the dynamic dialog. The height will change based on the number of clients it finds.
+		Text 10, 5, 205, 10, "Select Household Members to capture information about."
+		Text 10, 15, 205, 10, "Check all members: "
+		Text 10, 25, 350, 10, "- In 'Count Income/Assets if their income or assets deem to anyone you are processing Health Care for."
+		Text 10, 35, 350, 10, "- In 'Processing Health Care' if you are working on their Health Care Application or Renewal."
+		Text 10, 55, 100, 10, "Count Income/Assets"
+		Text 200, 55, 100, 10, "Processing Health Care"
+		FOR i = 0 to total_clients										'For each person/string in the first level of the array the script will create a checkbox for them with height dependant on their order read
+			IF all_clients_array(i, 0) <> "" THEN
+				checkbox 10, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, count_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+				ref_numb = left(all_clients_array(i, 0),2)
+				If InStr(all_membs_with_hcre, ref_numb) <> 0 Then checkbox 200, (65 + (i * 15)), 160, 10, all_clients_array(i, 0), all_clients_array(i, process_checkbox)  'Ignores and blank scanned in persons/strings to avoid a blank checkbox
+
+			End If
+		NEXT
+		ButtonGroup ButtonPressed
+		OkButton 245, 65 + ((total_clients+1) * 15), 50, 15
+		CancelButton 300, 65 + ((total_clients+1) * 15), 50, 15
+	EndDialog
+
+	Dialog Dialog1
+	Cancel_without_confirmation
+	check_for_maxis(False)
+End If
 
 selected_memb = ""
 List_of_HH_membs_to_include = " "					'now we are going to create a list of all the reference numbers of the members that were checked
@@ -3118,6 +3324,7 @@ FOR i = 0 to total_clients
 			For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)					'setting the defaults for booleans for each member with HC
 				If HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) = HH_memb Then
 					HEALTH_CARE_MEMBERS(show_hc_detail_const, hc_memb) = True
+					HEALTH_CARE_MEMBERS(HC_major_prog_const, hc_memb) = "MA"
 					If selected_memb = "" Then selected_memb = hc_memb
 				End If
 			Next
@@ -3400,6 +3607,11 @@ edit_box_counter = 0
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	'for each class parameter that exists, the counter is set to the class notes and the array size is increased.
 	If STAT_INFORMATION(month_ind).stat_emma_exists(each_memb) = True Then
+		For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+			If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) Then
+				HEALTH_CARE_MEMBERS(HC_major_prog_const, hc_memb) = "EMA"
+			End If
+		Next
 		STAT_INFORMATION(month_ind).stat_emma_notes(each_memb) = edit_box_counter
 		ReDim preserve EDITBOX_ARRAY(edit_box_counter)
 		edit_box_counter = edit_box_counter + 1
@@ -3476,6 +3688,11 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	End If
 	If STAT_INFORMATION(month_ind).stat_imig_exists(each_memb) = True Then
 		STAT_INFORMATION(month_ind).stat_imig_notes(each_memb) = edit_box_counter
+		ReDim preserve EDITBOX_ARRAY(edit_box_counter)
+		edit_box_counter = edit_box_counter + 1
+	End If
+	If STAT_INFORMATION(month_ind).stat_pben_exists(each_memb) = True Then
+		STAT_INFORMATION(month_ind).stat_pben_notes(each_memb) = edit_box_counter
 		ReDim preserve EDITBOX_ARRAY(edit_box_counter)
 		edit_box_counter = edit_box_counter + 1
 	End If
@@ -3729,21 +3946,34 @@ If ma_bc_authorization_form_missing_checkbox = unchecked Then
 	Call write_bullet_and_variable_in_CASE_NOTE("MA-BC Form Date Recvd", ma_bc_authorization_form_date)
 End If
 Call write_bullet_and_variable_in_CASE_NOTE("Notes", case_details_notes)
-
+If trim(ltc_elig_notes) <> "" or trim(ltc_info_still_needed) <> "" Then
+	Call write_variable_in_CASE_NOTE("========================= LTC INFORMATION ==========================")
+	Call write_bullet_and_variable_in_CASE_NOTE("ELIG Notes", ltc_elig_notes)
+	Call write_bullet_and_variable_in_CASE_NOTE("Info Still Needed", ltc_info_still_needed)
+End If
 Call write_variable_in_CASE_NOTE("========================== PERSON DETAILS ==========================")
 For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 	If HEALTH_CARE_MEMBERS(show_hc_detail_const, the_memb) = True Then
 		Call write_variable_in_CASE_NOTE("MEMB " & HEALTH_CARE_MEMBERS(ref_numb_const, the_memb) & " - " & HEALTH_CARE_MEMBERS(full_name_const, the_memb) & " - Processing: " & HEALTH_CARE_MEMBERS(HC_eval_process_const, the_memb))
 		Call write_variable_in_CASE_NOTE("     Status: " & HEALTH_CARE_MEMBERS(hc_eval_status, the_memb))
 		If trim(HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("     Notes: " & HEALTH_CARE_MEMBERS(hc_eval_notes, the_memb))
-		Call write_variable_in_CASE_NOTE("     MA Basis: " & HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, the_memb))
-		If HEALTH_CARE_MEMBERS(MA_basis_of_elig_const, the_memb) = "Breast/Cervical Cancer" Then
-			Call write_variable_in_CASE_NOTE("               MA-BC uses Method X Budgeting.")
-			Call write_variable_in_CASE_NOTE("               Income/Assets are not counted.")
-			If ma_bc_authorization_form_missing_checkbox = checked Then Call write_variable_in_CASE_NOTE("               MA-BC form (" & ma_bc_authorization_form & ") has not been received.")
+		If HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) = "None" Then
+			Call write_variable_in_CASE_NOTE("     No Health Care Program.")
+		Else
+			Call write_variable_in_CASE_NOTE("     " & HEALTH_CARE_MEMBERS(HC_major_prog_const, the_memb) & " Basis: " & HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, the_memb))
+			If HEALTH_CARE_MEMBERS(HC_basis_of_elig_const, the_memb) = "Breast/Cervical Cancer" Then
+				Call write_variable_in_CASE_NOTE("               MA-BC uses Method X Budgeting.")
+				Call write_variable_in_CASE_NOTE("               Income/Assets are not counted.")
+				If ma_bc_authorization_form_missing_checkbox = checked Then Call write_variable_in_CASE_NOTE("               MA-BC form (" & ma_bc_authorization_form & ") has not been received.")
+			End If
 		End If
 		If trim(HEALTH_CARE_MEMBERS(MA_basis_notes_const, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("        Notes: " & HEALTH_CARE_MEMBERS(MA_basis_notes_const, the_memb))
-		Call write_variable_in_CASE_NOTE("     MSP Basis: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb))
+		If HEALTH_CARE_MEMBERS(MSP_major_prog_const, the_memb) = "None" Then
+			Call write_variable_in_CASE_NOTE("     No Medicare Savings Program.")
+		Else
+			Call write_variable_in_CASE_NOTE("     MSP Program: " & HEALTH_CARE_MEMBERS(MSP_major_prog_const, the_memb))
+			Call write_variable_in_CASE_NOTE("     MSP Basis: " & HEALTH_CARE_MEMBERS(MSP_basis_of_elig_const, the_memb))
+		End If
 		If trim(HEALTH_CARE_MEMBERS(MSP_basis_notes_const, the_memb)) <> "" Then Call write_variable_in_CASE_NOTE("         Notes: " & HEALTH_CARE_MEMBERS(MSP_basis_notes_const, the_memb))
 		If HEALTH_CARE_MEMBERS(member_has_retro_request, the_memb) = True Then
 			Call write_variable_in_CASE_NOTE("     RETRO Request back to " & HEALTH_CARE_MEMBERS(hc_cov_date_const, the_memb))
@@ -3775,11 +4005,18 @@ For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 				If right(disa_string, 2) = "; " Then disa_string = disa_string & "Cert Date End Date: " & HEALTH_CARE_MEMBERS(DISA_cert_end_const, the_memb)
 				If right(disa_string, 2) <> "; " Then disa_string = disa_string & ", Cert Date End Date: " & HEALTH_CARE_MEMBERS(DISA_cert_end_const, the_memb)
 			End If
-			If right(disa_string, 2) <> "; " Then disa_string = disa_string & "; "
 			disa_string = disa_string & "Verif: " & HEALTH_CARE_MEMBERS(DISA_hc_verif_info_const, the_memb) & "; "
-			If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, the_memb) <> "" Then disa_string = disa_string & "Waiver: " & HEALTH_CARE_MEMBERS(DISA_waiver_info_const, the_memb) & "; "
-			If trim(HEALTH_CARE_MEMBERS(DISA_notes_const, the_memb)) <> "" Then disa_string = disa_string & "Notes: " & HEALTH_CARE_MEMBERS(DISA_notes_const, the_memb)
+			If trim(HEALTH_CARE_MEMBERS(DISA_notes_const, the_memb)) <> "" Then disa_string = disa_string & "Notes: " & HEALTH_CARE_MEMBERS(DISA_notes_const, the_memb) & "; "
+			If right(disa_string, 2) <> "; " Then disa_string = disa_string & "; "
 			Call write_header_and_detail_in_CASE_NOTE("Disability", disa_string)
+
+			waiver_string = ""
+			If HEALTH_CARE_MEMBERS(DISA_waiver_info_const, the_memb) <> "" Then waiver_string = waiver_string & "" & HEALTH_CARE_MEMBERS(DISA_waiver_info_const, the_memb) & "; "
+			If trim(HEALTH_CARE_MEMBERS(LTC_waiver_notes_const, selected_memb)) <> "" Then waiver_string = waiver_string & "LTC Notes: " & HEALTH_CARE_MEMBERS(LTC_waiver_notes_const, selected_memb)
+			If waiver_string <> "" Then
+				If right(waiver_string, 2) <> "; " Then waiver_string = waiver_string & "; "
+				Call write_header_and_detail_in_CASE_NOTE("Waiver", waiver_string)
+			End If
 		End If
 
 		For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
@@ -3828,6 +4065,11 @@ For the_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
 
 			If trim(HEALTH_CARE_MEMBERS(MEDI_notes_const, the_memb)) <> "" Then medi_string = medi_string & "Notes: " & HEALTH_CARE_MEMBERS(MEDI_notes_const, the_memb)
 			Call write_header_and_detail_in_CASE_NOTE("Medicare", medi_string)
+		Else
+			If HEALTH_CARE_MEMBERS(MEDI_application_requred_checkbox_const, the_memb) = checked Then
+				If HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) <> "" Then Call write_header_and_detail_in_CASE_NOTE("Medicare", "Application for Medicare is required, referral date: " & HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) & ".")
+				If HEALTH_CARE_MEMBERS(MEDI_referral_date_const, each_hh_memb) = "" Then Call write_header_and_detail_in_CASE_NOTE("Medicare", "Application for Medicare is required.")
+			End If
 		End If
 	End If
 Next
@@ -4139,6 +4381,13 @@ Call write_bullet_and_variable_in_CASE_NOTE("RETRO Income Notes", retro_income_d
 If income_detail_entered = False Then Call write_variable_in_CASE_NOTE("* No Income for this Case.")
 
 Call write_variable_in_CASE_NOTE("============================== ASSETS ==============================")
+If (avs_form_status <> "Select One..." and avs_form_status <> "") OR trim(avs_form_notes) <> "" OR trim(avs_portal_notes) <> "" Then
+	Call write_variable_in_CASE_NOTE("-----------------------------------------------------AVS Information")
+	If avs_form_status <> "Select One..." Then Call write_bullet_and_variable_in_CASE_NOTE("AVS Authorization Form", avs_form_status)
+	Call write_bullet_and_variable_in_CASE_NOTE("Notes", avs_form_notes)
+	Call write_bullet_and_variable_in_CASE_NOTE("Actions/Details", avs_portal_notes)
+	Call write_variable_in_CASE_NOTE("--------------------------------------------------------------------")
+End If
 asset_detail_entered = False
 For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 	If STAT_INFORMATION(month_ind).stat_cash_asset_panel_exists(each_memb) = True Then
@@ -4485,6 +4734,12 @@ For each_memb = 0 to UBound(STAT_INFORMATION(month_ind).stat_memb_ref_numb)
 			faci_string = faci_string & "LTC Ineligible Reason: " & STAT_INFORMATION(month_ind).stat_faci_LTC_inelig_reason_info(each_memb) & "; "
 		End If
 		Call write_header_and_detail_in_CASE_NOTE("Facility Info", faci_string)
+
+		For hc_memb = 0 to UBound(HEALTH_CARE_MEMBERS, 2)
+			If STAT_INFORMATION(month_ind).stat_memb_ref_numb(each_memb) = HEALTH_CARE_MEMBERS(ref_numb_const, hc_memb) Then
+				Call write_header_and_detail_in_CASE_NOTE("LTC FACI Notes", HEALTH_CARE_MEMBERS(LTC_facility_notes_const, hc_memb))
+			End If
+		Next
 
 		If excluded_time_case = True Then
 			Call write_variable_in_CASE_NOTE("* EXCLUDED TIME CASE - County of Financial Responsibility: " & county_of_financial_responsibility)
