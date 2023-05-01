@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("03/13/2023", "* * * Closed Programs has been retired. * * *##~####~##NOTES - Eligibility Summary will now run every time you press the button for Closed Programs.##~##", "Casey Love, Hennepin County")
 call changelog_update("03/03/2023", "* * * THIS SCRIPT IS BEING RETIRED ON 05/01/2023 * * *##~####~##Be sure to try using NOTES - Eligibility Summary before this retirement date for CASE/NOTEs on denials. This is the time to become accustomeed to the functionality of NOTES - Eligibility Summary.##~##", "Casey Love, Hennepin County")
 CALL changelog_update("04/22/2021", "Updated reason for closure field to be a mandatory field.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("04/19/2021", "Changed name of field from ABAWD/2ND SET/BANKED INFO to COUNTED ABAWD MONTHS INFO. Also made field optional during federal ABAWD waiver.", "Ilse Ferris, Hennepin County")
@@ -62,6 +63,11 @@ call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 'Actually displays the changelog. This function uses a text file located in the My Documents folder. It stores the name of the script file and a description of the most recent viewed change.
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
+
+script_run_lowdown = script_run_lowdown & vbCr & "STARTED FROM CLOSED PROGRAMS"
+script_url = script_repository & "notes\eligibility-summary.vbs"
+Call run_from_GitHub(script_url)
+script_end_procedure("")
 
 'Checks for county info from global variables, or asks if it is not already defined.
 get_county_code
