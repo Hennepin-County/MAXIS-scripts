@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("05/01/2023", "Updated AVS Portal Case Review reminder for 11th day after submitting an Ad-Hoc request.", "Mark Riegel, Hennepin County")
 call changelog_update("03/20/2023", "Added Change in Basis option, and enabled the Renewal option for submitting an AVS Request.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2022", "Fixed inhibiting bug if HH members do not have an age listed on STAT/MEMB.", "Ilse Ferris, Hennepin County")
@@ -80,7 +81,7 @@ End if
 '----------------------------------------------------------------------------------------------------Initial dialog
 initial_help_text = "*** What is the AVS? ***" & vbNewLine & "--------------------" & vbNewLine & vbNewLine & _
 "The Account Validation Service (AVS) is a web-based service that provides information about some accounts held in financial institutions. It does not provide information on property assets such as cars or homes. AVS must be used once at application, and when a person changes to a Medical Assistance for People Who Are Age 65 or Older and People Who Are Blind or Have a Disability (MA-ABD) basis of eligibility and are subject to an asset test." & vbNewLine & vbNewLine & _
-"If a resident is already on a MHCP with an asset test or a MHCP with an asset test isn't being applied for then the AVS should not be run. This verification is not meant for any other public assitance programs besides health care."
+"If a resident is already on a MHCP with an asset test or a MHCP with an asset test isn't being applied for then the AVS should not be run. This verification is not meant for any other public assistance programs besides health care."
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 186, 85, "AVS Initial Selection Dialog"
@@ -557,7 +558,7 @@ Do
 
     'Call create_TIKLL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
     If set_form_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
-    If set_AVS_TIKL = True then Call create_TIKL("AVS 10-day check is due.", 10, date, False, TIKL_note_text)
+    If set_AVS_TIKL = True then Call create_TIKL("AVS 10-day check is due.", 11, date, False, TIKL_note_text)
     If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
     If set_asset_TIKL = True then Call create_TIKL("AVS unreported asset verification requested for the case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
 
