@@ -183,7 +183,7 @@ Call write_variable_in_CASE_NOTE(worker_signature)
 script_end_procedure_with_error_report("**Review your MEMO and/or CASE:NOTE for accuracy.**")
 
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation 
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
