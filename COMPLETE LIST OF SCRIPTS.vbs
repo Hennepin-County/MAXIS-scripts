@@ -2493,7 +2493,7 @@ script_array(script_num).subcategory            = array("HEALTH CARE")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("EPM Community_Spouse_Asset_Allowance http://hcopub.dhs.state.mn.us/epm/2_4_2_1_2.htm?rhhlterm=12%20community%20spouse&rhsearch=12%20months%20community%20spouse", "ONESOURCE Processing_an_Asset_or_Income_Transfer_for_MA-LTC https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-170126")						'SEE Line 58 for format'
 
 script_num = script_num + 1						'Increment by one
 ReDim Preserve script_array(script_num)			'Resets the array to add one more element to it
