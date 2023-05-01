@@ -669,13 +669,6 @@ If interview_script_reported = True Then
 			attachment_here = local_interview_save_work_path
 		End if
 	End With
-	user_c_drive_docs_folder = "C:\Users\" & lcase(windows_user_ID) & "\Documents"
-	local_interview_save_work_path = user_c_drive_docs_folder & "\interview-answers-" & MAXIS_case_number & "-info.txt"
-	With objFSO
-		If .FileExists(local_interview_save_work_path) = True then
-			attachment_here = local_interview_save_work_path
-		End if
-	End With
 End If
 If caf_script_reported = True Then
 	local_CAF_save_work_path = user_myDocs_folder & "caf-variables-" & MAXIS_case_number & "-info.txt"
