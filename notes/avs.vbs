@@ -556,10 +556,10 @@ Do
     End if
 
     'Call create_TIKLL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
-    If set_form_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
-    If set_AVS_TIKL = True then Call create_TIKL("AVS 10-day check is due.", 10, date, False, TIKL_note_text)
-    If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
-    If set_asset_TIKL = True then Call create_TIKL("AVS unreported asset verification requested for the case. Review case file/notes, and take applicable actions.", 10, date, False, TIKL_note_text)
+    If set_form_TIKL = True then Call create_TIKL("DHS-7823 - AVS Auth Form(s) have been requested for this case. Review case file/notes, and take applicable actions.", 11, date, False, TIKL_note_text)
+    If set_AVS_TIKL = True then Call create_TIKL("AVS 10-day check is due.", 11, date, False, TIKL_note_text)
+    If set_another_TIKL = True then Call create_TIKL("An updated DHS-7823 - AVS Auth Form(s) has been requested for this case. Review case file/notes, and take applicable actions.", 11, date, False, TIKL_note_text)
+    If set_asset_TIKL = True then Call create_TIKL("AVS unreported asset verification requested for the case. Review case file/notes, and take applicable actions.", 11, date, False, TIKL_note_text)
 
     'Adding closing message if the "AVS Submission/Results" option is selected and the AVS status is results after decision.
     If initial_option = "AVS Submission/Results" then
