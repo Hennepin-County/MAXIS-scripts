@@ -73,8 +73,8 @@ BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
   EditBox 60, 180, 305, 15, actions_taken
   EditBox 60, 200, 305, 15, other_notes
   EditBox 70, 220, 295, 15, verifs_requested
-  DropListBox 270, 240, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
   CheckBox 10, 245, 140, 10, "Check here to navigate to DAIL/WRIT", tikl_nav_check
+  DropListBox 270, 240, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
   EditBox 75, 260, 85, 15, worker_signature
   ButtonGroup ButtonPressed
 	OkButton 260, 260, 50, 15
@@ -147,8 +147,8 @@ script_end_procedure ("The case note has been created please be sure to send ver
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/01/2023
+'--Tab orders reviewed & confirmed----------------------------------------------05/01/2023
 '--Mandatory fields all present & Reviewed--------------------------------------
 '--All variables in dialog match mandatory fields-------------------------------
 'Review dialog names for content and content fit in dialog----------------------
