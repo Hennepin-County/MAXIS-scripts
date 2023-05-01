@@ -113,7 +113,9 @@ Do
             Call navigate_to_MAXIS_screen("STAT","REVW")
             CALL write_value_and_transmit("X", 5, 71)
             EMReadScreen renewal_footer_month, 2, 9, 27
+            Renewal_footer_month = Replace (renewal_footer_month, "_","")
             EMReadScreen renewal_footer_year, 2, 9, 33
+            Renewal_footer_year = Replace (renewal_footer_year, "_","")
             PF3
             Call navigate_to_MAXIS_screen("STAT","MEMB")   
             EMReadScreen client, 12, 6 ,63 'Read client first name & input into dialog
