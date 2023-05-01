@@ -107,6 +107,11 @@ DO
 
 		' Validate that MAXIS number is numeric and less than 8 digits long
 		CALL validate_MAXIS_case_number(err_msg, "* ")
+		' Validate that MAXIS case number is valid
+		CALL navigate_to_MAXIS_screen("CASE", "NOTE")
+		EMReadScreen invalid_case_number, 7, 24, 2
+		Call back_to_SELF()
+		If invalid_case_number = "INVALID" THEN err_msg = err_msg & vbNewLine & "* This is an invalid case number, try again."
 		' Validate that worker signature is not blank.
 		If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* You must provide your worker signature - it cannot be blank."
 		' Validate that worker selects option from dropdown list as to how long change will last
