@@ -96,23 +96,46 @@ BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
   Text 10, 265, 60, 10, "Worker Signature:"
   Text 180, 245, 90, 10, "The changes client reports:"
 EndDialog
-'Shows dialog
+
+
+' Updated dialog to include field validation
 DO
 	DO
-		DO
-			DO
-    			Dialog Dialog1
-				cancel_confirmation
-				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-			LOOP UNTIL worker_signature <> ""
-			IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-		LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
-		IF changes_continue = "Select One:" THEN MsgBox "You Must Select 'The changes client reports field'"
-	LOOP UNTIL changes_continue <> "Select One:"
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+		err_msg = ""
+		Dialog Dialog1
+		cancel_confirmation ' Asks user to confirm if they want to cancel
+
+		' Validate that MAXIS number is numeric and less than 8 digits long
+		CALL validate_MAXIS_case_number(err_msg, "* ")
+		' Validate that worker signature is not blank.
+		If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* You must provide your worker signature - it cannot be blank."
+		' Validate that worker selects option from dropdown list as to how long change will last
+		If changes_continue = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You must select an option from the dropdown list indicating whether the changes reported by the client will continue next month or will not continue next month."
+		If date_received = "" AND effective_date = "" AND address_notes = "" AND household_notes = "" AND asset_notes = "" AND vehicles_notes = "" AND income_notes = "" AND shelter_notes = "" AND other_change_notes = "" AND actions_taken = "" AND other_notes = "" AND verifs_requested = "" THEN err_msg = err_msg & vbNewLine & "* All of the fields are blank. You must enter information in at least one field."
+		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
+	LOOP UNTIL err_msg = ""
+	CALL check_for_password(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
 
-'Checks Maxis for password prompt
+
+
+'Shows dialog
+' DO
+' 	DO
+' 		DO
+' 			DO
+'     			Dialog Dialog1
+' 				cancel_confirmation
+' 				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
+' 			LOOP UNTIL worker_signature <> ""
+' 			IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
+' 		LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
+' 		IF changes_continue = "Select One:" THEN MsgBox "You Must Select 'The changes client reports field'"
+' 	LOOP UNTIL changes_continue <> "Select One:"
+' 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+' LOOP UNTIL are_we_passworded_out = false
+
+' 'Checks Maxis for password prompt
 CALL check_for_MAXIS(FALSE)
 
 'THE CASENOTE----------------------------------------------------------------------------------------------------
