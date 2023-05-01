@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-call changelog_update("05/01/2023", "Updated TIKL to be set for 11 days instead of 10 to align with timeline in ONEsource manual for AVS.", "Mark Riegel, Hennepin County")
+call changelog_update("05/01/2023", "Updated AVS Portal Case Review reminder for 11th day after submitting an Ad-Hoc request.", "Mark Riegel, Hennepin County")
 call changelog_update("03/20/2023", "Added Change in Basis option, and enabled the Renewal option for submitting an AVS Request.", "Ilse Ferris, Hennepin County")
 call changelog_update("01/26/2023", "Removed term 'ECF' from the case note per DHS guidance, and referencing the case file instead.", "Ilse Ferris, Hennepin County")
 call changelog_update("12/30/2022", "Fixed inhibiting bug if HH members do not have an age listed on STAT/MEMB.", "Ilse Ferris, Hennepin County")
