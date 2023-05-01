@@ -24528,8 +24528,16 @@ If enter_CNOTE_for_DWP = True Then testing_run = True
 ' If enter_CNOTE_for_EMER = True Then testing_run = True
 
 is_this_exparte_renewal = "No"
-ex_part_memo_completed = ""
 If user_ID_for_validation = "CALO001" Then ex_parte_worker = True
+If user_ID_for_validation = "BETE001" Then ex_parte_worker = True
+If user_ID_for_validation = "WFJ985" Then ex_parte_worker = True
+If user_ID_for_validation = "WFR391" Then ex_parte_worker = True
+If user_ID_for_validation = "LIAH002" Then ex_parte_worker = True
+If user_ID_for_validation = "LOWE001" Then ex_parte_worker = True
+If user_ID_for_validation = "WFF816" Then ex_parte_worker = True
+If user_ID_for_validation = "WFU072" Then ex_parte_worker = True
+If user_ID_for_validation = "LALA004" Then ex_parte_worker = True
+If user_ID_for_validation = "WFU210" Then ex_parte_worker = True
 'TODO - add other ex parte worker IDs here
 If other_county_redirect = True Then
 	ex_parte_worker = True
@@ -27069,7 +27077,7 @@ If enter_CNOTE_for_HC = True Then		'HC DIALOG
 		Do
 			first_month = left(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), 5)
 			offer_exparte_option = False
-			If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "05/23") <> 0 Then offer_exparte_option = True
+			' If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "05/23") <> 0 Then offer_exparte_option = True
 			If InStr(HC_UNIQUE_APPROVALS(months_in_approval, approval_selected), "06/23") <> 0 Then offer_exparte_option = True
 			If ex_parte_worker = False Then offer_exparte_option = False
 			elig_ind = ""
