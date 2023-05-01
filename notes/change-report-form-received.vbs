@@ -172,9 +172,9 @@ script_end_procedure ("The case note has been created please be sure to send ver
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------05/01/2023
 '--Tab orders reviewed & confirmed----------------------------------------------05/01/2023
-'--Mandatory fields all present & Reviewed--------------------------------------
-'--All variables in dialog match mandatory fields-------------------------------
-'Review dialog names for content and content fit in dialog----------------------
+'--Mandatory fields all present & Reviewed--------------------------------------05/01/2023
+'--All variables in dialog match mandatory fields-------------------------------05/01/2023
+'Review dialog names for content and content fit in dialog----------------------05/01/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
 '--All variables are CASE:NOTEing (if required)---------------------------------
