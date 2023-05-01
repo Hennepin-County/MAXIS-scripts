@@ -1,8 +1,8 @@
 'Required for statistical purposes==========================================================================================
 name_of_script = "NOTICES - LTC - ASSET TRANSFER.vbs"
 start_time = timer
-STATS_counter = 2                          'sets the stats counter at one
-STATS_manualtime = 70                      'manual run time in seconds
+STATS_counter = 1                          'sets the stats counter at one
+STATS_manualtime = 130                      'manual run time in seconds
 STATS_denomination = "C"                   'C is for each CASE
 'END OF stats block=========================================================================================================
 
@@ -44,7 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
-CALL changelog_update("04/28/2023", "Updated dialog with policy resources and automatic casenoting.", "Megan Geissler, Hennepin County")
+CALL changelog_update("05/01/2023", "Updated dialog with policy resources, added dialog autofill capability and automatic case noting.", "Megan Geissler, Hennepin County")
 CALL changelog_update("10/20/2021", "Added CASE:NOTE option, mandatory fields and updated design of dialog.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("03/19/2018", "Updated text regarding client's name.", "Ilse Ferris, Hennepin County")
 CALL changelog_update("12/29/2017", "Coordinates for sending MEMO's has changed in SPEC function. Updated script to support change.", "Ilse Ferris, Hennepin County")
@@ -65,39 +65,71 @@ get_county_code
 'Listing button numbers for links
 onesource_URL = 101
 epm_URL = 102
+button_fill = 103
 
 Do
     Do
       err_msg = ""
+      fill_err_msg = ""
 
-      Dialog1 = ""
-      BeginDialog Dialog1, 0, 0, 301, 115, "LTC asset transfer dialog"
+      Dialog1 = ""    
+      BeginDialog Dialog1, 0, 0, 301, 140, "LTC asset transfer dialog"
         EditBox 75, 5, 50, 15, MAXIS_case_number
-        EditBox 225, 5, 20, 15, renewal_footer_month
-        EditBox 250, 5, 20, 15, renewal_footer_year
-        EditBox 75, 30, 70, 15, client
-        EditBox 225, 30, 70, 15, spouse
-        EditBox 75, 55, 220, 15, worker_signature
         ButtonGroup ButtonPressed
-          OkButton 190, 95, 50, 15
-          CancelButton 245, 95, 50, 15
-          PushButton 20, 90, 40, 15, "OneSource", onesource_URL
-          PushButton 70, 90, 40, 15, "EPM", epm_URL
-        Text 5, 10, 45, 10, "Case number:"
-        Text 155, 10, 60, 10, "ER date (MM/YY):"
-        Text 5, 35, 70, 10, "Resident First Name:"
-        Text 155, 35, 65, 10, "Spouse First Name:"
-        Text 5, 60, 60, 10, "Worker Signature:"
-        GroupBox 15, 80, 100, 30, "LTC Asset Transfer Policies"
+          PushButton 135, 5, 160, 15, "Press HERE to autofill fields below.", button_fill
+        EditBox 75, 30, 20, 15, renewal_footer_month
+        EditBox 100, 30, 20, 15, renewal_footer_year
+        EditBox 75, 55, 70, 15, client
+        EditBox 225, 55, 70, 15, spouse
+        EditBox 75, 80, 220, 15, worker_signature
+        ButtonGroup ButtonPressed
+          OkButton 185, 120, 50, 15
+          CancelButton 245, 120, 50, 15
+          PushButton 20, 115, 40, 15, "OneSource", onesource_URL
+          PushButton 70, 115, 40, 15, "EPM", epm_URL
+        Text 30, 10, 45, 10, "Case number:"
+        Text 15, 35, 60, 10, "ER date (MM/YY):"
+        Text 5, 60, 70, 10, "  Resident First Name:"
+        Text 160, 60, 65, 10, "Spouse First Name:"
+        Text 15, 85, 60, 10, " Worker Signature:"
+        GroupBox 15, 105, 100, 30, "LTC Asset Transfer Policies"
       EndDialog
 
       Dialog Dialog1
       cancel_without_confirmation
-
+  
       If ButtonPressed > 100 Then
         err_msg = "Loop"
+
         If ButtonPressed = onesource_URL Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=ONESOURCE-170126"
-        If ButtonPressed = epm_URL Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://hcopub.dhs.state.mn.us/epm/2_4_2_1_1.htm"
+        If ButtonPressed = epm_URL Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://hcopub.dhs.state.mn.us/epm/2_4_2_1_2.htm?rhhlterm=12%20community%20spouse&rhsearch=12%20months%20community%20spouse"
+        If ButtonPressed = button_fill Then 
+          Call Check_for_MAXIS(false)                         'Ensuring we are not passworded out  
+          Call validate_MAXIS_case_number(fill_err_msg, "*")
+          If fill_err_msg <> "" Then 
+            MsgBox "Enter the required information specified below before selecting autofill:" & fill_err_msg
+          Else
+            Back_to_SELF
+            Call navigate_to_MAXIS_screen("STAT","REVW")
+            CALL write_value_and_transmit("X", 5, 71)
+            EMReadScreen renewal_footer_month, 2, 9, 27
+            EMReadScreen renewal_footer_year, 2, 9, 33
+            PF3
+            Call navigate_to_MAXIS_screen("STAT","MEMB")   
+            EMReadScreen client, 12, 6 ,63 'Read client first name & input into dialog
+            Client = Replace (Client, "_","")
+            Call fix_case_for_name(client)
+            Call navigate_to_MAXIS_screen("STAT","MEMI")
+            EMReadScreen ref, 2, 9, 49
+            If ref <> "__" Then
+              Call navigate_to_MAXIS_screen("STAT","MEMB")
+              CALL write_value_and_transmit(ref, 20, 76)
+              EMReadScreen spouse, 12, 6, 63
+              Spouse = Replace (Spouse, "_","")
+              Call fix_case_for_name(spouse)
+            End If
+          End If
+        End If
       Else  
         Call validate_MAXIS_case_number(err_msg, "*")
         Call validate_footer_month_entry(renewal_footer_month, renewal_footer_year, err_msg, "*")
@@ -107,14 +139,14 @@ Do
         IF err_msg <> "" AND left(err_msg, 4) <> "LOOP" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
       End If
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
-    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+    Call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
 renewal_date = renewal_footer_month & "/" & renewal_footer_year 'Creating renewal date
 'Ensureing the client/spouse's namesa are the correct case in the MEMO
 Call fix_case_for_name(client)
 Call fix_case_for_name(spouse)
-
+ 
 'Ensuring we're in MAXIS, the case is not PRIV and it's in-county.
 Call check_for_MAXIS(False)
 Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
@@ -150,43 +182,48 @@ Call write_variable_in_CASE_NOTE(worker_signature)
 
 script_end_procedure_with_error_report("**Review your MEMO and/or CASE:NOTE for accuracy.**")
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation 
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------10/20/2021
-'--Tab orders reviewed & confirmed----------------------------------------------04/27/2023
-'--Mandatory fields all present & Reviewed--------------------------------------04/27/2023
-'--All variables in dialog match mandatory fields-------------------------------04/27/2023
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/01/2023
+'--Tab orders reviewed & confirmed----------------------------------------------05/01/2023
+'--Mandatory fields all present & Reviewed--------------------------------------05/01/2023
+'--All variables in dialog match mandatory fields-------------------------------05/01/2023
+'Review dialog names for content and content fit in dialog----------------------05/01/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------10/20/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------10/20/2021
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/20/2021
+'--All variables are CASE:NOTEing (if required)---------------------------------05/01/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/01/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/01/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------05/01/2023
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------04/27/2023
-'--MAXIS_background_check reviewed (if applicable)------------------------------10/20/2021
-'--PRIV Case handling reviewed -------------------------------------------------10/20/2021
-'--Out-of-County handling reviewed----------------------------------------------10/20/2021
-'--script_end_procedures (w/ or w/o error messaging)----------------------------04/27/2023
-'--BULK - review output of statistics and run time/count (if applicable)--------10/20/2021----------------N/A
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/01/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/01/2023
+'--PRIV Case handling reviewed -------------------------------------------------05/01/2023
+'--Out-of-County handling reviewed----------------------------------------------05/01/2023
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/01/2023
+'--BULK - review output of statistics and run time/count (if applicable)-------------------------------------------NA
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/01/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------04/27/2023
-'--Incrementors reviewed (if necessary)-----------------------------------------10/20/2021
-'--Denomination reviewed -------------------------------------------------------10/20/2021
-'--Script name reviewed---------------------------------------------------------10/20/2021
-'--BULK - remove 1 incrementor at end of script reviewed------------------------10/20/2021----------------N/A
+'--Manual time study reviewed --------------------------------------------------05/01/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------05/01/2023
+'--Denomination reviewed -------------------------------------------------------05/01/2023
+'--Script name reviewed---------------------------------------------------------05/01/2023
+'--BULK - remove 1 incrementor at end of script reviewed-----------------------------------------------------------NA
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------10/20/2021
-'--comment Code-----------------------------------------------------------------10/20/2021
-'--Update Changelog for release/update------------------------------------------04/27/2023
-'--Remove testing message boxes-------------------------------------------------10/20/2021
-'--Remove testing code/unnecessary code-----------------------------------------10/20/2021
-'--Review/update SharePoint instructions----------------------------------------10/20/2021
-'--Review Best Practices using BZS page ----------------------------------------10/20/2021
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/20/2021
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------04/27/2023
-'--Complete misc. documentation (if applicable)---------------------------------10/20/2021
-'--Update project team/issue contact (if applicable)----------------------------10/20/2021
+'--Confirm all GitHub tasks are complete----------------------------------------05/01/2023
+'--comment Code-----------------------------------------------------------------05/01/2023
+'--Update Changelog for release/update------------------------------------------05/01/2023
+'--Remove testing message boxes-------------------------------------------------05/01/2023
+'--Remove testing code/unnecessary code-----------------------------------------05/01/2023
+'--Review/update SharePoint instructions----------------------------------------05/01/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/01/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/01/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/01/2023
+'--Complete misc. documentation (if applicable)---------------------------------05/01/2023
+'--Update project team/issue contact (if applicable)----------------------------05/01/2023
