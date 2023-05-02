@@ -46,6 +46,29 @@ call changelog_update("06/02/2021", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+Function copy_elig_to_array(output_array)
+	output_array = "" 'resetting array
+	For row = 2 to 21
+		EMReadScreen elig_line, 80, row, 1
+		output_array = output_array & elig_line & "UUDDLRLRBA"
+	Next
+	' MsgBox output_array
+	output_array = split(output_array, "UUDDLRLRBA")
+End function
+
+function insert_page_break_after_two_panels(screen_on_page)
+	'Determines if the Word doc needs a new page
+	'screen_on_page - This is a running counter that is updated in this function
+	screen_on_page = screen_on_page + 1
+	If screen_on_page = 3 then												'if we are at 2, we need to insert a page breakk and reset the counter
+		screen_on_page = 1
+		objSelection.InsertBreak(7)
+	ElseIf screen_on_page = 2 Then
+		objSelection.TypeText vbCr & vbCr & vbCr & vbCr & vbCr
+	End if
+	STATS_counter = STATS_counter + 1											'also using this to increment the stats counter since we do this with every panel we read.'
+end function
+screen_on_page = 0
 
 'TODO - there is currently no handling for HC
 EMConnect ""
@@ -90,7 +113,7 @@ Do
 		If InStr(MX_line_3, "FSPR") Then elig_results_program_found = "SNAP"
 		If elig_results_program_found = "" Then MsgBox "MAXIS must be at the first page of Eligibility Results for this script to run." & vbCr & vbCr & "The dialog will return." & vbCr & vbCr & "NAVIGATE TO ELIG RESULTS WHILE THE DIALOG IS UP."
 
-		EMReadScreen version_number, 2, 2, 12
+		EMReadScreen version_number, 3, 2, 11
 	Loop until elig_results_program_found <> ""
 	Call check_for_password(are_we_passworded_out)
 Loop until are_we_passworded_out = False
@@ -98,9 +121,65 @@ Loop until are_we_passworded_out = False
 'Now we make sure the check for password transmit wasn't a problem.
 'Need to navigate to the first page based on program. Each program has different coordinates
 
+If elig_results_program_found = "DWP" Then Call write_value_and_transmit("DWPR", 20, 71)
+If elig_results_program_found = "MFIP" Then Call write_value_and_transmit("MFPR", 20, 71)
+If elig_results_program_found = "MSA" Then Call write_value_and_transmit("MSPR", 20, 71)
+If elig_results_program_found = "GA" Then Call write_value_and_transmit("GAPR", 20, 70)
+If elig_results_program_found = "Cash Denial" Then Call write_value_and_transmit("CAPR", 19, 70)
+If elig_results_program_found = "GRH" Then Call write_value_and_transmit("GRPR", 20, 70)
+'IVE does not need to navigate back because there is only one ELIG page
+If elig_results_program_found = "EMER" Then Call write_value_and_transmit("EMPR", 19, 70)
 If elig_results_program_found = "SNAP" Then Call write_value_and_transmit("FSPR", 19, 70)
 
 'confirm we are at the right version
+EMReadScreen check_version_number, 3, 2, 11
+If check_version_number <> version_number Then
+	write_version_number = trim(version_number)
+	write_version_number = right("00"&write_version_number, 2)
+
+	row = 1
+	col = 1
+	EMSearch "Command:", row, col
+	Call write_value_and_transmit(write_version_number, row, col +17)
+End If
+
+'Creates the Word doc
+Set objWord = CreateObject("Word.Application")
+objWord.Visible = True
+
+Set objDoc = objWord.Documents.Add()
+Set objSelection = objWord.Selection
+objSelection.PageSetup.LeftMargin = 50
+objSelection.PageSetup.RightMargin = 50
+objSelection.PageSetup.TopMargin = 50
+objSelection.PageSetup.BottomMargin = 50
+objSelection.Font.Name = "Courier New"
+objSelection.Font.Size = "10"
 
 'Read each line of the results.
-'DO WE NEED TO OPEN POP-UPs?
+elig_line_array = ""
+Do
+	Call copy_elig_to_array(elig_line_array)
+	' MsgBox elig_line_array
+
+	Call insert_page_break_after_two_panels(screen_on_page)
+
+	'Adds current screen to Word doc
+	For each line in elig_line_array
+		objSelection.TypeText line & Chr(11)
+	Next
+
+
+	'DO WE NEED TO OPEN POP-UPs?
+	transmit
+
+	last_elig_screen = False
+	EMReadScreen worker_message, 78, 24, 2
+	worker_message = trim(worker_message)
+	If worker_message = "PROVIDE A COMMAND OR PF-KEY TO CONTINUE" Then last_elig_screen = True
+	If worker_message = "** PLEASE PROVIDE A COMMAND OR PF-KEY TO CONTINUE" Then last_elig_screen = True
+Loop Until last_elig_screen = True
+
+
+Call script_end_procedure("DONE?")
+
