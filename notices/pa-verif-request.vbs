@@ -637,12 +637,12 @@ Loop until are_we_passworded_out = False
 script_run_lowdown = script_run_lowdown & vbCr & "Contact Type Selected - " & contact_type			'saving information for error output email
 
 'Opening procedural references and ending the script for options that work outside of MAXIS.
-If contact_type = "PHA (Public Housing form)" Then
-	run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Verification-of-public-assistance.aspx"
-	end_msg = "Requests from PHA (Public Housing Agency) of a residents Cash Assistance have a special process." & vbCr & vbCr &_
-			  "THESE ARE HANDLED BY Hazel Haynes and Tammy Richert." & vbCr & "---------------------------------------" & vbCr &_
-			  "The script has opened the correct HSR Manual page in Edge and you can view the specific procedure under the header 'Cash (requested by Public Housing Agency)'." & vbCr & vbCr &_
-			  "You should not use WCOM or MEMO to provide Cash Benefit Verification to PHA." & vbCr &_
+If contact_type = "Request from third party (including Public Housing Agencies)" Then
+	run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Verification-of-public-assistance.aspx#requests-from-third-parties"
+	end_msg = "Requests for verification of public assistance by third parties (including Public Housing Agencies) should be directed to the Open Government Hennepin.us page where they can use the data request portal (under 'data practices requests')." & vbCr & vbCr &_
+			  "Public Assistance Verification forms received in ECF should be completed by the HSR. If you need assistance with this contact the Compliance Coordinator, Remy Huerta-Stemper." & vbCr & "---------------------------------------" & vbCr &_
+			  "The script has opened the correct HSR Manual page in Edge and you can view the specific procedure under the header 'Requests from Third Parties'." & vbCr & vbCr &_
+			  "You should not use WCOM or MEMO to provide Cash Benefit Verification to PHA." & vbCr & vbCr &_
 			  "For additional questions or clarification, contact Knowledge Now."
 	 script_end_procedure(end_msg)
 End If
