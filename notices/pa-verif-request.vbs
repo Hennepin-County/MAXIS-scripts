@@ -607,7 +607,7 @@ Do
 		Dialog1 = ""
 		BeginDialog Dialog1, 0, 0, 301, 130, "Verification of Public Assistance"
 		  EditBox 85, 50, 60, 15, MAXIS_case_number
-		  DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"Resend TAX Notice of Cash Benefit"+chr(9)+"PHA (Public Housing form)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)"+chr(9)+"Documents from ECF", contact_type
+		  DropListBox 85, 70, 210, 45, "Resident on the Phone (or AREP)"+chr(9)+"Resident in Person (or AREP)"+chr(9)+"Resend TAX Notice of Cash Benefit"+chr(9)+"Request from third party (including Public Housing Agencies)"+chr(9)+"Request of Medical Payment History (from Resident or AREP)"+chr(9)+"Documents from ECF", contact_type
 		  EditBox 85, 90, 210, 15, worker_signature
 		  ButtonGroup ButtonPressed
 		    OkButton 195, 110, 50, 15
