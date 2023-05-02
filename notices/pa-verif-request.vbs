@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+CALL changelog_update("05/02/2023", "Changed 'PHA (Public Housing form)' dropdown option to 'Request from third party (including Public Housing Agencies)' and updated instructions for this option to align with HSR manual.", "Mark Riegel, Hennepin County")
 CALL changelog_update("09/20/2022", "Update to ensure Worker Signature is in all scripts that CASE/NOTE.", "MiKayla Handley, Hennepin County") '#316
 call changelog_update("02/24/2022", "Two updates to PA Verif Request:##~## ##~## - Bug fix to prevent the 'start month' from being after the 'end month'. ##~## ##~## - Added functionality to specifically resend the Tax Refund Notice from any of the past 7 years.##~##", "Casey Love, Hennepin County")
 call changelog_update("10/12/2021", "Fixed some BUGS on PA Verif Request when creating Word Documents. These have been updated and the script should now be correctly creating word documents for residents in person or requesting a FAX.##~##", "Casey Love, Hennepin County")
