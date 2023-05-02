@@ -111,13 +111,14 @@ DO
 		CALL navigate_to_MAXIS_screen("CASE", "NOTE")
 		EMReadScreen invalid_case_number, 7, 24, 2
 		Call back_to_SELF()
-		If invalid_case_number = "INVALID" THEN err_msg = err_msg & vbNewLine & "* This is an invalid case number, try again."
+		If invalid_case_number = "INVALID" THEN err_msg = err_msg & vbNewLine & "* This is an invalid case number - update the case number."
 		' Validate that worker signature is not blank.
 		If trim(worker_signature) = "" THEN err_msg = err_msg & vbNewLine & "* You must provide your worker signature - it cannot be blank."
 		' Validate that worker selects option from dropdown list as to how long change will last
 		If changes_continue = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You must select an option from the dropdown list indicating whether the changes reported by the client will continue next month or will not continue next month."
+		' Validate the fields to ensure that at least one field is filled in besides the required fields (case number, worker signature, select one dropdown)
 		If date_received = "" AND effective_date = "" AND address_notes = "" AND household_notes = "" AND asset_notes = "" AND vehicles_notes = "" AND income_notes = "" AND shelter_notes = "" AND other_change_notes = "" AND actions_taken = "" AND other_notes = "" AND verifs_requested = "" THEN err_msg = err_msg & vbNewLine & "* All of the fields are blank. You must enter information in at least one field."
-		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
+		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ERROR(S) IN DIALOG ***" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
