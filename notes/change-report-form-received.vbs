@@ -199,11 +199,11 @@ script_end_procedure ("Success! The case note has been created. Send verificatio
 '--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/02/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------
-'--Incrementors reviewed (if necessary)-----------------------------------------
-'--Denomination reviewed -------------------------------------------------------
-'--Script name reviewed---------------------------------------------------------
-'--BULK - remove 1 incrementor at end of script reviewed------------------------
+'--Manual time study reviewed --------------------------------------------------05/02/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------05/02/2023
+'--Denomination reviewed -------------------------------------------------------05/02/2023
+'--Script name reviewed---------------------------------------------------------05/02/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/02/2023 - N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
 '--Confirm all GitHub tasks are complete----------------------------------------
