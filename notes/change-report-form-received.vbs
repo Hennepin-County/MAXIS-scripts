@@ -125,7 +125,7 @@ LOOP UNTIL are_we_passworded_out = false
 
 
 
-'Shows dialog
+' Kept previous dialog box for reference and if needed. Can delete once new dialog reviewed
 ' DO
 ' 	DO
 ' 		DO
@@ -183,10 +183,10 @@ script_end_procedure ("The case note has been created please be sure to send ver
 'Review dialog names for content and content fit in dialog----------------------05/01/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------
-'--CASE:NOTE Header doesn't look funky------------------------------------------
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------05/02/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/02/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/02/2023 --- When DAIL/WRIT selected, CASE:NOTE is automatically entered and submitted
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-05/02/2023 -----------------------------------
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
