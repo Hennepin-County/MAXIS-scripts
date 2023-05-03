@@ -15,3 +15,4 @@ locally-installed-files/redirect-utilities.vbs
 locally-installed-files/SETTINGS - GLOBAL VARIABLES.vbs
 *.docx
 *.tmp
+.vscode/settings.json
