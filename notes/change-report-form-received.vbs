@@ -44,6 +44,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+call changelog_update("01/16/2019", "Updated field entry validation for dialog box.", "Mark Riegel, Hennepin County")
 call changelog_update("01/16/2019", "Updated dialog box to match the form received.", "MiKayla Handley, Hennepin County")
 call changelog_update("11/28/2016", "Initial version.", "Charles Potter, DHS")
 
@@ -143,7 +144,6 @@ LOOP UNTIL are_we_passworded_out = false
 
 ' 'Checks Maxis for password prompt
 CALL check_for_MAXIS(FALSE)
-MAXIS_background_check
 
 'THE CASENOTE----------------------------------------------------------------------------------------------------
 'Navigates to case note
@@ -206,9 +206,9 @@ script_end_procedure ("Success! The case note has been created. Send verificatio
 '--BULK - remove 1 incrementor at end of script reviewed------------------------05/02/2023 - N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub tasks are complete----------------------------------------
-'--comment Code-----------------------------------------------------------------
-'--Update Changelog for release/update------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/02/2023
+'--comment Code-----------------------------------------------------------------05/02/2023
+'--Update Changelog for release/update------------------------------------------05/02/2023
 '--Remove testing message boxes-------------------------------------------------
 '--Remove testing code/unnecessary code-----------------------------------------
 '--Review/update SharePoint instructions----------------------------------------
