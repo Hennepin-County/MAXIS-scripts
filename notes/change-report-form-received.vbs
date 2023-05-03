@@ -143,6 +143,7 @@ LOOP UNTIL are_we_passworded_out = false
 
 ' 'Checks Maxis for password prompt
 CALL check_for_MAXIS(FALSE)
+MAXIS_background_check
 
 'THE CASENOTE----------------------------------------------------------------------------------------------------
 'Navigates to case note
@@ -170,7 +171,7 @@ IF tikl_nav_check = 1 THEN
 	CALL create_MAXIS_friendly_date(date, 10, 5, 18)
 	EMSetCursor 9, 3
 END IF
-script_end_procedure ("The case note has been created please be sure to send verifications to ECF or case note how the information was received.")
+script_end_procedure ("Success! The case note has been created. Send verifications to ECF or case note how the information was received.")
 
 '----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
@@ -189,13 +190,13 @@ script_end_procedure ("The case note has been created please be sure to send ver
 '--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-05/02/2023 -----------------------------------
 '
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------
-'--MAXIS_background_check reviewed (if applicable)------------------------------
-'--PRIV Case handling reviewed -------------------------------------------------
-'--Out-of-County handling reviewed----------------------------------------------
-'--script_end_procedures (w/ or w/o error messaging)----------------------------
-'--BULK - review output of statistics and run time/count (if applicable)--------
-'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/02/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/02/2023 - N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/02/2023 - N/A
+'--Out-of-County handling reviewed----------------------------------------------05/02/2023 - N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/02/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------05/02/2023 - N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/02/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
 '--Manual time study reviewed --------------------------------------------------
