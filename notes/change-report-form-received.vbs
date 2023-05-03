@@ -211,7 +211,7 @@ script_end_procedure ("Success! The case note has been created. Send verificatio
 '--Update Changelog for release/update------------------------------------------05/02/2023
 '--Remove testing message boxes-------------------------------------------------05/02/2023
 '--Remove testing code/unnecessary code-----------------------------------------
-'--Review/update SharePoint instructions----------------------------------------
+'--Review/update SharePoint instructions----------------------------------------05/02/2023
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
 '--COMPLETE LIST OF SCRIPTS update policy references----------------------------
