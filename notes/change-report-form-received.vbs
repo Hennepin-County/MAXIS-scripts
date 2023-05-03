@@ -66,10 +66,10 @@ BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
   EditBox 320, 5, 45, 15, effective_date
   EditBox 50, 35, 315, 15, address_notes
   EditBox 50, 55, 315, 15, household_notes
-  EditBox 115, 75, 250, 15, asset_notes
-  EditBox 50, 95, 315, 15, vehicles_notes
-  EditBox 50, 115, 315, 15, income_notes
-  EditBox 50, 135, 315, 15, shelter_notes
+  EditBox 110, 115, 250, 15, asset_notes
+  EditBox 50, 135, 315, 15, vehicles_notes
+  EditBox 50, 75, 315, 15, income_notes
+  EditBox 50, 95, 315, 15, shelter_notes
   EditBox 50, 155, 315, 15, other_change_notes
   EditBox 60, 180, 305, 15, actions_taken
   EditBox 60, 200, 305, 15, other_notes
@@ -78,18 +78,18 @@ BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
   DropListBox 270, 240, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
   EditBox 75, 260, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 260, 260, 50, 15
-	CancelButton 315, 260, 50, 15
+    OkButton 260, 260, 50, 15
+    CancelButton 315, 260, 50, 15
   Text 5, 10, 50, 10, "Case Number:"
   Text 110, 10, 50, 10, "Effective Date:"
   Text 210, 10, 110, 10, "Date Change Reported/Received:"
   GroupBox 5, 25, 365, 150, "Changes Reported:"
   Text 15, 40, 30, 10, "Address:"
   Text 15, 60, 35, 10, "HH Comp:"
-  Text 15, 120, 30, 10, "Income:"
-  Text 15, 140, 25, 10, "Shelter:"
-  Text 15, 80, 95, 10, "Assets (savings or property):"
-  Text 15, 100, 30, 10, "Vehicles:"
+  Text 15, 80, 30, 10, "Income:"
+  Text 15, 100, 25, 10, "Shelter:"
+  Text 15, 120, 95, 10, "Assets (savings or property):"
+  Text 15, 140, 30, 10, "Vehicles:"
   Text 15, 160, 20, 10, "Other:"
   Text 10, 185, 45, 10, "Action Taken:"
   Text 10, 205, 45, 10, "Other Notes:"
