@@ -46,6 +46,18 @@ call changelog_update("06/02/2021", "Initial version.", "Casey Love, Hennepin Co
 changelog_display
 'END CHANGELOG BLOCK =======================================================================================================
 
+'This is the formatting to turn the hot topic URL into a more readable name of the article
+function find_hot_topic_name(ht_link, ht_name)
+	ht_name = replace(ht_link, "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/", "")
+	ht_name = replace(ht_name, "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/", "")
+	ht_name = replace(ht_name, ".aspx", "")
+	ht_name = replace(ht_name, "-%E2%80%93-", "   ")
+	ht_name = replace(ht_name, "-%e2%80%93-", "   ")
+	ht_name = replace(ht_name, "-", " ")
+	ht_name = replace(ht_name, "   ", " - ")
+end function
+
+'declaring some constants
 Const hot_topic_link_const	= 0
 Const hot_topic_date_const 	= 1
 Const script_category_const	= 2
@@ -67,6 +79,86 @@ ReDim HOT_TOPIC_ARRAY(last_const, 0)
 ht_dates = " "
 
 article_count = 0
+
+ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/COLA-Processing-with-Bluezone-Scripts.aspx"
+Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #12/08/2020#
+HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
+article_count = article_count + 1
+
+ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Script-Highlight-%e2%80%93-Postponed-Case-Actions.aspx"
+Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #01/26/2021#
+HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
+article_count = article_count + 1
+
+ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/New-Bluezone-Script-Installer-Applu.aspx"
+Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #04/06/2021#
+HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
+article_count = article_count + 1
+
+ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/The-Bluezone-Scripts-Power-Pad-got-a-New-Look.aspx"
+Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #06/08/2021#
+HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
+article_count = article_count + 1
+
+ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Bluezone-Scripts-News-and-Updates.aspx"
+Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #08/17/2021#
+HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
+article_count = article_count + 1
+
+ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Customized-Access-to-Scripts.aspx"
+Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #10/12/2021#
+HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
+article_count = article_count + 1
+
+ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Power-Pad-and-Health-Care-Script-Updates.aspx"
+Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #04/18/2023#
+HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
+article_count = article_count + 1
+
+' ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+' HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = ""
+' Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
+' HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = ##
+' HOT_TOPIC_ARRAY(multiple_scripts_TF, article_count)  = False
+' HOT_TOPIC_ARRAY(script_displayed, article_count)  = False
+' HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
+' article_count = article_count + 1
+
 For current_script = 0 to ubound(script_array)
 	If script_array(current_script).hot_topic_date <> "" Then
 		' MsgBox script_array(current_script).hot_topic_date
@@ -118,33 +210,40 @@ report_to_BZST_btn = 200
 ' MsgBox "UBOUND ht_dates_array - " & UBOUND(ht_dates_array) & vbCr & "UBOUND HOT_TOPIC_ARRAY - " & UBOUND(HOT_TOPIC_ARRAY, 2)
 
 Call sort_dates(ht_dates_array)		'This function takes all the dates in an array and put them in order from oldest to newest
-
+dlg_len = 85 + ((UBOUND(HOT_TOPIC_ARRAY, 2)+1) * 15)
+If dlg_len > 390 Then dlg_len = 390
 Dialog1 = ""
-BeginDialog Dialog1, 0, 0, 570, 95 + ((UBOUND(HOT_TOPIC_ARRAY, 2)+1) * 20), "BlueZone Script Hot Topics"
+BeginDialog Dialog1, 0, 0, 570, dlg_len, "BlueZone Script Hot Topics"
 ButtonGroup ButtonPressed
 	Text 10, 10, 415, 20, "These are the most recent Hot Topic Articles from the BlueZone Script Team. From this menu, you can access the article information, run the script, read the instructions for the scipt or add the script to your favorites menu."
 	PushButton 400, 15, 160, 15, "Open the BZST Hot Topics SharePoint Page", bzst_hot_topics_page_btn
-	Text 25, 50, 50, 10, "Date"
-	Text 75, 50, 40, 10, "Article"
-	Text 365, 50, 110, 10, "Script (press to run the script)"
-	Text 500, 45, 75, 10, "Instructions"
-	Text 525, 55, 30, 10, "Favorite"
+	Text 25, 45, 50, 10, "Date"
+	Text 75, 45, 40, 10, "Article"
+	Text 365, 45, 110, 10, "Script (press to run the script)"
+	Text 500, 40, 75, 10, "Instructions"
+	Text 525, 50, 30, 10, "Favorite"
 
-	y_pos = 70
-	For each hot_topic_date in ht_dates_array
-		hot_topic_date = DateAdd("d", 0, hot_topic_date)
-		Text 25, y_pos, 50, 10, hot_topic_date
+	y_pos = 60
+	For hot_topic_date = UBound(ht_dates_array) to 0 Step -1
+		' MsgBox "ht_dates_array(hot_topic_date) - " & ht_dates_array(hot_topic_date)
+		ht_dates_array(hot_topic_date) = DateAdd("d", 0, ht_dates_array(hot_topic_date))
+		Text 25, y_pos, 50, 10, ht_dates_array(hot_topic_date)
 		For article = 0 to UBound(HOT_TOPIC_ARRAY, 2)
 			HOT_TOPIC_ARRAY(hot_topic_date_const, article) = DateAdd("d", 0, HOT_TOPIC_ARRAY(hot_topic_date_const, article))
-			' MsgBox "hot_topic_date - " & hot_topic_date & vbCr & "HOT_TOPIC_ARRAY(hot_topic_link_const, article) - " & HOT_TOPIC_ARRAY(hot_topic_link_const, article) & vbCr & "HOT_TOPIC_ARRAY(hot_topic_date_const, article) - " & HOT_TOPIC_ARRAY(hot_topic_date_const, article) & vbCr & "HOT_TOPIC_ARRAY(script_displayed, article) - " & HOT_TOPIC_ARRAY(script_displayed, article) & vbCr & "y_pos - " & y_pos
-			If DateDiff("d", hot_topic_date, HOT_TOPIC_ARRAY(hot_topic_date_const, article)) = 0 and HOT_TOPIC_ARRAY(script_displayed, article)  = False Then
+			' MsgBox "ht_dates_array(hot_topic_date) - " & ht_dates_array(hot_topic_date) & vbCr & "HOT_TOPIC_ARRAY(hot_topic_link_const, article) - " & HOT_TOPIC_ARRAY(hot_topic_link_const, article) & vbCr & "HOT_TOPIC_ARRAY(hot_topic_date_const, article) - " & HOT_TOPIC_ARRAY(hot_topic_date_const, article) & vbCr & "HOT_TOPIC_ARRAY(script_displayed, article) - " & HOT_TOPIC_ARRAY(script_displayed, article) & vbCr & "y_pos - " & y_pos
+			If DateDiff("d", ht_dates_array(hot_topic_date), HOT_TOPIC_ARRAY(hot_topic_date_const, article)) = 0 and HOT_TOPIC_ARRAY(script_displayed, article)  = False Then
 				' Text 20, y_pos, 55, 10, HOT_TOPIC_ARRAY(hot_topic_date_const, article)
 				' MsgBox "y_pos - " & y_pos
 				PushButton 75, y_pos-3, 280, 13, HOT_TOPIC_ARRAY(hot_topic_name_const, article), HOT_TOPIC_ARRAY(article_btn_const, article)
-				PushButton 365, y_pos-3, 140, 13, HOT_TOPIC_ARRAY(script_category_const, article) & " - " & HOT_TOPIC_ARRAY(script_name_const, article), HOT_TOPIC_ARRAY(run_script_btn, article)
-				PushButton 510, y_pos-3, 15, 15, "?", HOT_TOPIC_ARRAY(instructions_btn_const, article)
-				PushButton 530, y_pos-3, 15, 15, "+", HOT_TOPIC_ARRAY(add_to_favorites_btn, article)
-				y_pos = y_pos + 20
+				If HOT_TOPIC_ARRAY(script_name_const, article) <> "" Then
+					PushButton 365, y_pos-3, 140, 13, HOT_TOPIC_ARRAY(script_category_const, article) & " - " & HOT_TOPIC_ARRAY(script_name_const, article), HOT_TOPIC_ARRAY(run_script_btn, article)
+					PushButton 510, y_pos-3, 15, 15, "?", HOT_TOPIC_ARRAY(instructions_btn_const, article)
+					PushButton 530, y_pos-3, 15, 15, "+", HOT_TOPIC_ARRAY(add_to_favorites_btn, article)
+				Else
+					Text 365, y_pos, 140, 13, "No Specific Associated Script"
+				End If
+				' y_pos = y_pos + 20
+				y_pos = y_pos + 15
 				HOT_TOPIC_ARRAY(script_displayed, article)  = True
 
 				If HOT_TOPIC_ARRAY(multiple_scripts_TF, article) = True Then
@@ -154,21 +253,24 @@ ButtonGroup ButtonPressed
 							PushButton 365, y_pos-3, 140, 13, HOT_TOPIC_ARRAY(script_category_const, second_article) & " - " & HOT_TOPIC_ARRAY(script_name_const, second_article), HOT_TOPIC_ARRAY(run_script_btn, second_article)
 							PushButton 510, y_pos-3, 15, 15, "?", HOT_TOPIC_ARRAY(instructions_btn_const, second_article)
 							PushButton 530, y_pos-3, 15, 15, "+", HOT_TOPIC_ARRAY(add_to_favorites_btn, second_article)
-							y_pos = y_pos + 20
+							' y_pos = y_pos + 20
+							y_pos = y_pos + 15
 							HOT_TOPIC_ARRAY(script_displayed, second_article)  = True
 						End if
 					Next
 				End If
 			End If
 		Next
+		If y_pos >= 385 Then Exit For
 	Next
-	GroupBox 10, 35, 555, 35 + ((UBOUND(HOT_TOPIC_ARRAY, 2)+1) * 20), "Hot Topics List"
-	y_pos = y_pos + 10
+	' MsgBox "y_pos - " & y_pos
+	GroupBox 10, 35, 555, y_pos-35, "Hot Topics List"
+	' y_pos = y_pos + 10
 
-	Text 10, y_pos, 140, 10, "Do you have another question or an idea?"
-	PushButton 150, y_pos-5, 95, 15, "Report to the BZST", report_to_BZST_btn
-	OkButton 460, y_pos-5, 50, 15
-	CancelButton 515, y_pos-5, 50, 15
+	Text 10, dlg_len - 15, 140, 10, "Do you have another question or an idea?"
+	PushButton 150, dlg_len-20, 95, 15, "Report to the BZST", report_to_BZST_btn
+	OkButton 460, dlg_len-20, 50, 15
+	CancelButton 515, dlg_len-20, 50, 15
 EndDialog
 
 
