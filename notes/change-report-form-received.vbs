@@ -126,22 +126,6 @@ LOOP UNTIL are_we_passworded_out = false
 
 
 
-' Kept previous dialog box for reference and if needed. Can delete once new dialog reviewed
-' DO
-' 	DO
-' 		DO
-' 			DO
-'     			Dialog Dialog1
-' 				cancel_confirmation
-' 				IF worker_signature = "" THEN MsgBox "You must sign your case note!"
-' 			LOOP UNTIL worker_signature <> ""
-' 			IF IsNumeric(MAXIS_case_number) = FALSE THEN MsgBox "You must type a valid numeric case number."
-' 		LOOP UNTIL IsNumeric(MAXIS_case_number) = TRUE
-' 		IF changes_continue = "Select One:" THEN MsgBox "You Must Select 'The changes client reports field'"
-' 	LOOP UNTIL changes_continue <> "Select One:"
-' 	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-' LOOP UNTIL are_we_passworded_out = false
-
 ' 'Checks Maxis for password prompt
 CALL check_for_MAXIS(FALSE)
 
@@ -210,7 +194,7 @@ script_end_procedure ("Success! The case note has been created. Send verificatio
 '--comment Code-----------------------------------------------------------------05/02/2023
 '--Update Changelog for release/update------------------------------------------05/02/2023
 '--Remove testing message boxes-------------------------------------------------05/02/2023
-'--Remove testing code/unnecessary code-----------------------------------------
+'--Remove testing code/unnecessary code-----------------------------------------05/04/2023
 '--Review/update SharePoint instructions----------------------------------------05/02/2023
 '--Other SharePoint sites review (HSR Manual, etc.)-----------------------------
 '--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------
