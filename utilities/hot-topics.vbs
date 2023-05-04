@@ -315,3 +315,48 @@ Loop until ButtonPressed = OK		'If the worker presses 'OK' the script will leave
 
 'Script ends
 script_end_procedure("")
+
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
+'------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
+'
+'------Dialogs--------------------------------------------------------------------------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/04/2023
+'--Tab orders reviewed & confirmed----------------------------------------------05/04/2023
+'--Mandatory fields all present & Reviewed--------------------------------------N/A
+'--All variables in dialog match mandatory fields-------------------------------N/A
+'Review dialog names for content and content fit in dialog----------------------05/04/2023
+'
+'-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
+'--All variables are CASE:NOTEing (if required)---------------------------------N/A
+'--CASE:NOTE Header doesn't look funky------------------------------------------N/A
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------N/A
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used -----------------------------------N/A
+'
+'-----General Supports-------------------------------------------------------------------------------------------------------------
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------N/A
+'--MAXIS_background_check reviewed (if applicable)------------------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------N/A
+'--Out-of-County handling reviewed----------------------------------------------N/A
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/04/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------N/A
+'
+'-----Statistics--------------------------------------------------------------------------------------------------------------------
+'--Manual time study reviewed --------------------------------------------------N/A						Left this as a minute, this script isn't really for time savings, but for information access
+'--Incrementors reviewed (if necessary)-----------------------------------------N/A
+'--Denomination reviewed -------------------------------------------------------N/A
+'--Script name reviewed---------------------------------------------------------N/A
+'--BULK - remove 1 incrementor at end of script reviewed------------------------N/A
+
+'-----Finishing up------------------------------------------------------------------------------------------------------------------
+'--Confirm all GitHub tasks are complete----------------------------------------05/04/2023
+'--comment Code-----------------------------------------------------------------N/A
+'--Update Changelog for release/update------------------------------------------05/04/2023
+'--Remove testing message boxes-------------------------------------------------05/04/2023
+'--Remove testing code/unnecessary code-----------------------------------------05/04/2023
+'--Review/update SharePoint instructions----------------------------------------05/04/2023
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------N/A
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------TODO
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------N/A
+'--Complete misc. documentation (if applicable)---------------------------------N/A
+'--Update project team/issue contact (if applicable)----------------------------N/A
