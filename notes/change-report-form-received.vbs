@@ -184,8 +184,8 @@ script_end_procedure ("Success! The case note has been created. Send verificatio
 '-----General Supports-------------------------------------------------------------------------------------------------------------
 '--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/02/2023
 '--MAXIS_background_check reviewed (if applicable)------------------------------05/02/2023 - N/A
-'--PRIV Case handling reviewed -------------------------------------------------05/02/2023 - N/A
-'--Out-of-County handling reviewed----------------------------------------------05/02/2023 - N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/04/2023
+'--Out-of-County handling reviewed----------------------------------------------05/04/2023
 '--script_end_procedures (w/ or w/o error messaging)----------------------------05/02/2023
 '--BULK - review output of statistics and run time/count (if applicable)--------05/02/2023 - N/A
 '--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/02/2023
