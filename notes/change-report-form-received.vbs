@@ -56,8 +56,12 @@ changelog_display
 'THE SCRIPT--------------------------------------------------------------------------------------------------------------
 'Connect to Bluezone
 EMConnect ""
+' Checks Maxis for password prompt
+CALL check_for_MAXIS(FALSE)
 'Grabs Maxis Case number
 CALL MAXIS_case_number_finder(MAXIS_case_number)
+get_county_code()
+
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
@@ -126,8 +130,12 @@ LOOP UNTIL are_we_passworded_out = false
 
 
 
-' 'Checks Maxis for password prompt
-CALL check_for_MAXIS(FALSE)
+' Check if case is privileged and end script if it is privileged
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
+If is_this_priv = True then script_end_procedure("This case is privileged and cannot be accessed. The script will now stop.")
+' Confirm that the case is in county and end script if the case is out of county
+EMReadScreen county_code, 4, 21, 14
+If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE:NOTE. The script will now stop.")
 
 'THE CASENOTE----------------------------------------------------------------------------------------------------
 'Navigates to case note
