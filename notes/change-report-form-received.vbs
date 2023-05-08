@@ -148,7 +148,7 @@ CALL write_bullet_and_variable_in_case_note("Other", other_change_notes)
 CALL write_bullet_and_variable_in_case_note("Action Taken", actions_taken)
 CALL write_bullet_and_variable_in_case_note("Other Notes", other_notes)
 CALL write_bullet_and_variable_in_case_note("Verifs Requested", verifs_requested)
-IF changes_continue <> "Select One:" THEN CALL write_bullet_and_variable_in_case_note("The changes client reports", changes_continue)
+CALL write_bullet_and_variable_in_case_note("The changes client reports", changes_continue)
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
 
