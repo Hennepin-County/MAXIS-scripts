@@ -2870,7 +2870,7 @@ function define_hc_elig_dialog()
 		DropListBox 185, 365, 155, 45, "Indicate if the Budget is Accurate"+chr(9)+"Yes - approval is Accurate"+chr(9)+"No - I need to complete a new Approval", HC_UNIQUE_APPROVALS(confirm_budget_selection, approval_selected)
 
 		y_pos = 10
-		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" Then
+		If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "MA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "EMA" or HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_major_program(memb_ind) = "IMD" Then
 			If HC_ELIG_APPROVALS(elig_ind).hc_prog_elig_eligibility_result(memb_ind) = "ELIGIBLE" Then
 				If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) = "" Then GroupBox 15, y_pos+10, 130, 50, "Eligible Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected)
 				If HC_UNIQUE_APPROVALS(last_mo_const, approval_selected) <> "" Then GroupBox 15, y_pos+10, 130, 50, "Eligible Approval for " & HC_UNIQUE_APPROVALS(first_mo_const, approval_selected) & " - " & HC_UNIQUE_APPROVALS(last_mo_const, approval_selected)
@@ -17284,8 +17284,9 @@ class hc_eligibility_detail
 						EMReadScreen hc_prog_elig_worker_msg_one(hc_prog_count), 78, 19, 3
 						' MsgBox  "ASSISTANCE UNIT TEST - " &  hc_prog_elig_test_assistance_unit(hc_prog_count)
 					End If
+					' MsgBox "CREATED TODAY"
 
-					If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" Then
+					If hc_prog_elig_major_program(hc_prog_count) = "MA" or hc_prog_elig_major_program(hc_prog_count) = "EMA" or hc_prog_elig_major_program(hc_prog_count) = "IMD" Then
 
 						' MsgBox "At Budget"
 						transmit
@@ -17370,9 +17371,79 @@ class hc_eligibility_detail
 											EMReadScreen hc_prog_elig_test_verif(hc_prog_count), 		6, 13, 46
 											EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 	6, 14, 46
 										End If
+
+										Call write_value_and_transmit("X", 7, 3)				'Assets'
+										' MsgBox "MOVING - 3"
+										EMReadScreen assets_pop_up_check, 6, 6, 35
+										If assets_pop_up_check = "Assets" Then
+											'TODO read asset information'
+											transmit
+										Else
+											EMWriteScreen " ", 7, 3
+										End If
+										' MsgBox "MOVING - 4"
+
+										Call write_value_and_transmit("X", 10, 3)				'Cooperration'
+										' MsgBox "MOVING - 5"
+										Call write_value_and_transmit("X", 10, 26)				'Cooperration'
+										' MsgBox "MOVING - 6"
+										EMReadScreen hc_prog_elig_test_coop_pben_cash(hc_prog_count), 			6, 10, 31
+										EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
+										transmit
+										' MsgBox "MOVING - 7"
+										EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
+										EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
+										EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
+										EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
+										EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
+										EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
+										EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
+										transmit
+										' MsgBox "MOVING - 8"
+
+										Call write_value_and_transmit("X", 14, 3)				'Fail to File'
+										' MsgBox "MOVING - 9"
+										EMReadScreen hc_prog_elig_test_fail_file_HRF(hc_prog_count), 				6, 14, 33
+										EMReadScreen hc_prog_elig_test_fail_file_IR(hc_prog_count), 				6, 15, 33
+										EMReadScreen hc_prog_elig_test_fail_file_AR(hc_prog_count), 				6, 16, 33
+										EMReadScreen hc_prog_elig_test_fail_file_ER(hc_prog_count), 				6, 17, 33
+										EMReadScreen hc_prog_elig_test_fail_file_quarterly_TYMA(hc_prog_count), 	6, 18, 33
+										transmit
+										' MsgBox "MOVING - 10"
+										EMReadScreen ema_person_test_check, 3, 3, 27
+										If ema_person_test_check <> "EMA" Then Call write_value_and_transmit("X", 14, 44)				'Verification'
+										If ema_person_test_check = "EMA" Then Call write_value_and_transmit("X", 13, 44)				'Verification'
+										' MsgBox "MOVING - 11"
+										EMReadScreen hc_prog_elig_test_verif_ACCT(hc_prog_count), 		6, 5, 10
+										EMReadScreen hc_prog_elig_test_verif_BUSI(hc_prog_count), 		6, 6, 10
+										EMReadScreen hc_prog_elig_test_verif_JOBS(hc_prog_count), 		6, 7, 10
+										EMReadScreen hc_prog_elig_test_verif_IMIG_status(hc_prog_count), 	6, 8, 10
+										EMReadScreen hc_prog_elig_test_verif_LUMP(hc_prog_count), 		6, 9, 10
+										EMReadScreen hc_prog_elig_test_verif_OTHR(hc_prog_count), 		6, 10, 10
+										EMReadScreen hc_prog_elig_test_verif_PBEN(hc_prog_count), 		6, 11, 10
+										EMReadScreen hc_prog_elig_test_verif_PREG(hc_prog_count), 		6, 12, 10
+										EMReadScreen hc_prog_elig_test_verif_RBIC(hc_prog_count), 		6, 13, 10
+										EMReadScreen hc_prog_elig_test_verif_REST(hc_prog_count), 		6, 14, 10
+										EMReadScreen hc_prog_elig_test_verif_SECU(hc_prog_count), 		6, 15, 10
+										EMReadScreen hc_prog_elig_test_verif_SPON(hc_prog_count), 		6, 16, 10
+										EMReadScreen hc_prog_elig_test_verif_TRAN(hc_prog_count), 		6, 17, 10
+										EMReadScreen hc_prog_elig_test_verif_UNEA(hc_prog_count), 		6, 18, 10
+										EMReadScreen hc_prog_elig_test_verif_cit_id(hc_prog_count), 		6, 19, 10
+										EMReadScreen hc_prog_elig_test_verif_CARS(hc_prog_count), 		6, 20, 10
+										transmit
+										' MsgBox "MOVING - 12"
+
+										Call write_value_and_transmit("X", 18, 3)				'Uncompensated Transfer
+										' MsgBox "MOVING - 13"
+										transmit
+										' MsgBox "MOVING - 14"
+
+										' Call write_value_and_transmit("X", 9, 44)				'Obligation - One Month - we don't need this
+										' transmit
 									End If
 
 									If hc_prog_elig_major_program(hc_prog_count) = "IMD" Then
+										' MsgBox "Reading IMD Info"
 										EMReadScreen hc_prog_elig_test_absence(hc_prog_count), 			6, 7, 5
 										EMReadScreen hc_prog_elig_test_assets(hc_prog_count), 			6, 8, 5
 										EMReadScreen hc_prog_elig_test_assistance_unit(hc_prog_count), 	6, 9, 5
@@ -17394,74 +17465,7 @@ class hc_eligibility_detail
 										EMReadScreen hc_prog_elig_test_withdrawn(hc_prog_count), 				6, 15, 44
 									End If
 
-									Call write_value_and_transmit("X", 7, 3)				'Assets'
-									' MsgBox "MOVING - 3"
-									EMReadScreen assets_pop_up_check, 6, 6, 35
-									If assets_pop_up_check = "Assets" Then
-										'TODO read asset information'
-										transmit
-									Else
-										EMWriteScreen " ", 7, 3
-									End If
-									' MsgBox "MOVING - 4"
 
-									Call write_value_and_transmit("X", 10, 3)				'Cooperration'
-									' MsgBox "MOVING - 5"
-									Call write_value_and_transmit("X", 10, 26)				'Cooperration'
-									' MsgBox "MOVING - 6"
-									EMReadScreen hc_prog_elig_test_coop_pben_cash(hc_prog_count), 			6, 10, 31
-									EMReadScreen hc_prog_elig_test_coop_pben_smrt(hc_prog_count), 			6, 11, 31
-									transmit
-									' MsgBox "MOVING - 7"
-									EMReadScreen hc_prog_elig_test_coop_pben(hc_prog_count), 				6, 10, 28
-									EMReadScreen hc_prog_elig_test_coop_fail_provide_info(hc_prog_count), 	6, 11, 28
-									EMReadScreen hc_prog_elig_test_coop_IEVS(hc_prog_count), 				6, 12, 28
-									EMReadScreen hc_prog_elig_test_coop_medical_support(hc_prog_count), 	6, 13, 28
-									EMReadScreen hc_prog_elig_test_coop_other_health_ins(hc_prog_count), 	6, 14, 28
-									EMReadScreen hc_prog_elig_test_coop_SSN(hc_prog_count), 				6, 15, 28
-									EMReadScreen hc_prog_elig_test_coop_third_party_liability(hc_prog_count), 6, 16, 28
-									transmit
-									' MsgBox "MOVING - 8"
-
-									Call write_value_and_transmit("X", 14, 3)				'Fail to File'
-									' MsgBox "MOVING - 9"
-									EMReadScreen hc_prog_elig_test_fail_file_HRF(hc_prog_count), 				6, 14, 33
-									EMReadScreen hc_prog_elig_test_fail_file_IR(hc_prog_count), 				6, 15, 33
-									EMReadScreen hc_prog_elig_test_fail_file_AR(hc_prog_count), 				6, 16, 33
-									EMReadScreen hc_prog_elig_test_fail_file_ER(hc_prog_count), 				6, 17, 33
-									EMReadScreen hc_prog_elig_test_fail_file_quarterly_TYMA(hc_prog_count), 	6, 18, 33
-									transmit
-									' MsgBox "MOVING - 10"
-									EMReadScreen ema_person_test_check, 3, 3, 27
-									If ema_person_test_check <> "EMA" Then Call write_value_and_transmit("X", 14, 44)				'Verification'
-									If ema_person_test_check = "EMA" Then Call write_value_and_transmit("X", 13, 44)				'Verification'
-									' MsgBox "MOVING - 11"
-									EMReadScreen hc_prog_elig_test_verif_ACCT(hc_prog_count), 		6, 5, 10
-									EMReadScreen hc_prog_elig_test_verif_BUSI(hc_prog_count), 		6, 6, 10
-									EMReadScreen hc_prog_elig_test_verif_JOBS(hc_prog_count), 		6, 7, 10
-									EMReadScreen hc_prog_elig_test_verif_IMIG_status(hc_prog_count), 	6, 8, 10
-									EMReadScreen hc_prog_elig_test_verif_LUMP(hc_prog_count), 		6, 9, 10
-									EMReadScreen hc_prog_elig_test_verif_OTHR(hc_prog_count), 		6, 10, 10
-									EMReadScreen hc_prog_elig_test_verif_PBEN(hc_prog_count), 		6, 11, 10
-									EMReadScreen hc_prog_elig_test_verif_PREG(hc_prog_count), 		6, 12, 10
-									EMReadScreen hc_prog_elig_test_verif_RBIC(hc_prog_count), 		6, 13, 10
-									EMReadScreen hc_prog_elig_test_verif_REST(hc_prog_count), 		6, 14, 10
-									EMReadScreen hc_prog_elig_test_verif_SECU(hc_prog_count), 		6, 15, 10
-									EMReadScreen hc_prog_elig_test_verif_SPON(hc_prog_count), 		6, 16, 10
-									EMReadScreen hc_prog_elig_test_verif_TRAN(hc_prog_count), 		6, 17, 10
-									EMReadScreen hc_prog_elig_test_verif_UNEA(hc_prog_count), 		6, 18, 10
-									EMReadScreen hc_prog_elig_test_verif_cit_id(hc_prog_count), 		6, 19, 10
-									EMReadScreen hc_prog_elig_test_verif_CARS(hc_prog_count), 		6, 20, 10
-									transmit
-									' MsgBox "MOVING - 12"
-
-									Call write_value_and_transmit("X", 18, 3)				'Uncompensated Transfer
-									' MsgBox "MOVING - 13"
-									transmit
-									' MsgBox "MOVING - 14"
-
-									' Call write_value_and_transmit("X", 9, 44)				'Obligation - One Month - we don't need this
-									' transmit
 
 									transmit
 									' MsgBox "MOVING - 15"
@@ -17491,6 +17495,7 @@ class hc_eligibility_detail
 										If budget_exist = "DOES NOT HAVE A BUDGET" Then EMWriteScreen " ", 9, hc_col+4
 										' MsgBox "MOVING - 17a" & vbCr & "budget_exist - ~" & budget_exist & "~"
 									End If
+									' MsgBox "hc_prog_elig_method(hc_prog_count) - " & hc_prog_elig_method(hc_prog_count)
 									If budget_exist <> "DOES NOT HAVE A BUDGET" and hc_prog_elig_method(hc_prog_count) <> "X" Then
 
 										' MsgBox "MOVING - 18"
