@@ -135,9 +135,8 @@ If county_code <> worker_county_code then script_end_procedure("This case is out
 'THE CASENOTE----------------------------------------------------------------------------------------------------
 'Navigates to case note
 Call start_a_blank_case_note
-CALL write_variable_in_case_note ("--CHANGE REPORTED--")
+CALL write_variable_in_case_note ("--CHANGE REPORTED-- " & "Date Effective: " & effective_date)
 CALL write_bullet_and_variable_in_case_note("Date Received", date_received)
-CALL write_bullet_and_variable_in_case_note("Date Effective", effective_date)
 CALL write_bullet_and_variable_in_case_note("Address", address_notes)
 CALL write_bullet_and_variable_in_case_note("Household Members", household_notes)
 CALL write_bullet_and_variable_in_case_note("Assets", asset_notes)
