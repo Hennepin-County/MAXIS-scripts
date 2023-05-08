@@ -66,8 +66,8 @@ get_county_code()
 Dialog1 = "" 'Blanking out previous dialog detail
 BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
   EditBox 60, 5, 40, 15, MAXIS_case_number
-  EditBox 160, 5, 45, 15, date_received
-  EditBox 320, 5, 45, 15, effective_date
+  EditBox 160, 5, 45, 15, effective_date
+  EditBox 320, 5, 45, 15, date_received
   EditBox 50, 35, 315, 15, address_notes
   EditBox 50, 55, 315, 15, household_notes
   EditBox 110, 115, 250, 15, asset_notes
