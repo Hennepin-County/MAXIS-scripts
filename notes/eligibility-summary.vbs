@@ -560,6 +560,11 @@ function define_dwp_elig_dialog()
 					End If
 				End If
 			Next
+			'PRORATED REASON FUNCTIONALITY
+			' If DWP_ELIG_APPROVALS(elig_ind).dwp_elig_prorated_date <> "" Then
+			' 	Text 10, app_y_pos+15, 115, 10, "DWP Prorated (" & DWP_ELIG_APPROVALS(elig_ind).dwp_elig_prorated_date & "). Reason:"
+			' 	EditBox 130, app_y_pos+10, 410, 15, dwp_prorate_reason
+			' End If
 		End If
 
 		PushButton 440, 365, 110, 15, "Continue", app_confirmed_btn
@@ -867,6 +872,11 @@ function define_mfip_elig_dialog()
 				End If
 			Next
 			y_pos = y_pos + 70
+			'PRORATED REASON FUNCTIONALITY
+			' If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_prorate_date <> "" Then
+			' 	Text 10, app_y_pos+15, 115, 10, "MFIP Prorated (" & DWP_ELIG_APPMFIP_ELIG_APPROVALSROVALS(elig_ind).mfip_case_budg_prorate_date & "). Reason:"
+			' 	EditBox 130, app_y_pos+10, 410, 15, mfip_prorate_reason
+			' End If
 		Else
 			y_pos = y_pos + 15
 			If MFIP_ELIG_APPROVALS(elig_ind).mfip_case_test_initial_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Intial Income Limit of " &  MFIP_ELIG_APPROVALS(elig_ind).mfip_case_budg_family_wage_level & " (which is the same as the Family Wage Level)."
@@ -1183,7 +1193,7 @@ function define_msa_elig_dialog()
 						app_x_pos = app_x_pos + 150
 					End If
 				End If
-			Next
+			Next			'NOTE that MSA is not prorated
 		Else
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_gross_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MSA Standard and no benefit to be issued."
 			If MSA_ELIG_APPROVALS(elig_ind).msa_elig_case_test_prosp_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly MSA Standard and no benefit to be issued."
@@ -1473,6 +1483,16 @@ function define_ga_elig_dialog()
 					End If
 				End If
 			Next
+			'PRORATED REASON FUNCTIONALITY
+			' If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_prorated_from <> "" Then
+			' 	Text 10, app_y_pos+15, 115, 10, "GA Prorated (" & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_prorated_from & "/" & GA_ELIG_APPROVALS(elig_ind).elig_footer_year  & "). Reason:"
+			' 	EditBox 130, app_y_pos+10, 410, 15, ga_prorate_reason
+			' End If
+			' ElseIf GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_prorated_from <> "" Then
+			' 	Text 10, app_y_pos+15, 115, 10, "GA Prorated (" & GA_ELIG_APPROVALS(elig_ind).ga_elig_case_budg_pers_needs_prorated_from & "/" & GA_ELIG_APPROVALS(elig_ind).elig_footer_year  & "). Reason:"
+			' 	EditBox 130, app_y_pos+10, 410, 15, ga_prorate_reason
+			' End If
+
 		Else
 			If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_prosp_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly GA Standard and no benefit to be issued."
 			If GA_ELIG_APPROVALS(elig_ind).ga_elig_case_test_retro_net_income = "FAILED" Then Text 15, 150, 400, 10, "*** Income Exceeds the Monthly GA Standard and no benefit to be issued."
@@ -22904,18 +22924,19 @@ ReDim HC_ELIG_APPROVALS(0)
 Dim STAT_INFORMATION()
 ReDim STAT_INFORMATION(0)
 
-spaces_18 = "                  "
-spaces_23 = "                       "
-spaces_30 = "                              "
-spaces_36 = "                                    "
-spaces_45 = "                                             "
-spaces_55 = "                                                       "
-spaces_58 = "                                                          "
-spaces_78 = "                                                                              "
+spaces_18 = space(18)
+spaces_23 = space(23)
+spaces_30 = space(30)
+spaces_36 = space(36)
+spaces_45 = space(45)
+spaces_55 = space(55)
+spaces_58 = space(58)
+spaces_78 = space(78)
 
 Dim process_being_completed, income_change_checkbox, assets_change_checkbox, expense_change_checkbox, housing_change_checkbox
 Dim address_change_checkbox, hh_comp_change_checkbox, relationship_change_checkbox, participation_change_checkbox
 Dim time_limit_change_checkbox, policy_change_checkbox, correction_change_checkbox, appeal_change_checkbox
+Dim snap_prorate_reason, dwp_prorate_reason, mfip_prorate_reason, ga_prorate_reason, msa_prorate_reason, grh_prorate_reason
 
 '===========================================================================================================================
 EMConnect ""
