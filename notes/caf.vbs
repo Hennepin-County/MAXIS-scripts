@@ -5603,7 +5603,7 @@ If vars_filled = False Then
 		EMReadScreen cash_revw_code, 1, 7, 40
 		EMReadScreen snap_revw_code, 1, 7, 60
 		EMReadScreen hc_revw_code, 1, 7, 73
-		If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" Then
+		If cash_revw_code = "N" or cash_revw_code = "U" or cash_revw_code = "I" or cash_revw_code = "A" or cash_revw_code = "T" Then
 			get_dates = True
 			If family_cash_case = True or adult_cash_case = True or grh_case = False Then
 				the_process_for_cash = "Recertification"
@@ -5635,7 +5635,7 @@ If vars_filled = False Then
 				processing_footer_year = MAXIS_footer_year
 			End If
 		End If
-		If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" Then
+		If snap_revw_code = "N" or snap_revw_code = "U" or snap_revw_code = "I" or snap_revw_code = "A" or snap_revw_code = "T" Then
 			the_review_is_ER = False
 			Call write_value_and_transmit("X", 5, 58)
 			EMReadScreen er_date_month, 2, 9, 64
@@ -5655,7 +5655,7 @@ If vars_filled = False Then
 				End If
 			End If
 		End If
-		If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" Then
+		If hc_revw_code = "N" or hc_revw_code = "U" or hc_revw_code = "I" or hc_revw_code = "A" or hc_revw_code = "T" Then
 			get_dates = True
 			the_process_for_hc = "Recertification"
 			hc_recert_mo = MAXIS_footer_month
