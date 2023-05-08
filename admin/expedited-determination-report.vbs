@@ -426,8 +426,10 @@ For Each objFile in colFiles																'looping through each file
 				objFSO.DeleteFile(txt_file_archive_path & "\" & this_file_name & ".txt")		'deleting the TXT file because hgave the information
 			End If
 		End With
-
+		' On error resume next
 		objFSO.MoveFile this_file_path , txt_file_archive_path & "\" & this_file_name & ".txt"    'moving each file to the archive file
+		' If Err.Number <> 0 Then MsgBox "FILE IS DUPLICATE ???" & vbCr & "this_file_path - " & this_file_path & vbCr & "archive pather - " & txt_file_archive_path & "\" & this_file_name & ".txt"
+		' On Error Goto 0
 	End If
 Next
 objWorkbook.Save()		'saving the excel
