@@ -112,11 +112,6 @@ DO
 
 		' Validate that MAXIS number is numeric and less than 8 digits long
 		CALL validate_MAXIS_case_number(err_msg, "* ")
-		' Validate that MAXIS case number is valid
-		CALL navigate_to_MAXIS_screen("CASE", "NOTE")
-		EMReadScreen invalid_case_number, 7, 24, 2
-		Call back_to_SELF()
-		If invalid_case_number = "INVALID" THEN err_msg = err_msg & vbNewLine & "* This is an invalid case number - update the case number."
 		' Validate that worker signature is not blank.
 		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		' Validate that worker selects option from dropdown list as to how long change will last
