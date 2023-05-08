@@ -122,9 +122,9 @@ DO
 		' Validate that Date Change Reported/Received field is not empty and is in a proper date format
 		If IsDate(trim(date_received)) = False OR Len(trim(date_received)) <> 10 Then err_msg = err_msg & vbNewLine & "* The Date Change Reported/Received field cannot be blank and must be in the MM/DD/YYYY format."
 		' Validate the change(s) reported fields to ensure that at least one field is filled in
-		If address_notes = "" AND household_notes = "" AND asset_notes = "" AND vehicles_notes = "" AND income_notes = "" AND shelter_notes = "" AND other_change_notes = "" THEN err_msg = err_msg & vbNewLine & "* All of the Changes Reported fields are blank. You must enter information in at least one field."
+		If trim(address_notes) = "" AND trim(household_notes) = "" AND trim(asset_notes) = "" AND trim(vehicles_notes) = "" AND trim(income_notes) = "" AND trim(shelter_notes) = "" AND trim(other_change_notes) = "" THEN err_msg = err_msg & vbNewLine & "* All of the Changes Reported fields are blank. You must enter information in at least one field."
 		' Validate the change(s) reported fields to ensure that at least one field is filled in
-		If actions_taken = "" AND other_notes = "" AND verifs_requested = "" THEN err_msg = err_msg & vbNewLine & "* All of the Actions fields are blank. You must enter information in at least one field."
+		If trim(actions_taken) = "" AND trim(other_notes) = "" AND trim(verifs_requested) = "" THEN err_msg = err_msg & vbNewLine & "* All of the Actions fields are blank. You must enter information in at least one field."
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)
