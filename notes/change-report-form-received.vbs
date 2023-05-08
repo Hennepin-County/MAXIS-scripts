@@ -64,7 +64,7 @@ get_county_code()
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
-BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
+BeginDialog Dialog1, 0, 0, 376, 300, "Change Report Form Received"
   EditBox 60, 5, 40, 15, MAXIS_case_number
   EditBox 160, 5, 45, 15, effective_date
   EditBox 320, 5, 45, 15, date_received
@@ -75,15 +75,15 @@ BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
   EditBox 110, 115, 250, 15, asset_notes
   EditBox 50, 135, 315, 15, vehicles_notes
   EditBox 50, 155, 315, 15, other_change_notes
-  EditBox 60, 180, 305, 15, actions_taken
-  EditBox 60, 200, 305, 15, other_notes
-  EditBox 70, 220, 295, 15, verifs_requested
-  CheckBox 10, 245, 140, 10, "Check here to navigate to DAIL/WRIT", tikl_nav_check
-  DropListBox 270, 240, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
-  EditBox 75, 260, 85, 15, worker_signature
+  EditBox 60, 185, 305, 15, actions_taken
+  EditBox 60, 205, 305, 15, other_notes
+  EditBox 70, 225, 295, 15, verifs_requested
+  CheckBox 10, 260, 140, 10, "Check here to navigate to DAIL/WRIT", tikl_nav_check
+  DropListBox 270, 255, 95, 20, "Select One:"+chr(9)+"will continue next month"+chr(9)+"will not continue next month", changes_continue
+  EditBox 75, 275, 85, 15, worker_signature
   ButtonGroup ButtonPressed
-    OkButton 260, 260, 50, 15
-    CancelButton 315, 260, 50, 15
+    OkButton 260, 275, 50, 15
+    CancelButton 315, 275, 50, 15
   Text 5, 10, 50, 10, "Case Number:"
   Text 110, 10, 50, 10, "Effective Date:"
   Text 210, 10, 110, 10, "Date Change Reported/Received:"
@@ -95,11 +95,12 @@ BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
   Text 15, 120, 95, 10, "Assets (savings or property):"
   Text 15, 140, 30, 10, "Vehicles:"
   Text 15, 160, 20, 10, "Other:"
-  Text 10, 185, 45, 10, "Action Taken:"
-  Text 10, 205, 45, 10, "Other Notes:"
-  Text 10, 225, 60, 10, "Verifs Requested:"
-  Text 10, 265, 60, 10, "Worker Signature:"
-  Text 180, 245, 90, 10, "The changes client reports:"
+  Text 10, 190, 45, 10, "Action Taken:"
+  Text 10, 210, 45, 10, "Other Notes:"
+  Text 10, 230, 60, 10, "Verifs Requested:"
+  Text 10, 280, 60, 10, "Worker Signature:"
+  Text 180, 260, 90, 10, "The changes client reports:"
+  GroupBox 5, 175, 365, 75, "Actions"
 EndDialog
 
 
@@ -123,7 +124,7 @@ DO
 		' Validate the change(s) reported fields to ensure that at least one field is filled in
 		If address_notes = "" AND household_notes = "" AND asset_notes = "" AND vehicles_notes = "" AND income_notes = "" AND shelter_notes = "" AND other_change_notes = "" THEN err_msg = err_msg & vbNewLine & "* All of the Changes Reported fields are blank. You must enter information in at least one field."
 		' Validate the change(s) reported fields to ensure that at least one field is filled in
-		If actions_taken = "" AND other_notes = "" AND verifs_requested = "" THEN err_msg = err_msg & vbNewLine & "* All of the fields are blank. You must enter information in at least one field."
+		If actions_taken = "" AND other_notes = "" AND verifs_requested = "" THEN err_msg = err_msg & vbNewLine & "* All of the Actions fields are blank. You must enter information in at least one field."
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)
