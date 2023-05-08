@@ -222,8 +222,8 @@ ButtonGroup ButtonPressed
 	Text 25, 45, 50, 10, "Date"
 	Text 75, 45, 40, 10, "Article"
 	Text 365, 45, 110, 10, "Script (press to run the script)"
-	Text 500, 40, 75, 10, "Instructions"
-	Text 525, 50, 30, 10, "Favorite"
+	Text 510, 45, 15, 10, "Instr"
+	Text 530, 45, 30, 10, "Fav"
 
 	y_pos = 60
 	For hot_topic_date = UBound(ht_dates_array) to 0 Step -1										'This loops through all of the dates in the array that was sorted, starting from the bottom (the newest)
