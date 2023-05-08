@@ -1,3 +1,4 @@
+worker_county_code = "X127"
 'STATS GATHERING----------------------------------------------------------------------------------------------------
 name_of_script = "ADMIN - DAIL 12 MONTH CONTACT.vbs"
 start_time = timer
@@ -93,9 +94,8 @@ Do
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
-excel_row = excel_row_to_restart
-
 Call check_for_MAXIS(False)
+excel_row = excel_row_to_restart
 
 DIM DAIL_array()
 ReDim DAIL_array(case_status_const, 0)
@@ -120,20 +120,16 @@ all_case_numbers_array = "*"    'setting up string to find duplicate case number
 entry_record = 0
 
 Do 
-    MAXIS_case_number = trim(objExcel.cells(excel_row, 2).Value)
+    MAXIS_case_number = objExcel.cells(excel_row, 2).Value
+    If trim(maxis_case_number) = "" then exit do
 
     'If the case number is found in the string of case numbers, it's not added again.
-    If instr(all_case_numbers_array, "*" & Client_PMI & "*") then
+    If instr(all_case_numbers_array, "*" & MAXIS_case_number & "*") then
         add_to_array = False
     Else 
-        ReDim DAIL_array(case_status_const, 2)	'This resizes the array based on the number of rows in the Excel File'
-        'The client information is added to the array'
-
-        DAIL_array(worker_const,                entry_record) = trim(objExcel.cells(excel_row, 1).Value)
-        DAIL_array(maxis_case_number_const,     entry_record) = MAXIS_case_number
-        DAIL_array(dail_type_const,             entry_record) = trim(objExcel.cells(excel_row, 3).Value)
-        DAIL_array(dail_month_const,		    entry_record) = trim(objExcel.cells(excel_row, 4).Value)
-        DAIL_array(dail_msg_const,		        entry_record) = trim(objExcel.cells(excel_row, 5).Value)
+        ReDim Preserve DAIL_array(case_status_const, entry_record)	'This resizes the array based on the number of rows in the Excel File'
+        DAIL_array(maxis_case_number_const, entry_record) = trim(MAXIS_case_number)
+        DAIL_array(excel_row_const,		    entry_record) = excel_row
         entry_record = entry_record + 1			'This increments to the next entry in the array'
         stats_counter = stats_counter + 1
         all_case_numbers_array = trim(all_case_numbers_array & MAXIS_case_number & "*") 'Adding MAXIS case number to case number string
