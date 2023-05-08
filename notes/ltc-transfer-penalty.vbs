@@ -89,8 +89,12 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 'grabbing app date from STAT/PROG
 
 Call check_for_MAXIS(False) 'checking for an active MAXIS session
-back_to_SELF
 Call navigate_to_MAXIS_screen("STAT", "PROG")
+'Verifying case has HC status of PEND or ACTV, otherwise end script.
+EMReadScreen HC_status, 4, 12, 74
+If (HC_status <> "PEND" AND HC_status <> "ACTV") Then Call script_end_procedure("~LTC Transfer Penalty script cancelled because case does not have HC in PEND or ACTV status.")
+
+'reading HC Appl date
 EMReadScreen app_month, 2, 12, 33
 EMReadScreen app_date, 2, 12, 36
 EMReadScreen app_year, 2, 12, 39
@@ -98,17 +102,18 @@ EMReadScreen app_year, 2, 12, 39
 date_of_application = (app_month & "/" & app_date & "/" & app_year)
 
 'navigating to the Uncompensated Transfer Calculation in the ELIG/HC person test
+'Reading Uncompensated Transfer screen for case note
 Call navigate_to_MAXIS_screen ("ELIG", "HC__")        'selects MEMB 01
 Call write_value_and_transmit("X", 8, 26)             'selects Person test
 Call write_value_and_transmit("X", 7, 17)             'selects Uncompensated transfer calculation
 Call write_value_and_transmit("X", 18, 3)             'reading information from Uncompensated Transfer Calculation
-EMReadScreen row_1, 71, 5, 6
-EMReadScreen row_3, 71, 7, 6
-EMReadScreen row_4, 71, 8, 6
-EMReadScreen row_5, 71, 9, 6
-EMReadScreen row_6, 71, 10, 6
-EMReadScreen row_8, 71, 12, 6
-EMReadScreen row_9, 71, 13, 6
+EMReadScreen row_1, 71, 5, 6 'reading 1st row of text Uncompensated Transfer Calculation
+EMReadScreen row_3, 71, 7, 6 'reading 2nd row of text Uncompensated Transfer Calculation
+EMReadScreen row_4, 71, 8, 6 'reading 3rd row of text Uncompensated Transfer Calculation
+EMReadScreen row_5, 71, 9, 6 'reading 4th row of text Uncompensated Transfer Calculation
+EMReadScreen row_6, 71, 10, 6 'reading 5th row of text Uncompensated Transfer Calculation
+EMReadScreen row_8, 71, 12, 6 'reading 6th row of text Uncompensated Transfer Calculation
+EMReadScreen row_9, 71, 13, 6 'reading 7th row of text Uncompensated Transfer Calculation
 
 'Reading specific information from Uncompensated Transfer Calculation screen
 'Transfer date
@@ -117,7 +122,7 @@ EMReadScreen SAPSNF_month, 2, 7, 46
 EMReadScreen SAPSNF_day, 2, 7, 49
 EMReadScreen SAPSNF_year, 2, 7, 52
 'converts date variables into date format
-If SAPSNF_check <> "" THEN transfer_date = (SAPSNF_month & "/" & SAPSNF_day & "/" & SAPSNF_year)
+If Trim(SAPSNF_check <> "__ __ __") THEN transfer_date = (SAPSNF_month & "/" & SAPSNF_day & "/" & SAPSNF_year)
 
 'Transfer amount
 EMReadScreen transfer_amount, 10, 10, 11
@@ -130,7 +135,7 @@ If partial_penalty_amount <> "          " THEN partial_penalty_amount = trim(par
 'Last full month of penalty
 EMReadScreen penalty_end_month, 2, 12, 46
 EMReadScreen penalty_end_year, 2, 12, 49
-If penalty_end_month <> "" and penalty_end_year <> "" Then last_full_month_of_period = penalty_end_month & "/" & penalty_end_year
+If Trim(penalty_end_month <> "__") and penalty_end_year <> "__" Then last_full_month_of_period = penalty_end_month & "/" & penalty_end_year
 
 'Dollar bill symbol will be added to numeric variables----------------------------------------------------------------------------------------------------
 IF transfer_amount <> "" THEN transfer_amount = "$" & transfer_amount
@@ -155,7 +160,7 @@ DO
           EditBox 250, 85, 60, 15, partial_penalty_amount
           EditBox 125, 115, 60, 15, date_of_application
           EditBox 125, 135, 60, 15, date_client_was_otherwise_eligible
-          DropListBox 125, 155, 60, 15, "Select one..."+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Requested", waiver_list
+          DropListBox 125, 155, 60, 15, "Select one..."+chr(9)+"Approved"+chr(9)+"Denied"+chr(9)+"Requested"+chr(9)+"N/A", waiver_list
           EditBox 100, 180, 215, 15, hardship_waiver_details
           EditBox 100, 200, 215, 15, assets_transfered
           EditBox 100, 220, 215, 15, case_action
@@ -192,19 +197,18 @@ DO
             If ButtonPressed = EPM_transfer_penalty Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe http://hcopub.dhs.state.mn.us/epm/2_4_1_3_2.htm?rhhlterm=ltc&rhsearch=LTC"
             If ButtonPressed = TE_transfers Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/:w:/r/sites/hs-es-poli-temp/_layouts/15/Doc.aspx?sourcedoc=%7B4980f2be-4d02-498a-a31c-77970e663c6a%7D&action=view&wdAccPdf=0&wdparaid=5A58606E"
         Else
-            If (len(baseline_date) < 8 or IsDate(baseline_date) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid baseline date in the MM/DD/YYYY format.  See policy reference at the bottom of the dialog box if you are unsure of how to determined the baseline date."
-            If period_begins = "" then err_msg = err_msg & vbNewLine & "You must enter the start date of the transfer penalty."
-            If (transfer_date = "" or IsDate(transfer_date) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid transfer date."
-            If last_full_month_of_period = "" then err_msg = err_msg & vbNewLine & "You must enter the last full month of the transfer penalty."
-            If (transfer_amount = "" or IsNumeric(transfer_amount) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid transfer penalty amount."
-            If (partial_penalty_amount = "" or IsNumeric(partial_penalty_amount) = False) then err_msg = err_msg & vbNewLine & "You must enter the partial penalty amount, even if the amount is 0."
-            If (date_of_application = "" or IsDate(date_of_application) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid application date."
-            If (date_client_was_otherwise_eligible = "" or IsDate(date_client_was_otherwise_eligible) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid date that the client was otherwise eligible for MA."
+            If (Trim(len(baseline_date) < 8) or IsDate(baseline_date) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid baseline date in the MM/DD/YYYY format.  See policy reference at the bottom of the dialog box if you are unsure of how to determined the baseline date."
+            If (Trim(period_begins = "") or IsDate(period_begins) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter the start date of the transfer penalty."
+            If (Trim(transfer_date = "") or IsDate(transfer_date) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid transfer date." 
+            If (Trim(last_full_month_of_period = "") or IsDate(last_full_month_of_period)= FALSE) then err_msg = err_msg & vbNewLine & "You must enter the last full month of the transfer penalty MM/YY."
+            If (Trim(transfer_amount = "") or IsNumeric(transfer_amount) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid transfer penalty amount."
+            If (Trim(partial_penalty_amount = "") or IsNumeric(partial_penalty_amount) = False) then err_msg = err_msg & vbNewLine & "You must enter the partial penalty amount, even if the amount is 0."
+            If (Trim(date_of_application = "") or IsDate(date_of_application) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid application date."
+            If (Trim(date_client_was_otherwise_eligible = "") or IsDate(date_client_was_otherwise_eligible) = FALSE) then err_msg = err_msg & vbNewLine & "You must enter a valid date that the client was otherwise eligible for MA."
             If waiver_list = "Select one..." then err_msg = err_msg & vbNewLine & "You must select the waiver status."
-            If hardship_waiver_details = "" then err_msg = err_msg & vbNewLine & "You must provide harship waiver details."              
-            If assets_transfered = "" then err_msg = err_msg & vbNewLine & "You must describe the assets transferred."            
-            If case_action = "" then err_msg = err_msg & vbNewLine & "You must case note the case action."
-            If worker_signature = "" then err_msg = err_msg & vbNewLine & "You must sign your case note!"
+            If Trim(assets_transfered = "") then err_msg = err_msg & vbNewLine & "You must describe the assets transferred."            
+            If Trim(case_action = "") then err_msg = err_msg & vbNewLine & "You must case note the case action."
+            If Trim(worker_signature = "") then err_msg = err_msg & vbNewLine & "You must sign your case note!"
             If err_msg <> "" AND left(err_msg, 4) <> "Loop" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine		'error message including instruction on what needs to be fixed from each mandatory field if incorrect
         End If
     LOOP UNTIL err_msg = ""									'loops until all errors are resolved
@@ -214,18 +218,18 @@ Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 'ensures we're in MAXIS, the case is not PRIV and it's in-county. 
 Call check_for_MAXIS(false)
-Call navigate_to_MAXIS_screen_review_PRIV("Case", "Note", is_this_priv)
+Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
 If is_this_priv = True Then script_end_procedure ("This case is privileged and cannot be accessed. The script will now stop.")
 EMReadScreen county_code, 4, 21, 14
 If county_code <> worker_county_code then script_end_procedure("This case is out-of-county, and cannot access CASE:NOTE. The script will now stop.")
 
 'CALCULATIONS AND LOGIC----------------------------------------------------------------------------------------------------
 
-'Autofill for the application_date variable, then determines lookback period based on the info
-If baseline_date <> "" then lookback_period = dateadd("m", -60, cdate(baseline_date)) & ""
-
-'Lookback period end date
-If baseline_date <> "" then end_of_lookback = dateadd ("d", -1, cdate (baseline_date))
+'Determines lookback period based on baseline date provided
+If baseline_date <> "" then 
+  lookback_period = dateadd("m", -60, cdate(baseline_date)) & ""
+  end_of_lookback = dateadd ("d", -1, cdate (baseline_date))
+End If
 
 'THE CASE NOTE----------------------------------------------------------------------------------------------------
 Call start_a_blank_CASE_NOTE												'navigates to CASE/NOTE and put case into edit mode
