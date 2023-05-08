@@ -70,10 +70,10 @@ BeginDialog Dialog1, 0, 0, 376, 280, "Change Report Form Received"
   EditBox 320, 5, 45, 15, date_received
   EditBox 50, 35, 315, 15, address_notes
   EditBox 50, 55, 315, 15, household_notes
-  EditBox 110, 115, 250, 15, asset_notes
-  EditBox 50, 135, 315, 15, vehicles_notes
   EditBox 50, 75, 315, 15, income_notes
   EditBox 50, 95, 315, 15, shelter_notes
+  EditBox 110, 115, 250, 15, asset_notes
+  EditBox 50, 135, 315, 15, vehicles_notes
   EditBox 50, 155, 315, 15, other_change_notes
   EditBox 60, 180, 305, 15, actions_taken
   EditBox 60, 200, 305, 15, other_notes
