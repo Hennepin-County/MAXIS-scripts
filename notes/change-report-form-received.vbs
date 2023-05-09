@@ -103,7 +103,6 @@ BeginDialog Dialog1, 0, 0, 376, 300, "Change Report Form Received"
   GroupBox 5, 175, 365, 75, "Actions"
 EndDialog
 
-
 ' Updated dialog to include field validation
 DO
 	DO
@@ -113,24 +112,22 @@ DO
 
 		' Validate that MAXIS number is numeric and less than 8 digits long
 		CALL validate_MAXIS_case_number(err_msg, "* ")
-		' Validate that worker signature is not blank.
-		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
-		' Validate that worker selects option from dropdown list as to how long change will last
-		If changes_continue = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You must select an option from the dropdown list indicating whether the changes reported by the client will continue next month or will not continue next month."
 		' Validate that Date Effective field is not empty and is in a proper date format
 		If IsDate(trim(effective_date)) = False OR Len(trim(effective_date)) <> 10 Then err_msg = err_msg & vbNewLine & "* The Date Effective field cannot be blank and must be in the MM/DD/YYYY format."
 		' Validate that Date Change Reported/Received field is not empty and is in a proper date format
 		If IsDate(trim(date_received)) = False OR Len(trim(date_received)) <> 10 Then err_msg = err_msg & vbNewLine & "* The Date Change Reported/Received field cannot be blank and must be in the MM/DD/YYYY format."
-		' Validate the change(s) reported fields to ensure that at least one field is filled in
+		' Validate the Changes Reported fields to ensure that at least one field is filled in
 		If trim(address_notes) = "" AND trim(household_notes) = "" AND trim(asset_notes) = "" AND trim(vehicles_notes) = "" AND trim(income_notes) = "" AND trim(shelter_notes) = "" AND trim(other_change_notes) = "" THEN err_msg = err_msg & vbNewLine & "* All of the Changes Reported fields are blank. You must enter information in at least one field."
-		' Validate the change(s) reported fields to ensure that at least one field is filled in
+		' Validate the Actions fields to ensure that at least one field is filled in
 		If trim(actions_taken) = "" AND trim(other_notes) = "" AND trim(verifs_requested) = "" THEN err_msg = err_msg & vbNewLine & "* All of the Actions fields are blank. You must enter information in at least one field."
+		' Validate that worker selects option from dropdown list as to how long change will last
+		If changes_continue = "Select One:" THEN err_msg = err_msg & vbNewLine & "* You must select an option from the dropdown list indicating whether the changes reported by the client will continue next month or will not continue next month."
+		' Validate that worker signature is not blank.
+		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
 		If err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg
 	LOOP UNTIL err_msg = ""
 	CALL check_for_password(are_we_passworded_out)
 LOOP UNTIL are_we_passworded_out = false
-
-
 
 ' Check if case is privileged and end script if it is privileged
 Call navigate_to_MAXIS_screen_review_PRIV("CASE", "NOTE", is_this_priv)
