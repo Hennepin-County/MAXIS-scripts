@@ -76,18 +76,18 @@ Const script_displayed 		= 10
 Const hot_topic_name_const 	= 12
 Const script_instructions_url_const 	= 13
 Const script_url_const 		= 14
-Const last_const 			= 15
+Const last_ht_const 			= 15
 
 'declaring the array
 Dim HOT_TOPIC_ARRAY()
-ReDim HOT_TOPIC_ARRAY(last_const, 0)
+ReDim HOT_TOPIC_ARRAY(last_ht_const, 0)
 ht_dates = " "				'starting this string with a space as that is what we are going to use as a delimiter.
 
 article_count = 0			'This is the incrementor we are going to use to add to the array
 
 'Here we manually add any Hot Topic articles that are not tied to a specific script (or scripts) and are more general.
 'There isn't another place to store these and they will just need to be maintained in this script.
-ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
 HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/COLA-Processing-with-Bluezone-Scripts.aspx"
 Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
 HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #12/08/2020#
@@ -97,7 +97,7 @@ HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
 If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
 article_count = article_count + 1
 
-ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
 HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Script-Highlight-%e2%80%93-Postponed-Case-Actions.aspx"
 Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
 HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #01/26/2021#
@@ -107,7 +107,7 @@ HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
 If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
 article_count = article_count + 1
 
-ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
 HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/New-Bluezone-Script-Installer-Applu.aspx"
 Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
 HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #04/06/2021#
@@ -117,7 +117,7 @@ HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
 If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
 article_count = article_count + 1
 
-ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
 HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/The-Bluezone-Scripts-Power-Pad-got-a-New-Look.aspx"
 Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
 HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #06/08/2021#
@@ -127,7 +127,7 @@ HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
 If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
 article_count = article_count + 1
 
-ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
 HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Bluezone-Scripts-News-and-Updates.aspx"
 Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
 HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #08/17/2021#
@@ -137,7 +137,7 @@ HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
 If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
 article_count = article_count + 1
 
-ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
 HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Customized-Access-to-Scripts.aspx"
 Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
 HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #10/12/2021#
@@ -147,7 +147,7 @@ HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
 If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
 article_count = article_count + 1
 
-ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
 HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/April-2023-Staffing-Announcements.aspx"
 Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
 HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #04/11/2023#
@@ -157,7 +157,7 @@ HOT_TOPIC_ARRAY(article_btn_const, article_count) = 500 + article_count
 If InStr(ht_dates, HOT_TOPIC_ARRAY(hot_topic_date_const, article_count)) = 0 Then ht_dates = ht_dates & HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) & " "
 article_count = article_count + 1
 
-ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)
+ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)
 HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Power-Pad-and-Health-Care-Script-Updates.aspx"
 Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))
 HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = #04/18/2023#
@@ -182,7 +182,7 @@ For current_script = 0 to ubound(script_array)
 		'here we need to add the date to a list of all the dates, this will be used to order the display of the HT articles
 		If InStr(ht_dates, script_array(current_script).hot_topic_date) = 0 Then ht_dates = ht_dates & script_array(current_script).hot_topic_date & " "
 
-		ReDim Preserve HOT_TOPIC_ARRAY(last_const, article_count)		'resize the array
+		ReDim Preserve HOT_TOPIC_ARRAY(last_ht_const, article_count)		'resize the array
 		HOT_TOPIC_ARRAY(hot_topic_link_const, article_count) = script_array(current_script).hot_topic_link										'save the link to the array
 		Call find_hot_topic_name(HOT_TOPIC_ARRAY(hot_topic_link_const, article_count), HOT_TOPIC_ARRAY(hot_topic_name_const, article_count))	'format the article name
 		HOT_TOPIC_ARRAY(hot_topic_date_const, article_count) = script_array(current_script).hot_topic_date										'save the date from the CLOS
@@ -211,7 +211,7 @@ report_to_BZST_btn = 200
 Call sort_dates(ht_dates_array)					'This function takes all the dates in an array and put them in order from oldest to newest
 
 dlg_len = 85 + ((UBOUND(HOT_TOPIC_ARRAY, 2)+1) * 15)			'using math to determine the size of the dialog
-If dlg_len > 390 Then dlg_len = 390
+If dlg_len > 390 Then dlg_len = 400
 
 'creating the dialog
 Dialog1 = ""
@@ -261,7 +261,7 @@ ButtonGroup ButtonPressed
 				End If
 			End If
 		Next
-		If y_pos >= 385 Then Exit For		'If we have too many HT articles, it will stop when we get to the end of what the dialog size limit is
+		If y_pos >= 370 Then Exit For		'If we have too many HT articles, it will stop when we get to the end of what the dialog size limit is
 	Next
 	GroupBox 10, 35, 555, y_pos-35, "Hot Topics List"
 
