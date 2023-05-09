@@ -47,7 +47,7 @@ Set objConnection = CreateObject("ADODB.Connection")
 Set objRecordSet = CreateObject("ADODB.Recordset")
 
 ' Connection_String = "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
-SQL_table = "SELECT * from ES.ES_StaffHierarchyDim"
+SQL_table = "SELECT * from ES.V_ESAllStaff"
 
 'This is the file path for the statistics Access database.
 ' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
@@ -92,7 +92,7 @@ Else
 
 End If
 
-email_body = show_my_info & vbCr & vbCr & "Windows ID: " & windows_user_ID
+email_body = show_my_info & vbCr & vbCr & "Windows ID: " & windows_user_ID & vbCr & vbcr & "TABLE Used: " & SQL_table
 Call create_outlook_email("hsph.ews.bluezonescripts@hennepin.us", "", "StaffHierarchy User Table Test", email_body, "", True)
 
 script_end_procedure(end_msg)
