@@ -244,6 +244,7 @@ class script_bowie
 		If script_name = "Delete DAIL Tasks" Then description = description & " --- USE WITH CAUTION! Deletes info from SQL Database."
 		If script_name = "Open Interview PDF" Then description = description & " --- Opens a PDF generated from NOTES - Interview if not yet in ECF."
 		If script_name = "Search CASE NOTE" Then description = description & " --- Searches all CASE:NOTEs for a particular case for word(s) or a phrase."
+		If script_name = "Hot Topics" Then description = description & " --- Displays a list of BlueZone Script related Hot Topics with links to the articles and related scripts."
 	end property
 
     public sub show_button(see_the_button)
@@ -358,7 +359,7 @@ script_array(script_num).subcategory            = array("")
 script_array(script_num).keywords               = array("")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_date 		= #04/19/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/maxis-ievs-dail-messages-changes.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Maxis-IEVS-DAIL-Messages-Changes.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -676,7 +677,7 @@ script_array(script_num).release_date           = #12/12/2016#
 ' script_array(script_num).hot_topic_date			= #04/18/2023#
 ' script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/power-pad-and-health-care-script-updates.aspx"
 script_array(script_num).hot_topic_date			= #11/15/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes-%e2%80%93-application-check-updated-to-support-day-30-processing.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/Notes-%e2%80%93-Application-Check-Updated-to-Support-Day-30-Processing.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -782,7 +783,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk", "Wrd")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #04/27/2021#
 script_array(script_num).hot_topic_date			= #07/06/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/new-script--notes---avs.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/New-Script--NOTES---AVS.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("SHAREPOINT AVS https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/AVS.aspx", "ONESOURCE Account_Validation_Service_(AVS) https://www.dhs.state.mn.us/main/idcplg?IdcService=GET_DYNAMIC_CONVERSION&RevisionSelectionMethod=LatestReleased&dDocName=onesource-17031", "EPM 2.3.1.2_MA-ABD_Account_Validation_Service_(AVS) http://hcopub.dhs.state.mn.us/epm/2_3_1_2.htm?rhhlterm=avs&rhsearch=avs")
 
@@ -926,7 +927,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Tk", "Up")
 script_array(script_num).subcategory            = array("")  '<<Temporarily removing first alpha split, will rebuild using function to auto-alpha-split, VKC 06/16/2016
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_date			= #12/13/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/caf-script-no-longer-supports-interview-details.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/CAF-Script-No-Longer-Supports-Interview-Details.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -1452,7 +1453,7 @@ script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("TOOL", "MAXIS")
 script_array(script_num).release_date           = #11/17/2020#
 script_array(script_num).hot_topic_date			= #12/06/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/new-script-%e2%80%93-display-benefits.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/New-Script-%e2%80%93-Display-Benefits.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -1630,7 +1631,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm", "Exp")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/26/2022#
 script_array(script_num).hot_topic_date 		= #08/23/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes---eligibility-summary-(bluezone-script)-programs-added.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTES---Eligibility-Summary-(BlueZone-Script)-Programs-Added.aspx"
 script_array(script_num).used_for_elig			= True
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -1749,7 +1750,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Exp", "Ev")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_date			= #08/31/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-Scripts-Available-September-1-for-Interview-and-Expedited-SNAP.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -2056,7 +2057,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Tk")
 script_array(script_num).subcategory            = array("E-L")
 script_array(script_num).release_date           = #4/10/2023#
 script_array(script_num).hot_topic_date         = #04/18/2023#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/a-new-script-experience-for-health-care.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/A-New-Script-Experience-for-Health-Care.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -2101,6 +2102,21 @@ script_array(script_num).tags                   = array("Application", "MFIP", "
 script_array(script_num).dlg_keys               = array("Cn")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #07/05/2018#
+script_array(script_num).hot_topic_link			= ""
+script_array(script_num).used_for_elig			= False
+script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+
+script_num = script_num + 1								'Increment by one
+ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
+Set script_array(script_num) = new script_bowie		'Set this array element to be a new script_bowie. Script details below...
+script_array(script_num).script_name			= "Hot Topics"
+' script_array(script_num).description 			= "Update STAT/MEDI with MBI number from RMCR in MMIS."
+script_array(script_num).category               = "UTILITIES"
+script_array(script_num).workflows              = ""
+script_array(script_num).tags                   = array("Navigation", "Utility")
+script_array(script_num).dlg_keys               = array("")
+script_array(script_num).subcategory            = array("POLICY")
+script_array(script_num).release_date           = #05/08/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -2252,7 +2268,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Sm", "Wrd")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #09/01/2021#								'Testing - #07/01/2021#
 script_array(script_num).hot_topic_date         = #03/29/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notes-%e2%80%93-interview-script-updates.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTES-%e2%80%93-Interview-Script-Updates.aspx"
 script_array(script_num).retirement_date        = ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
@@ -2979,7 +2995,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #09/01/2021#					'Testing - '#07/29/2021#
 script_array(script_num).hot_topic_date			= #08/31/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-scripts-available-September-1-for-interview-and-Expedited-SNAP.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/SitePages/New-Scripts-Available-September-1-for-Interview-and-Expedited-SNAP.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -3057,7 +3073,7 @@ script_array(script_num).dlg_keys               = array("Cn", "Wrd", "Sm", "Sw")
 script_array(script_num).subcategory            = array("WORD DOCS")
 script_array(script_num).release_date           = #06/14/2021#
 script_array(script_num).hot_topic_date			= #06/29/2021#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/notices-%e2%80%93-pa-verif-request-has-returned!.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/NOTICES-%e2%80%93-PA-Verif-Request-has-Returned!.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -3997,7 +4013,7 @@ script_array(script_num).dlg_keys               = array("Oe")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #09/16/2021#
 script_array(script_num).hot_topic_date 		= #05/24/2022#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/all-es-staff-can-email-hsph.es.deed-for-unemployment-verification.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/All-ES-Staff-Can-Email-hsph.es.deed-for-Unemployment-Verification.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
@@ -4043,7 +4059,7 @@ script_array(script_num).dlg_keys               = array("")
 script_array(script_num).subcategory            = array("TOOL")
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_date			= #10/13/2020#
-script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/utilities-%e2%80%93-update-worker-signature.aspx"
+script_array(script_num).hot_topic_link			= "https://hennepin.sharepoint.com/teams/hs-economic-supports-hub/sitepages/UTILITIES-%e2%80%93-Update-Worker-Signature.aspx"
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
 
