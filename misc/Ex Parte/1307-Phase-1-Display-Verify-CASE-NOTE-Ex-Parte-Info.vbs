@@ -29,3 +29,66 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 	END IF
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
+
+
+'THE SCRIPT==================================================================================================================
+EMConnect "" 'Connects to BlueZone
+CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabs the MAXIS case number automatically
+
+Dialog1 = "" 'blanking out dialog name
+'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
+'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
+DO
+    Do
+        err_msg = ""    'This is the error message handling
+        Dialog Dialog1
+        cancel_confirmation or cancel_without_confirmation
+        'Add in all of your mandatory field handling from your dialog here.
+        Call validate_MAXIS_case_number(err_msg, "*") ' IF NEEDED
+        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")   'IF NEEDED
+        'The rest of the mandatory handling here
+        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note." 'IF NEEDED
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
+    'Add to all dialogs where you need to work within BLUEZONE
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+'End dialog section-----------------------------------------------------------------------------------------------
+
+'Checks to see if in MAXIS
+CALL check_for_MAXIS(True) or Call check_for_MAXIS(False)
+
+'Do you need to check for PRIV status
+Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB")
+
+'Do you need to check to see if case is out of county? Add Out-of-County handling here:
+'All your other navigation, data catpure and logic here. any other logic or pre case noting actions here.
+
+Call MAXIS_background_check 'IF NEEDED: meaning if you send it through background. Move this to where it makes sense.
+
+'Do you need to set a TIKL?
+Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+
+'Now it navigates to a blank case note
+Call start_a_blank_case_note
+
+'...and enters a title (replace variables with your own content)...
+CALL write_variable_in_case_note("*** CASE NOTE HEADER ***")
+
+'...some editboxes or droplistboxes (replace variables with your own content)...
+CALL write_bullet_and_variable_in_case_note( "Here's the first bullet",  a_variable_from_your_dialog        )
+CALL write_bullet_and_variable_in_case_note( "Here's another bullet",    another_variable_from_your_dialog  )
+
+'...checkbox responses (replace variables with your own content)...
+If some_checkbox_from_your_dialog = checked     then CALL write_variable_in_case_note( "* The checkbox was checked."     )
+If some_checkbox_from_your_dialog = unchecked   then CALL write_variable_in_case_note( "* The checkbox was not checked." )
+
+'...and a worker signature.
+CALL write_variable_in_case_note("---")
+CALL write_variable_in_case_note(worker_signature)
+'leave the case note open and in edit mode unless you have a business reason not to (BULK scripts, multiple case notes, etc.)
+
+'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
+script_end_procedure("")
+
+'Add your closing issue documentation here. Make sure it's the most up-to-date version (date on file).
