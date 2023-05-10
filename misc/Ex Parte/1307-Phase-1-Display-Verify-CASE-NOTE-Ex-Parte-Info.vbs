@@ -100,6 +100,51 @@ BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         Text 120, 275, 80, 10, MEDI_part_a_01
         Text 40, 290, 70, 10, "MEDI - Part B Exists:"
         Text 120, 290, 80, 10, MEDI_part_b_01
+    GroupBox 245, 10, 220, 45, "Person 2 - Case Information"
+        Text 250, 25, 50, 10, "Person Name:"
+        Text 300, 25, 75, 10, name_02
+        Text 380, 25, 20, 10, "PMI:"
+        Text 400, 25, 45, 10, PMI_02
+        Text 250, 40, 50, 10, "Case Number:"
+        Text 300, 40, 60, 10, case_number_02
+        Text 380, 40, 50, 10, "Review Month:"
+        Text 430, 40, 25, 10, review_month_02
+    GroupBox 245, 65, 220, 60, "Person 2 - TPQY Information"
+        Text 250, 80, 50, 10, "Claim Number:"
+        Text 300, 80, 50, 10, claim_number_02
+        Text 260, 95, 50, 10, "Sent Date:"
+        Text 300, 95, 50, 10, sent_date_02
+        Text 255, 110, 50, 10, "Return Date:"
+        Text 300, 110, 50, 10, return_date_02
+        Text 355, 80, 50, 10, "SDXS Amount"
+        Text 405, 80, 45, 10, sdxs_amount_02
+        Text 355, 95, 50, 10, "BNDX Amount:"
+        Text 405, 95, 45, 10, bndx_amount_02
+        Text 370, 110, 35, 10, "MEDI Info: "
+        Text 405, 110, 45, 10, medi_info_02
+    GroupBox 245, 130, 220, 180, "Person 2 - Add'l Information"
+        Text 250, 140, 105, 10, "Supplemental Security Income:"
+        Text 355, 140, 80, 10, SSI_02
+        Text 285, 155, 65, 10, "Other UNEA Types:"
+        Text 355, 155, 80, 10, other_UNEA_types_02
+        Text 305, 170, 50, 10, "JOBS Exists:"
+        Text 355, 170, 80, 10, JOBS_02
+        Text 290, 185, 60, 10, "MAXIS MA Basis:"
+        Text 355, 185, 80, 10, MAXIS_MA_basis_02
+        Text 290, 200, 60, 10, "MAXIS MSP Prog:"
+        Text 355, 200, 80, 10, MAXIS_msp_prog_02
+        Text 285, 215, 65, 10, "MAXIS MSP Basis:"
+        Text 355, 215, 80, 10, MAXIS_msp_basis_02
+        Text 290, 230, 55, 10, "MMIS MA Basis:"
+        Text 355, 230, 80, 10, MMIS_ma_basis_02
+        Text 290, 245, 60, 10, "MMIS MSP Prog:"
+        Text 355, 245, 80, 10, MMIS_msp_prog_02
+        Text 285, 260, 60, 10, "MMIS MSP Basis:"
+        Text 355, 260, 80, 10, MMIS_msp_basis_02
+        Text 275, 275, 70, 10, "MEDI - Part A Exists:"
+        Text 355, 275, 80, 10, MEDI_part_a_02
+        Text 275, 290, 70, 10, "MEDI - Part B Exists:"
+        Text 355, 290, 80, 10, MEDI_part_b_02
     ButtonGroup ButtonPressed
         OkButton 440, 365, 50, 15
         CancelButton 500, 365, 50, 15
