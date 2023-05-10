@@ -155,7 +155,7 @@ DO
 Do
         err_msg = ""    'This is the error message handling
         Dialog Dialog1
-        cancel_confirmation or cancel_without_confirmation
+        cancel_confirmation
         'Add in all of your mandatory field handling from your dialog here.
         Call validate_MAXIS_case_number(err_msg, "*") ' IF NEEDED
         Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")   'IF NEEDED
@@ -169,7 +169,7 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 'End dialog section-----------------------------------------------------------------------------------------------
 
 'Checks to see if in MAXIS
-CALL check_for_MAXIS(True) or Call check_for_MAXIS(False)
+Call check_for_MAXIS(False)
 
 'Do you need to check for PRIV status
 Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB")
