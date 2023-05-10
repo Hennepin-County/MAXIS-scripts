@@ -37,9 +37,77 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabs the MAXIS case number
 
 Dialog1 = "" 'blanking out dialog name
 'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
+
+BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
+    GroupBox 10, 10, 220, 45, "Person 1 - Case Information"
+        Text 15, 25, 50, 10, "Person Name:"
+        Text 65, 25, 75, 10, name_01
+        Text 145, 25, 20, 10, "PMI:"
+        Text 165, 25, 45, 10, PMI_01
+        Text 15, 40, 50, 10, "Case Number:"
+        Text 65, 40, 60, 10, case_number_01
+        Text 145, 40, 50, 10, "Review Month:"
+        Text 195, 40, 25, 10, review_month_01
+    GroupBox 10, 65, 220, 60, "Person 1 - TPQY Information"
+        Text 15, 80, 50, 10, "Claim Number:"
+        Text 65, 80, 50, 10, claim_number_01
+        Text 25, 95, 50, 10, "Sent Date:"
+        Text 65, 95, 50, 10, sent_date_01
+        Text 20, 110, 50, 10, "Return Date:"
+        Text 65, 110, 50, 10, return_date_01
+        Text 120, 80, 50, 10, "SDXS Amount"
+        Text 170, 80, 45, 10, sdxs_amount_01
+        Text 120, 95, 50, 10, "BNDX Amount:"
+        Text 170, 95, 45, 10, bndx_amount_01
+        Text 135, 110, 35, 10, "MEDI Info: "
+        Text 170, 110, 45, 10, medi_info_01
+    ButtonGroup ButtonPressed
+        Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
+        PushButton 490, 20, 55, 15, instructions, Button7
+        Text 495, 40, 45, 10, "--- POLICY ---"
+        PushButton 490, 55, 55, 15, policy_1, Button5
+        PushButton 490, 70, 55, 15, Policy_2, Button9
+        PushButton 490, 85, 55, 15, Policy_3, Button8
+        Text 490, 105, 55, 10, "--- NAVIGATE ---"
+        PushButton 495, 120, 25, 15, REVW, Button3
+        PushButton 520, 120, 25, 15, REVW, Button30
+        PushButton 495, 135, 25, 15, REVW, Button31
+        PushButton 520, 135, 25, 15, REVW, Button32
+        PushButton 495, 150, 25, 15, REVW, Button33
+        PushButton 520, 150, 25, 15, REVW, Button34
+        PushButton 495, 165, 25, 15, REVW, Button35
+        PushButton 520, 165, 25, 15, REVW, Button36
+    GroupBox 10, 130, 220, 180, "Person 1 - Add'l Information"
+        Text 15, 140, 105, 10, "Supplemental Security Income:"
+        Text 120, 140, 80, 10, SSI_01
+        Text 50, 155, 65, 10, "Other UNEA Types:"
+        Text 120, 155, 80, 10, other_UNEA_types_01
+        Text 70, 170, 50, 10, "JOBS Exists:"
+        Text 120, 170, 80, 10, JOBS_01
+        Text 55, 185, 60, 10, "MAXIS MA Basis:"
+        Text 120, 185, 80, 10, MAXIS_MA_basis_01
+        Text 55, 200, 60, 10, "MAXIS MSP Prog:"
+        Text 120, 200, 80, 10, MAXIS_msp_prog_01
+        Text 50, 215, 65, 10, "MAXIS MSP Basis:"
+        Text 120, 215, 80, 10, MAXIS_msp_basis_01
+        Text 55, 230, 55, 10, "MMIS MA Basis:"
+        Text 120, 230, 80, 10, MMIS_ma_basis_01
+        Text 55, 245, 60, 10, "MMIS MSP Prog:"
+        Text 120, 245, 80, 10, MMIS_msp_prog_01
+        Text 50, 260, 60, 10, "MMIS MSP Basis:"
+        Text 120, 260, 80, 10, MMIS_msp_basis_01
+        Text 40, 275, 70, 10, "MEDI - Part A Exists:"
+        Text 120, 275, 80, 10, MEDI_part_a_01
+        Text 40, 290, 70, 10, "MEDI - Part B Exists:"
+        Text 120, 290, 80, 10, MEDI_part_b_01
+    ButtonGroup ButtonPressed
+        OkButton 440, 365, 50, 15
+        CancelButton 500, 365, 50, 15
+EndDialog
+
 'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
 DO
-    Do
+Do
         err_msg = ""    'This is the error message handling
         Dialog Dialog1
         cancel_confirmation or cancel_without_confirmation
