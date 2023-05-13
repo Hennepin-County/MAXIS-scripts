@@ -1108,7 +1108,7 @@ script_array(script_num).subcategory            = array("")  '<<Temporarily remo
 script_array(script_num).release_date           = #10/01/2000#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
-script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
+script_array(script_num).policy_references		= array("TE CASE_NOTE_I_INTRO_HH_COMP 02.08.093", "SHAREPOINT CASE_NOTE_GUIDELINES_AND_FORMAT https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Casenote_Guidelines_and_Format.aspx")						'SEE Line 58 for format'
 
 script_num = script_num + 1								'Increment by one
 ReDim Preserve script_array(script_num)		'Resets the array to add one more element to it
