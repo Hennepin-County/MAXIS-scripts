@@ -1059,7 +1059,9 @@ If renewal_option = "Create Renewal Report" then
 	    	ObjExcel.columns(i).NumberFormat = "@" 		'formatting as text
 	        objExcel.Columns(i).AutoFit()				'sizing the columns'
 	    NEXT
-
+	
+		objExcel.ActiveSheet.ListObjects.add xlSrcRange,objExcel.Range("A1:Y2"),,XlYes 'creating table for all 25 columns and 2 rows. Will increment as more cases/data columns are added.
+		
 	    excel_row = 2
 
 	    back_to_self    'We need to get back to SELF and manually update the footer month
