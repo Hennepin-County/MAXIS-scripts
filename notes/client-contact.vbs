@@ -51,6 +51,7 @@ changelog = array()
 
 'INSERT ACTUAL CHANGES HERE, WITH PARAMETERS DATE, DESCRIPTION, AND SCRIPTWRITER. **ENSURE THE MOST RECENT CHANGE GOES ON TOP!!**
 'Example: call changelog_update("01/01/2000", "The script has been updated to fix a typo on the initial dialog.", "Jane Public, Oak County")
+Call changelog_update("11/17/2022", "Added phone # & name autofilling in 'who was contacted' drop list AREP's and/or SWKR's, & added name for MEMB 01. Removed text opt out option (retired process), updated the Q-flow verbiage from N/A to NO Q-FLOW POPULATION.", "Ilse Ferris, Hennepin County")
 call changelog_update("11/17/2022", "Added button to view issuance details for a case from the main dialog. This will support providing information to the resident while talking to them. This functionality does not interrupt the script run.##~####~##Look for the button that says 'Display Benefits'.##~##", "Casey Love, Hennepin County")
 call changelog_update("11/14/2022", "Added button to link to the interpreter service request. Removed 'Used Interpreter' checkbox that was inactive.", "Casey Love, Hennepin County")
 call changelog_update("10/07/2022", "Removed adults and families baskets that are no longer supported through Q-Flow. Any population not supported by Q-flow will now be 'N/A'.", "Ilse Ferris, Hennepin County")
@@ -191,7 +192,7 @@ Do
     Do
         err_msg = ""
         Do
-            BeginDialog Dialog1, 0, 0, 391, 345, "Client contact"
+            BeginDialog Dialog1, 0, 0, 391, 345, "Client Contact"
               ButtonGroup ButtonPressed
                 ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter"+chr(9)+contact_type, contact_type
                 DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
@@ -267,7 +268,7 @@ Do
                 End If
                 ButtonPressed = 100
             End If
-        Loop until ButtonPressed = -1
+        Loop until ButtonPressed = -1 
         If MAXIS_case_number = "" or IsNumeric(MAXIS_case_number) = False or len(MAXIS_case_number) > 8 then err_msg = err_msg & vbNewLine & "* Enter a valid case number."
         If trim(contact_type) = "" or contact_type = "Select or Type" then err_msg = err_msg & vbcr & "* Enter the contact type."
         If trim(who_contacted) = "" or who_contacted = "Select or Type" then err_msg = err_msg & vbcr & "* Enter who was contacted."
@@ -313,7 +314,7 @@ IF follow_up_needed_checkbox = checked THEN CALL write_variable_in_CASE_NOTE("* 
 CALL write_variable_in_CASE_NOTE("---")
 CALL write_variable_in_CASE_NOTE(worker_signature)
 
-IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("dail", "writ")      'Navigating to TIKL only
+IF TIKL_check = checked THEN CALL navigate_to_MAXIS_screen("DAIL", "WRIT")      'Navigating to TIKL only
 
 end_msg = ""
 'If case requires followup, it will create a MsgBox (via script_end_procedure) explaining that followup is needed. This MsgBox gets inserted into the statistics database for counties using that function. This will allow counties to "pull statistics" on follow-up, including case numbers, which can be used to track outcomes.
@@ -321,46 +322,47 @@ If follow_up_needed_checkbox = checked then end_msg = end_msg & "Success! Follow
 
 script_end_procedure_with_error_report(end_msg)
 
-'----------------------------------------------------------------------------------------------------Closing Project Documentation
+'----------------------------------------------------------------------------------------------------Closing Project Documentation - Version date 01/12/2023
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------10/07/2021
-'--Tab orders reviewed & confirmed----------------------------------------------10/07/2021
-'--Mandatory fields all present & Reviewed--------------------------------------10/07/2021
-'--All variables in dialog match mandatory fields-------------------------------10/07/2021
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/13/2023
+'--Tab orders reviewed & confirmed----------------------------------------------05/13/2023
+'--Mandatory fields all present & Reviewed--------------------------------------05/13/2023
+'--All variables in dialog match mandatory fields-------------------------------05/13/2023
+'Review dialog names for content and content fit in dialog----------------------05/13/2023
 '
 '-----CASE:NOTE-------------------------------------------------------------------------------------------------------------------
-'--All variables are CASE:NOTEing (if required)---------------------------------10/07/2021
-'--CASE:NOTE Header doesn't look funky------------------------------------------10/07/2021
-'--Leave CASE:NOTE in edit mode if applicable-----------------------------------10/07/2021
-'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-10/07/2022 -----------------------------------
-
+'--All variables are CASE:NOTEing (if required)---------------------------------05/13/2023
+'--CASE:NOTE Header doesn't look funky------------------------------------------05/13/2023
+'--Leave CASE:NOTE in edit mode if applicable-----------------------------------05/13/2023
+'--write_variable_in_CASE_NOTE function: confirm that proper punctuation is used-05/13/2023
+'
 '-----General Supports-------------------------------------------------------------------------------------------------------------
-'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------10/07/2021
-'--MAXIS_background_check reviewed (if applicable)------------------------------10/07/2021
-'--PRIV Case handling reviewed -------------------------------------------------10/07/2021
-'--Out-of-County handling reviewed----------------------------------------------10/07/2021
-'--script_end_procedures (w/ or w/o error messaging)----------------------------10/07/2021
-'--BULK - review output of statistics and run time/count (if applicable)--------10/07/2021------------------N/A
-'--All strings for MAXIS entry are uppercase letters vs. lower case (Ex: "X")---07/20/2022
+'--Check_for_MAXIS/Check_for_MMIS reviewed--------------------------------------05/13/2023
+'--MAXIS_background_check reviewed (if applicable)------------------------------05/13/2023--------------------N/A
+'--PRIV Case handling reviewed -------------------------------------------------05/13/2023
+'--Out-of-County handling reviewed----------------------------------------------05/13/2023
+'--script_end_procedures (w/ or w/o error messaging)----------------------------05/13/2023
+'--BULK - review output of statistics and run time/count (if applicable)--------05/13/2023--------------------N/A
+'--All strings for MAXIS entry are uppercase vs. lower case (Ex: "X")-----------05/13/2023
 '
 '-----Statistics--------------------------------------------------------------------------------------------------------------------
-'--Manual time study reviewed --------------------------------------------------10/07/2021
-'--Incrementors reviewed (if necessary)-----------------------------------------10/07/2021
-'--Denomination reviewed -------------------------------------------------------10/07/2021
-'--Script name reviewed---------------------------------------------------------10/07/2021
-'--BULK - remove 1 incrementor at end of script reviewed---------------------------------------------------N/A
+'--Manual time study reviewed --------------------------------------------------05/13/2023
+'--Incrementors reviewed (if necessary)-----------------------------------------05/13/2023
+'--Denomination reviewed -------------------------------------------------------05/13/2023
+'--Script name reviewed---------------------------------------------------------05/13/2023
+'--BULK - remove 1 incrementor at end of script reviewed------------------------05/13/2023--------------------N/A
 
 '-----Finishing up------------------------------------------------------------------------------------------------------------------
-'--Confirm all GitHub taks are complete-----------------------------------------10/07/2021
-'--comment Code-----------------------------------------------------------------10/07/2021
-'--Update Changelog for release/update------------------------------------------10/07/2021
-'--Remove testing message boxes-------------------------------------------------10/07/2021
-'--Remove testing code/unnecessary code-----------------------------------------10/07/2021
-'--Review/update SharePoint instructions----------------------------------------10/07/2021
-'--Review Best Practices using BZS page ----------------------------------------10/07/2021
-'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------10/07/2021
-'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------10/07/2021
-'--Complete misc. documentation (if applicable)---------------------------------10/07/2021
-'--Update project team/issue contact (if applicable)----------------------------10/07/2021
+'--Confirm all GitHub tasks are complete----------------------------------------05/13/2023
+'--comment Code-----------------------------------------------------------------05/13/2023
+'--Update Changelog for release/update------------------------------------------05/13/2023
+'--Remove testing message boxes-------------------------------------------------05/13/2023
+'--Remove testing code/unnecessary code-----------------------------------------05/13/2023
+'--Review/update SharePoint instructions----------------------------------------05/13/2023---------------Updated with new dialog & removed Text out option
+'--Other SharePoint sites review (HSR Manual, etc.)-----------------------------05/13/2023
+'--COMPLETE LIST OF SCRIPTS reviewed--------------------------------------------05/13/2023
+'--COMPLETE LIST OF SCRIPTS update policy references----------------------------05/13/2023----------------direct committing to Master branch
+'--Complete misc. documentation (if applicable)---------------------------------05/13/2023
+'--Update project team/issue contact (if applicable)----------------------------05/13/2023
