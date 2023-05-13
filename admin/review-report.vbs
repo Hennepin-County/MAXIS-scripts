@@ -446,20 +446,24 @@ function read_case_details_for_review_report(incrementor_var)
 					EmReadscreen HC_review_popup, 20, 4, 32
 					If HC_review_popup = "HEALTH CARE RENEWALS" then
 					'The script will now read the CSR MO/YR and the Recert MO/YR
-						EMReadScreen CSR_mo, 2, 8, 27   'IR dates
-						EMReadScreen CSR_yr, 2, 8, 33
+						EMReadScreen CSR_mo, 2, 7, 27   'IR dates
+						EMReadScreen CSR_yr, 2, 7, 33
 						If CSR_mo = "__" or CSR_yr = "__" then
-							EMReadScreen CSR_mo, 2, 8, 71   'IR/AR dates
-							EMReadScreen CSR_yr, 2, 8, 77
+							EMReadScreen CSR_mo, 2, 7, 71   'IR/AR dates
+							EMReadScreen CSR_yr, 2, 7, 77
 						End if
-						EMReadScreen recert_mo, 2, 9, 27
-						EMReadScreen recert_yr, 2, 9, 33
+						EMReadScreen recert_mo, 2, 8, 27
+						EMReadScreen recert_yr, 2, 8, 33
 
 						HC_CSR_date = CSR_mo & "/" & CSR_yr
 						If HC_CSR_date = "__/__" then HC_CSR_date = ""
 
 						HC_ER_date = recert_mo & "/" & recert_yr
 						If HC_ER_date = "__/__" then HC_ER_date = ""
+
+						EMReadSreen Ex_Parte_indicator, 1, 9, 27 'Y/N
+						EMReadSreen Ex_Parte_mo, 2, 9, 71
+						EMReadSreen Ex_Parte_yr, 4, 9, 74
 
 						'Comparing CSR and ER daates to the month of REVS review
 						IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN review_array(current_SR_const, incrementor_var) = True
