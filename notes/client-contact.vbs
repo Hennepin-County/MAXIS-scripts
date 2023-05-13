@@ -154,13 +154,12 @@ If trim(MAXIS_case_number) <> "" then
     phone_number_array = split(phone_number_list, "|")  'creating an array of phone numbers to choose from that are active on the case, splitting by the delimiter "|"
 
     Call convert_array_to_droplist_items(phone_number_array, phone_numbers) 'function to add phone_number array to a droplist - variable called phone_numbers
-
     Call navigate_to_MAXIS_screen("STAT", "ADDR")   'navigating back to STAT/ADDR for staff to verify resident information
 End if
 
 '----------------------------------------------------------------------------------------------------Adding suggested Q-Flow Ticketing population for follow up work. needed during the COVID-19 PEACETIME STATE OF EMERGENCY
 EmReadscreen basket_number, 7, 21, 21    'Reading basket number
-suggested_population = "N/A"                'Blanking this out. Will default to no suggestions if x number is not in this this.
+suggested_population = "No Q-Flow Process"                'Blanking this out. Will default to no suggestions if x number is not in this this.
 
 If basket_number = "X127EZ2" then suggested_population = "FAD GRH"
 
