@@ -91,6 +91,15 @@ If trim(MAXIS_case_number) <> "" then
     If phone_number_two <> "" Then phone_number_list = phone_number_list & phone_number_two & "|"
     If phone_number_three <> "" Then phone_number_list = phone_number_list & phone_number_three & "|"
 
+    '----------------------------------------------------------------------------------------------------MEMB 01 Name Collection
+    Memb_01 = "Memb 01"                                 'setting value of variable, defaulting to string. 
+    Call navigate_to_MAXIS_screen("STAT", "MEMB")       'navigating to STAT/MEMB. No other handling for member selection since M 01 is the default.
+    EMReadScreen memb_01_check, 2, 4, 33                'ensuring it's M 01 we're reading.
+    If memb_01_check = "01" then 
+        EMReadScreen first_name, 12, 6, 63
+        Memb_01 = "Memb 01: " & trim(replace(first_name, "_", ""))    'trim and replace underscores of the MEMB 01's 1st name; revalue MEMB 01 variable 
+    End if
+    
     '----------------------------------------------------------------------------------------------------AREP Name/Phone Number Collection
     case_arep = "AREP"                                  'setting value of variable, defaulting to string. 
     Call navigate_to_MAXIS_screen("STAT", "AREP")
@@ -187,7 +196,7 @@ Do
               ButtonGroup ButtonPressed
                 ComboBox 20, 65, 65, 15, "Select or Type"+chr(9)+"Phone call"+chr(9)+"Voicemail"+chr(9)+"Email"+chr(9)+"Fax"+chr(9)+"Office visit"+chr(9)+"Letter"+chr(9)+contact_type, contact_type
                 DropListBox 90, 65, 45, 10, "from"+chr(9)+"to", contact_direction
-                ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+"Memb 01"+chr(9)+"Memb 02"+chr(9)+case_arep+chr(9)+case_swkr+chr(9)+who_contacted, who_contacted
+                ComboBox 140, 65, 85, 15, "Select or Type"+chr(9)+Memb_01+chr(9)+"Memb 02"+chr(9)+case_arep+chr(9)+case_swkr+chr(9)+who_contacted, who_contacted
                 EditBox 245, 65, 135, 15, regarding
                 ComboBox 75, 85, 75, 15, phone_numbers+chr(9)+phone_number, phone_number
                 EditBox 245, 85, 135, 15, when_contact_was_made
