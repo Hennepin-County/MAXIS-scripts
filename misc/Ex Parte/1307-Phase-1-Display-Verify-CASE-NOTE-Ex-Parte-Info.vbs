@@ -174,8 +174,18 @@ DO
         err_msg = ""    'This is the error message handling
         Dialog Dialog1
         cancel_confirmation
+        'Function belows creates navigation to STAT panels for navigation buttons
         MAXIS_dialog_navigation
 
+        'Add placeholder link to script instructions - To DO - update with correct link
+        If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+        
+        'Add placeholder links for policy buttons - TO DO - update with correct links
+        If ButtonPressed = policy_1_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+        If ButtonPressed = policy_2_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+        If ButtonPressed = policy_3_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+        
+        
         'Add validation to ensure ex parte determination is made
         If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination." 
 
