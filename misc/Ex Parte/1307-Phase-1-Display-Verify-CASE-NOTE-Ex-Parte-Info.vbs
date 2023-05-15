@@ -191,12 +191,12 @@ DO
         'Add validation to ensure ex parte determination is made
         If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination." 
 
-        'Add navigation if nav button is pressed
+        'Add validation to ensure worker signature is not blank
+        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
 
         'Call validate_MAXIS_case_number(err_msg, "*") ' IF NEEDED
         'Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")   'IF NEEDED
         'The rest of the mandatory handling here
-        'IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note." 'IF NEEDED
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
     Loop until err_msg = "" AND ButtonPressed = -1
     'Add to all dialogs where you need to work within BLUEZONE
