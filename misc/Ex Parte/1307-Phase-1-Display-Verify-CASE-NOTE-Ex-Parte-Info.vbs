@@ -161,8 +161,8 @@ BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
     GroupBox 10, 315, 455, 50, "Ex Parte Determination"
         Text 15, 330, 85, 10, "Additional Notes:"
         Text 15, 345, 85, 10, "Ex Parte Determination:"
-        EditBox 105, 325, 290, 15, Edit1
-        DropListBox 105, 345, 110, 50, ""+chr(9)+"Does Qualify for Ex Parte"+chr(9)+"Does Not Qualify for Ex Parte", List2
+        EditBox 105, 325, 290, 15, additional_notes
+        DropListBox 105, 345, 110, 50, ""+chr(9)+"Does Qualify for Ex Parte"+chr(9)+"Does Not Qualify for Ex Parte", ex_parte_determination
     ButtonGroup ButtonPressed
         OkButton 440, 365, 50, 15
         CancelButton 500, 365, 50, 15
@@ -170,17 +170,23 @@ EndDialog
 
 'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
 DO
-Do
+    Do
         err_msg = ""    'This is the error message handling
         Dialog Dialog1
         cancel_confirmation
-        'Add in all of your mandatory field handling from your dialog here.
-        Call validate_MAXIS_case_number(err_msg, "*") ' IF NEEDED
-        Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")   'IF NEEDED
+        MAXIS_dialog_navigation
+
+        'Add validation to ensure ex parte determination is made
+        If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination." 
+
+        'Add navigation if nav button is pressed
+
+        'Call validate_MAXIS_case_number(err_msg, "*") ' IF NEEDED
+        'Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")   'IF NEEDED
         'The rest of the mandatory handling here
-        IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note." 'IF NEEDED
+        'IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note." 'IF NEEDED
         IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    Loop until err_msg = ""
+    Loop until err_msg = "" AND ButtonPressed = -1
     'Add to all dialogs where you need to work within BLUEZONE
     CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
 LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
