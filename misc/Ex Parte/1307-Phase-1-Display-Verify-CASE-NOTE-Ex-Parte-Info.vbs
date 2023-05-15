@@ -63,7 +63,7 @@ BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         Text 170, 110, 45, 10, medi_info_01
     ButtonGroup ButtonPressed
         Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
-        PushButton 485, 15, 55, 15, "instructions", Button7
+        PushButton 490, 15, 55, 15, "instructions", Button7
         Text 495, 40, 45, 10, "--- POLICY ---"
         PushButton 490, 50, 55, 15, policy_1, Button5
         PushButton 490, 65, 55, 15, policy_2, Button9
@@ -159,6 +159,11 @@ BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         Text 330, 275, 80, 10, MEDI_part_a_02
         Text 255, 290, 70, 10, "MEDI - Part B Exists:"
         Text 330, 290, 80, 10, MEDI_part_b_02
+    GroupBox 10, 315, 455, 50, "Ex Parte Determination"
+        Text 15, 330, 85, 10, "Additional Notes:"
+        Text 15, 345, 85, 10, "Ex Parte Determination:"
+        EditBox 105, 325, 290, 15, Edit1
+        DropListBox 105, 345, 110, 50, "Does Qualify for Ex Parte"+chr(9)+"Does Not Qualify for Ex Parte", List2
     ButtonGroup ButtonPressed
         OkButton 440, 365, 50, 15
         CancelButton 500, 365, 50, 15
