@@ -63,33 +63,33 @@ BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         Text 170, 110, 45, 10, medi_info_01
     ButtonGroup ButtonPressed
         Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
-        PushButton 490, 15, 55, 15, "instructions", Button7
+        PushButton 490, 15, 55, 15, "instructions", instructions_button
         Text 495, 40, 45, 10, "--- POLICY ---"
-        PushButton 490, 50, 55, 15, policy_1, Button5
-        PushButton 490, 65, 55, 15, policy_2, Button9
-        PushButton 490, 80, 55, 15, policy_3, Button8
+        PushButton 490, 50, 55, 15, policy_1, policy_1_button
+        PushButton 490, 65, 55, 15, policy_2, policy_2_button
+        PushButton 490, 80, 55, 15, policy_3, policy_3_button
         Text 490, 105, 55, 10, "--- NAVIGATE ---"
-        PushButton 490, 115, 25, 15, "ACCI", Button3
-        PushButton 515, 115, 25, 15, "BILS", Button30
-        PushButton 490, 130, 25, 15, "BUDG", Button31
-        PushButton 515, 130, 25, 15, "BUSI", Button32
-        PushButton 490, 145, 25, 15, "DISA", Button33
-        PushButton 515, 145, 25, 15, "EMMA", Button34
-        PushButton 490, 160, 25, 15, "FACI", Button35
-        PushButton 515, 160, 25, 15, "HCMI", Button36
-        PushButton 490, 175, 25, 15, "IMIG", Button13
-        PushButton 515, 175, 25, 15, "INSA", Button14
-        PushButton 490, 190, 25, 15, "JOBS", Button15
-        PushButton 515, 190, 25, 15, "LUMP", Button16
-        PushButton 490, 205, 25, 15, "MEDI", Button17
-        PushButton 515, 205, 25, 15, "MEMB", Button18
-        PushButton 490, 220, 25, 15, "MEMI", Button19
-        PushButton 515, 220, 25, 15, "PBEN", Button20
-        PushButton 490, 235, 25, 15, "PDED", Button21
-        PushButton 515, 235, 25, 15, "REVW", Button22
-        PushButton 490, 250, 25, 15, "SPON", Button23
-        PushButton 515, 250, 25, 15, "STWK", Button24
-        PushButton 490, 265, 25, 15, "UNEA", Button25
+        PushButton 490, 115, 25, 15, "ACCI", acci_button
+        PushButton 515, 115, 25, 15, "BILS", bils_button
+        PushButton 490, 130, 25, 15, "BUDG", budg_button
+        PushButton 515, 130, 25, 15, "BUSI", busi_button
+        PushButton 490, 145, 25, 15, "DISA", disa_button
+        PushButton 515, 145, 25, 15, "EMMA", emma_button
+        PushButton 490, 160, 25, 15, "FACI", faci_button
+        PushButton 515, 160, 25, 15, "HCMI", hcmi_button
+        PushButton 490, 175, 25, 15, "IMIG", imig_button
+        PushButton 515, 175, 25, 15, "INSA", insa_button
+        PushButton 490, 190, 25, 15, "JOBS", jobs_button
+        PushButton 515, 190, 25, 15, "LUMP", lump_button
+        PushButton 490, 205, 25, 15, "MEDI", medi_button
+        PushButton 515, 205, 25, 15, "MEMB", memb_button
+        PushButton 490, 220, 25, 15, "MEMI", memi_button
+        PushButton 515, 220, 25, 15, "PBEN", pben_button
+        PushButton 490, 235, 25, 15, "PDED", pded_button
+        PushButton 515, 235, 25, 15, "REVW", revw_button
+        PushButton 490, 250, 25, 15, "SPON", spon_button
+        PushButton 515, 250, 25, 15, "STWK", stwk_button
+        PushButton 490, 265, 25, 15, "UNEA", unea_button
     GroupBox 10, 130, 220, 180, "Person 1 - Add'l Information"
         Text 15, 140, 15, 10, "SSI:"
         Text 90, 140, 80, 10, SSI_01
@@ -162,7 +162,7 @@ BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         Text 15, 330, 85, 10, "Additional Notes:"
         Text 15, 345, 85, 10, "Ex Parte Determination:"
         EditBox 105, 325, 290, 15, Edit1
-        DropListBox 105, 345, 110, 50, "Does Qualify for Ex Parte"+chr(9)+"Does Not Qualify for Ex Parte", List2
+        DropListBox 105, 345, 110, 50, ""+chr(9)+"Does Qualify for Ex Parte"+chr(9)+"Does Not Qualify for Ex Parte", List2
     ButtonGroup ButtonPressed
         OkButton 440, 365, 50, 15
         CancelButton 500, 365, 50, 15
