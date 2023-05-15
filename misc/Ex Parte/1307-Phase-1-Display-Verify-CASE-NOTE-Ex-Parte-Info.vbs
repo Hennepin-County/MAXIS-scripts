@@ -39,28 +39,28 @@ Dialog1 = "" 'blanking out dialog name
 'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
 
 BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
-    GroupBox 10, 10, 220, 45, "Person 1 - Case Information"
-        Text 15, 25, 50, 10, "Person Name:"
-        Text 65, 25, 75, 10, name_01
-        Text 145, 25, 20, 10, "PMI:"
-        Text 165, 25, 45, 10, PMI_01
-        Text 15, 40, 50, 10, "Case Number:"
-        Text 65, 40, 60, 10, case_number_01
-        Text 145, 40, 50, 10, "Review Month:"
-        Text 195, 40, 25, 10, review_month_01
-    GroupBox 10, 65, 220, 60, "Person 1 - TPQY Information"
-        Text 15, 80, 50, 10, "Claim Number:"
-        Text 65, 80, 50, 10, claim_number_01
-        Text 15, 95, 35, 10, "Sent Date:"
-        Text 65, 95, 50, 10, sent_date_01
-        Text 15, 110, 45, 10, "Return Date:"
-        Text 65, 110, 50, 10, return_date_01
-        Text 120, 80, 50, 10, "SDXS Amount:"
-        Text 170, 80, 45, 10, sdxs_amount_01
-        Text 120, 95, 50, 10, "BNDX Amount:"
-        Text 170, 95, 45, 10, bndx_amount_01
-        Text 120, 110, 35, 10, "MEDI Info: "
-        Text 170, 110, 45, 10, medi_info_01
+    GroupBox 10, 5, 220, 45, "Person 1 - Case Information"
+        Text 15, 20, 50, 10, "Person Name:"
+        Text 65, 20, 75, 10, name_01
+        Text 145, 20, 20, 10, "PMI:"
+        Text 165, 20, 45, 10, PMI_01
+        Text 15, 35, 50, 10, "Case Number:"
+        Text 65, 35, 60, 10, case_number_01
+        Text 145, 35, 50, 10, "Review Month:"
+        Text 195, 35, 25, 10, review_month_01
+    GroupBox 10, 60, 220, 60, "Person 1 - TPQY Information"
+        Text 15, 75, 50, 10, "Claim Number:"
+        Text 65, 75, 50, 10, claim_number_01
+        Text 15, 90, 35, 10, "Sent Date:"
+        Text 65, 90, 50, 10, sent_date_01
+        Text 15, 105, 45, 10, "Return Date:"
+        Text 65, 105, 50, 10, return_date_01
+        Text 120, 75, 50, 10, "SDXS Amount:"
+        Text 170, 75, 45, 10, sdxs_amount_01
+        Text 120, 90, 50, 10, "BNDX Amount:"
+        Text 170, 90, 45, 10, bndx_amount_01
+        Text 120, 105, 35, 10, "MEDI Info: "
+        Text 170, 105, 45, 10, medi_info_01
     ButtonGroup ButtonPressed
         Text 480, 5, 70, 10, "--- INSTRUCTIONS ---"
         PushButton 490, 15, 55, 15, "instructions", instructions_button
@@ -90,79 +90,81 @@ BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         PushButton 490, 250, 25, 15, "SPON", spon_button
         PushButton 515, 250, 25, 15, "STWK", stwk_button
         PushButton 490, 265, 25, 15, "UNEA", unea_button
-    GroupBox 10, 130, 220, 180, "Person 1 - Add'l Information"
-        Text 15, 140, 15, 10, "SSI:"
-        Text 90, 140, 80, 10, SSI_01
-        Text 15, 155, 65, 10, "Other UNEA Types:"
-        Text 90, 155, 80, 10, other_UNEA_types_01
-        Text 15, 170, 50, 10, "JOBS Exists:"
-        Text 90, 170, 80, 10, JOBS_01
-        Text 15, 185, 60, 10, "MAXIS MA Basis:"
-        Text 90, 185, 80, 10, MAXIS_MA_basis_01
-        Text 15, 200, 60, 10, "MAXIS MSP Prog:"
-        Text 90, 200, 80, 10, MAXIS_msp_prog_01
-        Text 15, 215, 65, 10, "MAXIS MSP Basis:"
-        Text 90, 215, 80, 10, MAXIS_msp_basis_01
-        Text 15, 230, 55, 10, "MMIS MA Basis:"
-        Text 90, 230, 80, 10, MMIS_ma_basis_01
-        Text 15, 245, 60, 10, "MMIS MSP Prog:"
-        Text 90, 245, 80, 10, MMIS_msp_prog_01
-        Text 15, 260, 60, 10, "MMIS MSP Basis:"
-        Text 90, 260, 80, 10, MMIS_msp_basis_01
-        Text 15, 275, 70, 10, "MEDI - Part A Exists:"
-        Text 90, 275, 80, 10, MEDI_part_a_01
-        Text 15, 290, 70, 10, "MEDI - Part B Exists:"
-        Text 90, 290, 80, 10, MEDI_part_b_01
-    GroupBox 245, 10, 220, 45, "Person 2 - Case Information"
-        Text 250, 25, 50, 10, "Person Name:"
-        Text 300, 25, 75, 10, name_02
-        Text 380, 25, 20, 10, "PMI:"
-        Text 400, 25, 45, 10, PMI_02
-        Text 250, 40, 50, 10, "Case Number:"
-        Text 300, 40, 60, 10, case_number_02
-        Text 380, 40, 50, 10, "Review Month:"
-        Text 430, 40, 25, 10, review_month_02
-    GroupBox 245, 65, 220, 60, "Person 2 - TPQY Information"
-        Text 250, 80, 50, 10, "Claim Number:"
-        Text 300, 80, 50, 10, claim_number_02
-        Text 250, 95, 50, 10, "Sent Date:"
-        Text 300, 95, 50, 10, sent_date_02
-        Text 250, 110, 50, 10, "Return Date:"
-        Text 300, 110, 50, 10, return_date_02
-        Text 355, 80, 50, 10, "SDXS Amount:"
-        Text 405, 80, 45, 10, sdxs_amount_02
-        Text 355, 95, 50, 10, "BNDX Amount:"
-        Text 405, 95, 45, 10, bndx_amount_02
-        Text 355, 110, 35, 10, "MEDI Info: "
-        Text 405, 110, 45, 10, medi_info_02
-    GroupBox 245, 130, 220, 180, "Person 2 - Add'l Information"
-        Text 255, 140, 15, 10, "SSI:"
-        Text 330, 140, 80, 10, SSI_02
-        Text 255, 155, 65, 10, "Other UNEA Types:"
-        Text 330, 155, 80, 10, other_UNEA_types_02
-        Text 255, 170, 50, 10, "JOBS Exists:"
-        Text 330, 170, 80, 10, JOBS_02
-        Text 255, 185, 60, 10, "MAXIS MA Basis:"
-        Text 330, 185, 80, 10, MAXIS_MA_basis_02
-        Text 255, 200, 60, 10, "MAXIS MSP Prog:"
-        Text 330, 200, 80, 10, MAXIS_msp_prog_02
-        Text 255, 215, 65, 10, "MAXIS MSP Basis:"
-        Text 330, 215, 80, 10, MAXIS_msp_basis_02
-        Text 255, 230, 55, 10, "MMIS MA Basis:"
-        Text 330, 230, 80, 10, MMIS_ma_basis_02
-        Text 255, 245, 60, 10, "MMIS MSP Prog:"
-        Text 330, 245, 80, 10, MMIS_msp_prog_02
-        Text 255, 260, 60, 10, "MMIS MSP Basis:"
-        Text 330, 260, 80, 10, MMIS_msp_basis_02
-        Text 255, 275, 70, 10, "MEDI - Part A Exists:"
-        Text 330, 275, 80, 10, MEDI_part_a_02
-        Text 255, 290, 70, 10, "MEDI - Part B Exists:"
-        Text 330, 290, 80, 10, MEDI_part_b_02
-    GroupBox 10, 315, 455, 50, "Ex Parte Determination"
-        Text 15, 330, 85, 10, "Additional Notes:"
-        Text 15, 345, 85, 10, "Ex Parte Determination:"
-        EditBox 105, 325, 290, 15, additional_notes
-        DropListBox 105, 345, 110, 50, ""+chr(9)+"Does Qualify for Ex Parte"+chr(9)+"Does Not Qualify for Ex Parte", ex_parte_determination
+    GroupBox 10, 125, 220, 180, "Person 1 - Add'l Information"
+        Text 15, 135, 15, 10, "SSI:"
+        Text 90, 135, 80, 10, SSI_01
+        Text 15, 150, 65, 10, "Other UNEA Types:"
+        Text 90, 150, 80, 10, other_UNEA_types_01
+        Text 15, 165, 50, 10, "JOBS Exists:"
+        Text 90, 165, 80, 10, JOBS_01
+        Text 15, 180, 60, 10, "MAXIS MA Basis:"
+        Text 90, 180, 80, 10, MAXIS_MA_basis_01
+        Text 15, 195, 60, 10, "MAXIS MSP Prog:"
+        Text 90, 195, 80, 10, MAXIS_msp_prog_01
+        Text 15, 210, 65, 10, "MAXIS MSP Basis:"
+        Text 90, 210, 80, 10, MAXIS_msp_basis_01
+        Text 15, 225, 55, 10, "MMIS MA Basis:"
+        Text 90, 225, 80, 10, MMIS_ma_basis_01
+        Text 15, 240, 60, 10, "MMIS MSP Prog:"
+        Text 90, 240, 80, 10, MMIS_msp_prog_01
+        Text 15, 255, 60, 10, "MMIS MSP Basis:"
+        Text 90, 255, 80, 10, MMIS_msp_basis_01
+        Text 15, 270, 70, 10, "MEDI - Part A Exists:"
+        Text 90, 270, 80, 10, MEDI_part_a_01
+        Text 15, 285, 70, 10, "MEDI - Part B Exists:"
+        Text 90, 285, 80, 10, MEDI_part_b_01
+    GroupBox 245, 5, 220, 45, "Person 2 - Case Information"
+        Text 250, 20, 50, 10, "Person Name:"
+        Text 300, 20, 75, 10, name_02
+        Text 380, 20, 20, 10, "PMI:"
+        Text 400, 20, 45, 10, PMI_02
+        Text 250, 35, 50, 10, "Case Number:"
+        Text 300, 35, 60, 10, case_number_02
+        Text 380, 35, 50, 10, "Review Month:"
+        Text 430, 35, 25, 10, review_month_02
+    GroupBox 245, 60, 220, 60, "Person 2 - TPQY Information"
+        Text 250, 75, 50, 10, "Claim Number:"
+        Text 300, 75, 50, 10, claim_number_02
+        Text 250, 90, 50, 10, "Sent Date:"
+        Text 300, 90, 50, 10, sent_date_02
+        Text 250, 105, 50, 10, "Return Date:"
+        Text 300, 105, 50, 10, return_date_02
+        Text 355, 75, 50, 10, "SDXS Amount:"
+        Text 405, 75, 45, 10, sdxs_amount_02
+        Text 355, 90, 50, 10, "BNDX Amount:"
+        Text 405, 90, 45, 10, bndx_amount_02
+        Text 355, 105, 35, 10, "MEDI Info: "
+        Text 405, 105, 45, 10, medi_info_02
+    GroupBox 245, 125, 220, 180, "Person 2 - Add'l Information"
+        Text 255, 135, 15, 10, "SSI:"
+        Text 330, 135, 80, 10, SSI_02
+        Text 255, 150, 65, 10, "Other UNEA Types:"
+        Text 330, 150, 80, 10, other_UNEA_types_02
+        Text 255, 165, 50, 10, "JOBS Exists:"
+        Text 330, 165, 80, 10, JOBS_02
+        Text 255, 180, 60, 10, "MAXIS MA Basis:"
+        Text 330, 180, 80, 10, MAXIS_MA_basis_02
+        Text 255, 195, 60, 10, "MAXIS MSP Prog:"
+        Text 330, 195, 80, 10, MAXIS_msp_prog_02
+        Text 255, 210, 65, 10, "MAXIS MSP Basis:"
+        Text 330, 210, 80, 10, MAXIS_msp_basis_02
+        Text 255, 225, 55, 10, "MMIS MA Basis:"
+        Text 330, 225, 80, 10, MMIS_ma_basis_02
+        Text 255, 240, 60, 10, "MMIS MSP Prog:"
+        Text 330, 240, 80, 10, MMIS_msp_prog_02
+        Text 255, 255, 60, 10, "MMIS MSP Basis:"
+        Text 330, 255, 80, 10, MMIS_msp_basis_02
+        Text 255, 270, 70, 10, "MEDI - Part A Exists:"
+        Text 330, 270, 80, 10, MEDI_part_a_02
+        Text 255, 285, 70, 10, "MEDI - Part B Exists:"
+        Text 330, 285, 80, 10, MEDI_part_b_02
+    GroupBox 10, 310, 455, 50, "Ex Parte Determination"
+        Text 15, 325, 85, 10, "Additional Notes:"
+        Text 15, 340, 85, 10, "Ex Parte Determination:"
+        EditBox 105, 320, 290, 15, additional_notes
+        DropListBox 105, 340, 110, 50, ""+chr(9)+"Does Qualify for Ex Parte"+chr(9)+"Does Not Qualify for Ex Parte", ex_parte_determination
+    Text 15, 365, 70, 10, "Worker Signature:"
+    EditBox 80, 360, 110, 15, worker_signature
     ButtonGroup ButtonPressed
         OkButton 440, 365, 50, 15
         CancelButton 500, 365, 50, 15
