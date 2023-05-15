@@ -69,28 +69,27 @@ BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         PushButton 490, 65, 55, 15, policy_2, Button9
         PushButton 490, 80, 55, 15, policy_3, Button8
         Text 490, 105, 55, 10, "--- NAVIGATE ---"
-        PushButton 490, 115, 25, 15, "REVW", Button3
-        PushButton 515, 115, 25, 15, "REVW", Button30
-        PushButton 490, 130, 25, 15, "REVW", Button31
-        PushButton 515, 130, 25, 15, "REVW", Button32
-        PushButton 490, 145, 25, 15, "REVW", Button33
-        PushButton 515, 145, 25, 15, "REVW", Button34
-        PushButton 490, 160, 25, 15, "REVW", Button35
-        PushButton 515, 160, 25, 15, "REVW", Button36
-        PushButton 490, 175, 25, 15, "REVW", Button13
-        PushButton 515, 175, 25, 15, "REVW", Button14
-        PushButton 490, 190, 25, 15, "REVW", Button15
-        PushButton 515, 190, 25, 15, "REVW", Button16
-        PushButton 490, 205, 25, 15, "REVW", Button17
-        PushButton 515, 205, 25, 15, "REVW", Button18
-        PushButton 490, 220, 25, 15, "REVW", Button19
-        PushButton 515, 220, 25, 15, "REVW", Button20
-        PushButton 490, 235, 25, 15, "REVW", Button21
+        PushButton 490, 115, 25, 15, "ACCI", Button3
+        PushButton 515, 115, 25, 15, "BILS", Button30
+        PushButton 490, 130, 25, 15, "BUDG", Button31
+        PushButton 515, 130, 25, 15, "BUSI", Button32
+        PushButton 490, 145, 25, 15, "DISA", Button33
+        PushButton 515, 145, 25, 15, "EMMA", Button34
+        PushButton 490, 160, 25, 15, "FACI", Button35
+        PushButton 515, 160, 25, 15, "HCMI", Button36
+        PushButton 490, 175, 25, 15, "IMIG", Button13
+        PushButton 515, 175, 25, 15, "INSA", Button14
+        PushButton 490, 190, 25, 15, "JOBS", Button15
+        PushButton 515, 190, 25, 15, "LUMP", Button16
+        PushButton 490, 205, 25, 15, "MEDI", Button17
+        PushButton 515, 205, 25, 15, "MEMB", Button18
+        PushButton 490, 220, 25, 15, "MEMI", Button19
+        PushButton 515, 220, 25, 15, "PBEN", Button20
+        PushButton 490, 235, 25, 15, "PDED", Button21
         PushButton 515, 235, 25, 15, "REVW", Button22
-        PushButton 490, 250, 25, 15, "REVW", Button23
-        PushButton 515, 250, 25, 15, "REVW", Button24
-        PushButton 490, 265, 25, 15, "REVW", Button25
-        PushButton 515, 265, 25, 15, "REVW", Button26
+        PushButton 490, 250, 25, 15, "SPON", Button23
+        PushButton 515, 250, 25, 15, "STWK", Button24
+        PushButton 490, 265, 25, 15, "UNEA", Button25
     GroupBox 10, 130, 220, 180, "Person 1 - Add'l Information"
         Text 15, 140, 15, 10, "SSI:"
         Text 90, 140, 80, 10, SSI_01
