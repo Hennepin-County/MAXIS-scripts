@@ -218,26 +218,36 @@ Call check_for_MAXIS(False)
 'Do you need to set a TIKL?
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
 
-'Now it navigates to a blank case note
+'Navigate to and start a new CASE NOTE
 Call start_a_blank_case_note
 
-'...and enters a title (replace variables with your own content)...
-CALL write_variable_in_case_note("*** CASE NOTE HEADER ***")
+'Add title to CASE NOTE
+CALL write_variable_in_case_note("*** EX PARTE DETERMINATION ***")
 
-'...some editboxes or droplistboxes (replace variables with your own content)...
-CALL write_bullet_and_variable_in_case_note( "Here's the first bullet",  a_variable_from_your_dialog        )
-CALL write_bullet_and_variable_in_case_note( "Here's another bullet",    another_variable_from_your_dialog  )
+'Write information for Person 1 in CASE NOTE
+CALL write_bullet_and_variable_in_case_note("Ex Parte Determination", ex_parte_determination)
+CALL write_variable_in_case_note("*** Person 1 Information ***")
+CALL write_bullet_and_variable_in_case_note("Name:", person_name_01 )
+CALL write_bullet_and_variable_in_case_note("PMI", pmi_01)
+CALL write_bullet_and_variable_in_case_note("Case Number:", case_number_01 )
+CALL write_bullet_and_variable_in_case_note("Review Month:", review_month_01)
 
-'...checkbox responses (replace variables with your own content)...
-If some_checkbox_from_your_dialog = checked     then CALL write_variable_in_case_note( "* The checkbox was checked."     )
-If some_checkbox_from_your_dialog = unchecked   then CALL write_variable_in_case_note( "* The checkbox was not checked." )
+'If there is information for Person 2, write this information to CASE NOTE
+If trim(name_02) <> "" Then 
+    CALL write_variable_in_case_note("*** Person 2 Information ***")
+    CALL write_bullet_and_variable_in_case_note("Name:", person_name_02 )
+    CALL write_bullet_and_variable_in_case_note("PMI", pmi_02)
+    CALL write_bullet_and_variable_in_case_note("Case Number:", case_number_02)
+    CALL write_bullet_and_variable_in_case_note("Review Month:", review_month_02)
+End If
 
-'...and a worker signature.
+'Add worker signature
 CALL write_variable_in_case_note("---")
 CALL write_variable_in_case_note(worker_signature)
-'leave the case note open and in edit mode unless you have a business reason not to (BULK scripts, multiple case notes, etc.)
 
-'End the script. Put any success messages in between the quotes, *always* starting with the word "Success!"
-script_end_procedure("")
 
-'Add your closing issue documentation here. Make sure it's the most up-to-date version (date on file).
+'Script end procedure
+script_end_procedure("Success! The ex parte determination has been added to the CASE NOTE")
+
+
+
