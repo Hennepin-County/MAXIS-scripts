@@ -208,15 +208,15 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 Call check_for_MAXIS(False)
 
 'Do you need to check for PRIV status
-Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB")
+'Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB")
 
 'Do you need to check to see if case is out of county? Add Out-of-County handling here:
 'All your other navigation, data catpure and logic here. any other logic or pre case noting actions here.
 
-Call MAXIS_background_check 'IF NEEDED: meaning if you send it through background. Move this to where it makes sense.
+'Call MAXIS_background_check 'IF NEEDED: meaning if you send it through background. Move this to where it makes sense.
 
 'Do you need to set a TIKL?
-Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
 
 'Now it navigates to a blank case note
 Call start_a_blank_case_note
