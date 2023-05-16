@@ -215,6 +215,9 @@ LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 'Checks to see if in MAXIS
 Call check_for_MAXIS(False)
 
+'Ensure starting at SELF so that writing to CASE NOTE works properly
+CALL back_to_SELF()
+
 'Do you need to check for PRIV status
 'Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB")
 
@@ -248,6 +251,9 @@ If trim(name_02) <> "" Then
     CALL write_bullet_and_variable_in_case_note("Case Number:", case_number_02)
     CALL write_bullet_and_variable_in_case_note("Review Month:", review_month_02)
 End If
+
+'Add additional notes to case note
+CALL write_bullet_and_variable_in_case_note("Additional Notes:", additional_notes)
 
 'Add worker signature
 CALL write_variable_in_case_note("---")
