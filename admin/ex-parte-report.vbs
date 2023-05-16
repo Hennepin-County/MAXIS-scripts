@@ -175,7 +175,58 @@ DO
 Loop until are_we_passworded_out = false					'loops until user passwords back in
 
 
+If ex_parte_function = "Prep" Then
+	MsgBox  "At this point the script will pull the cases from a SQL Table that has identified cases due for a HC ER and evaluates them as potentially Ex Parte." & vbCr & vbCr &_
+			"If the case is potentially Ex Parte, the script will:" & vbCr &_
+			" - Send a SVES/QURY." & vbCr &_
+			" - Add the case to a report if VA Income is listed on the case to gather verification." & vbCr & vbCR &_
+			"This script will look at each case for the specified review month, preparing the case for review." & vbCr  & vbCr &_
+			"This script is run 4 business days before the Budget Month, or the end of the 3rd month BEFORE the ER month."
+	'Open The CASE LIST Table
+	'Loop through each item on the CASE LIST Table
+		'For each case that is indicated as potentially ExParte, we are going to take preperation actions
+
+		'Send a SVES/CURY for all persons on a case
+		'If SSA income is listed on the INCOME LIST Table, we update the item in the table when the QURY goes out
 
 
+		'If VA income is listed on the case, add to a report for QI to complete
+End If
+
+If ex_parte_function = "Phase 1" Then
+	MsgBox 	"In preparation for the HSR completion of a Phase 1 review, the script will complete updates to MAXIS information, to prevent HSRs from having to amnually enter verified information." & vbCr & vbCr &_
+			"If the case is potentially Ex Parte, the script will:" & vbCr &_
+			" - Read SVES/TPQY" & vbCr &_
+			" - Update UNEA and MEDI with SSA information from SVES/TPQY." & vbCr &_
+			" - Enter VA Income reported back after verification." & vbCr &_
+			" - Create a CASE/NOTE of any information verified and updated in MAXIS." & vbCr &_
+			" - Run the case through background." & vbCr &_
+			" - Capture details of the income verified and the Eligibility results into the Table to track Ex Parte work." & vbCr & vbCr &_
+			"This script will look at each case for the specified review month, preparing the case to be assigned to an HSR for Phase 1 Review of Ex Parte Eligbility." & vbCr  & vbCr &_
+			"This script is run on the 1st of the month of the Budget Month."
+	'Open the CASE LIST Table
+	'Loop through each item on the CASE LIST Table
+		'For each case that is indicated as Ex parte, we are going to update the case information
+
+		'Read SVES/TPQY for all persons on a case
+		'Update MAXIS UNEA panels with information from TPQY
+		'Update MAXIS MEDI panels with information from TPQY
+
+		'Update MAXIS UNEA panels with information from the VA Verifications report
+
+		'CASE/NOTE details of the case information
+
+		'Send the case through background
+		'Read ELIG and MMIS
+
+		'Save all details from the income updates and ELIG information into the SQL Table
+End If
+
+If ex_parte_function = "Phase 2" Then
+	MsgBox "Phase 2 BULK Run Details to be added later. This functionality will prep cases for HSR Review at Phase 2, which will happen at the beginning of the Processing month (the month before the Review Month)."
+End If
+
+
+'Loop through all the SQL Items and look for the right revew month and year and phase to determine if it's done.
 
 Cal script_end_procedure("DONE")
