@@ -221,10 +221,10 @@ If HC_form_name = "Ex Parte Determination" Then
             Text 255, 285, 70, 10, "MEDI - Part B Exists:"
             Text 330, 285, 80, 10, MEDI_part_b_02
         GroupBox 10, 310, 455, 50, "Ex Parte Determination"
-            Text 15, 325, 85, 10, "Additional Notes:"
-            Text 15, 340, 85, 10, "Ex Parte Determination:"
-            EditBox 105, 320, 290, 15, additional_notes
-            DropListBox 105, 340, 110, 50, ""+chr(9)+"Does Qualify for Ex Parte"+chr(9)+"Does Not Qualify for Ex Parte", ex_parte_determination
+            Text 15, 325, 85, 10, "Ex Parte Determination:"
+            DropListBox 125, 320, 110, 50, ""+chr(9)+"Ex Parte Approved"+chr(9)+"Ex Parte Denied", ex_parte_determination
+            Text 15, 345, 105, 10, "If denied, provide explanation:"
+            EditBox 125, 340, 290, 15, ex_parte_denial_explanation
         Text 15, 365, 70, 10, "Worker Signature:"
         EditBox 80, 360, 110, 15, worker_signature
         ButtonGroup ButtonPressed
@@ -252,6 +252,9 @@ If HC_form_name = "Ex Parte Determination" Then
             
             'Add validation to ensure ex parte determination is made
             If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination." 
+
+            'Add validation that if ex parte denied, then explanation must be provided
+            If ex_parte_determination = "Ex Parte Denied" AND trim(ex_parte_denial_explanation) = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial." 
 
             'Add validation to ensure worker signature is not blank
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
