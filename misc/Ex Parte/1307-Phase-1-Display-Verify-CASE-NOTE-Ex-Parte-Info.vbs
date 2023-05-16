@@ -222,7 +222,7 @@ If HC_form_name = "Ex Parte Determination" Then
             Text 330, 285, 80, 10, MEDI_part_b_02
         GroupBox 10, 310, 455, 50, "Ex Parte Determination"
             Text 15, 325, 85, 10, "Ex Parte Determination:"
-            DropListBox 125, 320, 110, 50, ""+chr(9)+"Ex Parte Approved"+chr(9)+"Ex Parte Denied", ex_parte_determination
+            DropListBox 125, 320, 110, 50, ""+chr(9)+"Ex Parte is Approved"+chr(9)+"Ex Parte is Denied", ex_parte_determination
             Text 15, 345, 105, 10, "If denied, provide explanation:"
             EditBox 125, 340, 290, 15, ex_parte_denial_explanation
         Text 15, 365, 70, 10, "Worker Signature:"
@@ -254,7 +254,7 @@ If HC_form_name = "Ex Parte Determination" Then
             If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination." 
 
             'Add validation that if ex parte denied, then explanation must be provided
-            If ex_parte_determination = "Ex Parte Denied" AND trim(ex_parte_denial_explanation) = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial." 
+            If ex_parte_determination = "Ex Parte is Denied" AND trim(ex_parte_denial_explanation) = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial." 
 
             'Add validation to ensure worker signature is not blank
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
@@ -275,6 +275,37 @@ Call check_for_MAXIS(False)
 
 'Ensure starting at SELF so that writing to CASE NOTE works properly
 CALL back_to_SELF()
+
+'Navigate to STAT, REVW, and open HC Renewal Window with instructions
+CALL navigate_to_MAXIS_screen("STAT", "REVW")
+CALL write_value_and_transmit("X", 5, 71)
+
+Dialog1 = "" 'blanking out dialog name
+'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
+
+BeginDialog Dialog1, 0, 0, 231, 130, "Health Care Renewal Updates"
+  ButtonGroup ButtonPressed
+    PushButton 125, 110, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+  Text 5, 5, 220, 95, "You have indicated that " & lcase(ex_parte_determination) & " for case number: " & MAXIS_case_number & "." & vbNewLine & vbNewLine & "Update the Health Care Renewal Screen accordingly based on this ex parte determination. Once you have made the updates, click the button below to verify the updates and the script will move to CASE NOTE the determination."
+EndDialog
+
+
+DO
+    Do
+        err_msg = ""    'This is the error message handling
+        Dialog Dialog1
+        cancel_confirmation
+
+        'TO DO - Update validation to check that HC renewal updated correctly based on ex parte determination
+            
+        'The rest of the mandatory handling here
+        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
+        'Add to all dialogs where you need to work within BLUEZONE
+        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+
 
 'Do you need to check for PRIV status
 'Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB")
