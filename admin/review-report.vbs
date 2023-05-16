@@ -461,9 +461,9 @@ function read_case_details_for_review_report(incrementor_var)
 						HC_ER_date = recert_mo & "/" & recert_yr
 						If HC_ER_date = "__/__" then HC_ER_date = ""
 
-						EMReadSreen Ex_Parte_indicator, 1, 9, 27 'Y/N
-						EMReadSreen Ex_Parte_mo, 2, 9, 71
-						EMReadSreen Ex_Parte_yr, 4, 9, 74
+						EMReadScreen Ex_Parte_indicator, 1, 9, 27 'Y/N
+						EMReadScreen Ex_Parte_mo, 2, 9, 71
+						EMReadScreen Ex_Parte_yr, 4, 9, 74
 
 						'Comparing CSR and ER daates to the month of REVS review
 						IF CSR_mo = left(REPT_month, 2) and CSR_yr = right(REPT_year, 2) THEN review_array(current_SR_const, incrementor_var) = True
