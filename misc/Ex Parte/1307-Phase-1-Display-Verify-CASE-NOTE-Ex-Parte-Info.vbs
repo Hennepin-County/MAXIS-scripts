@@ -291,7 +291,7 @@ CALL back_to_SELF()
 Call start_a_blank_case_note
 
 'Add title to CASE NOTE
-CALL write_variable_in_case_note("*** EX PARTE DETERMINATION ***")
+CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
 
 'Write information for Person 1 in CASE NOTE
 CALL write_bullet_and_variable_in_case_note("Ex Parte Determination", ex_parte_determination)
