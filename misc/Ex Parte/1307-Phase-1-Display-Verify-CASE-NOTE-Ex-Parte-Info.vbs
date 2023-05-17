@@ -280,31 +280,139 @@ CALL back_to_SELF()
 CALL navigate_to_MAXIS_screen("STAT", "REVW")
 CALL write_value_and_transmit("X", 5, 71)
 
-Dialog1 = "" 'blanking out dialog name
-'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
+'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
+EMReadScreen received_date, 8, 6, 27
+EMReadScreen income_renewal_month, 2, 7, 27
+EMReadScreen income_renewal_year, 2, 7, 33
+EMReadScreen elig_renewal_month, 2, 8, 27
+EMReadScreen elig_renewal_year, 2, 8, 33
+EMReadScreen HC_ex_parte_determination, 1, 9, 27
+EMReadScreen income_asset_renewal_month, 2, 7, 71
+EMReadScreen income_asset_renewal_year, 2, 7, 77
+EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
+EMReadScreen ex_parte_renewal_month, 7, 9, 71
 
-BeginDialog Dialog1, 0, 0, 231, 130, "Health Care Renewal Updates"
-  ButtonGroup ButtonPressed
-    PushButton 125, 110, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
-  Text 5, 5, 220, 95, "You have indicated that " & lcase(ex_parte_determination) & " for case number: " & MAXIS_case_number & "." & vbNewLine & vbNewLine & "Update the Health Care Renewal Screen accordingly based on this ex parte determination. Once you have made the updates, click the button below to verify the updates and the script will move to CASE NOTE the determination."
-EndDialog
+'Create function to check HC renewal updates completed by worker and verify that correct changes have been made
+'TO DO - figure out why this does not execute immediately when called in do loop
+Function check_hc_renewal_updates()
+    EMReadScreen check_received_date, 8, 6, 27
+    EMReadScreen check_income_renewal_date, 8, 7, 27
+    EMReadScreen check_elig_renewal_date, 8, 8, 27
+    EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+    EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+    EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+    EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
+End Function
+
+'Dialog and review of HC renewal for approval of ex parte
+If ex_parte_determination = "Ex Parte is Approved" Then 
+
+    Dialog1 = "" 'blanking out dialog name
+
+    BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Ex Parte Approved"
+    ButtonGroup ButtonPressed
+        PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+    Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
+    Text 10, 20, 270, 10, "- Elig Renewal Date: Enter one year from the renewal month/year currently listed"
+    Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
+    Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
+    Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
+    Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N for all cases"
+    Text 10, 95, 145, 10, "- ExParte: Enter Y"
+    Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
+    EndDialog
 
 
-DO
-    Do
-        err_msg = ""    'This is the error message handling
-        Dialog Dialog1
-        cancel_confirmation
+    DO
+        Do
+            err_msg = ""    'This is the error message handling
+            Dialog Dialog1
+            cancel_confirmation
 
-        'TO DO - Update validation to check that HC renewal updated correctly based on ex parte determination
+            ' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
+           
+            'TO DO - update with functions?
+            'Check the HC renewal screen data and compare against initial to ensure that changes made properly
+            If ButtonPressed = hc_renewal_button Then
+                    EMReadScreen check_received_date, 8, 6, 27
+                    EMReadScreen check_income_renewal_month, 2, 7, 27
+                    EMReadScreen check_income_renewal_year, 2, 7, 33
+                    EMReadScreen check_elig_renewal_month, 2, 8, 27
+                    EMReadScreen check_elig_renewal_year, 2, 8, 33
+                    EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+                    EMReadScreen check_income_asset_renewal_month, 2, 7, 71
+                    EMReadScreen check_income_asset_renewal_year, 2, 7, 77
+                    EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+                    EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
+            End If
             
-        'The rest of the mandatory handling here
-        IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
-    Loop until err_msg = ""
-        'Add to all dialogs where you need to work within BLUEZONE
-        CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
-LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+            'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
+            If check_elig_renewal_year <> elig_renewal_year + 1 AND check_elig_renewal_month <> elig_renewal_month THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the renewal month/year currently listed."
 
+            'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from Elig Renewal Date for cases with a spenddown:
+            'TO DO - determine how to determine if meets spenddown - checkbox on dialog? Pull from MAXIS?
+            If check_income_asset_renewal_month <> elig_renewal_month AND check_income_asset_renewal_year <> elig_renewal_year + 1 THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date." 
+
+            'Validate that Exempt from 6 Mo IR is set to N 
+            If check_exempt_6_mo_ir_form <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR." 
+
+            'Validate that ExParte field updated to Y
+            If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte." 
+
+            'Validate that ExParte Renewal Month is correct 
+            'TO DO - confirm what this should be
+            If check_ex_parte_renewal_month <> 'To DO - update validation THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte." 
+                
+            'The rest of the mandatory handling here
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+        Loop until err_msg = ""
+            'Add to all dialogs where you need to work within BLUEZONE
+            CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+End If 
+
+'Dialog and review of HC renewal for denial of ex parte
+If ex_parte_determination = "Ex Parte is Denied" Then 
+
+    Dialog1 = "" 'blanking out dialog name
+
+    BeginDialog Dialog1, 0, 0, 231, 130, "Health Care Renewal Updates - Ex Parte Denied"
+    ButtonGroup ButtonPressed
+        PushButton 125, 110, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+    Text 5, 5, 220, 95, "You have indicated that " & lcase(ex_parte_determination) & " for case number: " & MAXIS_case_number & "." & vbNewLine & vbNewLine & "Update the Health Care Renewal Screen accordingly based on this ex parte determination. Once you have made the updates, click the button below to verify the updates and the script will move to CASE NOTE the determination."
+    EndDialog
+
+
+    DO
+        Do
+            err_msg = ""    'This is the error message handling
+            Dialog Dialog1
+            cancel_confirmation
+
+            'TO DO - Update validation to check that HC renewal updated correctly based on ex parte determination
+            If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
+            ' If ButtonPressed = hc_renewal_button Then
+            '         EMReadScreen check_received_date, 8, 6, 27
+            '         EMReadScreen check_income_renewal_date, 8, 7, 27
+            '         EMReadScreen check_elig_renewal_date, 8, 8, 27
+            '         EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+            '         EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+            '         EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+            '         EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
+            ' End If
+
+            MsgBox "The check received date is: " & check_received_date
+
+            If check_received_date <> received_date Then err_msg = err_msg & vbCr & "* Error - received_date has not been updated correctly." 
+            If check_received_date = received_date Then MsgBox "Completed date correctly"
+                
+            'The rest of the mandatory handling here
+            IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+        Loop until err_msg = ""
+            'Add to all dialogs where you need to work within BLUEZONE
+            CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+    LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+End If 
 
 
 'Do you need to check for PRIV status
