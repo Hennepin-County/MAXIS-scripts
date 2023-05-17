@@ -30,6 +30,7 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
 Call MAXIS_case_number_finder(MAXIS_case_number)
@@ -43,7 +44,7 @@ Call check_for_MAXIS(False)
 'QUESTIONS TODO:
 	'Need to connect to the SQL table instead of having a dialog box
 
-Dialog1 = "" 									'Blanking out previous dialog detail
+Dialog1 = "" 		'Blanking out previous dialog detail
 
 BeginDialog Dialog1, 0, 0, 171, 85, "Case number"
   Text 20, 10, 45, 10, "Case number:"
@@ -68,18 +69,19 @@ Do
 		IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Sign your case note."
 		IF err_msg <> "" THEN MsgBox "*** NOTICE***" & vbCr & err_msg & vbCr & vbCr & "Resolve the following items for the script to continue."
 	LOOP UNTIL err_msg = ""
-	call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
+	call check_for_password(are_we_passworded_out)		'Adding functionality for MAXIS v.6 Passworded Out issue'
 LOOP UNTIL are_we_passworded_out = false
 
 
 MsgBox "First, the script navigates to STAT/MEMB and reads the PMI and member number for the specific case."
 '--------Navigate to STAT/MEMB panel--------'
+'TODO: Read member number from SQL and enter instead of read from panel
 'reading PMI and member number from STAT/MEMB panel 
 Call navigate_to_MAXIS_screen("STAT", "MEMB")
 EMReadScreen member_number, 2, 4, 33
 EMReadScreen recip_pmi, 8, 4, 45
-recip_pmi = trim(recip_pmi) 					'Trim PMI number to remove spaces
-recip_pmi = right("00000000" & recip_pmi,8) 	'Add leading zeros to ensure PMI uniformity with PMI in SVES panel
+recip_pmi = trim(recip_pmi)			'Trim PMI number to remove spaces
+recip_pmi = right("00000000" & recip_pmi,8)			'Add leading zeros to ensure PMI uniformity with PMI in SVES panel
 
 
 MsgBox "Next the script reads all TPQY panels to gather critical information."
@@ -218,18 +220,18 @@ transmit
 'Navigation to SDXP and read 
 EMReadScreen check_SDXP_panel, 4, 2, 50 		'Reads for SDXP panel
 If check_SDXP_panel = "SDXP" Then 
-EMReadScreen ssi_pay_date, 5, 4, 16
-EMReadScreen ssi_gross_amt, 7, 4, 42
-EMReadScreen ssi_over_under_code, 1, 4, 73
-EMReadScreen ssi_pay_hist_1_date, 5, 8, 3
-EMReadScreen ssi_pay_hist_1_amt, 6, 8, 13
-EMReadScreen ssi_pay_hist_1_type, 1, 8, 25
-EMReadScreen ssi_pay_hist_2_date, 5, 9, 3
-EMReadScreen ssi_pay_hist_2_amt, 6, 9, 13
-EMReadScreen ssi_pay_hist_2_type, 1, 9, 25
-EMReadScreen ssi_pay_hist_3_date, 5, 10, 3
-EMReadScreen ssi_pay_hist_3_amt, 6, 10, 13
-EMReadScreen ssi_pay_hist_3_type, 1, 10, 25
+	EMReadScreen ssi_pay_date, 5, 4, 16
+	EMReadScreen ssi_gross_amt, 7, 4, 42
+	EMReadScreen ssi_over_under_code, 1, 4, 73
+	EMReadScreen ssi_pay_hist_1_date, 5, 8, 3
+	EMReadScreen ssi_pay_hist_1_amt, 6, 8, 13
+	EMReadScreen ssi_pay_hist_1_type, 1, 8, 25
+	EMReadScreen ssi_pay_hist_2_date, 5, 9, 3
+	EMReadScreen ssi_pay_hist_2_amt, 6, 9, 13
+	EMReadScreen ssi_pay_hist_2_type, 1, 9, 25
+	EMReadScreen ssi_pay_hist_3_date, 5, 10, 3
+	EMReadScreen ssi_pay_hist_3_amt, 6, 10, 13
+	EMReadScreen ssi_pay_hist_3_type, 1, 10, 25
 	EMReadScreen gross_EI, 8, 5, 66
 	EMReadScreen net_EI, 8, 6, 66
 	EMReadScreen rsdi_income_amt, 8, 7, 66
@@ -273,36 +275,41 @@ transmit
 
 MsgBox "Next the script writes information read from TPQY into UNEA panel. If panel does not exist, script will create a new panel."
 EMReadScreen check_infc_panel, 4, 2, 45 		'Reads for INFC panel
+
+'--------Function Creation--------'
+' Function UNEA_income_panel
+' income_panel = false
+
+'Verifying the current panel number and panel type (SSI/RSDI)
 If check_infc_panel = "INFC" Then Call navigate_to_MAXIS_screen("STAT", "UNEA")
-EMWriteScreen member_number, 20, 76 			'Navigating to STAT/UNEA
-EMWriteScreen "01", 20, 79 						'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+EMWriteScreen member_number, 20, 76 		'Navigating to STAT/UNEA
+EMWriteScreen "01", 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
 transmit
 
-'Set variable to false (boolean)
-'Verifying the current panel number and panel type (SSI/RSDI)
-Do 												'Do loop to read through all UNEA panels for each income type 
+Do		'Do loop to read through all UNEA panels
 	EMReadScreen current_panel_number, 1, 2, 73
 	EMReadScreen total_amt_of_panels, 1, 2, 78
 	EMReadScreen income_type, 2, 5, 37
-	If income_type = "01" Then 					'TODO swap for array
-		'Panel = true (boolean)
+	If income_type = "01" then	'TODO swap to array
+		' income_panel = true
 		PF9
-		EMWriteScreen "7", 5, 65 				'Write Verification Worker Initiated Verfication "7"
-
-		'Clear and write claim number
-		EMWriteScreen "_______________", 6, 37
-		EMWriteScreen ssi_claim_numb, 6, 37 	'TODO swap for array
 
 		'HC Income Estimate Popup: clear and write SSI monthly amount (SDXP) TODO: only available in current month + 1
 		Call write_value_and_transmit("X", 6, 56)
 		EMWriteScreen "________", 9, 65
-		EMWriteScreen "9999.99", 9, 65 			'TODO swap for array (shoudl be either rsdi_gross_amt or ssi_gross_amt )
-		EMWriteScreen "1", 10, 63				'code for pay frequency
+		EMWriteScreen "9999.99", 9, 65		'TODO swap for array (shoudl be either rsdi_gross_amt or ssi_gross_amt )
+		EMWriteScreen "1", 10, 63		'code for pay frequency
 		Do
 			transmit
 			EMReadScreen HC_popup, 9, 7, 41
 			If HC_popup = "HC Income" then transmit
 		Loop until HC_popup <> "HC Income"
+
+		EMWriteScreen "7", 5, 65		'Write Verification Worker Initiated Verfication "7"
+
+		'Clear and write claim number
+		EMWriteScreen "_______________", 6, 37
+		EMWriteScreen ssi_claim_numb, 6, 37		'TODO swap for array
 
 		'Retrospective amounts clear and write (SSI Retrospective = CM_minus_1_mo and CM_minus_1_yr)
 		DO
@@ -316,7 +323,7 @@ Do 												'Do loop to read through all UNEA panels for each income type
 		EMWriteScreen CM_minus_1_mo, 13, 25
 		EMWriteScreen "01", 13, 28
 		EMWriteScreen CM_minus_1_yr, 13, 31
-		EMWriteScreen "9999.99", 13, 39 		'TODO -are we really updating the RETROSPECTIVE?! If so what values go here?
+		EMWriteScreen "9999.99", 13, 39		'TODO -are we really updating the RETROSPECTIVE?! If so what values go here?
 
 		'Prospective Amounts clear and write (SSI Prospective = CM_plus_1_mo and CM_plus_1_yr, RSDI = MAXIS_footer_month and MAXIS_footer_year)
 		DO
@@ -330,7 +337,7 @@ Do 												'Do loop to read through all UNEA panels for each income type
 		EMWriteScreen CM_plus_1_mo, 13, 54 
 		EMWriteScreen "01", 13, 57
 		EMWriteScreen CM_plus_1_yr, 13, 60 
-		EMWriteScreen "9999.99", 13, 68 'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
+		EMWriteScreen "9999.99", 13, 68		'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
 		transmit
 		MsgBox "end of entry"
 	Else 
@@ -338,32 +345,40 @@ Do 												'Do loop to read through all UNEA panels for each income type
 	End If
 Loop Until current_panel_number = total_amt_of_panels
 	
-	'If panel = false (boolean)
-		' Call write_value_and_transmit("NN", 20, 79)
-		' EMWriteScreen "01", 5, 37 ' TODO swap for array
-		' EMWriteScreen "7", 5, 65 'Write Verification Worker Initiated Verfication "7"
-		' EMWriteScreen ssi_claim_numb, 6, 37 'TODO swap for array
+	If income_type <> "01" then
+		' income_panel = false
+		Call write_value_and_transmit("NN", 20, 79)
+		EMWriteScreen "01", 5, 37 		'TODO swap for array
+		EMWriteScreen "7", 5, 65 		'Write Verification Worker Initiated Verfication "7"
+		EMWriteScreen ssi_claim_numb, 6, 37 		'TODO swap for array
 		
-		' 'HC Income Estimate Popup: clear and write SSI monthly amount (SDXP)
-		' Call write_value_and_transmit("X", 6, 56)
-		' EMWriteScreen "9999.99", 9, 65 'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
-		' EMWriteScreen "1", 10, 63							'code for pay frequency
-		' Do
-		' 	transmit
-		' 	EMReadScreen HC_popup, 9, 7, 41
-		' 	If HC_popup = "HC Income" then transmit
-		' Loop until HC_popup <> "HC Income"
-		' 'Retrospective amounts clear and write (SSI Retrospective = CM_minus_1_mo and CM_minus_1_yr)
-		' EMWriteScreen CM_minus_1_mo, 13, 25
-		' EMWriteScreen "01", 13, 28
-		' EMWriteScreen CM_minus_1_yr, 13, 31
-		' EMWriteScreen "9999.99", 13, 39 ' TODO -are we really updating the RETROSPECTIVE?! If so what values go here?
-		' 'Prospective Amounts clear and write (SSI Prospective = CM_plus_1_mo and CM_plus_1_yr, RSDI = MAXIS_footer_month and MAXIS_footer_year)
-		' EMWriteScreen CM_plus_1_mo, 13, 54 
-		' EMWriteScreen "01", 13, 57
-		' EMWriteScreen CM_plus_1_yr, 13, 60 
-		' EMWriteScreen "9999.99", 13, 68 'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
-		' transmit ' this takes us out of edit mode
+		'HC Income Estimate Popup: clear and write SSI monthly amount (SDXP)
+		Call write_value_and_transmit("X", 6, 56)
+		EMWriteScreen "9999.99", 9, 65 		'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
+		EMWriteScreen "1", 10, 63		'code for pay frequency
+		Do
+			transmit
+			EMReadScreen HC_popup, 9, 7, 41
+			If HC_popup = "HC Income" then transmit
+		Loop until HC_popup <> "HC Income"
+		'Retrospective amounts clear and write (SSI Retrospective = CM_minus_1_mo and CM_minus_1_yr)
+		EMWriteScreen CM_minus_1_mo, 13, 25
+		EMWriteScreen "01", 13, 28
+		EMWriteScreen CM_minus_1_yr, 13, 31
+		EMWriteScreen "9999.99", 13, 39 		'TODO -are we really updating the RETROSPECTIVE?! If so what values go here?
+		'Prospective Amounts clear and write (SSI Prospective = CM_plus_1_mo and CM_plus_1_yr, RSDI = MAXIS_footer_month and MAXIS_footer_year)
+		EMWriteScreen CM_plus_1_mo, 13, 54 
+		EMWriteScreen "01", 13, 57
+		EMWriteScreen CM_plus_1_yr, 13, 60 
+		EMWriteScreen "9999.99", 13, 68 		'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
+		transmit 		'this takes us out of edit mode
+	End If
+' End Function
+
+' Call UNEA_income_panel 
+' Call UNEA_income_panel 
+' Call UNEA_income_panel
+' Call UNEA_income_panel
 	
 	
 MsgBox "Next the script writes information in MEDI. If panel does not exist, script will create a new panel."
@@ -377,23 +392,25 @@ MsgBox "Next the script writes information in MEDI. If panel does not exist, scr
 
 Call navigate_to_MAXIS_screen("STAT", "MEDI")
 EMWriteScreen member_number, 20, 79
-EMWriteScreen "01", 20, 79				'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+EMWriteScreen "01", 20, 79			'to ensure we're on the 1st instance of UNEA panels for the appropriate member
 transmit	
 MsgBox "MEDI"
 
 'Verifying if there is currently a panel or not, if not create one
-EMReadScreen total_amt_of_panels, 1, 2, 78	'Checks to make sure there are JOBS panels for this member. If none exists, one will be created
+EMReadScreen total_amt_of_panels, 1, 2, 78			'Checks to make sure there are JOBS panels for this member. If none exists, one will be created
 If total_amt_of_panels = "0" then 
-	CALL write_value_and_transmit("NN", 20, 79) 'Create new panel and write MEDI info
+	CALL write_value_and_transmit("NN", 20, 79) 		'Create new panel and write MEDI info
 	EMWriteScreen "O", 5, 64
 	EMWriteScreen part_a_premium, 7, 46
 	EMWriteScreen part_b_premium, 7, 73
-	EMWriteScreen "N", 9, 71 ' "N" for Qualified Working Disabled Individual
-	EMWriteScreen "N", 10, 71 ' "N" for End Stage Renal Disease
-	EMWriteScreen part_a_start, 15, 24
-	EMWriteScreen part_a_stop, 15, 35
-	EMWriteScreen part_b_start, 15, 54
-	EMWriteScreen part_b_stop, 15, 65
+	EMWriteScreen "N", 9, 71 		' "N" for Qualified Working Disabled Individual
+	EMWriteScreen "N", 10, 71 		' "N" for End Stage Renal Disease
+	Call create_mainframe_friendly_date(part_a_start, 15, 24, "YY")
+	Call create_mainframe_friendly_date(part_a_stop, 15, 35, "YY")
+	Call create_mainframe_friendly_date(part_b_start, 15, 54, "YY")
+	Call create_mainframe_friendly_date(part_b_stop, 15, 65, "YY")
+End If
+	'TODO: How do I end the entry?
 Else
 	'MEDI premiums: clear and write
 	PF9
@@ -403,36 +420,117 @@ Else
 	EMWriteScreen "________", 7, 73
 	EMWriteScreen part_b_premium, 7, 73
 	'Clear and write being/end dates for part a and b
-	row = 15
-	DO
-	EMWriteScreen "__", row, 24
-	EMWriteScreen "__", row, 27
-	EMWriteScreen "__", row, 30
-	EMWriteScreen "__", row, 35
-	EMWriteScreen "__", row, 38
-	EMWriteScreen "__", row, 41
-	EMWriteScreen "__", row, 54
-	EMWriteScreen "__", row, 57
-	EMWriteScreen "__", row, 60
-	EMWriteScreen "__", row, 65
-	EMWriteScreen "__", row, 71
-	row = row + 1
-	Loop until row = 18
+
+	row = 17
+	Do
+		EMReadScreen MEDI_part_a_start, 8, row, 24 		'reads part a start date
+		If MEDI_part_a_start = "__ __ __" Then 
+			MEDI_part_a_start = "" 		'blank out if not a date
+		Else
+			MEDI_part_a_start = replace(MEDI_part_a_start, " ", "/")	'reformatting with / for date
+		End If
+
+		EMReadScreen MEDI_part_a_end, 8, row, 35	'reads part a end date  
+		If MEDI_part_a_end = "__ __ __" Then
+			MEDI_part_a_end = ""					'blank out if not a date
+		Else
+			MEDI_part_a_end =replace(MEDI_part_a_end , " ", "/")		'reformatting with / for date
+		End If
+
+		If MEDI_part_a_end = "" Then
+			If MEDI_part_a_start = "" Then
+				row = row - 1 		'no dates found in this row, move up a row and reevaluate
+			Else
+				If MEDI_part_a_start <> "" then exit do		'only start date found, this is an open ended part a TODO: is this what we want here?
+			End If
+		Elseif MEDI_part_a_end <> "" then
+			If MEDI_part_a_start <> "" then 
+			PF20		'if stop/start are populated it will take you to the next page of dates
+		End If
+	Loop
+	
+
+	' TODO: need functionality to determine if dates already exist, if not write them in the next blank space
+	EMReadScreen MEDI_part_a_start, 8, row, 24
+	EMReadScreen MEDI_part_b_end, 8, row, 65
+	If MEDI_part_a_start <> part_a_start
+		If MEDI_part_a_stop <> part_a_stop then
+			Call create_mainframe_friendly_date(part_a_start, row + 1, 24, "YY")
+			Call create_mainframe_friendly_date(part_a_stop, row + 1, 35, "YY")
+		End If 	
+	End If
+
+	row = 17
+	Do
+		EMReadScreen MEDI_part_b_start, 8, row, 54		'reads part b start date
+		If MEDI_part_b_start = "__ __ __" Then
+			MEDI_part_b_start = ""			'blank out if not a date
+		Else
+			MEDI_part_b_start = replace(MEDI_part_b_start, " ", "/")		'reformatting with / for date
+		End If
+
+		EMReadScreen MEDI_part_b_end, 8, row, 65	'reads part b end date
+		If MEDI_part_b_end = "__ __ __" Then
+			MEDI_part_b_end = ""					'blank out if not a date
+		Else
+			MEDI_part_b_end =replace(MEDI_part_b_end , " ", "/")		'reformatting with / for date
+		End If
+
+		If MEDI_part_b_end = "" Then
+			If MEDI_part_b_start = "" Then
+				row = row - 1			' no dates found in this row, move up a row and reevaluate
+			Else
+				If MEDI_part_b_start <> "" then exit do		'onely start date found, this is an open ended part b TODO: is this what we want here?
+			End If
+		Elseif MEDI_part_b_end <> "" then
+			If MEDI_part_b_start <> "" then 		
+			PF20		'if stop/start are populated it will take you to the next page of dates
+		End If
+	Loop
+
+	' TODO: need functionality to determine if dates already exist, if not write them in the next blank space
+	EMReadScreen MEDI_part_b_start, 8, row, 54
+	EMReadScreen MEDI_part_b_end, 8, row, 65	
+	If MEDI_part_b_start <> part_b_start
+		If MEDI_part_b_stop <> part_b_stop then 
+			Call create_mainframe_friendly_date(part_b_start, row + 1, 54, "YY")
+			Call create_mainframe_friendly_date(part_b_stop, row + 1, 65, "YY")
+		End If 	
+	End If
 End If
 
 MsgBox "Last, the script will case note the applicable information."
-'TODO Dates: Write wtih function create_mainframe_friendly_date(date_variable, screen_row, screen_col, year_type), casenote with just variable.
-	'Reference link Ilse provided- gives guidance on TPQY case noting rules.
-	'Add "updated  UNEA Panel"
-	'reference peron memb_01 (use reference number "01")
-	'income specific and income source (i.e. SSI) "through a data match"
+'TODO: Revise based on feedback, necessary info for case note. 
 
 renewal_period = MAXIS_footer_month & "/" & MAXIS_footer_year		'establishing the renewal period for the header of the case note
 
 start_a_blank_CASE_NOTE
 Call write_variable_in_CASE_NOTE("---Income Verification Case Note---")
-Call write_variable_in_CASE_NOTE("*" & renewal_period & " collected information for ex parte determination")
-Call write_variable_in_CASE_NOTE("*" & sves_response & "information last updated.")
+Call write_variable_in_CASE_NOTE("Updated UNEA panel and MEDI panel through a data match for " & member_number)
+
+Call write_variable_in_CASE_NOTE("*RSDI Information*")
+Call write_variable_with_indent_in_CASE_NOTE("RSDI Pay Date: " & rsdi_paydate)
+Call write_variable_with_indent_in_CASE_NOTE("RSDI Gross Amount: " & rsdi_gross_amt)
+Call write_variable_with_indent_in_CASE_NOTE("RSDI Net Amount: " & rsdi_net_amt)
+
+Call write_variable_in_case_note("*Medicare Information*")
+Call write_variable_with_indent_in_CASE_NOTE("Medicare claim number: " & medi_claim_num)
+Call write_variable_with_indent_in_CASE_NOTE("Part A Premium: " & part_a_premium)
+Call write_variable_with_indent_in_CASE_NOTE("Part A Start Date: " & part_a_start)
+Call write_variable_with_indent_in_CASE_NOTE("Part A Stop Date: " & part_a_stop)
+Call write_variable_with_indent_in_CASE_NOTE("Part B Premium: " & part_b_premium)
+Call write_variable_with_indent_in_CASE_NOTE("Part B Start Date: " & part_b_start)
+Call write_variable_with_indent_in_CASE_NOTE("Part B Stop Date: " & part_b_stop)
+
+Call write_variable_in_case_note("*SSI Information*")
+Call write_variable_with_indent_in_CASE_NOTE("SSI claim number: " & ssi_claim_num)
+Call write_variable_with_indent_in_CASE_NOTE("Payment Status: " & ssi_pay_code & ssi_pay_desc)
+Call write_variable_with_indent_in_CASE_NOTE("Pay Date: " & ssi_pay_date)
+Call write_variable_with_indent_in_CASE_NOTE("SSI Gross Amount: " & ssi_gross_amt)
+Call write_variable_with_indent_in_CASE_NOTE("Gross Earned income: " & gross_EI)
+Call write_variable_with_indent_in_CASE_NOTE("Net Earned income: " & net_EI)
+Call write_variable_with_indent_in_CASE_NOTE("Gross RSDI Income Amount: " & rsdi_income_amt)
+
 call write_variable_in_case_note("---")
 call write_variable_in_case_note(worker_signature)
 
