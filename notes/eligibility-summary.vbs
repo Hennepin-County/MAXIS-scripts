@@ -11991,9 +11991,13 @@ class msa_eligibility_detail
 
 						EMReadScreen msa_elig_budg_spec_standard_amount(spec_needs_count), 8, msa_row, msa_col+26
 						msa_elig_budg_spec_standard_amount(spec_needs_count) = trim(msa_elig_budg_spec_standard_amount(spec_needs_count))
-
 						msa_row = msa_row + 1
-						If msa_row = 14 Then MsgBox "MORE THAN SIX?"
+						If msa_row = 14 Then
+							PF20
+							msa_row = 8
+							EMReadScreen list_end, 21, 19, 4
+							If list_end = "THIS IS THE LAST PAGE" Then Exit Do
+						End If
 						spec_needs_count = spec_needs_count + 1
 						EMReadScreen info_code, 2, msa_row, msa_col
 					Loop
