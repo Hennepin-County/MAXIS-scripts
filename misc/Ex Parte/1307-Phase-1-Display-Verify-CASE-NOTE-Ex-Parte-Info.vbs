@@ -379,7 +379,7 @@ If ex_parte_determination = "Ex Parte is Denied" Then
     BeginDialog Dialog1, 0, 0, 231, 130, "Health Care Renewal Updates - Ex Parte Denied"
     ButtonGroup ButtonPressed
         PushButton 125, 110, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
-    Text 5, 5, 220, 95, "You have indicated that " & lcase(ex_parte_determination) & " for case number: " & MAXIS_case_number & "." & vbNewLine & vbNewLine & "Update the Health Care Renewal Screen accordingly based on this ex parte determination. Once you have made the updates, click the button below to verify the updates and the script will move to CASE NOTE the determination."
+    Text 5, 5, 220, 95, "You have indicated that " & lcase(ex_parte_determination) & " for case number: " & MAXIS_case_number & "." & vbNewLine & vbNewLine & "Update the Health Care Renewal Screen accordingly based on this ex parte determination. Once you have made the updates, click the button below to verify the updates and the script will move to CASE NOTE the determination." ' TO DO - update dialog box to match approval dialog, but with applicable information
     EndDialog
 
 
@@ -389,24 +389,39 @@ If ex_parte_determination = "Ex Parte is Denied" Then
             Dialog Dialog1
             cancel_confirmation
 
-            'TO DO - Update validation to check that HC renewal updated correctly based on ex parte determination
-            If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
-            ' If ButtonPressed = hc_renewal_button Then
-            '         EMReadScreen check_received_date, 8, 6, 27
-            '         EMReadScreen check_income_renewal_date, 8, 7, 27
-            '         EMReadScreen check_elig_renewal_date, 8, 8, 27
-            '         EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-            '         EMReadScreen check_income_asset_renewal_date, 8, 7, 71
-            '         EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-            '         EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
-            ' End If
+            ' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
+           
+            'TO DO - update with functions?
+            'Check the HC renewal screen data and compare against initial to ensure that changes made properly
+            If ButtonPressed = hc_renewal_button Then
+                    EMReadScreen check_received_date, 8, 6, 27
+                    EMReadScreen check_income_renewal_month, 2, 7, 27
+                    EMReadScreen check_income_renewal_year, 2, 7, 33
+                    EMReadScreen check_elig_renewal_month, 2, 8, 27
+                    EMReadScreen check_elig_renewal_year, 2, 8, 33
+                    EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
+                    EMReadScreen check_income_asset_renewal_month, 2, 7, 71
+                    EMReadScreen check_income_asset_renewal_year, 2, 7, 77
+                    EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
+                    EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
+            End If
+            
+            'TO DO - update validation to match expectation for Elig Renewal Date for ex parte denial 
+            If check_elig_renewal_year <> elig_renewal_year + 1 AND check_elig_renewal_month <> elig_renewal_month THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the renewal month/year currently listed."
 
-            MsgBox "The check received date is: " & check_received_date
+            'TO DO - validate Income/Asset Renewal Date for ex parte denial
+            If  check_income_asset_renewal_year <> elig_renewal_year + 1 AND check_income_asset_renewal_month <> elig_renewal_month THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date." 
 
-            If check_received_date <> received_date Then err_msg = err_msg & vbCr & "* Error - received_date has not been updated correctly." 
-            If check_received_date = received_date Then MsgBox "Completed date correctly"
+            'TO DO - Validate that Exempt from 6 Mo IR is set correctly
+            If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR." 
+
+            'TO DO - Validate that ExParte field updated to N
+            If check_HC_ex_parte_determination <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for ExParte." 
+
+            'Validate that ExParte Renewal Month is correct 
+            'TO DO - confirm what this should be
+            If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month." 
                 
-            'The rest of the mandatory handling here
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
             'Add to all dialogs where you need to work within BLUEZONE
