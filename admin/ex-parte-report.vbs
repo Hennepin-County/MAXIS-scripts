@@ -59,17 +59,20 @@ function find_unea_information()
 		EMWriteScreen "01", 20, 79
 		transmit
 		MEMBER_INFO_ARRAY(unea_VA_exists, each_memb) = False
+		MEMBER_INFO_ARRAY(unea_UC_exists, each_memb) = False
 
 		EMReadScreen unea_vers, 1, 2, 78
 		If unea_vers <> "0" Then
 			Do
 				EMReadScreen claim_num, 15, 6, 37
-				If left(start_of_claim, 9) <> MEMBER_INFO_ARRAY(memb_ssn_const, each_memb) Then
-					MEMBER_INFO_ARRAY(unmatched_claim_numb, each_memb) = claim_num
-				End If
+				EMReadScreen income_type_code, 2, 5, 37
+				If income_type_code = "01" or income_type_code = "20" Then
+					If left(start_of_claim, 9) <> MEMBER_INFO_ARRAY(memb_ssn_const, each_memb) Then
+						MEMBER_INFO_ARRAY(unmatched_claim_numb, each_memb) = claim_num
+					End If
+				End if
 				claim_num = replace(claim_num, "_", "")
 
-				EMReadScreen income_type_code, 2, 5, 37
 				If income_type_code = "11" or income_type_code = "12" or income_type_code = "13" or income_type_code = "38" Then
 					MEMBER_INFO_ARRAY(unea_VA_exists, each_memb) = True
 					ReDim Preserve VA_INCOME_ARRAY(va_last_const, va_count)
@@ -77,6 +80,7 @@ function find_unea_information()
 					VA_INCOME_ARRAY(va_case_numb_const, va_count) = MAXIS_case_number
 					VA_INCOME_ARRAY(va_ref_numb_const, va_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
 					VA_INCOME_ARRAY(va_pers_name_const, va_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+					VA_INCOME_ARRAY(va_pers_ssn_const, va_count) = MEMBER_INFO_ARRAY(memb_ssn_const, each_memb)
 					VA_INCOME_ARRAY(va_pers_pmi_const, va_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
 					VA_INCOME_ARRAY(va_inc_type_code_const, va_count) = income_type_code
 					If income_type_code = "11" Then VA_INCOME_ARRAY(va_inc_type_info_const, va_count) = "VA Disability"
@@ -89,6 +93,25 @@ function find_unea_information()
 					If VA_INCOME_ARRAY(va_prosp_inc_const, va_count) = "" Then VA_INCOME_ARRAY(va_prosp_inc_const, va_count) = "0.00"
 
 					va_count = va_count + 1
+				End If
+
+				If income_type_code = "14" Then
+					MEMBER_INFO_ARRAY(unea_UC_exists, each_memb) = True
+					ReDim Preserve UC_INCOME_ARRAY(va_last_const, uc_count)
+
+					UC_INCOME_ARRAY(va_case_numb_const, uc_count) = MAXIS_case_number
+					UC_INCOME_ARRAY(va_ref_numb_const, uc_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+					UC_INCOME_ARRAY(va_pers_name_const, uc_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+					UC_INCOME_ARRAY(va_pers_ssn_const, uc_count) = MEMBER_INFO_ARRAY(memb_ssn_const, each_memb)
+					UC_INCOME_ARRAY(va_pers_pmi_const, uc_count) = MEMBER_INFO_ARRAY(memb_ref_numb_const, each_memb)
+					UC_INCOME_ARRAY(va_inc_type_code_const, uc_count) = income_type_code
+					UC_INCOME_ARRAY(va_inc_type_info_const, uc_count) = "Unemployment"
+					UC_INCOME_ARRAY(va_claim_numb_const, uc_count) = claim_num
+					EMReadScreen UC_INCOME_ARRAY(va_prosp_inc_const, uc_count) 8, 13, 68
+					UC_INCOME_ARRAY(va_prosp_inc_const, uc_count) = trim(UC_INCOME_ARRAY(va_prosp_inc_const, uc_count))
+					If UC_INCOME_ARRAY(va_prosp_inc_const, uc_count) = "________" Then UC_INCOME_ARRAY(va_prosp_inc_const, uc_count) = "0.00"
+
+					uc_count = uc_count + 1
 				End If
 
 				transmit
@@ -116,8 +139,8 @@ function get_list_of_members()
 		MEMBER_INFO_ARRAY(memb_age_const, client_count) = trim(clt_age)
 		EMReadScreen last_name, 25, 6, 30
 		EMReadScreen first_name, 12, 6, 63
-		last_name = trim(replace(last_name, "_", "")) & " "
-		first_name = trim(replace(first_name, "_", "")) & " "
+		last_name = trim(replace(last_name, "_", ""))
+		first_name = trim(replace(first_name, "_", ""))
 		MEMBER_INFO_ARRAY(memb_name_const, client_count) = first_name & " " & last_name
 
 		client_count = client_count + 1
@@ -166,10 +189,11 @@ Const unea_type_03_esists	= 12
 Const unea_type_16_esists	= 13
 Const unmatched_claim_numb	= 14
 Const unea_VA_exists		= 15
+Const unea_UC_exists		= 16
 
-Const sves_qury_sent		= 20
-Const second_qury_sent		= 21
-Const sves_tpqy_response	= 22
+Const sves_qury_sent		= 30
+Const second_qury_sent		= 31
+Const sves_tpqy_response	= 32
 
 Const memb_last_const 		= 50
 
@@ -180,14 +204,29 @@ Const va_case_numb_const 	= 0
 Const va_ref_numb_const 	= 1
 Const va_pers_name_const	= 2
 Const va_pers_pmi_const		= 3
-Const va_inc_type_code_const 	= 4
-Const va_inc_type_info_const	= 5
-Const va_claim_numb_const 	= 6
-Const va_prosp_inc_const 	= 7
-Const va_last_const 		= 8
+Const va_pers_ssn_const		= 4
+Const va_inc_type_code_const 	= 5
+Const va_inc_type_info_const	= 6
+Const va_claim_numb_const 	= 7
+Const va_prosp_inc_const 	= 8
+Const va_last_const 		= 9
 
 Dim VA_INCOME_ARRAY()
 ReDim VA_INCOME_ARRAY(va_last_const, 0)
+
+Const uc_case_numb_const 	= 0
+Const uc_ref_numb_const 	= 1
+Const uc_pers_name_const	= 2
+Const uc_pers_pmi_const		= 3
+Const uc_pers_ssn_const		= 4
+Const uc_inc_type_code_const 	= 5
+Const uc_inc_type_info_const	= 6
+Const uc_claim_numb_const 	= 7
+Const uc_prosp_inc_const 	= 8
+Const uc_last_const 		= 9
+
+Dim UC_INCOME_ARRAY()
+ReDim UC_INCOME_ARRAY(va_last_const, 0)
 
 
 'END DECLARATIONS BLOCK ====================================================================================================
@@ -319,6 +358,7 @@ If ex_parte_function = "Prep" Then
 	MAXIS_footer_year = CM_plus_1_yr
 
 	va_count = 0
+	uc_count = 0
 
 	'declare the SQL statement that will query the database
 	objSQL = "SELECT * FROM ES.ES_OnDemandCashAndSnap"
@@ -352,6 +392,7 @@ If ex_parte_function = "Prep" Then
 			'For each case that is indicated as potentially ExParte, we are going to take preperation actions
 			'Get a list of all HH members on the case
 			last_va_count = va_count
+			last_uc_count = uc_count
 			ReDim MEMBER_INFO_ARRAY(memb_last_const, 0)
 
 			Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB", is_this_priv) 'Goes to MEMB to get info
@@ -362,6 +403,7 @@ If ex_parte_function = "Prep" Then
 
 				'Find if there is a claim number that is not associated with the persons SSN
 				'Read if VA income is on UNEA to add that person to a list to verify VA
+				'Read if UC income is on UNEA to add that person to a list to verify UC
 				Call find_unea_information
 
 				Call back_to_SELF
@@ -391,40 +433,85 @@ If ex_parte_function = "Prep" Then
 			If last_va_count <> va_count Then
 				If last_va_count = 0 Then
 					'Create an Excel file to record members that have VA Income
-					Set objExcel = CreateObject("Excel.Application")
-					objExcel.Visible = True
-					Set objWorkbook = objExcel.Workbooks.Add()
-					objExcel.DisplayAlerts = True
+					Set objVAExcel = CreateObject("Excel.Application")
+					objVAExcel.Visible = True
+					Set objWorkbook = objVAExcel.Workbooks.Add()
+					objVAExcel.DisplayAlerts = True
 
 					'Setting the first 4 col as worker, case number, name, and APPL date
-					ObjExcel.Cells(1, 1).Value = "CASE NUMBER"
-					ObjExcel.Cells(1, 2).Value = "REF"
-					ObjExcel.Cells(1, 3).Value = "NAME"
-					ObjExcel.Cells(1, 4).Value = "PMI NUMBER"
-					ObjExcel.Cells(1, 5).Value = "VA INC TYPE"
-					ObjExcel.Cells(1, 6).Value = "VA CLAIM NUMB"
-					ObjExcel.Cells(1, 7).Value = "CURR VA INCOME"
+					objVAExcel.Cells(1, 1).Value = "CASE NUMBER"
+					objVAExcel.Cells(1, 2).Value = "REF"
+					objVAExcel.Cells(1, 3).Value = "NAME"
+					objVAExcel.Cells(1, 4).Value = "PMI NUMBER"
+					objVAExcel.Cells(1, 5).Value = "SSN"
+					objVAExcel.Cells(1, 6).Value = "VA INC TYPE"
+					objVAExcel.Cells(1, 7).Value = "VA CLAIM NUMB"
+					objVAExcel.Cells(1, 8).Value = "CURR VA INCOME"
+					objVAExcel.Cells(1, 9).Value = "Verified VA Income"
 
-					FOR i = 1 to 7		'formatting the cells'
-						objExcel.Cells(1, i).Font.Bold = True		'bold font'
+					FOR i = 1 to 9		'formatting the cells'
+						objVAExcel.Cells(1, i).Font.Bold = True		'bold font'
 					NEXT
 
-					excel_row = 2
+					va_excel_row = 2
 					va_inc_count = 0
 				End If
 
 				Do
-					objExcel.Cells(excel_row, 1).value = VA_INCOME_ARRAY(va_case_numb_const, va_inc_count)
-					objExcel.Cells(excel_row, 2).value = VA_INCOME_ARRAY(va_ref_numb_const, va_inc_count)
-					objExcel.Cells(excel_row, 3).value = VA_INCOME_ARRAY(va_pers_name_const, va_inc_count)
-					objExcel.Cells(excel_row, 4).value = VA_INCOME_ARRAY(va_pers_pmi_const, va_inc_count)
-					objExcel.Cells(excel_row, 5).value = VA_INCOME_ARRAY(va_inc_type_info_const, va_inc_count)
-					objExcel.Cells(excel_row, 6).value = VA_INCOME_ARRAY(va_claim_numb_const, va_inc_count)
-					objExcel.Cells(excel_row, 7).value = VA_INCOME_ARRAY(va_prosp_inc_const, va_inc_count)
+					objVAExcel.Cells(va_excel_row, 1).value = VA_INCOME_ARRAY(va_case_numb_const, va_inc_count)
+					objVAExcel.Cells(va_excel_row, 2).value = VA_INCOME_ARRAY(va_ref_numb_const, va_inc_count)
+					objVAExcel.Cells(va_excel_row, 3).value = VA_INCOME_ARRAY(va_pers_name_const, va_inc_count)
+					objVAExcel.Cells(va_excel_row, 4).value = VA_INCOME_ARRAY(va_pers_pmi_const, va_inc_count)
+					objVAExcel.Cells(va_excel_row, 5).value = VA_INCOME_ARRAY(va_pers_ssn_const, va_inc_count)
+					objVAExcel.Cells(va_excel_row, 6).value = VA_INCOME_ARRAY(va_claim_numb_const, va_inc_count)
+					objVAExcel.Cells(va_excel_row, 7).value = VA_INCOME_ARRAY(va_inc_type_code_const, va_inc_count) & " - " & VA_INCOME_ARRAY(va_inc_type_info_const, va_inc_count)
+					objVAExcel.Cells(va_excel_row, 8).value = VA_INCOME_ARRAY(va_prosp_inc_const, va_inc_count)
 
 					va_inc_count = va_inc_count + 1
-					excel_row = excel_row + 1
+					va_excel_row = va_excel_row + 1
 				Loop until va_inc_count = va_count
+			End If
+
+			If last_uc_count <> uc_count Then
+				If last_uc_count = 0 Then
+					'Create an Excel file to record members that have VA Income
+					Set objUCExcel = CreateObject("Excel.Application")
+					objUCExcel.Visible = True
+					Set objWorkbook = objUCExcel.Workbooks.Add()
+					objUCExcel.DisplayAlerts = True
+
+					'Setting the first 4 col as worker, case number, name, and APPL date
+					objUCExcel.Cells(1, 1).Value = "CASE NUMBER"
+					objUCExcel.Cells(1, 2).Value = "REF"
+					objUCExcel.Cells(1, 3).Value = "NAME"
+					objUCExcel.Cells(1, 4).Value = "PMI NUMBER"
+					objUCExcel.Cells(1, 5).Value = "SSN"
+					objUCExcel.Cells(1, 6).Value = "VA INC TYPE"
+					objUCExcel.Cells(1, 7).Value = "VA CLAIM NUMB"
+					objUCExcel.Cells(1, 8).Value = "CURR VA INCOME"
+					objUCExcel.Cells(1, 9).Value = "Verified VA Income"
+
+					FOR i = 1 to 9		'formatting the cells'
+						objUCExcel.Cells(1, i).Font.Bold = True		'bold font'
+					NEXT
+
+					uc_excel_row = 2
+					uc_inc_count = 0
+				End If
+
+				Do
+					objUCExcel.Cells(uc_excel_row, 1).value = VA_INCOME_ARRAY(va_case_numb_const, uc_inc_count)
+					objUCExcel.Cells(uc_excel_row, 2).value = VA_INCOME_ARRAY(va_ref_numb_const, uc_inc_count)
+					objUCExcel.Cells(uc_excel_row, 3).value = VA_INCOME_ARRAY(va_pers_name_const, uc_inc_count)
+					objUCExcel.Cells(uc_excel_row, 4).value = VA_INCOME_ARRAY(va_pers_pmi_const, uc_inc_count)
+					objUCExcel.Cells(uc_excel_row, 5).value = VA_INCOME_ARRAY(va_pers_ssn_const, uc_inc_count)
+					objUCExcel.Cells(uc_excel_row, 6).value = VA_INCOME_ARRAY(va_claim_numb_const, uc_inc_count)
+					objUCExcel.Cells(uc_excel_row, 7).value = VA_INCOME_ARRAY(va_inc_type_code_const, uc_inc_count) & " - " & VA_INCOME_ARRAY(va_inc_type_info_const, uc_inc_count)
+					objUCExcel.Cells(uc_excel_row, 8).value = VA_INCOME_ARRAY(va_prosp_inc_const, uc_inc_count)
+
+					uc_inc_count = uc_inc_count + 1
+					uc_excel_row = uc_excel_row + 1
+				Loop until uc_inc_count = uc_count
 			End If
 
 			'save details of the actions into the table
@@ -433,6 +520,11 @@ If ex_parte_function = "Prep" Then
 
 		objRecordSet.MoveNext
 	Loop
+
+	For col_to_autofit = 1 to 9
+		objVAExcel.columns(col_to_autofit).AutoFit()
+		objUCExcel.columns(col_to_autofit).AutoFit()
+	Next
 End If
 
 If ex_parte_function = "Phase 1" Then
@@ -471,4 +563,4 @@ End If
 
 'Loop through all the SQL Items and look for the right revew month and year and phase to determine if it's done.
 
-Cal script_end_procedure("DONE")
+Call script_end_procedure("DONE")
