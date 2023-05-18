@@ -281,6 +281,7 @@ CALL navigate_to_MAXIS_screen("STAT", "REVW")
 CALL write_value_and_transmit("X", 5, 71)
 
 'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
+'TO DO - do we need validation for each member of the household?
 EMReadScreen received_date, 8, 6, 27
 EMReadScreen income_renewal_month, 2, 7, 27
 EMReadScreen income_renewal_year, 2, 7, 33
@@ -351,19 +352,18 @@ If ex_parte_determination = "Ex Parte is Approved" Then
 
             'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from Elig Renewal Date for cases with a spenddown:
             'TO DO - determine how to determine if meets spenddown - checkbox on dialog? Pull from MAXIS?
-            If check_income_asset_renewal_month <> elig_renewal_month AND check_income_asset_renewal_year <> elig_renewal_year + 1 THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date." 
+            If  check_income_asset_renewal_year <> elig_renewal_year + 1 AND check_income_asset_renewal_month <> elig_renewal_month THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date." 
 
             'Validate that Exempt from 6 Mo IR is set to N 
-            If check_exempt_6_mo_ir_form <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR." 
+            If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR." 
 
             'Validate that ExParte field updated to Y
             If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte." 
 
             'Validate that ExParte Renewal Month is correct 
             'TO DO - confirm what this should be
-            If check_ex_parte_renewal_month <> 'To DO - update validation THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte." 
+            If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month." 
                 
-            'The rest of the mandatory handling here
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
             'Add to all dialogs where you need to work within BLUEZONE
