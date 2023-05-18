@@ -447,25 +447,20 @@ Call start_a_blank_case_note
 'Add title to CASE NOTE
 CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
 
-'Write information for Person 1 in CASE NOTE
-CALL write_bullet_and_variable_in_case_note("Ex Parte Determination", ex_parte_determination)
-CALL write_variable_in_case_note("*** Person 1 Information ***")
-CALL write_bullet_and_variable_in_case_note("Name:", person_name_01 )
-CALL write_bullet_and_variable_in_case_note("PMI", pmi_01)
-CALL write_bullet_and_variable_in_case_note("Case Number:", case_number_01 )
-CALL write_bullet_and_variable_in_case_note("Review Month:", review_month_01)
-
-'If there is information for Person 2, write this information to CASE NOTE
-If trim(name_02) <> "" Then 
-    CALL write_variable_in_case_note("*** Person 2 Information ***")
-    CALL write_bullet_and_variable_in_case_note("Name:", person_name_02 )
-    CALL write_bullet_and_variable_in_case_note("PMI", pmi_02)
-    CALL write_bullet_and_variable_in_case_note("Case Number:", case_number_02)
-    CALL write_bullet_and_variable_in_case_note("Review Month:", review_month_02)
+'For ex parte approval, write information to case note 
+If ex_parte_determination = "Ex Parte is Approved" Then 
+    CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided.")
+    'TO DO - add additional language listing what would qualify for ex parte?
+    'TO DO - add additional case details - case number, renewal info, etc?
 End If
 
-'Add additional notes to case note
-CALL write_bullet_and_variable_in_case_note("Additional Notes:", additional_notes)
+'For ex parte denial, write information to case note 
+If ex_parte_determination = "Ex Parte is Denied" Then 
+    CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been denied based on the information provided.")
+    CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
+    'TO DO - add additional language listing what would qualify for ex parte?
+    'TO DO - add additional case details - case number, renewal info, etc?
+End If
 
 'Add worker signature
 CALL write_variable_in_case_note("---")
