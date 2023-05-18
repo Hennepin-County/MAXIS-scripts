@@ -310,14 +310,15 @@ Do		'Do loop to read through all UNEA panels
 		'Clear and write claim number
 		EMWriteScreen "_______________", 6, 37
 		EMWriteScreen ssi_claim_numb, 6, 37		'TODO swap for array
+		'Ilse notes - will need to put in dummy claim number if wiping out 
 
 		'Retrospective amounts clear and write (SSI Retrospective = CM_minus_1_mo and CM_minus_1_yr)
 		DO
-		EMWriteScreen "__", row, 25
-		EMWriteScreen "__", row, 28
-		EMWriteScreen "__", row, 31
-		EMWriteScreen "________", row, 39
-		row = row + 1
+		    EMWriteScreen "__", row, 25
+		    EMWriteScreen "__", row, 28
+		    EMWriteScreen "__", row, 31
+		    EMWriteScreen "________", row, 39
+		    row = row + 1
 		Loop until row = 18
 
 		EMWriteScreen CM_minus_1_mo, 13, 25
@@ -327,11 +328,11 @@ Do		'Do loop to read through all UNEA panels
 
 		'Prospective Amounts clear and write (SSI Prospective = CM_plus_1_mo and CM_plus_1_yr, RSDI = MAXIS_footer_month and MAXIS_footer_year)
 		DO
-		EMWriteScreen "__", row, 54
-		EMWriteScreen "__", row, 57
-		EMWriteScreen "__", row, 60
-		EMWriteScreen "________", row, 68
-		row = row + 1
+		    EMWriteScreen "__", row, 54
+		    EMWriteScreen "__", row, 57
+		    EMWriteScreen "__", row, 60
+		    EMWriteScreen "________", row, 68
+		    row = row + 1
 		Loop until row = 18
 
 		EMWriteScreen CM_plus_1_mo, 13, 54 
@@ -342,37 +343,41 @@ Do		'Do loop to read through all UNEA panels
 		MsgBox "end of entry"
 	Else 
 		transmit 
+		'Ilse notes - might need to transmit twice to get past COLA disregard amt. If in months Jan - June for RSDI we add the difference between last years's amt and this year's amt. 
 	End If
 Loop Until current_panel_number = total_amt_of_panels
 	
-	If income_type <> "01" then
-		' income_panel = false
-		Call write_value_and_transmit("NN", 20, 79)
-		EMWriteScreen "01", 5, 37 		'TODO swap for array
-		EMWriteScreen "7", 5, 65 		'Write Verification Worker Initiated Verfication "7"
-		EMWriteScreen ssi_claim_numb, 6, 37 		'TODO swap for array
-		
-		'HC Income Estimate Popup: clear and write SSI monthly amount (SDXP)
-		Call write_value_and_transmit("X", 6, 56)
-		EMWriteScreen "9999.99", 9, 65 		'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
-		EMWriteScreen "1", 10, 63		'code for pay frequency
-		Do
-			transmit
-			EMReadScreen HC_popup, 9, 7, 41
-			If HC_popup = "HC Income" then transmit
-		Loop until HC_popup <> "HC Income"
-		'Retrospective amounts clear and write (SSI Retrospective = CM_minus_1_mo and CM_minus_1_yr)
-		EMWriteScreen CM_minus_1_mo, 13, 25
-		EMWriteScreen "01", 13, 28
-		EMWriteScreen CM_minus_1_yr, 13, 31
-		EMWriteScreen "9999.99", 13, 39 		'TODO -are we really updating the RETROSPECTIVE?! If so what values go here?
-		'Prospective Amounts clear and write (SSI Prospective = CM_plus_1_mo and CM_plus_1_yr, RSDI = MAXIS_footer_month and MAXIS_footer_year)
-		EMWriteScreen CM_plus_1_mo, 13, 54 
-		EMWriteScreen "01", 13, 57
-		EMWriteScreen CM_plus_1_yr, 13, 60 
-		EMWriteScreen "9999.99", 13, 68 		'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
-		transmit 		'this takes us out of edit mode
-	End If
+If income_type <> "01" then
+	' income_panel = false
+	Call write_value_and_transmit("NN", 20, 79)
+	EMWriteScreen "01", 5, 37 		'TODO swap for array
+	EMWriteScreen "7", 5, 65 		'Write Verification Worker Initiated Verfication "7"
+	EMWriteScreen ssi_claim_numb, 6, 37 		'TODO swap for array
+	'Ilse notes  - put in dummy amount here for testing
+	'Ilse notes  - Will need income start date for new income panel.
+	
+	'HC Income Estimate Popup: clear and write SSI monthly amount (SDXP)
+	Call write_value_and_transmit("X", 6, 56)
+	EMWriteScreen "9999.99", 9, 65 		'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
+	EMWriteScreen "1", 10, 63		'code for pay frequency
+	Do
+		transmit
+		EMReadScreen HC_popup, 9, 7, 41
+		If HC_popup = "HC Income" then transmit
+	Loop until HC_popup <> "HC Income"
+	'Retrospective amounts clear and write (SSI Retrospective = CM_minus_1_mo and CM_minus_1_yr)
+	EMWriteScreen CM_minus_1_mo, 13, 25
+	EMWriteScreen "01", 13, 28
+	EMWriteScreen CM_minus_1_yr, 13, 31
+	EMWriteScreen "9999.99", 13, 39 		'TODO -are we really updating the RETROSPECTIVE?! If so what values go here?
+	'Prospective Amounts clear and write (SSI Prospective = CM_plus_1_mo and CM_plus_1_yr, RSDI = MAXIS_footer_month and MAXIS_footer_year)
+	EMWriteScreen CM_plus_1_mo, 13, 54 
+	EMWriteScreen "01", 13, 57
+	EMWriteScreen CM_plus_1_yr, 13, 60 
+	EMWriteScreen "9999.99", 13, 68 		'TODO swap for array (should be either rsdi_gross_amt or ssi_gross_amt )
+	transmit 		'this takes us out of edit mode
+	'Ilse notes - might need to transmit twice to get past COLA disregard amt. If in months Jan - June for RSDI we add the difference between last years's amt and this year's amt. 
+End If
 ' End Function
 
 ' Call UNEA_income_panel 
@@ -380,7 +385,7 @@ Loop Until current_panel_number = total_amt_of_panels
 ' Call UNEA_income_panel
 ' Call UNEA_income_panel
 	
-	
+
 MsgBox "Next the script writes information in MEDI. If panel does not exist, script will create a new panel."
 '--------MEDI--------'
 'Navigating to STAT/MEDI
@@ -400,16 +405,18 @@ MsgBox "MEDI"
 EMReadScreen total_amt_of_panels, 1, 2, 78			'Checks to make sure there are JOBS panels for this member. If none exists, one will be created
 If total_amt_of_panels = "0" then 
 	CALL write_value_and_transmit("NN", 20, 79) 		'Create new panel and write MEDI info
-	EMWriteScreen "O", 5, 64
+	'Ilse notes - need dummy MBI number for testing
+	EMWriteScreen "O", 5, 64	'Ilse notes - this code might change if we are going to check MMIS in the process. 
 	EMWriteScreen part_a_premium, 7, 46
 	EMWriteScreen part_b_premium, 7, 73
 	EMWriteScreen "N", 9, 71 		' "N" for Qualified Working Disabled Individual
 	EMWriteScreen "N", 10, 71 		' "N" for End Stage Renal Disease
+	'Casey ToDo: Add apply premiums to spenddown based on BILS and HC budget. 
 	Call create_mainframe_friendly_date(part_a_start, 15, 24, "YY")
 	Call create_mainframe_friendly_date(part_a_stop, 15, 35, "YY")
 	Call create_mainframe_friendly_date(part_b_start, 15, 54, "YY")
 	Call create_mainframe_friendly_date(part_b_stop, 15, 65, "YY")
-End If
+'End If
 	'TODO: How do I end the entry?
 Else
 	'MEDI premiums: clear and write
@@ -420,6 +427,10 @@ Else
 	EMWriteScreen "________", 7, 73
 	EMWriteScreen part_b_premium, 7, 73
 	'Clear and write being/end dates for part a and b
+
+	EMWriteScreen "N", 9, 71 		' "N" for Qualified Working Disabled Individual
+	EMWriteScreen "N", 10, 71 		' "N" for End Stage Renal Disease
+	'Casey ToDo: Add apply premiums to spenddown based on BILS and HC budget. 
 
 	row = 17
 	Do
@@ -444,16 +455,14 @@ Else
 				If MEDI_part_a_start <> "" then exit do		'only start date found, this is an open ended part a TODO: is this what we want here?
 			End If
 		Elseif MEDI_part_a_end <> "" then
-			If MEDI_part_a_start <> "" then 
-			PF20		'if stop/start are populated it will take you to the next page of dates
+			If MEDI_part_a_start <> "" then PF20		'if stop/start are populated it will take you to the next page of dates
 		End If
 	Loop
-	
 
 	' TODO: need functionality to determine if dates already exist, if not write them in the next blank space
 	EMReadScreen MEDI_part_a_start, 8, row, 24
 	EMReadScreen MEDI_part_b_end, 8, row, 65
-	If MEDI_part_a_start <> part_a_start
+	If MEDI_part_a_start <> part_a_start then 
 		If MEDI_part_a_stop <> part_a_stop then
 			Call create_mainframe_friendly_date(part_a_start, row + 1, 24, "YY")
 			Call create_mainframe_friendly_date(part_a_stop, row + 1, 35, "YY")
@@ -483,15 +492,14 @@ Else
 				If MEDI_part_b_start <> "" then exit do		'onely start date found, this is an open ended part b TODO: is this what we want here?
 			End If
 		Elseif MEDI_part_b_end <> "" then
-			If MEDI_part_b_start <> "" then 		
-			PF20		'if stop/start are populated it will take you to the next page of dates
+			If MEDI_part_b_start <> "" then PF20		'if stop/start are populated it will take you to the next page of dates
 		End If
 	Loop
 
 	' TODO: need functionality to determine if dates already exist, if not write them in the next blank space
 	EMReadScreen MEDI_part_b_start, 8, row, 54
 	EMReadScreen MEDI_part_b_end, 8, row, 65	
-	If MEDI_part_b_start <> part_b_start
+	If MEDI_part_b_start <> part_b_start then 
 		If MEDI_part_b_stop <> part_b_stop then 
 			Call create_mainframe_friendly_date(part_b_start, row + 1, 54, "YY")
 			Call create_mainframe_friendly_date(part_b_stop, row + 1, 65, "YY")
