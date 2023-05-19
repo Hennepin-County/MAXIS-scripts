@@ -449,10 +449,17 @@ CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_part
 
 'For ex parte approval, write information to case note 
 If ex_parte_determination = "Ex Parte is Approved" Then 
-    CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided.")
+    CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided. The case meets one of the criteria below.")
+    CALL write_variable_in_case_note("An MA-ABD enrollees will be ex parte renewed if their only source of income is:")
+    CALL write_bullet_and_variable_in_case_note("* ", "Supplemental Security Income (SSI), even if the benefit amount is zero")
+    CALL write_bullet_and_variable_in_case_note("* ", "Retirement, Survivors, and Disability Insurance (RSDI)")
+    CALL write_bullet_and_variable_in_case_note("* ", "SSI + RSDI")
+    CALL write_bullet_and_variable_in_case_note("* ", "Railroad Retirement Benefits (RRB)")
+    CALL write_bullet_and_variable_in_case_note("* ", "RSDI + RRB")
     'TO DO - add additional language listing what would qualify for ex parte?
     'TO DO - add additional case details - case number, renewal info, etc?
 End If
+
 
 'For ex parte denial, write information to case note 
 If ex_parte_determination = "Ex Parte is Denied" Then 
