@@ -7372,10 +7372,36 @@ function find_user_name(the_person_running_the_script)
 '--- This function finds the outlook name of the person using the script
 '~~~~~ the_person_running_the_script:the variable for the person's name to output
 '===== Keywords: MAXIS, worker name, email signature
-	Set objOutlook = CreateObject("Outlook.Application")
-	Set the_person_running_the_script = objOutlook.GetNamespace("MAPI").CurrentUser
-	the_person_running_the_script = the_person_running_the_script & ""
-	Set objOutlook = Nothing
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	SQL_table = "SELECT * from ES.V_ESAllStaff"				'identifying the table that stores the ES Staff user information
+
+	'This is the file path the data tables
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open SQL_table, objConnection							'Here we connect to the data tables
+
+	Do While NOT objRecordSet.Eof										'now we will loop through each item listed in the table of ES Staff
+		table_user_id = objRecordSet("EmpLogOnID")						'setting the user ID from table data
+		If table_user_id = windows_user_ID Then							'If the ID on thils loop of the data information matches the ID of the person running the script, we have found the staff person
+			current_user_name = objRecordSet("EmpFullName")				'Save the user name
+			current_user_email = objRecordSet("EmployeeEmail")			'save the email for the user - NOT currently output
+			Current_user_x_number = objRecordSet("EmpStateLogOnID")		'save the MAXIS X-Number for the user - NOT currently output
+			Exit Do														'if we have found the person, we stop looping
+		End If
+		objRecordSet.MoveNext											'Going to the next row in the table
+	Loop
+
+	'Now we disconnect from the table and close the connections
+	objRecordSet.Close
+	objConnection.Close
+	Set objRecordSet=nothing
+	Set objConnection=nothing
+
+	If windows_user_ID = "KESE001" Then current_user_name = "Audrey Hazel"		'specific handling for a user who does not have up to date information in the data table
+
+	the_person_running_the_script = current_user_name							'saving the user name to the output variable.
 end function
 
 'This function fixes the case for a phrase. For example, "ROBERT P. ROBERTSON" becomes "Robert P. Robertson".
