@@ -153,6 +153,7 @@ file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Sum
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Oct 6.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Nov 8.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Dec 6.xlsx"
+file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\Data Validation\ELIG by PERS JULY.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
@@ -178,17 +179,97 @@ Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 ' Loop Until count = 8
 
 
-MAXIS_footer_month = "12"
-MAXIS_footer_year = "22"
-excel_row = 2
+MAXIS_footer_month = "06"
+MAXIS_footer_year = "23"
+excel_row = 687
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
+	PERS_PMI = trim(ObjExcel.Cells(excel_row, 2).Value)
 
-	Call navigate_to_MAXIS_screen("CASE", "CURR")
-	EMreadScreen current_pw, 7, 21, 14
-	EMreadScreen current_co, 2, 21, 16
-	ObjExcel.Cells(excel_row, 4).Value = current_pw
-	ObjExcel.Cells(excel_row, 5).Value = current_co
+	Call navigate_to_MAXIS_screen("CASE", "PERS")
+
+	pers_row = 10
+	hc_stat = ""
+	Do
+		EMReadScreen read_pmi, 8, pers_row, 34
+		read_pmi = trim(read_pmi)
+
+		If read_pmi = PERS_PMI Then
+			EMReadScreen ref_number, 2, pers_row, 3
+			EMReadScreen hc_stat, 1, pers_row, 61
+			objExcel.Cells(excel_row, 19) = hc_stat
+			Exit Do
+		End If
+		pers_row = pers_row + 3
+		If pers_row = 19 Then
+			PF8
+			pers_row = 10
+			EMReadScreen end_of_list, 9, 24, 14
+			If end_of_list = "LAST PAGE" Then Exit Do
+		End If
+	Loop until read_pmi = ""
+
+	If hc_stat = "" Then
+		objExcel.Cells(excel_row, 19) = "NOT FOUND"
+	Else
+		Call navigate_to_MAXIS_screen("STAT", "REVW")
+		Call write_value_and_transmit("X", 5, 71)
+		EMReadScreen hc_er, 8, 8, 27
+		objExcel.Cells(excel_row, 22) = replace(hc_er, " ", "/")
+
+		Call navigate_to_MAXIS_screen("ELIG", "HC")
+		PERS_prog =  trim(ObjExcel.Cells(excel_row, 7).Value)
+		PERS_type = trim(ObjExcel.Cells(excel_row, 8).Value)
+
+		hc_row = 8
+		hc_prog_count = 0
+		Do
+			EMReadScreen read_ref_numb, 2, hc_row, 3
+			EMReadScreen clt_hc_prog, 4, hc_row, 28
+			If read_ref_numb = "  " Then EMReadScreen read_ref_numb, 2, hc_row-1, 3
+
+			If read_ref_numb = ref_number Then
+				If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
+					' MsgBox "clt_hc_prog - " & clt_hc_prog & vbCr & "PERS_prog - " & PERS_prog
+					If left(clt_hc_prog, 2) = PERS_prog Then
+						EMReadScreen prog_status, 3, hc_row, 68
+						If prog_status <> "APP" Then                        'Finding the approved version
+							EMReadScreen total_versions, 2, hc_row, 64
+							If total_versions = "01" Then
+								hc_prog_elig_appd = False
+							Else
+								EMReadScreen current_version, 2, hc_row, 58
+								' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
+								If current_version = "01" Then
+									hc_prog_elig_appd = False
+								Else
+									prev_version = right ("00" & abs(current_version) - 1, 2)
+									EMWriteScreen prev_version, hc_row, 58
+									transmit
+									hc_prog_elig_appd = True
+								End If
+
+							End If
+						Else
+							hc_prog_elig_appd = True
+						End If
+						Call write_value_and_transmit("X", hc_row, 26)
+						EMReadScreen MX_Elig, 2, 12, 72
+						If clt_hc_prog = "QMB " or clt_hc_prog = "SLMB" Then EMReadScreen MX_Elig, 2, 6, 56
+						objExcel.Cells(excel_row, 20) = clt_hc_prog
+						objExcel.Cells(excel_row, 21) = MX_Elig
+					End If
+				Else
+					objExcel.Cells(excel_row, 20) = "NOT FOUND"
+				End If
+			End If
+			hc_row = hc_row + 1
+			EMReadScreen next_ref_numb, 2, hc_row, 3
+			EMReadScreen next_maj_prog, 4, hc_row, 28
+		Loop until next_ref_numb = "  " and next_maj_prog = "    "
+
+	End If
+
 
 	' xl_col = 5
 	'
@@ -707,7 +788,7 @@ Do
 
 	' Call back_to_SELF
 	excel_row = excel_row + 1
-Loop until trim(ObjExcel.Cells(excel_row, 2).Value) = ""
+Loop until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
 
 
 script_end_procedure("Thanks! We're done here.")
