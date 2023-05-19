@@ -7398,8 +7398,10 @@ function find_user_name(the_person_running_the_script)
 	objConnection.Close
 	Set objRecordSet=nothing
 	Set objConnection=nothing
-	Name_array = split(current_user_name, ",")
-	current_user_name = trim(Name_array(1)) & " " & trim(Name_array(0))
+	If InStr(current_user_name, ",") <> 0 Then
+		Name_array = split(current_user_name, ",")
+		current_user_name = trim(Name_array(1)) & " " & trim(Name_array(0))
+	End If
 
 	If windows_user_ID = "KESE001" Then current_user_name = "Audrey Hazel"		'specific handling for a user who does not have up to date information in the data table
 
