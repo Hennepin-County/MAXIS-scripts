@@ -3953,6 +3953,7 @@ script_array(script_num).tags                   = array("Utility")
 script_array(script_num).dlg_keys               = array("Ev")
 script_array(script_num).subcategory            = array("")
 script_array(script_num).release_date           = #05/01/2023#
+script_array(script_num).retirement_date		= #05/19/2023#
 script_array(script_num).hot_topic_link			= ""
 script_array(script_num).used_for_elig			= False
 script_array(script_num).policy_references		= array("")						'SEE Line 58 for format'
