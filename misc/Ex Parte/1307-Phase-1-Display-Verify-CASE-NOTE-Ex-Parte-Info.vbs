@@ -392,7 +392,7 @@ If ex_parte_determination = "Ex Parte is Denied" Then
         PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
     Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
     Text 10, 20, 270, 10, "- Elig Renewal Date: Should not be changed"
-    Text 10, 35, 100, 10, "- Income/Asset Renewal Date: Should  not be changed and should match Elig Renewal Date."
+    Text 10, 35, 100, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
     Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
     Text 10, 95, 145, 10, "- ExParte: Enter N"
     Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
@@ -418,11 +418,11 @@ If ex_parte_determination = "Ex Parte is Denied" Then
                 EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
             End If
             
-            'Validation to ensure that elig renewal month and year have not changed
-            If check_elig_renewal_year <> elig_renewal_year AND check_elig_renewal_month <> elig_renewal_month THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain" & elig_renewal_month & "/" & elig_renewal_year & "."
+            'Validation to ensure that elig renewal date has not changed
+            If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
 
             'Validation for Income/Asset Renewal Date to ensure that information has not changed
-            If  check_income_asset_renewal_year <> elig_renewal_year AND check_income_asset_renewal_month <> elig_renewal_month THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain. It should remain" & income_asset_renewal_month & "/" & income_asset_renewal_year & "."
+            If check_income_asset_renewal_date <> income_asset_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
 
             'Validation to ensure that Exempt from 6 Mo IR is set to N
             If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR." 
@@ -431,7 +431,7 @@ If ex_parte_determination = "Ex Parte is Denied" Then
             If check_HC_ex_parte_determination <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for ExParte." 
 
             'Validate that ExParte Renewal Month is correct 
-            'TO DO - pull data from SQL table to confirm value and validation
+            'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
             If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month." 
             
             'Error message handling    
