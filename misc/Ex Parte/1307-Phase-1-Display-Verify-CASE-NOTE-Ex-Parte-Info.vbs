@@ -279,7 +279,7 @@ CALL back_to_SELF()
 
 'Navigate to STAT, REVW, and open HC Renewal Window with instructions
 CALL navigate_to_MAXIS_screen("STAT", "REVW")
-CALL write_value_and_transmit("disa_endEMRX", 5, 71)
+CALL write_value_and_transmit("X", 5, 71)
 
 'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
 'TO DO - update variables to match/pull from SQL data table. This data should be used as baseline/reference point for validation.
@@ -288,26 +288,37 @@ EMReadScreen elig_renewal_date, 8, 8, 27
 EMReadScreen HC_ex_parte_determination, 1, 9, 27
 EMReadScreen income_asset_renewal_date, 8, 7, 71
 EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-EMReadScreen ex_parte_renewal_month, 7, 9, 71
+EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
+
+'Convert variables from HC Renewal Screen to dates
+'TO DO - update once we have variables from SQL table as this may no longer be needed
+income_renewal_date = replace(income_renewal_date, " ", "/")
+elig_renewal_date = replace(elig_renewal_date, " ", "/")
+income_asset_renewal_date = replace(income_asset_renewal_date, " ", "/")
+ex_parte_renewal_month_year = replace(ex_parte_renewal_month_year, " ", "/")
 
 'Dim variables for use in function so that it updates variables on first run of do loop
-dim check_income_renewal_date, 8, 7, 27
-dim check_elig_renewal_date, 8, 8, 27
-dim check_HC_ex_parte_determination, 1, 9, 27
-dim check_income_asset_renewal_date, 8, 7, 71
-dim check_exempt_6_mo_ir_form, 1, 8, 71
-dim check_ex_parte_renewal_month, 7, 9, 71
+dim check_income_renewal_date
+dim check_elig_renewal_date
+dim check_HC_ex_parte_determination
+dim check_income_asset_renewal_date
+dim check_exempt_6_mo_ir_form
+dim check_ex_parte_renewal_month_year
 
 
-'Create function to check HC renewal updates completed by worker and verify that correct changes have been made
+'Create function to read HC Renewal Screen to verify changes made by worker. Also converts variables to dates where applicable.
 'TO DO - figure out why this does not execute immediately when called in do loop
 Function check_hc_renewal_updates()
     EMReadScreen check_income_renewal_date, 8, 7, 27
+    check_income_renewal_date = replace(check_income_renewal_date, " ", "/")
     EMReadScreen check_elig_renewal_date, 8, 8, 27
+    check_elig_renewal_date = replace(check_elig_renewal_date, " ", "/")
     EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
     EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+    check_income_asset_renewal_date = replace(check_income_asset_renewal_date, " ", "/")
     EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-    EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
+    EMReadScreen check_ex_parte_renewal_month_year, 7, 9, 71
+    check_ex_parte_renewal_month_year = replace(check_ex_parte_renewal_month_year, " ", "/")
 End Function
 
 'Dialog and review of HC renewal for approval of ex parte
@@ -345,7 +356,7 @@ If ex_parte_determination = "Ex Parte is Approved" Then
                 EMReadScreen HC_ex_parte_determination, 1, 9, 27
                 EMReadScreen income_asset_renewal_date, 8, 7, 71
                 EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-                EMReadScreen ex_parte_renewal_month, 7, 9, 71
+                EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
             End If
             
             'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
@@ -404,7 +415,7 @@ If ex_parte_determination = "Ex Parte is Denied" Then
                 EMReadScreen HC_ex_parte_determination, 1, 9, 27
                 EMReadScreen income_asset_renewal_date, 8, 7, 71
                 EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
-                EMReadScreen ex_parte_renewal_month, 7, 9, 71
+                EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
             End If
             
             'Validation to ensure that elig renewal month and year have not changed
