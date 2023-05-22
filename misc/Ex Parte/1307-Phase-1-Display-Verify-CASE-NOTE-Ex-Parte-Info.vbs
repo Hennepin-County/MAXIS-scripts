@@ -360,11 +360,11 @@ If ex_parte_determination = "Ex Parte is Approved" Then
             End If
             
             'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
-            If check_elig_renewal_year <> elig_renewal_year + 1 AND check_elig_renewal_month <> elig_renewal_month THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the renewal month/year currently listed."
+            If check_elig_renewal_date <> DateAdd("Y", 1, elig_renewal_date) THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the current renewal month and year."
 
-            'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from Elig Renewal Date for cases with a spenddown:
-            'TO DO - determine how to determine if meets spenddown - checkbox on dialog? Pull from MAXIS?
-            If  check_income_asset_renewal_year <> elig_renewal_year + 1 AND check_income_asset_renewal_month <> elig_renewal_month THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date." 
+            'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from original Elig Renewal Date for cases with a spenddown:
+            'TO DO - determine how to determine if meets spenddown?
+            If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date." 
 
             'Validate that Exempt from 6 Mo IR is set to N 
             If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR." 
@@ -373,8 +373,8 @@ If ex_parte_determination = "Ex Parte is Approved" Then
             If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte." 
 
             'Validate that ExParte Renewal Month is correct 
-            'TO DO - confirm what this should be
-            If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month." 
+            'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
+            If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month." 
             
             'Error message handling
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
