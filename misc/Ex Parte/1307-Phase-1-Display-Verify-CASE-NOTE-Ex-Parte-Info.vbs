@@ -282,8 +282,7 @@ CALL navigate_to_MAXIS_screen("STAT", "REVW")
 CALL write_value_and_transmit("X", 5, 71)
 
 'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
-'TO DO - do we need validation for each member of the household?
-EMReadScreen received_date, 8, 6, 27
+'TO DO - update variables to match/pull from SQL data table. This data should be used as baseline/reference point for validation.
 EMReadScreen income_renewal_month, 2, 7, 27
 EMReadScreen income_renewal_year, 2, 7, 33
 EMReadScreen elig_renewal_month, 2, 8, 27
@@ -294,14 +293,28 @@ EMReadScreen income_asset_renewal_year, 2, 7, 77
 EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
 EMReadScreen ex_parte_renewal_month, 7, 9, 71
 
+'Dim variables for use in function so that it updates variables on first run of do loop
+dim check_income_renewal_month
+dim check_income_renewal_year
+dim check_elig_renewal_month
+dim check_elig_renewal_year
+dim check_HC_ex_parte_determination
+dim check_income_asset_renewal_month
+dim check_income_asset_renewal_year
+dim check_exempt_6_mo_ir_form
+dim check_ex_parte_renewal_month
+
+
 'Create function to check HC renewal updates completed by worker and verify that correct changes have been made
 'TO DO - figure out why this does not execute immediately when called in do loop
 Function check_hc_renewal_updates()
-    EMReadScreen check_received_date, 8, 6, 27
-    EMReadScreen check_income_renewal_date, 8, 7, 27
-    EMReadScreen check_elig_renewal_date, 8, 8, 27
+    EMReadScreen check_income_renewal_month, 2, 7, 27
+    EMReadScreen check_income_renewal_year, 2, 7, 33
+    EMReadScreen check_elig_renewal_month, 2, 8, 27
+    EMReadScreen check_elig_renewal_year, 2, 8, 33
     EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-    EMReadScreen check_income_asset_renewal_date, 8, 7, 71
+    EMReadScreen check_income_asset_renewal_month, 2, 7, 71
+    EMReadScreen check_income_asset_renewal_year, 2, 7, 77
     EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
     EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
 End Function
@@ -319,7 +332,7 @@ If ex_parte_determination = "Ex Parte is Approved" Then
     Text 10, 35, 100, 10, "- Income/Asset Renewal Date:"
     Text 25, 45, 290, 20, "- For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the date updated in ELIG Renewal Date"
     Text 25, 65, 275, 10, "- For all other cases, enter the same date entered in the Elig Renewal Date"
-    Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N for all cases"
+    Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
     Text 10, 95, 145, 10, "- ExParte: Enter Y"
     Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
     EndDialog
@@ -376,12 +389,15 @@ End If
 'Dialog and review of HC renewal for denial of ex parte
 If ex_parte_determination = "Ex Parte is Denied" Then 
 
-    Dialog1 = "" 'blanking out dialog name
-
-    BeginDialog Dialog1, 0, 0, 231, 130, "Health Care Renewal Updates - Ex Parte Denied"
+    BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Ex Parte Denied"
     ButtonGroup ButtonPressed
-        PushButton 125, 110, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
-    Text 5, 5, 220, 95, "You have indicated that " & lcase(ex_parte_determination) & " for case number: " & MAXIS_case_number & "." & vbNewLine & vbNewLine & "Update the Health Care Renewal Screen accordingly based on this ex parte determination. Once you have made the updates, click the button below to verify the updates and the script will move to CASE NOTE the determination." ' TO DO - update dialog box to match approval dialog, but with applicable information
+        PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+    Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
+    Text 10, 20, 270, 10, "- Elig Renewal Date: Should not be changed"
+    Text 10, 35, 100, 10, "- Income/Asset Renewal Date: Should  not be changed and should match Elig Renewal Date."
+    Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
+    Text 10, 95, 145, 10, "- ExParte: Enter N"
+    Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
     EndDialog
 
 
