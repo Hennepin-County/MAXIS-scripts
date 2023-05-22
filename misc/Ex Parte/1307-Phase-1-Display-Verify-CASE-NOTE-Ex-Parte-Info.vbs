@@ -253,6 +253,9 @@ If HC_form_name = "Ex Parte Determination" Then
             'Add validation to ensure ex parte determination is made
             If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination." 
 
+            'Add validation that if ex parte approved, then explanation should be blank
+            If ex_parte_determination = "Ex Parte is Approved" AND trim(ex_parte_denial_explanation) <> "" THEN err_msg = err_msg & vbCr & "* The explanation for denial field should be blank since ex parte has been approved." 
+
             'Add validation that if ex parte denied, then explanation must be provided
             If ex_parte_determination = "Ex Parte is Denied" AND trim(ex_parte_denial_explanation) = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial." 
 
