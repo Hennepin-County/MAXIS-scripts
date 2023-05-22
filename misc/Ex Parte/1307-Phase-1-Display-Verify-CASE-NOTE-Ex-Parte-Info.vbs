@@ -279,42 +279,33 @@ CALL back_to_SELF()
 
 'Navigate to STAT, REVW, and open HC Renewal Window with instructions
 CALL navigate_to_MAXIS_screen("STAT", "REVW")
-CALL write_value_and_transmit("X", 5, 71)
+CALL write_value_and_transmit("disa_endEMRX", 5, 71)
 
 'Read data from HC renewal screen to determine what changes the worker needs to complete and then use to validate changes
 'TO DO - update variables to match/pull from SQL data table. This data should be used as baseline/reference point for validation.
-EMReadScreen income_renewal_month, 2, 7, 27
-EMReadScreen income_renewal_year, 2, 7, 33
-EMReadScreen elig_renewal_month, 2, 8, 27
-EMReadScreen elig_renewal_year, 2, 8, 33
+EMReadScreen income_renewal_date, 8, 7, 27
+EMReadScreen elig_renewal_date, 8, 8, 27
 EMReadScreen HC_ex_parte_determination, 1, 9, 27
-EMReadScreen income_asset_renewal_month, 2, 7, 71
-EMReadScreen income_asset_renewal_year, 2, 7, 77
+EMReadScreen income_asset_renewal_date, 8, 7, 71
 EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
 EMReadScreen ex_parte_renewal_month, 7, 9, 71
 
 'Dim variables for use in function so that it updates variables on first run of do loop
-dim check_income_renewal_month
-dim check_income_renewal_year
-dim check_elig_renewal_month
-dim check_elig_renewal_year
-dim check_HC_ex_parte_determination
-dim check_income_asset_renewal_month
-dim check_income_asset_renewal_year
-dim check_exempt_6_mo_ir_form
-dim check_ex_parte_renewal_month
+dim check_income_renewal_date, 8, 7, 27
+dim check_elig_renewal_date, 8, 8, 27
+dim check_HC_ex_parte_determination, 1, 9, 27
+dim check_income_asset_renewal_date, 8, 7, 71
+dim check_exempt_6_mo_ir_form, 1, 8, 71
+dim check_ex_parte_renewal_month, 7, 9, 71
 
 
 'Create function to check HC renewal updates completed by worker and verify that correct changes have been made
 'TO DO - figure out why this does not execute immediately when called in do loop
 Function check_hc_renewal_updates()
-    EMReadScreen check_income_renewal_month, 2, 7, 27
-    EMReadScreen check_income_renewal_year, 2, 7, 33
-    EMReadScreen check_elig_renewal_month, 2, 8, 27
-    EMReadScreen check_elig_renewal_year, 2, 8, 33
+    EMReadScreen check_income_renewal_date, 8, 7, 27
+    EMReadScreen check_elig_renewal_date, 8, 8, 27
     EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-    EMReadScreen check_income_asset_renewal_month, 2, 7, 71
-    EMReadScreen check_income_asset_renewal_year, 2, 7, 77
+    EMReadScreen check_income_asset_renewal_date, 8, 7, 71
     EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
     EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
 End Function
@@ -349,15 +340,12 @@ If ex_parte_determination = "Ex Parte is Approved" Then
             'TO DO - update with functions?
             'Check the HC renewal screen data and compare against initial to ensure that changes made properly
             If ButtonPressed = hc_renewal_button Then
-                    EMReadScreen check_income_renewal_month, 2, 7, 27
-                    EMReadScreen check_income_renewal_year, 2, 7, 33
-                    EMReadScreen check_elig_renewal_month, 2, 8, 27
-                    EMReadScreen check_elig_renewal_year, 2, 8, 33
-                    EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-                    EMReadScreen check_income_asset_renewal_month, 2, 7, 71
-                    EMReadScreen check_income_asset_renewal_year, 2, 7, 77
-                    EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-                    EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
+                EMReadScreen income_renewal_date, 8, 7, 27
+                EMReadScreen elig_renewal_date, 8, 8, 27
+                EMReadScreen HC_ex_parte_determination, 1, 9, 27
+                EMReadScreen income_asset_renewal_date, 8, 7, 71
+                EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
+                EMReadScreen ex_parte_renewal_month, 7, 9, 71
             End If
             
             'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
@@ -411,15 +399,12 @@ If ex_parte_determination = "Ex Parte is Denied" Then
             'TO DO - update with functions?
             'Check the HC renewal screen data and compare against initial to ensure that changes made properly
             If ButtonPressed = hc_renewal_button Then
-                    EMReadScreen check_income_renewal_month, 2, 7, 27
-                    EMReadScreen check_income_renewal_year, 2, 7, 33
-                    EMReadScreen check_elig_renewal_month, 2, 8, 27
-                    EMReadScreen check_elig_renewal_year, 2, 8, 33
-                    EMReadScreen check_HC_ex_parte_determination, 1, 9, 27
-                    EMReadScreen check_income_asset_renewal_month, 2, 7, 71
-                    EMReadScreen check_income_asset_renewal_year, 2, 7, 77
-                    EMReadScreen check_exempt_6_mo_ir_form, 1, 8, 71
-                    EMReadScreen check_ex_parte_renewal_month, 7, 9, 71
+                EMReadScreen income_renewal_date, 8, 7, 27
+                EMReadScreen elig_renewal_date, 8, 8, 27
+                EMReadScreen HC_ex_parte_determination, 1, 9, 27
+                EMReadScreen income_asset_renewal_date, 8, 7, 71
+                EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
+                EMReadScreen ex_parte_renewal_month, 7, 9, 71
             End If
             
             'Validation to ensure that elig renewal month and year have not changed
