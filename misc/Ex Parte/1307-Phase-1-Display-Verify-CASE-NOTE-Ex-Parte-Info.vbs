@@ -443,8 +443,9 @@ If ex_parte_determination = "Ex Parte is Denied" Then
 End If 
 
 
-'Do you need to set a TIKL?
-'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
+'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
+'TO DO - confirm TIKL information is correct
+If ex_parte_determination = "Ex Parte is Approved" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided.", 10, DateAdd("M", -1, ex_parte_renewal_month_year), False, TIKL_note_text)
 
 'Navigate to and start a new CASE NOTE
 Call start_a_blank_case_note
