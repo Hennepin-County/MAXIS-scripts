@@ -262,9 +262,7 @@ If HC_form_name = "Ex Parte Determination" Then
             'Add validation to ensure worker signature is not blank
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
 
-            'Call validate_MAXIS_case_number(err_msg, "*") ' IF NEEDED
-            'Call validate_footer_month_entry(MAXIS_footer_month, MAXIS_footer_year, err_msg, "*")   'IF NEEDED
-            'The rest of the mandatory handling here
+            'Error message handling
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = "" AND ButtonPressed = -1
         'Add to all dialogs where you need to work within BLUEZONE
@@ -366,7 +364,8 @@ If ex_parte_determination = "Ex Parte is Approved" Then
             'Validate that ExParte Renewal Month is correct 
             'TO DO - confirm what this should be
             If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month." 
-                
+            
+            'Error message handling
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
             'Add to all dialogs where you need to work within BLUEZONE
@@ -424,7 +423,8 @@ If ex_parte_determination = "Ex Parte is Denied" Then
             'Validate that ExParte Renewal Month is correct 
             'TO DO - confirm what this should be
             If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month." 
-                
+            
+            'Error message handling    
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
             'Add to all dialogs where you need to work within BLUEZONE
@@ -432,14 +432,6 @@ If ex_parte_determination = "Ex Parte is Denied" Then
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
 End If 
 
-
-'Do you need to check for PRIV status
-'Call navigate_to_MAXIS_screen_review_PRIV("STAT", "MEMB")
-
-'Do you need to check to see if case is out of county? Add Out-of-County handling here:
-'All your other navigation, data catpure and logic here. any other logic or pre case noting actions here.
-
-'Call MAXIS_background_check 'IF NEEDED: meaning if you send it through background. Move this to where it makes sense.
 
 'Do you need to set a TIKL?
 'Call create_TIKL(TIKL_text, num_of_days, date_to_start, ten_day_adjust, TIKL_note_text)
