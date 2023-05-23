@@ -73,16 +73,16 @@ Call Check_for_MAXIS(false)                         'Ensuring we are in MAXIS
 
 Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 191, 85, "Transfer Case"
+  Text 20, 10, 50, 10, "Case Number:"
   EditBox 70, 5, 45, 15, MAXIS_case_number
+  Text 30, 30, 110, 10, "Servicing Worker (transferring to):"
   EditBox 140, 25, 45, 15, transfer_to_worker
+  Text 10, 50, 60, 10, "Worker Signature:"
   EditBox 70, 45, 115, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 90, 65, 45, 15
     CancelButton 140, 65, 45, 15
     PushButton 120, 5, 65, 15, "HSR - Transfers", HSR_manual_button
-  Text 20, 10, 50, 10, "Case Number:"
-  Text 30, 30, 110, 10, "Servicing Worker (transferring to):"
-  Text 10, 50, 60, 10, "Worker Signature:"
 EndDialog
 
 'Runs the first dialog - which confirms the case number
@@ -199,7 +199,7 @@ Do
     Do
         'Inside the do...loop for the calculate_button
         Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 346, 260, "Out-of-County Case Transfer for #" & MAXIS_case_number
+        BeginDialog Dialog1, 0, 0, 346, 260, "Out-of-County Case Transfer for # & MAXIS_case_number"
         Text 10, 10, 70, 10, "Resident Move Date:"
         EditBox 80, 5, 45, 15, resident_move_date
         Text 135, 10, 55, 10, "Excluded time?"
@@ -221,27 +221,27 @@ Do
         Text 5, 140, 45, 10, "Other Notes:"
         EditBox 50, 135, 290, 15, other_notes
         GroupBox 5, 155, 335, 60, "County of Financial Responsibility(CFR) - Complete if not excluded time."
-        ButtonGroup ButtonPressed
-        PushButton 290, 175, 40, 25, "Calculate", calculate_button
-        Text 85, 285, 75, 10, "Change Date (MM YY)"
-        ButtonGroup ButtonPressed
-        OkButton 235, 235, 50, 15
-        CancelButton 290, 235, 50, 15
-        PushButton 15, 235, 60, 15, "TE02.08.133", POLI_TEMP_button
-        PushButton 85, 235, 60, 15, "SPEC/XFER", XFER_button
-        PushButton 155, 235, 60, 15, "Use Form", useform_xfer_button
         Text 15, 175, 100, 10, "Cash Programs  - Current CFR:"
         EditBox 115, 170, 20, 15, cash_cfr
+        Text 25, 195, 85, 10, "Health Care - Current CFR:"
+        EditBox 115, 190, 20, 15, hc_cfr
         Text 160, 175, 75, 10, "Change Date (MM YY):"
         EditBox 235, 170, 20, 15, cash_cfr_month
         EditBox 260, 170, 20, 15, cash_cfr_year
-        Text 25, 195, 85, 10, "Health Care - Current CFR:"
-        EditBox 115, 190, 20, 15, hc_cfr
         Text 160, 195, 75, 10, "Change Date (MM YY):"
         EditBox 235, 190, 20, 15, hc_cfr_month
         EditBox 260, 190, 20, 15, hc_cfr_year
-        Text 10, 285, 45, 10, "Current CFR:"
+        ButtonGroup ButtonPressed
+            PushButton 290, 175, 40, 25, "Calculate", calculate_button
+            OkButton 235, 235, 50, 15
+            CancelButton 290, 235, 50, 15
         GroupBox 5, 220, 220, 35, "Navigation:"
+        ButtonGroup ButtonPressed
+            PushButton 15, 235, 60, 15, "TE02.08.133", POLI_TEMP_button
+            PushButton 85, 235, 60, 15, "SPEC/XFER", XFER_button
+            PushButton 155, 235, 60, 15, "Use Form", useform_xfer_button
+        Text 10, 285, 45, 10, "Current CFR:"
+        Text 85, 285, 75, 10, "Change Date (MM YY)"
         EndDialog
 
 		err_msg = ""
@@ -446,7 +446,7 @@ End if
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------10/26/2022
-'--Tab orders reviewed & confirmed----------------------------------------------10/26/2022
+'--Tab orders reviewed & confirmed----------------------------------------------05/23/2022
 '--Mandatory fields all present & Reviewed--------------------------------------10/26/2022
 '--All variables in dialog match mandatory fields-------------------------------10/26/2022
 'Review dialog names for content and content fit in dialog----------------------01/12/2023
