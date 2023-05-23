@@ -45,6 +45,7 @@ CALL MAXIS_case_number_finder(MAXIS_case_number)    'Grabs the MAXIS case number
 
 'Gather Case Number and the form processed
 Dialog1 = ""
+
 BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
   EditBox 80, 200, 50, 15, MAXIS_case_number
   DropListBox 80, 220, 275, 45, "Select One..."+chr(9)+"Ex Parte Determination", HC_form_name
@@ -97,9 +98,9 @@ DO
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
-Dialog1 = "" 'blanking out dialog name
-'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
 If HC_form_name = "Ex Parte Determination" Then
+    Dialog1 = ""
+
     BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         GroupBox 10, 310, 455, 50, "Ex Parte Determination"
             Text 15, 325, 85, 10, "Ex Parte Determination:"
@@ -387,6 +388,8 @@ End If
 'Dialog and review of HC renewal for denial of ex parte
 If ex_parte_determination = "Ex Parte is Denied" Then 
 
+    Dialog1 = ""
+
     BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Ex Parte Denied"
     ButtonGroup ButtonPressed
         PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
@@ -487,7 +490,7 @@ script_end_procedure("Success! The ex parte determination has been added to the 
 '------Task/Step--------------------------------------------------------------Date completed---------------Notes-----------------------
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
-'--Dialog1 = "" on all dialogs -------------------------------------------------
+'--Dialog1 = "" on all dialogs -------------------------------------------------05/23/2023
 '--Tab orders reviewed & confirmed----------------------------------------------05/23/2023
 '--Mandatory fields all present & Reviewed--------------------------------------
 '--All variables in dialog match mandatory fields-------------------------------
