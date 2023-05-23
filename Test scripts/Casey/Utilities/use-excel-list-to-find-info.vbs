@@ -153,7 +153,10 @@ file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Sum
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Oct 6.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Nov 8.xlsx"
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Eligibility Summary\All Cases Dec 6.xlsx"
+
+
 file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\Data Validation\ELIG by PERS JULY.xlsx"
+' file_url = "C:\Users\calo001\OneDrive - Hennepin County\Projects\Ex-Parte\Data Validation\Case List JULY.xlsx"
 visible_status = True
 alerts_status = True
 Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
@@ -178,97 +181,194 @@ Call excel_open(file_url, visible_status, alerts_status, ObjExcel, objWorkbook)
 ' 	count = count + 1
 ' Loop Until count = 8
 
+check_PERS_list = True
+check_CASE_list = False
+
+If check_CASE_list = True Then
+	review_report_file = t_drive & "\Eligibility Support\Restricted\QI - Quality Improvement\REPORTS\On Demand Waiver\Renewals\07-23 Review Report.xlsx"
+	Call excel_open(review_report_file, visible_status, alerts_status, ObjREVWExcel, objREVWWorkbook)
+
+	Const rr_case_numb 	= 0
+	Const rr_intv_er	= 1
+	Const rr_hc_er		= 2
+	Const rr_case_in_SQL	= 3
+	Const rr_case_is_hc	= 4
+	Const rr_last_const	= 5
+
+	Dim REVIEW_REPORT_ARRAY()
+	ReDim REVIEW_REPORT_ARRAY(rr_last_const, 0)
+
+	excel_row = 2
+	Do
+		reDim preserve REVIEW_REPORT_ARRAY(rr_last_const, excel_row-2)
+
+		REVIEW_REPORT_ARRAY(rr_case_numb, excel_row-2) = trim(ObjREVWExcel.Cells(excel_row, 2).Value)
+		REVIEW_REPORT_ARRAY(rr_intv_er, excel_row-2) = trim(ObjREVWExcel.Cells(excel_row, 4).Value)
+		REVIEW_REPORT_ARRAY(rr_hc_er, excel_row-2) = trim(ObjREVWExcel.Cells(excel_row, 18).Value)
+		REVIEW_REPORT_ARRAY(rr_case_in_SQL, excel_row-2) = False
+		REVIEW_REPORT_ARRAY(rr_case_is_hc, excel_row-2) = False
+
+		If UCase(REVIEW_REPORT_ARRAY(rr_intv_er, excel_row-2)) = "TRUE" and REVIEW_REPORT_ARRAY(rr_hc_er, excel_row-2) = "07/23" Then REVIEW_REPORT_ARRAY(rr_case_is_hc, excel_row-2) = True
+
+		excel_row = excel_row + 1
+		next_case = trim(ObjREVWExcel.Cells(excel_row, 2).Value)
+	Loop until next_case = ""
+	' MsgBox "UBound of REVW Array - " & UBound(REVIEW_REPORT_ARRAY, 2)
+
+	ObjREVWExcel.ActiveWorkbook.Close
+
+	ObjREVWExcel.Application.Quit
+	ObjREVWExcel.Quit
+End If
 
 MAXIS_footer_month = "06"
 MAXIS_footer_year = "23"
-excel_row = 687
+excel_row = 5652
+
+
 Do
 	MAXIS_case_number = trim(ObjExcel.Cells(excel_row, 1).Value)
 	PERS_PMI = trim(ObjExcel.Cells(excel_row, 2).Value)
 
-	Call navigate_to_MAXIS_screen("CASE", "PERS")
+	If check_PERS_list = True Then
+		Call navigate_to_MAXIS_screen("CASE", "PERS")
+		EMReadScreen case_pw, 7, 20, 14
+		objExcel.Cells(excel_row, 24) = case_pw
 
-	pers_row = 10
-	hc_stat = ""
-	Do
-		EMReadScreen read_pmi, 8, pers_row, 34
-		read_pmi = trim(read_pmi)
-
-		If read_pmi = PERS_PMI Then
-			EMReadScreen ref_number, 2, pers_row, 3
-			EMReadScreen hc_stat, 1, pers_row, 61
-			objExcel.Cells(excel_row, 19) = hc_stat
-			Exit Do
-		End If
-		pers_row = pers_row + 3
-		If pers_row = 19 Then
-			PF8
-			pers_row = 10
-			EMReadScreen end_of_list, 9, 24, 14
-			If end_of_list = "LAST PAGE" Then Exit Do
-		End If
-	Loop until read_pmi = ""
-
-	If hc_stat = "" Then
-		objExcel.Cells(excel_row, 19) = "NOT FOUND"
-	Else
-		Call navigate_to_MAXIS_screen("STAT", "REVW")
-		Call write_value_and_transmit("X", 5, 71)
-		EMReadScreen hc_er, 8, 8, 27
-		objExcel.Cells(excel_row, 22) = replace(hc_er, " ", "/")
-
-		Call navigate_to_MAXIS_screen("ELIG", "HC")
-		PERS_prog =  trim(ObjExcel.Cells(excel_row, 7).Value)
-		PERS_type = trim(ObjExcel.Cells(excel_row, 8).Value)
-
-		hc_row = 8
-		hc_prog_count = 0
+		pers_row = 10
+		hc_stat = ""
 		Do
-			EMReadScreen read_ref_numb, 2, hc_row, 3
-			EMReadScreen clt_hc_prog, 4, hc_row, 28
-			If read_ref_numb = "  " Then EMReadScreen read_ref_numb, 2, hc_row-1, 3
+			EMReadScreen read_pmi, 8, pers_row, 34
+			read_pmi = trim(read_pmi)
 
-			If read_ref_numb = ref_number Then
-				If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
-					' MsgBox "clt_hc_prog - " & clt_hc_prog & vbCr & "PERS_prog - " & PERS_prog
-					If left(clt_hc_prog, 2) = PERS_prog Then
-						EMReadScreen prog_status, 3, hc_row, 68
-						If prog_status <> "APP" Then                        'Finding the approved version
-							EMReadScreen total_versions, 2, hc_row, 64
-							If total_versions = "01" Then
-								hc_prog_elig_appd = False
-							Else
-								EMReadScreen current_version, 2, hc_row, 58
-								' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
-								If current_version = "01" Then
+			If read_pmi = PERS_PMI Then
+				EMReadScreen ref_number, 2, pers_row, 3
+				EMReadScreen hc_stat, 1, pers_row, 61
+				objExcel.Cells(excel_row, 19) = hc_stat
+				Exit Do
+			End If
+			pers_row = pers_row + 3
+			If pers_row = 19 Then
+				PF8
+				pers_row = 10
+				EMReadScreen end_of_list, 9, 24, 14
+				If end_of_list = "LAST PAGE" Then Exit Do
+			End If
+		Loop until read_pmi = ""
+
+		If hc_stat = "" Then
+			objExcel.Cells(excel_row, 19) = "NOT FOUND"
+		Else
+			Call navigate_to_MAXIS_screen("STAT", "REVW")
+			Call write_value_and_transmit("X", 5, 71)
+			EMReadScreen hc_er, 8, 8, 27
+			objExcel.Cells(excel_row, 22) = replace(hc_er, " ", "/")
+
+			Call navigate_to_MAXIS_screen("ELIG", "HC")
+			PERS_prog =  trim(ObjExcel.Cells(excel_row, 7).Value)
+			PERS_type = trim(ObjExcel.Cells(excel_row, 8).Value)
+
+			hc_row = 8
+			hc_prog_count = 0
+			Do
+				EMReadScreen read_ref_numb, 2, hc_row, 3
+				EMReadScreen clt_hc_prog, 4, hc_row, 28
+				If read_ref_numb = "  " Then EMReadScreen read_ref_numb, 2, hc_row-1, 3
+
+				If read_ref_numb = ref_number Then
+					If clt_hc_prog <> "NO V" AND clt_hc_prog <> "NO R" and clt_hc_prog <> "    " Then
+						' MsgBox "clt_hc_prog - " & clt_hc_prog & vbCr & "PERS_prog - " & PERS_prog
+						If left(clt_hc_prog, 2) = PERS_prog Then
+							EMReadScreen prog_status, 3, hc_row, 68
+							If prog_status <> "APP" Then                        'Finding the approved version
+								EMReadScreen total_versions, 2, hc_row, 64
+								If total_versions = "01" Then
 									hc_prog_elig_appd = False
 								Else
-									prev_version = right ("00" & abs(current_version) - 1, 2)
-									EMWriteScreen prev_version, hc_row, 58
-									transmit
-									hc_prog_elig_appd = True
-								End If
+									EMReadScreen current_version, 2, hc_row, 58
+									' MsgBox "hc_row - " & hc_row & vbCr & "current_version - " & current_version
+									If current_version = "01" Then
+										hc_prog_elig_appd = False
+									Else
+										prev_version = right ("00" & abs(current_version) - 1, 2)
+										EMWriteScreen prev_version, hc_row, 58
+										transmit
+										hc_prog_elig_appd = True
+									End If
 
+								End If
+							Else
+								hc_prog_elig_appd = True
 							End If
-						Else
-							hc_prog_elig_appd = True
+							Call write_value_and_transmit("X", hc_row, 26)
+							EMReadScreen MX_Elig, 2, 12, 72
+							If clt_hc_prog = "QMB " or clt_hc_prog = "SLMB" Then EMReadScreen MX_Elig, 2, 6, 56
+							objExcel.Cells(excel_row, 20) = clt_hc_prog
+							objExcel.Cells(excel_row, 21) = MX_Elig
 						End If
-						Call write_value_and_transmit("X", hc_row, 26)
-						EMReadScreen MX_Elig, 2, 12, 72
-						If clt_hc_prog = "QMB " or clt_hc_prog = "SLMB" Then EMReadScreen MX_Elig, 2, 6, 56
-						objExcel.Cells(excel_row, 20) = clt_hc_prog
-						objExcel.Cells(excel_row, 21) = MX_Elig
+					Else
+						objExcel.Cells(excel_row, 20) = "NOT FOUND"
 					End If
-				Else
-					objExcel.Cells(excel_row, 20) = "NOT FOUND"
 				End If
+				hc_row = hc_row + 1
+				EMReadScreen next_ref_numb, 2, hc_row, 3
+				EMReadScreen next_maj_prog, 4, hc_row, 28
+			Loop until next_ref_numb = "  " and next_maj_prog = "    "
+
+		End If
+	End If
+
+	If check_CASE_list = True Then
+		' Call navigate_to_MAXIS_screen("CASE", "CURR")
+		' EMReadScreen case_pw, 7, 21, 14
+		' objExcel.Cells(excel_row, 7) = case_pw
+
+		' row = 1                                                 'Looking for a general 'Cash' header which means any kind of cash could be pending
+		' col = 1
+		' EMSearch "HC:", row, col
+		' If row <> 0 Then
+		' 	EMReadScreen hc_status, 9, row, col + 4
+		' 	hc_status = trim(hc_status)
+		' 	objExcel.Cells(excel_row, 5) = hc_status
+		' End If
+
+		' Call navigate_to_MAXIS_screen("STAT", "REVW")
+		' Call write_value_and_transmit("X", 5, 71)
+		' EMReadScreen hc_er, 8, 8, 27
+		' objExcel.Cells(excel_row, 6) = replace(hc_er, " ", "/")
+
+		case_found = False
+		For rr_case = 0 to UBound(REVIEW_REPORT_ARRAY, 2)
+			If REVIEW_REPORT_ARRAY(rr_case_numb, rr_case) = MAXIS_case_number Then
+				case_found = True
+				REVIEW_REPORT_ARRAY(rr_case_in_SQL, rr_case) = True
+				' If REVIEW_REPORT_ARRAY(rr_hc_er, rr_case) = "07/23" and UCase(REVIEW_REPORT_ARRAY(rr_intv_er, rr_case)) = "TRUE" Then
+				' 	objExcel.Cells(excel_row, 8) = "FOUND and appears to match"
+				' Else
+				' 	objExcel.Cells(excel_row, 8) = "FOUND but data is off."
+				' End If
 			End If
-			hc_row = hc_row + 1
-			EMReadScreen next_ref_numb, 2, hc_row, 3
-			EMReadScreen next_maj_prog, 4, hc_row, 28
-		Loop until next_ref_numb = "  " and next_maj_prog = "    "
+		Next
+		' If case_found = False Then objExcel.Cells(excel_row, 8) = "NOT FOUND"
+
 
 	End If
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	' xl_col = 5
@@ -724,6 +824,38 @@ Do
 	' Loop until trim(next_claim_pd) = ""
 	excel_row = excel_row + 1
 Loop until trim(ObjExcel.Cells(excel_row, 1).Value) = ""
+
+If check_CASE_list = True Then
+	For rr_case = 0 to UBound(REVIEW_REPORT_ARRAY, 2)
+		If REVIEW_REPORT_ARRAY(rr_case_in_SQL, rr_case) = False and REVIEW_REPORT_ARRAY(rr_case_is_hc, rr_case) = True Then
+			MAXIS_case_number = REVIEW_REPORT_ARRAY(rr_case_numb, rr_case)
+			ObjExcel.Cells(excel_row, 1).Value = REVIEW_REPORT_ARRAY(rr_case_numb, rr_case)
+
+			Call navigate_to_MAXIS_screen("CASE", "CURR")
+			EMReadScreen case_pw, 7, 21, 14
+			objExcel.Cells(excel_row, 7) = case_pw
+
+			row = 1                                                 'Looking for a general 'Cash' header which means any kind of cash could be pending
+			col = 1
+			EMSearch "HC:", row, col
+			If row <> 0 Then
+				EMReadScreen hc_status, 9, row, col + 4
+				hc_status = trim(hc_status)
+				objExcel.Cells(excel_row, 5) = hc_status
+			End If
+
+			Call navigate_to_MAXIS_screen("STAT", "REVW")
+			Call write_value_and_transmit("X", 5, 71)
+			EMReadScreen hc_er, 8, 8, 27
+			objExcel.Cells(excel_row, 6) = replace(hc_er, " ", "/")
+
+			objExcel.Cells(excel_row, 8) = "RR HC ER: " & REVIEW_REPORT_ARRAY(rr_hc_er, rr_case) & " - No Interview ER: " & REVIEW_REPORT_ARRAY(rr_intv_er, rr_case)
+
+			excel_row = excel_row + 1
+			Call back_to_SELF
+		End If
+	Next
+End If
 
 for xl_col = 1 to 30
 	ObjExcel.Columns(xl_col).AutoFit()
