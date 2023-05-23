@@ -101,6 +101,16 @@ Dialog1 = "" 'blanking out dialog name
 'Add dialog here: Add the dialog just before calling the dialog below unless you need it in the dialog due to using COMBO Boxes or other looping reasons. Blank out the dialog name with Dialog1 = "" before adding dialog.
 If HC_form_name = "Ex Parte Determination" Then
     BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
+        GroupBox 10, 310, 455, 50, "Ex Parte Determination"
+            Text 15, 325, 85, 10, "Ex Parte Determination:"
+            DropListBox 125, 320, 110, 50, ""+chr(9)+"Ex Parte is Approved"+chr(9)+"Ex Parte is Denied", ex_parte_determination
+            Text 15, 345, 105, 10, "If denied, provide explanation:"
+            EditBox 125, 340, 290, 15, ex_parte_denial_explanation
+        Text 15, 365, 70, 10, "Worker Signature:"
+        EditBox 80, 360, 110, 15, worker_signature
+        ButtonGroup ButtonPressed
+            OkButton 440, 365, 50, 15
+            CancelButton 500, 365, 50, 15
         GroupBox 10, 5, 220, 45, "Person 1 - Case Information"
             Text 15, 20, 50, 10, "Person Name:"
             Text 65, 20, 75, 10, name_01
@@ -220,16 +230,6 @@ If HC_form_name = "Ex Parte Determination" Then
             Text 330, 270, 80, 10, MEDI_part_a_02
             Text 255, 285, 70, 10, "MEDI - Part B Exists:"
             Text 330, 285, 80, 10, MEDI_part_b_02
-        GroupBox 10, 310, 455, 50, "Ex Parte Determination"
-            Text 15, 325, 85, 10, "Ex Parte Determination:"
-            DropListBox 125, 320, 110, 50, ""+chr(9)+"Ex Parte is Approved"+chr(9)+"Ex Parte is Denied", ex_parte_determination
-            Text 15, 345, 105, 10, "If denied, provide explanation:"
-            EditBox 125, 340, 290, 15, ex_parte_denial_explanation
-        Text 15, 365, 70, 10, "Worker Signature:"
-        EditBox 80, 360, 110, 15, worker_signature
-        ButtonGroup ButtonPressed
-            OkButton 440, 365, 50, 15
-            CancelButton 500, 365, 50, 15
     EndDialog
 
     'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
@@ -488,7 +488,7 @@ script_end_procedure("Success! The ex parte determination has been added to the 
 '
 '------Dialogs--------------------------------------------------------------------------------------------------------------------
 '--Dialog1 = "" on all dialogs -------------------------------------------------
-'--Tab orders reviewed & confirmed----------------------------------------------
+'--Tab orders reviewed & confirmed----------------------------------------------05/23/2023
 '--Mandatory fields all present & Reviewed--------------------------------------
 '--All variables in dialog match mandatory fields-------------------------------
 'Review dialog names for content and content fit in dialog----------------------
