@@ -118,10 +118,10 @@ If HC_form_name = "Ex Parte Determination" Then
 
     BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         GroupBox 10, 310, 455, 50, "Ex Parte Determination"
-            Text 15, 325, 85, 10, "Ex Parte Determination:"
-            DropListBox 125, 320, 110, 50, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte", ex_parte_determination
-            Text 15, 345, 105, 10, "If denied, provide explanation:"
-            EditBox 125, 340, 290, 15, ex_parte_denial_explanation
+            Text 20, 320, 80, 10, "Ex Parte Determination:"
+            DropListBox 105, 320, 115, 50, "Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte", ex_parte_determination
+            Text 20, 340, 205, 10, "If case cannot be processed as ex parte, provide explanation:"
+            EditBox 220, 335, 235, 15, ex_parte_denial_explanation
         Text 15, 365, 70, 10, "Worker Signature:"
         EditBox 80, 360, 110, 15, worker_signature
         ButtonGroup ButtonPressed
@@ -342,7 +342,7 @@ If ex_parte_determination = "Appears Ex Parte" Then
 
     Dialog1 = "" 'blanking out dialog name
 
-    BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Ex Parte Approved"
+    BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Appears Ex Parte"
     ButtonGroup ButtonPressed
         PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
     Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
@@ -405,15 +405,15 @@ If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
 
     Dialog1 = ""
 
-    BeginDialog Dialog1, 0, 0, 331, 150, "Health Care Renewal Updates - Ex Parte Denied"
+    BeginDialog Dialog1, 0, 0, 331, 120, "Health Care Renewal Updates - Cannot be Processed as Ex Parte"
     ButtonGroup ButtonPressed
-        PushButton 205, 130, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
+        PushButton 205, 100, 100, 15, "Verify HC Renewal Updates", hc_renewal_button
     Text 5, 5, 320, 10, "Update the following on the Health Care Renewals Screen and then click the button below to verify:"
-    Text 10, 20, 270, 10, "- Elig Renewal Date: Should not be changed"
-    Text 10, 35, 100, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
-    Text 10, 80, 145, 10, "- Exempt from 6 Mo IR: Enter N"
-    Text 10, 95, 145, 10, "- ExParte: Enter N"
-    Text 10, 110, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
+    Text 10, 20, 150, 10, "- Elig Renewal Date: Should not be changed"
+    Text 10, 35, 300, 10, "- Income/Asset Renewal Date: Should not be changed and should match Elig Renewal Date."
+    Text 10, 50, 145, 10, "- Exempt from 6 Mo IR: Enter N"
+    Text 10, 65, 145, 10, "- ExParte: Enter N"
+    Text 10, 80, 255, 10, "- ExParte Renewal Month: Enter month and year of the ex parte renewal month"
     EndDialog
 
 
