@@ -60,15 +60,15 @@ Dialog1 = ""
 
 BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
   EditBox 80, 200, 50, 15, MAXIS_case_number
-  DropListBox 80, 220, 275, 45, "Select One..."+chr(9)+"Ex Parte Determination", HC_form_name
-  DropListBox 265, 240, 75, 45, "No"+chr(9)+"Yes", ltc_waiver_request_yn
+  DropListBox 80, 220, 275, 45, "Select One..."+chr(9)+"No Form - Ex Parte Determination", HC_form_name
+  DropListBox 265, 240, 90, 45, "No"+chr(9)+"Yes"+chr(9)+"N/A - Ex Parte Process", ltc_waiver_request_yn
   EditBox 80, 260, 50, 15, form_date
   EditBox 80, 280, 150, 15, worker_signature
   ButtonGroup ButtonPressed
     OkButton 250, 280, 50, 15
     CancelButton 305, 280, 50, 15
-    PushButton 295, 35, 50, 13, "Instructions", instructions_btn
-    PushButton 295, 50, 50, 13, "Video Demo", video_demo_btn
+    PushButton 295, 35, 50, 15, "Instructions", instructions_btn
+    PushButton 295, 50, 50, 15, "Video Demo", video_demo_btn
   Text 105, 10, 120, 10, "Health Care Evaluation Script"
   Text 20, 40, 255, 20, "This script is to be run once MAXIS STAT panels have been updated with all accurate information from a Health Care Application Form."
   Text 20, 65, 255, 25, "If information displayed in this script is inaccurate, this means the information entered into STAT requires update. Cancel the script run and update STAT panels before running the script again."
@@ -84,9 +84,10 @@ BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
   Text 25, 205, 50, 10, "Case Number:"
   Text 15, 225, 60, 10, "Health Care Form:"
   Text 80, 245, 185, 10, "Does this form qualify to request LTC/Waiver Services?"
-  Text 25, 265, 40, 10, "Form Date:"
+  Text 35, 265, 40, 10, "Form Date:"
   Text 15, 285, 60, 10, "Worker Signature:"
   GroupBox 10, 25, 345, 170, "Health Care Processing"
+  Text 135, 265, 110, 10, "For ex parte, use processing date"
 EndDialog
 
 DO
