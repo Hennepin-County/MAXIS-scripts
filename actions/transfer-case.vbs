@@ -247,9 +247,9 @@ Do
 		err_msg = ""
 		Dialog Dialog1
 		cancel_confirmation
-        IF isdate(resident_move_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for resident move."
+        IF IsDate(resident_move_date) = False OR Len(resident_move_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for resident move."
         If excluded_time_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Is this an excluded time case?."
-        IF excluded_time_dropdown = "Yes" and isdate(excluded_time_begin_date) = False THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date for the start of excluded time or double check that the resident's absense is due to excluded time."
+        IF excluded_time_dropdown = "Yes" and IsDate(excluded_time_begin_date) = False OR Len(excluded_time_begin_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for the start of excluded time or double check that the resident's absense is due to excluded time."
         IF grh_status = "ACTIVE" or grh_status = "APP OPEN" then
             IF excluded_time_dropdown = "No" THEN err_msg = err_msg & vbNewLine & "* GRH/Housing Suppports is always an exluded time case." 'GRH IS ALWAYS EXCLUDED TIME CASE - ANSWER MUST BE 'Y'
         END IF
