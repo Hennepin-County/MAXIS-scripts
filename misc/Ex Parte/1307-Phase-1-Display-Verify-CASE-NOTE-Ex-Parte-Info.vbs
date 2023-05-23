@@ -61,7 +61,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
   EditBox 80, 200, 50, 15, MAXIS_case_number
   DropListBox 80, 220, 275, 45, "Select One..."+chr(9)+"No Form - Ex Parte Determination", HC_form_name
-  DropListBox 265, 240, 90, 45, "No"+chr(9)+"Yes"+chr(9)+"N/A - Ex Parte Process", ltc_waiver_request_yn
+  DropListBox 265, 240, 90, 45, "No"+chr(9)+"Yes", ltc_waiver_request_yn
   EditBox 80, 260, 50, 15, form_date
   EditBox 80, 280, 150, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -104,6 +104,8 @@ DO
 			Call validate_MAXIS_case_number(err_msg, "*")
 			If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care evaluation from."
 			If IsDate(form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the form being processed was received."
+            'Add validation to make sure LTC field is blank for ex parte
+            If HC_form_name = "No Form - Ex Parte Determination" AND ltc_waiver_request_yn <> "" THEN err_msg = err_msg & vbCr & "* Leave the LTC/Waiver Services field blank for the ex parte process."
 			If trim(worker_signature) = "" Then err_msg = err_msg & vbCr & "* Enter your name to sign your CASE/NOTE."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		End If
