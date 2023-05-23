@@ -119,7 +119,7 @@ If HC_form_name = "Ex Parte Determination" Then
     BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         GroupBox 10, 310, 455, 50, "Ex Parte Determination"
             Text 15, 325, 85, 10, "Ex Parte Determination:"
-            DropListBox 125, 320, 110, 50, ""+chr(9)+"Ex Parte is Approved"+chr(9)+"Ex Parte is Denied", ex_parte_determination
+            DropListBox 125, 320, 110, 50, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte", ex_parte_determination
             Text 15, 345, 105, 10, "If denied, provide explanation:"
             EditBox 125, 340, 290, 15, ex_parte_denial_explanation
         Text 15, 365, 70, 10, "Worker Signature:"
@@ -270,10 +270,10 @@ If HC_form_name = "Ex Parte Determination" Then
             If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination." 
 
             'Add validation that if ex parte approved, then explanation should be blank
-            If ex_parte_determination = "Ex Parte is Approved" AND trim(ex_parte_denial_explanation) <> "" THEN err_msg = err_msg & vbCr & "* The explanation for denial field should be blank since ex parte has been approved." 
+            If ex_parte_determination = "Appears Ex Parte" AND trim(ex_parte_denial_explanation) <> "" THEN err_msg = err_msg & vbCr & "* The explanation for denial field should be blank since ex parte has been approved." 
 
             'Add validation that if ex parte denied, then explanation must be provided
-            If ex_parte_determination = "Ex Parte is Denied" AND trim(ex_parte_denial_explanation) = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial." 
+            If ex_parte_determination = "Cannot be Processed as Ex Parte" AND trim(ex_parte_denial_explanation) = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial." 
 
             'Add validation to ensure worker signature is not blank
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
@@ -338,7 +338,7 @@ Function check_hc_renewal_updates()
 End Function
 
 'Dialog and review of HC renewal for approval of ex parte
-If ex_parte_determination = "Ex Parte is Approved" Then 
+If ex_parte_determination = "Appears Ex Parte" Then 
 
     Dialog1 = "" 'blanking out dialog name
 
@@ -401,7 +401,7 @@ If ex_parte_determination = "Ex Parte is Approved" Then
 End If 
 
 'Dialog and review of HC renewal for denial of ex parte
-If ex_parte_determination = "Ex Parte is Denied" Then 
+If ex_parte_determination = "Cannot be Processed as Ex Parte" Then 
 
     Dialog1 = ""
 
@@ -463,7 +463,7 @@ End If
 
 'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
 'TO DO - confirm TIKL information is correct
-If ex_parte_determination = "Ex Parte is Approved" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided.", 10, DateAdd("M", -1, ex_parte_renewal_month_year), False, TIKL_note_text)
+If ex_parte_determination = "Appears Ex Parte" Then Call create_TIKL("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided.", 10, DateAdd("M", -1, ex_parte_renewal_month_year), False, TIKL_note_text)
 
 'Navigate to and start a new CASE NOTE
 Call start_a_blank_case_note
@@ -472,7 +472,7 @@ Call start_a_blank_case_note
 CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
 
 'For ex parte approval, write information to case note 
-If ex_parte_determination = "Ex Parte is Approved" Then 
+If ex_parte_determination = "Appears Ex Parte" Then 
     CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided. The case meets one of the criteria below.")
     CALL write_variable_in_case_note("An MA-ABD enrollees will be ex parte renewed if their only source of income is:")
     CALL write_bullet_and_variable_in_case_note("* ", "Supplemental Security Income (SSI), even if the benefit amount is zero")
@@ -486,7 +486,7 @@ End If
 
 
 'For ex parte denial, write information to case note 
-If ex_parte_determination = "Ex Parte is Denied" Then 
+If ex_parte_determination = "Cannot be Processed as Ex Parte" Then 
     CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been denied based on the information provided.")
     CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
     'TO DO - add additional language listing what would qualify for ex parte?
