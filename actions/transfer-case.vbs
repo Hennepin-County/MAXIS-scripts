@@ -248,10 +248,10 @@ Do
 		Dialog Dialog1
 		cancel_confirmation
         IF IsDate(resident_move_date) = False OR Len(resident_move_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for resident move."
-        If excluded_time_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Is this an excluded time case?."
-        IF excluded_time_dropdown = "Yes" and IsDate(excluded_time_begin_date) = False OR Len(excluded_time_begin_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for the start of excluded time or double check that the resident's absense is due to excluded time."
+        If excluded_time_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Indicate if this is an excluded time case."
+        IF excluded_time_dropdown = "Yes" and IsDate(excluded_time_begin_date) = False OR Len(excluded_time_begin_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for the start of excluded time or double check that the resident's absence is due to excluded time."
         IF grh_status = "ACTIVE" or grh_status = "APP OPEN" then
-            IF excluded_time_dropdown = "No" THEN err_msg = err_msg & vbNewLine & "* GRH/Housing Suppports is always an exluded time case." 'GRH IS ALWAYS EXCLUDED TIME CASE - ANSWER MUST BE 'Y'
+            IF excluded_time_dropdown = "No" THEN err_msg = err_msg & vbNewLine & "* GRH/Housing Supports is always an excluded time case." 'GRH IS ALWAYS EXCLUDED TIME CASE - ANSWER MUST BE 'Y'
         END IF
         If mets_status_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Select a METS status."
 		IF mets_status_dropdown = "active" or mets_status_dropdown = "pending" then
@@ -264,12 +264,12 @@ Do
             IF (ga_case = TRUE or msa_case = TRUE or mfip_case = TRUE or dwp_case = TRUE) THEN
                 If isnumeric(cash_cfr) = False or len(cash_cfr) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit county code Current Financial Responsibility County (CFR) code for cash."
                 If isnumeric(cash_cfr_month) = False or len(cash_cfr_month) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for cash."
-                If isnumeric(cash_cfr_year) = False or len(cash_cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for cash."
+                If isnumeric(cash_cfr_year) = False or len(cash_cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit year for the Current Financial Responsibility County (CFR) code for cash."
             End if
             If ma_case = True THEN
                 If isnumeric(hc_cfr) = False or len(hc_cfr) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit county code Current Financial Responsibility County (CFR) code for Health Care."
                 If isnumeric(hc_cfr_month) = False or len(hc_cfr_month) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for Health Care."
-                If isnumeric(hc_cfr_year) = False or len(hc_cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit month for the Current Financial Responsibility County (CFR) code for Health Care."
+                If isnumeric(hc_cfr_year) = False or len(hc_cfr_year) <> 2 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid 2-digit year for the Current Financial Responsibility County (CFR) code for Health Care."
             End if
         End if
 
