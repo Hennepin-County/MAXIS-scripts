@@ -30,6 +30,124 @@ IF IsEmpty(FuncLib_URL) = TRUE THEN	'Shouldn't load FuncLib if it already loaded
 END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
+'--------Function Creation--------'
+Function UNEA_income_panel(inc_type, income_amt, claim_number, start_date, end_date)
+	'If end date exists, we want to end the income otherwise we want to start it. 
+		
+'Verifying the current panel number and panel type (SSI/RSDI)
+If check_infc_panel = "INFC" Then Call navigate_to_MAXIS_screen("STAT", "UNEA")
+EMWriteScreen member_number, 20, 76 		'Navigating to STAT/UNEA
+EMWriteScreen "01", 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
+transmit
+
+Do		'Do loop to read through all UNEA panels
+	EMReadScreen current_panel_number, 1, 2, 73
+	EMReadScreen total_amt_of_panels, 1, 2, 78
+	EMReadScreen panel_type, 2, 5, 37
+	If panel_type = inc_type then
+		PF9	
+		If inc_type <> 16 then 
+			EMWriteScreen "7", 5, 65		'Write Verification Worker Initiated Verfication "7"
+		Else 
+			EMWriteScreen "6", 5, 65 'Casey ToDo- "verification code 7 only allowed for income type 01, 02, 03 or 44" what should I use for 16?
+		End If
+		'Clear and write claim number
+		EMWriteScreen "_______________", 6, 37
+		EMWriteScreen claim_number, 6, 37 'TODO: Testing values "123456789A00" (rsdi_claim_numb, ssi_claim_numb)
+		Call create_mainframe_friendly_date(start_date, 7, 37, "YY") 	'income start date (SSI: ssi_SSP_elig_date, RSDI: intl_entl_date)
+		Call create_mainframe_friendly_date(end_date, 7, 68, "YY")	'income end date (SSI: ssi_denial_date, RSDI: susp_term_date)
+		
+		Call write_value_and_transmit("X", 6, 56)
+		EMWriteScreen "________", 9, 65
+		EMWriteScreen income_amt, 9, 65		'TODO: Testing values (rsdi_gross_amt or ssi_gross_amt )
+		EMWriteScreen "1", 10, 63		'code for pay frequency
+		Do
+			transmit
+			EMReadScreen HC_popup, 9, 7, 41
+			If HC_popup = "HC Income" then transmit
+		Loop until HC_popup <> "HC Income"
+		
+		'Retrospective amounts clear and write
+		row = 13
+		DO
+		    EMWriteScreen "__", row, 25
+		    EMWriteScreen "__", row, 28
+		    EMWriteScreen "__", row, 31
+		    EMWriteScreen "________", row, 39
+		    row = row + 1
+		Loop until row = 18
+
+		EMWriteScreen CM_minus_1_mo, 13, 25 'hardcoded dates
+		EMWriteScreen "01", 13, 28
+		EMWriteScreen CM_minus_1_yr, 13, 31 'hardcoded dates
+		EMWriteScreen "9999.99", 13, 39		'TODO: Testing values
+		
+		'Prospective Amounts clear and write 
+		row = 13
+		DO
+		    EMWriteScreen "__", row, 54
+		    EMWriteScreen "__", row, 57
+		    EMWriteScreen "__", row, 60
+		    EMWriteScreen "________", row, 68
+		    row = row + 1
+		Loop until row = 18
+
+		EMWriteScreen CM_plus_1_mo, 13, 54 'hardcoded dates
+		EMWriteScreen "01", 13, 57
+		EMWriteScreen CM_plus_1_yr, 13, 60 'hardcoded dates
+		EMWriteScreen income_amt, 13, 68		'TODO: Testing values (income_amt which = rsdi_gross_amt or ssi_gross_amt )
+		transmit
+		EMReadScreen cola_warning, 29, 24, 2
+		If cola_warning = "WARNING: ENTER COLA DISREGARD" then transmit
+		EMReadScreen HC_income_warning, 25, 24, 2
+		If HC_income_warning = "WARNING: UPDATE HC INCOME" then transmit
+		'Ilse notes - might need to transmit twice to get past COLA disregard amt. If in months Jan - June for RSDI we add the difference between last years's amt and this year's amt. 
+		Exit Do
+	Else 
+		transmit
+	End If
+Loop Until current_panel_number = total_amt_of_panels
+
+If panel_type <> inc_type then
+	Call write_value_and_transmit("NN", 20, 79)
+	EMWriteScreen inc_type, 5, 37 		'TODO: Testing values
+	If inc_type <> 16 then 
+			EMWriteScreen "7", 5, 65		'Write Verification Worker Initiated Verfication "7"
+		Else 
+			EMWriteScreen "6", 5, 65 'Casey ToDo- "verification code 7 only allowed for income type 01, 02, 03 or 44" what should I use for 16?
+	End If
+	EMWriteScreen claim_number, 6, 37 		'TODO: Testing values "123123123A00" (rsdi_claim_numb, ssi_claim_numb)
+	Call create_mainframe_friendly_date(start_date, 7, 37, "YY") 'income start date (SSI: ssi_SSP_elig_date, RSDI: intl_entl_date)
+	Call create_mainframe_friendly_date(end_date, 7, 68, "YY")	'income end date (SSI: ssi_denial_date, RSDI: susp_term_date)
+	
+	'HC Income Estimate Popup: clear and write SSI monthly amount (SDXP)
+	Call write_value_and_transmit("X", 6, 56)
+	EMWriteScreen income_amt, 9, 65 		'TODO: Testing values (income_amt = rsdi_gross_amt or ssi_gross_amt )
+	EMWriteScreen "1", 10, 63		'code for pay frequency
+	Do
+		transmit
+		EMReadScreen HC_popup, 9, 7, 41
+		If HC_popup = "HC Income" then transmit
+	Loop until HC_popup <> "HC Income"
+
+	'Retrospective amounts clear and write (SSI Retrospective = CM_minus_1_mo and CM_minus_1_yr)
+	EMWriteScreen CM_minus_1_mo, 13, 25
+	EMWriteScreen "01", 13, 28
+	EMWriteScreen CM_minus_1_yr, 13, 31
+	EMWriteScreen "9999.99", 13, 39 		'TODO: Testing values
+	'Prospective Amounts clear and write (SSI Prospective = CM_plus_1_mo and CM_plus_1_yr, RSDI = MAXIS_footer_month and MAXIS_footer_year)
+	EMWriteScreen CM_plus_1_mo, 13, 54 
+	EMWriteScreen "01", 13, 57
+	EMWriteScreen CM_plus_1_yr, 13, 60 
+	EMWriteScreen income_amt, 13, 68 		'TODO: Testing values (rsdi_gross_amt or ssi_gross_amt )
+	transmit 		'this takes us out of edit mode
+	EMReadScreen cola_warning, 29, 24, 2
+	If cola_warning = "WARNING: ENTER COLA DISREGARD" then transmit
+	EMReadScreen HC_income_warning, 25, 24, 2
+	If HC_income_warning = "WARNING: UPDATE HC INCOME" then transmit
+	'Ilse notes - might need to transmit twice to get past COLA disregard amt. If in months Jan - June for RSDI we add the difference between last years's amt and this year's amt. 
+End If
+End Function
 
 'THE SCRIPT-------------------------------------------------------------------------------------------------------------------------
 EMConnect ""
@@ -42,7 +160,7 @@ Call check_for_MAXIS(False)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 'QUESTIONS TODO:
-	'Need to connect to the SQL table instead of having a dialog box for case & member number
+	'Casey ToDo: Need to connect to the SQL table instead of having a dialog box for case & member number
 
 Dialog1 = "" 		'Blanking out previous dialog detail
 
@@ -84,6 +202,8 @@ recip_pmi = right("00000000" & recip_pmi,8)			'Add leading zeros to ensure PMI u
 
 '--------Navigate to INFC/SVES, then TPQY to read all panels. Checks to ensure it is reading the correct panels--------'	
 'QUESTIONS TODO:
+	' Casey ToDo: Need to handling if gross <> net amount for RSDI. 
+
 	'Handle for in futuer iterations:
 		'Validation: Do we want to check DISA panel and see if they are on disability? Other fields we want to validate?
 
@@ -116,23 +236,36 @@ transmit
 EMReadScreen check_BDXP_panel, 4, 2, 53 		'Reads fro BDXP panel
 If check_BDXP_panel = "BDXP" Then
 	EMReadScreen rsdi_claim_numb, 12, 5, 40
-	EMReadScreen dual_entl_nbr, 2, 5, 69 
+	EMReadScreen dual_entl_nbr, 10, 5, 69 
 	EMReadScreen rsdi_status_code, 2, 6, 19
 	EMReadScreen rsdi_staus_desc, 30, 6, 22
 	EMReadScreen rsdi_paydate, 5, 8, 5 
 	EMReadScreen rsdi_gross_amt, 8, 8, 16 
 	EMReadScreen rsdi_net_amt, 8, 8, 32
 	EMReadScreen railroad_ind, 1, 8, 69 
+	EMReadScreen intl_entl_date, 5, 11, 69
 	EMReadScreen susp_term_date, 5, 14, 69 
+	EMReadScreen rsdi_disa_date, 10, 15, 69
 	Trim(rsdi_claim_numb)
+	Trim(dual_entl_nbr)
 	Trim(rsdi_staus_desc)
 	Trim(rsdi_paydate)
 	Trim(rsdi_gross_amt)
 	Trim(rsdi_net_amt)
 	Trim(railroad_ind)
+	Trim(intl_entl_date)
 	Trim(susp_term_date)
-	rsdi_paydate = replace(rsdi_paydate, " ", "/")
-	susp_term_date = replace(susp_term_date, " ", "/")
+	Trim (rsdi_disa_date)
+	rsdi_paydate = replace(rsdi_paydate, " ", "/01/")
+	intl_entl_date = replace(intl_entl_date, " ", "/01")
+	susp_term_date = replace(susp_term_date, " ", "/01")
+	intl_entl_date = "01/01/23" 'TODO: Testing values
+	rsdi_disa_date = "08/01/23" 'TODO: Testing values
+	' railroad_ind = "Y" 'TODO: Testing values
+	susp_term_date = "09/01/23" 'TODO: Testing values
+	rsdi_claim_numb = "123456789A00" 'TODO: Testing values
+	rsdi_gross_amt = "2222.22"
+	rsdi_net_amt = "3333.33"
 End If
 transmit 
 
@@ -165,6 +298,8 @@ If check_BDXM_panel = "BDXM" Then
 	Trim(medi_claim_num)
 	Trim(part_a_premium)
 	Trim(part_b_premium)
+	Trim(part_a_buyin_code)
+	Trim(Part_b_buyin_code)
 	part_a_start = part_a_start_MM & "/01/" & part_a_start_YY
 	part_a_stop = part_a_stop_MM & "/01/" & part_a_stop_YY
 	part_a_buyin_start_date = part_a_buyin_start_date_MM & "/01/" & part_a_buyin_start_date_YY
@@ -174,9 +309,9 @@ If check_BDXM_panel = "BDXM" Then
 	part_b_buyin_start_date = part_b_buyin_start_date_MM & "/01/" & part_b_buyin_start_date_YY
 	Part_b_buyin_stop_date = part_b_buyin_stop_date_MM & "/01/" & part_b_buyin_stop_date_YY
 	part_a_start = "02/01/23" 'TODO: Testing values
-	part_a_stop = "04/01/23" 'TODO: Testing values
+	part_a_stop = "03/01/23" 'TODO: Testing values
 	part_b_start = "01/01/23" 'TODO: Testing values
-	part_b_stop = "04/01/23" 'TODO: Testing values
+	part_b_stop = "03/01/23" 'TODO: Testing values
 End If
 transmit 
 
@@ -214,6 +349,9 @@ If check_SDXE_panel = "SDXE" Then
 	ssi_SSP_elig_date = replace(ssi_SSP_elig_date, " ", "/")
 	ssi_appeals_date = replace(ssi_appeals_date, " ", "/")
 	ssi_appeals_dec_date = replace(ssi_appeals_dec_date, " ", "/")
+	ssi_SSP_elig_date = "01/01/23" 'TODO: Testing values
+	ssi_denial_date = "07/01/23" 'TODO: Testing values
+	ssi_claim_numb = "495411919DI" 'TODO: Testing values
 End If
 transmit 
 
@@ -253,185 +391,86 @@ If check_SDXP_panel = "SDXP" Then
 	Trim(pass_exclusion)
 	Trim(inc_inkind_start)
 	Trim(inc_inkind_stop)
-	ssi_pay_date = replace(ssi_pay_date, " ", "/")
+	ssi_pay_date = replace(ssi_pay_date, " ", "/01/")
 	ssi_pay_hist_1_date = replace(ssi_pay_hist_1_date, " ", "/")
 	ssi_pay_hist_2_date = replace(ssi_pay_hist_2_date, " ", "/")
 	ssi_pay_hist_3_date = replace(ssi_pay_hist_3_date, " ", "/")
 	inc_inkind_start = replace(inc_inkind_start, " ", "/")
 	inc_inkind_stop = replace(inc_inkind_stop, " ", "/")
+	ssi_gross_amt = "1111.11" 'TODO: Testing values
 End If
 transmit
+EMReadScreen check_infc_panel, 4, 2, 45 		'Reads for INFC panel
 
 
 '--------Navigation to STAT/UNEA and entering TQPY information --------'
 'QUESTIONS: TODO
-	'Will there ever be multiple panels with the same income numbber? Endless loop using 324254 and 325110-- both have 2 "01" panels from testing
-	'Create Function at top of script to handle for income type. Set function to false before you call it for each scenario. Ask Casey which variables we need to pass through. (01 = RSDI, Disa, 02 = RSDI (not associated with disa), No Disa, 03 = SSI, 16 = railroad). If there is a disability on BDXP then its 01. 
-		'UNEA is updated basedon TPQY info, not from SQL- Need to update. Hard coded income type and used 9999.99 for testing. 
-	'Need to enter TPQY info into SQL table
+	'Create Function (01 = RSDI, Disa, 02 = RSDI (not associated with disa), No Disa, 03 = SSI, 16 = railroad). If there is a disability on BDXP then its 01. 
+	'Casey ToDo: Need to enter TPQY info into SQL table
+
 	'Handle for in futuer iterations:
 		'Write either issuance amount or Inc End Date in UNEA based on Payment Status in SDXE. 
 
-		
-'--------Function Creation--------'
-' Function UNEA_income_panel(income_type, ??????)
-		
-		
-'Verifying the current panel number and panel type (SSI/RSDI)
-EMReadScreen check_infc_panel, 4, 2, 45 		'Reads for INFC panel
-If check_infc_panel = "INFC" Then Call navigate_to_MAXIS_screen("STAT", "UNEA")
-'panel_found = false
-EMWriteScreen member_number, 20, 76 		'Navigating to STAT/UNEA
-EMWriteScreen "01", 20, 79 		'to ensure we're on the 1st instance of UNEA panels for the appropriate member
-transmit
 
-Do		'Do loop to read through all UNEA panels
-	EMReadScreen current_panel_number, 1, 2, 73
-	EMReadScreen total_amt_of_panels, 1, 2, 78
-	EMReadScreen income_type, 2, 5, 37
-	If income_type = "01" then	'TODO: Testing values
-		'panel_found = true
-		PF9
-		'TODO: HC Income Estimate Popup: clear and write SSI monthly amount (SDXP) TODO: only available in current month + 1
-		
-		EMWriteScreen "7", 5, 65		'Write Verification Worker Initiated Verfication "7"
-		'Clear and write claim number
-		EMWriteScreen "_______________", 6, 37
-		EMWriteScreen "123456789A00", 6, 37 'TODO: Testing values (claim number)
-		'Ilse notes - will need to put in dummy claim number if wiping out 
-		
-		Call write_value_and_transmit("X", 6, 56)
-		EMWriteScreen "________", 9, 65
-		EMWriteScreen "9999.99", 9, 65		'TODO: Testing values (rsdi_gross_amt or ssi_gross_amt )
-		EMWriteScreen "1", 10, 63		'code for pay frequency
-		
-		Do
-			transmit
-			EMReadScreen HC_popup, 9, 7, 41
-			If HC_popup = "HC Income" then transmit
-		Loop until HC_popup <> "HC Income"
+'Original coding
+If ssi_SSP_elig_date <> "" then memb_has_ssi = True
+If intl_entl_date <> "" then memb_has_rsdi = True
+If rsdi_disa_date <> "" then rsdi_has_disa = True
+If railroad_ind <> "" then memb_has_railroad = True
 
-		'Retrospective amounts clear and write (SSI Retrospective = CM_minus_1_mo and CM_minus_1_yr)
-		row = 13
-		DO
-		    EMWriteScreen "__", row, 25
-		    EMWriteScreen "__", row, 28
-		    EMWriteScreen "__", row, 31
-		    EMWriteScreen "________", row, 39
-		    row = row + 1
-		Loop until row = 18
-
-		EMWriteScreen CM_minus_1_mo, 13, 25
-		EMWriteScreen "01", 13, 28
-		EMWriteScreen CM_minus_1_yr, 13, 31
-		EMWriteScreen "9999.99", 13, 39		'TODO: Testing values
-
-		'Prospective Amounts clear and write (SSI Prospective = CM_plus_1_mo and CM_plus_1_yr, RSDI = MAXIS_footer_month and MAXIS_footer_year)
-		row = 13
-		DO
-		    EMWriteScreen "__", row, 54
-		    EMWriteScreen "__", row, 57
-		    EMWriteScreen "__", row, 60
-		    EMWriteScreen "________", row, 68
-		    row = row + 1
-		Loop until row = 18
-
-		EMWriteScreen CM_plus_1_mo, 13, 54 
-		EMWriteScreen "01", 13, 57
-		EMWriteScreen CM_plus_1_yr, 13, 60 
-		EMWriteScreen "9999.99", 13, 68		'TODO: Testing values (rsdi_gross_amt or ssi_gross_amt )
-		transmit
-		EMReadScreen cola_warning, 29, 24, 2
-		If cola_warning = "WARNING: ENTER COLA DISREGARD" then transmit
-		EMReadScreen HC_income_warning, 25, 24, 2
-		If HC_income_warning = "WARNING: UPDATE HC INCOME" then transmit
-		'Ilse notes - might need to transmit twice to get past COLA disregard amt. If in months Jan - June for RSDI we add the difference between last years's amt and this year's amt. 
-	Else 
-		transmit
-
-	End If
-Loop Until current_panel_number = total_amt_of_panels
-	
-If income_type <> "01" then 'TODO: Testing values
-	'panel_found = false
-	Call write_value_and_transmit("NN", 20, 79)
-	EMWriteScreen "01", 5, 37 		'TODO: Testing values
-	EMWriteScreen "7", 5, 65 		'Write Verification Worker Initiated Verfication "7"
-	EMWriteScreen "123123123A00", 6, 37 		'TODO: Testing values (claim number)
-	EMWriteScreen "02", 7, 37 'TODO: Testing values (income start MM)
-	EMWriteScreen "01", 7, 40 'TODO: Testing values (income start "01")
-	EMWriteScreen "23", 7, 43 'TODO: Testing values (income start YY)
-	'Ilse notes  - put in dummy amount here for testing
-	'Ilse notes  - Will need income start date for new income panel.
-	
-	'HC Income Estimate Popup: clear and write SSI monthly amount (SDXP)
-	Call write_value_and_transmit("X", 6, 56)
-	EMWriteScreen "9999.99", 9, 65 		'TODO: Testing values (rsdi_gross_amt or ssi_gross_amt )
-	EMWriteScreen "1", 10, 63		'code for pay frequency
-	Do
-		transmit
-		EMReadScreen HC_popup, 9, 7, 41
-		If HC_popup = "HC Income" then transmit
-	Loop until HC_popup <> "HC Income"
-
-	'Retrospective amounts clear and write (SSI Retrospective = CM_minus_1_mo and CM_minus_1_yr)
-	EMWriteScreen CM_minus_1_mo, 13, 25
-	EMWriteScreen "01", 13, 28
-	EMWriteScreen CM_minus_1_yr, 13, 31
-	EMWriteScreen "9999.99", 13, 39 		'TODO: Testing values
-	'Prospective Amounts clear and write (SSI Prospective = CM_plus_1_mo and CM_plus_1_yr, RSDI = MAXIS_footer_month and MAXIS_footer_year)
-	EMWriteScreen CM_plus_1_mo, 13, 54 
-	EMWriteScreen "01", 13, 57
-	EMWriteScreen CM_plus_1_yr, 13, 60 
-	EMWriteScreen "9999.99", 13, 68 		'TODO: Testing values (rsdi_gross_amt or ssi_gross_amt )
-	transmit 		'this takes us out of edit mode
-	EMReadScreen cola_warning, 29, 24, 2
-	If cola_warning = "WARNING: ENTER COLA DISREGARD" then transmit
-	'Ilse notes - might need to transmit twice to get past COLA disregard amt. If in months Jan - June for RSDI we add the difference between last years's amt and this year's amt. 
+If memb_has_ssi = true then
+	Call UNEA_income_panel("03", ssi_gross_amt, ssi_claim_numb, ssi_SSP_elig_date, ssi_denial_date)
 End If
-' End Function
 
-' Call UNEA_income_panel 
-' Call UNEA_income_panel 
-' Call UNEA_income_panel
-' Call UNEA_income_panel
-	
+If memb_has_rsdi = true Then
+	If rsdi_has_disa = true then 
+		Call UNEA_income_panel("01", rsdi_gross_amt, rsdi_claim_numb, intl_entl_date, susp_term_date)
+	Else
+		Call UNEA_income_panel("02", rsdi_gross_amt, rsdi_claim_numb, intl_entl_date, susp_term_date)
+	End If
+End If
+
+If memb_has_railroad = true then 
+	Call UNEA_income_panel("16", rsdi_net_amt, rsdi_claim_numb, intl_entl_date, susp_term_date)
+End If 
 
 MsgBox "Next the script writes information in MEDI. If panel does not exist, script will create a new panel."
 '--------MEDI--------'
 'Navigating to STAT/MEDI
 'QUESTIONS TODO:
-		'Insert utilities-insert from mib from mmis to handle/retrieve MBI number for MEDI panel.
-		'Handle for in futuer iterations:
-			'Buy in Begin/End Date: revisit at a later date. This depends whether someone was on a medicare savings program or not. 
+	'Review do loops if panel already exists. 
+	'Handle for in futuer iterations:
+		'Insert utilities-insert mbi from mmis to handle/retrieve MBI number for MEDI panel. This will also handle for source. 
+		'Buy in Begin/End Date: revisit at a later date. This depends whether someone was on a medicare savings program or not. 
 			'Apply premiums to spdn/budgets and Apply premiums to spdn/budgets thru based on...
 
 Call navigate_to_MAXIS_screen("STAT", "MEDI")
 EMWriteScreen member_number, 20, 79
 EMWriteScreen "01", 20, 79			'to ensure we're on the 1st instance of UNEA panels for the appropriate member
 transmit	
-MsgBox "MEDI"
 
 'Verifying if there is currently a panel or not, if not create one
 EMReadScreen total_amt_of_panels, 1, 2, 78			'Checks to make sure there are JOBS panels for this member. If none exists, one will be created
 If total_amt_of_panels = "0" then 
-	CALL write_value_and_transmit("NN", 20, 79) 		'Create new panel and write MEDI info
-	EMWriteScreen "1cc4", 5, 38 'TODO: Testing values
-	EMWRiteScreen "cc1", 5, 43 'TODO: Testing values
-	EMWriteScreen "cc34", 5, 47 'TODO: Testing values
-	'Ilse notes - need dummy MBI number for testing
-	EMWriteScreen "O", 5, 64	'TODO: Ilse notes - this code might change if we are going to check MMIS in the process. 
-	EMWriteScreen "9999.99", 7, 46 'TODO: Testing values (part_a_premium)
-	EMWriteScreen "9999.99", 7, 73 'TODO: Testing values (part_b_premium)
-	EMWriteScreen "N", 9, 71 		' "N" for Qualified Working Disabled Individual
-	EMWriteScreen "N", 10, 71 		' "N" for End Stage Renal Disease
-	'Casey ToDo: Add apply premiums to spenddown based on BILS and HC budget. 
-	Call create_mainframe_friendly_date(part_a_start, 15, 24, "YY") 
-	Call create_mainframe_friendly_date(part_a_stop, 15, 35, "YY")
-	Call create_mainframe_friendly_date(part_b_start, 15, 54, "YY")
-	Call create_mainframe_friendly_date(part_b_stop, 15, 65, "YY")
-'End If
-	'TODO: How do I end the entry?
+	If part_a_stop = "" Then
+		If part_b_stop = "" Then MsgBox "Add case note functionality to specify MEDI panel is not being created because both A & B have end/stop dates." 'handles for a/b stop both with end dates
+	Else
+		CALL write_value_and_transmit("NN", 20, 79) 		'Create new panel and write MEDI info
+		EMWriteScreen medi_claim_num, 6, 39 'writes medi claim number for Medicare HICN
+		EMWriteScreen "1cc4", 5, 38 'TODO: Testing values MBI number
+		EMWRiteScreen "cc1", 5, 43 'TODO: Testing values MBI number
+		EMWriteScreen "cc34", 5, 47 'TODO: Testing values MBI number
+		EMWriteScreen "O", 5, 64	'TODO: Testing values MBI number
+		EMWriteScreen part_a_premium, 7, 46 'TODO: Testing values 
+		EMWriteScreen part_b_premium, 7, 73 'TODO: Testing values 
+		EMWriteScreen "N", 9, 71 		' "N" for Qualified Working Disabled Individual
+		EMWriteScreen "N", 10, 71 		' "N" for End Stage Renal Disease
+		'Casey ToDo: Add apply premiums to spenddown based on BILS and HC budget. 
+		Call create_mainframe_friendly_date(part_a_start, 15, 24, "YY") 
+		Call create_mainframe_friendly_date(part_a_stop, 15, 35, "YY")
+		Call create_mainframe_friendly_date(part_b_start, 15, 54, "YY")
+		Call create_mainframe_friendly_date(part_b_stop, 15, 65, "YY")
+	End If
 Else
 	'MEDI premiums: clear and write
 	PF9
@@ -440,7 +479,6 @@ Else
 	EMWriteScreen part_a_premium, 7, 46
 	EMWriteScreen "________", 7, 73
 	EMWriteScreen part_b_premium, 7, 73
-	
 	EMWriteScreen "N", 9, 71 		' "N" for Qualified Working Disabled Individual
 	EMWriteScreen "N", 10, 71 		' "N" for End Stage Renal Disease
 	'TODO Casey: Add apply premiums to spenddown based on BILS and HC budget. 
@@ -461,17 +499,18 @@ Else
 		Else
 			MEDI_part_a_end =replace(MEDI_part_a_end , " ", "/")		'reformatting with / for date
 		End If
-
+		'if tpqy end date is blank then...
+		'if tpqy end date is not blank then...
 		If MEDI_part_a_end = "" Then
 			If MEDI_part_a_start = "" Then
 				row = row - 1 		'no dates found in this row, move up a row and reevaluate
 			Else
-				If MEDI_part_a_start <> "" then exit do		'only start date found, this is an open ended part a TODO: is this what we want here?
+				If MEDI_part_a_start <> "" then exit do		'only start date found, this is an open ended part a TODO: logic if end exists in tpqy enter
 			End If
 		Elseif MEDI_part_a_end <> "" then
-			If MEDI_part_a_start <> "" then PF20		'if stop/start are populated it will take you to the next page of dates
+			PF20		'if stop/start are populated it will take you to the next page of dates
 		End If
-	Loop
+	Loop Until row = 14
 
 	' TODO: need functionality to determine if dates already exist, if not write them in the next blank space
 	EMReadScreen MEDI_part_a_start, 8, row, 24
@@ -483,6 +522,12 @@ Else
 		End If 	
 	End If
 
+	EMReadScreen medi_page_check, 22, 24, 2
+	Do 
+		PF19
+	Loop Until medi_page_check = "THIS IS THE FIRST PAGE"
+
+	'TODO: DO Loop PF19 until read "" on the bottom 
 	row = 17
 	Do
 		EMReadScreen MEDI_part_b_start, 8, row, 54		'reads part b start date
