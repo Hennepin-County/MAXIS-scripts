@@ -61,7 +61,7 @@ Dialog1 = ""
 BeginDialog Dialog1, 0, 0, 366, 300, "Health Care Evaluation"
   EditBox 80, 200, 50, 15, MAXIS_case_number
   DropListBox 80, 220, 275, 45, "Select One..."+chr(9)+"No Form - Ex Parte Determination", HC_form_name
-  DropListBox 265, 240, 90, 45, "No"+chr(9)+"Yes", ltc_waiver_request_yn
+  DropListBox 265, 240, 90, 45, "No"+chr(9)+"Yes"+chr(9)+"N/A - Ex Parte Process", ltc_waiver_request_yn
   EditBox 80, 260, 50, 15, form_date
   EditBox 80, 280, 150, 15, worker_signature
   ButtonGroup ButtonPressed
@@ -105,7 +105,7 @@ DO
 			If HC_form_name = "Select One..." Then err_msg = err_msg & vbCr & "* Select the form received that you are processing a Health Care evaluation from."
 			If IsDate(form_date) = False Then err_msg = err_msg & vbCr & "* Enter the date the form being processed was received."
             'Add validation to make sure LTC field is blank for ex parte
-            If HC_form_name = "No Form - Ex Parte Determination" AND ltc_waiver_request_yn <> "" THEN err_msg = err_msg & vbCr & "* Leave the LTC/Waiver Services field blank for the ex parte process."
+            If HC_form_name = "No Form - Ex Parte Determination" AND ltc_waiver_request_yn <> "N/A - Ex Parte Process" THEN err_msg = err_msg & vbCr & "* Select 'N/A - Ex Parte Process' for the LTC/Waiver Services field."
 			If trim(worker_signature) = "" Then err_msg = err_msg & vbCr & "* Enter your name to sign your CASE/NOTE."
 			IF err_msg <> "" THEN MsgBox "*** NOTICE!!! ***" & vbNewLine & err_msg & vbNewLine
 		End If
@@ -113,15 +113,16 @@ DO
 	CALL check_for_password_without_transmit(are_we_passworded_out)
 Loop until are_we_passworded_out = false
 
-If HC_form_name = "Ex Parte Determination" Then
+If HC_form_name = "No Form - Ex Parte Determination" Then
     Dialog1 = ""
-
+    
+    'TO DO - add functionality to determine ex parte phase based on case number
     BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         GroupBox 10, 310, 455, 50, "Ex Parte Determination"
-            Text 20, 320, 80, 10, "Ex Parte Determination:"
-            DropListBox 105, 320, 115, 50, "Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte", ex_parte_determination
-            Text 20, 340, 205, 10, "If case cannot be processed as ex parte, provide explanation:"
-            EditBox 220, 335, 235, 15, ex_parte_denial_explanation
+        Text 20, 325, 80, 10, "Ex Parte Determination:"
+        DropListBox 100, 320, 115, 50, ""+chr(9)+"Appears Ex Parte"+chr(9)+"Cannot be Processed as Ex Parte", ex_parte_determination
+        Text 20, 340, 205, 10, "If case cannot be processed as ex parte, provide explanation:"
+        EditBox 220, 335, 235, 15, ex_parte_denial_explanation
         Text 15, 365, 70, 10, "Worker Signature:"
         EditBox 80, 360, 110, 15, worker_signature
         ButtonGroup ButtonPressed
