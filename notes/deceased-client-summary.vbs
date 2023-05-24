@@ -124,27 +124,40 @@ EndDialog
 ' 	CancelButton 160, 170, 40, 15
 ' EndDialog
 'Do loop for Deceased Client Summary Shows dialog and creates and displays an error message if worker completes things incorrectly.
+
 DO
-     DO
-    	err_msg = ""
-    	DIALOG Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
-    	cancel_confirmation
+    Do
+        err_msg = ""    'This is the error message handling
+        Dialog Dialog1
+        cancel_confirmation
+        
+        'Validation for MAXIS case number 
+        Call validate_MAXIS_case_number(err_msg, "*") 
 
-      'Add link for HSR manual button
-      If ButtonPressed = HSR_manual_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Death_of_a_Client.aspx"
+        'Add link for HSR manual button
+        If ButtonPressed = HSR_manual_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Death_of_a_Client.aspx"
 
-      'TO DO - update link to webform to ensure it works/is correct
-      If ButtonPressed = print_document_case_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+        'TO DO - update link to webform to ensure it works/is correct
+        If ButtonPressed = print_document_case_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
             
-    	'case number required for case note
-    	IF isnumeric  (MAXIS_case_number) = false THEN err_msg = err_msg & "Please enter a case number." & VBnewline
-    	'valid date required
-    	IF isDate (date_of_death)=false then err_msg=err_msg & "Please enter a valid date." & VBNewline
-    	'worker signature required
-    	IF worker_signature = "" THEN err_msg = err_msg & "Please enter your worker signature." & VBNewline
-    LOOP UNTIL err_msg = ""
-    call check_for_password(are_we_passworded_out)  'Adding functionality for MAXIS v.6 Passworded Out issue'
-LOOP UNTIL are_we_passworded_out = false
+    	  'Validation to ensure date is entered in MM/DD/YYYY format
+    	  If IsDate(date_of_death) = false OR Len(date_of_death) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format."
+
+        'Validation of place of death
+        'TO DO - confirm this should be required field
+        If trim(place_of_death) = "" THEN err_msg = err_msg & vbNewLine & "* Please provide the place of death."
+
+        'Validation for worker_signature
+        If trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please sign your case note."
+
+        'Error message 
+        If err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
+    Loop until err_msg = ""
+    CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
+LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
+
+'End dialog section-----------------------------------------------------------------------------------------------
+
 
 'Checks MAXIS for password prompt
 CALL check_for_MAXIS(false)
