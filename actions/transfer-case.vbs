@@ -199,7 +199,7 @@ Do
     Do
         'Inside the do...loop for the calculate_button
         Dialog1 = ""
-        BeginDialog Dialog1, 0, 0, 346, 260, "Out-of-County Case Transfer for # & MAXIS_case_number"
+        BeginDialog Dialog1, 0, 0, 346, 260, "Out-of-County Case Transfer for #" & MAXIS_case_number
         Text 10, 10, 70, 10, "Resident Move Date:"
         EditBox 80, 5, 45, 15, resident_move_date
         Text 135, 10, 55, 10, "Excluded time?"
