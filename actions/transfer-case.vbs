@@ -249,8 +249,10 @@ Do
 		cancel_confirmation
         IF IsDate(resident_move_date) = False OR Len(resident_move_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for resident move."
         If excluded_time_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Indicate if this is an excluded time case."
-        IF excluded_time_dropdown = "Yes" and IsDate(excluded_time_begin_date) = False OR Len(excluded_time_begin_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for the start of excluded time or double check that the resident's absence is due to excluded time."
-        IF grh_status = "ACTIVE" or grh_status = "APP OPEN" then
+        IF excluded_time_dropdown = "Yes" then 
+            If IsDate(excluded_time_begin_date) = False OR Len(excluded_time_begin_date) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format for the start of excluded time or double check that the resident's absence is due to excluded time."
+        End if      
+            IF grh_status = "ACTIVE" or grh_status = "APP OPEN" then
             IF excluded_time_dropdown = "No" THEN err_msg = err_msg & vbNewLine & "* GRH/Housing Supports is always an excluded time case." 'GRH IS ALWAYS EXCLUDED TIME CASE - ANSWER MUST BE 'Y'
         END IF
         If mets_status_dropdown = "Select:" then err_msg = err_msg & vbNewLine & "* Select a METS status."
