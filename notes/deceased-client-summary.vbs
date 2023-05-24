@@ -94,9 +94,10 @@ BeginDialog Dialog1, 0, 0, 236, 240, "Deceased Client Summary"
     CancelButton 160, 220, 40, 15
   GroupBox 145, 0, 85, 45, "Links"
   ButtonGroup ButtonPressed
-    PushButton 150, 10, 75, 15, "HSR Manual", Button4
-    PushButton 150, 25, 75, 15, "Print Document/Case", Button6
+    PushButton 150, 10, 75, 15, "HSR Manual", HSR_manual_button
+    PushButton 150, 25, 75, 15, "Print Document/Case", print_document_case_button
 EndDialog
+
 'TO DO - keeping previous dialog for reference, delete once finalized
 ' BeginDialog Dialog1, 0, 0, 206, 190, "Deceased Client Summary"
 '   Text 5, 10, 50, 10, "Case Number"
@@ -128,6 +129,13 @@ DO
     	err_msg = ""
     	DIALOG Dialog1					'Calling a dialog without a assigned variable will call the most recently defined dialog
     	cancel_confirmation
+
+      'Add link for HSR manual button
+      If ButtonPressed = HSR_manual_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Death_of_a_Client.aspx"
+
+      'TO DO - update link to webform to ensure it works/is correct
+      If ButtonPressed = print_document_case_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+            
     	'case number required for case note
     	IF isnumeric  (MAXIS_case_number) = false THEN err_msg = err_msg & "Please enter a case number." & VBnewline
     	'valid date required
