@@ -114,8 +114,124 @@ DO
 Loop until are_we_passworded_out = false
 
 If HC_form_name = "No Form - Ex Parte Determination" Then
-    Dialog1 = ""
-    
+	SQL_Case_Number = right("00000000" & MAXIS_case_number, 8)
+	'declare the SQL statement that will query the database
+	objSQL = "SELECT * FROM ES.ES_ExParte_CaseList WHERE [CaseNumber] = '" & SQL_Case_Number & "'"
+
+	'Creating objects for Access
+	Set objConnection = CreateObject("ADODB.Connection")
+	Set objRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	objConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objRecordSet.Open objSQL, objConnection
+
+	ex_parte_determination_from_SQL = objRecordSet("SelectExParte")
+	If ex_parte_determination_from_SQL = 0 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") was previously determined to not meet Ex Parte criteria.")
+	review_month_from_SQL = objRecordSet("HCEligReviewDate")
+	If review_month_from_SQL = "" Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") is not listed on the Ex Parte Data Table and cannot be processed as Ex Parte.")
+	review_month_from_SQL = DateAdd("d", 0, review_month_from_SQL)
+	Call convert_date_into_MAXIS_footer_month(review_month_from_SQL, er_month, er_year)
+	If DateDiff("d", date, review_month_from_SQL) =<0 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is in the past and cannot be processed as Ex Parte.")
+	If DateDiff("d", date, review_month_from_SQL) > 90 Then call script_end_procedure_with_error_report("This case (" & MAXIS_case_number & ") has a HC ER listed in the Ex Parte Data Table as " & er_month & "/" & er_year & ", which is too far in the future to be processed as Ex Parte.")
+	ex_parte_phase = ""
+	If DateDiff("d", date, review_month_from_SQL) < 32 Then
+		ex_parte_phase = "Phase 2"
+	Else
+		ex_parte_phase = "Phase 1"
+	End If
+	review_month_01 = er_month & "/" & er_year
+	review_month_02 = er_month & "/" & er_year
+
+	objELIGSQL = "SELECT * FROM ES.ES_ExParte_EligList WHERE [CaseNumb] = '" & SQL_Case_Number & "'"
+
+	'Creating objects for Access
+	Set objELIGConnection = CreateObject("ADODB.Connection")
+	Set objELIGRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	objELIGConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objELIGRecordSet.Open objELIGSQL, objELIGConnection
+
+	Do While NOT objELIGRecordSet.Eof
+
+		If name_01 = "" Then
+			name_01 = trim(objELIGRecordSet("Name"))
+			PMI_01 = trim(objELIGRecordSet("PMINumber"))
+
+			If objELIGRecordSet("MajorProgram") = "MA" Then
+				MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+			Else
+				MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+				MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+			End If
+		ElseIf PMI_01 = trim(objELIGRecordSet("PMINumber")) Then
+			If objELIGRecordSet("MajorProgram") = "MA" Then
+				MAXIS_MA_basis_01 = objELIGRecordSet("EligType")
+			Else
+				MAXIS_msp_prog_01 = objELIGRecordSet("MajorProgram")
+				MAXIS_msp_basis_01 = objELIGRecordSet("EligType")
+			End If
+		ElseIf name_02 = "" Then
+			name_02 = trim(objELIGRecordSet("Name"))
+			PMI_02 = trim(objELIGRecordSet("PMINumber"))
+
+			If objELIGRecordSet("MajorProgram") = "MA" Then
+				MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+			Else
+				MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+				MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+			End If
+		ElseIf PMI_02 = trim(objELIGRecordSet("PMINumber")) Then
+			If objELIGRecordSet("MajorProgram") = "MA" Then
+				MAXIS_MA_basis_02 = objELIGRecordSet("EligType")
+			Else
+				MAXIS_msp_prog_02 = objELIGRecordSet("MajorProgram")
+				MAXIS_msp_basis_02 = objELIGRecordSet("EligType")
+			End If
+		End If
+		objELIGRecordSet.MoveNext
+	Loop
+
+	objELIGRecordSet.Close
+	objELIGConnection.Close
+	Set objELIGRecordSet=nothing
+	Set objELIGConnection=nothing
+
+	objIncomeSQL = "SELECT * FROM ES.ES_ExParte_IncomeList WHERE [CaseNumber] = '" & MAXIS_case_number & "'"
+
+	'Creating objects for Access
+	Set objIncomeConnection = CreateObject("ADODB.Connection")
+	Set objIncomeRecordSet = CreateObject("ADODB.Recordset")
+
+	'This is the file path for the statistics Access database.
+	' stats_database_path = "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;"
+	objIncomeConnection.Open "Provider = SQLOLEDB.1;Data Source= " & "" &  "hssqlpw139;Initial Catalog= BlueZone_Statistics; Integrated Security=SSPI;Auto Translate=False;" & ""
+	objIncomeRecordSet.Open objIncomeSQL, objIncomeConnection
+
+	Do While NOT objIncomeRecordSet.Eof
+		panel_name_form_SQL = objIncomeRecordSet("IncExpTypeCode")
+		income_type_code_from_SQL = objIncomeRecordSet("IncomeTypeCode")
+		prosp_amt_from_SQL = objIncomeRecordSet("ProspAmount")
+
+		If trim(objIncomeRecordSet("PersonID")) = PMI_01 Then
+			sent_date_01 = objIncomeRecordSet("QURY_Sent")
+			' If income_type_code_from_SQL = "01" or income_type_code_from_SQL = "02" or income_type_code_from_SQL = "03" Then
+			If income_type_code_from_SQL = "03" Then SSI_01 = prosp_amt_from_SQL
+		End If
+
+		objIncomeRecordSet.MoveNext
+	Loop
+
+	objIncomeRecordSet.Close
+	objIncomeConnection.Close
+	Set objIncomeRecordSet=nothing
+	Set objIncomeConnection=nothing
+
+	Dialog1 = ""
+
     'TO DO - add functionality to determine ex parte phase based on case number
     BeginDialog Dialog1, 0, 0, 556, 385, "Phase 1 - Ex Parte Determination"
         GroupBox 10, 310, 455, 50, "Ex Parte Determination"
@@ -202,51 +318,53 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
             Text 90, 270, 80, 10, MEDI_part_a_01
             Text 15, 285, 70, 10, "MEDI - Part B Exists:"
             Text 90, 285, 80, 10, MEDI_part_b_01
-        GroupBox 245, 5, 220, 45, "Person 2 - Case Information"
-            Text 250, 20, 50, 10, "Person Name:"
-            Text 300, 20, 75, 10, name_02
-            Text 380, 20, 20, 10, "PMI:"
-            Text 400, 20, 45, 10, PMI_02
-            Text 250, 35, 50, 10, "Case Number:"
-            Text 300, 35, 60, 10, MAXIS_case_number
-            Text 380, 35, 50, 10, "Review Month:"
-            Text 430, 35, 25, 10, review_month_02
-        GroupBox 245, 60, 220, 60, "Person 2 - TPQY Information"
-            Text 250, 75, 50, 10, "Claim Number:"
-            Text 300, 75, 50, 10, claim_number_02
-            Text 250, 90, 50, 10, "Sent Date:"
-            Text 300, 90, 50, 10, sent_date_02
-            Text 250, 105, 50, 10, "Return Date:"
-            Text 300, 105, 50, 10, return_date_02
-            Text 355, 75, 50, 10, "SDXS Amount:"
-            Text 405, 75, 45, 10, sdxs_amount_02
-            Text 355, 90, 50, 10, "BNDX Amount:"
-            Text 405, 90, 45, 10, bndx_amount_02
-            Text 355, 105, 35, 10, "MEDI Info: "
-            Text 405, 105, 45, 10, medi_info_02
-        GroupBox 245, 125, 220, 180, "Person 2 - Add'l Information"
-            Text 255, 135, 15, 10, "SSI:"
-            Text 330, 135, 80, 10, SSI_02
-            Text 255, 150, 65, 10, "Other UNEA Types:"
-            Text 330, 150, 80, 10, other_UNEA_types_02
-            Text 255, 165, 50, 10, "JOBS Exists:"
-            Text 330, 165, 80, 10, JOBS_02
-            Text 255, 180, 60, 10, "MAXIS MA Basis:"
-            Text 330, 180, 80, 10, MAXIS_MA_basis_02
-            Text 255, 195, 60, 10, "MAXIS MSP Prog:"
-            Text 330, 195, 80, 10, MAXIS_msp_prog_02
-            Text 255, 210, 65, 10, "MAXIS MSP Basis:"
-            Text 330, 210, 80, 10, MAXIS_msp_basis_02
-            Text 255, 225, 55, 10, "MMIS MA Basis:"
-            Text 330, 225, 80, 10, MMIS_ma_basis_02
-            Text 255, 240, 60, 10, "MMIS MSP Prog:"
-            Text 330, 240, 80, 10, MMIS_msp_prog_02
-            Text 255, 255, 60, 10, "MMIS MSP Basis:"
-            Text 330, 255, 80, 10, MMIS_msp_basis_02
-            Text 255, 270, 70, 10, "MEDI - Part A Exists:"
-            Text 330, 270, 80, 10, MEDI_part_a_02
-            Text 255, 285, 70, 10, "MEDI - Part B Exists:"
-            Text 330, 285, 80, 10, MEDI_part_b_02
+		If name_02 <> "" Then
+			GroupBox 245, 5, 220, 45, "Person 2 - Case Information"
+				Text 250, 20, 50, 10, "Person Name:"
+				Text 300, 20, 75, 10, name_02
+				Text 380, 20, 20, 10, "PMI:"
+				Text 400, 20, 45, 10, PMI_02
+				Text 250, 35, 50, 10, "Case Number:"
+				Text 300, 35, 60, 10, MAXIS_case_number
+				Text 380, 35, 50, 10, "Review Month:"
+				Text 430, 35, 25, 10, review_month_02
+			GroupBox 245, 60, 220, 60, "Person 2 - TPQY Information"
+				Text 250, 75, 50, 10, "Claim Number:"
+				Text 300, 75, 50, 10, claim_number_02
+				Text 250, 90, 50, 10, "Sent Date:"
+				Text 300, 90, 50, 10, sent_date_02
+				Text 250, 105, 50, 10, "Return Date:"
+				Text 300, 105, 50, 10, return_date_02
+				Text 355, 75, 50, 10, "SDXS Amount:"
+				Text 405, 75, 45, 10, sdxs_amount_02
+				Text 355, 90, 50, 10, "BNDX Amount:"
+				Text 405, 90, 45, 10, bndx_amount_02
+				Text 355, 105, 35, 10, "MEDI Info: "
+				Text 405, 105, 45, 10, medi_info_02
+			GroupBox 245, 125, 220, 180, "Person 2 - Add'l Information"
+				Text 255, 135, 15, 10, "SSI:"
+				Text 330, 135, 80, 10, SSI_02
+				Text 255, 150, 65, 10, "Other UNEA Types:"
+				Text 330, 150, 80, 10, other_UNEA_types_02
+				Text 255, 165, 50, 10, "JOBS Exists:"
+				Text 330, 165, 80, 10, JOBS_02
+				Text 255, 180, 60, 10, "MAXIS MA Basis:"
+				Text 330, 180, 80, 10, MAXIS_MA_basis_02
+				Text 255, 195, 60, 10, "MAXIS MSP Prog:"
+				Text 330, 195, 80, 10, MAXIS_msp_prog_02
+				Text 255, 210, 65, 10, "MAXIS MSP Basis:"
+				Text 330, 210, 80, 10, MAXIS_msp_basis_02
+				Text 255, 225, 55, 10, "MMIS MA Basis:"
+				Text 330, 225, 80, 10, MMIS_ma_basis_02
+				Text 255, 240, 60, 10, "MMIS MSP Prog:"
+				Text 330, 240, 80, 10, MMIS_msp_prog_02
+				Text 255, 255, 60, 10, "MMIS MSP Basis:"
+				Text 330, 255, 80, 10, MMIS_msp_basis_02
+				Text 255, 270, 70, 10, "MEDI - Part A Exists:"
+				Text 330, 270, 80, 10, MEDI_part_a_02
+				Text 255, 285, 70, 10, "MEDI - Part B Exists:"
+				Text 330, 285, 80, 10, MEDI_part_b_02
+		End If
     EndDialog
 
     'Shows dialog (replace "sample_dialog" with the actual dialog you entered above)----------------------------------
@@ -260,21 +378,21 @@ If HC_form_name = "No Form - Ex Parte Determination" Then
 
             'Add placeholder link to script instructions - To DO - update with correct link
             If ButtonPressed = instructions_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
-            
+
             'Add placeholder links for policy buttons - TO DO - update with correct links
             If ButtonPressed = policy_1_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
             If ButtonPressed = policy_2_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
             If ButtonPressed = policy_3_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
-            
-            
+
+
             'Add validation to ensure ex parte determination is made
-            If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination." 
+            If ex_parte_determination = "" THEN err_msg = err_msg & vbCr & "* You must make an ex parte determination."
 
             'Add validation that if ex parte approved, then explanation should be blank
-            If ex_parte_determination = "Appears Ex Parte" AND trim(ex_parte_denial_explanation) <> "" THEN err_msg = err_msg & vbCr & "* The explanation for denial field should be blank since ex parte has been approved." 
+            If ex_parte_determination = "Appears Ex Parte" AND trim(ex_parte_denial_explanation) <> "" THEN err_msg = err_msg & vbCr & "* The explanation for denial field should be blank since ex parte has been approved."
 
             'Add validation that if ex parte denied, then explanation must be provided
-            If ex_parte_determination = "Cannot be Processed as Ex Parte" AND trim(ex_parte_denial_explanation) = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial." 
+            If ex_parte_determination = "Cannot be Processed as Ex Parte" AND trim(ex_parte_denial_explanation) = "" THEN err_msg = err_msg & vbCr & "* You must provide an explanation for the ex parte denial."
 
             'Add validation to ensure worker signature is not blank
             IF trim(worker_signature) = "" THEN err_msg = err_msg & vbCr & "* Please include your worker signature."
@@ -339,7 +457,7 @@ Function check_hc_renewal_updates()
 End Function
 
 'Dialog and review of HC renewal for approval of ex parte
-If ex_parte_determination = "Appears Ex Parte" Then 
+If ex_parte_determination = "Appears Ex Parte" Then
 
     Dialog1 = "" 'blanking out dialog name
 
@@ -364,7 +482,7 @@ If ex_parte_determination = "Appears Ex Parte" Then
             cancel_confirmation
 
             ' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
-           
+
             'TO DO - update with functions?
             'Check the HC renewal screen data and compare against initial to ensure that changes made properly
             If ButtonPressed = hc_renewal_button Then
@@ -375,34 +493,34 @@ If ex_parte_determination = "Appears Ex Parte" Then
                 EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
                 EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
             End If
-            
+
             'Validate Elig Renewal Date to ensure it is set for 1 year from current Elig Renewal Date
             If check_elig_renewal_date <> DateAdd("Y", 1, elig_renewal_date) THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should be set for 1 year from the current renewal month and year."
 
             'Validate Income/Asset Renewal Date to ensure it is the same as the Elig Renewal Date or set for 6 months from original Elig Renewal Date for cases with a spenddown:
             'TO DO - determine how to determine if meets spenddown?
-            If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date." 
+            If check_income_asset_renewal_date <> DateAdd("Y", 1, income_asset_renewal_date) OR check_income_asset_renewal_date <> DateAdd("M", 6, income_asset_renewal_date) THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should be be the same as the Elig Renewal Date. For cases with a spenddown that do not meet an exception listed in EPM 2.3.4.2 MA-ABD Renewals, enter a date six months from the original ELIG Renewal Date."
 
-            'Validate that Exempt from 6 Mo IR is set to N 
-            If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR." 
+            'Validate that Exempt from 6 Mo IR is set to N
+            If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
 
             'Validate that ExParte field updated to Y
-            If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte." 
+            If check_HC_ex_parte_determination <> "Y" THEN err_msg = err_msg & vbCr & "* You must enter 'Y' for ExParte."
 
-            'Validate that ExParte Renewal Month is correct 
+            'Validate that ExParte Renewal Month is correct
             'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
-            If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month." 
-            
+            If check_ex_parte_renewal_month_year = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+
             'Error message handling
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
             'Add to all dialogs where you need to work within BLUEZONE
             CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-End If 
+End If
 
 'Dialog and review of HC renewal for denial of ex parte
-If ex_parte_determination = "Cannot be Processed as Ex Parte" Then 
+If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
 
     Dialog1 = ""
 
@@ -425,7 +543,7 @@ If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
             cancel_confirmation
 
             ' If ButtonPressed = hc_renewal_button Then Call check_hc_renewal_updates() ' TO DO - timing of function calls and completing function within loop?
-           
+
             'TO DO - update with functions?
             'Check the HC renewal screen data and compare against initial to ensure that changes made properly
             If ButtonPressed = hc_renewal_button Then
@@ -436,7 +554,7 @@ If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
                 EMReadScreen exempt_6_mo_ir_form, 1, 8, 71
                 EMReadScreen ex_parte_renewal_month_year, 7, 9, 71
             End If
-            
+
             'Validation to ensure that elig renewal date has not changed
             If check_elig_renewal_date <> elig_renewal_date THEN err_msg = err_msg & vbCr & "* The Elig Renewal Date should not have been changed. It should remain " & elig_renewal_date & "."
 
@@ -444,22 +562,22 @@ If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
             If check_income_asset_renewal_date <> income_asset_renewal_date THEN err_msg = err_msg & vbCr & "* The Income/Asset Renewal Date should not have been changed. It should remain " & income_asset_renewal_date & "."
 
             'Validation to ensure that Exempt from 6 Mo IR is set to N
-            If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR." 
+            If check_exempt_6_mo_ir_form <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for Exempt from 6 Mo IR."
 
             'Validation to ensure that ExParte field updated to N
-            If check_HC_ex_parte_determination <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for ExParte." 
+            If check_HC_ex_parte_determination <> "N" THEN err_msg = err_msg & vbCr & "* You must enter 'N' for ExParte."
 
-            'Validate that ExParte Renewal Month is correct 
+            'Validate that ExParte Renewal Month is correct
             'TO DO - add validation to ensure that date updated in HC renewal screen is the same as date provided in SQL table
-            If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month." 
-            
-            'Error message handling    
+            If check_ex_parte_renewal_month = "__ ____" THEN err_msg = err_msg & vbCr & "* You must enter the month and year for the Ex Parte renewal month."
+
+            'Error message handling
             IF err_msg <> "" THEN MsgBox "*** NOTICE!***" & vbNewLine & err_msg & vbNewLine
         Loop until err_msg = ""
             'Add to all dialogs where you need to work within BLUEZONE
             CALL check_for_password(are_we_passworded_out)			'function that checks to ensure that the user has not passworded out of MAXIS, allows user to password back into MAXIS
     LOOP UNTIL are_we_passworded_out = false					'loops until user passwords back in
-End If 
+End If
 
 
 'If ex parte approved, create TIKL for 1st of processing month which is renewal month - 1
@@ -472,8 +590,8 @@ Call start_a_blank_case_note
 'Add title to CASE NOTE
 CALL write_variable_in_case_note("*** EX PARTE DETERMINATION - " & UCASE(ex_parte_determination) & " ***")
 
-'For ex parte approval, write information to case note 
-If ex_parte_determination = "Appears Ex Parte" Then 
+'For ex parte approval, write information to case note
+If ex_parte_determination = "Appears Ex Parte" Then
     CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been approved based on the information provided. The case meets one of the criteria below.")
     CALL write_variable_in_case_note("An MA-ABD enrollees will be ex parte renewed if their only source of income is:")
     CALL write_bullet_and_variable_in_case_note("* ", "Supplemental Security Income (SSI), even if the benefit amount is zero")
@@ -486,8 +604,8 @@ If ex_parte_determination = "Appears Ex Parte" Then
 End If
 
 
-'For ex parte denial, write information to case note 
-If ex_parte_determination = "Cannot be Processed as Ex Parte" Then 
+'For ex parte denial, write information to case note
+If ex_parte_determination = "Cannot be Processed as Ex Parte" Then
     CALL write_variable_in_case_note("Phase 1 - The case has been evaluated for ex parte and has been denied based on the information provided.")
     CALL write_bullet_and_variable_in_case_note("Reason for Denial:", ex_parte_denial_explanation)
     'TO DO - add additional language listing what would qualify for ex parte?
