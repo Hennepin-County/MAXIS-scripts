@@ -1,5 +1,6 @@
 'STATS GATHERING----------------------------------------------------------------------------------------------------
-name_of_script = "NOTES - DECEASED CLIENT SUMMARY.vbs"
+'TO DO - update CLOS accordingly
+name_of_script = "NOTES - DECEASED RESIDENT SUMMARY.vbs"
 start_time = timer
 STATS_counter = 1                     	'sets the stats counter at one
 STATS_manualtime = 150                	'manual run time in seconds
@@ -63,6 +64,7 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
+'TO DO - change client to name here?
 BeginDialog Dialog1, 0, 0, 206, 190, "Deceased Client Summary"
   Text 5, 10, 50, 10, "Case Number"
   EditBox 65, 5, 50, 15, MAXIS_case_number
@@ -109,6 +111,7 @@ CALL check_for_MAXIS(false)
 'Navigates to case note
 start_a_blank_CASE_NOTE
 'writes case note for deceased client summary
+'TO DO - change client to name here?
 CALL write_variable_in_Case_Note("--Deceased Client Summary--")
 CALL write_bullet_and_variable_in_Case_Note("Date of Death", date_of_death)
 CALL write_bullet_and_variable_in_Case_Note("Place of Death", place_of_death)
