@@ -31,6 +31,12 @@ END IF
 'END FUNCTIONS LIBRARY BLOCK================================================================================================
 
 '--------Function Creation--------'
+'Function to read/write in UNEA panel (01 = RSDI, Disa, 02 = RSDI (not associated with disa), No Disa, 03 = SSI, 16 = railroad). If there is a disability on BDXP then its 01. 
+'Questions TODO: Incorporate 4 scenerios- similar to MEDI code (not started)
+		'1) No UNEA panel, end date read in TPQY 
+		'2) No UNEA panel, no end date in TPQY 
+		'3) Unea panel, end date read in TPQY 
+		'4) Unea panel, no end date in TPQY
 Function UNEA_income_panel(inc_type, income_amt, claim_number, start_date, end_date)
 	'If end date exists, we want to end the income otherwise we want to start it. 
 		
@@ -202,7 +208,9 @@ recip_pmi = right("00000000" & recip_pmi,8)			'Add leading zeros to ensure PMI u
 
 '--------Navigate to INFC/SVES, then TPQY to read all panels. Checks to ensure it is reading the correct panels--------'	
 'QUESTIONS TODO:
-	' Casey ToDo: Need to handling if gross <> net amount for RSDI. 
+	'Casey ToDo: Need to handling if gross <> net amount for RSDI. 
+	'Remove dummy values used for testing
+	'Review date hanlding to make sure it will EMwrite screen correctly based on MEDI/UNEA panels.
 
 	'Handle for in futuer iterations:
 		'Validation: Do we want to check DISA panel and see if they are on disability? Other fields we want to validate?
@@ -261,11 +269,11 @@ If check_BDXP_panel = "BDXP" Then
 	susp_term_date = replace(susp_term_date, " ", "/01")
 	intl_entl_date = "01/01/23" 'TODO: Testing values
 	rsdi_disa_date = "08/01/23" 'TODO: Testing values
-	' railroad_ind = "Y" 'TODO: Testing values
+	railroad_ind = "Y" 'TODO: Testing values
 	susp_term_date = "09/01/23" 'TODO: Testing values
 	rsdi_claim_numb = "123456789A00" 'TODO: Testing values
-	rsdi_gross_amt = "2222.22"
-	rsdi_net_amt = "3333.33"
+	rsdi_gross_amt = "2222.22" 'TODO: Testing values
+	rsdi_net_amt = "3333.33" 'TODO: Testing values
 End If
 transmit 
 
@@ -274,40 +282,32 @@ EMReadScreen check_BDXM_panel, 4, 2, 53 		'Reads for BDXM panel
 If check_BDXM_panel = "BDXM" Then
 	EMReadScreen medi_claim_num, 13, 4, 29
 	EMReadScreen part_a_premium, 7, 6, 64
-	EMReadScreen part_a_start_MM, 2, 7, 25
-	EMReadScreen part_a_start_YY, 2, 7, 28
-	EMReadScreen part_a_stop_MM, 2, 7, 63
-	EMReadScreen part_a_stop_YY, 2, 7, 66
+	EMReadScreen part_a_start, 5, 7, 25
+	EMReadScreen part_a_stop, 5, 7, 63
 	EMReadScreen part_a_buyin_ind, 1, 8, 25
 	EMReadScreen part_a_buyin_code, 3, 8, 63 
-	EMReadScreen part_a_buyin_start_date_MM, 2, 9, 25
-	EMReadScreen part_a_buyin_start_date_YY, 2, 9, 28
-	EMReadScreen part_a_buyin_stop_date_MM, 2, 9, 63
-	EMReadScreen part_a_buyin_stop_date_YY, 2, 9, 66
+	EMReadScreen part_a_buyin_start_date, 5, 9, 25
+	EMReadScreen part_a_buyin_stop_date, 5, 9, 63
 	EMReadScreen part_b_premium, 7, 12, 64
-	EMReadScreen part_b_start_MM, 2, 13, 25
-	EMReadScreen part_b_start_YY, 2, 13, 28
-	EMReadScreen part_b_stop_MM, 2, 13, 63
-	EMReadScreen part_b_stop_YY, 2, 13, 66
+	EMReadScreen part_b_start, 5, 13, 25
+	EMReadScreen part_b_stop, 5, 13, 63
 	EMReadScreen part_b_buyin_ind, 1, 14, 25
 	EMReadScreen Part_b_buyin_code, 3, 14, 63 
-	EMReadScreen part_b_buyin_start_date_MM, 2, 15, 25
-	EMReadScreen part_b_buyin_start_date_YY, 2, 15, 28
-	EMReadScreen part_b_buyin_stop_date_MM, 2, 15, 63
-	EMReadScreen part_b_buyin_stop_date_YY, 2, 15, 66
+	EMReadScreen part_b_buyin_start_date, 5, 15, 25
+	EMReadScreen part_b_buyin_stop_date, 5, 15, 63
 	Trim(medi_claim_num)
 	Trim(part_a_premium)
 	Trim(part_b_premium)
 	Trim(part_a_buyin_code)
 	Trim(Part_b_buyin_code)
-	part_a_start = part_a_start_MM & "/01/" & part_a_start_YY
-	part_a_stop = part_a_stop_MM & "/01/" & part_a_stop_YY
-	part_a_buyin_start_date = part_a_buyin_start_date_MM & "/01/" & part_a_buyin_start_date_YY
-	part_a_buyin_stop_date = part_a_buyin_stop_date_MM & "/01/" & part_a_buyin_stop_date_YY
-	part_b_start = part_b_start_MM & "/01/" & part_b_start_YY
-	part_b_stop = part_b_stop_MM & "/01/" & part_b_stop_YY
-	part_b_buyin_start_date = part_b_buyin_start_date_MM & "/01/" & part_b_buyin_start_date_YY
-	Part_b_buyin_stop_date = part_b_buyin_stop_date_MM & "/01/" & part_b_buyin_stop_date_YY
+	part_a_start = replace(part_a_start, " ", "/01/")
+	part_a_stop = replace(part_a_stop, " ", "/01/")
+	part_a_buyin_start_date = replace(part_a_buyin_start_date, " ", "/01/")
+	part_a_buyin_stop_date = replace(part_a_buyin_stop_date, " ", "/01/")
+	part_b_start = replace(part_b_start, " ", "/01/")
+	part_b_stop = replace(part_b_stop, " ", "/01/")
+	part_b_buyin_start_date = replace(part_b_buyin_start_date, " ", "/01/")
+	part_b_buyin_stop_date = replace(part_b_buyin_stop_date, " ", "/01/")
 	part_a_start = "02/01/23" 'TODO: Testing values
 	part_a_stop = "03/01/23" 'TODO: Testing values
 	part_b_start = "01/01/23" 'TODO: Testing values
@@ -405,14 +405,14 @@ EMReadScreen check_infc_panel, 4, 2, 45 		'Reads for INFC panel
 
 '--------Navigation to STAT/UNEA and entering TQPY information --------'
 'QUESTIONS: TODO
-	'Create Function (01 = RSDI, Disa, 02 = RSDI (not associated with disa), No Disa, 03 = SSI, 16 = railroad). If there is a disability on BDXP then its 01. 
 	'Casey ToDo: Need to enter TPQY info into SQL table
+	'Revise handling of function for each of the 4 income types: 01, 02, 03, 16. 
 
 	'Handle for in futuer iterations:
 		'Write either issuance amount or Inc End Date in UNEA based on Payment Status in SDXE. 
 
 
-'Original coding
+'Handling for calling function for each type of income (01, 02, 03, 16).
 If ssi_SSP_elig_date <> "" then memb_has_ssi = True
 If intl_entl_date <> "" then memb_has_rsdi = True
 If rsdi_disa_date <> "" then rsdi_has_disa = True
@@ -438,7 +438,13 @@ MsgBox "Next the script writes information in MEDI. If panel does not exist, scr
 '--------MEDI--------'
 'Navigating to STAT/MEDI
 'QUESTIONS TODO:
-	'Review do loops if panel already exists. 
+	'Incorporate 4 scenarios into MEDI coding. !!!!!!I was in the middle of doing this so this likely feel very messy, sorry!!!!
+		'1) No UNEA panel, end date read in TPQY 
+		'2) No UNEA panel, no end date in TPQY 
+		'3) Unea panel, end date read in TPQY 
+		'4) Unea panel, no end date in TPQY
+	'Casey ToDo: Add apply premiums to spenddown based on BILS and HC budget. 
+	
 	'Handle for in futuer iterations:
 		'Insert utilities-insert mbi from mmis to handle/retrieve MBI number for MEDI panel. This will also handle for source. 
 		'Buy in Begin/End Date: revisit at a later date. This depends whether someone was on a medicare savings program or not. 
@@ -452,8 +458,8 @@ transmit
 'Verifying if there is currently a panel or not, if not create one
 EMReadScreen total_amt_of_panels, 1, 2, 78			'Checks to make sure there are JOBS panels for this member. If none exists, one will be created
 If total_amt_of_panels = "0" then 
-	If part_a_stop = "" Then
-		If part_b_stop = "" Then MsgBox "Add case note functionality to specify MEDI panel is not being created because both A & B have end/stop dates." 'handles for a/b stop both with end dates
+	If part_a_stop <> "" Then 
+		If part_b_stop <> "" Then MsgBox "Add case note functionality to specify MEDI panel is not being created because both A & B have end/stop dates." 'handles for a/b stop both with end dates
 	Else
 		CALL write_value_and_transmit("NN", 20, 79) 		'Create new panel and write MEDI info
 		EMWriteScreen medi_claim_num, 6, 39 'writes medi claim number for Medicare HICN
@@ -461,11 +467,10 @@ If total_amt_of_panels = "0" then
 		EMWRiteScreen "cc1", 5, 43 'TODO: Testing values MBI number
 		EMWriteScreen "cc34", 5, 47 'TODO: Testing values MBI number
 		EMWriteScreen "O", 5, 64	'TODO: Testing values MBI number
-		EMWriteScreen part_a_premium, 7, 46 'TODO: Testing values 
-		EMWriteScreen part_b_premium, 7, 73 'TODO: Testing values 
+		EMWriteScreen part_a_premium, 7, 46 
+		EMWriteScreen part_b_premium, 7, 73 
 		EMWriteScreen "N", 9, 71 		' "N" for Qualified Working Disabled Individual
 		EMWriteScreen "N", 10, 71 		' "N" for End Stage Renal Disease
-		'Casey ToDo: Add apply premiums to spenddown based on BILS and HC budget. 
 		Call create_mainframe_friendly_date(part_a_start, 15, 24, "YY") 
 		Call create_mainframe_friendly_date(part_a_stop, 15, 35, "YY")
 		Call create_mainframe_friendly_date(part_b_start, 15, 54, "YY")
@@ -475,18 +480,18 @@ Else
 	'MEDI premiums: clear and write
 	PF9
 	EMWriteScreen "O", 5, 64
-	EMWriteScreen "________", 7, 46
+	EMWriteScreen "________", 7, 46		'clear out part a premium field
 	EMWriteScreen part_a_premium, 7, 46
-	EMWriteScreen "________", 7, 73
+	EMWriteScreen "________", 7, 73		'clear out part b premium field
 	EMWriteScreen part_b_premium, 7, 73
 	EMWriteScreen "N", 9, 71 		' "N" for Qualified Working Disabled Individual
 	EMWriteScreen "N", 10, 71 		' "N" for End Stage Renal Disease
-	'TODO Casey: Add apply premiums to spenddown based on BILS and HC budget. 
-	
-	'Clear and write being/end dates for part a and b
+
+	'Clear and write begin/end dates for part a and b
 	row = 17
 	Do
 		EMReadScreen MEDI_part_a_start, 8, row, 24 		'reads part a start date
+		EMReadScreen medi_page_check, 34, 24, 2		'reads to see if we are in the last page
 		If MEDI_part_a_start = "__ __ __" Then 
 			MEDI_part_a_start = "" 		'blank out if not a date
 		Else
@@ -499,38 +504,42 @@ Else
 		Else
 			MEDI_part_a_end =replace(MEDI_part_a_end , " ", "/")		'reformatting with / for date
 		End If
-		'if tpqy end date is blank then...
-		'if tpqy end date is not blank then...
+	
 		If MEDI_part_a_end = "" Then
 			If MEDI_part_a_start = "" Then
 				row = row - 1 		'no dates found in this row, move up a row and reevaluate
 			Else
-				If MEDI_part_a_start <> "" then exit do		'only start date found, this is an open ended part a TODO: logic if end exists in tpqy enter
+				' If MEDI_part_a_start <> "" then	'only start date found, this is an open ended part b 
+				If part_a_stop = "" then 
+					exit do 'Call create_mainframe_friendly_date(part_a_start, row + 1, 24, "YY") ' ToDo: Should this be exit do instead?
+				ElseIf part_a_stop <> "" then 
+					Call create_mainframe_friendly_date(part_a_stop, row, 35, "YY")
+				End If
+				' End If
 			End If
-		Elseif MEDI_part_a_end <> "" then
-			PF20		'if stop/start are populated it will take you to the next page of dates
+		Else
+			If MEDI_part_a_start <> "" then 
+				If medi_page_check = "COMPLETE THE PAGE BEFORE SCROLLING" then 
+					Call create_mainframe_friendly_date(part_a_start, row + 1, 24, "YY")
+					Call create_mainframe_friendly_date(part_a_stop, row + 1, 35, "YY")
+				Else 
+					PF20		'if stop/start are populated it will take you to the next page of dates
+				End If
+			End If
 		End If
 	Loop Until row = 14
 
-	' TODO: need functionality to determine if dates already exist, if not write them in the next blank space
-	EMReadScreen MEDI_part_a_start, 8, row, 24
-	EMReadScreen MEDI_part_b_end, 8, row, 65
-	If MEDI_part_a_start <> part_a_start then 
-		If MEDI_part_a_stop <> part_a_stop then
-			Call create_mainframe_friendly_date(part_a_start, row + 1, 24, "YY")
-			Call create_mainframe_friendly_date(part_a_stop, row + 1, 35, "YY")
-		End If 	
-	End If
-
+	'Loop until back to first page before proceeding to part b do/loop
 	EMReadScreen medi_page_check, 22, 24, 2
 	Do 
 		PF19
 	Loop Until medi_page_check = "THIS IS THE FIRST PAGE"
 
-	'TODO: DO Loop PF19 until read "" on the bottom 
+
 	row = 17
 	Do
 		EMReadScreen MEDI_part_b_start, 8, row, 54		'reads part b start date
+		EMReadScreen medi_page_check, 34, 24, 2		'reads to see if we are in the last page
 		If MEDI_part_b_start = "__ __ __" Then
 			MEDI_part_b_start = ""			'blank out if not a date
 		Else
@@ -548,27 +557,33 @@ Else
 			If MEDI_part_b_start = "" Then
 				row = row - 1			' no dates found in this row, move up a row and reevaluate
 			Else
-				If MEDI_part_b_start <> "" then exit do		'onely start date found, this is an open ended part b TODO: is this what we want here?
+				' If MEDI_part_b_start <> "" then		'onely start date found, this is an open ended part b 
+				If part_b_stop = "" then
+					exit do 'Call create_mainframe_friendly_date(part_b_start, row + 1, 54, "YY") ' ToDo: Should this be exit do instead?
+				ElseIf part_b_stop <> "" then 
+					Call create_mainframe_friendly_date(part_b_stop, row, 65, "YY")
+				End If
+				' End If
 			End If
-		Elseif MEDI_part_b_end <> "" then
-			If MEDI_part_b_start <> "" then PF20		'if stop/start are populated it will take you to the next page of dates
+		Else
+			If MEDI_part_b_start <> "" then PF20'if stop/start are populated it will take you to the next page of dates
+				If medi_page_check = "COMPLETE THE PAGE BEFORE SCROLLING" then 
+					If part_b_stop = "" then
+						Call create_mainframe_friendly_date(part_b_start, row + 1, 54, "YY")
+					ElseIf part_b_stop <> "" then 
+						Call create_mainframe_friendly_date(part_b_start, row + 1, 54, "YY")
+						Call create_mainframe_friendly_date(part_b_stop, row + 1, 65, "YY")
+					End If
+				Else
+				End If 
+			End If
 		End If
-	Loop
-
-	' TODO: need functionality to determine if dates already exist, if not write them in the next blank space
-	EMReadScreen MEDI_part_b_start, 8, row, 54
-	EMReadScreen MEDI_part_b_end, 8, row, 65	
-	If MEDI_part_b_start <> part_b_start then 
-		If MEDI_part_b_stop <> part_b_stop then 
-			Call create_mainframe_friendly_date(part_b_start, row + 1, 54, "YY")
-			Call create_mainframe_friendly_date(part_b_stop, row + 1, 65, "YY")
-		End If 	
-	End If
+	Loop Until row = 14
 End If
+
 
 MsgBox "Last, the script will case note the applicable information."
 'TODO: Revise based on feedback, necessary info for case note. 
-
 renewal_period = MAXIS_footer_month & "/" & MAXIS_footer_year		'establishing the renewal period for the header of the case note
 
 start_a_blank_CASE_NOTE
