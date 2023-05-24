@@ -65,30 +65,63 @@ call MAXIS_case_number_finder(MAXIS_case_number)
 '-------------------------------------------------------------------------------------------------DIALOG
 Dialog1 = "" 'Blanking out previous dialog detail
 'TO DO - change client to name here?
-BeginDialog Dialog1, 0, 0, 206, 190, "Deceased Client Summary"
+'TO DO - reformat dialog once validation and logic finalized
+BeginDialog Dialog1, 0, 0, 236, 240, "Deceased Client Summary"
   Text 5, 10, 50, 10, "Case Number"
-  EditBox 65, 5, 50, 15, MAXIS_case_number
-  Text 5, 30, 50, 10, "Date of Death"
-  EditBox 65, 25, 50, 15, date_of_death
-  Text 5, 50, 50, 10, "Place of Death"
-  EditBox 65, 45, 100, 15, place_of_death
-  Text 5, 65, 65, 10, "Surviving Spouse?"
-  CheckBox 105, 65, 55, 10, "(check if yes)", surviving_spouse_checkbox
-  Text 5, 80, 60, 10, "MA Lien on File?"
-  CheckBox 105, 80, 55, 10, "(check if yes)", MA_lien_on_file_checkbox
-  CheckBox 5, 100, 110, 10, "Is servicing county also CFR?", servicing_county_checkbox
-  CheckBox 120, 100, 85, 10, "Transfer case to CFR?", transfer_to_CFR_checkbox
-  CheckBox 5, 115, 145, 10, "Refer file for possible estate collection?", collection_checkbox
-  Text 5, 130, 35, 10, "Other info"
-  EditBox 65, 130, 135, 15, other_info
-  Text 5, 150, 45, 10, "Actions taken"
-  EditBox 65, 150, 135, 15, actions_taken
-  Text 5, 175, 60, 10, "Worker Signature"
-  EditBox 65, 170, 50, 15, worker_signature
+  EditBox 60, 5, 65, 15, MAXIS_case_number
+  Text 5, 35, 50, 10, "Date of Death"
+  EditBox 60, 30, 65, 15, date_of_death
+  Text 5, 55, 50, 10, "Place of Death"
+  EditBox 60, 50, 170, 15, place_of_death
+  Text 5, 75, 65, 10, "Surviving Spouse?"
+  CheckBox 110, 75, 55, 10, "(check if yes)", surviving_spouse_checkbox
+  Text 5, 90, 55, 10, "MA Lien on File?"
+  CheckBox 110, 90, 55, 10, "(check if yes)", MA_lien_on_file_checkbox
+  Text 5, 105, 100, 10, "Is servicing county also CFR?"
+  CheckBox 110, 105, 55, 10, "(check if yes)", servicing_county_checkbox
+  Text 5, 120, 100, 10, "Transfer case to CFR?"
+  CheckBox 110, 120, 55, 10, "(check if yes)", transfer_to_CFR_checkbox
+  Text 5, 135, 80, 20, "Refer file for possible estate collection?"
+  CheckBox 110, 140, 55, 10, "(check if yes)", collection_checkbox
+  Text 5, 165, 35, 10, "Other info"
+  EditBox 65, 160, 165, 15, other_info
+  Text 5, 185, 45, 10, "Actions taken"
+  EditBox 65, 180, 165, 15, actions_taken
+  Text 5, 205, 60, 10, "Worker Signature"
+  EditBox 65, 200, 95, 15, worker_signature
   ButtonGroup ButtonPressed
-	OkButton 120, 170, 40, 15
-	CancelButton 160, 170, 40, 15
+    OkButton 115, 220, 40, 15
+    CancelButton 160, 220, 40, 15
+  GroupBox 145, 0, 85, 45, "Links"
+  ButtonGroup ButtonPressed
+    PushButton 150, 10, 75, 15, "HSR Manual", Button4
+    PushButton 150, 25, 75, 15, "Print Document/Case", Button6
 EndDialog
+'TO DO - keeping previous dialog for reference, delete once finalized
+' BeginDialog Dialog1, 0, 0, 206, 190, "Deceased Client Summary"
+'   Text 5, 10, 50, 10, "Case Number"
+'   EditBox 65, 5, 50, 15, MAXIS_case_number
+'   Text 5, 30, 50, 10, "Date of Death"
+'   EditBox 65, 25, 50, 15, date_of_death
+'   Text 5, 50, 50, 10, "Place of Death"
+'   EditBox 65, 45, 100, 15, place_of_death
+'   Text 5, 65, 65, 10, "Surviving Spouse?"
+'   CheckBox 105, 65, 55, 10, "(check if yes)", surviving_spouse_checkbox
+'   Text 5, 80, 60, 10, "MA Lien on File?"
+'   CheckBox 105, 80, 55, 10, "(check if yes)", MA_lien_on_file_checkbox
+'   CheckBox 5, 100, 110, 10, "Is servicing county also CFR?", servicing_county_checkbox
+'   CheckBox 120, 100, 85, 10, "Transfer case to CFR?", transfer_to_CFR_checkbox
+'   CheckBox 5, 115, 145, 10, "Refer file for possible estate collection?", collection_checkbox
+'   Text 5, 130, 35, 10, "Other info"
+'   EditBox 65, 130, 135, 15, other_info
+'   Text 5, 150, 45, 10, "Actions taken"
+'   EditBox 65, 150, 135, 15, actions_taken
+'   Text 5, 175, 60, 10, "Worker Signature"
+'   EditBox 65, 170, 50, 15, worker_signature
+'   ButtonGroup ButtonPressed
+' 	OkButton 120, 170, 40, 15
+' 	CancelButton 160, 170, 40, 15
+' EndDialog
 'Do loop for Deceased Client Summary Shows dialog and creates and displays an error message if worker completes things incorrectly.
 DO
      DO
