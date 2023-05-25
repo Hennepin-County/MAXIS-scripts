@@ -138,7 +138,7 @@ DO
         If ButtonPressed = HSR_manual_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/hs-es-manual/SitePages/Death_of_a_Client.aspx"
 
         'TO DO - update link to webform to ensure it works/is correct
-        If ButtonPressed = print_document_case_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://hennepin.sharepoint.com/teams/human-services"
+        If ButtonPressed = print_document_case_button Then run "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe https://aem.hennepin.us/DocumentManager/docm1685004927705/082fac2906aad904fc6872b526890c01?type=YXBwbGljYXRpb24vcGRm"
             
     	  'Validation to ensure date is entered in MM/DD/YYYY format
     	  If IsDate(date_of_death) = false OR Len(date_of_death) <> 10 THEN err_msg = err_msg & vbNewLine & "* Please enter a valid date in the MM/DD/YYYY format."
