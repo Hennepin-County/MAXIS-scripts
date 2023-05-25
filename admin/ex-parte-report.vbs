@@ -66,7 +66,7 @@ function find_unea_information()
 			Do
 				EMReadScreen claim_num, 15, 6, 37
 				EMReadScreen income_type_code, 2, 5, 37
-				If income_type_code = "01" or income_type_code = "20" Then
+				If income_type_code = "01" or income_type_code = "02" Then
 					If left(start_of_claim, 9) <> MEMBER_INFO_ARRAY(memb_ssn_const, each_memb) Then
 						MEMBER_INFO_ARRAY(unmatched_claim_numb, each_memb) = claim_num
 					End If
@@ -909,7 +909,7 @@ If ex_parte_function = "Prep" Then
 	ex_parte_count = 0
 	Do While NOT objRecordSet.Eof
 		case_count = case_count + 1
-		If objRecordSet("SelectExParte") = 1 Then ex_parte_count = ex_parte_count + 1
+		If objRecordSet("SelectExParte") = True Then ex_parte_count = ex_parte_count + 1
 		objRecordSet.MoveNext
 	Loop
     objRecordSet.Close
